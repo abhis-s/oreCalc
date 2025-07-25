@@ -1,0 +1,10 @@
+// layout/_grid.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.main-content {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}

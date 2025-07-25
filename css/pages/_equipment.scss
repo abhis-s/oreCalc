@@ -1,0 +1,144 @@
+// pages/_equipment.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.results-and-calculate-container {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 20px;
+}
+
+#heroes-container {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.hero-card {
+    background-color: $color-grey-800;
+    border-radius: 10px;
+    padding: 20px;
+    transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
+
+    h3 {
+        color: $color-white;
+        margin: 0;
+    }
+
+    &.hero-disabled {
+        opacity: 0.6;
+    }
+
+    &.flash-red {
+        background-color: $color-danger-100;
+    }
+}
+
+.hero-title {
+    align-items: center;
+    display: flex;
+    margin-bottom: 15px;
+
+    .hero-icon {
+        border-radius: 50%;
+        cursor: pointer;
+        height: 50px;
+        margin-right: 15px;
+        width: 50px;
+
+        &.shake {
+            animation: shake 0.2s ease-in-out 2;
+        }
+    }
+}
+
+.equipment-item {
+    align-items: center;
+    display: flex;
+    margin-bottom: 10px;
+    position: relative;
+
+    label {
+        flex-grow: 1;
+        flex-shrink: 1;
+        margin-left: 10px;
+        overflow: hidden;
+        padding-right: 5px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    input[type="number"] {
+        background-color: $color-black-300;
+        border: 1px solid $color-grey-border;
+        border-radius: 5px;
+        color: $color-grey-200;
+        flex-shrink: 0;
+        margin-left: auto;
+        padding: 5px;
+        text-align: center;
+        transition: border-color 0.3s ease-in-out;
+        width: 60px;
+
+        &.warning-border {
+            border-color: $color-accent-yellow-200;
+        }
+
+        &.error-border {
+            border-color: $color-danger-300;
+        }
+    }
+
+    .equipment-image {
+        cursor: pointer;
+        height: 40px;
+        margin-right: 10px;
+        transition: filter 0.3s ease-in-out;
+        width: 40px;
+
+        &.grayscale {
+            filter: grayscale(100%);
+        }
+
+        &.gold-glow {
+            filter: drop-shadow(0 0 4px rgba(249, 200, 64, 0.8)) drop-shadow(0 0 8px rgba(249, 200, 64, 0.6)); // TODO: Use a variable for this color
+        }
+    }
+}
+
+.common-equip {
+    color: $color-primary-blue;
+}
+
+.epic-equip {
+    color: $color-accent-purple-dark;
+}
+
+.gold-glow {
+    color: $color-accent-yellow-100;
+}
+
+.calculate-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.level-display-container {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.level-display {
+    @extend %flex-center;
+    background-color: $color-black-300;
+    border: 1px solid $color-grey-border;
+    border-radius: 5px;
+    color: $color-grey-200;
+    font-weight: bold;
+    height: 30px;
+    padding: 5px;
+    text-align: center;
+    width: 60px;
+}

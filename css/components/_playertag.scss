@@ -1,0 +1,185 @@
+// components/_playertag.scss
+@use 'sass:color';
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.player-tag-controls-container {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+
+    .search-bar {
+        align-items: center;
+        background-color: $color-grey-200;
+        border-radius: 20px;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15); // TODO: Use a variable for this color
+        display: flex;
+        flex-grow: 1;
+        height: 50px;
+        padding: 0;
+        position: relative;
+
+        &:focus-within {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15); // TODO: Use a variable for this color
+        }
+
+        &.invalid-input {
+            box-shadow: 0 0 0 2px $color-danger-300, 0 0 8px $color-danger-300;
+        }
+
+        .player-tag-prefix {
+            align-items: center;
+            background-color: $color-primary-blue;
+            border-radius: 40%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); // TODO: Use a variable for this color
+            color: $color-grey-700;
+            display: flex;
+            flex-shrink: 0;
+            font-size: var(--font-size-lg);
+            height: 32px;
+            justify-content: center;
+            margin-left: 16px;
+            margin-right: 8px;
+            width: 32px;
+            z-index: 1;
+        }
+
+        .player-tag-input {
+            background: transparent;
+            border: none;
+            color: $color-grey-900;
+            font-size: var(--font-size-md);
+            height: 100%;
+            outline: none;
+            padding-right: 16px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .load-player-button {
+            @extend %flex-center;
+            background-color: $color-primary-blue;
+            border: none;
+            border-radius: 12px;
+            box-shadow: none;
+            color: $color-white;
+            cursor: pointer;
+            display: flex;
+            font-size: var(--font-size-md);
+            height: 36px;
+            justify-content: center;
+            margin-right: 12px;
+            outline: none;
+            padding: 0 12px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+
+            &:hover {
+                background-color: color.adjust($color-primary-blue, $lightness: -5%);
+                box-shadow: none;
+            }
+        }
+
+        .player-tag-suggestions {
+            background-color: $color-grey-200;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // TODO: Use a variable for this color
+            left: 0;
+            max-height: 0;
+            opacity: 0;
+            overflow-y: hidden;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 2px);
+            transition: opacity 0.3s ease, max-height 0.3s ease, visibility 0.3s ease;
+            visibility: hidden;
+            z-index: 10;
+
+            &.show {
+                max-height: 240px;
+                opacity: 1;
+                overflow-y: auto;
+                visibility: visible;
+            }
+
+            .player-tag-suggestion-item {
+                align-items: center;
+                background-color: transparent;
+                color: $color-grey-900;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                padding: 12px 16px;
+                transition: background-color 0.2s;
+
+                &:hover {
+                    background-color: $color-grey-300;
+                }
+
+                .player-tag-text {
+                    flex-grow: 1;
+                }
+
+                .cache-status-pill {
+                    @extend %flex-center;
+                    border-radius: 8px;
+                    flex-shrink: 0;
+                    height: 28px;
+                    margin-right: 10px;
+                    width: 28px;
+
+                    svg {
+                        height: 16px;
+                        width: 16px;
+                    }
+
+                    &.cached {
+                        background-color: $color-primary-blue;
+
+                        svg {
+                            fill: $color-white;
+                        }
+                    }
+
+                    &.not-cached {
+                        background-color: $color-accent-yellow-200;
+
+                        svg {
+                            fill: $color-grey-900;
+                        }
+                    }
+                }
+
+                .delete-suggestion-button {
+                    @extend %flex-center;
+                    background-color: $color-danger-300;
+                    border: none;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    height: 28px;
+                    margin-left: 10px;
+                    opacity: 1;
+                    padding: 0;
+                    transition: opacity 0.2s, background-color 0.2s;
+                    width: 28px;
+
+                    &:hover {
+                        background-color: rgba($color-danger-300, 0.2);
+                        opacity: 1;
+                    }
+
+                    svg {
+                        fill: $color-white;
+                        height: 16px;
+                        width: 16px;
+                    }
+                }
+            }
+
+            .suggestions-separator {
+                border-top: 1px solid $color-grey-400;
+                margin: 8px 0;
+            }
+        }
+    }
+}

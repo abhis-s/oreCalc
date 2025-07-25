@@ -1,0 +1,127 @@
+// components/_fab.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.fab-container {
+    align-items: flex-end;
+    bottom: 90px;
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    right: 30px;
+    width: fit-content;
+    z-index: 100;
+}
+
+.fab-button {
+    @extend %flex-center;
+    background-color: $color-primary-purple;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3); // TODO: Use a variable for this color
+    color: $color-grey-200;
+    cursor: pointer;
+    height: 56px;
+    outline: none;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+    width: 56px;
+    -webkit-tap-highlight-color: transparent;
+
+    &::-moz-focus-inner {
+        border: 0;
+    }
+
+    &:disabled {
+        background-color: transparent;
+        cursor: not-allowed;
+        opacity: 0.6;
+
+        .fab-icon svg {
+            fill: $color-grey-600;
+        }
+    }
+
+    &.active {
+        border-radius: 50%;
+        transform: rotate(90deg);
+
+        .fab-plus-icon {
+            opacity: 0;
+            transform: rotate(45deg);
+        }
+
+        .fab-cross-icon {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+    }
+}
+
+.fab-icon {
+    position: absolute;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.fab-plus-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+.fab-cross-icon {
+    opacity: 0;
+    transform: rotate(-45deg);
+}
+
+.fab-menu {
+    align-items: flex-end;
+    display: none;
+    flex-direction: column;
+    margin-bottom: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, visibility 0.3s;
+    visibility: hidden;
+
+    &.show {
+        display: flex;
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+        visibility: visible;
+    }
+}
+
+.fab-menu-pill {
+    align-items: center;
+    background-color: $color-accent-purple-light;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); // TODO: Use a variable for this color
+    color: $color-black-100;
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 10px 15px;
+    transition: background-color 0.2s ease-in-out;
+    white-space: nowrap;
+
+    .animated-btn-icon-wrapper {
+        opacity: 1;
+        position: relative;
+        transform: translateY(0);
+    }
+
+    &:hover {
+        background-color: $color-grey-600;
+    }
+
+    svg {
+        fill: $color-primary-purple;
+        height: 20px;
+        width: 20px;
+    }
+}

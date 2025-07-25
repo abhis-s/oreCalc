@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "name": "orecoc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "service-worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "node -r dotenv/config scripts/inject-env.js && concurrently \"node scripts/dev/watch-sass.js\" \"node scripts/dev/start-dev-server.js\"",
+    "build": "node scripts/build/clean.js && npm run build:css && node scripts/build/copy-html.js && node scripts/build/copy-js.js && node scripts/build/copy-assets.js && node scripts/build/optimize-images.js && node scripts/build/copy-sw.js && node scripts/build/copy-pwa.js && node scripts/build/replace-html.js && node scripts/build/replace-sw.js",
+    "build:css": "sass css/main.scss dist/css/main.min.css --style compressed",
+    "start:prod": "node scripts/prod/start-prod-server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "cpx": "^1.5.0",
+    "dotenv": "^17.2.1",
+    "live-server": "^1.2.2",
+    "replace-in-file": "^8.3.0",
+    "sass": "^1.89.2",
+    "sharp": "^0.34.3",
+    "terser": "5.43.1"
+  }
+}

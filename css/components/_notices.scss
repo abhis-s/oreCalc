@@ -1,0 +1,27 @@
+// components/_supercell_notice.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.notice {
+    color: #999; // TODO: Use a variable for this color
+    font-size: 0.6em;
+    padding: 10px;
+    text-align: center;
+
+    p {
+        margin: 0;
+    }
+
+    a {
+        color: #777; // TODO: Use a variable for this color
+        text-decoration: underline;
+    }
+
+    &.supercell-notice {
+        border-top: 1px solid #ddd; // TODO: Use a variable for this color
+        margin-top: 20px;
+        a:hover {
+            color: #ddd; // TODO: Use a variable for this color
+        }
+    }
+}

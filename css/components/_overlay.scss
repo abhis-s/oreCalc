@@ -1,0 +1,21 @@
+// components/_overlay.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.overlay {
+    background-color: $background-overlay-dark-1;
+    height: 100%;
+    left: 0;
+    opacity: 0;
+    position: fixed;
+    top: 0;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    visibility: hidden;
+    width: 100%;
+    z-index: 99;
+
+    &.show {
+        opacity: 1;
+        visibility: visible;
+    }
+}

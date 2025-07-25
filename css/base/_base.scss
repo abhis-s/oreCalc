@@ -1,0 +1,32 @@
+// base/_base.scss
+@use '../abstracts/variables' as *;
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+:root {
+	--font-size-xl: 24px;
+	--font-size-lg: 18px;
+	--font-size-md: 16px;
+	--font-size-sm: 14px;
+	--font-size-xs: 12px;
+	--font-size-em-lg: 1.2em;
+	--font-size-em-md: 1em;
+}
+
+.container {
+	background-color: $color-black-200;
+	border-radius: 15px;
+	margin: 0 auto;
+	max-width: 1200px;
+	padding: 20px;
+}
+
+.hidden-button-space {
+	visibility: hidden;
+}

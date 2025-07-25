@@ -1,0 +1,29 @@
+// components/_preloader.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+#preloader {
+    @extend %flex-center;
+    background-color: $color-black-300;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    transition: opacity 0.75s ease-in-out;
+    width: 100%;
+    z-index: 1000;
+
+    &.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .spinner {
+        animation: spin 1s linear infinite;
+        border: 4px solid rgba(255, 255, 255, 0.3); // TODO: Use a variable for this color
+        border-radius: 50%;
+        border-top-color: $color-primary-blue;
+        height: 50px;
+        width: 50px;
+    }
+}

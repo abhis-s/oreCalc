@@ -1,0 +1,505 @@
+// pages/_income.scss
+
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+#inc-clan-war-shiny-bonus-input,
+#inc-cwl-shiny-bonus-input {
+    width: 60px;
+}
+
+#inc-clan-war-glowy-bonus-input,
+#inc-cwl-glowy-bonus-input {
+    width: 45px;
+}
+
+#inc-clan-war-starry-bonus-input,
+#inc-cwl-starry-bonus-input {
+    width: 30px;
+}
+
+.rates-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-bottom: 15px;
+
+    .rate-column {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+
+        label {
+            color: $color-grey-200;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        input[type="number"] {
+            background-color: $color-black-300;
+            border: 1px solid $color-grey-border;
+            border-radius: 5px;
+            color: $color-grey-200;
+            padding: 8px;
+            text-align: center;
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            width: 80px;
+
+            &:focus {
+                border-color: $color-primary-blue;
+                box-shadow: 0 0 0 3px $background-overlay-blue-3;
+                outline: none;
+            }
+        }
+    }
+}
+
+.timeframe-income {
+    border-top: 1px solid $color-grey-700;
+    margin-top: auto;
+    padding-top: 15px;
+}
+
+.daily-text {
+    color: $color-grey-400;
+    font-size: var(--font-size-sm);
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.timeframe-income-grid {
+    align-items: center;
+    display: grid;
+    gap: 5px 10px;
+    grid-template-columns: auto 1fr;
+}
+
+.grid-row {
+    display: contents;
+}
+
+.grid-label {
+    color: $color-grey-200;
+    font-size: var(--font-size-lg);
+    font-weight: normal;
+    text-align: right;
+}
+
+.grid-ores {
+    align-items: center;
+    display: flex;
+    gap: 15px;
+
+    span {
+        display: inline-block;
+        text-align: right;
+    }
+
+    .ore-image {
+        height: 18px;
+        width: 18px;
+    }
+}
+
+.offer-grid {
+    align-items: center;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: auto 2fr 1fr 1fr;
+    margin-top: 15px;
+    padding: 0 20px;
+
+    &#raid-medal-trader-offers {
+        grid-template-columns: auto 2fr 1fr 1fr;
+    }
+
+    &#inc-gem-trader-offers {
+        grid-template-columns: auto 2fr repeat(5, 1fr);
+    }
+
+    &#inc-event-trader-offers {
+        grid-template-columns: auto 1fr 1fr;
+    }
+
+    .offer-grid-header {
+        display: contents;
+
+        .header-cell {
+            font-weight: bold;
+            padding-bottom: 5px;
+            text-align: center;
+
+            &:nth-child(2) {
+                padding-right: 25px;
+                text-align: right;
+            }
+        }
+    }
+
+    .offer-grid-row {
+        display: contents;
+    }
+
+    .offer-ore-display {
+        align-items: center;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+        justify-content: flex-end;
+        padding-right: 10px;
+
+        .ore-image {
+            height: 18px;
+            width: 18px;
+        }
+
+        span {
+            font-size: var(--font-size-md);
+        }
+    }
+
+    .offer-checkbox-instance {
+        align-items: center;
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        position: relative;
+
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            border: 2px solid $color-grey-600;
+            border-radius: 4px;
+            cursor: pointer;
+            height: 20px;
+            outline: none;
+            position: relative;
+            top: 2px;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+            width: 20px;
+
+            &:checked {
+                background-color: $color-primary-purple;
+                border-color: $color-primary-purple;
+
+                &::after {
+                    content: '\2713';
+                    color: $color-white;
+                    display: block;
+                    font-size: var(--font-size-sm);
+                    line-height: 18px;
+                    text-align: center;
+                    transform: scale(1.2);
+                }
+            }
+
+            &:focus {
+                box-shadow: 0 0 0 3px rgba($color-primary-purple, 0.3);
+            }
+        }
+
+        label {
+            color: $color-grey-200;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            margin-left: 8px;
+        }
+    }
+
+    .offer-cost-display {
+        align-items: center;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+
+        .gem-icon,
+        .event-medal-icon {
+            padding: 5px;
+        }
+
+        .gem-icon {
+            transform: scale(0.9);
+        }
+    }
+}
+
+.summary-grid {
+    align-items: center;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 20px;
+
+    .summary-item-container {
+        align-items: center;
+        display: flex;
+        gap: 5px;
+
+        &:first-child {
+            justify-content: flex-start;
+        }
+
+        &:last-child {
+            justify-content: flex-end;
+        }
+
+        .summary-label {
+            white-space: nowrap;
+        }
+
+        .summary-value-with-image {
+            align-items: center;
+            display: flex;
+            gap: 5px;
+
+            .ore-image {
+                height: 24px;
+                width: 24px;
+            }
+
+            .raid-medal-image {
+                transform: scale(1.25);
+            }
+        }
+    }
+}
+
+#inc-event-medals-remaining-value {
+    text-align: right;
+    width: 75px;
+}
+
+.four-col-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(4, minmax(min-content, 1fr));
+    margin-bottom: 10px;
+    min-width: 0;
+
+    .grid-row {
+        display: contents;
+
+        > div {
+            text-align: right;
+        }
+    }
+}
+
+.grid-value-display {
+    align-items: center;
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+
+    .ore-image {
+        height: 18px;
+        margin-left: 2.5px;
+        width: 18px;
+    }
+}
+
+.income-cards-grid {
+    align-items: stretch;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.income-card-title {
+    color: $color-primary-blue;
+    margin: 0;
+    text-align: center;
+}
+
+.negative-medals,
+.event-trader-error-message {
+    color: $color-danger-300;
+}
+
+.event-trader-error-message {
+    font-weight: bold;
+    margin-top: 10px;
+    opacity: 0;
+    text-align: center;
+    transition: opacity 0.3s ease-in-out;
+
+    &.show {
+        opacity: 1;
+    }
+}
+
+.error-border-trader {
+    border-color: $color-danger-300 !important;
+}
+
+// THIS BLOCK CONTAINS ALL THE OVERRIDES FOR THE JS-ADDED RESPONSIVE CLASS
+.income-card--responsive {
+    --font-size-em-lg: 1.1em;
+    --font-size-em-md: 0.9em;
+    --font-size-lg: 16px;
+    --font-size-md: 14px;
+    --font-size-sm: 12px;
+    --font-size-xl: 20px;
+    --font-size-xs: 11px;
+    padding: 30px;
+
+    #inc-gem-trader-offers {
+        grid-template-columns: auto 2fr repeat(2, 1fr);
+    }
+
+    #inc-event-medals-total-value,
+    #raid-medals-remaining {
+        text-align: center;
+        width: 75px;
+    }
+
+    #inc-event-medals-total-value {
+        text-align: right;
+    }
+
+    .inner-card {
+        padding: 10px;
+    }
+
+    .currency-symbol {
+        margin-left: 0;
+    }
+
+    .input-group-flex {
+        flex-wrap: wrap;
+        justify-content: center !important;
+        row-gap: 10px;
+
+        label {
+            margin-right: 5px !important;
+            text-align: center !important;
+            white-space: normal;
+            width: 100% !important;
+        }
+
+        select,
+        input[type="number"] {
+            text-align: center !important;
+            width: 100% !important;
+        }
+    }
+
+    .ores-inputs-container {
+        flex-wrap: wrap;
+        justify-content: center !important;
+        padding-left: 5px;
+        row-gap: 10px;
+    }
+
+    input[type="number"].offer-input-number {
+        width: 50px;
+    }
+
+    #inc-raid-medals-total-input {
+        width: 75px !important;
+    }
+
+    .offer-grid {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .rates-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .rate-column {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+
+        label {
+            text-align: left;
+        }
+    }
+
+    #event-trader-offers {
+        grid-template-columns: auto 1fr auto;
+    }
+
+    .four-col-grid.column-layout {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        .grid-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+
+            &:nth-child(odd) {
+                align-items: flex-start;
+
+                .grid-value-display {
+                    flex-direction: row-reverse;
+
+                    .ore-image {
+                        margin-left: 0;
+                    }
+                }
+            }
+
+            &:nth-child(even) {
+                align-items: flex-end;
+
+                .grid-value-display {
+                    justify-content: flex-end;
+                }
+            }
+        }
+
+        .grid-label {
+            font-weight: normal;
+            text-align: left;
+        }
+
+        .grid-value-display {
+            justify-content: flex-start;
+        }
+    }
+
+    .offer-dropdown-instance {
+        display: grid;
+        grid-column: span 2;
+        justify-self: center;
+        max-width: 100px;
+        width: 100%;
+    }
+
+    .offer-input-dropdown {
+        text-align: center;
+    }
+
+    .summary-grid {
+        gap: 15px;
+        grid-template-columns: 1fr;
+
+        .summary-item-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            justify-content: space-between;
+
+            .summary-label {
+                text-align: right;
+            }
+        }
+    }
+}
+
+.income-card:has(#shop-offer-checkboxes) {
+    .timeframe-income:has(> .four-col-grid.column-layout) {
+        align-items: flex-start;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}

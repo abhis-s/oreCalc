@@ -1,0 +1,36 @@
+{
+    "name": "Ore Calculator",
+    "short_name": "OreCalc",
+    "description": "Optimize your Clash of Clans gameplay with this comprehensive Ore Calculator. Track ore income from various sources, calculate requirements for hero equipment upgrades, and plan your resource management efficiently. Works offline and provides real-time insights.",
+    "start_url": "/",
+    "id": "/",
+    "display": "standalone",
+    "display_override": ["window-controls-overlay"],
+    "background_color": "#1a1c1e",
+    "theme_color": "#2c2e30",
+    "icons": [
+        {
+            "src": "assets/app_icon_small.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/app_icon_large.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "assets/screenshot_desktop.png",
+            "sizes": "3420x2224",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "assets/screenshot_mobile.png",
+            "sizes": "1080x2400",
+            "type": "image/png"
+        }
+    ]
+}

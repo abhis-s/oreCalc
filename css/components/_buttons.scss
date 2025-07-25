@@ -1,0 +1,158 @@
+// components/_buttons.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.animated-btn {
+    @extend %flex-center;
+    border: none;
+    border-radius: 20px;
+    color: $color-black-300;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    min-height: 40px;
+    min-width: 100px;
+    overflow: hidden;
+    padding: 10px 20px;
+    position: relative;
+    transition: background-color 0.3s;
+
+    .animated-btn-text {
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    }
+
+    .animated-btn-icon-wrapper {
+        @extend %flex-center;
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        transition: transform 0.3s ease-out;
+        width: 100%;
+        transform: translateY(-100%);
+    }
+
+    .animated-btn-icon-disabled {
+        align-items: center;
+        display: none;
+        height: 100%;
+        justify-content: center;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+    }
+
+    &:hover {
+        .animated-btn-text {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+
+        .animated-btn-icon-wrapper {
+            transform: translateY(0);
+        }
+    }
+
+    &:disabled {
+        background-color: $color-grey-600;
+        cursor: not-allowed;
+        opacity: 0.6;
+
+        .animated-btn-icon-wrapper {
+            display: none;
+        }
+
+        .animated-btn-icon-disabled {
+            display: flex;
+        }
+
+        .animated-btn-text {
+            display: none;
+        }
+    }
+}
+
+#floating-save-btn {
+    background-color: $color-success-200;
+    bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); // TODO: Use a variable for this color
+    position: fixed;
+    right: 20px;
+    z-index: 100;
+
+    &:hover {
+        background-color: $color-success-100;
+    }
+
+    .save-button-tooltip {
+        background-color: $color-grey-900;
+        border-radius: 6px;
+        bottom: 125%;
+        color: $color-white;
+        left: 50%;
+        opacity: 0;
+        padding: 5px 10px;
+        position: absolute;
+        text-align: center;
+        transition: opacity 0.3s, visibility 0.3s;
+        visibility: hidden;
+        white-space: nowrap;
+        z-index: 1;
+        transform: translateX(-50%);
+    }
+
+    &:disabled:hover .save-button-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.reset-data-button {
+    background-color: $color-danger-200;
+    box-shadow: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &::-moz-focus-inner {
+        border: 0;
+    }
+
+    &:hover {
+        background-color: $color-danger-500;
+    }
+}
+
+.transparent-svg-button {
+    background-color: $background-transparent;
+    border: none;
+    cursor: pointer;
+    display: none;
+    margin-right: 5px;
+    padding: 0 5px 0 0;
+    transition: transform 0.5s ease-in-out;
+
+    &:hover {
+        transform: rotate(-360deg);
+    }
+}
+
+.upgrade-btn {
+    @extend %flex-center;
+    background-color: $color-success-300;
+    border: none;
+    border-radius: 4px;
+    color: $color-white;
+    cursor: pointer;
+    font-size: 12px;
+    height: 28px;
+    margin: 0 0 0 5px;
+    padding: 0;
+    text-decoration: none;
+    width: 28px;
+
+    svg {
+        display: block;
+        height: 16px;
+        width: 16px;
+    }
+}

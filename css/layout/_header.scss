@@ -1,0 +1,35 @@
+// layout/_header.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.header-container {
+    @extend %flex-center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    transition: all 0.4s ease-in-out;
+
+    h1 {
+        margin-right: auto;
+    }
+
+    &--sticky {
+        background-color: $color-black-200;
+        border-radius: 0 0 15px 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); // TODO: Use a variable for this color
+        left: 0;
+        margin: 0 auto;
+        padding: 10px 20px;
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 100%;
+        max-width: 1200px;
+        z-index: 1000;
+    }
+}
+
+.header-placeholder {
+    display: none;
+    height: 0;
+    transition: height 0.4s ease-in-out;
+}

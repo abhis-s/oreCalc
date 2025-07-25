@@ -1,0 +1,143 @@
+// layout/_navigation.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.tab-button {
+    background-color: $color-grey-700;
+    border: none;
+    border-radius: 8px;
+    color: $color-grey-200;
+    cursor: pointer;
+    padding: 8px 15px;
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: $color-grey-600;
+    }
+
+    &--active {
+        background-color: $color-primary-blue;
+        color: $color-black-300;
+    }
+}
+
+.tab-content {
+    display: none;
+    width: 100%;
+
+    &.active {
+        display: block;
+    }
+}
+
+.nav-button {
+    @extend %flex-center;
+    background-color: $background-transparent;
+    border: none;
+    box-shadow: none;
+    color: $color-grey-200;
+    cursor: pointer;
+    flex: 1;
+    flex-direction: column;
+    font-size: var(--font-size-xs);
+    outline: none;
+    padding: 8px 0;
+    position: relative;
+    touch-action: manipulation;
+    transition: color 0.3s, background-color 0.3s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &::-moz-focus-inner {
+        border: 0;
+    }
+
+    &:focus,
+    &:active {
+        box-shadow: none;
+        outline: none;
+    }
+
+    .nav-item-content {
+        @extend %flex-center;
+        border-radius: 16px;
+        flex-direction: column;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .nav-icon-wrapper {
+        @extend %flex-center;
+        border-radius: 16px;
+        height: 32px;
+        transition: background-color 0.3s;
+        width: 56px;
+    }
+
+    .icon-outline {
+        display: block;
+    }
+
+    .icon-filled {
+        display: none;
+    }
+
+    svg {
+        fill: $color-grey-200;
+        height: 24px;
+        transition: fill 0.3s;
+        width: 24px;
+    }
+
+    span {
+        font-size: var(--font-size-xs);
+        margin-top: 4px;
+        transition: color 0.3s;
+    }
+
+    &:hover {
+        .nav-icon-wrapper {
+            background-color: $background-overlay-blue-1;
+        }
+    }
+
+    &--active {
+        .icon-outline {
+            display: none;
+        }
+
+        .icon-filled {
+            display: block;
+        }
+
+        .nav-icon-wrapper {
+            background-color: $background-overlay-blue-2;
+
+            svg {
+                fill: $color-primary-blue;
+            }
+        }
+
+        span {
+            color: $color-primary-blue;
+        }
+
+        &:hover {
+            .nav-icon-wrapper {
+                background-color: $background-overlay-blue-3;
+            }
+        }
+    }
+}
+
+.bottom-nav-bar {
+    background-color: $color-black-200;
+    bottom: 0;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2); // TODO: Use a variable for this color
+    display: flex;
+    justify-content: space-around;
+    left: 0;
+    padding: 5px 0;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}

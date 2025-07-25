@@ -1,0 +1,199 @@
+// _responsive.scss
+@use 'abstracts/variables' as *;
+@use 'base/placeholder';
+
+@media (max-width: 779px) {
+    :root {
+        --font-size-em-lg: 1.1em;
+        --font-size-em-md: 0.9em;
+        --font-size-lg: 16px;
+        --font-size-md: 14px;
+        --font-size-sm: 12px;
+        --font-size-xl: 20px;
+        --font-size-xs: 11px;
+    }
+
+    .bottom-nav-bar {
+        display: flex;
+    }
+
+    .fab-container {
+        display: flex;
+    }
+
+    #floating-save-btn {
+        border-radius: 50%;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3); // TODO: Use a variable for this color
+        display: none;
+        height: 56px;
+        padding: 0;
+        width: 56px;
+
+        .animated-btn-icon-disabled,
+        .animated-btn-icon-wrapper,
+        &:hover .animated-btn-icon-wrapper {
+            transform: translateY(0);
+        }
+
+        .animated-btn-text {
+            display: none;
+        }
+    }
+
+    #home-total-income-header {
+        font-size: var(--font-size-em-md);
+        justify-content: flex-start;
+
+        .ore-text {
+            padding: 0 2px;
+            width: 60px;
+        }
+    }
+
+    #income-tab .income-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .income-summary-title {
+        display: none;
+    }
+
+    .main-content {
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .card {
+        .ore-value,
+        .ore-time,
+        .ore-date {
+            font-size: var(--font-size-xs);
+        }
+    }
+
+    .player-tag-controls-container {
+        margin-left: 0;
+
+        .player-tag-input {
+            width: 135px;
+        }
+    }
+
+    .right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        .ore-value[type="number"] {
+            width: 60px;
+        }
+    }
+
+    #set-app-card {
+        width: 100%;
+    }
+
+    .tab-bar-container {
+        display: none;
+    }
+}
+
+@media (min-width: 400px) and (max-width: 779px) {
+    .card {
+        .ore {
+            width: 89.6px;
+        }
+    }
+}
+
+@media (max-width: 399px) {
+    .header-container {
+        h1 {
+            font-size: var(--font-size-lg);
+        }
+    }
+
+    .card {
+        .ore {
+            width: 70px;
+        }
+    }
+}
+
+@media (min-width: 780px) {
+    .bottom-nav-bar {
+        display: none;
+    }
+
+    .header-container {
+        h1 {
+            font-size: var(--font-size-lg);
+        }
+    }
+
+    #home-result-quantity-card {
+        margin-top: 0;
+    }
+
+    #home-tab .main-content {
+        align-items: stretch;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    #home-tab .left-panel,
+    #home-tab .right-panel {
+        display: flex;
+        flex: 1;
+
+        .card {
+            width: 100%;
+        }
+    }
+
+    #income-tab .income-cards-grid {
+        align-items: stretch;
+        gap: 20px;
+        grid-template-columns: 1fr 1fr;
+
+        .income-card {
+            width: 100%;
+        }
+    }
+
+    .income-header {
+        &:not(.collapsed) {
+            #home-total-income-header {
+                display: none;
+            }
+        }
+    }
+
+    .left-panel {
+        flex: 2;
+        margin-bottom: 10px;
+    }
+
+    .main-content {
+        flex-direction: row;
+    }
+
+    .results-and-calculate-container {
+        flex-direction: column;
+    }
+
+    .right-panel {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 10px;
+    }
+
+    .tab-bar-container {
+        display: flex;
+        flex-grow: 1;
+        gap: 10px;
+        margin-left: 10px;
+    }
+}

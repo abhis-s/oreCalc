@@ -1,0 +1,142 @@
+// components/_cards.scss
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.card {
+    background-color: $color-grey-800;
+    border-radius: 10px;
+    padding: 20px;
+
+    &.full-width-card,
+    &.small-width-card,
+    &.equipment-card {
+        width: 100%;
+    }
+
+    &.settings-card {
+        max-width: 580px;
+        width: 50%;
+        display: grid;
+        row-gap: 15px;
+    }
+
+    .inner-card {
+        background-color: $color-black-200;
+        border-radius: 8px;
+        margin: 15px 0;
+        padding: 20px;
+
+        &:has(.input-group-flex:nth-child(2)) {
+            .input-group-flex:not(:last-child) {
+                margin-bottom: 10px;
+            }
+        }
+    }
+    .card-title-icon {
+        @extend %flex-center;
+        color: $color-primary-blue;
+        text-align: center;
+
+        .title-icon {
+            display: inline-block;
+            height: 30px;
+            margin-right: 10px;
+            width: 60px;
+        }
+    }
+
+    .ores {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 10px;
+    }
+
+    .ore {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        text-align: center;
+
+        span {
+            color: $color-grey-200;
+            font-weight: bold;
+        }
+
+        input[type="number"].error-border {
+            border-color: $color-danger-300;
+        }
+    }
+
+    .ore-value,
+    .ore-time,
+    .ore-date {
+        display: inline-block;
+        font-size: var(--font-size-lg);
+        padding-top: 5px;
+        text-align: center;
+        width: 100px;
+    }
+
+    .ore-date {
+        color: $color-grey-400;
+        margin-top: 5px;
+    }
+
+    .ore-value[type="number"] {
+        background-color: $color-black-300;
+        border: 1px solid $color-grey-border;
+        border-radius: 5px;
+        color: $color-grey-200;
+        font-size: var(--font-size-sm);
+        margin-top: 15px;
+        padding: 5px;
+        position: relative;
+        text-align: center;
+        width: 70px;
+    }
+
+    .results-title,
+    .storage-title {
+        align-items: center;
+        color: $color-primary-blue;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.income-card {
+    background-color: $color-grey-800;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    min-width: 0;
+    padding: 40px;
+
+    &:has(#shop-offer-checkboxes) .timeframe-income {
+        .four-col-grid:nth-of-type(2) {
+            .grid-row {
+                align-items: flex-end;
+            }
+
+            .grid-value-display {
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+        }
+
+        .four-col-grid.column-layout {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+    }
+    > *:not(:first-child):not(:last-child) {
+        padding: 20px;
+    }
+    > *:last-child {
+        margin-top: auto;
+    }
+}
