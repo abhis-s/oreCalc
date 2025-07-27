@@ -1,6 +1,13 @@
 steps:
+# Install frontend dependencies
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install']
+
+# Build the frontend application
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['run', 'build']
+
 # Build the Docker image for the frontend
-# This step will now also run npm install and npm run build inside the Dockerfile
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/orecalc-webapp:$COMMIT_SHA', '.']
 
@@ -20,3 +27,5 @@ steps:
 
 images:
 - 'gcr.io/$PROJECT_ID/orecalc-webapp:$COMMIT_SHA'
+
+# available_secrets section is no longer needed here as VITE_API_BASE_URL is handled by npm run build inside Dockerfile

@@ -1,18 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-// Read VITE_API_BASE_URL from command line arguments
-const args = process.argv.slice(2);
-let baseUrl = null;
-for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--api-url' && args[i + 1]) {
-        baseUrl = args[i + 1];
-        break;
-    }
-}
+// This script expects VITE_API_BASE_URL to be set in process.env
+const baseUrl = process.env.VITE_API_BASE_URL;
 
 if (!baseUrl) {
-    console.error('Error: --api-url argument is missing or empty.');
+    console.error('Error: VITE_API_BASE_URL environment variable is not set.');
     process.exit(1);
 }
 
