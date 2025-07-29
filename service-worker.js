@@ -1,5 +1,5 @@
 // A new version number for the cache is essential to trigger an update.
-const CACHE_NAME = 'ore-calculator-cache-v3';
+const CACHE_NAME = 'ore-calculator-cache-v4';
 
 const urlsToCache = [
     // Core files
@@ -163,18 +163,38 @@ self.addEventListener('install', (event) => {
                 return cache.addAll(urlsToCache);
             })
     );
+    self.skipWaiting(); // Force the new service worker to activate immediately
 });
 
 // The fetch event listener - serves files from cache first
 self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                // If we have a match in the cache, return it.
-                // Otherwise, fetch from the network.
-                return response || fetch(event.request);
+    // Only handle http(s) requests, ignore chrome-extension:// and other schemes
+    if (event.request.url.startsWith('http') || event.request.url.startsWith('https')) {
+        event.respondWith(
+            caches.match(event.request).then((cachedResponse) => {
+                const fetchPromise = fetch(event.request).then((networkResponse) => {
+                    // Check if the response is valid before caching
+                    if (networkResponse.ok || networkResponse.type === 'opaque') {
+                        // Clone the response BEFORE consuming it
+                        const responseToCache = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseToCache);
+                        });
+                    }
+                    return networkResponse; // Return the original network response
+                }).catch(() => {
+                    // If network fails, and no cached response, handle it
+                    return cachedResponse; // Fallback to cached if network fails
+                });
+
+                // If there's a cached response, return it immediately
+                return cachedResponse || fetchPromise;
             })
-    );
+        );
+    } else {
+        // For non-http(s) requests (like chrome-extension://), just let them go to network
+        event.respondWith(fetch(event.request));
+    }
 });
 
 // Add a new event listener to manage old caches
