@@ -2,7 +2,7 @@ import { gemTraderData } from '../data/appData.js';
 import { calculateWeeklyIncome } from '../utils/incomeUtils.js';
 
 export function calculateGemTraderIncome(gemTraderState) {
-    let weeklyShiny = 0, weeklyGlowy = 0, weeklyStarry = 0, totalCost = 0;
+    let weeklyShiny = 0, weeklyGlowy = 10, weeklyStarry = 0, totalCost = 0;
     const { packs } = gemTraderState;
 
     gemTraderData.forEach(offer => {
