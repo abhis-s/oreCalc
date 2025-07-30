@@ -100,7 +100,6 @@ export function processPlayerDataResponse(playerData) {
     
 
     state.heroes = newPlayerState.heroes;
-    state.storedOres = newPlayerState.storedOres;
     state.income = newPlayerState.income;
     state.playerData = newPlayerState.playerData;
 

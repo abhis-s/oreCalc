@@ -23,7 +23,7 @@ export function getDefaultState() {
         storedOres: { shiny: 0, glowy: 0, starry: 0 },
         income: {
             starBonusLeague: 'Unranked',
-            shopOffers: { selectedSet: 'none', sets: { set_A: {}, set_B: {} } },
+            shopOffers: { selectedSet: 'none', sets: { TH16_Set: {}, TH15_Set: {} } },
             raidMedals: { earned: 0, packs: { shiny: 0, glowy: 0, starry: 0 } },
             gems: { packs: { shiny: 0, glowy: 0, starry: 0 } },
             eventPass: { type: 'free', equipmentBought: false },
@@ -38,7 +38,7 @@ export function getDefaultState() {
             storedOres: { shiny: 0, glowy: 0, starry: 0 },
             income: {
                 starBonusLeague: 'Unranked',
-                shopOffers: { selectedSet: 'none', sets: { set_A: {}, set_B: {} } },
+                shopOffers: { selectedSet: 'none', sets: { TH16_Set: {}, TH15_Set: {} } },
                 raidMedals: { earned: 0, packs: { shiny: 0, glowy: 0, starry: 0 } },
                 gems: { packs: { shiny: 0, glowy: 0, starry: 0 } },
                 eventPass: { type: 'free', equipmentBought: false },
@@ -80,7 +80,7 @@ export function getDefaultPlayerState() {
         storedOres: { shiny: 0, glowy: 0, starry: 0 },
         income: {
             starBonusLeague: 'Unranked',
-            shopOffers: { selectedSet: 'none', sets: { set_A: {}, set_B: {} } },
+            shopOffers: { selectedSet: 'none', sets: { TH16_Set: {}, TH15_Set: {} } },
             raidMedals: { earned: 0, packs: { shiny: 0, glowy: 0, starry: 0 } },
             gems: { packs: { shiny: 0, glowy: 0, starry: 0 } },
             eventPass: { type: 'free', equipmentBought: false },
