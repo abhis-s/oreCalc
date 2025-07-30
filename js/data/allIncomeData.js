@@ -96,6 +96,11 @@ export const eventPassData = {
     event: { shiny: 5000, glowy: 1000, starry: 80, baseCostUSD: 4.99, eventMedals: 9250, equipmentCost: 3100 },
 };
 
+export const eventStoreMedalsData = {
+    claimed: {shiny: 0, glowy: 0, starry: 0, baseCostUSD: 0.00, eventMedals: 300, equipmentCost: 0 },
+    notClaimed: {shiny: 0, glowy: 0, starry: 0, baseCostUSD: 0.00, eventMedals: 0, equipmentCost: 0 },
+};
+
 export const eventTraderData = [
     { id: "event_starry_10", shiny: 0, glowy: 0, starry: 10, cost: 320, currency: "event_medals", maxPacks: 8 },
     { id: "event_glowy_60", shiny: 0, glowy: 60, starry: 0, cost: 280, currency: "event_medals", maxPacks: 10 },

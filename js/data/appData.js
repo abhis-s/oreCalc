@@ -7,6 +7,7 @@ import {
     raidMedalTraderData,
     gemTraderData,
     eventPassData,
+    eventStoreMedalsData,
     eventTraderData,
 } from "./allIncomeData.js";
 
@@ -20,5 +21,6 @@ export {
     raidMedalTraderData,
     gemTraderData,
     eventPassData,
+    eventStoreMedalsData,
     eventTraderData,
 };
