@@ -4,18 +4,6 @@ const APP_STATE_KEY = 'oreCalculatorState';
 
 export function saveState(state) {
     try {
-        const currentPlayerTag = state.lastPlayerTag;
-        if (currentPlayerTag) {
-            state.allPlayersData[currentPlayerTag] = {
-                heroes: state.heroes,
-                storedOres: state.storedOres,
-                income: state.income,
-                playerData: state.playerData,
-                regionalPricingEnabled: state.uiSettings.regionalPricingEnabled,
-                currency: state.uiSettings.currency,
-            };
-        }
-
         const stateToSave = {
             appVersion: state.appVersion,
             lastPlayerTag: state.lastPlayerTag,
