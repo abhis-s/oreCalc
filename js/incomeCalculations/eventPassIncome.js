@@ -2,7 +2,7 @@ import { eventPassData, currencySymbols, currencyConversionRates } from '../data
 import { calculateBimonthlyIncome } from '../utils/incomeUtils.js';
 
 export function calculateEventPassIncome(eventPassState, regionalPricingEnabled) {
-    const { type, equipmentBought } = eventPassState;
+    const { type, storeMedalsClaimed, equipmentBought } = eventPassState;
     const passData = eventPassData[type];
     let bimonthlyOres = { shiny: passData.shiny || 0, glowy: passData.glowy || 0, starry: passData.starry || 0 };
     let bimonthlyEventMedals = passData.eventMedals || 0;
@@ -21,6 +21,10 @@ export function calculateEventPassIncome(eventPassState, regionalPricingEnabled)
             }
             costs[currencyCode] = (costs[currencyCode] || 0) + cost;
         }
+    }
+
+    if (storeMedalsClaimed) {
+        bimonthlyEventMedals += passData.storeMedals || eventPassData.free.storeMedals || 0;
     }
 
     if (equipmentBought) {

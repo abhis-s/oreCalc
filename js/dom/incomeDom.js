@@ -162,6 +162,7 @@ export function getIncomeDOMElements() {
         },
         eventPass: {
             passType: document.getElementById('inc-event-pass-select'),
+            storeMedalsClaimed: document.getElementById('inc-store-medals-select'),
             equipmentBought: document.getElementById('inc-event-equipment-bought-select'),
             display: {
                 bimonthly: {

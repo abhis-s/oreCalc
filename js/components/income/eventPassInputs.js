@@ -5,6 +5,7 @@ import { eventPassData } from '../../data/appData.js';
 
 export function initializeEventPassInputs() {
     const passTypeSelect = dom.income?.eventPass?.passType;
+    const passStoreMedalsSelect = dom.income?.eventPass?.storeMedalsClaimed;
     const equipmentBoughtSelect = dom.income?.eventPass?.equipmentBought;
 
     if (passTypeSelect) {
@@ -20,7 +21,11 @@ export function initializeEventPassInputs() {
     passTypeSelect?.addEventListener('change', (e) => {
         handleStateUpdate(() => {
             state.income.eventPass.type = e.target.value;
-            
+        });
+    });
+    passStoreMedalsSelect?.addEventListener('change', (e) => {
+        handleStateUpdate(() => {
+            state.income.eventPass.storeMedalsClaimed = e.target.value === 'yes';
         });
     });
     equipmentBoughtSelect?.addEventListener('change', (e) => {
@@ -32,10 +37,14 @@ export function initializeEventPassInputs() {
 
 export function renderEventPassInputs(eventPassState) {
     const passTypeSelect = dom.income?.eventPass?.passType;
+    const passStoreMedalsSelect = dom.income?.eventPass?.storeMedalsClaimed;
     const equipmentBoughtSelect = dom.income?.eventPass?.equipmentBought;
 
     if (passTypeSelect) {
         passTypeSelect.value = eventPassState.type;
+    }
+    if (passStoreMedalsSelect) {
+        passStoreMedalsSelect.value = eventPassState.storeMedalsClaimed ? 'yes' : 'no';
     }
     if (equipmentBoughtSelect) {
         equipmentBoughtSelect.value = eventPassState.equipmentBought ? 'yes' : 'no';
