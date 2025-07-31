@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3000"; // Placeholder for environment variable
+const BASE_URL = "__VITE_API_BASE_URL__"; // Placeholder for environment variable
 
 export async function fetchPlayerData(playerTag) {
     const cleanedTag = playerTag.startsWith('#') ? playerTag.substring(1) : playerTag;

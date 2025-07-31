@@ -92,13 +92,8 @@ export const gemTraderData = [
 ];
 
 export const eventPassData = {
-    free: { shiny: 5000, glowy: 400, starry: 0, baseCostUSD: 0.00, eventMedals: 3750, equipmentCost: 3100 },
-    event: { shiny: 5000, glowy: 1000, starry: 80, baseCostUSD: 4.99, eventMedals: 9250, equipmentCost: 3100 },
-};
-
-export const eventStoreMedalsData = {
-    claimed: {shiny: 0, glowy: 0, starry: 0, baseCostUSD: 0.00, eventMedals: 300, equipmentCost: 0 },
-    notClaimed: {shiny: 0, glowy: 0, starry: 0, baseCostUSD: 0.00, eventMedals: 0, equipmentCost: 0 },
+    free: { shiny: 5000, glowy: 400, starry: 0, baseCostUSD: 0.00, eventMedals: 3750, storeMedals: 300, equipmentCost: 3100 },
+    event: { shiny: 5000, glowy: 1000, starry: 80, baseCostUSD: 4.99, eventMedals: 9250, storeMedals: 300, equipmentCost: 3100 },
 };
 
 export const eventTraderData = [

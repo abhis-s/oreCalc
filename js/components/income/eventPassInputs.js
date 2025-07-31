@@ -1,11 +1,11 @@
 import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import {eventPassData, eventStoreMedalsData} from '../../data/appData.js';
+import { eventPassData } from '../../data/appData.js';
 
 export function initializeEventPassInputs() {
     const passTypeSelect = dom.income?.eventPass?.passType;
-    const passStoreMedalsSelect = dom.income?.medalsClaimed?.medalsClaimed;
+    const passStoreMedalsSelect = dom.income?.eventPass?.storeMedalsClaimed;
     const equipmentBoughtSelect = dom.income?.eventPass?.equipmentBought;
 
     if (passTypeSelect) {
@@ -18,26 +18,15 @@ export function initializeEventPassInputs() {
         }
     }
 
-    if (passStoreMedalsSelect) {
-        passStoreMedalsSelect.innerHTML = '';
-        for (const storeMedals in eventStoreMedalsData) {
-            const option = document.createElement('option');
-            option.value = storeMedals;
-            option.textContent = storeMedals;
-            passStoreMedalsSelect.appendChild(option);
-        }
-    }
-
     passTypeSelect?.addEventListener('change', (e) => {
         handleStateUpdate(() => {
             state.income.eventPass.type = e.target.value;
-            
         });
     });
     passStoreMedalsSelect?.addEventListener('change', (e) => {
         handleStateUpdate(() => {
-            state.income.eventPass.medalsClaimed = e.target.value;
-        })
+            state.income.eventPass.storeMedalsClaimed = e.target.value === 'yes';
+        });
     });
     equipmentBoughtSelect?.addEventListener('change', (e) => {
         handleStateUpdate(() => {
@@ -48,14 +37,14 @@ export function initializeEventPassInputs() {
 
 export function renderEventPassInputs(eventPassState) {
     const passTypeSelect = dom.income?.eventPass?.passType;
-    const passStoreMedalsSelect = dom.income?.eventPass?.medalsClaimed;
+    const passStoreMedalsSelect = dom.income?.eventPass?.storeMedalsClaimed;
     const equipmentBoughtSelect = dom.income?.eventPass?.equipmentBought;
 
     if (passTypeSelect) {
         passTypeSelect.value = eventPassState.type;
     }
     if (passStoreMedalsSelect) {
-        equipmentBoughtSelect.value = eventPassState.equipmentBought;
+        passStoreMedalsSelect.value = eventPassState.storeMedalsClaimed ? 'yes' : 'no';
     }
     if (equipmentBoughtSelect) {
         equipmentBoughtSelect.value = eventPassState.equipmentBought ? 'yes' : 'no';
