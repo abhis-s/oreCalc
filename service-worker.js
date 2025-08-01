@@ -1,5 +1,5 @@
 // A new version number for the cache is essential to trigger an update.
-const CACHE_NAME = 'ore-calculator-cache-v4';
+const CACHE_NAME = 'ore-calculator-cache-v5';
 
 const urlsToCache = [
     // Core files
@@ -166,36 +166,53 @@ self.addEventListener('install', (event) => {
     self.skipWaiting(); // Force the new service worker to activate immediately
 });
 
-// The fetch event listener - serves files from cache first
+// The fetch event listener
 self.addEventListener('fetch', (event) => {
-    // Only handle http(s) requests, ignore chrome-extension:// and other schemes
-    if (event.request.url.startsWith('http') || event.request.url.startsWith('https')) {
-        event.respondWith(
-            caches.match(event.request).then((cachedResponse) => {
-                const fetchPromise = fetch(event.request).then((networkResponse) => {
-                    // Check if the response is valid before caching
-                    if (networkResponse.ok || networkResponse.type === 'opaque') {
-                        // Clone the response BEFORE consuming it
-                        const responseToCache = networkResponse.clone();
-                        caches.open(CACHE_NAME).then((cache) => {
-                            cache.put(event.request, responseToCache);
-                        });
-                    }
-                    return networkResponse; // Return the original network response
-                }).catch(() => {
-                    // If network fails, and no cached response, handle it
-                    return cachedResponse; // Fallback to cached if network fails
-                });
+    // Ignore non-http/https requests (e.g., chrome-extension://)
+    if (!event.request.url.startsWith('http')) {
+        return;
+    }
 
-                // If there's a cached response, return it immediately
-                return cachedResponse || fetchPromise;
-            })
-        );
+    const url = new URL(event.request.url);
+
+    // Network-first for API calls
+    if (url.pathname.startsWith('/api/')) {
+        event.respondWith(networkFirst(event.request));
     } else {
-        // For non-http(s) requests (like chrome-extension://), just let them go to network
-        event.respondWith(fetch(event.request));
+        // Cache-first for all other requests (assets)
+        event.respondWith(cacheFirst(event.request));
     }
 });
+
+// Cache-first strategy: static assets
+async function cacheFirst(request) {
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+        return cachedResponse;
+    }
+    try {
+        const networkResponse = await fetch(request);
+        // Only cache valid HTTP/HTTPS responses that are not opaque
+        if (networkResponse && networkResponse.ok && networkResponse.type === 'basic' && request.url.startsWith('http')) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, networkResponse.clone());
+        }
+        return networkResponse;
+    } catch (error) {
+        console.error('Fetch failed for asset:', error);
+    }
+}
+
+// Network-first strategy: Changing files
+async function networkFirst(request) {
+    try {
+        const networkResponse = await fetch(request);
+        return networkResponse;
+    } catch (error) {
+        console.error('Network fetch failed for API call:', error);
+        return Response.error();
+    }
+}
 
 // Manage old caches
 self.addEventListener('activate', (event) => {
