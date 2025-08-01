@@ -197,8 +197,9 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
-// Add a new event listener to manage old caches
+// Manage old caches
 self.addEventListener('activate', (event) => {
+    self.clients.claim(); // Take control of all open pages
     const cacheWhitelist = [CACHE_NAME];
     event.waitUntil(
         caches.keys().then((cacheNames) => {
