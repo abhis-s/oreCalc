@@ -96,22 +96,18 @@ export function processPlayerDataResponse(playerData) {
         }
         newPlayerState.income.shopOffers.selectedSet = bestMatchSet;
     }
-    newPlayerState.playerData = playerData;
-    
+    newPlayerState.playerData = {
+        tag: playerData.tag,
+        clan: playerData.clan ? { badgeUrls: { small: playerData.clan.badgeUrls.small } } : {},
+        heroes: playerData.heroes,
+        heroEquipment: playerData.heroEquipment,
+        league: playerData.league,
+        townHallLevel: playerData.townHallLevel,
+    };
 
     state.heroes = newPlayerState.heroes;
     state.income = newPlayerState.income;
     state.playerData = newPlayerState.playerData;
 
     updateAllPlayersData(cleanedTag, newPlayerState);
-
-    if (playerData.league?.name) {
-        newPlayerState.income.starBonusLeague = playerData.league.name.replace(' League', '');
-    }
-    newPlayerState.playerData = playerData;
-    
-
-    state.heroes = newPlayerState.heroes;
-    state.income = newPlayerState.income;
-    state.playerData = newPlayerState.playerData;
 }
