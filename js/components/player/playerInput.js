@@ -39,10 +39,11 @@ export function initializePlayerInput() {
             const playerData = loadPlayerData(tag);
             if (playerData) {
                 state.lastPlayerTag = tag;
-                Object.assign(state.heroes, playerData.heroes);
-                Object.assign(state.storedOres, playerData.storedOres);
-                Object.assign(state.income, playerData.income);
-                state.playerData = playerData.playerData;
+                // Deep clone
+                state.heroes = JSON.parse(JSON.stringify(playerData.heroes));
+                state.storedOres = JSON.parse(JSON.stringify(playerData.storedOres));
+                state.income = JSON.parse(JSON.stringify(playerData.income));
+                state.playerData = JSON.parse(JSON.stringify(playerData.playerData));
                 state.uiSettings.regionalPricingEnabled = playerData.regionalPricingEnabled;
 
                 handleStateUpdate(() => {});
