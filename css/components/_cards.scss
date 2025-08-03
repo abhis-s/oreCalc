@@ -14,10 +14,12 @@
     }
 
     &.settings-card {
-        max-width: 580px;
-        width: 50%;
-        display: grid;
-        row-gap: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+        min-width: 0;
+        padding: 40px;
     }
 
     .inner-card {

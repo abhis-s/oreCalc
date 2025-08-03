@@ -5,7 +5,7 @@ const APP_STATE_KEY = 'oreCalculatorState';
 export function saveState(state) {
     try {
         const currentPlayerTag = state.lastPlayerTag;
-        if (currentPlayerTag) {
+                if (currentPlayerTag) {
             state.allPlayersData[currentPlayerTag] = {
                 heroes: state.heroes,
                 storedOres: state.storedOres,
@@ -19,7 +19,7 @@ export function saveState(state) {
         const stateToSave = {
             appVersion: state.appVersion,
             lastPlayerTag: state.lastPlayerTag,
-            savedPlayerTags: state.savedPlayerTags,
+            savedPlayerTags: state.savedPlayerTags.length > 0 ? state.savedPlayerTags : ['DEFAULT0'],
             uiSettings: state.uiSettings,
             allPlayersData: state.allPlayersData,
         };
@@ -37,7 +37,11 @@ export function loadState() {
         if (serializedState === null) {
             return null;
         }
-        return JSON.parse(serializedState);
+        let parsedState = JSON.parse(serializedState);
+        if (!parsedState.savedPlayerTags || parsedState.savedPlayerTags.length === 0) {
+            parsedState.savedPlayerTags = ['DEFAULT0'];
+        }
+        return parsedState;
     } catch (error) {
         console.error("Could not load state from localStorage. Resetting.", error);
         return null;
@@ -53,6 +57,10 @@ export function resetState() {
 }
 
 export function removePlayerTag(playerTagToDelete) {
+    if (playerTagToDelete === 'DEFAULT0') {
+        console.warn('Attempted to delete DEFAULT0. This tag cannot be removed.');
+        return;
+    }
     try {
         if (state.allPlayersData) {
             delete state.allPlayersData[playerTagToDelete];
@@ -88,6 +96,15 @@ export function loadPlayerData(playerTag) {
 
 export function updateSavedPlayerTags(playerTag) {
     try {
+        // If the tag being updated is not DEFAULT0, and DEFAULT0 is present, remove it.
+        if (playerTag !== 'DEFAULT0' && state.savedPlayerTags.includes('DEFAULT0')) {
+            state.savedPlayerTags = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0');
+            // Also remove from allPlayersData if it exists
+            if (state.allPlayersData['DEFAULT0']) {
+                delete state.allPlayersData['DEFAULT0'];
+            }
+        }
+
         const existingIndex = state.savedPlayerTags.indexOf(playerTag);
         if (existingIndex !== -1) {
             state.savedPlayerTags.splice(existingIndex, 1);

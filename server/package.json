@@ -15,8 +15,7 @@
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
+    "firebase-admin": "^13.4.0",
     "node-fetch": "^3.3.2"
-  },
-  "devDependencies": {
   }
 }

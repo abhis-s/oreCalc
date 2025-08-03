@@ -106,6 +106,11 @@ export function initializeState(savedState) {
             state.savedPlayerTags = savedState.savedPlayerTags;
         }
 
+        // Ensure lastPlayerTag is set to DEFAULT0 if it's empty
+        if (!state.lastPlayerTag) {
+            state.lastPlayerTag = 'DEFAULT0';
+        }
+
         if (savedState.allPlayersData) {
             for (const playerTag in savedState.allPlayersData) {
                 if (state.allPlayersData[playerTag]) {

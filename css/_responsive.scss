@@ -22,22 +22,7 @@
     }
 
     #floating-save-btn {
-        border-radius: 50%;
-        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3); // TODO: Use a variable for this color
         display: none;
-        height: 56px;
-        padding: 0;
-        width: 56px;
-
-        .animated-btn-icon-disabled,
-        .animated-btn-icon-wrapper,
-        &:hover .animated-btn-icon-wrapper {
-            transform: translateY(0);
-        }
-
-        .animated-btn-text {
-            display: none;
-        }
     }
 
     #home-total-income-header {
@@ -89,8 +74,8 @@
         }
     }
 
-    #set-app-card {
-        width: 100%;
+    #settings-tab .settings-cards-grid {
+        grid-template-columns: 1fr;
     }
 
     .tab-bar-container {

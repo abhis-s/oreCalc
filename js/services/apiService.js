@@ -33,3 +33,48 @@ export async function fetchRequiredClientVersion() {
         throw error;
     }
 }
+
+export async function saveUserData(userId, data) {
+    const url = `${BASE_URL}/api/user-data/save`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId, data })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`API Error: ${response.status} - ${errorData.message || 'Unknown error'}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error saving user data:", error);
+        // Optionally re-throw or handle more gracefully
+    }
+}
+
+export async function loadUserData(userId) {
+    const url = `${BASE_URL}/api/user-data/load/${userId}`;
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            // If 404, it means no data for this user, which is fine
+            if (response.status === 404) {
+                return null;
+            }
+            const errorData = await response.json();
+            throw new Error(`API Error: ${response.status} - ${errorData.message || 'Unknown error'}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error loading user data:", error);
+        // Optionally re-throw or handle more gracefully
+        return null;
+    }
+}
