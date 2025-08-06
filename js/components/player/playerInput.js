@@ -76,8 +76,11 @@ export function renderPlayerInput(playerTag, savedTags) {
                     <span>${exactMatchTag}</span>
                     ${getDeleteButtonHtml(exactMatchTag)}
                 </div>
-                <div class="suggestions-separator"></div>
             `;
+            // Only add separator if there are other tags to display
+            if (savedTags.length > 1) {
+                suggestionsHtml += `<div class="suggestions-separator"></div>`;
+            }
             const otherTags = savedTags.filter(tag => tag !== exactMatchTag);
             suggestionsHtml += otherTags.map(tag => `
                 <div class="player-tag-suggestion-item" data-tag="${tag}">
