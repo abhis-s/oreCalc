@@ -46,6 +46,7 @@ export const heroData = {
             { name: "Healing Tome", type: "common", image: "assets/equipment/grand_warden/GW_healing_tome.png" },
             { name: "Fireball", type: "epic", image: "assets/equipment/grand_warden/GW_fireball.png" },
             { name: "Lavaloon Puppet", type: "epic", image: "assets/equipment/grand_warden/GW_lavaloon_puppet.png" },
+            { name: "Heroic Torch", type: "epic", image: "assets/equipment/grand_warden/GW_heroic_torch.png" },
         ],
     },
     royal_champion: {

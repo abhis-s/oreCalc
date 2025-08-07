@@ -86,6 +86,7 @@ const urlsToCache = [
 
     // Resources
     '/assets/resources/event_medal.png',
+    '/assets/resources/event_medal_fallback.png', // TO DO: Implement fallback logic
     '/assets/resources/cwl.png',
     '/assets/resources/gem.png',
     '/assets/resources/raid_medal.png',
@@ -144,6 +145,7 @@ const urlsToCache = [
     '/assets/equipment/grand_warden/GW_healing_tome.png',
     '/assets/equipment/grand_warden/GW_fireball.png',
     '/assets/equipment/grand_warden/GW_lavaloon_puppet.png',
+    '/assets/equipment/grand_warden/GW_heroic_torch.png',
 
     // Royal Champion Equipment
     '/assets/equipment/royal_champion/RC_royal_gem.png',
