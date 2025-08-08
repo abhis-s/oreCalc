@@ -21,9 +21,20 @@ export async function initializeAppData() {
     return appData || await checkAppVersion(); // Prioritize cloud data.
 }
 
+// Escape special characters to prevent XSS in dialog text
+function escapeForDialog(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 export async function importUserData(importId) {
     if (importId) {
-        if (confirm(`Are you sure you want to import data for User ID: ${importId}? This will overwrite your current data.`)) {
+        const safeImportId = escapeForDialog(importId);
+        if (confirm(`Are you sure you want to import data for User ID: ${safeImportId}? This will overwrite your current data.`)) {
             try {
                 const importedData = await loadUserData(importId);
                 if (importedData) {
