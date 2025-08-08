@@ -21,7 +21,8 @@ steps:
          '--allow-unauthenticated',
          '--platform', 'managed',
          '--port', '8080',
-         '--update-secrets', 'CLASH_OF_CLANS_API_TOKEN=clash-of-clans-api-token:latest, FIRESTORE_SA_KEY=orecalc-firestore-sa-key:latest']
+         '--update-secrets', 'CLASH_OF_CLANS_API_TOKEN=clash-of-clans-api-token:latest',
+         '--update-secrets', 'FIRESTORE_SA_KEY=orecalc-firestore-sa-key:latest']
   entrypoint: gcloud
 
 images:

@@ -20,6 +20,8 @@ const urlsToCache = [
     '/js/utils/responsiveTextHandler.js',
     '/js/utils/inputValidator.js',
     '/js/utils/versioning.js',
+    '/js/utils/cloudSaveHandler.js',
+    '/js/utils/uuidGenerator.js',
     '/js/components/layout/tabs.js',
     '/js/components/layout/header.js',
     '/js/components/layout/modeToggle.js',
