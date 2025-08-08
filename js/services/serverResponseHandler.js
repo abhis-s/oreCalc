@@ -5,10 +5,16 @@ import { handleStateUpdate } from '../app.js';
 import { updateSavedPlayerTags, updateAllPlayersData } from '../core/localStorageManager.js';
 
 export async function loadAndProcessPlayerData(playerTag) {
+    if (!playerTag || playerTag.trim() === '') {
+        alert('Please enter a player tag.');
+        return;
+    }
+
     try {
         const playerData = await fetchPlayerData(playerTag);
+        const cleanedServerTag = playerData.tag.startsWith('#') ? playerData.tag.substring(1) : playerData.tag;
+
         handleStateUpdate(() => {
-            const cleanedServerTag = playerData.tag.startsWith('#') ? playerData.tag.substring(1) : playerData.tag;
             if (playerTag !== cleanedServerTag) {
                 console.warn(`Player tag corrected: Original '${playerTag}', Corrected '${cleanedServerTag}'`);
             }

@@ -1,15 +1,19 @@
 steps:
+# Install backend dependencies
 - name: 'gcr.io/cloud-builders/npm'
   args: ['install', '--production']
   dir: 'server'
 
+# Build the Docker image for the backend
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/orecalc-api:$COMMIT_SHA', '.']
   dir: 'server'
 
+# Push the Docker image to Container Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/orecalc-api:$COMMIT_SHA']
 
+# Deploy the backend to Cloud Run
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['run', 'deploy', 'orecalc-api',
          '--image', 'gcr.io/$PROJECT_ID/orecalc-api:$COMMIT_SHA',
@@ -17,7 +21,7 @@ steps:
          '--allow-unauthenticated',
          '--platform', 'managed',
          '--port', '8080',
-         '--update-secrets', 'CLASH_OF_CLANS_API_TOKEN=clash-of-clans-api-token:latest']
+         '--update-secrets', 'CLASH_OF_CLANS_API_TOKEN=clash-of-clans-api-token:latest, FIRESTORE_SA_KEY=orecalc-firestore-sa-key:latest']
   entrypoint: gcloud
 
 images:

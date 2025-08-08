@@ -2,17 +2,56 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
-.reset-data-container {
-    align-items: center;
+.user-id-display-group {
     display: flex;
+    align-items: center;
     gap: 10px;
-    justify-content: space-between;
-    margin-top: 20px;
+
+    #user-id-display {
+        background-color: $color-black-300;
+        border: 1px solid $color-grey-border;
+        border-radius: 5px;
+        color: $color-grey-200;
+        padding: 8px 12px;
+        font-family: 'Roboto Mono', monospace;
+        font-size: var(--font-size-md);
+        word-break: break-all;
+        width: fit-content;
+    }
+
+    .small-btn {
+        padding: 8px 12px;
+        font-size: var(--font-size-sm);
+    }
+}
+
+.id-child-fields {
+    background-color: $color-black-300;
+    border: 1px solid $color-grey-border;
+    border-radius: 5px;
+    color: $color-grey-200;
+    padding: 8px;
+    font-size: var(--font-size-md);
+    text-align: right;
+    /* Removed width: 100%; */
+    margin-top: 10px;
+    box-sizing: border-box; /* Ensure padding doesn't increase total width */
+
+    &:focus {
+        border-color: $color-primary-blue;
+        box-shadow: 0 0 0 3px $background-overlay-blue-3;
+        outline: none;
+    }
+}
+
+#import-user-id-input {
+    width: 100%; /* Apply full width specifically to the input field */
 }
 
 .settings-cards-grid {
+    align-items: stretch;
     display: grid;
-    gap: 20px;
-    grid-template-columns: 1fr;
-    justify-items: center;
+    row-gap: 20px;
+    column-gap: 20px;
+    grid-template-columns: 1fr 1fr;
 }

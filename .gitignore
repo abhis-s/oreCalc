@@ -12,10 +12,13 @@ dist/
 .env
 .ngrok.yml
 .vscode/
+orecalc-firestore-sa-key.json
 
 # macOS specific files
 .DS_Store
 
 # Server specific ignores
+server/.env
+server/orecalc-firestore-sa-key.json
 server/node_modules/
 server/package-lock.json

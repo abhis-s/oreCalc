@@ -16,20 +16,21 @@ export function initializePlayerInput() {
     loadButton.addEventListener('click', () => {
         const tagToLoad = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
         loadAndProcessPlayerData(tagToLoad);
+        suggestionsContainer.classList.remove('show');
     });
 
     input.addEventListener('focus', () => {
         suggestionsContainer.classList.add('show');
-        renderPlayerInput(input.value, state.savedPlayerTags);
-    });
-    document.addEventListener('click', (e) => {
-        if (!input.contains(e.target) && !suggestionsContainer.contains(e.target)) {
-            suggestionsContainer.classList.remove('show');
-        }
+        renderPlayerInput(state.lastPlayerTag, state.savedPlayerTags);
     });
 
-    input.addEventListener('input', () => {
-        renderPlayerInput(input.value, state.savedPlayerTags);
+    input.addEventListener('blur', () => {
+        // Delay hiding to allow click events on suggestions to register
+        setTimeout(() => {
+            if (!suggestionsContainer.contains(document.activeElement)) {
+                suggestionsContainer.classList.remove('show');
+            }
+        }, 100);
     });
     
     suggestionsContainer.addEventListener('click', (event) => {
@@ -61,11 +62,18 @@ export function initializePlayerInput() {
 export function renderPlayerInput(playerTag, savedTags) {
     const input = dom.player?.tagInput;
     const suggestionsContainer = dom.player?.suggestions;
-    if (input) input.value = playerTag;
+    
+    // Filter out DEFAULT0 from the list of tags to display in suggestions
+    const tagsToDisplay = savedTags.filter(tag => tag !== 'DEFAULT0');
+
+    // Ensure input field is pre-filled with DEFAULT0 if no playerTag is provided
+    if (input) {
+        input.value = (playerTag === 'DEFAULT0' ? '' : playerTag);
+    }
 
     if (suggestionsContainer) {
         const cleanedPlayerTag = playerTag.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        const exactMatchTag = savedTags.find(tag => tag === cleanedPlayerTag);
+        const exactMatchTag = tagsToDisplay.find(tag => tag === cleanedPlayerTag); // Search only in tags to display
 
         let suggestionsHtml = '';
 
@@ -78,10 +86,10 @@ export function renderPlayerInput(playerTag, savedTags) {
                 </div>
             `;
             // Only add separator if there are other tags to display
-            if (savedTags.length > 1) {
+            if (tagsToDisplay.length > 1) {
                 suggestionsHtml += `<div class="suggestions-separator"></div>`;
             }
-            const otherTags = savedTags.filter(tag => tag !== exactMatchTag);
+            const otherTags = tagsToDisplay.filter(tag => tag !== exactMatchTag);
             suggestionsHtml += otherTags.map(tag => `
                 <div class="player-tag-suggestion-item" data-tag="${tag}">
                     ${getCacheStatusHtml(tag)}
@@ -91,7 +99,7 @@ export function renderPlayerInput(playerTag, savedTags) {
             `).join('');
         } else {
             const filterText = playerTag.toLowerCase();
-            const filteredTags = savedTags.filter(tag => tag.toLowerCase().includes(filterText));
+            const filteredTags = tagsToDisplay.filter(tag => tag.toLowerCase().includes(filterText));
             suggestionsHtml = filteredTags.map(tag => `
                 <div class="player-tag-suggestion-item" data-tag="${tag}">
                     ${getCacheStatusHtml(tag)}
@@ -122,7 +130,11 @@ function getCacheStatusHtml(tag) {
 }
 
 function getDeleteButtonHtml(tag) {
-    return `<button class="delete-suggestion-button" title="Remove ${tag}">
+    const isDisabled = tag === 'DEFAULT0';
+    const title = isDisabled ? 'Cannot remove default tag' : `Remove ${tag}`;
+    const disabledAttr = isDisabled ? 'disabled' : '';
+
+    return `<button class="delete-suggestion-button" title="${title}" ${disabledAttr}>
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
             </button>`;
 }

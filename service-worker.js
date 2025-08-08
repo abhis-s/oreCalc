@@ -1,5 +1,5 @@
 // A new version number for the cache is essential to trigger an update.
-const CACHE_NAME = 'ore-calculator-cache-v5';
+const CACHE_NAME = 'ore-calculator-cache-v6';
 
 const urlsToCache = [
     // Core files

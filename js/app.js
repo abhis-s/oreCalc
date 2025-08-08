@@ -3,7 +3,7 @@ import { state, initializeState } from './core/state.js';
 import { saveState, loadState, resetState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
-import { checkAppVersion } from './utils/versioning.js';
+import { initializeAppData } from './utils/cloudSaveHandler.js';
 
 import { initializeHeader } from './components/layout/header.js';
 import { initializeTabs } from './components/layout/tabs.js';
@@ -25,13 +25,16 @@ import { initializeShopOffers } from './components/income/shopOffers.js';
 import { initializeIncomeCardHandler } from './components/income/incomeCardHandler.js';
 import { initializeIncomeCardObserver } from './components/income/incomeCardObserver.js';
 import { initializeResponsiveTextHandler } from './utils/responsiveTextHandler.js';
+import { initializeCloudSaveButtons } from './utils/cloudSaveHandler.js';
 
 import './console.js';
+
+let userId = localStorage.getItem('oreCalcUserId');
 
 document.addEventListener('DOMContentLoaded', async () => {
     initializeDOMElements();
 
-    const savedState = await checkAppVersion();
+    const savedState = await initializeAppData();
     initializeState(savedState);
 
     recalculateAll(state);
@@ -57,6 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeIncomeCardHandler();
     initializeIncomeCardObserver();
     initializeResponsiveTextHandler();
+    initializeCloudSaveButtons();
 
     const preloader = dom.preloader;
     if (preloader) {
@@ -86,5 +90,6 @@ export function handleStateUpdate(mutator) {
 
 window.resetApplication = () => {
     resetState();
+    localStorage.removeItem('oreCalcUserId'); // Clear userId on reset
     location.reload();
 };
