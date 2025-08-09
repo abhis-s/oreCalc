@@ -11,14 +11,63 @@ export async function initializeAppData() {
         localStorage.setItem('oreCalcUserId', userId);
     }
 
-    let appData = null;
+    const localData = await checkAppVersion();
+    if (localData && localData.savedPlayerTags.length === 1 && localData.savedPlayerTags[0] === 'DEFAULT0') {
+        console.log("Skipping cloud sync: Only default player tag exists locally.");
+        return localData;
+    }
+
+    let cloudData = null;
     try {
-        appData = await loadUserData(userId);
+        cloudData = await loadUserData(userId);
     } catch (error) {
         console.error('Failed to load data from cloud, falling back to local storage:', error);
     }
 
-    return appData || await checkAppVersion(); // Prioritize cloud data.
+    if (cloudData && localData) {
+        const cloudTimestamp = new Date(cloudData.timestamp || 0);
+        const localTimestamp = new Date(localData.timestamp || 0);
+
+        if (cloudTimestamp > localTimestamp) {
+            if (confirm("Newer data is available on the cloud. Do you want to sync?")) {
+                console.log("User chose to sync. Using cloud data.");
+                return cloudData;
+            } else {
+                console.log("User chose not to sync. Using local data and pushing to cloud.");
+                if (userId) { // userId should exist here
+                    try {
+                        await saveUserData(userId, localData);
+                        console.log("Local data pushed to cloud.");
+                    } catch (error) {
+                        console.error("Failed to push local data to cloud:", error);
+                    }
+                }
+                return localData;
+            }
+        } else if (localTimestamp > cloudTimestamp) {
+            if (confirm("Your local data is newer. Do you want to sync it to the cloud?")) {
+                const userId = localStorage.getItem('oreCalcUserId');
+                if (userId) {
+                    try {
+                        await saveUserData(userId, localData);
+                        console.log("Local data pushed to cloud.");
+                    } catch (error) {
+                        console.error("Failed to push local data to cloud:", error);
+                    }
+                }
+            }
+            return localData;
+        } else {
+            console.log("Local and cloud data are in sync.");
+            return localData;
+        }
+    } else if (cloudData) {
+        console.log("Only cloud data found. Using cloud data.");
+        return cloudData;
+    } else {
+        console.log("Only local data found. Using local data.");
+        return localData;
+    }
 }
 
 // Escape special characters to prevent XSS in dialog text
@@ -80,6 +129,7 @@ async function triggerCloudSave() {
                 savedPlayerTags: state.savedPlayerTags,
                 uiSettings: state.uiSettings,
                 allPlayersData: state.allPlayersData,
+                timestamp: new Date().toISOString(),
             };
 
             await saveUserData(currentUserId, stateToSave);

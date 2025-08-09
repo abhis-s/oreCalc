@@ -22,6 +22,7 @@ export function saveState(state) {
             savedPlayerTags: state.savedPlayerTags.length > 0 ? state.savedPlayerTags : ['DEFAULT0'],
             uiSettings: state.uiSettings,
             allPlayersData: state.allPlayersData,
+            timestamp: new Date().toISOString(),
         };
 
         const serializedState = JSON.stringify(stateToSave);
