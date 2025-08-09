@@ -27,8 +27,13 @@ export async function initializeAppData() {
     if (cloudData && localData) {
         const cloudTimestamp = new Date(cloudData.timestamp || 0);
         const localTimestamp = new Date(localData.timestamp || 0);
+        const timeDifference = Math.abs(cloudTimestamp.getTime() - localTimestamp.getTime());
+        const timeTolerance = 5 * 1000; // 5 seconds
 
-        if (cloudTimestamp > localTimestamp) {
+        if (timeDifference < timeTolerance) {
+            console.log("Local and cloud data are within 5 seconds discrepancy. Considering them in sync.");
+            return localData;
+        } else if (cloudTimestamp > localTimestamp) {
             if (confirm("Newer data is available on the cloud. Do you want to sync?")) {
                 console.log("User chose to sync. Using cloud data.");
                 return cloudData;
@@ -45,7 +50,7 @@ export async function initializeAppData() {
                 return localData;
             }
         } else if (localTimestamp > cloudTimestamp) {
-            if (confirm("Your local data is newer. Do you want to sync it to the cloud?")) {
+            console.log("Local data is newer. Automatically pushing to cloud.");
                 const userId = localStorage.getItem('oreCalcUserId');
                 if (userId) {
                     try {
@@ -55,10 +60,6 @@ export async function initializeAppData() {
                         console.error("Failed to push local data to cloud:", error);
                     }
                 }
-            }
-            return localData;
-        } else {
-            console.log("Local and cloud data are in sync.");
             return localData;
         }
     } else if (cloudData) {
@@ -129,7 +130,7 @@ async function triggerCloudSave() {
                 savedPlayerTags: state.savedPlayerTags,
                 uiSettings: state.uiSettings,
                 allPlayersData: state.allPlayersData,
-                timestamp: new Date().toISOString(),
+                timestamp: state.timestamp,
             };
 
             await saveUserData(currentUserId, stateToSave);
