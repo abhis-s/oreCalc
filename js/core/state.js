@@ -31,8 +31,12 @@ export function getDefaultState() {
             clanWar: { warsPerMonth: 0, winRate: 50, drawRate: 0, oresPerAttack: { shiny: 0, glowy: 0, starry: 0 } },
             cwl: { hitsPerSeason: 0, winRate: 50, drawRate: 0, oresPerAttack: { shiny: 0, glowy: 0, starry: 0 } },
         },
-        
-
+        planner: {
+            customMaxLevel: {
+                common: 18,
+                epic: 27,
+            },
+        },
         playerSpecificDefaults: {
             heroes: initializeHeroesState(),
             storedOres: { shiny: 0, glowy: 0, starry: 0 },
@@ -47,6 +51,12 @@ export function getDefaultState() {
                 cwl: { hitsPerSeason: 0, winRate: 50, drawRate: 0, oresPerAttack: { shiny: 0, glowy: 0, starry: 0 } },
             },
             playerData: null,
+            planner: {
+                customMaxLevel: {
+                    common: 18,
+                    epic: 27,
+                },
+            },
             regionalPricingEnabled: false,
         },
 
@@ -88,6 +98,12 @@ export function getDefaultPlayerState() {
             clanWar: { warsPerMonth: 0, winRate: 50, drawRate: 0, oresPerAttack: { shiny: 0, glowy: 0, starry: 0 } },
             cwl: { hitsPerSeason: 0, winRate: 50, drawRate: 0, oresPerAttack: { shiny: 0, glowy: 0, starry: 0 } },
         },
+        planner: {
+            customMaxLevel: {
+                common: 18,
+                epic: 27,
+            },
+        },
         playerData: null,
         regionalPricingEnabled: false,
     }));
@@ -117,6 +133,7 @@ export function initializeState(savedState) {
                     Object.assign(state.allPlayersData[playerTag].heroes, savedState.allPlayersData[playerTag].heroes);
                     Object.assign(state.allPlayersData[playerTag].storedOres, savedState.allPlayersData[playerTag].storedOres);
                     Object.assign(state.allPlayersData[playerTag].income, savedState.allPlayersData[playerTag].income);
+                    Object.assign(state.allPlayersData[playerTag].planner, savedState.allPlayersData[playerTag].planner);
                     Object.assign(state.allPlayersData[playerTag].playerData, savedState.allPlayersData[playerTag].playerData);
                     if (savedState.allPlayersData[playerTag].regionalPricingEnabled !== undefined) {
                         state.allPlayersData[playerTag].regionalPricingEnabled = savedState.allPlayersData[playerTag].regionalPricingEnabled;
@@ -148,7 +165,7 @@ export function initializeState(savedState) {
         }
 
         for (const key in savedState) {
-            if (key === 'derived' || key === 'heroes' || key === 'storedOres' || key === 'income' || key === 'playerData' || key === 'allPlayersData' || key === 'appVersion') {
+            if (key === 'derived' || key === 'heroes' || key === 'storedOres' || key === 'income' || key === 'playerData' || key === 'allPlayersData' || key === 'planner' || key === 'uiSettings') {
                 continue;
             }
             Object.assign(state, { [key]: savedState[key] });
@@ -171,8 +188,11 @@ export function initializeState(savedState) {
                     }
                 }
             }
+
             Object.assign(state.storedOres, activePlayerData.storedOres);
             Object.assign(state.income, activePlayerData.income);
+            Object.assign(state.planner, activePlayerData.planner);
+            
             if (!shopOfferData[state.income.shopOffers.selectedSet]) {
                 state.income.shopOffers.selectedSet = 'none';
             }

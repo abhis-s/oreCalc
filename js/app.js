@@ -14,7 +14,8 @@ import { initializePlayerDropdown } from './components/player/playerDropdown.js'
 import { initializePlayerModal } from './components/player/playerModal.js';
 import { initializeFab } from './components/fab/fab.js';
 import { initializeModeToggle } from './components/layout/modeToggle.js';
-import { initializeAppSettings } from './components/appSettings/appSettings.js';    
+import { initializeAppSettings } from './components/appSettings/appSettings.js';
+import { initializePlanner } from './components/planner/planner.js';
 
 import { initializeStarBonusSelector } from './components/income/starBonusSelector.js';
 import { initializeClanWarInputs } from './components/income/clanWarInputs.js';
@@ -48,12 +49,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeTabs();
     initializeNavigation();
     initializeStorageInputs();
-    initializeHeroCards(state.heroes, state.uiSettings);
+    initializeHeroCards(state.heroes, state.uiSettings, state.planner);
     initializePlayerDropdown();
     initializePlayerModal();
     initializeFab();
     initializeModeToggle();
     initializeAppSettings();
+    initializePlanner();
     initializeStarBonusSelector();
     initializeClanWarInputs();
     initializeCwlInputs();

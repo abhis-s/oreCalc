@@ -103,6 +103,9 @@
         &.gold-glow {
             filter: drop-shadow(0 0 4px rgba(249, 200, 64, 0.8)) drop-shadow(0 0 8px rgba(249, 200, 64, 0.6)); // TODO: Use a variable for this color
         }
+        &.over-leveled-glow {
+            filter: drop-shadow(0 0 4px rgba(0, 191, 255, 0.8)) drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
+        }
     }
 }
 

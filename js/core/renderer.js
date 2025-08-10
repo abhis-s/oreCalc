@@ -25,6 +25,7 @@ import { renderEventPassHomeDisplay } from '../components/income/eventPassDispla
 import { renderEventTraderHomeDisplay } from '../components/income/eventTraderDisplay.js';
 import { renderShopOfferHomeDisplay } from '../components/income/shopOfferDisplay.js';
 import { renderIncomeCard } from '../components/income/incomeCardHandler.js';
+import { renderPlanner } from '../components/planner/planner.js';
 
 export function renderApp(state) {
     const timeframe = state.uiSettings.incomeTimeframe;
@@ -34,9 +35,10 @@ export function renderApp(state) {
     renderModeToggle(state.uiSettings);
     renderAppSettings(state.uiSettings);
     renderFab(state.lastPlayerTag);
+    renderPlanner(state.planner);
 
     
-    renderHeroCards(state.heroes, state.uiSettings);
+    renderHeroCards(state.heroes, state.uiSettings, state.planner);
     renderStorageInputs(state.storedOres);
     renderPlayerDropdown();
 

@@ -51,15 +51,15 @@ export async function initializeAppData() {
             }
         } else if (localTimestamp > cloudTimestamp) {
             console.log("Local data is newer. Automatically pushing to cloud.");
-                const userId = localStorage.getItem('oreCalcUserId');
-                if (userId) {
-                    try {
-                        await saveUserData(userId, localData);
-                        console.log("Local data pushed to cloud.");
-                    } catch (error) {
-                        console.error("Failed to push local data to cloud:", error);
-                    }
+            const userId = localStorage.getItem('oreCalcUserId');
+            if (userId) {
+                try {
+                    await saveUserData(userId, localData);
+                    console.log("Local data pushed to cloud.");
+                } catch (error) {
+                    console.error("Failed to push local data to cloud:", error);
                 }
+            }
             return localData;
         }
     } else if (cloudData) {
@@ -118,6 +118,7 @@ export async function triggerCloudSave() {
                     heroes: state.heroes,
                     storedOres: state.storedOres,
                     income: state.income,
+                    planner: state.planner,
                     playerData: state.playerData,
                     regionalPricingEnabled: state.uiSettings.regionalPricingEnabled,
                     currency: state.uiSettings.currency,

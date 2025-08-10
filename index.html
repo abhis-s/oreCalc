@@ -28,6 +28,7 @@
             <button class="tab-button tab-button--active" data-tab="home">Home</button>
             <button class="tab-button" data-tab="equipment">Equipment</button>
             <button class="tab-button" data-tab="income">Income</button>
+            <button class="tab-button" data-tab="planner">Planner</button>
             <button class="tab-button" data-tab="settings">Settings</button>
         </div>
         <div class="player-controls-container">
@@ -684,6 +685,42 @@
             </div>
         </div>
 
+        <div class="tab-content" id="planner-tab">
+            <div class="planner-cards-grid">
+                <div class="planner-card card">
+                    <h3>Set Maximum Equipment Level</h3>
+                    <div class="input-group-flex indented">
+                        <label for="planner-common-max-level">Common:</label>
+                        <input type="number" id="planner-common-max-level" class="updatable" value="18" min="1" max="18" maxlength="2">
+                    </div>
+                    <div class="input-group-flex indented">
+                        <label for="planner-epic-max-level">Epic:</label>
+                        <input type="number" id="planner-epic-max-level" class="updatable" value="27" min="1" max="27" maxlength="2">
+                    </div>
+                </div>
+                <div class="planner-card card planner-hero-carousel">
+                    <div class="carousel-content" id="planner-hero-carousel-content">
+                        <!-- Hero pages will be dynamically inserted here by JavaScript -->
+                    </div>
+                    <div class="planner-page-dots" id="planner-page-dots">
+                        <!-- Page dots will be dynamically inserted here by JavaScript -->
+                    </div>
+                </div>
+                <div class="planner-card card">
+                    <h2>Card 3</h2>
+                    <p>Content for card 3</p>
+                </div>
+                <div class="planner-card card">
+                    <h2>Card 4</h2>
+                    <p>Content for card 4</p>
+                </div>
+            </div>
+            <div class="full-width-planner-section card">
+                <h2>Main Planner Section</h2>
+                <p>This will be the main content area for the planner.</p>
+            </div>
+        </div>
+
         <div class="tab-content" id="settings-tab">
             <div class="settings-cards-grid">
                 <div id="set-app-card" class="settings-card card">
@@ -828,6 +865,15 @@
                     <span class="icon-filled"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#8ab4f8"><path d="M470-320h29v-32q28-4 47.5-23t19.5-49q0-26-20-43.5T500-496v-74q10 3 16.5 10t9.5 17l36-15q-7-21-24-33.5T500-608v-32h-30v31q-28 3-47.5 20.5T403-542q0 27 20.5 45t46.5 29v79q-16-5-27-17t-15-28l-35 15q8 28 28 46t49 22v31Zm30-70v-66q11 5 19.5 12t8.5 21q0 16-8 22.5T500-390Zm-30-119q-11-5-20-12t-9-21q0-14 9-20.5t20-8.5v62ZM320-200q-117 0-198.5-81.5T40-480q0-117 81.5-198.5T320-760h320q117 0 198.5 81.5T920-480q0 117-81.5 198.5T640-200H320Z"/></svg></span>
                 </div>
                 <span>Income</span>
+            </div>
+        </button>
+        <button class="nav-button" data-tab="planner">
+            <div class="nav-item-content">
+                <div class="nav-icon-wrapper">
+                    <span class="icon-outline"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v255l-80 80v-175H200v400h248l80 80H200Zm0-560h560v-80H200v80Zm0 0v-80 80ZM662-60 520-202l56-56 85 85 170-170 56 57L662-60Z"/></svg></span>
+                    <span class="icon-filled"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#8ab4f8"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v255l-80 80v-175H200v400h248l80 80H200Zm462 20L520-202l56-56 85 85 170-170 56 57L662-60Z"/></svg></span>
+                </div>
+                <span>Planner</span>
             </div>
         </button>
         <button class="nav-button" data-tab="settings">

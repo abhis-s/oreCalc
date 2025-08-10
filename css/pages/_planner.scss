@@ -1,0 +1,168 @@
+.planner-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.planner-card {
+    box-shadow: var(--card-shadow);
+}
+
+.full-width-planner-section {
+    box-shadow: var(--card-shadow);
+    grid-column: 1 / -1;
+}
+
+.planner-hero-carousel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    position: relative;
+    min-height: 300px;
+}
+
+.carousel-content {
+    display: flex;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    gap: 20px;
+    padding-bottom: 10px;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hero-page {
+    flex: 0 0 auto;
+    width: 100%;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+
+    .hero-header-section {
+        background-color: var(--color-black-200);
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-bottom: 10px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .hero-info-and-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .hero-icon-planner {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .equipment-list {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .equipment-item-planner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 2px 0;
+
+            .equipment-info {
+                display: flex;
+                align-items: center;
+
+                img {
+                    width: 25px;
+                    height: 25px;
+                    margin-right: 8px;
+                }
+            }
+        }
+    }
+}
+
+.switch.large-switch {
+    width: 60px;
+    height: 34px;
+
+    .slider.round {
+        &:before {
+            width: 26px;
+            height: 26px;
+            bottom: 4px;
+        }
+    }
+
+    input:checked + .slider.round:before {
+        transform: translateX(26px);
+    }
+}
+
+.planner-page-dots {
+    display: flex;
+    justify-content: center;
+    margin: 7.5px auto;
+    gap: 8px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background-color: var(--color-grey-600);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &.active {
+        background-color: var(--color-primary-blue);
+    }
+
+    &:hover {
+        background-color: var(--color-grey-400);
+    }
+}
+
+.equipment-item-planner {
+    .equipment-info {
+        img {
+            &.gold-glow {
+                filter: drop-shadow(0 0 4px rgba(249, 200, 64, 0.8)) drop-shadow(0 0 8px rgba(249, 200, 64, 0.6));
+            }
+            &.over-leveled-glow {
+                filter: drop-shadow(0 0 4px rgba(0, 191, 255, 0.8)) drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
+            }
+        }
+        span {
+            &.gold-glow {
+                color: var(--color-accent-yellow-100) !important;
+            }
+            &.common-equip {
+                color: var(--color-primary-blue);
+            }
+            &.epic-equip {
+                color: var(--color-accent-purple-dark);
+            }
+        }
+    }
+}
