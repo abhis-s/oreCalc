@@ -107,7 +107,7 @@ export async function importUserData(importId) {
 }
 
 // Function to trigger an explicit cloud save
-async function triggerCloudSave() {
+export async function triggerCloudSave() {
     const currentUserId = localStorage.getItem('oreCalcUserId');
     if (currentUserId) {
         try {
@@ -132,6 +132,12 @@ async function triggerCloudSave() {
                 allPlayersData: state.allPlayersData,
                 timestamp: state.timestamp,
             };
+
+            if (state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0') {
+                alert('Cannot save to cloud: Only default player tag exists.');
+                console.log("Skipping cloud save: Only default player tag exists.");
+                return;
+            }
 
             await saveUserData(currentUserId, stateToSave);
             alert('Data saved to cloud successfully!');

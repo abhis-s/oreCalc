@@ -42,7 +42,7 @@ export function initializeFab() {
 }
 
 export function renderFab(playerTag) {
-    const isDisabled = !playerTag || !state.savedPlayerTags.includes(playerTag);
+    const isDisabled = !playerTag || (state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0') || (!state.savedPlayerTags.includes(playerTag) && state.savedPlayerTags.length > 1);
 
     if (dom.fab.main) {
         dom.fab.main.disabled = isDisabled;

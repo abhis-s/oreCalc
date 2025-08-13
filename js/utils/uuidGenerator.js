@@ -1,4 +1,4 @@
-function generateUUID() {
+export function generateUUID() {
     // Public Domain/MIT licensed, from https://stackoverflow.com/a/8809472/1
     let d = new Date().getTime();
     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
@@ -11,4 +11,7 @@ function generateUUID() {
     });
 }
 
-export { generateUUID };
+export function isValidUUID(uuid) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(uuid);
+}

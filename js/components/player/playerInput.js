@@ -33,6 +33,13 @@ export function initializePlayerInput() {
         }, 100);
     });
     
+    input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            loadButton.click();
+        }
+    });
+    
     suggestionsContainer.addEventListener('click', (event) => {
         const suggestionItem = event.target.closest('.player-tag-suggestion-item');
         if (suggestionItem) {
