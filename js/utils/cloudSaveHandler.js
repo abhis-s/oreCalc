@@ -89,10 +89,10 @@ export async function importUserData(importId) {
                 const importedData = await loadUserData(importId);
                 if (importedData) {
                     // Overwrite local storage with imported data
-                    localStorage.setItem('oreCalcState', JSON.stringify(importedData));
-                    localStorage.setItem('oreCalcUserId', importId); // Set new userId
+                    localStorage.setItem('oreCalculatorState', JSON.stringify(importedData));
+                    localStorage.setItem('oreCalcUserId', importId);
                     alert('Data imported successfully! Reloading app...');
-                    location.reload(); // Reload app to apply new state
+                    location.reload();
                 } else {
                     alert('No data found for that User ID.');
                 }
