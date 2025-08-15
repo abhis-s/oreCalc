@@ -11,7 +11,7 @@
     top: 0;
     transition: opacity 0.75s ease-in-out;
     width: 100%;
-    z-index: 1000;
+    z-index: 10000;
 
     &.hidden {
         opacity: 0;

@@ -5,7 +5,7 @@
 .header-container {
     @extend %flex-center;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin: 0 10px 20px;
     transition: all 0.4s ease-in-out;
 
     h1 {
@@ -26,6 +26,14 @@
         max-width: 1200px;
         z-index: 1000;
     }
+}
+
+.player-controls-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; // Adjust as needed for spacing between dropdown and refresh button
+    flex-shrink: 0;
+    flex-grow: 0;
 }
 
 .header-placeholder {

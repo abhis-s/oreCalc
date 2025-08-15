@@ -7,6 +7,8 @@ body {
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
     overflow-y: scroll;
+    background-color: $dark-background-primary;
+    color: $dark-text-primary;
 }
 
 :root {
@@ -20,8 +22,9 @@ body {
 }
 
 .container {
-	background-color: $color-black-200;
+	background-color: $dark-background-secondary;
 	border-radius: 15px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 	margin: 0 auto;
 	max-width: 1200px;
 	padding: 20px;

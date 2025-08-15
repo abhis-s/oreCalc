@@ -13,28 +13,51 @@
     <div id="preloader">
         <div class="spinner"></div>
     </div>
-    <div class="container">
-        <div class="header-container">
-            <!-- <h1>Ore Calculator</h1> -->
+    <div class="header-container">
+        <!-- <h1>Ore Calculator</h1> -->
 
-            <div class="tab-bar-container">
-                <button class="tab-button tab-button--active" data-tab="home">Home</button>
-                <button class="tab-button" data-tab="equipment">Equipment</button>
-                <button class="tab-button" data-tab="income">Income</button>
-                <button class="tab-button" data-tab="settings">Settings</button>
+        <div class="tab-bar-container">
+            <button class="tab-button tab-button--active" data-tab="home">Home</button>
+            <button class="tab-button" data-tab="equipment">Equipment</button>
+            <button class="tab-button" data-tab="income">Income</button>
+            <button class="tab-button" data-tab="settings">Settings</button>
+        </div>
+        <div class="player-controls-container">
+            <div class="player-dropdown-container">
+                <button id="player-dropdown-button" class="player-dropdown-button">
+                    <span id="selected-player-name"></span>
+                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
+                </button>
+                <div id="player-dropdown-list" class="player-dropdown-list">
+                    <div id="player-items-container"></div>
+                    <button id="add-player-button" class="add-player-button">+ Add Player</button>
+                </div>
             </div>
-            <div class="player-tag-controls-container">
-                <div class="search-bar">
-                    <span class="player-tag-prefix">#</span>
-                    <input type="text" id="player-tag-input" placeholder="Enter Player Tag" class="player-tag-input" autocomplete="off">
-                    <button id="load-player-btn" class="load-player-button">Load</button>
-                    <div id="player-tag-suggestions" class="player-tag-suggestions"></div>
+
+            <div id="add-player-modal" class="add-player-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Add a New Player</h2>
+                    </div>
+                    <div class="player-name-input-container">
+                        <label for="player-tag-input-modal">Player Tag</label>
+                        <input type="text" id="player-tag-input-modal" placeholder="Enter player tag" maxlength="12">
+                        <div id="player-tag-error-message" class="error-message"></div>
+                    </div>
+                    <div class="modal-actions">
+                        <button id="cancel-add-player-button" class="cancel-button">Cancel</button>
+                        <button id="load-player-modal-btn" class="add-button">Load</button>
+                    </div>
                 </div>
             </div>
             <div class="data-buttons-container">
-                
+                <button id="refresh-button" class="icon-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
+                </button>
             </div>
         </div>
+    </div>
+    <div class="container">
         <div class="header-placeholder"></div>
 
         <div class="tab-content active" id="home-tab">

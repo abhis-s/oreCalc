@@ -6,8 +6,7 @@ import { updateSavedPlayerTags, updateAllPlayersData } from '../core/localStorag
 
 export async function loadAndProcessPlayerData(playerTag) {
     if (!playerTag || playerTag.trim() === '') {
-        alert('Please enter a player tag.');
-        return;
+        return { success: false, message: 'Please enter a player tag.' };
     }
 
     try {
@@ -21,9 +20,10 @@ export async function loadAndProcessPlayerData(playerTag) {
             state.lastPlayerTag = cleanedServerTag;
             processPlayerDataResponse(playerData);
         });
+        return { success: true };
     } catch (error) {
         console.error('Failed to load player data:', error);
-        alert(`Failed to load player data: ${error.message}`);
+        return { success: false, message: `Failed to load player data: ${error.message}` };
     }
 }
 
@@ -103,6 +103,7 @@ export function processPlayerDataResponse(playerData) {
         newPlayerState.income.shopOffers.selectedSet = bestMatchSet;
     }
     newPlayerState.playerData = {
+        name: playerData.name,
         tag: playerData.tag,
         clan: playerData.clan ? { badgeUrls: { small: playerData.clan.badgeUrls.small } } : {},
         heroes: playerData.heroes,

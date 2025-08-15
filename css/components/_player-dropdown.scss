@@ -1,0 +1,175 @@
+@use '../abstracts/variables' as *;
+
+.player-dropdown-container {
+    position: relative;
+    width: 250px;
+    flex-shrink: 1;
+}
+
+.player-dropdown-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 12px;
+    background-color: $dark-surface-primary;
+    cursor: pointer;
+    box-shadow: 0 1px 2px $dark-shadow-color;
+    transition: all 0.2s ease-in-out;
+    font-size: 16px;
+    color: $dark-text-primary;
+    font-weight: 500;
+    z-index: 1001;
+    position: relative;
+
+    &:hover {
+        background-color: $dark-surface-secondary;
+        box-shadow: 0 2px 4px $dark-shadow-color;
+    }
+
+    &.open {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        box-shadow: 0 2px 4px $dark-shadow-color;
+    }
+
+    .dropdown-arrow {
+        transition: transform 0.2s ease-in-out;
+        fill: $dark-text-primary;
+    }
+
+    &.open .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+}
+
+.player-dropdown-list {
+    position: absolute;
+    top: calc(100% - 20px);
+    left: 0;
+    width: 100%;
+    border: none;
+    border-top: 1px solid $dark-border-color;
+    border-radius: 0 0 12px 12px;
+    padding-top: 20px;
+    background-color: $dark-surface-primary;
+    z-index: 999;
+    box-shadow: 0 2px 4px $dark-shadow-color;
+    overflow: hidden;
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out, clip-path 0.2s ease-out;
+    pointer-events: none;
+}
+
+.player-dropdown-list.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0% 0);
+    pointer-events: auto;
+}
+
+.player-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+    font-size: 16px;
+    color: $dark-text-primary;
+
+    &:hover {
+        background-color: $dark-surface-secondary;
+    }
+
+    &.active {
+        background-color: rgba(106, 158, 232, 0.2);
+        color: $dark-text-primary;
+        font-weight: 500;
+    }
+
+    svg {
+        margin-right: 0;
+    }
+}
+
+.player-info-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.player-tag-text {
+    font-size: 12px;
+    color: $dark-text-secondary;
+}
+
+.add-player-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px 18px;
+    background-color: $dark-accent-purple;
+    color: $dark-text-primary;
+    border: none;
+    border-radius: 0 0 12px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+        background-color: $dark-accent-purple-hover;
+    }
+
+    svg {
+        margin-right: 8px;
+        fill: $dark-text-primary;
+    }
+}
+
+.delete-player-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: auto;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease-in-out;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    svg {
+        fill: $color-danger-300;
+        width: 20px;
+        height: 20px;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.cache-status-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    fill: $dark-text-secondary;
+}
+
+.cache-status-icon.cached {
+    fill: $color-success-300;
+}
+
+.cache-status-icon.not-cached {
+    fill: $color-danger-300;
+}

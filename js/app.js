@@ -9,7 +9,8 @@ import { initializeHeader } from './components/layout/header.js';
 import { initializeTabs } from './components/layout/tabs.js';
 import { initializeStorageInputs } from './components/equipment/storageInputs.js';
 import { initializeHeroCards } from './components/equipment/heroCard.js';
-import { initializePlayerInput } from './components/player/playerInput.js';
+import { initializePlayerDropdown } from './components/player/playerDropdown.js';
+import { initializePlayerModal } from './components/player/playerModal.js';
 import { initializeFab } from './components/fab/fab.js';
 import { initializeModeToggle } from './components/layout/modeToggle.js';
 import { initializeAppSettings } from './components/appSettings/appSettings.js';    
@@ -26,6 +27,7 @@ import { initializeIncomeCardHandler } from './components/income/incomeCardHandl
 import { initializeIncomeCardObserver } from './components/income/incomeCardObserver.js';
 import { initializeResponsiveTextHandler } from './utils/responsiveTextHandler.js';
 import { initializeCloudSaveButtons } from './utils/cloudSaveHandler.js';
+import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
 
 import './console.js';
 
@@ -45,7 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeTabs();
     initializeStorageInputs();
     initializeHeroCards(state.heroes, state.uiSettings);
-    initializePlayerInput();
+    initializePlayerDropdown();
+    initializePlayerModal();
     initializeFab();
     initializeModeToggle();
     initializeAppSettings();
@@ -61,6 +64,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeIncomeCardObserver();
     initializeResponsiveTextHandler();
     initializeCloudSaveButtons();
+
+    const refreshButton = dom.controls.refreshButton;
+    if (refreshButton) {
+        refreshButton.addEventListener('click', () => {
+            if (state.lastPlayerTag) {
+                loadAndProcessPlayerData(state.lastPlayerTag);
+            } else {
+                alert('No player tag selected to refresh.');
+            }
+        });
+    }
 
     const preloader = dom.preloader;
     if (preloader) {

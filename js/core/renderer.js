@@ -4,7 +4,7 @@ import { renderAppSettings } from '../components/appSettings/appSettings.js';
 import { renderFab } from '../components/fab/fab.js';
 import { renderHeroCards } from '../components/equipment/heroCardDisplay.js';
 import { renderStorageInputs } from '../components/equipment/storageInputs.js';
-import { renderPlayerInput } from '../components/player/playerInput.js';
+import { renderPlayerDropdown } from '../components/player/playerDropdown.js';
 
 import { renderStarBonusSelector } from '../components/income/starBonusSelector.js';
 import { renderClanWarInputs } from '../components/income/clanWarInputs.js';
@@ -38,7 +38,7 @@ export function renderApp(state) {
     
     renderHeroCards(state.heroes, state.uiSettings);
     renderStorageInputs(state.storedOres);
-    renderPlayerInput(state.lastPlayerTag, state.savedPlayerTags);
+    renderPlayerDropdown();
 
     renderStarBonusSelector(state.income.starBonusLeague);
     renderClanWarInputs(state.income.clanWar);
