@@ -7,6 +7,7 @@
     flex-wrap: wrap;
     margin: 0 10px 20px;
     transition: all 0.4s ease-in-out;
+    position: relative;
 
     h1 {
         margin-right: auto;
@@ -31,7 +32,7 @@
 .player-controls-container {
     display: flex;
     align-items: center;
-    gap: 10px; // Adjust as needed for spacing between dropdown and refresh button
+    gap: 10px;
     flex-shrink: 0;
     flex-grow: 0;
 }
@@ -40,4 +41,55 @@
     display: none;
     height: 0;
     transition: height 0.4s ease-in-out;
+}
+
+.hamburger {
+    display: none;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 1001;
+    position: relative;
+
+    .menu-icon,
+    .cross-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .cross-icon {
+        opacity: 0;
+    }
+}
+
+body.open-drawer .hamburger .menu-icon {
+    opacity: 0;
+}
+
+body.open-drawer .hamburger .cross-icon {
+    opacity: 1;
+}
+
+@media (max-width: 779px) {
+    .header-container {
+        justify-content: space-between;
+    }
+
+    .header-container h1 {
+        margin-right: 0; // Remove auto margin to allow space-between to work
+    }
+
+    .hamburger {
+        display: block;
+    }
+
+    .player-controls-container {
+        margin-left: auto; // Push to the right
+    }
+
+    .tab-bar-container {
+        display: none;
+    }
 }

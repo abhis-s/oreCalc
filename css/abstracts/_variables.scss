@@ -1,4 +1,57 @@
 // abstracts/_variables.scss
+// Material You Inspired Color System (Dark Theme Focus)
+$md-primary: #D0BCFF;
+$md-on-primary: #381E72;
+$md-primary-container: #6750A4;
+$md-on-primary-container: #EADDFF;
+
+$md-secondary: #CCC2DC;
+$md-on-secondary: #332D41;
+$md-secondary-container: #4A4458;
+$md-on-secondary-container: #E8DEF8;
+
+$md-tertiary: #EFB8C8;
+$md-on-tertiary: #492532;
+$md-tertiary-container: #633B48;
+$md-on-tertiary-container: #FFD8E4;
+
+$md-error: #F2B8B5;
+$md-on-error: #601410;
+$md-error-container: #8C1D18;
+$md-on-error-container: #F9DEDC;
+
+$md-background: #1C1B1F;
+$md-on-background: #E6E1E5;
+$md-surface: #1C1B1F;
+$md-on-surface: #E6E1E5;
+$md-surface-variant: #49454F;
+$md-on-surface-variant: #CAC4D0;
+
+$md-outline: #938F99;
+$md-outline-variant: #49454F;
+$md-inverse-surface: #E6E1E5;
+$md-inverse-on-surface: #313033;
+$md-inverse-primary: #6750A4;
+$md-shadow: #000000;
+$md-surface-tint: #D0BCFF;
+$md-scrim: rgba(0, 0, 0, 0.5);
+
+// Material You Shape System
+$shape-corner-extra-small: 4px;
+$shape-corner-small: 8px;
+$shape-corner-medium: 12px;
+$shape-corner-large: 16px;
+$shape-corner-extra-large: 28px;
+$shape-corner-full: 50%;
+
+// Material You Elevation System (subtle shadows)
+$elevation-1: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px rgba(0, 0, 0, 0.15);
+$elevation-2: 0px 2px 4px rgba(0, 0, 0, 0.3), 0px 2px 6px rgba(0, 0, 0, 0.15);
+$elevation-3: 0px 4px 8px rgba(0, 0, 0, 0.3), 0px 4px 12px rgba(0, 0, 0, 0.15);
+$elevation-4: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px 6px 18px rgba(0, 0, 0, 0.15);
+$elevation-5: 0px 8px 16px rgba(0, 0, 0, 0.3), 0px 8px 24px rgba(0, 0, 0, 0.15);
+
+// Existing variables (some might be replaced by Material You system)
 $color-white: #ffffff;
 $color-grey-100: #e8eaed;
 $color-grey-200: #e3e2e6;
@@ -42,7 +95,7 @@ $material-thumb-inactive: #E6E1E5;
 $material-thumb-active: #FFD8E4;
 $font-family-sans: 'Roboto', sans-serif;
 
-// Dark Theme Colors
+// Dark Theme Colors (some might be redundant after Material You system)
 $dark-background-primary: #121212;
 $dark-background-secondary: #1e1e1e;
 $dark-surface-primary: #2c2c2c;

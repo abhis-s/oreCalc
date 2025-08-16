@@ -7,6 +7,7 @@ import { initializeAppData } from './utils/cloudSaveHandler.js';
 
 import { initializeHeader } from './components/layout/header.js';
 import { initializeTabs } from './components/layout/tabs.js';
+import { initializeNavigation } from './components/layout/navigation.js';
 import { initializeStorageInputs } from './components/equipment/storageInputs.js';
 import { initializeHeroCards } from './components/equipment/heroCard.js';
 import { initializePlayerDropdown } from './components/player/playerDropdown.js';
@@ -45,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     initializeHeader();
     initializeTabs();
+    initializeNavigation();
     initializeStorageInputs();
     initializeHeroCards(state.heroes, state.uiSettings);
     initializePlayerDropdown();

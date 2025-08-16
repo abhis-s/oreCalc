@@ -141,3 +141,92 @@
     width: 100%;
     z-index: 1000;
 }
+
+.navigation-drawer {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100%;
+    background-color: $md-surface;
+    box-shadow: $elevation-3;
+    transition: left 0.3s ease-in-out;
+    z-index: 1002;
+    border-radius: 0 $shape-corner-extra-large $shape-corner-extra-large 0;
+
+    &.open {
+        left: 0;
+    }
+
+    &__overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: $md-scrim;
+        z-index: 1001;
+
+        &.open {
+            display: block;
+        }
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-top-right-radius: $shape-corner-extra-large;
+
+        h4 {
+            margin: 30px 0 0 10px;
+            color: $md-on-surface-variant;
+        }
+    }
+
+    &__tabs {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        position: relative;
+        z-index: 1003;
+    }
+
+    &__tab {
+        background: none;
+        border: none;
+        color: $md-on-surface;
+        padding: 12px 24px;
+        text-align: left;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, color 0.3s;
+        border-radius: $shape-corner-small;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        &:hover {
+            background-color: rgba($md-primary, 0.08);
+            border-radius: $shape-corner-extra-large;
+        }
+
+        &:focus {
+            background-color: rgba($md-primary, 0.16);
+            border-radius: $shape-corner-extra-large;
+            outline: none;
+        }
+
+        &.nav-button--active {
+            background-color: rgba($md-primary, 0.12);
+            color: $md-on-primary-container;
+            border-radius: $shape-corner-extra-large;
+
+            svg {
+                fill: $md-on-primary-container;
+            }
+        }
+    }
+}
