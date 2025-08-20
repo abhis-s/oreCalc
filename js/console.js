@@ -1,5 +1,7 @@
 import { state } from './core/state.js';
 import { handleStateUpdate } from './app.js';
+import { saveState } from './core/localStorageManager.js';
+import { renderApp } from './core/renderer.js';
 
 window.switchMode = () => {
     const newMode = state.uiSettings.mode === 'ease' ? 'tweak' : 'ease';
@@ -46,14 +48,25 @@ window.logState = () => {
     return "Current application state logged to console.";
 };
 
+window.clearPlannerState = () => {
+    handleStateUpdate(() => {
+        state.planner.calendar.dates = {};
+    });
+    renderApp(state);
+    saveState(state);
+    return "Planner state cleared.";
+};
+
 console.info(
     "%c Ore Calculator Console Commands:\n\n" +
     "%c  switchMode():     %cToggles between 'Ease' and 'Tweak' modes.\n" +
     "%c  resetApp():       %cInitiates a 5-second countdown to reset all app data and reload. Can be cancelled.\n" +
     "%c  cancelResetApp(): %cCancels an active resetApp countdown.\n" +
-    "%c  logState():       %cLogs the current state object to the console.\n\n" +
+    "%c  logState():       %cLogs the current state object to the console.\n" +
+    "%c  clearPlannerState(): %cCears all saved chips from the planner calendar.\n\n" +
     "%c For more information, refer to the documentation.",
     "color: #8ab4f8; font-weight: bold;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",

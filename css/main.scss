@@ -9,6 +9,7 @@
 
 @use 'components/buttons';
 @use 'components/cards';
+@use 'components/calendar';
 @use 'components/fab';
 @use 'components/forms';
 @use 'components/icons';
@@ -17,7 +18,8 @@
 @use 'components/player-dropdown';
 @use 'components/player-modal';
 @use "components/preloader";
-@use "components/switch";
+@use 'components/switch';
+@use 'components/income_chips';
 
 @use 'layout/grid';
 @use 'layout/header';

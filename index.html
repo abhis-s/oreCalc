@@ -706,19 +706,42 @@
                         <!-- Page dots will be dynamically inserted here by JavaScript -->
                     </div>
                 </div>
-                <div class="planner-card card">
-                    <h2>Card 3</h2>
-                    <p>Content for card 3</p>
-                </div>
-                <div class="planner-card card">
-                    <h2>Card 4</h2>
-                    <p>Content for card 4</p>
-                </div>
+                
+                
             </div>
             <div class="full-width-planner-section card">
                 <h2>Main Planner Section</h2>
-                <p>This will be the main content area for the planner.</p>
+                <div class="inner-card">
+                    <div id="calendar-planner-section" class="calendar-container">
+                        <div class="calendar-header">
+                            <button id="prev-month">&lt;</button>
+                            <h2 id="current-month-year"></h2>
+                            <button id="next-month">&gt;</button>
+                            <select id="view-select" class="dropdown-style">
+                                <option value="monthly">Month</option>
+                                <option value="weekly">Week</option>
+                            </select>
+                            <button id="delete-current-month-chips-btn" class="icon-button planner-action-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+                            </button>
+                            <button id="delete-all-chips-btn" class="icon-button planner-action-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M600-240v-80h160v80H600Zm0-320v-80h280v80H600Zm0 160v-80h240v80H600ZM120-640H80v-80h160v-60h160v60h160v80h-40v360q0 33-23.5 56.5T440-200H200q-33 0-56.5-23.5T120-280v-360Zm80 0v360h240v-360H200Zm0 0v360-360Z"/></svg>
+                            </button>
+                        </div>
+                        <div id="calendar-grid" class="calendar-grid"></div>
+                    </div>
+                </div>
+            <div class="inner-card">
+                    <h3>Income Chips</h3>
+                    <div id="income-chips-container" class="income-chips-container">
+                        <!-- Draggable chips will be dynamically inserted here -->
+                    </div>
+                    <div id="income-chips-legend" class="income-chips-legend">
+                        <!-- Legend items will be dynamically inserted here -->
+                    </div>
+                </div>
             </div>
+            
         </div>
 
         <div class="tab-content" id="settings-tab">

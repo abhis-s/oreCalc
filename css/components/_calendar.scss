@@ -1,0 +1,161 @@
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--card-bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    margin-top: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+    color: var(--text-color);
+
+    h2 {
+        margin: 0;
+        font-size: 1.5em;
+    }
+
+    button {
+        background-color: var(--button-bg-color);
+        color: var(--button-text-color);
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: var(--button-hover-bg-color);
+        }
+    }
+}
+
+.view-toggle {
+    display: flex;
+    gap: 5px;
+
+    button {
+        &.active {
+            background-color: var(--accent-color);
+            color: var(--accent-text-color);
+        }
+    }
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    width: 100%;
+    text-align: center;
+
+    &.weekly-view-grid {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+
+        .day-cell {
+            text-align: left;
+        }
+    }
+
+    .day-name {
+        font-weight: bold;
+        color: var(--text-color-light);
+        padding: 10px 5px;
+    }
+
+    .day-cell {
+        padding: 15px 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: var(--input-hover-bg-color);
+        }
+
+        &.current-month {
+            background-color: var(--card-bg-color);
+        }
+
+        &.today {
+            border: 2px solid var(--accent-color);
+        }
+
+        &.selected {
+            background-color: var(--accent-color);
+            color: var(--accent-text-color);
+        }
+
+        &.empty {
+            background-color: transparent;
+            cursor: default;
+        }
+
+        &.other-month {
+            color: var(--text-color-disabled);
+
+            .income-chip {
+                opacity: 0.5;
+            }
+        }
+    }
+}
+
+.weekly-day-name {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.day-cell {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: visible;
+
+    .date-display {
+        padding-bottom: 5px;
+    }
+
+    .chip-container {
+        flex-grow: 1;
+        min-height: 25px;
+        border: 1px dashed transparent;
+        transition: all 0.2s ease-in-out;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: center;
+        align-content: flex-start;
+
+        &.drag-over {
+            min-height: 100px;
+        }
+
+        &.valid-drop-range {
+            border: 1px dashed var(--color-white);
+        }
+
+        &.valid-drop-target {
+            border: 2px dashed var(--color-success-300);
+        }
+
+        &.invalid-drop-target {
+            border: 2px dashed var(--color-danger-300);
+        }
+
+        &.duplicate-chip-type {
+            border: 1px dashed transparent;
+            &.invalid-drop-target {
+                border: 2px dashed var(--color-danger-300);
+            }
+        }
+    }
+}

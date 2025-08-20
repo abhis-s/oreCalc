@@ -1,0 +1,161 @@
+.income-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #424242;
+    border-radius: 8px;
+    min-height: 100px;
+}
+
+.income-chip {
+    padding: 8px 12px;
+    border-radius: 20px;
+    color: #ffffff;
+    font-size: 0.9em;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+
+    &.shop-offer {
+        background-color: #FFD700;
+    }
+
+    &.star-bonus {
+        background-color: #ADD8E6;
+    }
+
+    &.raid-medal-trader {
+        background-color: #8B4513;
+    }
+
+    &.gem-trader {
+        background-color: #00BFFF;
+    }
+
+    &.event-pass {
+        background-color: #9932CC;
+    }
+
+    &.event-trader {
+        background-color: #FF4500;
+    }
+
+    &.clan-war {
+        background-color: #228B22;
+    }
+
+    &.cwl {
+        background-color: #4682B4;
+    }
+}
+
+.income-event-display {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin: 2px;
+    position: relative;
+    cursor: pointer;
+
+    &.shop-offer {
+        background-color: #FFD700;
+    }
+
+    &.star-bonus {
+        background-color: #ADD8E6;
+    }
+
+    &.raid-medal-trader {
+        background-color: #8B4513;
+    }
+
+    &.gem-trader {
+        background-color: #00BFFF;
+    }
+
+    &.event-pass {
+        background-color: #9932CC;
+    }
+
+    &.event-trader {
+        background-color: #FF4500;
+    }
+
+    &.clan-war {
+        background-color: #228B22;
+    }
+
+    &.cwl {
+        background-color: #4682B4;
+    }
+}
+
+.chip-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+    padding: 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    pointer-events: none;
+    padding-top: 10px;
+
+    &.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .tooltip-content {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-end;
+    }
+
+    .ore-count-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8em;
+    }
+
+    .ore-icon-small {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.income-chips-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #424242;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #ffffff;
+    font-size: 0.85em;
+}
+
+.color-box {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+}

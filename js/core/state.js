@@ -36,6 +36,10 @@ export function getDefaultState() {
                 common: 18,
                 epic: 27,
             },
+            calendar: {
+                month: `${String(new Date().getMonth() + 1).padStart(2, '0')}-${new Date().getFullYear()}`,
+                dates: {} // "MM-YYYY": { "DD": ["chipId1", "chipId2"] }
+            },
         },
         playerSpecificDefaults: {
             heroes: initializeHeroesState(),
@@ -102,6 +106,10 @@ export function getDefaultPlayerState() {
             customMaxLevel: {
                 common: 18,
                 epic: 27,
+            },
+            calendar: {
+                month: `${String(new Date().getMonth() + 1).padStart(2, '0')}-${new Date().getFullYear()}`,
+                dates: {} // "MM-YYYY": { "DD": ["chipId1", "chipId2"] }
             },
         },
         playerData: null,
@@ -190,8 +198,17 @@ export function initializeState(savedState) {
             }
 
             Object.assign(state.storedOres, activePlayerData.storedOres);
-            Object.assign(state.income, activePlayerData.income);
+            Object.assign(state.income, getDefaultState().income, activePlayerData.income);
             Object.assign(state.planner, activePlayerData.planner);
+            // Ensure state.planner.calendar.month is always a valid string
+            if (!state.planner.calendar.month || typeof state.planner.calendar.month !== 'string' || !state.planner.calendar.month.includes('-')) {
+                state.planner.calendar.month = `${String(new Date().getMonth() + 1).padStart(2, '0')}-${new Date().getFullYear()}`;
+            }
+
+            // Ensure dates object exists in planner.calendar
+            if (!state.planner.calendar.dates) {
+                state.planner.calendar.dates = {};
+            }
             
             if (!shopOfferData[state.income.shopOffers.selectedSet]) {
                 state.income.shopOffers.selectedSet = 'none';

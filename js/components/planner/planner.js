@@ -8,10 +8,17 @@ import { initializeHeroPlannerCarousel } from './heroPlannerCarousel.js';
 import { renderHeroPlannerCarouselDisplay, updatePageDots, scrollToHeroPage } from './heroPlannerCarouselDisplay.js';
 
 import { initializePlannerCustomLevels, renderPlannerCustomLevels } from './plannerCustomLevels.js';
+import { renderIncomeChips } from './incomeChips.js';
+import { renderCalendar } from './calendar.js';
 
 
 export function initializePlanner() {
     initializePlannerCustomLevels();
+    renderCalendar(state.planner);
+    const [monthStr, yearStr] = state.planner.calendar.month.split('-');
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10) - 1;
+    renderIncomeChips(year, month);
 
     const carouselContent = dom.planner?.heroCarouselContent;
     const plannerPageDots = dom.planner?.plannerPageDots;
@@ -66,6 +73,24 @@ export function renderPlanner(plannerState) {
         return;
     }
     renderPlannerCustomLevels(plannerState);
-
     renderHeroPlannerCarouselDisplay(currentHeroIndex);
+    renderCalendar(plannerState);
+    const [monthStr, yearStr] = plannerState.calendar.month.split('-');
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10) - 1;
+    renderIncomeChips(year, month);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const plannerSection = document.getElementById('planner');
+    if (plannerSection) {
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                initializePlanner();
+                observer.disconnect();
+            }
+        }, { threshold: 0.1 });
+
+        observer.observe(plannerSection);
+    }
+});

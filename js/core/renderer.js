@@ -20,12 +20,14 @@ import { renderRemainingTime } from '../components/equipment/remainingTimeDispla
 import { renderStarBonusDisplay } from '../components/income/starBonusDisplay.js';
 import { renderClanWarHomeDisplay, renderClanWarIncomeTabDisplay } from '../components/income/clanWarDisplay.js';
 import { renderCwlHomeDisplay, renderCwlIncomeTabDisplay } from '../components/income/cwlDisplay.js';
-import { renderGemHomeDisplay } from '../components/income/gemDisplay.js';
+import { renderGemHomeDisplay } from '../components/income/gemTraderDisplay.js';
 import { renderEventPassHomeDisplay } from '../components/income/eventPassDisplay.js';
 import { renderEventTraderHomeDisplay } from '../components/income/eventTraderDisplay.js';
 import { renderShopOfferHomeDisplay } from '../components/income/shopOfferDisplay.js';
 import { renderIncomeCard } from '../components/income/incomeCardHandler.js';
 import { renderPlanner } from '../components/planner/planner.js';
+import { renderIncomeChips } from '../components/planner/incomeChips.js';
+import { renderCalendar } from '../components/planner/calendar.js';
 
 export function renderApp(state) {
     const timeframe = state.uiSettings.incomeTimeframe;
@@ -36,8 +38,9 @@ export function renderApp(state) {
     renderAppSettings(state.uiSettings);
     renderFab(state.lastPlayerTag);
     renderPlanner(state.planner);
+    renderCalendar(state.planner);
+    renderIncomeChips(parseInt(state.planner.calendar.month.split('-')[1], 10), parseInt(state.planner.calendar.month.split('-')[0], 10) - 1);
 
-    
     renderHeroCards(state.heroes, state.uiSettings, state.planner);
     renderStorageInputs(state.storedOres);
     renderPlayerDropdown();
