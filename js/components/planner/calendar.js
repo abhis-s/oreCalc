@@ -3,6 +3,7 @@ import { renderIncomeChips } from './incomeChips.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { createIncomeChip } from '../../utils/chipFactory.js';
+import { calculateCumulativeOres, reindexCalendarChips } from '../../utils/chipManager.js';
 
 const calendarGrid = document.getElementById('calendar-grid');
 const currentMonthYearHeader = document.getElementById('current-month-year');
@@ -38,8 +39,8 @@ export function renderCalendar(plannerState) {
     const [monthStr, yearStr] = plannerState.calendar.month.split('-');
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthStr, 10) - 1;
-    const today = new Date(Date.UTC());
-
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
     calendarGrid.classList.remove('weekly-view-grid');
 
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -99,6 +100,16 @@ export function renderCalendar(plannerState) {
             chipContainer.addEventListener('dragleave', handleDragLeave);
             chipContainer.addEventListener('drop', handleDrop);
             dayCell.appendChild(chipContainer);
+
+            // Add mouse events for tooltip
+            const dayCellDate = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate()));
+            const todayUTC = new Date();
+            todayUTC.setUTCHours(0, 0, 0, 0);
+
+            if (dayCellDate >= todayUTC) {
+                dayCell.addEventListener('mouseenter', handleDayCellMouseEnter);
+                dayCell.addEventListener('mouseleave', handleDayCellMouseLeave);
+            }
 
             // Automatically place Star Bonus chip
             const starBonusSource = incomeData.starBonus;
@@ -206,22 +217,26 @@ function handleDrop(e) {
     }
 
     const targetDate = chipContainer.closest('.day-cell').dataset.date; // YYYY-MM-DD
-    const newId = incomeChipData.id.includes('-cal') ? incomeChipData.id : `${incomeChipData.id}-cal`;
+    let newId = incomeChipData.id;
+    let isNewChip = !incomeChipData.id.includes('-cal');
 
     handleStateUpdate(() => {
-        for (const monthYearKey in state.planner.calendar.dates) {
-            const days = state.planner.calendar.dates[monthYearKey];
-            for (const dayKey in days) {
-                const chipIds = days[dayKey];
-                const originalId = incomeChipData.id.split('-cal')[0];
-                const indexToRemove = chipIds.findIndex(id => id.split('-cal')[0] === originalId);
-                if (indexToRemove > -1) {
-                    chipIds.splice(indexToRemove, 1);
-                    if (chipIds.length === 0) {
-                        delete days[dayKey];
-                    }
-                    if (Object.keys(days).length === 0) {
-                        delete state.planner.calendar.dates[monthYearKey];
+        // Remove old chipId from its previous location if it was moved from another calendar cell
+        if (!isNewChip) {
+            const originalId = incomeChipData.id.split('-cal')[0];
+            for (const monthYearKey in state.planner.calendar.dates) {
+                const days = state.planner.calendar.dates[monthYearKey];
+                for (const dayKey in days) {
+                    const chipIds = days[dayKey];
+                    const indexToRemove = chipIds.findIndex(id => id.split('-cal')[0] === originalId);
+                    if (indexToRemove > -1) {
+                        chipIds.splice(indexToRemove, 1);
+                        if (chipIds.length === 0) {
+                            delete days[dayKey];
+                        }
+                        if (Object.keys(days).length === 0) {
+                            delete state.planner.calendar.dates[monthYearKey];
+                        }
                     }
                 }
             }
@@ -231,6 +246,24 @@ function handleDrop(e) {
         const monthYearKey = `${month}-${year}`; // MM-YYYY
         const dayKey = day; // DD
 
+        // If it's a new chip from the container, assign a new instance ID
+        if (isNewChip) {
+            // Check if it's a weekly chip (exempt from re-indexing)
+            const incomeSource = incomeData[incomeChipData.type];
+            if (incomeSource && incomeSource.schedule && incomeSource.schedule.type === 'weekly') {
+                // For weekly chips, use their original instance ID
+                newId = `${incomeChipData.type}-${incomeChipData.instance}-${month}-${year}-cal`;
+            } else {
+                // For other chips, assign a new sequential instance ID
+                // This part will be handled by reindexCalendarChips after adding the chip
+                newId = `${incomeChipData.type}-temp-${month}-${year}-cal`; // Use a temporary ID
+            }
+        } else {
+            // If it's an existing chip moved within the calendar, update its date part
+            const parts = incomeChipData.id.split('-');
+            newId = `${parts[0]}-${parts[1]}-${month}-${year}-cal`;
+        }
+
         if (!state.planner.calendar.dates[monthYearKey]) {
             state.planner.calendar.dates[monthYearKey] = {};
         }
@@ -239,9 +272,71 @@ function handleDrop(e) {
         }
         state.planner.calendar.dates[monthYearKey][dayKey].push(newId);
 
+        // Re-index chips if it's not a weekly occurrence
+        const incomeSource = incomeData[incomeChipData.type];
+        if (!(incomeSource && incomeSource.schedule && incomeSource.schedule.type === 'weekly')) {
+            const changed = reindexCalendarChips(incomeChipData.type);
+            if (changed) {
+                // If re-indexing changed IDs, re-render everything
+                renderCalendar(state.planner);
+                renderIncomeChips(state.planner.calendar.month.split('-')[1], parseInt(state.planner.calendar.month.split('-')[0], 10) - 1);
+                return; // Exit to prevent double re-render
+            }
+        }
     });
 
     renderCalendar(state.planner);
+    renderIncomeChips(state.planner.calendar.month.split('-')[1], parseInt(state.planner.calendar.month.split('-')[0], 10) - 1);
+}
+
+function handleDayCellMouseEnter(e) {
+    const dayCell = e.currentTarget;
+    const dateString = dayCell.dataset.date; // YYYY-MM-DD
+    const [year, month, day] = dateString.split('-').map(Number);
+
+    // Create a date for the day cell at UTC midnight
+    const targetDate = new Date(Date.UTC(year, month - 1, day));
+
+    // Create a date for today at UTC midnight
+    const today = new Date();
+    const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+
+    if (targetDate.getTime() < todayUTC.getTime()) {
+        return; // No tooltip for past dates
+    }
+
+    const cumulativeOres = calculateCumulativeOres(targetDate, state.storedOres);
+
+    // Format the date for display
+    const formattedDate = new Intl.DateTimeFormat('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+    }).format(targetDate);
+
+    const tooltip = document.createElement('div');
+    tooltip.classList.add('ore-tooltip');
+    tooltip.innerHTML = `
+        <div class="tooltip-header">${formattedDate}</div>
+        <div class="ore-count-item">
+            <span>${cumulativeOres.shiny}</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-icon-small">
+        </div>
+        <div class="ore-count-item">
+            <span>${cumulativeOres.glowy}</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-icon-small">
+        </div>
+        <div class="ore-count-item">
+            <span>${cumulativeOres.starry}</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-icon-small">
+        </div>
+    `;
+    dayCell.appendChild(tooltip);
+}
+
+function handleDayCellMouseLeave(e) {
+    const dayCell = e.currentTarget;
+    const tooltip = dayCell.querySelector('.ore-tooltip');
+    if (tooltip) {
+        tooltip.remove();
+    }
 }
 
 const MIN_YEAR = 2025;

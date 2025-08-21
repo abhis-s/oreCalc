@@ -130,6 +130,12 @@ function createIncomeChip(text, className, data, month, year, id = null) {
             }
         });
 
+        // Add visual feedback for the income chips container
+        const incomeChipsContainer = document.getElementById('income-chips-container');
+        if (incomeChipsContainer) {
+            incomeChipsContainer.classList.add('valid-drop-target');
+        }
+
         const dragImage = document.createElement('div');
         dragImage.style.width = '50px';
         dragImage.style.height = '20px';
@@ -162,6 +168,68 @@ function createIncomeChip(text, className, data, month, year, id = null) {
                 chipContainer.classList.remove('valid-drop-range', 'valid-drop-target', 'invalid-drop-target');
             }
         });
+
+        // Remove visual feedback from the income chips container
+        const incomeChipsContainer = document.getElementById('income-chips-container');
+        if (incomeChipsContainer) {
+            incomeChipsContainer.classList.remove('valid-drop-target');
+        }
+    });
+
+    return chip;
+}
+
+function createOverflowChip(count, aggregatedData, type, className) {
+    const chip = document.createElement('div');
+    chip.classList.add('income-chip', 'overflow-chip', className);
+    chip.textContent = `+${count}`;
+    chip.draggable = false; // Overflow chips are not draggable
+
+    // Store aggregated data in dataset
+    for (const key in aggregatedData) {
+        chip.dataset[key] = aggregatedData[key];
+    }
+    chip.dataset.type = type;
+
+    // Add a simple tooltip for overflow chip to show aggregated values
+    const tooltip = document.createElement('div');
+    tooltip.classList.add('chip-tooltip');
+    tooltip.draggable = false;
+    const tooltipContent = document.createElement('div');
+    tooltipContent.classList.add('tooltip-content');
+
+    const chipName = document.createElement('div');
+    const displayName = incomeData[type]?.name || type;
+    chipName.textContent = `${count} more of ${displayName}`;
+    tooltipContent.appendChild(chipName);
+
+    if (aggregatedData.shiny !== undefined) {
+        const shinyOre = document.createElement('div');
+        shinyOre.classList.add('ore-count-item');
+        shinyOre.innerHTML = `<span>${aggregatedData.shiny}</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-icon-small">`;
+        tooltipContent.appendChild(shinyOre);
+    }
+    if (aggregatedData.glowy !== undefined) {
+        const glowyOre = document.createElement('div');
+        glowyOre.classList.add('ore-count-item');
+        glowyOre.innerHTML = `<span>${aggregatedData.glowy}</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-icon-small">`;
+        tooltipContent.appendChild(glowyOre);
+    }
+    if (aggregatedData.starry !== undefined) {
+        const starryOre = document.createElement('div');
+        starryOre.classList.add('ore-count-item');
+        starryOre.innerHTML = `<span>${aggregatedData.starry}</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-icon-small">`;
+        tooltipContent.appendChild(starryOre);
+    }
+
+    tooltip.appendChild(tooltipContent);
+    chip.appendChild(tooltip);
+
+    chip.addEventListener('mouseenter', () => {
+        tooltip.classList.add('visible');
+    });
+    chip.addEventListener('mouseleave', () => {
+        tooltip.classList.remove('visible');
     });
 
     return chip;
@@ -194,4 +262,4 @@ function renderIncomeChipsLegend(legendContainer) {
     }
 }
 
-export { createIncomeChip, renderIncomeChipsLegend };
+export { createIncomeChip, renderIncomeChipsLegend, createOverflowChip };

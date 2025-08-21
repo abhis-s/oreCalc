@@ -6,6 +6,9 @@
     border: 1px solid #424242;
     border-radius: 8px;
     min-height: 100px;
+    &.valid-drop-target {
+        border: 1px dashed #00ff00;
+    }
 }
 
 .income-chip {
@@ -49,6 +52,12 @@
 
     &.cwl {
         background-color: #4682B4;
+    }
+
+    &[draggable="false"] {
+        // shadow inside
+        box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+        cursor: default;
     }
 }
 

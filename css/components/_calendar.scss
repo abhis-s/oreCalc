@@ -119,6 +119,7 @@
     flex-direction: column;
     justify-content: space-between;
     overflow: visible;
+    position: relative;
 
     .date-display {
         padding-bottom: 5px;
@@ -157,5 +158,35 @@
                 border: 2px dashed var(--color-danger-300);
             }
         }
+    }
+}
+
+.ore-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+    padding: 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-end;
+
+    .ore-count-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8em;
+    }
+
+    .ore-icon-small {
+        width: 16px;
+        height: 16px;
     }
 }

@@ -25,6 +25,7 @@ const urlsToCache = [
     '/js/utils/playerTagValidator.js',
     '/js/utils/dateUtils.js',
     '/js/utils/chipFactory.js',
+    '/js/utils/chipManager.js',
     '/js/components/layout/tabs.js',
     '/js/components/layout/header.js',
     '/js/components/layout/modeToggle.js',

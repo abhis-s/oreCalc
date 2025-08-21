@@ -151,8 +151,6 @@ export function getScheduleDates(year, month, schedule, instance = 1) {
                     endDate.setUTCDate(foundStartDate.getUTCDate() + (7 - schedule.dateStart + schedule.dateEnd));
                 }
                 result.endDate = endDate;
-            } else {
-                console.log(`Weekly - Instance ${instance} not found for schedule.dateStart: ${schedule.dateStart} in month ${month}`);
             }
             break;
     }
