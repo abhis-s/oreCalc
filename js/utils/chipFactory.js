@@ -4,7 +4,9 @@ import { state } from '../core/state.js';
 
 function createIncomeChip(text, className, data, month, year, id = null) {
     const chip = document.createElement('div');
-    chip.id = id || `${data.type}-${data.instance || 'monthly'}-${month + 1}-${year}`;
+    const monthStr = String(month + 1).padStart(2, '0');
+    const instanceStr = String(data.instance || 'monthly').padStart(2, '0');
+    chip.id = id || `${data.type}-${instanceStr}-${monthStr}-${year}`;
     chip.classList.add('income-chip', className);
     chip.textContent = text;
     chip.draggable = true;

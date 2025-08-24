@@ -119,7 +119,7 @@ export function renderCalendar(plannerState) {
                 glowy: Math.round(starBonusIncome.glowy),
                 starry: Math.round(starBonusIncome.starry),
             };
-            const starBonusChipId = `starBonus-${currentDate.getUTCDate()}-${String(currentDate.getUTCMonth() + 1).padStart(2, '0')}-${currentDate.getUTCFullYear()}`;
+            const starBonusChipId = `starBonus-${String(currentDate.getUTCDate()).padStart(2, '0')}-${String(currentDate.getUTCMonth() + 1).padStart(2, '0')}-${currentDate.getUTCFullYear()}-cal`;
             const starBonusChip = createIncomeChip(
                 '', // Empty string for text content in calendar view (TODO: Use income source name on small screens)
                 starBonusSource.className,
@@ -246,22 +246,11 @@ function handleDrop(e) {
         const monthYearKey = `${month}-${year}`; // MM-YYYY
         const dayKey = day; // DD
 
-        // If it's a new chip from the container, assign a new instance ID
         if (isNewChip) {
-            // Check if it's a weekly chip (exempt from re-indexing)
-            const incomeSource = incomeData[incomeChipData.type];
-            if (incomeSource && incomeSource.schedule && incomeSource.schedule.type === 'weekly') {
-                // For weekly chips, use their original instance ID
-                newId = `${incomeChipData.type}-${incomeChipData.instance}-${month}-${year}-cal`;
-            } else {
-                // For other chips, assign a new sequential instance ID
-                // This part will be handled by reindexCalendarChips after adding the chip
-                newId = `${incomeChipData.type}-temp-${month}-${year}-cal`; // Use a temporary ID
-            }
+            newId = `${incomeChipData.id}-cal`;
         } else {
-            // If it's an existing chip moved within the calendar, update its date part
-            const parts = incomeChipData.id.split('-');
-            newId = `${parts[0]}-${parts[1]}-${month}-${year}-cal`;
+            const originalId = incomeChipData.id.split('-cal')[0];
+            newId = `${originalId}-cal`;
         }
 
         if (!state.planner.calendar.dates[monthYearKey]) {

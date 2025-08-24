@@ -32,7 +32,6 @@ export function renderIncomeChips(year, month) {
 
     for (const key in incomeData) {
         const incomeSource = incomeData[key];
-        // Skip starBonus as it's automatically placed on the calendar
         if (incomeSource.type === 'starBonus') {
             continue;
         }
@@ -73,53 +72,40 @@ export function renderIncomeChips(year, month) {
         }
     }
 
-    // Filter out chips already on the calendar and render grouped chips
-    const chipsOnCalendar = {};
+    const placedChipOriginalIds = new Set();
     for (const monthYearKey in state.planner.calendar.dates) {
         const days = state.planner.calendar.dates[monthYearKey];
         for (const dayKey in days) {
             const chipIds = days[dayKey];
             chipIds.forEach(chipId => {
-                const originalChipId = chipId.split('-cal')[0];
-                const type = originalChipId.split('-')[0];
-                if (!chipsOnCalendar[type]) {
-                    chipsOnCalendar[type] = 0;
+                const originalId = chipId.split('-cal')[0];
+                if (!originalId.startsWith('starBonus')) {
+                    placedChipOriginalIds.add(originalId);
                 }
-                chipsOnCalendar[type]++;
             });
         }
     }
 
     for (const type in groupedChips) {
-        let chips = groupedChips[type];
-        let remainingCount = chips.length - (chipsOnCalendar[type] || 0);
+        const chips = groupedChips[type];
+        const incomeSource = incomeData[type];
 
-        if (remainingCount > 0) {
-            // Always show the first available chip
-            const firstChip = chips.find(chip => {
-                const originalChipId = chip.id.split('-cal')[0];
-                return !Object.values(state.planner.calendar.dates).some(days => 
-                    Object.values(days).some(chipIds => 
-                        chipIds.includes(`${originalChipId}-cal`)
-                    )
-                );
-            });
+        const unplacedChips = chips.filter(chip => {
+            return !placedChipOriginalIds.has(chip.id);
+        });
 
-            if (firstChip) {
-                incomeChipsContainer.appendChild(firstChip);
-                remainingCount--;
-            }
+        if (unplacedChips.length > 0) {
+            incomeChipsContainer.appendChild(unplacedChips[0]);
 
-            // If there are more chips, show the overflow chip
-            if (remainingCount > 0) {
-                const incomeSource = incomeData[type];
+            if (unplacedChips.length > 1) {
+                const remainingCount = unplacedChips.length - 1;
                 const aggregatedIncome = { shiny: 0, glowy: 0, starry: 0 };
-                // Aggregate income for remaining chips (this is a simplification, might need more precise aggregation)
-                for (let i = 0; i < remainingCount; i++) {
-                    const income = incomeSource.getIncome(state);
-                    aggregatedIncome.shiny += Math.round(income.shiny);
-                    aggregatedIncome.glowy += Math.round(income.glowy);
-                    aggregatedIncome.starry += Math.round(income.starry);
+
+                for (let i = 1; i < unplacedChips.length; i++) {
+                    const chip = unplacedChips[i];
+                    aggregatedIncome.shiny += Math.round(chip.dataset.shiny);
+                    aggregatedIncome.glowy += Math.round(chip.dataset.glowy);
+                    aggregatedIncome.starry += Math.round(chip.dataset.starry);
                 }
 
                 const overflowChip = createOverflowChip(
