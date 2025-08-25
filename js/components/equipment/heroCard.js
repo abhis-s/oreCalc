@@ -68,18 +68,6 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
         const heroName = heroCard.dataset.heroName;
 
         switch(action) {
-            case 'toggle-hero': {
-                const isEnabled = state.heroes[heroName].enabled;
-                handleStateUpdate(() => { state.heroes[heroName].enabled = !isEnabled; });
-                break;
-            }
-            case 'toggle-equip': {
-                const equipItem = actionElement.closest('.equipment-item');
-                const equipName = equipItem.dataset.equipName;
-                const isChecked = state.heroes[heroName].equipment[equipName].checked;
-                handleStateUpdate(() => { state.heroes[heroName].equipment[equipName].checked = !isChecked; });
-                break;
-            }
             case 'increment-level': {
                 const equipItem = actionElement.closest('.equipment-item');
                 const equipName = equipItem.dataset.equipName;
