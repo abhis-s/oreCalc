@@ -56,6 +56,7 @@ const urlsToCache = [
     '/js/components/planner/plannerCustomLevels.js',
     '/js/components/planner/calendar.js',
     '/js/components/planner/incomeChips.js',
+    '/js/components/planner/priorityList.js',
     '/js/components/equipment/requiredOresDisplay.js',
     '/js/components/equipment/heroCardDisplay.js',
     '/js/components/equipment/heroCard.js',

@@ -10,7 +10,7 @@ import { renderHeroPlannerCarouselDisplay, updatePageDots, scrollToHeroPage } fr
 import { initializePlannerCustomLevels, renderPlannerCustomLevels } from './plannerCustomLevels.js';
 import { renderIncomeChips } from './incomeChips.js';
 import { renderCalendar } from './calendar.js';
-
+import { initializePriorityList } from './priorityList.js';
 
 export function initializePlanner() {
     initializePlannerCustomLevels();
@@ -64,8 +64,7 @@ export function initializePlanner() {
         });
     }
 
-    initializeHeroPlannerCarousel(state.heroes, state.planner);
-}
+    }
 
 export function renderPlanner(plannerState) {
     if (!plannerState) {
@@ -79,6 +78,8 @@ export function renderPlanner(plannerState) {
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthStr, 10) - 1;
     renderIncomeChips(year, month);
+    initializePriorityList();
+    initializeHeroPlannerCarousel(state.heroes, state.planner);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

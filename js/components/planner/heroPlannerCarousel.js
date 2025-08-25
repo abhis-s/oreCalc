@@ -1,5 +1,6 @@
 import { dom } from '../../dom/domElements.js';
 import { heroData } from '../../data/appData.js';
+import { updatePageDots } from './heroPlannerCarouselDisplay.js'; // Added import
 
 let currentHeroIndex = 0; // Not exported anymore
 
@@ -80,4 +81,6 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         dotsHtml += `<span class="dot" data-index="${index}"></span>`;
     });
     plannerPageDots.innerHTML = dotsHtml;
+
+    updatePageDots(currentHeroIndex);
 }
