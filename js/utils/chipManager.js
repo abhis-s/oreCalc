@@ -94,7 +94,9 @@ export function reindexCalendarChips(chipType) {
             }
 
             // Create new chipId with updated instance
-            const newChipId = `${chip.type}-${newInstance}-${parseInt(chip.monthYearKey.split('-')[0], 10)}-${chip.monthYearKey.split('-')[1]}-cal`;
+            const newInstanceStr = String(newInstance).padStart(2, '0');
+            const newMonthStr = String(parseInt(chip.monthYearKey.split('-')[0], 10)).padStart(2, '0');
+            const newChipId = `${chip.type}-${newInstanceStr}-${newMonthStr}-${chip.monthYearKey.split('-')[1]}-cal`;
 
             // Add new chipId to calendar
             if (!state.planner.calendar.dates[chip.monthYearKey][chip.dayKey]) {
