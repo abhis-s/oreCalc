@@ -21,6 +21,12 @@ body {
 	--font-size-em-md: 1em;
 
     // Color variables exposed as CSS custom properties
+    --text-color: #E6E1E5;
+    --text-color-light: #CAC4D0;
+    --text-color-disabled: #938F99;
+    --accent-color: #D0BCFF;
+    --accent-text-color: #381E72;
+
     --color-white: #ffffff;
     --color-grey-100: #e8eaed;
     --color-grey-200: #e3e2e6;
@@ -63,6 +69,9 @@ body {
     --material-thumb-inactive: #E6E1E5;
     --material-thumb-active: #FFD8E4;
     --font-family-sans: 'Roboto', sans-serif;
+
+    --input-bg-color: #{$md-surface};
+    --input-bg-color-transparent: #{$input-bg-color-transparent};
 }
 
 .container {

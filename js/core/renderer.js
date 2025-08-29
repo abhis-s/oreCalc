@@ -38,8 +38,6 @@ export function renderApp(state) {
     renderAppSettings(state.uiSettings);
     renderFab(state.lastPlayerTag);
     renderPlanner(state.planner);
-    renderCalendar(state.planner);
-    renderIncomeChips(parseInt(state.planner.calendar.month.split('-')[1], 10), parseInt(state.planner.calendar.month.split('-')[0], 10) - 1);
 
     renderHeroCards(state.heroes, state.uiSettings, state.planner);
     renderStorageInputs(state.storedOres);

@@ -2,7 +2,24 @@ import { currencySymbols, heroData, shopOfferData, eventPassData } from '../data
 
 export let state = {};
 
+export function getWeekNumber(d) {
+    // Copy date so don't modify original
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    // Set to nearest Thursday: current date + 4 - current day number
+    // Monday is 1
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    // Get first day of year
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    // Calculate full weeks to nearest Thursday
+    var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    // Return array of year and week number
+    return [d.getUTCFullYear(), weekNo];
+}
+
 export function getDefaultState() {
+    const now = new Date();
+    const [year, weekNo] = getWeekNumber(now);
+
     return {
         lastPlayerTag: '',
         savedPlayerTags: [],
@@ -37,7 +54,11 @@ export function getDefaultState() {
                 epic: 27,
             },
             calendar: {
-                month: `${String(new Date().getMonth() + 1).padStart(2, '0')}-${new Date().getFullYear()}`,
+                view: {
+                    select: 'monthly',
+                    month: `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`,
+                    week: `${weekNo}-${year}`,
+                },
                 dates: {} // "MM-YYYY": { "DD": ["chipId1", "chipId2"] }
             },
         },
@@ -89,6 +110,9 @@ function initializeHeroesState() {
 }
 
 export function getDefaultPlayerState() {
+    const now = new Date();
+    const [year, weekNo] = getWeekNumber(now);
+
     return JSON.parse(JSON.stringify({
         heroes: initializeHeroesState(),
         storedOres: { shiny: 0, glowy: 0, starry: 0 },
@@ -108,7 +132,11 @@ export function getDefaultPlayerState() {
                 epic: 27,
             },
             calendar: {
-                month: `${String(new Date().getMonth() + 1).padStart(2, '0')}-${new Date().getFullYear()}`,
+                view: {
+                    select: 'monthly',
+                    month: `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`,
+                    week: `${weekNo}-${year}`,
+                },
                 dates: {} // "MM-YYYY": { "DD": ["chipId1", "chipId2"] }
             },
         },
@@ -199,10 +227,10 @@ export function initializeState(savedState) {
 
             Object.assign(state.storedOres, activePlayerData.storedOres);
             Object.assign(state.income, getDefaultState().income, activePlayerData.income);
-            Object.assign(state.planner, activePlayerData.planner);
-            // Ensure state.planner.calendar.month is always a valid string
-            if (!state.planner.calendar.month || typeof state.planner.calendar.month !== 'string' || !state.planner.calendar.month.includes('-')) {
-                state.planner.calendar.month = `${String(new Date().getMonth() + 1).padStart(2, '0')}-${new Date().getFullYear()}`;
+            Object.assign(state.planner, getDefaultState().planner, activePlayerData.planner);
+            // Ensure state.planner.calendar.view.month is always a valid string
+            if (!state.planner.calendar.view.month || typeof state.planner.calendar.view.month !== 'string' || !state.planner.calendar.view.month.includes('-')) {
+                state.planner.calendar.view.month = `${String(new Date().getMonth() + 1).padStart(2, '0')}-${new Date().getFullYear()}`;
             }
 
             // Ensure dates object exists in planner.calendar

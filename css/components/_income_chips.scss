@@ -21,6 +21,10 @@
     gap: 5px;
     position: relative;
 
+    @media (max-width: 425px) {
+        font-size: 10px;
+    }
+
     &.shop-offer {
         background-color: #FFD700;
     }

@@ -160,5 +160,5 @@ function handleDropToChipContainer(e) {
 
     reindexCalendarChips(incomeChipData.type);
     renderCalendar(state.planner);
-    renderIncomeChips(state.planner.calendar.month.split('-')[1], parseInt(state.planner.calendar.month.split('-')[0], 10) - 1);
+    renderIncomeChips(state.planner.calendar.view.month.split('-')[1], parseInt(state.planner.calendar.view.month.split('-')[0], 10) - 1);
 }

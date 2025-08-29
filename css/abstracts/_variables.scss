@@ -95,6 +95,9 @@ $material-thumb-inactive: #E6E1E5;
 $material-thumb-active: #FFD8E4;
 $font-family-sans: 'Roboto', sans-serif;
 
+// Custom transparent background for month chips
+$input-bg-color-transparent: rgba(28, 27, 31, 0.7);
+
 // Dark Theme Colors (some might be redundant after Material You system)
 $dark-background-primary: #121212;
 $dark-background-secondary: #1e1e1e;

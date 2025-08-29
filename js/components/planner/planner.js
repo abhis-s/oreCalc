@@ -15,7 +15,7 @@ import { initializePriorityList } from './priorityList.js';
 export function initializePlanner() {
     initializePlannerCustomLevels();
     renderCalendar(state.planner);
-    const [monthStr, yearStr] = state.planner.calendar.month.split('-');
+    const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthStr, 10) - 1;
     renderIncomeChips(year, month);
@@ -74,7 +74,7 @@ export function renderPlanner(plannerState) {
     renderPlannerCustomLevels(plannerState);
     renderHeroPlannerCarouselDisplay(currentHeroIndex);
     renderCalendar(plannerState);
-    const [monthStr, yearStr] = plannerState.calendar.month.split('-');
+    const [monthStr, yearStr] = plannerState.calendar.view.month.split('-');
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthStr, 10) - 1;
     renderIncomeChips(year, month);

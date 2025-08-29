@@ -90,7 +90,7 @@ function createIncomeChip(text, className, data, month, year, id = null) {
             return `${day}-${month}-${year}`;
         };
 
-        const [calMonth, calYear] = state.planner.calendar.month.split('-').map(Number);
+        const [calMonth, calYear] = state.planner.calendar.view.month.split('-').map(Number);
 
         const validDates = getDatesInRange({
             startDate: chipData.startDate ? formatDate(chipData.startDate) : null,

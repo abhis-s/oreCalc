@@ -172,6 +172,17 @@
     margin-bottom: 20px;
 }
 
+@media (max-width: 425px) {
+    .full-width-planner-section,
+    .card .inner-card {
+        padding: 10px;
+    }
+
+    .planner-action-button {
+        padding: 4px 6px;
+    }
+}
+
 .level-settings-container {
     display: flex;
     gap: 20px;
@@ -277,4 +288,12 @@
     height: 2px;
     background-color: #FF69B4;
     margin: 10px 0;
+}
+
+.calendar-planner-title {
+    text-align: center;
+
+    @media (max-width: 425px) {
+        font-size: 1.2em;
+    }
 }
