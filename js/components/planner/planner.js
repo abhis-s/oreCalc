@@ -1,6 +1,7 @@
 import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
+import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js'; // Added import
 
 let currentHeroIndex = 0;
 
@@ -22,6 +23,7 @@ export function initializePlanner() {
 
     const carouselContent = dom.planner?.heroCarouselContent;
     const plannerPageDots = dom.planner?.plannerPageDots;
+    const autoPlaceChipsBtn = dom.planner?.autoPlaceChipsBtn;
 
     if (carouselContent) {
         carouselContent.addEventListener('change', (event) => {
@@ -64,7 +66,15 @@ export function initializePlanner() {
         });
     }
 
+    // Add event listener for the auto-place button
+    if (autoPlaceChipsBtn) {
+        autoPlaceChipsBtn.addEventListener('click', () => {
+            const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
+            autoPlaceIncomeChips(monthStr, yearStr);
+        });
     }
+
+}
 
 export function renderPlanner(plannerState) {
     if (!plannerState) {

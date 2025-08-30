@@ -41,6 +41,32 @@ export function getBimonthlyOccurrences(year, month, availableMonths) {
     return availableMonths[year] && availableMonths[year].includes(month + 1) ? 1 : 0;
 }
 
+export function addDays(date, days) {
+    const result = new Date(date);
+    result.setUTCDate(result.getUTCDate() + days);
+    return result;
+}
+
+export function findNthDayOfWeek(year, month, dayOfWeek, n) {
+    let occurrenceCount = 0;
+    const daysInMonth = getDaysInMonth(year, month);
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(Date.UTC(year, month, day));
+        if (date.getUTCDay() === dayOfWeek) {
+            occurrenceCount++;
+            if (occurrenceCount === n) {
+                return date;
+            }
+        }
+    }
+    return null;
+}
+
+export function getDateFromDayAndMonth(year, month, day) {
+    return new Date(Date.UTC(year, month, day));
+}
+
 export function getDatesInRange(options = {}) {
     const { startDate: start, endDate: end, isDateInRange: targetDate, month, year } = options;
 
@@ -105,54 +131,35 @@ export function isDateInRange(day, month, year, schedule) {
 }
 
 export function getScheduleDates(year, month, schedule, instance = 1) {
-    const result = { startDate: null, endDate: null };
+    const dates = [];
     const daysInMonth = getDaysInMonth(year, month);
 
     switch (schedule.type) {
         case 'daily':
-            result.startDate = new Date(Date.UTC(year, month, 1));
-            result.endDate = new Date(Date.UTC(year, month, daysInMonth));
+            for (let day = 1; day <= daysInMonth; day++) {
+                dates.push(new Date(Date.UTC(year, month, day)));
+            }
             break;
         case 'monthly':
         case 'bimonthly':
         case 'custom':
             if (schedule.dateStart) {
-                result.startDate = new Date(Date.UTC(year, month, schedule.dateStart));
-                if (schedule.dateEnd) {
-                    result.endDate = new Date(Date.UTC(year, month, schedule.dateEnd));
-                } else if (schedule.availableTillEndOfMonth) {
-                    result.endDate = new Date(Date.UTC(year, month, daysInMonth));
+                let endDate = schedule.dateEnd || (schedule.availableTillEndOfMonth ? daysInMonth : schedule.dateStart);
+                for (let day = schedule.dateStart; day <= endDate; day++) {
+                    dates.push(new Date(Date.UTC(year, month, day)));
                 }
             }
             break;
         case 'weekly':
-            let occurrenceCount = 0;
-            let currentDay = 1;
-            let foundStartDate = null;
-
-            while (currentDay <= daysInMonth) {
-                const date = new Date(Date.UTC(year, month, currentDay));
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(Date.UTC(year, month, day));
                 if (date.getUTCDay() === schedule.dateStart) {
-                    occurrenceCount++;
-                    if (occurrenceCount === instance) {
-                        foundStartDate = date;
-                        break;
-                    }
+                    const startDate = date;
+                    const endDate = addDays(startDate, (schedule.dateEnd - schedule.dateStart + 7) % 7);
+                    dates.push({ startDate, endDate });
                 }
-                currentDay++;
-            }
-
-            if (foundStartDate) {
-                result.startDate = foundStartDate;
-                const endDate = new Date(Date.UTC(foundStartDate.getUTCFullYear(), foundStartDate.getUTCMonth(), foundStartDate.getUTCDate()));
-                if (schedule.dateStart <= schedule.dateEnd) {
-                    endDate.setUTCDate(foundStartDate.getUTCDate() + (schedule.dateEnd - schedule.dateStart));
-                } else {
-                    endDate.setUTCDate(foundStartDate.getUTCDate() + (7 - schedule.dateStart + schedule.dateEnd));
-                }
-                result.endDate = endDate;
             }
             break;
     }
-    return result;
+    return dates;
 }

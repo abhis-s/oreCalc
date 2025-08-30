@@ -4,6 +4,7 @@ export const incomeData = {
         type: 'shopOffers',
         color: '#FFD700',
         className: 'shop-offer',
+        isSingleEvent: true,
         schedule: {
             type: 'monthly',
             dateStart: 24,
@@ -52,6 +53,7 @@ export const incomeData = {
         type: 'eventPass',
         color: '#9932CC',
         className: 'event-pass',
+        isSingleEvent: true,
         schedule: {
             type: 'bimonthly',
             dateStart: 8,
@@ -67,6 +69,7 @@ export const incomeData = {
         type: 'eventTrader',
         color: '#FF4500',
         className: 'event-trader',
+        isSingleEvent: true,
         schedule: {
             type: 'bimonthly',
             dateStart: 8,
@@ -89,6 +92,7 @@ export const incomeData = {
         },
         getIncome: (state) => state.derived.incomeSources.clanWar?.perEvent || { shiny: 0, glowy: 0, starry: 0 },
         getCount: (state) => state.income.clanWar.warsPerMonth,
+        minReoccurrenceDays: 2,
     },
     cwl: {
         name: 'CWL',
@@ -97,7 +101,7 @@ export const incomeData = {
         className: 'cwl',
         schedule: {
             type: 'custom',
-            dateStart: 2,
+            dateStart: 3,
             dateEnd: 11,
         },
         getIncome: (state) => state.derived.incomeSources.cwl?.perEvent || { shiny: 0, glowy: 0, starry: 0 },

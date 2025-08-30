@@ -13,5 +13,6 @@ export function getPlannerDOMElements() {
         incomeChipsContainer: document.getElementById('income-chips-container'),
         deleteCurrentMonthChipsBtn: document.getElementById('delete-current-month-chips-btn'),
         deleteAllChipsBtn: document.getElementById('delete-all-chips-btn'),
+        autoPlaceChipsBtn: document.getElementById('auto-place-chips-btn'),
     };
 }

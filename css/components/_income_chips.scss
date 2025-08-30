@@ -1,3 +1,5 @@
+@use '../abstracts/variables';
+
 .income-chips-container {
     display: flex;
     flex-wrap: wrap;
@@ -170,4 +172,39 @@
     width: 15px;
     height: 15px;
     border-radius: 3px;
+}
+
+.income-chips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.income-chips-title {
+    margin: 0;
+}
+
+.auto-place-chips-btn {
+    background-color: variables.$md-primary-container;
+    color: variables.$md-on-primary-container;
+    border: none;
+    border-radius: variables.$shape-corner-large;
+    padding: 10px 20px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: variables.$elevation-2;
+
+    &:hover {
+        background-color: variables.$md-primary;
+        color: variables.$md-on-primary;
+        box-shadow: variables.$elevation-3;
+    }
+
+    &:active {
+        background-color: darken(variables.$md-primary, 10%);
+        box-shadow: variables.$elevation-1;
+    }
 }

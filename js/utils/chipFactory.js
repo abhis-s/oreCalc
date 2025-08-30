@@ -1,5 +1,5 @@
 import { incomeData } from '../data/incomeChipData.js';
-import { getScheduleDates, getDatesInRange } from './dateUtils.js';
+import { getScheduleDates } from './dateUtils.js';
 import { state } from '../core/state.js';
 
 function createIncomeChip(text, className, data, month, year, id = null) {
@@ -15,12 +15,18 @@ function createIncomeChip(text, className, data, month, year, id = null) {
 
     const incomeSource = incomeData[data.type];
     if (incomeSource && incomeSource.schedule) {
-        const { startDate, endDate } = getScheduleDates(year, month, incomeSource.schedule, data.instance);
-        if (startDate) {
-            chip.dataset.startDate = startDate.toISOString().split('T')[0]; // YYYY-MM-DD
-        }
-        if (endDate) {
-            chip.dataset.endDate = endDate.toISOString().split('T')[0]; // YYYY-MM-DD
+        const scheduledDates = getScheduleDates(year, month, incomeSource.schedule, data.instance);
+        if (scheduledDates.length > 0) {
+            if (incomeSource.schedule.type === 'weekly') {
+                const weekData = scheduledDates[data.instance - 1];
+                if (weekData) {
+                    chip.dataset.startDate = weekData.startDate.toISOString().split('T')[0];
+                    chip.dataset.endDate = weekData.endDate.toISOString().split('T')[0];
+                }
+            } else {
+                chip.dataset.startDate = scheduledDates[0].toISOString().split('T')[0];
+                chip.dataset.endDate = scheduledDates[scheduledDates.length - 1].toISOString().split('T')[0];
+            }
         }
     }
 
@@ -71,16 +77,7 @@ function createIncomeChip(text, className, data, month, year, id = null) {
     chip.addEventListener('dragstart', (e) => {
         const chipData = { ...data, className: className, id: chip.id };
 
-        if (chip.dataset.startDate) {
-            chipData.startDate = chip.dataset.startDate;
-        }
-        if (chip.dataset.endDate) {
-            chipData.endDate = chip.dataset.endDate;
-        }
-
-        e.dataTransfer.setData('text/plain', JSON.stringify(chipData));
-        e.dataTransfer.effectAllowed = 'move';
-
+        // Helper to format Date object to DD-MM-YYYY string
         const formatDate = (date) => {
             if (!date) return null;
             const d = new Date(date);
@@ -91,13 +88,27 @@ function createIncomeChip(text, className, data, month, year, id = null) {
         };
 
         const [calMonth, calYear] = state.planner.calendar.view.month.split('-').map(Number);
+        
+        const chipStartDate = chip.dataset.startDate;
+        const chipEndDate = chip.dataset.endDate;
 
-        const validDates = getDatesInRange({
-            startDate: chipData.startDate ? formatDate(chipData.startDate) : null,
-            endDate: chipData.endDate ? formatDate(chipData.endDate) : null,
-            month: calMonth,
-            year: calYear
-        });
+        let validDates = [];
+        if (chipStartDate && chipEndDate) {
+            let currentDate = new Date(chipStartDate + 'T00:00:00Z'); // Ensure UTC parsing
+            const endDate = new Date(chipEndDate + 'T00:00:00Z');
+            while (currentDate <= endDate) {
+                validDates.push(formatDate(currentDate));
+                currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+            }
+        } else {
+            // Fallback for chips without date ranges (should not happen for draggable chips)
+            const schedule = incomeData[chipData.type].schedule;
+            const scheduledDates = getScheduleDates(calYear, calMonth - 1, schedule);
+            validDates = scheduledDates.map(date => formatDate(date));
+        }
+
+        e.dataTransfer.setData('text/plain', JSON.stringify(chipData));
+        e.dataTransfer.effectAllowed = 'move';
 
         const calendarCells = document.querySelectorAll('.day-cell');
         calendarCells.forEach(cell => {

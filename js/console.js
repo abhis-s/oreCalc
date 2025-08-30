@@ -63,7 +63,7 @@ console.info(
     "%c  resetApp():       %cInitiates a 5-second countdown to reset all app data and reload. Can be cancelled.\n" +
     "%c  cancelResetApp(): %cCancels an active resetApp countdown.\n" +
     "%c  logState():       %cLogs the current state object to the console.\n" +
-    "%c  clearPlannerState(): %cCears all saved chips from the planner calendar.\n\n" +
+    "%c  clearPlannerState(): %cClears all saved chips from the planner calendar.\n\n" +
     "%c For more information, refer to the documentation.",
     "color: #8ab4f8; font-weight: bold;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",

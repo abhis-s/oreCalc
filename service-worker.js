@@ -26,6 +26,7 @@ const urlsToCache = [
     '/js/utils/dateUtils.js',
     '/js/utils/chipFactory.js',
     '/js/utils/chipManager.js',
+    '/js/utils/autoPlaceChips.js',
     '/js/components/layout/tabs.js',
     '/js/components/layout/header.js',
     '/js/components/layout/modeToggle.js',

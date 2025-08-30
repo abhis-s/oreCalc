@@ -95,6 +95,10 @@ $material-thumb-inactive: #E6E1E5;
 $material-thumb-active: #FFD8E4;
 $font-family-sans: 'Roboto', sans-serif;
 
+:root {
+    --input-hover-bg-color: rgba(166, 200, 255, 0.1);
+}
+
 // Custom transparent background for month chips
 $input-bg-color-transparent: rgba(28, 27, 31, 0.7);
 

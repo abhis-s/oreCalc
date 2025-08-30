@@ -43,10 +43,11 @@ export function calculateCumulativeOres(targetDate, initialOres) {
 
 export function reindexCalendarChips(chipType) {
     let changed = false;
-    const chipsToReindex = [];
 
     for (const monthYearKey in state.planner.calendar.dates) {
+        const chipsToReindexThisMonth = [];
         const daysInMonth = state.planner.calendar.dates[monthYearKey];
+
         for (const dayStr in daysInMonth) {
             const chipIds = daysInMonth[dayStr];
             const chipsOnThisDay = chipIds.filter(id => id.startsWith(`${chipType}-`));
@@ -59,13 +60,12 @@ export function reindexCalendarChips(chipType) {
                 const year = parseInt(parts[3], 10);
                 const date = new Date(Date.UTC(year, month, parseInt(dayStr, 10)));
 
-                // Exclude weekly occurrences from re-indexing
                 const incomeSource = incomeData[type];
                 if (incomeSource && incomeSource.schedule && incomeSource.schedule.type === 'weekly') {
-                    return; 
+                    return;
                 }
 
-                chipsToReindex.push({
+                chipsToReindexThisMonth.push({
                     originalId: chipId,
                     type: type,
                     instance: instance,
@@ -75,36 +75,41 @@ export function reindexCalendarChips(chipType) {
                 });
             });
         }
+
+        // Sort chips chronologically for the current month
+        chipsToReindexThisMonth.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        // Re-assign sequential instance IDs for the current month
+        chipsToReindexThisMonth.forEach((chip, index) => {
+            const newInstance = index + 1;
+            const wasAuto = chip.originalId.endsWith('-auto');
+
+            if (chip.instance !== newInstance) {
+                changed = true;
+
+                // Remove old chipId from calendar
+                const oldChipIds = state.planner.calendar.dates[chip.monthYearKey][chip.dayKey];
+                const oldIndex = oldChipIds.indexOf(chip.originalId);
+                if (oldIndex > -1) {
+                    oldChipIds.splice(oldIndex, 1);
+                }
+
+                // Create new chipId with updated instance, preserving -auto flag
+                const newInstanceStr = String(newInstance).padStart(2, '0');
+                const newMonthStr = String(parseInt(chip.monthYearKey.split('-')[0], 10)).padStart(2, '0');
+                let newChipId = `${chip.type}-${newInstanceStr}-${newMonthStr}-${chip.monthYearKey.split('-')[1]}-cal`;
+                if (wasAuto) {
+                    newChipId += '-auto';
+                }
+
+                // Add new chipId to calendar
+                if (!state.planner.calendar.dates[chip.monthYearKey][chip.dayKey]) {
+                    state.planner.calendar.dates[chip.monthYearKey][chip.dayKey] = [];
+                }
+                state.planner.calendar.dates[chip.monthYearKey][chip.dayKey].push(newChipId);
+            }
+        });
     }
-
-    // Sort chips chronologically
-    chipsToReindex.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-    // Re-assign sequential instance IDs
-    chipsToReindex.forEach((chip, index) => {
-        const newInstance = index + 1;
-        if (chip.instance !== newInstance) {
-            changed = true;
-
-            // Remove old chipId from calendar
-            const oldChipIds = state.planner.calendar.dates[chip.monthYearKey][chip.dayKey];
-            const oldIndex = oldChipIds.indexOf(chip.originalId);
-            if (oldIndex > -1) {
-                oldChipIds.splice(oldIndex, 1);
-            }
-
-            // Create new chipId with updated instance
-            const newInstanceStr = String(newInstance).padStart(2, '0');
-            const newMonthStr = String(parseInt(chip.monthYearKey.split('-')[0], 10)).padStart(2, '0');
-            const newChipId = `${chip.type}-${newInstanceStr}-${newMonthStr}-${chip.monthYearKey.split('-')[1]}-cal`;
-
-            // Add new chipId to calendar
-            if (!state.planner.calendar.dates[chip.monthYearKey][chip.dayKey]) {
-                state.planner.calendar.dates[chip.monthYearKey][chip.dayKey] = [];
-            }
-            state.planner.calendar.dates[chip.monthYearKey][chip.dayKey].push(newChipId);
-        }
-    });
 
     return changed;
 }
