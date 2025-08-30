@@ -87,7 +87,7 @@ export const incomeData = {
         className: 'clan-war',
         schedule: {
             type: 'custom',
-            dateStart: 3,
+            dateStart: 4,
             availableTillEndOfMonth: true,
         },
         getIncome: (state) => state.derived.incomeSources.clanWar?.perEvent || { shiny: 0, glowy: 0, starry: 0 },
