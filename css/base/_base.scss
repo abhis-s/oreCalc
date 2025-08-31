@@ -9,6 +9,16 @@ body {
     overflow-y: scroll;
     background-color: $dark-background-primary;
     color: $dark-text-primary;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+}
+
+input,
+textarea {
+    -webkit-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
 }
 
 :root {

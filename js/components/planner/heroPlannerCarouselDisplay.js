@@ -31,6 +31,4 @@ export function scrollToHeroPage(index) {
         left: index * pageOffset,
         behavior: 'smooth'
     });
-
-    updatePageDots(index);
 }

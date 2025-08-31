@@ -53,6 +53,10 @@ export function getDefaultState() {
                 common: 18,
                 epic: 27,
             },
+            priorityList: {
+                remainingFavorites: 0
+            },
+            currentHeroIndex: 0,
             calendar: {
                 view: {
                     select: 'monthly',
@@ -101,7 +105,7 @@ function initializeHeroesState() {
         heroes[hero.name] = {
             enabled: true,
             equipment: hero.equipment.reduce((acc, equip) => {
-                acc[equip.name] = { level: 1, checked: true };
+                acc[equip.name] = { level: 1, checked: true, priority: 0 };
                 return acc;
             }, {})
         };

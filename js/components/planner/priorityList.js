@@ -1,5 +1,6 @@
 import { heroData } from '../../data/heroData.js';
 import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../app.js';
 
 function addSeparatorLine() {
     const priorityListContainer = document.getElementById('priority-list-container');
@@ -34,6 +35,35 @@ function addSeparatorLine() {
     }
 }
 
+function savePriorityOrder() {
+    const priorityListContainer = document.getElementById('priority-list-container');
+    if (!priorityListContainer) return;
+
+    const listItems = Array.from(priorityListContainer.children);
+    const equipmentItems = listItems.filter(item => item.classList.contains('priority-list-item'));
+    const separatorIndex = listItems.findIndex(item => item.classList.contains('favorite-separator'));
+
+    handleStateUpdate(() => {
+        equipmentItems.forEach((item, index) => {
+            const equipName = item.dataset.equipmentName;
+            for (const heroKey in state.heroes) {
+                const hero = state.heroes[heroKey];
+                if (hero.equipment[equipName]) {
+                    hero.equipment[equipName].priority = index + 1;
+                }
+            }
+        });
+
+        if (separatorIndex !== -1) {
+            const itemsBeforeSeparator = listItems.slice(0, separatorIndex);
+            const equipmentBeforeSeparator = itemsBeforeSeparator.filter(item => item.classList.contains('priority-list-item')).length;
+            state.planner.priorityList.remainingFavorites = equipmentBeforeSeparator;
+        } else {
+            state.planner.priorityList.remainingFavorites = 0;
+        }
+    });
+}
+
 export function initializePriorityList() {
     const priorityListCard = document.getElementById('priority-list-card');
     if (!priorityListCard) return;
@@ -49,12 +79,6 @@ export function initializePriorityList() {
     priorityListContainer.classList.add('priority-list-content');
     priorityListCard.appendChild(priorityListContainer);
 
-    const favoriteSeparator = document.createElement('div');
-    favoriteSeparator.classList.add('favorite-separator');
-    favoriteSeparator.draggable = true; // Make it draggable
-    priorityListContainer.insertBefore(favoriteSeparator, priorityListContainer.firstChild);
-
-
     const allEquipment = [];
     for (const heroKey in heroData) {
         const hero = heroData[heroKey];
@@ -69,7 +93,8 @@ export function initializePriorityList() {
                             ...equip,
                             hero: hero.name,
                             currentLevel: currentLevel,
-                            customMaxLevel: equip.type === 'common' ? state.planner.customMaxLevel.common : state.planner.customMaxLevel.epic
+                            customMaxLevel: equip.type === 'common' ? state.planner.customMaxLevel.common : state.planner.customMaxLevel.epic,
+                            priority: state.heroes[hero.name].equipment[equip.name].priority
                         });
                     }
                 }
@@ -77,18 +102,26 @@ export function initializePriorityList() {
         }
     }
 
-    // Sort the equipment: items not at custom max level first, then items at custom max level
+    // Sort by priority, then by custom max level
     allEquipment.sort((a, b) => {
+        if (a.priority !== 0 && b.priority !== 0) {
+            return a.priority - b.priority;
+        } else if (a.priority !== 0) {
+            return -1;
+        } else if (b.priority !== 0) {
+            return 1;
+        }
+
         const aAtCustomMax = a.currentLevel >= a.customMaxLevel;
         const bAtCustomMax = b.currentLevel >= b.customMaxLevel;
 
         if (aAtCustomMax && !bAtCustomMax) {
-            return 1; // a is at custom max, b is not, so a goes after b
+            return 1;
         }
         if (!aAtCustomMax && bAtCustomMax) {
-            return -1; // a is not at custom max, b is, so a goes before b
+            return -1;
         }
-        return 0; // Both are either at custom max or not at custom max, maintain original order
+        return 0;
     });
 
     allEquipment.forEach(equip => {
@@ -124,6 +157,12 @@ export function initializePriorityList() {
         priorityListContainer.appendChild(listItem);
     });
 
+    const favoriteSeparator = document.createElement('div');
+    favoriteSeparator.classList.add('favorite-separator');
+    favoriteSeparator.draggable = true;
+    const separatorIndex = state.planner.priorityList.remainingFavorites || 0;
+    priorityListContainer.insertBefore(favoriteSeparator, priorityListContainer.children[separatorIndex]);
+
     addSeparatorLine();
 
     let draggedItem = null;
@@ -137,6 +176,7 @@ export function initializePriorityList() {
         draggedItem.classList.remove('dragging');
         draggedItem = null;
         addSeparatorLine();
+        savePriorityOrder();
     });
 
     priorityListContainer.addEventListener('dragover', (e) => {
@@ -153,7 +193,7 @@ export function initializePriorityList() {
 }
 
 function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.priority-list-item:not(.dragging)')];
+    const draggableElements = [...container.querySelectorAll('.priority-list-item:not(.dragging), .favorite-separator:not(.dragging)')];
 
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();

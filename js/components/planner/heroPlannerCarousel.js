@@ -20,6 +20,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         const equipmentListHtml = hero.equipment.map(equip => {
             const equipState = heroState.equipment[equip.name];
             const isEquipChecked = equipState.checked;
+            const grayscaleClass = !isEquipChecked ? 'grayscale' : '';
             const equipId = `planner-${heroKey}-${equip.name.replace(/\s/g, '')}-toggle`;
 
             const maxLevel = equip.type === 'common' ? 18 : 27;
@@ -40,7 +41,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
             return `
                 <div class="equipment-item-planner" data-equip-name="${equip.name}">
                     <div class="equipment-info">
-                        <img src="${equip.image}" alt="${equip.name}" class="${goldGlowClass} ${overLeveledGlowClass}">
+                        <img src="${equip.image}" alt="${equip.name}" class="equipment-image ${goldGlowClass} ${overLeveledGlowClass} ${grayscaleClass}">
                         <span class="${goldGlowClass} ${overLeveledGlowClass} ${equipTypeClass}">${equip.name}</span>
                     </div>
                     <label class="switch">

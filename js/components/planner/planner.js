@@ -3,8 +3,6 @@ import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
 import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js'; // Added import
 
-let currentHeroIndex = 0;
-
 import { initializeHeroPlannerCarousel } from './heroPlannerCarousel.js';
 import { renderHeroPlannerCarouselDisplay, updatePageDots, scrollToHeroPage } from './heroPlannerCarouselDisplay.js';
 
@@ -13,6 +11,8 @@ import { renderIncomeChips } from './incomeChips.js';
 import { renderCalendar } from './calendar.js';
 import { initializePriorityList } from './priorityList.js';
 
+let scrollInterval = null;
+
 export function initializePlanner() {
     initializePlannerCustomLevels();
     renderCalendar(state.planner);
@@ -20,6 +20,38 @@ export function initializePlanner() {
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthStr, 10) - 1;
     renderIncomeChips(year, month);
+
+    const plannerTab = document.getElementById('planner-tab');
+    if (plannerTab) {
+        plannerTab.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const y = e.clientY;
+            const viewportHeight = window.innerHeight;
+            const scrollThreshold = viewportHeight * 0.15;
+
+            if (y < scrollThreshold) {
+                if (!scrollInterval) {
+                    scrollInterval = setInterval(() => {
+                        window.scrollBy(0, -10);
+                    }, 10);
+                }
+            } else if (y > viewportHeight - scrollThreshold) {
+                if (!scrollInterval) {
+                    scrollInterval = setInterval(() => {
+                        window.scrollBy(0, 10);
+                    }, 10);
+                }
+            } else {
+                clearInterval(scrollInterval);
+                scrollInterval = null;
+            }
+        });
+
+        plannerTab.addEventListener('dragend', () => {
+            clearInterval(scrollInterval);
+            scrollInterval = null;
+        });
+    }
 
     const carouselContent = dom.planner?.heroCarouselContent;
     const plannerPageDots = dom.planner?.plannerPageDots;
@@ -42,15 +74,24 @@ export function initializePlanner() {
             }
         });
 
+        let scrollTimeout;
         carouselContent.addEventListener('scroll', () => {
-            const heroPages = carouselContent.querySelectorAll('.hero-page');
-            if (heroPages.length === 0) return;
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const heroPages = carouselContent.querySelectorAll('.hero-page');
+                if (heroPages.length === 0) return;
 
-            const scrollLeft = carouselContent.scrollLeft;
-            const pageOffset = heroPages[0].offsetWidth + 20; // Page width + gap
+                const scrollLeft = carouselContent.scrollLeft;
+                const pageOffset = heroPages[0].offsetWidth + 20; // Page width + gap
 
-            currentHeroIndex = Math.round(scrollLeft / pageOffset);
-            updatePageDots(currentHeroIndex);
+                const newIndex = Math.round(scrollLeft / pageOffset);
+                if (newIndex !== state.planner.currentHeroIndex) {
+                    handleStateUpdate(() => {
+                        state.planner.currentHeroIndex = newIndex;
+                    });
+                    updatePageDots(newIndex);
+                }
+            }, 50);
         });
     }
 
@@ -61,6 +102,10 @@ export function initializePlanner() {
                 const dotIndex = parseInt(target.dataset.index, 10);
                 if (!isNaN(dotIndex)) {
                     scrollToHeroPage(dotIndex);
+                    handleStateUpdate(() => {
+                        state.planner.currentHeroIndex = dotIndex;
+                    });
+                    updatePageDots(dotIndex);
                 }
             }
         });
@@ -82,7 +127,7 @@ export function renderPlanner(plannerState) {
         return;
     }
     renderPlannerCustomLevels(plannerState);
-    renderHeroPlannerCarouselDisplay(currentHeroIndex);
+    renderHeroPlannerCarouselDisplay(plannerState.currentHeroIndex);
     renderCalendar(plannerState);
     const [monthStr, yearStr] = plannerState.calendar.view.month.split('-');
     const year = parseInt(yearStr, 10);

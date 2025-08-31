@@ -446,7 +446,7 @@ function updateActiveChip() {
     chips.forEach(chip => {
         if (chip.dataset.year === currentYear && chip.dataset.month === currentMonth) {
             chip.classList.add('active');
-            chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            // chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
             const weekNumbersContainer = chip.querySelector('.week-numbers-container');
             if (currentView === 'weekly') {

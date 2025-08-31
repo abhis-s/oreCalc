@@ -153,6 +153,9 @@
             &.over-leveled-glow {
                 filter: drop-shadow(0 0 4px rgba(0, 191, 255, 0.8)) drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
             }
+            &.grayscale {
+                filter: grayscale(100%);
+            }
         }
         span {
             &.gold-glow {
@@ -223,7 +226,7 @@
     overflow-y: auto;
     padding-right: 5px;
     height: 300px;
-    @media (max-width: 779px) {
+    @media (max-width: 599px) {
         height: 400px;
     }
 
