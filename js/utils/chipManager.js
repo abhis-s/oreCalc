@@ -76,10 +76,8 @@ export function reindexCalendarChips(chipType) {
             });
         }
 
-        // Sort chips chronologically for the current month
         chipsToReindexThisMonth.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        // Re-assign sequential instance IDs for the current month
         chipsToReindexThisMonth.forEach((chip, index) => {
             const newInstance = index + 1;
             const wasAuto = chip.originalId.endsWith('-auto');
@@ -87,14 +85,12 @@ export function reindexCalendarChips(chipType) {
             if (chip.instance !== newInstance) {
                 changed = true;
 
-                // Remove old chipId from calendar
                 const oldChipIds = state.planner.calendar.dates[chip.monthYearKey][chip.dayKey];
                 const oldIndex = oldChipIds.indexOf(chip.originalId);
                 if (oldIndex > -1) {
                     oldChipIds.splice(oldIndex, 1);
                 }
 
-                // Create new chipId with updated instance, preserving -auto flag
                 const newInstanceStr = String(newInstance).padStart(2, '0');
                 const newMonthStr = String(parseInt(chip.monthYearKey.split('-')[0], 10)).padStart(2, '0');
                 let newChipId = `${chip.type}-${newInstanceStr}-${newMonthStr}-${chip.monthYearKey.split('-')[1]}-cal`;
@@ -102,7 +98,6 @@ export function reindexCalendarChips(chipType) {
                     newChipId += '-auto';
                 }
 
-                // Add new chipId to calendar
                 if (!state.planner.calendar.dates[chip.monthYearKey][chip.dayKey]) {
                     state.planner.calendar.dates[chip.monthYearKey][chip.dayKey] = [];
                 }

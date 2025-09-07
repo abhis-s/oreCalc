@@ -19,7 +19,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         newCalendarDates[monthYearKey] = {};
     }
 
-    // 1. Identify all potential chips for the current month
     const allPotentialChips = [];
     for (const key in incomeData) {
         const incomeSource = incomeData[key];
@@ -59,7 +58,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
     }
     console.log(`[AutoPlace] Identified ${allPotentialChips.length} potential chips for the current month.`);
 
-    // 2. Clear previously auto-placed chips for the current month
     let autoPlacedChipsRemovedCount = 0;
     if (newCalendarDates[monthYearKey]) {
         for (const day in newCalendarDates[monthYearKey]) {
@@ -68,7 +66,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
             const removedCount = originalCount - newCalendarDates[monthYearKey][day].length;
             autoPlacedChipsRemovedCount += removedCount;
 
-            // Clean up empty day arrays
             if (newCalendarDates[monthYearKey][day].length === 0) {
                 delete newCalendarDates[monthYearKey][day];
             }
@@ -76,24 +73,20 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
     }
     console.log(`[AutoPlace] Cleared ${autoPlacedChipsRemovedCount} previously auto-placed chips for the current month.`);
 
-    // Process existing manually placed chips in the current month (lock them)
     const placedChipIdsInCurrentMonth = new Set();
     for (const day in newCalendarDates[monthYearKey]) {
         newCalendarDates[monthYearKey][day].forEach(chipId => {
-            // Remove the "-cal" suffix to get the base ID for comparison
             placedChipIdsInCurrentMonth.add(chipId.split('-cal')[0]);
         });
     }
     console.log(`[AutoPlace] ${placedChipIdsInCurrentMonth.size} manually placed chips found in current month (locked).`);
 
-    // Filter out already placed chips from allPotentialChips
     const unplacedChips = allPotentialChips.filter(chip => {
         const chipId = `${chip.type}-${String(chip.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}`;
         return !placedChipIdsInCurrentMonth.has(chipId);
     });
     console.log(`[AutoPlace] ${unplacedChips.length} chips remain to be placed.`);
 
-    // 3. Process historical placements (copy from previous months)
     const placedByHistory = new Set();
     const historyLookbackMonths = 12;
 
@@ -101,7 +94,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         const chip = unplacedChips[i];
         if (placedByHistory.has(chip.type + '-' + chip.instance)) continue;
 
-        // Check if the chip is available in the current month before looking at history
         const schedule = incomeData[chip.type].schedule;
         if (schedule && schedule.availableMonths && schedule.availableMonths[currentYear] && !schedule.availableMonths[currentYear].includes(currentMonth + 1)) {
             console.log(`[AutoPlace] Skipping historical placement for ${chip.name} as it is not available in ${currentMonth + 1}/${currentYear}.`);
@@ -131,7 +123,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                                     break;
                                 case 'raidMedalTrader':
                                 case 'gemTrader':
-                                    // Day of week copy
                                     const historicalDate = getDateFromDayAndMonth(lookbackYear, lookbackMonth, historicalDay);
                                     const dayOfWeek = historicalDate.getUTCDay();
                                     const nthOccurrence = chip.instance;
@@ -157,7 +148,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                             }
 
                             if (targetDay !== null) {
-                                // Consistently format the new chip ID with padding and the "-cal" suffix
                                 const newChipId = `${chip.type}-${String(chip.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
                                 const paddedTargetDay = String(targetDay).padStart(2, '0');
                                 if (!newCalendarDates[monthYearKey][paddedTargetDay]) {
@@ -182,7 +172,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         }
     }
 
-    // 4. Process CWL placements (gap-filling)
     const finalUnplacedChips = unplacedChips.filter(chip => !placedByHistory.has(chip.type + '-' + chip.instance));
     const cwlChipsToPlace = finalUnplacedChips.filter(chip => chip.type === 'cwl');
     if (cwlChipsToPlace.length > 0) {
@@ -264,7 +253,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         }
     }
 
-    // 5. Process fallback placements (for remaining unplaced chips)
     const remainingUnplacedChips = finalUnplacedChips.filter(chip => !placedByHistory.has(chip.type + '-' + chip.instance));
     console.log(`[AutoPlace] ${remainingUnplacedChips.length} chips remaining for fallback placement.`);
 
@@ -335,12 +323,10 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         }
     }
 
-    // Final Clan War placement
     const allClanWarChips = finalUnplacedChips.filter(chip => chip.type === 'clanWar');
     const totalClanWars = incomeData.clanWar.getCount(state);
     const manuallyPlacedWarDates = [];
 
-    // Find manually placed clan wars in the current month
     if (newCalendarDates[monthYearKey]) {
         for (const day in newCalendarDates[monthYearKey]) {
             if (newCalendarDates[monthYearKey][day].some(id => id.startsWith('clanWar-'))) {
@@ -354,14 +340,11 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
     if (warsToPlaceCount > 0) {
         console.log(`[AutoPlace] Attempting to place ${warsToPlaceCount} Clan War chips.`);
 
-        // Start of the re-evaluation loop
         let previousEarliestStartDate = null;
         let currentEarliestStartDate = null;
 
-        // --- First Run --- //
-        previousEarliestStartDate = currentEarliestStartDate; // This will be null
+        previousEarliestStartDate = currentEarliestStartDate;
 
-        // 1. Determine the earliest start date for placement
         let earliestStartDateCandidate = null;
 
         if (totalClanWars < 12) {
@@ -422,7 +405,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                     earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, calculatedDay);
                     console.log(`[AutoPlace] Calculated earliestStartDateCandidate from CWL: ${earliestStartDateCandidate.getUTCDate()}`);
                 } else {
-                    // Fallback: No CWL chip found, use clanWar.schedule.startDate
                     earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, incomeData.clanWar.schedule.dateStart);
                     console.log(`[AutoPlace] No CWL chip found. Defaulting Clan War start window to clanWar.schedule.startDate.`);
                 }
@@ -432,7 +414,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
 
         console.log(`[AutoPlace] Clan War placement window starts on: ${currentEarliestStartDate.getUTCDate()}/${currentMonth + 1}`);
 
-        // 2. Create the initial "No-Go Zone"
         const blockedDates = new Set();
         const daysInMonth = getDaysInMonth(currentYear, currentMonth);
         const minSpacing = incomeData.clanWar.minReoccurrenceDays;
@@ -441,7 +422,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
             blockedDates.add(i);
         }
 
-        // Re-find manually placed clan wars after clearing for this iteration
         const currentManuallyPlacedWarDates = [];
         if (newCalendarDates[monthYearKey]) {
             for (const day in newCalendarDates[monthYearKey]) {
@@ -461,12 +441,10 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         });
         console.log(`[AutoPlace] Initial blocked dates (no-go zone) calculated:`, Array.from(blockedDates).sort((a, b) => a - b));
 
-        // 3. Adaptive Placement Loop
         let placedCount = 0;
         let searchStartDate = currentEarliestStartDate.getUTCDate();
 
         while (placedCount < warsToPlaceCount && searchStartDate <= daysInMonth) {
-            // Find the next available day
             let placementDay = -1;
             for (let d = searchStartDate; d <= daysInMonth; d++) {
                 if (!blockedDates.has(d)) {
@@ -480,7 +458,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                 break;
             }
 
-            // Place the chip
             const chipToPlace = allClanWarChips[placedCount];
             const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
             const paddedTargetDay = String(placementDay).padStart(2, '0');
@@ -492,14 +469,12 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
             placedCount++;
             console.log(`[AutoPlace] Placed Clan War chip (Instance ${chipToPlace.instance}) on day ${placementDay}`);
 
-            // Update blockedDates with the new chip's no-go zone
             blockedDates.add(placementDay);
             for (let i = 1; i < minSpacing; i++) {
                 if (placementDay - i > 0) blockedDates.add(placementDay - i);
                 if (placementDay + i <= daysInMonth) blockedDates.add(placementDay + i);
             }
 
-            // Determine next search start date using division algorithm
             const remainingWars = warsToPlaceCount - placedCount;
             if (remainingWars > 0) {
                 let availableDays = 0;
@@ -513,10 +488,10 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                     const averageSpacing = Math.ceil(availableDays / remainingWars);
                     searchStartDate = placementDay + Math.max(minSpacing, averageSpacing);
                 } else {
-                    searchStartDate = daysInMonth + 1; // No more available days
+                    searchStartDate = daysInMonth + 1;
                 }
             } else {
-                searchStartDate = daysInMonth + 1; // All wars placed
+                searchStartDate = daysInMonth + 1;
             }
         }
 
@@ -524,25 +499,21 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
             console.log(`[AutoPlace] ${warsToPlaceCount - placedCount} Clan War chips could not be placed due to lack of available space.`);
         }
 
-        // --- Check for Conditional Second Run --- //
         const earliestStartDateStabilized = (previousEarliestStartDate !== null && currentEarliestStartDate !== null && previousEarliestStartDate.getTime() === currentEarliestStartDate.getTime()) ||
                                             (previousEarliestStartDate === null && currentEarliestStartDate === null);
 
         if (!earliestStartDateStabilized && placedCount < warsToPlaceCount) {
             console.log(`[AutoPlace] Retrying Clan War placement due to instability or incomplete placement.`);
 
-            // --- Second Run --- //
-            // Clear all Clan War chips for the second run
             for (const day in newCalendarDates[monthYearKey]) {
                 newCalendarDates[monthYearKey][day] = newCalendarDates[monthYearKey][day].filter(chipId => !chipId.startsWith('clanWar-'));
                 if (newCalendarDates[monthYearKey][day].length === 0) {
                     delete newCalendarDates[monthYearKey][day];
                 }
             }
-            previousEarliestStartDate = currentEarliestStartDate; // Update for the second run
+            previousEarliestStartDate = currentEarliestStartDate;
 
-            // 1. Determine the earliest start date for placement (re-run the logic)
-            earliestStartDateCandidate = null; // Reset for re-calculation
+            earliestStartDateCandidate = null;
 
             if (totalClanWars < 12) {
                 let historicalStartDateFound = false;
@@ -602,7 +573,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                         earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, calculatedDay);
                         console.log(`[AutoPlace] Calculated earliestStartDateCandidate from CWL: ${earliestStartDateCandidate.getUTCDate()}`);
                     } else {
-                        // Fallback: No CWL chip found, use clanWar.schedule.startDate
                         earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, incomeData.clanWar.schedule.dateStart);
                         console.log(`[AutoPlace] No CWL chip found. Defaulting Clan War start window to clanWar.schedule.startDate.`);
                     }
@@ -612,7 +582,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
 
             console.log(`[AutoPlace] Clan War placement window starts on: ${currentEarliestStartDate.getUTCDate()}/${currentMonth + 1}`);
 
-            // 2. Create the initial "No-Go Zone"
             const blockedDates = new Set();
             const daysInMonth = getDaysInMonth(currentYear, currentMonth);
             const minSpacing = incomeData.clanWar.minReoccurrenceDays;
@@ -621,7 +590,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                 blockedDates.add(i);
             }
 
-            // Re-find manually placed clan wars after clearing for this iteration
             const currentManuallyPlacedWarDates = [];
             if (newCalendarDates[monthYearKey]) {
                 for (const day in newCalendarDates[monthYearKey]) {
@@ -641,12 +609,10 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
             });
             console.log(`[AutoPlace] Initial blocked dates (no-go zone) calculated:`, Array.from(blockedDates).sort((a, b) => a - b));
 
-            // 3. Adaptive Placement Loop
-            placedCount = 0; // Reset placedCount for the retry run
+            placedCount = 0;
             searchStartDate = currentEarliestStartDate.getUTCDate();
 
             while (placedCount < warsToPlaceCount && searchStartDate <= daysInMonth) {
-                // Find the next available day
                 let placementDay = -1;
                 for (let d = searchStartDate; d <= daysInMonth; d++) {
                     if (!blockedDates.has(d)) {
@@ -660,7 +626,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                     break;
                 }
 
-                // Place the chip
                 const chipToPlace = allClanWarChips[placedCount];
                 const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
                 const paddedTargetDay = String(placementDay).padStart(2, '0');
@@ -672,14 +637,12 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                 placedCount++;
                 console.log(`[AutoPlace] Placed Clan War chip (Instance ${chipToPlace.instance}) on day ${placementDay}`);
 
-                // Update blockedDates with the new chip's no-go zone
                 blockedDates.add(placementDay);
                 for (let i = 1; i < minSpacing; i++) {
                     if (placementDay - i > 0) blockedDates.add(placementDay - i);
                     if (placementDay + i <= daysInMonth) blockedDates.add(placementDay + i);
                 }
 
-                // Determine next search start date using division algorithm
                 const remainingWars = warsToPlaceCount - placedCount;
                 if (remainingWars > 0) {
                     let availableDays = 0;
@@ -693,10 +656,10 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                         const averageSpacing = Math.ceil(availableDays / remainingWars);
                         searchStartDate = placementDay + Math.max(minSpacing, averageSpacing);
                     } else {
-                        searchStartDate = daysInMonth + 1; // No more available days
+                        searchStartDate = daysInMonth + 1;
                     }
                 } else {
-                    searchStartDate = daysInMonth + 1; // All wars placed
+                    searchStartDate = daysInMonth + 1;
                 }
             }
 

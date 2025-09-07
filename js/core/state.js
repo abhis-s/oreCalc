@@ -3,16 +3,10 @@ import { currencySymbols, heroData, shopOfferData, eventPassData } from '../data
 export let state = {};
 
 export function getWeekNumber(d) {
-    // Copy date so don't modify original
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    // Set to nearest Thursday: current date + 4 - current day number
-    // Monday is 1
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    // Get first day of year
     var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    // Calculate full weeks to nearest Thursday
     var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    // Return array of year and week number
     return [d.getUTCFullYear(), weekNo];
 }
 
@@ -60,7 +54,7 @@ export function getDefaultState() {
                     month: `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`,
                     week: `${weekNo}-${year}`,
                 },
-                dates: {} // "MM-YYYY": { "DD": ["chipId1", "chipId2"] }
+                dates: {}
             },
         },
         playerSpecificDefaults: {
@@ -89,7 +83,7 @@ export function getDefaultState() {
                         month: `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`,
                         week: `${weekNo}-${year}`,
                     },
-                    dates: {} // "MM-YYYY": { "DD": ["chipId1", "chipId2"] }
+                    dates: {}
                 },
             },
             regionalPricingEnabled: false,
@@ -156,7 +150,7 @@ export function getDefaultPlayerState() {
                     month: `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`,
                     week: `${weekNo}-${year}`,
                 },
-                dates: {} // "MM-YYYY": { "DD": ["chipId1", "chipId2"] }
+                dates: {}
             },
         },
         playerData: null,
@@ -177,7 +171,6 @@ export function initializeState(savedState) {
             state.savedPlayerTags = savedState.savedPlayerTags;
         }
 
-        // Ensure lastPlayerTag is set to DEFAULT0 if it's empty
         if (!state.lastPlayerTag) {
             state.lastPlayerTag = 'DEFAULT0';
         }
@@ -232,22 +225,18 @@ export function initializeState(savedState) {
 
         if (state.lastPlayerTag && state.allPlayersData[state.lastPlayerTag]) {
             const activePlayerData = state.allPlayersData[state.lastPlayerTag];
-            // Instead of a direct Object.assign for state.heroes,
-            // iterate through heroData to ensure all heroes and their equipment are properly initialized
-            // and then merge in saved data.
             for (const heroKey in heroData) {
                 const heroName = heroData[heroKey].name;
                 const defaultHero = getDefaultState().heroes[heroName];
                 
-                if (state.heroes[heroName]) { // Ensure the hero exists in the default state
+                if (state.heroes[heroName]) { 
                     const savedHero = activePlayerData.heroes?.[heroName];
                     if (savedHero) {
                         Object.assign(state.heroes[heroName], savedHero);
                         for (const equipKey in defaultHero.equipment) {
                             const savedEquip = savedHero.equipment?.[equipKey];
                             if (savedEquip) {
-                                Object.assign(state.heroes[heroName].equipment[equipKey], savedEquip);
-                                // Check specifically for upgradePlan being an empty object
+                                Object.assign(state.heroes[heroName].equipment[equipKey], savedEquip);     
                                 if (savedEquip.upgradePlan && Object.keys(savedEquip.upgradePlan).length === 0) {
                                      state.heroes[heroName].equipment[equipKey].upgradePlan = defaultHero.equipment[equipKey].upgradePlan;
                                 }
@@ -261,16 +250,14 @@ export function initializeState(savedState) {
             Object.assign(state.income, getDefaultState().income, activePlayerData.income);
             Object.assign(state.planner, getDefaultState().planner, activePlayerData.planner);
 
-            // Ensure priorityList is an array, to handle migration from old state structure
             if (!Array.isArray(state.planner.priorityList)) {
                 state.planner.priorityList = [];
             }
-            // Ensure state.planner.calendar.view.month is always a valid string
+
             if (!state.planner.calendar.view.month || typeof state.planner.calendar.view.month !== 'string' || !state.planner.calendar.view.month.includes('-')) {
                 state.planner.calendar.view.month = `${String(new Date().getMonth() + 1).padStart(2, '0')}-${new Date().getFullYear()}`;
             }
 
-            // Ensure dates object exists in planner.calendar
             if (!state.planner.calendar.dates) {
                 state.planner.calendar.dates = {};
             }

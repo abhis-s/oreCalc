@@ -25,7 +25,7 @@ export function scrollToHeroPage(index) {
     const heroPages = carouselContent.querySelectorAll('.hero-page');
     if (heroPages.length === 0) return;
 
-    const pageOffset = heroPages[0].offsetWidth + 20; // Page width + gap
+    const pageOffset = heroPages[0].offsetWidth + 20; 
 
     carouselContent.scrollTo({
         left: index * pageOffset,

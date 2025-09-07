@@ -99,10 +99,8 @@ export function loadPlayerData(playerTag) {
 
 export function updateSavedPlayerTags(playerTag) {
     try {
-        // If the tag being updated is not DEFAULT0, and DEFAULT0 is present, remove it.
         if (playerTag !== 'DEFAULT0' && state.savedPlayerTags.includes('DEFAULT0')) {
             state.savedPlayerTags = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0');
-            // Also remove from allPlayersData if it exists
             if (state.allPlayersData['DEFAULT0']) {
                 delete state.allPlayersData['DEFAULT0'];
             }

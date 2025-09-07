@@ -2,7 +2,6 @@ import { state } from '../core/state.js';
 import { upgradeCosts, heroData } from '../data/heroData.js';
 import { incomeData } from '../data/incomeChipData.js';
 
-// Helper function to calculate daily income from calendar chips
 function getDailyIncomeFromCalendar(date) {
     const dailyIncome = { shiny: 0, glowy: 0, starry: 0 };
     const monthYearKey = `${String(date.getUTCMonth() + 1).padStart(2, '0')}-${date.getUTCFullYear()}`;
@@ -41,16 +40,13 @@ export function calculateCompletionDates(priorityList) {
     let stopProcessing = false;
     
     const simulatedLevels = {};
-    // Set the prediction end date to December 31, 2027
     const stopDate = new Date('2027-12-31T23:59:59Z');
     
-    // A separate map to track the highest step for each equipment to detect order errors.
     const lastProcessedStep = {};
 
     for (const item of priorityList) {
         const equipmentKey = `${item.heroName}-${item.name}`;
-        
-        // New: Check for step order errors inline
+            
         if (lastProcessedStep[equipmentKey] && item.step <= lastProcessedStep[equipmentKey]) {
             stopProcessing = true;
         }

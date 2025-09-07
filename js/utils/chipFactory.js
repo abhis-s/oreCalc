@@ -77,7 +77,6 @@ function createIncomeChip(text, className, data, month, year, id = null) {
     chip.addEventListener('dragstart', (e) => {
         const chipData = { ...data, className: className, id: chip.id };
 
-        // Helper to format Date object to DD-MM-YYYY string
         const formatDate = (date) => {
             if (!date) return null;
             const d = new Date(date);
@@ -94,14 +93,13 @@ function createIncomeChip(text, className, data, month, year, id = null) {
 
         let validDates = [];
         if (chipStartDate && chipEndDate) {
-            let currentDate = new Date(chipStartDate + 'T00:00:00Z'); // Ensure UTC parsing
+            let currentDate = new Date(chipStartDate + 'T00:00:00Z');
             const endDate = new Date(chipEndDate + 'T00:00:00Z');
             while (currentDate <= endDate) {
                 validDates.push(formatDate(currentDate));
                 currentDate.setUTCDate(currentDate.getUTCDate() + 1);
             }
         } else {
-            // Fallback for chips without date ranges (should not happen for draggable chips)
             const schedule = incomeData[chipData.type].schedule;
             const scheduledDates = getScheduleDates(calYear, calMonth - 1, schedule);
             validDates = scheduledDates.map(date => formatDate(date));
@@ -115,11 +113,11 @@ function createIncomeChip(text, className, data, month, year, id = null) {
             const chipContainer = cell.querySelector('.chip-container');
             if (!chipContainer) return;
 
-            const cellDate = cell.dataset.date; // YYYY-MM-DD format
-            const formattedCellDate = formatDate(cellDate); // Convert to DD-MM-YYYY for comparison
-            const [year, month, day] = cellDate.split('-'); // Keep YYYY-MM-DD for state access
-            const monthYearKey = `${month}-${year}`; // MM-YYYY
-            const dayKey = day; // DD
+            const cellDate = cell.dataset.date;
+            const formattedCellDate = formatDate(cellDate);
+            const [year, month, day] = cellDate.split('-');
+            const monthYearKey = `${month}-${year}`;
+            const dayKey = day;
 
             const chipsOnThisDate = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];
             let hasDuplicateType = false;
@@ -143,7 +141,6 @@ function createIncomeChip(text, className, data, month, year, id = null) {
             }
         });
 
-        // Add visual feedback for the income chips container
         const incomeChipsContainer = document.getElementById('income-chips-container');
         if (incomeChipsContainer) {
             incomeChipsContainer.classList.add('valid-drop-target');
@@ -182,7 +179,6 @@ function createIncomeChip(text, className, data, month, year, id = null) {
             }
         });
 
-        // Remove visual feedback from the income chips container
         const incomeChipsContainer = document.getElementById('income-chips-container');
         if (incomeChipsContainer) {
             incomeChipsContainer.classList.remove('valid-drop-target');
@@ -196,15 +192,13 @@ function createOverflowChip(count, aggregatedData, type, className) {
     const chip = document.createElement('div');
     chip.classList.add('income-chip', 'overflow-chip', className);
     chip.textContent = `+${count}`;
-    chip.draggable = false; // Overflow chips are not draggable
-
-    // Store aggregated data in dataset
+    chip.draggable = false; 
+    
     for (const key in aggregatedData) {
         chip.dataset[key] = aggregatedData[key];
     }
     chip.dataset.type = type;
 
-    // Add a simple tooltip for overflow chip to show aggregated values
     const tooltip = document.createElement('div');
     tooltip.classList.add('chip-tooltip');
     tooltip.draggable = false;

@@ -1,4 +1,3 @@
-// base/_base.scss
 @use '../abstracts/variables' as *;
 
 body {
@@ -9,9 +8,9 @@ body {
     overflow-y: scroll;
     background-color: $dark-background-primary;
     color: $dark-text-primary;
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10+ */
-    user-select: none; /* Standard syntax */
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 input,
@@ -30,7 +29,6 @@ textarea {
 	--font-size-em-lg: 1.2em;
 	--font-size-em-md: 1em;
 
-    // Color variables exposed as CSS custom properties
     --text-color: #E6E1E5;
     --text-color-light: #CAC4D0;
     --text-color-disabled: #938F99;

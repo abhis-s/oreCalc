@@ -60,7 +60,6 @@
     }
 
     &[draggable="false"] {
-        // shadow inside
         box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
         cursor: default;
     }

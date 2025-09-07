@@ -6,9 +6,8 @@
 
 #calendar-track {
     display: flex;
-    width: 300%; // To hold three calendars
+    width: 300%;
     position: relative;
-    // The `transform` and `transition` properties will be handled by JavaScript
 }
 
 .calendar-header {
@@ -75,7 +74,7 @@
         padding: 10px 5px 5px 5px;
         cursor: pointer;
         transition: background-color 0.3s ease;
-        border: 1px solid transparent; // for alignment with today
+        border: 1px solid transparent;
 
         &:hover {
             background-color: var(--input-hover-bg-color);

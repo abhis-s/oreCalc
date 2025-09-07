@@ -54,7 +54,7 @@ function savePrioritySteps() {
             uiSteps.forEach(step => {
                 if (!step.enabled) return;
                 if (uniqueLevels.has(step.level)) {
-                    step.enabled = false; // Disable duplicate
+                    step.enabled = false; 
                 }
                 uniqueLevels.add(step.level);
             });
@@ -120,7 +120,7 @@ function savePrioritySteps() {
 
 function renderTableRows() {
     const tbody = document.querySelector('#level-select-table tbody');
-    tbody.innerHTML = ''; // Clear existing rows
+    tbody.innerHTML = ''; 
 
     for (let i = 1; i <= 3; i++) {
         const row = `
@@ -170,7 +170,6 @@ function trashStep(stepId) {
         currentEnableSwitch.checked = nextEnableSwitch.checked;
     }
 
-    // Disable and clear the last step
     const lastStepRow = rows[rows.length - 1];
     const lastLevelInput = lastStepRow.querySelector('.level-input');
     const lastEnableSwitch = lastStepRow.querySelector('.enable-switch');
@@ -232,7 +231,7 @@ export function createLevelSelectModal() {
 
 export function openLevelSelectModal(hero, equipment) {
     currentEquipment = equipment;
-    createLevelSelectModal(); // Ensure it exists
+    createLevelSelectModal(); 
 
     const modal = document.getElementById('level-select-modal');
     const equipNameSpan = document.getElementById('level-select-modal-equip-name');
@@ -245,25 +244,22 @@ export function openLevelSelectModal(hero, equipment) {
     const currentLevel = state.heroes[hero.name]?.equipment[equipment.name]?.level || 1;
     currentLevelSpan.textContent = currentLevel;
 
-    // Retrieve saved levels for this equipment from upgradePlan
     const equipmentUpgradePlan = state.heroes[hero.name]?.equipment[equipment.name]?.upgradePlan;
 
     const minLevel = currentLevel + 1;
 
-    // Populate from saved levels
     rows.forEach((row, index) => {
         const levelInput = row.querySelector('.level-input');
         const enableSwitch = row.querySelector('.enable-switch');
-        const stepKey = (index + 1).toString(); // Step number (1, 2, 3)
+        const stepKey = (index + 1).toString(); 
         const savedStep = equipmentUpgradePlan ? equipmentUpgradePlan[stepKey] : null;
 
-        levelInput.setAttribute('min', minLevel); // Set min attribute
-        levelInput.setAttribute('max', maxLevel); // Set max attribute;
+        levelInput.setAttribute('min', minLevel); 
+        levelInput.setAttribute('max', maxLevel); 
 
-        if (savedStep && savedStep.enabled) { // Check if step is enabled
-            levelInput.value = savedStep.level; // Use level from saved step
+        if (savedStep && savedStep.enabled) { 
+            levelInput.value = savedStep.level; 
             enableSwitch.checked = true;
-            // Disable if saved level is less than or equal to current level
             if (savedStep.level <= currentLevel) {
                 levelInput.disabled = true;
                 enableSwitch.checked = false;
@@ -275,7 +271,6 @@ export function openLevelSelectModal(hero, equipment) {
         addValidation(levelInput, { inputName: 'Level', rules: { max: maxLevel, min: minLevel } });
     });
 
-    // Calculate default levels (only if no saved levels or all disabled)
     const allStepsDisabled = Array.from(rows).every((row, index) => {
         const enableSwitch = row.querySelector('.enable-switch');
         return !enableSwitch.checked;
@@ -289,49 +284,45 @@ export function openLevelSelectModal(hero, equipment) {
             defaultLevel1 = maxLevel;
         }
         defaultLevel1 = Math.max(defaultLevel1, 9);
-        defaultLevel1 = Math.max(defaultLevel1, minLevel); // Ensure default is not less than minLevel
+        defaultLevel1 = Math.max(defaultLevel1, minLevel); 
 
         defaultLevel2 = defaultLevel1 + 3;
         if (defaultLevel2 > maxLevel) {
             defaultLevel2 = maxLevel;
         }
         defaultLevel2 = Math.max(defaultLevel2, equipment.type === 'epic' ? 18 : 12);
-        defaultLevel2 = Math.max(defaultLevel2, minLevel); // Ensure default is not less than minLevel
+        defaultLevel2 = Math.max(defaultLevel2, minLevel); 
 
         defaultLevel3 = maxLevel;
-        defaultLevel3 = Math.max(defaultLevel3, minLevel); // Ensure default is not less than minLevel
-
-        // Set values and apply disabling logic
+        defaultLevel3 = Math.max(defaultLevel3, minLevel); 
+        
         rows.forEach((row, index) => {
             const levelInput = row.querySelector('.level-input');
             const enableSwitch = row.querySelector('.enable-switch');
 
-            levelInput.value = ''; // Clear previous values
-            enableSwitch.checked = true; // Enable by default
+            levelInput.value = ''; 
+            enableSwitch.checked = true; 
 
             let currentDefaultLevel;
 
-            if (index === 0) { // Step 1
+            if (index === 0) { 
                 levelInput.value = defaultLevel1;
                 currentDefaultLevel = defaultLevel1;
                 if (defaultLevel1 >= maxLevel) {
-                    // Disable step 2 and 3 if step 1 is already maxed
                     rows[1].querySelector('.enable-switch').checked = false;
                     rows[2].querySelector('.enable-switch').checked = false;
                 }
-            } else if (index === 1) { // Step 2
+            } else if (index === 1) { 
                 levelInput.value = defaultLevel2;
                 currentDefaultLevel = defaultLevel2;
                 if (defaultLevel2 >= maxLevel) {
-                    // Disable step 3 if step 2 is already maxed
                     rows[2].querySelector('.enable-switch').checked = false;
                 }
-            } else if (index === 2) { // Step 3
+            } else if (index === 2) { 
                 levelInput.value = defaultLevel3;
                 currentDefaultLevel = defaultLevel3;
             }
 
-            // Disable if default level is less than or equal to current level
             if (currentDefaultLevel <= currentLevel) {
                 levelInput.disabled = true;
                 enableSwitch.checked = false;

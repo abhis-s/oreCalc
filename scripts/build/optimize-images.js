@@ -26,7 +26,6 @@ async function optimizeImages() {
                                     console.error(`Error optimizing ${fullPath}:`, err);
                                 } else {
                                     fs.renameSync(fullPath + '.optimized', fullPath);
-                                    // console.log(`Optimized: ${fullPath}`);
                                 }
                             });
                     } catch (error) {

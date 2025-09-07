@@ -1,8 +1,8 @@
 import { dom } from '../../dom/domElements.js';
 import { heroData } from '../../data/appData.js';
-import { updatePageDots } from './heroPlannerCarouselDisplay.js'; // Added import
+import { updatePageDots } from './heroPlannerCarouselDisplay.js'; 
 
-let currentHeroIndex = 0; // Not exported anymore
+let currentHeroIndex = 0; 
 
 export function initializeHeroPlannerCarousel(heroesState, plannerState) {
     const carouselContent = dom.planner?.heroCarouselContent;
@@ -16,7 +16,6 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         const hero = heroData[heroKey];
         const heroState = heroesState[hero.name];
 
-        // Safely exit if this hero's state doesn't exist
         if (!heroState) {
             return;
         }
@@ -82,7 +81,6 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
 
     carouselContent.innerHTML = heroPagesHtml;
 
-    // Generate page dots
     let dotsHtml = '';
     heroKeys.forEach((_, index) => {
         dotsHtml += `<span class="dot" data-index="${index}"></span>`;

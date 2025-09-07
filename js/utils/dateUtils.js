@@ -1,3 +1,25 @@
+export function isDateInRange(day, month, year, schedule) {
+    const targetDate = `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
+    const { startDate, endDate } = getScheduleDates(year, month - 1, schedule);
+
+    const formatDate = (date) => {
+        if (!date) return null;
+        const d = new Date(date);
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const year = d.getUTCFullYear();
+        return `${day}-${month}-${year}`;
+    };
+
+    return getDatesInRange({
+        startDate: formatDate(startDate),
+        endDate: formatDate(endDate),
+        isDateInRange: targetDate,
+        month: month,
+        year: year
+    });
+}
+
 export function getDaysInMonth(year, month) {
     return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 }
@@ -8,7 +30,7 @@ export function getWeeklyOccurrences(year, month, dateStart, dateEnd) {
 
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(Date.UTC(year, month, day));
-        const dayOfWeek = date.getUTCDay(); // 0 for Sunday, 1 for Monday, etc.
+        const dayOfWeek = date.getUTCDay();
         if (dayOfWeek === dateStart) {
             count++;
         }
@@ -20,8 +42,7 @@ export function getMonthlyOccurrences(year, month = null) {
     const today = new Date(Date.UTC());
     const currentMonth = today.getUTCMonth();
     const currentYear = today.getUTCFullYear();
-
-    // Temporarily ignore start and end dates for rendering purposes
+    
     if (year === currentYear && month === currentMonth) {
         return 1;
     }
@@ -32,8 +53,7 @@ export function getBimonthlyOccurrences(year, month, availableMonths) {
     const today = new Date(Date.UTC());
     const currentMonth = today.getUTCMonth();
     const currentYear = today.getUTCFullYear();
-
-    // Temporarily ignore availableMonths for rendering purposes
+    
     if (year === currentYear && month === currentMonth) {
         return 1;
     }
@@ -69,8 +89,7 @@ export function getDateFromDayAndMonth(year, month, day) {
 
 export function getDatesInRange(options = {}) {
     const { startDate: start, endDate: end, isDateInRange: targetDate, month, year } = options;
-
-    // Helper to parse DD-MM-YYYY
+    
     const parseDate = (dateStr) => {
         const [day, month, year] = dateStr.split('-').map(Number);
         return new Date(Date.UTC(year, month - 1, day));
@@ -106,28 +125,6 @@ export function getDatesInRange(options = {}) {
         }
         return dates;
     }
-}
-
-export function isDateInRange(day, month, year, schedule) {
-    const targetDate = `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
-    const { startDate, endDate } = getScheduleDates(year, month - 1, schedule);
-
-    const formatDate = (date) => {
-        if (!date) return null;
-        const d = new Date(date);
-        const day = String(d.getUTCDate()).padStart(2, '0');
-        const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-        const year = d.getUTCFullYear();
-        return `${day}-${month}-${year}`;
-    };
-
-    return getDatesInRange({
-        startDate: formatDate(startDate),
-        endDate: formatDate(endDate),
-        isDateInRange: targetDate,
-        month: month,
-        year: year
-    });
 }
 
 export function getScheduleDates(year, month, schedule, instance = 1) {

@@ -2,13 +2,11 @@
 const CACHE_NAME = 'ore-calculator-cache-v6';
 
 const urlsToCache = [
-    // Core files
     '/',
     '/index.html',
     '/css/main.css',
     '/assets/favicon.png',
 
-    // JavaScript files: To be replaced with minified version
     '/js/core/renderer.js',
     '/js/core/oreCalculator.js',
     '/js/core/timeCalculator.js',
@@ -93,28 +91,23 @@ const urlsToCache = [
     '/js/services/apiService.js',
     '/js/services/serverResponseHandler.js',
 
-    // Asset Files
-    // App Assets
     '/assets/app_icon_small.png',
     '/assets/app_icon_large.png',
     '/assets/screenshot_mobile.png',
     '/assets/screenshot_desktop.png',
 
-    // Ores
     '/assets/shiny_ore.png',
     '/assets/glowy_ore.png',
     '/assets/starry_ore.png',
     '/assets/ore_icon.png',
 
-    // Resources
     '/assets/resources/event_medal.png',
-    '/assets/resources/event_medal_fallback.png', // TO DO: Implement fallback logic
+    '/assets/resources/event_medal_fallback.png',
     '/assets/resources/cwl.png',
     '/assets/resources/gem.png',
     '/assets/resources/raid_medal.png',
     '/assets/resources/clan_war.png',
 
-    // Player Leagues
     '/assets/player_leagues/unranked_league.png',
     '/assets/player_leagues/bronze_league.png',
     '/assets/player_leagues/silver_league.png',
@@ -125,17 +118,14 @@ const urlsToCache = [
     '/assets/player_leagues/titan_league.png',
     '/assets/player_leagues/legend_league.png',
 
-    // Heroes
     '/assets/heroes/barbarian_king.png',
     '/assets/heroes/archer_queen.png',
     '/assets/heroes/minion_prince.png',
     '/assets/heroes/grand_warden.png',
     '/assets/heroes/royal_champion.png',
 
-    // Equipment Assets
     '/assets/equipment/equip_placeholder.png',
 
-    // Barbarian King Equipment
     '/assets/equipment/barbarian_king/BK_barbarian_puppet.png',
     '/assets/equipment/barbarian_king/BK_rage_vial.png',
     '/assets/equipment/barbarian_king/BK_earthquake_boots.png',
@@ -144,7 +134,6 @@ const urlsToCache = [
     '/assets/equipment/barbarian_king/BK_spiky_ball.png',
     '/assets/equipment/barbarian_king/BK_snake_bracelet.png',
 
-    // Archer Queen Equipment
     '/assets/equipment/archer_queen/AQ_archer_puppet.png',
     '/assets/equipment/archer_queen/AQ_invisibility_vial.png',
     '/assets/equipment/archer_queen/AQ_giant_arrow.png',
@@ -153,14 +142,12 @@ const urlsToCache = [
     '/assets/equipment/archer_queen/AQ_magic_mirror.png',
     '/assets/equipment/archer_queen/AQ_action_figure.png',
 
-    // Minion Prince Equipment
     '/assets/equipment/minion_prince/MP_henchmen_puppet.png',
     '/assets/equipment/minion_prince/MP_dark_orb.png',
     '/assets/equipment/minion_prince/MP_metal_pants.png',
     '/assets/equipment/minion_prince/MP_noble_iron.png',
     '/assets/equipment/minion_prince/MP_dark_crown.png',
 
-    // Grand Warden Equipment
     '/assets/equipment/grand_warden/GW_eternal_tome.png',
     '/assets/equipment/grand_warden/GW_life_gem.png',
     '/assets/equipment/grand_warden/GW_rage_gem.png',
@@ -169,7 +156,6 @@ const urlsToCache = [
     '/assets/equipment/grand_warden/GW_lavaloon_puppet.png',
     '/assets/equipment/grand_warden/GW_heroic_torch.png',
 
-    // Royal Champion Equipment
     '/assets/equipment/royal_champion/RC_royal_gem.png',
     '/assets/equipment/royal_champion/RC_seeking_shield.png',
     '/assets/equipment/royal_champion/RC_hog_rider_puppet.png',
@@ -178,7 +164,6 @@ const urlsToCache = [
     '/assets/equipment/royal_champion/RC_electro_boots.png',
 ];
 
-// The install event listener - caches our files
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
@@ -187,28 +172,23 @@ self.addEventListener('install', (event) => {
                 return cache.addAll(urlsToCache);
             })
     );
-    self.skipWaiting(); // Force the new service worker to activate immediately
+    self.skipWaiting();
 });
 
-// The fetch event listener
 self.addEventListener('fetch', (event) => {
-    // Ignore non-http/https requests (e.g., chrome-extension://)
     if (!event.request.url.startsWith('http')) {
         return;
     }
 
     const url = new URL(event.request.url);
 
-    // Network-first for API calls
     if (url.pathname.startsWith('/api/')) {
         event.respondWith(networkFirst(event.request));
     } else {
-        // Cache-first for all other requests (assets)
         event.respondWith(cacheFirst(event.request));
     }
 });
 
-// Cache-first strategy: static assets
 async function cacheFirst(request) {
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
@@ -216,7 +196,6 @@ async function cacheFirst(request) {
     }
     try {
         const networkResponse = await fetch(request);
-        // Only cache valid HTTP/HTTPS responses that are not opaque
         if (networkResponse && networkResponse.ok && networkResponse.type === 'basic' && request.url.startsWith('http')) {
             const cache = await caches.open(CACHE_NAME);
             await cache.put(request, networkResponse.clone());
@@ -227,7 +206,6 @@ async function cacheFirst(request) {
     }
 }
 
-// Network-first strategy: Changing files
 async function networkFirst(request) {
     try {
         const networkResponse = await fetch(request);
@@ -238,16 +216,14 @@ async function networkFirst(request) {
     }
 }
 
-// Manage old caches
 self.addEventListener('activate', (event) => {
-    self.clients.claim(); // Take control of all open pages
+    self.clients.claim();
     const cacheWhitelist = [CACHE_NAME];
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
                     if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        // If a cache is not in our whitelist, delete it
                         return caches.delete(cacheName);
                     }
                 })

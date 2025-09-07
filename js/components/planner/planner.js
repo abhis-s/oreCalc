@@ -1,7 +1,7 @@
 import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js'; // Added import
+import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
 
 import { initializeHeroPlannerCarousel } from './heroPlannerCarousel.js';
 import { renderHeroPlannerCarouselDisplay, updatePageDots, scrollToHeroPage } from './heroPlannerCarouselDisplay.js';
@@ -84,7 +84,7 @@ function initializeCarouselEventListeners() {
                 if (heroPages.length === 0) return;
 
                 const scrollLeft = carouselContent.scrollLeft;
-                const pageOffset = heroPages[0].offsetWidth + 20; // Page width + gap
+                const pageOffset = heroPages[0].offsetWidth + 20;
 
                 const newIndex = Math.round(scrollLeft / pageOffset);
                 if (newIndex !== state.planner.currentHeroIndex) {

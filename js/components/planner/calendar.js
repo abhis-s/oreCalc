@@ -13,9 +13,9 @@ const deleteAllChipsBtn = document.getElementById('delete-all-chips-btn');
 const monthChipContainer = document.getElementById('month-chip-container');
 
 const MIN_YEAR = 2025;
-const MIN_MONTH = 8; // August
+const MIN_MONTH = 8; 
 const MAX_YEAR = 2027;
-const MAX_MONTH = 12; // December
+const MAX_MONTH = 12; 
 
 let currentView = 'monthly';
 let isSwiping = false;
@@ -27,7 +27,7 @@ let canScroll = true;
 let wheelDebounceTimeout = null;
 
 function getDateOfWeek(w, y) {
-    const d = (1 + (w - 1) * 7); // 1st day of the week
+    const d = (1 + (w - 1) * 7); 
     return new Date(Date.UTC(y, 0, d));
 }
 
@@ -221,7 +221,7 @@ function onNextReady() {
         let [weekStr, yearStr] = state.planner.calendar.view.week.split('-');
         let week = parseInt(weekStr, 10) + 1;
         let year = parseInt(yearStr, 10);
-        if (week > 52) { // This is a simplification, a proper library should be used for week calculations
+        if (week > 52) { 
             week = 1;
             year += 1;
         }
@@ -322,7 +322,7 @@ function handleTouchEnd() {
 
 function handleWheel(e) {
     if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
-        return; // Ignore vertical scrolls
+        return; 
     }
     e.preventDefault();
 
@@ -339,7 +339,7 @@ function handleWheel(e) {
 
     wheelDebounceTimeout = setTimeout(() => {
         canScroll = true;
-    }, 50); // Cooldown period
+    }, 50); 
 }
 
 function getWeeksInMonth(year, month) {
@@ -354,7 +354,7 @@ function getWeeksInMonth(year, month) {
         if (!weeks.some(w => w.key === weekKey)) {
             weeks.push({ key: weekKey, number: weekNumber, year: weekYear });
         }
-        currentDay.setUTCDate(currentDay.getUTCDate() + 7); // Move to the next week
+        currentDay.setUTCDate(currentDay.getUTCDate() + 7); 
     }
     return weeks;
 }
@@ -376,10 +376,10 @@ function renderMonthChips() {
             const chip = document.createElement('div');
             chip.classList.add('month-chip');
             const monthDate = new Date(Date.UTC(year, month - 1, 1));
-            const monthNameSpan = document.createElement('span'); // Create a span for the month name
-            monthNameSpan.classList.add('month-name'); // Add a class for styling if needed
+            const monthNameSpan = document.createElement('span'); 
+            monthNameSpan.classList.add('month-name'); 
             monthNameSpan.textContent = monthDate.toLocaleString('default', { month: 'short' });
-            chip.appendChild(monthNameSpan); // Append the span to the chip
+            chip.appendChild(monthNameSpan); 
             chip.dataset.year = year;
             chip.dataset.month = String(month).padStart(2, '0');
             chip.addEventListener('click', handleMonthChipClick);
@@ -413,7 +413,6 @@ function handleMonthChipClick(e) {
     if (state.planner.calendar.view.month !== newMonth) {
         handleStateUpdate(() => {
             state.planner.calendar.view.month = newMonth;
-            // When a new month is selected, set the week to the first week of that month
             const firstDayOfMonth = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1));
             const [firstWeekYear, firstWeekNumber] = getWeekNumber(firstDayOfMonth);
             state.planner.calendar.view.week = `${firstWeekNumber}-${firstWeekYear}`;
@@ -423,7 +422,7 @@ function handleMonthChipClick(e) {
 }
 
 function handleWeekChipClick(e) {
-    e.stopPropagation(); // Prevent month chip click from firing
+    e.stopPropagation(); 
     const year = e.currentTarget.dataset.year;
     const week = e.currentTarget.dataset.week;
     const newWeek = `${week}-${year}`;
@@ -446,13 +445,12 @@ function updateActiveChip() {
     chips.forEach(chip => {
         if (chip.dataset.year === currentYear && chip.dataset.month === currentMonth) {
             chip.classList.add('active');
-            // chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
             const weekNumbersContainer = chip.querySelector('.week-numbers-container');
             if (currentView === 'weekly') {
-                weekNumbersContainer.style.display = 'flex'; // Show week numbers in weekly view
+                weekNumbersContainer.style.display = 'flex'; 
             } else {
-                weekNumbersContainer.style.display = 'none'; // Hide week numbers in monthly view
+                weekNumbersContainer.style.display = 'none'; 
             }
 
             const weekChips = chip.querySelectorAll('.week-chip');
@@ -465,7 +463,6 @@ function updateActiveChip() {
             });
         } else {
             chip.classList.remove('active');
-            // Hide week numbers for inactive months
             const weekNumbersContainer = chip.querySelector('.week-numbers-container');
             if (weekNumbersContainer) {
                 weekNumbersContainer.style.display = 'none';
@@ -479,9 +476,6 @@ function handleMediaQueryChange(event) {
     currentView = event.matches ? 'weekly' : 'monthly';
     renderCalendar(state.planner);
 }
-
-
-// --- Event Handlers from original file (drag/drop, tooltips) ---
 
 function handleDragOver(e) {
     e.preventDefault();
@@ -579,9 +573,6 @@ function handleDayCellMouseLeave(e) {
     const tooltip = e.currentTarget.querySelector('.ore-tooltip');
     if (tooltip) tooltip.remove();
 }
-
-
-// --- Initialization ---
 
 const mediaQuery = window.matchMedia('(max-width: 425px)');
 

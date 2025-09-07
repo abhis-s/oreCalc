@@ -1,5 +1,3 @@
-// abstracts/_variables.scss
-// Material You Inspired Color System (Dark Theme Focus)
 $md-primary: #D0BCFF;
 $md-on-primary: #381E72;
 $md-primary-container: #6750A4;
@@ -44,14 +42,12 @@ $shape-corner-large: 16px;
 $shape-corner-extra-large: 28px;
 $shape-corner-full: 50%;
 
-// Material You Elevation System (subtle shadows)
 $elevation-1: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px rgba(0, 0, 0, 0.15);
 $elevation-2: 0px 2px 4px rgba(0, 0, 0, 0.3), 0px 2px 6px rgba(0, 0, 0, 0.15);
 $elevation-3: 0px 4px 8px rgba(0, 0, 0, 0.3), 0px 4px 12px rgba(0, 0, 0, 0.15);
 $elevation-4: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px 6px 18px rgba(0, 0, 0, 0.15);
 $elevation-5: 0px 8px 16px rgba(0, 0, 0, 0.3), 0px 8px 24px rgba(0, 0, 0, 0.15);
 
-// Existing variables (some might be replaced by Material You system)
 $color-white: #ffffff;
 $color-grey-100: #e8eaed;
 $color-grey-200: #e3e2e6;
@@ -100,10 +96,8 @@ $font-family-sans: 'Roboto', sans-serif;
     --input-hover-bg-color: rgba(166, 200, 255, 0.1);
 }
 
-// Custom transparent background for month chips
 $input-bg-color-transparent: rgba(28, 27, 31, 0.7);
 
-// Dark Theme Colors (some might be redundant after Material You system)
 $dark-background-primary: #121212;
 $dark-background-secondary: #1e1e1e;
 $dark-surface-primary: #2c2c2c;
