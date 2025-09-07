@@ -1,207 +1,120 @@
 import { heroData } from '../../data/heroData.js';
 import { state } from '../../core/state.js';
-import { handleStateUpdate } from '../../app.js';
-
-function addSeparatorLine() {
-    const priorityListContainer = document.getElementById('priority-list-container');
-    if (!priorityListContainer) return;
-
-    const existingSeparator = priorityListContainer.querySelector('.priority-separator-line');
-    if (existingSeparator) {
-        existingSeparator.remove();
-    }
-
-    const listItems = Array.from(priorityListContainer.children);
-    let targetElement = null;
-
-    // Iterate from bottom to top
-    for (let i = listItems.length - 1; i >= 0; i--) {
-        const item = listItems[i];
-        const img = item.querySelector('.equipment-info img');
-        if (img && img.classList.contains('custom-max-glow')) {
-        } else {
-            // This is the first non-custom-maxed item from the bottom
-            targetElement = item;
-            break;
-        }
-    }
-
-    // If targetElement is null, it means all items are custom maxed, so no line is needed.
-    if (targetElement) {
-        const separator = document.createElement('div');
-        separator.classList.add('priority-separator-line');
-        // Insert the separator after the targetElement
-        targetElement.parentNode.insertBefore(separator, targetElement.nextSibling);
-    }
-}
-
-function savePriorityOrder() {
-    const priorityListContainer = document.getElementById('priority-list-container');
-    if (!priorityListContainer) return;
-
-    const listItems = Array.from(priorityListContainer.children);
-    const equipmentItems = listItems.filter(item => item.classList.contains('priority-list-item'));
-    const separatorIndex = listItems.findIndex(item => item.classList.contains('favorite-separator'));
-
-    handleStateUpdate(() => {
-        equipmentItems.forEach((item, index) => {
-            const equipName = item.dataset.equipmentName;
-            for (const heroKey in state.heroes) {
-                const hero = state.heroes[heroKey];
-                if (hero.equipment[equipName]) {
-                    hero.equipment[equipName].priority = index + 1;
-                }
-            }
-        });
-
-        if (separatorIndex !== -1) {
-            const itemsBeforeSeparator = listItems.slice(0, separatorIndex);
-            const equipmentBeforeSeparator = itemsBeforeSeparator.filter(item => item.classList.contains('priority-list-item')).length;
-            state.planner.priorityList.remainingFavorites = equipmentBeforeSeparator;
-        } else {
-            state.planner.priorityList.remainingFavorites = 0;
-        }
-    });
-}
+import { openPriorityListModal, getGlobalPriorityList } from './priorityListModal.js';
 
 export function initializePriorityList() {
     const priorityListCard = document.getElementById('priority-list-card');
     if (!priorityListCard) return;
 
+    // Clear previous content
     priorityListCard.innerHTML = '';
 
-    const header = document.createElement('h3');
-    header.textContent = 'Priority List';
+    // Create header
+    const header = document.createElement('div');
+    header.classList.add('priority-list-header');
+
+    const title = document.createElement('h3');
+    title.textContent = 'Priority List';
+    header.appendChild(title);
+
+    const editButton = document.createElement('button');
+    editButton.classList.add('edit-priority-list-btn');
+    editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`;
+    editButton.addEventListener('click', () => {
+        openPriorityListModal(); // Assuming this function exists elsewhere
+    });
+    header.appendChild(editButton);
+
     priorityListCard.appendChild(header);
 
+    // Create list container
     const priorityListContainer = document.createElement('div');
     priorityListContainer.id = 'priority-list-container';
     priorityListContainer.classList.add('priority-list-content');
     priorityListCard.appendChild(priorityListContainer);
 
-    const allEquipment = [];
-    for (const heroKey in heroData) {
-        const hero = heroData[heroKey];
-        if (state.heroes[hero.name].enabled) {
-            hero.equipment.forEach(equip => {
-                if (state.heroes[hero.name].equipment[equip.name].checked) {
-                    const currentLevel = state.heroes[hero.name].equipment[equip.name].level;
-                    const trueMaxLevel = equip.type === 'common' ? 18 : 27;
+    // Get and process data
+    const globalPriorityList = getGlobalPriorityList();
 
-                    if (currentLevel < trueMaxLevel) {
-                        allEquipment.push({
-                            ...equip,
-                            hero: hero.name,
-                            currentLevel: currentLevel,
-                            customMaxLevel: equip.type === 'common' ? state.planner.customMaxLevel.common : state.planner.customMaxLevel.epic,
-                            priority: state.heroes[hero.name].equipment[equip.name].priority
-                        });
-                    }
-                }
-            });
-        }
+    // Check if the returned value is an error object
+    if (globalPriorityList.error) {
+        const errorMessage = document.createElement('p');
+        errorMessage.classList.add('placeholder-text', 'error-text');
+        errorMessage.textContent = globalPriorityList.message;
+        priorityListContainer.appendChild(errorMessage);
+        return;
     }
 
-    // Sort by priority, then by custom max level
-    allEquipment.sort((a, b) => {
-        if (a.priority !== 0 && b.priority !== 0) {
-            return a.priority - b.priority;
-        } else if (a.priority !== 0) {
-            return -1;
-        } else if (b.priority !== 0) {
-            return 1;
-        }
-
-        const aAtCustomMax = a.currentLevel >= a.customMaxLevel;
-        const bAtCustomMax = b.currentLevel >= b.customMaxLevel;
-
-        if (aAtCustomMax && !bAtCustomMax) {
-            return 1;
-        }
-        if (!aAtCustomMax && bAtCustomMax) {
-            return -1;
-        }
-        return 0;
+    const visiblePriorityList = globalPriorityList.filter(item => {
+        // Assuming 'state' object is accessible
+        const currentLevel = state.heroes[item.heroName]?.equipment[item.name]?.level || 1;
+        return item.targetLevel > currentLevel;
     });
 
-    allEquipment.forEach(equip => {
+    const priorityListToDisplay = visiblePriorityList.slice(0, 4);
+
+    // Handle empty list case
+    if (priorityListToDisplay.length === 0) {
+        const placeholder = document.createElement('p');
+        placeholder.classList.add('placeholder-text');
+        placeholder.textContent = 'No priority items set. Click "Edit" to add some.';
+        priorityListContainer.appendChild(placeholder);
+        return;
+    }
+
+    // Build and append list items
+    priorityListToDisplay.forEach(item => {
         const listItem = document.createElement('div');
         listItem.classList.add('priority-list-item');
-        listItem.draggable = true;
-        listItem.dataset.equipmentName = equip.name;
 
         const equipmentInfo = document.createElement('div');
         equipmentInfo.classList.add('equipment-info');
 
+        // Image container
+        const imageContainer = document.createElement('div');
+        imageContainer.classList.add('equipment-image-container');
+
         const equipmentImage = document.createElement('img');
-        equipmentImage.src = equip.image;
-        equipmentImage.alt = equip.name;
+        equipmentImage.src = item.image;
+        equipmentImage.alt = item.name;
+        equipmentImage.classList.add('equipment-image');
 
-        if (equip.currentLevel >= equip.customMaxLevel) {
-            equipmentImage.classList.add('custom-max-glow');
-        }
+        const levelBox = document.createElement('div');
+        levelBox.classList.add('equipment-level-box');
+        levelBox.textContent = item.targetLevel;
 
+        imageContainer.appendChild(equipmentImage);
+        imageContainer.appendChild(levelBox);
+
+        // Name element
         const equipmentName = document.createElement('span');
-        equipmentName.textContent = equip.name;
+        equipmentName.textContent = `${item.name} (#${item.step})`;
 
-        equipmentInfo.appendChild(equipmentImage);
-        equipmentInfo.appendChild(equipmentName);
+        // Date element
+        const completionDateText = item.completionDate ?
+            item.completionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) :
+            'Not enough income';
 
-        const dragHandle = document.createElement('div');
-        dragHandle.classList.add('drag-handle');
-        dragHandle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-360v-80h640v80H160Zm0-160v-80h640v80H160Z"/></svg>`;
+        const completionDateElement = document.createElement('div');
+        completionDateElement.classList.add('priority-item-date');
+        completionDateElement.textContent = `Complete by: ${completionDateText}`;
 
+        // Create the wrapper for text content
+        const itemTextContent = document.createElement('div');
+        itemTextContent.classList.add('item-text-content');
+
+        // Append name and date to the wrapper
+        itemTextContent.appendChild(equipmentName);
+        itemTextContent.appendChild(completionDateElement);
+
+        // Append image and the new text wrapper to the main info container
+        equipmentInfo.appendChild(imageContainer);
+        equipmentInfo.appendChild(itemTextContent);
+
+        // Append the fully constructed info section to the list item
         listItem.appendChild(equipmentInfo);
-        listItem.appendChild(dragHandle);
 
+        // Finally, append the list item to the container
         priorityListContainer.appendChild(listItem);
     });
-
-    const favoriteSeparator = document.createElement('div');
-    favoriteSeparator.classList.add('favorite-separator');
-    favoriteSeparator.draggable = true;
-    const separatorIndex = state.planner.priorityList.remainingFavorites || 0;
-    priorityListContainer.insertBefore(favoriteSeparator, priorityListContainer.children[separatorIndex]);
-
-    addSeparatorLine();
-
-    let draggedItem = null;
-
-    priorityListContainer.addEventListener('dragstart', (e) => {
-        draggedItem = e.target;
-        draggedItem.classList.add('dragging');
-    });
-
-    priorityListContainer.addEventListener('dragend', (e) => {
-        draggedItem.classList.remove('dragging');
-        draggedItem = null;
-        addSeparatorLine();
-        savePriorityOrder();
-    });
-
-    priorityListContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(priorityListContainer, e.clientY);
-        const dragging = document.querySelector('.dragging');
-        if (afterElement == null) {
-            priorityListContainer.appendChild(dragging);
-        } else {
-            priorityListContainer.insertBefore(dragging, afterElement);
-        }
-        addSeparatorLine();
-    });
-}
-
-function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.priority-list-item:not(.dragging), .favorite-separator:not(.dragging)')];
-
-    return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-            return { offset: offset, element: child };
-        } else {
-            return closest;
-        }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
 }

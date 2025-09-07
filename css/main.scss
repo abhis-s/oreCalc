@@ -20,6 +20,8 @@
 @use "components/preloader";
 @use 'components/switch';
 @use 'components/income_chips';
+@use 'components/priority-list-modal';
+@use 'components/level-select-modal';
 
 @use 'layout/grid';
 @use 'layout/header';

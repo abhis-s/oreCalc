@@ -53,9 +53,6 @@ export function getDefaultState() {
                 common: 18,
                 epic: 27,
             },
-            priorityList: {
-                remainingFavorites: 0
-            },
             currentHeroIndex: 0,
             calendar: {
                 view: {
@@ -85,6 +82,15 @@ export function getDefaultState() {
                     common: 18,
                     epic: 27,
                 },
+                currentHeroIndex: 0,
+                calendar: {
+                    view: {
+                        select: 'monthly',
+                        month: `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`,
+                        week: `${weekNo}-${year}`,
+                    },
+                    dates: {} // "MM-YYYY": { "DD": ["chipId1", "chipId2"] }
+                },
             },
             regionalPricingEnabled: false,
         },
@@ -105,7 +111,15 @@ function initializeHeroesState() {
         heroes[hero.name] = {
             enabled: true,
             equipment: hero.equipment.reduce((acc, equip) => {
-                acc[equip.name] = { level: 1, checked: true, priority: 0 };
+                acc[equip.name] = {
+                    level: 1,
+                    checked: true,
+                    upgradePlan: {
+                        1: { target: 1, priorityIndex: 0, enabled: false },
+                        2: { target: 1, priorityIndex: 0, enabled: false },
+                        3: { target: 1, priorityIndex: 0, enabled: false }
+                    }
+                };
                 return acc;
             }, {})
         };
@@ -135,6 +149,7 @@ export function getDefaultPlayerState() {
                 common: 18,
                 epic: 27,
             },
+            currentHeroIndex: 0,
             calendar: {
                 view: {
                     select: 'monthly',
@@ -217,13 +232,26 @@ export function initializeState(savedState) {
 
         if (state.lastPlayerTag && state.allPlayersData[state.lastPlayerTag]) {
             const activePlayerData = state.allPlayersData[state.lastPlayerTag];
-            Object.assign(state.heroes, activePlayerData.heroes);
+            // Instead of a direct Object.assign for state.heroes,
+            // iterate through heroData to ensure all heroes and their equipment are properly initialized
+            // and then merge in saved data.
             for (const heroKey in heroData) {
                 const heroName = heroData[heroKey].name;
-                if (state.heroes[heroName]) {
-                    for (const equip of heroData[heroKey].equipment) {
-                        if (!state.heroes[heroName].equipment[equip.name]) {
-                            state.heroes[heroName].equipment[equip.name] = { level: 1, checked: true };
+                const defaultHero = getDefaultState().heroes[heroName];
+                
+                if (state.heroes[heroName]) { // Ensure the hero exists in the default state
+                    const savedHero = activePlayerData.heroes?.[heroName];
+                    if (savedHero) {
+                        Object.assign(state.heroes[heroName], savedHero);
+                        for (const equipKey in defaultHero.equipment) {
+                            const savedEquip = savedHero.equipment?.[equipKey];
+                            if (savedEquip) {
+                                Object.assign(state.heroes[heroName].equipment[equipKey], savedEquip);
+                                // Check specifically for upgradePlan being an empty object
+                                if (savedEquip.upgradePlan && Object.keys(savedEquip.upgradePlan).length === 0) {
+                                     state.heroes[heroName].equipment[equipKey].upgradePlan = defaultHero.equipment[equipKey].upgradePlan;
+                                }
+                            }
                         }
                     }
                 }
@@ -232,6 +260,11 @@ export function initializeState(savedState) {
             Object.assign(state.storedOres, activePlayerData.storedOres);
             Object.assign(state.income, getDefaultState().income, activePlayerData.income);
             Object.assign(state.planner, getDefaultState().planner, activePlayerData.planner);
+
+            // Ensure priorityList is an array, to handle migration from old state structure
+            if (!Array.isArray(state.planner.priorityList)) {
+                state.planner.priorityList = [];
+            }
             // Ensure state.planner.calendar.view.month is always a valid string
             if (!state.planner.calendar.view.month || typeof state.planner.calendar.view.month !== 'string' || !state.planner.calendar.view.month.includes('-')) {
                 state.planner.calendar.view.month = `${String(new Date().getMonth() + 1).padStart(2, '0')}-${new Date().getFullYear()}`;

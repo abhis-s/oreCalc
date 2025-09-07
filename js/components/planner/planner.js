@@ -7,20 +7,21 @@ import { initializeHeroPlannerCarousel } from './heroPlannerCarousel.js';
 import { renderHeroPlannerCarouselDisplay, updatePageDots, scrollToHeroPage } from './heroPlannerCarouselDisplay.js';
 
 import { initializePlannerCustomLevels, renderPlannerCustomLevels } from './plannerCustomLevels.js';
-import { renderIncomeChips } from './incomeChips.js';
+import { renderIncomeChips, initializeIncomeChipsEventListeners } from './incomeChips.js';
 import { renderCalendar } from './calendar.js';
 import { initializePriorityList } from './priorityList.js';
 
 let scrollInterval = null;
 
-export function initializePlanner() {
-    initializePlannerCustomLevels();
-    renderCalendar(state.planner);
-    const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
+function renderPlannerUI(plannerState) {
+    renderCalendar(plannerState);
+    const [monthStr, yearStr] = plannerState.calendar.view.month.split('-');
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthStr, 10) - 1;
     renderIncomeChips(year, month);
+}
 
+function initializeDragScroll() {
     const plannerTab = document.getElementById('planner-tab');
     if (plannerTab) {
         plannerTab.addEventListener('dragover', (e) => {
@@ -52,10 +53,11 @@ export function initializePlanner() {
             scrollInterval = null;
         });
     }
+}
 
+function initializeCarouselEventListeners() {
     const carouselContent = dom.planner?.heroCarouselContent;
     const plannerPageDots = dom.planner?.plannerPageDots;
-    const autoPlaceChipsBtn = dom.planner?.autoPlaceChipsBtn;
 
     if (carouselContent) {
         carouselContent.addEventListener('change', (event) => {
@@ -110,15 +112,26 @@ export function initializePlanner() {
             }
         });
     }
+}
 
-    // Add event listener for the auto-place button
+function initializePlannerEventListeners() {
+    const autoPlaceChipsBtn = dom.planner?.autoPlaceChipsBtn;
+
     if (autoPlaceChipsBtn) {
         autoPlaceChipsBtn.addEventListener('click', () => {
             const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
             autoPlaceIncomeChips(monthStr, yearStr);
         });
     }
+}
 
+export function initializePlanner() {
+    initializePlannerCustomLevels();
+    renderPlannerUI(state.planner);
+    initializeDragScroll();
+    initializeCarouselEventListeners();
+    initializePlannerEventListeners();
+    initializeIncomeChipsEventListeners();
 }
 
 export function renderPlanner(plannerState) {
@@ -128,11 +141,7 @@ export function renderPlanner(plannerState) {
     }
     renderPlannerCustomLevels(plannerState);
     renderHeroPlannerCarouselDisplay(plannerState.currentHeroIndex);
-    renderCalendar(plannerState);
-    const [monthStr, yearStr] = plannerState.calendar.view.month.split('-');
-    const year = parseInt(yearStr, 10);
-    const month = parseInt(monthStr, 10) - 1;
-    renderIncomeChips(year, month);
+    renderPlannerUI(plannerState);
     initializePriorityList();
     initializeHeroPlannerCarousel(state.heroes, state.planner);
 }

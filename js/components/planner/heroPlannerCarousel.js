@@ -15,23 +15,29 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
     heroKeys.forEach(heroKey => {
         const hero = heroData[heroKey];
         const heroState = heroesState[hero.name];
+
+        // Safely exit if this hero's state doesn't exist
+        if (!heroState) {
+            return;
+        }
+
         const isHeroEnabled = heroState.enabled;
 
         const equipmentListHtml = hero.equipment.map(equip => {
             const equipState = heroState.equipment[equip.name];
-            const isEquipChecked = equipState.checked;
+            const isEquipChecked = equipState?.checked;
             const grayscaleClass = !isEquipChecked ? 'grayscale' : '';
             const equipId = `planner-${heroKey}-${equip.name.replace(/\s/g, '')}-toggle`;
 
             const maxLevel = equip.type === 'common' ? 18 : 27;
-            const isMaxLevel = equipState.level >= maxLevel;
+            const isMaxLevel = equipState?.level >= maxLevel;
 
             let isOverLeveled = false;
             if (plannerState) {
                 const customMaxLevel = equip.type === 'common'
                     ? plannerState.customMaxLevel.common
                     : plannerState.customMaxLevel.epic;
-                isOverLeveled = equipState.level >= customMaxLevel && equipState.level < maxLevel;
+                isOverLeveled = equipState?.level >= customMaxLevel && equipState?.level < maxLevel;
             }
 
             const goldGlowClass = isMaxLevel ? 'gold-glow' : '';

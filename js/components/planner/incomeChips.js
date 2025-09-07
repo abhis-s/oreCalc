@@ -3,31 +3,12 @@ import { incomeData } from '../../data/incomeChipData.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { renderCalendar } from '../planner/calendar.js';
-import { getWeeklyOccurrences, getMonthlyOccurrences, getBimonthlyOccurrences } from '../../utils/dateUtils.js';
+import { getDaysInMonth, getWeeklyOccurrences, getMonthlyOccurrences, getBimonthlyOccurrences } from '../../utils/dateUtils.js';
 import { createIncomeChip, renderIncomeChipsLegend, createOverflowChip } from '../../utils/chipFactory.js';
 import { reindexCalendarChips } from '../../utils/chipManager.js';
 
-export function renderIncomeChips(year, month) {
-    const plannerDOMElements = getPlannerDOMElements();
-    const incomeChipsContainer = plannerDOMElements.incomeChipsContainer;
-    const incomeChipsLegend = document.getElementById('income-chips-legend');
-
-    if (!incomeChipsContainer) {
-        console.error('Income chips container not found.');
-        return;
-    }
-
-    incomeChipsContainer.innerHTML = '';
-
-    incomeChipsContainer.addEventListener('dragover', handleDragOverForChipContainer);
-    incomeChipsContainer.addEventListener('dragleave', handleDragLeaveForChipContainer);
-    incomeChipsContainer.addEventListener('drop', handleDropToChipContainer);
-
-    const getDaysInMonth = (year, month) => {
-        return new Date(year, month + 1, 0).getUTCDate();
-    };
+function calculateIncomeChips(year, month) {
     const daysInCurrentMonth = getDaysInMonth(year, month);
-
     const groupedChips = {};
 
     for (const key in incomeData) {
@@ -71,7 +52,10 @@ export function renderIncomeChips(year, month) {
             groupedChips[incomeSource.type].push(chip);
         }
     }
+    return groupedChips;
+}
 
+function getPlacedChipIds() {
     const placedChipOriginalIds = new Set();
     for (const monthYearKey in state.planner.calendar.dates) {
         const days = state.planner.calendar.dates[monthYearKey];
@@ -85,7 +69,10 @@ export function renderIncomeChips(year, month) {
             });
         }
     }
+    return placedChipOriginalIds;
+}
 
+function renderUnplacedChips(incomeChipsContainer, groupedChips, placedChipOriginalIds) {
     for (const type in groupedChips) {
         const chips = groupedChips[type];
         const incomeSource = incomeData[type];
@@ -118,6 +105,37 @@ export function renderIncomeChips(year, month) {
             }
         }
     }
+}
+
+export function initializeIncomeChipsEventListeners() {
+    const plannerDOMElements = getPlannerDOMElements();
+    const incomeChipsContainer = plannerDOMElements.incomeChipsContainer;
+
+    if (!incomeChipsContainer) {
+        console.error('Income chips container not found.');
+        return;
+    }
+
+    incomeChipsContainer.addEventListener('dragover', handleDragOverForChipContainer);
+    incomeChipsContainer.addEventListener('dragleave', handleDragLeaveForChipContainer);
+    incomeChipsContainer.addEventListener('drop', handleDropToChipContainer);
+}
+
+export function renderIncomeChips(year, month) {
+    const plannerDOMElements = getPlannerDOMElements();
+    const incomeChipsContainer = plannerDOMElements.incomeChipsContainer;
+    const incomeChipsLegend = document.getElementById('income-chips-legend');
+
+    if (!incomeChipsContainer) {
+        console.error('Income chips container not found.');
+        return;
+    }
+
+    incomeChipsContainer.innerHTML = '';
+
+    const groupedChips = calculateIncomeChips(year, month);
+    const placedChipOriginalIds = getPlacedChipIds();
+    renderUnplacedChips(incomeChipsContainer, groupedChips, placedChipOriginalIds);
 
     renderIncomeChipsLegend(incomeChipsLegend);
 }
