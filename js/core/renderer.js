@@ -28,6 +28,7 @@ import { renderIncomeCard } from '../components/income/incomeCardHandler.js';
 import { renderPlanner } from '../components/planner/planner.js';
 import { renderIncomeChips } from '../components/planner/incomeChips.js';
 import { renderCalendar } from '../components/planner/calendar.js';
+import { renderPriorityListModal } from '../components/planner/priorityListModal.js';
 
 export function renderApp(state) {
     const timeframe = state.uiSettings.incomeTimeframe;
@@ -38,6 +39,7 @@ export function renderApp(state) {
     renderAppSettings(state.uiSettings);
     renderFab(state.lastPlayerTag);
     renderPlanner(state.planner);
+    renderPriorityListModal(state);
 
     renderHeroCards(state.heroes, state.uiSettings, state.planner);
     renderStorageInputs(state.storedOres);

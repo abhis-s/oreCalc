@@ -389,3 +389,10 @@ export function openPriorityListModal() {
         modal.classList.add('show');
     }
 }
+
+export function renderPriorityListModal(state) {
+   const modal = document.getElementById('priority-list-modal');
+   if (modal && modal.classList.contains('show')) {
+       renderPriorityEditor();
+   }
+}
