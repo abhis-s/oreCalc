@@ -1,8 +1,6 @@
 export function addValidation(inputElement, { inputName = 'value' }) {
     if (!inputElement) return;
 
-    const min = parseInt(inputElement.min, 10);
-    const max = parseInt(inputElement.max, 10);
     const maxLength = parseInt(inputElement.maxLength, 10) || Infinity;
 
     inputElement.dataset.lastValidValue = inputElement.value;
@@ -21,6 +19,8 @@ export function addValidation(inputElement, { inputName = 'value' }) {
     };
 
     inputElement.addEventListener('keydown', (event) => {
+        const min = parseInt(inputElement.min, 10);
+        const max = parseInt(inputElement.max, 10);
         const currentValue = parseInt(event.target.value, 10);
         if (event.key === 'ArrowUp') {
             if (currentValue >= max) {
@@ -58,6 +58,8 @@ export function addValidation(inputElement, { inputName = 'value' }) {
     });
 
     inputElement.addEventListener('change', (event) => {
+        const min = parseInt(inputElement.min, 10);
+        const max = parseInt(inputElement.max, 10);
         let value = event.target.value.trim();
         if (value === '') value = min.toString();
 
