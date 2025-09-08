@@ -20,6 +20,10 @@ textarea {
     user-select: auto;
 }
 
+#user-id-display {
+    user-select: text;
+}
+
 :root {
 	--font-size-xl: 24px;
 	--font-size-lg: 18px;
