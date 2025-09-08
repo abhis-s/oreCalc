@@ -83,6 +83,13 @@
                 vertical-align: middle;
             }
 
+            .level-input-cell {
+                position: relative;
+                .input-dialog {
+                    top: 70%;
+                }
+            }
+
             .level-input {
                 width: 100%;
                 padding: 8px;
