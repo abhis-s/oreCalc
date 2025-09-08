@@ -45,7 +45,8 @@ export function initializePriorityList() {
         return item.targetLevel > currentLevel;
     });
 
-    const priorityListToDisplay = visiblePriorityList.slice(0, 4);
+    let priorityListToDisplay = visiblePriorityList;
+    // priorityListToDisplay = visiblePriorityList.slice(0, 4);
 
     if (priorityListToDisplay.length === 0) {
         const placeholder = document.createElement('p');
