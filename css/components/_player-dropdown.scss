@@ -21,7 +21,7 @@
     font-size: 14px;
     color: $dark-text-primary;
     font-weight: 500;
-    z-index: 1001;
+    z-index: 201;
     position: relative;
 
     &:hover {
@@ -55,7 +55,7 @@
     border-radius: 0 0 12px 12px;
     padding-top: 20px;
     background-color: $dark-surface-primary;
-    z-index: 999;
+    z-index: 199;
     box-shadow: 0 2px 4px $dark-shadow-color;
     overflow: hidden;
     opacity: 0;

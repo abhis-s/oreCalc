@@ -2,6 +2,7 @@ import { getNavigationDOMElements } from './navigationDom.js';
 import { getPlayerDOMElements } from './playerDom.js';
 import { getEquipmentDOMElements } from './equipmentDom.js';
 import { getIncomeDOMElements } from './incomeDom.js';
+import { getPlannerDOMElements } from './plannerDom.js';
 import { getAppSettingsDOMElements } from './appSettingsDom.js';
 
 export let dom = {};
@@ -31,6 +32,7 @@ export function initializeDOMElements() {
         player: getPlayerDOMElements(),
         equipment: getEquipmentDOMElements(),
         income: getIncomeDOMElements(),
+        planner: getPlannerDOMElements(),
         appSettings: getAppSettingsDOMElements(),
     });
 }

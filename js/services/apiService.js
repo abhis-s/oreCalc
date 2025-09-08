@@ -53,7 +53,6 @@ export async function saveUserData(userId, data) {
         return await response.json();
     } catch (error) {
         console.error("Error saving user data:", error);
-        // Optionally re-throw or handle more gracefully
     }
 }
 
@@ -63,7 +62,6 @@ export async function loadUserData(userId) {
         const response = await fetch(url);
 
         if (!response.ok) {
-            // If 404, it means no data for this user, which is fine
             if (response.status === 404) {
                 return null;
             }
@@ -74,7 +72,6 @@ export async function loadUserData(userId) {
         return await response.json();
     } catch (error) {
         console.error("Error loading user data:", error);
-        // Optionally re-throw or handle more gracefully
         return null;
     }
 }

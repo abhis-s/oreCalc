@@ -22,7 +22,6 @@ export function initializeAppSettings() {
     const regionalPricingToggle = dom.appSettings?.regionalPricingToggle;
     const resetDataButton = dom.controls?.resetDataButton;
 
-    // New UUID/Data Sync Elements
     const userIdDisplay = dom.appSettings?.userIdDisplay;
     const copyUserIdBtn = dom.appSettings?.copyUserIdBtn;
     const importUserIdInput = dom.appSettings?.importUserIdInput;
@@ -67,7 +66,6 @@ export function initializeAppSettings() {
         });
     }
 
-    // --- UUID/Data Sync Logic ---
     if (userIdDisplay) {
         const currentUserId = localStorage.getItem('oreCalcUserId');
         if (currentUserId) {
@@ -79,7 +77,7 @@ export function initializeAppSettings() {
         copyUserIdBtn.addEventListener('click', async () => {
             if (!navigator.clipboard || !navigator.clipboard.writeText) {
                 alert('Clipboard API not supported or accessible in this browser/context.');
-                userIdDisplay.style.display = 'block'; // Show the user ID display
+                userIdDisplay.style.display = 'block'; 
                 return;
             }
             try {
@@ -119,14 +117,14 @@ export function initializeAppSettings() {
                 } else {
                     importUserIdInput.style.display = 'block';
                     importUserDataBtn.querySelector('.animated-btn-text').textContent = 'Import';
-                    importUserDataBtn.querySelector('.animated-btn-icon-wrapper').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q17-72 85-137t145-65q33 0 56.5 23.5T520-716v242l64-62 56 56-160 160-160-160 56-56 64 62v-242q-76 14-118 73.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-48-22-89.5T600-680v-93q74 35 117 103.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm220-358Z"/></svg>'; // Change button icon
+                    importUserDataBtn.querySelector('.animated-btn-icon-wrapper').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q17-72 85-137t145-65q33 0 56.5 23.5T520-716v242l64-62 56 56-160 160-160-160 56-56 64 62v-242q-76 14-118 73.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-48-22-89.5T600-680v-93q74 35 117 103.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm220-358Z"/></svg>'; 
                     alert('No text found in clipboard. Please enter User ID manually.');
                 }
             } catch (err) {
                 console.error('Failed to read clipboard:', err);
                 importUserIdInput.style.display = 'block';
                 importUserDataBtn.querySelector('.animated-btn-text').textContent = 'Import';
-                importUserDataBtn.querySelector('.animated-btn-icon-wrapper').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q17-72 85-137t145-65q33 0 56.5 23.5T520-716v242l64-62 56 56-160 160-160-160 56-56 64 62v-242q-76 14-118 73.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-48-22-89.5T600-680v-93q74 35 117 103.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm220-358Z"/></svg>'; // Change button icon
+                importUserDataBtn.querySelector('.animated-btn-icon-wrapper').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q17-72 85-137t145-65q33 0 56.5 23.5T520-716v242l64-62 56 56-160 160-160-160 56-56 64 62v-242q-76 14-118 73.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-48-22-89.5T600-680v-93q74 35 117 103.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm220-358Z"/></svg>'; 
                 alert('Clipboard access denied or failed. Please enter User ID manually.');
             }
         });

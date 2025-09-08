@@ -5,11 +5,12 @@ const APP_STATE_KEY = 'oreCalculatorState';
 export function saveState(state) {
     try {
         const currentPlayerTag = state.lastPlayerTag;
-                if (currentPlayerTag) {
-            state.allPlayersData[currentPlayerTag] = {
+            if (currentPlayerTag) {
+                state.allPlayersData[currentPlayerTag] = {
                 heroes: state.heroes,
                 storedOres: state.storedOres,
                 income: state.income,
+                planner: state.planner,
                 playerData: state.playerData,
                 regionalPricingEnabled: state.uiSettings.regionalPricingEnabled,
                 currency: state.uiSettings.currency,
@@ -87,6 +88,7 @@ export function loadPlayerData(playerTag) {
             heroes: playerData.heroes,
             storedOres: playerData.storedOres,
             income: playerData.income,
+            planner: playerData.planner,
             playerData: playerData.playerData,
             regionalPricingEnabled: regionalPricingEnabled,
             currency: currency,
@@ -97,10 +99,8 @@ export function loadPlayerData(playerTag) {
 
 export function updateSavedPlayerTags(playerTag) {
     try {
-        // If the tag being updated is not DEFAULT0, and DEFAULT0 is present, remove it.
         if (playerTag !== 'DEFAULT0' && state.savedPlayerTags.includes('DEFAULT0')) {
             state.savedPlayerTags = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0');
-            // Also remove from allPlayersData if it exists
             if (state.allPlayersData['DEFAULT0']) {
                 delete state.allPlayersData['DEFAULT0'];
             }

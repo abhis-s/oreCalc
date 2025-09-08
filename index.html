@@ -28,6 +28,7 @@
             <button class="tab-button tab-button--active" data-tab="home">Home</button>
             <button class="tab-button" data-tab="equipment">Equipment</button>
             <button class="tab-button" data-tab="income">Income</button>
+            <button class="tab-button" data-tab="planner">Planner</button>
             <button class="tab-button" data-tab="settings">Settings</button>
         </div>
         <div class="player-controls-container">
@@ -42,7 +43,7 @@
                 </div>
             </div>
 
-            <div id="add-player-modal" class="add-player-modal">
+            <div id="add-player-modal">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2>Add a New Player</h2>
@@ -684,6 +685,81 @@
             </div>
         </div>
 
+        <div class="tab-content" id="planner-tab">
+            <div class="planner-card card full-width-card">
+                <div class="max-level-card-header">
+                    <h3>Custom Max Level</h3>
+                    <div class="level-settings-container">
+                        <div class="input-group-flex indented">
+                            <label for="planner-common-max-level">Common:</label>
+                            <input type="number" id="planner-common-max-level" class="updatable" value="18" min="1" max="18" maxlength="2">
+                        </div>
+                        <div class="input-group-flex indented">
+                            <label for="planner-epic-max-level">Epic:</label>
+                            <input type="number" id="planner-epic-max-level" class="updatable" value="27" min="1" max="27" maxlength="2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="planner-cards-grid">
+                <div class="planner-card card planner-hero-carousel">
+                    <div class="carousel-content" id="planner-hero-carousel-content">
+                        <!-- Hero pages will be dynamically inserted here by JavaScript -->
+                    </div>
+                    <div class="planner-page-dots" id="planner-page-dots">
+                        <!-- Page dots will be dynamically inserted here by JavaScript -->
+                    </div>
+                </div>
+                <div class="planner-card card" id="priority-list-card">
+                    <h3>Priority List</h3>
+                    <div id="priority-list-container" class="priority-list-content">
+                        <!-- Priority list items will be dynamically inserted here -->
+                    </div>
+                </div>
+                
+            </div>
+            <div class="full-width-planner-section card">
+                <h2 class="calendar-planner-title">Calendar Planner</h2>
+                <div class="inner-card">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <h2 id="current-month-year"></h2>
+                        </div>
+                        
+                        <div class="calendar-action-buttons">
+                            <button id="delete-current-month-chips-btn" class="icon-button planner-action-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+                            </button>
+                            <button id="delete-all-chips-btn" class="icon-button planner-action-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M600-240v-80h160v80H600Zm0-320v-80h280v80H600Zm0 160v-80h240v80H600ZM120-640H80v-80h160v-60h160v60h160v80h-40v360q0 33-23.5 56.5T440-200H200q-33 0-56.5-23.5T120-280v-360Zm80 0v360h240v-360H200Zm0 0v360-360Z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="inner-card">
+                    <div id="calendar-container" class="calendar-container">
+                        <div id="calendar-track" class="calendar-track">
+                            <!-- Calendar grids will be dynamically inserted here -->
+                        </div>
+                    </div>
+                    <div id="month-chip-container" class="month-chip-container"></div>
+                </div>
+            <div class="inner-card">
+                    <div class="income-chips-header">
+                        <h3 class="income-chips-title">Income Chips</h3>
+                        <button id="auto-place-chips-btn" class="auto-place-chips-btn">Auto Place</button>
+                    </div>
+                    <div id="income-chips-container" class="income-chips-container">
+                        <!-- Draggable chips will be dynamically inserted here -->
+                    </div>
+                    <div id="income-chips-legend" class="income-chips-legend">
+                        <!-- Legend items will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
         <div class="tab-content" id="settings-tab">
             <div class="settings-cards-grid">
                 <div id="set-app-card" class="settings-card card">
@@ -830,6 +906,15 @@
                 <span>Income</span>
             </div>
         </button>
+        <button class="nav-button" data-tab="planner">
+            <div class="nav-item-content">
+                <div class="nav-icon-wrapper">
+                    <span class="icon-outline"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v255l-80 80v-175H200v400h248l80 80H200Zm0-560h560v-80H200v80Zm0 0v-80 80ZM662-60 520-202l56-56 85 85 170-170 56 57L662-60Z"/></svg></span>
+                    <span class="icon-filled"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#8ab4f8"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v255l-80 80v-175H200v400h248l80 80H200Zm462 20L520-202l56-56 85 85 170-170 56 57L662-60Z"/></svg></span>
+                </div>
+                <span>Planner</span>
+            </div>
+        </button>
         <button class="nav-button" data-tab="settings">
             <div class="nav-item-content">
                 <div class="nav-icon-wrapper">
@@ -842,6 +927,21 @@
     </div>
     <div class="supercell-notice notice">
         <p>This material is unofficial and is not endorsed by Supercell. For more information see Supercell's Fan Content Policy: <a href="https://www.supercell.com/fan-content-policy" target="_blank">www.supercell.com/fan-content-policy</a>.</p>
+    </div>
+    <div id="priority-list-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="priority-list-modal-title"></h2>
+                <div class="button-group">
+                    <button id="reset-priority-list-modal-btn" class="reset-button"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m653-208-88 88-85-85 88-88q-4-11-6-23t-2-24q0-58 41-99t99-41q18 0 35 4.5t32 12.5l-95 95 56 56 95-94q8 15 12.5 31.5T840-340q0 58-41 99t-99 41q-13 0-24.5-2t-22.5-6Zm178-352h-83q-26-88-99-144t-169-56q-117 0-198.5 81.5T200-480q0 72 32.5 132t87.5 98v-110h80v240H160v-80h94q-62-50-98-122.5T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q129 0 226.5 79.5T831-560Z"/></svg></button>
+                    <button id="close-priority-list-modal-btn" class="close-button"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+                </div>
+            </div>
+            <div id="priority-list-modal-body" class="modal-body">
+                <!-- Priority steps will be dynamically inserted here -->
+            </div>
+            
+        </div>
     </div>
 </body>
 </html>

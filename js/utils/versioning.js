@@ -49,7 +49,7 @@ export async function checkAppVersion() {
     if (!savedState) {
         savedState = {
             appVersion: currentAppVersionFromServer,
-            savedPlayerTags: ['DEFAULT0'] // Add default savedPlayerTags
+            savedPlayerTags: ['DEFAULT0']
         };
     }
 

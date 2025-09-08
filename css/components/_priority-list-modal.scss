@@ -1,0 +1,279 @@
+@use '../abstracts/variables' as *;
+
+#priority-list-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    opacity: 0;
+    overflow: auto;
+    transition: opacity 0.3s ease-in-out;
+}
+@media (max-width: 779px) {
+    #priority-list-modal {
+        padding: 0 !important;
+    }
+}
+#priority-list-modal.show {
+    display: flex;
+    opacity: 1;
+}
+#priority-list-modal .modal-content {
+    background-color: $dark-surface-primary;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid $dark-border-color;
+    width: 90%;
+    height: 90%;
+    max-width: 1200px;
+    border-radius: 28px;
+    color: #e3e3e3;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 20px 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+@media (max-width: 779px) {
+    #priority-list-modal .modal-content {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+        border: none;
+    }
+}
+#priority-list-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #555555;
+}
+@media (max-width: 779px) {
+    #priority-list-modal .modal-header {
+        padding: 0;
+    }
+}
+#priority-list-modal .modal-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #e3e3e3;
+    text-align: left;
+    letter-spacing: 0.01em;
+}
+#priority-list-modal .modal-header .button-group {
+    display: flex;
+    gap: 10px;
+}
+#priority-list-modal .modal-body {
+    padding: 24px;
+    overflow-y: auto;
+}
+@media (max-width: 779px) {
+    #priority-list-modal .modal-body {
+        padding: 0;
+    }
+}
+#priority-list-modal .reset-button, #priority-list-modal .close-button {
+    color: #999999;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+#priority-list-modal .close-button:hover, #priority-list-modal .close-button:focus {
+    color: #e3e3e3;
+    text-decoration: none;
+    cursor: pointer;
+}
+.priority-editor-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.equipment-chip-container {
+    padding: 1rem;
+    border-bottom: 1px solid #555555;
+    max-height: 40%;
+    overflow-y: auto;
+}
+.equipment-chip-container h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+    color: #999999;
+}
+.hero-equipment-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.hero-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+.hero-chip-column {
+    flex: 0 0 180px;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+}
+.equipment-chips-column {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex: 1;
+}
+.hero-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: #3c3c40;
+    font-weight: bold;
+    color: #e3e3e3;
+}
+.hero-chip .hero-chip-icon {
+    width: 32px;
+    height: 32px;
+}
+.equipment-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #3c3c40;
+    padding: 6px 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    border: 1px solid transparent;
+}
+.equipment-chip:hover {
+    background-color: #4d4d51;
+    border-color: #007bff;
+}
+.equipment-chip .chip-icon {
+    width: 24px;
+    height: 24px;
+}
+.equipment-chip span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.equipment-chip.custom-maxed-in-plan {
+    filter: drop-shadow(0 0 1px rgba(0, 191, 255, 0.8)) drop-shadow(0 0 2px rgba(0, 191, 255, 0.6));
+}
+.equipment-chip.maxed-in-plan {
+    filter: drop-shadow(0 0 1px rgba(249, 200, 64, 0.8)) drop-shadow(0 0 2px rgba(249, 200, 64, 0.6)) !important;
+}
+.priority-list-editor {
+    flex-grow: 1;
+    padding: 1rem;
+    overflow-y: auto;
+}
+.priority-list-editor .placeholder-text {
+    text-align: center;
+    color: #999999;
+    margin-top: 2rem;
+}
+.priority-list-editor-item {
+    display: flex;
+    align-items: center;
+    background-color: #3c3c40;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.priority-list-editor-item .drag-handle {
+    cursor: grab;
+    margin-right: 10px;
+    color: #999999;
+}
+.priority-list-editor-item .item-image {
+    width: 30px;
+    height: 30px;
+    margin-right: 15px;
+}
+.priority-list-editor-item .item-details {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 15px;
+}
+.priority-list-editor-item .item-name {
+    font-size: 14px;
+}
+.priority-list-editor-item .priority-item-date {
+    font-size: 12px;
+    color: #999999;
+    white-space: nowrap;
+}
+.priority-list-editor-item .delete-item-btn {
+    background: none;
+    border: none;
+    color: #999999;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.priority-list-editor-item .delete-item-btn:hover {
+    color: #e74c3c;
+}
+@media (max-width: 599px) {
+    .priority-list-editor-item .item-details {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .priority-list-editor-item .priority-item-date {
+        margin-top: 4px;
+    }
+}
+@media (max-width: 779px) {
+    .hero-chip span,
+    .equipment-chip span {
+        display: none;
+    }
+    .hero-chip,
+    .equipment-chip {
+        padding: 6px;
+    }
+    .hero-chip-column {
+        flex: 0 0 auto;
+        width: auto;
+    }
+    .hero-chip-icon {
+        width: 28px;
+        height: 28px;
+    }
+    .chip-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+.priority-list-error-message {
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 0 1rem 1rem 1rem;
+    text-align: center;
+    display: none;
+}
+.priority-list-editor-item.error {
+    background-color: rgba(231, 76, 60, 0.15);
+    border: 1px solid #e74c3c;
+}
+.priority-list-editor-item.error .priority-item-date {
+    display: none;
+}

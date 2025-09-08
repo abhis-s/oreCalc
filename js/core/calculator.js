@@ -12,7 +12,7 @@ import { calculateShopOfferIncome } from '../incomeCalculations/shopOfferIncome.
 import { currencySymbols } from '../data/appData.js';
 
 export function recalculateAll(state) {
-    state.derived.requiredOres = calculateRequiredOres(state.heroes, state.storedOres);
+    state.derived.requiredOres = calculateRequiredOres(state.heroes, state.storedOres, state.planner);
 
     const eventPassIncome = calculateEventPassIncome(state.income.eventPass, state.uiSettings.regionalPricingEnabled);
     const eventTraderIncome = calculateEventTraderIncome(state.income.eventTrader, eventPassIncome?.availableMedals);

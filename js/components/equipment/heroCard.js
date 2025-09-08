@@ -3,7 +3,8 @@ import { heroData } from '../../data/appData.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
 
-export function initializeHeroCards(heroesState, uiSettings) {
+export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
+    const { customMaxLevel } = plannerMaxLevels;
     const container = dom.equipment.heroesContainer;
     if (!container) return;
 
@@ -24,19 +25,16 @@ export function initializeHeroCards(heroesState, uiSettings) {
 
             const isChecked = equipState.checked !== undefined ? equipState.checked : true;
             const currentLevel = equipState.level !== undefined ? equipState.level : 1;
-            const isMaxLevel = currentLevel >= maxLevel;
-
+            
             const grayscaleClass = isChecked ? '' : 'grayscale';
-            const goldGlowClass = isMaxLevel ? 'gold-glow' : '';
-            const upgradeBtnVisibility = isMaxLevel ? 'hidden' : 'visible';
 
             return `
                 <div class="equipment-item" data-equip-name="${equip.name}" data-equip-type="${equip.type}">
-                    <img src="${equip.image}" alt="${equip.name}" class="equipment-image ${grayscaleClass} ${goldGlowClass}" data-action="toggle-equip">
-                    <label for="${inputId}" class="${equip.type === 'common' ? 'common-equip' : 'epic-equip'} ${goldGlowClass}">${equip.name}</label>
+                    <img src="${equip.image}" alt="${equip.name}" class="equipment-image ${grayscaleClass}" data-action="toggle-equip">
+                    <label for="${inputId}" class="${equip.type === 'common' ? 'common-equip' : 'epic-equip'}">${equip.name}</label>
                     <div class="level-display-container" data-mode="ease" style="display: ${easeDisplay};">
                         <span class="level-display" id="${levelDisplayId}">${currentLevel}</span>
-                        <button class="upgrade-btn" data-action="increment-level" data-max-level="${maxLevel}" style="visibility: ${upgradeBtnVisibility};">
+                        <button class="upgrade-btn" data-action="increment-level" data-max-level="${maxLevel}">
                            <svg viewBox="0 -960 960 960"><path d="M440-160v-480L200-390l-56-50 336-336 336 336-56 56-240-240v480h-80Z"/></svg>
                         </button>
                     </div>
@@ -70,18 +68,6 @@ export function initializeHeroCards(heroesState, uiSettings) {
         const heroName = heroCard.dataset.heroName;
 
         switch(action) {
-            case 'toggle-hero': {
-                const isEnabled = state.heroes[heroName].enabled;
-                handleStateUpdate(() => { state.heroes[heroName].enabled = !isEnabled; });
-                break;
-            }
-            case 'toggle-equip': {
-                const equipItem = actionElement.closest('.equipment-item');
-                const equipName = equipItem.dataset.equipName;
-                const isChecked = state.heroes[heroName].equipment[equipName].checked;
-                handleStateUpdate(() => { state.heroes[heroName].equipment[equipName].checked = !isChecked; });
-                break;
-            }
             case 'increment-level': {
                 const equipItem = actionElement.closest('.equipment-item');
                 const equipName = equipItem.dataset.equipName;

@@ -4,10 +4,8 @@ const path = require('path');
 const cors = require('cors');
 const admin = require('firebase-admin');
 
-// Load environment variables from .env file
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
-// Initialize Firebase Admin SDK
 if (!process.env.FIRESTORE_SA_KEY) {
     console.error("Error: FIRESTORE_SA_KEY environment variable is not set.");
     process.exit(1);
@@ -49,7 +47,6 @@ app.use(express.json());
 app.get('/proxy/players/:playerTag', async (req, res) => {
     const fetch = (await import('node-fetch')).default;
     const playerTag = req.params.playerTag;
-    // Add the '#' back and URL-encode it for the official API
     const encodedTag = encodeURIComponent(`#${playerTag}`);
     const url = `https://api.clashofclans.com/v1/players/${encodedTag}`;
 
@@ -74,7 +71,6 @@ app.get('/proxy/players/:playerTag', async (req, res) => {
     }
 });
 
-// New endpoint to save user data to Firestore
 app.post('/api/user-data/save', async (req, res) => {
     const { userId, data } = req.body;
 
@@ -87,12 +83,10 @@ app.post('/api/user-data/save', async (req, res) => {
         res.status(200).json({ message: 'Data saved successfully.' });
     } catch (error) {
         console.error('Error saving user data:', error);
-        // Check for specific Firestore errors , else 500
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 });
 
-// New endpoint to load user data from Firestore
 app.get('/api/user-data/load/:userId', async (req, res) => {
     const userId = req.params.userId;
 
@@ -103,13 +97,11 @@ app.get('/api/user-data/load/:userId', async (req, res) => {
     try {
         const doc = await db.collection('userStates').doc(userId).get();
         if (!doc.exists) {
-            // If document does not exist, return 404 Not Found
             return res.status(404).json({ message: 'User data not found.' });
         }
         res.status(200).json(doc.data());
     } catch (error) {
         console.error('Error loading user data:', error);
-        // Check for specific Firestore errors if needed, otherwise return generic 500
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 });

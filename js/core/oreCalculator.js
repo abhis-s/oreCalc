@@ -1,6 +1,6 @@
 import { upgradeCosts, heroData } from '../data/appData.js';
 
-export function calculateRequiredOres(heroesState, storedOres) {
+export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels) {
     let totalRequired = { shiny: 0, glowy: 0, starry: 0 };
 
     for (const heroName in heroesState) {
@@ -11,7 +11,7 @@ export function calculateRequiredOres(heroesState, storedOres) {
             const equip = hero.equipment[equipName];
             if (!equip.checked) continue;
 
-            const equipData = getEquipmentData(heroName, equipName);
+            const equipData = getEquipmentData(heroName, equipName, plannerMaxLevels);
             if (!equipData) continue;
 
             for (let i = equip.level + 1; i <= equipData.maxLevel; i++) {
@@ -33,11 +33,12 @@ export function calculateRequiredOres(heroesState, storedOres) {
     };
 }
 
-function getEquipmentData(heroName, equipName) {
+function getEquipmentData(heroName, equipName, plannerMaxLevels) {
+    const { customMaxLevel } = plannerMaxLevels;
     const hero = Object.values(heroData).find(h => h.name === heroName);
     const equipment = hero?.equipment.find(e => e.name === equipName);
     if (!equipment) return null;
 
-    const maxLevel = equipment.type === 'common' ? 18 : 27;
+    const maxLevel = equipment.type === 'common' ? customMaxLevel.common : customMaxLevel.epic;
     return { type: equipment.type, maxLevel: maxLevel };
 }
