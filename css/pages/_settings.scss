@@ -32,9 +32,8 @@
     padding: 8px;
     font-size: var(--font-size-md);
     text-align: right;
-    /* Removed width: 100%; */
     margin-top: 10px;
-    box-sizing: border-box; /* Ensure padding doesn't increase total width */
+    box-sizing: border-box;
 
     &:focus {
         border-color: $color-primary-blue;
@@ -44,7 +43,7 @@
 }
 
 #import-user-id-input {
-    width: 100%; /* Apply full width specifically to the input field */
+    width: 100%;
 }
 
 .settings-cards-grid {

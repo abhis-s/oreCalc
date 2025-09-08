@@ -137,6 +137,13 @@ export function renderIncomeChips(year, month) {
     const placedChipOriginalIds = getPlacedChipIds();
     renderUnplacedChips(incomeChipsContainer, groupedChips, placedChipOriginalIds);
 
+    if (incomeChipsContainer.children.length === 0) {
+        const note = document.createElement('p');
+        note.textContent = 'All chips for this month have already been placed on the calendar.';
+        note.classList.add('placeholder-text');
+        incomeChipsContainer.appendChild(note);
+    }
+
     renderIncomeChipsLegend(incomeChipsLegend);
 }
 

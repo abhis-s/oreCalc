@@ -306,6 +306,7 @@ export function initializePriorityListModal() {
                 }
             });
             renderPriorityEditor();
+            window.location.reload();
         });
     }
 

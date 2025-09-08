@@ -1,4 +1,4 @@
-@use '../abstracts/variables';
+@use '../abstracts/variables' as *;
 
 .income-chips-container {
     display: flex;
@@ -185,25 +185,31 @@
 }
 
 .auto-place-chips-btn {
-    background-color: variables.$md-primary-container;
-    color: variables.$md-on-primary-container;
+    background-color: $md-primary-container;
+    color: $md-on-primary-container;
     border: none;
-    border-radius: variables.$shape-corner-large;
+    border-radius: $shape-corner-large;
     padding: 10px 20px;
     font-size: 0.9em;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: variables.$elevation-2;
+    box-shadow: $elevation-2;
 
     &:hover {
-        background-color: variables.$md-primary;
-        color: variables.$md-on-primary;
-        box-shadow: variables.$elevation-3;
+        background-color: $md-primary;
+        color: $md-on-primary;
+        box-shadow: $elevation-3;
     }
 
     &:active {
-        background-color: darken(variables.$md-primary, 10%);
-        box-shadow: variables.$elevation-1;
+        background-color: darken($md-primary, 10%);
+        box-shadow: $elevation-1;
     }
+}
+
+.placeholder-text {
+    text-align: center;
+    color: $dark-text-secondary;
+    width: 100%;
 }

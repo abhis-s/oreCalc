@@ -1,6 +1,6 @@
 import { incomeData } from '../../data/incomeChipData.js';
 import { renderIncomeChips } from './incomeChips.js';
-import { state, getWeekNumber } from '../../core/state.js';
+import { state, getISOWeekNumber } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { createIncomeChip } from '../../utils/chipFactory.js';
 import { calculateCumulativeOres, reindexCalendarChips } from '../../utils/chipManager.js';
@@ -13,7 +13,7 @@ const deleteAllChipsBtn = document.getElementById('delete-all-chips-btn');
 const monthChipContainer = document.getElementById('month-chip-container');
 
 const MIN_YEAR = 2025;
-const MIN_MONTH = 8; 
+const MIN_MONTH = 9; 
 const MAX_YEAR = 2027;
 const MAX_MONTH = 12; 
 
@@ -78,7 +78,8 @@ function createDayCell(date, plannerState) {
         starry: Math.round(starBonusIncome.starry),
     };
     const starBonusChipId = `starBonus-${displayDay}-${displayMonth}-${displayYear}-cal`;
-    const starBonusChipText = currentView === 'weekly' ? starBonusSource.name : '';
+    let starBonusChipText = '';
+    // starBonusChipText = currentView === 'weekly' ? starBonusSource.name : '';
     const starBonusChip = createIncomeChip(starBonusChipText, starBonusSource.className, { type: starBonusSource.type, instance: date.getUTCDate(), ...roundedStarBonusIncome }, date.getUTCMonth(), displayYear, starBonusChipId);
     starBonusChip.draggable = false;
     chipContainer.appendChild(starBonusChip);
@@ -94,7 +95,8 @@ function createDayCell(date, plannerState) {
         if (incomeSource) {
             const income = incomeSource.getIncome(state);
             const roundedIncome = { shiny: Math.round(income.shiny), glowy: Math.round(income.glowy), starry: Math.round(income.starry) };
-            const chipText = currentView === 'weekly' ? incomeSource.name : '';
+            let chipText = '';
+            // chipText = currentView === 'weekly' ? incomeSource.name : '';
             const chipElement = createIncomeChip(chipText, incomeSource.className, { type, instance, ...roundedIncome }, date.getUTCMonth(), displayYear, chipId);
             chipContainer.appendChild(chipElement);
         }
@@ -141,6 +143,23 @@ function generateMonthGrid(dateForMonth, plannerState) {
     return grid;
 }
 
+function generateWeekGrid(date, plannerState) {
+    const grid = document.createElement('div');
+    grid.classList.add('weekly-view-grid');
+
+    const startOfWeek = new Date(date);
+    startOfWeek.setUTCDate(startOfWeek.getUTCDate() - startOfWeek.getUTCDay());
+
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(startOfWeek);
+        day.setUTCDate(startOfWeek.getUTCDate() + i);
+        const dayCell = createDayCell(day, plannerState);
+        grid.appendChild(dayCell);
+    }
+
+    return grid;
+}
+
 export function renderCalendar(plannerState) {
     if (!plannerState || !plannerState.calendar?.view?.month) return;
     calendarTrack.innerHTML = '';
@@ -172,17 +191,31 @@ export function renderCalendar(plannerState) {
         const currentYear = parseInt(yearStr, 10);
         const currentWeek = parseInt(weekStr, 10);
 
-        const startDate = getDateOfWeek(currentWeek, currentYear);
-        const startMonth = startDate.toLocaleString('default', { month: 'short' });
+        const currentWeekStartDate = getDateOfWeek(currentWeek, currentYear);
+        
+        const prevWeekDate = new Date(currentWeekStartDate);
+        prevWeekDate.setUTCDate(prevWeekDate.getUTCDate() - 7);
+        const [prevWeekYear, prevWeekNumber] = getISOWeekNumber(prevWeekDate);
+        const prevWeekStartDate = getDateOfWeek(prevWeekNumber, prevWeekYear);
 
+        const nextWeekDate = new Date(currentWeekStartDate);
+        nextWeekDate.setUTCDate(nextWeekDate.getUTCDate() + 7);
+        const [nextWeekYear, nextWeekNumber] = getISOWeekNumber(nextWeekDate);
+        const nextWeekStartDate = getDateOfWeek(nextWeekNumber, nextWeekYear);
+
+        const prevWeekGrid = generateWeekGrid(prevWeekStartDate, plannerState);
+        const currentWeekGrid = generateWeekGrid(currentWeekStartDate, plannerState);
+        const nextWeekGrid = generateWeekGrid(nextWeekStartDate, plannerState);
+
+        calendarTrack.appendChild(prevWeekGrid);
+        calendarTrack.appendChild(currentWeekGrid);
+        calendarTrack.appendChild(nextWeekGrid);
+
+        positionTrackAtIndex(1);
+        
+        const startMonth = currentWeekStartDate.toLocaleString('default', { month: 'short' });
         currentMonthYearHeader.textContent = `Week ${currentWeek} of ${currentYear} (${startMonth})`
-
-        for (let i = 0; i < 7; i++) {
-            const day = new Date(startDate);
-            day.setUTCDate(day.getUTCDate() + i);
-            const dayCell = createDayCell(day, plannerState);
-            calendarTrack.appendChild(dayCell);
-        }
+        renderIncomeChips(currentYear, currentWeekStartDate.getUTCMonth());
     }
     updateActiveChip();
 }
@@ -194,70 +227,106 @@ function positionTrackAtIndex(index, animated = false) {
 }
 
 function shiftNext() {
-    if (isTransitioning) return;
-    if (currentView === 'monthly') {
-        const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
-        if (parseInt(yearStr, 10) >= MAX_YEAR && parseInt(monthStr, 10) >= MAX_MONTH) return snapBack();
+    if (isTransitioning) {
+        return;
     }
+
+    const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
+    const [weekStr, weeklyYearStr] = state.planner.calendar.view.week.split('-');
+
+    if (currentView === 'monthly') {
+        const currentYear = parseInt(yearStr, 10);
+        const currentMonth = parseInt(monthStr, 10);
+
+        if (currentYear >= MAX_YEAR && currentMonth >= MAX_MONTH) {
+            return snapBack();
+        }
+    } else {
+        const currentWeek = parseInt(weekStr, 10);
+        const currentWeeklyYear = parseInt(weeklyYearStr, 10);
+
+        const maxDate = new Date(Date.UTC(MAX_YEAR, MAX_MONTH, 31));
+        const currentWeekStartDate = getDateOfWeek(currentWeek, currentWeeklyYear);
+        const nextWeekStartDate = new Date(currentWeekStartDate);
+        nextWeekStartDate.setUTCDate(nextWeekStartDate.getUTCDate() + 7);
+
+        if (nextWeekStartDate >= maxDate) {
+            return snapBack();
+        }
+    }
+
     isTransitioning = true;
     positionTrackAtIndex(2, true);
     calendarTrack.addEventListener('transitionend', onNextReady, { once: true });
 }
 
 function onNextReady() {
-    isTransitioning = true;
+    isTransitioning = false;
+
     if (currentView === 'monthly') {
         const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
         const oldYear = parseInt(yearStr, 10);
         const oldMonth0Index = parseInt(monthStr, 10) - 1;
         const newCurrentDate = new Date(Date.UTC(oldYear, oldMonth0Index + 1, 1));
-        const [newWeekYear, newWeekNo] = getWeekNumber(newCurrentDate);
+        const [newWeekYear, newWeekNo] = getISOWeekNumber(newCurrentDate);
 
         handleStateUpdate(() => {
             state.planner.calendar.view.month = `${String(newCurrentDate.getUTCMonth() + 1).padStart(2, '0')}-${newCurrentDate.getUTCFullYear()}`;
             state.planner.calendar.view.week = `${newWeekNo}-${newWeekYear}`;
         });
     } else {
-        let [weekStr, yearStr] = state.planner.calendar.view.week.split('-');
-        let week = parseInt(weekStr, 10) + 1;
-        let year = parseInt(yearStr, 10);
-        if (week > 52) { 
-            week = 1;
-            year += 1;
-        }
-        const newStartDate = getDateOfWeek(week, year);
-        const newMonth = newStartDate.getUTCMonth() + 1;
-        const newYearOfMonth = newStartDate.getUTCFullYear();
+        const [weekStr, yearStr] = state.planner.calendar.view.week.split('-');
+        const currentWeek = parseInt(weekStr, 10);
+        const currentYear = parseInt(yearStr, 10);
+
+        const currentWeekStartDate = getDateOfWeek(currentWeek, currentYear);
+        const nextWeekStartDate = new Date(currentWeekStartDate);
+        nextWeekStartDate.setUTCDate(nextWeekStartDate.getUTCDate() + 7);
+
+        const [nextWeekYear, nextWeekNumber] = getISOWeekNumber(nextWeekStartDate);
+        
+        const nextMonth = nextWeekStartDate.getUTCMonth() + 1;
+        const nextYearOfMonth = nextWeekStartDate.getUTCFullYear();
 
         handleStateUpdate(() => {
-            state.planner.calendar.view.week = `${week}-${year}`;
-            state.planner.calendar.view.month = `${String(newMonth).padStart(2, '0')}-${newYearOfMonth}`;
+            state.planner.calendar.view.week = `${nextWeekNumber}-${nextWeekYear}`;
+            state.planner.calendar.view.month = `${String(nextMonth).padStart(2, '0')}-${nextYearOfMonth}`;
         });
     }
 
     renderCalendar(state.planner);
-    isTransitioning = false;
 }
 
 function shiftPrev() {
     if (isTransitioning) return;
+    const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
+    const [weekStr, weeklyYearStr] = state.planner.calendar.view.week.split('-');
+
     if (currentView === 'monthly') {
-        const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
-        if (parseInt(yearStr, 10) <= MIN_YEAR && parseInt(monthStr, 10) <= MIN_MONTH) return snapBack();
+        if (parseInt(yearStr, 10) <= MIN_YEAR && parseInt(monthStr, 10) <= MIN_MONTH) {
+            return snapBack();
+        }
+    } else {
+        const minDate = new Date(Date.UTC(MIN_YEAR, MIN_MONTH - 1, 1));
+        const [minYearWeek, minWeekNumber] = getISOWeekNumber(minDate);
+
+        if (parseInt(weeklyYearStr, 10) <= minYearWeek && parseInt(weekStr, 10) <= minWeekNumber) {
+            return snapBack();
+        }
     }
+
     isTransitioning = true;
     positionTrackAtIndex(0, true);
     calendarTrack.addEventListener('transitionend', onPrevReady, { once: true });
 }
 
 function onPrevReady() {
-    isTransitioning = true;
     if (currentView === 'monthly') {
         const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
         const oldYear = parseInt(yearStr, 10);
         const oldMonth0Index = parseInt(monthStr, 10) - 1;
         const newCurrentDate = new Date(Date.UTC(oldYear, oldMonth0Index - 1, 1));
-        const [newWeekYear, newWeekNo] = getWeekNumber(newCurrentDate);
+        const [newWeekYear, newWeekNo] = getISOWeekNumber(newCurrentDate);
 
         handleStateUpdate(() => {
             state.planner.calendar.view.month = `${String(newCurrentDate.getUTCMonth() + 1).padStart(2, '0')}-${newCurrentDate.getUTCFullYear()}`;
@@ -267,10 +336,14 @@ function onPrevReady() {
         let [weekStr, yearStr] = state.planner.calendar.view.week.split('-');
         let week = parseInt(weekStr, 10) - 1;
         let year = parseInt(yearStr, 10);
+        
         if (week < 1) {
-            week = 52;
-            year -= 1;
+            const lastWeekOfPrevYear = new Date(Date.UTC(year - 1, 11, 31));
+            const [prevYearWeek, prevYearNumber] = getISOWeekNumber(lastWeekOfPrevYear);
+            week = prevYearNumber;
+            year = prevYearWeek;
         }
+
         const newStartDate = getDateOfWeek(week, year);
         const newMonth = newStartDate.getUTCMonth() + 1;
         const newYearOfMonth = newStartDate.getUTCFullYear();
@@ -349,7 +422,7 @@ function getWeeksInMonth(year, month) {
 
     let currentDay = new Date(firstDayOfMonth);
     while (currentDay <= lastDayOfMonth) {
-        const [weekYear, weekNumber] = getWeekNumber(currentDay);
+        const [weekYear, weekNumber] = getISOWeekNumber(currentDay);
         const weekKey = `${weekNumber}-${weekYear}`;
         if (!weeks.some(w => w.key === weekKey)) {
             weeks.push({ key: weekKey, number: weekNumber, year: weekYear });
@@ -414,7 +487,7 @@ function handleMonthChipClick(e) {
         handleStateUpdate(() => {
             state.planner.calendar.view.month = newMonth;
             const firstDayOfMonth = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1));
-            const [firstWeekYear, firstWeekNumber] = getWeekNumber(firstDayOfMonth);
+            const [firstWeekYear, firstWeekNumber] = getISOWeekNumber(firstDayOfMonth);
             state.planner.calendar.view.week = `${firstWeekNumber}-${firstWeekYear}`;
         });
         renderCalendar(state.planner);
@@ -574,7 +647,7 @@ function handleDayCellMouseLeave(e) {
     if (tooltip) tooltip.remove();
 }
 
-const mediaQuery = window.matchMedia('(max-width: 425px)');
+const mediaQuery = window.matchMedia('(max-width: 630px)');
 
 document.addEventListener('DOMContentLoaded', () => {
     calendarContainer.addEventListener('wheel', handleWheel, { passive: false });
@@ -585,6 +658,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mediaQuery.addEventListener('change', handleMediaQueryChange);
     handleMediaQueryChange(mediaQuery);
+
+    window.addEventListener('resize', () => {
+        if (currentView === 'monthly' || currentView === 'weekly') {
+            positionTrackAtIndex(1);
+        }
+    });
 
     renderMonthChips();
 

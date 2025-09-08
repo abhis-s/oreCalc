@@ -2,17 +2,26 @@ import { currencySymbols, heroData, shopOfferData, eventPassData } from '../data
 
 export let state = {};
 
-export function getWeekNumber(d) {
-    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-    return [d.getUTCFullYear(), weekNo];
+export function getISOWeekNumber(d) {
+    const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+
+    const isoYear = date.getUTCFullYear();
+
+    const yearStart = new Date(Date.UTC(isoYear, 0, 1));
+    const yearStartDay = yearStart.getUTCDay() || 7;
+    yearStart.setUTCDate(yearStart.getUTCDate() + 4 - yearStartDay);
+
+    const weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+
+    return [isoYear, weekNo];
 }
 
 export function getDefaultState() {
     const now = new Date();
-    const [year, weekNo] = getWeekNumber(now);
+    const [year, weekNo] = getISOWeekNumber(now);
 
     return {
         lastPlayerTag: '',
@@ -160,7 +169,7 @@ function initializeHeroesState() {
 
 export function getDefaultPlayerState() {
     const now = new Date();
-    const [year, weekNo] = getWeekNumber(now);
+    const [year, weekNo] = getISOWeekNumber(now);
 
     return JSON.parse(
         JSON.stringify({

@@ -176,11 +176,11 @@
     overflow-x: auto;
     padding: 10px;
     gap: 8px;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 
     &::-webkit-scrollbar {
-        display: none; /* Chrome, Safari, and Opera */
+        display: none;
     }
 }
 
@@ -193,24 +193,25 @@
 }
 
 .month-chip {
-    display: flex; /* Make it a flex container */
-    align-items: center; /* Vertically align items */
-    justify-content: space-between; /* Space out month name and week numbers */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 8px 16px;
     border-radius: 8px;
-    background-color: var(--input-bg-color-transparent); /* Transparent background for inactive */
+    background-color: var(--input-bg-color-transparent);
     color: var(--text-color);
     cursor: pointer;
     transition: background-color 0.3s ease;
     white-space: nowrap;
-    flex-grow: 1; /* Allow it to grow */
+    flex-grow: 1;
+    flex-shrink: 0;
 
     &:hover {
         background-color: var(--input-hover-bg-color);
     }
 
     &.active {
-        background-color: var(--background-overlay-blue-1); /* Subtle transparent background for active month chip */
+        background-color: var(--background-overlay-blue-1);
         font-weight: bold;
 
         .month-name {
@@ -223,16 +224,16 @@
 }
 
 .week-numbers-container {
-    display: none; /* Hidden by default */
-    flex-wrap: nowrap; /* Keep week numbers in a single row */
+    display: none;
+    flex-wrap: nowrap;
     gap: 5px;
-    margin-left: 10px; /* Add some space between month name and week numbers */
-    justify-content: flex-end; /* Align week numbers to the right */
-    flex-shrink: 0; /* Prevent shrinking */
+    margin-left: 10px;
+    justify-content: flex-end;
+    flex-shrink: 0;
 }
 
 .month-chip.active .week-numbers-container {
-    display: flex; /* Show when month chip is active */
+    display: flex;
 }
 
 .week-chip {
@@ -253,7 +254,7 @@
     }
 
     &.active {
-        background-color: var(--accent-color); /* Match active month chip background */
+        background-color: var(--accent-color);
         color: var(--accent-text-color);
         font-weight: bold;
     }
@@ -261,8 +262,10 @@
 
 #calendar-track.weekly-view-grid {
     display: block;
-    width: 100%;
     padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
 
     .day-cell {
         display: flex;
@@ -286,7 +289,9 @@
     }
 
     .chip-container {
-        justify-content: flex-start;
+        flex-direction: row-reverse;
+        justify-content: end;
+        align-content: center;
         flex-grow: 1;
     }
 
@@ -305,7 +310,7 @@
 
 @media (max-width: 425px) {
     .calendar-header {
-        padding: 5px; /* New padding for calendar header */
+        padding: 5px;
         h2 {
             font-size: 0.8em;
         }
