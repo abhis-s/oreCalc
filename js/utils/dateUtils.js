@@ -138,12 +138,21 @@ export function getScheduleDates(year, month, schedule, instance = 1) {
             }
             break;
         case 'monthly':
-        case 'bimonthly':
         case 'custom':
             if (schedule.dateStart) {
                 let endDate = schedule.dateEnd || (schedule.availableTillEndOfMonth ? daysInMonth : schedule.dateStart);
                 for (let day = schedule.dateStart; day <= endDate; day++) {
                     dates.push(new Date(Date.UTC(year, month, day)));
+                }
+            }
+            break;
+        case 'bimonthly':
+            if (schedule.availableMonths && schedule.availableMonths[year] && schedule.availableMonths[year].includes(month + 1)) {
+                if (schedule.dateStart) {
+                    let endDate = schedule.dateEnd || (schedule.availableTillEndOfMonth ? daysInMonth : schedule.dateStart);
+                    for (let day = schedule.dateStart; day <= endDate; day++) {
+                        dates.push(new Date(Date.UTC(year, month, day)));
+                    }
                 }
             }
             break;
