@@ -121,6 +121,7 @@ function initializePlannerEventListeners() {
         autoPlaceChipsBtn.addEventListener('click', () => {
             const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
             autoPlaceIncomeChips(monthStr, yearStr);
+            handleStateUpdate(() => {}, false);
         });
     }
 }

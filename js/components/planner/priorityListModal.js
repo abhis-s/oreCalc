@@ -3,6 +3,56 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { openLevelSelectModal } from './levelSelectModal.js';
 import { calculateCompletionDates } from '../../utils/predictionCalculator.js';
+import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
+
+let isAutoPlacing = false;
+let autoPlaceTimeoutId = null;
+
+function autoPlaceChipsForDateRange() {
+    if (isAutoPlacing) {
+        console.log("Auto-placement is already in progress.");
+        return;
+    }
+
+    const startTime = new Date();
+
+    const MIN_MONTH = 9; 
+    const MIN_YEAR = 2025;
+    const MAX_MONTH = 12;
+    const MAX_YEAR = 2027;
+
+    isAutoPlacing = true;
+    let currentYear = MIN_YEAR;
+    let currentMonth = MIN_MONTH;
+
+    function placeNextMonth() {
+        if (!isAutoPlacing || (currentYear > MAX_YEAR || (currentYear === MAX_YEAR && currentMonth > MAX_MONTH))) {
+            isAutoPlacing = false;
+            const endTime = new Date();
+            const timeTaken = (endTime - startTime) / 1000;
+            setTimeout(() => {
+                console.log(`Finished auto-placing chips for all months in the range. Total time: ${timeTaken} seconds.`);
+            }, 5000);
+            handleStateUpdate(() => {}, false);
+            return;
+        }
+
+        const monthStr = String(currentMonth).padStart(2, '0');
+        const yearStr = String(currentYear);
+
+        autoPlaceIncomeChips(monthStr, yearStr);
+
+        currentMonth++;
+        if (currentMonth > 12) {
+            currentMonth = 1;
+            currentYear++;
+        }
+
+        autoPlaceTimeoutId = setTimeout(placeNextMonth, 0);
+    }
+
+    placeNextMonth();
+}
 
 export function getGlobalPriorityList() {
     const globalPriorityList = [];
@@ -388,6 +438,7 @@ export function openPriorityListModal() {
         title.textContent = 'Edit Priority List';
         renderPriorityEditor();
         modal.classList.add('show');
+        autoPlaceChipsForDateRange();
     }
 }
 

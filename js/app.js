@@ -100,10 +100,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-export function handleStateUpdate(mutator) {
+export function handleStateUpdate(mutator, silent = false) {
     mutator();
-    recalculateAll(state);
-    renderApp(state);
+    if (!silent) {
+        recalculateAll(state);
+        renderApp(state);
+    }
     saveState(state);
 }
 

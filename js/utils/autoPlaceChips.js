@@ -681,6 +681,6 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
     handleStateUpdate(() => {
         renderCalendar(state.planner);
         renderIncomeChips(currentYear, currentMonth);
-    });
+    }, true);
     console.log(`[AutoPlace] Auto-placement complete.`);
 }
