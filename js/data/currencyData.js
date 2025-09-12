@@ -16,13 +16,18 @@ export const currencyConversionRates = {
         "GBP": 0.99,
         "INR": 89.00,
     },
+    "3.99": {
+        "EUR": 4.99,
+        "GBP": 3.99,
+        "INR": 349.00,
+    },
     "4.99": {
         "EUR": 5.99,
         "GBP": 4.99,
         "INR": 449.00,
     },
     "5.99": {
-        "EUR": 7.19,
+        "EUR": 7.49,
         "GBP": 5.99,
         "INR": 539.00,
     },

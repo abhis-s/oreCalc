@@ -46,8 +46,8 @@ export const shopOfferData = {
             maxPacks: 2,
         },
     },
-    TH15_Set: {
-        townHallLevel: 15,
+    TH14_Set: {
+        townHallLevel: 14,
         shiny_large: {
             shiny: 12000,
             glowy: 0,
@@ -74,6 +74,61 @@ export const shopOfferData = {
             glowy: 0,
             starry: 0,
             baseCostUSD: 5.99,
+            maxPacks: 2,
+        },
+    },
+    TH11_Set: {
+        townHallLevel: 11,
+        shiny_large: {
+            shiny: 12000,
+            glowy: 0,
+            starry: 0,
+            baseCostUSD: 9.99,
+            maxPacks: 2,
+        },
+        glowy: {
+            shiny: 0,
+            glowy: 500,
+            starry: 0,
+            baseCostUSD: 4.99,
+            maxPacks: 2,
+        },
+        starry: {
+            shiny: 0,
+            glowy: 0,
+            starry: 55,
+            baseCostUSD: 4.99,
+            maxPacks: 2,
+        },
+        shiny_small: {
+            shiny: 4000,
+            glowy: 0,
+            starry: 0,
+            baseCostUSD: 4.99,
+            maxPacks: 2,
+        },
+    },
+    TH8_Set: {
+        townHallLevel: 8,
+        glowy: {
+            shiny: 0,
+            glowy: 400,
+            starry: 0,
+            baseCostUSD: 3.99,
+            maxPacks: 2,
+        },
+        starry: {
+            shiny: 0,
+            glowy: 0,
+            starry: 40,
+            baseCostUSD: 3.99,
+            maxPacks: 2,
+        },
+        shiny_small: {
+            shiny: 3000,
+            glowy: 0,
+            starry: 0,
+            baseCostUSD: 3.99,
             maxPacks: 2,
         },
     },
