@@ -7,7 +7,7 @@ export const incomeData = {
         isSingleEvent: true,
         schedule: {
             type: 'monthly',
-            dateStart: 24,
+            dateStart: 26,
             dateEnd: 28,
         },
         getIncome: (state) => state.derived.incomeSources.shopOffers?.monthly || { shiny: 0, glowy: 0, starry: 0 },
