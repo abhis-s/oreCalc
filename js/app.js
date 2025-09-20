@@ -28,7 +28,7 @@ import { initializeEventTrader } from './components/income/eventTrader.js';
 import { initializeShopOffers } from './components/income/shopOffers.js';
 import { initializeIncomeCardHandler } from './components/income/incomeCardHandler.js';
 import { initializeIncomeCardObserver } from './components/income/incomeCardObserver.js';
-import { initializeResponsiveTextHandler } from './utils/responsiveTextHandler.js';
+import { updateResponsiveText } from './utils/responsiveTextHandler.js';
 import { initializeCloudSaveButtons } from './utils/cloudSaveHandler.js';
 import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
 import { loadTranslations, translate } from './i18n/translator.js';
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeShopOffers();
     initializeIncomeCardHandler();
     initializeIncomeCardObserver();
-    initializeResponsiveTextHandler();
+    updateResponsiveText();
     initializeCloudSaveButtons();
 
     const refreshButton = dom.controls.refreshButton;
