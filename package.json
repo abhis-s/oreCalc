@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "node -r dotenv/config scripts/inject-env.js && concurrently \"node scripts/dev/watch-sass.js\" \"node scripts/dev/start-dev-server.js\"",
-    "build": "node scripts/build/clean.js && npm run build:css && node scripts/build/copy-html.js && VITE_API_BASE_URL=https://api.orecalc.tech node scripts/inject-env.js && node scripts/build/copy-js.js && node scripts/build/copy-assets.js && node scripts/build/optimize-images.js && node scripts/build/copy-sw.js && node scripts/build/copy-pwa.js && node scripts/build/replace-html.js && node scripts/build/replace-sw.js",
+    "build": "node scripts/build/clean.js && npm run build:css && node scripts/build/copy-html.js && VITE_API_BASE_URL=https://api.orecalc.tech node scripts/inject-env.js && node scripts/build/copy-js.js && node scripts/build/copy-json.js && node scripts/build/copy-assets.js && node scripts/build/optimize-images.js && node scripts/build/copy-sw.js && node scripts/build/copy-pwa.js && node scripts/build/replace-html.js && node scripts/build/replace-sw.js",
     "build:css": "sass css/main.scss dist/css/main.min.css --style compressed",
     "start:prod": "node scripts/prod/start-prod-server.js"
   },
