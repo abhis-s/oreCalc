@@ -30,7 +30,6 @@ const urlsToCache = [
     '/js/utils/dateFormatter.js',
     '/js/components/layout/tabs.js',
     '/js/components/layout/header.js',
-    '/js/components/layout/enableLevelInput.js',
     '/js/components/layout/navigation.js',
     '/js/components/fab/fab.js',
     '/js/components/income/cwlDisplay.js',
