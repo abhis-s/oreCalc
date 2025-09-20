@@ -24,9 +24,9 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
             const inputId = `${heroKey}-${equip.name.replace(/\s/g, '')}-level`;
             const levelDisplayId = `${inputId}-display`;
 
-            const isTweakMode = uiSettings.mode === 'tweak';
-            const easeDisplay = isTweakMode ? 'none' : 'flex';
-            const tweakDisplay = isTweakMode ? 'block' : 'none';
+            const isLevelInputEnabled = uiSettings.enableLevelInput === true;
+            const upgradeBtnDisplay = isLevelInputEnabled ? 'none' : 'flex';
+            const inputContainerDisplay = isLevelInputEnabled ? 'block' : 'none';
 
             const isChecked = equipState.checked !== undefined ? equipState.checked : true;
             const currentLevel = equipState.level !== undefined ? equipState.level : 1;
@@ -37,13 +37,13 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
                 <div class="equipment-item" data-equip-name="${equip.name}" data-equip-type="${equip.type}">
                     <img src="${equip.image}" alt="${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}" class="equipment-image ${grayscaleClass}" data-action="toggle-equip">
                     <label for="${inputId}" class="${equip.type === 'common' ? 'common-equip' : 'epic-equip'}">${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}</label>
-                    <div class="level-display-container" data-mode="ease" style="display: ${easeDisplay};">
+                    <div class="level-display-container" data-mode="input-disabled" style="display: ${upgradeBtnDisplay};">
                         <span class="level-display" id="${levelDisplayId}">${currentLevel}</span>
                         <button class="upgrade-btn" data-action="increment-level" data-max-level="${maxLevel}">
                            <svg viewBox="0 -960 960 960"><path d="M440-160v-480L200-390l-56-50 336-336 336 336-56 56-240-240v480h-80Z"/></svg>
                         </button>
                     </div>
-                    <div class="tweak-mode-input-container" data-mode="tweak" style="display: ${tweakDisplay};">
+                    <div class="level-input-container" data-mode="input-enabled" style="display: ${inputContainerDisplay};">
                         <input type="number" class="updatable" id="${inputId}" min="1" max="${maxLevel}" value="${currentLevel}">
                     </div>
                 </div>

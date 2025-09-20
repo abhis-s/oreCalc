@@ -3,6 +3,9 @@ import { state } from '../core/state.js';
 const translations = {};
 
 export async function loadTranslations(language) {
+    if (state.uiSettings?.language === 'auto') {
+        state.uiSettings.language = 'en';
+    }
     try {
         const response = await fetch(`js/i18n/${language}.json`);
         if (!response.ok) {
@@ -31,6 +34,9 @@ function getNestedTranslation(language, key) {
 }
 
 export function translate(key, ...args) {
+    if (state.uiSettings?.language === 'auto') {
+        state.uiSettings.language = 'en';
+    }
     const language = state.uiSettings?.language || 'en';
     let translation = getNestedTranslation(language, key);
 

@@ -30,13 +30,13 @@ export function getDefaultState() {
         playerData: null,
 
         uiSettings: {
-            mode: 'ease',
             currency: 'USD',
             regionalPricingEnabled: false,
-            language: 'en',
+            language: 'auto',
             incomeTimeframe: 'monthly',
             incomeCardExpanded: false,
             activeTab: 'home-tab',
+            enableLevelInput: false,
         },
 
         heroes: initializeHeroesState(),

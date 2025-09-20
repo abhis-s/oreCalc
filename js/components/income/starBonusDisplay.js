@@ -21,7 +21,7 @@ export function renderStarBonusDisplay(starBonusIncome, league, playerData, time
         homeElements.starry.textContent = formatNumber(Math.round(timeframeIncome.starry || 0));
     }
     if (homeElements.resource) {
-        const leagueKey = 'league.' + (league || 'unranked').toLowerCase().replace(/\s/g, '_');
+        const leagueKey = 'league.' + (league || playerData?.league?.name || 'unranked').toLowerCase().replace(/\s/g, '_');
         homeElements.resource.textContent = translate(leagueKey);
     }
 

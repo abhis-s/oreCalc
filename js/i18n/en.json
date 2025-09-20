@@ -37,9 +37,7 @@
 
     "priority_list": "Priority List",
     "calendar_planner": "Calendar Planner",
-    "mode_switch": "Mode Switch:",
-    "ease": "Ease",
-    "tweak": "Tweak",
+    "enable_level_input_colon": "Enable level input:",
 
     "income_summary": "Income Summary",
     "income_chips": "Income Chips",

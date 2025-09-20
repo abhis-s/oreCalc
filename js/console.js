@@ -3,12 +3,13 @@ import { handleStateUpdate } from './app.js';
 import { saveState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 
-window.switchMode = () => {
-    const newMode = state.uiSettings.mode === 'ease' ? 'tweak' : 'ease';
+window.enableLevelInput = () => {
+    const newEnableLevelInput = !state.uiSettings.enableLevelInput;
     handleStateUpdate(() => {
-        state.uiSettings.mode = newMode;
+        state.uiSettings.enableLevelInput = newEnableLevelInput;
     });
-    return `Switched to ${newMode} mode.`;
+    const newModeText = newEnableLevelInput ? 'Enabled' : 'Disabled';
+    return `Level input has been ${newModeText}.`;
 };
 
 window.resetApp = () => {
@@ -59,7 +60,7 @@ window.clearPlannerState = () => {
 
 console.info(
     "%c Ore Calculator Console Commands:\n\n" +
-    "%c  switchMode():     %cToggles between 'Ease' and 'Tweak' modes.\n" +
+    "%c  enableLevelInput(): %cToggles the 'Enable level input' setting.\n" +
     "%c  resetApp():       %cInitiates a 5-second countdown to reset all app data and reload. Can be cancelled.\n" +
     "%c  cancelResetApp(): %cCancels an active resetApp countdown.\n" +
     "%c  logState():       %cLogs the current state object to the console.\n" +

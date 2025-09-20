@@ -13,8 +13,8 @@ import { initializeHeroCards } from './components/equipment/heroCard.js';
 import { initializePlayerDropdown } from './components/player/playerDropdown.js';
 import { initializePlayerModal } from './components/player/playerModal.js';
 import { initializeFab } from './components/fab/fab.js';
-import { initializeModeToggle } from './components/layout/modeToggle.js';
 import { initializeAppSettings } from './components/appSettings/appSettings.js';
+import { initializeSettingsCardObserver } from './components/appSettings/settingsCardObserver.js';
 import { initializePlanner } from './components/planner/planner.js';
 import { initializePriorityListModal } from './components/planner/priorityListModal.js';
 
@@ -54,9 +54,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let initialLanguage = state.uiSettings.language;
 
-    if (!initialLanguage || initialLanguage === 'en') {
+    if (!initialLanguage || initialLanguage === 'auto') {
+        console.log('Detecting language...');
         const browserLanguage = navigator.language || navigator.languages[0];
         if (browserLanguage && browserLanguage.startsWith('de')) {
+            console.log('Detected language: German');
             initialLanguage = 'de';
         } else {
             initialLanguage = 'en';
@@ -84,8 +86,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializePlayerDropdown();
     initializePlayerModal();
     initializeFab();
-    initializeModeToggle();
     initializeAppSettings();
+    initializeSettingsCardObserver();
     initializePlanner();
     initializePriorityListModal();
     initializeStarBonusSelector();

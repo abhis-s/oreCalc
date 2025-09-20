@@ -264,7 +264,7 @@
             </div>
             <div id="home-required-resources-container" class="required-resources-container">
                 <div class="resources-row">
-                    <span class="resource-item"><img src="assets/player_leagues/unranked_league.png" alt="League Icon" class="resource-icon calculated" id="home-display-league-icon"><span data-i18n="league_colon">League:</span><span id="home-display-league-requirement" class="calculated" data-i18n="unranked">Unranked</span></span>
+                    <span class="resource-item"><img src="assets/player_leagues/unranked_league.png" alt="League Icon" class="resource-icon calculated" id="home-display-league-icon"><span data-i18n="league_colon">League:</span><span id="home-display-league-requirement" class="calculated">Unranked</span></span>
                     <span class="resource-item"><img src="assets/resources/cwl.png" alt="CWL"><span data-i18n="cwl_participations_colon">CWL Participations:</span><span id="home-display-cwl-participations" class="calculated">0</span></span>
                     <span class="resource-item"><img src="assets/resources/clan_war.png" alt="Clan War" id="home-display-clan-icon" class="calculated"><span data-i18n="clan_war_participations_colon">Clan War Participations:</span><span id="home-display-clan-war-participations" class="calculated">0</span></span>
                     <span class="resource-item"><img src="assets/resources/raid_medal.png" alt="Raid Medals"><span data-i18n="raid_medals_colon">Raid Medals:</span><span id="home-display-raid-medals" class="calculated">0</span></span>
@@ -283,6 +283,15 @@
                     <div id="heroes-container"></div>
                 </div>
                 <div class="right-panel">
+                    <div id="eq-settings-container-card" class="equipment-card card">
+                        <div class="mode-switch-container">
+                            <span data-i18n="enable_level_input_colon">Enable level input:</span>
+                            <label class="switch">
+                                <input type="checkbox" id="eq-enable-level-input-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
                     <div id="eq-results-container-card" class="equipment-card card calculated">
                         <h2 class="results-title"><img src="assets/ore_icon.png" alt="Ores Icon" class="title-icon"><span id="results-title-text" data-i18n="required_ores">Required Ores</span></h2>
                         <div class="ores">
@@ -777,16 +786,6 @@
         <div class="tab-content" id="settings-tab">
             <div class="settings-cards-grid">
                 <div id="set-app-card" class="settings-card card">
-                        <div class="mode-switch-container">
-                            <span data-i18n="mode_switch">Mode Switch:</span>
-                            <div class="mode-toggle-switch" id="mode-toggle-switch">
-                                <div class="mode-labels-container">
-                                    <span class="switch-label" data-i18n="ease">Ease</span>
-                                    <span class="switch-label" data-i18n="tweak">Tweak</span>
-                                </div>
-                                <div class="switch-toggle-ball"></div>
-                            </div>
-                        </div>
                     <div class="input-group-flex">
                         <label for="language-select" data-i18n="language">Language:</label>
                         <select id="language-select" class="dropdown-style updatable">
@@ -820,10 +819,10 @@
                     <div class="input-group-flex">
                         <label for="copy-user-id-btn" data-i18n="action_copy_user_id">Copy User ID</label>
                         <div class="user-id-display-group">
-                            <button id="copy-user-id-btn" class="animated-btn small-btn">
+                            <button id="copy-user-id-btn" class="animated-btn">
                                 <span class="animated-btn-text" data-i18n="action_copy">Copy</span>
                                 <span class="animated-btn-icon-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#383a3c"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
                                 </span>
                             </button>
                         </div>
@@ -834,7 +833,7 @@
                         <button id="import-user-data-btn" class="animated-btn">
                             <span class="animated-btn-text" data-i18n="action_paste">Paste</span>
                             <span class="animated-btn-icon-wrapper">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="m720-120-56-57 63-63H480v-80h247l-63-64 56-56 160 160-160 160Zm120-400h-80v-240h-80v120H280v-120h-80v560h200v80H200q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-840h167q11-35 43-57.5t70-22.5q40 0 71.5 22.5T594-840h166q33 0 56.5 23.5T840-760v240ZM480-760q17 0 28.5-11.5T520-800q0-17-11.5-28.5T480-840q-17 0-28.5 11.5T440-800q0 17 11.5 28.5T480-760Z"/></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#383a3c"><path d="m720-120-56-57 63-63H480v-80h247l-63-64 56-56 160 160-160 160Zm120-400h-80v-240h-80v120H280v-120h-80v560h200v80H200q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-840h167q11-35 43-57.5t70-22.5q40 0 71.5 22.5T594-840h166q33 0 56.5 23.5T840-760v240ZM480-760q17 0 28.5-11.5T520-800q0-17-11.5-28.5T480-840q-17 0-28.5 11.5T440-800q0 17 11.5 28.5T480-760Z"/></svg>
                             </span>
                         </button>
                     </div>
@@ -844,7 +843,7 @@
                         <button id="reset-data-btn" class="animated-btn reset-data-button">
                             <span class="animated-btn-text" data-i18n="action_reset">Reset</span>
                             <span class="animated-btn-icon-wrapper">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ef5350"><path d="m653-208-88 88-85-85 88-88q-4-11-6-23t-2-24q0-58 41-99t99-41q18 0 35 4.5t32 12.5l-95 95 56 56 95-94q8 15 12.5 31.5T840-340q0 58-41 99t-99 41q-13 0-24.5-2t-22.5-6Zm178-352h-83q-26-88-99-144t-169-56q-117 0-198.5 81.5T200-480q0 72 32.5 132t87.5 98v-110h80v240H160v-80h94q-62-50-98-122.5T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q129 0 226.5 79.5T831-560Z"/></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#383a3c"><path d="m653-208-88 88-85-85 88-88q-4-11-6-23t-2-24q0-58 41-99t99-41q18 0 35 4.5t32 12.5l-95 95 56 56 95-94q8 15 12.5 31.5T840-340q0 58-41 99t-99 41q-13 0-24.5-2t-22.5-6Zm178-352h-83q-26-88-99-144t-169-56q-117 0-198.5 81.5T200-480q0 72 32.5 132t87.5 98v-110h80v240H160v-80h94q-62-50-98-122.5T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q129 0 226.5 79.5T831-560Z"/></svg>
                             </span>
                         </button>
                     </div>

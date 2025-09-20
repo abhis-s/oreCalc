@@ -1,5 +1,4 @@
 import { renderTabs } from '../components/layout/tabs.js';
-import { renderModeToggle } from '../components/layout/modeToggle.js';
 import { renderAppSettings } from '../components/appSettings/appSettings.js';
 import { renderFab } from '../components/fab/fab.js';
 import { renderHeroCards } from '../components/equipment/heroCardDisplay.js';
@@ -35,7 +34,6 @@ export function renderApp(state) {
     const incomeSources = state.derived.incomeSources;
 
     renderTabs(state.activeTab);
-    renderModeToggle(state.uiSettings);
     renderAppSettings(state.uiSettings);
     renderFab(state.lastPlayerTag);
     renderPlanner(state.planner);

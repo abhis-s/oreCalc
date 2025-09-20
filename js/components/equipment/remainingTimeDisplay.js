@@ -13,9 +13,9 @@ export function renderRemainingTime(remainingTime) {
                 timeElements.shiny.months.textContent = remainingTime.shiny.months;
                 timeElements.shiny.days.textContent = remainingTime.shiny.days;
             } else {
-                timeElements.shiny.years.textContent = "N/A";
-                timeElements.shiny.months.textContent = "";
-                timeElements.shiny.days.textContent = "";
+                timeElements.shiny.years.textContent = "0";
+                timeElements.shiny.months.textContent = "0";
+                timeElements.shiny.days.textContent = "0";
             }
         }
         if (dateElements.shiny) {
@@ -30,9 +30,9 @@ export function renderRemainingTime(remainingTime) {
                 timeElements.glowy.months.textContent = remainingTime.glowy.months;
                 timeElements.glowy.days.textContent = remainingTime.glowy.days;
             } else {
-                timeElements.glowy.years.textContent = "N/A";
-                timeElements.glowy.months.textContent = "";
-                timeElements.glowy.days.textContent = "";
+                timeElements.glowy.years.textContent = "0";
+                timeElements.glowy.months.textContent = "0";
+                timeElements.glowy.days.textContent = "0";
             }
         }
         if (dateElements.glowy) {
@@ -47,9 +47,9 @@ export function renderRemainingTime(remainingTime) {
                 timeElements.starry.months.textContent = remainingTime.starry.months;
                 timeElements.starry.days.textContent = remainingTime.starry.days;
             } else {
-                timeElements.starry.years.textContent = "N/A";
-                timeElements.starry.months.textContent = "";
-                timeElements.starry.days.textContent = "";
+                timeElements.starry.years.textContent = "0";
+                timeElements.starry.months.textContent = "0";
+                timeElements.starry.days.textContent = "0";
             }
         }
         if (dateElements.starry) {

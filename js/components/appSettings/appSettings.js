@@ -82,6 +82,18 @@ export function initializeAppSettings() {
         });
     }
 
+    const enableLevelInputToggle = dom.equipment?.enableLevelInputToggle;
+
+    if (enableLevelInputToggle) {
+        enableLevelInputToggle.checked = state.uiSettings.enableLevelInput;
+
+        enableLevelInputToggle.addEventListener('change', (e) => {
+            handleStateUpdate(() => {
+                state.uiSettings.enableLevelInput = e.target.checked;
+            });
+        });
+    }
+
     if (resetDataButton) {
         resetDataButton.addEventListener('click', () => {
             if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
@@ -162,6 +174,7 @@ export function renderAppSettings(uiSettings) {
     const currencySelect = dom.appSettings?.currencySelect;
     const languageSelect = dom.appSettings?.languageSelect;
     const regionalPricingToggle = dom.appSettings?.regionalPricingToggle;
+    const enableLevelInputToggle = dom.equipment?.enableLevelInputToggle;
 
     if (currencySelect) {
         currencySelect.value = uiSettings.currency;
@@ -174,5 +187,10 @@ export function renderAppSettings(uiSettings) {
     if (regionalPricingToggle) {
         regionalPricingToggle.checked = uiSettings.regionalPricingEnabled;
     }
+
+    if (enableLevelInputToggle) {
+        enableLevelInputToggle.checked = uiSettings.enableLevelInput;
+    }
+
     updateRegionalPricingVisibility();
 }

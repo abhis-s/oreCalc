@@ -5,7 +5,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
     const container = dom.equipment.heroesContainer;
     if (!container) return;
 
-    const isTweakMode = uiSettings.mode === 'tweak';
+    const isLevelInputEnabled = uiSettings.enableLevelInput === true;
 
     for (const heroName in heroesState) {
         const heroState = heroesState[heroName];
@@ -23,10 +23,10 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             const equipItem = heroCard.querySelector(`[data-equip-name="${equipName}"]`);
             if (!equipItem) continue;
 
-            const easeElement = equipItem.querySelector('[data-mode="ease"]');
-            const tweakElement = equipItem.querySelector('[data-mode="tweak"]');
+            const upgradeBtnDisplay = equipItem.querySelector('[data-mode="input-disabled"]');
+            const inputContainerDisplay = equipItem.querySelector('[data-mode="input-enabled"]');
             const levelDisplay = equipItem.querySelector('.level-display');
-            const tweakInput = equipItem.querySelector('input[type="number"]');
+            const levelInput = equipItem.querySelector('input[type="number"]');
             const upgradeButton = equipItem.querySelector('.upgrade-btn');
             const label = equipItem.querySelector('label');
             const equipmentImage = equipItem.querySelector('.equipment-image');
@@ -34,9 +34,9 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             equipmentImage.classList.toggle('grayscale', !equipState.checked);
 
             if (levelDisplay) levelDisplay.textContent = equipState.level;
-            if (tweakInput) tweakInput.value = equipState.level;
+            if (levelInput) levelInput.value = equipState.level;
 
-            const maxLevel = parseInt(tweakInput?.max || upgradeButton?.dataset.maxLevel, 10);
+            const maxLevel = parseInt(levelInput?.max || upgradeButton?.dataset.maxLevel, 10);
             const isMaxLevel = equipState.level >= maxLevel;
 
             label.classList.toggle('gold-glow', isMaxLevel);
@@ -56,8 +56,8 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             label.classList.toggle('over-leveled-glow', isOverLeveled);
             equipmentImage.classList.toggle('over-leveled-glow', isOverLeveled);
 
-            if (easeElement) easeElement.style.display = isTweakMode ? 'none' : 'flex';
-            if (tweakElement) tweakElement.style.display = isTweakMode ? 'block' : 'none';
+            if (upgradeBtnDisplay) upgradeBtnDisplay.style.display = isLevelInputEnabled ? 'none' : 'flex';
+            if (inputContainerDisplay) inputContainerDisplay.style.display = isLevelInputEnabled ? 'block' : 'none';
         }
     }
 }
