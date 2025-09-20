@@ -1,6 +1,7 @@
 import { dom } from '../../dom/domElements.js';
 import { heroData } from '../../data/appData.js';
 import { updatePageDots } from './heroPlannerCarouselDisplay.js'; 
+import { translate } from '../../i18n/translator.js';
 
 let currentHeroIndex = 0; 
 
@@ -46,8 +47,8 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
             return `
                 <div class="equipment-item-planner" data-equip-name="${equip.name}">
                     <div class="equipment-info">
-                        <img src="${equip.image}" alt="${equip.name}" class="equipment-image ${goldGlowClass} ${overLeveledGlowClass} ${grayscaleClass}">
-                        <span class="${goldGlowClass} ${overLeveledGlowClass} ${equipTypeClass}">${equip.name}</span>
+                        <img src="${equip.image}" alt="${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}" class="equipment-image ${goldGlowClass} ${overLeveledGlowClass} ${grayscaleClass}">
+                        <span class="${goldGlowClass} ${overLeveledGlowClass} ${equipTypeClass}">${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}</span>
                     </div>
                     <label class="switch">
                         <input type="checkbox" id="${equipId}" ${isEquipChecked ? 'checked' : ''}>
@@ -63,7 +64,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
             <div class="hero-page" data-hero-name="${hero.name}">
                 <div class="hero-header-section">
                     <div class="hero-info-and-name">
-                        <img src="${hero.image}" alt="${hero.name}" class="hero-icon-planner">
+                                                <img src="${hero.image}" alt="${translate(hero.name.toLowerCase().replace(/\s/g, '_'))}" class="hero-icon-planner">
                     </div>
                     <div class="hero-toggle-switch">
                         <label class="switch large-switch">

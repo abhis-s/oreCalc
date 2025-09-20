@@ -1,6 +1,7 @@
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { addValidation } from '../../utils/inputValidator.js';
+import { translate } from '../../i18n/translator.js';
 
 let currentEquipment = null;
 
@@ -185,18 +186,18 @@ export function createLevelSelectModal() {
         <div id="level-select-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Set Target Levels for <span id="level-select-modal-equip-name"></span></h2>
+                    <h2>${translate('set_target_levels_for')} <span id="level-select-modal-equip-name"></span></h2>
                     <button id="close-level-select-modal-btn" class="close-button">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <p>Current level: <span id="current-equipment-level"></span></p>
+                    <p>${translate('current_level_colon')} <span id="current-equipment-level"></span></p>
                     <table id="level-select-table">
                         <thead>
                             <tr>
-                                <th>Enable</th>
-                                <th>Step</th>
-                                <th>Level</th>
-                                <th>Trash</th>
+                                <th>${translate('enable')}</th>
+                                <th>${translate('step')}</th>
+                                <th>${translate('level')}</th>
+                                <th>${translate('trash')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -205,7 +206,7 @@ export function createLevelSelectModal() {
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button id="level-select-modal-save-btn" class="btn btn-primary">Save</button>
+                    <button id="level-select-modal-save-btn" class="btn btn-primary">${translate('action_save')}</button>
                 </div>
             </div>
         </div>
@@ -236,7 +237,7 @@ export function openLevelSelectModal(hero, equipment) {
     const modal = document.getElementById('level-select-modal');
     const equipNameSpan = document.getElementById('level-select-modal-equip-name');
 
-    equipNameSpan.textContent = equipment.name;
+    equipNameSpan.textContent = translate(equipment.name.toLowerCase().replace(/\s/g, '_'));
     const currentLevelSpan = document.getElementById('current-equipment-level');
 
     const rows = document.querySelectorAll('#level-select-table tbody tr');

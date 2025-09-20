@@ -89,9 +89,21 @@ export function getIncomeDOMElements() {
                     starry: document.getElementById('home-result-quantity-starry'),
                 },
                 time: {
-                    shiny: document.getElementById('home-result-time-shiny'),
-                    glowy: document.getElementById('home-result-time-glowy'),
-                    starry: document.getElementById('home-result-time-starry'),
+                    shiny: {
+                        years: document.getElementById('home-result-time-shiny-years'),
+                        months: document.getElementById('home-result-time-shiny-months'),
+                        days: document.getElementById('home-result-time-shiny-days'),
+                    },
+                    glowy: {
+                        years: document.getElementById('home-result-time-glowy-years'),
+                        months: document.getElementById('home-result-time-glowy-months'),
+                        days: document.getElementById('home-result-time-glowy-days'),
+                    },
+                    starry: {
+                        years: document.getElementById('home-result-time-starry-years'),
+                        months: document.getElementById('home-result-time-starry-months'),
+                        days: document.getElementById('home-result-time-starry-days'),
+                    },
                 },
                 date: {
                     shiny: document.getElementById('home-result-date-shiny'),

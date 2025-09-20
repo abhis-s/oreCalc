@@ -17,11 +17,6 @@
         word-break: break-all;
         width: fit-content;
     }
-
-    .small-btn {
-        padding: 8px 12px;
-        font-size: var(--font-size-sm);
-    }
 }
 
 .id-child-fields {
@@ -52,4 +47,20 @@
     row-gap: 20px;
     column-gap: 20px;
     grid-template-columns: 1fr 1fr;
+}
+
+.settings-card--responsive {
+    padding: 20px !important;
+
+    .animated-btn {
+        min-width: 60px;
+        .animated-btn-text {
+            display: none;
+        }
+
+        .animated-btn-icon-wrapper {
+            transform: translateY(0);
+            transition: none;
+        }
+    }
 }

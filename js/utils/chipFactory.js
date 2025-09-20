@@ -1,8 +1,10 @@
 import { incomeData } from '../data/incomeChipData.js';
 import { getScheduleDates } from './dateUtils.js';
 import { state } from '../core/state.js';
+import { translate } from '../i18n/translator.js';
+import { formatNumber } from './numberFormatter.js';
 
-function createIncomeChip(text, className, data, month, year, id = null) {
+export function createIncomeChip(text, className, data, month, year, id = null) {
     const chip = document.createElement('div');
     const monthStr = String(month + 1).padStart(2, '0');
     const instanceStr = String(data.instance || 'monthly').padStart(2, '0');
@@ -42,25 +44,25 @@ function createIncomeChip(text, className, data, month, year, id = null) {
 
     const chipName = document.createElement('div');
     const displayName = incomeData[data.type]?.name || data.type;
-    chipName.textContent = displayName;
+    chipName.textContent = translate(displayName.toLowerCase().replace(/\s/g, '_'));
     tooltipContent.appendChild(chipName);
 
     if (chipData.shiny !== undefined) {
         const shinyOre = document.createElement('div');
         shinyOre.classList.add('ore-count-item');
-        shinyOre.innerHTML = `<span>${chipData.shiny}</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-icon-small">`;
+        shinyOre.innerHTML = `<span>${formatNumber(chipData.shiny)}</span> <img src="assets/shiny_ore.png" alt="${translate('shiny_ore')}" class="ore-icon-small">`;
         tooltipContent.appendChild(shinyOre);
     }
     if (chipData.glowy !== undefined) {
         const glowyOre = document.createElement('div');
         glowyOre.classList.add('ore-count-item');
-        glowyOre.innerHTML = `<span>${chipData.glowy}</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-icon-small">`;
+        glowyOre.innerHTML = `<span>${formatNumber(chipData.glowy)}</span> <img src="assets/glowy_ore.png" alt="${translate('glowy_ore')}" class="ore-icon-small">`;
         tooltipContent.appendChild(glowyOre);
     }
     if (chipData.starry !== undefined) {
         const starryOre = document.createElement('div');
         starryOre.classList.add('ore-count-item');
-        starryOre.innerHTML = `<span>${chipData.starry}</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-icon-small">`;
+        starryOre.innerHTML = `<span>${formatNumber(chipData.starry)}</span> <img src="assets/starry_ore.png" alt="${translate('starry_ore')}" class="ore-icon-small">`;
         tooltipContent.appendChild(starryOre);
     }
 
@@ -188,7 +190,7 @@ function createIncomeChip(text, className, data, month, year, id = null) {
     return chip;
 }
 
-function createOverflowChip(count, aggregatedData, type, className) {
+export function createOverflowChip(count, aggregatedData, type, className) {
     const chip = document.createElement('div');
     chip.classList.add('income-chip', 'overflow-chip', className);
     chip.textContent = `+${count}`;
@@ -207,25 +209,25 @@ function createOverflowChip(count, aggregatedData, type, className) {
 
     const chipName = document.createElement('div');
     const displayName = incomeData[type]?.name || type;
-    chipName.textContent = `${count} more of ${displayName}`;
+    chipName.textContent = translate('more_of', { count: count, displayName: translate(displayName.toLowerCase().replace(/\s/g, '_')) });
     tooltipContent.appendChild(chipName);
 
     if (aggregatedData.shiny !== undefined) {
         const shinyOre = document.createElement('div');
         shinyOre.classList.add('ore-count-item');
-        shinyOre.innerHTML = `<span>${aggregatedData.shiny}</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-icon-small">`;
+        shinyOre.innerHTML = `<span>${aggregatedData.shiny}</span> <img src="assets/shiny_ore.png" alt="${translate('shiny_ore')}" class="ore-icon-small">`;
         tooltipContent.appendChild(shinyOre);
     }
     if (aggregatedData.glowy !== undefined) {
         const glowyOre = document.createElement('div');
         glowyOre.classList.add('ore-count-item');
-        glowyOre.innerHTML = `<span>${aggregatedData.glowy}</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-icon-small">`;
+        glowyOre.innerHTML = `<span>${aggregatedData.glowy}</span> <img src="assets/glowy_ore.png" alt="${translate('glowy_ore')}" class="ore-icon-small">`;
         tooltipContent.appendChild(glowyOre);
     }
     if (aggregatedData.starry !== undefined) {
         const starryOre = document.createElement('div');
         starryOre.classList.add('ore-count-item');
-        starryOre.innerHTML = `<span>${aggregatedData.starry}</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-icon-small">`;
+        starryOre.innerHTML = `<span>${aggregatedData.starry}</span> <img src="assets/starry_ore.png" alt="${translate('starry_ore')}" class="ore-icon-small">`;
         tooltipContent.appendChild(starryOre);
     }
 
@@ -242,7 +244,7 @@ function createOverflowChip(count, aggregatedData, type, className) {
     return chip;
 }
 
-function renderIncomeChipsLegend(legendContainer) {
+export function renderIncomeChipsLegend(legendContainer) {
     if (!legendContainer) {
         console.error('Income chips legend container not found.');
         return;
@@ -262,11 +264,9 @@ function renderIncomeChipsLegend(legendContainer) {
 
         const legendTextSpan = document.createElement('span');
         legendTextSpan.classList.add('legend-text');
-        legendTextSpan.textContent = item.name;
+        legendTextSpan.textContent = translate(item.name.toLowerCase().replace(/\s/g, '_'));
         legendItemDiv.appendChild(legendTextSpan);
 
         legendContainer.appendChild(legendItemDiv);
     }
 }
-
-export { createIncomeChip, renderIncomeChipsLegend, createOverflowChip };

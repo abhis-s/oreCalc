@@ -3,8 +3,34 @@ import { initializeOfferGrid, renderOfferGrid } from '../common/offerGrid.js';
 import { currencySymbols, currencyConversionRates, shopOfferData } from '../../data/appData.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
+import { translate } from '../../i18n/translator.js';
+import { formatNumber, formatCurrency } from '../../utils/numberFormatter.js';
 
 let isResponsive = false;
+
+function renderShopOfferSelectorContent() {
+    const selector = dom.income?.shopOffers?.dropdown;
+    if (!selector) return;
+
+    const selectedValue = selector.value;
+    selector.innerHTML = '';
+
+    for (const key in shopOfferData) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = (() => {
+            if (key === 'none') {
+                return translate('none');
+            } else if (shopOfferData[key] && shopOfferData[key].townHallLevel !== undefined) {
+                return translate(`TH${shopOfferData[key].townHallLevel}_Set`);
+            } else {
+                return key;
+            }
+        })();
+        selector.appendChild(option);
+    }
+    selector.value = selectedValue;
+}
 
 function renderShopOfferRow(offer, offerState) {
     const row = document.createElement('div');
@@ -29,14 +55,14 @@ function renderShopOfferRow(offer, offerState) {
     }
 
     currencyValue = currencyValue || 0.00;
-        costDisplay.innerHTML = `<span>${currencySymbol} ${currencyValue.toFixed(2)}</span>`;
+        costDisplay.innerHTML = `<span>${currencySymbol} ${formatCurrency(currencyValue)}</span>`;
 
     const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
     const oreValue = offer.shiny || offer.glowy || offer.starry;
     const oreImage = `assets/${oreType}_ore.png`;
     const oreDisplay = document.createElement('div');
     oreDisplay.className = 'offer-ore-display';
-    oreDisplay.innerHTML = `<span>${oreValue.toLocaleString()}</span><img src="${oreImage}" alt="${oreType} ore" class="ore-image">`;
+    oreDisplay.innerHTML = `<span>${formatNumber(Math.round(oreValue))}</span><img src="${oreImage}" alt="${translate(`${oreType}_ore`)}" class="ore-image">`;
 
     row.appendChild(costDisplay);
     row.appendChild(oreDisplay);
@@ -90,26 +116,13 @@ export function initializeShopOffers() {
     const container = dom.income?.shopOffers?.checkboxes;
     if (!selector || !container) return;
 
-    selector.innerHTML = '';
-
-    for (const key in shopOfferData) {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = (() => {
-            if (key === 'none') {
-                return 'None';
-            } else if (shopOfferData[key] && shopOfferData[key].townHallLevel !== undefined) {
-                return `TH${shopOfferData[key].townHallLevel} Set`;
-            } else {
-                return key;
-            }
-        })();
-        selector.appendChild(option);
-    }
+    renderShopOfferSelectorContent();
 
     selector.addEventListener('change', (e) => {
         handleStateUpdate(() => { state.income.shopOffers.selectedSet = e.target.value; });
     });
+
+    document.addEventListener('languageChanged', renderShopOfferSelectorContent);
 
     initializeOfferGrid({
         container,

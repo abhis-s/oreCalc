@@ -37,10 +37,18 @@
     align-items: center;
     display: flex;
     margin-bottom: 15px;
+    overflow: hidden; /* Add this to contain the h3 */
+
+    h3 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     .hero-icon {
         border-radius: 50%;
         cursor: pointer;
+        flex-shrink: 0; /* Prevent icon from shrinking */
         height: 50px;
         margin-right: 15px;
         width: 50px;

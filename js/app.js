@@ -13,8 +13,8 @@ import { initializeHeroCards } from './components/equipment/heroCard.js';
 import { initializePlayerDropdown } from './components/player/playerDropdown.js';
 import { initializePlayerModal } from './components/player/playerModal.js';
 import { initializeFab } from './components/fab/fab.js';
-import { initializeModeToggle } from './components/layout/modeToggle.js';
 import { initializeAppSettings } from './components/appSettings/appSettings.js';
+import { initializeSettingsCardObserver } from './components/appSettings/settingsCardObserver.js';
 import { initializePlanner } from './components/planner/planner.js';
 import { initializePriorityListModal } from './components/planner/priorityListModal.js';
 
@@ -31,16 +31,48 @@ import { initializeIncomeCardObserver } from './components/income/incomeCardObse
 import { initializeResponsiveTextHandler } from './utils/responsiveTextHandler.js';
 import { initializeCloudSaveButtons } from './utils/cloudSaveHandler.js';
 import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
+import { loadTranslations, translate } from './i18n/translator.js';
 
 import './console.js';
 
 let userId = localStorage.getItem('oreCalcUserId');
+
+function updateUIWithTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        element.innerHTML = translate(key);
+    });
+    document.documentElement.lang = state.uiSettings.language;
+    document.dispatchEvent(new CustomEvent('languageChanged'));
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     initializeDOMElements();
 
     const savedState = await initializeAppData();
     initializeState(savedState);
+
+    let initialLanguage = state.uiSettings.language;
+
+    if (!initialLanguage || initialLanguage === 'auto') {
+        console.log('Detecting language...');
+        const browserLanguage = navigator.language || navigator.languages[0];
+        if (browserLanguage && browserLanguage.startsWith('de')) {
+            console.log('Detected language: German');
+            initialLanguage = 'de';
+        } else {
+            initialLanguage = 'en';
+        }
+    }
+    state.uiSettings.language = initialLanguage;
+
+    await loadTranslations('en');
+
+    if (state.uiSettings.language !== 'en') {
+        await loadTranslations(state.uiSettings.language);
+    }
+
+    updateUIWithTranslations();
 
     recalculateAll(state);
 
@@ -54,8 +86,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializePlayerDropdown();
     initializePlayerModal();
     initializeFab();
-    initializeModeToggle();
     initializeAppSettings();
+    initializeSettingsCardObserver();
     initializePlanner();
     initializePriorityListModal();
     initializeStarBonusSelector();

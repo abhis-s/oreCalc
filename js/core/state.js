@@ -30,13 +30,13 @@ export function getDefaultState() {
         playerData: null,
 
         uiSettings: {
-            mode: 'ease',
             currency: 'USD',
             regionalPricingEnabled: false,
-            language: 'en',
+            language: 'auto',
             incomeTimeframe: 'monthly',
             incomeCardExpanded: false,
             activeTab: 'home-tab',
+            enableLevelInput: false,
         },
 
         heroes: initializeHeroesState(),
@@ -414,13 +414,18 @@ export function initializeState(savedState) {
                 key === 'income' ||
                 key === 'playerData' ||
                 key === 'allPlayersData' ||
-                key === 'planner' ||
-                key === 'uiSettings'
+                key === 'planner'
             ) {
                 continue;
             }
             Object.assign(state, { [key]: savedState[key] });
         }
+
+        // Explicitly merge uiSettings to ensure deep merge
+        Object.assign(
+            state.uiSettings,
+            savedState.uiSettings
+        );
 
         if (state.activeTab === undefined) {
             state.activeTab = 'home-tab';

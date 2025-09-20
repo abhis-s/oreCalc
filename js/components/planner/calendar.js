@@ -4,6 +4,9 @@ import { state, getISOWeekNumber } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { createIncomeChip } from '../../utils/chipFactory.js';
 import { calculateCumulativeOres, reindexCalendarChips } from '../../utils/chipManager.js';
+import { translate } from '../../i18n/translator.js';
+import { formatNumber } from '../../utils/numberFormatter.js';
+import { formatDate, getShortDayNames } from '../../utils/dateFormatter.js';
 
 const calendarContainer = document.getElementById('calendar-container');
 const calendarTrack = document.getElementById('calendar-track');
@@ -49,7 +52,8 @@ function createDayCell(date, plannerState) {
     if (currentView === 'weekly') {
         const dayInfo = document.createElement('div');
         dayInfo.classList.add('day-info');
-        dayInfo.innerHTML = `${date.toLocaleString('default', { weekday: 'short' })} <strong>${date.getUTCDate()}</strong>`;
+        const formattedDay = formatDate(date, { weekday: 'short' });
+        dayInfo.innerHTML = `${formattedDay} <strong>${date.getUTCDate()}</strong>`;
         dayCell.appendChild(dayInfo);
     } else {
         const dateDisplay = document.createElement('div');
@@ -112,7 +116,7 @@ function generateMonthGrid(dateForMonth, plannerState) {
     const year = dateForMonth.getUTCFullYear();
     const month = dateForMonth.getUTCMonth();
 
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayNames = getShortDayNames();
     dayNames.forEach(day => {
         const dayNameCell = document.createElement('div');
         dayNameCell.classList.add('day-name');
@@ -183,7 +187,9 @@ export function renderCalendar(plannerState) {
         calendarTrack.appendChild(nextMonthGrid);
 
         positionTrackAtIndex(1);
-        currentMonthYearHeader.textContent = `${currentDate.toLocaleString('default', { month: 'long' })} ${currentYear}`;
+        // move the translation logic from locale to date formatter
+
+        currentMonthYearHeader.textContent = formatDate(currentDate, { month: 'long', year: 'numeric' });
         renderIncomeChips(currentYear, currentMonth);
     } else if (currentView === 'weekly') {
         calendarTrack.classList.add('weekly-view-grid');
@@ -212,9 +218,9 @@ export function renderCalendar(plannerState) {
         calendarTrack.appendChild(nextWeekGrid);
 
         positionTrackAtIndex(1);
-        
-        const startMonth = currentWeekStartDate.toLocaleString('default', { month: 'short' });
-        currentMonthYearHeader.textContent = `Week ${currentWeek} of ${currentYear} (${startMonth})`
+
+        const monthName = formatDate(currentWeekStartDate, { month: 'short' });
+        currentMonthYearHeader.textContent = translate('week_of_year', { week: currentWeek, year: currentYear, month: monthName });
         renderIncomeChips(currentYear, currentWeekStartDate.getUTCMonth());
     }
     updateActiveChip();
@@ -450,8 +456,10 @@ function renderMonthChips() {
             chip.classList.add('month-chip');
             const monthDate = new Date(Date.UTC(year, month - 1, 1));
             const monthNameSpan = document.createElement('span'); 
-            monthNameSpan.classList.add('month-name'); 
-            monthNameSpan.textContent = monthDate.toLocaleString('default', { month: 'short' });
+            monthNameSpan.classList.add('month-name');
+            const monthName = formatDate(monthDate, { month: 'short' });
+            monthNameSpan.textContent = monthName;
+
             chip.appendChild(monthNameSpan); 
             chip.dataset.year = year;
             chip.dataset.month = String(month).padStart(2, '0');
@@ -629,15 +637,15 @@ function handleDayCellMouseEnter(e) {
     if (targetDate < today) return;
 
     const cumulativeOres = calculateCumulativeOres(targetDate, state.storedOres);
-    const formattedDate = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(targetDate);
+    const formattedDate = formatDate(targetDate, { month: 'short', day: 'numeric', weekday: 'short' });
 
     const tooltip = document.createElement('div');
     tooltip.classList.add('ore-tooltip');
     tooltip.innerHTML = `
         <div class="tooltip-header">${formattedDate}</div>
-        <div class="ore-count-item"><span>${cumulativeOres.shiny}</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-icon-small"></div>
-        <div class="ore-count-item"><span>${cumulativeOres.glowy}</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-icon-small"></div>
-        <div class="ore-count-item"><span>${cumulativeOres.starry}</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-icon-small"></div>
+        <div class="ore-count-item"><span>${formatNumber(cumulativeOres.shiny)}</span> <img src="assets/shiny_ore.png" alt="${translate('shiny_ore')}" class="ore-icon-small"></div>
+        <div class="ore-count-item"><span>${formatNumber(cumulativeOres.glowy)}</span> <img src="assets/glowy_ore.png" alt="${translate('glowy_ore')}" class="ore-icon-small"></div>
+        <div class="ore-count-item"><span>${formatNumber(cumulativeOres.starry)}</span> <img src="assets/starry_ore.png" alt="${translate('starry_ore')}" class="ore-icon-small"></div>
     `;
     dayCell.appendChild(tooltip);
 }
@@ -665,8 +673,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    renderMonthChips();
-
     deleteCurrentMonthChipsBtn.addEventListener('click', () => {
         handleStateUpdate(() => {
             const [month, year] = state.planner.calendar.view.month.split('-');
@@ -683,5 +689,10 @@ document.addEventListener('DOMContentLoaded', () => {
             state.planner.calendar.dates = {};
         });
         renderCalendar(state.planner);
+    });
+
+    document.addEventListener('languageChanged', () => {
+        renderCalendar(state.planner);
+        renderMonthChips();
     });
 });

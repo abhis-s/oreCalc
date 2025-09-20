@@ -106,6 +106,36 @@
     }
 }
 
+#copy-user-id-btn {
+    background-color: $color-success-200;
+    box-shadow: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &::-moz-focus-inner {
+        border: 0;
+    }
+
+    &:hover {
+        background-color: $color-success-500;
+    }
+}
+
+#import-user-data-btn {
+    background-color: $color-warning-200;
+    box-shadow: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &::-moz-focus-inner {
+        border: 0;
+    }
+
+    &:hover {
+        background-color: $color-warning-500;
+    }
+}
+
 .reset-data-button {
     background-color: $color-danger-200;
     box-shadow: none;

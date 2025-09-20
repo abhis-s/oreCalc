@@ -1,3 +1,5 @@
+import { translate } from '../i18n/translator.js';
+
 export function addValidation(inputElement, { inputName = 'value' }) {
     if (!inputElement) return;
 
@@ -25,12 +27,12 @@ export function addValidation(inputElement, { inputName = 'value' }) {
         if (event.key === 'ArrowUp') {
             if (currentValue >= max) {
                 event.preventDefault();
-                showDialog(`Max: ${max}`, 'warning');
+                showDialog(translate('validation_max_value', { max: max }), 'warning');
             }
         } else if (event.key === 'ArrowDown') {
             if (currentValue <= min) {
                 event.preventDefault();
-                showDialog(`Min: ${min}`, 'warning');
+                showDialog(translate('validation_min_value', { min: min }), 'warning');
             }
         } else {
             event.target.classList.remove('warning-border', 'error-border');
@@ -48,7 +50,7 @@ export function addValidation(inputElement, { inputName = 'value' }) {
 
         if (maxLength > 0 && value.length > maxLength) {
             value = value.slice(0, maxLength);
-            showDialog(`Max length is ${maxLength} digits.`, 'warning');
+            showDialog(translate('validation_max_length', { maxLength: maxLength }), 'warning');
         }
         
         event.target.value = value;
@@ -66,7 +68,7 @@ export function addValidation(inputElement, { inputName = 'value' }) {
         let currentValue = parseInt(value, 10);
 
         if (isNaN(currentValue) || currentValue < min || currentValue > max) {
-            showDialog(`Invalid. Reverting to last valid value.`, 'error');
+            showDialog(translate('validation_invalid_revert'), 'error');
             currentValue = parseInt(inputElement.dataset.lastValidValue, 10);
         } else {
             event.target.classList.remove('warning-border', 'error-border');

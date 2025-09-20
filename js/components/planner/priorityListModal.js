@@ -1,9 +1,11 @@
+import { formatDate } from '../../utils/dateFormatter.js';
 import { heroData } from '../../data/heroData.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { openLevelSelectModal } from './levelSelectModal.js';
 import { calculateCompletionDates } from '../../utils/predictionCalculator.js';
 import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
+import { translate } from '../../i18n/translator.js';
 
 let isAutoPlacing = false;
 let autoPlaceTimeoutId = null;
@@ -109,7 +111,7 @@ function renderPriorityEditor() {
         <div class="priority-editor-container">
             <div id="priority-list-error-container" class="priority-list-error-message"></div>
             <div class="equipment-chip-container">
-                <h3>Add an upgrade plan</h3>
+                <h3 data-i18n="add_an_upgrade_plan">${translate('add_an_upgrade_plan')}</h3>
                 <div class="hero-equipment-grid"></div>
             </div>
             <div id="priority-list-editor" class="priority-list-editor">
@@ -132,8 +134,8 @@ function renderPriorityEditor() {
         const heroChip = document.createElement('div');
         heroChip.classList.add('hero-chip');
         heroChip.innerHTML = `
-            <img src="${hero.image}" alt="${hero.name}" class="hero-chip-icon">
-            <span>${hero.name}</span>
+            <img src="${hero.image}" alt="${translate(hero.name.toLowerCase().replace(/\s/g, '_'))}" class="hero-chip-icon">
+            <span>${translate(hero.name.toLowerCase().replace(/\s/g, '_'))}</span>
         `;
         heroColumn.appendChild(heroChip);
 
@@ -149,8 +151,8 @@ function renderPriorityEditor() {
                 chip.classList.add('equipment-chip');
                 chip.dataset.equipName = equip.name;
                 chip.innerHTML = `
-                    <img src="${equip.image}" alt="${equip.name}" class="chip-icon">
-                    <span>${equip.name}</span>
+                    <img src="${equip.image}" alt="${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}" class="chip-icon">
+                    <span>${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}</span>
                 `;
                 chip.addEventListener('click', () => openLevelSelectModal(hero, equip));
 
@@ -199,7 +201,7 @@ function renderDraggableList(globalPriorityList) {
     }
 
     if (globalPriorityList.length === 0) {
-        editor.innerHTML = '<p class="placeholder-text">Your priority list is empty. Click on an equipment above to add an upgrade plan.</p>';
+        editor.innerHTML = `<p class="placeholder-text" data-i18n="priority_list_placeholder">${translate('priority_list_placeholder')}</p>`;
         return;
     }
 
@@ -220,9 +222,9 @@ function renderDraggableList(globalPriorityList) {
         if (item.error) {
             completionDateText = item.message;
         } else if (item.completionDate) {
-            completionDateText = "Complete by: " + item.completionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            completionDateText = `${translate('complete_by_colon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric', year: 'numeric' })}`;
         } else {
-            completionDateText = 'Not enough income';
+            completionDateText = translate('not_enough_income');
         }
 
         const listItem = document.createElement('div');
@@ -240,7 +242,7 @@ function renderDraggableList(globalPriorityList) {
             <div class="drag-handle"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-360v-80h640v80H160Zm0-160v-80h640v80H160Z"/></svg></div>
             <img src="${item.image}" alt="${item.name}" class="item-image">
             <div class="item-details">
-                <span class="item-name">Step #${item.step} Lvl ${startLevel} to Lvl ${item.targetLevel}</span>
+                <span class="item-name">${translate('equipment_upgrade_step_level_range', { n: item.step, x: startLevel, y: item.targetLevel })}</span>
                 <div class="priority-item-date">${completionDateText}</div>
             </div>
             <button class="delete-item-btn">&times;</button>
@@ -320,7 +322,7 @@ function checkForStepOrderErrors(globalPriorityList) {
     listItems.forEach(item => item.classList.remove('error'));
 
     if (hasError) {
-        errorContainer.textContent = 'Warning: Some equipment steps are not in the correct order.';
+        errorContainer.textContent = translate('warn_steps_not_in_order');
         errorContainer.style.display = 'block';
 
         listItems.forEach(item => {
@@ -435,7 +437,8 @@ export function openPriorityListModal() {
     const title = document.getElementById('priority-list-modal-title');
 
     if (modal && title) {
-        title.textContent = 'Edit Priority List';
+        title.setAttribute('data-i18n', 'edit_priority_list');
+        title.textContent = translate('edit_priority_list');
         renderPriorityEditor();
         modal.classList.add('show');
         autoPlaceChipsForDateRange();

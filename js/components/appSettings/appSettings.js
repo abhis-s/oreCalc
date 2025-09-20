@@ -4,6 +4,7 @@ import { state } from '../../core/state.js';
 import { currencySymbols } from '../../data/appData.js';
 import { importUserData, triggerCloudSave } from '../../utils/cloudSaveHandler.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
+import { loadTranslations, translate } from '../../i18n/translator.js';
 
 function updateRegionalPricingVisibility() {
     const currency = state.uiSettings.currency;
@@ -17,8 +18,18 @@ function updateRegionalPricingVisibility() {
     }
 }
 
+async function updateUIWithTranslations() {
+    document.documentElement.lang = state.uiSettings.language;
+    await loadTranslations(state.uiSettings.language);
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        element.innerHTML = translate(key);
+    });
+}
+
 export function initializeAppSettings() {
     const currencySelect = dom.appSettings?.currencySelect;
+    const languageSelect = dom.appSettings?.languageSelect;
     const regionalPricingToggle = dom.appSettings?.regionalPricingToggle;
     const resetDataButton = dom.controls?.resetDataButton;
 
@@ -47,6 +58,19 @@ export function initializeAppSettings() {
         });
     });
 
+    if (languageSelect) {
+        languageSelect.addEventListener('change', (e) => {
+            const newLanguage = e.target.value;
+            handleStateUpdate(() => {
+                state.uiSettings.language = newLanguage;
+            });
+            updateUIWithTranslations().then(() => {
+                const event = new Event('languageChanged');
+                document.dispatchEvent(event);
+            });
+        });
+    }
+
     if (regionalPricingToggle) {
         regionalPricingToggle.addEventListener('change', (e) => {
             handleStateUpdate(() => {
@@ -54,6 +78,18 @@ export function initializeAppSettings() {
                 if (state.lastPlayerTag && state.allPlayersData[state.lastPlayerTag]) {
                     state.allPlayersData[state.lastPlayerTag].regionalPricingEnabled = e.target.checked;
                 }
+            });
+        });
+    }
+
+    const enableLevelInputToggle = dom.equipment?.enableLevelInputToggle;
+
+    if (enableLevelInputToggle) {
+        enableLevelInputToggle.checked = state.uiSettings.enableLevelInput;
+
+        enableLevelInputToggle.addEventListener('change', (e) => {
+            handleStateUpdate(() => {
+                state.uiSettings.enableLevelInput = e.target.checked;
             });
         });
     }
@@ -131,18 +167,30 @@ export function initializeAppSettings() {
     }
 
     updateRegionalPricingVisibility();
+    updateUIWithTranslations();
 }
 
 export function renderAppSettings(uiSettings) {
     const currencySelect = dom.appSettings?.currencySelect;
+    const languageSelect = dom.appSettings?.languageSelect;
     const regionalPricingToggle = dom.appSettings?.regionalPricingToggle;
+    const enableLevelInputToggle = dom.equipment?.enableLevelInputToggle;
 
     if (currencySelect) {
         currencySelect.value = uiSettings.currency;
     }
 
+    if (languageSelect) {
+        languageSelect.value = uiSettings.language;
+    }
+
     if (regionalPricingToggle) {
         regionalPricingToggle.checked = uiSettings.regionalPricingEnabled;
     }
+
+    if (enableLevelInputToggle) {
+        enableLevelInputToggle.checked = uiSettings.enableLevelInput;
+    }
+
     updateRegionalPricingVisibility();
 }

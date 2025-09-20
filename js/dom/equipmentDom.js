@@ -1,6 +1,7 @@
 export function getEquipmentDOMElements() {
     return {
         heroesContainer: document.getElementById('heroes-container'),
+        enableLevelInputToggle: document.getElementById('eq-enable-level-input-toggle'),
         results: {
             titleText: document.getElementById('results-title-text'),
             quantity: {

@@ -1,7 +1,7 @@
 export function calculateRemainingTime(requiredOres, monthlyIncome) {
     function formatResult(required, income) {
         if (income <= 0 || required <= 0) {
-            return { time: "N/A", date: "N/A" };
+            return { years: null, months: null, days: null, date: "N/A" };
         }
 
         const totalMonths = required / income;
@@ -12,13 +12,12 @@ export function calculateRemainingTime(requiredOres, monthlyIncome) {
         const totalDays = totalMonths * 30.44;
         const futureDate = new Date();
         futureDate.setDate(futureDate.getDate() + totalDays);
-        const day = String(futureDate.getDate()).padStart(2, '0');
-        const month = String(futureDate.getMonth() + 1).padStart(2, '0');
-        const year = String(futureDate.getFullYear()).slice(-2);
 
         return {
-            time: `${years}y ${months}m ${days}d`,
-            date: `${day}.${month}.${year}`
+            years: years,
+            months: months,
+            days: days,
+            date: futureDate
         };
     }
 

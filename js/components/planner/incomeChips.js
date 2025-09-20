@@ -6,6 +6,7 @@ import { renderCalendar } from '../planner/calendar.js';
 import { getDaysInMonth, getWeeklyOccurrences, getMonthlyOccurrences, getBimonthlyOccurrences } from '../../utils/dateUtils.js';
 import { createIncomeChip, renderIncomeChipsLegend, createOverflowChip } from '../../utils/chipFactory.js';
 import { reindexCalendarChips } from '../../utils/chipManager.js';
+import { translate } from '../../i18n/translator.js';
 
 function calculateIncomeChips(year, month) {
     const daysInCurrentMonth = getDaysInMonth(year, month);
@@ -44,7 +45,8 @@ function calculateIncomeChips(year, month) {
                 glowy: Math.round(income.glowy),
                 starry: Math.round(income.starry),
             };
-            const chip = createIncomeChip(incomeSource.name, incomeSource.className, { type: incomeSource.type, instance: i + 1, ...roundedIncome }, month, year, null);
+            const translatedName = translate(incomeSource.name.toLowerCase().replace(/\s/g, '_'));
+            const chip = createIncomeChip(translatedName, incomeSource.className, { type: incomeSource.type, instance: i + 1, ...roundedIncome }, month, year, null);
 
             if (!groupedChips[incomeSource.type]) {
                 groupedChips[incomeSource.type] = [];
@@ -139,7 +141,7 @@ export function renderIncomeChips(year, month) {
 
     if (incomeChipsContainer.children.length === 0) {
         const note = document.createElement('p');
-        note.textContent = 'All chips for this month have already been placed on the calendar.';
+        note.textContent = translate('no_more_chips_placeholder_text');
         note.classList.add('placeholder-text');
         incomeChipsContainer.appendChild(note);
     }

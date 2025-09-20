@@ -1,6 +1,8 @@
 import { heroData } from '../../data/heroData.js';
 import { state } from '../../core/state.js';
 import { openPriorityListModal, getGlobalPriorityList } from './priorityListModal.js';
+import { translate } from '../../i18n/translator.js';
+import { formatDate } from '../../utils/dateFormatter.js';
 
 export function initializePriorityList() {
     const priorityListCard = document.getElementById('priority-list-card');
@@ -12,7 +14,7 @@ export function initializePriorityList() {
     header.classList.add('priority-list-header');
 
     const title = document.createElement('h3');
-    title.textContent = 'Priority List';
+    title.textContent = translate('priority_list');
     header.appendChild(title);
 
     const editButton = document.createElement('button');
@@ -51,7 +53,7 @@ export function initializePriorityList() {
     if (priorityListToDisplay.length === 0) {
         const placeholder = document.createElement('p');
         placeholder.classList.add('placeholder-text');
-        placeholder.textContent = 'No priority items set. Click "Edit" to add some.';
+        placeholder.textContent = translate('no_priority_items');
         priorityListContainer.appendChild(placeholder);
         return;
     }
@@ -68,7 +70,7 @@ export function initializePriorityList() {
 
         const equipmentImage = document.createElement('img');
         equipmentImage.src = item.image;
-        equipmentImage.alt = item.name;
+        equipmentImage.alt = translate(item.name.toLowerCase().replace(/\s/g, '_'));
         equipmentImage.classList.add('equipment-image');
 
         const levelBox = document.createElement('div');
@@ -79,15 +81,15 @@ export function initializePriorityList() {
         imageContainer.appendChild(levelBox);
 
         const equipmentName = document.createElement('span');
-        equipmentName.textContent = `${item.name} (#${item.step})`;
+        equipmentName.textContent = translate('equipment_name_step', { equipmentName: translate(item.name.toLowerCase().replace(/\s/g, '_')), step: item.step });
 
         const completionDateText = item.completionDate ?
-            item.completionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) :
-            'Not enough income';
+            formatDate(item.completionDate, { month: 'short', day: 'numeric' }) :
+            translate('not_enough_income');
 
         const completionDateElement = document.createElement('div');
         completionDateElement.classList.add('priority-item-date');
-        completionDateElement.textContent = `Complete by: ${completionDateText}`;
+        completionDateElement.textContent = `${translate('complete_by_colon')} ${completionDateText}`;
         
         const itemTextContent = document.createElement('div');
         itemTextContent.classList.add('item-text-content');
