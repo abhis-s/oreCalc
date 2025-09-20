@@ -31,16 +31,46 @@ import { initializeIncomeCardObserver } from './components/income/incomeCardObse
 import { initializeResponsiveTextHandler } from './utils/responsiveTextHandler.js';
 import { initializeCloudSaveButtons } from './utils/cloudSaveHandler.js';
 import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
+import { loadTranslations, translate } from './i18n/translator.js';
 
 import './console.js';
 
 let userId = localStorage.getItem('oreCalcUserId');
+
+function updateUIWithTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        element.innerHTML = translate(key);
+    });
+    document.documentElement.lang = state.uiSettings.language;
+    document.dispatchEvent(new CustomEvent('languageChanged'));
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     initializeDOMElements();
 
     const savedState = await initializeAppData();
     initializeState(savedState);
+
+    let initialLanguage = state.uiSettings.language;
+
+    if (!initialLanguage || initialLanguage === 'en') {
+        const browserLanguage = navigator.language || navigator.languages[0];
+        if (browserLanguage && browserLanguage.startsWith('de')) {
+            initialLanguage = 'de';
+        } else {
+            initialLanguage = 'en';
+        }
+    }
+    state.uiSettings.language = initialLanguage;
+
+    await loadTranslations('en');
+
+    if (state.uiSettings.language !== 'en') {
+        await loadTranslations(state.uiSettings.language);
+    }
+
+    updateUIWithTranslations();
 
     recalculateAll(state);
 

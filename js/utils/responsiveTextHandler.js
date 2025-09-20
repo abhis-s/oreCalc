@@ -1,3 +1,5 @@
+import { translate } from '../i18n/translator.js';
+
 export function initializeResponsiveTextHandler() {
     const storageTitle = document.getElementById('storage-title-text');
     const resultsTitle = document.getElementById('results-title-text');
@@ -8,15 +10,15 @@ export function initializeResponsiveTextHandler() {
 
     function handleMediaQueryChange(event) {
         if (event.matches) {
-            if (storageTitle) storageTitle.textContent = 'Stored';
-            if (resultsTitle) resultsTitle.textContent = 'Required';
-            if (homeRequiredOresTitle) homeRequiredOresTitle.textContent = 'Ores';
-            if (homeRemainingTimeTitle) homeRemainingTimeTitle.textContent = 'Time';
+            if (storageTitle) storageTitle.textContent = translate('stored_short');
+            if (resultsTitle) resultsTitle.textContent = translate('required_short');
+            if (homeRequiredOresTitle) homeRequiredOresTitle.textContent = translate('ores_short');
+            if (homeRemainingTimeTitle) homeRemainingTimeTitle.textContent = translate('time_short');
         } else {
-            if (resultsTitle) resultsTitle.textContent = 'Required Ores';
-            if (storageTitle) storageTitle.textContent = 'Stored Ores';
-            if (homeRequiredOresTitle) homeRequiredOresTitle.textContent = 'Required Ores';
-            if (homeRemainingTimeTitle) homeRemainingTimeTitle.textContent = 'Remaining Time';
+            if (resultsTitle) resultsTitle.textContent = translate('required_ores');
+            if (storageTitle) storageTitle.textContent = translate('stored_ores');
+            if (homeRequiredOresTitle) homeRequiredOresTitle.textContent = translate('required_ores');
+            if (homeRemainingTimeTitle) homeRemainingTimeTitle.textContent = translate('remaining_time');
         }
     }
 

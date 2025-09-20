@@ -26,6 +26,8 @@ const urlsToCache = [
     '/js/utils/chipManager.js',
     '/js/utils/autoPlaceChips.js',
     '/js/utils/predictionCalculator.js',
+    '/js/utils/numberFormatter.js',
+    '/js/utils/dateFormatter.js',
     '/js/components/layout/tabs.js',
     '/js/components/layout/header.js',
     '/js/components/layout/modeToggle.js',
@@ -90,6 +92,9 @@ const urlsToCache = [
     '/js/app.js',
     '/js/services/apiService.js',
     '/js/services/serverResponseHandler.js',
+    '/js/i18n/translator.js',
+    '/js/i18n/en.json',
+    '/js/i18n/de.json',
 
     '/assets/app_icon_small.png',
     '/assets/app_icon_large.png',

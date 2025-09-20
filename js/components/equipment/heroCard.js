@@ -2,6 +2,7 @@ import { dom } from '../../dom/domElements.js';
 import { heroData } from '../../data/appData.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
+import { translate } from '../../i18n/translator.js';
 
 export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
     const { customMaxLevel } = plannerMaxLevels;
@@ -12,6 +13,10 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
     for (const heroKey in heroData) {
         const hero = heroData[heroKey];
         const heroState = heroesState[hero.name];
+
+        if (!heroState) {
+            continue; // Skip if heroState is not defined
+        }
 
         const equipmentHtml = hero.equipment.map(equip => {
             const maxLevel = equip.type === 'common' ? 18 : 27;
@@ -30,8 +35,8 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
 
             return `
                 <div class="equipment-item" data-equip-name="${equip.name}" data-equip-type="${equip.type}">
-                    <img src="${equip.image}" alt="${equip.name}" class="equipment-image ${grayscaleClass}" data-action="toggle-equip">
-                    <label for="${inputId}" class="${equip.type === 'common' ? 'common-equip' : 'epic-equip'}">${equip.name}</label>
+                    <img src="${equip.image}" alt="${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}" class="equipment-image ${grayscaleClass}" data-action="toggle-equip">
+                    <label for="${inputId}" class="${equip.type === 'common' ? 'common-equip' : 'epic-equip'}">${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}</label>
                     <div class="level-display-container" data-mode="ease" style="display: ${easeDisplay};">
                         <span class="level-display" id="${levelDisplayId}">${currentLevel}</span>
                         <button class="upgrade-btn" data-action="increment-level" data-max-level="${maxLevel}">
@@ -50,8 +55,8 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
         cardsHtml += `
             <div class="hero-card card ${heroDisabledClass}" data-hero-name="${hero.name}">
                 <div class="hero-title">
-                    <img src="${hero.image}" alt="${hero.name}" class="hero-icon" data-action="toggle-hero">
-                    <h3>${hero.name}</h3>
+                    <img src="${hero.image}" alt="${translate(hero.name.toLowerCase().replace(/\s/g, '_'))}" class="hero-icon" data-action="toggle-hero">
+                    <h3>${translate(hero.name.toLowerCase().replace(/\s/g, '_'))}</h3>
                 </div>
                 ${equipmentHtml}
             </div>

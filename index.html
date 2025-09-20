@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ore Calculator</title>
+    <title data-i18n="app_title">Ore Calculator</title>
     <link rel="icon" href="assets/favicon.png" type="image/x-icon">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/main.css">
@@ -25,11 +25,11 @@
         <!-- <h1>Ore Calculator</h1> -->
 
         <div class="tab-bar-container">
-            <button class="tab-button tab-button--active" data-tab="home">Home</button>
-            <button class="tab-button" data-tab="equipment">Equipment</button>
-            <button class="tab-button" data-tab="income">Income</button>
-            <button class="tab-button" data-tab="planner">Planner</button>
-            <button class="tab-button" data-tab="settings">Settings</button>
+            <button class="tab-button tab-button--active" data-tab="home" data-i18n="home">Home</button>
+            <button class="tab-button" data-tab="equipment" data-i18n="equipment">Equipment</button>
+            <button class="tab-button" data-tab="income" data-i18n="income">Income</button>
+            <button class="tab-button" data-tab="planner" data-i18n="planner">Planner</button>
+            <button class="tab-button" data-tab="settings" data-i18n="settings">Settings</button>
         </div>
         <div class="player-controls-container">
             <div class="player-dropdown-container">
@@ -39,23 +39,23 @@
                 </button>
                 <div id="player-dropdown-list" class="player-dropdown-list">
                     <div id="player-items-container"></div>
-                    <button id="add-player-button" class="add-player-button">+ Add Player</button>
+                    <button id="add-player-button" class="add-player-button" data-i18n="plus_add_player">+ Add Player</button>
                 </div>
             </div>
 
             <div id="add-player-modal">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h2>Add a New Player</h2>
+                        <h2 data-i18n="add_new_player">Add a New Player</h2>
                     </div>
                     <div class="player-name-input-container">
-                        <label for="player-tag-input-modal">Player Tag</label>
-                        <input type="text" id="player-tag-input-modal" placeholder="Enter player tag" maxlength="12">
+                        <label for="player-tag-input-modal" data-i18n="player_tag">Player Tag</label>
+                        <input type="text" id="player-tag-input-modal" placeholder="Enter player tag" maxlength="12" data-i18n-placeholder="placeholder_enter_player_tag">
                         <div id="player-tag-error-message" class="error-message"></div>
                     </div>
                     <div class="modal-actions">
-                        <button id="cancel-add-player-button" class="cancel-button">Cancel</button>
-                        <button id="load-player-modal-btn" class="add-button">Load</button>
+                        <button id="cancel-add-player-button" class="cancel-button" data-i18n="action_cancel">Cancel</button>
+                        <button id="load-player-modal-btn" class="add-button" data-i18n="action_load">Load</button>
                     </div>
                 </div>
             </div>
@@ -70,34 +70,34 @@
     <div class="navigation-drawer">
         <div class="navigation-drawer__content">
             <div class="navigation-drawer__header">
-                <h4>Tabs & Tools</h4>
+                <h4 data-i18n="navigation_drawer_title">Tabs & Tools</h4>
             </div>
             <div class="navigation-drawer__tabs">
                 <button class="navigation-drawer__tab" data-tab="home">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
                         <path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/>
                     </svg>
-                    <span>Home</span></button>
+                    <span data-i18n="home">Home</span></button>
                 <button class="navigation-drawer__tab" data-tab="equipment">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
                         <path d="m414-168 12-56q3-13 12.5-21.5T462-256l124-10q13-2 24 5t16 19l16 38q39-23 70-55.5t52-72.5l-12-6q-11-8-16-19.5t-2-24.5l28-122q3-12 12.5-20t21.5-10q-5-25-12.5-48.5T764-628q-9 5-19.5 4.5T726-630l-106-64q-11-7-16-19t-2-25l8-34q-31-14-63.5-21t-66.5-7q-14 0-29 1.5t-29 4.5l30 68q5 12 2.5 25T442-680l-94 82q-10 9-23.5 10t-24.5-6l-92-56q-23 38-35.5 81.5T160-480q0 16 4 52l88-8q14-2 25.5 4.5T294-412l48 114q5 12 2.5 25T332-252l-38 32q27 20 57.5 33t62.5 19Zm72-172q-13 2-24-5t-16-19l-54-124q-5-12-1.5-25t13.5-21l102-86q9-9 22-10t24 6l112 66q11 7 17 19t3 25l-32 130q-3 13-12 21.5T618-352l-132 12Zm-6 260q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/>
                     </svg>
-                    <span>Equipment</span></button>
+                    <span data-i18n="equipment">Equipment</span></button>
                 <button class="navigation-drawer__tab" data-tab="income">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
                         <path d="M470-320h29v-32q28-4 47.5-23t19.5-49q0-26-20-43.5T500-496v-74q10 3 16.5 10t9.5 17l36-15q-7-21-24-33.5T500-608v-32h-30v31q-28 3-47.5 20.5T403-542q0 27 20.5 45t46.5 29v79q-16-5-27-17t-15-28l-35 15q8 28 28 46t49 22v31Zm30-70v-66q11 5 19.5 12t8.5 21q0 16-8 22.5T500-390Zm-30-119q-11-5-20-12t-9-21q0-14 9-20.5t20-8.5v62ZM320-200q-117 0-198.5-81.5T40-480q0-117 81.5-198.5T320-760h320q117 0 198.5 81.5T920-480q0 117-81.5 198.5T640-200H320Zm0-80h320q83 0 141.5-58.5T840-480q0-83-58.5-141.5T640-680H320q-83 0-141.5 58.5T120-480q0 83 58.5 141.5T320-280Zm160-200Z"/>
                     </svg>
-                    <span>Income</span></button>
+                    <span data-i18n="income">Income</span></button>
                 <button class="navigation-drawer__tab" data-tab="planner">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
                         <path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v255l-80 80v-175H200v400h248l80 80H200Zm0-560h560v-80H200v80Zm0 0v-80 80ZM662-60 520-202l56-56 85 85 170-170 56 57L662-60Z"/>
                     </svg>
-                    <span>Planner</span></button>
+                    <span data-i18n="planner">Planner</span></button>
                 <button class="navigation-drawer__tab" data-tab="settings">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
                         <path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/>
                     </svg>
-                    <span>Settings</span></button>
+                    <span data-i18n="settings">Settings</span></button>
             </div>
         </div>
     </div>
@@ -108,7 +108,7 @@
             <div class="main-content">
                 <div class="left-panel">
                     <div id="home-result-quantity-card" class="card small-width-card">
-                        <h2 class="results-title"><img src="assets/ore_icon.png" alt="Ores Icon" class="title-icon"><span id="home-required-ores-title"> Required Ores</span></h2>
+                        <h2 class="results-title"><img src="assets/ore_icon.png" alt="Ores Icon" class="title-icon"><span id="home-required-ores-title" data-i18n="required_ores"> Required Ores</span></h2>
                         <div class="ores">
                             <div class="ore">
                                 <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image">
@@ -127,21 +127,33 @@
                 </div>
                 <div class="right-panel">
                     <div id="home-result-time-card" class="card small-width-card">
-                        <h2 class="results-title"><img src="assets/ore_icon.png" alt="Time Icon" class="title-icon"><span id="home-remaining-time-title"> Remaining Time</span></h2>
+                        <h2 class="results-title"><img src="assets/ore_icon.png" alt="Time Icon" class="title-icon"><span id="home-remaining-time-title" data-i18n="remaining_time"> Remaining Time</span></h2>
                         <div class="ores">
                             <div class="ore">
                                 <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image">
-                                <span id="home-result-time-shiny" class="ore-time calculated">0y 0m 0d</span>
+                                <span class="ore-time">
+                                    <span id="home-result-time-shiny-years" class="calculated">0</span><span data-i18n="years_suffix">y</span>
+                                    <span id="home-result-time-shiny-months" class="calculated">0</span><span data-i18n="months_suffix">m</span>
+                                    <span id="home-result-time-shiny-days" class="calculated">0</span><span data-i18n="days_suffix">d</span>
+                                </span>
                                 <span id="home-result-date-shiny" class="ore-date calculated">DD.MM.YY</span>
                             </div>
                             <div class="ore">
                                 <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image">
-                                <span id="home-result-time-glowy" class="ore-time calculated">0y 0m 0d</span>
+                                <span class="ore-time">
+                                    <span id="home-result-time-glowy-years" class="calculated">0</span><span data-i18n="years_suffix">y</span>
+                                    <span id="home-result-time-glowy-months" class="calculated">0</span><span data-i18n="months_suffix">m</span>
+                                    <span id="home-result-time-glowy-days" class="calculated">0</span><span data-i18n="days_suffix">d</span>
+                                </span>
                                 <span id="home-result-date-glowy" class="ore-date calculated">DD.MM.YY</span>
                             </div>
                             <div class="ore">
                                 <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image">
-                                <span id="home-result-time-starry" class="ore-time calculated">0y 0m 0d</span>
+                                <span class="ore-time">
+                                    <span id="home-result-time-starry-years" class="calculated">0</span><span data-i18n="years_suffix">y</span>
+                                    <span id="home-result-time-starry-months" class="calculated">0</span><span data-i18n="months_suffix">m</span>
+                                    <span id="home-result-time-starry-days" class="calculated">0</span><span data-i18n="days_suffix">d</span>
+                                </span>
                                 <span id="home-result-date-starry" class="ore-date calculated">DD.MM.YY</span>
                             </div>
                         </div>
@@ -151,7 +163,7 @@
             <div class="secondary-content card">
                 <div id="home-ore-income-card" class="full-width-card">
                     <div class="income-header">
-                        <h2 class="income-summary-title">Income Summary</h2>
+                        <h2 class="income-summary-title" data-i18n="income_summary">Income Summary</h2>
                 <div id="home-total-income-header" class="total-income-header">
                         <div class="ore-display-item-home-header">
                             <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"> <span id="home-table-header-ore-display-shiny" class="ore-text"></span>
@@ -165,10 +177,10 @@
                     </div>
                 <div class="income-header-controls">
                     <select id="home-income-timeframe-select" class="dropdown-style content-size-dropdown updatable">
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly" selected>Monthly</option>
-                        <option value="bimonthly">Bimonthly</option>
+                        <option value="daily" data-i18n="daily">Daily</option>
+                        <option value="weekly" data-i18n="weekly">Weekly</option>
+                        <option value="monthly" selected data-i18n="monthly">Monthly</option>
+                        <option value="bimonthly" data-i18n="bimonthly">Bimonthly</option>
                     </select>
                     <button id="toggle-income-btn" class="collapse-button collapsed">
                         <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-528 296-344l-56-56 240-240 240 240-56 56-184-184Z"/></svg>
@@ -179,70 +191,70 @@
             <div class="income-content">
                     <div class="income-table">
                     <div class="income-table-header">
-                        <div class="income-table-cell">Source</div>
+                        <div class="income-table-cell" data-i18n="source">Source</div>
                         <div class="income-table-cell"><img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                         <div class="income-table-cell"><img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                         <div class="income-table-cell"><img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
-                        <div class="income-table-cell">Resource</div>
+                        <div class="income-table-cell" data-i18n="resource">Resource</div>
                     </div>
                     <div class="income-table-row">
-                        <div class="income-table-cell">Star Bonus</div>
+                        <div class="income-table-cell" data-i18n="star_bonus">Star Bonus</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-star-bonus-shiny">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-star-bonus-glowy">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-star-bonus-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-star-bonus-resource"></div>
                     </div>
                     <div class="income-table-row">
-                        <div class="income-table-cell">Clan War</div>
+                        <div class="income-table-cell" data-i18n="clan_war">Clan War</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-clan-war-shiny">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-clan-war-glowy">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-clan-war-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-clan-war-resource"></div>
                     </div>
                     <div class="income-table-row">
-                        <div class="income-table-cell">CWL</div>
+                        <div class="income-table-cell" data-i18n="cwl">CWL</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-cwl-shiny">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-cwl-glowy">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-cwl-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-cwl-resource"></div>
                     </div>
                     <div class="income-table-row">
-                        <div class="income-table-cell">Raid Medal Trader</div>
+                        <div class="income-table-cell" data-i18n="raid_medal_trader">Raid Medal Trader</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-raid-medal-shiny">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-raid-medal-glowy">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-raid-medal-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-raid-medal-resource"></div>
                     </div>
                     <div class="income-table-row">
-                        <div class="income-table-cell">Gem Trader</div>
+                        <div class="income-table-cell" data-i18n="gem_trader">Gem Trader</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-gem-shiny">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-gem-glowy">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-gem-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-gem-resource"></div>
                     </div>
                     <div class="income-table-row">
-                        <div class="income-table-cell">Event Pass</div>
+                        <div class="income-table-cell" data-i18n="event_pass">Event Pass</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-event-pass-shiny">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-event-pass-glowy">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-event-pass-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-event-pass-resource"></div>
                     </div>
                     <div class="income-table-row">
-                        <div class="income-table-cell">Event Trader</div>
+                        <div class="income-table-cell" data-i18n="event_trader">Event Trader</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-event-trader-shiny">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-event-trader-glowy">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-event-trader-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-event-trader-resource"></div>
                     </div>
                     <div class="income-table-row">
-                        <div class="income-table-cell">Shop Offers</div>
+                        <div class="income-table-cell" data-i18n="shop_offers">Shop Offers</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-shop-offer-shiny">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-shop-offer-glowy">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-shop-offer-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-shop-offer-resource"></div>
                     </div>
                     <div class="income-table-footer">
-                        <div class="income-table-cell">Total Income</div>
+                        <div class="income-table-cell" data-i18n="total_income">Total Income</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-total-shiny">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-total-glowy">0</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-total-starry">0</div>
@@ -252,12 +264,12 @@
             </div>
             <div id="home-required-resources-container" class="required-resources-container">
                 <div class="resources-row">
-                    <span class="resource-item"><img src="assets/player_leagues/unranked_league.png" alt="League Icon" class="resource-icon calculated" id="home-display-league-icon"><span id="home-display-league-requirement" class="calculated">League: Unranked</span></span>
-                    <span class="resource-item"><img src="assets/resources/cwl.png" alt="CWL"><span id="home-display-cwl-participations" class="calculated">CWL Participations: 0</span></span>
-                    <span class="resource-item"><img src="assets/resources/clan_war.png" alt="Clan War" id="home-display-clan-icon" class="calculated"><span id="home-display-clan-war-participations" class="calculated">Clan War Participations: 0</span></span>
-                    <span class="resource-item"><img src="assets/resources/raid_medal.png" alt="Raid Medals"><span id="home-display-raid-medals" class="calculated">Raid Medals: 0</span></span>
-                    <span class="resource-item"><img src="assets/resources/event_medal.png" alt="Event Medals"><span id="home-display-event-medals" class="calculated">Event Medals: 0</span></span>
-                    <span class="resource-item"><img src="assets/resources/gem.png" alt="Gems"><span id="home-display-gems" class="calculated">Gems: 0</span></span>
+                    <span class="resource-item"><img src="assets/player_leagues/unranked_league.png" alt="League Icon" class="resource-icon calculated" id="home-display-league-icon"><span data-i18n="league_colon">League:</span><span id="home-display-league-requirement" class="calculated" data-i18n="unranked">Unranked</span></span>
+                    <span class="resource-item"><img src="assets/resources/cwl.png" alt="CWL"><span data-i18n="cwl_participations_colon">CWL Participations:</span><span id="home-display-cwl-participations" class="calculated">0</span></span>
+                    <span class="resource-item"><img src="assets/resources/clan_war.png" alt="Clan War" id="home-display-clan-icon" class="calculated"><span data-i18n="clan_war_participations_colon">Clan War Participations:</span><span id="home-display-clan-war-participations" class="calculated">0</span></span>
+                    <span class="resource-item"><img src="assets/resources/raid_medal.png" alt="Raid Medals"><span data-i18n="raid_medals_colon">Raid Medals:</span><span id="home-display-raid-medals" class="calculated">0</span></span>
+                    <span class="resource-item"><img src="assets/resources/event_medal.png" alt="Event Medals"><span data-i18n="event_medals_colon">Event Medals:</span><span id="home-display-event-medals" class="calculated">0</span></span>
+                    <span class="resource-item"><img src="assets/resources/gem.png" alt="Gems"><span data-i18n="gems_colon">Gems:</span><span id="home-display-gems" class="calculated">0</span></span>
                     <span class="resource-item"><span id="home-money-symbol" class="currency-symbol">$</span><span id="home-money-value" class="calculated">0.00</span></span>
                 </div>
             </div>
@@ -272,7 +284,7 @@
                 </div>
                 <div class="right-panel">
                     <div id="eq-results-container-card" class="equipment-card card calculated">
-                        <h2 class="results-title"><img src="assets/ore_icon.png" alt="Ores Icon" class="title-icon"><span id="results-title-text"> Required Ores</span></h2>
+                        <h2 class="results-title"><img src="assets/ore_icon.png" alt="Ores Icon" class="title-icon"><span id="results-title-text" data-i18n="required_ores">Required Ores</span></h2>
                         <div class="ores">
                             <div class="ore">
                                 <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image">
@@ -289,7 +301,7 @@
                         </div>
                     </div>
                     <div id="eq-storage-container-card" class="equipment-card card calculated">
-                        <h2 class="storage-title"><img src="assets/ore_icon.png" alt="Ores Icon" class="title-icon"><span id="storage-title-text"> Stored Ores</span></h2>
+                        <h2 class="storage-title"><img src="assets/ore_icon.png" alt="Ores Icon" class="title-icon"><span id="storage-title-text" data-i18n="stored_ores">Stored Ores</span></h2>
                         <div class="ores">
                             <div class="ore">
                                 <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image">
@@ -312,10 +324,10 @@
         <div class="tab-content" id="income-tab">
             <div class="income-cards-grid">
                 <div class="income-card card">
-                    <h2 class="income-card-title daily">Star Bonus</h2>
+                    <h2 class="income-card-title daily" data-i18n="star_bonus">Star Bonus</h2>
                     <div class="inner-card">
                         <div class="input-group-flex">
-                            <label for="inc-star-bonus-league-select">League:</label>
+                            <label for="inc-star-bonus-league-select" data-i18n="league_colon">League:</label>
                             <select id="inc-star-bonus-league-select" class="dropdown-style updatable">
                             </select>
                         </div>
@@ -324,13 +336,13 @@
                         <div class="four-col-grid">
 
                             <div class="grid-row">
-                                <div class="grid-label">Daily:</div>
+                                <div class="grid-label" data-i18n="daily_colon">Daily:</div>
                                 <div class="grid-value-display"><span id="inc-star-bonus-shiny-daily-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-star-bonus-glowy-daily-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-star-bonus-starry-daily-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
                             </div>
                             <div class="grid-row">
-                                <div class="grid-label">Monthly:</div>
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
                                 <div class="grid-value-display"><span id="inc-star-bonus-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-star-bonus-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-star-bonus-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
@@ -339,21 +351,23 @@
                     </div>
                 </div>
                 <div class="income-card card">
-                    <h2 class="income-card-title">Shop Offers</h2>
+                    <h2 class="income-card-title" data-i18n="shop_offers">Shop Offers</h2>
                     <div class="inner-card">
                         <div class="input-group-flex">
-                            <label for="inc-shop-offer-select">Month-End Shop Offer:</label>
+                            <label for="inc-shop-offer-select" data-i18n="month_end_shop_offer">Month-End Shop Offer:</label>
                             <select id="inc-shop-offer-select" class="updatable">
-                                <option value="none">None</option>
-                                <option value="TH16_Set">TH16 Set</option>
-                                <option value="TH15_Set">TH15 Set</option>
+                                <option value="none" data-i18n="none">None</option>
+                                <option value="TH16_Set" data-i18n="TH16_Set">TH16 Set</option>
+                                <option value="TH14_Set" data-i18n="TH14_Set">TH14 Set</option>
+                                <option value="TH11_Set" data-i18n="TH11_Set">TH11 Set</option>
+                                <option value="TH8_Set" data-i18n="TH8_Set">TH8 Set</option>
                             </select>
                         </div>
                     </div>
                     <div id="shop-offer-checkboxes" class="offer-grid">
                         <div class="offer-grid-header">
-                            <div class="header-cell">Cost</div>
-                            <div class="header-cell">Offer</div>
+                            <div class="header-cell" data-i18n="cost">Cost</div>
+                            <div class="header-cell" data-i18n="offer">Offer</div>
                             <div class="header-cell">1</div>
                             <div class="header-cell">2</div>
                         </div>
@@ -363,7 +377,7 @@
                         <div class="four-col-grid">
 
                             <div class="grid-row">
-                                <div class="grid-label">Cost:</div>
+                                <div class="grid-label" data-i18n="cost_colon">Cost:</div>
                                 <div class="grid-value-display"><span id="inc-shop-offer-eur-monthly-value" class="calculated">0</span> <span class="currency-symbol">€</span></div>
                                 <div class="grid-value-display"><span id="inc-shop-offer-usd-monthly-value" class="calculated">0</span> <span class="currency-symbol">$</span></div>
                                 <div class="grid-value-display"><span id="inc-shop-offer-dynamic-monthly-value" class="calculated">0</span> <span id="inc-shop-offer-dynamic-currency-symbol" class="currency-symbol"></span></div>
@@ -372,7 +386,7 @@
                         <div class="four-col-grid">
 
                             <div class="grid-row">
-                                <div class="grid-label">Monthly:</div>
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
                                 <div class="grid-value-display"><span id="inc-shop-offer-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-shop-offer-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-shop-offer-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
@@ -381,20 +395,20 @@
                     </div>
                 </div>
                 <div class="income-card card">
-                    <h2 class="income-card-title">Raid Medal Trader</h2>
+                    <h2 class="income-card-title" data-i18n="raid_medal_trader">Raid Medal Trader</h2>
                     <div id="inc-raid-medal-trader-offers" class="offer-grid">
                         <!-- Raid Medal Offers will be dynamically inserted here -->
                     </div>
                     <div class="summary-grid">
                         <div class="summary-item-container input-group-flex">
-                            <div class="summary-label">Earned:</div>
+                            <div class="summary-label" data-i18n="earned_colon">Earned:</div>
                             <div class="summary-value-with-image">
                                 <input type="number" class="updatable" id="inc-raid-medals-total-input" value="0" min="0" max="1970" maxlength="4">
                                 <img src="assets/resources/raid_medal.png" alt="Raid Medals" class="raid-medal-image ore-image">
                             </div>
                         </div>
                         <div class="summary-item-container">
-                            <div class="summary-label">Remaining:</div>
+                            <div class="summary-label" data-i18n="remaining_colon">Remaining:</div>
                             <div class="summary-value-with-image">
                                 <span id="raid-medals-remaining" class="calculated">0</span>
                                 <img src="assets/resources/raid_medal.png" alt="Raid Medals" class="raid-medal-image ore-image">
@@ -404,13 +418,13 @@
                     <div class="timeframe-income">
                         <div class="four-col-grid">
                             <div class="grid-row">
-                                <div class="grid-label">Weekly:</div>
+                                <div class="grid-label" data-i18n="weekly_colon">Weekly:</div>
                                 <div class="grid-value-display"><span id="inc-raid-medal-shiny-weekly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-raid-medal-glowy-weekly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-raid-medal-starry-weekly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
                             </div>
                             <div class="grid-row">
-                                <div class="grid-label">Monthly:</div>
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
                                 <div class="grid-value-display"><span id="inc-raid-medal-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-raid-medal-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-raid-medal-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
@@ -419,11 +433,11 @@
                     </div>
                 </div>
                 <div id="gem-trader-card" class="income-card card">
-                    <h2 class="income-card-title">Gem Trader</h2>
+                    <h2 class="income-card-title" data-i18n="gem_trader">Gem Trader</h2>
                     <div id="inc-gem-trader-offers" class="offer-grid">
                         <div class="offer-grid-header">
-                            <div class="header-cell">Cost</div>
-                            <div class="header-cell">Offer</div>
+                            <div class="header-cell" data-i18n="cost">Cost</div>
+                            <div class="header-cell" data-i18n="offer">Offer</div>
                             <div class="header-cell">1</div>
                             <div class="header-cell">2</div>
                             <div class="header-cell">3</div>
@@ -454,13 +468,13 @@
                     <div class="timeframe-income">
                         <div class="four-col-grid">
                             <div class="grid-row">
-                                <div class="grid-label">Weekly:</div>
+                                <div class="grid-label" data-i18n="weekly_colon">Weekly:</div>
                                 <div class="grid-value-display"><span id="inc-gem-shiny-weekly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-gem-glowy-weekly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-gem-starry-weekly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
                             </div>
                             <div class="grid-row">
-                                <div class="grid-label">Monthly:</div>
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
                                 <div class="grid-value-display"><span id="inc-gem-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-gem-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-gem-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
@@ -469,40 +483,40 @@
                     </div>
                 </div>
                 <div class="income-card card">
-                    <h2 class="income-card-title">Event Pass</h2>
+                    <h2 class="income-card-title" data-i18n="event_pass">Event Pass</h2>
                     <div class="inner-card">
                         <div class="input-group-flex">
-                            <label for="inc-event-pass-select">Pass Type:</label>
+                            <label for="inc-event-pass-select" data-i18n="pass_type_colon">Pass Type:</label>
                             <select id="inc-event-pass-select" class="updatable">
-                                <option value="free">Free Pass</option>
-                                <option value="event">Event Pass</option>
+                                <option value="free" data-i18n="free_pass">Free Pass</option>
+                                <option value="event" data-i18n="event_pass">Event Pass</option>
                             </select>
                         </div>
                         <div class="input-group-flex">
-                            <label for="inc-store-medals-select">Free Store Medals?</label>
+                            <label for="inc-store-medals-select" data-i18n="free_store_medals_question">Free Store Medals?</label>
                             <select id="inc-store-medals-select" class="updatable">
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="yes" data-i18n="yes"></option>
+                                <option value="no" data-i18n="no"></option>
                             </select>
                         </div>
                         <div class="input-group-flex">
-                            <label for="inc-event-equipment-bought-select">Getting the Equipment?</label>
+                            <label for="inc-event-equipment-bought-select" data-i18n="getting_the_equipment_question">Getting the Equipment?</label>
                             <select id="inc-event-equipment-bought-select" class="updatable">
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="yes" data-i18n="yes"></option>
+                                <option value="no" data-i18n="no"></option>
                             </select>
                         </div>
                     </div>
                     <div class="timeframe-income">
                         <div class="four-col-grid">
                             <div class="grid-row">
-                                <div class="grid-label">Bimonthly:</div>
+                                <div class="grid-label" data-i18n="bimonthly_colon">Bimonthly:</div>
                                 <div class="grid-value-display"><span id="inc-event-pass-shiny-bimonthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-event-pass-glowy-bimonthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-event-pass-starry-bimonthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
                             </div>
                             <div class="grid-row">
-                                <div class="grid-label">Monthly:</div>
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
                                 <div class="grid-value-display"><span id="inc-event-pass-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-event-pass-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-event-pass-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
@@ -511,12 +525,12 @@
                     </div>
                 </div>
                 <div class="income-card card">
-                    <h2 class="income-card-title">Event Trader</h2>
+                    <h2 class="income-card-title" data-i18n="event_trader">Event Trader</h2>
                     <div id="inc-event-trader-offers" class="offer-grid event-trader-grid">
                         <div class="offer-grid-header">
-                            <div class="header-cell">Cost</div>
-                            <div class="header-cell">Offer</div>
-                            <div class="header-cell">Packs</div>
+                            <div class="header-cell" data-i18n="cost">Cost</div>
+                            <div class="header-cell" data-i18n="offer">Offer</div>
+                            <div class="header-cell" data-i18n="packs">Packs</div>
                         </div>
                         <!-- Event Trader offers will be dynamically inserted here -->
                         <div class="offer-grid-row">
@@ -537,14 +551,14 @@
                     </div>
                     <div class="summary-grid">
                         <div class="summary-item-container">
-                            <div class="summary-label">Total:</div>
+                            <div class="summary-label" data-i18n="total_colon">Total:</div>
                             <div class="summary-value-with-image">
                                 <span id="inc-event-medals-total-value" class="calculated">0</span>
                                 <img src="assets/resources/event_medal.png" alt="Event Medals" class="ore-image">
                             </div>
                         </div>
                         <div class="summary-item-container">
-                            <div class="summary-label">Remaining:</div>
+                            <div class="summary-label" data-i18n="remaining_colon">Remaining:</div>
                             <div class="summary-value-with-image">
                                 <span id="inc-event-medals-remaining-value" class="calculated">0</span>
                                 <img src="assets/resources/event_medal.png" alt="Event Medals" class="ore-image">
@@ -554,13 +568,13 @@
                     <div class="timeframe-income">
                         <div class="four-col-grid">
                             <div class="grid-row">
-                                <div class="grid-label">Bimonthly:</div>
+                                <div class="grid-label" data-i18n="bimonthly_colon">Bimonthly:</div>
                                 <div class="grid-value-display"><span id="inc-event-trader-shiny-bimonthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-event-trader-glowy-bimonthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-event-trader-starry-bimonthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
                             </div>
                             <div class="grid-row">
-                                <div class="grid-label">Monthly:</div>
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
                                 <div class="grid-value-display"><span id="inc-event-trader-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-event-trader-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-event-trader-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
@@ -569,14 +583,14 @@
                     </div>
                 </div>
                 <div class="income-card card">
-                    <h2 class="income-card-title">Clan War</h2>
+                    <h2 class="income-card-title" data-i18n="clan_war">Clan War</h2>
                     <div class="inner-card">
                         <div class="input-group-flex">
-                            <label for="inc-clan-war-wars-per-month-input">Wars per month:</label>
+                            <label for="inc-clan-war-wars-per-month-input" data-i18n="wars_per_month_colon">Wars per month:</label>
                             <input type="number" class="updatable" id="inc-clan-war-wars-per-month-input" value="0" min="0" max="15" maxlength="2">
                         </div>
                         <div class="input-group-flex">
-                            <span id="clan-war-per-attack-label" role="heading" aria-level="3">Per Attack:</span>
+                            <span id="clan-war-per-attack-label" role="heading" aria-level="3" data-i18n="per_attack_colon">Per Attack:</span>
                             <div class="ores-inputs-container" aria-labelledby="clan-war-per-attack-label">
                                 <div class="ore-input-item">
                                     <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image">
@@ -595,15 +609,15 @@
                     </div>
                     <div class="rates-grid">
                         <div class="rate-column">
-                            <label for="inc-clan-war-win-rate-input">Win Rate (%):</label>
+                            <label for="inc-clan-war-win-rate-input" data-i18n="win_rate_percentage_colon">Win Rate (%):</label>
                             <input type="number" class="updatable" id="inc-clan-war-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3">
                         </div>
                         <div class="rate-column">
-                            <label for="inc-clan-war-draw-rate-input">Draw Rate (%):</label>
+                            <label for="inc-clan-war-draw-rate-input" data-i18n="draw_rate_percentage_colon">Draw Rate (%):</label>
                             <input type="number" class="updatable" id="inc-clan-war-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3">
                         </div>
                         <div class="rate-column">
-                            <label for="inc-clan-war-loss-rate-value">Loss Rate (%):</label>
+                            <label for="inc-clan-war-loss-rate-value" data-i18n="loss_rate_percentage_colon">Loss Rate (%):</label>
                             <input type="number" class="calculated" id="inc-clan-war-loss-rate-value" value="0" min="0" max="100" disabled>
                         </div>
                     </div>
@@ -611,13 +625,13 @@
                         <div class="four-col-grid">
 
                             <div class="grid-row">
-                                <div class="grid-label">Per War:</div>
+                                <div class="grid-label" data-i18n="per_war_colon">Per War:</div>
                                 <div class="grid-value-display"><span id="inc-clan-war-shiny-perWar-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-clan-war-glowy-perWar-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-clan-war-starry-perWar-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
                             </div>
                             <div class="grid-row">
-                                <div class="grid-label">Monthly:</div>
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
                                 <div class="grid-value-display"><span id="inc-clan-war-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-clan-war-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-clan-war-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
@@ -626,14 +640,14 @@
                     </div>
                 </div>
                 <div class="income-card card">
-                    <h2 class="income-card-title">CWL</h2>
+                    <h2 class="income-card-title" data-i18n="cwl">CWL</h2>
                     <div class="inner-card">
                         <div class="input-group-flex">
-                            <label for="inc-cwl-hits-per-season-input">Hits per season:</label>
+                            <label for="inc-cwl-hits-per-season-input" data-i18n="hits_per_season_colon">Hits per season:</label>
                             <input type="number" class="updatable" id="inc-cwl-hits-per-season-input" value="0" min="0" max="7" maxlength="1">
                         </div>
                         <div class="input-group-flex">
-                            <span id="cwl-per-attack-label" role="heading" aria-level="3">Per Attack:</span>
+                            <span id="cwl-per-attack-label" role="heading" aria-level="3" data-i18n="per_attack_colon">Per Attack:</span>
                             <div class="ores-inputs-container" aria-labelledby="cwl-per-attack-label">
                                 <div class="ore-input-item">
                                     <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image">
@@ -652,15 +666,15 @@
                     </div>
                     <div class="rates-grid">
                         <div class="rate-column">
-                            <label for="inc-cwl-win-rate-input">Win Rate (%):</label>
+                            <label for="inc-cwl-win-rate-input" data-i18n="win_rate_percentage_colon">Win Rate (%):</label>
                             <input type="number" class="updatable" id="inc-cwl-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3">
                         </div>
                         <div class="rate-column">
-                            <label for="inc-cwl-draw-rate-input">Draw Rate (%):</label>
+                            <label for="inc-cwl-draw-rate-input" data-i18n="draw_rate_percentage_colon">Draw Rate (%):</label>
                             <input type="number" class="updatable" id="inc-cwl-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3">
                         </div>
                         <div class="rate-column">
-                            <label for="inc-cwl-loss-rate-value">Loss Rate (%):</label>
+                            <label for="inc-cwl-loss-rate-value" data-i18n="loss_rate_percentage_colon">Loss Rate (%):</label>
                             <input type="number" class="calculated" id="inc-cwl-loss-rate-value" value="0" min="0" max="100" disabled>
                         </div>
                     </div>
@@ -668,13 +682,13 @@
                         <div class="four-col-grid">
 
                             <div class="grid-row">
-                                <div class="grid-label">Per Hit:</div>
+                                <div class="grid-label" data-i18n="per_hit_colon">Per Hit:</div>
                                 <div class="grid-value-display"><span id="inc-cwl-shiny-perHit-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-cwl-glowy-perHit-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-cwl-starry-perHit-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
                             </div>
                             <div class="grid-row">
-                                <div class="grid-label">Monthly:</div>
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
                                 <div class="grid-value-display"><span id="inc-cwl-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-cwl-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-cwl-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
@@ -688,14 +702,14 @@
         <div class="tab-content" id="planner-tab">
             <div class="planner-card card full-width-card">
                 <div class="max-level-card-header">
-                    <h3>Custom Max Level</h3>
+                    <h3 data-i18n="custom_max_level">Custom Max Level</h3>
                     <div class="level-settings-container">
                         <div class="input-group-flex indented">
-                            <label for="planner-common-max-level">Common:</label>
+                            <label for="planner-common-max-level" data-i18n="common_colon">Common:</label>
                             <input type="number" id="planner-common-max-level" class="updatable" value="18" min="1" max="18" maxlength="2">
                         </div>
                         <div class="input-group-flex indented">
-                            <label for="planner-epic-max-level">Epic:</label>
+                            <label for="planner-epic-max-level" data-i18n="epic_colon">Epic:</label>
                             <input type="number" id="planner-epic-max-level" class="updatable" value="27" min="1" max="27" maxlength="2">
                         </div>
                     </div>
@@ -711,7 +725,7 @@
                     </div>
                 </div>
                 <div class="planner-card card" id="priority-list-card">
-                    <h3>Priority List</h3>
+                    <h3 data-i18n="priority_list">Priority List</h3>
                     <div id="priority-list-container" class="priority-list-content">
                         <!-- Priority list items will be dynamically inserted here -->
                     </div>
@@ -719,7 +733,7 @@
                 
             </div>
             <div class="full-width-planner-section card">
-                <h2 class="calendar-planner-title">Calendar Planner</h2>
+                <h2 class="calendar-planner-title" data-i18n="calendar_planner">Calendar Planner</h2>
                 <div class="inner-card">
                     <div class="calendar-header">
                         <div class="calendar-nav">
@@ -746,8 +760,8 @@
                 </div>
             <div class="inner-card">
                     <div class="income-chips-header">
-                        <h3 class="income-chips-title">Income Chips</h3>
-                        <button id="auto-place-chips-btn" class="auto-place-chips-btn">Auto Place</button>
+                        <h3 class="income-chips-title" data-i18n="income_chips">Income Chips</h3>
+                        <button id="auto-place-chips-btn" class="auto-place-chips-btn" data-i18n="action_auto_place">Auto Place</button>
                     </div>
                     <div id="income-chips-container" class="income-chips-container">
                         <!-- Draggable chips will be dynamically inserted here -->
@@ -764,23 +778,24 @@
             <div class="settings-cards-grid">
                 <div id="set-app-card" class="settings-card card">
                         <div class="mode-switch-container">
-                            <span>Mode Switch:</span>
+                            <span data-i18n="mode_switch">Mode Switch:</span>
                             <div class="mode-toggle-switch" id="mode-toggle-switch">
                                 <div class="mode-labels-container">
-                                    <span class="switch-label">Ease</span>
-                                    <span class="switch-label">Tweak</span>
+                                    <span class="switch-label" data-i18n="ease">Ease</span>
+                                    <span class="switch-label" data-i18n="tweak">Tweak</span>
                                 </div>
                                 <div class="switch-toggle-ball"></div>
                             </div>
                         </div>
                     <div class="input-group-flex">
-                        <label for="language-select">Language:</label>
+                        <label for="language-select" data-i18n="language">Language:</label>
                         <select id="language-select" class="dropdown-style updatable">
-                            <option value="en">English</option>
+                            <option value="en" data-i18n="english">English</option>
+                            <option value="de" data-i18n="german">German</option>
                         </select>
                     </div>
                     <div class="input-group-flex">
-                        <label for="currency-select">Currency:</label>
+                        <label for="currency-select" data-i18n="currency">Currency:</label>
                         <select id="currency-select" class="dropdown-style updatable">
                             <option value="EUR" selected>€ EUR</option>
                             <option value="USD">$ USD</option>
@@ -794,7 +809,7 @@
                         </select>
                     </div>
                     <div class="input-group-flex" id="regional-pricing-switch-container" style="display: none;">
-                        <label for="regional-pricing-toggle">Regional Pricing:</label>
+                        <label for="regional-pricing-toggle" data-i18n="regional_pricing">Regional Pricing:</label>
                         <label class="switch">
                             <input type="checkbox" id="regional-pricing-toggle">
                             <span class="slider round"></span>
@@ -803,10 +818,10 @@
                 </div>
                 <div id="data-manage-card" class="settings-card card">
                     <div class="input-group-flex">
-                        <label for="copy-user-id-btn">Copy User ID</label>
+                        <label for="copy-user-id-btn" data-i18n="action_copy_user_id">Copy User ID</label>
                         <div class="user-id-display-group">
                             <button id="copy-user-id-btn" class="animated-btn small-btn">
-                                <span class="animated-btn-text">Copy</span>
+                                <span class="animated-btn-text" data-i18n="action_copy">Copy</span>
                                 <span class="animated-btn-icon-wrapper">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
                                 </span>
@@ -815,19 +830,19 @@
                     </div>
                     <span id="user-id-display" class="calculated id-child-fields" style="display: none;"></span>
                     <div class="input-group-flex">
-                        <label for="import-user-id-input">Import Data</label>
+                        <label for="import-user-id-input" data-i18n="action_import">Import Data</label>
                         <button id="import-user-data-btn" class="animated-btn">
-                            <span class="animated-btn-text">Paste</span>
+                            <span class="animated-btn-text" data-i18n="action_paste">Paste</span>
                             <span class="animated-btn-icon-wrapper">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="m720-120-56-57 63-63H480v-80h247l-63-64 56-56 160 160-160 160Zm120-400h-80v-240h-80v120H280v-120h-80v560h200v80H200q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-840h167q11-35 43-57.5t70-22.5q40 0 71.5 22.5T594-840h166q33 0 56.5 23.5T840-760v240ZM480-760q17 0 28.5-11.5T520-800q0-17-11.5-28.5T480-840q-17 0-28.5 11.5T440-800q0 17 11.5 28.5T480-760Z"/></svg>
                             </span>
                         </button>
                     </div>
-                    <input type="text" id="import-user-id-input" placeholder="Paste User ID" class="updatable id-child-fields" style="display: none;">
+                    <input type="text" id="import-user-id-input" placeholder="Paste User ID" class="updatable id-child-fields"  data-i18n-placeholder="placeholder_paste_user_id" style="display: none;">
                     <div class="input-group-flex">
-                        <label for="reset-data-btn">Reset All Data</label>
+                        <label for="reset-data-btn" data-i18n="action_reset_all">Reset All Data</label>
                         <button id="reset-data-btn" class="animated-btn reset-data-button">
-                            <span class="animated-btn-text">Reset</span>
+                            <span class="animated-btn-text" data-i18n="action_reset">Reset</span>
                             <span class="animated-btn-icon-wrapper">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ef5350"><path d="m653-208-88 88-85-85 88-88q-4-11-6-23t-2-24q0-58 41-99t99-41q18 0 35 4.5t32 12.5l-95 95 56 56 95-94q8 15 12.5 31.5T840-340q0 58-41 99t-99 41q-13 0-24.5-2t-22.5-6Zm178-352h-83q-26-88-99-144t-169-56q-117 0-198.5 81.5T200-480q0 72 32.5 132t87.5 98v-110h80v240H160v-80h94q-62-50-98-122.5T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q129 0 226.5 79.5T831-560Z"/></svg>
                             </span>
@@ -841,14 +856,14 @@
         </div>
 
     <button id="floating-save-btn" class="animated-btn floating-save-button">
-        <span class="animated-btn-text">Sync Data</span>
+        <span class="animated-btn-text" data-i18n="action_sync">Sync Data</span>
         <span class="animated-btn-icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#202124"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q25-92 100-149t170-57q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H520q-33 0-56.5-23.5T440-240v-206l-64 62-56-56 160-160 160 160-56 56-64-62v206h220q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41h100v80H260Zm220-280Z"/></svg>
         </span>
         <span class="animated-btn-icon-disabled">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M792-56 686-160H260q-92 0-156-64T40-380q0-77 47.5-137T210-594q3-8 6-15.5t6-16.5L56-792l56-56 736 736-56 56ZM260-240h346L284-562q-2 11-3 21t-1 21h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm185-161Zm419 191-58-56q17-14 25.5-32.5T840-340q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-27 0-52 6.5T380-693l-58-58q35-24 74.5-36.5T480-800q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 39-15 72.5T864-210ZM593-479Z"/></svg>
         </span>
-        <span class="save-button-tooltip">Data not found. Enter correct tag or click Load!</span>
+        <span class="save-button-tooltip" data-i18n="data_not_found_enter_correct_tag">Data not found. Enter correct tag or click Load!</span>
     </button>
 
     <div class="fab-container">
@@ -857,13 +872,13 @@
                 <span class="animated-btn-icon-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-120q-75 0-140.5-28.5t-114-77q-48.5-48.5-77-114T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q82 0 155.5 35T760-706v-94h80v240H600v-80h110q-41-56-101-88t-129-32q-117 0-198.5 81.5T200-480q0 117 81.5 198.5T480-200q105 0 183.5-68T756-440h82q-15 137-117.5 228.5T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
                 </span>
-                <span class="animated-btn-text">Refresh</span>
+                <span class="animated-btn-text" data-i18n="action_refresh">Refresh</span>
             </button>
             <button id="fab-save-data-pill" class="fab-menu-pill animated-btn">
                 <span class="animated-btn-icon-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-160v-80h109q-51-44-80-106t-29-134q0-112 68-197.5T400-790v84q-70 25-115 86.5T240-480q0 54 21.5 99.5T320-302v-98h80v240H160Zm440 0q-50 0-85-35t-35-85q0-48 33-82.5t81-36.5q17-36 50.5-58.5T720-480q53 0 91.5 34.5T858-360q42 0 72 29t30 70q0 42-29 71.5T860-160H600Zm116-360q-7-41-27-76t-49-62v98h-80v-240h240v80H691q43 38 70.5 89T797-520h-81ZM600-240h260q8 0 14-6t6-14q0-8-6-14t-14-6h-70v-50q0-29-20.5-49.5T720-400q-29 0-49.5 20.5T650-330v10h-50q-17 0-28.5 11.5T560-280q0 17 11.5 28.5T600-240Zm120-80Z"/></svg>
                 </span>
-                <span class="animated-btn-text">Sync Data</span>
+                <span class="animated-btn-text" data-i18n="action_sync">Sync Data</span>
             </button>
         </div>
         <button id="main-fab" class="fab-button">
@@ -885,7 +900,7 @@
                     <span class="icon-outline"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/></svg></span>
                     <span class="icon-filled"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#8ab4f8"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg></span>
                 </div>
-                <span>Home</span>
+                <span data-i18n="home">Home</span>
             </div>
         </button>
         <button class="nav-button" data-tab="equipment">
@@ -894,7 +909,7 @@
                     <span class="icon-outline"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m414-168 12-56q3-13 12.5-21.5T462-256l124-10q13-2 24 5t16 19l16 38q39-23 70-55.5t52-72.5l-12-6q-11-8-16-19.5t-2-24.5l28-122q3-12 12.5-20t21.5-10q-5-25-12.5-48.5T764-628q-9 5-19.5 4.5T726-630l-106-64q-11-7-16-19t-2-25l8-34q-31-14-63.5-21t-66.5-7q-14 0-29 1.5t-29 4.5l30 68q5 12 2.5 25T442-680l-94 82q-10 9-23.5 10t-24.5-6l-92-56q-23 38-35.5 81.5T160-480q0 16 4 52l88-8q14-2 25.5 4.5T294-412l48 114q5 12 2.5 25T332-252l-38 32q27 20 57.5 33t62.5 19Zm72-172q-13 2-24-5t-16-19l-54-124q-5-12-1.5-25t13.5-21l102-86q9-9 22-10t24 6l112 66q11 7 17 19t3 25l-32 130q-3 13-12 21.5T618-352l-132 12Zm-6 260q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg></span>
                     <span class="icon-filled"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#8ab4f8"><path d="m414-168 12-56q3-13 12.5-21.5T462-256l124-10q13-2 24 5t16 19l16 38q39-23 70-55.5t52-72.5l-12-6q-11-8-16-19.5t-2-24.5l28-122q3-12 12.5-20t21.5-10q-5-25-12.5-48.5T764-628q-9 5-19.5 4.5T726-630l-106-64q-11-7-16-19t-2-25l8-34q-31-14-63.5-21t-66.5-7q-14 0-29 1.5t-29 4.5l30 68q5 12 2.5 25T442-680l-94 82q-10 9-23.5 10t-24.5-6l-92-56q-23 38-35.5 81.5T160-480q0 16 4 52l88-8q14-2 25.5 4.5T294-412l48 114q5 12 2.5 25T332-252l-38 32q27 20 57.5 33t62.5 19Zm72-172q-13 2-24-5t-16-19l-54-124q-5-12-1.5-25t13.5-21l102-86q9-9 22-10t24 6l112 66q11 7 17 19t3 25l-32 130q-3 13-12 21.5T618-352l-132 12Zm-6 260q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg></span>
                 </div>
-                <span>Equipment</span>
+                <span data-i18n="equipment">Equipment</span>
             </div>
         </button>
         <button class="nav-button" data-tab="income">
@@ -903,7 +918,7 @@
                     <span class="icon-outline"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M470-320h29v-32q28-4 47.5-23t19.5-49q0-26-20-43.5T500-496v-74q10 3 16.5 10t9.5 17l36-15q-7-21-24-33.5T500-608v-32h-30v31q-28 3-47.5 20.5T403-542q0 27 20.5 45t46.5 29v79q-16-5-27-17t-15-28l-35 15q8 28 28 46t49 22v31Zm30-70v-66q11 5 19.5 12t8.5 21q0 16-8 22.5T500-390Zm-30-119q-11-5-20-12t-9-21q0-14 9-20.5t20-8.5v62ZM320-200q-117 0-198.5-81.5T40-480q0-117 81.5-198.5T320-760h320q117 0 198.5 81.5T920-480q0 117-81.5 198.5T640-200H320Zm0-80h320q83 0 141.5-58.5T840-480q0-83-58.5-141.5T640-680H320q-83 0-141.5 58.5T120-480q0 83 58.5 141.5T320-280Zm160-200Z"/></svg></span>
                     <span class="icon-filled"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#8ab4f8"><path d="M470-320h29v-32q28-4 47.5-23t19.5-49q0-26-20-43.5T500-496v-74q10 3 16.5 10t9.5 17l36-15q-7-21-24-33.5T500-608v-32h-30v31q-28 3-47.5 20.5T403-542q0 27 20.5 45t46.5 29v79q-16-5-27-17t-15-28l-35 15q8 28 28 46t49 22v31Zm30-70v-66q11 5 19.5 12t8.5 21q0 16-8 22.5T500-390Zm-30-119q-11-5-20-12t-9-21q0-14 9-20.5t20-8.5v62ZM320-200q-117 0-198.5-81.5T40-480q0-117 81.5-198.5T320-760h320q117 0 198.5 81.5T920-480q0 117-81.5 198.5T640-200H320Z"/></svg></span>
                 </div>
-                <span>Income</span>
+                <span data-i18n="income">Income</span>
             </div>
         </button>
         <button class="nav-button" data-tab="planner">
@@ -912,7 +927,7 @@
                     <span class="icon-outline"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v255l-80 80v-175H200v400h248l80 80H200Zm0-560h560v-80H200v80Zm0 0v-80 80ZM662-60 520-202l56-56 85 85 170-170 56 57L662-60Z"/></svg></span>
                     <span class="icon-filled"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#8ab4f8"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v255l-80 80v-175H200v400h248l80 80H200Zm462 20L520-202l56-56 85 85 170-170 56 57L662-60Z"/></svg></span>
                 </div>
-                <span>Planner</span>
+                <span data-i18n="planner">Planner</span>
             </div>
         </button>
         <button class="nav-button" data-tab="settings">
@@ -921,7 +936,7 @@
                     <span class="icon-outline"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg></span>
                     <span class="icon-filled"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#8ab4f8"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm112-260q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Z"/></svg></span>
                 </div>
-                <span>Settings</span>
+                <span data-i18n="settings">Settings</span>
             </div>
         </button>
     </div>

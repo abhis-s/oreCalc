@@ -3,6 +3,8 @@ import { initializeOfferGrid, renderOfferGrid } from '../common/offerGrid.js';
 import { gemTraderData } from '../../data/appData.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
+import { translate } from '../../i18n/translator.js';
+import { formatNumber } from '../../utils/numberFormatter.js';
 
 let isResponsive = false;
 
@@ -12,14 +14,14 @@ function renderGemTraderRow(offer, offerState) {
 
     const costDisplay = document.createElement('div');
     costDisplay.className = 'offer-cost-display';
-    costDisplay.innerHTML = `<img src="assets/resources/gem.png" alt="Gem" class="ore-image gem-icon"> ${offer.cost.toLocaleString()}`;
+    costDisplay.innerHTML = `<img src="assets/resources/gem.png" alt="${translate('gem')}" class="ore-image gem-icon"> ${formatNumber(offer.cost)}`;
 
     const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
     const oreValue = offer.shiny || offer.glowy || offer.starry;
     const oreImage = `assets/${oreType}_ore.png`;
     const oreDisplay = document.createElement('div');
     oreDisplay.className = 'offer-ore-display';
-    oreDisplay.innerHTML = `<span>${oreValue.toLocaleString()}</span><img src="${oreImage}" alt="${oreType} ore" class="ore-image">`;
+    oreDisplay.innerHTML = `<span>${formatNumber(oreValue)}</span><img src="${oreImage}" alt="${translate(`${oreType}_ore`)}" class="ore-image">`;
 
     row.appendChild(costDisplay);
     row.appendChild(oreDisplay);

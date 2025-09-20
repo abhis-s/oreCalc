@@ -140,6 +140,16 @@
     background-color: #3c3c40;
     font-weight: bold;
     color: #e3e3e3;
+    overflow: hidden;
+    width: 100%;
+}
+.hero-chip span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    max-width: 116px;
+    flex: 1;
 }
 .hero-chip .hero-chip-icon {
     width: 32px;

@@ -3,6 +3,7 @@ import { eventTraderData } from '../../data/appData.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
 import { addValidation } from '../../utils/inputValidator.js';
+import { translate } from '../../i18n/translator.js';
 
 function updateEventTraderState(e) {
     const offerId = e.target.dataset.offerId;
@@ -17,7 +18,7 @@ export function initializeEventTrader() {
 
     const inputs = offersContainer.querySelectorAll('input[type="number"]');
     inputs.forEach(input => {
-        addValidation(input, { inputName: `${input.dataset.offerId} Packs` });
+        addValidation(input, { inputName: `${input.dataset.offerId} ${translate('packs')}` });
         input.addEventListener('validated-input', (e) => updateEventTraderState(e));
     });
 }

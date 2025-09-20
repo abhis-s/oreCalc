@@ -414,13 +414,18 @@ export function initializeState(savedState) {
                 key === 'income' ||
                 key === 'playerData' ||
                 key === 'allPlayersData' ||
-                key === 'planner' ||
-                key === 'uiSettings'
+                key === 'planner'
             ) {
                 continue;
             }
             Object.assign(state, { [key]: savedState[key] });
         }
+
+        // Explicitly merge uiSettings to ensure deep merge
+        Object.assign(
+            state.uiSettings,
+            savedState.uiSettings
+        );
 
         if (state.activeTab === undefined) {
             state.activeTab = 'home-tab';

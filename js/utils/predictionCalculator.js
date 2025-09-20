@@ -1,6 +1,7 @@
 import { state } from '../core/state.js';
 import { upgradeCosts, heroData } from '../data/heroData.js';
 import { incomeData } from '../data/incomeChipData.js';
+import { translate } from '../i18n/translator.js'; // Added import
 
 function getDailyIncomeFromCalendar(date) {
     const dailyIncome = { shiny: 0, glowy: 0, starry: 0 };
@@ -57,7 +58,7 @@ export function calculateCompletionDates(priorityList) {
                 item: item,
                 completionDate: null,
                 error: true,
-                message: 'ERROR: Fix Order'
+                message: translate('error_fix_order') // Translated
             });
             continue;
         }
