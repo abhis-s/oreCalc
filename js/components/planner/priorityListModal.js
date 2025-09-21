@@ -67,7 +67,8 @@ export function getGlobalPriorityList() {
             if (equipment.upgradePlan) {
                 for (const stepNum in equipment.upgradePlan) {
                     const stepData = equipment.upgradePlan[stepNum];
-                    if (stepData.enabled) {
+                    const currentLevel = state.heroes[heroKey]?.equipment[equipName]?.level || 1;
+                    if (stepData.enabled && stepData.target > currentLevel) {
                         const heroDataKey = heroNameMap[heroKey];
                         if (!heroDataKey) continue;
 

@@ -82,6 +82,18 @@ export function processPlayerDataResponse(playerData) {
                 newPlayerState.heroes[heroKey].equipment[equipKey].checked = false;
             }
         }
+
+        for (const equipKey in newPlayerState.heroes[heroKey].equipment) {
+            const equipment = newPlayerState.heroes[heroKey].equipment[equipKey];
+            if (equipment.upgradePlan) {
+                for (const stepNum in equipment.upgradePlan) {
+                    const stepData = equipment.upgradePlan[stepNum];
+                    if (stepData.target <= equipment.level) {
+                        stepData.enabled = false;
+                    }
+                }
+            }
+        }
     }
 
     if (playerData.league?.name) {
