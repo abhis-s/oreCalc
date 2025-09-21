@@ -3,7 +3,7 @@
 
 .header-container {
     @extend %flex-center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     margin: 0 10px 20px;
     transition: all 0.4s ease-in-out;
     position: relative;

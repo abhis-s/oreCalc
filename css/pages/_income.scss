@@ -31,6 +31,7 @@
             color: $color-grey-200;
             margin-bottom: 5px;
             text-align: center;
+            overflow-wrap: break-word;
         }
 
         input[type="number"] {
@@ -420,6 +421,7 @@
 
         label {
             text-align: left;
+            width: calc(100% - 100px);
         }
     }
 
@@ -493,6 +495,10 @@
                 text-align: right;
             }
         }
+    }
+
+    .rates-grid {
+        padding: 0 !important;
     }
 }
 
