@@ -121,14 +121,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1000);
     }
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-                // console.log('Service Worker registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.error('Service Worker registration failed: ', registrationError);
-            });
+if ('serviceWorker' in navigator && 'workbox' in window) {
+        const wb = new workbox.Workbox('/sw.js');
+
+        wb.addEventListener('waiting', (event) => {
+            console.log('A new version is available. Showing update prompt.');
+
+            const updateModal = document.getElementById('update-available-modal');
+            const overlay = document.getElementById('overlay');
+            const reloadButton = document.getElementById('update-reload-button');
+            const laterButton = document.getElementById('update-later-button');
+
+            if (updateModal && overlay && reloadButton && laterButton) {
+                updateModal.classList.add('show');
+                overlay.style.display = 'block';
+
+                reloadButton.onclick = () => {
+                    wb.addEventListener('controlling', () => {
+                        window.location.reload();
+                    });
+                    wb.messageSkipWaiting();
+                };
+
+                laterButton.onclick = () => {
+                    updateModal.classList.remove('show');
+                    overlay.style.display = 'none';
+                };
+            }
+        });
+
+        wb.register();
     }
 });
 

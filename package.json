@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "workbox-window": "^7.3.0"
   },
   "name": "orecoc",
   "version": "1.0.0",
@@ -8,9 +9,10 @@
   "main": "service-worker.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "node -r dotenv/config scripts/inject-env.js && concurrently \"node scripts/dev/watch-sass.js\" \"node scripts/dev/start-dev-server.js\"",
-    "build": "node scripts/build/clean.js && npm run build:css && node scripts/build/copy-html.js && VITE_API_BASE_URL=https://api.orecalc.tech node scripts/inject-env.js && node scripts/build/copy-js.js && node scripts/build/copy-json.js && node scripts/build/copy-assets.js && node scripts/build/optimize-images.js && node scripts/build/copy-sw.js && node scripts/build/copy-pwa.js && node scripts/build/replace-html.js && node scripts/build/replace-sw.js",
+    "start:dev": "node scripts/dev/copy-workbox.js && node -r dotenv/config scripts/inject-env.js && concurrently \"node scripts/dev/watch-sass.js\" \"node scripts/dev/start-dev-server.js\"",
+    "build": "VITE_API_BASE_URL=https://api.orecalc.tech node scripts/build.js && npm run build:css && npm run build:sw",
     "build:css": "sass css/main.scss dist/css/main.min.css --style compressed",
+    "build:sw": "npx workbox-cli generateSW workbox-config.js",
     "start:prod": "node scripts/prod/start-prod-server.js"
   },
   "keywords": [],
@@ -25,6 +27,7 @@
     "replace-in-file": "^8.3.0",
     "sass": "^1.89.2",
     "sharp": "^0.34.3",
-    "terser": "5.43.1"
+    "terser": "5.43.1",
+    "workbox-cli": "^7.3.0"
   }
 }

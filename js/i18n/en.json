@@ -212,5 +212,9 @@
     "validation_max_value": "Max: {max}",
     "validation_min_value": "Min: {min}",
     "validation_max_length": "Max length is {maxLength} digits.",
-    "validation_invalid_revert": "Invalid. Reverting to last valid value."
+    "validation_invalid_revert": "Invalid. Reverting to last valid value.",
+    "update_available": "Update Available",
+    "update_prompt": "A new version of the application is available. Reload to get the latest features and fixes.",
+    "action_later": "Later",
+    "action_reload": "Reload"
 }

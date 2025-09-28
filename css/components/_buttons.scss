@@ -204,3 +204,41 @@
         height: 24px;
     }
 }
+
+.reject-button {
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $dark-text-primary;
+    background-color: $dark-surface-primary;
+    border: 1px solid $dark-border-color;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+        background-color: $dark-surface-secondary;
+    }
+}
+
+.accept-button {
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $dark-text-primary;
+    background-color: $dark-accent-purple;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+        background-color: $dark-accent-purple-hover;
+    }
+
+    &:disabled {
+        background-color: $color-grey-600;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+}
