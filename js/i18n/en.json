@@ -151,6 +151,8 @@
     "priority_list_placeholder": "Your priority list is empty. Click on an equipment above to add an upgrade plan.",
     "warn_steps_not_in_order": "Warning: Some equipment steps are not in the correct order.",
     "error_fix_order": "Error: Fix Order",
+    "suggestion_move_epic_up": "An Epic equipment can be moved up as its Starry Ore cost is met.",
+    "suggestion_move_common_up": "A Common equipment can be upgraded sooner if moved up, as the current Epic upgrade is waiting for Starry Ore.",
     "week_of_year": "Week {week} of {year} ({month})",
     "hits_per_season": "Hits per Season",
     "shiny_ore": "Shiny Ore",

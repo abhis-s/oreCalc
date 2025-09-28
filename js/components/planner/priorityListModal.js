@@ -18,7 +18,7 @@ function autoPlaceChipsForDateRange() {
 
     const startTime = new Date();
 
-    const MIN_MONTH = 9; 
+    const MIN_MONTH = 9;
     const MIN_YEAR = 2025;
     const MAX_MONTH = 12;
     const MAX_YEAR = 2027;
@@ -87,7 +87,7 @@ export function getGlobalPriorityList() {
     }
     globalPriorityList.sort((a, b) => a.priorityIndex - b.priorityIndex);
 
-    const predictions = calculateCompletionDates(globalPriorityList);
+    const { predictions, suggestions } = calculateCompletionDates(globalPriorityList);
     globalPriorityList.forEach(item => {
         const prediction = predictions.find(p =>
             p.item.heroName === item.heroName &&
@@ -101,7 +101,7 @@ export function getGlobalPriorityList() {
         }
     });
 
-    return globalPriorityList;
+    return { globalPriorityList, suggestions };
 }
 
 function renderPriorityEditor() {
@@ -122,7 +122,7 @@ function renderPriorityEditor() {
     `;
 
     const gridContainer = modalBody.querySelector('.hero-equipment-grid');
-    const globalPriorityList = getGlobalPriorityList();
+    const { globalPriorityList, suggestions } = getGlobalPriorityList();
 
     for (const heroKey in heroData) {
         const hero = heroData[heroKey];
@@ -188,17 +188,97 @@ function renderPriorityEditor() {
         }
     }
 
-    renderDraggableList(globalPriorityList);
+    renderDraggableList(globalPriorityList, suggestions);
 }
 
-function renderDraggableList(globalPriorityList) {
+function getStepOrderErrors(globalPriorityList) {
+    const equipmentGroups = {};
+    globalPriorityList.forEach(item => {
+        if (!equipmentGroups[item.name]) {
+            equipmentGroups[item.name] = [];
+        }
+        equipmentGroups[item.name].push(item);
+    });
+
+    let hasError = false;
+    const errorItems = new Set();
+
+    for (const equipName in equipmentGroups) {
+        const items = equipmentGroups[equipName];
+        for (let i = 0; i < items.length - 1; i++) {
+            if (items[i].step > items[i + 1].step) {
+                hasError = true;
+                errorItems.add(`${items[i].name}-${items[i].step}`);
+                errorItems.add(`${items[i+1].name}-${items[i+1].step}`);
+            }
+        }
+    }
+    return { hasError, errorItems };
+}
+
+function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
+    const errorContainer = document.getElementById('priority-list-error-container');
+    const listItems = document.querySelectorAll('.priority-list-editor-item');
+
+    errorContainer.innerHTML = '';
+    errorContainer.style.display = 'none';
+    listItems.forEach(item => item.classList.remove('error', 'suggestion'));
+    document.querySelectorAll('.suggestion-bar').forEach(bar => bar.remove());
+
+    const { hasError, errorItems } = getStepOrderErrors(globalPriorityList);
+
+    if (hasError) {
+        errorContainer.innerHTML += `<p class="error-message">${translate('warn_steps_not_in_order')}</p>`;
+        listItems.forEach(item => {
+            const key = `${item.dataset.equipName}-${item.dataset.step}`;
+            if (errorItems.has(key)) {
+                item.classList.add('error');
+            }
+        });
+    }
+
+    if (suggestions && suggestions.length > 0) {
+        errorContainer.innerHTML += suggestions.map(s => `<p class="suggestion-message">${s.message}</p>`).join('');
+        suggestions.forEach(suggestion => {
+            const { itemToMove, moveBefore } = suggestion;
+
+            const itemToMoveElement = Array.from(listItems).find(el => 
+                el.dataset.heroName === itemToMove.heroName &&
+                el.dataset.equipName === itemToMove.name &&
+                el.dataset.step == itemToMove.step
+            );
+            if (itemToMoveElement) {
+                itemToMoveElement.classList.add('suggestion');
+            }
+
+            const moveBeforeElement = Array.from(listItems).find(el => 
+                el.dataset.heroName === moveBefore.heroName &&
+                el.dataset.equipName === moveBefore.name &&
+                el.dataset.step == moveBefore.step
+            );
+            if (moveBeforeElement) {
+                const suggestionBar = document.createElement('div');
+                suggestionBar.className = 'suggestion-bar';
+                moveBeforeElement.parentNode.insertBefore(suggestionBar, moveBeforeElement);
+            }
+        });
+    }
+
+    if (hasError || (suggestions && suggestions.length > 0)) {
+        errorContainer.style.display = 'block';
+    }
+}
+
+function renderDraggableList(globalPriorityList, suggestions) {
     const editor = document.getElementById('priority-list-editor');
     if (!editor) return;
 
     editor.innerHTML = '';
 
     if (!globalPriorityList) {
-        globalPriorityList = getGlobalPriorityList();
+        const { globalPriorityList: newList, suggestions: newSuggestions } = getGlobalPriorityList();
+        globalPriorityList = newList;
+        suggestions = newSuggestions;
     }
 
     if (globalPriorityList.length === 0) {
@@ -258,7 +338,7 @@ function renderDraggableList(globalPriorityList) {
                     plan.priorityIndex = 0;
                 }
 
-                const reorderedGlobalPriorityList = getGlobalPriorityList();
+                const { globalPriorityList: reorderedGlobalPriorityList } = getGlobalPriorityList();
 
                 if (!reorderedGlobalPriorityList.error) {
                     reorderedGlobalPriorityList.forEach((reorderedItem, reorderedIndex) => {
@@ -273,7 +353,7 @@ function renderDraggableList(globalPriorityList) {
 
         effectiveLevels[equipName] = item.targetLevel;
     });
-    checkForStepOrderErrors(globalPriorityList);
+    renderSuggestionsAndErrors(globalPriorityList, suggestions);
 }
 
 function getDragAfterElement(container, y) {
@@ -288,53 +368,6 @@ function getDragAfterElement(container, y) {
             return closest;
         }
     }, { offset: Number.NEGATIVE_INFINITY }).element;
-}
-
-function checkForStepOrderErrors(globalPriorityList) {
-    if (!globalPriorityList) {
-        globalPriorityList = getGlobalPriorityList();
-    }
-    const equipmentGroups = {};
-
-    globalPriorityList.forEach(item => {
-        if (!equipmentGroups[item.name]) {
-            equipmentGroups[item.name] = [];
-        }
-        equipmentGroups[item.name].push(item);
-    });
-
-    let hasError = false;
-    const errorItems = new Set();
-
-    for (const equipName in equipmentGroups) {
-        const items = equipmentGroups[equipName];
-        for (let i = 0; i < items.length - 1; i++) {
-            if (items[i].step > items[i + 1].step) {
-                hasError = true;
-                errorItems.add(`${items[i].name}-${items[i].step}`);
-                errorItems.add(`${items[i+1].name}-${items[i+1].step}`);
-            }
-        }
-    }
-
-    const errorContainer = document.getElementById('priority-list-error-container');
-    const listItems = document.querySelectorAll('.priority-list-editor-item');
-
-    listItems.forEach(item => item.classList.remove('error'));
-
-    if (hasError) {
-        errorContainer.textContent = translate('warn_steps_not_in_order');
-        errorContainer.style.display = 'block';
-
-        listItems.forEach(item => {
-            const key = `${item.dataset.equipName}-${item.dataset.step}`;
-            if (errorItems.has(key)) {
-                item.classList.add('error');
-            }
-        });
-    } else {
-        errorContainer.style.display = 'none';
-    }
 }
 
 export function initializePriorityListModal() {

@@ -273,13 +273,28 @@
 .priority-list-error-message {
     background-color: rgba(231, 76, 60, 0.1);
     border: 1px solid #e74c3c;
-    color: #e74c3c;
     padding: 10px 15px;
     border-radius: 8px;
     margin: 0 1rem 1rem 1rem;
     text-align: center;
     display: none;
 }
+
+.priority-list-error-message p {
+    margin: 0;
+    &:not(:first-child) {
+        margin-top: 8px;
+    }
+}
+
+.priority-list-error-message .error-message {
+    color: #e74c3c;
+}
+
+.priority-list-error-message .suggestion-message {
+    color: #f1c40f;
+}
+
 .priority-list-editor-item.error {
     background-color: rgba(231, 76, 60, 0.15);
     border: 1px solid #e74c3c;
@@ -287,3 +302,15 @@
 .priority-list-editor-item.error .priority-item-date {
     display: none;
 }
+
+.priority-list-editor-item.suggestion {
+    background-color: rgba(255, 255, 0, 0.1);
+    border-left: 3px solid #f1c40f;
+}
+
+.suggestion-bar {
+    height: 3px;
+    background-color: #f1c40f;
+    margin: 2px 0 10px 0;
+}
+

@@ -141,6 +141,8 @@
     "priority_list_placeholder": "Deine Prioritäten-Liste ist leer. Klicke oben auf eine Ausrüstung, um einen Verbesserungsplan hinzuzufügen.",
     "warn_steps_not_in_order": "Warnung: Einige Ausrüstungsstufen sind nicht in der richtigen Reihenfolge.",
     "error_fix_order": "Fehler: Reihenfolge korrigieren",
+    "suggestion_move_epic_up": "Eine epische Ausrüstung kann aufgewertet werden, wenn die Kosten für Sternenerz gedeckt sind.",
+    "suggestion_move_common_up": "Eine gewöhnliche Ausrüstung kann aufgewertet werden, wenn die Kosten für Glanzerz gedeckt sind.",
     "week_of_year": "Woche {week} von {year} ({month})",
     "hits_per_season": "Angriffe pro Saison",
     "shiny_ore": "Glanzerz",

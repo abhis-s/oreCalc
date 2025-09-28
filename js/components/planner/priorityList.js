@@ -32,7 +32,7 @@ export function initializePriorityList() {
     priorityListContainer.classList.add('priority-list-content');
     priorityListCard.appendChild(priorityListContainer);
 
-    const globalPriorityList = getGlobalPriorityList();
+    const { globalPriorityList } = getGlobalPriorityList();
 
     if (globalPriorityList.error) {
         const errorMessage = document.createElement('p');
