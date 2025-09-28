@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 if ('serviceWorker' in navigator && 'workbox' in window) {
-        const wb = new workbox.Workbox('/sw.js');
+        const wb = new workbox.Workbox('/service-worker.js');
 
         wb.addEventListener('waiting', (event) => {
             console.log('A new version is available. Showing update prompt.');

@@ -3,7 +3,7 @@ module.exports = {
   globPatterns: [
     '**/*.{js,css,html,png,jpg,jpeg,svg,gif,json,ico,webp}'
   ],
-  swDest: 'dist/sw.js',
+  swDest: 'dist/service-worker.js',
   runtimeCaching: [{
     urlPattern: /^https:\/\/api\.orecalc\.tech\//,
     handler: 'NetworkFirst',
