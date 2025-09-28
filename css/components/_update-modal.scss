@@ -1,0 +1,57 @@
+@use '../abstracts/variables' as *;
+
+#update-available-modal {
+    display: none; // Hidden by default
+    position: fixed;
+    z-index: 2000;
+    inset: 0;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    justify-content: center;
+
+    &.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background-color: $dark-surface-primary;
+        padding: 20px;
+        border: 1px solid $dark-border-color;
+        border-radius: 28px;
+        color: #e3e3e3;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .modal-header {
+        text-align: center;
+        h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+    }
+
+    .modal-body {
+        text-align: center;
+        line-height: 1.5;
+        p {
+            margin: 0;
+        }
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+
+        .cancel-button,
+        .add-button {
+            flex: 1;
+        }
+    }
+}

@@ -54,8 +54,8 @@
                         <div id="player-tag-error-message" class="error-message"></div>
                     </div>
                     <div class="modal-actions">
-                        <button id="cancel-add-player-button" class="cancel-button" data-i18n="action_cancel">Cancel</button>
-                        <button id="load-player-modal-btn" class="add-button" data-i18n="action_load">Load</button>
+                        <button id="cancel-add-player-button" class="reject-button" data-i18n="action_cancel">Cancel</button>
+                        <button id="load-player-modal-btn" class="accept-button" data-i18n="action_load">Load</button>
                     </div>
                 </div>
             </div>
@@ -891,6 +891,7 @@
     </div>
 
     
+    <script src="js/workbox-window.js" defer></script>
     <script type="module" src="js/app.js"></script>
     <div class="bottom-nav-bar">
         <button class="nav-button nav-button--active" data-tab="home">
@@ -955,6 +956,20 @@
                 <!-- Priority steps will be dynamically inserted here -->
             </div>
             
+        </div>
+    </div>
+    <div id="update-available-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="update_available">Update Available</h2>
+            </div>
+            <div class="modal-body">
+                <p data-i18n="update_prompt">A new version of the application is available. Reload to get the latest features and fixes.</p>
+            </div>
+            <div class="modal-actions">
+                <button id="update-later-button" class="reject-button" data-i18n="action_later">Later</button>
+                <button id="update-reload-button" class="accept-button" data-i18n="action_reload">Reload</button>
+            </div>
         </div>
     </div>
 </body>

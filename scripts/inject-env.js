@@ -12,7 +12,8 @@ const apiServicePath = path.join(process.cwd(), 'js/services/apiService.js');
 
 let apiServiceContent = fs.readFileSync(apiServicePath, 'utf8');
 
-apiServiceContent = apiServiceContent.replace('__VITE_API_BASE_URL__', baseUrl);
+// Use a global regex to replace all occurrences if necessary, though it should be once.
+apiServiceContent = apiServiceContent.replace(/__VITE_API_BASE_URL__/g, baseUrl);
 
 fs.writeFileSync(apiServicePath, apiServiceContent, 'utf8');
 console.log(`Injected VITE_API_BASE_URL: ${baseUrl} into ${apiServicePath}`);
