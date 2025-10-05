@@ -94,6 +94,12 @@
     "german": "Deutsch",
     "currency": "Währung:",
     "regional_pricing": "Regionale Preisgestaltung:",
+
+    "support_and_community": "Unterstützung & Community",
+    "github": "Zum Projekt beitragen",
+    "crowdin": "Helfen Sie mit, die App in Ihre Sprache zu übersetzen",
+    "buy_me_a_coffee": "Unterstützen Sie meine Arbeit",
+
     "barbarian_king": "Barbarenkönig",
     "archer_queen": "Bogenschützenkönigin",
     "minion_prince": "Lakaienprinz",

@@ -104,6 +104,11 @@
     "currency": "Currency:",
     "regional_pricing": "Regional Pricing:",
 
+    "support_and_community": "Support & Community",
+    "github": "Contribute to the project",
+    "crowdin": "Help translate the app into your language",
+    "buy_me_a_coffee": "Support my work",
+
     "barbarian_king": "Barbarian King",
     "archer_queen": "Archer Queen",
     "minion_prince": "Minion Prince",

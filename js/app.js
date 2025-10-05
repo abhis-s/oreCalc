@@ -42,6 +42,17 @@ function updateUIWithTranslations() {
         const key = element.getAttribute('data-i18n');
         element.innerHTML = translate(key);
     });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        element.placeholder = translate(key);
+    });
+
+    document.querySelectorAll('[data-i18n-tooltip]').forEach(element => {
+        const key = element.getAttribute('data-i18n-tooltip');
+        element.setAttribute('data-tooltip', translate(key));
+    });
+
     document.documentElement.lang = state.uiSettings.language;
     document.dispatchEvent(new CustomEvent('languageChanged'));
 }
