@@ -1,16 +1,23 @@
+import { leagues } from './leagues.js';
+
+const leagueNameToId = leagues.items.reduce((acc, league) => {
+    acc[league.name] = league.id;
+    return acc;
+}, {});
+
 export const starBonusData = [
-    { league: "Unranked", shiny: 0, glowy: 0 }, { league: "Bronze III", shiny: 125, glowy: 6 },
-    { league: "Bronze II", shiny: 175, glowy: 7 }, { league: "Bronze I", shiny: 175, glowy: 8 },
-    { league: "Silver III", shiny: 200, glowy: 9 }, { league: "Silver II", shiny: 250, glowy: 10 },
-    { league: "Silver I", shiny: 275, glowy: 11 }, { league: "Gold III", shiny: 300, glowy: 12 },
-    { league: "Gold II", shiny: 325, glowy: 14 }, { league: "Gold I", shiny: 350, glowy: 16 },
-    { league: "Crystal III", shiny: 375, glowy: 18 }, { league: "Crystal II", shiny: 400, glowy: 20 },
-    { league: "Crystal I", shiny: 425, glowy: 22 }, { league: "Master III", shiny: 450, glowy: 24 },
-    { league: "Master II", shiny: 500, glowy: 26 }, { league: "Master I", shiny: 525, glowy: 28 },
-    { league: "Champion III", shiny: 550, glowy: 30 }, { league: "Champion II", shiny: 625, glowy: 34 },
-    { league: "Champion I", shiny: 700, glowy: 38 }, { league: "Titan III", shiny: 775, glowy: 42 },
-    { league: "Titan II", shiny: 850, glowy: 46 }, { league: "Titan I", shiny: 925, glowy: 50 },
-    { league: "Legend", shiny: 1000, glowy: 54 },
+    { league: leagueNameToId["Unranked"], shiny: 0, glowy: 0 }, { league: leagueNameToId["Bronze League III"], shiny: 125, glowy: 6 },
+    { league: leagueNameToId["Bronze League II"], shiny: 175, glowy: 7 }, { league: leagueNameToId["Bronze League I"], shiny: 175, glowy: 8 },
+    { league: leagueNameToId["Silver League III"], shiny: 200, glowy: 9 }, { league: leagueNameToId["Silver League II"], shiny: 250, glowy: 10 },
+    { league: leagueNameToId["Silver League I"], shiny: 275, glowy: 11 }, { league: leagueNameToId["Gold League III"], shiny: 300, glowy: 12 },
+    { league: leagueNameToId["Gold League II"], shiny: 325, glowy: 14 }, { league: leagueNameToId["Gold League I"], shiny: 350, glowy: 16 },
+    { league: leagueNameToId["Crystal League III"], shiny: 375, glowy: 18 }, { league: leagueNameToId["Crystal League II"], shiny: 400, glowy: 20 },
+    { league: leagueNameToId["Crystal League I"], shiny: 425, glowy: 22 }, { league: leagueNameToId["Master League III"], shiny: 450, glowy: 24 },
+    { league: leagueNameToId["Master League II"], shiny: 500, glowy: 26 }, { league: leagueNameToId["Master League I"], shiny: 525, glowy: 28 },
+    { league: leagueNameToId["Champion League III"], shiny: 550, glowy: 30 }, { league: leagueNameToId["Champion League II"], shiny: 625, glowy: 34 },
+    { league: leagueNameToId["Champion League I"], shiny: 700, glowy: 38 }, { league: leagueNameToId["Titan League III"], shiny: 775, glowy: 42 },
+    { league: leagueNameToId["Titan League II"], shiny: 850, glowy: 46 }, { league: leagueNameToId["Titan League I"], shiny: 925, glowy: 50 },
+    { league: leagueNameToId["Legend League"], shiny: 1000, glowy: 54 },
 ];
 
 export const shopOfferData = {

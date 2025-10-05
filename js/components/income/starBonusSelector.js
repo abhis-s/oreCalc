@@ -1,8 +1,8 @@
 import { dom } from '../../dom/domElements.js';
-import { starBonusData } from '../../data/appData.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
 import { translate } from '../../i18n/translator.js';
+import { leagues } from '../../data/appData.js';
 
 function renderStarBonusSelectorContent() {
     const selectElement = dom.income?.starBonus?.league;
@@ -11,10 +11,11 @@ function renderStarBonusSelectorContent() {
     const selectedValue = selectElement.value;
 
     selectElement.innerHTML = '';
-    starBonusData.forEach(data => {
+    leagues.items.forEach(league => {
         const option = document.createElement('option');
-        option.value = data.league;
-        option.textContent = translate('league.' + data.league.toLowerCase().replace(/\s/g, '_'));
+        option.value = league.id;
+        const translationKey = 'league.' + league.name.toLowerCase().replace(/\s/g, '_');
+        option.textContent = translate(translationKey);
         selectElement.appendChild(option);
     });
 
@@ -31,7 +32,7 @@ export function initializeStarBonusSelector() {
 
     selectElement.addEventListener('change', (e) => {
         handleStateUpdate(() => {
-            state.income.starBonusLeague = e.target.value;
+            state.income.starBonusLeague = parseInt(e.target.value, 10);
         });
     });
 

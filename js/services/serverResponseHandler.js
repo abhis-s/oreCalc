@@ -1,5 +1,5 @@
 import { state, getDefaultPlayerState } from '../core/state.js';
-import { shopOfferData } from '../data/appData.js';
+import { shopOfferData, leagues } from '../data/appData.js';
 import { fetchPlayerData } from './apiService.js';
 import { handleStateUpdate } from '../app.js';
 import { updateSavedPlayerTags, updateAllPlayersData } from '../core/localStorageManager.js';
@@ -96,8 +96,13 @@ export function processPlayerDataResponse(playerData) {
         }
     }
 
-    if (playerData.league?.name) {
-        newPlayerState.income.starBonusLeague = playerData.league.name.replace(' League', '');
+    if (playerData.league?.id) {
+        const leagueExists = leagues.items.some(l => l.id === playerData.league.id);
+        if (leagueExists) {
+            newPlayerState.income.starBonusLeague = playerData.league.id;
+        } else {
+            newPlayerState.income.starBonusLeague = 29000000; // Unranked
+        }
     }
 
     if (newPlayerState.income.shopOffers.selectedSet === 'none' && playerData.townHallLevel) {

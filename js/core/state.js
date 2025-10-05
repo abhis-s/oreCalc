@@ -1,4 +1,4 @@
-import { currencySymbols, heroData, shopOfferData, eventPassData } from '../data/appData.js';
+import { currencySymbols, heroData, shopOfferData, eventPassData, leagues } from '../data/appData.js';
 
 export let state = {};
 
@@ -42,7 +42,7 @@ export function getDefaultState() {
         heroes: initializeHeroesState(),
         storedOres: { shiny: 0, glowy: 0, starry: 0 },
         income: {
-            starBonusLeague: 'Unranked',
+            starBonusLeague: 29000000,
             shopOffers: {
                 selectedSet: 'none',
                 sets: { TH16_Set: {}, TH15_Set: {} },
@@ -87,7 +87,7 @@ export function getDefaultState() {
             heroes: initializeHeroesState(),
             storedOres: { shiny: 0, glowy: 0, starry: 0 },
             income: {
-                starBonusLeague: 'Unranked',
+                starBonusLeague: 29000000,
                 shopOffers: {
                     selectedSet: 'none',
                     sets: { TH16_Set: {}, TH15_Set: {} },
@@ -176,7 +176,7 @@ export function getDefaultPlayerState() {
             heroes: initializeHeroesState(),
             storedOres: { shiny: 0, glowy: 0, starry: 0 },
             income: {
-                starBonusLeague: 'Unranked',
+                starBonusLeague: 29000000,
                 shopOffers: {
                     selectedSet: 'none',
                     sets: { TH16_Set: {}, TH15_Set: {} },
@@ -494,6 +494,11 @@ export function initializeState(savedState) {
                 getDefaultState().income,
                 activePlayerData.income
             );
+
+            const leagueExists = leagues.items.some(l => l.id === state.income.starBonusLeague);
+            if (!leagueExists) {
+                state.income.starBonusLeague = 29000000; // Unranked
+            }
             Object.assign(
                 state.planner,
                 getDefaultState().planner,

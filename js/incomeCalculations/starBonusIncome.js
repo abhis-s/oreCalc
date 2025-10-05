@@ -2,7 +2,7 @@ import { starBonusData } from "../data/appData.js";
 import { DAYS_IN_WEEK, DAYS_IN_MONTH, MONTHS_IN_BIMONTH } from "../data/timeConstants.js";
 
 export function calculateStarBonusIncome(selectedLeague) {
-    const leagueData = starBonusData.find(data => data.league === selectedLeague) || starBonusData[0];
+    const leagueData = starBonusData.find(data => data.league === parseInt(selectedLeague)) || starBonusData[0];
     const daily = {
         shiny: leagueData.shiny || 0,
         glowy: leagueData.glowy || 0,
