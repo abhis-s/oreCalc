@@ -1,6 +1,6 @@
 import { currencySymbols, currencyConversionRates } from "./currencyData.js";
 import { heroData, upgradeCosts } from "./heroData.js";
-import { leagues } from "./leagues.js";
+import { leagueTiers } from "./leagueTiers.js";
 
 import {
     starBonusData,
@@ -9,6 +9,7 @@ import {
     gemTraderData,
     eventPassData,
     eventTraderData,
+    townHallLeagueFloors,
 } from "./allIncomeData.js";
 
 export {
@@ -22,5 +23,6 @@ export {
     gemTraderData,
     eventPassData,
     eventTraderData,
-    leagues,
+    leagueTiers,
+    townHallLeagueFloors,
 };

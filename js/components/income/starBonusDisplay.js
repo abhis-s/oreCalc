@@ -1,7 +1,7 @@
 import { dom } from '../../dom/domElements.js';
 import { translate } from '../../i18n/translator.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
-import { leagues } from '../../data/appData.js';
+import { leagueTiers } from '../../data/appData.js';
 
 export function renderStarBonusDisplay(starBonusIncome, league, playerData, timeframe) {
     const homeElements = dom.income.home.incomeCard.table.starBonus;
@@ -11,7 +11,7 @@ export function renderStarBonusDisplay(starBonusIncome, league, playerData, time
     if (!homeElements || !incomeTabElements || !homeResourceElements) return;
 
     const leagueId = parseInt(league, 10);
-    const leagueData = leagues.items.find(l => l.id === leagueId);
+    const leagueData = leagueTiers.items.find(l => l.id === leagueId);
     const leagueName = leagueData ? leagueData.name : 'Unranked';
 
     const timeframeIncome = starBonusIncome[timeframe] || {};
@@ -26,15 +26,18 @@ export function renderStarBonusDisplay(starBonusIncome, league, playerData, time
         homeElements.starry.textContent = formatNumber(Math.round(timeframeIncome.starry || 0));
     }
     if (homeElements.resource) {
-        const leagueKey = 'league.' + leagueName.toLowerCase().replace(/\s/g, '_');
+        const leagueKey = 'league.' + leagueName.toLowerCase().replace(/\./g, '').replace(/\s/g, '_');
         homeElements.resource.textContent = translate(leagueKey);
     }
 
+    const unrankedLeague = leagueTiers.items.find(l => l.id === 105000000);
+    const unrankedIcon = unrankedLeague?.iconUrls?.large || '';
+
     if (homeResourceElements.leagueIcon) {
-        homeResourceElements.leagueIcon.src = leagueData?.iconUrls?.medium || 'assets/player_leagues/unranked_league.png';
+        homeResourceElements.leagueIcon.src = leagueData?.iconUrls?.large || unrankedIcon;
     }
     if (homeResourceElements.leagueRequirement) {
-        const leagueKey = 'league.' + leagueName.toLowerCase().replace(/\s/g, '_');
+        const leagueKey = 'league.' + leagueName.toLowerCase().replace(/\./g, '').replace(/\s/g, '_');
         homeResourceElements.leagueRequirement.textContent = translate(leagueKey);
     }
 
