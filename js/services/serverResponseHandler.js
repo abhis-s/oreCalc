@@ -1,5 +1,5 @@
 import { state, getDefaultPlayerState } from '../core/state.js';
-import { shopOfferData, leagues } from '../data/appData.js';
+import { shopOfferData, leagueTiers } from '../data/appData.js';
 import { fetchPlayerData } from './apiService.js';
 import { handleStateUpdate } from '../app.js';
 import { updateSavedPlayerTags, updateAllPlayersData } from '../core/localStorageManager.js';
@@ -96,12 +96,12 @@ export function processPlayerDataResponse(playerData) {
         }
     }
 
-    if (playerData.league?.id) {
-        const leagueExists = leagues.items.some(l => l.id === playerData.league.id);
+    if (playerData.leagueTier?.id) {
+        const leagueExists = leagueTiers.items.some(l => l.id === playerData.leagueTier.id);
         if (leagueExists) {
-            newPlayerState.income.starBonusLeague = playerData.league.id;
+            newPlayerState.income.starBonusLeague = playerData.leagueTier.id;
         } else {
-            newPlayerState.income.starBonusLeague = 29000000; // Unranked
+            newPlayerState.income.starBonusLeague = 105000000; // Unranked
         }
     }
 
@@ -125,7 +125,7 @@ export function processPlayerDataResponse(playerData) {
         clan: playerData.clan ? { badgeUrls: { small: playerData.clan.badgeUrls.small } } : {},
         heroes: playerData.heroes,
         heroEquipment: playerData.heroEquipment,
-        league: playerData.league,
+        leagueTier: playerData.leagueTier,
         townHallLevel: playerData.townHallLevel,
     };
 

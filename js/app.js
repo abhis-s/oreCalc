@@ -123,6 +123,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert('No player tag selected to refresh.');
             }
         });
+
+        if (state.lastPlayerTag && state.lastPlayerTag !== 'DEFAULT0') {
+            refreshButton.click();
+        }
     }
 
     const preloader = dom.preloader;
