@@ -99,9 +99,9 @@ export function processPlayerDataResponse(playerData) {
     if (playerData.leagueTier?.id) {
         const leagueExists = leagueTiers.items.some(l => l.id === playerData.leagueTier.id);
         if (leagueExists) {
-            newPlayerState.income.starBonusLeague = playerData.leagueTier.id;
+            newPlayerState.income.starBonus.league = playerData.leagueTier.id;
         } else {
-            newPlayerState.income.starBonusLeague = 105000000; // Unranked
+            newPlayerState.income.starBonus.league = 105000000; // Unranked
         }
     }
 

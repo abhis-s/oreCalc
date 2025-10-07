@@ -42,7 +42,10 @@ export function getDefaultState() {
         heroes: initializeHeroesState(),
         storedOres: { shiny: 0, glowy: 0, starry: 0 },
         income: {
-            starBonusLeague: 105000000,
+            starBonus: {
+                league: 105000000,
+                is4xEnabled: false,
+            },
             shopOffers: {
                 selectedSet: 'none',
                 sets: { TH16_Set: {}, TH15_Set: {} },
@@ -87,7 +90,10 @@ export function getDefaultState() {
             heroes: initializeHeroesState(),
             storedOres: { shiny: 0, glowy: 0, starry: 0 },
             income: {
-                starBonusLeague: 105000000,
+                starBonus: {
+                    league: 105000000,
+                    is4xStarBonusAverageEnabled: false,
+                },
                 shopOffers: {
                     selectedSet: 'none',
                     sets: { TH16_Set: {}, TH15_Set: {} },
@@ -176,7 +182,10 @@ export function getDefaultPlayerState() {
             heroes: initializeHeroesState(),
             storedOres: { shiny: 0, glowy: 0, starry: 0 },
             income: {
-                starBonusLeague: 105000000,
+                starBonus: {
+                    league: 105000000,
+                    is4xEnabled: false,
+                },
                 shopOffers: {
                     selectedSet: 'none',
                     sets: { TH16_Set: {}, TH15_Set: {} },
@@ -495,9 +504,9 @@ export function initializeState(savedState) {
                 activePlayerData.income
             );
 
-            const leagueExists = leagueTiers.items.some(l => l.id === state.income.starBonusLeague);
+            const leagueExists = leagueTiers.items.some(l => l.id === state.income.starBonus.league);
             if (!leagueExists) {
-                state.income.starBonusLeague = 105000000; // Unranked
+                state.income.starBonus.league = 105000000; // Unranked
             }
             Object.assign(
                 state.planner,

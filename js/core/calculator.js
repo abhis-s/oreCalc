@@ -18,7 +18,7 @@ export function recalculateAll(state) {
     const eventTraderIncome = calculateEventTraderIncome(state.income.eventTrader, eventPassIncome?.availableMedals);
 
     const incomeSources = {
-        starBonus: calculateStarBonusIncome(state.income.starBonusLeague),
+        starBonus: calculateStarBonusIncome(state.income.starBonus.league, state.income.starBonus.is4xEnabled),
         clanWar: calculateClanWarIncome(state.income.clanWar),
         cwl: calculateCwlIncome(state.income.cwl),
         raidMedalTrader: calculateRaidMedalTraderIncome(state.income.raidMedals),

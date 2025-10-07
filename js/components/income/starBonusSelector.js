@@ -53,22 +53,35 @@ function renderStarBonusSelectorContent() {
 
 export function initializeStarBonusSelector() {
     const selectElement = dom.income?.starBonus?.league;
-    if (!selectElement) return;
-
-    renderStarBonusSelectorContent();
-
-    selectElement.addEventListener('change', (e) => {
-        handleStateUpdate(() => {
-            state.income.starBonusLeague = parseInt(e.target.value, 10);
+    if (selectElement) {
+        selectElement.addEventListener('change', (e) => {
+            handleStateUpdate(() => {
+                state.income.starBonus.league = parseInt(e.target.value, 10);
+            });
         });
-    });
+    }
+
+    const toggleElement = dom.income?.starBonus?.is4xEnabled;
+    if (toggleElement) {
+        toggleElement.addEventListener('change', (e) => {
+            handleStateUpdate(() => {
+                state.income.starBonus.is4xEnabled = e.target.value === 'true';
+            });
+        });
+    }
 
     document.addEventListener('languageChanged', renderStarBonusSelectorContent);
+    renderStarBonusSelectorContent();
 }
 
-export function renderStarBonusSelector(selectedLeague) {
+export function renderStarBonusControls(incomeState) {
     const selectElement = dom.income?.starBonus?.league;
     if (selectElement) {
-        selectElement.value = selectedLeague;
+        selectElement.value = incomeState.starBonus.league;
+    }
+
+    const toggleElement = dom.income?.starBonus?.is4xEnabled;
+    if (toggleElement) {
+        toggleElement.value = incomeState.starBonus.is4xEnabled;
     }
 }
