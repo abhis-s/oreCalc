@@ -17,6 +17,7 @@ import { initializeAppSettings } from './components/appSettings/appSettings.js';
 import { initializeSettingsCardObserver } from './components/appSettings/settingsCardObserver.js';
 import { initializePlanner } from './components/planner/planner.js';
 import { initializePriorityListModal } from './components/planner/priorityListModal.js';
+import { initializeChangelogModal, showChangelogModal } from './components/changelog/changelogModal.js';
 
 import { initializeStarBonusSelector } from './components/income/starBonusSelector.js';
 import { initializeClanWarInputs } from './components/income/clanWarInputs.js';
@@ -34,6 +35,7 @@ import { updateResponsiveText } from './utils/responsiveTextHandler.js';
 import { initializeCloudSaveButtons } from './utils/cloudSaveHandler.js';
 import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
 import { loadTranslations, translate } from './i18n/translator.js';
+import { fetchChangelog } from './services/githubService.js';
 
 import './console.js';
 
@@ -61,6 +63,12 @@ function updateUIWithTranslations() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     initializeDOMElements();
+
+    if (localStorage.getItem('showChangelog') === 'true') {
+        localStorage.removeItem('showChangelog');
+        const changelogContent = await fetchChangelog();
+        showChangelogModal(changelogContent);
+    }
 
     const savedState = await initializeAppData();
     initializeState(savedState);
@@ -103,6 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeSettingsCardObserver();
     initializePlanner();
     initializePriorityListModal();
+    initializeChangelogModal();
     initializeStarBonusSelector();
     initializeClanWarInputs();
     initializeCwlInputs();
@@ -155,6 +164,7 @@ if ('serviceWorker' in navigator && 'workbox' in window) {
                 overlay.style.display = 'block';
 
                 reloadButton.onclick = () => {
+                    localStorage.setItem('showChangelog', 'true');
                     wb.addEventListener('controlling', () => {
                         window.location.reload();
                     });
