@@ -34,6 +34,7 @@ export const heroData = {
             { name: "Metal Pants", type: "common", image: "assets/equipment/minion_prince/MP_metal_pants.png" },
             { name: "Noble Iron", type: "common", image: "assets/equipment/minion_prince/MP_noble_iron.png" },
             { name: "Dark Crown", type: "epic", image: "assets/equipment/minion_prince/MP_dark_crown.png" },
+            { name: "Meteor Staff", type: "epic", image: "assets/equipment/minion_prince/MP_meteor_staff.png" },
         ],
     },
     grand_warden: {
