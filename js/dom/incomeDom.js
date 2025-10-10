@@ -63,6 +63,12 @@ export function getIncomeDOMElements() {
                         starry: document.getElementById('home-income-table-shop-offer-starry'),
                         resource: document.getElementById('home-shop-offer-resource'),
                     },
+                    championship: {
+                        shiny: document.getElementById('home-income-table-championship-shiny'),
+                        glowy: document.getElementById('home-income-table-championship-glowy'),
+                        starry: document.getElementById('home-income-table-championship-starry'),
+                        resource: document.getElementById('home-championship-resource'),
+                    },
                     totalRow: {
                         shiny: document.getElementById('home-income-table-total-shiny'),
                         glowy: document.getElementById('home-income-table-total-glowy'),
@@ -259,6 +265,21 @@ export function getIncomeDOMElements() {
                     shiny: document.getElementById('inc-cwl-shiny-monthly-value'),
                     glowy: document.getElementById('inc-cwl-glowy-monthly-value'),
                     starry: document.getElementById('inc-cwl-starry-monthly-value'),
+                }
+            }
+        },
+        championship: {
+            supercellEvents: document.getElementById('inc-championship-supercell-events-select'),
+            display: {
+                perEvent: {
+                    shiny: document.getElementById('inc-championship-shiny-perEvent-value'),
+                    glowy: document.getElementById('inc-championship-glowy-perEvent-value'),
+                    starry: document.getElementById('inc-championship-starry-perEvent-value'),
+                },
+                monthly: {
+                    shiny: document.getElementById('inc-championship-shiny-monthly-value'),
+                    glowy: document.getElementById('inc-championship-glowy-monthly-value'),
+                    starry: document.getElementById('inc-championship-starry-monthly-value'),
                 }
             }
         },

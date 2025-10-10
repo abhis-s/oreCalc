@@ -55,6 +55,9 @@
     "event_pass": "Event Pass",
     "event_trader": "Event Trader",
     "shop_offers": "Shop Offers",
+    "championship": "Championship",
+    "supercell_events_colon": "Supercell Events:",
+    "per_event_colon": "Per Event:",
     "total_income": "Total Income",
 
     "month_end_shop_offer": "Month-End Shop Offer:",
