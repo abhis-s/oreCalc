@@ -2,6 +2,8 @@ import { state } from './core/state.js';
 import { handleStateUpdate } from './app.js';
 import { saveState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
+import { showChangelogModal } from './components/changelog/changelogModal.js';
+import { fetchChangelog } from './services/githubService.js';
 
 window.enableLevelInput = () => {
     const newEnableLevelInput = !state.uiSettings.enableLevelInput;
@@ -58,15 +60,23 @@ window.clearPlannerState = () => {
     return "Planner state cleared.";
 };
 
+window.showChangelog = async () => {
+    const changelogContent = await fetchChangelog();
+    showChangelogModal(changelogContent);
+    return "Changelog modal displayed.";
+};
+
 console.info(
     "%c Ore Calculator Console Commands:\n\n" +
     "%c  enableLevelInput(): %cToggles the 'Enable level input' setting.\n" +
     "%c  resetApp():       %cInitiates a 5-second countdown to reset all app data and reload. Can be cancelled.\n" +
     "%c  cancelResetApp(): %cCancels an active resetApp countdown.\n" +
     "%c  logState():       %cLogs the current state object to the console.\n" +
-    "%c  clearPlannerState(): %cClears all saved chips from the planner calendar.\n\n" +
+    "%c  clearPlannerState(): %cClears all saved chips from the planner calendar.\n" +
+    "%c  showChangelog():  %cDisplays the changelog modal.\n\n" +
     "%c For more information, refer to the documentation.",
     "color: #8ab4f8; font-weight: bold;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
