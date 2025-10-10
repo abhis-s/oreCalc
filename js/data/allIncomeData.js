@@ -184,3 +184,9 @@ export const eventTraderData = [
     { id: "event_glowy_60", shiny: 0, glowy: 60, starry: 0, cost: 280, currency: "event_medals", maxPacks: 10 },
     { id: "event_shiny_350", shiny: 350, glowy: 0, starry: 0, cost: 325, currency: "event_medals", maxPacks: 40 },
 ];
+
+export const championshipData = {
+    monthlyQualifiers: { shiny: 1500, glowy: 75, starry: 15, perYear: 6 },
+    lastChanceQualifiers: { shiny: 1500, glowy: 75, starry: 15, perYear: 1 },
+    worldChampionships: { shiny: 1500, glowy: 75, starry: 15, perYear: 1 },
+};

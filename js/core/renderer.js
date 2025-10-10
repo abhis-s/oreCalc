@@ -13,6 +13,7 @@ import { renderRaidMedalTraderGrid, renderRaidMedalTraderDisplay } from '../comp
 import { renderGemTraderGrid } from '../components/income/gemTrader.js';
 import { renderEventTraderGrid } from '../components/income/eventTrader.js';
 import { renderShopOfferSelector, renderShopOfferGrid } from '../components/income/shopOffers.js';
+import { renderChampionshipInputs } from '../components/income/championshipInputs.js';
 
 import { renderRequiredOres } from '../components/equipment/requiredOresDisplay.js';
 import { renderRemainingTime } from '../components/equipment/remainingTimeDisplay.js';
@@ -23,6 +24,7 @@ import { renderGemHomeDisplay } from '../components/income/gemTraderDisplay.js';
 import { renderEventPassHomeDisplay } from '../components/income/eventPassDisplay.js';
 import { renderEventTraderHomeDisplay } from '../components/income/eventTraderDisplay.js';
 import { renderShopOfferHomeDisplay } from '../components/income/shopOfferDisplay.js';
+import { renderChampionshipDisplay, renderChampionshipHomeDisplay} from '../components/income/championshipDisplay.js';
 import { renderIncomeCard } from '../components/income/incomeCardHandler.js';
 import { renderPlanner } from '../components/planner/planner.js';
 import { renderIncomeChips } from '../components/planner/incomeChips.js';
@@ -47,7 +49,7 @@ export function renderApp(state) {
     renderClanWarInputs(state.income.clanWar);
     renderCwlInputs(state.income.cwl);
     renderEventPassInputs(state.income.eventPass);
-    
+    renderChampionshipInputs(state.income);
     renderRaidMedalTraderGrid(state.income.raidMedals);
     renderGemTraderGrid(state.income.gems);
     renderEventTraderGrid(state.income.eventTrader);
@@ -67,6 +69,10 @@ export function renderApp(state) {
     const cwlIncome = incomeSources.cwl || {};
     renderCwlHomeDisplay(cwlIncome[timeframe] || {}, state.income.cwl);
     renderCwlIncomeTabDisplay(cwlIncome, state.income.cwl);
+
+    const championshipIncome = incomeSources.championship || {};
+    renderChampionshipDisplay(championshipIncome, timeframe);
+    renderChampionshipHomeDisplay(championshipIncome, timeframe);
 
     const raidMedalIncome = incomeSources.raidMedalTrader || {};
     renderRaidMedalTraderDisplay(raidMedalIncome, timeframe);

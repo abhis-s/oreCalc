@@ -9,6 +9,7 @@ import { calculateGemTraderIncome } from '../incomeCalculations/gemTraderIncome.
 import { calculateEventPassIncome } from '../incomeCalculations/eventPassIncome.js';
 import { calculateEventTraderIncome } from '../incomeCalculations/eventTraderIncome.js';
 import { calculateShopOfferIncome } from '../incomeCalculations/shopOfferIncome.js';
+import { calculateChampionshipIncome } from '../incomeCalculations/championshipIncome.js';
 import { currencySymbols } from '../data/appData.js';
 
 export function recalculateAll(state) {
@@ -19,6 +20,7 @@ export function recalculateAll(state) {
 
     const incomeSources = {
         starBonus: calculateStarBonusIncome(state.income.starBonus.league, state.income.starBonus.is4xEnabled),
+        championship: calculateChampionshipIncome(state.income.championship.supercellEvents),
         clanWar: calculateClanWarIncome(state.income.clanWar),
         cwl: calculateCwlIncome(state.income.cwl),
         raidMedalTrader: calculateRaidMedalTraderIncome(state.income.raidMedals),

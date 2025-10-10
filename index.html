@@ -253,6 +253,13 @@
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-shop-offer-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-shop-offer-resource"></div>
                     </div>
+                    <div class="income-table-row">
+                        <div class="income-table-cell" data-i18n="championship">Championship</div>
+                        <div class="income-table-cell income-table-value calculated" id="home-income-table-championship-shiny">0</div>
+                        <div class="income-table-cell income-table-value calculated" id="home-income-table-championship-glowy">0</div>
+                        <div class="income-table-cell income-table-value calculated" id="home-income-table-championship-starry">0</div>
+                        <div class="income-table-cell income-table-resource calculated" id="home-championship-resource">event.supercell.com</div>
+                    </div>
                     <div class="income-table-footer">
                         <div class="income-table-cell" data-i18n="total_income">Total Income</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-total-shiny">0</div>
@@ -708,6 +715,34 @@
                                 <div class="grid-value-display"><span id="inc-cwl-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-cwl-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-cwl-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="income-card card">
+                    <h2 class="income-card-title" data-i18n="championship">Championship</h2>
+                    <div class="inner-card">
+                        <div class="input-group-flex">
+                            <label for="inc-championship-supercell-events-select" data-i18n="supercell_events_colon">Supercell Events:</label>
+                            <select id="inc-championship-supercell-events-select" class="dropdown-style updatable">
+                                <option value="false" data-i18n="no">No</option>
+                                <option value="true" data-i18n="yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="timeframe-income">
+                        <div class="four-col-grid">
+                            <div class="grid-row">
+                                <div class="grid-label" data-i18n="per_event_colon">Per Event:</div>
+                                <div class="grid-value-display"><span id="inc-championship-shiny-perEvent-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
+                                <div class="grid-value-display"><span id="inc-championship-glowy-perEvent-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
+                                <div class="grid-value-display"><span id="inc-championship-starry-perEvent-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
+                                <div class="grid-value-display"><span id="inc-championship-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
+                                <div class="grid-value-display"><span id="inc-championship-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
+                                <div class="grid-value-display"><span id="inc-championship-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
                             </div>
                         </div>
                     </div>

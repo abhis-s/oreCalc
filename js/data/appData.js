@@ -10,6 +10,7 @@ import {
     eventPassData,
     eventTraderData,
     townHallLeagueFloors,
+    championshipData,
 } from "./allIncomeData.js";
 
 export {
@@ -25,4 +26,5 @@ export {
     eventTraderData,
     leagueTiers,
     townHallLeagueFloors,
+    championshipData,
 };

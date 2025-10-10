@@ -70,6 +70,9 @@ export function getDefaultState() {
                 drawRate: 0,
                 oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
             },
+            championship: {
+                supercellEvents: false,
+            },
         },
         planner: {
             customMaxLevel: {
@@ -92,7 +95,10 @@ export function getDefaultState() {
             income: {
                 starBonus: {
                     league: 105000000,
-                    is4xStarBonusAverageEnabled: false,
+                    is4xEnabled: false,
+                },
+                championship: {
+                    supercellEvents: false,
                 },
                 shopOffers: {
                     selectedSet: 'none',
@@ -212,6 +218,9 @@ export function getDefaultPlayerState() {
                     winRate: 50,
                     drawRate: 0,
                     oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
+                },
+                championship: {
+                    supercellEvents: false,
                 },
             },
             planner: {
@@ -507,6 +516,9 @@ export function initializeState(savedState) {
             const leagueExists = leagueTiers.items.some(l => l.id === state.income.starBonus.league);
             if (!leagueExists) {
                 state.income.starBonus.league = 105000000; // Unranked
+            }
+            if (!state.income.championship) {
+                state.income.championship = getDefaultState().income.championship;
             }
             Object.assign(
                 state.planner,
