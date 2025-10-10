@@ -5,7 +5,7 @@ import { renderHeroCards } from '../components/equipment/heroCardDisplay.js';
 import { renderStorageInputs } from '../components/equipment/storageInputs.js';
 import { renderPlayerDropdown } from '../components/player/playerDropdown.js';
 
-import { renderStarBonusSelector } from '../components/income/starBonusSelector.js';
+import { renderStarBonusControls } from '../components/income/starBonusSelector.js';
 import { renderClanWarInputs } from '../components/income/clanWarInputs.js';
 import { renderCwlInputs } from '../components/income/cwlInputs.js';
 import { renderEventPassInputs } from '../components/income/eventPassInputs.js';
@@ -43,7 +43,7 @@ export function renderApp(state) {
     renderStorageInputs(state.storedOres);
     renderPlayerDropdown();
 
-    renderStarBonusSelector(state.income.starBonusLeague);
+    renderStarBonusControls(state.income);
     renderClanWarInputs(state.income.clanWar);
     renderCwlInputs(state.income.cwl);
     renderEventPassInputs(state.income.eventPass);
@@ -58,7 +58,7 @@ export function renderApp(state) {
     renderRemainingTime(state.derived.remainingTime);
 
     const starBonusIncome = incomeSources.starBonus || {};
-    renderStarBonusDisplay(starBonusIncome, state.income.starBonusLeague, state.playerData, timeframe);
+    renderStarBonusDisplay(starBonusIncome, state.income.starBonus.league, state.playerData, timeframe);
 
     const clanWarIncome = incomeSources.clanWar || {};
     renderClanWarHomeDisplay(clanWarIncome[timeframe] || {}, state.income.clanWar, state.playerData);

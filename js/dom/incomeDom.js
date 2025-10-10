@@ -114,6 +114,7 @@ export function getIncomeDOMElements() {
         },
         starBonus: {
             league: document.getElementById('inc-star-bonus-league-select'),
+            is4xEnabled: document.getElementById('inc-star-bonus-4x-toggle'),
             display: {
                 daily: {
                     shiny: document.getElementById('inc-star-bonus-shiny-daily-value'),
