@@ -174,6 +174,81 @@ export function initializeAppSettings() {
         });
     }
 
+    const qrCodeBtn = dom.appSettings?.qrCodeBtn;
+    const qrCodeModal = dom.appSettings?.qrCodeModal;
+    const closeQrCodeModalBtn = dom.appSettings?.closeQrCodeModalBtn;
+    const qrCodeContainer = dom.appSettings?.qrCodeContainer;
+    const overlay = dom.overlay;
+
+    if (qrCodeBtn && qrCodeModal && closeQrCodeModalBtn && qrCodeContainer && overlay) {
+        qrCodeBtn.addEventListener('click', () => {
+            const userId = localStorage.getItem('oreCalcUserId');
+            if (userId) {
+                const data = window.location.origin + '?userId=' + userId;
+
+                // Clear previous QR code
+                qrCodeContainer.innerHTML = '';
+
+                const qrCode = new QRCodeStyling({
+                    width: 250,
+                    height: 250,
+                    data: data,
+                    image: 'assets/app_icon_small.png',
+                    dotsOptions: {
+                        color: "#D0BCFF",
+                        type: "rounded"
+                    },
+                    backgroundOptions: {
+                        color: "transparent",
+                    },
+                    imageOptions: {
+                        crossOrigin: "anonymous",
+                        margin: 5
+                    },
+                    cornersSquareOptions: {
+                        type: "extra-rounded",
+                        color: "#D0BCFF"
+                    },
+                    cornersDotOptions: {
+                        type: "dot",
+                        color: "#D0BCFF"
+                    }
+                });
+
+                qrCode.append(qrCodeContainer);
+                
+                const instructionElement = qrCodeModal.querySelector('[data-i18n="scan_qr_instruction"]');
+                if(instructionElement) {
+                    instructionElement.textContent = translate('scan_qr_instruction');
+                }
+                
+                qrCodeModal.classList.add('show');
+                overlay.style.display = 'block';
+            } else {
+                alert('User ID not found.');
+            }
+        });
+
+        closeQrCodeModalBtn.addEventListener('click', () => {
+            qrCodeModal.classList.remove('show');
+            overlay.style.display = 'none';
+        });
+
+        overlay.addEventListener('click', () => {
+            if (qrCodeModal.classList.contains('show')) {
+                qrCodeModal.classList.remove('show');
+                overlay.style.display = 'none';
+            }
+        });
+    }
+
+    const scanCodeBtn = dom.appSettings?.scanCodeBtn;
+    if (scanCodeBtn) {
+        scanCodeBtn.addEventListener('click', () => {
+            alert(translate('scan_qr_instruction'));
+        });
+    }
+
     updateRegionalPricingVisibility();
     updateUIWithTranslations();
 }

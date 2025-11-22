@@ -239,5 +239,7 @@
     "update_available": "Update Available",
     "update_prompt": "A new version of the application is available. Reload to get the latest features and fixes.",
     "action_later": "Later",
-    "action_reload": "Reload"
+    "action_reload": "Reload",
+    "user_id_qr_code": "User ID QR Code",
+    "scan_qr_instruction": "Use your device camera to scan a QR code. The app will reload with the imported data."
 }

@@ -3,7 +3,7 @@ import { state, initializeState } from './core/state.js';
 import { saveState, loadState, resetState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
-import { initializeAppData } from './utils/cloudSaveHandler.js';
+import { initializeAppData, importUserData } from './utils/cloudSaveHandler.js';
 
 import { initializeHeader } from './components/layout/header.js';
 import { initializeTabs } from './components/layout/tabs.js';
@@ -62,6 +62,23 @@ function updateUIWithTranslations() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    let userIdFromUrl = urlParams.get('userId');
+
+    if (!userIdFromUrl) {
+        const hash = window.location.hash;
+        const match = hash.match(/[?&]userId=([a-fA-F0-9-]+)/);
+        if (match) {
+            userIdFromUrl = match[1];
+        }
+    }
+
+    if (userIdFromUrl) {
+        const newUrl = window.location.pathname + window.location.hash.split('?')[0];
+        history.replaceState(null, '', newUrl);
+        await importUserData(userIdFromUrl);
+    }
+    
     initializeDOMElements();
 
     if (localStorage.getItem('showChangelog') === 'true') {

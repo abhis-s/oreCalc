@@ -197,5 +197,7 @@
     "update_available": "Update Verfügbar",
     "update_prompt": "Eine neue Version der Anwendung ist verfügbar. Lade die Seite neu, um die neuesten Funktionen und Korrekturen zu erhalten.",
     "action_later": "Später",
-    "action_reload": "Neu laden"
+    "action_reload": "Neu laden",
+    "user_id_qr_code": "Benutzer-ID QR-Code",
+    "scan_qr_instruction": "Benutze die Kamera deines Geräts, um einen QR-Code zu scannen. Die App wird mit den importierten Daten neu geladen."
 }
