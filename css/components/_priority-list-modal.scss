@@ -203,6 +203,9 @@
     margin-bottom: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+.priority-list-editor-item.dragging {
+    opacity: 0.5;
+}
 .priority-list-editor-item .drag-handle {
     cursor: grab;
     margin-right: 10px;

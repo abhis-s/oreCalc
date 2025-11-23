@@ -3,6 +3,10 @@ import { getScheduleDates } from './dateUtils.js';
 import { state } from '../core/state.js';
 import { translate } from '../i18n/translator.js';
 import { formatNumber } from './numberFormatter.js';
+import { handleChipDropOnCalendar } from '../components/planner/calendar.js';
+import { handleChipDropOnContainer } from '../components/planner/incomeChips.js';
+
+let draggedChipData = null;
 
 export function createIncomeChip(text, className, data, month, year, id = null) {
     const chip = document.createElement('div');
@@ -76,9 +80,7 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         tooltip.classList.remove('visible');
     });
 
-    chip.addEventListener('dragstart', (e) => {
-        const chipData = { ...data, className: className, id: chip.id };
-
+    const highlightDropTargets = () => {
         const formatDate = (date) => {
             if (!date) return null;
             const d = new Date(date);
@@ -106,9 +108,6 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
             const scheduledDates = getScheduleDates(calYear, calMonth - 1, schedule);
             validDates = scheduledDates.map(date => formatDate(date));
         }
-
-        e.dataTransfer.setData('text/plain', JSON.stringify(chipData));
-        e.dataTransfer.effectAllowed = 'move';
 
         const calendarCells = document.querySelectorAll('.day-cell');
         calendarCells.forEach(cell => {
@@ -147,37 +146,14 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         if (incomeChipsContainer) {
             incomeChipsContainer.classList.add('valid-drop-target');
         }
+    };
 
-        const dragImage = document.createElement('div');
-        dragImage.style.width = '50px';
-        dragImage.style.height = '20px';
-        dragImage.style.borderRadius = '10px';
-        dragImage.style.opacity = '0.7';
-
-        const itemColor = incomeData[data.type]?.color;
-        dragImage.style.backgroundColor = itemColor || '#ccc';
-
-        dragImage.style.position = 'absolute';
-        dragImage.style.top = '-1000px';
-        dragImage.style.left = '-1000px';
-
-        document.body.appendChild(dragImage);
-
-        e.dataTransfer.setDragImage(dragImage, e.offsetX, e.offsetY);
-
-        setTimeout(() => {
-            if (document.body.contains(dragImage)) {
-                document.body.removeChild(dragImage);
-            }
-        }, 0);
-    });
-
-    chip.addEventListener('dragend', () => {
+    const clearDropTargetHighlights = () => {
         const calendarCells = document.querySelectorAll('.day-cell');
         calendarCells.forEach(cell => {
             const chipContainer = cell.querySelector('.chip-container');
             if (chipContainer) {
-                chipContainer.classList.remove('valid-drop-range', 'valid-drop-target', 'invalid-drop-target');
+                chipContainer.classList.remove('valid-drop-range', 'valid-drop-target', 'invalid-drop-target', 'duplicate-chip-type');
             }
         });
 
@@ -185,6 +161,112 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         if (incomeChipsContainer) {
             incomeChipsContainer.classList.remove('valid-drop-target');
         }
+    };
+    
+    let dragImage = null;
+
+    chip.addEventListener('dragstart', (e) => {
+        const chipData = { ...data, className: className, id: chip.id };
+        draggedChipData = chipData;
+        e.dataTransfer.setData('text/plain', JSON.stringify(chipData));
+        e.dataTransfer.effectAllowed = 'move';
+        highlightDropTargets();
+
+        dragImage = chip.cloneNode(true);
+        const tooltip = dragImage.querySelector('.chip-tooltip');
+        if (tooltip) {
+            tooltip.remove();
+        }
+        dragImage.style.position = 'absolute';
+        dragImage.style.top = '-1000px';
+        dragImage.style.left = '-1000px';
+        document.body.appendChild(dragImage);
+        e.dataTransfer.setDragImage(dragImage, e.offsetX, e.offsetY);
+    });
+
+    chip.addEventListener('dragend', () => {
+        clearDropTargetHighlights();
+        if (dragImage && document.body.contains(dragImage)) {
+            document.body.removeChild(dragImage);
+        }
+        dragImage = null;
+    });
+
+    let touchTimeout;
+    let isDragging = false;
+    
+    chip.addEventListener('touchstart', (e) => {
+        touchTimeout = setTimeout(() => {
+            isDragging = true;
+            draggedChipData = { ...data, className: className, id: chip.id };
+            highlightDropTargets();
+
+            dragImage = chip.cloneNode(true);
+            const tooltip = dragImage.querySelector('.chip-tooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+            dragImage.classList.add('dragging-clone');
+            document.body.appendChild(dragImage);
+
+            const touch = e.touches[0];
+            dragImage.style.left = `${touch.pageX - dragImage.offsetWidth / 2}px`;
+            dragImage.style.top = `${touch.pageY - dragImage.offsetHeight / 2}px`;
+            
+            chip.classList.add('dragging');
+            state.isChipDragging = true;
+
+        }, 500); 
+    }, { passive: true });
+
+    chip.addEventListener('touchmove', (e) => {
+        if (isDragging && dragImage) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            dragImage.style.left = `${touch.pageX - dragImage.offsetWidth / 2}px`;
+            dragImage.style.top = `${touch.pageY - dragImage.offsetHeight / 2}px`;
+        }
+    });
+
+    chip.addEventListener('touchend', (e) => {
+        clearTimeout(touchTimeout);
+        if (isDragging && dragImage) {
+            const touch = e.changedTouches[0];
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (dropTarget) {
+                const chipContainer = dropTarget.closest('.chip-container');
+                if (chipContainer) {
+                    handleChipDropOnCalendar(draggedChipData, chipContainer);
+                } else {
+                    const incomeChipsContainer = dropTarget.closest('#income-chips-container');
+                    if (incomeChipsContainer) {
+                        handleChipDropOnContainer(draggedChipData);
+                    }
+                }
+            }
+        }
+        
+        if (dragImage && document.body.contains(dragImage)) {
+            document.body.removeChild(dragImage);
+        }
+        isDragging = false;
+        state.isChipDragging = false;
+        dragImage = null;
+        chip.classList.remove('dragging');
+        clearDropTargetHighlights();
+    });
+
+    chip.addEventListener('touchcancel', () => {
+        clearTimeout(touchTimeout);
+        if (dragImage && document.body.contains(dragImage)) {
+            document.body.removeChild(dragImage);
+        }
+        isDragging = false;
+        state.isChipDragging = false;
+        dragImage = null;
+        chip.classList.remove('dragging');
+        clearDropTargetHighlights();
     });
 
     return chip;

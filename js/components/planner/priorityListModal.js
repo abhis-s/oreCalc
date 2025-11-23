@@ -410,6 +410,7 @@ export function initializePriorityListModal() {
     if (modalBody) {
         let draggedItem = null;
 
+        // Mouse drag events
         modalBody.addEventListener('dragstart', (e) => {
             if (e.target.classList.contains('priority-list-editor-item')) {
                 draggedItem = e.target;
@@ -462,6 +463,59 @@ export function initializePriorityListModal() {
                 
                 renderDraggableList();
             }
+        });
+
+        // Touch events
+        let isTouching = false;
+
+        modalBody.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.drag-handle')) {
+                draggedItem = e.target.closest('.priority-list-editor-item');
+                if (draggedItem) {
+                    isTouching = true;
+                    draggedItem.classList.add('dragging');
+                }
+            }
+        });
+
+        modalBody.addEventListener('touchmove', (e) => {
+            if (isTouching && draggedItem) {
+                e.preventDefault();
+                const editor = document.getElementById('priority-list-editor');
+                const touch = e.touches[0];
+                const afterElement = getDragAfterElement(editor, touch.clientY);
+                
+                if (afterElement == null) {
+                    editor.appendChild(draggedItem);
+                } else {
+                    editor.insertBefore(draggedItem, afterElement);
+                }
+            }
+        });
+
+        modalBody.addEventListener('touchend', (e) => {
+            if (isTouching && draggedItem) {
+                draggedItem.classList.remove('dragging');
+                
+                const editor = document.getElementById('priority-list-editor');
+                const newOrderedItems = [...editor.querySelectorAll('.priority-list-editor-item')];
+
+                handleStateUpdate(() => {
+                    newOrderedItems.forEach((domItem, index) => {
+                        const { heroName, equipName, step } = domItem.dataset;
+                        if (heroName && equipName && step) {
+                            const plan = state.heroes[heroName]?.equipment[equipName]?.upgradePlan[step];
+                            if (plan) {
+                                plan.priorityIndex = index + 1;
+                            }
+                        }
+                    });
+                });
+                
+                renderDraggableList();
+            }
+            isTouching = false;
+            draggedItem = null;
         });
     }
 }

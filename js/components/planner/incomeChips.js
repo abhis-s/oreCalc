@@ -164,7 +164,10 @@ function handleDropToChipContainer(e) {
     e.currentTarget.classList.remove('valid-drop-target');
 
     const incomeChipData = JSON.parse(e.dataTransfer.getData('text/plain'));
+    handleChipDropOnContainer(incomeChipData);
+}
 
+export function handleChipDropOnContainer(incomeChipData) {
     handleStateUpdate(() => {
         for (const monthYearKey in state.planner.calendar.dates) {
             const days = state.planner.calendar.dates[monthYearKey];
@@ -186,6 +189,8 @@ function handleDropToChipContainer(e) {
     });
 
     reindexCalendarChips(incomeChipData.type);
-    renderCalendar(state.planner);
-    renderIncomeChips(state.planner.calendar.view.month.split('-')[1], parseInt(state.planner.calendar.view.month.split('-')[0], 10) - 1);
+    setTimeout(() => {
+        renderCalendar(state.planner);
+        renderIncomeChips(state.planner.calendar.view.month.split('-')[1], parseInt(state.planner.calendar.view.month.split('-')[0], 10) - 1);
+    }, 0);
 }

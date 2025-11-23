@@ -369,7 +369,7 @@ function snapBack() {
 }
 
 function handleTouchStart(e) {
-    if (isTransitioning) return;
+    if (state.isChipDragging || isTransitioning) return;
     isSwiping = true;
     touchStartX = e.touches[0].clientX;
     prevTranslate = -calendarContainer.offsetWidth;
@@ -377,7 +377,7 @@ function handleTouchStart(e) {
 }
 
 function handleTouchMove(e) {
-    if (!isSwiping || isTransitioning) return;
+    if (state.isChipDragging || !isSwiping || isTransitioning) return;
     const currentX = e.touches[0].clientX;
     const diff = currentX - touchStartX;
     currentTranslate = prevTranslate + diff;
@@ -582,9 +582,13 @@ function handleDragLeave(e) {
 function handleDrop(e) {
     e.preventDefault();
     const chipContainer = e.currentTarget;
+    const incomeChipData = JSON.parse(e.dataTransfer.getData('text/plain'));
+    handleChipDropOnCalendar(incomeChipData, chipContainer);
+}
+
+export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
     if (!chipContainer || !chipContainer.classList.contains('valid-drop-range')) return;
     chipContainer.classList.remove('valid-drop-target', 'invalid-drop-target');
-    const incomeChipData = JSON.parse(e.dataTransfer.getData('text/plain'));
     if (incomeChipData.type === 'starBonus') return;
 
     const targetDate = chipContainer.closest('.day-cell').dataset.date;

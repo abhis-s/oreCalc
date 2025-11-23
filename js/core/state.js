@@ -37,6 +37,7 @@ export function getDefaultState() {
             incomeCardExpanded: false,
             activeTab: 'home-tab',
             enableLevelInput: false,
+            isChipDragging: false,
         },
 
         heroes: initializeHeroesState(),
@@ -439,11 +440,8 @@ export function initializeState(savedState) {
             Object.assign(state, { [key]: savedState[key] });
         }
 
-        // Explicitly merge uiSettings to ensure deep merge
-        Object.assign(
-            state.uiSettings,
-            savedState.uiSettings
-        );
+        state.uiSettings = { ...defaultState.uiSettings, ...(savedState.uiSettings || {}) };
+
 
         if (state.activeTab === undefined) {
             state.activeTab = 'home-tab';
