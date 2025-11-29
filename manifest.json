@@ -1,9 +1,12 @@
 {
     "name": "Ore Calculator",
     "short_name": "OreCalc",
-    "description": "Optimize your Clash of Clans gameplay with this comprehensive Ore Calculator. Track ore income from various sources, calculate requirements for hero equipment upgrades, and plan your resource management efficiently. Works offline and provides real-time insights.",
+    "description": "The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.",
     "start_url": "/",
     "id": "/",
+    "scope": "/",
+    "orientation": "any",
+    "categories": ["entertainment", "games", "utilities"],
     "url_handlers": [
         {
             "origin": "https://orecalc.tech"
@@ -36,6 +39,29 @@
             "src": "assets/screenshot_mobile.png",
             "sizes": "1080x2400",
             "type": "image/png"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Equipment",
+            "short_name": "Equipment",
+            "description": "View and manage hero equipment",
+            "url": "/#equipment",
+            "icons": [{ "src": "assets/app_icon_large.png", "sizes": "512x512" }]
+        },
+        {
+            "name": "Income",
+            "short_name": "Income",
+            "description": "Track your ore income",
+            "url": "/#income",
+            "icons": [{ "src": "assets/app_icon_large.png", "sizes": "512x512" }]
+        },
+        {
+            "name": "Planner",
+            "short_name": "Planner",
+            "description": "Plan your equipment upgrades",
+            "url": "/#planner",
+            "icons": [{ "src": "assets/app_icon_large.png", "sizes": "512x512" }]
         }
     ]
 }

@@ -50,6 +50,7 @@ async function build() {
         await copyWithPromise(path.join(projectRoot, 'js/**/*.js'), path.join(distDir, 'js'));
         await copyWithPromise(path.join(projectRoot, 'js/i18n/**/*.json'), path.join(distDir, 'js/i18n'));
         await copyWithPromise(path.join(projectRoot, 'manifest.json'), distDir);
+        await copyWithPromise(path.join(projectRoot, 'sitemap.xml'), distDir);
         await copyWithPromise(path.join(projectRoot, '.well-known/*'), path.join(distDir, '.well-known'));
         
         const libsDestDir = path.join(distDir, 'js');

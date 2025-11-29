@@ -8,6 +8,7 @@ export function initializeTabs() {
         if (!button) return;
 
         const tabId = `${button.dataset.tab}-tab`;
+        history.pushState(null, '', `#${button.dataset.tab}`);
         handleStateUpdate(() => {
             state.activeTab = tabId;
         });

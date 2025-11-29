@@ -90,6 +90,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const savedState = await initializeAppData();
     initializeState(savedState);
 
+    const hash = window.location.hash.substring(1).split('?')[0];
+    if (hash) {
+        const validTabs = ['home', 'equipment', 'income', 'planner', 'settings'];
+        if (validTabs.includes(hash)) {
+            state.activeTab = `${hash}-tab`;
+        }
+    }
+
     let initialLanguage = state.uiSettings.language;
 
     if (!initialLanguage || initialLanguage === 'auto') {
@@ -165,38 +173,54 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1000);
     }
 
-if ('serviceWorker' in navigator && 'workbox' in window) {
-        const wb = new workbox.Workbox('/service-worker.js');
+    if ('serviceWorker' in navigator && 'workbox' in window) {
+            const wb = new workbox.Workbox('/service-worker.js');
 
-        wb.addEventListener('waiting', (event) => {
-            console.log('A new version is available. Showing update prompt.');
+            wb.addEventListener('waiting', (event) => {
+                console.log('A new version is available. Showing update prompt.');
 
-            const updateModal = document.getElementById('update-available-modal');
-            const overlay = document.getElementById('overlay');
-            const reloadButton = document.getElementById('update-reload-button');
-            const laterButton = document.getElementById('update-later-button');
+                const updateModal = document.getElementById('update-available-modal');
+                const overlay = document.getElementById('overlay');
+                const reloadButton = document.getElementById('update-reload-button');
+                const laterButton = document.getElementById('update-later-button');
 
-            if (updateModal && overlay && reloadButton && laterButton) {
-                updateModal.classList.add('show');
-                overlay.style.display = 'block';
+                if (updateModal && overlay && reloadButton && laterButton) {
+                    updateModal.classList.add('show');
+                    overlay.style.display = 'block';
 
-                reloadButton.onclick = () => {
-                    localStorage.setItem('showChangelog', 'true');
-                    wb.addEventListener('controlling', () => {
-                        window.location.reload();
-                    });
-                    wb.messageSkipWaiting();
-                };
+                    reloadButton.onclick = () => {
+                        localStorage.setItem('showChangelog', 'true');
+                        wb.addEventListener('controlling', () => {
+                            window.location.reload();
+                        });
+                        wb.messageSkipWaiting();
+                    };
 
-                laterButton.onclick = () => {
-                    updateModal.classList.remove('show');
-                    overlay.style.display = 'none';
-                };
-            }
-        });
+                    laterButton.onclick = () => {
+                        updateModal.classList.remove('show');
+                        overlay.style.display = 'none';
+                    };
+                }
+            });
 
-        wb.register();
+            wb.register();
     }
+
+    window.addEventListener('popstate', (event) => {
+        const hash = window.location.hash.substring(1).split('?')[0];
+        if (hash) {
+            const validTabs = ['home', 'equipment', 'income', 'planner', 'settings'];
+            if (validTabs.includes(hash)) {
+                handleStateUpdate(() => {
+                    state.activeTab = `${hash}-tab`;
+                });
+            }
+        } else {
+            handleStateUpdate(() => {
+                state.activeTab = 'home-tab';
+            });
+        }
+    });
 });
 
 export function handleStateUpdate(mutator, silent = false) {
