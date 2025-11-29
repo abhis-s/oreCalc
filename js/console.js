@@ -4,6 +4,7 @@ import { saveState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { showChangelogModal } from './components/changelog/changelogModal.js';
 import { fetchChangelog } from './services/githubService.js';
+import { showSaveErrorIndicator } from './ui/savingIndicator.js';
 
 window.enableLevelInput = () => {
     const newEnableLevelInput = !state.uiSettings.enableLevelInput;
@@ -66,6 +67,12 @@ window.showChangelog = async () => {
     return "Changelog modal displayed.";
 };
 
+window.simulateSaveFail = () => {
+    console.log("Simulating save failure...");
+    showSaveErrorIndicator();
+    return "Save failure simulated.";
+};
+
 console.info(
     "%c Ore Calculator Console Commands:\n\n" +
     "%c  enableLevelInput(): %cToggles the 'Enable level input' setting.\n" +
@@ -73,9 +80,11 @@ console.info(
     "%c  cancelResetApp(): %cCancels an active resetApp countdown.\n" +
     "%c  logState():       %cLogs the current state object to the console.\n" +
     "%c  clearPlannerState(): %cClears all saved chips from the planner calendar.\n" +
-    "%c  showChangelog():  %cDisplays the changelog modal.\n\n" +
+    "%c  showChangelog():  %cDisplays the changelog modal.\n" +
+    "%c  simulateSaveFail(): %cSimulates a save failure to test the error indicator.\n\n" +
     "%c For more information, refer to the documentation.",
     "color: #8ab4f8; font-weight: bold;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",

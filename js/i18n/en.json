@@ -26,6 +26,8 @@
     "action_sync": "Sync Data",
     "action_refresh": "Refresh",
     "action_auto_place": "Auto Place",
+    "saving": "Saving...",
+    "save_failed": "Save failed!",
 
     "required_ores": "Required Ores",
     "stored_ores": "Stored Ores",

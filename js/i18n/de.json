@@ -23,6 +23,8 @@
     "action_sync": "Daten synchronisieren",
     "action_refresh": "Aktualisieren",
     "action_auto_place": "Auto. Platzieren",
+    "saving": "Speichern...",
+    "save_failed": "Speichern fehlgeschlagen!",
     "required_ores": "Benötigte Erze",
     "stored_ores": "Erze im Lager",
     "remaining_time": "Verbleibende Zeit",

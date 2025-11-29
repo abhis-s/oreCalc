@@ -38,6 +38,7 @@ export function getDefaultState() {
             activeTab: 'home-tab',
             enableLevelInput: false,
             isChipDragging: false,
+            saveError: false,
         },
 
         heroes: initializeHeroesState(),
@@ -441,6 +442,7 @@ export function initializeState(savedState) {
         }
 
         state.uiSettings = { ...defaultState.uiSettings, ...(savedState.uiSettings || {}) };
+        state.uiSettings.saveError = false;
 
 
         if (state.activeTab === undefined) {

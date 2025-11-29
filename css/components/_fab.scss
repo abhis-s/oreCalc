@@ -58,6 +58,28 @@
     }
 }
 
+.fab-button.saving {
+    cursor: not-allowed;
+    .button-spinner {
+        display: block;
+    }
+    .fab-icon {
+        display: none;
+    }
+}
+
+.fab-button.error {
+    background-color: $color-danger-200;
+    cursor: not-allowed;
+    .button-spinner, .fab-icon {
+        display: none;
+    }
+    .button-error-icon {
+        display: block;
+    }
+}
+
+
 .fab-icon {
     position: absolute;
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;

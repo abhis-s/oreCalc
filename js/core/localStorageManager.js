@@ -1,37 +1,51 @@
 import { state } from './state.js';
+import { showSavingIndicator, hideSavingIndicator, showSaveErrorIndicator } from '../ui/savingIndicator.js';
 
 const APP_STATE_KEY = 'oreCalculatorState';
 
+let saveTimeout;
+
 export function saveState(state) {
-    try {
-        const currentPlayerTag = state.lastPlayerTag;
+    if (state.uiSettings.saveError) {
+        return;
+    }
+    clearTimeout(saveTimeout);
+    showSavingIndicator();
+
+    saveTimeout = setTimeout(() => {
+        try {
+            const currentPlayerTag = state.lastPlayerTag;
             if (currentPlayerTag) {
                 state.allPlayersData[currentPlayerTag] = {
-                heroes: state.heroes,
-                storedOres: state.storedOres,
-                income: state.income,
-                planner: state.planner,
-                playerData: state.playerData,
-                regionalPricingEnabled: state.uiSettings.regionalPricingEnabled,
-                currency: state.uiSettings.currency,
+                    heroes: state.heroes,
+                    storedOres: state.storedOres,
+                    income: state.income,
+                    planner: state.planner,
+                    playerData: state.playerData,
+                    regionalPricingEnabled: state.uiSettings.regionalPricingEnabled,
+                    currency: state.uiSettings.currency,
+                };
+            }
+
+            const stateToSave = {
+                appVersion: state.appVersion,
+                lastPlayerTag: state.lastPlayerTag,
+                savedPlayerTags: state.savedPlayerTags.length > 0 ? state.savedPlayerTags : ['DEFAULT0'],
+                uiSettings: state.uiSettings,
+                allPlayersData: state.allPlayersData,
+                timestamp: new Date().toISOString(),
             };
+
+            const serializedState = JSON.stringify(stateToSave);
+            localStorage.setItem(APP_STATE_KEY, serializedState);
+            hideSavingIndicator();
+        } catch (error) {
+            console.error("Could not save state to localStorage", error);
+            showSaveErrorIndicator();
         }
-
-        const stateToSave = {
-            appVersion: state.appVersion,
-            lastPlayerTag: state.lastPlayerTag,
-            savedPlayerTags: state.savedPlayerTags.length > 0 ? state.savedPlayerTags : ['DEFAULT0'],
-            uiSettings: state.uiSettings,
-            allPlayersData: state.allPlayersData,
-            timestamp: new Date().toISOString(),
-        };
-
-        const serializedState = JSON.stringify(stateToSave);
-        localStorage.setItem(APP_STATE_KEY, serializedState);
-    } catch (error) {
-        console.error("Could not save state to localStorage", error);
-    }
+    }, 1000);
 }
+
 
 export function loadState() {
     try {

@@ -1,6 +1,12 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .animated-btn {
     @extend %flex-center;
     border: none;
@@ -71,6 +77,45 @@
     }
 }
 
+.button-spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+.animated-btn.saving {
+    cursor: not-allowed;
+    gap: 10px;
+    .button-spinner {
+        display: block;
+    }
+    .animated-btn-icon-wrapper, .animated-btn-icon-disabled {
+        display: none;
+    }
+}
+
+.button-error-icon {
+    display: none;
+}
+
+.animated-btn.error {
+    background-color: $color-danger-200;
+    gap: 10px;
+
+    .button-spinner, .animated-btn-icon-wrapper, .animated-btn-icon-disabled {
+        display: none;
+    }
+
+    .button-error-icon {
+        display: block;
+    }
+}
+
+
 #floating-save-btn {
     background-color: $color-success-200;
     bottom: 20px;
@@ -103,6 +148,13 @@
     &:disabled:hover .save-button-tooltip {
         opacity: 1;
         visibility: visible;
+    }
+
+    &.error {
+        background-color: $color-danger-200;
+        .button-error-icon {
+            display: none;
+        }
     }
 }
 
