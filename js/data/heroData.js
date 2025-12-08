@@ -60,6 +60,7 @@ export const heroData = {
             { name: "Haste Vial", type: "common", image: "assets/equipment/royal_champion/RC_haste_vial.png" },
             { name: "Rocket Spear", type: "epic", image: "assets/equipment/royal_champion/RC_rocket_spear.png" },
             { name: "Electro Boots", type: "epic", image: "assets/equipment/royal_champion/RC_electro_boots.png" },
+            { name: "Frost Flake", type: "epic", image: "assets/equipment/royal_champion/RC_frost_flake.png" },
         ],
     },
 };
