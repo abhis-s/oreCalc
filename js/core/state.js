@@ -450,9 +450,25 @@ export function initializeState(savedState) {
         }
         if (state.lastPlayerTag && state.allPlayersData[state.lastPlayerTag]) {
             const activePlayerData = state.allPlayersData[state.lastPlayerTag];
+            const defaultHeroes = getDefaultState().heroes;
+
             for (const heroKey in heroData) {
                 const heroName = heroData[heroKey].name;
-                const defaultHero = getDefaultState().heroes[heroName];
+
+                if (!activePlayerData.heroes[heroName]) {
+                    activePlayerData.heroes[heroName] = defaultHeroes[heroName];
+                } else {
+                    for (const equip of heroData[heroKey].equipment) {
+                        if (!activePlayerData.heroes[heroName].equipment[equip.name]) {
+                            activePlayerData.heroes[heroName].equipment[equip.name] = defaultHeroes[heroName].equipment[equip.name];
+                        }
+                    }
+                }
+            }
+
+            for (const heroKey in heroData) {
+                const heroName = heroData[heroKey].name;
+                const defaultHero = defaultHeroes[heroName];
 
                 if (state.heroes[heroName]) {
                     const savedHero = activePlayerData.heroes?.[heroName];
