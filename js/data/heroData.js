@@ -10,6 +10,7 @@ export const heroData = {
             { name: "Giant Gauntlet", type: "epic", image: "assets/equipment/barbarian_king/BK_giant_gauntlet.png" },
             { name: "Spiky Ball", type: "epic", image: "assets/equipment/barbarian_king/BK_spiky_ball.png" },
             { name: "Snake Bracelet", type: "epic", image: "assets/equipment/barbarian_king/BK_snake_bracelet.png" },
+            { name: "Stick Horse", type: "epic", image: "assets/equipment/barbarian_king/BK_stick_horse.png" },
         ],
     },
     archer_queen: {
