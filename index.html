@@ -361,8 +361,8 @@
                             </select>
                         </div>
                         <div class="input-group-flex">
-                            <label for="inc-star-bonus-4x-toggle" data-i18n="bimonthly_4x_event">Bimonthly 4x Event:</label>
-                            <select id="inc-star-bonus-4x-toggle" class="dropdown-style updatable">
+                            <label for="inc-star-bonus-2x-toggle" data-i18n="bimonthly_2x_event">Bimonthly 2x Event:</label>
+                            <select id="inc-star-bonus-2x-toggle" class="dropdown-style updatable">
                                 <option value="false" data-i18n="no">No</option>
                                 <option value="true" data-i18n="yes">Yes</option>
                             </select>
@@ -529,18 +529,19 @@
                             </select>
                         </div>
                         <div class="input-group-flex">
-                            <label for="inc-store-medals-select" data-i18n="free_store_medals_question">Free Store Medals?</label>
-                            <select id="inc-store-medals-select" class="updatable">
-                                <option value="yes" data-i18n="yes"></option>
-                                <option value="no" data-i18n="no"></option>
-                            </select>
-                        </div>
-                        <div class="input-group-flex">
                             <label for="inc-event-equipment-bought-select" data-i18n="getting_the_equipment_question">Getting the Equipment?</label>
                             <select id="inc-event-equipment-bought-select" class="updatable">
                                 <option value="yes" data-i18n="yes"></option>
                                 <option value="no" data-i18n="no"></option>
                             </select>
+                        </div>
+                        <div class="input-group-flex">
+                            <label for="inc-claimable-medals-input" data-i18n="claimable_medals_colon">Claimable Medals:</label>
+                            <input type="number" id="inc-claimable-medals-input" class="updatable" value="0" min="0" max="1000" maxlength="4">
+                        </div>
+                        <div class="input-group-flex">
+                            <label for="inc-bonus-track-medals-input" data-i18n="bonus_track_medals_colon">Bonus Track Medals:</label>
+                            <input type="number" id="inc-bonus-track-medals-input" class="updatable" value="0" min="0" max="1000" maxlength="4">
                         </div>
                     </div>
                     <div class="timeframe-income">

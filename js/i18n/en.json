@@ -72,7 +72,8 @@
     "offer": "Offer",
     "packs": "Packs",
     "free_pass": "Free Pass",
-    "free_store_medals_question": "Free Store Medals?",
+    "claimable_medals_colon": "Claimable Medals:",
+    "bonus_track_medals_colon": "Bonus Track Medals:",
     "yes": "Yes",
     "no": "No",
     "getting_the_equipment_question": "Getting the Equipment?",
@@ -102,7 +103,7 @@
     "per_hit_colon": "Per Hit:",
     "common_colon": "Common:",
     "epic_colon": "Epic:",
-    "bimonthly_4x_event": "Bimonthly 4x Event:",
+    "bimonthly_2x_event": "Bimonthly 2x Event:",
 
     "language": "Language:",
     "english": "English",

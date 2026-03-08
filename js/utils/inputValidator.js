@@ -5,7 +5,8 @@ export function addValidation(inputElement, { inputName = 'value' }) {
 
     const maxLength = parseInt(inputElement.maxLength, 10) || Infinity;
 
-    inputElement.dataset.lastValidValue = inputElement.value;
+    const min = parseInt(inputElement.min, 10);
+    inputElement.dataset.lastValidValue = inputElement.value.trim() === '' ? min.toString() : inputElement.value;
     const dialog = document.createElement('div');
     dialog.classList.add('input-dialog');
     inputElement.parentNode.insertBefore(dialog, inputElement.nextSibling);
@@ -52,7 +53,7 @@ export function addValidation(inputElement, { inputName = 'value' }) {
             value = value.slice(0, maxLength);
             showDialog(translate('validation_max_length', { maxLength: maxLength }), 'warning');
         }
-        
+
         event.target.value = value;
 
         event.target.classList.remove('warning-border', 'error-border');
@@ -69,15 +70,22 @@ export function addValidation(inputElement, { inputName = 'value' }) {
 
         if (isNaN(currentValue) || currentValue < min || currentValue > max) {
             showDialog(translate('validation_invalid_revert'), 'error');
-            currentValue = parseInt(inputElement.dataset.lastValidValue, 10);
+            let lastValid = parseInt(inputElement.dataset.lastValidValue, 10);
+            if (isNaN(lastValid) || lastValid < min) {
+                currentValue = min;
+            } else if (lastValid > max) {
+                currentValue = max;
+            } else {
+                currentValue = lastValid;
+            }
         } else {
             event.target.classList.remove('warning-border', 'error-border');
             dialog.classList.remove('show');
         }
-        
+
         inputElement.value = currentValue;
         inputElement.dataset.lastValidValue = currentValue;
-        
+
         inputElement.dispatchEvent(new CustomEvent('validated-input', {
             detail: { value: currentValue },
             bubbles: true,
@@ -88,6 +96,50 @@ export function addValidation(inputElement, { inputName = 'value' }) {
     inputElement.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.target.blur();
+        }
+    });
+}
+
+export function validateAllInputs(inputFields) {
+    inputFields.forEach(inputElement => {
+        if (!inputElement) return;
+
+        const min = parseInt(inputElement.min, 10);
+        const max = parseInt(inputElement.max, 10);
+        let value = inputElement.value.trim();
+
+        if (value === '') {
+            value = min.toString();
+        }
+
+        let currentValue = parseInt(value, 10);
+
+        if (isNaN(currentValue) || currentValue < min) {
+            currentValue = min;
+        } else if (currentValue > max) {
+            currentValue = max;
+        }
+
+        inputElement.value = currentValue;
+        inputElement.dataset.lastValidValue = currentValue;
+    });
+}
+
+export function validateAllSelects(selectFields) {
+    selectFields.forEach(selectElement => {
+        if (!selectElement) return;
+
+        const selectedValue = selectElement.value;
+        let isValid = false;
+        for (const option of selectElement.options) {
+            if (option.value === selectedValue) {
+                isValid = true;
+                break;
+            }
+        }
+
+        if (!isValid && selectElement.options.length > 0) {
+            selectElement.value = selectElement.options[0].value;
         }
     });
 }

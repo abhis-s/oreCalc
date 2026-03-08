@@ -61,11 +61,11 @@ export function initializeStarBonusSelector() {
         });
     }
 
-    const toggleElement = dom.income?.starBonus?.is4xEnabled;
+    const toggleElement = dom.income?.starBonus?.is2xEnabled;
     if (toggleElement) {
         toggleElement.addEventListener('change', (e) => {
             handleStateUpdate(() => {
-                state.income.starBonus.is4xEnabled = e.target.value === 'true';
+                state.income.starBonus.is2xEnabled = e.target.value === 'true';
             });
         });
     }
@@ -80,8 +80,8 @@ export function renderStarBonusControls(incomeState) {
         selectElement.value = incomeState.starBonus.league;
     }
 
-    const toggleElement = dom.income?.starBonus?.is4xEnabled;
+    const toggleElement = dom.income?.starBonus?.is2xEnabled;
     if (toggleElement) {
-        toggleElement.value = incomeState.starBonus.is4xEnabled;
+        toggleElement.value = incomeState.starBonus.is2xEnabled;
     }
 }

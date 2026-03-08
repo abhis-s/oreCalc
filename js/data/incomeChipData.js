@@ -59,7 +59,7 @@ export const incomeData = {
             dateStart: 8,
             dateEnd: 28,
             availableMonths: {
-                2025: [8, 10, 12], 
+                2026: [4, 6, 8, 10, 12],
             },
         },
         getIncome: (state) => state.derived.incomeSources.eventPass?.bimonthly || { shiny: 0, glowy: 0, starry: 0 },
@@ -75,7 +75,7 @@ export const incomeData = {
             dateStart: 8,
             dateEnd: 28,
             availableMonths: {
-                2025: [8, 10, 12], 
+                2026: [4, 6, 8, 10, 12],
             },
         },
         getIncome: (state) => state.derived.incomeSources.eventTrader?.bimonthly || { shiny: 0, glowy: 0, starry: 0 },

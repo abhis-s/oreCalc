@@ -21,7 +21,7 @@ function calculateTimeframeBreakdown(monthlyOres, additionalData = {}) {
 
 export function calculateWarIncome(winRate, drawRate, oresPerAttack, attacksPerEvent, eventsPerMonth) {
     const winFactor = winRate / 100;
-    const drawFactor = (drawRate / 100) * (4 / 7);
+    const drawFactor = (drawRate / 100) * 0.75;
     const lossFactor = ((100 - winRate - drawRate) / 100) * 0.5;
     const totalFactor = winFactor + drawFactor + lossFactor;
 

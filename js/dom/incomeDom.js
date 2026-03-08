@@ -120,7 +120,7 @@ export function getIncomeDOMElements() {
         },
         starBonus: {
             league: document.getElementById('inc-star-bonus-league-select'),
-            is4xEnabled: document.getElementById('inc-star-bonus-4x-toggle'),
+            is2xEnabled: document.getElementById('inc-star-bonus-2x-toggle'),
             display: {
                 daily: {
                     shiny: document.getElementById('inc-star-bonus-shiny-daily-value'),
@@ -181,8 +181,9 @@ export function getIncomeDOMElements() {
         },
         eventPass: {
             passType: document.getElementById('inc-event-pass-select'),
-            storeMedalsClaimed: document.getElementById('inc-store-medals-select'),
             equipmentBought: document.getElementById('inc-event-equipment-bought-select'),
+            claimableMedals: document.getElementById('inc-claimable-medals-input'),
+            bonusTrackMedals: document.getElementById('inc-bonus-track-medals-input'),
             display: {
                 bimonthly: {
                     shiny: document.getElementById('inc-event-pass-shiny-bimonthly-value'),

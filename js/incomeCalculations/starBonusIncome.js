@@ -1,14 +1,14 @@
 import { starBonusData } from "../data/appData.js";
 import { DAYS_IN_WEEK, DAYS_IN_MONTH, MONTHS_IN_BIMONTH } from "../data/timeConstants.js";
 
-export function calculateStarBonusIncome(selectedLeague, is4xEnabled) {
+export function calculateStarBonusIncome(selectedLeague, is2xEnabled) {
     const leagueData = starBonusData.find(data => data.league === parseInt(selectedLeague)) || starBonusData[0];
 
     let multiplier = 1;
-    if (is4xEnabled) {
+    if (is2xEnabled) {
         const eventBonusInstances = 2.5;
         const daysInMonth = DAYS_IN_MONTH;
-        multiplier = ((eventBonusInstances * 3) + (daysInMonth - eventBonusInstances) * 1) / daysInMonth;
+        multiplier = (eventBonusInstances + daysInMonth) / daysInMonth;
     }
 
     const daily = {

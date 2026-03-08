@@ -33,6 +33,7 @@ import { initializeIncomeCardHandler } from './components/income/incomeCardHandl
 import { initializeIncomeCardObserver } from './components/income/incomeCardObserver.js';
 import { updateResponsiveText } from './utils/responsiveTextHandler.js';
 import { initializeCloudSaveButtons } from './utils/cloudSaveHandler.js';
+import { validateAllInputs, validateAllSelects } from './utils/inputValidator.js';
 import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
 import { loadTranslations, translate } from './i18n/translator.js';
 import { fetchChangelog } from './services/githubService.js';
@@ -150,6 +151,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeIncomeCardObserver();
     updateResponsiveText();
     initializeCloudSaveButtons();
+
+    const inputsToValidate = [
+        dom.income.eventPass.claimableMedals,
+        dom.income.eventPass.bonusTrackMedals,
+        dom.income.raids.earned,
+        dom.income.clanWar.warsPerMonthInput,
+        dom.income.clanWar.oresPerAttack.shinyInput,
+        dom.income.clanWar.oresPerAttack.glowyInput,
+        dom.income.clanWar.oresPerAttack.starryInput,
+        dom.income.clanWar.warResults.winRateInput,
+        dom.income.clanWar.warResults.drawRateInput,
+        dom.income.cwl.hitsPerSeasonInput,
+        dom.income.cwl.oresPerAttack.shinyInput,
+        dom.income.cwl.oresPerAttack.glowyInput,
+        dom.income.cwl.oresPerAttack.starryInput,
+        dom.income.cwl.warResults.winRateInput,
+        dom.income.cwl.warResults.drawRateInput,
+        dom.equipment.storage.shiny,
+        dom.equipment.storage.glowy,
+        dom.equipment.storage.starry,
+        dom.planner.customMaxLevel.common,
+        dom.planner.customMaxLevel.epic,
+        ...document.querySelectorAll('#inc-raid-medal-trader-offers input'),
+        ...document.querySelectorAll('#inc-gem-trader-offers input'),
+        ...document.querySelectorAll('#inc-event-trader-offers input'),
+    ];
+    validateAllInputs(inputsToValidate);
+    
+    const selectsToValidate = [
+        dom.income.starBonus.league,
+        dom.income.starBonus.is2xEnabled,
+        dom.income.shopOffers.dropdown,
+        dom.income.eventPass.passType,
+        dom.income.eventPass.equipmentBought,
+        dom.income.championship.supercellEvents,
+        dom.income.home.incomeCard.timeframe,
+    ];
+    validateAllSelects(selectsToValidate);
 
     const refreshButton = dom.controls.refreshButton;
     if (refreshButton) {

@@ -46,7 +46,7 @@ export function getDefaultState() {
         income: {
             starBonus: {
                 league: 105000000,
-                is4xEnabled: false,
+                is2xEnabled: false,
             },
             shopOffers: {
                 selectedSet: 'none',
@@ -56,8 +56,9 @@ export function getDefaultState() {
             gems: { packs: { shiny: 0, glowy: 0, starry: 0 } },
             eventPass: {
                 type: 'free',
-                storeMedals: false,
                 equipmentBought: false,
+                claimableMedals: 0,
+                bonusTrackMedals: 0,
             },
             eventTrader: { packs: { shiny: 0, glowy: 0, starry: 0 } },
             clanWar: {
@@ -97,7 +98,7 @@ export function getDefaultState() {
             income: {
                 starBonus: {
                     league: 105000000,
-                    is4xEnabled: false,
+                    is2xEnabled: false,
                 },
                 championship: {
                     supercellEvents: false,
@@ -113,8 +114,9 @@ export function getDefaultState() {
                 gems: { packs: { shiny: 0, glowy: 0, starry: 0 } },
                 eventPass: {
                     type: 'free',
-                    storeMedals: false,
                     equipmentBought: false,
+                    claimableMedals: 0,
+                    bonusTrackMedals: 0,
                 },
                 eventTrader: { packs: { shiny: 0, glowy: 0, starry: 0 } },
                 clanWar: {
@@ -192,7 +194,7 @@ export function getDefaultPlayerState() {
             income: {
                 starBonus: {
                     league: 105000000,
-                    is4xEnabled: false,
+                    is2xEnabled: false,
                 },
                 shopOffers: {
                     selectedSet: 'none',
@@ -205,8 +207,9 @@ export function getDefaultPlayerState() {
                 gems: { packs: { shiny: 0, glowy: 0, starry: 0 } },
                 eventPass: {
                     type: 'free',
-                    storeMedals: false,
                     equipmentBought: false,
+                    claimableMedals: 0,
+                    bonusTrackMedals: 0,
                 },
                 eventTrader: { packs: { shiny: 0, glowy: 0, starry: 0 } },
                 clanWar: {
@@ -546,14 +549,34 @@ export function initializeState(savedState) {
                 state.planner.priorityList = [];
             }
 
+            const now = new Date();
+            let [currentMonth, currentYear] = [now.getMonth() + 1, now.getFullYear()];
+
             if (
                 !state.planner.calendar.view.month ||
                 typeof state.planner.calendar.view.month !== 'string' ||
                 !state.planner.calendar.view.month.includes('-')
             ) {
-                state.planner.calendar.view.month = `${String(
-                    new Date().getMonth() + 1
-                ).padStart(2, '0')}-${new Date().getFullYear()}`;
+                state.planner.calendar.view.month = `${String(currentMonth).padStart(2, '0')}-${currentYear}`;
+            }
+
+            let [month, year] = state.planner.calendar.view.month.split('-').map(Number);
+
+            if (year < 2026 || (year === 2026 && month < 3)) {
+                if (currentYear > 2026 || (currentYear === 2026 && currentMonth >= 3)) {
+                    state.planner.calendar.view.month = `${String(currentMonth).padStart(2, '0')}-${currentYear}`;
+                } else {
+                    state.planner.calendar.view.month = '03-2026';
+                }
+            }
+
+            if (state.planner.calendar.dates) {
+                for (const monthYearKey in state.planner.calendar.dates) {
+                    const [month, year] = monthYearKey.split('-').map(Number);
+                    if (year < 2026 || (year === 2026 && month < 3)) {
+                        delete state.planner.calendar.dates[monthYearKey];
+                    }
+                }
             }
 
             if (!state.planner.calendar.dates) {

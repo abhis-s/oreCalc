@@ -15,8 +15,8 @@ const deleteCurrentMonthChipsBtn = document.getElementById('delete-current-month
 const deleteAllChipsBtn = document.getElementById('delete-all-chips-btn');
 const monthChipContainer = document.getElementById('month-chip-container');
 
-const MIN_YEAR = 2025;
-const MIN_MONTH = 9; 
+const MIN_YEAR = 2026;
+const MIN_MONTH = 3; 
 const MAX_YEAR = 2027;
 const MAX_MONTH = 12; 
 
@@ -174,19 +174,26 @@ export function renderCalendar(plannerState) {
         const currentYear = parseInt(yearStr, 10);
         const currentMonth = parseInt(monthStr, 10) - 1;
 
+        if (currentYear > MIN_YEAR || (currentYear === MIN_YEAR && currentMonth > MIN_MONTH -1)) {
+            const prevDate = new Date(Date.UTC(currentYear, currentMonth - 1, 1));
+            const prevMonthGrid = generateMonthGrid(prevDate, plannerState);
+            calendarTrack.appendChild(prevMonthGrid);
+        }
+
         const currentDate = new Date(Date.UTC(currentYear, currentMonth, 1));
-        const prevDate = new Date(Date.UTC(currentYear, currentMonth - 1, 1));
         const nextDate = new Date(Date.UTC(currentYear, currentMonth + 1, 1));
 
-        const prevMonthGrid = generateMonthGrid(prevDate, plannerState);
         const currentMonthGrid = generateMonthGrid(currentDate, plannerState);
         const nextMonthGrid = generateMonthGrid(nextDate, plannerState);
 
-        calendarTrack.appendChild(prevMonthGrid);
         calendarTrack.appendChild(currentMonthGrid);
         calendarTrack.appendChild(nextMonthGrid);
 
-        positionTrackAtIndex(1);
+        if (currentYear > MIN_YEAR || (currentYear === MIN_YEAR && currentMonth > MIN_MONTH - 1)) {
+            positionTrackAtIndex(1);
+        } else {
+            positionTrackAtIndex(0);
+        }
         // move the translation logic from locale to date formatter
 
         currentMonthYearHeader.textContent = formatDate(currentDate, { month: 'long', year: 'numeric' });
@@ -262,7 +269,8 @@ function shiftNext() {
     }
 
     isTransitioning = true;
-    positionTrackAtIndex(2, true);
+    const numGrids = calendarTrack.children.length;
+    positionTrackAtIndex(numGrids - 1, true);
     calendarTrack.addEventListener('transitionend', onNextReady, { once: true });
 }
 
