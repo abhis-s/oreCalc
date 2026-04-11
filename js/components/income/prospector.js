@@ -3,6 +3,7 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { convertOres } from '../../incomeCalculations/prospectorManager.js';
 import { oreMaxValues } from '../../data/oreConversionData.js';
+import { addValidation } from '../../utils/inputValidator.js';
 
 function getStepValue(fromOre, toOre) {
     if (fromOre === 'shiny' && toOre === 'glowy') {
@@ -130,6 +131,7 @@ function updateConversion() {
         const toOre = dom.income.prospector.toOre.dataset.value;
     
         let fromAmount = parseInt(dom.income.prospector.fromAmount.value, 10);
+        if (isNaN(fromAmount)) fromAmount = 0;
     
         if ((dom.income.prospector.fromOre.dataset.previousOre && dom.income.prospector.fromOre.dataset.previousOre !== fromOre) || (dom.income.prospector.toOre.dataset.previousOre && dom.income.prospector.toOre.dataset.previousOre !== toOre)) {
             fromAmount = 0;
@@ -161,15 +163,13 @@ function updateConversion() {
         state.income.prospector.fromOre = fromOre;
         state.income.prospector.toOre = toOre;
         state.income.prospector.fromAmount = fromAmount;
-    }, true); // Silent update to prevent re-rendering issues
+    }); // Silent parameter removed to ensure UI updates
 }
 
 function updateSlider() {
-    handleStateUpdate(() => {
-        const fromAmount = parseInt(dom.income.prospector.slider.value, 10);
-        dom.income.prospector.fromAmount.value = fromAmount;
-        state.income.prospector.fromAmount = fromAmount;
-    });
+    const fromAmount = parseInt(dom.income.prospector.slider.value, 10);
+    dom.income.prospector.fromAmount.value = fromAmount;
+    updateConversion();
 }
 
 export function initializeProspector() {
@@ -198,11 +198,29 @@ export function initializeProspector() {
 
     dom.income.prospector.fromAmount.value = fromAmount;
 
+    // --- Add Validation ---
+    addValidation(dom.income.prospector.fromAmount, { inputName: 'fromAmount' });
+    addValidation(dom.income.prospector.daysPerMonth, { inputName: 'daysPerMonth' });
+
     // --- Initialize Dropdown Options & Event Listeners ---
     initializeCustomDropdown(dom.income.prospector.fromOre, 'from');
     initializeCustomDropdown(dom.income.prospector.toOre, 'to');
 
     dom.income.prospector.fromAmount.addEventListener('input', () => updateConversion());
+    dom.income.prospector.fromAmount.addEventListener('change', (e) => {
+        const fromOre = dom.income.prospector.fromOre.dataset.value;
+        const toOre = dom.income.prospector.toOre.dataset.value;
+        const step = getStepValue(fromOre, toOre);
+        let value = parseInt(e.target.value, 10);
+        if (!isNaN(value) && step > 1) {
+            value = Math.round(value / step) * step;
+            handleStateUpdate(() => {
+                state.income.prospector.fromAmount = value;
+                dom.income.prospector.fromAmount.value = value;
+            });
+            updateConversion();
+        }
+    });
     dom.income.prospector.slider.addEventListener('input', () => updateSlider());
 
     dom.income.prospector.goldPass.addEventListener('change', (e) => {
@@ -212,8 +230,10 @@ export function initializeProspector() {
     });
 
     dom.income.prospector.daysPerMonth.addEventListener('input', (e) => {
+        let value = parseInt(e.target.value, 10);
+        if (isNaN(value)) value = 0;
         handleStateUpdate(() => {
-            state.income.prospector.availableDays = parseInt(e.target.value, 10);
+            state.income.prospector.availableDays = value;
         });
     });
 
