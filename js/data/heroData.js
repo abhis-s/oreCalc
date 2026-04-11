@@ -71,7 +71,7 @@ export const heroData = {
             { name: "Fire Heart", type: "common", image: "assets/equipment/dragon_duke/DD_fire_heart.png" },
             { name: "Flame Blower", type: "common", image: "assets/equipment/dragon_duke/DD_flame_blower.png" },
             { name: "Stun Blaster", type: "common", image: "assets/equipment/dragon_duke/DD_stun_blaster.png" },
-            { name: "Coming Soon", type: "epic", image: "assets/equipment/equip_placeholder.png" },
+            { name: "Rocket Backpack", type: "epic", image: "assets/equipment/dragon_duke/DD_rocket_backpack.png" },
         ],
     },
 };
