@@ -76,6 +76,13 @@ export function getDefaultState() {
             championship: {
                 supercellEvents: false,
             },
+            prospector: {
+                goldPass: false,
+                availableDays: 12,
+                fromOre: 'shiny',
+                toOre: 'glowy',
+                fromAmount: 0,
+            },
         },
         planner: {
             customMaxLevel: {
@@ -130,6 +137,13 @@ export function getDefaultState() {
                     winRate: 50,
                     drawRate: 0,
                     oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
+                },
+                prospector: {
+                    goldPass: false,
+                    availableDays: 12,
+                    fromOre: 'shiny',
+                    toOre: 'glowy',
+                    fromAmount: 0,
                 },
             },
             playerData: null,
@@ -226,6 +240,13 @@ export function getDefaultPlayerState() {
                 },
                 championship: {
                     supercellEvents: false,
+                },
+                prospector: {
+                    goldPass: false,
+                    availableDays: 12,
+                    fromOre: 'shiny',
+                    toOre: 'glowy',
+                    fromAmount: 0,
                 },
             },
             planner: {
@@ -539,6 +560,7 @@ export function initializeState(savedState) {
             if (!state.income.championship) {
                 state.income.championship = getDefaultState().income.championship;
             }
+            state.income.prospector = { ...getDefaultState().income.prospector, ...state.income.prospector };
             Object.assign(
                 state.planner,
                 getDefaultState().planner,

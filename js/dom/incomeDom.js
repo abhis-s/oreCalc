@@ -69,6 +69,12 @@ export function getIncomeDOMElements() {
                         starry: document.getElementById('home-income-table-championship-starry'),
                         resource: document.getElementById('home-championship-resource'),
                     },
+                    prospector: {
+                        shiny: document.getElementById('home-income-table-prospector-shiny'),
+                        glowy: document.getElementById('home-income-table-prospector-glowy'),
+                        starry: document.getElementById('home-income-table-prospector-starry'),
+                        resource: document.getElementById('home-prospector-resource'),
+                    },
                     totalRow: {
                         shiny: document.getElementById('home-income-table-total-shiny'),
                         glowy: document.getElementById('home-income-table-total-glowy'),
@@ -136,7 +142,7 @@ export function getIncomeDOMElements() {
         },
         shopOffers: {
             dropdown: document.getElementById('inc-shop-offer-select'),
-            checkboxes: document.getElementById('shop-offer-checkboxes'),
+            checkboxes: document.getElementById('inc-shop-offer-checkboxes'),
             display: {
                 eur: document.getElementById('inc-shop-offer-eur-monthly-value'),
                 usd: document.getElementById('inc-shop-offer-usd-monthly-value'),
@@ -149,7 +155,7 @@ export function getIncomeDOMElements() {
         },
         raids: {
             earned: document.getElementById('inc-raid-medals-total-input'),
-            remaining: document.getElementById('raid-medals-remaining'),
+            remaining: document.getElementById('inc-raid-medals-remaining'),
             offersContainer: document.getElementById('inc-raid-medal-trader-offers'),
             display: {
                 weekly: {
@@ -284,5 +290,26 @@ export function getIncomeDOMElements() {
                 }
             }
         },
+        prospector: {
+            goldPass: document.getElementById('inc-prospector-gold-pass'),
+            daysPerMonth: document.getElementById('inc-prospector-days-per-month'),
+            fromOre: document.getElementById('inc-prospector-from-ore'),
+            toOre: document.getElementById('inc-prospector-to-ore'),
+            fromAmount: document.getElementById('inc-prospector-from-amount'),
+            toAmount: document.getElementById('inc-prospector-to-amount'),
+            slider: document.getElementById('inc-prospector-slider'),
+            display: {
+                daily: {
+                    shiny: document.getElementById('inc-prospector-shiny-daily-value'),
+                    glowy: document.getElementById('inc-prospector-glowy-daily-value'),
+                    starry: document.getElementById('inc-prospector-starry-daily-value'),
+                },
+                monthly: {
+                    shiny: document.getElementById('inc-prospector-shiny-monthly-value'),
+                    glowy: document.getElementById('inc-prospector-glowy-monthly-value'),
+                    starry: document.getElementById('inc-prospector-starry-monthly-value'),
+                }
+            }
+        }
     };
 }

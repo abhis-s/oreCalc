@@ -273,6 +273,13 @@
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-championship-starry">0</div>
                         <div class="income-table-cell income-table-resource calculated" id="home-championship-resource">event.supercell.com</div>
                     </div>
+                    <div class="income-table-row">
+                        <div class="income-table-cell" data-i18n="prospector">Prospector</div>
+                        <div class="income-table-cell income-table-value calculated" id="home-income-table-prospector-shiny">0</div>
+                        <div class="income-table-cell income-table-value calculated" id="home-income-table-prospector-glowy">0</div>
+                        <div class="income-table-cell income-table-value calculated" id="home-income-table-prospector-starry">0</div>
+                        <div class="income-table-cell income-table-resource calculated" id="home-prospector-resource"></div>
+                    </div>
                     <div class="income-table-footer">
                         <div class="income-table-cell" data-i18n="total_income">Total Income</div>
                         <div class="income-table-cell income-table-value calculated" id="home-income-table-total-shiny">0</div>
@@ -400,7 +407,7 @@
                             </select>
                         </div>
                     </div>
-                    <div id="shop-offer-checkboxes" class="offer-grid">
+                    <div id="inc-shop-offer-checkboxes" class="offer-grid">
                         <div class="offer-grid-header">
                             <div class="header-cell" data-i18n="cost">Cost</div>
                             <div class="header-cell" data-i18n="offer">Offer</div>
@@ -446,7 +453,7 @@
                         <div class="summary-item-container">
                             <div class="summary-label" data-i18n="remaining_colon">Remaining:</div>
                             <div class="summary-value-with-image">
-                                <span id="raid-medals-remaining" class="calculated">0</span>
+                                <span id="inc-raid-medals-remaining" class="calculated">0</span>
                                 <img src="assets/resources/raid_medal.png" alt="Raid Medals" class="raid-medal-image ore-image">
                             </div>
                         </div>
@@ -468,7 +475,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="gem-trader-card" class="income-card card">
+                <div id="inc-gem-trader-card" class="income-card card">
                     <h2 class="income-card-title" data-i18n="gem_trader">Gem Trader</h2>
                     <div id="inc-gem-trader-offers" class="offer-grid">
                         <div class="offer-grid-header">
@@ -757,6 +764,61 @@
                                 <div class="grid-value-display"><span id="inc-championship-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-championship-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
                                 <div class="grid-value-display"><span id="inc-championship-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="income-card card">
+                    <h2 class="income-card-title" data-i18n="prospector">Prospector</h2>
+                    <div class="inner-card">
+                        <div class="input-group-flex">
+                            <label for="inc-prospector-gold-pass" data-i18n="buying_gold_pass_question">Buying Gold Pass?</label>
+                            <select id="inc-prospector-gold-pass" class="updatable dropdown-style">
+                                <option value="false" data-i18n="no" selected>No</option>
+                                <option value="true" data-i18n="yes">Yes</option>
+                            </select>
+                        </div>
+                        <div class="input-group-flex">
+                            <label for="inc-prospector-days-per-month" data-i18n="prospector_available_days_colon">Available Days per Month:</label>
+                            <input type="number" id="inc-prospector-days-per-month" class="updatable" value="12" min="0" max="30" maxlength="2">
+                        </div>
+                    </div>
+                    <div class="prospector-grid">
+                        <div class="prospector-labels">
+                            <label for="inc-prospector-from-amount" data-i18n="from">From</label>
+                            <label for="inc-prospector-to-amount" data-i18n="to">To</label>
+                        </div>
+                        <div class="prospector-controls">
+                            <div class="custom-dropdown" id="inc-prospector-from-ore">
+                                <div class="dropdown-selected">
+                                    <img src="assets/shiny_ore.png" alt="Shiny Ore">
+                                </div>
+                                <div class="dropdown-options"></div>
+                            </div>
+                            <input type="number" id="inc-prospector-from-amount" class="updatable" value="0" min="0">
+                            <input type="range" id="inc-prospector-slider" class="updatable" min="0" max="2000" value="0">
+                            <input type="number" id="inc-prospector-to-amount" class="calculated" value="0" disabled>
+                            <div class="custom-dropdown" id="inc-prospector-to-ore">
+                                <div class="dropdown-selected">
+                                    <img src="assets/glowy_ore.png" alt="Glowy Ore">
+                                </div>
+                                <div class="dropdown-options"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeframe-income">
+                        <div class="four-col-grid">
+                            <div class="grid-row">
+                                <div class="grid-label" data-i18n="per_usage_colon">Per Usage:</div>
+                                <div class="grid-value-display"><span id="inc-prospector-shiny-daily-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
+                                <div class="grid-value-display"><span id="inc-prospector-glowy-daily-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
+                                <div class="grid-value-display"><span id="inc-prospector-starry-daily-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-label" data-i18n="monthly_colon">Monthly:</div>
+                                <div class="grid-value-display"><span id="inc-prospector-shiny-monthly-value" class="calculated">0</span> <img src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></div>
+                                <div class="grid-value-display"><span id="inc-prospector-glowy-monthly-value" class="calculated">0</span> <img src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></div>
+                                <div class="grid-value-display"><span id="inc-prospector-starry-monthly-value" class="calculated">0</span> <img src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></div>
                             </div>
                         </div>
                     </div>

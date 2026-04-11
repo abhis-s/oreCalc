@@ -10,6 +10,7 @@ import { calculateEventPassIncome } from '../incomeCalculations/eventPassIncome.
 import { calculateEventTraderIncome } from '../incomeCalculations/eventTraderIncome.js';
 import { calculateShopOfferIncome } from '../incomeCalculations/shopOfferIncome.js';
 import { calculateChampionshipIncome } from '../incomeCalculations/championshipIncome.js';
+import { calculateProspectorIncome } from '../incomeCalculations/prospectorManager.js';
 import { currencySymbols } from '../data/appData.js';
 
 export function recalculateAll(state) {
@@ -28,6 +29,7 @@ export function recalculateAll(state) {
         eventPass: eventPassIncome,
         eventTrader: eventTraderIncome,
         shopOffers: calculateShopOfferIncome(state.income.shopOffers, state.uiSettings),
+        prospector: calculateProspectorIncome(state.income.prospector),
     };
     state.derived.incomeSources = incomeSources;
 

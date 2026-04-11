@@ -9,26 +9,28 @@ export function initializeIncomeCardObserver() {
     incomeCards.forEach(card => {
         const monthlyIncomeGrids = card.querySelectorAll('.timeframe-income .four-col-grid');
 
-        if (monthlyIncomeGrids.length > 0) {
-            const resizeObserver = new ResizeObserver(entries => {
-                for (let entry of entries) {
-                    const currentWidth = entry.contentRect.width;
-                    if (currentWidth < responsiveThreshold) {
-                        card.classList.add('income-card--responsive');
-                        card.dispatchEvent(new CustomEvent('cardsizechanged', { detail: { newSize: 1 }, bubbles: true }));
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const currentWidth = entry.contentRect.width;
+                if (currentWidth < responsiveThreshold) {
+                    card.classList.add('income-card--responsive');
+                    card.dispatchEvent(new CustomEvent('cardsizechanged', { detail: { newSize: 1 }, bubbles: true }));
+                    if (monthlyIncomeGrids.length > 0) {
                         monthlyIncomeGrids.forEach(grid => {
                             grid.classList.add('column-layout');
                         });
-                    } else if (currentWidth > defaultThreshold) {
-                        card.classList.remove('income-card--responsive');
-                        card.dispatchEvent(new CustomEvent('cardsizechanged', { detail: { newSize: 0 }, bubbles: true }));
+                    }
+                } else if (currentWidth > defaultThreshold) {
+                    card.classList.remove('income-card--responsive');
+                    card.dispatchEvent(new CustomEvent('cardsizechanged', { detail: { newSize: 0 }, bubbles: true }));
+                    if (monthlyIncomeGrids.length > 0) {
                         monthlyIncomeGrids.forEach(grid => {
                             grid.classList.remove('column-layout');
                         });
                     }
                 }
-            });
-            resizeObserver.observe(card);
-        }
+            }
+        });
+        resizeObserver.observe(card);
     });
 }

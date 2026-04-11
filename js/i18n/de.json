@@ -70,6 +70,7 @@
     "yes": "Ja",
     "no": "Nein",
     "getting_the_equipment_question": "Equipment kaufen?",
+    "buying_gold_pass_question": "Goldpass kaufen?",
     "league_colon": "Liga:",
     "cwl_participations_colon": "CKL-Teilnahmen:",
     "clan_war_participations_colon": "Clankrieg-Teilnahmen:",
@@ -79,6 +80,7 @@
     "daily_colon": "Täglich:",
     "weekly_colon": "Wöchentlich:",
     "monthly_colon": "Monatlich:",
+    "per_usage_colon": "Pro Nutzung:",
     "bimonthly_colon": "Zweimonatlich:",
     "cost_colon": "Kosten:",
     "earned_colon": "Verdient:",
@@ -209,5 +211,9 @@
     "action_later": "Später",
     "action_reload": "Neu laden",
     "user_id_qr_code": "Benutzer-ID QR-Code",
-    "scan_qr_instruction": "Benutze die Kamera deines Geräts, um einen QR-Code zu scannen. Die App wird mit den importierten Daten neu geladen."
+    "scan_qr_instruction": "Benutze die Kamera deines Geräts, um einen QR-Code zu scannen. Die App wird mit den importierten Daten neu geladen.",
+    "prospector": "Prospektor",
+    "prospector_available_days_colon": "Verfügbare Tage pro Monat:",
+    "from": "Von",
+    "to": "Zu"
 }

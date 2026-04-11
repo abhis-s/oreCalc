@@ -119,6 +119,12 @@ export function processPlayerDataResponse(playerData) {
         }
         newPlayerState.income.shopOffers.selectedSet = bestMatchSet;
     }
+
+    newPlayerState.income.prospector = { 
+        ...getDefaultPlayerState().income.prospector, 
+        ...(newPlayerState.income.prospector || {}) 
+    };
+
     newPlayerState.playerData = {
         name: playerData.name,
         tag: playerData.tag,

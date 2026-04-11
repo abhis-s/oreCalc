@@ -1,3 +1,5 @@
+import { state } from '../core/state.js';
+
 export function isDateInRange(day, month, year, schedule) {
     const targetDate = `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
     const { startDate, endDate } = getScheduleDates(year, month - 1, schedule);
@@ -164,6 +166,12 @@ export function getScheduleDates(year, month, schedule, instance = 1) {
                     const endDate = addDays(startDate, (schedule.dateEnd - schedule.dateStart + 7) % 7);
                     dates.push({ startDate, endDate });
                 }
+            }
+            break;
+        case 'prospector':
+            const availableDays = state.income.prospector.availableDays;
+            for (let day = daysInMonth - availableDays + 1; day <= daysInMonth; day++) {
+                dates.push(new Date(Date.UTC(year, month, day)));
             }
             break;
     }

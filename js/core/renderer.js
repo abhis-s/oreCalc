@@ -25,6 +25,7 @@ import { renderEventPassHomeDisplay } from '../components/income/eventPassDispla
 import { renderEventTraderHomeDisplay } from '../components/income/eventTraderDisplay.js';
 import { renderShopOfferHomeDisplay } from '../components/income/shopOfferDisplay.js';
 import { renderChampionshipDisplay, renderChampionshipHomeDisplay} from '../components/income/championshipDisplay.js';
+import { renderProspectorIncomeDisplay, renderProspectorHomeDisplay } from '../components/income/prospectorDisplay.js';
 import { renderIncomeCard } from '../components/income/incomeCardHandler.js';
 import { renderPlanner } from '../components/planner/planner.js';
 import { renderIncomeChips } from '../components/planner/incomeChips.js';
@@ -88,6 +89,10 @@ export function renderApp(state) {
 
     const shopOfferIncome = incomeSources.shopOffers || {};
     renderShopOfferHomeDisplay(shopOfferIncome, timeframe, state.uiSettings);
+
+    const prospectorIncome = incomeSources.prospector || {};
+    renderProspectorIncomeDisplay(prospectorIncome);
+    renderProspectorHomeDisplay(prospectorIncome, timeframe);
 
     renderIncomeCard(state.uiSettings.incomeCardExpanded, state.derived.totalIncome, state.uiSettings, state.derived.totalMoneyCost);
 }

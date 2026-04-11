@@ -77,6 +77,7 @@
     "yes": "Yes",
     "no": "No",
     "getting_the_equipment_question": "Getting the Equipment?",
+    "buying_gold_pass_question": "Buying Gold Pass?",
 
     "league_colon": "League:",
     "cwl_participations_colon": "CWL Participations:",
@@ -87,6 +88,7 @@
     "daily_colon": "Daily:",
     "weekly_colon": "Weekly:",
     "monthly_colon": "Monthly:",
+    "per_usage_colon": "Per Usage:",
     "bimonthly_colon": "Bimonthly:",
     "cost_colon": "Cost:",
     "earned_colon": "Earned:",
@@ -251,5 +253,9 @@
     "action_later": "Later",
     "action_reload": "Reload",
     "user_id_qr_code": "User ID QR Code",
-    "scan_qr_instruction": "Use your device camera to scan a QR code. The app will reload with the imported data."
+    "scan_qr_instruction": "Use your device camera to scan a QR code. The app will reload with the imported data.",
+    "prospector": "Prospector",
+    "prospector_available_days_colon": "Available Days per Month:",
+    "from": "From",
+    "to": "To"
 }

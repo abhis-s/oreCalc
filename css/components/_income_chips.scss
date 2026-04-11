@@ -63,6 +63,10 @@
         background-color: #4682B4;
     }
 
+    &.prospector {
+        background-color: #FF69B4;
+    }
+
     &[draggable="false"] {
         box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
         cursor: default;
@@ -114,6 +118,10 @@
 
     &.cwl {
         background-color: #4682B4;
+    }
+
+    &.prospector {
+        background-color: #FF69B4;
     }
 }
 

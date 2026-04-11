@@ -54,19 +54,22 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
     if (chipData.shiny !== undefined) {
         const shinyOre = document.createElement('div');
         shinyOre.classList.add('ore-count-item');
-        shinyOre.innerHTML = `<span>${formatNumber(chipData.shiny)}</span> <img src="assets/shiny_ore.png" alt="${translate('shiny_ore')}" class="ore-icon-small">`;
+        const isNegative = chipData.shiny < 0;
+        shinyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(chipData.shiny)}</span> <img src="assets/shiny_ore.png" alt="${translate('shiny_ore')}" class="ore-icon-small">`;
         tooltipContent.appendChild(shinyOre);
     }
     if (chipData.glowy !== undefined) {
         const glowyOre = document.createElement('div');
         glowyOre.classList.add('ore-count-item');
-        glowyOre.innerHTML = `<span>${formatNumber(chipData.glowy)}</span> <img src="assets/glowy_ore.png" alt="${translate('glowy_ore')}" class="ore-icon-small">`;
+        const isNegative = chipData.glowy < 0;
+        glowyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(chipData.glowy)}</span> <img src="assets/glowy_ore.png" alt="${translate('glowy_ore')}" class="ore-icon-small">`;
         tooltipContent.appendChild(glowyOre);
     }
     if (chipData.starry !== undefined) {
         const starryOre = document.createElement('div');
         starryOre.classList.add('ore-count-item');
-        starryOre.innerHTML = `<span>${formatNumber(chipData.starry)}</span> <img src="assets/starry_ore.png" alt="${translate('starry_ore')}" class="ore-icon-small">`;
+        const isNegative = chipData.starry < 0;
+        starryOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(chipData.starry)}</span> <img src="assets/starry_ore.png" alt="${translate('starry_ore')}" class="ore-icon-small">`;
         tooltipContent.appendChild(starryOre);
     }
 

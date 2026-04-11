@@ -107,4 +107,15 @@ export const incomeData = {
         getIncome: (state) => state.derived.incomeSources.cwl?.perEvent || { shiny: 0, glowy: 0, starry: 0 },
         getCount: (state) => state.income.cwl.hitsPerSeason,
     },
+    prospector: {
+        name: 'Prospector',
+        type: 'prospector',
+        color: '#FF69B4',
+        className: 'prospector',
+        schedule: {
+            type: 'prospector',
+        },
+        getIncome: (state) => state.derived.incomeSources.prospector?.perUsage || { shiny: 0, glowy: 0, starry: 0 },
+        getCount: (state) => state.income.prospector.availableDays,
+    },
 };

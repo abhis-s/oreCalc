@@ -20,7 +20,7 @@ function calculateIncomeChips(year, month) {
         const income = incomeSource.getIncome(state);
 
         let count = 0;
-        if (incomeSource.schedule && incomeSource.schedule.type === 'custom') {
+        if (incomeSource.schedule && (incomeSource.schedule.type === 'custom' || incomeSource.schedule.type === 'prospector')) {
             count = incomeSource.getCount(state);
         } else {
             switch (incomeSource.schedule.type) {

@@ -211,3 +211,57 @@ input[type="number"] {
     padding: 0;
     width: 0;
 }
+
+.custom-dropdown {
+    position: relative;
+    width: 50px;
+    border: 1px solid $color-grey-border;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: $color-black-300;
+
+    .dropdown-selected {
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    .dropdown-options {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: -1px;
+        width: 50px;
+        border: 1px solid $color-grey-border;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        background-color: $color-black-300;
+        z-index: 1;
+
+        .dropdown-option {
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background-color: $color-grey-700;
+            }
+
+            img {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    }
+
+    &.open .dropdown-options {
+        display: block;
+    }
+}

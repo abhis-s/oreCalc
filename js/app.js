@@ -28,6 +28,7 @@ import { initializeGemTrader } from './components/income/gemTrader.js';
 import { initializeEventTrader } from './components/income/eventTrader.js';
 import { initializeShopOffers } from './components/income/shopOffers.js';
 import { initializeChampionshipInputs } from './components/income/championshipInputs.js';
+import { initializeProspector } from './components/income/prospector.js';
 
 import { initializeIncomeCardHandler } from './components/income/incomeCardHandler.js';
 import { initializeIncomeCardObserver } from './components/income/incomeCardObserver.js';
@@ -145,6 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeRaidMedalTrader();
     initializeGemTrader();
     initializeChampionshipInputs();
+    initializeProspector();
     initializeEventTrader();
     initializeShopOffers();
     initializeIncomeCardHandler();
