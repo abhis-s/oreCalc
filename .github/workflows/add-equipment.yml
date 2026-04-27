@@ -1,0 +1,61 @@
+name: Add Equipment
+
+on:
+  workflow_dispatch:
+    inputs:
+      hero_id:
+        description: 'Hero Key'
+        required: true
+        type: choice
+        options:
+# HERO_LIST_START
+          - barbarian_king
+          - archer_queen
+          - minion_prince
+          - grand_warden
+          - royal_champion
+          - dragon_duke
+# HERO_LIST_END
+      equip_name:
+        description: 'Equipment Name'
+        required: true
+        type: string
+      equip_type:
+        description: 'Rarity'
+        required: true
+        type: choice
+        options: [common, epic]
+      image_url:
+        description: 'Image URL'
+        required: true
+        type: string
+      de_name:
+        description: 'German Name'
+        required: false
+        type: string
+      month:
+        description: 'Launch Month (e.g. April)'
+        required: true
+        type: string
+      year:
+        description: 'Launch Year'
+        required: true
+        type: string
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/add-equipment.js "${{ github.event.inputs.hero_id }}" "${{ github.event.inputs.equip_name }}" "${{ github.event.inputs.equip_type }}" "${{ github.event.inputs.image_url }}" "${{ github.event.inputs.de_name }}"
+      - run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          # Convert hero_id to display name (simple snake_to_Title)
+          HERO_NAME=$(echo "${{ github.event.inputs.hero_id }}" | sed -r 's/(^|_)([a-z])/\U \2/g' | sed 's/^ //')
+          git commit -m "update(data): Added ${HERO_NAME}'s new ${{ github.event.inputs.equip_type }} equipment" -m "Added the new ${HERO_NAME} equipment, ${{ github.event.inputs.equip_name }}, launched in ${{ github.event.inputs.month }} ${{ github.event.inputs.year }}."
+          git push

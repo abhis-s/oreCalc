@@ -1,4 +1,4 @@
-const BASE_URL = "__VITE_API_BASE_URL__"; // Placeholder for environment variable
+const BASE_URL = "__VITE_API_BASE_URL__"; // Environment variable used by scripts, DO NOT STAGE OR COMMIT CHANGES TO THIS LINE
 
 export async function fetchPlayerData(playerTag) {
     const cleanedTag = playerTag.startsWith('#') ? playerTag.substring(1) : playerTag;
