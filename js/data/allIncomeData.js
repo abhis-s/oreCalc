@@ -7,18 +7,18 @@ const leagueNameToId = leagueTiers.items.reduce((acc, league) => {
 
 export const starBonusData = [
     { league: leagueNameToId["Unranked"], shiny: 0, glowy: 0, starry: 0 },
-    { league: leagueNameToId["Skeleton League 1"], shiny: 300, glowy: 20, starry: 0 }, { league: leagueNameToId["Skeleton League 2"], shiny: 325, glowy: 21, starry: 0 }, { league: leagueNameToId["Skeleton League 3"], shiny: 350, glowy: 22, starry: 0 },
-    { league: leagueNameToId["Barbarian League 4"], shiny: 375, glowy: 23, starry: 0 }, { league: leagueNameToId["Barbarian League 5"], shiny: 400, glowy: 24, starry: 0 }, { league: leagueNameToId["Barbarian League 6"], shiny: 425, glowy: 25, starry: 0 },
-    { league: leagueNameToId["Archer League 7"], shiny: 450, glowy: 27, starry: 0 }, { league: leagueNameToId["Archer League 8"], shiny: 475, glowy: 27, starry: 1 }, { league: leagueNameToId["Archer League 9"], shiny: 500, glowy: 29, starry: 1 },
-    { league: leagueNameToId["Wizard League 10"], shiny: 525, glowy: 31, starry: 1 }, { league: leagueNameToId["Wizard League 11"], shiny: 550, glowy: 33, starry: 1 }, { league: leagueNameToId["Wizard League 12"], shiny: 575, glowy: 35, starry: 1 },
-    { league: leagueNameToId["Valkyrie League 13"], shiny: 600, glowy: 37, starry: 1 }, { league: leagueNameToId["Valkyrie League 14"], shiny: 625, glowy: 39, starry: 1 }, { league: leagueNameToId["Valkyrie League 15"], shiny: 650, glowy: 41, starry: 1 },
-    { league: leagueNameToId["Witch League 16"], shiny: 675, glowy: 43, starry: 1 }, { league: leagueNameToId["Witch League 17"], shiny: 725, glowy: 45, starry: 1 }, { league: leagueNameToId["Witch League 18"], shiny: 775, glowy: 47, starry: 1 },
-    { league: leagueNameToId["Golem League 19"], shiny: 825, glowy: 49, starry: 1 }, { league: leagueNameToId["Golem League 20"], shiny: 875, glowy: 51, starry: 1 }, { league: leagueNameToId["Golem League 21"], shiny: 900, glowy: 53, starry: 1 },
-    { league: leagueNameToId["P.E.K.K.A League 22"], shiny: 925, glowy: 54, starry: 1 }, { league: leagueNameToId["P.E.K.K.A League 23"], shiny: 950, glowy: 55, starry: 1 }, { league: leagueNameToId["P.E.K.K.A League 24"], shiny: 963, glowy: 56, starry: 1 },
-    { league: leagueNameToId["Titan League 25"], shiny: 1000, glowy: 57, starry: 1 }, { league: leagueNameToId["Titan League 26"], shiny: 1010, glowy: 58, starry: 1 }, { league: leagueNameToId["Titan League 27"], shiny: 1020, glowy: 59, starry: 1 },
-    { league: leagueNameToId["Dragon League 28"], shiny: 1030, glowy: 60, starry: 1 }, { league: leagueNameToId["Dragon League 29"], shiny: 1040, glowy: 61, starry: 1 }, { league: leagueNameToId["Dragon League 30"], shiny: 1050, glowy: 62, starry: 1 },
-    { league: leagueNameToId["Electro League 31"], shiny: 1060, glowy: 62, starry: 2 }, { league: leagueNameToId["Electro League 32"], shiny: 1070, glowy: 63, starry: 2 }, { league: leagueNameToId["Electro League 33"], shiny: 1080, glowy: 64, starry: 2 },
-    { league: leagueNameToId["Legend League"], shiny: 1100, glowy: 65, starry: 2 },
+    { league: leagueNameToId["Skeleton 1"], shiny: 790, glowy: 39, starry: 1 }, { league: leagueNameToId["Skeleton 2"], shiny: 795, glowy: 39, starry: 1 }, { league: leagueNameToId["Skeleton 3"], shiny: 800, glowy: 39, starry: 1 },
+    { league: leagueNameToId["Barbarian 4"], shiny: 850, glowy: 44, starry: 1 }, { league: leagueNameToId["Barbarian 5"], shiny: 855, glowy: 44, starry: 1 }, { league: leagueNameToId["Barbarian 6"], shiny: 860, glowy: 44, starry: 1 },
+    { league: leagueNameToId["Archer 7"], shiny: 910, glowy: 49, starry: 1 }, { league: leagueNameToId["Archer 8"], shiny: 915, glowy: 49, starry: 1 }, { league: leagueNameToId["Archer 9"], shiny: 920, glowy: 49, starry: 1 },
+    { league: leagueNameToId["Wizard 10"], shiny: 970, glowy: 52, starry: 1 }, { league: leagueNameToId["Wizard 11"], shiny: 975, glowy: 52, starry: 1 }, { league: leagueNameToId["Wizard 12"], shiny: 980, glowy: 52, starry: 1 },
+    { league: leagueNameToId["Valkyrie 13"], shiny: 1030, glowy: 57, starry: 1 }, { league: leagueNameToId["Valkyrie 14"], shiny: 1035, glowy: 57, starry: 1 }, { league: leagueNameToId["Valkyrie 15"], shiny: 1040, glowy: 57, starry: 1 },
+    { league: leagueNameToId["Witch 16"], shiny: 1090, glowy: 60, starry: 1 }, { league: leagueNameToId["Witch 17"], shiny: 1095, glowy: 60, starry: 1 }, { league: leagueNameToId["Witch 18"], shiny: 1100, glowy: 60, starry: 1 },
+    { league: leagueNameToId["Golem 19"], shiny: 1150, glowy: 63, starry: 1 }, { league: leagueNameToId["Golem 20"], shiny: 1155, glowy: 63, starry: 1 }, { league: leagueNameToId["Golem 21"], shiny: 1160, glowy: 63, starry: 1 },
+    { league: leagueNameToId["P.E.K.K.A. 22"], shiny: 1170, glowy: 66, starry: 1 }, { league: leagueNameToId["P.E.K.K.A. 23"], shiny: 1175, glowy: 66, starry: 1 }, { league: leagueNameToId["P.E.K.K.A. 24"], shiny: 1180, glowy: 66, starry: 1 },
+    { league: leagueNameToId["Titan 25"], shiny: 1190, glowy: 69, starry: 1 }, { league: leagueNameToId["Titan 26"], shiny: 1195, glowy: 69, starry: 1 }, { league: leagueNameToId["Titan 27"], shiny: 1200, glowy: 69, starry: 1 },
+    { league: leagueNameToId["Dragon 28"], shiny: 1210, glowy: 70, starry: 1 }, { league: leagueNameToId["Dragon 29"], shiny: 1215, glowy: 70, starry: 1 }, { league: leagueNameToId["Dragon 30"], shiny: 1220, glowy: 70, starry: 1 },
+    { league: leagueNameToId["Electro 31"], shiny: 1230, glowy: 71, starry: 2 }, { league: leagueNameToId["Electro 32"], shiny: 1235, glowy: 71, starry: 2 }, { league: leagueNameToId["Electro 33"], shiny: 1240, glowy: 71, starry: 2 },
+    { league: leagueNameToId["Legend III"], shiny: 1250, glowy: 72, starry: 2 }, { league: leagueNameToId["Legend II"], shiny: 1250, glowy: 72, starry: 2 }, { league: leagueNameToId["Legend I"], shiny: 1250, glowy: 72, starry: 2 },
 ];
 
 export const townHallLeagueFloors = {
@@ -37,8 +37,9 @@ export const townHallLeagueFloors = {
     13: 105000011,
     14: 105000014,
     15: 105000017,
-    16: 105000021,
-    17: 105000025,
+    16: 105000020,
+    17: 105000023,
+    18: 105000026,
 };
 
 export const shopOfferData = {
