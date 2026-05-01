@@ -273,7 +273,7 @@
         height: 28px;
     }
 }
-.priority-list-error-message {
+.priority-list-message-box {
     background-color: rgba(231, 76, 60, 0.1);
     border: 1px solid #e74c3c;
     padding: 10px 15px;
@@ -283,18 +283,18 @@
     display: none;
 }
 
-.priority-list-error-message p {
+.priority-list-message-box p {
     margin: 0;
     &:not(:first-child) {
         margin-top: 8px;
     }
 }
 
-.priority-list-error-message .error-message {
+.priority-list-message-box .error-message {
     color: #e74c3c;
 }
 
-.priority-list-error-message .suggestion-message {
+.priority-list-message-box .suggestion-message {
     color: #f1c40f;
 }
 
@@ -315,5 +315,49 @@
     height: 3px;
     background-color: #f1c40f;
     margin: 2px 0 10px 0;
+}
+
+.priority-list-message-box.suggestion-only {
+    background-color: rgba(255, 255, 0, 0.1);
+    border: 1px solid #f1c40f;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.suggestion-messages-wrapper {
+    flex-grow: 1;
+}
+
+.hide-suggestion-btn {
+    background: transparent;
+    border: 1px solid #f1c40f;
+    color: #f1c40f;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-left: 10px;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: rgba(255, 255, 0, 0.2);
+    }
+}
+
+.suggestion-message-btn {
+    background-color: rgba(255, 255, 0, 0.1);
+    border: 1px solid #f1c40f;
+    color: #f1c40f;
+    border-radius: 8px;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    text-align: center;
+    margin-right: 5px;
+    
+    &:hover {
+        background-color: rgba(255, 255, 0, 0.2);
+    }
 }
 

@@ -110,7 +110,7 @@ function renderPriorityEditor() {
 
     modalBody.innerHTML = `
         <div class="priority-editor-container">
-            <div id="priority-list-error-container" class="priority-list-error-message"></div>
+            <div id="priority-list-message-container" class="priority-list-message-box"></div>
             <div class="equipment-chip-container">
                 <h3 data-i18n="add_an_upgrade_plan">${translate('add_an_upgrade_plan')}</h3>
                 <div class="hero-equipment-grid"></div>
@@ -216,12 +216,18 @@ function getStepOrderErrors(globalPriorityList) {
     return { hasError, errorItems };
 }
 
+let suggestionsHidden = false;
+
 function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
-    const errorContainer = document.getElementById('priority-list-error-container');
+    const errorContainer = document.getElementById('priority-list-message-container');
+    const unhideBtn = document.getElementById('unhide-suggestion-btn');
     const listItems = document.querySelectorAll('.priority-list-editor-item');
 
     errorContainer.innerHTML = '';
     errorContainer.style.display = 'none';
+    errorContainer.classList.remove('suggestion-only');
+    if (unhideBtn) unhideBtn.style.display = 'none';
+    
     listItems.forEach(item => item.classList.remove('error', 'suggestion'));
     document.querySelectorAll('.suggestion-bar').forEach(bar => bar.remove());
 
@@ -237,35 +243,61 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
         });
     }
 
-    if (suggestions && suggestions.length > 0) {
-        errorContainer.innerHTML += suggestions.map(s => `<p class="suggestion-message">${s.message}</p>`).join('');
-        suggestions.forEach(suggestion => {
-            const { itemToMove, moveBefore } = suggestion;
+    const hasSuggestions = suggestions && suggestions.length > 0;
 
-            const itemToMoveElement = Array.from(listItems).find(el => 
-                el.dataset.heroName === itemToMove.heroName &&
-                el.dataset.equipName === itemToMove.name &&
-                el.dataset.step == itemToMove.step
-            );
-            if (itemToMoveElement) {
-                itemToMoveElement.classList.add('suggestion');
+    if (hasSuggestions) {
+        if (hasError || !suggestionsHidden) {
+            let suggestionsHtml = `<div class="suggestion-messages-wrapper">`;
+            suggestionsHtml += suggestions.map(s => `<p class="suggestion-message">${s.message}</p>`).join('');
+            suggestionsHtml += `</div>`;
+            
+            if (!hasError) {
+                errorContainer.classList.add('suggestion-only');
+                suggestionsHtml += `<button class="hide-suggestion-btn" id="hide-suggestion-btn">Hide</button>`;
             }
+            
+            errorContainer.innerHTML += suggestionsHtml;
+            
+            suggestions.forEach(suggestion => {
+                const { itemToMove, moveBefore } = suggestion;
 
-            const moveBeforeElement = Array.from(listItems).find(el => 
-                el.dataset.heroName === moveBefore.heroName &&
-                el.dataset.equipName === moveBefore.name &&
-                el.dataset.step == moveBefore.step
-            );
-            if (moveBeforeElement) {
-                const suggestionBar = document.createElement('div');
-                suggestionBar.className = 'suggestion-bar';
-                moveBeforeElement.parentNode.insertBefore(suggestionBar, moveBeforeElement);
+                const itemToMoveElement = Array.from(listItems).find(el => 
+                    el.dataset.heroName === itemToMove.heroName &&
+                    el.dataset.equipName === itemToMove.name &&
+                    el.dataset.step == itemToMove.step
+                );
+                if (itemToMoveElement) {
+                    itemToMoveElement.classList.add('suggestion');
+                }
+
+                const moveBeforeElement = Array.from(listItems).find(el => 
+                    el.dataset.heroName === moveBefore.heroName &&
+                    el.dataset.equipName === moveBefore.name &&
+                    el.dataset.step == moveBefore.step
+                );
+                if (moveBeforeElement) {
+                    const suggestionBar = document.createElement('div');
+                    suggestionBar.className = 'suggestion-bar';
+                    moveBeforeElement.parentNode.insertBefore(suggestionBar, moveBeforeElement);
+                }
+            });
+            
+            if (!hasError) {
+                const hideBtn = errorContainer.querySelector('#hide-suggestion-btn');
+                if (hideBtn) {
+                    hideBtn.addEventListener('click', () => {
+                        suggestionsHidden = true;
+                        renderSuggestionsAndErrors(globalPriorityList, suggestions);
+                    });
+                }
             }
-        });
+        } else if (!hasError && suggestionsHidden) {
+            if (unhideBtn) unhideBtn.style.display = 'block';
+        }
     }
 
-    if (hasError || (suggestions && suggestions.length > 0)) {
-        errorContainer.style.display = 'block';
+    if (hasError || (hasSuggestions && !suggestionsHidden)) {
+        errorContainer.style.display = hasError ? 'block' : 'flex';
     }
 }
 
@@ -374,6 +406,15 @@ export function initializePriorityListModal() {
     const modal = document.getElementById('priority-list-modal');
     const closeBtn = document.getElementById('close-priority-list-modal-btn');
     const resetButton = document.getElementById('reset-priority-list-modal-btn');
+    const unhideBtn = document.getElementById('unhide-suggestion-btn');
+
+    if (unhideBtn) {
+        unhideBtn.addEventListener('click', () => {
+            suggestionsHidden = false;
+            const { globalPriorityList, suggestions } = getGlobalPriorityList();
+            renderSuggestionsAndErrors(globalPriorityList, suggestions);
+        });
+    }
 
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
