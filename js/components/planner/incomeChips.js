@@ -14,13 +14,13 @@ function calculateIncomeChips(year, month) {
 
     for (const key in incomeData) {
         const incomeSource = incomeData[key];
-        if (incomeSource.type === 'starBonus') {
+        if (incomeSource.type === 'starBonus' || incomeSource.type === 'prospector') {
             continue;
         }
         const income = incomeSource.getIncome(state);
 
         let count = 0;
-        if (incomeSource.schedule && (incomeSource.schedule.type === 'custom' || incomeSource.schedule.type === 'prospector')) {
+        if (incomeSource.schedule && incomeSource.schedule.type === 'custom') {
             count = incomeSource.getCount(state);
         } else {
             switch (incomeSource.schedule.type) {
@@ -65,7 +65,7 @@ function getPlacedChipIds() {
             const chipIds = days[dayKey];
             chipIds.forEach(chipId => {
                 const originalId = chipId.split('-cal')[0];
-                if (!originalId.startsWith('starBonus')) {
+                if (!originalId.startsWith('starBonus') && !originalId.startsWith('prospector')) {
                     placedChipOriginalIds.add(originalId);
                 }
             });
@@ -174,6 +174,9 @@ export function handleChipDropOnContainer(incomeChipData) {
             for (const dayKey in days) {
                 const chipIds = days[dayKey];
                 const originalId = incomeChipData.id.split('-cal')[0];
+                if (originalId.startsWith('starBonus') || originalId.startsWith('prospector')) {
+                    continue;
+                }
                 const indexToRemove = chipIds.findIndex(id => id.split('-cal')[0] === originalId);
                 if (indexToRemove > -1) {
                     chipIds.splice(indexToRemove, 1);

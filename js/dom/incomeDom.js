@@ -292,7 +292,6 @@ export function getIncomeDOMElements() {
         },
         prospector: {
             goldPass: document.getElementById('inc-prospector-gold-pass'),
-            daysPerMonth: document.getElementById('inc-prospector-days-per-month'),
             fromOre: document.getElementById('inc-prospector-from-ore'),
             toOre: document.getElementById('inc-prospector-to-ore'),
             fromAmount: document.getElementById('inc-prospector-from-amount'),

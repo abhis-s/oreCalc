@@ -88,6 +88,21 @@ function createDayCell(date, plannerState) {
     starBonusChip.draggable = false;
     chipContainer.appendChild(starBonusChip);
 
+    if (state.income.prospector && state.income.prospector.goldPass) {
+        const prospectorSource = incomeData.prospector;
+        const prospectorIncome = prospectorSource.getIncome(state);
+        const roundedProspectorIncome = {
+            shiny: Math.round(prospectorIncome.shiny),
+            glowy: Math.round(prospectorIncome.glowy),
+            starry: Math.round(prospectorIncome.starry),
+        };
+        const prospectorChipId = `prospector-${displayDay}-${displayMonth}-${displayYear}-cal`;
+        let prospectorChipText = '';
+        const prospectorChip = createIncomeChip(prospectorChipText, prospectorSource.className, { type: prospectorSource.type, instance: date.getUTCDate(), ...roundedProspectorIncome }, date.getUTCMonth(), displayYear, prospectorChipId);
+        prospectorChip.draggable = false;
+        chipContainer.appendChild(prospectorChip);
+    }
+
     const monthYearKey = `${displayMonth}-${displayYear}`;
     const chipsForThisDay = plannerState.calendar.dates[monthYearKey]?.[displayDay] || [];
 
@@ -597,7 +612,7 @@ function handleDrop(e) {
 export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
     if (!chipContainer || !chipContainer.classList.contains('valid-drop-range')) return;
     chipContainer.classList.remove('valid-drop-target', 'invalid-drop-target');
-    if (incomeChipData.type === 'starBonus') return;
+    if (incomeChipData.type === 'starBonus' || incomeChipData.type === 'prospector') return;
 
     const targetDate = chipContainer.closest('.day-cell').dataset.date;
     let newId = incomeChipData.id;

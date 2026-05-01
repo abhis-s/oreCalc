@@ -3,12 +3,12 @@ import { state } from '../../core/state.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 
 export function renderProspectorIncomeDisplay(prospectorIncome) {
-    const perUsageValues = prospectorIncome.perUsage || { shiny: 0, glowy: 0, starry: 0 };
+    const dailyValues = prospectorIncome.daily || { shiny: 0, glowy: 0, starry: 0 };
     const monthlyValues = prospectorIncome.monthly || { shiny: 0, glowy: 0, starry: 0 };
 
-    dom.income.prospector.display.daily.shiny.textContent = formatNumber(perUsageValues.shiny);
-    dom.income.prospector.display.daily.glowy.textContent = formatNumber(perUsageValues.glowy);
-    dom.income.prospector.display.daily.starry.textContent = formatNumber(perUsageValues.starry);
+    dom.income.prospector.display.daily.shiny.textContent = formatNumber(dailyValues.shiny);
+    dom.income.prospector.display.daily.glowy.textContent = formatNumber(dailyValues.glowy);
+    dom.income.prospector.display.daily.starry.textContent = formatNumber(dailyValues.starry);
 
     dom.income.prospector.display.monthly.shiny.textContent = formatNumber(monthlyValues.shiny);
     dom.income.prospector.display.monthly.glowy.textContent = formatNumber(monthlyValues.glowy);
@@ -27,8 +27,8 @@ export function renderProspectorHomeDisplay(prospectorIncome, timeframe) {
 
     const prospectorState = state.income.prospector;
     if (prospectorState.goldPass) {
-        prospectorRow.resource.textContent = `${prospectorState.availableDays} days`;
+        prospectorRow.resource.textContent = 'Gold Pass';
     } else {
-        prospectorRow.resource.textContent = 'N/A';
+        prospectorRow.resource.textContent = 'Silver Pass';
     }
 }

@@ -30,31 +30,25 @@ export function calculateProspectorIncome(prospectorState) {
     const zeroIncome = { shiny: 0, glowy: 0, starry: 0 };
     
     if (!prospectorState) {
-        return { perUsage: zeroIncome, daily: zeroIncome, weekly: zeroIncome, monthly: zeroIncome, bimonthly: zeroIncome };
+        return { daily: zeroIncome, weekly: zeroIncome, monthly: zeroIncome, bimonthly: zeroIncome };
     }
 
-    const { goldPass, fromOre, toOre, fromAmount, availableDays } = prospectorState;
+    const { goldPass, fromOre, toOre, fromAmount } = prospectorState;
 
     if (!goldPass) {
-        return { perUsage: zeroIncome, daily: zeroIncome, weekly: zeroIncome, monthly: zeroIncome, bimonthly: zeroIncome };
+        return { daily: zeroIncome, weekly: zeroIncome, monthly: zeroIncome, bimonthly: zeroIncome };
     }
 
-    const perUsage = { shiny: 0, glowy: 0, starry: 0 };
+    const daily = { shiny: 0, glowy: 0, starry: 0 };
     const toAmount = convertOres(fromOre, toOre, fromAmount);
 
-    perUsage[fromOre] -= fromAmount;
-    perUsage[toOre] += toAmount;
+    daily[fromOre] -= fromAmount;
+    daily[toOre] += toAmount;
 
     const monthly = {
-        shiny: perUsage.shiny * availableDays,
-        glowy: perUsage.glowy * availableDays,
-        starry: perUsage.starry * availableDays,
-    };
-
-    const daily = {
-        shiny: monthly.shiny / 30,
-        glowy: monthly.glowy / 30,
-        starry: monthly.starry / 30,
+        shiny: daily.shiny * 30,
+        glowy: daily.glowy * 30,
+        starry: daily.starry * 30,
     };
 
     const weekly = {
@@ -69,6 +63,6 @@ export function calculateProspectorIncome(prospectorState) {
         starry: monthly.starry * 2,
     };
 
-    return { perUsage, daily, weekly, monthly, bimonthly };
+    return { daily, weekly, monthly, bimonthly };
 }
 

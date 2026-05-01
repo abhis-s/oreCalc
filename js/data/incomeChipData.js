@@ -113,9 +113,10 @@ export const incomeData = {
         color: '#FF69B4',
         className: 'prospector',
         schedule: {
-            type: 'prospector',
+            type: 'daily',
+            dateStart: 1,
+            availableTillEndOfMonth: true,
         },
-        getIncome: (state) => state.derived.incomeSources.prospector?.perUsage || { shiny: 0, glowy: 0, starry: 0 },
-        getCount: (state) => state.income.prospector.availableDays,
+        getIncome: (state) => state.derived.incomeSources.prospector?.daily || { shiny: 0, glowy: 0, starry: 0 },
     },
 };

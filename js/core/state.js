@@ -78,7 +78,6 @@ export function getDefaultState() {
             },
             prospector: {
                 goldPass: false,
-                availableDays: 12,
                 fromOre: 'shiny',
                 toOre: 'glowy',
                 fromAmount: 0,
@@ -140,7 +139,6 @@ export function getDefaultState() {
                 },
                 prospector: {
                     goldPass: false,
-                    availableDays: 12,
                     fromOre: 'shiny',
                     toOre: 'glowy',
                     fromAmount: 0,
@@ -243,7 +241,6 @@ export function getDefaultPlayerState() {
                 },
                 prospector: {
                     goldPass: false,
-                    availableDays: 12,
                     fromOre: 'shiny',
                     toOre: 'glowy',
                     fromAmount: 0,
@@ -314,6 +311,9 @@ export function initializeState(savedState) {
                         state.allPlayersData[playerTag].playerData,
                         savedState.allPlayersData[playerTag].playerData
                     );
+                    if (state.allPlayersData[playerTag].income && state.allPlayersData[playerTag].income.prospector) {
+                        delete state.allPlayersData[playerTag].income.prospector.availableDays;
+                    }
                     if (
                         savedState.allPlayersData[playerTag]
                             .regionalPricingEnabled !== undefined
@@ -597,6 +597,19 @@ export function initializeState(savedState) {
                     const [month, year] = monthYearKey.split('-').map(Number);
                     if (year < 2026 || (year === 2026 && month < 3)) {
                         delete state.planner.calendar.dates[monthYearKey];
+                    } else {
+                        // Filter out legacy prospector chips since they are now auto-placed
+                        for (const day in state.planner.calendar.dates[monthYearKey]) {
+                            state.planner.calendar.dates[monthYearKey][day] = state.planner.calendar.dates[monthYearKey][day].filter(
+                                chipId => !chipId.startsWith('prospector-')
+                            );
+                            if (state.planner.calendar.dates[monthYearKey][day].length === 0) {
+                                delete state.planner.calendar.dates[monthYearKey][day];
+                            }
+                        }
+                        if (Object.keys(state.planner.calendar.dates[monthYearKey]).length === 0) {
+                            delete state.planner.calendar.dates[monthYearKey];
+                        }
                     }
                 }
             }

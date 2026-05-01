@@ -168,12 +168,6 @@ export function getScheduleDates(year, month, schedule, instance = 1) {
                 }
             }
             break;
-        case 'prospector':
-            const availableDays = state.income.prospector.availableDays;
-            for (let day = daysInMonth - availableDays + 1; day <= daysInMonth; day++) {
-                dates.push(new Date(Date.UTC(year, month, day)));
-            }
-            break;
     }
     return dates;
 }

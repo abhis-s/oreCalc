@@ -118,7 +118,6 @@ function updateConversion() {
         if (!state.income.prospector) {
             state.income.prospector = {
                 goldPass: false,
-                availableDays: 12,
                 fromOre: 'shiny',
                 toOre: 'glowy',
                 fromAmount: 0,
@@ -177,7 +176,6 @@ export function initializeProspector() {
     if (!state.income.prospector) {
         state.income.prospector = {
             goldPass: false,
-            availableDays: 12,
             fromOre: 'shiny',
             toOre: 'glowy',
             fromAmount: 0,
@@ -185,10 +183,9 @@ export function initializeProspector() {
     }
 
     // --- Set Initial UI Values from State ---
-    const { goldPass, availableDays, fromOre, toOre, fromAmount } = state.income.prospector;
+    const { goldPass, fromOre, toOre, fromAmount } = state.income.prospector;
 
     dom.income.prospector.goldPass.value = goldPass;
-    dom.income.prospector.daysPerMonth.value = availableDays;
 
     dom.income.prospector.fromOre.dataset.value = fromOre;
     dom.income.prospector.fromOre.querySelector('.dropdown-selected').innerHTML = `<img src="${oreTypes[fromOre]}" alt="${fromOre}">`;
@@ -200,7 +197,6 @@ export function initializeProspector() {
 
     // --- Add Validation ---
     addValidation(dom.income.prospector.fromAmount, { inputName: 'fromAmount' });
-    addValidation(dom.income.prospector.daysPerMonth, { inputName: 'daysPerMonth' });
 
     // --- Initialize Dropdown Options & Event Listeners ---
     initializeCustomDropdown(dom.income.prospector.fromOre, 'from');
@@ -226,14 +222,6 @@ export function initializeProspector() {
     dom.income.prospector.goldPass.addEventListener('change', (e) => {
         handleStateUpdate(() => {
             state.income.prospector.goldPass = e.target.value === 'true';
-        });
-    });
-
-    dom.income.prospector.daysPerMonth.addEventListener('input', (e) => {
-        let value = parseInt(e.target.value, 10);
-        if (isNaN(value)) value = 0;
-        handleStateUpdate(() => {
-            state.income.prospector.availableDays = value;
         });
     });
 
