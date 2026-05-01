@@ -18,11 +18,19 @@ export function calculateCumulativeOres(targetDate, initialOres) {
         cumulativeOres.glowy += Math.round(starBonusIncome.glowy);
         cumulativeOres.starry += Math.round(starBonusIncome.starry);
 
+        if (state.income.prospector && state.income.prospector.goldPass) {
+            const prospectorSource = incomeData.prospector;
+            const prospectorIncome = prospectorSource.getIncome(state);
+            cumulativeOres.shiny += Math.round(prospectorIncome.shiny);
+            cumulativeOres.glowy += Math.round(prospectorIncome.glowy);
+            cumulativeOres.starry += Math.round(prospectorIncome.starry);
+        }
+
         const chipsForThisDay = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];
         chipsForThisDay.forEach(chipId => {
             const parts = chipId.split('-');
             const type = parts[0];
-            if (type === 'starBonus') {
+            if (type === 'starBonus' || type === 'prospector') {
                 return;
             }
             const incomeSource = incomeData[type];

@@ -22,7 +22,7 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
     const allPotentialChips = [];
     for (const key in incomeData) {
         const incomeSource = incomeData[key];
-        if (incomeSource.type === 'starBonus') {
+        if (incomeSource.type === 'starBonus' || incomeSource.type === 'prospector') {
             continue;
         }
 

@@ -307,6 +307,25 @@ export function initializeState(savedState) {
                         state.allPlayersData[playerTag].planner,
                         savedState.allPlayersData[playerTag].planner
                     );
+
+                    // Filter out legacy prospector chips since they are now auto-placed
+                    if (state.allPlayersData[playerTag].planner?.calendar?.dates) {
+                        const datesObj = state.allPlayersData[playerTag].planner.calendar.dates;
+                        for (const monthYearKey in datesObj) {
+                            for (const day in datesObj[monthYearKey]) {
+                                datesObj[monthYearKey][day] = datesObj[monthYearKey][day].filter(
+                                    chipId => !chipId.startsWith('prospector-')
+                                );
+                                if (datesObj[monthYearKey][day].length === 0) {
+                                    delete datesObj[monthYearKey][day];
+                                }
+                            }
+                            if (Object.keys(datesObj[monthYearKey]).length === 0) {
+                                delete datesObj[monthYearKey];
+                            }
+                        }
+                    }
+
                     Object.assign(
                         state.allPlayersData[playerTag].playerData,
                         savedState.allPlayersData[playerTag].playerData
