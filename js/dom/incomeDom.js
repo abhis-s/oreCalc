@@ -308,6 +308,11 @@ export function getIncomeDOMElements() {
                     glowy: document.getElementById('inc-prospector-glowy-monthly-value'),
                     starry: document.getElementById('inc-prospector-starry-monthly-value'),
                 }
+            },
+            tip: {
+                container: document.getElementById('inc-prospector-tip-container'),
+                emoji: document.getElementById('inc-prospector-tip-emoji'),
+                text: document.getElementById('inc-prospector-tip-text'),
             }
         }
     };

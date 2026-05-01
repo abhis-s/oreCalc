@@ -53,6 +53,27 @@
     }
 }
 
+.prospector-tip {
+    margin-top: 1rem;
+    padding: 15px !important;
+    text-align: center !important;
+
+    .prospector-tip-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .prospector-tip-emoji {
+        font-size: 1.5em;
+    }
+
+    .prospector-tip-text {
+        text-align: center;
+    }
+}
+
 .timeframe-income {
     border-top: 1px solid $color-grey-700;
     margin-top: auto;
@@ -529,6 +550,7 @@
     grid-template-columns: auto 1fr 2fr 1fr auto;
     gap: 1rem;
     align-items: center;
+    margin-bottom: 10px;
 
     input[type="number"] {
         background-color: $color-black-300;

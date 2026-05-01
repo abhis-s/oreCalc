@@ -1,31 +1,9 @@
 import { dom } from '../../dom/domElements.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
-import { convertOres } from '../../incomeCalculations/prospectorManager.js';
+import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
 import { oreMaxValues } from '../../data/oreConversionData.js';
 import { addValidation } from '../../utils/inputValidator.js';
-
-function getStepValue(fromOre, toOre) {
-    if (fromOre === 'shiny' && toOre === 'glowy') {
-        return 50;
-    }
-    if (fromOre === 'glowy' && toOre === 'shiny') {
-        return 3;
-    }
-    if (fromOre === 'shiny' && toOre === 'starry') {
-        return 1000;
-    }
-    if (fromOre === 'starry' && toOre === 'shiny') {
-        return 1;
-    }
-    if (fromOre === 'glowy' && toOre === 'starry') {
-        return 60;
-    }
-    if (fromOre === 'starry' && toOre === 'glowy') {
-        return 1;
-    }
-    return 1;
-}
 
 const oreTypes = {
     shiny: 'assets/shiny_ore.png',

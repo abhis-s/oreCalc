@@ -26,6 +26,28 @@ export function convertOres(fromOre, toOre, fromAmount) {
     return Math.round(fromAmount * conversionFactor);
 }
 
+export function getStepValue(fromOre, toOre) {
+    if (fromOre === 'shiny' && toOre === 'glowy') {
+        return 50;
+    }
+    if (fromOre === 'glowy' && toOre === 'shiny') {
+        return 3;
+    }
+    if (fromOre === 'shiny' && toOre === 'starry') {
+        return 1000;
+    }
+    if (fromOre === 'starry' && toOre === 'shiny') {
+        return 1;
+    }
+    if (fromOre === 'glowy' && toOre === 'starry') {
+        return 60;
+    }
+    if (fromOre === 'starry' && toOre === 'glowy') {
+        return 1;
+    }
+    return 1;
+}
+
 export function calculateProspectorIncome(prospectorState) {
     const zeroIncome = { shiny: 0, glowy: 0, starry: 0 };
     

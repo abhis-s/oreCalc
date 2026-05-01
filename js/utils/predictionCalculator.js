@@ -3,7 +3,7 @@ import { upgradeCosts, heroData } from '../data/heroData.js';
 import { incomeData } from '../data/incomeChipData.js';
 import { translate } from '../i18n/translator.js';
 
-function getDailyIncomeFromCalendar(date) {
+export function getDailyIncomeFromCalendar(date) {
     const dailyIncome = { shiny: 0, glowy: 0, starry: 0 };
     const monthYearKey = `${String(date.getUTCMonth() + 1).padStart(2, '0')}-${date.getUTCFullYear()}`;
     const dayKey = String(date.getUTCDate()).padStart(2, '0');
@@ -13,6 +13,14 @@ function getDailyIncomeFromCalendar(date) {
     dailyIncome.shiny += Math.round(starBonusIncome.shiny);
     dailyIncome.glowy += Math.round(starBonusIncome.glowy);
     dailyIncome.starry += Math.round(starBonusIncome.starry);
+
+    if (state.income.prospector && state.income.prospector.goldPass) {
+        const prospectorSource = incomeData.prospector;
+        const prospectorIncome = prospectorSource.getIncome(state);
+        dailyIncome.shiny += Math.round(prospectorIncome.shiny);
+        dailyIncome.glowy += Math.round(prospectorIncome.glowy);
+        dailyIncome.starry += Math.round(prospectorIncome.starry);
+    }
 
     const chipsForThisDay = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];
     chipsForThisDay.forEach(chipId => {
