@@ -264,26 +264,34 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
             errorContainer.innerHTML += suggestionsHtml;
             
             suggestions.forEach(suggestion => {
-                const { itemToMove, moveBefore } = suggestion;
+                const { itemToMove, itemsToMove, moveBefore } = suggestion;
+                const items = itemsToMove || (itemToMove ? [itemToMove] : []);
 
-                const itemToMoveElement = Array.from(listItems).find(el => 
-                    el.dataset.heroName === itemToMove.heroName &&
-                    el.dataset.equipName === itemToMove.name &&
-                    el.dataset.step == itemToMove.step
-                );
-                if (itemToMoveElement) {
-                    itemToMoveElement.classList.add('suggestion');
-                }
+                items.forEach(itm => {
+                    const itemToMoveElement = Array.from(listItems).find(el => 
+                        el.dataset.heroName === itm.heroName &&
+                        el.dataset.equipName === itm.name &&
+                        el.dataset.step == itm.step
+                    );
+                    if (itemToMoveElement) {
+                        itemToMoveElement.classList.add('suggestion');
+                    }
+                });
 
-                const moveBeforeElement = Array.from(listItems).find(el => 
-                    el.dataset.heroName === moveBefore.heroName &&
-                    el.dataset.equipName === moveBefore.name &&
-                    el.dataset.step == moveBefore.step
-                );
-                if (moveBeforeElement) {
-                    const suggestionBar = document.createElement('div');
-                    suggestionBar.className = 'suggestion-bar';
-                    moveBeforeElement.parentNode.insertBefore(suggestionBar, moveBeforeElement);
+                if (moveBefore) {
+                    const moveBeforeElement = Array.from(listItems).find(el => 
+                        el.dataset.heroName === moveBefore.heroName &&
+                        el.dataset.equipName === moveBefore.name &&
+                        el.dataset.step == moveBefore.step
+                    );
+                    if (moveBeforeElement) {
+                        // Avoid adding multiple bars for the same move-before target
+                        if (!moveBeforeElement.previousElementSibling?.classList.contains('suggestion-bar')) {
+                            const suggestionBar = document.createElement('div');
+                            suggestionBar.className = 'suggestion-bar';
+                            moveBeforeElement.parentNode.insertBefore(suggestionBar, moveBeforeElement);
+                        }
+                    }
                 }
             });
             

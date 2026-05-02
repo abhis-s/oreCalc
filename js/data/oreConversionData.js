@@ -9,3 +9,9 @@ export const oreMaxValues = {
     glowy: 120,
     starry: 2,
 };
+
+export const storageCapacities = {
+    shiny: 50000,
+    glowy: 5000,
+    starry: 1000,
+};
