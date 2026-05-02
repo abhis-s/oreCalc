@@ -1,5 +1,7 @@
 import { state } from '../core/state.js';
 import { incomeData } from '../data/incomeChipData.js';
+import { championshipData } from '../data/appData.js';
+import { getChampionshipEventsForYear } from './dateUtils.js';
 
 export function calculateCumulativeOres(targetDate, initialOres) {
     let cumulativeOres = { ...initialOres };
@@ -26,11 +28,46 @@ export function calculateCumulativeOres(targetDate, initialOres) {
             cumulativeOres.starry += Math.round(prospectorIncome.starry);
         }
 
+        if (state.income.championship && state.income.championship.supercellEvents) {
+            const championshipEvents = getChampionshipEventsForYear(currentDate.getUTCFullYear(), championshipData);
+            championshipEvents.forEach((event) => {
+                const startDate = new Date(event.start);
+                const endDate = new Date(event.end);
+                
+            const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+                const endUTC = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+
+                const diffDays = Math.round((endUTC - startUTC) / (1000 * 60 * 60 * 24));
+                const middleDayOffset = Math.floor(diffDays / 2);
+                const middleDateUTC = new Date(startUTC);
+                middleDateUTC.setUTCDate(startUTC.getUTCDate() + middleDayOffset);
+
+                if (currentDate.getTime() === middleDateUTC.getTime()) {
+                    let rewardType = 'otherEvents';
+                    if (event.name === 'Monthly Finals') rewardType = 'monthlyQualifiers';
+                    else if (event.name === 'Last Chance Qualifier') rewardType = 'lastChanceQualifiers';
+                    else if (event.name === 'World Finals') rewardType = 'worldChampionships';
+
+                    let rewardsYear = currentDate.getUTCFullYear();
+                    if (!championshipData.rewards[rewardsYear]) rewardsYear = currentDate.getUTCFullYear() - 1;
+                    if (!championshipData.rewards[rewardsYear]) {
+                        const availableYears = Object.keys(championshipData.rewards).map(Number).sort((a, b) => b - a);
+                        rewardsYear = availableYears[0] || 2025;
+                    }
+                    const rewards = (championshipData.rewards[rewardsYear] && championshipData.rewards[rewardsYear][rewardType]) || { shiny: 0, glowy: 0, starry: 0 };
+                    
+                    cumulativeOres.shiny += Math.round(rewards.shiny);
+                    cumulativeOres.glowy += Math.round(rewards.glowy);
+                    cumulativeOres.starry += Math.round(rewards.starry);
+                }
+            });
+        }
+
         const chipsForThisDay = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];
         chipsForThisDay.forEach(chipId => {
             const parts = chipId.split('-');
             const type = parts[0];
-            if (type === 'starBonus' || type === 'prospector') {
+            if (type === 'starBonus' || type === 'prospector' || type === 'championship') {
                 return;
             }
             const incomeSource = incomeData[type];

@@ -1,4 +1,5 @@
 import { incomeData } from '../../data/incomeChipData.js';
+import { championshipData } from '../../data/appData.js';
 import { renderIncomeChips } from './incomeChips.js';
 import { state, getISOWeekNumber } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
@@ -7,7 +8,7 @@ import { calculateCumulativeOres, reindexCalendarChips } from '../../utils/chipM
 import { translate } from '../../i18n/translator.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { formatDate, getShortDayNames } from '../../utils/dateFormatter.js';
-
+import { getDaysInMonth, addDays, getChampionshipEventsForYear } from '../../utils/dateUtils.js';
 const calendarContainer = document.getElementById('calendar-container');
 const calendarTrack = document.getElementById('calendar-track');
 const currentMonthYearHeader = document.getElementById('current-month-year');
@@ -104,6 +105,46 @@ function createDayCell(date, plannerState) {
     }
 
     const monthYearKey = `${displayMonth}-${displayYear}`;
+
+    if (state.income.championship && state.income.championship.supercellEvents) {
+        const championshipEvents = getChampionshipEventsForYear(displayYear, championshipData);
+        championshipEvents.forEach((event, index) => {
+            const startDate = new Date(event.start);
+            const endDate = new Date(event.end);
+            
+            const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+            const endUTC = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+
+            const diffDays = Math.round((endUTC - startUTC) / (1000 * 60 * 60 * 24));
+            const middleDayOffset = Math.floor(diffDays / 2);
+            const middleDateUTC = new Date(startUTC);
+            middleDateUTC.setUTCDate(startUTC.getUTCDate() + middleDayOffset);
+
+            const dateUTC = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+
+            if (dateUTC.getTime() === middleDateUTC.getTime()) {
+                let rewardType = 'otherEvents';
+                if (event.name === 'Monthly Finals') rewardType = 'monthlyQualifiers';
+                else if (event.name === 'Last Chance Qualifier') rewardType = 'lastChanceQualifiers';
+                else if (event.name === 'World Finals') rewardType = 'worldChampionships';
+
+                let rewardsYear = displayYear;
+                if (!championshipData.rewards[rewardsYear]) rewardsYear = displayYear - 1;
+                if (!championshipData.rewards[rewardsYear]) {
+                    const availableYears = Object.keys(championshipData.rewards).map(Number).sort((a, b) => b - a);
+                    rewardsYear = availableYears[0] || 2025;
+                }
+                const rewards = (championshipData.rewards[rewardsYear] && championshipData.rewards[rewardsYear][rewardType]) || { shiny: 0, glowy: 0, starry: 0 };
+
+                const championshipSource = incomeData.championship;
+                const chipId = `championship-${index}-${displayDay}-${displayMonth}-${displayYear}-cal`;
+                const chipElement = createIncomeChip('', championshipSource.className, { type: 'championship', instance: index + 1, ...rewards }, date.getUTCMonth(), displayYear, chipId);
+                chipElement.draggable = false;
+                chipContainer.appendChild(chipElement);
+            }
+        });
+    }
+
     const chipsForThisDay = plannerState.calendar.dates[monthYearKey]?.[displayDay] || [];
 
     chipsForThisDay.forEach(chipId => {

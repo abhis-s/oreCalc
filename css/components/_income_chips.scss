@@ -67,6 +67,10 @@
         background-color: #FF69B4;
     }
 
+    &.championship {
+        background-color: #4169E1;
+    }
+
     &[draggable="false"] {
         box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
         cursor: default;
@@ -122,6 +126,10 @@
 
     &.prospector {
         background-color: #FF69B4;
+    }
+
+    &.championship {
+        background-color: #4169E1;
     }
 }
 

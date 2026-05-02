@@ -119,4 +119,10 @@ export const incomeData = {
         },
         getIncome: (state) => state.derived.incomeSources.prospector?.daily || { shiny: 0, glowy: 0, starry: 0 },
     },
+    championship: {
+        name: 'Championship',
+        type: 'championship',
+        color: '#4169E1',
+        className: 'championship',
+    },
 };
