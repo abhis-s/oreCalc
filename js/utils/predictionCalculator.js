@@ -118,9 +118,16 @@ export function calculateCompletionDates(priorityList) {
         let simulatedOres = { ...currentOres };
         let simulationDate = new Date(currentDate);
         let isStarryBottleneck = false;
+        let bottleneckOre = 'shiny';
+        let previousSimulatedOres = { ...simulatedOres };
 
         while (simulationDate <= stopDate) {
             const dailyIncome = getDailyIncomeFromCalendar(simulationDate);
+            
+            const prevShinyReady = previousSimulatedOres.shiny >= requiredShiny;
+            const prevGlowyReady = previousSimulatedOres.glowy >= requiredGlowy;
+            const prevStarryReady = previousSimulatedOres.starry >= requiredStarry;
+
             simulatedOres.shiny += dailyIncome.shiny;
             simulatedOres.glowy += dailyIncome.glowy;
             simulatedOres.starry += dailyIncome.starry;
@@ -134,22 +141,39 @@ export function calculateCompletionDates(priorityList) {
             }
 
             if (simulatedOres.shiny >= requiredShiny && simulatedOres.glowy >= requiredGlowy && simulatedOres.starry >= requiredStarry) {
+                if (!prevStarryReady && equipmentType === 'epic') bottleneckOre = 'starry';
+                else if (!prevGlowyReady) bottleneckOre = 'glowy';
+                else if (!prevShinyReady) bottleneckOre = 'shiny';
+
                 completionDate = new Date(simulationDate);
                 break;
             }
+            
+            previousSimulatedOres.shiny = simulatedOres.shiny;
+            previousSimulatedOres.glowy = simulatedOres.glowy;
+            previousSimulatedOres.starry = simulatedOres.starry;
             simulationDate.setUTCDate(simulationDate.getUTCDate() + 1);
         }
 
         if (completionDate) {
-            predictions.push({ item: item, completionDate: completionDate });
             simulatedLevels[equipmentKey] = item.targetLevel;
-
-            // console.log(`Completion Date: ${completionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`);
-            // console.log(`Ores on Completion Date: Shiny: ${simulatedOres.shiny}, Glowy: ${simulatedOres.glowy}, Starry: ${simulatedOres.starry}`);
 
             currentOres.shiny = simulatedOres.shiny - requiredShiny;
             currentOres.glowy = simulatedOres.glowy - requiredGlowy;
             currentOres.starry = simulatedOres.starry - requiredStarry;
+            
+            predictions.push({ 
+                item: item, 
+                completionDate: completionDate,
+                oresPreCompletion: { ...simulatedOres },
+                oresPostCompletion: { ...currentOres },
+                requiredOres: { shiny: requiredShiny, glowy: requiredGlowy, starry: requiredStarry },
+                bottleneckOre: bottleneckOre
+            });
+
+            // console.log(`Completion Date: ${completionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`);
+            // console.log(`Ores on Completion Date: Shiny: ${simulatedOres.shiny}, Glowy: ${simulatedOres.glowy}, Starry: ${simulatedOres.starry}`);
+
             currentDate = new Date(completionDate);
             // console.log(`Ores after upgrade: Shiny: ${currentOres.shiny}, Glowy: ${currentOres.glowy}, Starry: ${currentOres.starry}`);
 

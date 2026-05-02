@@ -1,4 +1,5 @@
 import { formatDate } from '../../utils/dateFormatter.js';
+import { formatNumber } from '../../utils/numberFormatter.js';
 import { heroData } from '../../data/heroData.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
@@ -98,6 +99,10 @@ export function getGlobalPriorityList() {
             item.completionDate = prediction.completionDate;
             item.error = prediction.error;
             item.message = prediction.message;
+            item.oresPreCompletion = prediction.oresPreCompletion;
+            item.oresPostCompletion = prediction.oresPostCompletion;
+            item.requiredOres = prediction.requiredOres;
+            item.bottleneckOre = prediction.bottleneckOre;
         }
     });
 
@@ -351,11 +356,38 @@ function renderDraggableList(globalPriorityList, suggestions) {
         listItem.dataset.equipName = equipName;
         listItem.dataset.step = item.step;
 
+        let oresHtml = '';
+        if (item.oresPreCompletion && item.requiredOres && item.bottleneckOre) {
+            const bottleneckTrans = translate(`${item.bottleneckOre}_ore`) || item.bottleneckOre;
+            
+            let reqHtml = `<span>${formatNumber(item.requiredOres.shiny)} <img src="assets/shiny_ore.png" class="ore-icon-small"></span>`;
+            reqHtml += ` <span>${formatNumber(item.requiredOres.glowy)} <img src="assets/glowy_ore.png" class="ore-icon-small"></span>`;
+            if (item.requiredOres.starry > 0 || state.heroes[heroName]?.equipment[equipName]?.type === 'epic') {
+                reqHtml += ` <span>${formatNumber(item.requiredOres.starry)} <img src="assets/starry_ore.png" class="ore-icon-small"></span>`;
+            }
+
+            oresHtml = `
+                <div class="priority-item-ores tooltip-container">
+                    <span>${formatNumber(item.oresPreCompletion.shiny)} <img src="assets/shiny_ore.png" class="ore-icon-small"></span>
+                    <span>${formatNumber(item.oresPreCompletion.glowy)} <img src="assets/glowy_ore.png" class="ore-icon-small"></span>
+                    <span>${formatNumber(item.oresPreCompletion.starry)} <img src="assets/starry_ore.png" class="ore-icon-small"></span>
+                    
+                    <div class="priority-item-tooltip">
+                        <p>The amount of ore that will be reached before the bottleneck is removed for this upgrade.</p>
+                        <p>The bottleneck for this upgrade would be: <b>${bottleneckTrans}</b>.</p>
+                        <p>Consider using the prospector to balance the ores.</p>
+                        <div class="tooltip-req-ores">Ores required for this upgrade: ${reqHtml}</div>
+                    </div>
+                </div>
+            `;
+        }
+
         listItem.innerHTML = `
             <div class="drag-handle"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-360v-80h640v80H160Zm0-160v-80h640v80H160Z"/></svg></div>
             <img src="${item.image}" alt="${item.name}" class="item-image">
             <div class="item-details">
                 <span class="item-name">${translate('equipment_upgrade_step_level_range', { n: item.step, x: startLevel, y: item.targetLevel })}</span>
+                ${oresHtml}
                 <div class="priority-item-date">${completionDateText}</div>
             </div>
             <button class="delete-item-btn">&times;</button>
@@ -380,6 +412,25 @@ function renderDraggableList(globalPriorityList, suggestions) {
             });
             renderDraggableList();
         });
+
+        const tooltipContainer = listItem.querySelector('.tooltip-container');
+        if (tooltipContainer) {
+            tooltipContainer.addEventListener('mouseenter', function() {
+                const tooltip = this.querySelector('.priority-item-tooltip');
+                const editor = document.getElementById('priority-list-editor');
+                if (tooltip && editor) {
+                    const rect = this.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const editorRect = editor.getBoundingClientRect();
+                    
+                    if (rect.top - tooltipRect.height < editorRect.top + 10) {
+                        tooltip.classList.add('tooltip-bottom');
+                    } else {
+                        tooltip.classList.remove('tooltip-bottom');
+                    }
+                }
+            });
+        }
 
         editor.appendChild(listItem);
 
@@ -455,6 +506,16 @@ export function initializePriorityListModal() {
         modalBody.addEventListener('dragstart', (e) => {
             if (e.target.classList.contains('priority-list-editor-item')) {
                 draggedItem = e.target;
+                const tooltip = draggedItem.querySelector('.priority-item-tooltip');
+                if (tooltip) tooltip.style.display = 'none';
+                
+                if (e.dataTransfer && typeof e.dataTransfer.setDragImage === 'function') {
+                    const rect = draggedItem.getBoundingClientRect();
+                    const offsetX = e.clientX - rect.left;
+                    const offsetY = e.clientY - rect.top;
+                    e.dataTransfer.setDragImage(draggedItem, offsetX, offsetY);
+                }
+
                 setTimeout(() => {
                     draggedItem.classList.add('dragging');
                 }, 0);
@@ -463,6 +524,8 @@ export function initializePriorityListModal() {
 
         modalBody.addEventListener('dragend', (e) => {
             if (draggedItem) {
+                const tooltip = draggedItem.querySelector('.priority-item-tooltip');
+                if (tooltip) tooltip.style.display = '';
                 draggedItem.classList.remove('dragging');
                 draggedItem = null;
             }
