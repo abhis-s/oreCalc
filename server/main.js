@@ -48,7 +48,14 @@ app.get('/proxy/players/:playerTag', async (req, res) => {
     const fetch = (await import('node-fetch')).default;
     const playerTag = req.params.playerTag;
     const encodedTag = encodeURIComponent(`#${playerTag}`);
-    const url = `https://api.clashofclans.com/v1/players/${encodedTag}`;
+    
+    // Base URL configuration for Clash of Clans API
+    // 1. Proxy (Default): https://cocproxy.royaleapi.dev/v1
+    //    Requires whitelisting the RoyaleAPI Proxy IP (45.79.218.79) in the developer portal.
+    // 2. Official: https://api.clashofclans.com/v1
+    //    Requires a dedicated static IP on your server for whitelisting.
+    const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
+    const url = `${baseUrl}/players/${encodedTag}`;
 
     try {
         const response = await fetch(url, {
