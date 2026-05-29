@@ -1,26 +1,13 @@
 module.exports = {
-  globDirectory: 'dist/',
-  globPatterns: [
-    '**/*.{js,css,html,png,jpg,jpeg,svg,gif,json,ico,webp}'
-  ],
-  swDest: 'dist/service-worker.js',
-  runtimeCaching: [{
-    urlPattern: /^https:\/\/api\.orecalc\.tech\//,
-    handler: 'NetworkFirst',
-    options: {
-      cacheName: 'api-cache',
-      networkTimeoutSeconds: 10,
-      cacheableResponse: {
-        statuses: [0, 200],
-      },
-    },
-  }, {
-    urlPattern: ({ request }) => request.mode === 'navigate',
-    handler: 'StaleWhileRevalidate',
-    options: {
-      cacheName: 'navigation-cache',
-    },
-  }],
-  clientsClaim: true,
+    globDirectory: 'dist/',
+    globPatterns: [
+        // Both image formats go into the manifest. The service worker (service-worker-src.js)
+        // detects AVIF support at install time and drops the unsupported format before
+        // caching anything — so only ~half the images ever touch the cache.
+        '**/*.{js,css,html,png,jpg,jpeg,svg,gif,json,ico,webp,avif}'
+    ],
+    // injectManifest: workbox-cli injects self.__WB_MANIFEST into our custom SW template.
+    // All routing + runtime caching logic lives in service-worker-src.js.
+    swSrc: './service-worker-src.js',
+    swDest: 'dist/service-worker.js',
 };
-

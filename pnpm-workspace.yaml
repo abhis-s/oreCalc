@@ -1,0 +1,11 @@
+packages:
+  - '.'
+  - 'server'
+
+allowBuilds:
+  '@firebase/util': true
+  '@parcel/watcher': true
+  'core-js': true
+  'fsevents': true
+  'protobufjs': true
+  'sharp': true

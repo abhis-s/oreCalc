@@ -1,11 +1,15 @@
 steps:
 # Install frontend dependencies
-- name: 'gcr.io/cloud-builders/npm'
-  args: ['install']
+- name: 'node:22-slim'
+  entrypoint: 'npx'
+  args: ['pnpm', 'install', '--frozen-lockfile']
 
 # Build the frontend application
-- name: 'gcr.io/cloud-builders/npm'
-  args: ['run', 'build']
+- name: 'node:22-slim'
+  entrypoint: 'npx'
+  args: ['pnpm', 'run', 'build']
+  env:
+  - 'VERBOSE=true'
 
 # Build the Docker image for the frontend
 - name: 'gcr.io/cloud-builders/docker'
@@ -28,4 +32,3 @@ steps:
 images:
 - 'gcr.io/$PROJECT_ID/orecalc-webapp:$COMMIT_SHA'
 
-# available_secrets section is no longer needed here as VITE_API_BASE_URL is handled by npm run build inside Dockerfile

@@ -14,6 +14,11 @@ dist/
 .vscode/
 orecalc-firestore-sa-key.json
 
+# Automation files
+.automate/
+.n8n/
+.*cli/
+
 # macOS specific files
 .DS_Store
 

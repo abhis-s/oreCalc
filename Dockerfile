@@ -1,29 +1,24 @@
-# --- Build Stage ---
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json to install dependencies
-COPY package*.json ./
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Install frontend dependencies
-RUN npm install
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+# Copy server's package.json since pnpm workspace requires it to build dependency graph
+COPY server/package.json ./server/
 
-# Copy the rest of the frontend source code
+RUN pnpm install --frozen-lockfile
+
 COPY . .
 
-# Build the frontend application
-# This will create the 'dist' folder
-RUN npm run build
+ENV VERBOSE=true
+RUN pnpm run build
 
-# --- Production Stage ---
 FROM nginx:alpine
 
-# Copy the built files from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose the port Nginx listens on
 EXPOSE 80
 
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

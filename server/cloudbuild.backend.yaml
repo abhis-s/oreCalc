@@ -1,7 +1,8 @@
 steps:
 # Install backend dependencies
-- name: 'gcr.io/cloud-builders/npm'
-  args: ['install', '--production']
+- name: 'node:22-slim'
+  entrypoint: 'npx'
+  args: ['pnpm', 'install', '--prod', '--frozen-lockfile']
   dir: 'server'
 
 # Build the Docker image for the backend

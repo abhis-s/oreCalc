@@ -1,33 +1,38 @@
 {
   "dependencies": {
-    "express": "^5.1.0",
-    "workbox-window": "^7.3.0"
+    "express": "^5.2.1",
+    "workbox-window": "^7.4.1"
   },
-  "name": "orecoc",
+  "name": "orecalc-frontend",
   "version": "1.0.0",
   "description": "",
   "main": "service-worker.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "node scripts/dev/copy-workbox.js && node -r dotenv/config scripts/inject-env.js && concurrently \"node scripts/dev/watch-sass.js\" \"node scripts/dev/start-dev-server.js\"",
-    "build": "VITE_API_BASE_URL=https://api.orecalc.tech node scripts/build.js && npm run build:css && npm run build:sw",
+    "dev": "node scripts/dev/copy-workbox.js && concurrently \"pnpm:watch:sass\" \"pnpm:watch:js\" \"pnpm:dev:server\"",
+    "watch:sass": "node scripts/dev/watch-sass.js",
+    "watch:js": "node scripts/dev/watch-js.js",
+    "dev:server": "node -r dotenv/config scripts/dev/start-dev-server.js",
+    "build": "VITE_API_BASE_URL=https://api.orecalc.tech pnpm run build:assets",
+    "build:dev": "VITE_API_BASE_URL=http://localhost:3000 pnpm run build:assets",
+    "build:assets": "node scripts/build.js && pnpm run build:css && pnpm run build:sw",
     "build:css": "sass css/main.scss dist/css/main.min.css --style compressed",
-    "build:sw": "npx workbox-cli generateSW workbox-config.js",
-    "start:prod": "node scripts/prod/start-prod-server.js"
+    "build:sw": "workbox injectManifest workbox-config.js",
+    "start": "node scripts/prod/start-prod-server.js"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
-    "concurrently": "^9.2.0",
+    "concurrently": "^9.2.1",
     "cpx": "^1.5.0",
-    "dotenv": "^17.2.1",
+    "dotenv": "^17.4.2",
     "live-server": "^1.2.2",
-    "replace-in-file": "^8.3.0",
-    "sass": "^1.89.2",
-    "sharp": "^0.34.3",
+    "replace-in-file": "^8.4.0",
+    "sass": "^1.100.0",
+    "sharp": "^0.34.5",
     "terser": "5.43.1",
-    "workbox-cli": "^7.3.0"
+    "workbox-cli": "^7.4.1"
   }
 }

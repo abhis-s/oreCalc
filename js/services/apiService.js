@@ -1,5 +1,13 @@
-const BASE_URL = "__VITE_API_BASE_URL__"; // Environment variable used by scripts, DO NOT STAGE OR COMMIT CHANGES TO THIS LINE
+const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
 
+/**
+ * Fetches player data for a given player tag, automatically stripping a leading '#' if present.
+ * The request is proxied through the API server to avoid CORS or auth issues.
+ *
+ * @param {string} playerTag - The player tag to query (e.g. "#PPYY9988" or "PPYY9988").
+ * @returns {Promise<Object>} The parsed player data from the API response.
+ * @throws {Error} Throws if the API request fails or returns a non-OK HTTP status.
+ */
 export async function fetchPlayerData(playerTag) {
     const cleanedTag = playerTag.startsWith('#') ? playerTag.substring(1) : playerTag;
     const url = `${BASE_URL}/proxy/players/${cleanedTag}`;
@@ -19,6 +27,13 @@ export async function fetchPlayerData(playerTag) {
     }
 }
 
+/**
+ * Fetches the minimum required client/app version from the backend.
+ * Used for cache busting or checking if the user needs to reload to get update.
+ *
+ * @returns {Promise<string>} The current application version string.
+ * @throws {Error} Throws if the network fails or version cannot be retrieved.
+ */
 export async function fetchRequiredClientVersion() {
     const url = `${BASE_URL}/api/version`;
     try {
@@ -34,6 +49,13 @@ export async function fetchRequiredClientVersion() {
     }
 }
 
+/**
+ * Saves/persists the user's progress or application data (like levels, calculations) to the server.
+ *
+ * @param {string} userId - The unique identifier of the user.
+ * @param {Object} data - The data object to be saved/persisted.
+ * @returns {Promise<Object|undefined>} The API response payload on success, or undefined on failure.
+ */
 export async function saveUserData(userId, data) {
     const url = `${BASE_URL}/api/user-data/save`;
     try {
@@ -56,6 +78,13 @@ export async function saveUserData(userId, data) {
     }
 }
 
+/**
+ * Loads/retrieves the user's previously saved progress or data from the server.
+ * Gracefully handles 404 (user doesn't exist/no saved data yet) by returning null.
+ *
+ * @param {string} userId - The unique identifier of the user.
+ * @returns {Promise<Object|null>} The loaded data payload, or null if not found (404) or on error.
+ */
 export async function loadUserData(userId) {
     const url = `${BASE_URL}/api/user-data/load/${userId}`;
     try {
