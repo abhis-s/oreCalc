@@ -3,6 +3,7 @@
 .planner-cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    align-items: flex-start;
     gap: 20px;
     margin-bottom: 20px;
 }
@@ -55,7 +56,7 @@
     font-size: 14px;
 
     .hero-header-section {
-        background-color: var(--color-black-200);
+        background-color: $bg-surface-tertiary;
         border-radius: 8px;
         padding: 8px 12px;
         margin-bottom: 10px;
@@ -69,6 +70,17 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        min-width: 0; // Important for ellipsis
+        flex: 1;
+    }
+
+    .hero-name-text {
+        font-weight: var(--font-weight-bold);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 1.1em;
+        color: $text-primary;
     }
 
     .hero-icon-planner {
@@ -105,23 +117,6 @@
     }
 }
 
-.switch.large-switch {
-    width: 60px;
-    height: 34px;
-
-    .slider.round {
-        &:before {
-            width: 26px;
-            height: 26px;
-            bottom: 4px;
-        }
-    }
-
-    input:checked + .slider.round:before {
-        transform: translateX(26px);
-    }
-}
-
 .planner-page-dots {
     display: flex;
     justify-content: center;
@@ -132,17 +127,17 @@
 .dot {
     width: 10px;
     height: 10px;
-    background-color: var(--color-grey-600);
+    background-color: $border-primary;
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.3s ease;
 
     &.active {
-        background-color: var(--color-primary-blue);
+        background-color: $accent-primary;
     }
 
     &:hover {
-        background-color: var(--color-grey-400);
+        background-color: $text-secondary;
     }
 }
 
@@ -150,10 +145,10 @@
     .equipment-info {
         img {
             &.gold-glow {
-                filter: drop-shadow(0 0 4px rgba(249, 200, 64, 0.8)) drop-shadow(0 0 8px rgba(249, 200, 64, 0.6));
+                filter: drop-shadow(0 0 4px var(--color-gold-glow-shadow)) drop-shadow(0 0 8px var(--color-gold-glow-shadow));
             }
             &.over-leveled-glow {
-                filter: drop-shadow(0 0 4px rgba(0, 191, 255, 0.8)) drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
+                filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
             }
             &.grayscale {
                 filter: grayscale(100%);
@@ -161,13 +156,13 @@
         }
         span {
             &.gold-glow {
-                color: var(--color-accent-yellow-100) !important;
+                color: $color-gold-glow !important;
             }
             &.common-equip {
-                color: var(--color-primary-blue);
+                color: $color-rarity-common;
             }
             &.epic-equip {
-                color: var(--color-accent-purple-dark);
+                color: $color-rarity-epic;
             }
         }
     }
@@ -177,6 +172,22 @@
     margin-bottom: 20px;
 }
 
+.calendar-action-buttons {
+    display: flex;
+    gap: 10px;
+
+    .planner-action-button {
+        height: 40px;
+        width: 40px;
+        padding: 0;
+
+        svg {
+            width: 26px;
+            height: 26px;
+        }
+    }
+}
+
 @media (max-width: 425px) {
     .full-width-planner-section,
     .card .inner-card {
@@ -184,7 +195,13 @@
     }
 
     .planner-action-button {
-        padding: 4px 6px;
+        height: 36px;
+        width: 36px;
+
+        svg {
+            width: 22px;
+            height: 22px;
+        }
     }
 }
 
@@ -223,32 +240,55 @@
 }
 
 .edit-priority-list-btn {
-    background: none;
-    border: none;
+    align-items: center;
+    background-color: $accent-primary-soft;
+    border: 1px solid $border-primary;
+    border-radius: 12px;
+    color: $accent-primary;
     cursor: pointer;
-    padding: 0 5px 0 0;
+    display: flex;
+    height: 36px;
+    justify-content: center;
+    padding: 0;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+    width: 36px;
+
+    svg {
+        fill: currentColor;
+        width: 24px;
+        height: 24px;
+    }
+
+    &:hover {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
 }
 
 .priority-list-card {
     display: flex;
     flex-direction: column;
     padding: 10px;
-    height: 420px;
     text-align: center;
+    overflow: hidden;
 }
 
 .priority-list-content {
     flex-grow: 1;
     overflow-y: auto;
     padding-right: 5px;
-    height: 300px;
 
     &::-webkit-scrollbar {
         width: 8px;
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: var(--color-grey-600);
+        background-color: $border-primary;
         border-radius: 4px;
     }
 }
@@ -258,18 +298,8 @@
     align-items: center;
     padding: 8px 12px;
     margin-bottom: 8px;
-    background-color: var(--color-black-200);
+    background-color: $bg-surface-primary;
     border-radius: 8px;
-    cursor: grab;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-        background-color: var(--color-black-300);
-    }
-
-    &.dragging {
-        opacity: 0.5;
-    }
 
     .equipment-info {
         display: flex;
@@ -285,11 +315,10 @@
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
-                cursor: pointer;
                 transition: filter 0.3s ease-in-out;
 
                 &.custom-max-glow {
-                    filter: drop-shadow(0 0 4px rgba(0, 191, 255, 0.8)) drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
+                    filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
                 }
             }
 
@@ -297,14 +326,13 @@
                 position: absolute;
                 bottom: -5px;
                 right: -5px;
-                background-color: var(--color-black-300);
-                color: var(--dark-text-primary);
+                background-color: $bg-surface-tertiary;
+                color: $text-primary;
                 padding: 1px 4px;
                 font-size: 10px;
                 border-radius: 4px;
                 z-index: 1;
-                border: 1px solid var(--dark-border-color);
-                font-weight: bold;
+                font-weight: var(--font-weight-bold);
             }
         }
 
@@ -315,37 +343,62 @@
 
         span {
             font-size: 0.9em;
-            color: $dark-text-primary;
+            color: $text-primary;
         }
 
         .priority-item-date {
             font-size: 0.8em;
-            color: $dark-text-secondary;
+            color: $text-secondary;
             white-space: nowrap;
+
+            &.error {
+                color: $color-danger;
+                font-weight: var(--font-weight-bold);
+            }
         }
     }
 }
 
-// .priority-list-item:nth-child(n + 5) {
-//     display: none;
-// }
+.priority-error-truncated-separator {
+    width: 100%;
+    height: 1px;
+    background-color: $color-danger;
+    opacity: 0.5;
+    margin: 1rem 0;
+}
+
+.priority-error-truncated-msg {
+    color: $color-danger;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 1rem;
+    
+    svg {
+        flex-shrink: 0;
+    }
+}
 
 .drag-handle {
    cursor: grab;
-   color: var(--color-grey-400);
+   color: $text-muted;
 }
 
 .priority-separator-line {
     width: 100%;
     height: 2px;
-    background-color: var(--color-primary-blue);
+    background-color: $accent-primary;
     margin: 10px 0;
 }
 
 .favorite-separator {
     width: 100%;
     height: 2px;
-    background-color: #FF69B4;
+    background-color: $accent-primary;
     margin: 10px 0;
 }
 
@@ -361,17 +414,20 @@
 .priority-list-table-row {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr;
-    background-color: var(--color-black-100);
+    background-color: $bg-surface-secondary;
     border-radius: 8px;
     gap: 10px;
     padding: 10px;
-    border-bottom: 1px solid var(--dark-border-color);
     margin-bottom: 10px;
 }
 
+.priority-list-table-row {
+    background-color: $bg-surface-primary;
+}
+
 .priority-list-table-header {
-    font-weight: bold;
-    color: var(--dark-text-secondary);
+    font-weight: var(--font-weight-bold);
+    color: $text-secondary;
 }
 
 .equipment-cell {
@@ -390,10 +446,10 @@
         }
 
         &.gold-glow {
-            filter: drop-shadow(0 0 4px rgba(249, 200, 64, 0.8)) drop-shadow(0 0 8px rgba(249, 200, 64, 0.6));
+            filter: drop-shadow(0 0 4px $color-gold-glow) drop-shadow(0 0 8px $color-gold-glow-shadow);
         }
         &.over-leveled-glow {
-            filter: drop-shadow(0 0 4px rgba(0, 191, 255, 0.8)) drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
+            filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
         }
     }
 }
@@ -402,9 +458,9 @@
     input[type="number"] {
         width: 60px;
         padding: 5px;
-        background-color: $dark-background-secondary;
-        color: $dark-text-primary;
-        border: 1px solid $dark-border-color;
+        background-color: $bg-surface-primary;
+        color: $text-primary;
+        border: 1px solid $border-primary;
         border-radius: 5px;
         text-align: center;
     }
@@ -412,33 +468,38 @@
     input[type="checkbox"] {
         -webkit-appearance: none;
         appearance: none;
-        border: 2px solid $color-grey-600;
+        border: 2px solid $border-primary;
         border-radius: 4px;
         cursor: pointer;
         height: 20px;
         outline: none;
         position: relative;
         top: 2px;
-        transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         width: 20px;
 
         &:checked {
-            background-color: $color-primary-purple;
-            border-color: $color-primary-purple;
+            background-color: $accent-primary;
+            border-color: $accent-primary;
+            transform: scale(1.1);
 
             &::after {
                 content: '\2713';
-                color: $color-white;
+                color: $text-on-accent;
                 display: block;
                 font-size: var(--font-size-sm);
                 line-height: 18px;
                 text-align: center;
-                transform: scale(1.2);
+                animation: checkmark-pop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
             }
         }
 
         &:focus {
-            box-shadow: 0 0 0 3px rgba($color-primary-purple, 0.3);
+            box-shadow: 0 0 0 3px $accent-primary-soft;
+        }
+
+        &:active {
+            transform: scale(0.9);
         }
     }
 }

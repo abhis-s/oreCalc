@@ -9,16 +9,16 @@
     position: fixed;
     right: 30px;
     width: fit-content;
-    z-index: 100;
+    z-index: $z-index-fab;
 }
 
 .fab-button {
     @extend %flex-center;
-    background-color: $color-primary-purple;
+    background-color: $accent-primary;
     border: none;
     border-radius: 16px;
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-    color: $color-grey-200;
+    color: $text-on-accent;
     cursor: pointer;
     height: 56px;
     outline: none;
@@ -33,12 +33,13 @@
     }
 
     &:disabled {
-        background-color: transparent;
+        background-color: $bg-surface-tertiary;
+        color: $text-muted;
         cursor: not-allowed;
         opacity: 0.6;
 
         .fab-icon svg {
-            fill: $color-grey-600;
+            fill: currentColor;
         }
     }
 
@@ -69,7 +70,7 @@
 }
 
 .fab-button.error {
-    background-color: $color-danger-200;
+    background-color: $color-danger-soft;
     cursor: not-allowed;
     .button-spinner, .fab-icon {
         display: none;
@@ -116,19 +117,13 @@
 }
 
 .fab-menu-pill {
-    align-items: center;
-    background-color: $color-accent-purple-light;
-    border: none;
-    border-radius: 20px;
+    @include btn-accent-style;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    color: $color-black-100;
-    cursor: pointer;
-    display: flex;
-    gap: 8px;
     margin-bottom: 8px;
     padding: 10px 15px;
-    transition: background-color 0.2s ease-in-out;
     white-space: nowrap;
+    min-height: auto; 
+    min-width: auto;
 
     .animated-btn-icon-wrapper {
         opacity: 1;
@@ -136,12 +131,8 @@
         transform: translateY(0);
     }
 
-    &:hover {
-        background-color: $color-grey-600;
-    }
-
     svg {
-        fill: $color-primary-purple;
+        fill: currentColor;
         height: 20px;
         width: 20px;
     }

@@ -14,13 +14,13 @@
 }
 
 .hero-card {
-    background-color: $color-grey-800;
+    background-color: $bg-surface-secondary;
     border-radius: 10px;
     padding: 20px;
     transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
 
     h3 {
-        color: $color-white;
+        color: $text-primary;
         margin: 0;
     }
 
@@ -29,7 +29,7 @@
     }
 
     &.flash-red {
-        background-color: $color-danger-100;
+        background-color: $color-danger-soft;
     }
 }
 
@@ -76,24 +76,15 @@
     }
 
     input[type="number"] {
-        background-color: $color-black-300;
-        border: 1px solid $color-grey-border;
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-primary;
         border-radius: 5px;
-        color: $color-grey-200;
+        color: $text-secondary;
         flex-shrink: 0;
-        margin-left: auto;
         padding: 5px;
         text-align: center;
-        transition: border-color 0.3s ease-in-out;
+        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         width: 60px;
-
-        &.warning-border {
-            border-color: $color-accent-yellow-200;
-        }
-
-        &.error-border {
-            border-color: $color-danger-300;
-        }
     }
 
     .equipment-image {
@@ -108,24 +99,24 @@
         }
 
         &.gold-glow {
-            filter: drop-shadow(0 0 4px rgba(249, 200, 64, 0.8)) drop-shadow(0 0 8px rgba(249, 200, 64, 0.6));
+            filter: drop-shadow(0 0 4px var(--color-gold-glow-shadow)) drop-shadow(0 0 8px var(--color-gold-glow-shadow));
         }
         &.over-leveled-glow {
-            filter: drop-shadow(0 0 4px rgba(0, 191, 255, 0.8)) drop-shadow(0 0 8px rgba(0, 191, 255, 0.6));
+            filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
         }
     }
 }
 
 .common-equip {
-    color: $color-primary-blue;
+    color: $color-rarity-common;
 }
 
 .epic-equip {
-    color: $color-accent-purple-dark;
+    color: $color-rarity-epic;
 }
 
 .gold-glow {
-    color: $color-accent-yellow-100;
+    color: $color-gold-glow;
 }
 
 .calculate-container {
@@ -142,13 +133,24 @@
 
 .level-display {
     @extend %flex-center;
-    background-color: $color-black-300;
-    border: 1px solid $color-grey-border;
+    background-color: $bg-app;
+    border: 1px solid $border-primary;
     border-radius: 5px;
-    color: $color-grey-200;
-    font-weight: bold;
+    color: $text-primary;
+    font-weight: var(--font-weight-bold);
     height: 30px;
     padding: 5px;
     text-align: center;
     width: 60px;
+}
+
+.level-input-container {
+    position: relative;
+    margin-left: auto;
+}
+
+#eq-settings-container-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }

@@ -1,0 +1,198 @@
+// Primitive Palette - Raw color building blocks
+// Follows 100-900 scale: 100-300 (Light), 400-600 (Base), 700-900 (Dark)
+
+// Greyscale
+$palette-white: #ffffff;
+$palette-grey-50: #f8f9fa;
+$palette-grey-100: #f1f3f4;
+$palette-grey-200: #e8eaed;
+$palette-grey-300: #dee2e6;
+$palette-grey-400: #bdc1c6;
+$palette-grey-500: #9aa0a6;
+$palette-grey-600: #80868b;
+$palette-grey-700: #5f6368;
+$palette-grey-800: #3c4043;
+$palette-grey-900: #202124;
+$palette-black: #000000;
+
+// Deep Greys / Blacks
+$palette-slate-100: #2c2e30;
+$palette-slate-200: #2b2929;
+$palette-slate-300: #202124;
+$palette-slate-400: #1a1c1e;
+$palette-slate-500: #121212;
+$palette-slate-600: #0a0a0a;
+
+// Blue (Primary Accent)
+$palette-blue-100: #d2e3fc;
+$palette-blue-200: #aecbfa;
+$palette-blue-300: #8ab4f8;
+$palette-blue-400: #669df6;
+$palette-blue-500: #4285f4;
+$palette-blue-600: #1a73e8;
+$palette-blue-700: #1967d2;
+$palette-blue-800: #185abc;
+$palette-blue-900: #174ea6;
+
+// Purple (Secondary Accent / Epic Equipment)
+$palette-purple-100: #f3e5f5;
+$palette-purple-200: #e1bee7;
+$palette-purple-300: #ce93d8;
+$palette-purple-400: #ba68c8;
+$palette-purple-500: #ab47bc;
+$palette-purple-600: #9c27b0;
+$palette-purple-700: #8e24aa;
+$palette-purple-800: #7b1fa2;
+$palette-purple-900: #4a148c;
+
+// Lavender (Material You Secondary)
+$palette-lavender-100: #e8def8;
+$palette-lavender-200: #ccc2dc;
+$palette-lavender-300: #b0a7c0;
+$palette-lavender-500: #625b71;
+$palette-lavender-700: #49454f;
+$palette-lavender-900: #1d1b20;
+
+// Green (Success)
+$palette-green-100: #e6f4ea;
+$palette-green-200: #ceead6;
+$palette-green-300: #a8dab5;
+$palette-green-400: #81c995;
+$palette-green-500: #5bb974;
+$palette-green-600: #34a853;
+$palette-green-700: #1e8e3e;
+$palette-green-800: #188038;
+$palette-green-900: #137333;
+
+// Yellow (Warning / Common Equipment)
+$palette-yellow-100: #fef7e0;
+$palette-yellow-200: #feefc3;
+$palette-yellow-300: #fde293;
+$palette-yellow-400: #fdd663;
+$palette-yellow-500: #fbc02d;
+$palette-yellow-600: #f9ab00;
+$palette-yellow-700: #f29900;
+$palette-yellow-800: #ea8600;
+$palette-yellow-900: #e37400;
+
+// Red (Danger / Error)
+$palette-red-100: #fce8e6;
+$palette-red-200: #fad2cf;
+$palette-red-300: #f8b4ae;
+$palette-red-400: #f6948e;
+$palette-red-500: #f28b82;
+$palette-red-600: #ee675c;
+$palette-red-700: #ea4335;
+$palette-red-800: #d93025;
+$palette-red-900: #c5221f;
+
+// Teal (Changelog / Contact)
+$palette-teal-100: #e0f2f1;
+$palette-teal-200: #b2dfdb;
+$palette-teal-300: #80cbc4;
+$palette-teal-400: #4db6ac;
+$palette-teal-500: #26a69a;
+$palette-teal-600: #009688;
+$palette-teal-700: #00897b;
+$palette-teal-800: #00796b;
+$palette-teal-900: #004d40;
+
+// Amber (Licenses)
+$palette-amber-100: #fff8e1;
+$palette-amber-200: #ffecb3;
+$palette-amber-300: #ffe082;
+$palette-amber-400: #ffd54f;
+$palette-amber-500: #ffca28;
+$palette-amber-600: #ffb300;
+$palette-amber-700: #ffa000;
+$palette-amber-800: #ff8f00;
+$palette-amber-900: #ff6f00;
+
+// Emerald (Costs / Success Alt)
+$palette-emerald-100: #e8f5e9;
+$palette-emerald-200: #c8e6c9;
+$palette-emerald-300: #a5d6a7;
+$palette-emerald-400: #81c784;
+$palette-emerald-500: #66bb6a;
+$palette-emerald-600: #4caf50;
+$palette-emerald-700: #43a047;
+$palette-emerald-800: #388e3c;
+$palette-emerald-900: #1b5e20;
+
+// Cyan (Privacy)
+$palette-cyan-100: #e0f7fa;
+$palette-cyan-200: #b2ebf2;
+$palette-cyan-300: #80deea;
+$palette-cyan-400: #4dd0e1;
+$palette-cyan-500: #26c6da;
+$palette-cyan-600: #00bcd4;
+$palette-cyan-700: #00acc1;
+$palette-cyan-800: #0097a7;
+$palette-cyan-900: #006064;
+
+// Indigo (Download)
+$palette-indigo-100: #e8eaf6;
+$palette-indigo-200: #c5cae9;
+$palette-indigo-300: #9fa8da;
+$palette-indigo-400: #7986cb;
+$palette-indigo-500: #5c6bc0;
+$palette-indigo-600: #3f51b5;
+$palette-indigo-700: #303f9f;
+$palette-indigo-800: #283593;
+$palette-indigo-900: #1a237e;
+
+// Pink (Licenses)
+$palette-pink-100: #fce4ec;
+$palette-pink-200: #f8bbd0;
+$palette-pink-300: #f48fb1;
+$palette-pink-400: #f06292;
+$palette-pink-500: #e91e63;
+$palette-pink-600: #d81b60;
+$palette-pink-700: #c2185b;
+$palette-pink-800: #ad1457;
+$palette-pink-900: #880e4f;
+
+// Deep Orange (Contact)
+$palette-deep-orange-100: #fbe9e7;
+$palette-deep-orange-200: #ffccbc;
+$palette-deep-orange-300: #ffab91;
+$palette-deep-orange-400: #ff8a65;
+$palette-deep-orange-500: #ff7043;
+$palette-deep-orange-600: #f4511e;
+$palette-deep-orange-700: #e64a19;
+$palette-deep-orange-800: #d84315;
+$palette-deep-orange-900: #bf360c;
+
+// Brown (Prospector)
+$palette-brown-100: #efebe9;
+$palette-brown-200: #d7ccc8;
+$palette-brown-300: #bcaaa4;
+$palette-brown-400: #a1887f;
+$palette-brown-500: #8d6e63;
+$palette-brown-600: #795548;
+$palette-brown-700: #6d4c41;
+$palette-brown-800: #5d4037;
+$palette-brown-900: #4e342e;
+
+// Transparency Helpers
+$palette-overlay-dark-10: rgba(0, 0, 0, 0.1);
+$palette-overlay-dark-30: rgba(0, 0, 0, 0.3);
+$palette-overlay-dark-50: rgba(0, 0, 0, 0.5);
+$palette-overlay-dark-70: rgba(0, 0, 0, 0.7);
+$palette-overlay-dark-90: rgba(0, 0, 0, 0.9);
+
+$palette-overlay-light-10: rgba(255, 255, 255, 0.1);
+$palette-overlay-light-30: rgba(255, 255, 255, 0.3);
+$palette-overlay-light-50: rgba(255, 255, 255, 0.5);
+
+// Project Specific - Equipment Rarities
+$palette-rarity-common: #64b5f6;
+$palette-rarity-rare: #81c784;
+$palette-rarity-epic: #c882f0;
+$palette-rarity-legendary: #ffb74d;
+
+// Project Specific - Heroes
+$palette-hero-bk: #7c4b8e; // Barbarian King
+$palette-hero-aq: #1a73e8; // Archer Queen
+$palette-hero-gw: #f9ab00; // Grand Warden
+$palette-hero-rc: #e91e63; // Royal Champion

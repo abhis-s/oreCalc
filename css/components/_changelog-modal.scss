@@ -1,91 +1,135 @@
 @use '../abstracts/variables' as *;
 
 #changelog-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.8);
-    z-index: 2000;
-    opacity: 0;
-    overflow: auto;
-    transition: opacity 0.3s ease-in-out;
-
-    &.show {
-        display: flex;
-        opacity: 1;
-    }
-
     .modal-content {
-        background-color: $dark-surface-primary;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid $dark-border-color;
-        width: 90%;
-        max-width: 600px;
-        border-radius: 28px;
-        color: #e3e3e3;
-        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 20px 30px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 12px;
-        border-bottom: 1px solid #555555;
-
-        h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #e3e3e3;
-            text-align: left;
-            letter-spacing: 0.01em;
-        }
+        max-width: 650px;
     }
 
     .modal-body {
-        padding: 12px;
         max-height: 70vh;
         overflow-y: auto;
-
-        ul {
-            li {
-                margin-bottom: 0.5rem;
-            }
+        padding: 1.5rem;
+        
+        /* Custom scrollbar for better look */
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+        &::-webkit-scrollbar-track {
+            background: $bg-surface-primary;
+            border-radius: 4px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: $border-primary;
+            border-radius: 4px;
         }
     }
 
-    .changelog-group-latest {
-        background-color: #202124; // A darker background
-        padding: 1rem;
-        border-radius: 8px;
+    .changelog-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .changelog-release {
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-secondary;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &.latest {
+            border-color: $accent-primary;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-color: $bg-surface-secondary;
+        }
+    }
+
+    .changelog-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
         margin-bottom: 1rem;
+        flex-wrap: wrap;
 
-        h3 {
-            color: $color-primary-purple; // Accent color
+        .changelog-version {
+            margin: 0;
+            color: $text-primary;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .changelog-date {
+            color: $text-secondary;
+            font-size: 0.9rem;
+        }
+
+        .changelog-badge-latest {
+            background-color: rgba($color-success, 0.15);
+            color: $color-success;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
         }
     }
 
-    .close-button {
-        color: #999999;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        background: none;
-        border: none;
-        cursor: pointer;
+    .changelog-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
 
-        &:hover,
-        &:focus {
-            color: #e3e3e3;
-            text-decoration: none;
-            cursor: pointer;
+    .changelog-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        line-height: 1.5;
+
+        .change-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.125rem;
+        }
+
+        &.change-feature .change-badge {
+            background-color: rgba($color-success, 0.15);
+            color: $color-success;
+            border: 1px solid rgba($color-success, 0.3);
+        }
+
+        &.change-fix .change-badge {
+            background-color: rgba($color-warning, 0.15);
+            color: $color-warning;
+            border: 1px solid rgba($color-warning, 0.3);
+        }
+
+        &.change-chore .change-badge {
+            background-color: rgba($color-info, 0.15);
+            color: $color-info;
+            border: 1px solid rgba($color-info, 0.3);
+        }
+        
+        &.change-default .change-badge {
+            background-color: rgba($text-secondary, 0.15);
+            color: $text-secondary;
+            border: 1px solid rgba($text-secondary, 0.3);
+        }
+
+        .change-text {
+            color: $text-primary;
+            font-size: 0.95rem;
         }
     }
 }

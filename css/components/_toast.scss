@@ -1,0 +1,99 @@
+@use '../abstracts/variables' as *;
+
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 320px;
+    height: 0;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.toast-notification {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    height: 50px; /* fixed height for desktop toast */
+    box-sizing: border-box;
+    background-color: color-mix(in srgb, var(--bg-surface-tertiary) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid $border-secondary;
+    border-radius: 12px;
+    color: $text-primary;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    pointer-events: auto;
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, border-color 0.3s ease;
+
+    &.toast-error {
+        border-color: color-mix(in srgb, var(--color-danger) 40%, transparent);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--bg-surface-tertiary) 90%, transparent), color-mix(in srgb, var(--color-danger) 5%, transparent));
+    }
+
+    &.toast-warning {
+        border-color: color-mix(in srgb, var(--color-warning) 40%, transparent);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--bg-surface-tertiary) 90%, transparent), color-mix(in srgb, var(--color-warning) 5%, transparent));
+    }
+
+    &.toast-success {
+        border-color: color-mix(in srgb, var(--color-success) 40%, transparent);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--bg-surface-tertiary) 90%, transparent), color-mix(in srgb, var(--color-success) 5%, transparent));
+    }
+
+    .toast-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .toast-icon-svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+    }
+
+    .toast-message {
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* Mobile responsive styles (Bottom nav bar view) */
+@media (max-width: 779px) {
+    #toast-container {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: calc(100% - 32px);
+        max-width: 340px;
+        bottom: 74px; /* sit cleanly above bottom nav bar */
+    }
+
+    .toast-notification {
+        left: 0;
+        right: 0;
+        padding: 8px 16px;
+        height: 40px; /* shorter height */
+        border-radius: 8px;
+        font-size: var(--font-size-xs);
+        gap: 8px;
+
+        .toast-icon-svg {
+            width: 16px; /* smaller icon */
+            height: 16px;
+        }
+    }
+}
+

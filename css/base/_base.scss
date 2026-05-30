@@ -1,4 +1,205 @@
 @use '../abstracts/variables' as *;
+@use '../abstracts/palette' as *;
+
+:root {
+    color-scheme: dark;
+    // --- APP BACKGROUNDS ---
+    --bg-app: #{$palette-slate-500};
+    --bg-surface-primary: #{$palette-slate-300};
+    --bg-surface-secondary: #{$palette-slate-100};
+    --bg-surface-tertiary: #{$palette-grey-800};
+    --bg-surface-popover: rgba(32, 33, 36, 0.6);
+    --bg-overlay: #{$palette-overlay-dark-70};
+
+    // --- ACCENTS (Dark Mode Defaults) ---
+    --accent-primary: #{$palette-blue-300};
+    --accent-primary-hover: #{$palette-blue-200};
+    --accent-primary-active: #{$palette-blue-400};
+    --accent-primary-soft: rgba(138, 180, 248, 0.1);
+    --accent-soft: var(--accent-primary-soft);
+
+    --accent-secondary: #{$palette-lavender-200};
+    --accent-secondary-hover: #{$palette-lavender-100};
+    --accent-secondary-soft: rgba(204, 194, 220, 0.1);
+
+    --accent-tertiary: #{$palette-purple-300};
+    --accent-tertiary-hover: #{$palette-purple-200};
+    --accent-tertiary-soft: rgba(206, 147, 216, 0.1);
+
+    // --- FEEDBACK ---
+    --color-success: #{$palette-green-400};
+    --color-success-soft: rgba(129, 199, 132, 0.1);
+    --color-warning: #{$palette-yellow-400};
+    --color-warning-soft: rgba(253, 214, 99, 0.1);
+    --color-danger: #{$palette-red-400};
+    --color-danger-soft: rgba(246, 148, 142, 0.1);
+    --color-danger-soft-hover: rgba(246, 148, 142, 0.2);
+    --color-info: #{$palette-blue-400};
+    --color-info-soft: rgba(102, 157, 246, 0.1);
+
+    // --- TYPOGRAPHY ---
+    --text-primary: #{$palette-white};
+    --text-secondary: #{$palette-grey-400};
+    --text-muted: #{$palette-grey-600};
+    --text-disabled: #{$palette-grey-700};
+    --text-on-accent: #{$palette-slate-500};
+    --text-inverse: #{$palette-slate-500};
+
+    // --- BORDERS & OUTLINES ---
+    --border-primary: #{$palette-grey-700};
+    --border-secondary: #{$palette-grey-800};
+    --border-accent: #{$palette-blue-300};
+    --border-danger: #{$palette-red-400};
+    --border-inverse: #{$palette-white};
+    --outline-focus: #{$palette-blue-300};
+
+    // --- EQUIPMENT RARITIES ---
+    --color-rarity-common: #{$palette-blue-300};
+    --color-rarity-rare: #{$palette-green-300};
+    --color-rarity-epic: #{$palette-purple-300};
+    --color-rarity-legendary: #{$palette-yellow-300};
+
+    --color-gold-glow: #{$palette-yellow-300};
+    --color-gold-glow-shadow: rgba(249, 200, 64, 0.6);
+
+    // --- INCOME CHIP COLORS (Dark) ---
+    --color-income-star-bonus: #{$palette-cyan-600};
+    --color-income-clan-war: #{$palette-blue-600};
+    --color-income-cwl: #{$palette-indigo-600};
+    --color-income-raid-medals: #{$palette-grey-500};
+    --color-income-gems: #{$palette-emerald-600};
+    --color-income-event-pass: #{$palette-purple-600};
+    --color-income-event-trader: #{$palette-deep-orange-600};
+    --color-income-shop-offer: #{$palette-amber-600};
+    --color-income-prospector: #{$palette-brown-600};
+    --color-income-supercell-events: #{$palette-teal-600};
+    --color-income-custom: #{$palette-pink-600};
+    --color-on-income: #{$palette-white};
+
+    // --- LEGACY COMPATIBILITY MAPPINGS ---
+    --bg-primary: var(--bg-app);
+    --bg-secondary: var(--bg-surface-primary);
+    --surface-card: var(--bg-surface-secondary);
+    --border-color: var(--border-primary);
+    --color-success-400: var(--color-success);
+    --color-danger-300: var(--color-danger);
+
+	// --- FONT SYSTEM ---
+	--font-size-xl: 24px;
+	--font-size-lg: 18px;
+	--font-size-md: 16px;
+	--font-size-sm: 14px;
+	--font-size-xs: 12px;
+	--font-size-em-lg: 1.2em;
+	--font-size-em-md: 1em;
+
+    --font-weight-bold: 700;
+
+    // --- MATERIAL TRACK/THUMB ---
+    --material-track-inactive: #{$palette-grey-700};
+    --material-track-active: var(--accent-primary);
+    --material-track-focus-outline: var(--accent-primary-soft);
+    --material-thumb-inactive: #{$palette-grey-200};
+    --material-thumb-active: #{$palette-white};
+
+    --input-hover-bg-color: #{$palette-overlay-light-10};
+    --chip-border: #{$palette-overlay-light-10};
+
+    // --- SPECIAL HIGHLIGHTS ---
+    --color-gold: #{$palette-yellow-400};
+    --color-gold-soft: rgba(253, 214, 99, 0.15);
+    --color-event-red: #{$palette-red-500};
+    --color-event-red-hover: #{$palette-red-700};
+}
+
+.light-mode {
+    color-scheme: light;
+    // --- APP BACKGROUNDS ---
+    --bg-app: #{$palette-grey-50};           // Root background (Softest grey)
+    --bg-surface-primary: #{$palette-white};  // Main cards (Pure white)
+    --bg-surface-secondary: #{$palette-grey-100}; // Nested cards / secondary sections
+    --bg-surface-tertiary: #{$palette-grey-200}; // Inputs, tooltips, recessed areas
+    --bg-surface-popover: rgba(255, 255, 255, 0.6);
+    --bg-overlay: #{$palette-overlay-dark-30};
+
+    // --- ACCENTS (Light Mode) ---
+    --accent-primary: #{$palette-blue-600};
+    --accent-primary-hover: #{$palette-blue-700};
+    --accent-primary-active: #{$palette-blue-800};
+    --accent-primary-soft: rgba(26, 115, 232, 0.12);
+    --accent-soft: var(--accent-primary-soft);
+
+    --accent-secondary: #{$palette-lavender-700};
+    --accent-secondary-hover: #{$palette-lavender-900};
+    --accent-secondary-soft: rgba(73, 69, 79, 0.12);
+
+    --accent-tertiary: #{$palette-purple-600};
+    --accent-tertiary-hover: #{$palette-purple-700};
+    --accent-tertiary-soft: rgba(156, 39, 176, 0.12);
+
+    // --- FEEDBACK ---
+    --color-success: #{$palette-green-700};
+    --color-success-soft: rgba(30, 142, 62, 0.12);
+    --color-warning: #{$palette-yellow-900};
+    --color-warning-soft: rgba(227, 116, 0, 0.12);
+    --color-danger: #{$palette-red-700};
+    --color-danger-soft: rgba(217, 48, 37, 0.12);
+    --color-danger-soft-hover: rgba(217, 48, 37, 0.24);
+    --color-info: #{$palette-blue-600};
+    --color-info-soft: rgba(26, 115, 232, 0.12);
+
+    // --- TYPOGRAPHY ---
+    --text-primary: #{$palette-grey-800};     // Softer than pure black/900
+    --text-secondary: #{$palette-grey-700};
+    --text-muted: #{$palette-grey-600};
+    --text-disabled: #{$palette-grey-400};
+    --text-on-accent: #{$palette-white};
+    --text-inverse: #{$palette-white};
+
+    // --- BORDERS & OUTLINES ---
+    --border-primary: #{$palette-grey-400};    // Darker for better visibility
+    --border-secondary: #{$palette-grey-300};  // Darker for better visibility
+    --border-accent: #{$palette-blue-600};
+    --border-danger: #{$palette-red-700};
+    --border-inverse: #{$palette-grey-800};
+    --outline-focus: #{$palette-blue-600};
+
+    // --- EQUIPMENT RARITIES (Light Mode - Darker) ---
+    --color-rarity-common: #{$palette-blue-700};
+    --color-rarity-rare: #{$palette-green-700};
+    --color-rarity-epic: #{$palette-purple-700};
+    --color-rarity-legendary: #{$palette-yellow-900};
+
+    --color-gold-glow: #{$palette-amber-900};
+    --color-gold-glow-shadow: rgba(255, 111, 0, 0.4);
+
+    // --- INCOME CHIP COLORS (Light - Softer/Pastel) ---
+    --color-income-star-bonus: #{$palette-cyan-200};
+    --color-income-clan-war: #{$palette-blue-200};
+    --color-income-cwl: #{$palette-indigo-200};
+    --color-income-raid-medals: #{$palette-grey-300};
+    --color-income-gems: #{$palette-emerald-200};
+    --color-income-event-pass: #{$palette-purple-200};
+    --color-income-event-trader: #{$palette-deep-orange-200};
+    --color-income-shop-offer: #{$palette-amber-200};
+    --color-income-prospector: #{$palette-brown-200};
+    --color-income-supercell-events: #{$palette-teal-200};
+    --color-income-custom: #{$palette-pink-200};
+    --color-on-income: #{$palette-grey-900};
+
+    --chip-border: #{$palette-overlay-dark-10};      // More visible in light mode
+    --input-hover-bg-color: #{$palette-overlay-dark-10};
+
+    --color-gold: #{$palette-yellow-800};
+    --color-gold-soft: rgba(227, 116, 0, 0.15);
+    --color-event-red: #{$palette-red-600};
+    --color-event-red-hover: #{$palette-red-800};
+
+    --font-weight-bold: 600;
+
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+}
 
 body {
     -webkit-font-smoothing: antialiased;
@@ -6,11 +207,54 @@ body {
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
     overflow-y: scroll;
-    background-color: $dark-background-primary;
-    color: $dark-text-primary;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
+    font-family: $font-family-sans;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button, 
+a, 
+select, 
+input, 
+textarea,
+[role="button"] {
+    -webkit-tap-highlight-color: transparent;
+}
+
+*:focus-visible {
+    outline: 2px solid var(--outline-focus) !important;
+    outline-offset: 2px;
+}
+
+.no-transition,
+.no-transition * {
+    transition: none !important;
+}
+
+// Global transitions for theme elements
+.container,
+.card,
+.inner-card,
+.income-card,
+.hero-card,
+.modal-content,
+.navigation-drawer,
+.income-summary-title,
+.total-income-header,
+.income-table-cell,
+.tab-button,
+.nav-button,
+.fab-button,
+.fab-menu-pill,
+.income-chip,
+.ore-tooltip,
+.chip-tooltip {
+    transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out, border-color 0.4s ease-in-out, box-shadow 0.4s ease-in-out, filter 0.4s ease-in-out;
 }
 
 input,
@@ -24,72 +268,10 @@ textarea {
     user-select: text;
 }
 
-:root {
-	--font-size-xl: 24px;
-	--font-size-lg: 18px;
-	--font-size-md: 16px;
-	--font-size-sm: 14px;
-	--font-size-xs: 12px;
-	--font-size-em-lg: 1.2em;
-	--font-size-em-md: 1em;
-
-    --text-color: #E6E1E5;
-    --text-color-light: #CAC4D0;
-    --text-color-disabled: #938F99;
-    --accent-color: #D0BCFF;
-    --accent-text-color: #381E72;
-
-    --color-white: #ffffff;
-    --color-grey-100: #e8eaed;
-    --color-grey-200: #e3e2e6;
-    --color-grey-300: #ccc;
-    --color-grey-400: #bdc1c6;
-    --color-grey-500: #bbb;
-    --color-grey-600: #616161;
-    --color-grey-700: #424242;
-    --color-grey-800: #383a3c;
-    --color-grey-900: #333333;
-    --color-black-100: #2b2929;
-    --color-black-200: #2c2e30;
-    --color-black-300: #202124;
-    --color-black-400: #1a1c1e;
-    --color-grey-border: #5f6368;
-    --color-primary-blue: #8ab4f8;
-    --color-primary-purple: #7c4b8e;
-    --color-accent-yellow-100: #f9c840;
-    --color-accent-yellow-200: #fbbf24;
-    --color-accent-purple-light: #c19ecd;
-    --color-accent-purple-dark: #b39ddb;
-    --color-success-100: #a5d6a7;
-    --color-success-200: #81c784;
-    --color-success-300: #4caf50;
-    --color-success-400: #45a049;
-    --color-danger-100: #ef9a9a;
-    --color-danger-200: #ef5350;
-    --color-danger-300: #ef4444;
-    --color-danger-400: #dc2626;
-    --color-danger-500: #d32f2f;
-    --background-transparent: transparent;
-    --background-overlay-dark-1: rgba(0, 0, 0, 0.5);
-    --background-overlay-dark-2: rgba(0, 0, 0, 0.7);
-    --background-overlay-blue-1: rgba(138, 180, 248, 0.1);
-    --background-overlay-blue-2: rgba(138, 180, 248, 0.2);
-    --background-overlay-blue-3: rgba(138, 180, 248, 0.3);
-    --material-track-inactive: #79747E;
-    --material-track-active: #6750A4;
-    --material-track-focus-outline: rgba(103, 80, 164, 0.2);
-    --material-thumb-inactive: #E6E1E5;
-    --material-thumb-active: #FFD8E4;
-    --font-family-sans: 'Roboto', sans-serif;
-
-    --input-bg-color: #{$md-surface};
-    --input-bg-color-transparent: #{$input-bg-color-transparent};
-}
-
 .container {
-	background-color: $dark-background-secondary;
-	border-radius: 15px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	background-color: var(--bg-surface-primary);
+	border-radius: $shape-corner-large;
+	box-shadow: $elevation-2;
 	margin: 0 auto;
 	max-width: 1200px;
 	padding: 20px;
@@ -100,5 +282,39 @@ textarea {
 }
 
 .negative-value {
-    color: $color-danger-300;
+    color: var(--color-danger);
 }
+
+.success-text {
+    color: var(--color-success);
+}
+
+@keyframes glow-success {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--color-success);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+}
+
+.glow-success {
+    animation: glow-success 2s ease-in-out;
+}
+
+.hidden {
+    display: none !important;
+}
+
+orecalc-assets-svg {
+    display: contents;
+}
+
+orecalc-assets-image {
+    display: contents;
+}
+
+

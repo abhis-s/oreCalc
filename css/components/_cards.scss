@@ -1,10 +1,206 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
+.card-title {
+    color: var(--accent-primary);
+    margin: 0;
+    text-align: center;
+}
+
+.card-container {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.input-feature-popover {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background-color: var(--bg-surface-popover);
+    backdrop-filter: blur(20px);
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    box-shadow: $elevation-4;
+    z-index: $z-index-overlay;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    white-space: nowrap;
+    min-width: 140px;
+
+    &.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    &.position-below {
+        bottom: auto;
+        top: calc(100% + 6px);
+        transform: translateX(-50%) translateY(-4px);
+
+        &.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+
+    .popover-title {
+        font-size: 10px;
+        color: $text-muted;
+        font-weight: var(--font-weight-bold);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-align: center;
+        border-bottom: 1px solid $border-secondary;
+        padding-bottom: 4px;
+        margin-bottom: 2px;
+    }
+
+    .popover-options {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .popover-opt-btn {
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        color: $text-primary;
+        padding: 5px 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        font-size: var(--font-size-xs);
+        width: 100%;
+        box-sizing: border-box;
+
+        span {
+            color: $text-secondary;
+            font-weight: 500;
+        }
+
+        strong {
+            color: $accent-primary;
+            font-weight: var(--font-weight-bold);
+        }
+
+        &.clickable {
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+
+            &:hover {
+                background-color: $accent-primary-soft;
+                border-color: rgba($accent-primary, 0.3);
+                transform: translateY(-1px);
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+        }
+
+        &.readonly {
+            cursor: default;
+            
+            strong {
+                color: $text-primary;
+            }
+        }
+
+        &.exceeded-color {
+            border-color: $border-danger;
+            background-color: $color-danger-soft;
+            
+            span {
+                color: $color-danger;
+            }
+            
+            strong {
+                color: $color-danger;
+            }
+        }
+
+        &.match-color {
+            border-color: rgba($color-success, 0.4);
+            background-color: $color-success-soft;
+            
+            span {
+                color: $color-success;
+            }
+            
+            strong {
+                color: $color-success;
+            }
+        }
+
+        &.popover-btn-disable {
+            border-color: rgba($color-danger, 0.3);
+            justify-content: center;
+            
+            span {
+                color: $color-danger;
+                font-weight: var(--font-weight-bold);
+            }
+
+            &:hover {
+                background-color: $color-danger-soft !important;
+                border-color: $color-danger !important;
+            }
+        }
+
+        &.popover-btn-enable {
+            border-color: rgba($color-success, 0.3);
+            justify-content: center;
+            
+            span {
+                color: $color-success;
+                font-weight: var(--font-weight-bold);
+            }
+
+            &:hover {
+                background-color: $color-success-soft !important;
+                border-color: $color-success !important;
+            }
+        }
+
+        kbd.popover-key-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            border: 1px solid $border-secondary;
+            border-bottom: 2px solid $border-primary;
+            border-radius: 4px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 8px;
+            font-weight: 700;
+            padding: 0 4px;
+            margin-left: 6px;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+            line-height: 12px;
+            height: 12px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+    }
+}
+
 .card {
-    background-color: $color-grey-800;
+    background-color: $bg-surface-secondary;
     border-radius: 10px;
     padding: 20px;
+    flex: 1;
 
     &.full-width-card,
     &.small-width-card,
@@ -19,10 +215,11 @@
         margin-bottom: 20px;
         min-width: 0;
         padding: 40px;
+        flex: 1;
     }
 
     .inner-card {
-        background-color: $color-black-200;
+        background-color: $bg-surface-primary;
         border-radius: 8px;
         margin: 15px 0;
         padding: 20px;
@@ -35,7 +232,7 @@
     }
     .card-title-icon {
         @extend %flex-center;
-        color: $color-primary-blue;
+        color: var(--accent-primary);
         text-align: center;
 
         .title-icon {
@@ -60,12 +257,12 @@
         text-align: center;
 
         span {
-            color: $color-grey-200;
-            font-weight: bold;
+            color: $text-primary;
+            font-weight: var(--font-weight-bold);
         }
 
         input[type="number"].error-border {
-            border-color: $color-danger-300;
+            border-color: $color-danger;
         }
     }
 
@@ -80,17 +277,23 @@
     }
 
     .ore-date {
-        color: $color-grey-400;
+        color: $text-secondary;
         margin-top: 5px;
+        font-size: var(--font-size-sm);
+    }
+
+    .ore-input-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-top: 15px;
     }
 
     .ore-value[type="number"] {
-        background-color: $color-black-300;
-        border: 1px solid $color-grey-border;
+        background-color: $bg-app;
+        border: 1px solid $border-primary;
         border-radius: 5px;
-        color: $color-grey-200;
+        color: $text-primary;
         font-size: var(--font-size-sm);
-        margin-top: 15px;
         padding: 5px;
         position: relative;
         text-align: center;
@@ -100,22 +303,23 @@
     .results-title,
     .storage-title {
         align-items: center;
-        color: $color-primary-blue;
+        color: var(--accent-primary);
         display: flex;
         justify-content: center;
     }
 }
 
 .income-card {
-    background-color: $color-grey-800;
+    background-color: $bg-surface-secondary;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
     min-width: 0;
     padding: 40px;
+    flex: 1;
 
-    &:has(#inc-shop-offer-checkboxes) .timeframe-income {
+    &:has(#inc-shop-offers-checkboxes) .timeframe-income {
         .four-col-grid:nth-of-type(2) {
             .grid-row {
                 align-items: flex-end;

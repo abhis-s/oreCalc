@@ -9,109 +9,18 @@
 .income-header {
     align-items: center;
     box-shadow: none;
-    cursor: pointer;
     display: flex;
     justify-content: space-between;
-    outline: none;
-    -webkit-tap-highlight-color: transparent;
-
-    &::-moz-focus-inner {
-        border: 0;
-    }
+    padding: 10px 15px;
 
     h2 {
         margin: 0;
     }
-
-    &.collapsed {
-        .total-income-header {
-            opacity: 1;
-        }
-    }
-}
-
-.collapse-button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-
-    .collapse-icon,
-    .expand-icon {
-        fill: $color-primary-blue;
-        height: 24px;
-        width: 24px;
-    }
-
-    .expand-icon {
-        display: none;
-    }
-
-    &.collapsed {
-        .collapse-icon {
-            display: none;
-        }
-
-        .expand-icon {
-            display: block;
-        }
-    }
 }
 
 .income-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
-
-    &.expanded {
-        max-height: 700px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-}
-
-.total-income-header {
-    align-items: center;
-    color: $color-grey-100;
-    display: flex;
-    flex-wrap: wrap;
-    font-size: var(--font-size-em-lg);
-    font-weight: bold;
-    gap: 10px;
-    justify-content: center;
-
-    .ore-image {
-        flex-wrap: nowrap;
-        height: 20px;
-        margin-right: 0;
-        width: 20px;
-    }
-
-    .ore-text {
-        display: inline-block;
-        font-weight: bold;
-        padding: 0 5px;
-        width: 80px;
-    }
-}
-
-#home-table-header-ore-display-shiny {
-    width: 80px;
-}
-
-#home-table-header-ore-display-glowy {
-    width: 65px;
-}
-
-#home-table-header-ore-display-starry {
-    width: 50px;
-}
-
-.ore-display-item-home-header {
-    align-items: center;
-    display: flex;
-    gap: 5px;
-    margin-right: 5px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .income-header-controls {
@@ -130,9 +39,13 @@
         display: table-row;
 
         .income-table-cell {
-            color: $color-primary-blue;
-            font-weight: bold;
+            color: var(--accent-primary);
+            font-weight: var(--font-weight-bold);
         }
+    }
+
+    #home-income-table-body {
+        display: table-row-group;
     }
 
     .income-table-row {
@@ -143,17 +56,17 @@
         display: table-row;
 
         .income-table-cell {
-            color: $color-grey-200;
-            font-weight: bold;
+            color: var(--accent-primary);
+            font-weight: var(--font-weight-bold);
         }
     }
 
     .income-table-cell {
-        border: 1px solid $color-grey-700;
         display: table-cell;
         padding: 10px;
         text-align: center;
         vertical-align: middle;
+        border-bottom: 1px solid $border-primary;
 
         .ore-image {
             height: 24px;
@@ -164,7 +77,7 @@
 }
 
 .required-resources-container {
-    color: $color-grey-200;
+    color: $text-secondary;
     margin-top: 20px;
     text-align: center;
 }

@@ -1,50 +1,6 @@
 @use '../abstracts/variables' as *;
 
-#add-player-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.4);
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    z-index: 2000;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-
-    &.show {
-        display: flex;
-        opacity: 1;
-    }
-
-    .modal-content {
-        background-color: $dark-surface-primary;
-        border-radius: 28px;
-        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 20px 30px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 480px;
-        overflow: hidden;
-        transform: scale(1);
-        transition: transform 0.2s ease-in-out;
-    }
-
-    .modal-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid $dark-border-color;
-
-        h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: $dark-text-primary;
-            text-align: left;
-            letter-spacing: 0.01em;
-        }
-    }
-
-    .modal-body {
-        padding: 24px;
-    }
-
+#add-player-modal, #delete-player-modal {
     .player-name-input-container {
         padding: 0 24px;
         margin: 20px 0;
@@ -54,36 +10,77 @@
             display: block;
             font-size: 14px;
             font-weight: 500;
-            color: $dark-text-secondary;
+            color: $text-secondary;
             margin-bottom: 8px;
         }
 
         input {
             width: 100%;
             padding: 12px 16px;
-            border: 1px solid $dark-border-color;
+            border: 1px solid $border-primary;
             border-radius: 12px;
             font-size: 16px;
-            background-color: $dark-background-secondary;
-            color: $dark-text-primary;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
             transition: border-color 0.3s ease-in-out;
 
             &:focus {
                 outline: none;
-                border-color: $dark-accent-purple;
-                box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+                border-color: $accent-primary;
+                box-shadow: 0 0 0 3px $accent-primary-soft;
             }
 
             &.input-error {
-                border-color: $color-danger-200;
-                box-shadow: 0 0 0 4px rgba($color-danger-200, 0.2);
+                border-color: $color-danger;
+                box-shadow: 0 0 0 4px rgba($color-danger, 0.1);
             }
         }
     }
+}
 
+#import-data-modal {
+    .import-data-input-container {
+        padding: 0 24px;
+        margin: 20px 0;
+        position: relative;
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: $text-secondary;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid $border-primary;
+            border-radius: 12px;
+            font-size: 16px;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            transition: border-color 0.3s ease-in-out;
+
+            &:focus {
+                outline: none;
+                border-color: $accent-primary;
+                box-shadow: 0 0 0 3px $accent-primary-soft;
+            }
+
+            &.input-error {
+                border-color: $color-danger;
+                box-shadow: 0 0 0 4px rgba($color-danger, 0.1);
+            }
+        }
+    }
+}
+
+#add-player-modal, #delete-player-modal, #import-data-modal {
     .error-message {
-        color: $color-danger-200;
+        color: $color-danger;
         font-size: 12px;
+        font-weight: 500;
         margin-top: 8px;
         text-align: left;
         display: none;
@@ -91,16 +88,5 @@
         &.show {
             display: block;
         }
-    }
-
-    .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        padding: 16px 24px;
-        background-color: $dark-surface-secondary;
-        border-top: 1px solid $dark-border-color;
-        gap: 12px;
-
-        
     }
 }

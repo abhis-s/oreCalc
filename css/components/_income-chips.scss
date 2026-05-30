@@ -1,0 +1,446 @@
+@use '../abstracts/variables' as *;
+
+// Shared Income Source Colors
+.shop-offer { background-color: $color-income-shop-offer; --chip-color: #{$color-income-shop-offer}; }
+.star-bonus,
+.star-bonus-2x,
+.star-bonus-3x,
+.star-bonus-4x,
+.star-bonus-5x,
+.star-bonus-6x,
+.star-bonus-7x { 
+    background-color: $color-income-star-bonus; 
+    --chip-color: #{$color-income-star-bonus}; 
+}
+.raid-medal-trader { background-color: $color-income-raid-medals; --chip-color: #{$color-income-raid-medals}; }
+.gem-trader { background-color: $color-income-gems; --chip-color: #{$color-income-gems}; }
+.event-pass { background-color: $color-income-event-pass; --chip-color: #{$color-income-event-pass}; }
+.event-trader { background-color: $color-income-event-trader; --chip-color: #{$color-income-event-trader}; }
+.clan-war { background-color: $color-income-clan-war; --chip-color: #{$color-income-clan-war}; }
+.cwl { background-color: $color-income-cwl; --chip-color: #{$color-income-cwl}; }
+.prospector { background-color: $color-income-prospector; --chip-color: #{$color-income-prospector}; }
+.supercell-events { background-color: $color-income-supercell-events; --chip-color: #{$color-income-supercell-events}; }
+.custom-chip,
+.custom-chip-type-custom {
+    background-color: $color-income-custom;
+    --chip-color: #{$color-income-custom};
+}
+
+.income-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+
+    &.valid-drop-target {
+        border: 1px dashed $accent-primary;
+        background-color: $accent-primary-soft;
+    }
+}
+
+.income-chip {
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: var(--color-on-income);
+    font-size: 0.85em;
+    font-weight: 500;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    position: relative;
+    border: 1px solid var(--chip-border);
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-width: 32px;
+    min-height: 28px;
+    flex-shrink: 0;
+
+    .chip-icon {
+        width: 16px; // Standard for sidebar pills
+        height: 16px;
+        object-fit: contain;
+        display: block;
+        pointer-events: none;
+    }
+
+    &.calendar-chip {
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+        border-radius: 50%;
+        overflow: visible;
+
+        .chip-text { display: none; }
+
+        &.no-icon {
+            width: auto;
+            min-width: 44px;
+            height: 18px;
+            min-height: 18px;
+            border-radius: 6px;
+            padding: 0 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            .chip-text {
+                display: block;
+                font-size: 9px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.2px;
+                line-height: 1;
+            }
+        }
+
+        .chip-icon {
+            width: 22px; // Restored for monthly view
+            height: 22px;
+        }
+
+        .chip-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            margin-left: 0;
+            font-size: 0.65em;
+            padding: 2px 4px;
+            border-radius: 10px;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            border: 1px solid var(--chip-border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            z-index: 10;
+            line-height: 1;
+            font-weight: 800;
+        }
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: $elevation-2;
+        z-index: 10;
+    }
+
+    &.legend-highlight,
+    &.persistent-glow {
+        transform: scale(1.1) !important;
+        box-shadow: 0 0 10px var(--chip-color) !important;
+        z-index: 20;
+    }
+
+    @media (max-width: 425px) {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+
+    &.dragging {
+        opacity: 0.5;
+    }
+
+    &.animate-autoplace {
+        animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    &.custom-chip-ring {
+        &::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border: 2px solid $accent-primary;
+            border-radius: 24px;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        &.calendar-chip::after {
+            border-radius: 50%;
+        }
+    }
+
+    .custom-chip-pencil {
+        position: absolute;
+        bottom: -5px;
+        left: -5px;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        z-index: 11;
+        pointer-events: none;
+
+        svg {
+            width: 9px;
+            height: 9px;
+        }
+    }
+
+    .chip-text {
+        position: relative;
+        z-index: 1;
+        transition: opacity 0.2s;
+        pointer-events: none;
+    }
+
+    .chip-badge {
+        background-color: $bg-surface-primary;
+        color: $text-primary;
+        font-size: 0.7em;
+        font-weight: 700;
+        padding: 1px 4px;
+        border-radius: 4px;
+        margin-left: 2px;
+        line-height: 1;
+        display: inline-block;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 2;
+        pointer-events: none;
+
+        &.badge-result-win {
+            background-color: $color-success;
+            color: $text-on-accent;
+        }
+        &.badge-result-loss {
+            background-color: $color-danger;
+            color: $text-on-accent;
+        }
+        &.badge-result-draw {
+            background-color: $color-warning;
+            color: $text-on-accent;
+        }
+    }
+
+    &[draggable="false"] {
+        cursor: default;
+        box-shadow: none;
+        user-select: none;
+        
+        &:hover { 
+            transform: none;
+            box-shadow: none;
+        }
+    }
+}
+
+// Weekly View Overrides for Compact Chips
+#calendar-track.weekly-view-grid {
+    .income-chip.calendar-chip {
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        min-height: 22px;
+
+        .chip-icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        &.no-icon {
+            width: auto;
+            min-width: 30px;
+            height: 14px;
+            min-height: 14px;
+            border-radius: 4px;
+            padding: 0 4px;
+
+            .chip-text {
+                font-size: 7px;
+            }
+        }
+
+        .chip-badge {
+            top: -4px;
+            right: -4px;
+            font-size: 0.55em;
+            padding: 1px 3px;
+            border-radius: 8px;
+        }
+    }
+}
+
+.dragging-clone {
+    position: absolute;
+    z-index: #{$z-index-layout + 1};
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.income-event-display {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    margin: 2px;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid var(--chip-border);
+}
+
+.chip-tooltip {
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
+    padding: 8px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    z-index: $z-index-component;
+    pointer-events: none;
+    box-shadow: $elevation-3;
+    border: 1px solid $border-primary;
+
+    &.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .tooltip-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        align-items: center;
+        width: 100%;
+    }
+
+    .tooltip-header {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: $accent-primary;
+        width: 100%;
+        text-align: center;
+        font-size: 1.05em;
+    }
+
+    .ore-count-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        font-size: 0.85em;
+        font-weight: 500;
+
+        span {
+            flex: 1;
+            text-align: right;
+            font-family: 'Roboto Mono', monospace;
+        }
+    }
+
+    .ore-icon-small {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.income-chips-legend {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-secondary;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $text-secondary;
+    font-size: 0.85em;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+
+    &:hover {
+        background-color: $bg-surface-tertiary;
+        color: $text-primary;
+    }
+}
+
+.color-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--chip-border);
+}
+
+.income-chips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+h3.income-chips-title {
+    margin: 0;
+    font-size: 1.1em;
+    color: $text-primary;
+}
+
+.income-chips-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .create-custom-chips-btn {
+        margin: 0;
+    }
+}
+
+.auto-place-chips-btn {
+    @include btn-accent-style;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.placeholder-text {
+    text-align: center;
+    color: $text-muted;
+    font-size: var(--font-size-sm);
+    width: 100%;
+    margin: 20px 0;
+    font-style: italic;
+}
+
+.create-custom-chips-btn {
+    margin: 10px auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    .chip-icon-inline {
+        width: 18px;
+        height: 18px;
+        object-fit: contain;
+    }
+}
+

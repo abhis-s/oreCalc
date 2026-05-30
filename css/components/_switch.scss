@@ -22,7 +22,15 @@
         position: absolute;
         right: 0;
         top: 0;
-        transition: .4s;
+        transition: background-color 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+        &.round {
+            border-radius: 34px;
+        }
+
+        &.round:before {
+            border-radius: 50%;
+        }
 
         &:before {
             background-color: $material-thumb-inactive;
@@ -33,26 +41,130 @@
             height: 24px;
             left: 4px;
             position: absolute;
-            transition: .4s;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+                        background-color 0.4s ease, 
+                        width 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             width: 24px;
+            z-index: 2;
+        }
+
+        &:hover:before {
+            transform: scale(1.1);
         }
 
         &:active:before {
-            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3), 0px 8px 16px rgba(0, 0, 0, 0.15);
-            transform: scale(1.2);
+            width: 32px; // Stretch effect when holding
         }
     }
 
     input:checked + .slider {
-        background-color: $material-track-active;
+        background-color: $accent-primary;
+
+        &:before {
+            background-color: $material-thumb-active;
+            transform: translateX(20px);
+        }
+
+        &:hover:before {
+            transform: translateX(20px) scale(1.1);
+        }
     }
 
     input:focus + .slider {
-        box-shadow: 0 0 0 8px $material-track-focus-outline;
+        box-shadow: 0 0 0 4px $accent-primary-soft;
     }
 
-    input:checked + .slider:before {
-        background-color: $material-thumb-active;
-        transform: translateX(20px);
+    // Large Variant (Planner Hero Toggles)
+    &.large-switch {
+        height: 34px;
+        width: 60px;
+
+        .slider {
+            &:before {
+                height: 26px;
+                width: 26px;
+            }
+
+            &:active:before {
+                width: 38px;
+            }
+        }
+
+        input:checked + .slider {
+            &:before {
+                transform: translateX(26px);
+            }
+
+            &:hover:before {
+                transform: translateX(26px) scale(1.1);
+            }
+        }
+    }
+
+    &.theme-switch {
+        .slider {
+            background-color: $theme-switch-track-dark;
+            display: block;
+
+            &:before {
+                background-color: $theme-switch-thumb-dark;
+            }
+        }
+
+        .switch-icon {
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            top: 7px;
+            z-index: 3;
+            transition: opacity 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+        }
+
+        .icon-dark {
+            left: 7px;
+            fill: $theme-switch-icon-dark;
+            transform: rotate(0deg);
+        }
+
+        .icon-light {
+            left: 27px;
+            fill: $theme-switch-icon-light;
+            transform: rotate(-90deg) scale(0.5);
+            opacity: 0;
+        }
+
+        input:not(:checked) + .slider {
+            .icon-light { 
+                opacity: 0; 
+                transform: rotate(-90deg) scale(0.5);
+            }
+            .icon-dark { 
+                opacity: 1; 
+                transform: rotate(0deg) scale(1);
+            }
+        }
+
+        input:checked + .slider {
+            background-color: $theme-switch-track-light;
+
+            &:before {
+                background-color: $theme-switch-thumb-light;
+                transform: translateX(20px);
+            }
+
+            &:hover:before {
+                transform: translateX(20px) scale(1.1);
+            }
+
+            .icon-light { 
+                opacity: 1; 
+                transform: rotate(0deg) scale(1);
+            }
+            .icon-dark { 
+                opacity: 0; 
+                transform: rotate(90deg) scale(0.5);
+            }
+        }
     }
 }

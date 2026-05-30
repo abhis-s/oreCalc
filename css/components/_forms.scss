@@ -2,19 +2,19 @@
 @use '../base/placeholder';
 
 input[type="number"].offer-input-number {
-    background-color: $color-black-300;
-    border: 1px solid $color-grey-border;
+    background-color: $bg-app;
+    border: 1px solid $border-primary;
     border-radius: 5px;
-    color: $color-grey-200;
+    color: $text-primary;
     padding: 8px;
     text-align: center;
     transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     width: 80px;
 }
 
-.shop-offer-checkbox-instance {
+.shop-offers-checkbox-instance {
     label {
-        color: $color-grey-200;
+        color: $text-secondary;
         cursor: pointer;
         font-size: var(--font-size-sm);
     }
@@ -28,7 +28,7 @@ input[type="number"].offer-input-number {
 }
 
 .mode-toggle-switch {
-    background-color: $color-grey-700;
+    background-color: $bg-surface-secondary;
     border-radius: 20px;
     box-shadow: none;
     cursor: pointer;
@@ -61,14 +61,14 @@ input[type="number"].offer-input-number {
     grid-template-columns: 1fr 1fr;
     padding: 0 4% 0 7%;
     width: 100%;
-    z-index: 1;
+    z-index: $z-index-base;
 
     .switch-label {
         align-items: center;
-        color: $color-grey-200;
+        color: $text-secondary;
         display: flex;
         font-size: var(--font-size-sm);
-        font-weight: bold;
+        font-weight: var(--font-weight-bold);
         user-select: none;
 
         &:first-child {
@@ -84,13 +84,13 @@ input[type="number"].offer-input-number {
         }
 
         &.active-mode-label {
-            color: $color-primary-blue;
+            color: $accent-primary;
         }
     }
 }
 
 .switch-toggle-ball {
-    background-color: $color-black-300;
+    background-color: $bg-app;
     border-radius: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     height: calc(100% - 10px);
@@ -98,19 +98,19 @@ input[type="number"].offer-input-number {
     position: absolute;
     transition: transform 0.3s ease;
     width: calc(50% - 5px);
-    z-index: 0;
+    z-index: #{$z-index-base - 1};
 }
 
 .dropdown-style {
-    background-color: $color-black-300;
-    border: 1px solid $color-grey-border;
+    background-color: $bg-app;
+    border: 1px solid $border-primary;
     border-radius: 4px;
-    color: $color-grey-100;
+    color: $text-primary;
     font-size: var(--font-size-sm);
     padding: 5px;
 
     &:focus {
-        border-color: $color-primary-blue;
+        border-color: $accent-primary;
         outline: none;
     }
 }
@@ -120,18 +120,31 @@ input[type="number"].offer-input-number {
     display: flex;
     justify-content: space-between;
     position: relative;
+    gap: 10px;
 
     label {
-        margin-right: 10px;
-        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: break-word;
+
+        &.switch {
+            flex: 0 0 auto;
+        }
+    }
+
+    .animated-btn,
+    .dropdown-style,
+    input[type="number"],
+    select {
+        flex-shrink: 0;
     }
 
     input[type="number"],
     select {
-        background-color: $color-black-300;
-        border: 1px solid $color-grey-border;
+        background-color: $bg-app;
+        border: 1px solid $border-primary;
         border-radius: 5px;
-        color: $color-grey-200;
+        color: $text-primary;
         padding: 8px;
         text-align: center;
         width: 80px;
@@ -152,6 +165,7 @@ input[type="number"].offer-input-number {
     display: flex;
     flex-direction: row-reverse;
     justify-content: center;
+    position: relative;
 
     .ore-image {
         height: 24px;
@@ -160,10 +174,10 @@ input[type="number"].offer-input-number {
     }
 
     input[type="number"] {
-        background-color: $color-black-300;
-        border: 1px solid $color-grey-border;
+        background-color: $bg-app;
+        border: 1px solid $border-primary;
         border-radius: 5px;
-        color: $color-grey-200;
+        color: $text-primary;
         padding: 8px;
         text-align: center;
         transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -181,27 +195,21 @@ input[type="number"] {
     }
 }
 
-.input-dialog {
-    background-color: $background-overlay-dark-2;
-    border-radius: 5px;
-    color: $color-white;
-    font-size: var(--font-size-xs);
-    left: 50%;
-    margin-top: 5px;
-    opacity: 0;
-    padding: 5px 10px;
-    pointer-events: none;
-    position: absolute;
-    top: 100%;
-    transition: opacity 0.3s ease-in-out;
-    white-space: nowrap;
-    z-index: 10;
-    transform: translateX(-50%);
-
-    &.show {
-        opacity: 1;
-    }
+.input-status-warning {
+    border-color: $color-warning !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-warning) 25%, transparent) !important;
 }
+
+.input-status-error {
+    border-color: $color-danger !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 25%, transparent) !important;
+}
+
+.input-status-success {
+    border-color: $color-success !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-success) 25%, transparent) !important;
+}
+
 
 .zero-size-dropdown {
     border: none;
@@ -215,10 +223,10 @@ input[type="number"] {
 .custom-dropdown {
     position: relative;
     width: 50px;
-    border: 1px solid $color-grey-border;
+    border: 1px solid $border-primary;
     border-radius: 4px;
     cursor: pointer;
-    background-color: $color-black-300;
+    background-color: $bg-app;
 
     .dropdown-selected {
         padding: 5px;
@@ -238,11 +246,11 @@ input[type="number"] {
         top: 100%;
         left: -1px;
         width: 50px;
-        border: 1px solid $color-grey-border;
+        border: 1px solid $border-primary;
         border-top: none;
         border-radius: 0 0 4px 4px;
-        background-color: $color-black-300;
-        z-index: 1;
+        background-color: $bg-app;
+        z-index: $z-index-base;
 
         .dropdown-option {
             padding: 5px;
@@ -251,7 +259,7 @@ input[type="number"] {
             justify-content: center;
 
             &:hover {
-                background-color: $color-grey-700;
+                background-color: $bg-surface-secondary;
             }
 
             img {
@@ -265,3 +273,221 @@ input[type="number"] {
         display: block;
     }
 }
+
+.field-descriptor-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+
+    .flex-center-gap-8 {
+        margin-bottom: 2px;
+        
+        label {
+            margin-bottom: 0;
+        }
+    }
+
+    label {
+        margin-bottom: 2px;
+        flex: none; // Override input-group-flex label flex: 1
+    }
+}
+
+.form-setting-text {
+    font-size: 0.85em;
+    color: $text-secondary;
+    margin: 0;
+}
+
+.custom-chip-ores-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.custom-chip-ore-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    label {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+
+    .ore-image {
+        height: 24px;
+        width: 24px;
+    }
+
+    input[type="number"] {
+        background-color: $bg-app;
+        border: 1px solid $border-primary;
+        border-radius: 5px;
+        color: $text-primary;
+        padding: 8px;
+        text-align: center;
+        width: 80px;
+        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+        &:focus {
+            border-color: $accent-primary;
+            outline: none;
+        }
+    }
+}
+
+.custom-chip-prospector-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 10px 0;
+    width: 100%;
+
+    input[type="number"] {
+        background-color: $bg-app;
+        border: 1px solid $border-primary;
+        border-radius: 5px;
+        color: $text-primary;
+        padding: 8px;
+        text-align: center;
+        width: 80px;
+        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+        &:focus {
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 3px $accent-primary-soft;
+            outline: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "from-dd  .      to-dd"
+            "from-in  arrow  to-in";
+        gap: 0.5rem 1rem;
+        justify-items: center;
+        align-items: center;
+
+        .custom-dropdown:first-of-type { grid-area: from-dd; justify-self: center; }
+        .custom-dropdown:last-of-type { grid-area: to-dd; justify-self: center; }
+
+        input[type="number"]:first-of-type { grid-area: from-in; justify-self: center; }
+        .prospector-arrow { grid-area: arrow; align-self: center; padding-bottom: 0; }
+        input[type="number"]:last-of-type { grid-area: to-in; justify-self: center; }
+
+        input[type="number"] {
+            width: 100%;
+            max-width: 100px;
+        }
+
+        .custom-dropdown {
+            width: 100%;
+            max-width: 60px;
+            
+            .dropdown-options {
+                width: calc(100% + 2px);
+            }
+        }
+    }
+}
+
+.prospector-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    
+    .prospector-col-label {
+        color: $text-secondary;
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        margin-bottom: 2px;
+        text-align: center;
+    }
+    
+    .prospector-col-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        select {
+            width: auto;
+        }
+        
+        input[type="number"] {
+            background-color: $bg-app;
+            border: 1px solid $border-primary;
+            border-radius: 5px;
+            color: $text-primary;
+            padding: 8px;
+            text-align: center;
+            width: 80px;
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+            &:focus {
+                border-color: $accent-primary;
+                outline: none;
+            }
+        }
+    }
+}
+
+.prospector-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-secondary;
+    font-size: var(--font-size-lg);
+    font-weight: bold;
+    align-self: flex-end;
+    padding-bottom: 4px;
+}
+
+.custom-chip-rewards-preview {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid $border-secondary;
+
+    .preview-label {
+        font-weight: var(--font-weight-semibold);
+        color: $text-secondary;
+        font-size: var(--font-size-sm);
+        margin-right: auto;
+    }
+
+    .preview-ore-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: var(--font-weight-bold);
+        color: $text-primary;
+        font-size: var(--font-size-md);
+
+        .ore-image {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+    }
+}
+
+.popover-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+

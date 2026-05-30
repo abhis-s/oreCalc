@@ -2,27 +2,121 @@
 @use '../base/placeholder';
 
 #preloader {
+    @extend %full-screen-overlay;
     @extend %flex-center;
-    background-color: $color-black-300;
-    height: 100%;
-    left: 0;
-    position: fixed;
-    top: 0;
-    transition: opacity 0.75s ease-in-out;
-    width: 100%;
-    z-index: 10000;
+    background-color: #121212; // Solid background to avoid variable dependency during jump
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s;
+    z-index: $z-index-preloader;
+    overflow: hidden;
+    contain: strict;
 
     &.hidden {
         opacity: 0;
         visibility: hidden;
     }
 
-    .spinner {
-        animation: spin 1s linear infinite;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top-color: $color-primary-blue;
-        height: 50px;
-        width: 50px;
+    // Support light mode system preference before JS loads if needed
+    @media (prefers-color-scheme: light) {
+        &:not(.dark-mode-override) {
+            background-color: #ffffff;
+        }
+    }
+
+    .preloader-loader {
+        display: flex;
+        position: relative;
+        width: 150px;
+        height: 150px;
+        @extend %flex-center;
+        perspective: 1000px;
+        
+        span {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            position: absolute;
+            top: calc(50% - 8px);
+            left: calc(50% - 8px);
+            transition: background-color 0.3s;
+            will-change: transform;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+
+            // Step 1 & 2: Jump and Revolve
+            animation: 
+                palette-jump 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both,
+                palette-revolve 0.8s 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+
+            &:nth-child(1) { 
+                background-color: $palette-blue-400; 
+                animation-delay: 0.1s, 0.8s;
+                --target-x: -40px; --target-y: 0;
+                --angle: 0deg;
+            }
+            &:nth-child(2) { 
+                background-color: $palette-yellow-400; 
+                animation-delay: 0.2s, 0.8s;
+                --target-x: -20px; --target-y: 0;
+                --angle: 72deg;
+            }
+            &:nth-child(3) { 
+                background-color: $palette-purple-400; 
+                animation-delay: 0.3s, 0.8s;
+                --target-x: 0; --target-y: 0;
+                --angle: 144deg;
+            }
+            &:nth-child(4) { 
+                background-color: $palette-green-400; 
+                animation-delay: 0.4s, 0.8s;
+                --target-x: 20px; --target-y: 0;
+                --angle: 216deg;
+            }
+            &:nth-child(5) { 
+                background-color: $palette-red-400; 
+                animation-delay: 0.5s, 0.8s;
+                --target-x: 40px; --target-y: 0;
+                --angle: 288deg;
+            }
+        }
+    }
+
+    // Step 3: Chosen dot falls to center and spreads
+    &[data-accent="blue"] span:nth-child(1),
+    &[data-accent="gold"] span:nth-child(2),
+    &[data-accent="purple"] span:nth-child(3),
+    &[data-accent="green"] span:nth-child(4),
+    &[data-accent="red"] span:nth-child(5) {
+        z-index: 10;
+        animation: 
+            palette-jump 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both,
+            palette-revolve 0.8s 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+            palette-spread 0.8s 1.7s cubic-bezier(0.645, 0.045, 0.355, 1) forwards; // Smoother "Falling" easing
+    }
+}
+
+@keyframes palette-jump {
+    0% { transform: translate(var(--target-x), 50px) scale(0); opacity: 0; }
+    60% { transform: translate(var(--target-x), -35px) scale(1.1); opacity: 1; }
+    100% { transform: translate(var(--target-x), 0) scale(1); opacity: 1; }
+}
+
+@keyframes palette-revolve {
+    from { transform: translate(var(--target-x), 0); }
+    to { transform: rotate(var(--angle)) translate(48px) rotate(calc(-1 * var(--angle))); }
+}
+
+@keyframes palette-spread {
+    0% { 
+        transform: rotate(var(--angle)) translate(48px) rotate(calc(-1 * var(--angle))); 
+    }
+    // Phase: Falling to Center (maintain rotation context to prevent coordinate jumps)
+    40% {
+        transform: rotate(var(--angle)) translate(0px) rotate(calc(-1 * var(--angle))) scale(1.1);
+    }
+    // Phase: Expanding
+    100% { 
+        transform: translate(0, 0) scale(150);
     }
 }

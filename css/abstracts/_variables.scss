@@ -1,119 +1,214 @@
-$md-primary: #D0BCFF;
-$md-on-primary: #381E72;
-$md-primary-container: #6750A4;
-$md-on-primary-container: #EADDFF;
+@forward 'palette';
+@use 'palette' as *;
 
-$md-secondary: #CCC2DC;
-$md-on-secondary: #332D41;
-$md-secondary-container: #4A4458;
-$md-on-secondary-container: #E8DEF8;
+// --- ACCENT SYSTEM ---
+$accent-primary: var(--accent-primary);
+$accent-primary-hover: var(--accent-primary-hover);
+$accent-primary-active: var(--accent-primary-active);
+$accent-primary-soft: var(--accent-primary-soft);
 
-$md-tertiary: #EFB8C8;
-$md-on-tertiary: #492532;
-$md-tertiary-container: #633B48;
-$md-on-tertiary-container: #FFD8E4;
+$accent-secondary: var(--accent-secondary);
+$accent-secondary-hover: var(--accent-secondary-hover);
+$accent-secondary-soft: var(--accent-secondary-soft);
 
-$md-error: #F2B8B5;
-$md-on-error: #601410;
-$md-error-container: #8C1D18;
-$md-on-error-container: #F9DEDC;
+$accent-tertiary: var(--accent-tertiary);
+$accent-tertiary-hover: var(--accent-tertiary-hover);
+$accent-tertiary-soft: var(--accent-tertiary-soft);
 
-$md-background: #1C1B1F;
-$md-on-background: #E6E1E5;
-$md-surface: #1C1B1F;
-$md-on-surface: #E6E1E5;
-$md-surface-variant: #49454F;
-$md-on-surface-variant: #CAC4D0;
+// --- FEEDBACK SYSTEM ---
+$color-success: var(--color-success);
+$color-success-soft: var(--color-success-soft);
+$color-warning: var(--color-warning);
+$color-warning-soft: var(--color-warning-soft);
+$color-danger: var(--color-danger);
+$color-danger-soft: var(--color-danger-soft);
+$color-danger-soft-hover: var(--color-danger-soft-hover);
+$color-info: var(--color-info);
+$color-info-soft: var(--color-info-soft);
 
-$md-outline: #938F99;
-$md-outline-variant: #49454F;
-$md-inverse-surface: #E6E1E5;
-$md-inverse-on-surface: #313033;
-$md-inverse-primary: #6750A4;
-$md-shadow: #000000;
-$md-surface-tint: #D0BCFF;
-$md-scrim: rgba(0, 0, 0, 0.5);
+// --- SURFACE SYSTEM ---
+$bg-app: var(--bg-app);
+$bg-surface-primary: var(--bg-surface-primary);
+$bg-surface-secondary: var(--bg-surface-secondary);
+$bg-surface-tertiary: var(--bg-surface-tertiary);
+$bg-overlay: var(--bg-overlay);
 
-// Material You Shape System
+// --- TYPOGRAPHY SYSTEM ---
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-muted: var(--text-muted);
+$text-disabled: var(--text-disabled);
+$text-on-accent: var(--text-on-accent);
+$text-inverse: var(--text-inverse);
+
+// --- BORDER & OUTLINE SYSTEM ---
+$border-primary: var(--border-primary);
+$border-secondary: var(--border-secondary);
+$border-accent: var(--border-accent);
+$border-danger: var(--border-danger);
+$border-inverse: var(--border-inverse);
+$outline-focus: var(--outline-focus);
+
+// --- SHAPE SYSTEM ---
 $shape-corner-extra-small: 4px;
 $shape-corner-small: 8px;
 $shape-corner-medium: 12px;
 $shape-corner-large: 16px;
 $shape-corner-extra-large: 28px;
-$shape-corner-full: 50%;
+$shape-corner-full: 9999px;
 
+// --- ELEVATION SYSTEM ---
 $elevation-1: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px rgba(0, 0, 0, 0.15);
 $elevation-2: 0px 2px 4px rgba(0, 0, 0, 0.3), 0px 2px 6px rgba(0, 0, 0, 0.15);
 $elevation-3: 0px 4px 8px rgba(0, 0, 0, 0.3), 0px 4px 12px rgba(0, 0, 0, 0.15);
 $elevation-4: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px 6px 18px rgba(0, 0, 0, 0.15);
 $elevation-5: 0px 8px 16px rgba(0, 0, 0, 0.3), 0px 8px 24px rgba(0, 0, 0, 0.15);
 
-$color-white: #ffffff;
-$color-grey-100: #e8eaed;
-$color-grey-200: #e3e2e6;
-$color-grey-300: #ccc;
-$color-grey-400: #bdc1c6;
-$color-grey-500: #bbb;
-$color-grey-600: #616161;
-$color-grey-700: #424242;
-$color-grey-800: #383a3c;
-$color-grey-900: #333333;
-$color-black-100: #2b2929;
-$color-black-200: #2c2e30;
-$color-black-300: #202124;
-$color-black-400: #1a1c1e;
-$color-grey-border: #5f6368;
-$color-primary-blue: #8ab4f8;
-$color-primary-purple: #7c4b8e;
-$color-accent-yellow-100: #f9c840;
-$color-accent-yellow-200: #fbbf24;
-$color-accent-purple-light: #c19ecd;
-$color-accent-purple-dark: #b39ddb;
-$color-accent-red: #ef4444;
-$color-success-100: #a5d6a7;
-$color-success-200: #81c784;
-$color-success-300: #4caf50;
-$color-success-400: #45a049;
-$color-success-500: #388e3c;
-$color-warning-100: #fff59d;
-$color-warning-200: #ffe082;
-$color-warning-300: #ffd54f;
-$color-warning-400: #ffca28;
-$color-warning-500: #ffc107;
-$color-danger-100: #ef9a9a;
-$color-danger-200: #ef5350;
-$color-danger-300: #ef4444;
-$color-danger-400: #dc2626;
-$color-danger-500: #d32f2f;
-$background-transparent: transparent;
-$background-overlay-dark-1: rgba(0, 0, 0, 0.5);
-$background-overlay-dark-2: rgba(0, 0, 0, 0.7);
-$background-overlay-blue-1: rgba(138, 180, 248, 0.1);
-$background-overlay-blue-2: rgba(138, 180, 248, 0.2);
-$background-overlay-blue-3: rgba(138, 180, 248, 0.3);
-$material-track-inactive: #79747E;
-$material-track-active: #6750A4;
-$material-track-focus-outline: rgba(103, 80, 164, 0.2);
-$material-thumb-inactive: #E6E1E5;
-$material-thumb-active: #FFD8E4;
+// --- FONTS ---
 $font-family-sans: 'Roboto', sans-serif;
 
-:root {
-    --input-hover-bg-color: rgba(166, 200, 255, 0.1);
+// --- Z-INDEX ---
+$z-index-below: -1;
+$z-index-base: 1;
+$z-index-component: 5;
+$z-index-overlay: 10;
+$z-index-fab: 20;
+$z-index-layout: 30;
+$z-index-drawer: 40;
+$z-index-modal: 50;
+$z-index-modal-top: 60;
+$z-index-preloader: 100;
+
+// --- EQUIPMENT RARITIES ---
+$color-rarity-common: var(--color-rarity-common);
+$color-rarity-rare: var(--color-rarity-rare);
+$color-rarity-epic: var(--color-rarity-epic);
+$color-rarity-legendary: var(--color-rarity-legendary);
+
+$color-gold-glow: var(--color-gold-glow);
+$color-gold-glow-shadow: var(--color-gold-glow-shadow);
+
+// --- INCOME SOURCE COLORS ---
+$color-income-star-bonus: var(--color-income-star-bonus);
+$color-income-clan-war: var(--color-income-clan-war);
+$color-income-cwl: var(--color-income-cwl);
+$color-income-raid-medals: var(--color-income-raid-medals);
+$color-income-gems: var(--color-income-gems);
+$color-income-event-pass: var(--color-income-event-pass);
+$color-income-event-trader: var(--color-income-event-trader);
+$color-income-shop-offer: var(--color-income-shop-offer);
+$color-income-prospector: var(--color-income-prospector);
+$color-income-supercell-events: var(--color-income-supercell-events);
+$color-income-custom: var(--color-income-custom);
+$color-on-income: var(--color-on-income);
+
+
+// --- THEMED BUTTON VARIABLES (Abstractions of Palette Primitives) ---
+$btn-border-blue: rgba($palette-blue-500, 0.3);
+$btn-border-blue-hover: rgba($palette-blue-500, 0.5);
+$btn-hover-blue-bg: rgba($palette-blue-500, 0.2);
+
+$btn-border-red: rgba($palette-red-500, 0.3);
+$btn-border-red-hover: rgba($palette-red-500, 0.5);
+$btn-bg-red-soft: rgba($palette-red-500, 0.1);
+$btn-bg-red-soft-hover: rgba($palette-red-500, 0.2);
+$btn-color-red: $palette-red-600;
+
+$btn-border-red-heavy: rgba($palette-red-500, 0.3);
+$btn-border-red-heavy-hover: rgba($palette-red-500, 0.5);
+$btn-bg-red-heavy-soft: rgba($palette-red-500, 0.15);
+$btn-bg-red-heavy-soft-hover: rgba($palette-red-500, 0.25);
+$btn-color-red-heavy: $palette-red-600;
+
+$btn-border-emerald: rgba($palette-emerald-500, 0.3);
+$btn-border-emerald-hover: rgba($palette-emerald-500, 0.5);
+$btn-bg-emerald-soft: rgba($palette-emerald-500, 0.15);
+$btn-bg-emerald-soft-hover: rgba($palette-emerald-500, 0.25);
+$btn-color-emerald: $palette-emerald-600;
+
+$btn-border-teal: rgba($palette-teal-500, 0.3);
+$btn-border-teal-hover: rgba($palette-teal-500, 0.5);
+$btn-bg-teal-soft: rgba($palette-teal-500, 0.15);
+$btn-bg-teal-soft-hover: rgba($palette-teal-500, 0.25);
+$btn-color-teal: $palette-teal-600;
+
+$btn-border-green: rgba($palette-green-500, 0.3);
+$btn-border-green-hover: rgba($palette-green-500, 0.5);
+$btn-bg-green-soft: rgba($palette-green-500, 0.15);
+$btn-bg-green-soft-hover: rgba($palette-green-500, 0.25);
+$btn-color-green: $palette-green-600;
+
+$btn-border-amber: rgba($palette-amber-500, 0.3);
+$btn-border-amber-hover: rgba($palette-amber-500, 0.5);
+$btn-bg-amber-soft: rgba($palette-amber-500, 0.15);
+$btn-bg-amber-soft-hover: rgba($palette-amber-500, 0.25);
+$btn-color-amber: $palette-amber-700;
+
+$btn-border-cyan: rgba($palette-cyan-500, 0.3);
+$btn-border-cyan-hover: rgba($palette-cyan-500, 0.5);
+$btn-bg-cyan-soft: rgba($palette-cyan-500, 0.15);
+$btn-bg-cyan-soft-hover: rgba($palette-cyan-500, 0.25);
+$btn-color-cyan: $palette-cyan-600;
+
+$btn-border-purple: rgba($palette-purple-500, 0.3);
+$btn-border-purple-hover: rgba($palette-purple-500, 0.5);
+$btn-bg-purple-soft: rgba($palette-purple-500, 0.15);
+$btn-bg-purple-soft-hover: rgba($palette-purple-500, 0.25);
+$btn-color-purple: $palette-purple-600;
+
+$btn-border-pink: rgba($palette-pink-500, 0.3);
+$btn-border-pink-hover: rgba($palette-pink-500, 0.5);
+$btn-bg-pink-soft: rgba($palette-pink-500, 0.15);
+$btn-bg-pink-soft-hover: rgba($palette-pink-500, 0.25);
+$btn-color-pink: $palette-pink-600;
+
+$btn-border-deep-orange: rgba($palette-deep-orange-500, 0.3);
+$btn-border-deep-orange-hover: rgba($palette-deep-orange-500, 0.5);
+$btn-bg-deep-orange-soft: rgba($palette-deep-orange-500, 0.1);
+$btn-bg-deep-orange-soft-hover: rgba($palette-deep-orange-500, 0.2);
+$btn-color-deep-orange: $palette-deep-orange-600;
+
+$btn-bg-grey-soft-hover: rgba($palette-grey-500, 0.2);
+$btn-border-grey-hover: $palette-grey-600;
+
+// --- SWITCH, SLIDER & CONSTANT VARIABLES ---
+$material-track-inactive: var(--material-track-inactive);
+$material-thumb-inactive: var(--material-thumb-inactive);
+$material-track-active: var(--material-track-active);
+$material-thumb-active: var(--material-thumb-active);
+
+$theme-switch-track-dark: $palette-indigo-700;
+$theme-switch-thumb-dark: $palette-indigo-900;
+$theme-switch-icon-dark: $palette-indigo-200;
+$theme-switch-track-light: $palette-amber-400;
+$theme-switch-thumb-light: $palette-amber-100;
+$theme-switch-icon-light: $palette-amber-600;
+
+$color-white-const: $palette-white;
+$color-black-const: $palette-black;
+$shadow-overlay-dark: var(--bg-overlay, $palette-overlay-dark-30);
+
+// --- ACCENT SELECTION VARIABLES ---
+$accent-option-blue: $palette-blue-300;
+$accent-option-gold: $palette-yellow-400;
+$accent-option-purple: $palette-purple-400;
+$accent-option-green: $palette-green-400;
+$accent-option-red: $palette-red-400;
+
+$accent-option-gradient-blue: $palette-blue-400;
+$accent-option-gradient-purple: $palette-purple-400;
+$accent-option-gradient-red: $palette-red-400;
+$accent-option-gradient-gold: $palette-yellow-400;
+$accent-option-gradient-green: $palette-green-400;
+
+// --- MIXINS ---
+@mixin btn-accent-style {
+    background-color: $accent-primary-soft;
+    color: $accent-primary;
+    border: 1px solid $btn-border-blue;
+
+    &:hover:not(:disabled) {
+        background-color: $btn-hover-blue-bg;
+        border-color: $btn-border-blue-hover;
+    }
 }
-
-$input-bg-color-transparent: rgba(28, 27, 31, 0.7);
-
-$dark-background-primary: #121212;
-$dark-background-secondary: #1e1e1e;
-$dark-surface-primary: #2c2c2c;
-$dark-surface-secondary: #3a3a3a;
-$dark-text-primary: #ffffff;
-$dark-text-secondary: #b0b0b0;
-$dark-border-color: #424242;
-$dark-shadow-color: rgba(0, 0, 0, 0.5);
-$dark-accent-blue: #8ab4f8;
-$dark-accent-blue-hover: #a6c8ff;
-$dark-accent-blue-darker: #6a9ee8;
-$dark-accent-purple: #bb86fc;
-$dark-accent-purple-hover: #d0aaff;

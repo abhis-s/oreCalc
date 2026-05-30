@@ -1,3 +1,6 @@
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
 .calendar-container {
     overflow: hidden;
     position: relative;
@@ -15,8 +18,8 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    color: var(--text-color);
-    padding: 10px;
+    color: $text-primary;
+    padding: 10px 15px;
 
     .calendar-nav {
         display: flex;
@@ -26,33 +29,34 @@
 
     h2 {
         margin: 0;
-        font-size: 1.5em;
-        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-align: left;
         flex-grow: 1;
+        color: $accent-primary;
     }
 
     .calendar-action-buttons {
         display: flex;
-        gap: 20px;
+        gap: 8px;
+        align-items: center;
     }
 
-    button {
-        background-color: var(--button-bg-color);
-        color: var(--button-text-color);
-        border: none;
-        border-radius: var(--border-radius);
-        padding: 8px 12px;
-        cursor: pointer;
-        font-size: 1em;
-        transition: background-color 0.3s ease, opacity 0.3s ease;
+    .planner-action-button {
+        background-color: $bg-surface-tertiary;
+        border-color: $border-primary;
+        color: $text-secondary;
 
-        &:hover:not(:disabled) {
-            background-color: var(--button-hover-bg-color);
+        &:hover {
+            background-color: $accent-primary-soft;
+            border-color: $accent-primary;
+            color: $accent-primary;
         }
 
-        &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        &.btn-danger-action:hover {
+            background-color: $color-danger-soft;
+            border-color: $color-danger;
+            color: $color-danger;
         }
     }
 }
@@ -63,106 +67,166 @@
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
     flex-shrink: 0;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    overflow: hidden;
+    background-color: $border-primary; // Acts as grid line color
+    gap: 1px; // Grid lines
 
     .day-name {
-        font-weight: bold;
-        color: var(--text-color-light);
-        padding: 10px 5px;
+        font-weight: var(--font-weight-bold);
+        color: $text-secondary;
+        padding: 12px 5px;
+        background-color: $bg-surface-primary;
+        font-size: 0.8em;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     .day-cell {
-        padding: 10px 5px 5px 5px;
+        padding: 12px 5px 8px 5px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
-        border: 1px solid transparent;
+        transition: all 0.2s ease;
+        background-color: $bg-surface-primary;
+        min-height: 80px;
 
         &:hover {
-            background-color: var(--input-hover-bg-color);
-        }
-
-        &.today {
-            .date-display {
-                font-weight: bold;
-                color: var(--accent-color);
-            }
+            background-color: $bg-surface-tertiary;
+            z-index: 5;
+            box-shadow: inset 0 0 0 1px $accent-primary;
         }
 
         &.other-month {
-            color: var(--text-color-disabled);
+            background-color: $bg-app;
+            color: $text-disabled;
 
             .income-chip {
-                opacity: 0.5;
+                opacity: 0.4;
+                filter: grayscale(0.5);
             }
         }
+    }
+}
+
+@keyframes dropPulse {
+    0% {
+        background-color: transparent;
+        box-shadow: inset 0 0 0 0 rgba($accent-primary, 0);
+    }
+    30% {
+        background-color: rgba($accent-primary, 0.2);
+        box-shadow: inset 0 0 0 4px rgba($accent-primary, 0.4);
+    }
+    100% {
+        background-color: transparent;
+        box-shadow: inset 0 0 0 0 rgba($accent-primary, 0);
     }
 }
 
 .day-cell {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     overflow: visible;
     position: relative;
 
+    &.drop-pulse {
+        animation: dropPulse 0.6s ease-out;
+    }
+
+    &.today {
+        .date-display {
+            background-color: $accent-primary;
+            color: $text-on-accent;
+            font-weight: var(--font-weight-bold);
+            box-shadow: $elevation-2;
+        }
+    }
+
     .date-display {
-        padding-bottom: 5px;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        border-radius: 50%;
+        font-size: 0.95em;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
     }
 
     .chip-container {
         flex-grow: 1;
-        min-height: 25px;
+        min-height: 30px;
         border: 1px dashed transparent;
         transition: all 0.2s ease-in-out;
         display: flex;
         flex-wrap: wrap;
-        gap: 5px;
+        gap: 4px;
         justify-content: center;
         align-content: flex-start;
 
         &.drag-over {
             min-height: 100px;
+            background-color: $accent-primary-soft;
+            border-color: $accent-primary;
+            border-radius: 8px;
         }
 
         &.valid-drop-range {
-            border: 1px dashed var(--color-white);
+            border: 1px dashed $text-muted;
         }
 
         &.valid-drop-target {
-            border: 2px dashed var(--color-success-300);
+            border: 2px dashed $color-success;
+            background-color: $color-success-soft;
         }
 
         &.invalid-drop-target {
-            border: 2px dashed var(--color-danger-300);
+            border: 2px dashed $color-danger;
+            background-color: $color-danger-soft;
         }
     }
 }
 
 .ore-tooltip {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: #ffffff;
-    padding: 8px;
-    border-radius: 4px;
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
+    padding: 8px 12px;
+    border-radius: 8px;
     white-space: nowrap;
-    z-index: 10;
+    z-index: $z-index-component;
     pointer-events: none;
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    align-items: flex-end;
+    gap: 6px;
+    align-items: center;
+    box-shadow: $elevation-3;
+    border: 1px solid $border-primary;
 
     .tooltip-header {
-        font-weight: bold;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: $accent-primary;
+        width: 100%;
+        text-align: center;
     }
 
     .ore-count-item {
         display: flex;
         align-items: center;
-        gap: 5px;
-        font-size: 0.9em;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        font-size: 0.85em;
+        font-weight: 500;
+
+        span {
+            flex: 1;
+            text-align: right;
+            font-family: 'Roboto Mono', monospace;
+        }
     }
 
     .ore-icon-small {
@@ -188,8 +252,8 @@
     display: flex;
     align-items: center;
     padding: 0 10px;
-    font-weight: bold;
-    color: var(--text-color-light);
+    font-weight: var(--font-weight-bold);
+    color: $text-secondary;
 }
 
 .month-chip {
@@ -198,27 +262,26 @@
     justify-content: space-between;
     padding: 8px 16px;
     border-radius: 8px;
-    background-color: var(--input-bg-color-transparent);
-    color: var(--text-color);
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
     cursor: pointer;
     transition: background-color 0.3s ease;
     white-space: nowrap;
     flex-grow: 1;
     flex-shrink: 0;
+    border: 1px solid $border-primary;
 
     &:hover {
-        background-color: var(--input-hover-bg-color);
+        background-color: $bg-surface-primary;
+        border-color: $accent-primary;
     }
 
     &.active {
-        background-color: var(--background-overlay-blue-1);
-        font-weight: bold;
+        font-weight: var(--font-weight-bold);
+        border-color: $accent-primary;
 
         .month-name {
-            background-color: var(--accent-color);
-            color: var(--accent-text-color);
-            padding: 4px 8px;
-            border-radius: 6px;
+            color: $accent-primary;
         }
     }
 }
@@ -243,82 +306,108 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--color-grey-dark);
-    color: var(--text-color);
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
     font-size: 0.8em;
     cursor: pointer;
     transition: background-color 0.3s ease;
 
     &:hover {
-        background-color: var(--input-hover-bg-color);
+        background-color: $accent-primary-soft;
     }
 
     &.active {
-        background-color: var(--accent-color);
-        color: var(--accent-text-color);
-        font-weight: bold;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        font-weight: var(--font-weight-bold);
     }
 }
 
-#calendar-track.weekly-view-grid {
-    display: block;
-    padding: 10px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+#calendar-track > .weekly-view-grid {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    gap: 12px;
+    width: calc(100% / 3);
+    flex-shrink: 0;
+    box-sizing: border-box;
 
     .day-cell {
         display: flex;
         flex-direction: row;
         align-items: center;
-        padding: 10px 5px;
-        border-bottom: 1px solid var(--color-grey-border);
+        padding: 12px 15px;
+        border: 1px solid $border-primary;
+        border-radius: 16px;
+        background-color: $bg-surface-primary;
+        min-height: auto;
+        gap: 15px;
 
-        &:last-child {
-            border-bottom: none;
+        &:hover {
+            border-color: $accent-primary;
+            background-color: $bg-surface-secondary;
+            transform: translateX(4px);
+        }
+
+        .date-display {
+            margin: 0; 
         }
     }
 
     .day-info {
-        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 6px;
         flex-shrink: 0;
-        width: 50px;
-        padding-right: 5px;
-        font-size: 12px;
-        text-align: right;
+
+        .day-name-short {
+            font-weight: 600;
+            color: $text-secondary;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
     }
 
     .chip-container {
-        flex-direction: row-reverse;
-        justify-content: end;
+        display: flex;
+        flex-wrap: wrap;
+        flex: 1 1 0px;
+        gap: 4px;
+        flex-direction: row;
+        justify-content: flex-end;
         align-content: center;
-        flex-grow: 1;
-    }
-
-    .date-display {
-        display: none;
+        min-height: auto;
     }
 }
 
 @media (max-width: 780px) {
     .calendar-header {
         h2 {
-            font-size: 1.2em;
+            font-size: 1.1rem;
         }
     }
 }
 
 @media (max-width: 425px) {
     .calendar-header {
-        padding: 5px;
+        padding: 8px 10px;
+        
         h2 {
-            font-size: 0.8em;
+            font-size: 0.95rem;
         }
+
         .calendar-action-buttons {
-            gap: 10px;
+            gap: 4px;
         }
-        button {
-            padding: 4px 6px;
+
+        .planner-action-button {
+            width: 32px;
+            height: 32px;
+            
+            svg {
+                width: 20px;
+                height: 20px;
+            }
         }
     }
 }

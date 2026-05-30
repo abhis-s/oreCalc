@@ -9,9 +9,9 @@
 
 .animated-btn {
     @extend %flex-center;
-    border: none;
+    border: 1px solid transparent;
     border-radius: 20px;
-    color: $color-black-300;
+    color: $text-primary;
     cursor: pointer;
     font-size: var(--font-size-sm);
     min-height: 40px;
@@ -19,9 +19,12 @@
     overflow: hidden;
     padding: 10px 20px;
     position: relative;
-    transition: background-color 0.3s;
+    text-decoration: none;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 
-    .animated-btn-text {
+    .animated-btn-text,
+    .animated-btn-icon-wrapper,
+    .animated-btn-icon-disabled {
         transition: transform 0.3s ease-out, opacity 0.3s ease-out;
     }
 
@@ -31,23 +34,30 @@
         left: 0;
         position: absolute;
         top: 0;
-        transition: transform 0.3s ease-out;
         width: 100%;
         transform: translateY(-100%);
+
+        svg {
+            fill: currentColor;
+        }
     }
 
     .animated-btn-icon-disabled {
-        align-items: center;
-        display: none;
+        @extend %flex-center;
         height: 100%;
-        justify-content: center;
         left: 0;
         position: absolute;
         top: 0;
         width: 100%;
+        opacity: 0;
+        pointer-events: none;
+
+        svg {
+            fill: currentColor;
+        }
     }
 
-    &:hover {
+    &:hover:not(:disabled):not(.saving):not(.success):not(.error) {
         .animated-btn-text {
             opacity: 0;
             transform: translateY(100%);
@@ -58,81 +68,139 @@
         }
     }
 
+    &:active:not(:disabled):not(.saving):not(.success):not(.error) {
+        transform: scale(0.97);
+        filter: brightness(0.9);
+    }
+
     &:disabled {
-        background-color: $color-grey-600;
+        background-color: $bg-surface-tertiary;
+        color: $text-muted;
         cursor: not-allowed;
         opacity: 0.6;
+        border-color: $border-primary;
 
-        .animated-btn-icon-wrapper {
-            display: none;
+        .animated-btn-text {
+            opacity: 0;
         }
 
         .animated-btn-icon-disabled {
-            display: flex;
-        }
-
-        .animated-btn-text {
-            display: none;
+            opacity: 1;
         }
     }
 }
 
-.button-spinner {
-    display: none;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
+// --- Task Buttons (Feedback Enabled) ---
+.task-btn {
+    position: relative;
+    overflow: hidden;
+
+    &.saving,
+    &.error,
+    &.success {
+        cursor: not-allowed;
+        
+        // Hide ALL immediate children except the feedback indicators
+        // We use visibility: hidden to ensure the button maintains its original footprint
+        > *:not(.button-loader):not(.button-error-icon):not(.button-success-icon) {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+    }
+
+    &.saving {
+        .button-loader {
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+
+    &.error {
+        background-color: $btn-bg-red-soft !important;
+        color: $btn-color-red !important;
+        border-color: $btn-border-red !important;
+
+        .button-error-icon {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    &.success {
+        background-color: $btn-bg-emerald-soft !important;
+        color: $btn-color-emerald !important;
+        border-color: $btn-border-emerald !important;
+
+        .button-success-icon {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
 }
 
-.animated-btn.saving {
-    cursor: not-allowed;
-    gap: 10px;
-    .button-spinner {
+.button-loader,
+.button-error-icon,
+.button-success-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), visibility 0.3s;
+    pointer-events: none;
+}
+
+.button-loader {
+    display: flex;
+    gap: 4px;
+    
+    span {
+        width: 6px;
+        height: 6px;
+        background-color: currentColor;
+        border-radius: 50%;
+        animation: dot-jump 1.4s infinite ease-in-out both;
+
+        &:nth-child(1) { animation-delay: -0.32s; }
+        &:nth-child(2) { animation-delay: -0.16s; }
+    }
+}
+
+.button-error-icon,
+.button-success-icon {
+    transform: translate(-50%, -50%) scale(0.5);
+    
+    svg {
+        fill: currentColor;
+        width: 24px;
+        height: 24px;
         display: block;
     }
-    .animated-btn-icon-wrapper, .animated-btn-icon-disabled {
-        display: none;
-    }
 }
 
-.button-error-icon {
-    display: none;
+
+.btn-accent {
+    @include btn-accent-style;
 }
-
-.animated-btn.error {
-    background-color: $color-danger-200;
-    gap: 10px;
-
-    .button-spinner, .animated-btn-icon-wrapper, .animated-btn-icon-disabled {
-        display: none;
-    }
-
-    .button-error-icon {
-        display: block;
-    }
-}
-
 
 #floating-save-btn {
-    background-color: $color-success-200;
+    @extend .btn-accent;
     bottom: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: fixed;
     right: 20px;
-    z-index: 100;
-
-    &:hover {
-        background-color: $color-success-100;
-    }
+    z-index: $z-index-fab;
 
     .save-button-tooltip {
-        background-color: $color-grey-900;
+        background-color: $bg-surface-tertiary;
         border-radius: 6px;
         bottom: 125%;
-        color: $color-white;
+        color: $text-primary;
         left: 50%;
         opacity: 0;
         padding: 5px 10px;
@@ -141,7 +209,7 @@
         transition: opacity 0.3s, visibility 0.3s;
         visibility: hidden;
         white-space: nowrap;
-        z-index: 1;
+        z-index: $z-index-base;
         transform: translateX(-50%);
     }
 
@@ -149,47 +217,34 @@
         opacity: 1;
         visibility: visible;
     }
-
-    &.error {
-        background-color: $color-danger-200;
-        .button-error-icon {
-            display: none;
-        }
-    }
 }
 
 #copy-user-id-btn {
-    background-color: $color-success-200;
+    @include btn-accent-style;
     box-shadow: none;
     outline: none;
     -webkit-tap-highlight-color: transparent;
 
     &::-moz-focus-inner {
         border: 0;
-    }
-
-    &:hover {
-        background-color: $color-success-500;
     }
 }
 
 #import-user-data-btn {
-    background-color: $color-warning-200;
+    @include btn-accent-style;
     box-shadow: none;
     outline: none;
     -webkit-tap-highlight-color: transparent;
 
     &::-moz-focus-inner {
         border: 0;
-    }
-
-    &:hover {
-        background-color: $color-warning-500;
     }
 }
 
 .reset-data-button {
-    background-color: $color-danger-200;
+    background-color: $btn-bg-red-soft;
+    color: $btn-color-red;
+    border: 1px solid $btn-border-red;
     box-shadow: none;
     outline: none;
     -webkit-tap-highlight-color: transparent;
@@ -199,12 +254,13 @@
     }
 
     &:hover {
-        background-color: $color-danger-500;
+        background-color: $btn-bg-red-soft-hover;
+        border-color: $btn-border-red-hover;
     }
 }
 
 .transparent-svg-button {
-    background-color: $background-transparent;
+    background-color: transparent;
     border: none;
     cursor: pointer;
     display: none;
@@ -219,10 +275,10 @@
 
 .upgrade-btn {
     @extend %flex-center;
-    background-color: $color-success-300;
-    border: none;
+    background-color: $accent-primary-soft;
+    border: 1px solid $btn-border-blue;
     border-radius: 4px;
-    color: $color-white;
+    color: $accent-primary;
     cursor: pointer;
     font-size: 12px;
     height: 28px;
@@ -235,23 +291,39 @@
         display: block;
         height: 16px;
         width: 16px;
+        fill: currentColor;
+    }
+    
+    &:hover {
+        background-color: $btn-hover-blue-bg;
+        border-color: $btn-border-blue-hover;
     }
 }
 
 .icon-button {
-    background: none;
-    border: none;
+    @extend %flex-center;
+    background-color: $accent-primary-soft;
+    border: 1px solid $border-primary;
+    border-radius: 12px;
+    color: $accent-primary;
     cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
-    transition: background-color 0.2s ease-in-out;
+    height: 36px;
+    padding: 0;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+    width: 36px;
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: $btn-hover-blue-bg;
+        border-color: $accent-primary;
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.95);
     }
 
     svg {
-        fill: $dark-text-primary;
+        fill: currentColor;
         width: 24px;
         height: 24px;
     }
@@ -261,15 +333,16 @@
     padding: 10px 18px;
     font-size: 14px;
     font-weight: 500;
-    color: $dark-text-primary;
-    background-color: $dark-surface-primary;
-    border: 1px solid $dark-border-color;
+    color: $text-secondary;
+    background-color: $bg-surface-tertiary;
+    border: 1px solid $border-primary;
     border-radius: 20px;
     cursor: pointer;
-    transition: background-color 0.15s ease-in-out;
+    transition: background-color 0.15s ease-in-out, color 0.15s;
 
     &:hover {
-        background-color: $dark-surface-secondary;
+        background-color: $btn-bg-grey-soft-hover;
+        color: $text-primary;
     }
 }
 
@@ -277,20 +350,173 @@
     padding: 10px 18px;
     font-size: 14px;
     font-weight: 500;
-    color: $dark-text-primary;
-    background-color: $dark-accent-purple;
-    border: none;
+    color: $accent-primary;
+    background-color: $accent-primary-soft;
+    border: 1px solid $btn-border-blue;
     border-radius: 20px;
     cursor: pointer;
-    transition: background-color 0.15s ease-in-out;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s;
 
     &:hover {
-        background-color: $dark-accent-purple-hover;
+        background-color: $btn-hover-blue-bg;
+        border-color: $btn-border-blue-hover;
     }
 
     &:disabled {
-        background-color: $color-grey-600;
+        background-color: $bg-surface-tertiary;
+        color: $text-muted;
+        border-color: $border-primary;
         cursor: not-allowed;
         opacity: 0.6;
+    }
+}
+
+// Support & Community Button Colors (Soft-Solid Pattern)
+
+.btn-changelog {
+    background-color: $btn-bg-teal-soft;
+    color: $btn-color-teal;
+    border: 1px solid $btn-border-teal;
+    &:hover {
+        background-color: $btn-bg-teal-soft-hover;
+        border-color: $btn-border-teal-hover;
+    }
+}
+
+.btn-github {
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
+    border: 1px solid $border-primary;
+    &:hover {
+        background-color: var(--border-primary);
+        border-color: $btn-border-grey-hover;
+    }
+}
+
+.btn-crowdin {
+    background-color: $btn-bg-green-soft;
+    color: $btn-color-green;
+    border: 1px solid $btn-border-green;
+    &:hover {
+        background-color: $btn-bg-green-soft-hover;
+        border-color: $btn-border-green-hover;
+    }
+}
+
+.btn-bmc {
+    background-color: $btn-bg-amber-soft;
+    color: $btn-color-amber;
+    border: 1px solid $btn-border-amber;
+    &:hover {
+        background-color: $btn-bg-amber-soft-hover;
+        border-color: $btn-border-amber-hover;
+    }
+}
+
+.btn-privacy {
+    background-color: $btn-bg-cyan-soft;
+    color: $btn-color-cyan;
+    border: 1px solid $btn-border-cyan;
+    &:hover {
+        background-color: $btn-bg-cyan-soft-hover;
+        border-color: $btn-border-cyan-hover;
+    }
+}
+
+.btn-terms {
+    background-color: $btn-bg-purple-soft;
+    color: $btn-color-purple;
+    border: 1px solid $btn-border-purple;
+    &:hover {
+        background-color: $btn-bg-purple-soft-hover;
+        border-color: $btn-border-purple-hover;
+    }
+}
+
+.btn-policy {
+    background-color: $btn-bg-red-heavy-soft;
+    color: $btn-color-red-heavy;
+    border: 1px solid $btn-border-red-heavy;
+    &:hover {
+        background-color: $btn-bg-red-heavy-soft-hover;
+        border-color: $btn-border-red-heavy-hover;
+    }
+}
+
+.btn-data-info {
+    background-color: $btn-bg-teal-soft;
+    color: $btn-color-teal;
+    border: 1px solid $btn-border-teal;
+    &:hover {
+        background-color: $btn-bg-teal-soft-hover;
+        border-color: $btn-border-teal-hover;
+    }
+}
+
+.btn-licenses {
+    background-color: $btn-bg-pink-soft;
+    color: $btn-color-pink;
+    border: 1px solid $btn-border-pink;
+    &:hover {
+        background-color: $btn-bg-pink-soft-hover;
+        border-color: $btn-border-pink-hover;
+    }
+}
+
+.btn-download {
+    @include btn-accent-style;
+}
+
+.btn-danger-action {
+    background-color: $btn-bg-red-soft;
+    color: $btn-color-red;
+    border: 1px solid $btn-border-red;
+    &:hover {
+        background-color: $btn-bg-red-soft-hover;
+        border-color: $btn-border-red-hover;
+    }
+}
+
+.btn-version {
+    background-color: $bg-surface-tertiary;
+    color: $text-secondary;
+    border: 1px solid $border-primary;
+    &:hover {
+        background-color: $btn-bg-grey-soft-hover;
+        border-color: $btn-border-grey-hover;
+    }
+}
+
+.btn-bug {
+    background-color: $btn-bg-red-soft;
+    color: $btn-color-red;
+    border: 1px solid $btn-border-red;
+    &:hover {
+        background-color: $btn-bg-red-soft-hover;
+        border-color: $btn-border-red-hover;
+    }
+}
+
+.btn-contact {
+    background-color: $btn-bg-deep-orange-soft;
+    color: $btn-color-deep-orange;
+    border: 1px solid $btn-border-deep-orange;
+    &:hover {
+        background-color: $btn-bg-deep-orange-soft-hover;
+        border-color: $btn-border-deep-orange-hover;
+    }
+}
+
+.btn-pricing {
+    @include btn-accent-style;
+}
+
+.btn-costs {
+    background-color: $btn-bg-emerald-soft;
+    color: $btn-color-emerald;
+    border: 1px solid $btn-border-emerald;
+    &:hover {
+        background-color: $btn-bg-emerald-soft-hover;
+        border-color: $btn-border-emerald-hover;
     }
 }

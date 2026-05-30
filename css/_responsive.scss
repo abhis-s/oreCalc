@@ -39,7 +39,12 @@
     }
 
     .income-summary-title {
-        display: none;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .income-header {
+        padding: 0; 
     }
 
     .main-content {
@@ -75,10 +80,6 @@
 
     #settings-tab .settings-cards-grid {
         grid-template-columns: 1fr;
-    }
-
-    .tab-bar-container {
-        display: none;
     }
 }
 
@@ -172,13 +173,5 @@
         flex-direction: column;
         gap: 20px;
         margin-bottom: 10px;
-    }
-
-    .tab-bar-container {
-        display: flex;
-        flex-grow: 1;
-        gap: 10px;
-        margin: 0 10px;
-        // min-width: 0;
     }
 }

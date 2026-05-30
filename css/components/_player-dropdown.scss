@@ -1,4 +1,5 @@
 @use '../abstracts/variables' as *;
+@use '../base/placeholder';
 
 .player-dropdown-container {
     position: relative;
@@ -14,30 +15,31 @@
     padding: 12px 18px;
     border: none;
     border-radius: 12px;
-    background-color: $dark-surface-primary;
+    background-color: $bg-surface-secondary;
     cursor: pointer;
-    box-shadow: 0 1px 2px $dark-shadow-color;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     transition: all 0.2s ease-in-out;
     font-size: 14px;
-    color: $dark-text-primary;
+    color: $text-primary;
     font-weight: 500;
-    z-index: 201;
+    z-index: #{$z-index-component + 1};
     position: relative;
 
     &:hover {
-        background-color: $dark-surface-secondary;
-        box-shadow: 0 2px 4px $dark-shadow-color;
+        background-color: $bg-surface-tertiary;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
     &.open {
+        background-color: $bg-surface-primary;
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
-        box-shadow: 0 2px 4px $dark-shadow-color;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
     .dropdown-arrow {
         transition: transform 0.2s ease-in-out;
-        fill: $dark-text-primary;
+        fill: $text-primary;
     }
 
     &.open .dropdown-arrow {
@@ -47,16 +49,14 @@
 
 .player-dropdown-list {
     position: absolute;
-    top: calc(100% - 20px);
+    top: calc(100% - 10px);
     left: 0;
     width: 100%;
-    border: none;
-    border-top: 1px solid $dark-border-color;
-    border-radius: 0 0 12px 12px;
-    padding-top: 20px;
-    background-color: $dark-surface-primary;
-    z-index: 199;
-    box-shadow: 0 2px 4px $dark-shadow-color;
+    border-radius: 0 0 16px 16px;
+    padding: 8px;
+    background-color: $bg-surface-primary;
+    z-index: $z-index-component;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     opacity: 0;
     clip-path: inset(0 0 100% 0);
@@ -76,20 +76,31 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 18px;
+    padding: 10px 14px;
+    margin-bottom: 4px;
+    border-radius: 12px;
     cursor: pointer;
     transition: background-color 0.15s ease-in-out;
     font-size: 16px;
-    color: $dark-text-primary;
+    color: $text-primary;
+
+    &:first-child {
+        margin-top: 5px;
+    }
 
     &:hover {
-        background-color: $dark-surface-secondary;
+        background-color: $bg-surface-secondary;
+    }
+
+    &:active {
+        transform: scale(0.98);
+        background-color: $bg-surface-tertiary;
     }
 
     &.active {
-        background-color: rgba(106, 158, 232, 0.2);
-        color: $dark-text-primary;
-        font-weight: 500;
+        background-color: $accent-primary-soft;
+        color: $accent-primary;
+        font-weight: var(--font-weight-bold);
     }
 
     svg {
@@ -112,7 +123,7 @@
 
 .player-tag-text {
     font-size: 12px;
-    color: $dark-text-secondary;
+    color: $text-secondary;
 }
 
 .add-player-button {
@@ -121,42 +132,52 @@
     justify-content: center;
     width: 100%;
     padding: 12px 18px;
-    background-color: $dark-accent-purple;
-    color: $dark-text-primary;
-    border: none;
-    border-radius: 0 0 12px 12px;
+    margin-top: 8px;
+    background-color: $bg-surface-secondary;
+    color: $accent-primary;
+    border: 1px dashed $border-primary;
+    border-radius: 12px;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
-    transition: background-color 0.15s ease-in-out;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
 
     &:hover {
-        background-color: $dark-accent-purple-hover;
+        background-color: $bg-surface-tertiary;
+        border-style: solid;
+        border-color: $accent-primary;
     }
 
     svg {
         margin-right: 8px;
-        fill: $dark-text-primary;
+        fill: currentColor;
     }
 }
 
 .delete-player-button {
-    background: none;
+    @extend %flex-center;
+    background-color: $color-danger-soft;
     border: none;
     cursor: pointer;
     margin-left: auto;
-    padding: 5px;
+    padding: 6px;
     border-radius: 50%;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, transform 0.1s;
+    color: $color-danger;
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: $color-danger-soft-hover;
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(0.9);
     }
 
     svg {
-        fill: $color-danger-300;
-        width: 20px;
-        height: 20px;
+        fill: currentColor;
+        width: 18px;
+        height: 18px;
     }
 
     &:disabled {
@@ -169,15 +190,15 @@
     width: 20px;
     height: 20px;
     margin-right: 8px;
-    fill: $dark-text-secondary;
+    fill: $text-secondary;
 }
 
 .cache-status-icon.cached {
-    fill: $color-success-300;
+    fill: $color-success;
 }
 
 .cache-status-icon.not-cached {
-    fill: $color-danger-300;
+    fill: $color-danger;
 }
 
 #selected-player-name {

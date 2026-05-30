@@ -1,0 +1,158 @@
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.modal {
+    @extend %full-screen-overlay;
+    background-color: var(--bg-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: $z-index-modal;
+
+    &.show {
+        opacity: 1;
+        visibility: visible;
+
+        .modal-content {
+            transform: scale(1);
+        }
+    }
+
+    .modal-content {
+        background-color: $bg-surface-secondary;
+        border-radius: 28px;
+        box-shadow: 0 6px 10px $palette-overlay-dark-10, 0 20px 30px $palette-overlay-dark-10;
+        width: 100%;
+        max-width: 480px;
+        max-height: calc(100vh - 40px);
+        overflow: hidden;
+        transform: scale(0.95);
+        transition: transform 0.2s ease-in-out;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        padding: 24px 24px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid $border-primary;
+        flex-shrink: 0;
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: $text-primary;
+            margin: 0;
+            letter-spacing: 0.01em;
+        }
+    }
+
+    .modal-body {
+        padding: 16px 24px 24px;
+        color: $text-primary;
+        line-height: 1.5;
+        font-size: 1rem;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+
+        p {
+            margin: 0;
+        }
+
+        code.user-id-code {
+            font-family: 'Roboto Mono', monospace;
+            background-color: $palette-overlay-light-10;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            word-break: break-all;
+            display: inline-block;
+            margin: 2px 0;
+            color: $accent-primary;
+        }
+    }
+
+    .modal-info-text {
+        padding: 0 24px;
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: $text-secondary;
+        line-height: 1.4;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: 16px 24px;
+        gap: 12px;
+        background-color: $bg-surface-secondary;
+        flex-shrink: 0;
+    }
+
+    .close-button {
+        @extend %flex-center;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: 12px;
+        color: $text-secondary;
+        cursor: pointer;
+        height: 36px;
+        padding: 0;
+        transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+        width: 36px;
+
+        svg {
+            fill: currentColor;
+            width: 24px;
+            height: 24px;
+        }
+
+        &:hover,
+        &:focus {
+            background-color: $bg-surface-tertiary;
+            border-color: $accent-primary;
+            color: $text-primary;
+            transform: scale(1.05);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
+    // Centered variant for alerts/notices
+    &.modal-centered {
+        .modal-header {
+            justify-content: center;
+            border-bottom: none;
+            padding-bottom: 8px;
+        }
+
+        .modal-body {
+            text-align: center;
+            padding-top: 8px;
+        }
+
+        .modal-actions {
+            justify-content: center;
+            padding-top: 8px;
+            background-color: transparent;
+        }
+    }
+}
+
+#notice-modal {
+    @extend .modal;
+    @extend .modal-centered;
+    z-index: $z-index-modal-top;
+}
+
+#stored-ores-modal {
+    @extend .modal;
+    z-index: $z-index-modal-top;
+}
+

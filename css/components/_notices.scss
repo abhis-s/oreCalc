@@ -2,7 +2,7 @@
 @use '../base/placeholder';
 
 .notice {
-    color: #999;
+    color: $text-secondary;
     font-size: 0.6em;
     padding: 10px;
     text-align: center;
@@ -12,15 +12,16 @@
     }
 
     a {
-        color: #777;
+        color: $text-primary;
         text-decoration: underline;
+        display: inline-block;
     }
 
     &.supercell-notice {
-        border-top: 1px solid #ddd;
-        margin-top: 20px;
+        // border-top: 1px solid var(--border-color);
+        margin-top: 10px;
         a:hover {
-            color: #ddd; // TODO: Use a variable for this color
+            color: var(--accent-primary);
         }
     }
 }
