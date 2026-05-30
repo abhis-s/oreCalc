@@ -570,7 +570,9 @@
         "minValue": "Min: {min}",
         "maxLength": "Max length is {maxLength} digits.",
         "invalidRevert": "Invalid. Reverting to last valid value.",
-        "range": "Range"
+        "range": "Range",
+        "prospectorSameOre": "From and To ores cannot be the same.",
+        "prospectorZeroAmount": "Both Prospector amounts must be greater than 0."
     },
     "errors": {
         "playerTagRequired": "Please enter a player tag.",
@@ -583,8 +585,8 @@
         "verificationFailed": "Verification failed.",
         "tokenRequired": "API Token is required.",
         "atLeastOneOreRequired": "At least one ore amount must be greater than 0.",
-        "prospectorSameOre": "From and To ores cannot be the same.",
-        "prospectorZeroAmount": "Both Prospector amounts must be greater than 0."
+        "unexpectedError": "An unexpected error occurred. Please reload the page.",
+        "errorTitle": "Error"
     },
     "apiErrors": {
         "400": "Incorrect parameters provided.",

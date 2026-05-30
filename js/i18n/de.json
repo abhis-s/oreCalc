@@ -570,7 +570,9 @@
         "minValue": "Min: {min}",
         "maxLength": "Max. Länge beträgt {maxLength} Ziffern.",
         "invalidRevert": "Ungültig. Zurücksetzen auf den letzten gültigen Wert.",
-        "range": "Bereich"
+        "range": "Bereich",
+        "prospectorSameOre": "Ausgangs- und Ziel-Erze dürfen nicht identisch sein.",
+        "prospectorZeroAmount": "Beide Prospektor-Mengen müssen größer als 0 sein."
     },
     "errors": {
         "playerTagRequired": "Bitte gib ein Spielerkürzel ein.",
@@ -583,8 +585,8 @@
         "verificationFailed": "Verifizierung fehlgeschlagen.",
         "tokenRequired": "API-Token ist erforderlich.",
         "atLeastOneOreRequired": "Mindestens eine Erzmenge muss größer als 0 sein.",
-        "prospectorSameOre": "Ausgangs- und Ziel-Erze dürfen nicht identisch sein.",
-        "prospectorZeroAmount": "Beide Prospektor-Mengen müssen größer als 0 sein."
+        "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte lade die Seite neu.",
+        "errorTitle": "Fehler"
     },
     "apiErrors": {
         "400": "Falsche Parameter angegeben.",

@@ -18,6 +18,7 @@ import { formatCurrency } from '../../utils/numberFormatter.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
 
 import { loadTranslations, translate } from '../../i18n/translator.js';
+import { logger } from '../../utils/logger.js';
 
 function populateDropdowns() {
     const languageSelect = dom.appSettings?.languageSelect;
@@ -636,7 +637,7 @@ export function initializeAppSettings() {
         validateDeletePlayerBtn?.addEventListener('click', async () => {
             const tag = deleteTagInput.value.trim();
             if (!tag) {
-                deleteTagError.textContent = "Tag is required";
+                deleteTagError.textContent = translate('errors.playerTagRequired');
                 
                 // Visual Feedback: Shake
                 deleteTagInput.classList.remove('shake');
@@ -684,7 +685,7 @@ export function initializeAppSettings() {
             const tag = deleteTagInput.value.trim();
             const token = deleteTokenInput.value.trim();
             if (!token) {
-                deleteTokenError.textContent = "Token is required";
+                deleteTokenError.textContent = translate('errors.tokenRequired');
                 
                 // Visual Feedback: Shake
                 deleteTokenInput.classList.remove('shake');
@@ -763,7 +764,7 @@ export function initializeAppSettings() {
             let copiedSuccessfully = false;
             let messageKey = '';
             if (!navigator.clipboard || !navigator.clipboard.writeText) {
-                console.warn('Clipboard API not supported');
+                logger.warn('Clipboard API not supported');
             } else {
                 try {
                     await navigator.clipboard.writeText(userIdDisplayLabel.dataset.fullId);
@@ -784,7 +785,7 @@ export function initializeAppSettings() {
                     messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
                     copiedSuccessfully = true;
                 } catch (err) {
-                    console.error('Failed to copy: ', err);
+                    logger.error('Failed to copy: ', err);
                 }
             }
 
@@ -870,7 +871,7 @@ export function initializeAppSettings() {
                         dom.appSettings.qrCopySuccessMessage.classList.remove('hidden');
                     }
                 } catch (err) {
-                    console.error('Failed to copy: ', err);
+                    logger.error('Failed to copy: ', err);
                     await showAlert(translate('alerts.copiedFailed'));
                 }
             });
@@ -920,7 +921,7 @@ export function initializeAppSettings() {
                     }
                 }
             } catch (err) {
-                console.warn('Clipboard read failed or denied');
+                logger.warn('Clipboard read failed or denied');
             }
 
             if (importModalInput) {

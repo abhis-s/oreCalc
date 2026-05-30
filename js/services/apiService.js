@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger.js';
+
 const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
 
 /**
@@ -22,7 +24,7 @@ export async function fetchPlayerData(playerTag) {
 
         return await response.json();
     } catch (error) {
-        console.error("Error fetching player data:", error);
+        logger.error("Error fetching player data:", error);
         throw error;
     }
 }
@@ -44,7 +46,7 @@ export async function fetchRequiredClientVersion() {
         const data = await response.json();
         return data.currentAppVersion;
     } catch (error) {
-        console.error("Error fetching required client version:", error);
+        logger.error("Error fetching required client version:", error);
         throw error;
     }
 }
@@ -74,7 +76,7 @@ export async function saveUserData(userId, data) {
 
         return await response.json();
     } catch (error) {
-        console.error("Error saving user data:", error);
+        logger.error("Error saving user data:", error);
     }
 }
 
@@ -100,7 +102,7 @@ export async function loadUserData(userId) {
 
         return await response.json();
     } catch (error) {
-        console.error("Error loading user data:", error);
+        logger.error("Error loading user data:", error);
         return null;
     }
 }

@@ -940,12 +940,12 @@ export function initializeCreateCustomChipsModalListeners() {
                     const toAmount = parseInt(document.getElementById('custom-chip-prospector-to-amount').value, 10) || 0;
 
                     if (fromOre === toOre) {
-                        await showAlert(translate('errors.prospectorSameOre'));
+                        await showAlert(translate('validation.prospectorSameOre'));
                         return;
                     }
 
                     if (fromAmount <= 0 || toAmount <= 0) {
-                        await showAlert(translate('errors.prospectorZeroAmount'));
+                        await showAlert(translate('validation.prospectorZeroAmount'));
                         return;
                     }
 

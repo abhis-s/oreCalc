@@ -7,6 +7,7 @@ import { checkAppVersion } from './versioning.js';
 import { translate } from '../i18n/translator.js';
 import { showAlert, showConfirm } from '../ui/noticeModal.js';
 import { escapeHTML } from './stringUtils.js';
+import { logger } from './logger.js';
 
 export async function initializeAppData() {
     let userId = localStorage.getItem('oreCalcUserId');
@@ -16,13 +17,13 @@ export async function initializeAppData() {
     }
 
     if (state.uiSettings.cloudSync === false) {
-        console.log("Cloud sync is disabled in settings. Skipping initialization sync.");
+        logger.log("Cloud sync is disabled in settings. Skipping initialization sync.");
         return await checkAppVersion();
     }
 
     const localData = await checkAppVersion();
     if (localData && localData.savedPlayerTags.length === 1 && localData.savedPlayerTags[0] === 'DEFAULT0') {
-        console.log("Skipping cloud sync: Only default player tag exists locally.");
+        logger.log("Skipping cloud sync: Only default player tag exists locally.");
         return localData;
     }
 
@@ -30,7 +31,7 @@ export async function initializeAppData() {
     try {
         cloudData = await loadUserData(userId);
     } catch (error) {
-        console.error('Failed to load data from cloud, falling back to local storage:', error);
+        logger.error('Failed to load data from cloud, falling back to local storage:', error);
     }
 
     if (cloudData && localData) {
@@ -40,42 +41,42 @@ export async function initializeAppData() {
         const timeTolerance = 5 * 1000; 
 
         if (timeDifference < timeTolerance) {
-            console.log("Local and cloud data are within 5 seconds discrepancy. Considering them in sync.");
+            logger.log("Local and cloud data are within 5 seconds discrepancy. Considering them in sync.");
             return localData;
         } else if (cloudTimestamp > localTimestamp) {
             if (await showConfirm(translate('confirms.cloudSync'))) {
-                console.log("User chose to sync. Using cloud data.");
+                logger.log("User chose to sync. Using cloud data.");
                 return cloudData;
             } else {
-                console.log("User chose not to sync. Using local data and pushing to cloud.");
+                logger.log("User chose not to sync. Using local data and pushing to cloud.");
                 if (userId) { 
                     try {
                         await saveUserData(userId, localData);
-                        console.log("Local data pushed to cloud.");
+                        logger.log("Local data pushed to cloud.");
                     } catch (error) {
-                        console.error("Failed to push local data to cloud:", error);
+                        logger.error("Failed to push local data to cloud:", error);
                     }
                 }
                 return localData;
             }
         } else if (localTimestamp > cloudTimestamp) {
-            console.log("Local data is newer. Automatically pushing to cloud.");
+            logger.log("Local data is newer. Automatically pushing to cloud.");
             const userId = localStorage.getItem('oreCalcUserId');
             if (userId) {
                 try {
                     await saveUserData(userId, localData);
-                    console.log("Local data pushed to cloud.");
+                    logger.log("Local data pushed to cloud.");
                 } catch (error) {
-                    console.error("Failed to push local data to cloud:", error);
+                    logger.error("Failed to push local data to cloud:", error);
                 }
             }
             return localData;
         }
     } else if (cloudData) {
-        console.log("Only cloud data found. Using cloud data.");
+        logger.log("Only cloud data found. Using cloud data.");
         return cloudData;
     } else {
-        console.log("Only local data found. Using local data.");
+        logger.log("Only local data found. Using local data.");
         return localData;
     }
 }
@@ -107,7 +108,7 @@ export async function importUserData(importId) {
                 await showAlert(translate('alerts.importNoData'));
             }
         } catch (error) {
-            console.error('Error importing data:', error);
+            logger.error('Error importing data:', error);
             await showAlert(translate('alerts.importFailed', { error: translate(error.message) }));
         }
     } else {
@@ -121,7 +122,7 @@ export async function triggerCloudSave(options = {}) {
     const { silent = false } = options;
 
     if (state.uiSettings.cloudSync === false) {
-        console.log("Cloud sync is disabled in settings. Skipping save.");
+        logger.log("Cloud sync is disabled in settings. Skipping save.");
         return false;
     }
 
@@ -157,7 +158,7 @@ export async function triggerCloudSave(options = {}) {
                     showSaveErrorIndicator();
                     await showAlert(translate('alerts.saveDefaultOnly'));
                 }
-                console.log("Skipping cloud save: Only default player tag exists.");
+                logger.log("Skipping cloud save: Only default player tag exists.");
                 return false;
             }
 
@@ -165,7 +166,7 @@ export async function triggerCloudSave(options = {}) {
             if (!silent) showSaveSuccessIndicator();
             return true;
         } catch (error) {
-            console.error('Failed to save data to cloud:', error);
+            logger.error('Failed to save data to cloud:', error);
             if (!silent) {
                 showSaveErrorIndicator();
                 await showAlert(translate('alerts.saveFailed', { error: translate(error.message) }));

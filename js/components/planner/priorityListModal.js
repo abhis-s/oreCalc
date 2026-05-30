@@ -13,13 +13,14 @@ import { toCamelCase } from '../../utils/stringUtils.js';
 import { addValidation } from '../../utils/inputValidator.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { logger } from '../../utils/logger.js';
 
 let isAutoPlacing = false;
 let autoPlaceTimeoutId = null;
 
 function autoPlaceChipsForDateRange() {
     if (isAutoPlacing) {
-        console.log("Auto-placement is already in progress.");
+        logger.log("Auto-placement is already in progress.");
         return;
     }
 
@@ -38,7 +39,7 @@ function autoPlaceChipsForDateRange() {
             const endTime = new Date();
             const timeTaken = (endTime - startTime) / 1000;
             setTimeout(() => {
-                console.log(`Finished auto-placing chips for all months in the range. Total time: ${timeTaken} seconds.`);
+                logger.log(`Finished auto-placing chips for all months in the range. Total time: ${timeTaken} seconds.`);
             }, 5000);
             handleStateUpdate(() => { }, false);
             return;

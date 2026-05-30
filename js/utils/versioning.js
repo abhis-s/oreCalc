@@ -4,13 +4,14 @@ import { fetchRequiredClientVersion } from '../services/apiService.js';
 import { translate } from '../i18n/translator.js';
 import { compareVersions } from '../core/stateCleanup.js';
 import { showAlert } from '../ui/noticeModal.js';
+import { logger } from './logger.js';
 
 export async function checkAppVersion() {
     let currentAppVersionFromServer = '0.0.0';
     try {
         currentAppVersionFromServer = await fetchRequiredClientVersion();
     } catch (error) {
-        console.error('Error fetching current app version:', error);
+        logger.error('Error fetching current app version:', error);
     }
 
     let savedState = loadState();
@@ -22,13 +23,13 @@ export async function checkAppVersion() {
         const isVeryOld = savedAppVersion === undefined || compareVersions(savedAppVersion, MIN_SUPPORTED_VERSION) < 0;
 
         if (isVeryOld) {
-            console.warn(`Saved data format is too old (${savedAppVersion || 'missing'}). Resetting data without confirmation.`);
+            logger.warn(`Saved data format is too old (${savedAppVersion || 'missing'}). Resetting data without confirmation.`);
             resetState();
             savedState = null;
             await showAlert(translate('alerts.versionOutdatedReset'));
             location.reload();
         } else if (compareVersions(savedAppVersion, currentAppVersionFromServer) < 0) {
-            console.log(`App version update. Migrating from ${savedAppVersion} to ${currentAppVersionFromServer}.`);
+            logger.log(`App version update. Migrating from ${savedAppVersion} to ${currentAppVersionFromServer}.`);
             savedState.appVersion = currentAppVersionFromServer;
         }
     }

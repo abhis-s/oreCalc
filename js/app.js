@@ -43,6 +43,18 @@ import { checkAndGenerateRecurringChips } from './utils/chipManager.js';
 
 import './console.js';
 import './utils/svgManager.js';
+import { logger } from './utils/logger.js';
+
+// Register global error boundaries immediately
+window.addEventListener('error', (event) => {
+    logger.error('Uncaught error:', event.error || event.message);
+    showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    logger.error('Unhandled promise rejection:', event.reason);
+    showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
+});
 import './utils/imageManager.js';
 
 let userId = localStorage.getItem('oreCalcUserId');
@@ -402,7 +414,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                         }
                     } catch (error) {
-                        console.error("Refresh failed:", error);
+                        logger.error("Refresh failed:", error);
                         refreshButton.classList.remove('saving');
                         refreshButton.classList.add('error');
                         setTimeout(() => refreshButton.classList.remove('error'), 3000);
@@ -443,11 +455,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const wb = new workbox.Workbox('/service-worker.js');
 
             wb.addEventListener('waiting', (event) => {
-                console.log('A new version is available. Showing update prompt.');
+                logger.log('A new version is available. Showing update prompt.');
                 import('./components/modals/updateModal.js').then(m => m.showUpdateModal(wb));
             });
 
-            wb.register().catch(err => console.error('SW registration failed:', err));
+            wb.register().catch(err => logger.error('SW registration failed:', err));
     }
 
 
