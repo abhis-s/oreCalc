@@ -1,5 +1,15 @@
 import { dom } from '../../dom/domElements.js';
 
+let currentHeroIndex = 0;
+
+export function getCurrentHeroIndex() {
+    return currentHeroIndex;
+}
+
+export function setCurrentHeroIndex(index) {
+    currentHeroIndex = index;
+}
+
 export function renderHeroPlannerCarouselDisplay(activeIndex) {
     updatePageDots(activeIndex);
 }
@@ -18,7 +28,7 @@ export function updatePageDots(activeIndex) {
     });
 }
 
-export function scrollToHeroPage(index) {
+export function scrollToHeroPage(index, behavior = 'smooth') {
     const carouselContent = dom.planner?.heroCarouselContent;
     if (!carouselContent) return;
 
@@ -29,6 +39,6 @@ export function scrollToHeroPage(index) {
 
     carouselContent.scrollTo({
         left: index * pageOffset,
-        behavior: 'smooth'
+        behavior: behavior
     });
 }

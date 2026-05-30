@@ -1,281 +1,129 @@
-import { currencySymbols, heroData, shopOfferData, eventPassData, leagueTiers } from '../data/appData.js';
+import { currencyData, heroData, shopOfferData, eventPassData, leagueTiers } from '../data/appData.js';
+import { purgeLegacyStateData, normalizeEquipmentState, migrateFullState, migratePlayerState } from './stateCleanup.js';
+import { getISOWeekNumber } from '../utils/dateUtils.js';
 
 export let state = {};
 
-export function getISOWeekNumber(d) {
-    const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+export function getDefaultState() {
+    return {
+        appVersion: '1.0.0',
+        activeTab: 'home-tab',
+        savedPlayerTags: [],
+        allPlayersData: {},
+        playerProfile: null,
 
-    const dayNum = date.getUTCDay() || 7;
-    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+        uiSettings: {
+            currency: {
+                code: 'USD',
+            },
+            theme: 'dark',
+            accentColor: 'blue',
+            language: 'auto',
+            enableLevelInput: false,
+            hideMaxedEquipment: false,
+            hideLockedEquipment: false,
+            cloudSync: true,
+            incomeCard: {
+                timeframe: 'monthly',
+                expanded: true
+            }
+        },
 
-    const isoYear = date.getUTCFullYear();
+        ...getDefaultPlayerStateProperties(),
+        playerSpecificDefaults: initializeDefaultPlayerState(),
 
-    const yearStart = new Date(Date.UTC(isoYear, 0, 1));
-    const yearStartDay = yearStart.getUTCDay() || 7;
-    yearStart.setUTCDate(yearStart.getUTCDate() + 4 - yearStartDay);
-
-    const weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
-
-    return [isoYear, weekNo];
+        derived: {
+            requiredOres: {},
+            incomeSources: {},
+            totalIncome: {},
+            remainingTime: { shiny: 'N/A', glowy: 'N/A', starry: 'N/A' },
+        },
+    };
 }
 
-export function getDefaultState() {
+function getDefaultPlayerStateProperties() {
     const now = new Date();
     const [year, weekNo] = getISOWeekNumber(now);
 
     return {
-        lastPlayerTag: '',
-        savedPlayerTags: [],
-        allPlayersData: {},
-        playerData: null,
-
-        uiSettings: {
-            currency: 'USD',
-            regionalPricingEnabled: false,
-            language: 'auto',
-            incomeTimeframe: 'monthly',
-            incomeCardExpanded: false,
-            activeTab: 'home-tab',
-            enableLevelInput: false,
-            isChipDragging: false,
-            saveError: false,
-        },
-
-        heroes: initializeHeroesState(),
-        storedOres: { shiny: 0, glowy: 0, starry: 0 },
+        heroes: {},
+        storedOres: {},
         income: {
-            starBonus: {
-                league: 105000000,
-                is2xEnabled: false,
-            },
-            shopOffers: {
-                selectedSet: 'none',
-                sets: { TH16_Set: {}, TH15_Set: {} },
-            },
-            raidMedals: { earned: 0, packs: { shiny: 0, glowy: 0, starry: 0 } },
-            gems: { packs: { shiny: 0, glowy: 0, starry: 0 } },
-            eventPass: {
-                type: 'free',
-                equipmentBought: false,
-                claimableMedals: 0,
-                bonusTrackMedals: 0,
-            },
-            eventTrader: { packs: { shiny: 0, glowy: 0, starry: 0 } },
+            shopOffers: { selectedSet: 0, '0': {} },
+            raidMedals: { packs: {} },
+            gems: { packs: {} },
+            eventPass: {},
+            eventTrader: { packs: {} },
             clanWar: {
-                warsPerMonth: 0,
-                winRate: 50,
-                drawRate: 0,
-                oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
+                oresPerAttack: {},
             },
             cwl: {
-                hitsPerSeason: 0,
-                winRate: 50,
-                drawRate: 0,
-                oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
+                oresPerAttack: {},
             },
-            championship: {
-                supercellEvents: false,
-            },
+            supercellEvents: {},
             prospector: {
-                goldPass: false,
                 fromOre: 'shiny',
                 toOre: 'glowy',
-                fromAmount: 0,
             },
+            starBonus: {
+                eventFrequency: 2,
+                eventDuration: 5,
+                thUpgrades: {}
+            }
         },
         planner: {
-            customMaxLevel: {
-                common: 18,
-                epic: 27,
-            },
-            currentHeroIndex: 0,
+            customMaxLevel: {},
             calendar: {
+                settings: {
+                    firstDayOfWeek: 'auto', // 'auto', 'monday', 'sunday'
+                    showChipIcons: true,
+                    autoPlaceScope: 'month' // 'month', 'year'
+                },
                 view: {
                     select: 'monthly',
                     month: `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`,
                     week: `${weekNo}-${year}`,
                 },
                 dates: {},
+                customChips: [], // Chips waiting to be placed
+                customChipData: {}, // Data for chips already on the calendar
+                lastRecurringProcessed: '', // Last month-year recurring chips were generated
+                customChipSettings: {
+                    custom: {},
+                    starBonus: { monthly: false, count: 0, multiplier: '2x' },
+                    shopOffers: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
+                    gemTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
+                    raidMedalTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
+                    eventTrader: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
+                    eventPass: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
+                    clanWar: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
+                    cwl: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
+                    supercellEvents: { globalOverride: false, shiny: 0, glowy: 0, starry: 0 },
+                    prospector: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0 }
+                }
             },
-        },
-        playerSpecificDefaults: {
-            heroes: initializeHeroesState(),
-            storedOres: { shiny: 0, glowy: 0, starry: 0 },
-            income: {
-                starBonus: {
-                    league: 105000000,
-                    is2xEnabled: false,
-                },
-                championship: {
-                    supercellEvents: false,
-                },
-                shopOffers: {
-                    selectedSet: 'none',
-                    sets: { TH16_Set: {}, TH15_Set: {} },
-                },
-                raidMedals: {
-                    earned: 0,
-                    packs: { shiny: 0, glowy: 0, starry: 0 },
-                },
-                gems: { packs: { shiny: 0, glowy: 0, starry: 0 } },
-                eventPass: {
-                    type: 'free',
-                    equipmentBought: false,
-                    claimableMedals: 0,
-                    bonusTrackMedals: 0,
-                },
-                eventTrader: { packs: { shiny: 0, glowy: 0, starry: 0 } },
-                clanWar: {
-                    warsPerMonth: 0,
-                    winRate: 50,
-                    drawRate: 0,
-                    oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
-                },
-                cwl: {
-                    hitsPerSeason: 0,
-                    winRate: 50,
-                    drawRate: 0,
-                    oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
-                },
-                prospector: {
-                    goldPass: false,
-                    fromOre: 'shiny',
-                    toOre: 'glowy',
-                    fromAmount: 0,
-                },
-            },
-            playerData: null,
-            planner: {
-                customMaxLevel: {
-                    common: 18,
-                    epic: 27,
-                },
-                currentHeroIndex: 0,
-                calendar: {
-                    view: {
-                        select: 'monthly',
-                        month: `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`,
-                        week: `${weekNo}-${year}`,
-                    },
-                    dates: {},
-                },
-            },
-            regionalPricingEnabled: false,
-        },
-
-        derived: {
-            requiredOres: { shiny: 0, glowy: 0, starry: 0 },
-            incomeSources: {},
-            totalIncome: { shiny: 0, glowy: 0, starry: 0 },
-            remainingTime: { shiny: 'N/A', glowy: 'N/A', starry: 'N/A' },
         },
     };
 }
 
-function initializeHeroesState() {
-    const heroes = {};
-    for (const heroKey in heroData) {
-        const hero = heroData[heroKey];
-        heroes[hero.name] = {
-            enabled: true,
-            equipment: hero.equipment.reduce((acc, equip) => {
-                acc[equip.name] = {
-                    level: 1,
-                    checked: true,
-                    upgradePlan: {
-                        1: { target: 1, priorityIndex: 0, enabled: false },
-                        2: { target: 1, priorityIndex: 0, enabled: false },
-                        3: { target: 1, priorityIndex: 0, enabled: false },
-                    },
-                };
-                return acc;
-            }, {}),
-        };
-    }
-    return heroes;
+function initializeDefaultPlayerState() {
+    return {
+        ...getDefaultPlayerStateProperties(),
+        playerProfile: null,
+        currency: {
+            code: 'USD',
+            globalPricing: {}
+        },
+    };
 }
 
 export function getDefaultPlayerState() {
-    const now = new Date();
-    const [year, weekNo] = getISOWeekNumber(now);
-
-    return JSON.parse(
-        JSON.stringify({
-            heroes: initializeHeroesState(),
-            storedOres: { shiny: 0, glowy: 0, starry: 0 },
-            income: {
-                starBonus: {
-                    league: 105000000,
-                    is2xEnabled: false,
-                },
-                shopOffers: {
-                    selectedSet: 'none',
-                    sets: { TH16_Set: {}, TH15_Set: {} },
-                },
-                raidMedals: {
-                    earned: 0,
-                    packs: { shiny: 0, glowy: 0, starry: 0 },
-                },
-                gems: { packs: { shiny: 0, glowy: 0, starry: 0 } },
-                eventPass: {
-                    type: 'free',
-                    equipmentBought: false,
-                    claimableMedals: 0,
-                    bonusTrackMedals: 0,
-                },
-                eventTrader: { packs: { shiny: 0, glowy: 0, starry: 0 } },
-                clanWar: {
-                    warsPerMonth: 0,
-                    winRate: 50,
-                    drawRate: 0,
-                    oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
-                },
-                cwl: {
-                    hitsPerSeason: 0,
-                    winRate: 50,
-                    drawRate: 0,
-                    oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
-                },
-                championship: {
-                    supercellEvents: false,
-                },
-                prospector: {
-                    goldPass: false,
-                    fromOre: 'shiny',
-                    toOre: 'glowy',
-                    fromAmount: 0,
-                },
-            },
-            planner: {
-                customMaxLevel: {
-                    common: 18,
-                    epic: 27,
-                },
-                currentHeroIndex: 0,
-                calendar: {
-                    view: {
-                        select: 'monthly',
-                        month: `${String(now.getMonth() + 1).padStart(
-                            2,
-                            '0'
-                        )}-${now.getFullYear()}`,
-                        week: `${weekNo}-${year}`,
-                    },
-                    dates: {},
-                },
-            },
-            playerData: null,
-            regionalPricingEnabled: false,
-        })
-    );
+    return initializeDefaultPlayerState();
 }
 
 export function initializeState(savedState) {
     const defaultState = getDefaultState();
-
     state = { ...defaultState };
-    state.uiSettings.currencySymbol =
-        currencySymbols[state.uiSettings.currency]?.symbol || '';
 
     if (savedState) {
         state.appVersion = savedState.appVersion || defaultState.appVersion;
@@ -284,368 +132,131 @@ export function initializeState(savedState) {
             state.savedPlayerTags = savedState.savedPlayerTags;
         }
 
-        if (!state.lastPlayerTag) {
-            state.lastPlayerTag = 'DEFAULT0';
+        if (state.savedPlayerTags.length === 0) {
+            state.savedPlayerTags = [savedState.lastPlayerTag || 'DEFAULT0'];
         }
+
+        const activePlayerTag = state.savedPlayerTags[0];
 
         if (savedState.allPlayersData) {
             for (const playerTag in savedState.allPlayersData) {
-                if (state.allPlayersData[playerTag]) {
-                    Object.assign(
-                        state.allPlayersData[playerTag].heroes,
-                        savedState.allPlayersData[playerTag].heroes
-                    );
-                    Object.assign(
-                        state.allPlayersData[playerTag].storedOres,
-                        savedState.allPlayersData[playerTag].storedOres
-                    );
-                    Object.assign(
-                        state.allPlayersData[playerTag].income,
-                        savedState.allPlayersData[playerTag].income
-                    );
-                    Object.assign(
-                        state.allPlayersData[playerTag].planner,
-                        savedState.allPlayersData[playerTag].planner
-                    );
-
-                    // Filter out legacy prospector chips since they are now auto-placed
-                    if (state.allPlayersData[playerTag].planner?.calendar?.dates) {
-                        const datesObj = state.allPlayersData[playerTag].planner.calendar.dates;
-                        for (const monthYearKey in datesObj) {
-                            for (const day in datesObj[monthYearKey]) {
-                                datesObj[monthYearKey][day] = datesObj[monthYearKey][day].filter(
-                                    chipId => !chipId.startsWith('prospector-')
-                                );
-                                if (datesObj[monthYearKey][day].length === 0) {
-                                    delete datesObj[monthYearKey][day];
-                                }
-                            }
-                            if (Object.keys(datesObj[monthYearKey]).length === 0) {
-                                delete datesObj[monthYearKey];
-                            }
-                        }
-                    }
-
-                    Object.assign(
-                        state.allPlayersData[playerTag].playerData,
-                        savedState.allPlayersData[playerTag].playerData
-                    );
-                    if (state.allPlayersData[playerTag].income && state.allPlayersData[playerTag].income.prospector) {
-                        delete state.allPlayersData[playerTag].income.prospector.availableDays;
-                    }
-                    if (
-                        savedState.allPlayersData[playerTag]
-                            .regionalPricingEnabled !== undefined
-                    ) {
-                        state.allPlayersData[playerTag].regionalPricingEnabled =
-                            savedState.allPlayersData[
-                                playerTag
-                            ].regionalPricingEnabled;
-                    }
-                    for (const heroKey in heroData) {
-                        const heroName = heroData[heroKey].name;
-                        if (state.allPlayersData[playerTag].heroes[heroName]) {
-                            for (const equip of heroData[heroKey].equipment) {
-                                if (
-                                    !state.allPlayersData[playerTag].heroes[
-                                        heroName
-                                    ].equipment[equip.name]
-                                ) {
-                                    state.allPlayersData[playerTag].heroes[
-                                        heroName
-                                    ].equipment[equip.name] = {
-                                        level: 1,
-                                        checked: true,
-                                        upgradePlan: {
-                                            1: {
-                                                target: 1,
-                                                priorityIndex: 0,
-                                                enabled: false,
-                                            },
-                                            2: {
-                                                target: 1,
-                                                priorityIndex: 0,
-                                                enabled: false,
-                                            },
-                                            3: {
-                                                target: 1,
-                                                priorityIndex: 0,
-                                                enabled: false,
-                                            },
-                                        },
-                                    };
-                                } else if (
-                                    !state.allPlayersData[playerTag].heroes[
-                                        heroName
-                                    ].equipment[equip.name].upgradePlan
-                                ) {
-                                    state.allPlayersData[playerTag].heroes[
-                                        heroName
-                                    ].equipment[equip.name].upgradePlan = {
-                                        1: {
-                                            target: 1,
-                                            priorityIndex: 0,
-                                            enabled: false,
-                                        },
-                                        2: {
-                                            target: 1,
-                                            priorityIndex: 0,
-                                            enabled: false,
-                                        },
-                                        3: {
-                                            target: 1,
-                                            priorityIndex: 0,
-                                            enabled: false,
-                                        },
-                                    };
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    state.allPlayersData[playerTag] =
-                        savedState.allPlayersData[playerTag];
-                    for (const heroKey in heroData) {
-                        const heroName = heroData[heroKey].name;
-                        if (state.allPlayersData[playerTag].heroes[heroName]) {
-                            for (const equip of heroData[heroKey].equipment) {
-                                if (
-                                    !state.allPlayersData[playerTag].heroes[
-                                        heroName
-                                    ].equipment[equip.name]
-                                ) {
-                                    state.allPlayersData[playerTag].heroes[
-                                        heroName
-                                    ].equipment[equip.name] = {
-                                        level: 1,
-                                        checked: true,
-                                        upgradePlan: {
-                                            1: {
-                                                target: 1,
-                                                priorityIndex: 0,
-                                                enabled: false,
-                                            },
-                                            2: {
-                                                target: 1,
-                                                priorityIndex: 0,
-                                                enabled: false,
-                                            },
-                                            3: {
-                                                target: 1,
-                                                priorityIndex: 0,
-                                                enabled: false,
-                                            },
-                                        },
-                                    };
-                                } else if (
-                                    !state.allPlayersData[playerTag].heroes[
-                                        heroName
-                                    ].equipment[equip.name].upgradePlan
-                                ) {
-                                    state.allPlayersData[playerTag].heroes[
-                                        heroName
-                                    ].equipment[equip.name].upgradePlan = {
-                                        1: {
-                                            target: 1,
-                                            priorityIndex: 0,
-                                            enabled: false,
-                                        },
-                                        2: {
-                                            target: 1,
-                                            priorityIndex: 0,
-                                            enabled: false,
-                                        },
-                                        3: {
-                                            target: 1,
-                                            priorityIndex: 0,
-                                            enabled: false,
-                                        },
-                                    };
-                                }
-                            }
-                        }
-                    }
+                const savedPlayerState = savedState.allPlayersData[playerTag];
+                if (!state.allPlayersData[playerTag]) {
+                    state.allPlayersData[playerTag] = initializeDefaultPlayerState();
                 }
+                const playerState = state.allPlayersData[playerTag];
+
+                Object.assign(playerState.heroes, savedPlayerState.heroes || {});
+                Object.assign(playerState.storedOres, savedPlayerState.storedOres || {});
+                Object.assign(playerState.income, savedPlayerState.income || {});
+                Object.assign(playerState.planner, savedPlayerState.planner || {});
+                
+                playerState.playerProfile = savedPlayerState.playerProfile || null;
+
+                migratePlayerState(playerState);
             }
         }
 
+        // Copy top-level properties
+        const preservedKeys = ['derived', 'heroes', 'storedOres', 'income', 'playerData', 'playerProfile', 'allPlayersData', 'planner', 'lastPlayerTag', 'savedPlayerTags', 'uiSettings'];
         for (const key in savedState) {
-            if (
-                key === 'derived' ||
-                key === 'heroes' ||
-                key === 'storedOres' ||
-                key === 'income' ||
-                key === 'playerData' ||
-                key === 'allPlayersData' ||
-                key === 'planner'
-            ) {
-                continue;
+            if (!preservedKeys.includes(key)) {
+                state[key] = savedState[key];
             }
-            Object.assign(state, { [key]: savedState[key] });
         }
 
         state.uiSettings = { ...defaultState.uiSettings, ...(savedState.uiSettings || {}) };
+        
+        // Ensure currency is always an object, not a string (legacy/migration fix)
+        if (typeof state.uiSettings.currency === 'string') {
+            state.uiSettings.currency = { code: state.uiSettings.currency };
+        }
+        
         state.uiSettings.saveError = false;
 
+        migrateFullState(state);
+        ensureStateDefaults(state);
 
-        if (state.activeTab === undefined) {
-            state.activeTab = 'home-tab';
+        if (activePlayerTag && state.allPlayersData[activePlayerTag]) {
+            const activePlayerState = state.allPlayersData[activePlayerTag];
+
+            state.heroes = activePlayerState.heroes;
+            state.storedOres = activePlayerState.storedOres;
+            state.income = activePlayerState.income;
+            state.planner = activePlayerState.planner;
+            state.playerProfile = activePlayerState.playerProfile;
+
+            // Ensure player-specific currency is also an object and sync it to UI settings
+            if (activePlayerState.currency) {
+                if (typeof activePlayerState.currency === 'string') {
+                    activePlayerState.currency = { code: activePlayerState.currency };
+                }
+                state.uiSettings.currency.code = activePlayerState.currency.code || 'USD';
+            }
         }
-        if (state.lastPlayerTag && state.allPlayersData[state.lastPlayerTag]) {
-            const activePlayerData = state.allPlayersData[state.lastPlayerTag];
-            const defaultHeroes = getDefaultState().heroes;
+    }
+}
 
-            for (const heroKey in heroData) {
-                const heroName = heroData[heroKey].name;
+function ensureStateDefaults(s) {
+    const now = new Date();
+    const [year, weekNo] = getISOWeekNumber(now);
+    const defaultMonth = `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+    const defaultWeek = `${weekNo}-${year}`;
 
-                if (!activePlayerData.heroes[heroName]) {
-                    activePlayerData.heroes[heroName] = defaultHeroes[heroName];
-                } else {
-                    for (const equip of heroData[heroKey].equipment) {
-                        if (!activePlayerData.heroes[heroName].equipment[equip.name]) {
-                            activePlayerData.heroes[heroName].equipment[equip.name] = defaultHeroes[heroName].equipment[equip.name];
-                        }
+    if (s.allPlayersData) {
+        for (const tag in s.allPlayersData) {
+            const ps = s.allPlayersData[tag];
+            if (!ps.planner) ps.planner = {};
+            if (!ps.planner.calendar) ps.planner.calendar = {};
+            if (!ps.planner.calendar.settings) {
+                ps.planner.calendar.settings = {
+                    firstDayOfWeek: 'auto',
+                    showChipIcons: true,
+                    autoPlaceScope: 'month'
+                };
+            }
+            if (!ps.planner.calendar.view) ps.planner.calendar.view = {};
+            
+            if (!ps.planner.calendar.view.month) ps.planner.calendar.view.month = defaultMonth;
+            if (!ps.planner.calendar.view.week) ps.planner.calendar.view.week = defaultWeek;
+            if (!ps.planner.calendar.view.select) ps.planner.calendar.view.select = 'monthly';
+            if (!ps.planner.calendar.dates) ps.planner.calendar.dates = {};
+            if (!ps.planner.calendar.customChips) ps.planner.calendar.customChips = [];
+            if (!ps.planner.calendar.customChipData) ps.planner.calendar.customChipData = {};
+            if (!ps.planner.calendar.customChipSettings) {
+                ps.planner.calendar.customChipSettings = {
+                    custom: {},
+                    starBonus: { monthly: false, count: 0, multiplier: '2x' },
+                    shopOffers: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
+                    gemTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
+                    raidMedalTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
+                    eventTrader: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
+                    eventPass: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
+                    clanWar: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
+                    cwl: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
+                    supercellEvents: { globalOverride: false, shiny: 0, glowy: 0, starry: 0 },
+                    prospector: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0 }
+                };
+            } else {
+                const defaultSettings = {
+                    custom: {},
+                    starBonus: { monthly: false, count: 0, multiplier: '2x' },
+                    shopOffers: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
+                    gemTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
+                    raidMedalTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
+                    eventTrader: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
+                    eventPass: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
+                    clanWar: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
+                    cwl: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
+                    supercellEvents: { globalOverride: false, shiny: 0, glowy: 0, starry: 0 },
+                    prospector: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0 }
+                };
+                for (const key in defaultSettings) {
+                    if (!ps.planner.calendar.customChipSettings[key]) {
+                        ps.planner.calendar.customChipSettings[key] = { ...defaultSettings[key] };
                     }
                 }
             }
-
-            for (const heroKey in heroData) {
-                const heroName = heroData[heroKey].name;
-                const defaultHero = defaultHeroes[heroName];
-
-                if (state.heroes[heroName]) {
-                    const savedHero = activePlayerData.heroes?.[heroName];
-                    if (savedHero) {
-                        Object.assign(state.heroes[heroName], savedHero);
-                        for (const equipKey in defaultHero.equipment) {
-                            const savedEquip = savedHero.equipment?.[equipKey];
-                            if (savedEquip) {
-                                Object.assign(
-                                    state.heroes[heroName].equipment[equipKey],
-                                    savedEquip
-                                );
-                                if (
-                                    !state.heroes[heroName].equipment[equipKey]
-                                        .upgradePlan
-                                ) {
-                                    state.heroes[heroName].equipment[
-                                        equipKey
-                                    ].upgradePlan = {
-                                        1: {
-                                            target: 1,
-                                            priorityIndex: 0,
-                                            enabled: false,
-                                        },
-                                        2: {
-                                            target: 1,
-                                            priorityIndex: 0,
-                                            enabled: false,
-                                        },
-                                        3: {
-                                            target: 1,
-                                            priorityIndex: 0,
-                                            enabled: false,
-                                        },
-                                    };
-                                } else if (
-                                    savedEquip.upgradePlan &&
-                                    Object.keys(savedEquip.upgradePlan)
-                                        .length === 0
-                                ) {
-                                    state.heroes[heroName].equipment[
-                                        equipKey
-                                    ].upgradePlan =
-                                        defaultHero.equipment[
-                                            equipKey
-                                        ].upgradePlan;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            Object.assign(state.storedOres, activePlayerData.storedOres);
-            Object.assign(
-                state.income,
-                getDefaultState().income,
-                activePlayerData.income
-            );
-
-            const leagueExists = leagueTiers.items.some(l => l.id === state.income.starBonus.league);
-            if (!leagueExists) {
-                state.income.starBonus.league = 105000000; // Unranked
-            }
-            if (!state.income.championship) {
-                state.income.championship = getDefaultState().income.championship;
-            }
-            state.income.prospector = { ...getDefaultState().income.prospector, ...state.income.prospector };
-            Object.assign(
-                state.planner,
-                getDefaultState().planner,
-                activePlayerData.planner
-            );
-
-            if (!Array.isArray(state.planner.priorityList)) {
-                state.planner.priorityList = [];
-            }
-
-            const now = new Date();
-            let [currentMonth, currentYear] = [now.getMonth() + 1, now.getFullYear()];
-
-            if (
-                !state.planner.calendar.view.month ||
-                typeof state.planner.calendar.view.month !== 'string' ||
-                !state.planner.calendar.view.month.includes('-')
-            ) {
-                state.planner.calendar.view.month = `${String(currentMonth).padStart(2, '0')}-${currentYear}`;
-            }
-
-            let [month, year] = state.planner.calendar.view.month.split('-').map(Number);
-
-            if (year < 2026 || (year === 2026 && month < 3)) {
-                if (currentYear > 2026 || (currentYear === 2026 && currentMonth >= 3)) {
-                    state.planner.calendar.view.month = `${String(currentMonth).padStart(2, '0')}-${currentYear}`;
-                } else {
-                    state.planner.calendar.view.month = '03-2026';
-                }
-            }
-
-            if (state.planner.calendar.dates) {
-                for (const monthYearKey in state.planner.calendar.dates) {
-                    const [month, year] = monthYearKey.split('-').map(Number);
-                    if (year < 2026 || (year === 2026 && month < 3)) {
-                        delete state.planner.calendar.dates[monthYearKey];
-                    } else {
-                        // Filter out legacy prospector chips since they are now auto-placed
-                        for (const day in state.planner.calendar.dates[monthYearKey]) {
-                            state.planner.calendar.dates[monthYearKey][day] = state.planner.calendar.dates[monthYearKey][day].filter(
-                                chipId => !chipId.startsWith('prospector-')
-                            );
-                            if (state.planner.calendar.dates[monthYearKey][day].length === 0) {
-                                delete state.planner.calendar.dates[monthYearKey][day];
-                            }
-                        }
-                        if (Object.keys(state.planner.calendar.dates[monthYearKey]).length === 0) {
-                            delete state.planner.calendar.dates[monthYearKey];
-                        }
-                    }
-                }
-            }
-
-            if (!state.planner.calendar.dates) {
-                state.planner.calendar.dates = {};
-            }
-
-            if (!shopOfferData[state.income.shopOffers.selectedSet]) {
-                state.income.shopOffers.selectedSet = 'none';
-            }
-            if (!eventPassData[state.income.eventPass.type]) {
-                state.income.eventPass.type = 'free';
-            }
-            state.playerData = activePlayerData.playerData;
-            state.uiSettings.regionalPricingEnabled =
-                activePlayerData.regionalPricingEnabled;
         }
     }
 }

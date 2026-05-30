@@ -1,16 +1,16 @@
 import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
+import { renderApp } from '../../core/renderer.js';
 import { state } from '../../core/state.js';
 
 function toggleNavigationDrawer() {
     dom.drawer.drawer.classList.toggle('open');
-    dom.drawer.overlay.classList.toggle('open');
+    dom.drawer.overlay.classList.toggle('show');
     document.body.classList.toggle('open-drawer');
 }
 
 function closeNavigationDrawer() {
     dom.drawer.drawer.classList.remove('open');
-    dom.drawer.overlay.classList.remove('open');
+    dom.drawer.overlay.classList.remove('show');
     document.body.classList.remove('open-drawer');
 }
 
@@ -33,9 +33,9 @@ export function initializeNavigation() {
             const tab = event.target.closest('.navigation-drawer__tab');
             if (tab) {
                 const tabId = `${tab.dataset.tab}-tab`;
-                handleStateUpdate(() => {
-                    state.activeTab = tabId;
-                });
+                history.pushState(null, '', `#${tab.dataset.tab}`);
+                state.activeTab = tabId;
+                renderApp(state);
                 closeNavigationDrawer();
             }
         });

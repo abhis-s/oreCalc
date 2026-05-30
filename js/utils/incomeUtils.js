@@ -1,4 +1,40 @@
+import { state } from "../core/state.js";
+import { currencyData, priceTierRegistry } from "../data/appData.js";
 import { DAYS_IN_WEEK, DAYS_IN_MONTH, WEEKS_IN_MONTH, MONTHS_IN_BIMONTH } from "../data/timeConstants.js";
+
+export function getPriceForTier(tierKey, targetCurrencyCode) {
+    if (!tierKey) return 0;
+    
+    const selectedCurrency = targetCurrencyCode || state.uiSettings.currency.code;
+    const activeTag = state.savedPlayerTags[0];
+    const playerState = state.allPlayersData[activeTag];
+    
+    // 1. Check Custom Pricing first
+    if (playerState?.currency?.globalPricing?.[selectedCurrency]) {
+        const customPricing = playerState.currency.globalPricing[selectedCurrency];
+        if (customPricing[tierKey] !== undefined) {
+            return parseFloat(customPricing[tierKey]);
+        }
+    }
+    
+    // 2. Default pricing from registry
+    const tierData = priceTierRegistry[tierKey];
+    if (tierData && tierData[selectedCurrency] !== undefined) {
+        return tierData[selectedCurrency];
+    }
+    
+    // 3. Fallback to USD price from registry
+    if (tierData && tierData.USD !== undefined) {
+        return tierData.USD;
+    }
+    
+    return 0;
+}
+
+export function getCurrencySymbol() {
+    const selectedCurrency = state.uiSettings.currency.code;
+    return currencyData[selectedCurrency]?.symbol || '$';
+}
 
 function calculateTimeframeBreakdown(monthlyOres, additionalData = {}) {
     const daily = {
@@ -20,15 +56,16 @@ function calculateTimeframeBreakdown(monthlyOres, additionalData = {}) {
 }
 
 export function calculateWarIncome(winRate, drawRate, oresPerAttack, attacksPerEvent, eventsPerMonth) {
-    const winFactor = winRate / 100;
-    const drawFactor = (drawRate / 100) * 0.75;
-    const lossFactor = ((100 - winRate - drawRate) / 100) * 0.5;
+    const effectiveWinRate = winRate ?? 50;
+    const winFactor = effectiveWinRate / 100;
+    const drawFactor = ((drawRate || 0) / 100) * 0.75;
+    const lossFactor = ((100 - effectiveWinRate - (drawRate || 0)) / 100) * 0.5;
     const totalFactor = winFactor + drawFactor + lossFactor;
 
     const avgOresPerEvent = {
-        shiny: attacksPerEvent * oresPerAttack.shiny * totalFactor,
-        glowy: attacksPerEvent * oresPerAttack.glowy * totalFactor,
-        starry: attacksPerEvent * oresPerAttack.starry * totalFactor,
+        shiny: attacksPerEvent * (oresPerAttack?.shiny || 0) * totalFactor,
+        glowy: attacksPerEvent * (oresPerAttack?.glowy || 0) * totalFactor,
+        starry: attacksPerEvent * (oresPerAttack?.starry || 0) * totalFactor,
     };
     const monthlyOres = {
         shiny: eventsPerMonth * avgOresPerEvent.shiny,
@@ -57,14 +94,14 @@ export function calculateBimonthlyIncome(bimonthlyOres) {
 }
 
 export function adjustWarRates(winRate, drawRate, changedRate) {
-    let adjustedWinRate = winRate;
-    let adjustedDrawRate = drawRate;
-    const totalRates = winRate + drawRate;
+    let adjustedWinRate = winRate ?? 50;
+    let adjustedDrawRate = drawRate || 0;
+    const totalRates = (winRate ?? 50) + (drawRate || 0);
 
     if (totalRates > 100) {
         const excess = totalRates - 100;
         if (changedRate === 'win') {
-            adjustedDrawRate = Math.max(0, drawRate - excess);
+            adjustedDrawRate = Math.max(0, (drawRate || 0) - excess);
         } else {
             adjustedWinRate = Math.max(0, winRate - excess);
         }

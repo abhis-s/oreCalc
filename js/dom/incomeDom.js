@@ -1,80 +1,12 @@
 export function getIncomeDOMElements() {
     return {
-        allIncomeCards: document.querySelectorAll('.income-card'),
         home: {
             incomeCard: {
                 container: document.getElementById('home-ore-income-card'),
                 timeframe: document.getElementById('home-income-timeframe-select'),
-                header: {
-                    container: document.querySelector('.income-header'),
-                    shiny: document.getElementById('home-table-header-ore-display-shiny'),
-                    glowy: document.getElementById('home-table-header-ore-display-glowy'),
-                    starry: document.getElementById('home-table-header-ore-display-starry'),
-                },
                 tableContainer: document.querySelector('.income-content'),
-                tableExpanderBtn: document.getElementById('toggle-income-btn'),
                 table: {
-                    starBonus: {
-                        shiny: document.getElementById('home-income-table-star-bonus-shiny'),
-                        glowy: document.getElementById('home-income-table-star-bonus-glowy'),
-                        starry: document.getElementById('home-income-table-star-bonus-starry'),
-                        resource: document.getElementById('home-star-bonus-resource'),
-                        icon: document.getElementById('home-display-league-icon'),
-                    },
-                    clanWar: {
-                        shiny: document.getElementById('home-income-table-clan-war-shiny'),
-                        glowy: document.getElementById('home-income-table-clan-war-glowy'),
-                        starry: document.getElementById('home-income-table-clan-war-starry'),
-                        resource: document.getElementById('home-clan-war-resource'),
-                    },
-                    cwl: {
-                        shiny: document.getElementById('home-income-table-cwl-shiny'),
-                        glowy: document.getElementById('home-income-table-cwl-glowy'),
-                        starry: document.getElementById('home-income-table-cwl-starry'),
-                        resource: document.getElementById('home-cwl-resource'),
-                    },
-                    raidMedal: {
-                        shiny: document.getElementById('home-income-table-raid-medal-shiny'),
-                        glowy: document.getElementById('home-income-table-raid-medal-glowy'),
-                        starry: document.getElementById('home-income-table-raid-medal-starry'),
-                        resource: document.getElementById('home-raid-medal-resource'),
-                    },
-                    gem: {
-                        shiny: document.getElementById('home-income-table-gem-shiny'),
-                        glowy: document.getElementById('home-income-table-gem-glowy'),
-                        starry: document.getElementById('home-income-table-gem-starry'),
-                        resource: document.getElementById('home-gem-resource'),
-                    },
-                    eventPass: {
-                        shiny: document.getElementById('home-income-table-event-pass-shiny'),
-                        glowy: document.getElementById('home-income-table-event-pass-glowy'),
-                        starry: document.getElementById('home-income-table-event-pass-starry'),
-                        resource: document.getElementById('home-event-pass-resource'),
-                    },
-                    eventTrader: {
-                        shiny: document.getElementById('home-income-table-event-trader-shiny'),
-                        glowy: document.getElementById('home-income-table-event-trader-glowy'),
-                        starry: document.getElementById('home-income-table-event-trader-starry'),
-                        resource: document.getElementById('home-event-trader-resource'),
-                    },
-                    shopOffer: {
-                        shiny: document.getElementById('home-income-table-shop-offer-shiny'),
-                        glowy: document.getElementById('home-income-table-shop-offer-glowy'),
-                        starry: document.getElementById('home-income-table-shop-offer-starry'),
-                        resource: document.getElementById('home-shop-offer-resource'),
-                    },
-                    championship: {
-                        shiny: document.getElementById('home-income-table-championship-shiny'),
-                        glowy: document.getElementById('home-income-table-championship-glowy'),
-                        starry: document.getElementById('home-income-table-championship-starry'),
-                        resource: document.getElementById('home-championship-resource'),
-                    },
-                    prospector: {
-                        shiny: document.getElementById('home-income-table-prospector-shiny'),
-                        glowy: document.getElementById('home-income-table-prospector-glowy'),
-                        starry: document.getElementById('home-income-table-prospector-starry'),
-                        resource: document.getElementById('home-prospector-resource'),
-                    },
+                    body: document.getElementById('home-income-table-body'),
                     totalRow: {
                         shiny: document.getElementById('home-income-table-total-shiny'),
                         glowy: document.getElementById('home-income-table-total-glowy'),
@@ -126,9 +58,15 @@ export function getIncomeDOMElements() {
         },
         starBonus: {
             league: document.getElementById('inc-star-bonus-league-select'),
-            is2xEnabled: document.getElementById('inc-star-bonus-2x-toggle'),
-            display: {
-                daily: {
+            openMultiplierBtn: document.getElementById('open-star-bonus-multiplier-btn'),
+            multiplierModal: document.getElementById('star-bonus-multiplier-modal'),
+            closeMultiplierHeaderBtn: document.getElementById('close-star-bonus-multiplier-modal-btn'),
+            closeMultiplierFooterBtn: document.getElementById('close-star-bonus-multiplier-footer-btn'),
+            frequencyInput: document.getElementById('inc-star-bonus-2x-frequency-input'),
+            durationInput: document.getElementById('inc-star-bonus-2x-duration-input'),
+            lastEventSelect: document.getElementById('inc-star-bonus-2x-last-event-select'),
+            thPlanningSection: document.getElementById('th-planning-section'),
+            display: {                daily: {
                     shiny: document.getElementById('inc-star-bonus-shiny-daily-value'),
                     glowy: document.getElementById('inc-star-bonus-glowy-daily-value'),
                     starry: document.getElementById('inc-star-bonus-starry-daily-value'),
@@ -141,16 +79,16 @@ export function getIncomeDOMElements() {
             },
         },
         shopOffers: {
-            dropdown: document.getElementById('inc-shop-offer-select'),
-            checkboxes: document.getElementById('inc-shop-offer-checkboxes'),
+            dropdown: document.getElementById('inc-shop-offers-select'),
+            checkboxes: document.getElementById('inc-shop-offers-checkboxes'),
             display: {
-                eur: document.getElementById('inc-shop-offer-eur-monthly-value'),
-                usd: document.getElementById('inc-shop-offer-usd-monthly-value'),
-                dynamic: document.getElementById('inc-shop-offer-dynamic-monthly-value'),
-                dynamicCurrencySymbol: document.getElementById('inc-shop-offer-dynamic-currency-symbol'),
-                shiny: document.getElementById('inc-shop-offer-shiny-monthly-value'),
-                glowy: document.getElementById('inc-shop-offer-glowy-monthly-value'),
-                starry: document.getElementById('inc-shop-offer-starry-monthly-value'),
+                eur: document.getElementById('inc-shop-offers-eur-monthly-value'),
+                usd: document.getElementById('inc-shop-offers-usd-monthly-value'),
+                dynamic: document.getElementById('inc-shop-offers-dynamic-monthly-value'),
+                dynamicCurrencySymbol: document.getElementById('inc-shop-offers-dynamic-currency-symbol'),
+                shiny: document.getElementById('inc-shop-offers-shiny-monthly-value'),
+                glowy: document.getElementById('inc-shop-offers-glowy-monthly-value'),
+                starry: document.getElementById('inc-shop-offers-starry-monthly-value'),
             }
         },
         raids: {
@@ -186,8 +124,8 @@ export function getIncomeDOMElements() {
             },
         },
         eventPass: {
-            passType: document.getElementById('inc-event-pass-select'),
-            equipmentBought: document.getElementById('inc-event-equipment-bought-select'),
+            passToggle: document.getElementById('inc-event-pass-toggle'),
+            includeEquipment: document.getElementById('inc-event-include-equipment-toggle'),
             claimableMedals: document.getElementById('inc-claimable-medals-input'),
             bonusTrackMedals: document.getElementById('inc-bonus-track-medals-input'),
             display: {
@@ -275,18 +213,18 @@ export function getIncomeDOMElements() {
                 }
             }
         },
-        championship: {
-            supercellEvents: document.getElementById('inc-championship-supercell-events-select'),
+        supercellEvents: {
+            worldChampionship: document.getElementById('inc-supercell-events-world-championship-select'),
             display: {
                 perEvent: {
-                    shiny: document.getElementById('inc-championship-shiny-perEvent-value'),
-                    glowy: document.getElementById('inc-championship-glowy-perEvent-value'),
-                    starry: document.getElementById('inc-championship-starry-perEvent-value'),
+                    shiny: document.getElementById('inc-supercell-events-shiny-perEvent-value'),
+                    glowy: document.getElementById('inc-supercell-events-glowy-perEvent-value'),
+                    starry: document.getElementById('inc-supercell-events-starry-perEvent-value'),
                 },
                 monthly: {
-                    shiny: document.getElementById('inc-championship-shiny-monthly-value'),
-                    glowy: document.getElementById('inc-championship-glowy-monthly-value'),
-                    starry: document.getElementById('inc-championship-starry-monthly-value'),
+                    shiny: document.getElementById('inc-supercell-events-shiny-monthly-value'),
+                    glowy: document.getElementById('inc-supercell-events-glowy-monthly-value'),
+                    starry: document.getElementById('inc-supercell-events-starry-monthly-value'),
                 }
             }
         },
@@ -311,7 +249,7 @@ export function getIncomeDOMElements() {
             },
             tip: {
                 container: document.getElementById('inc-prospector-tip-container'),
-                emoji: document.getElementById('inc-prospector-tip-emoji'),
+                icon: document.getElementById('inc-prospector-tip-icon'),
                 text: document.getElementById('inc-prospector-tip-text'),
             }
         }

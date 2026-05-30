@@ -1,8 +1,11 @@
 import { heroData } from '../../data/heroData.js';
 import { state } from '../../core/state.js';
-import { openPriorityListModal, getGlobalPriorityList } from './priorityListModal.js';
+import { openPriorityListModal, getGlobalPriorityList, getStepOrderErrors } from './priorityListModal.js';
 import { translate } from '../../i18n/translator.js';
 import { formatDate } from '../../utils/dateFormatter.js';
+import { getSVG } from '../../utils/svgManager.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { createHeroIcon } from '../common/heroDisplayFactory.js';
 
 export function initializePriorityList() {
     const priorityListCard = document.getElementById('priority-list-card');
@@ -14,12 +17,12 @@ export function initializePriorityList() {
     header.classList.add('priority-list-header');
 
     const title = document.createElement('h3');
-    title.textContent = translate('priority_list');
+    title.textContent = translate('planner.priorityList');
     header.appendChild(title);
 
     const editButton = document.createElement('button');
     editButton.classList.add('edit-priority-list-btn');
-    editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`;
+    editButton.innerHTML = getSVG('edit', '', 24, 24, 'currentColor');
     editButton.addEventListener('click', () => {
         openPriorityListModal(); 
     });
@@ -42,23 +45,32 @@ export function initializePriorityList() {
         return;
     }
 
+    const { errorItems } = getStepOrderErrors(globalPriorityList);
+
     const visiblePriorityList = globalPriorityList.filter(item => {
         const currentLevel = state.heroes[item.heroName]?.equipment[item.name]?.level || 1;
         return item.targetLevel > currentLevel;
     });
 
-    let priorityListToDisplay = visiblePriorityList;
-    // priorityListToDisplay = visiblePriorityList.slice(0, 4);
-
-    if (priorityListToDisplay.length === 0) {
+    if (visiblePriorityList.length === 0) {
         const placeholder = document.createElement('p');
         placeholder.classList.add('placeholder-text');
-        placeholder.textContent = translate('no_priority_items');
+        placeholder.textContent = translate('planner.noPriorityItems');
         priorityListContainer.appendChild(placeholder);
         return;
     }
 
-    priorityListToDisplay.forEach(item => {
+    let firstErrorIndex = -1;
+    visiblePriorityList.forEach((item, index) => {
+        const itemKey = `${item.name}-${item.step}`;
+        if ((item.error || errorItems.has(itemKey)) && firstErrorIndex === -1) {
+            firstErrorIndex = index;
+        }
+    });
+
+    const itemsToShow = firstErrorIndex === -1 ? visiblePriorityList : visiblePriorityList.slice(0, firstErrorIndex);
+
+    itemsToShow.forEach(item => {
         const listItem = document.createElement('div');
         listItem.classList.add('priority-list-item');
 
@@ -68,10 +80,11 @@ export function initializePriorityList() {
         const imageContainer = document.createElement('div');
         imageContainer.classList.add('equipment-image-container');
 
-        const equipmentImage = document.createElement('img');
-        equipmentImage.src = item.image;
-        equipmentImage.alt = translate(item.name.toLowerCase().replace(/\s/g, '_'));
-        equipmentImage.classList.add('equipment-image');
+        const equipmentImage = document.createElement('orecalc-assets-image');
+        equipmentImage.setAttribute('src', item.image);
+        equipmentImage.setAttribute('alt', translate('equipment.' + toCamelCase(item.name)));
+        equipmentImage.setAttribute('class', 'equipment-image');
+        equipmentImage.setAttribute('size', 'thumbnail');
 
         const levelBox = document.createElement('div');
         levelBox.classList.add('equipment-level-box');
@@ -81,15 +94,18 @@ export function initializePriorityList() {
         imageContainer.appendChild(levelBox);
 
         const equipmentName = document.createElement('span');
-        equipmentName.textContent = translate('equipment_name_step', { equipmentName: translate(item.name.toLowerCase().replace(/\s/g, '_')), step: item.step });
+        equipmentName.textContent = translate('planner.nameStep', { equipmentName: translate('equipment.' + toCamelCase(item.name)), step: item.step });
 
-        const completionDateText = item.completionDate ?
-            formatDate(item.completionDate, { month: 'short', day: 'numeric' }) :
-            translate('not_enough_income');
+        let completionDateText;
+        if (item.completionDate) {
+            completionDateText = `${translate('planner.completeByColon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric' })}`;
+        } else {
+            completionDateText = translate('planner.notEnoughIncome');
+        }
 
         const completionDateElement = document.createElement('div');
         completionDateElement.classList.add('priority-item-date');
-        completionDateElement.textContent = `${translate('complete_by_colon')} ${completionDateText}`;
+        completionDateElement.textContent = completionDateText;
         
         const itemTextContent = document.createElement('div');
         itemTextContent.classList.add('item-text-content');
@@ -100,4 +116,15 @@ export function initializePriorityList() {
         listItem.appendChild(equipmentInfo);
         priorityListContainer.appendChild(listItem);
     });
+
+    if (firstErrorIndex !== -1) {
+        const separator = document.createElement('div');
+        separator.className = 'priority-error-truncated-separator';
+        priorityListContainer.appendChild(separator);
+
+        const errorMsg = document.createElement('p');
+        errorMsg.className = 'priority-error-truncated-msg';
+        errorMsg.innerHTML = `${getSVG('error', '', 18, 18, 'currentColor')} <span>${translate('planner.resolveErrorsToViewPlan')}</span>`;
+        priorityListContainer.appendChild(errorMsg);
+    }
 }

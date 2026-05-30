@@ -1,14 +1,23 @@
 import { dom } from '../dom/domElements.js';
 import { state } from '../core/state.js';
+import { saveState } from '../core/localStorageManager.js';
 import { loadUserData, saveUserData } from '../services/apiService.js';
 import { generateUUID } from './uuidGenerator.js';
 import { checkAppVersion } from './versioning.js';
+import { translate } from '../i18n/translator.js';
+import { showAlert, showConfirm } from '../ui/noticeModal.js';
+import { escapeHTML } from './stringUtils.js';
 
 export async function initializeAppData() {
     let userId = localStorage.getItem('oreCalcUserId');
     if (!userId) {
         userId = generateUUID();
         localStorage.setItem('oreCalcUserId', userId);
+    }
+
+    if (state.uiSettings.cloudSync === false) {
+        console.log("Cloud sync is disabled in settings. Skipping initialization sync.");
+        return await checkAppVersion();
     }
 
     const localData = await checkAppVersion();
@@ -34,7 +43,7 @@ export async function initializeAppData() {
             console.log("Local and cloud data are within 5 seconds discrepancy. Considering them in sync.");
             return localData;
         } else if (cloudTimestamp > localTimestamp) {
-            if (confirm("Newer data is available on the cloud. Do you want to sync?")) {
+            if (await showConfirm(translate('confirms.cloudSync'))) {
                 console.log("User chose to sync. Using cloud data.");
                 return cloudData;
             } else {
@@ -71,59 +80,72 @@ export async function initializeAppData() {
     }
 }
 
-function escapeForDialog(str) {
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
 export async function importUserData(importId) {
     if (importId) {
-        const safeImportId = escapeForDialog(importId);
-        if (confirm(`Are you sure you want to import data for User ID: ${safeImportId}? This will overwrite your current data.`)) {
-            try {
-                const importedData = await loadUserData(importId);
-                if (importedData) {
-                    localStorage.setItem('oreCalculatorState', JSON.stringify(importedData));
-                    localStorage.setItem('oreCalcUserId', importId);
-                    alert('Data imported successfully! Reloading app...');
-                    location.reload();
-                } else {
-                    alert('No data found for that User ID.');
-                }
-            } catch (error) {
-                console.error('Error importing data:', error);
-                alert('Failed to import data. Please check the User ID and try again.');
+        const currentUserId = localStorage.getItem('oreCalcUserId');
+        const safeImportId = escapeHTML(importId);
+        const userIdHtml = `<code class="user-id-code">${safeImportId}</code>`;
+
+        if (importId === currentUserId) {
+            if (!(await showConfirm(translate('confirms.importSameId', { userId: userIdHtml }), 'status.notice', 'actions.loadAnyway'))) {
+                return;
+            }
+        } else {
+            if (!(await showConfirm(translate('confirms.importOverwrite', { userId: userIdHtml })))) {
+                return;
             }
         }
+
+        try {
+            const importedData = await loadUserData(importId);
+            if (importedData) {
+                localStorage.setItem('oreCalculatorState', JSON.stringify(importedData));
+                localStorage.setItem('oreCalcUserId', importId);
+                await showAlert(translate('alerts.importSuccess'));
+                location.reload();
+            } else {
+                await showAlert(translate('alerts.importNoData'));
+            }
+        } catch (error) {
+            console.error('Error importing data:', error);
+            await showAlert(translate('alerts.importFailed', { error: translate(error.message) }));
+        }
     } else {
-        alert('Please enter a User ID to import.');
+        await showAlert(translate('alerts.importEmpty'));
     }
 }
 
-export async function triggerCloudSave() {
+import { showSavingIndicator, showSaveSuccessIndicator, showSaveErrorIndicator } from '../ui/savingIndicator.js';
+
+export async function triggerCloudSave(options = {}) {
+    const { silent = false } = options;
+
+    if (state.uiSettings.cloudSync === false) {
+        console.log("Cloud sync is disabled in settings. Skipping save.");
+        return false;
+    }
+
     const currentUserId = localStorage.getItem('oreCalcUserId');
     if (currentUserId) {
+        if (!silent) showSavingIndicator();
         try {            
-            const currentPlayerTag = state.lastPlayerTag;
+            const currentPlayerTag = state.savedPlayerTags[0];
             if (currentPlayerTag) {
                 state.allPlayersData[currentPlayerTag] = {
                     heroes: state.heroes,
                     storedOres: state.storedOres,
                     income: state.income,
                     planner: state.planner,
-                    playerData: state.playerData,
-                    regionalPricingEnabled: state.uiSettings.regionalPricingEnabled,
-                    currency: state.uiSettings.currency,
+                    playerProfile: state.playerProfile,
+                    currency: {
+                        code: state.uiSettings.currency.code,
+                        globalPricing: state.allPlayersData[currentPlayerTag]?.currency?.globalPricing || {}
+                    }
                 };
             }
 
             const stateToSave = {
                 appVersion: state.appVersion,
-                lastPlayerTag: state.lastPlayerTag,
                 savedPlayerTags: state.savedPlayerTags,
                 uiSettings: state.uiSettings,
                 allPlayersData: state.allPlayersData,
@@ -131,18 +153,27 @@ export async function triggerCloudSave() {
             };
 
             if (state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0') {
-                alert('Cannot save to cloud: Only default player tag exists.');
+                if (!silent) {
+                    showSaveErrorIndicator();
+                    await showAlert(translate('alerts.saveDefaultOnly'));
+                }
                 console.log("Skipping cloud save: Only default player tag exists.");
-                return;
+                return false;
             }
 
             await saveUserData(currentUserId, stateToSave);
-            alert('Data saved to cloud successfully!');
+            if (!silent) showSaveSuccessIndicator();
+            return true;
         } catch (error) {
             console.error('Failed to save data to cloud:', error);
-            alert('Failed to save data to cloud. Please try again.');
+            if (!silent) {
+                showSaveErrorIndicator();
+                await showAlert(translate('alerts.saveFailed', { error: translate(error.message) }));
+            }
+            return false;
         }
     }
+    return false;
 }
 
 export function initializeCloudSaveButtons() {
@@ -150,7 +181,10 @@ export function initializeCloudSaveButtons() {
     const fabSaveDataPill = dom.fab?.pills?.saveData;
 
     if (floatingSaveBtn) {
-        floatingSaveBtn.addEventListener('click', triggerCloudSave);
+        floatingSaveBtn.addEventListener('click', () => {
+            saveState(state);
+            triggerCloudSave();
+        });
     }
     if (fabSaveDataPill) {
         fabSaveDataPill.addEventListener('click', triggerCloudSave);

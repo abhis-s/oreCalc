@@ -1,0 +1,57 @@
+<div id="star-bonus-multiplier-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 data-i18n="income.starBonusMultiplier.title">Star Bonus Multipliers</h2>
+            <button id="close-star-bonus-multiplier-modal-btn" class="close-button">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="settings-info-box margin-bottom-20">
+                <h3 data-i18n="income.starBonus.section2x">2x Star Bonus Event</h3>
+                
+                <div class="input-group-flex push-top-5">
+                    <div class="field-descriptor-group">
+                        <label for="inc-star-bonus-2x-frequency-input" data-i18n="income.starBonus.eventFrequency">Frequency (Months)</label>
+                        <p class="form-setting-text" data-i18n="income.starBonus.eventFrequencyInfo">How often the event occurs (e.g., 1 = monthly, 2 = every 2 months).</p>
+                    </div>
+                    <div class="popover-wrapper">
+                        <input type="number" id="inc-star-bonus-2x-frequency-input" class="updatable" min="1" max="4" value="2" maxlength="1">
+                    </div>
+                </div>
+
+                <div class="input-group-flex push-top-5">
+                    <div class="field-descriptor-group">
+                        <label for="inc-star-bonus-2x-duration-input" data-i18n="income.starBonus.eventDuration">Event Duration (Days)</label>
+                        <p class="form-setting-text" data-i18n="income.starBonus.eventDurationInfo">Set to 0 to disable.</p>
+                    </div>
+                    <div class="popover-wrapper">
+                        <input type="number" id="inc-star-bonus-2x-duration-input" class="updatable" min="0" max="7" value="5" maxlength="1">
+                    </div>
+                </div>
+
+                <div class="input-group-flex push-top-5">
+                    <div class="field-descriptor-group">
+                        <label for="inc-star-bonus-2x-last-event-select" data-i18n="income.starBonus.lastEvent">Last Event</label>
+                        <p class="form-setting-text" data-i18n="income.starBonus.lastEventInfo">Select the last month this event occurred.</p>
+                    </div>
+                    <select id="inc-star-bonus-2x-last-event-select" class="dropdown-style updatable">
+                        <!-- Dynamically populated via starBonusSelector.js -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="danger-zone-separator"></div>
+
+            <div id="star-bonus-4x-section" class="settings-info-box">
+                <h3 data-i18n="income.starBonus.event4x">4x Star Bonus</h3>
+                <div id="th-planning-section" class="flex-column-gap-10">
+                    <!-- Dynamically populated via starBonusSelector.js -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button id="close-star-bonus-multiplier-footer-btn" class="reject-button" data-i18n="actions.ok">OK</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+<div id="danger-zone-modal" class="modal">
+    <div class="modal-content danger-zone-modal-content">
+        <div class="modal-header">
+            <h2 data-i18n="settings.cards.dangerZone">Danger Zone</h2>
+            <button id="close-danger-zone-header-btn" class="close-button">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-info-text danger-zone-info-text">
+            <p data-i18n="settings.dangerZoneInfo">Reset or delete your data.</p>
+        </div>
+        <div class="data-manage-options danger-zone-options">
+            <button id="reset-local-btn" class="animated-btn btn-danger-action full-width">
+                <span class="animated-btn-text" data-i18n="actions.localReset">Local Reset</span>
+                <span class="animated-btn-icon-wrapper">
+                    <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                </span>
+            </button>
+
+            <button id="reset-cloud-btn" class="animated-btn btn-danger-action full-width">
+                <span class="animated-btn-text" data-i18n="actions.localCloudReset">Local & Cloud Reset</span>
+                <span class="animated-btn-icon-wrapper">
+                    <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                </span>
+            </button>
+
+            <button id="complete-delete-btn" class="animated-btn btn-danger-action full-width btn-extreme-danger">
+                <span class="animated-btn-text" data-i18n="actions.completeDelete">Complete Deletion</span>
+                <span class="animated-btn-icon-wrapper">
+                    <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                </span>
+            </button>
+        </div>
+        <div class="modal-actions">
+            <button id="close-danger-zone-modal-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
+        </div>
+    </div>
+</div>

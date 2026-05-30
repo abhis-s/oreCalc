@@ -1,7 +1,7 @@
 export const heroData = {
-    barbarian_king: {
+    barbarianKing: {
         name: "Barbarian King",
-        image: "assets/heroes/barbarian_king.png",
+        image: "assets/heroes/barbarianKing.png",
         equipment: [
             { name: "Barbarian Puppet", type: "common", image: "assets/equipment/barbarian_king/BK_barbarian_puppet.png" },
             { name: "Rage Vial", type: "common", image: "assets/equipment/barbarian_king/BK_rage_vial.png" },
@@ -13,9 +13,9 @@ export const heroData = {
             { name: "Stick Horse", type: "epic", image: "assets/equipment/barbarian_king/BK_stick_horse.png" },
         ],
     },
-    archer_queen: {
+    archerQueen: {
         name: "Archer Queen",
-        image: "assets/heroes/archer_queen.png",
+        image: "assets/heroes/archerQueen.png",
         equipment: [
             { name: "Archer Puppet", type: "common", image: "assets/equipment/archer_queen/AQ_archer_puppet.png" },
             { name: "Invisibility Vial", type: "common", image: "assets/equipment/archer_queen/AQ_invisibility_vial.png" },
@@ -26,9 +26,9 @@ export const heroData = {
             { name: "Action Figure", type: "epic", image: "assets/equipment/archer_queen/AQ_action_figure.png" },
         ],
     },
-    minion_prince: {
+    minionPrince: {
         name: "Minion Prince",
-        image: "assets/heroes/minion_prince.png",
+        image: "assets/heroes/minionPrince.png",
         equipment: [
             { name: "Henchmen Puppet", type: "common", image: "assets/equipment/minion_prince/MP_henchmen_puppet.png" },
             { name: "Dark Orb", type: "common", image: "assets/equipment/minion_prince/MP_dark_orb.png" },
@@ -38,9 +38,9 @@ export const heroData = {
             { name: "Meteor Staff", type: "epic", image: "assets/equipment/minion_prince/MP_meteor_staff.png" },
         ],
     },
-    grand_warden: {
+    grandWarden: {
         name: "Grand Warden",
-        image: "assets/heroes/grand_warden.png",
+        image: "assets/heroes/grandWarden.png",
         equipment: [
             { name: "Eternal Tome", type: "common", image: "assets/equipment/grand_warden/GW_eternal_tome.png" },
             { name: "Life Gem", type: "common", image: "assets/equipment/grand_warden/GW_life_gem.png" },
@@ -51,9 +51,9 @@ export const heroData = {
             { name: "Heroic Torch", type: "epic", image: "assets/equipment/grand_warden/GW_heroic_torch.png" },
         ],
     },
-    royal_champion: {
+    royalChampion: {
         name: "Royal Champion",
-        image: "assets/heroes/royal_champion.png",
+        image: "assets/heroes/royalChampion.png",
         equipment: [
             { name: "Royal Gem", type: "common", image: "assets/equipment/royal_champion/RC_royal_gem.png" },
             { name: "Seeking Shield", type: "common", image: "assets/equipment/royal_champion/RC_seeking_shield.png" },
@@ -64,9 +64,9 @@ export const heroData = {
             { name: "Frost Flake", type: "epic", image: "assets/equipment/royal_champion/RC_frost_flake.png" },
         ],
     },
-    dragon_duke: {
+    dragonDuke: {
         name: "Dragon Duke",
-        image: "assets/heroes/dragon_duke.png",
+        image: "assets/heroes/dragonDuke.png",
         equipment: [
             { name: "Fire Heart", type: "common", image: "assets/equipment/dragon_duke/DD_fire_heart.png" },
             { name: "Flame Blower", type: "common", image: "assets/equipment/dragon_duke/DD_flame_blower.png" },

@@ -1,26 +1,45 @@
-export function initializeOfferGrid({ container, offers, onStateChange }) {
+export function initializeOfferGrid({ container, offers, onStateChange, getDynamicOffers }) {
     if (!container) return;
 
     container.addEventListener('change', (event) => {
         const target = event.target;
+        
+        let offerId = target.dataset.offerId;
+        if (!offerId && target.id) {
+            const fullId = target.id;
+            const lastUnderscoreIndex = fullId.lastIndexOf('_');
+            if (lastUnderscoreIndex !== -1) {
+                offerId = fullId.substring(0, lastUnderscoreIndex);
+                if (offerId.startsWith('cb_')) {
+                    offerId = offerId.substring(3);
+                }
+            }
+        }
+
+        if (!offerId) return;
+
+        const currentOffers = getDynamicOffers ? getDynamicOffers() : (offers || []);
+        const offer = currentOffers.find(o => o.id === offerId);
+        
+        if (!offer) return;
+
+        const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
 
         if (target.type === 'checkbox') {
-            const fullCheckboxId = target.id;
-            
-            const lastUnderscoreIndex = fullCheckboxId.lastIndexOf('_');
-            const baseOfferId = fullCheckboxId.substring(0, lastUnderscoreIndex);
-
-            const offer = offers.find(o => o.id === baseOfferId);
-            if (!offer) {
-                return;
+            let offerCheckboxes = Array.from(container.querySelectorAll(`input[type="checkbox"][data-offer-id="${CSS.escape(offerId)}"]`));
+            if (offerCheckboxes.length === 0) {
+                offerCheckboxes = Array.from(container.querySelectorAll(`input[type="checkbox"][id^="${offerId}_"], input[type="checkbox"][id^="cb_${offerId}_"]`));
             }
-
-            const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
-
-            const offerCheckboxes = Array.from(container.querySelectorAll(`input[type="checkbox"][id^="${baseOfferId}_"]`))
-                                    .sort((a, b) => parseInt(a.dataset.instance) - parseInt(b.dataset.instance));
+            
+            offerCheckboxes.sort((a, b) => {
+                const aInst = parseInt(a.dataset.instance || a.id.split('_').pop(), 10);
+                const bInst = parseInt(b.dataset.instance || b.id.split('_').pop(), 10);
+                return aInst - bInst;
+            });
 
             const clickedIndex = offerCheckboxes.indexOf(target);
+            if (clickedIndex === -1) return;
+
             let newCheckedCount = 0;
 
             if (target.checked) {
@@ -34,15 +53,36 @@ export function initializeOfferGrid({ container, offers, onStateChange }) {
                 }
                 newCheckedCount = clickedIndex;
             }
-            onStateChange(baseOfferId, oreType, newCheckedCount);
+            onStateChange(offerId, oreType, newCheckedCount);
         } else if (target.tagName === 'SELECT') {
-            const offerId = target.id;
-            const offer = offers.find(o => o.id === offerId);
-            if (!offer) return;
-            const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
-            const count = parseInt(target.value, 10);
+            const count = parseInt(target.value, 10) || 0;
             onStateChange(offerId, oreType, count);
         }
+    });
+
+    container.addEventListener('validated-input', (event) => {
+        const target = event.target;
+        let offerId = target.dataset.offerId;
+        if (!offerId && target.id) {
+            const fullId = target.id;
+            const lastUnderscoreIndex = fullId.lastIndexOf('_');
+            if (lastUnderscoreIndex !== -1) {
+                offerId = fullId.substring(0, lastUnderscoreIndex);
+                if (offerId.startsWith('cb_')) {
+                    offerId = offerId.substring(3);
+                }
+            }
+        }
+
+        if (!offerId) return;
+
+        const currentOffers = getDynamicOffers ? getDynamicOffers() : (offers || []);
+        const offer = currentOffers.find(o => o.id === offerId);
+        if (!offer) return;
+
+        const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
+        const count = event.detail.value;
+        onStateChange(offerId, oreType, count);
     });
 }
 

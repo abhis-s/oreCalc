@@ -1,44 +1,77 @@
 import { renderTabs } from '../components/layout/tabs.js';
+import { renderNavigation } from '../components/layout/navigationRenderer.js';
 import { renderAppSettings } from '../components/appSettings/appSettings.js';
 import { renderFab } from '../components/fab/fab.js';
 import { renderHeroCards } from '../components/equipment/heroCardDisplay.js';
 import { renderStorageInputs } from '../components/equipment/storageInputs.js';
 import { renderPlayerDropdown } from '../components/player/playerDropdown.js';
 
-import { renderStarBonusControls } from '../components/income/starBonusSelector.js';
+import { renderStarBonusControls } from '../components/income/starBonusInputs.js';
 import { renderClanWarInputs } from '../components/income/clanWarInputs.js';
 import { renderCwlInputs } from '../components/income/cwlInputs.js';
 import { renderEventPassInputs } from '../components/income/eventPassInputs.js';
-import { renderRaidMedalTraderGrid, renderRaidMedalTraderDisplay } from '../components/income/raidMedalTrader.js';
-import { renderGemTraderGrid } from '../components/income/gemTrader.js';
-import { renderEventTraderGrid } from '../components/income/eventTrader.js';
-import { renderShopOfferSelector, renderShopOfferGrid } from '../components/income/shopOffers.js';
-import { renderChampionshipInputs } from '../components/income/championshipInputs.js';
+import { renderRaidMedalTraderGrid, renderRaidMedalTraderDisplay } from '../components/income/raidMedalTraderDisplay.js';
+import { renderGemTraderGrid } from '../components/income/gemTraderDisplay.js';
+import { renderEventTraderGrid } from '../components/income/eventTraderDisplay.js';
+import { renderShopOfferSelector, renderShopOfferGrid } from '../components/income/shopOffersDisplay.js';
+import { renderSupercellEventsInputs } from '../components/income/supercellEventsInputs.js';
 
 import { renderRequiredOres } from '../components/equipment/requiredOresDisplay.js';
 import { renderRemainingTime } from '../components/equipment/remainingTimeDisplay.js';
 import { renderStarBonusDisplay } from '../components/income/starBonusDisplay.js';
-import { renderClanWarHomeDisplay, renderClanWarIncomeTabDisplay } from '../components/income/clanWarDisplay.js';
-import { renderCwlHomeDisplay, renderCwlIncomeTabDisplay } from '../components/income/cwlDisplay.js';
-import { renderGemHomeDisplay } from '../components/income/gemTraderDisplay.js';
-import { renderEventPassHomeDisplay } from '../components/income/eventPassDisplay.js';
-import { renderEventTraderHomeDisplay } from '../components/income/eventTraderDisplay.js';
-import { renderShopOfferHomeDisplay } from '../components/income/shopOfferDisplay.js';
-import { renderChampionshipDisplay, renderChampionshipHomeDisplay} from '../components/income/championshipDisplay.js';
-import { renderProspectorIncomeDisplay, renderProspectorHomeDisplay } from '../components/income/prospectorDisplay.js';
+import { renderClanWarIncomeTabDisplay } from '../components/income/clanWarDisplay.js';
+import { renderCwlIncomeTabDisplay } from '../components/income/cwlDisplay.js';
+import { renderSupercellEventsDisplay } from '../components/income/supercellEventsDisplay.js';
+import { renderGemIncomeTabDisplay } from '../components/income/gemTraderDisplay.js';
+import { renderEventPassIncomeTabDisplay } from '../components/income/eventPassDisplay.js';
+import { renderEventTraderIncomeTabDisplay } from '../components/income/eventTraderDisplay.js';
+import { renderShopOfferIncomeTabDisplay } from '../components/income/shopOffersDisplay.js';
+import { renderProspector } from '../components/income/prospectorInputs.js';
+import { renderProspectorIncomeDisplay } from '../components/income/prospectorDisplay.js';
 import { renderIncomeCard } from '../components/income/incomeCardHandler.js';
 import { renderPlanner } from '../components/planner/planner.js';
-import { renderIncomeChips } from '../components/planner/incomeChips.js';
-import { renderCalendar } from '../components/planner/calendar.js';
 import { renderPriorityListModal } from '../components/planner/priorityListModal.js';
+import { renderHomeIncomeTable } from '../components/home/homeTableRenderer.js';
+import { renderHomeResourcesFooter } from '../components/home/homeResourcesRenderer.js';
+
+let previousMaxDate = null;
 
 export function renderApp(state) {
-    const timeframe = state.uiSettings.incomeTimeframe;
+    const timeframe = state.uiSettings.incomeCard?.timeframe || 'monthly';
     const incomeSources = state.derived.incomeSources;
+    const remainingTime = state.derived.remainingTime;
+
+    // Calculate current max date
+    let currentMaxDate = null;
+    if (remainingTime) {
+        Object.values(remainingTime).forEach(data => {
+            if (data && data.date instanceof Date) {
+                if (!currentMaxDate || data.date > currentMaxDate) {
+                    currentMaxDate = new Date(data.date);
+                }
+            }
+        });
+    }
+
+    // Optimization Glow: if new time is less than previous time
+    if (previousMaxDate && currentMaxDate && currentMaxDate < previousMaxDate) {
+        const timeCard = document.getElementById('home-result-time-card');
+        if (timeCard) {
+            timeCard.classList.remove('glow-success');
+            void timeCard.offsetWidth; // Trigger reflow
+            timeCard.classList.add('glow-success');
+            setTimeout(() => timeCard.classList.remove('glow-success'), 2000);
+        }
+    }
+
+    if (currentMaxDate) {
+        previousMaxDate = currentMaxDate;
+    }
 
     renderTabs(state.activeTab);
+    renderNavigation(state.activeTab);
     renderAppSettings(state.uiSettings);
-    renderFab(state.lastPlayerTag);
+    renderFab(state.savedPlayerTags[0]);
     renderPlanner(state.planner);
     renderPriorityListModal(state);
 
@@ -50,49 +83,49 @@ export function renderApp(state) {
     renderClanWarInputs(state.income.clanWar);
     renderCwlInputs(state.income.cwl);
     renderEventPassInputs(state.income.eventPass);
-    renderChampionshipInputs(state.income);
+    renderSupercellEventsInputs(state.income);
     renderRaidMedalTraderGrid(state.income.raidMedals);
     renderGemTraderGrid(state.income.gems);
     renderEventTraderGrid(state.income.eventTrader);
     renderShopOfferSelector(state.income.shopOffers);
     renderShopOfferGrid(state.income.shopOffers);
+    renderProspector(state.income.prospector);
 
     renderRequiredOres(state.derived.requiredOres);
     renderRemainingTime(state.derived.remainingTime);
 
+    renderHomeIncomeTable(state);
+    renderHomeResourcesFooter(state);
+
     const starBonusIncome = incomeSources.starBonus || {};
-    renderStarBonusDisplay(starBonusIncome, state.income.starBonus.league, state.playerData, timeframe);
+    renderStarBonusDisplay(starBonusIncome, state.income.starBonus?.league || 105000000, state.playerProfile, timeframe);
 
     const clanWarIncome = incomeSources.clanWar || {};
-    renderClanWarHomeDisplay(clanWarIncome[timeframe] || {}, state.income.clanWar, state.playerData);
     renderClanWarIncomeTabDisplay(clanWarIncome, state.income.clanWar);
 
     const cwlIncome = incomeSources.cwl || {};
-    renderCwlHomeDisplay(cwlIncome[timeframe] || {}, state.income.cwl);
     renderCwlIncomeTabDisplay(cwlIncome, state.income.cwl);
 
-    const championshipIncome = incomeSources.championship || {};
-    renderChampionshipDisplay(championshipIncome, timeframe);
-    renderChampionshipHomeDisplay(championshipIncome, timeframe);
+    const supercellEventsIncome = incomeSources.supercellEvents || {};
+    renderSupercellEventsDisplay(supercellEventsIncome, timeframe);
 
     const raidMedalIncome = incomeSources.raidMedalTrader || {};
     renderRaidMedalTraderDisplay(raidMedalIncome, timeframe);
 
     const gemIncome = incomeSources.gemTrader || {};
-    renderGemHomeDisplay(gemIncome, timeframe);
+    renderGemIncomeTabDisplay(gemIncome);
 
     const eventPassIncome = incomeSources.eventPass || {};
-    renderEventPassHomeDisplay(eventPassIncome, timeframe, state.uiSettings);
+    renderEventPassIncomeTabDisplay(eventPassIncome);
 
     const eventTraderIncome = incomeSources.eventTrader || {};
-    renderEventTraderHomeDisplay(eventTraderIncome, timeframe);
+    renderEventTraderIncomeTabDisplay(eventTraderIncome);
 
     const shopOfferIncome = incomeSources.shopOffers || {};
-    renderShopOfferHomeDisplay(shopOfferIncome, timeframe, state.uiSettings);
+    renderShopOfferIncomeTabDisplay(shopOfferIncome, state.uiSettings);
 
     const prospectorIncome = incomeSources.prospector || {};
     renderProspectorIncomeDisplay(prospectorIncome);
-    renderProspectorHomeDisplay(prospectorIncome, timeframe);
 
-    renderIncomeCard(state.uiSettings.incomeCardExpanded, state.derived.totalIncome, state.uiSettings, state.derived.totalMoneyCost);
+    renderIncomeCard(state.derived.totalIncome, state.uiSettings, state.derived.totalMoneyCost);
 }

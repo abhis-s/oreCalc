@@ -1,29 +1,45 @@
 import { state, getDefaultPlayerState } from '../core/state.js';
-import { shopOfferData, leagueTiers } from '../data/appData.js';
+import { shopOfferData, leagueTiers, heroData } from '../data/appData.js';
 import { fetchPlayerData } from './apiService.js';
 import { handleStateUpdate } from '../app.js';
 import { updateSavedPlayerTags, updateAllPlayersData } from '../core/localStorageManager.js';
+import { translate } from '../i18n/translator.js';
+import { cleanupUpgradePlan, reindexGlobalPriority } from '../utils/plannerUtils.js';
 
-export async function loadAndProcessPlayerData(playerTag) {
+import { showAddPlayerModal } from '../components/player/playerModal.js';
+
+export async function loadAndProcessPlayerData(playerTag, { verifyToken = null } = {}) {
     if (!playerTag || playerTag.trim() === '') {
-        return { success: false, message: 'Please enter a player tag.' };
+        return { success: false, message: translate('errors.playerTagRequired') };
     }
 
     try {
-        const playerData = await fetchPlayerData(playerTag);
+        const playerData = await fetchPlayerData(playerTag, verifyToken);
+        
+        if (!playerData || !playerData.tag) {
+            throw new Error('errors.invalidServerData');
+        }
+        
         const cleanedServerTag = playerData.tag.startsWith('#') ? playerData.tag.substring(1) : playerData.tag;
 
         handleStateUpdate(() => {
             if (playerTag !== cleanedServerTag) {
                 console.warn(`Player tag corrected: Original '${playerTag}', Corrected '${cleanedServerTag}'`);
             }
-            state.lastPlayerTag = cleanedServerTag;
             processPlayerDataResponse(playerData);
         });
         return { success: true };
     } catch (error) {
         console.error('Failed to load player data:', error);
-        return { success: false, message: `Failed to load player data: ${error.message}` };
+        
+        const errorMessage = translate(error.message);
+
+        // Special handling for protected tags found during refresh/load
+        if (error.message === 'apiErrors.protectedTag' || error.message === 'apiErrors.invalidToken') {
+            return { success: false, message: errorMessage, errorType: error.message };
+        }
+
+        return { success: false, message: translate('errors.fetchPlayerFailed', { error: errorMessage }) };
     }
 }
 
@@ -41,62 +57,79 @@ export function processPlayerDataResponse(playerData) {
 
     const newPlayerState = {
         ...basePlayerState,
-        playerData: null,
+        playerProfile: null,
     };
 
-    const isInitialLoadForBase = !basePlayerState.playerData;
-    const previousServerHeroMap = isInitialLoadForBase ? new Map() : new Map(basePlayerState.playerData.heroes?.map(hero => [hero.name, hero]));
-    const previousServerEquipMap = isInitialLoadForBase ? new Map() : new Map(basePlayerState.playerData.heroEquipment?.map(eq => [eq.name, eq]));
+    const isInitialLoadForBase = !basePlayerState.playerProfile;
+    const previousSyncedHeroes = new Set(basePlayerState.playerProfile?.ownedHeroes || []);
+    
+    let previousSyncedEquipment;
+    const rawOwned = basePlayerState.playerProfile?.ownedEquipment;
+    if (Array.isArray(rawOwned)) {
+        previousSyncedEquipment = new Set(rawOwned);
+    } else if (rawOwned && typeof rawOwned === 'object') {
+        previousSyncedEquipment = new Set(Object.keys(rawOwned));
+    } else {
+        previousSyncedEquipment = new Set();
+    }
 
+    const homeHeroes = playerData.heroes?.filter(h => h.village === 'home') || [];
+    const homeEquipment = playerData.heroEquipment?.filter(e => e.village === 'home') || [];
 
-    const serverHeroMap = new Map(playerData.heroes?.map(hero => [hero.name, hero]));
-    const serverEquipMap = new Map(playerData.heroEquipment?.map(eq => [eq.name, eq]));
+    const serverHeroMap = new Map(homeHeroes.map(hero => [hero.name, hero]));
+    const serverEquipMap = new Map(homeEquipment.map(eq => [eq.name, eq]));
 
-    for (const heroKey in newPlayerState.heroes) {
-        const serverHero = serverHeroMap.get(heroKey);
-        const wasHeroPreviouslyPresent = previousServerHeroMap.has(heroKey);
+    for (const heroKey in heroData) {
+        const heroName = heroData[heroKey].name;
+        const serverHero = serverHeroMap.get(heroName);
+        const wasHeroPreviouslySynced = previousSyncedHeroes.has(heroName);
+
+        if (!newPlayerState.heroes[heroName]) {
+            newPlayerState.heroes[heroName] = { equipment: {} };
+        }
+        const heroState = newPlayerState.heroes[heroName];
 
         if (serverHero) {
-            if (isInitialLoadForBase || !wasHeroPreviouslyPresent) {
-                newPlayerState.heroes[heroKey].enabled = true;
+            if (isInitialLoadForBase || !wasHeroPreviouslySynced) {
+                heroState.enabled = true;
             } else {
-                newPlayerState.heroes[heroKey].enabled = basePlayerState.heroes[heroKey].enabled;
+                heroState.enabled = basePlayerState.heroes[heroName]?.enabled ?? true;
             }
         } else {
-            newPlayerState.heroes[heroKey].enabled = false;
+            heroState.enabled = false;
         }
 
-        for (const equipKey in newPlayerState.heroes[heroKey].equipment) {
+        const heroInfo = heroData[heroKey];
+        for (const equip of heroInfo.equipment) {
+            const equipKey = equip.name;
             const serverEquip = serverEquipMap.get(equipKey);
-            const wasEquipPreviouslyPresent = previousServerEquipMap.has(equipKey);
+            const wasEquipPreviouslySynced = previousSyncedEquipment.has(equipKey);
+
+            if (!heroState.equipment[equipKey]) {
+                heroState.equipment[equipKey] = {};
+            }
+            const equipState = heroState.equipment[equipKey];
 
             if (serverEquip) {
-                newPlayerState.heroes[heroKey].equipment[equipKey].level = serverEquip.level;
+                equipState.level = serverEquip.level;
 
-                if (isInitialLoadForBase || !wasEquipPreviouslyPresent) {
-                    newPlayerState.heroes[heroKey].equipment[equipKey].checked = true;
+                if (isInitialLoadForBase || !wasEquipPreviouslySynced) {
+                    equipState.checked = true;
                 } else {
-                    newPlayerState.heroes[heroKey].equipment[equipKey].checked = basePlayerState.heroes[heroKey].equipment[equipKey].checked;
+                    equipState.checked = basePlayerState.heroes[heroName]?.equipment[equipKey]?.checked ?? true;
                 }
             } else {
-                newPlayerState.heroes[heroKey].equipment[equipKey].checked = false;
+                equipState.checked = false;
             }
         }
 
-        for (const equipKey in newPlayerState.heroes[heroKey].equipment) {
-            const equipment = newPlayerState.heroes[heroKey].equipment[equipKey];
-            if (equipment.upgradePlan) {
-                for (const stepNum in equipment.upgradePlan) {
-                    const stepData = equipment.upgradePlan[stepNum];
-                    if (stepData.target <= equipment.level) {
-                        stepData.enabled = false;
-                    }
-                }
-            }
+        for (const equipKey in heroState.equipment) {
+            cleanupUpgradePlan(heroState.equipment[equipKey]);
         }
     }
 
     if (playerData.leagueTier?.id) {
+        if (!newPlayerState.income.starBonus) newPlayerState.income.starBonus = {};
         const leagueExists = leagueTiers.items.some(l => l.id === playerData.leagueTier.id);
         if (leagueExists) {
             newPlayerState.income.starBonus.league = playerData.leagueTier.id;
@@ -105,9 +138,10 @@ export function processPlayerDataResponse(playerData) {
         }
     }
 
-    if (newPlayerState.income.shopOffers.selectedSet === 'none' && playerData.townHallLevel) {
+    const selected = Object.keys(newPlayerState.income.shopOffers || {})[0] || '0';
+    if (selected === '0' && playerData.townHallLevel) {
         const thLevel = playerData.townHallLevel;
-        let bestMatchSet = 'none';
+        let bestMatchSet = '0';
         let closestTh = -1;
 
         for (const setKey in shopOfferData) {
@@ -117,7 +151,7 @@ export function processPlayerDataResponse(playerData) {
                 bestMatchSet = setKey;
             }
         }
-        newPlayerState.income.shopOffers.selectedSet = bestMatchSet;
+        newPlayerState.income.shopOffers = { [bestMatchSet]: {} };
     }
 
     newPlayerState.income.prospector = { 
@@ -125,19 +159,21 @@ export function processPlayerDataResponse(playerData) {
         ...(newPlayerState.income.prospector || {}) 
     };
 
-    newPlayerState.playerData = {
+    newPlayerState.playerProfile = {
         name: playerData.name,
         tag: playerData.tag,
-        clan: playerData.clan ? { badgeUrls: { small: playerData.clan.badgeUrls.small } } : {},
-        heroes: playerData.heroes,
-        heroEquipment: playerData.heroEquipment,
-        leagueTier: playerData.leagueTier,
         townHallLevel: playerData.townHallLevel,
+        clanBadgeUrl: playerData.clan?.badgeUrls?.small || '',
+        ownedHeroes: homeHeroes.map(h => h.name),
+        ownedEquipment: Object.fromEntries(homeEquipment.map(e => [e.name, e.level])),
     };
 
     state.heroes = newPlayerState.heroes;
+    state.storedOres = newPlayerState.storedOres;
     state.income = newPlayerState.income;
-    state.playerData = newPlayerState.playerData;
+    state.planner = newPlayerState.planner;
+    state.playerProfile = newPlayerState.playerProfile;
 
+    reindexGlobalPriority();
     updateAllPlayersData(cleanedTag, newPlayerState);
 }

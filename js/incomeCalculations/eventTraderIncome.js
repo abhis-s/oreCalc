@@ -1,9 +1,9 @@
 import { eventTraderData } from '../data/appData.js';
 import { calculateBimonthlyIncome } from '../utils/incomeUtils.js';
 
-export function calculateEventTraderIncome(eventTraderState, availableMedals = 0) {
+export function calculateEventTraderIncome(eventTraderState = {}, availableMedals = 0) {
     let bimonthlyShiny = 0, bimonthlyGlowy = 0, bimonthlyStarry = 0, totalCost = 0;
-    const { packs } = eventTraderState;
+    const { packs = {} } = eventTraderState;
 
     eventTraderData.forEach(offer => {
         const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';

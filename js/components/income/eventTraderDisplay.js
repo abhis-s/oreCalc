@@ -1,32 +1,114 @@
+import { eventTraderData } from '../../data/appData.js';
 import { dom } from '../../dom/domElements.js';
-import { translate } from '../../i18n/translator.js';
+import { state } from '../../core/state.js';
+
+import { renderOfferGrid } from '../common/offerGrid.js';
+
 import { formatNumber } from '../../utils/numberFormatter.js';
 
-export function renderEventTraderHomeDisplay(eventTraderIncome, timeframe) {
-    const homeElements = dom.income.home.incomeCard.table.eventTrader;
-    const incomeTabDisplayElements = dom.income.eventTrader.display;
-    const incomeTabSummaryElements = dom.income.eventTrader;
-    if (!homeElements || !incomeTabDisplayElements || !incomeTabSummaryElements) return;
+import { translate } from '../../i18n/translator.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { calculateEventPassIncome } from '../../incomeCalculations/eventPassIncome.js';
+import { addValidation } from '../../utils/inputValidator.js';
 
-    const timeframeIncome = eventTraderIncome[timeframe] || {};
+export function renderEventTraderRow(offer, packs) {
+    const row = document.createElement('div');
+    row.className = 'offer-grid-row';
 
-    if (homeElements.shiny) {
-        homeElements.shiny.textContent = formatNumber(Math.round(timeframeIncome.shiny || 0));
-    }
-    if (homeElements.glowy) {
-        homeElements.glowy.textContent = formatNumber(Math.round(timeframeIncome.glowy || 0));
-    }
-    if (homeElements.starry) {
-        homeElements.starry.textContent = formatNumber(Math.round(timeframeIncome.starry || 0));
-    }
-    if (homeElements.resource) {
-        homeElements.resource.textContent = translate('event_medals_resource', { count: eventTraderIncome.cost || 0 });
-    }
+    const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
+    const oreAmount = offer[oreType];
 
-    const homeResourceElements = dom.income.home.incomeCard.resources;
-    if (homeResourceElements.eventMedals) {
-        homeResourceElements.eventMedals.textContent = eventTraderIncome.cost || 0;
+    row.innerHTML = `
+        <div class="offer-cost-display"><orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" class="ore-image event-medal-icon" size="thumbnail"></orecalc-assets-image> ${offer.cost}</div>
+        <div class="offer-ore-display"><span>${oreAmount}</span> <orecalc-assets-image src="assets/${oreType}_ore.png" alt="${oreType.charAt(0).toUpperCase() + oreType.slice(1)} Ore" class="ore-image"></orecalc-assets-image></div>
+        <div class="offer-input-instance">
+            <div class="popover-wrapper">
+                <input type="number" class="updatable offer-input-number" id="event-trader-${offer.id}-input" value="${packs}" min="0" max="${offer.maxPacks}" maxlength="2" data-offer-id="${offer.id}">
+            </div>
+        </div>
+    `;
+
+    return row;
+}
+
+export function renderEventTraderGrid(eventTraderState) {
+    const offersContainer = dom.income?.eventTrader?.offersContainer;
+    if (!offersContainer) return;
+
+    const safeState = eventTraderState || { packs: {} };
+
+    const rows = offersContainer.querySelectorAll('.offer-grid-row');
+    if (rows.length === 0) {
+        renderOfferGrid({
+            container: offersContainer,
+            offers: eventTraderData,
+            stateSelector: (offer) => {
+                const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
+                return safeState.packs?.[oreType] || 0;
+            },
+            renderRow: renderEventTraderRow,
+            onRowAppended: (rowElement, offer) => {
+                const input = rowElement.querySelector('input[type="number"]');
+                if (input) {
+                    const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
+                    addValidation(input, { inputName: translate('ores.' + oreType) });
+                    
+                    if (oreType === 'shiny') {
+                        registerInputPopover(input, {
+                            title: translate('ores.shiny'),
+                            min: 0,
+                            max: offer.maxPacks,
+                            showRecommended: false,
+                            clickToFill: { max: true }
+                        });
+                    } else {
+                        const getRecommendedVal = () => {
+                            const eventPassIncome = calculateEventPassIncome(state.income.eventPass);
+                            const availableMedals = eventPassIncome?.availableMedals || 0;
+                            
+                            let otherPacksCost = 0;
+                            eventTraderData.forEach(o => {
+                                const oType = o.shiny ? 'shiny' : o.glowy ? 'glowy' : 'starry';
+                                if (oType !== oreType) {
+                                    const count = state.income.eventTrader?.packs?.[oType] || 0;
+                                    otherPacksCost += count * o.cost;
+                                }
+                            });
+                            
+                            const remainingMedalsForThis = availableMedals - otherPacksCost;
+                            return Math.max(0, Math.min(offer.maxPacks, Math.floor(remainingMedalsForThis / offer.cost)));
+                        };
+
+                        registerInputPopover(input, {
+                            title: translate('ores.' + oreType),
+                            min: 0,
+                            max: offer.maxPacks,
+                            showRecommended: () => getRecommendedVal() > 0,
+                            recommended: getRecommendedVal,
+                            clickToFill: { max: true, recommended: true }
+                        });
+                    }
+                }
+            }
+        });
+    } else {
+        eventTraderData.forEach(offer => {
+            const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
+            const input = offersContainer.querySelector(`input[data-offer-id="${offer.id}"]`);
+            if (input) {
+                const expectedValue = safeState.packs?.[oreType] || 0;
+                if (parseInt(input.value, 10) !== expectedValue) {
+                    input.value = expectedValue;
+                }
+            }
+        });
     }
+}
+
+export function renderEventTraderIncomeTabDisplay(eventTraderIncome) {
+    const incomeTabDisplayElements = dom.income?.eventTrader?.display;
+    const incomeTabSummaryElements = dom.income?.eventTrader;
+    if (!incomeTabDisplayElements || !incomeTabSummaryElements) return;
 
     if (incomeTabDisplayElements.monthly?.shiny) incomeTabDisplayElements.monthly.shiny.textContent = formatNumber(Math.round(eventTraderIncome.monthly?.shiny || 0));
     if (incomeTabDisplayElements.monthly?.glowy) incomeTabDisplayElements.monthly.glowy.textContent = formatNumber(Math.round(eventTraderIncome.monthly?.glowy || 0));

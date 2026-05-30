@@ -3,7 +3,7 @@ import { handleStateUpdate } from './app.js';
 import { saveState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { showChangelogModal } from './components/changelog/changelogModal.js';
-import { fetchChangelog } from './services/githubService.js';
+import { getChangelogHtml } from './services/changelogService.js';
 import { showSaveErrorIndicator } from './ui/savingIndicator.js';
 
 window.enableLevelInput = () => {
@@ -62,7 +62,7 @@ window.clearPlannerState = () => {
 };
 
 window.showChangelog = async () => {
-    const changelogContent = await fetchChangelog();
+    const changelogContent = getChangelogHtml();
     showChangelogModal(changelogContent);
     return "Changelog modal displayed.";
 };
@@ -83,7 +83,7 @@ console.info(
     "%c  showChangelog():  %cDisplays the changelog modal.\n" +
     "%c  simulateSaveFail(): %cSimulates a save failure to test the error indicator.\n\n" +
     "%c For more information, refer to the documentation.",
-    "color: #8ab4f8; font-weight: bold;",
+    "color: #4facfe; font-weight: bold;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",

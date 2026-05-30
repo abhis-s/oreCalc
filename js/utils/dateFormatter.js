@@ -11,13 +11,21 @@ export function formatDate(date, options) {
     return new Intl.DateTimeFormat(locale, options).format(date);
 }
 
-export function getShortDayNames() {
+export function getShortDayNames(startDaySetting = 'auto') {
     const language = state.uiSettings?.language || 'en';
     const locale = locales[language] || 'en-US';
     const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+
+    let effectiveStartDay = startDaySetting;
+    if (effectiveStartDay === 'auto') {
+        effectiveStartDay = language === 'de' ? 'monday' : 'sunday';
+    }
+
+    const startDayIndex = effectiveStartDay === 'monday' ? 1 : 0;
     const days = [];
     for (let i = 0; i < 7; i++) {
-        const date = new Date(2000, 0, i + 2); // Use a fixed date to get day names (Jan 2, 2000 was a Sunday)
+        // Jan 2, 2000 was a Sunday
+        const date = new Date(Date.UTC(2000, 0, 2 + startDayIndex + i));
         days.push(formatter.format(date));
     }
     return days;

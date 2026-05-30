@@ -1,0 +1,25 @@
+            <div id="add-player-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 data-i18n="player.addTitle">Add a New Player</h2>
+                        <button id="close-add-player-modal-btn" class="close-button">
+                            <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                        </button>
+                    </div>
+                    <div class="player-name-input-container">
+                        <label for="player-tag-input-modal" data-i18n="player.tag">Player Tag</label>
+                        <input type="text" id="player-tag-input-modal" placeholder="Enter player tag" maxlength="12" data-i18n-placeholder="player.placeholderTag">
+                        <div id="player-tag-error-message" class="error-message"></div>
+                    </div>
+                    <div class="player-name-input-container" id="add-player-token-container" style="display: none; margin-top: 15px;">
+                        <label for="add-player-token-input" data-i18n="player.apiToken">In-Game API Token</label>
+                        <input type="text" id="add-player-token-input" placeholder="e.g. a9378kca" maxlength="8" data-i18n-placeholder="player.placeholderToken">
+                        <small style="color: var(--color-grey-400); font-size: 0.85em; margin-top: 5px; display: block;" data-i18n="player.apiTokenHint">Hint: You can find your API Token in game under Settings > More Settings > API Token.</small>
+                    </div>
+                    <div class="modal-actions">
+                        <button id="cancel-add-player-button" class="reject-button" data-i18n="actions.cancel">Cancel</button>
+                        <button id="load-player-modal-btn" class="accept-button" data-i18n="actions.load">Load</button>
+                        <button id="verify-player-modal-btn" class="accept-button" style="display: none;" data-i18n="actions.verify">Verify</button>
+                    </div>
+                </div>
+            </div>

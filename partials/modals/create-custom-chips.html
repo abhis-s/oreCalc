@@ -1,0 +1,500 @@
+<div id="create-custom-chips-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 data-i18n="planner.createCustomChipsModal.title">Create Custom Chips</h2>
+            <button id="close-create-custom-chips-modal-btn" class="close-button">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-body flex-column-gap-15">
+            <!-- Chip Type Selection -->
+            <div class="input-group-flex">
+                <div class="field-descriptor-group">
+                    <label for="custom-chip-type-select" data-i18n="planner.createCustomChipsModal.selectType">Select Chip Type</label>
+                </div>
+                <select id="custom-chip-type-select" class="dropdown-style">
+                    <option value="" data-i18n="planner.createCustomChipsModal.chooseType">Choose a type...</option>
+                    <option value="extras" data-i18n="planner.createCustomChipsModal.typeExtras">Extras (Custom)</option>
+                    <option value="starBonus" data-i18n="planner.createCustomChipsModal.typeStarBonus">Star Bonus</option>
+                    <option value="shopOffers" data-i18n="planner.createCustomChipsModal.typeShopOffer">Shop Offers</option>
+                    <option value="gemTrader" data-i18n="planner.createCustomChipsModal.typeGemTrader">Gem Trader</option>
+                    <option value="raidMedalTrader" data-i18n="planner.createCustomChipsModal.typeRaidMedalTrader">Raid Medal Trader</option>
+                    <option value="eventTrader" data-i18n="planner.createCustomChipsModal.typeEventTrader">Event Trader</option>
+                    <option value="eventPass" data-i18n="planner.createCustomChipsModal.typeEventPass">Event Pass</option>
+                    <option value="clanWar" data-i18n="planner.createCustomChipsModal.typeClanWar">Clan War</option>
+                    <option value="cwl" data-i18n="planner.createCustomChipsModal.typeCwl">CWL</option>
+                    <option value="supercellEvents" data-i18n="planner.createCustomChipsModal.typeSupercellEvent">Supercell Events</option>
+                    <option value="prospector" data-i18n="planner.createCustomChipsModal.typeProspector">Prospector</option>
+                </select>
+            </div>
+
+            <!-- Dynamic Input Sections -->
+            <div id="custom-chip-dynamic-inputs" class="flex-column-gap-15" style="display: none;">
+                
+                <!-- Extras Section -->
+                <div id="custom-chip-section-extras" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="custom-chip-ores-row">
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-extras-shiny" min="0" max="25000" maxlength="5" value="0">
+                                </div>
+                                <label for="custom-chip-extras-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-extras-glowy" min="0" max="2500" maxlength="4" value="0">
+                                </div>
+                                <label for="custom-chip-extras-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-extras-starry" min="0" max="500" maxlength="3" value="0">
+                                </div>
+                                <label for="custom-chip-extras-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                        </div>
+
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-extras-count" data-i18n="planner.createCustomChipsModal.numChips">Number of chips to create</label>
+                            </div>
+                            <div class="popover-wrapper">
+                                <input type="number" id="custom-chip-extras-count" min="1" max="9" maxlength="1" value="1" class="small-number-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Star Bonus Section -->
+                <div id="custom-chip-section-starBonus" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-starBonus-multiplier" data-i18n="planner.createCustomChipsModal.multiplier">Multiplier</label>
+                            </div>
+                            <select id="custom-chip-starBonus-multiplier" class="dropdown-style">
+                                <option value="2x">2x</option>
+                                <option value="3x">3x</option>
+                                <option value="4x">4x</option>
+                                <option value="5x">5x</option>
+                                <option value="6x">6x</option>
+                                <option value="7x">7x</option>
+                            </select>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-starBonus-count" data-i18n="planner.createCustomChipsModal.numChips">Number of chips to create</label>
+                            </div>
+                            <div class="popover-wrapper">
+                                <input type="number" id="custom-chip-starBonus-count" min="1" max="15" maxlength="2" value="1" class="small-number-input">
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-starBonus-monthly" data-i18n="planner.createCustomChipsModal.createMonthly">Create monthly</label>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-starBonus-monthly">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shop Offers Section -->
+                <div id="custom-chip-section-shopOffers" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="custom-chip-ores-row">
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-shopOffers-shiny" min="0" max="25000" maxlength="5" value="0">
+                                </div>
+                                <label for="custom-chip-shopOffers-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-shopOffers-glowy" min="0" max="2500" maxlength="4" value="0">
+                                </div>
+                                <label for="custom-chip-shopOffers-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-shopOffers-starry" min="0" max="500" maxlength="3" value="0">
+                                </div>
+                                <label for="custom-chip-shopOffers-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-shopOffers-monthly" data-i18n="planner.createCustomChipsModal.createMonthly">Create monthly</label>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-shopOffers-monthly">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gem Trader Section -->
+                <div id="custom-chip-section-gemTrader" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="custom-chip-ores-row">
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-gemTrader-shiny" min="0" max="25000" maxlength="5" value="0">
+                                </div>
+                                <label for="custom-chip-gemTrader-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-gemTrader-glowy" min="0" max="2500" maxlength="4" value="0">
+                                </div>
+                                <label for="custom-chip-gemTrader-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-gemTrader-starry" min="0" max="500" maxlength="3" value="0">
+                                </div>
+                                <label for="custom-chip-gemTrader-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-gemTrader-weekly" data-i18n="planner.createCustomChipsModal.createWeekly">Create weekly</label>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-gemTrader-weekly">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raid Medal Trader Section -->
+                <div id="custom-chip-section-raidMedalTrader" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="custom-chip-ores-row">
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-raidMedalTrader-shiny" min="0" max="25000" maxlength="5" value="0">
+                                </div>
+                                <label for="custom-chip-raidMedalTrader-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-raidMedalTrader-glowy" min="0" max="2500" maxlength="4" value="0">
+                                </div>
+                                <label for="custom-chip-raidMedalTrader-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-raidMedalTrader-starry" min="0" max="500" maxlength="3" value="0">
+                                </div>
+                                <label for="custom-chip-raidMedalTrader-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-raidMedalTrader-weekly" data-i18n="planner.createCustomChipsModal.createWeekly">Create weekly</label>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-raidMedalTrader-weekly">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Trader Section -->
+                <div id="custom-chip-section-eventTrader" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="custom-chip-ores-row">
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-eventTrader-shiny" min="0" max="25000" maxlength="5" value="0">
+                                </div>
+                                <label for="custom-chip-eventTrader-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-eventTrader-glowy" min="0" max="2500" maxlength="4" value="0">
+                                </div>
+                                <label for="custom-chip-eventTrader-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-eventTrader-starry" min="0" max="500" maxlength="3" value="0">
+                                </div>
+                                <label for="custom-chip-eventTrader-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-eventTrader-monthly" data-i18n="planner.createCustomChipsModal.everyEventMonth">Every event month</label>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-eventTrader-monthly">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Pass Section -->
+                <div id="custom-chip-section-eventPass" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="custom-chip-ores-row">
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-eventPass-shiny" min="0" max="25000" maxlength="5" value="0">
+                                </div>
+                                <label for="custom-chip-eventPass-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-eventPass-glowy" min="0" max="2500" maxlength="4" value="0">
+                                </div>
+                                <label for="custom-chip-eventPass-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-eventPass-starry" min="0" max="500" maxlength="3" value="0">
+                                </div>
+                                <label for="custom-chip-eventPass-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-eventPass-monthly" data-i18n="planner.createCustomChipsModal.createMonthly">Create monthly</label>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-eventPass-monthly">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clan War Section -->
+                <div id="custom-chip-section-clanWar" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-clanWar-result" data-i18n="planner.createCustomChipsModal.warResult">War Result</label>
+                            </div>
+                            <select id="custom-chip-clanWar-result" class="dropdown-style">
+                                <option value="win" data-i18n="planner.createCustomChipsModal.win">Win</option>
+                                <option value="loss" data-i18n="planner.createCustomChipsModal.loss">Loss</option>
+                                <option value="draw" data-i18n="planner.createCustomChipsModal.draw">Draw</option>
+                            </select>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label data-i18n="income.perAttack">Per Attack</label>
+                            </div>
+                        </div>
+                        <div class="custom-chip-ores-row">
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-clanWar-shiny" min="0" max="1110" maxlength="4" value="0">
+                                </div>
+                                <label for="custom-chip-clanWar-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-clanWar-glowy" min="0" max="39" maxlength="2" value="0">
+                                </div>
+                                <label for="custom-chip-clanWar-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-clanWar-starry" min="0" max="6" maxlength="1" value="0">
+                                </div>
+                                <label for="custom-chip-clanWar-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-clanWar-count" data-i18n="planner.createCustomChipsModal.numChips">Number of chips to create</label>
+                            </div>
+                            <div class="popover-wrapper">
+                                <input type="number" id="custom-chip-clanWar-count" min="1" max="15" maxlength="2" value="1" class="small-number-input">
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-clanWar-monthly" data-i18n="planner.createCustomChipsModal.createMonthly">Create monthly</label>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-clanWar-monthly">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CWL Section -->
+                <div id="custom-chip-section-cwl" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-cwl-result" data-i18n="planner.createCustomChipsModal.warResult">War Result</label>
+                            </div>
+                            <select id="custom-chip-cwl-result" class="dropdown-style">
+                                <option value="win" data-i18n="planner.createCustomChipsModal.win">Win</option>
+                                <option value="loss" data-i18n="planner.createCustomChipsModal.loss">Loss</option>
+                                <option value="draw" data-i18n="planner.createCustomChipsModal.draw">Draw</option>
+                            </select>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label data-i18n="time.perHit">Per Hit</label>
+                            </div>
+                        </div>
+                        <div class="custom-chip-ores-row">
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-cwl-shiny" min="0" max="1110" maxlength="4" value="0">
+                                </div>
+                                <label for="custom-chip-cwl-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-cwl-glowy" min="0" max="39" maxlength="2" value="0">
+                                </div>
+                                <label for="custom-chip-cwl-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-cwl-starry" min="0" max="6" maxlength="1" value="0">
+                                </div>
+                                <label for="custom-chip-cwl-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-cwl-count" data-i18n="planner.createCustomChipsModal.numChips">Number of chips to create</label>
+                            </div>
+                            <div class="popover-wrapper">
+                                <input type="number" id="custom-chip-cwl-count" min="1" max="7" maxlength="1" value="1" class="small-number-input">
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-cwl-monthly" data-i18n="planner.createCustomChipsModal.createMonthly">Create monthly</label>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-cwl-monthly">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supercell Events Section -->
+                <div id="custom-chip-section-supercellEvents" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="custom-chip-ores-row">
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-supercellEvents-shiny" min="0" max="25000" maxlength="5" value="0">
+                                </div>
+                                <label for="custom-chip-supercellEvents-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-supercellEvents-glowy" min="0" max="2500" maxlength="4" value="0">
+                                </div>
+                                <label for="custom-chip-supercellEvents-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                            <div class="custom-chip-ore-input-group">
+                                <div class="popover-wrapper">
+                                    <input type="number" id="custom-chip-supercellEvents-starry" min="0" max="500" maxlength="3" value="0">
+                                </div>
+                                <label for="custom-chip-supercellEvents-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></label>
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-supercellEvents-override" data-i18n="planner.createCustomChipsModal.globalOverride">Global override</label>
+                                <p class="form-setting-text" data-i18n="planner.createCustomChipsModal.globalOverrideDesc">Override income from supercell events globally.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-supercellEvents-override">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prospector Section -->
+                <div id="custom-chip-section-prospector" class="custom-chip-section" style="display: none;">
+                    <div class="flex-column-gap-10">
+                        <div class="custom-chip-prospector-row">
+                            <div class="custom-dropdown" id="custom-chip-prospector-from-ore">
+                                <div class="dropdown-selected">
+                                    <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny"></orecalc-assets-image>
+                                </div>
+                                <div class="dropdown-options"></div>
+                            </div>
+                            <div class="popover-wrapper">
+                                <input type="number" id="custom-chip-prospector-from-amount" value="0" min="0" max="25000" maxlength="6">
+                            </div>
+                            <div class="prospector-arrow">➔</div>
+                            <div class="popover-wrapper">
+                                <input type="number" id="custom-chip-prospector-to-amount" value="0" min="0" max="25000" maxlength="6">
+                            </div>
+                            <div class="custom-dropdown" id="custom-chip-prospector-to-ore">
+                                <div class="dropdown-selected">
+                                    <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy"></orecalc-assets-image>
+                                </div>
+                                <div class="dropdown-options"></div>
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-prospector-count" data-i18n="planner.createCustomChipsModal.numChips">Number of chips to create</label>
+                            </div>
+                            <div class="popover-wrapper">
+                                <input type="number" id="custom-chip-prospector-count" min="1" max="30" maxlength="2" value="1" class="small-number-input">
+                            </div>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label for="custom-chip-prospector-monthly" data-i18n="planner.createCustomChipsModal.createMonthly">Create monthly</label>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="custom-chip-prospector-monthly">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Per Chip Rewards Preview -->
+                <div id="custom-chip-rewards-preview" class="custom-chip-rewards-preview" style="display: none;">
+                    <span class="preview-label" data-i18n="planner.createCustomChipsModal.perChipRewards">Per chip rewards:</span>
+                    <span id="custom-chip-preview-shiny-container" class="preview-ore-item">
+                        <span id="custom-chip-preview-shiny">0</span>
+                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></orecalc-assets-image>
+                    </span>
+                    <span id="custom-chip-preview-glowy-container" class="preview-ore-item">
+                        <span id="custom-chip-preview-glowy">0</span>
+                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></orecalc-assets-image>
+                    </span>
+                    <span id="custom-chip-preview-starry-container" class="preview-ore-item">
+                        <span id="custom-chip-preview-starry">0</span>
+                        <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></orecalc-assets-image>
+                    </span>
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button id="cancel-create-custom-chips-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
+            <button id="save-create-custom-chips-btn" class="accept-button" data-i18n="actions.create">Create</button>
+        </div>
+    </div>
+</div>

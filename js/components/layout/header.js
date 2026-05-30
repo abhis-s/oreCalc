@@ -17,11 +17,11 @@ export function initializeHeader() {
         // Add a 10px cushion to prevent flickering.
         // The header becomes sticky only after scrolling 10px past its starting position.
         if (window.scrollY > initialOffset + 10) {
-            headerContainer.classList.add('header-container--sticky');
+            headerContainer.classList.add('sticky');
             headerPlaceholder.style.display = 'block';
         } else if (window.scrollY <= initialOffset) {
             // It becomes un-sticky only when scrolling back to its original position.
-            headerContainer.classList.remove('header-container--sticky');
+            headerContainer.classList.remove('sticky');
             headerPlaceholder.style.display = 'none';
         }
     };

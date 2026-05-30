@@ -10,5 +10,9 @@ export function getPlayerDOMElements() {
         loadPlayerModalButton: document.getElementById('load-player-modal-btn'),
         playerTagErrorMessage: document.getElementById('player-tag-error-message'),
         playerItemsContainer: document.getElementById('player-items-container'),
+        addPlayerTokenContainer: document.getElementById('add-player-token-container'),
+        addPlayerTokenInput: document.getElementById('add-player-token-input'),
+        verifyPlayerModalButton: document.getElementById('verify-player-modal-btn'),
+        closeAddPlayerModalBtn: document.getElementById('close-add-player-modal-btn'),
     };
 }

@@ -1,42 +1,109 @@
 import { state } from '../core/state.js';
 import { upgradeCosts, heroData } from '../data/heroData.js';
-import { incomeData } from '../data/incomeChipData.js';
+import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
 import { translate } from '../i18n/translator.js';
 import { storageCapacities } from '../data/oreConversionData.js';
+import { toCamelCase } from './stringUtils.js';
+import { supercellEventsData } from '../data/appData.js';
+import { getSupercellEventsForYear } from './dateUtils.js';
 
 export function getDailyIncomeFromCalendar(date) {
     const dailyIncome = { shiny: 0, glowy: 0, starry: 0 };
     const monthYearKey = `${String(date.getUTCMonth() + 1).padStart(2, '0')}-${date.getUTCFullYear()}`;
     const dayKey = String(date.getUTCDate()).padStart(2, '0');
 
-    const starBonusSource = incomeData.starBonus;
-    const starBonusIncome = starBonusSource.getIncome(state);
-    dailyIncome.shiny += Math.round(starBonusIncome.shiny);
-    dailyIncome.glowy += Math.round(starBonusIncome.glowy);
-    dailyIncome.starry += Math.round(starBonusIncome.starry);
+    const chipsForThisDay = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];
+    const hasMultiplierChip = chipsForThisDay.some(id => {
+        const cleanId = id.replace(/^custom-/, '');
+        return cleanId.startsWith('starBonus') && !cleanId.startsWith('starBonus-') && cleanId.includes('x');
+    });
+    const hasCustomStarBonus = chipsForThisDay.some(id => id.startsWith('custom-starBonus'));
 
-    if (state.income.prospector && state.income.prospector.goldPass) {
-        const prospectorSource = incomeData.prospector;
-        const prospectorIncome = prospectorSource.getIncome(state);
-        dailyIncome.shiny += Math.round(prospectorIncome.shiny);
-        dailyIncome.glowy += Math.round(prospectorIncome.glowy);
-        dailyIncome.starry += Math.round(prospectorIncome.starry);
+    if (!hasMultiplierChip && !hasCustomStarBonus) {
+        const starBonusSource = incomeData.starBonus;
+        const starBonusIncome = starBonusSource.getBaseIncome(state);
+        dailyIncome.shiny += Math.round(starBonusIncome.shiny || 0);
+        dailyIncome.glowy += Math.round(starBonusIncome.glowy || 0);
+        dailyIncome.starry += Math.round(starBonusIncome.starry || 0);
     }
 
-    const chipsForThisDay = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];
+    const hasCustomProspector = chipsForThisDay.some(id => id.startsWith('custom-prospector'));
+    if (state.income.prospector && state.income.prospector.goldPass && !hasCustomProspector) {
+        const prospectorSource = incomeData.prospector;
+        const prospectorIncome = prospectorSource.getIncome(state);
+        dailyIncome.shiny += Math.round(prospectorIncome.shiny || 0);
+        dailyIncome.glowy += Math.round(prospectorIncome.glowy || 0);
+        dailyIncome.starry += Math.round(prospectorIncome.starry || 0);
+    }
+
+    if (state.income.supercellEvents && state.income.supercellEvents.worldChampionship) {
+        const supercellEvents = getSupercellEventsForYear(date.getUTCFullYear(), supercellEventsData);
+        supercellEvents.forEach((event) => {
+            const startDate = new Date(event.start);
+            const endDate = new Date(event.end);
+            
+            const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+            const endUTC = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+
+            const diffDays = Math.round((endUTC - startUTC) / (1000 * 60 * 60 * 24));
+            const middleDayOffset = Math.floor(diffDays / 2);
+            const middleDateUTC = new Date(startUTC);
+            middleDateUTC.setUTCDate(startUTC.getUTCDate() + middleDayOffset);
+
+            const checkDateUTC = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+
+            if (checkDateUTC.getTime() === middleDateUTC.getTime()) {
+                let rewardType = 'otherEvents';
+                if (event.name === 'Monthly Finals') rewardType = 'monthlyQualifiers';
+                else if (event.name === 'Last Chance Qualifier') rewardType = 'lastChanceQualifiers';
+                else if (event.name === 'World Finals') rewardType = 'worldChampionships';
+
+                let rewardsYear = date.getUTCFullYear();
+                if (!supercellEventsData.rewards[rewardsYear]) rewardsYear = date.getUTCFullYear() - 1;
+                if (!supercellEventsData.rewards[rewardsYear]) {
+                    const availableYears = Object.keys(supercellEventsData.rewards).map(Number).sort((a, b) => b - a);
+                    rewardsYear = availableYears[0] || 2025;
+                }
+                let rewards = (supercellEventsData.rewards[rewardsYear] && supercellEventsData.rewards[rewardsYear][rewardType]) || { shiny: 0, glowy: 0, starry: 0 };
+                
+                const scOverride = state.planner?.calendar?.customChipSettings?.supercellEvents;
+                if (scOverride && scOverride.globalOverride) {
+                    const derived = state.derived?.incomeSources?.supercellEvents;
+                    if (derived && derived.perEvent) {
+                        rewards = { ...derived.perEvent };
+                    }
+                }
+
+                dailyIncome.shiny += Math.round(rewards.shiny || 0);
+                dailyIncome.glowy += Math.round(rewards.glowy || 0);
+                dailyIncome.starry += Math.round(rewards.starry || 0);
+            }
+        });
+    }
+
     chipsForThisDay.forEach(chipId => {
         const parts = chipId.split('-');
         const type = parts[0];
-        if (type === 'starBonus') {
+        
+        // Check for custom chip data override
+        if (chipId.startsWith('custom-') && state.planner.calendar.customChipData?.[chipId]) {
+            const customData = state.planner.calendar.customChipData[chipId];
+            dailyIncome.shiny += Math.round(customData.shiny || 0);
+            dailyIncome.glowy += Math.round(customData.glowy || 0);
+            dailyIncome.starry += Math.round(customData.starry || 0);
             return;
         }
-        const incomeSource = incomeData[type];
+
+        if (type === 'starBonus' || type === 'prospector' || type === 'supercellEvents') {
+            return;
+        }
+        const incomeSource = getSourceById(type);
 
         if (incomeSource) {
             const income = incomeSource.getIncome(state);
-            dailyIncome.shiny += Math.round(income.shiny);
-            dailyIncome.glowy += Math.round(income.glowy);
-            dailyIncome.starry += Math.round(income.starry);
+            dailyIncome.shiny += Math.round(income.shiny || 0);
+            dailyIncome.glowy += Math.round(income.glowy || 0);
+            dailyIncome.starry += Math.round(income.starry || 0);
         }
     });
 
@@ -46,7 +113,11 @@ export function getDailyIncomeFromCalendar(date) {
 export function calculateCompletionDates(priorityList) {
     const predictions = [];
     const suggestions = [];
-    let currentOres = { ...state.storedOres };
+    let currentOres = {
+        shiny: parseFloat(state.storedOres?.shiny) || 0,
+        glowy: parseFloat(state.storedOres?.glowy) || 0,
+        starry: parseFloat(state.storedOres?.starry) || 0
+    };
     let currentDate = new Date();
     let stopProcessing = false;
 
@@ -69,7 +140,7 @@ export function calculateCompletionDates(priorityList) {
                 item: item,
                 completionDate: null,
                 error: true,
-                message: translate('error_fix_order')
+                message: translate('errors.fixOrder')
             });
             continue;
         }
@@ -92,10 +163,10 @@ export function calculateCompletionDates(priorityList) {
         for (let level = effectiveStartLevel + 1; level <= item.targetLevel; level++) {
             const cost = upgradeCosts[level];
             if (!cost) continue;
-            totalRequiredShiny += cost.shiny;
-            totalRequiredGlowy += cost.glowy;
+            totalRequiredShiny += cost.shiny || 0;
+            totalRequiredGlowy += cost.glowy || 0;
             if (equipmentType === 'epic') {
-                totalRequiredStarry += cost.starry;
+                totalRequiredStarry += cost.starry || 0;
             }
         }
 
@@ -195,11 +266,17 @@ export function calculateCompletionDates(priorityList) {
                 }
 
                 if (interleavedItems.length > 0) {
-                    const itemNames = interleavedItems.map(item => `<b>${item.name}</b> (Step #${item.step})`).join(', ');
+                    const itemNames = interleavedItems.map(item => translate('planner.nameStep', { 
+                        equipmentName: `<b>${translate('equipment.' + toCamelCase(item.name))}</b>`, 
+                        step: item.step 
+                    })).join(', ');
                     if (!suggestions.some(s => s.type === 'efficiency_interleave')) {
                         suggestions.push({
                             type: 'efficiency_interleave',
-                            message: `You can complete ${itemNames} while waiting for Starry Ores for <b>${item.name}</b> without delaying your plan.`,
+                            message: translate('planner.suggestionInterleave', { 
+                                itemNames: itemNames, 
+                                itemName: `<b>${translate('equipment.' + toCamelCase(item.name))}</b>` 
+                            }),
                             itemsToMove: interleavedItems.map(item => ({ heroName: item.heroName, name: item.name, step: item.step })),
                             moveBefore: { heroName: item.heroName, name: item.name, step: item.step }
                         });
@@ -227,9 +304,13 @@ export function calculateCompletionDates(priorityList) {
 
                         if (currentOres.starry >= futureStarryCost) {
                             if (!suggestions.some(s => s.type === 'move_epic_up')) {
+                                const futureItemNameFormatted = translate('planner.nameStep', {
+                                    equipmentName: `<b>${translate('equipment.' + toCamelCase(futureItem.name))}</b>`,
+                                    step: futureItem.step
+                                });
                                 suggestions.push({
                                     type: 'move_epic_up',
-                                    message: `<b>${futureItem.name}</b> (Step #${futureItem.step}) can be finished sooner if moved up, as you have a surplus of Starry Ores.`,
+                                    message: translate('planner.suggestionEpicUp', { futureItemName: futureItemNameFormatted }),
                                     itemToMove: { heroName: futureItem.heroName, name: futureItem.name, step: futureItem.step },
                                     moveBefore: { heroName: item.heroName, name: item.name, step: item.step }
                                 });

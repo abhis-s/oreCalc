@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { incomeData } from '../data/incomeChipData.js';
+import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
 import { handleStateUpdate } from '../app.js';
 import { renderCalendar } from '../components/planner/calendar.js';
 import { renderIncomeChips } from '../components/planner/incomeChips.js';
@@ -7,28 +7,72 @@ import { getDaysInMonth, addDays, findNthDayOfWeek, getDateFromDayAndMonth, getS
 import { createIncomeChip } from './chipFactory.js';
 import { reindexCalendarChips } from './chipManager.js';
 
+function idMatchesType(id, type) {
+    const cleanId = id.replace(/^custom-/, '');
+    return cleanId.startsWith(type);
+}
+
 export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
+    const scope = state.planner?.calendar?.settings?.autoPlaceScope || 'month';
+    const newCalendarDates = { ...state.planner.calendar.dates };
+
+    if (scope === 'year') {
+        for (let m = 1; m <= 12; m++) {
+            const monthStr = String(m).padStart(2, '0');
+            performAutoPlacementForMonth(monthStr, currentYearStr, newCalendarDates);
+        }
+    } else {
+        performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalendarDates);
+    }
+
+    state.planner.calendar.dates = newCalendarDates;
+
+    // Reindex all non-auto types to ensure numbering is consistent
+    const reindexTypes = new Set();
+    const findReindexTypes = (source, id) => {
+        if (!source.autoGenerateInCalendar && id !== 'raidMedalTrader' && id !== 'gemTrader') {
+            reindexTypes.add(id);
+        }
+        if (source.subCategories) {
+            source.subCategories.forEach(sub => findReindexTypes(sub, sub.id));
+        }
+    };
+    for (const key in incomeData) {
+        findReindexTypes(incomeData[key], key);
+    }
+    reindexTypes.forEach(type => reindexCalendarChips(type));
+
+    const currentMonth = parseInt(currentMonthStr, 10) - 1;
+    const currentYear = parseInt(currentYearStr, 10);
+
+    handleStateUpdate(() => {
+        renderCalendar(state.planner);
+        renderIncomeChips(currentYear, currentMonth);
+    }, true);
+}
+
+function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalendarDates) {
     const currentMonth = parseInt(currentMonthStr, 10) - 1;
     const currentYear = parseInt(currentYearStr, 10);
     const monthYearKey = `${String(currentMonth + 1).padStart(2, '0')}-${currentYear}`;
 
-    // console.log(`[AutoPlace] Starting auto-placement for ${currentMonth + 1}/${currentYear}`);
-
-    const newCalendarDates = { ...state.planner.calendar.dates };
     if (!newCalendarDates[monthYearKey]) {
         newCalendarDates[monthYearKey] = {};
     }
 
     const allPotentialChips = [];
-    for (const key in incomeData) {
-        const incomeSource = incomeData[key];
-        if (incomeSource.type === 'starBonus' || incomeSource.type === 'prospector' || incomeSource.type === 'championship') {
-            continue;
+
+    const processSource = (incomeSource, sourceId) => {
+        if (incomeSource.autoGenerateInCalendar) {
+            if (incomeSource.subCategories) {
+                incomeSource.subCategories.forEach(sub => processSource(sub, sub.id));
+            }
+            return;
         }
 
         let datesToPlace = [];
         if (incomeSource.schedule && incomeSource.schedule.type === 'custom') {
-            const count = incomeSource.getCount(state);
+            const count = incomeSource.getCount(state, currentMonth, currentYear);
             for (let i = 0; i < count; i++) {
                 datesToPlace.push({ instance: i + 1, date: null });
             }
@@ -44,7 +88,7 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
 
         for (const { instance, date } of datesToPlace) {
             allPotentialChips.push({
-                type: incomeSource.type,
+                type: sourceId,
                 instance: instance,
                 name: incomeSource.name,
                 className: incomeSource.className,
@@ -55,48 +99,68 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                 minReoccurrenceDays: incomeSource.minReoccurrenceDays || 0,
             });
         }
-    }
-    // console.log(`[AutoPlace] Identified ${allPotentialChips.length} potential chips for the current month.`);
 
-    let autoPlacedChipsRemovedCount = 0;
+        if (incomeSource.subCategories) {
+            incomeSource.subCategories.forEach(sub => processSource(sub, sub.id));
+        }
+    };
+
+    for (const key in incomeData) {
+        processSource(incomeData[key], key);
+    }
+
     if (newCalendarDates[monthYearKey]) {
         for (const day in newCalendarDates[monthYearKey]) {
-            const originalCount = newCalendarDates[monthYearKey][day].length;
             newCalendarDates[monthYearKey][day] = newCalendarDates[monthYearKey][day].filter(chipId => !chipId.endsWith('-auto'));
-            const removedCount = originalCount - newCalendarDates[monthYearKey][day].length;
-            autoPlacedChipsRemovedCount += removedCount;
-
             if (newCalendarDates[monthYearKey][day].length === 0) {
                 delete newCalendarDates[monthYearKey][day];
             }
         }
     }
-    // console.log(`[AutoPlace] Cleared ${autoPlacedChipsRemovedCount} previously auto-placed chips for the current month.`);
 
     const placedChipIdsInCurrentMonth = new Set();
-    for (const day in newCalendarDates[monthYearKey]) {
-        newCalendarDates[monthYearKey][day].forEach(chipId => {
-            placedChipIdsInCurrentMonth.add(chipId.split('-cal')[0]);
-        });
+    const manualClanWarChipsInMonth = [];
+    const manualCwlChipsInMonth = [];
+
+    if (newCalendarDates[monthYearKey]) {
+        for (const day in newCalendarDates[monthYearKey]) {
+            newCalendarDates[monthYearKey][day].forEach(chipId => {
+                const originalId = chipId.split('-cal')[0];
+                placedChipIdsInCurrentMonth.add(originalId);
+                if (originalId.includes('clanWar')) manualClanWarChipsInMonth.push(day);
+                if (originalId.includes('cwl')) manualCwlChipsInMonth.push(day);
+            });
+        }
     }
-    // console.log(`[AutoPlace] ${placedChipIdsInCurrentMonth.size} manually placed chips found in current month (locked).`);
 
     const unplacedChips = allPotentialChips.filter(chip => {
         const chipId = `${chip.type}-${String(chip.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}`;
         return !placedChipIdsInCurrentMonth.has(chipId);
     });
-    // console.log(`[AutoPlace] ${unplacedChips.length} chips remain to be placed.`);
+
+    let clanWarToPlace = unplacedChips.filter(c => c.type === 'clanWar');
+    if (manualClanWarChipsInMonth.length > 0) {
+        clanWarToPlace = clanWarToPlace.slice(0, Math.max(0, clanWarToPlace.length - manualClanWarChipsInMonth.length));
+    }
+    
+    let cwlToPlace = unplacedChips.filter(c => c.type === 'cwl');
+    if (manualCwlChipsInMonth.length > 0) {
+        cwlToPlace = cwlToPlace.slice(0, Math.max(0, cwlToPlace.length - manualCwlChipsInMonth.length));
+    }
+
+    const otherUnplacedChips = unplacedChips.filter(c => c.type !== 'clanWar' && c.type !== 'cwl');
+    const filteredUnplacedChips = [...otherUnplacedChips, ...clanWarToPlace, ...cwlToPlace];
 
     const placedByHistory = new Set();
     const historyLookbackMonths = 12;
 
-    for (let i = 0; i < unplacedChips.length; i++) {
-        const chip = unplacedChips[i];
+    for (let i = 0; i < filteredUnplacedChips.length; i++) {
+        const chip = filteredUnplacedChips[i];
         if (placedByHistory.has(chip.type + '-' + chip.instance)) continue;
 
-        const schedule = incomeData[chip.type].schedule;
+        const source = getSourceById(chip.type);
+        const schedule = source ? source.schedule : null;
         if (schedule && schedule.availableMonths && schedule.availableMonths[currentYear] && !schedule.availableMonths[currentYear].includes(currentMonth + 1)) {
-            // console.log(`[AutoPlace] Skipping historical placement for ${chip.name} as it is not available in ${currentMonth + 1}/${currentYear}.`);
             continue;
         }
 
@@ -107,9 +171,11 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
             const lookbackYear = lookbackDate.getUTCFullYear();
             const lookbackMonthYearKey = `${String(lookbackMonth + 1).padStart(2, '0')}-${lookbackYear}`;
 
-            if (newCalendarDates[lookbackMonthYearKey]) {
-                for (const day in newCalendarDates[lookbackMonthYearKey]) {
-                    const chipsOnDay = newCalendarDates[lookbackMonthYearKey][day];
+            const searchDates = newCalendarDates[lookbackMonthYearKey] || state.planner.calendar.dates[lookbackMonthYearKey];
+
+            if (searchDates) {
+                for (const day in searchDates) {
+                    const chipsOnDay = searchDates[day];
                     for (const historicalChipId of chipsOnDay) {
                         const [type, instanceStr, monthStr, yearStr] = historicalChipId.split('-');
                         if (type === chip.type && parseInt(instanceStr, 10) === chip.instance) {
@@ -153,14 +219,48 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                                 if (!newCalendarDates[monthYearKey][paddedTargetDay]) {
                                     newCalendarDates[monthYearKey][paddedTargetDay] = [];
                                 }
-                                const hasConflict = newCalendarDates[monthYearKey][paddedTargetDay].some(id => id.startsWith(chip.type));
-                                if (!hasConflict) {
+                                
+                                const existingChips = newCalendarDates[monthYearKey][paddedTargetDay];
+                                let canPlace = true;
+                                if (chip.type === 'gemTrader') {
+                                    canPlace = true; // Coexist
+                                } else {
+                                    const hasManualConflict = existingChips.some(id => !id.endsWith('-auto') && idMatchesType(id, chip.type));
+                                    if (hasManualConflict) {
+                                        if (chip.type === 'starBonus2x' || chip.type === 'starBonus4x') {
+                                            const manualChipId = existingChips.find(id => !id.endsWith('-auto') && idMatchesType(id, chip.type));
+                                            const manualMultiplier = manualChipId.includes('2x') ? 2 : (manualChipId.includes('4x') ? 4 : 1);
+                                            const autoMultiplier = chip.type.includes('2x') ? 2 : (chip.type.includes('4x') ? 4 : 1);
+                                            if (autoMultiplier >= manualMultiplier) {
+                                                const idx = existingChips.indexOf(manualChipId);
+                                                existingChips.splice(idx, 1);
+                                                canPlace = true;
+                                            } else {
+                                                canPlace = false;
+                                            }
+                                        } else {
+                                            let nextDay = findFirstAvailableValidDateForAutoPlacer(chip, currentMonth, currentYear, newCalendarDates[monthYearKey]);
+                                            if (nextDay) {
+                                                const nextPaddedDay = String(nextDay).padStart(2, '0');
+                                                if (!newCalendarDates[monthYearKey][nextPaddedDay]) newCalendarDates[monthYearKey][nextPaddedDay] = [];
+                                                newCalendarDates[monthYearKey][nextPaddedDay].push(newChipId);
+                                                placedByHistory.add(chip.type + '-' + chip.instance);
+                                                foundHistoricalPlacement = true;
+                                                canPlace = false;
+                                            } else {
+                                                canPlace = false;
+                                            }
+                                        }
+                                    } else {
+                                        const hasAutoConflict = existingChips.some(id => idMatchesType(id, chip.type));
+                                        if (hasAutoConflict) canPlace = false;
+                                    }
+                                }
+
+                                if (canPlace) {
                                     newCalendarDates[monthYearKey][paddedTargetDay].push(newChipId);
                                     placedByHistory.add(chip.type + '-' + chip.instance);
                                     foundHistoricalPlacement = true;
-                                    // console.log(`[AutoPlace] Placed historical chip: ${chip.name} (Instance ${chip.instance}) from ${historicalDay}/${String(lookbackMonth + 1).padStart(2, '0')}/${lookbackYear} to ${paddedTargetDay}/${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`);
-                                } else {
-                                    // console.log(`[AutoPlace] Conflict: Could not place historical chip ${chip.name} (Instance ${chip.instance}) on ${paddedTargetDay}/${String(currentMonth + 1).padStart(2, '0')}/${currentYear} due to existing chip of same type.`);
                                 }
                             }
                         }
@@ -172,11 +272,11 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         }
     }
 
-    const finalUnplacedChips = unplacedChips.filter(chip => !placedByHistory.has(chip.type + '-' + chip.instance));
-    const cwlChipsToPlace = finalUnplacedChips.filter(chip => chip.type === 'cwl');
-    if (cwlChipsToPlace.length > 0) {
-        // console.log(`[AutoPlace] Attempting to place ${cwlChipsToPlace.length} CWL chips with gap-filling.`);
-
+    const finalUnplacedChips = filteredUnplacedChips.filter(chip => !placedByHistory.has(chip.type + '-' + chip.instance));
+    
+    // CWL
+    const cwlChipsToPlaceActual = finalUnplacedChips.filter(chip => chip.type === 'cwl');
+    if (cwlChipsToPlaceActual.length > 0) {
         const cwlSchedule = incomeData.cwl.schedule;
         const idealCwlDates = getScheduleDates(currentYear, currentMonth, cwlSchedule);
         const idealCwlDateStrings = idealCwlDates.map(d => d.toISOString().split('T')[0]);
@@ -184,7 +284,7 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         const placedCwlDates = new Set();
         for (const day in newCalendarDates[monthYearKey]) {
             const chipsOnDay = newCalendarDates[monthYearKey][day];
-            if (chipsOnDay.some(id => id.startsWith('cwl-'))) {
+            if (chipsOnDay.some(id => idMatchesType(id, 'cwl-'))) {
                 const dateStr = getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10)).toISOString().split('T')[0];
                 placedCwlDates.add(dateStr);
             }
@@ -192,13 +292,11 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
 
         const gapDates = idealCwlDateStrings.filter(d => !placedCwlDates.has(d));
 
-        // console.log(`[AutoPlace] Found ${gapDates.length} gaps for CWL chips.`);
-
         let placedCount = 0;
         for (const gapDateStr of gapDates) {
-            if (placedCount >= cwlChipsToPlace.length) break;
+            if (placedCount >= cwlChipsToPlaceActual.length) break;
 
-            const chipToPlace = cwlChipsToPlace[placedCount];
+            const chipToPlace = cwlChipsToPlaceActual[placedCount];
             const targetDate = new Date(gapDateStr);
             const targetDay = targetDate.getUTCDate();
             const paddedTargetDay = String(targetDay).padStart(2, '0');
@@ -209,44 +307,36 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                 newCalendarDates[monthYearKey][paddedTargetDay] = [];
             }
 
-            const hasConflict = newCalendarDates[monthYearKey][paddedTargetDay].some(id => id.startsWith('cwl-'));
+            const hasConflict = newCalendarDates[monthYearKey][paddedTargetDay].some(id => idMatchesType(id, 'cwl-'));
             if (!hasConflict) {
                 newCalendarDates[monthYearKey][paddedTargetDay].push(newChipId);
                 placedByHistory.add(chipToPlace.type + '-' + chipToPlace.instance);
                 placedCount++;
-                // console.log(`[AutoPlace] Placed CWL chip (Instance ${chipToPlace.instance}) in gap on ${paddedTargetDay}/${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`);
             }
         }
 
-        if (placedCount < cwlChipsToPlace.length) {
+        if (placedCount < cwlChipsToPlaceActual.length) {
             let lastCwlDate = idealCwlDates.length > 0 ? idealCwlDates[idealCwlDates.length - 1] : new Date(Date.UTC(currentYear, currentMonth, 1));
             for (const day in newCalendarDates[monthYearKey]) {
-                if (newCalendarDates[monthYearKey][day].some(id => id.startsWith('cwl-'))) {
+                if (newCalendarDates[monthYearKey][day].some(id => idMatchesType(id, 'cwl-'))) {
                     const date = getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10));
-                    if (date > lastCwlDate) {
-                        lastCwlDate = date;
-                    }
+                    if (date > lastCwlDate) lastCwlDate = date;
                 }
             }
 
             let appendDate = addDays(lastCwlDate, 1);
-            while (placedCount < cwlChipsToPlace.length && appendDate.getUTCMonth() === currentMonth) {
-                const chipToPlace = cwlChipsToPlace[placedCount];
+            while (placedCount < cwlChipsToPlaceActual.length && appendDate.getUTCMonth() === currentMonth) {
+                const chipToPlace = cwlChipsToPlaceActual[placedCount];
                 const targetDay = appendDate.getUTCDate();
                 const paddedTargetDay = String(targetDay).padStart(2, '0');
-
                 const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
 
-                if (!newCalendarDates[monthYearKey][paddedTargetDay]) {
-                    newCalendarDates[monthYearKey][paddedTargetDay] = [];
-                }
-
-                const hasConflict = newCalendarDates[monthYearKey][paddedTargetDay].some(id => id.startsWith('cwl-'));
+                if (!newCalendarDates[monthYearKey][paddedTargetDay]) newCalendarDates[monthYearKey][paddedTargetDay] = [];
+                const hasConflict = newCalendarDates[monthYearKey][paddedTargetDay].some(id => idMatchesType(id, 'cwl-'));
                 if (!hasConflict) {
                     newCalendarDates[monthYearKey][paddedTargetDay].push(newChipId);
                     placedByHistory.add(chipToPlace.type + '-' + chipToPlace.instance);
                     placedCount++;
-                    // console.log(`[AutoPlace] Appended CWL chip (Instance ${chipToPlace.instance}) on ${paddedTargetDay}/${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`);
                 }
                 appendDate = addDays(appendDate, 1);
             }
@@ -254,52 +344,117 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
     }
 
     const remainingUnplacedChips = finalUnplacedChips.filter(chip => !placedByHistory.has(chip.type + '-' + chip.instance));
-    // console.log(`[AutoPlace] ${remainingUnplacedChips.length} chips remaining for fallback placement.`);
 
     for (let i = 0; i < remainingUnplacedChips.length; i++) {
         const chip = remainingUnplacedChips[i];
         let targetDay = null;
 
-        const schedule = incomeData[chip.type].schedule;
+        const source = getSourceById(chip.type);
+        const schedule = source ? source.schedule : null;
         if (schedule && schedule.availableMonths && schedule.availableMonths[currentYear] && !schedule.availableMonths[currentYear].includes(currentMonth + 1)) {
-            // console.log(`[AutoPlace] Skipping fallback placement for ${chip.name} as it is not available in ${currentMonth + 1}/${currentYear}.`);
             continue;
         }
 
         if (chip.date) {
-            if (chip.date.startDate) {
-                targetDay = chip.date.startDate.getUTCDate();
-            } else {
-                targetDay = chip.date.getUTCDate();
-            }
+            if (chip.date.startDate) targetDay = chip.date.startDate.getUTCDate();
+            else targetDay = chip.date.getUTCDate();
         } else {
             switch (chip.type) {
                 case 'shopOffers':
                     const shopOffersScheduledDates = getScheduleDates(currentYear, currentMonth, chip.schedule);
-                    if (shopOffersScheduledDates.length > 0) {
-                        targetDay = shopOffersScheduledDates[0].getUTCDate();
-                    }
+                    if (shopOffersScheduledDates.length > 0) targetDay = shopOffersScheduledDates[0].getUTCDate();
                     break;
                 case 'raidMedalTrader':
                 case 'gemTrader':
                     const scheduleDates = getScheduleDates(currentYear, currentMonth, chip.schedule);
-                    if (scheduleDates[chip.instance - 1] && scheduleDates[chip.instance - 1].startDate) {
-                        targetDay = scheduleDates[chip.instance - 1].startDate.getUTCDate();
-                    }
+                    if (scheduleDates[chip.instance - 1] && scheduleDates[chip.instance - 1].startDate) targetDay = scheduleDates[chip.instance - 1].startDate.getUTCDate();
                     break;
                 case 'eventPass':
                     const eventPassScheduledDates = getScheduleDates(currentYear, currentMonth, chip.schedule);
                     const eventPassStartDate = eventPassScheduledDates.length > 0 ? eventPassScheduledDates[0] : null;
-                    if (eventPassStartDate) {
-                        targetDay = addDays(eventPassStartDate, 5).getUTCDate();
-                    }
+                    if (eventPassStartDate) targetDay = addDays(eventPassStartDate, 5).getUTCDate();
                     break;
                 case 'eventTrader':
                     const eventTraderScheduledDates = getScheduleDates(currentYear, currentMonth, chip.schedule);
                     const eventTraderStartDate = eventTraderScheduledDates.length > 0 ? eventTraderScheduledDates[0] : null;
-                    if (eventTraderStartDate) {
-                        targetDay = addDays(eventTraderStartDate, 7).getUTCDate();
+                    if (eventTraderStartDate) targetDay = addDays(eventTraderStartDate, 7).getUTCDate();
+                    break;
+                case 'starBonus2x':
+                    let manual2xDay = null;
+                    if (newCalendarDates[monthYearKey]) {
+                        for (const day in newCalendarDates[monthYearKey]) {
+                            const chips = newCalendarDates[monthYearKey][day];
+                            if (chips.some(id => idMatchesType(id, 'starBonus2x-') && !id.endsWith('-auto'))) {
+                                manual2xDay = parseInt(day, 10);
+                                break;
+                            }
+                        }
                     }
+
+                    if (manual2xDay !== null) {
+                        let manualInstance = 1;
+                        const manualChipId = newCalendarDates[monthYearKey][String(manual2xDay).padStart(2, '0')].find(id => idMatchesType(id, 'starBonus2x-') && !id.endsWith('-auto'));
+                        if (manualChipId) {
+                            if (manualChipId.startsWith('custom-')) {
+                                manualInstance = parseInt(manualChipId.split('-')[3], 10) + 1;
+                            } else {
+                                manualInstance = parseInt(manualChipId.split('-')[1], 10);
+                            }
+                        }
+                        targetDay = manual2xDay + (chip.instance - manualInstance);
+                    } else {
+                        let historicalWeekNumber = null;
+                        let foundHistory = false;
+                        for (let m = 1; m <= 12; m++) {
+                            const lookbackDate = new Date(Date.UTC(currentYear, currentMonth - m, 1));
+                            const lbMonth = lookbackDate.getUTCMonth();
+                            const lbYear = lookbackDate.getUTCFullYear();
+                            const lbKey = `${String(lbMonth + 1).padStart(2, '0')}-${lbYear}`;
+                            const searchDates = newCalendarDates[lbKey] || state.planner.calendar.dates[lbKey];
+                            if (searchDates) {
+                                for (const day in searchDates) {
+                                    if (searchDates[day].some(id => idMatchesType(id, 'starBonus2x-'))) {
+                                        historicalWeekNumber = Math.ceil(parseInt(day, 10) / 7);
+                                        foundHistory = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (foundHistory) break;
+                        }
+                        if (foundHistory && historicalWeekNumber !== null) {
+                            targetDay = (historicalWeekNumber - 1) * 7 + 1 + (chip.instance - 1);
+                        } else {
+                            const daysInMonth2x = getDaysInMonth(currentYear, currentMonth);
+                            const lastDayDate = new Date(Date.UTC(currentYear, currentMonth, daysInMonth2x));
+                            const lastSunday = lastDayDate.getUTCDate() - lastDayDate.getUTCDay();
+                            targetDay = Math.max(1, lastSunday - 6) + (chip.instance - 1);
+                        }
+                    }
+                    const daysInMonth2xFinal = getDaysInMonth(currentYear, currentMonth);
+                    if (targetDay > daysInMonth2xFinal || targetDay < 1) targetDay = null;
+                    break;
+                case 'starBonus4x':
+                    let startDay4x = 15;
+                    const duration4x = 6;
+                    const placed2xDays = [];
+                    if (newCalendarDates[monthYearKey]) {
+                        for (const day in newCalendarDates[monthYearKey]) {
+                            if (newCalendarDates[monthYearKey][day].some(id => idMatchesType(id, 'starBonus2x-'))) placed2xDays.push(parseInt(day, 10));
+                        }
+                    }
+                    placed2xDays.sort((a, b) => a - b);
+                    if (placed2xDays.length > 0) {
+                        const twoXStart = placed2xDays[0];
+                        const twoXEnd = placed2xDays[placed2xDays.length - 1];
+                        if (!(startDay4x + duration4x - 1 < twoXStart || startDay4x > twoXEnd)) {
+                            if (startDay4x <= twoXStart) startDay4x = twoXStart - duration4x;
+                            else startDay4x = twoXEnd + 1;
+                        }
+                    }
+                    targetDay = startDay4x + (chip.instance - 1);
+                    const daysInMonth4xFinal = getDaysInMonth(currentYear, currentMonth);
+                    if (targetDay > daysInMonth4xFinal || targetDay < 1) targetDay = null;
                     break;
                 case 'clanWar':
                     continue;
@@ -309,60 +464,58 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         if (targetDay !== null) {
             const newChipId = `${chip.type}-${String(chip.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
             const paddedTargetDay = String(targetDay).padStart(2, '0');
-
-            if (!newCalendarDates[monthYearKey][paddedTargetDay]) {
-                newCalendarDates[monthYearKey][paddedTargetDay] = [];
+            if (!newCalendarDates[monthYearKey][paddedTargetDay]) newCalendarDates[monthYearKey][paddedTargetDay] = [];
+            
+            const existingChips = newCalendarDates[monthYearKey][paddedTargetDay];
+            let canPlace = true;
+            if (chip.type === 'gemTrader') canPlace = true;
+            else {
+                const hasManualConflict = existingChips.some(id => !id.endsWith('-auto') && idMatchesType(id, chip.type));
+                if (hasManualConflict) {
+                     if (chip.type.startsWith('starBonus')) {
+                         const manualChipId = existingChips.find(id => !id.endsWith('-auto') && idMatchesType(id, chip.type));
+                         const manualMultiplier = manualChipId.includes('2x') ? 2 : (manualChipId.includes('4x') ? 4 : 1);
+                         const autoMultiplier = chip.type.includes('2x') ? 2 : (chip.type.includes('4x') ? 4 : 1);
+                         if (autoMultiplier >= manualMultiplier) {
+                             const idx = existingChips.indexOf(manualChipId);
+                             existingChips.splice(idx, 1);
+                             canPlace = true;
+                         } else canPlace = false;
+                     } else {
+                         let nextDay = findFirstAvailableValidDateForAutoPlacer(chip, currentMonth, currentYear, newCalendarDates[monthYearKey]);
+                         if (nextDay) {
+                             const nextPaddedDay = String(nextDay).padStart(2, '0');
+                             if (!newCalendarDates[monthYearKey][nextPaddedDay]) newCalendarDates[monthYearKey][nextPaddedDay] = [];
+                             newCalendarDates[monthYearKey][nextPaddedDay].push(newChipId);
+                             canPlace = false;
+                         } else canPlace = false;
+                     }
+                } else if (existingChips.some(id => idMatchesType(id, chip.type))) canPlace = false;
             }
-            const hasConflict = newCalendarDates[monthYearKey][paddedTargetDay].some(id => id.startsWith(chip.type));
-            if (!hasConflict) {
-                newCalendarDates[monthYearKey][paddedTargetDay].push(newChipId);
-                // console.log(`[AutoPlace] Placed fallback chip: ${chip.name} (Instance ${chip.instance}) on ${paddedTargetDay}/${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`);
-            } else {
-                // console.log(`[AutoPlace] Conflict: Could not place fallback chip ${chip.name} (Instance ${chip.instance}) on ${paddedTargetDay}/${String(currentMonth + 1).padStart(2, '0')}/${currentYear} due to existing chip of same type.`);
-            }
+            if (canPlace) newCalendarDates[monthYearKey][paddedTargetDay].push(newChipId);
         }
     }
 
-    const allClanWarChips = finalUnplacedChips.filter(chip => chip.type === 'clanWar');
-    const totalClanWars = incomeData.clanWar.getCount(state);
-    const manuallyPlacedWarDates = [];
-
-    if (newCalendarDates[monthYearKey]) {
-        for (const day in newCalendarDates[monthYearKey]) {
-            if (newCalendarDates[monthYearKey][day].some(id => id.startsWith('clanWar-'))) {
-                manuallyPlacedWarDates.push(getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10)));
-            }
-        }
-    }
-
+    const allClanWarChips = filteredUnplacedChips.filter(chip => chip.type === 'clanWar');
     const warsToPlaceCount = allClanWarChips.length;
-
     if (warsToPlaceCount > 0) {
-        // console.log(`[AutoPlace] Attempting to place ${warsToPlaceCount} Clan War chips.`);
-
-        let previousEarliestStartDate = null;
         let currentEarliestStartDate = null;
-
-        previousEarliestStartDate = currentEarliestStartDate;
-
         let earliestStartDateCandidate = null;
+        const totalClanWar = incomeData.clanWar.getCount(state);
 
-        if (totalClanWars < 12) {
+        if (totalClanWar < 12) {
             let historicalStartDateFound = false;
             for (let m = 1; m <= historyLookbackMonths && !historicalStartDateFound; m++) {
                 const lookbackDate = new Date(Date.UTC(currentYear, currentMonth - m, 1));
                 const lookbackMonth = lookbackDate.getUTCMonth();
                 const lookbackYear = lookbackDate.getUTCFullYear();
-                const lookbackMonthYearKey = `${String(lookbackMonth + 1).padStart(2, '0')}-${lookbackYear}`;
-
-                if (state.planner.calendar.dates[lookbackMonthYearKey]) {
-                    for (const day in state.planner.calendar.dates[lookbackMonthYearKey]) {
-                        const chipsOnDay = state.planner.calendar.dates[lookbackMonthYearKey][day];
-                        if (chipsOnDay.some(id => id.startsWith('clanWar-01-'))) {
-                            const historicalDay = parseInt(day, 10);
-                            earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, historicalDay);
+                const lbKey = `${String(lookbackMonth + 1).padStart(2, '0')}-${lookbackYear}`;
+                const searchDates = newCalendarDates[lbKey] || state.planner.calendar.dates[lbKey];
+                if (searchDates) {
+                    for (const day in searchDates) {
+                        if (searchDates[day].some(id => idMatchesType(id, 'clanWar-01-'))) {
+                            earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10));
                             historicalStartDateFound = true;
-                            // console.log(`[AutoPlace] Found historical start date for Clan War on day ${historicalDay} from ${lookbackMonth + 1}/${lookbackYear}`);
                             break;
                         }
                     }
@@ -371,66 +524,42 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         }
 
         if (!earliestStartDateCandidate) {
-            if (totalClanWars >= 12) {
-                earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, 4);
-            } else {
+            if (totalClanWar >= 12) earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, 4);
+            else {
                 let firstCwlChipDate = null;
                 const placedCwlDatesInMonth = [];
                 for (const day in newCalendarDates[monthYearKey]) {
                     newCalendarDates[monthYearKey][day].forEach(chipId => {
-                        if (chipId.startsWith('cwl-')) {
-                            placedCwlDatesInMonth.push(getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10)));
-                        }
+                        if (idMatchesType(chipId, 'cwl-')) placedCwlDatesInMonth.push(getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10)));
                     });
                 }
                 if (placedCwlDatesInMonth.length > 0) {
                     placedCwlDatesInMonth.sort((a, b) => a.getTime() - b.getTime());
                     firstCwlChipDate = placedCwlDatesInMonth[0];
                 }
-
                 if (firstCwlChipDate) {
                     const cwlStartPlus8 = incomeData.cwl.schedule.dateStart + 8;
                     const cwlEndPlus1 = incomeData.cwl.schedule.dateEnd + 1;
                     const lastCwlInstanceDate = placedCwlDatesInMonth[placedCwlDatesInMonth.length - 1];
                     const lastCwlPlus2 = lastCwlInstanceDate.getUTCDate() + 2;
-
-                    let calculatedDay = 0;
-                    if (lastCwlPlus2 <= cwlStartPlus8) {
-                        calculatedDay = cwlStartPlus8;
-                    } else if (lastCwlPlus2 < cwlEndPlus1) {
-                        calculatedDay = cwlEndPlus1;
-                    } else {
-                        calculatedDay = cwlEndPlus1;
-                    }
+                    let calculatedDay = lastCwlPlus2 <= cwlStartPlus8 ? cwlStartPlus8 : cwlEndPlus1;
                     earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, calculatedDay);
-                    // console.log(`[AutoPlace] Calculated earliestStartDateCandidate from CWL: ${earliestStartDateCandidate.getUTCDate()}`);
-                } else {
-                    earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, incomeData.clanWar.schedule.dateStart);
-                    // console.log(`[AutoPlace] No CWL chip found. Defaulting Clan War start window to clanWar.schedule.startDate.`);
-                }
+                } else earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, incomeData.clanWar.schedule.dateStart);
             }
         }
         currentEarliestStartDate = earliestStartDateCandidate;
 
-        // console.log(`[AutoPlace] Clan War placement window starts on: ${currentEarliestStartDate.getUTCDate()}/${currentMonth + 1}`);
-
         const blockedDates = new Set();
         const daysInMonth = getDaysInMonth(currentYear, currentMonth);
         const minSpacing = incomeData.clanWar.minReoccurrenceDays;
-
-        for (let i = 1; i < currentEarliestStartDate.getUTCDate(); i++) {
-            blockedDates.add(i);
-        }
+        for (let i = 1; i < currentEarliestStartDate.getUTCDate(); i++) blockedDates.add(i);
 
         const currentManuallyPlacedWarDates = [];
         if (newCalendarDates[monthYearKey]) {
             for (const day in newCalendarDates[monthYearKey]) {
-                if (newCalendarDates[monthYearKey][day].some(id => id.startsWith('clanWar-'))) {
-                    currentManuallyPlacedWarDates.push(getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10)));
-                }
+                if (newCalendarDates[monthYearKey][day].some(id => idMatchesType(id, 'clanWar-'))) currentManuallyPlacedWarDates.push(getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10)));
             }
         }
-
         currentManuallyPlacedWarDates.forEach(date => {
             const day = date.getUTCDate();
             blockedDates.add(day);
@@ -439,11 +568,9 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                 if (day + i <= daysInMonth) blockedDates.add(day + i);
             }
         });
-        // console.log(`[AutoPlace] Initial blocked dates (no-go zone) calculated:`, Array.from(blockedDates).sort((a, b) => a - b));
 
         let placedCount = 0;
         let searchStartDate = currentEarliestStartDate.getUTCDate();
-
         while (placedCount < warsToPlaceCount && searchStartDate <= daysInMonth) {
             let placementDay = -1;
             for (let d = searchStartDate; d <= daysInMonth; d++) {
@@ -452,235 +579,45 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
                     break;
                 }
             }
-
-            if (placementDay === -1) {
-                // console.log(`[AutoPlace] No more available slots for Clan War chips.`);
-                break;
-            }
+            if (placementDay === -1) break;
 
             const chipToPlace = allClanWarChips[placedCount];
             const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
-            const paddedTargetDay = String(placementDay).padStart(2, '0');
-
-            if (!newCalendarDates[monthYearKey][paddedTargetDay]) {
-                newCalendarDates[monthYearKey][paddedTargetDay] = [];
-            }
-            newCalendarDates[monthYearKey][paddedTargetDay].push(newChipId);
+            const paddedDay = String(placementDay).padStart(2, '0');
+            if (!newCalendarDates[monthYearKey][paddedDay]) newCalendarDates[monthYearKey][paddedDay] = [];
+            newCalendarDates[monthYearKey][paddedDay].push(newChipId);
             placedCount++;
-            // console.log(`[AutoPlace] Placed Clan War chip (Instance ${chipToPlace.instance}) on day ${placementDay}`);
 
             blockedDates.add(placementDay);
             for (let i = 1; i < minSpacing; i++) {
                 if (placementDay - i > 0) blockedDates.add(placementDay - i);
                 if (placementDay + i <= daysInMonth) blockedDates.add(placementDay + i);
             }
-
             const remainingWars = warsToPlaceCount - placedCount;
             if (remainingWars > 0) {
                 let availableDays = 0;
-                for (let d = placementDay + 1; d <= daysInMonth; d++) {
-                    if (!blockedDates.has(d)) {
-                        availableDays++;
-                    }
-                }
-
-                if (availableDays > 0) {
-                    const averageSpacing = Math.ceil(availableDays / remainingWars);
-                    searchStartDate = placementDay + Math.max(minSpacing, averageSpacing);
-                } else {
-                    searchStartDate = daysInMonth + 1;
-                }
-            } else {
-                searchStartDate = daysInMonth + 1;
-            }
+                for (let d = placementDay + 1; d <= daysInMonth; d++) if (!blockedDates.has(d)) availableDays++;
+                searchStartDate = placementDay + (availableDays > 0 ? Math.max(minSpacing, Math.ceil(availableDays / remainingWars)) : daysInMonth + 1);
+            } else searchStartDate = daysInMonth + 1;
         }
-
-        if (placedCount < warsToPlaceCount) {
-            // console.log(`[AutoPlace] ${warsToPlaceCount - placedCount} Clan War chips could not be placed due to lack of available space.`);
-        }
-
-        const earliestStartDateStabilized = (previousEarliestStartDate !== null && currentEarliestStartDate !== null && previousEarliestStartDate.getTime() === currentEarliestStartDate.getTime()) ||
-                                            (previousEarliestStartDate === null && currentEarliestStartDate === null);
-
-        if (!earliestStartDateStabilized && placedCount < warsToPlaceCount) {
-            // console.log(`[AutoPlace] Retrying Clan War placement due to instability or incomplete placement.`);
-
-            for (const day in newCalendarDates[monthYearKey]) {
-                newCalendarDates[monthYearKey][day] = newCalendarDates[monthYearKey][day].filter(chipId => !chipId.startsWith('clanWar-'));
-                if (newCalendarDates[monthYearKey][day].length === 0) {
-                    delete newCalendarDates[monthYearKey][day];
-                }
-            }
-            previousEarliestStartDate = currentEarliestStartDate;
-
-            earliestStartDateCandidate = null;
-
-            if (totalClanWars < 12) {
-                let historicalStartDateFound = false;
-                for (let m = 1; m <= historyLookbackMonths && !historicalStartDateFound; m++) {
-                    const lookbackDate = new Date(Date.UTC(currentYear, currentMonth - m, 1));
-                    const lookbackMonth = lookbackDate.getUTCMonth();
-                    const lookbackYear = lookbackDate.getUTCFullYear();
-                    const lookbackMonthYearKey = `${String(lookbackMonth + 1).padStart(2, '0')}-${lookbackYear}`;
-
-                    if (state.planner.calendar.dates[lookbackMonthYearKey]) {
-                        for (const day in state.planner.calendar.dates[lookbackMonthYearKey]) {
-                            const chipsOnDay = state.planner.calendar.dates[lookbackMonthYearKey][day];
-                            if (chipsOnDay.some(id => id.startsWith('clanWar-01-'))) {
-                                const historicalDay = parseInt(day, 10);
-                                earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, historicalDay);
-                                historicalStartDateFound = true;
-                                // console.log(`[AutoPlace] Found historical start date for Clan War on day ${historicalDay} from ${lookbackMonth + 1}/${lookbackYear}`);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (!earliestStartDateCandidate) {
-                if (totalClanWars >= 12) {
-                    earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, 4);
-                } else {
-                    let firstCwlChipDate = null;
-                    const placedCwlDatesInMonth = [];
-                    for (const day in newCalendarDates[monthYearKey]) {
-                        newCalendarDates[monthYearKey][day].forEach(chipId => {
-                            if (chipId.startsWith('cwl-')) {
-                                placedCwlDatesInMonth.push(getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10)));
-                            }
-                        });
-                    }
-                    if (placedCwlDatesInMonth.length > 0) {
-                        placedCwlDatesInMonth.sort((a, b) => a.getTime() - b.getTime());
-                        firstCwlChipDate = placedCwlDatesInMonth[0];
-                    }
-
-                    if (firstCwlChipDate) {
-                        const cwlStartPlus8 = incomeData.cwl.schedule.dateStart + 8;
-                        const cwlEndPlus1 = incomeData.cwl.schedule.dateEnd + 1;
-                        const lastCwlInstanceDate = placedCwlDatesInMonth[placedCwlDatesInMonth.length - 1];
-                        const lastCwlPlus2 = lastCwlInstanceDate.getUTCDate() + 2;
-
-                        let calculatedDay = 0;
-                        if (lastCwlPlus2 <= cwlStartPlus8) {
-                            calculatedDay = cwlStartPlus8;
-                        } else if (lastCwlPlus2 < cwlEndPlus1) {
-                            calculatedDay = cwlEndPlus1;
-                        } else {
-                            calculatedDay = cwlEndPlus1;
-                        }
-                        earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, calculatedDay);
-                        // console.log(`[AutoPlace] Calculated earliestStartDateCandidate from CWL: ${earliestStartDateCandidate.getUTCDate()}`);
-                    } else {
-                        earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, incomeData.clanWar.schedule.dateStart);
-                        // console.log(`[AutoPlace] No CWL chip found. Defaulting Clan War start window to clanWar.schedule.startDate.`);
-                    }
-                }
-            }
-            currentEarliestStartDate = earliestStartDateCandidate;
-
-            // console.log(`[AutoPlace] Clan War placement window starts on: ${currentEarliestStartDate.getUTCDate()}/${currentMonth + 1}`);
-
-            const blockedDates = new Set();
-            const daysInMonth = getDaysInMonth(currentYear, currentMonth);
-            const minSpacing = incomeData.clanWar.minReoccurrenceDays;
-
-            for (let i = 1; i < currentEarliestStartDate.getUTCDate(); i++) {
-                blockedDates.add(i);
-            }
-
-            const currentManuallyPlacedWarDates = [];
-            if (newCalendarDates[monthYearKey]) {
-                for (const day in newCalendarDates[monthYearKey]) {
-                    if (newCalendarDates[monthYearKey][day].some(id => id.startsWith('clanWar-'))) {
-                        currentManuallyPlacedWarDates.push(getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10)));
-                    }
-                }
-            }
-
-            currentManuallyPlacedWarDates.forEach(date => {
-                const day = date.getUTCDate();
-                blockedDates.add(day);
-                for (let i = 1; i < minSpacing; i++) {
-                    if (day - i > 0) blockedDates.add(day - i);
-                    if (day + i <= daysInMonth) blockedDates.add(day + i);
-                }
-            });
-            // console.log(`[AutoPlace] Initial blocked dates (no-go zone) calculated:`, Array.from(blockedDates).sort((a, b) => a - b));
-
-            placedCount = 0;
-            searchStartDate = currentEarliestStartDate.getUTCDate();
-
-            while (placedCount < warsToPlaceCount && searchStartDate <= daysInMonth) {
-                let placementDay = -1;
-                for (let d = searchStartDate; d <= daysInMonth; d++) {
-                    if (!blockedDates.has(d)) {
-                        placementDay = d;
-                        break;
-                    }
-                }
-
-                if (placementDay === -1) {
-                    // console.log(`[AutoPlace] No more available slots for Clan War chips.`);
-                    break;
-                }
-
-                const chipToPlace = allClanWarChips[placedCount];
-                const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
-                const paddedTargetDay = String(placementDay).padStart(2, '0');
-
-                if (!newCalendarDates[monthYearKey][paddedTargetDay]) {
-                    newCalendarDates[monthYearKey][paddedTargetDay] = [];
-                }
-                newCalendarDates[monthYearKey][paddedTargetDay].push(newChipId);
-                placedCount++;
-                // console.log(`[AutoPlace] Placed Clan War chip (Instance ${chipToPlace.instance}) on day ${placementDay}`);
-
-                blockedDates.add(placementDay);
-                for (let i = 1; i < minSpacing; i++) {
-                    if (placementDay - i > 0) blockedDates.add(placementDay - i);
-                    if (placementDay + i <= daysInMonth) blockedDates.add(placementDay + i);
-                }
-
-                const remainingWars = warsToPlaceCount - placedCount;
-                if (remainingWars > 0) {
-                    let availableDays = 0;
-                    for (let d = placementDay + 1; d <= daysInMonth; d++) {
-                        if (!blockedDates.has(d)) {
-                            availableDays++;
-                        }
-                    }
-
-                    if (availableDays > 0) {
-                        const averageSpacing = Math.ceil(availableDays / remainingWars);
-                        searchStartDate = placementDay + Math.max(minSpacing, averageSpacing);
-                    } else {
-                        searchStartDate = daysInMonth + 1;
-                    }
-                } else {
-                    searchStartDate = daysInMonth + 1;
-                }
-            }
-
-            if (placedCount < warsToPlaceCount) {
-                // console.log(`[AutoPlace] ${warsToPlaceCount - placedCount} Clan War chips could not be placed due to lack of available space.`);
-            }
-        }
-        // console.log(`[AutoPlace] Clan War re-evaluation loop exited.`);
-
-    } else {
-        // console.log(`[AutoPlace] No Clan War chips to place.`);
     }
+}
 
-    state.planner.calendar.dates = newCalendarDates;
-
-    reindexCalendarChips('clanWar');
-    reindexCalendarChips('cwl');
-
-    handleStateUpdate(() => {
-        renderCalendar(state.planner);
-        renderIncomeChips(currentYear, currentMonth);
-    }, true);
-    // console.log(`[AutoPlace] Auto-placement complete.`);
+function findFirstAvailableValidDateForAutoPlacer(chip, month, year, monthDates) {
+    const incomeSource = getSourceById(chip.type);
+    if (!incomeSource || !incomeSource.schedule) return null;
+    const scheduledDates = getScheduleDates(year, month, incomeSource.schedule);
+    for (const date of scheduledDates) {
+        const d = date.getUTCDate();
+        const paddedDay = String(d).padStart(2, '0');
+        const existing = monthDates[paddedDay] || [];
+        const hasConflict = existing.some(id => {
+            const cleanId = id.replace(/^custom-/, '');
+            return cleanId.startsWith(chip.type);
+        });
+        if (!hasConflict) {
+            return d;
+        }
+    }
+    return null;
 }

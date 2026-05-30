@@ -1,0 +1,36 @@
+<div id="global-pricing-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 data-i18n="settings.globalPricingModal.title">Global Pricing Configuration</h2>
+            <button id="close-global-pricing-modal-btn" class="close-button">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-info-text">
+            <p data-i18n="settings.globalPricingDesc">Configure custom prices for your currency.</p>
+        </div>
+        <div class="modal-body">
+            <div class="input-group-flex margin-bottom-20">
+                <label for="global-pricing-currency-select" data-i18n="settings.globalPricingModal.selectCurrency">Configure for Currency:</label>
+                <select id="global-pricing-currency-select" class="dropdown-style">
+                    <!-- Options populated from currencyData -->
+                </select>
+            </div>
+
+            <div class="global-pricing-grid-container">
+                <div class="global-pricing-grid-header">
+                    <span data-i18n="settings.globalPricingModal.usdHeader">USD Price</span>
+                    <span id="global-pricing-custom-header" data-i18n="settings.globalPricingModal.customHeader">Custom Price</span>
+                </div>
+                <div id="global-pricing-grid-body" class="global-pricing-grid-body">
+                    <!-- Grid rows populated dynamically -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button id="reset-global-pricing-btn" class="reject-button" data-i18n="settings.globalPricingModal.reset" style="margin-right: auto; display: none;">Reset to Default</button>
+            <button id="cancel-global-pricing-btn" class="reject-button" data-i18n="settings.globalPricingModal.cancel">Cancel</button>
+            <button id="save-global-pricing-btn" class="accept-button" data-i18n="settings.globalPricingModal.save">Save Changes</button>
+        </div>
+    </div>
+</div>

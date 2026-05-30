@@ -3,6 +3,9 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { loadPlayerData, updateSavedPlayerTags, removePlayerTag, isPlayerTagCached } from '../../core/localStorageManager.js';
 import { showAddPlayerModal } from './playerModal.js';
+import { translate } from '../../i18n/translator.js';
+import { getSVG } from '../../utils/svgManager.js';
+import { currencyData } from '../../data/appData.js';
 
 export function initializePlayerDropdown() {
     const dropdownButton = dom.player.dropdownButton;
@@ -51,28 +54,29 @@ export function renderPlayerDropdown() {
 
     if (playerItemsContainer && selectedPlayerName) {
         const savedPlayers = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0');
+        const activeTag = state.savedPlayerTags[0];
 
-        if (state.lastPlayerTag && state.lastPlayerTag !== 'DEFAULT0') {
-            const playerData = loadPlayerData(state.lastPlayerTag);
-            if (playerData && playerData.playerData && playerData.playerData.name) {
-                selectedPlayerName.textContent = `${playerData.playerData.name}`;
+        if (activeTag && activeTag !== 'DEFAULT0') {
+            const playerState = loadPlayerData(activeTag);
+            if (playerState && playerState.playerProfile && playerState.playerProfile.name) {
+                selectedPlayerName.textContent = `${playerState.playerProfile.name}`;
             } else {
-                selectedPlayerName.textContent = `Player`;
+                selectedPlayerName.textContent = translate('player.label');
             }
         } else {
-            selectedPlayerName.textContent = 'Select a Player';
+            selectedPlayerName.textContent = translate('player.selectPlaceholder');
         }
 
         let playerItemsHtml = savedPlayers.map(tag => {
-            const playerData = loadPlayerData(tag);
-            const playerName = (playerData && playerData.playerData && playerData.playerData.name) ? playerData.playerData.name : 'Player';
-            const isActive = tag === state.lastPlayerTag ? 'active' : '';
+            const playerState = loadPlayerData(tag);
+            const playerName = (playerState && playerState.playerProfile && playerState.playerProfile.name) ? playerState.playerProfile.name : translate('player.label');
+            const isActive = tag === activeTag ? 'active' : '';
             const isDefaultTag = tag === 'DEFAULT0';
 
             const isCached = isPlayerTagCached(tag);
             const cacheIconSvg = isCached
-                ? '<svg class="cache-status-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m414-280 226-226-58-58-169 169-84-84-57 57 142 142ZM260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q25-92 100-149t170-57q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm0-80h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm220-240Z"/></svg>'
-                : '<svg class="cache-status-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q25-92 100-149t170-57q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm0-80h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm220-240Zm0 160q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320Zm-40-140h80v-180h-80v180Z"/></svg>';
+                ? getSVG('cloud-check', 'cache-status-icon', 24, 24, 'currentColor')
+                : getSVG('cloud-error', 'cache-status-icon', 24, 24, 'currentColor');
 
             return `<div class="player-dropdown-item ${isActive}" data-tag="${tag}">
                         ${cacheIconSvg}
@@ -81,7 +85,7 @@ export function renderPlayerDropdown() {
                             <span class="player-tag-text">#${tag}</span>
                         </div>
                         <button class="delete-player-button" data-tag="${tag}" ${isDefaultTag ? 'disabled' : ''}>
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+                            ${getSVG('trash', '', 24, 24, 'currentColor')}
                         </button>
                     </div>`;
         }).join('');
@@ -104,21 +108,36 @@ export function renderPlayerDropdown() {
                 event.stopPropagation();
                 const tagToDelete = event.currentTarget.dataset.tag;
                 removePlayerTag(tagToDelete);
-                renderPlayerDropdown();
+                location.reload();
             });
         });
     }
 }
 
 function handlePlayerSelection(tag) {
-    const playerData = loadPlayerData(tag);
-    if (playerData) {
-        state.lastPlayerTag = tag;
-        state.heroes = JSON.parse(JSON.stringify(playerData.heroes));
-        state.storedOres = JSON.parse(JSON.stringify(playerData.storedOres));
-        state.income = JSON.parse(JSON.stringify(playerData.income));
-        state.playerData = JSON.parse(JSON.stringify(playerData.playerData));
-        state.uiSettings.regionalPricingEnabled = playerData.regionalPricingEnabled;
+    const playerState = loadPlayerData(tag);
+    if (playerState) {
+        // Helper to safely clone objects with fallbacks
+        const safeClone = (obj, fallback = {}) => {
+            try {
+                return obj ? JSON.parse(JSON.stringify(obj)) : fallback;
+            } catch (e) {
+                console.warn('Failed to clone state object, using fallback', e);
+                return fallback;
+            }
+        };
+
+        state.heroes = safeClone(playerState.heroes);
+        state.storedOres = safeClone(playerState.storedOres);
+        state.income = safeClone(playerState.income);
+        state.planner = safeClone(playerState.planner);
+        state.playerProfile = safeClone(playerState.playerProfile);
+
+        if (playerState.currency && typeof playerState.currency === 'object') {
+            state.uiSettings.currency = {
+                code: playerState.currency.code || 'USD'
+            };
+        }
 
         handleStateUpdate(() => {});
         updateSavedPlayerTags(tag);

@@ -1,0 +1,313 @@
+        <div class="tab-content" id="income-tab">
+            <div class="income-cards-grid">
+                <div class="card-container">
+                    <div id="inc-star-bonus-card" class="income-card card">
+                        <h2 class="card-title daily" data-i18n="income.starBonus.title">Star Bonus</h2>
+                        <div class="inner-card">
+                            <div class="input-group-flex">
+                                <label for="inc-star-bonus-league-select" data-i18n="income.starBonus.league">League</label>
+                                <select id="inc-star-bonus-league-select" class="dropdown-style updatable">
+                                </select>
+                            </div>
+                            <div class="input-group-flex">
+                                <label data-i18n="income.starBonus.eventManage">2x/4x Star Bonus</label>
+                                <button id="open-star-bonus-multiplier-btn" class="animated-btn btn-accent">
+                                    <span class="animated-btn-text" data-i18n="actions.manage">Manage</span>
+                                    <span class="animated-btn-icon-wrapper fill-dark">
+                                        <orecalc-assets-svg name="settings-filled"></orecalc-assets-svg>
+                                    </span>
+                                </button>
+                            </div>                        </div>
+                        
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="inc-shop-offers-card" class="income-card card">
+                        <h2 class="card-title" data-i18n="income.shopOffers.title">Shop Offers</h2>
+                        <div class="inner-card">
+                            <div class="input-group-flex">
+                                <label for="inc-shop-offers-select" data-i18n="income.shopOffers.monthEndLabel">Month-End Shop Offer:</label>
+                                <select id="inc-shop-offers-select" class="updatable">
+                                    <option value="16" data-i18n="income.shopOffers.th16Set">TH16 Set</option>
+                                    <option value="14" data-i18n="income.shopOffers.th14Set">TH14 Set</option>
+                                    <option value="11" data-i18n="income.shopOffers.th11Set">TH11 Set</option>
+                                    <option value="8" data-i18n="income.shopOffers.th8Set">TH8 Set</option>
+                                    <option value="0" data-i18n="app.none">None</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="inc-shop-offers-checkboxes" class="offer-grid">
+                            <!-- Checkboxes will be dynamically inserted here -->
+                        </div>
+                        <div class="timeframe-income">
+                            <div class="four-col-grid">
+                                <div class="grid-row">
+                                    <div class="grid-label" data-i18n="income.shopOffers.cost">Cost:</div>
+                                    <div class="grid-value-display"><span id="inc-shop-offers-eur-monthly-value" class="calculated"></span> <span class="currency-symbol">€</span></div>
+                                    <div class="grid-value-display"><span id="inc-shop-offers-usd-monthly-value" class="calculated"></span> <span class="currency-symbol">$</span></div>
+                                    <div class="grid-value-display"><span id="inc-shop-offers-dynamic-monthly-value" class="calculated"></span> <span id="inc-shop-offers-dynamic-currency-symbol" class="currency-symbol"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="inc-raid-medal-trader-card" class="income-card card">
+                        <h2 class="card-title" data-i18n="income.raidMedalTrader.title">Raid Medal Trader</h2>
+                        <div id="inc-raid-medal-trader-offers" class="offer-grid">
+                            <!-- Raid Medal Offers will be dynamically inserted here -->
+                        </div>
+                        <div class="summary-grid">
+                            <div class="summary-item-container input-group-flex">
+                                <div class="summary-label" data-i18n="income.earned">Earned:</div>
+                                <div class="summary-value-with-image">
+                                    <div class="popover-wrapper">
+                                        <input type="number" class="updatable" id="inc-raid-medals-total-input" value="0" min="0" max="1970" maxlength="4">
+                                    </div>
+                                    <orecalc-assets-image src="assets/resources/raidMedal.png" alt="Raid Medals" data-i18n-alt="ores.raidMedal" class="raid-medal-image ore-image"></orecalc-assets-image>
+                                </div>
+                            </div>
+                            <div class="summary-item-container">
+                                <div class="summary-label" data-i18n="income.remaining">Remaining:</div>
+                                <div class="summary-value-with-image">
+                                    <span id="inc-raid-medals-remaining" class="calculated"></span>
+                                    <orecalc-assets-image src="assets/resources/raidMedal.png" alt="Raid Medals" data-i18n-alt="ores.raidMedal" class="raid-medal-image ore-image"></orecalc-assets-image>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="inc-gem-trader-card" class="income-card card">
+                        <h2 class="card-title" data-i18n="income.gemTrader.title">Gem Trader</h2>
+                        <div id="inc-gem-trader-offers" class="offer-grid">
+                            <!-- Gem Offers will be dynamically inserted here -->
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="inc-event-pass-card" class="income-card card">
+                        <h2 class="card-title" data-i18n="income.eventPass.title">Event Pass</h2>
+                        <div class="inner-card">
+                            <div class="input-group-flex">
+                                <label for="inc-event-pass-toggle" data-i18n="income.eventPass.title">Event Pass</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="inc-event-pass-toggle" class="updatable">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="input-group-flex">
+                                <label for="inc-event-include-equipment-toggle" data-i18n="income.eventPass.includeEquipment">Include Equipment</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="inc-event-include-equipment-toggle" class="updatable">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="input-group-flex">
+                                <label for="inc-claimable-medals-input" data-i18n="income.eventPass.claimableMedals">Claimable Medals:</label>
+                                <div class="popover-wrapper">
+                                    <input type="number" id="inc-claimable-medals-input" class="updatable" value="0" min="0" max="1000" maxlength="4">
+                                </div>
+                            </div>
+                            <div class="input-group-flex">
+                                <label for="inc-bonus-track-medals-input" data-i18n="income.eventPass.bonusTrackMedals">Bonus Track Medals:</label>
+                                <div class="popover-wrapper">
+                                    <input type="number" id="inc-bonus-track-medals-input" class="updatable" value="0" min="0" max="1000" maxlength="4">
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="inc-event-trader-card" class="income-card card">
+                        <h2 class="card-title" data-i18n="income.eventTrader.title">Event Trader</h2>
+                        <div id="inc-event-trader-offers" class="offer-grid event-trader-grid">
+                            <!-- Event Trader offers will be dynamically inserted here -->
+                        </div>
+                        <div class="summary-grid">
+                            <div class="summary-item-container">
+                                <div class="summary-label" data-i18n="income.totalLabel">Total:</div>
+                                <div class="summary-value-with-image">
+                                    <span id="inc-event-medals-total-value" class="calculated"></span>
+                                    <orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" data-i18n-alt="income.eventPass.medalsResource" class="ore-image"></orecalc-assets-image>
+                                </div>
+                            </div>
+                            <div class="summary-item-container">
+                                <div class="summary-label" data-i18n="income.remaining">Remaining:</div>
+                                <div class="summary-value-with-image">
+                                    <span id="inc-event-medals-remaining-value" class="calculated"></span>
+                                    <orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" data-i18n-alt="income.eventPass.medalsResource" class="ore-image"></orecalc-assets-image>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="inc-clan-war-card" class="income-card card">
+                        <h2 class="card-title" data-i18n="income.clanWar.title">Clan War</h2>
+                        <div class="inner-card">
+                            <div class="input-group-flex">
+                                <label for="inc-clan-war-wars-per-month-input" data-i18n="income.clanWar.warsPerMonth">Wars per month:</label>
+                                <div class="popover-wrapper">
+                                    <input type="number" class="updatable" id="inc-clan-war-wars-per-month-input" value="0" min="0" max="15" maxlength="2">
+                                </div>
+                            </div>
+                            <div class="input-group-flex">
+                                <span id="clan-war-per-attack-label" role="heading" aria-level="3" data-i18n="income.perAttack">Per Attack:</span>
+                                <div class="ores-inputs-container" aria-labelledby="clan-war-per-attack-label">
+                                    <div class="ore-input-item">
+                                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-clan-war-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10">
+                                    </div>
+                                    <div class="ore-input-item">
+                                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-clan-war-glowy-bonus-input" value="0" min="0" max="39" maxlength="2">
+                                    </div>
+                                    <div class="ore-input-item">
+                                        <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-clan-war-starry-bonus-input" value="0" min="0" max="6" maxlength="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rates-grid">
+                            <div class="rate-column">
+                                <label for="inc-clan-war-win-rate-input" data-i18n="income.winRatePct">Win Rate (%):</label>
+                                <div class="popover-wrapper">
+                                    <input type="number" class="updatable" id="inc-clan-war-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3">
+                                </div>
+                            </div>
+                            <div class="rate-column">
+                                <label for="inc-clan-war-draw-rate-input" data-i18n="income.drawRatePct">Draw Rate (%):</label>
+                                <div class="popover-wrapper">
+                                    <input type="number" class="updatable" id="inc-clan-war-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3">
+                                </div>
+                            </div>
+                            <div class="rate-column">
+                                <label for="inc-clan-war-loss-rate-value" data-i18n="income.lossRatePct">Loss Rate (%):</label>
+                                <input type="number" class="calculated" id="inc-clan-war-loss-rate-value" value="0" min="0" max="100" disabled>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="inc-cwl-card" class="income-card card">
+                        <h2 class="card-title" data-i18n="income.cwl.title">CWL</h2>
+                        <div class="inner-card">
+                            <div class="input-group-flex">
+                                <label for="inc-cwl-hits-per-season-input" data-i18n="income.cwl.hitsPerSeason">Hits per season:</label>
+                                <div class="popover-wrapper">
+                                    <input type="number" class="updatable" id="inc-cwl-hits-per-season-input" value="0" min="0" max="7" maxlength="1">
+                                </div>
+                            </div>
+                            <div class="input-group-flex">
+                                <span id="cwl-per-attack-label" role="heading" aria-level="3" data-i18n="income.perAttack">Per Attack:</span>
+                                <div class="ores-inputs-container" aria-labelledby="cwl-per-attack-label">
+                                    <div class="ore-input-item">
+                                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-cwl-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10">
+                                    </div>
+                                    <div class="ore-input-item">
+                                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-cwl-glowy-bonus-input" value="0" min="0" max="39" maxlength="2">
+                                    </div>
+                                    <div class="ore-input-item">
+                                        <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-cwl-starry-bonus-input" value="0" min="0" max="6" maxlength="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rates-grid">
+                            <div class="rate-column">
+                                <label for="inc-cwl-win-rate-input" data-i18n="income.winRatePct">Win Rate (%):</label>
+                                <div class="popover-wrapper">
+                                    <input type="number" class="updatable" id="inc-cwl-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3">
+                                </div>
+                            </div>
+                            <div class="rate-column">
+                                <label for="inc-cwl-draw-rate-input" data-i18n="income.drawRatePct">Draw Rate (%):</label>
+                                <div class="popover-wrapper">
+                                    <input type="number" class="updatable" id="inc-cwl-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3">
+                                </div>
+                            </div>
+                            <div class="rate-column">
+                                <label for="inc-cwl-loss-rate-value" data-i18n="income.lossRatePct">Loss Rate (%):</label>
+                                <input type="number" class="calculated" id="inc-cwl-loss-rate-value" value="0" min="0" max="100" disabled>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="inc-supercell-events-card" class="income-card card">
+                        <h2 class="card-title" data-i18n="income.supercellEvents.title">Supercell Events</h2>
+                        <div class="inner-card">
+                            <div class="input-group-flex">
+                                <label for="inc-supercell-events-world-championship-select" data-i18n="income.supercellEvents.worldChampionship">World Championship:</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="inc-supercell-events-world-championship-select" class="updatable">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="supercell-events-container" class="supercell-events-container">
+                            <!-- Rendered dynamically in supercellEventsDisplay.js -->
+                        </div>
+
+                        
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="inc-prospector-card" class="income-card card">
+                        <h2 class="card-title" data-i18n="income.prospector.title">Prospector</h2>
+                        <div class="inner-card">
+                            <div class="input-group-flex">
+                                <label for="inc-prospector-gold-pass" data-i18n="income.prospector.goldPass">Gold Pass</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="inc-prospector-gold-pass" class="updatable">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="prospector-grid">
+                            <div class="prospector-labels">
+                                <label for="inc-prospector-from-amount" data-i18n="income.prospector.from">From</label>
+                                <label for="inc-prospector-to-amount" data-i18n="income.prospector.to">To</label>
+                            </div>
+                            <div class="prospector-controls">
+                                <div class="custom-dropdown" id="inc-prospector-from-ore">
+                                    <div class="dropdown-selected">
+                                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny"></orecalc-assets-image>
+                                    </div>
+                                    <div class="dropdown-options"></div>
+                                </div>
+                                <div class="popover-wrapper">
+                                    <input type="number" id="inc-prospector-from-amount" class="updatable" value="0" min="0" max="2000" maxlength="6">
+                                </div>
+                                <input type="range" id="inc-prospector-slider" class="updatable" min="0" max="2000" value="0">
+                                <input type="number" id="inc-prospector-to-amount" class="calculated" value="0" disabled>
+                                <div class="custom-dropdown" id="inc-prospector-to-ore">
+                                    <div class="dropdown-selected">
+                                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy"></orecalc-assets-image>
+                                    </div>
+                                    <div class="dropdown-options"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="prospector-tip notice" id="inc-prospector-tip-container" style="display: none;">
+                            <div class="prospector-tip-grid">
+                                <div class="prospector-tip-icon" id="inc-prospector-tip-icon"></div>
+                                <div class="prospector-tip-text" id="inc-prospector-tip-text"></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>

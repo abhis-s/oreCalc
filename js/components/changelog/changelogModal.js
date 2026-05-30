@@ -8,7 +8,7 @@ export function initializeChangelogModal() {
     if (modal && closeButton && overlay) {
         closeButton.addEventListener('click', () => {
             modal.classList.remove('show');
-            overlay.style.display = 'none';
+            overlay.classList.remove('show');
         });
     }
 }
@@ -21,6 +21,6 @@ export function showChangelogModal(content) {
     if (modal && modalBody && overlay) {
         modalBody.innerHTML = content;
         modal.classList.add('show');
-        overlay.style.display = 'block';
+        overlay.classList.add('show');
     }
 }

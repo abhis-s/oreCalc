@@ -1,86 +1,129 @@
 import { dom } from '../../dom/domElements.js';
 import { heroData } from '../../data/appData.js';
-import { updatePageDots } from './heroPlannerCarouselDisplay.js'; 
+import { updatePageDots, getCurrentHeroIndex } from './heroPlannerCarouselDisplay.js'; 
 import { translate } from '../../i18n/translator.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { createHeroIcon, createEquipmentItem } from '../common/heroDisplayFactory.js';
 
-let currentHeroIndex = 0; 
+/**
+ * Updates the existing hero switches without destroying the DOM elements.
+ */
+function updateExistingHeroSwitches(heroesState) {
+    const carouselContent = dom.planner?.heroCarouselContent;
+    if (!carouselContent) return;
+
+    const heroPages = carouselContent.querySelectorAll('.hero-page');
+    heroPages.forEach(heroPage => {
+        const heroName = heroPage.dataset.heroName;
+        const heroState = heroesState[heroName] || { equipment: {} };
+        const heroKey = toCamelCase(heroName);
+
+        // Update Hero Toggle
+        const heroToggle = heroPage.querySelector(`#planner-${heroKey}-toggle`);
+        if (heroToggle) {
+            heroToggle.checked = heroState.enabled !== false;
+        }
+
+        // Update Hero Name (for language changes)
+        const nameText = heroPage.querySelector('.hero-name-text');
+        if (nameText) {
+            nameText.textContent = translate(`heroes.${heroKey}`);
+        }
+
+        // Update Equipment Toggles
+        const equipmentItems = heroPage.querySelectorAll('.equipment-item-planner');
+        equipmentItems.forEach(item => {
+            const equipName = item.dataset.equipName;
+            const equipState = heroState.equipment?.[equipName] || {};
+            const equipToggle = item.querySelector('input[type="checkbox"]');
+            if (equipToggle) {
+                equipToggle.checked = equipState.checked !== false;
+            }
+            
+            // Update Equipment Name
+            const equipLabel = item.querySelector('span');
+            if (equipLabel) {
+                equipLabel.textContent = translate(`equipment.${toCamelCase(equipName)}`);
+            }
+        });
+    });
+}
 
 export function initializeHeroPlannerCarousel(heroesState, plannerState) {
     const carouselContent = dom.planner?.heroCarouselContent;
     const plannerPageDots = dom.planner?.plannerPageDots;
     if (!carouselContent || !plannerPageDots) return;
 
-    let heroPagesHtml = '';
+    // If carousel is already populated, just update the switch states
+    // to preserve animations and prevent re-rendering "snap"
+    if (carouselContent.children.length > 0) {
+        updateExistingHeroSwitches(heroesState);
+        return;
+    }
+
+    carouselContent.innerHTML = '';
     const heroKeys = Object.keys(heroData);
 
     heroKeys.forEach(heroKey => {
         const hero = heroData[heroKey];
-        const heroState = heroesState[hero.name];
+        const heroState = heroesState[hero.name] || { equipment: {} };
 
-        if (!heroState) {
-            return;
-        }
+        const heroPage = document.createElement('div');
+        heroPage.className = 'hero-page';
+        heroPage.dataset.heroName = hero.name;
 
-        const isHeroEnabled = heroState.enabled;
+        const headerSection = document.createElement('div');
+        headerSection.className = 'hero-header-section';
 
-        const equipmentListHtml = hero.equipment.map(equip => {
-            const equipState = heroState.equipment[equip.name];
-            const isEquipChecked = equipState?.checked;
-            const grayscaleClass = !isEquipChecked ? 'grayscale' : '';
-            const equipId = `planner-${heroKey}-${equip.name.replace(/\s/g, '')}-toggle`;
+        const infoAndName = document.createElement('div');
+        infoAndName.className = 'hero-info-and-name';
+        infoAndName.appendChild(createHeroIcon(hero, { sizeClass: 'hero-icon-planner' }));
 
-            const maxLevel = equip.type === 'common' ? 18 : 27;
-            const isMaxLevel = equipState?.level >= maxLevel;
+        const heroNameSpan = document.createElement('span');
+        heroNameSpan.className = 'hero-name-text';
+        heroNameSpan.textContent = translate(`heroes.${heroKey}`);
+        heroNameSpan.dataset.i18n = `heroes.${heroKey}`;
+        infoAndName.appendChild(heroNameSpan);
 
-            let isOverLeveled = false;
-            if (plannerState) {
-                const customMaxLevel = equip.type === 'common'
-                    ? plannerState.customMaxLevel.common
-                    : plannerState.customMaxLevel.epic;
-                isOverLeveled = equipState?.level >= customMaxLevel && equipState?.level < maxLevel;
-            }
+        headerSection.appendChild(infoAndName);
 
-            const goldGlowClass = isMaxLevel ? 'gold-glow' : '';
-            const overLeveledGlowClass = isOverLeveled ? 'over-leveled-glow' : '';
-            const equipTypeClass = equip.type === 'common' ? 'common-equip' : 'epic-equip';
+        const toggleSwitch = document.createElement('div');
+        toggleSwitch.className = 'hero-toggle-switch';
+        
+        const switchLabel = document.createElement('label');
+        switchLabel.className = 'switch large-switch';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `planner-${heroKey}-toggle`;
+        checkbox.checked = heroState.enabled !== false;
+        switchLabel.appendChild(checkbox);
 
-            return `
-                <div class="equipment-item-planner" data-equip-name="${equip.name}">
-                    <div class="equipment-info">
-                        <img src="${equip.image}" alt="${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}" class="equipment-image ${goldGlowClass} ${overLeveledGlowClass} ${grayscaleClass}">
-                        <span class="${goldGlowClass} ${overLeveledGlowClass} ${equipTypeClass}">${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}</span>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="${equipId}" ${isEquipChecked ? 'checked' : ''}>
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-            `;
-        }).join('');
+        const slider = document.createElement('span');
+        slider.className = 'slider round';
+        switchLabel.appendChild(slider);
+        
+        toggleSwitch.appendChild(switchLabel);
+        headerSection.appendChild(toggleSwitch);
+        heroPage.appendChild(headerSection);
 
-        const heroToggleId = `planner-${heroKey}-toggle`;
+        const equipmentList = document.createElement('div');
+        equipmentList.className = 'equipment-list';
 
-        heroPagesHtml += `
-            <div class="hero-page" data-hero-name="${hero.name}">
-                <div class="hero-header-section">
-                    <div class="hero-info-and-name">
-                                                <img src="${hero.image}" alt="${translate(hero.name.toLowerCase().replace(/\s/g, '_'))}" class="hero-icon-planner">
-                    </div>
-                    <div class="hero-toggle-switch">
-                        <label class="switch large-switch">
-                            <input type="checkbox" id="${heroToggleId}" ${isHeroEnabled ? 'checked' : ''}>
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
-                </div>
-                <div class="equipment-list">
-                    ${equipmentListHtml}
-                </div>
-            </div>
-        `;
+        hero.equipment.forEach(equip => {
+            const equipState = heroState.equipment?.[equip.name] || {};
+            const equipmentItem = createEquipmentItem({
+                equip,
+                equipState,
+                plannerState,
+                idPrefix: `planner-${heroKey}`
+            });
+            equipmentList.appendChild(equipmentItem);
+        });
+
+        heroPage.appendChild(equipmentList);
+        carouselContent.appendChild(heroPage);
     });
-
-    carouselContent.innerHTML = heroPagesHtml;
 
     let dotsHtml = '';
     heroKeys.forEach((_, index) => {
@@ -88,5 +131,5 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
     });
     plannerPageDots.innerHTML = dotsHtml;
 
-    updatePageDots(currentHeroIndex);
+    updatePageDots(getCurrentHeroIndex());
 }

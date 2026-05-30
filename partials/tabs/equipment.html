@@ -1,0 +1,44 @@
+        <div class="tab-content" id="equipment-tab">
+            <div class="main-content">
+                <div class="left-panel">
+                    <div id="heroes-container"></div>
+                </div>
+                <div class="right-panel">
+                    <div id="eq-settings-container-card" class="equipment-card card">
+                        <div class="input-group-flex">
+                            <label data-i18n="planner.enableLevelInput">Enable level input</label>
+                            <label class="switch">
+                                <input type="checkbox" id="eq-enable-level-input-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label data-i18n="planner.hideMaxedEquipment">Hide maxed equipment</label>
+                                <p id="eq-hidden-count" class="form-setting-text" style="display: none;"></p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="eq-hide-maxed-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="input-group-flex">
+                            <div class="field-descriptor-group">
+                                <label data-i18n="planner.hideLockedEquipment">Hide locked equipment</label>
+                                <p id="eq-locked-hidden-count" class="form-setting-text" style="display: none;"></p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="eq-hide-locked-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="eq-results-container-card" class="equipment-card card calculated">
+                        <h2 class="results-title"><orecalc-assets-image src="assets/ore_icon.png" alt="Ores Icon" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image><span id="results-title-text" data-i18n="ores.requiredTitle">Required Ores</span></h2>
+                    </div>
+                    <div id="eq-storage-container-card" class="equipment-card card calculated">
+                        <h2 class="storage-title"><orecalc-assets-image src="assets/ore_icon.png" alt="Ores Icon" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image><span id="storage-title-text" data-i18n="ores.storedTitle">Stored Ores</span></h2>
+                    </div>
+                </div>
+            </div>
+        </div>

@@ -2,6 +2,9 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { addValidation } from '../../utils/inputValidator.js';
 import { translate } from '../../i18n/translator.js';
+import { getSVG } from '../../utils/svgManager.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 
 let currentEquipment = null;
 
@@ -19,6 +22,7 @@ function savePrioritySteps() {
     if (heroNameForCurrentEquipment) {
         handleStateUpdate(() => {
             const equipmentInState = state.heroes[heroNameForCurrentEquipment].equipment[currentEquipment.name];
+            const oldUpgradePlan = equipmentInState.upgradePlan || {};
 
             let maxPriority = 0;
             for (const hKey in state.heroes) {
@@ -40,7 +44,7 @@ function savePrioritySteps() {
                 const level = parseInt(levelInput.value, 10);
                 const isEnabled = enableSwitch.checked && !isNaN(level) && level > 0;
                 const stepKey = row.dataset.stepId;
-                const oldPlan = equipmentInState.upgradePlan[stepKey];
+                const oldPlan = oldUpgradePlan[stepKey];
 
                 return {
                     stepKey: stepKey,
@@ -61,32 +65,39 @@ function savePrioritySteps() {
             });
 
             const enabledSteps = uiSteps.filter(step => step.enabled);
-            const disabledSteps = uiSteps.filter(step => !step.enabled);
-
             enabledSteps.sort((a, b) => a.level - b.level);
 
-            const sortedSteps = [...enabledSteps, ...disabledSteps];
-
-            sortedSteps.forEach((step, index) => {
-                const plan = equipmentInState.upgradePlan[(index + 1).toString()];
-                if (plan) {
-                    const isNowEnabled = step.enabled;
-                    const wasEnabled = step.wasEnabled;
-
-                    plan.level = step.level;
-                    plan.target = step.level;
-                    plan.enabled = isNowEnabled;
-
-                    if (isNowEnabled && !wasEnabled) {
-                        maxPriority++;
-                        plan.priorityIndex = maxPriority;
-                    } else if (!isNowEnabled && wasEnabled) {
-                        plan.priorityIndex = 0;
-                    } else if (isNowEnabled && wasEnabled) {
-                        plan.priorityIndex = step.priorityIndex;
+            if (enabledSteps.length === 0) {
+                delete equipmentInState.upgradePlan;
+            } else {
+                // Find existing priority anchor for this equipment
+                let anchorPriority = Infinity;
+                enabledSteps.forEach(step => {
+                    if (step.wasEnabled && step.priorityIndex > 0) {
+                        anchorPriority = Math.min(anchorPriority, step.priorityIndex);
                     }
+                });
+
+                if (anchorPriority === Infinity) {
+                    anchorPriority = maxPriority + 1;
                 }
-            });
+
+                equipmentInState.upgradePlan = {};
+                enabledSteps.forEach((step, index) => {
+                    const stepKey = (index + 1).toString();
+                    
+                    // Assign a priority index that keeps steps together and ordered
+                    // Using a small offset for ordering within the group
+                    const plan = {
+                        level: step.level,
+                        target: step.level,
+                        enabled: true,
+                        priorityIndex: anchorPriority + (index * 0.001)
+                    };
+                    
+                    equipmentInState.upgradePlan[stepKey] = plan;
+                });
+            }
 
             const globalPriorityList = [];
             for (const heroKey in state.heroes) {
@@ -133,13 +144,26 @@ function renderTableRows() {
                     </label>
                 </td>
                 <td>#${i}</td>
-                <td class="level-input-cell"><input type="number" id="level-input-${i}" class="level-input" placeholder="e.g., 18" maxlength="2"></td>
+                <td class="level-input-cell">
+                    <div class="popover-wrapper">
+                        <input type="number" id="level-input-${i}" class="level-input" placeholder="${translate('planner.placeholderLevel')}" maxlength="2">
+                    </div>
+                </td>
                 <td class="trash-cell">
-                    <button class="trash-btn icon-button"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></button>
+                    <button class="trash-btn icon-button">${getSVG('trash', '', 24, 24, 'currentColor')}</button>
                 </td>
             </tr>
         `;
         tbody.insertAdjacentHTML('beforeend', row);
+
+        const input = tbody.querySelector(`#level-input-${i}`);
+        registerInputPopover(input, {
+            title: translate('planner.level'),
+            min: () => parseInt(input.getAttribute('min')) || 1,
+            max: () => parseInt(input.getAttribute('max')) || 18,
+            showRange: true,
+            clickToFill: { max: true }
+        });
     }
 }
 
@@ -186,18 +210,18 @@ export function createLevelSelectModal() {
         <div id="level-select-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>${translate('set_target_levels_for')} <span id="level-select-modal-equip-name"></span></h2>
-                    <button id="close-level-select-modal-btn" class="close-button">&times;</button>
+                    <h2>${translate('planner.setTargetFor')} <span id="level-select-modal-equip-name"></span></h2>
+                    <button id="close-level-select-modal-btn" class="close-button">${getSVG('close', '', 24, 24, 'currentColor')}</button>
                 </div>
                 <div class="modal-body">
-                    <p>${translate('current_level_colon')} <span id="current-equipment-level"></span></p>
+                    <p>${translate('planner.currentLevel')} <span id="current-equipment-level"></span></p>
                     <table id="level-select-table">
                         <thead>
                             <tr>
-                                <th>${translate('enable')}</th>
-                                <th>${translate('step')}</th>
-                                <th>${translate('level')}</th>
-                                <th>${translate('trash')}</th>
+                                <th>${translate('actions.enable')}</th>
+                                <th>${translate('planner.step')}</th>
+                                <th>${translate('planner.level')}</th>
+                                <th>${translate('actions.trash')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -205,8 +229,8 @@ export function createLevelSelectModal() {
                         </tbody>
                     </table>
                 </div>
-                <div class="modal-footer">
-                    <button id="level-select-modal-save-btn" class="btn btn-primary">${translate('action_save')}</button>
+                <div class="modal-actions">
+                    <button id="level-select-modal-save-btn" class="accept-button">${translate('actions.save')}</button>
                 </div>
             </div>
         </div>
@@ -237,7 +261,7 @@ export function openLevelSelectModal(hero, equipment) {
     const modal = document.getElementById('level-select-modal');
     const equipNameSpan = document.getElementById('level-select-modal-equip-name');
 
-    equipNameSpan.textContent = translate(equipment.name.toLowerCase().replace(/\s/g, '_'));
+    equipNameSpan.textContent = translate('equipment.' + toCamelCase(equipment.name));
     const currentLevelSpan = document.getElementById('current-equipment-level');
 
     const rows = document.querySelectorAll('#level-select-table tbody tr');
@@ -245,39 +269,40 @@ export function openLevelSelectModal(hero, equipment) {
     const currentLevel = state.heroes[hero.name]?.equipment[equipment.name]?.level || 1;
     currentLevelSpan.textContent = currentLevel;
 
-    const equipmentUpgradePlan = state.heroes[hero.name]?.equipment[equipment.name]?.upgradePlan;
+    const equipmentUpgradePlan = state.heroes[hero.name]?.equipment[equipment.name]?.upgradePlan || {};
 
     const minLevel = currentLevel + 1;
+
+    let stepsToFill = [];
+    for (const key in equipmentUpgradePlan) {
+        if (equipmentUpgradePlan[key].enabled && equipmentUpgradePlan[key].level > currentLevel) {
+            stepsToFill.push(equipmentUpgradePlan[key]);
+        }
+    }
+    stepsToFill.sort((a, b) => a.level - b.level);
 
     rows.forEach((row, index) => {
         const levelInput = row.querySelector('.level-input');
         const enableSwitch = row.querySelector('.enable-switch');
-        const stepKey = (index + 1).toString(); 
-        const savedStep = equipmentUpgradePlan ? equipmentUpgradePlan[stepKey] : null;
 
         levelInput.setAttribute('min', minLevel); 
         levelInput.setAttribute('max', maxLevel); 
 
-        if (savedStep && savedStep.enabled) { 
+        const savedStep = stepsToFill[index];
+
+        if (savedStep) { 
             levelInput.value = savedStep.level; 
             enableSwitch.checked = true;
-            if (savedStep.level <= currentLevel) {
-                levelInput.disabled = true;
-                enableSwitch.checked = false;
-            }
+            levelInput.disabled = false;
         } else {
             levelInput.value = '';
             enableSwitch.checked = false;
+            levelInput.disabled = false;
         }
-        addValidation(levelInput, { inputName: 'Level', rules: { max: maxLevel, min: minLevel } });
+        addValidation(levelInput, { inputName: translate('validation.level'), rules: { max: maxLevel, min: minLevel } });
     });
 
-    const allStepsDisabled = Array.from(rows).every((row, index) => {
-        const enableSwitch = row.querySelector('.enable-switch');
-        return !enableSwitch.checked;
-    });
-
-    if (allStepsDisabled) {
+    if (currentLevel < maxLevel && stepsToFill.length === 0) {
         let defaultLevel1, defaultLevel2, defaultLevel3;
 
         defaultLevel1 = Math.ceil((currentLevel + 1) / 3) * 3;
@@ -309,24 +334,26 @@ export function openLevelSelectModal(hero, equipment) {
             if (index === 0) { 
                 levelInput.value = defaultLevel1;
                 currentDefaultLevel = defaultLevel1;
-                if (defaultLevel1 >= maxLevel) {
-                    rows[1].querySelector('.enable-switch').checked = false;
-                    rows[2].querySelector('.enable-switch').checked = false;
-                }
             } else if (index === 1) { 
                 levelInput.value = defaultLevel2;
                 currentDefaultLevel = defaultLevel2;
-                if (defaultLevel2 >= maxLevel) {
-                    rows[2].querySelector('.enable-switch').checked = false;
-                }
             } else if (index === 2) { 
                 levelInput.value = defaultLevel3;
                 currentDefaultLevel = defaultLevel3;
             }
 
-            if (currentDefaultLevel <= currentLevel) {
-                levelInput.disabled = true;
+            if (currentDefaultLevel > maxLevel || currentDefaultLevel <= currentLevel) {
+                levelInput.value = '';
                 enableSwitch.checked = false;
+            }
+
+            // If a previous step reached max level, disable subsequent ones
+            if (index > 0) {
+                const prevLevel = parseInt(rows[index-1].querySelector('.level-input').value, 10);
+                if (prevLevel >= maxLevel) {
+                    levelInput.value = '';
+                    enableSwitch.checked = false;
+                }
             }
         });
     }

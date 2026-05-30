@@ -1,5 +1,6 @@
 import { formatDate } from '../../utils/dateFormatter.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
+import { getMinDate, getMaxDate } from '../../utils/dateUtils.js';
 import { heroData } from '../../data/heroData.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
@@ -7,6 +8,11 @@ import { openLevelSelectModal } from './levelSelectModal.js';
 import { calculateCompletionDates } from '../../utils/predictionCalculator.js';
 import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
 import { translate } from '../../i18n/translator.js';
+import { getSVG } from '../../utils/svgManager.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { addValidation } from '../../utils/inputValidator.js';
+import { showConfirm } from '../../ui/noticeModal.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 
 let isAutoPlacing = false;
 let autoPlaceTimeoutId = null;
@@ -19,10 +25,8 @@ function autoPlaceChipsForDateRange() {
 
     const startTime = new Date();
 
-    const MIN_MONTH = 9;
-    const MIN_YEAR = 2025;
-    const MAX_MONTH = 12;
-    const MAX_YEAR = 2027;
+    const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+    const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
 
     isAutoPlacing = true;
     let currentYear = MIN_YEAR;
@@ -36,7 +40,7 @@ function autoPlaceChipsForDateRange() {
             setTimeout(() => {
                 console.log(`Finished auto-placing chips for all months in the range. Total time: ${timeTaken} seconds.`);
             }, 5000);
-            handleStateUpdate(() => {}, false);
+            handleStateUpdate(() => { }, false);
             return;
         }
 
@@ -117,7 +121,7 @@ function renderPriorityEditor() {
         <div class="priority-editor-container">
             <div id="priority-list-message-container" class="priority-list-message-box"></div>
             <div class="equipment-chip-container">
-                <h3 data-i18n="add_an_upgrade_plan">${translate('add_an_upgrade_plan')}</h3>
+                <h3 data-i18n="planner.addPlan">${translate('planner.addPlan')}</h3>
                 <div class="hero-equipment-grid"></div>
             </div>
             <div id="priority-list-editor" class="priority-list-editor">
@@ -140,8 +144,8 @@ function renderPriorityEditor() {
         const heroChip = document.createElement('div');
         heroChip.classList.add('hero-chip');
         heroChip.innerHTML = `
-            <img src="${hero.image}" alt="${translate(hero.name.toLowerCase().replace(/\s/g, '_'))}" class="hero-chip-icon">
-            <span>${translate(hero.name.toLowerCase().replace(/\s/g, '_'))}</span>
+            <orecalc-assets-image src="${hero.image}" alt="${translate('heroes.' + toCamelCase(hero.name))}" class="hero-chip-icon" size="thumbnail"></orecalc-assets-image>
+            <span>${translate('heroes.' + toCamelCase(hero.name))}</span>
         `;
         heroColumn.appendChild(heroChip);
 
@@ -157,8 +161,8 @@ function renderPriorityEditor() {
                 chip.classList.add('equipment-chip');
                 chip.dataset.equipName = equip.name;
                 chip.innerHTML = `
-                    <img src="${equip.image}" alt="${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}" class="chip-icon">
-                    <span>${translate(equip.name.toLowerCase().replace(/\s/g, '_'))}</span>
+                    <orecalc-assets-image src="${equip.image}" alt="${translate('equipment.' + toCamelCase(equip.name))}" class="chip-icon" size="thumbnail"></orecalc-assets-image>
+                    <span>${translate('equipment.' + toCamelCase(equip.name))}</span>
                 `;
                 chip.addEventListener('click', () => openLevelSelectModal(hero, equip));
 
@@ -170,8 +174,8 @@ function renderPriorityEditor() {
                 if (isMaxedInPlan) {
                     chip.classList.add('maxed-in-plan');
                 }
-                
-                const customMaxLevel = state.planner.customMaxLevel[equip.type];
+
+                const customMaxLevel = state.planner.customMaxLevel?.[equip.type] || (equip.type === 'epic' ? 27 : 18);
                 const isCustomMaxedInPlan = globalPriorityList.some(item =>
                     item.heroName === hero.name &&
                     item.name === equip.name &&
@@ -196,7 +200,7 @@ function renderPriorityEditor() {
     renderDraggableList(globalPriorityList, suggestions);
 }
 
-function getStepOrderErrors(globalPriorityList) {
+export function getStepOrderErrors(globalPriorityList) {
     const equipmentGroups = {};
     globalPriorityList.forEach(item => {
         if (!equipmentGroups[item.name]) {
@@ -214,7 +218,7 @@ function getStepOrderErrors(globalPriorityList) {
             if (items[i].step > items[i + 1].step) {
                 hasError = true;
                 errorItems.add(`${items[i].name}-${items[i].step}`);
-                errorItems.add(`${items[i+1].name}-${items[i+1].step}`);
+                errorItems.add(`${items[i + 1].name}-${items[i + 1].step}`);
             }
         }
     }
@@ -230,16 +234,65 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
 
     errorContainer.innerHTML = '';
     errorContainer.style.display = 'none';
-    errorContainer.classList.remove('suggestion-only');
+    errorContainer.classList.remove('suggestion-only', 'error');
     if (unhideBtn) unhideBtn.style.display = 'none';
-    
+
     listItems.forEach(item => item.classList.remove('error', 'suggestion'));
     document.querySelectorAll('.suggestion-bar').forEach(bar => bar.remove());
 
     const { hasError, errorItems } = getStepOrderErrors(globalPriorityList);
 
     if (hasError) {
-        errorContainer.innerHTML += `<p class="error-message">${translate('warn_steps_not_in_order')}</p>`;
+        errorContainer.classList.add('error');
+        errorContainer.innerHTML += `
+            <div class="error-messages-wrapper">
+                <p class="error-message">
+                    ${getSVG('error', 'error-icon', 20, 20, 'currentColor')}
+                    <span>${translate('planner.orderError')}</span>
+                </p>
+            </div>
+            <button id="fix-order-btn" class="fix-order-btn success-btn">
+                ${getSVG('check', '', 18, 18, 'currentColor')}
+                <span>${translate('actions.fix')}</span>
+            </button>
+        `;
+
+        const fixBtn = document.getElementById('fix-order-btn');
+        if (fixBtn) {
+            fixBtn.addEventListener('click', () => {
+                handleStateUpdate(() => {
+                    const equipmentGroups = {};
+                    globalPriorityList.forEach(item => {
+                        if (!equipmentGroups[item.name]) {
+                            equipmentGroups[item.name] = [];
+                        }
+                        equipmentGroups[item.name].push(item);
+                    });
+
+                    for (const equipName in equipmentGroups) {
+                        const items = equipmentGroups[equipName];
+                        for (let i = 0; i < items.length - 1; i++) {
+                            if (items[i].step > items[i + 1].step) {
+                                // Swap priority indices of the two items
+                                const itemA = items[i];
+                                const itemB = items[i + 1];
+                                
+                                const planA = state.heroes[itemA.heroName].equipment[itemA.name].upgradePlan[itemA.step];
+                                const planB = state.heroes[itemB.heroName].equipment[itemB.name].upgradePlan[itemB.step];
+                                
+                                const tempIndex = planA.priorityIndex;
+                                planA.priorityIndex = planB.priorityIndex;
+                                planB.priorityIndex = tempIndex;
+                                
+                                return; // Fix one pair per click
+                            }
+                        }
+                    }
+                });
+                renderDraggableList();
+            });
+        }
+
         listItems.forEach(item => {
             const key = `${item.dataset.equipName}-${item.dataset.step}`;
             if (errorItems.has(key)) {
@@ -250,25 +303,29 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
 
     const hasSuggestions = suggestions && suggestions.length > 0;
 
-    if (hasSuggestions) {
-        if (hasError || !suggestionsHidden) {
+    // Only show suggestions if there's no error
+    if (hasSuggestions && !hasError) {
+        if (!suggestionsHidden) {
             let suggestionsHtml = `<div class="suggestion-messages-wrapper">`;
-            suggestionsHtml += suggestions.map(s => `<p class="suggestion-message">${s.message}</p>`).join('');
+            suggestionsHtml += suggestions.map(s => `
+                <p class="suggestion-message">
+                    ${getSVG('suggestion', 'suggestion-icon', 16, 16, 'currentColor')}
+                    <span>${s.message}</span>
+                </p>
+            `).join('');
             suggestionsHtml += `</div>`;
-            
-            if (!hasError) {
-                errorContainer.classList.add('suggestion-only');
-                suggestionsHtml += `<button class="hide-suggestion-btn" id="hide-suggestion-btn">Hide</button>`;
-            }
-            
+
+            errorContainer.classList.add('suggestion-only');
+            suggestionsHtml += `<button class="hide-suggestion-btn" id="hide-suggestion-btn">${translate('actions.hide')}</button>`;
+
             errorContainer.innerHTML += suggestionsHtml;
-            
+
             suggestions.forEach(suggestion => {
                 const { itemToMove, itemsToMove, moveBefore } = suggestion;
                 const items = itemsToMove || (itemToMove ? [itemToMove] : []);
 
                 items.forEach(itm => {
-                    const itemToMoveElement = Array.from(listItems).find(el => 
+                    const itemToMoveElement = Array.from(listItems).find(el =>
                         el.dataset.heroName === itm.heroName &&
                         el.dataset.equipName === itm.name &&
                         el.dataset.step == itm.step
@@ -279,7 +336,7 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
                 });
 
                 if (moveBefore) {
-                    const moveBeforeElement = Array.from(listItems).find(el => 
+                    const moveBeforeElement = Array.from(listItems).find(el =>
                         el.dataset.heroName === moveBefore.heroName &&
                         el.dataset.equipName === moveBefore.name &&
                         el.dataset.step == moveBefore.step
@@ -294,7 +351,7 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
                     }
                 }
             });
-            
+
             if (!hasError) {
                 const hideBtn = errorContainer.querySelector('#hide-suggestion-btn');
                 if (hideBtn) {
@@ -305,12 +362,16 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
                 }
             }
         } else if (!hasError && suggestionsHidden) {
-            if (unhideBtn) unhideBtn.style.display = 'block';
+            if (unhideBtn) {
+                unhideBtn.style.display = 'flex';
+                const badge = unhideBtn.querySelector('#suggestion-badge');
+                if (badge) badge.textContent = suggestions.length;
+            }
         }
     }
 
     if (hasError || (hasSuggestions && !suggestionsHidden)) {
-        errorContainer.style.display = hasError ? 'block' : 'flex';
+        errorContainer.style.display = 'flex';
     }
 }
 
@@ -326,10 +387,23 @@ function renderDraggableList(globalPriorityList, suggestions) {
         suggestions = newSuggestions;
     }
 
+    const resetButton = document.getElementById('reset-priority-list-modal-btn');
+    if (resetButton) {
+        resetButton.style.display = globalPriorityList.length === 0 ? 'none' : 'block';
+    }
+
     if (globalPriorityList.length === 0) {
-        editor.innerHTML = `<p class="placeholder-text" data-i18n="priority_list_placeholder">${translate('priority_list_placeholder')}</p>`;
+        editor.innerHTML = `<p class="placeholder-text" data-i18n="planner.priorityPlaceholder">${translate('planner.priorityPlaceholder')}</p>`;
+        renderSuggestionsAndErrors([], []);
         return;
     }
+
+    const { errorItems } = getStepOrderErrors(globalPriorityList);
+    const equipmentsWithErrors = new Set();
+    errorItems.forEach(itemKey => {
+        const equipName = itemKey.split('-').slice(0, -1).join('-');
+        equipmentsWithErrors.add(equipName);
+    });
 
     const effectiveLevels = {};
 
@@ -338,78 +412,134 @@ function renderDraggableList(globalPriorityList, suggestions) {
         const equipName = item.name;
 
         let startLevel;
-        if (!effectiveLevels[equipName]) {
+        if (equipmentsWithErrors.has(equipName)) {
+            startLevel = 'XX';
+        } else if (!effectiveLevels[equipName]) {
             startLevel = state.heroes[heroName]?.equipment[equipName]?.level || 1;
         } else {
             startLevel = effectiveLevels[equipName];
         }
 
         let completionDateText;
-        if (item.error) {
+        const itemKey = `${item.name}-${item.step}`;
+        const hasOrderError = errorItems.has(itemKey);
+
+        if (hasOrderError) {
+            completionDateText = translate('errors.fixOrder');
+        } else if (item.error) {
             completionDateText = item.message;
         } else if (item.completionDate) {
-            completionDateText = `${translate('complete_by_colon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            completionDateText = `${translate('planner.completeByColon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric', year: 'numeric' })}`;
         } else {
-            completionDateText = translate('not_enough_income');
+            completionDateText = translate('planner.notEnoughIncome');
         }
 
         const listItem = document.createElement('div');
         listItem.classList.add('priority-list-editor-item');
-        if (item.error) {
+        
+        const isDraggingAllowed = (errorItems.size === 0) || hasOrderError;
+        
+        if (item.error || hasOrderError) {
             listItem.classList.add('error');
         }
-        listItem.setAttribute('draggable', 'true');
+
+        if (!isDraggingAllowed) {
+            listItem.classList.add('disabled-dragging');
+        }
+
+        listItem.setAttribute('draggable', isDraggingAllowed ? 'true' : 'false');
         listItem.dataset.index = index;
         listItem.dataset.heroName = heroName;
         listItem.dataset.equipName = equipName;
         listItem.dataset.step = item.step;
 
         let oresHtml = '';
-        if (item.oresPreCompletion && item.requiredOres && item.bottleneckOre) {
-            const bottleneckTrans = translate(`${item.bottleneckOre}_ore`) || item.bottleneckOre;
-            
-            let reqHtml = `<span>${formatNumber(item.requiredOres.shiny)} <img src="assets/shiny_ore.png" class="ore-icon-small"></span>`;
-            reqHtml += ` <span>${formatNumber(item.requiredOres.glowy)} <img src="assets/glowy_ore.png" class="ore-icon-small"></span>`;
+        if (!item.error && !hasOrderError && item.oresPreCompletion && item.requiredOres && item.bottleneckOre) {
+            const bottleneckTrans = translate('ores.' + item.bottleneckOre) || item.bottleneckOre;
+
+            let reqHtml = `<span>${formatNumber(item.requiredOres.shiny)} <orecalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small"></orecalc-assets-image></span>`;
+            reqHtml += ` <span>${formatNumber(item.requiredOres.glowy)} <orecalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small"></orecalc-assets-image></span>`;
             if (item.requiredOres.starry > 0 || state.heroes[heroName]?.equipment[equipName]?.type === 'epic') {
-                reqHtml += ` <span>${formatNumber(item.requiredOres.starry)} <img src="assets/starry_ore.png" class="ore-icon-small"></span>`;
+                reqHtml += ` <span>${formatNumber(item.requiredOres.starry)} <orecalc-assets-image src="assets/starry_ore.png" class="ore-icon-small"></orecalc-assets-image></span>`;
             }
 
             oresHtml = `
                 <div class="priority-item-ores tooltip-container">
-                    <span>${formatNumber(item.oresPreCompletion.shiny)} <img src="assets/shiny_ore.png" class="ore-icon-small"></span>
-                    <span>${formatNumber(item.oresPreCompletion.glowy)} <img src="assets/glowy_ore.png" class="ore-icon-small"></span>
-                    <span>${formatNumber(item.oresPreCompletion.starry)} <img src="assets/starry_ore.png" class="ore-icon-small"></span>
+                    <span>${formatNumber(item.oresPreCompletion.shiny)} <orecalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
+                    <span>${formatNumber(item.oresPreCompletion.glowy)} <orecalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
+                    <span>${formatNumber(item.oresPreCompletion.starry)} <orecalc-assets-image src="assets/starry_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
                     
                     <div class="priority-item-tooltip">
-                        <p>The amount of ore that will be reached before the bottleneck is removed for this upgrade.</p>
-                        <p>The bottleneck for this upgrade would be: <b>${bottleneckTrans}</b>.</p>
-                        <p>Consider using the prospector to balance the ores.</p>
-                        <div class="tooltip-req-ores">Ores required for this upgrade: ${reqHtml}</div>
+                        <p>${translate('ores.tooltipReached')}</p>
+                        <p>${translate('ores.tooltipBottleneck', { bottleneck: bottleneckTrans })}</p>
+                        <p>${translate('income.prospector.tooltipConsider')}</p>
+                        <div class="tooltip-req-ores">${translate('ores.tooltipRequired')} ${reqHtml}</div>
                     </div>
                 </div>
             `;
         }
+        listItem.dataset.step = item.step;
 
         listItem.innerHTML = `
-            <div class="drag-handle"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-360v-80h640v80H160Zm0-160v-80h640v80H160Z"/></svg></div>
-            <img src="${item.image}" alt="${item.name}" class="item-image">
+            <div class="drag-handle">${getSVG('drag-handle', '', 24, 24, 'currentColor')}</div>
+            <orecalc-assets-image src="${item.image}" alt="${translate('equipment.' + toCamelCase(item.name))}" class="item-image" size="thumbnail"></orecalc-assets-image>
             <div class="item-details">
-                <span class="item-name">${translate('equipment_upgrade_step_level_range', { n: item.step, x: startLevel, y: item.targetLevel })}</span>
+                <span class="item-name">${translate('planner.stepLevelRange', { n: item.step, x: startLevel, y: item.targetLevel })}</span>
                 ${oresHtml}
                 <div class="priority-item-date">${completionDateText}</div>
             </div>
-            <button class="delete-item-btn">&times;</button>
+            <button class="delete-item-btn">${getSVG('close', '', 24, 24, 'currentColor')}</button>
         `;
 
         const deleteBtn = listItem.querySelector('.delete-item-btn');
-        deleteBtn.addEventListener('click', () => {
+        deleteBtn.addEventListener('click', async () => {
+            const confirmed = await showConfirm(
+                translate('planner.confirmDeleteStep', { 
+                    equipment: translate('equipment.' + toCamelCase(item.name)), 
+                    level: item.targetLevel 
+                }),
+                'status.confirm'
+            );
+            if (!confirmed) return;
+
             handleStateUpdate(() => {
-                const plan = state.heroes[heroName]?.equipment[equipName]?.upgradePlan[item.step];
-                if (plan) {
-                    plan.enabled = false;
-                    plan.priorityIndex = 0;
+                const equipmentInState = state.heroes[heroName]?.equipment[equipName];
+                if (!equipmentInState || !equipmentInState.upgradePlan) return;
+
+                // Disable the target step
+                const planToDelete = equipmentInState.upgradePlan[item.step];
+                if (planToDelete) {
+                    planToDelete.enabled = false;
+                    planToDelete.priorityIndex = 0;
                 }
 
+                // Collect and renumber remaining enabled steps for THIS equipment
+                const remainingSteps = [];
+                for (const sNum in equipmentInState.upgradePlan) {
+                    const step = equipmentInState.upgradePlan[sNum];
+                    if (step.enabled) {
+                        remainingSteps.push({ ...step });
+                    }
+                }
+
+                // Recreate upgradePlan with sequential keys
+                if (remainingSteps.length === 0) {
+                    delete equipmentInState.upgradePlan;
+                } else {
+                    remainingSteps.sort((a, b) => a.target - b.target);
+                    equipmentInState.upgradePlan = {};
+                    remainingSteps.forEach((step, idx) => {
+                        const newStepKey = (idx + 1).toString();
+                        equipmentInState.upgradePlan[newStepKey] = {
+                            level: step.level,
+                            target: step.target,
+                            enabled: true,
+                            priorityIndex: step.priorityIndex
+                        };
+                    });
+                }
+
+                // Re-calculate the global priority list to get updated step numbers and re-index priority
                 const { globalPriorityList: reorderedGlobalPriorityList } = getGlobalPriorityList();
 
                 if (!reorderedGlobalPriorityList.error) {
@@ -419,18 +549,19 @@ function renderDraggableList(globalPriorityList, suggestions) {
                 }
             });
             renderDraggableList();
+            document.dispatchEvent(new CustomEvent('priorityListUpdated'));
         });
 
         const tooltipContainer = listItem.querySelector('.tooltip-container');
         if (tooltipContainer) {
-            tooltipContainer.addEventListener('mouseenter', function() {
+            tooltipContainer.addEventListener('mouseenter', function () {
                 const tooltip = this.querySelector('.priority-item-tooltip');
                 const editor = document.getElementById('priority-list-editor');
                 if (tooltip && editor) {
                     const rect = this.getBoundingClientRect();
                     const tooltipRect = tooltip.getBoundingClientRect();
                     const editorRect = editor.getBoundingClientRect();
-                    
+
                     if (rect.top - tooltipRect.height < editorRect.top + 10) {
                         tooltip.classList.add('tooltip-bottom');
                     } else {
@@ -461,11 +592,130 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
+export function autoPredictStoredOres() {
+    // Placeholder function for complex prediction algorithm
+    // Currently just predicts the last input amount (from state) as the current amount
+    return {
+        shiny: state.storedOres.shiny !== undefined ? state.storedOres.shiny : 0,
+        glowy: state.storedOres.glowy !== undefined ? state.storedOres.glowy : 0,
+        starry: state.storedOres.starry !== undefined ? state.storedOres.starry : 0
+    };
+}
+
+export function openStoredOresModal() {
+    const modal = document.getElementById('stored-ores-modal');
+    if (!modal) return;
+
+    // Prefill fields
+    document.getElementById('modal-stored-ore-shiny').value = state.storedOres.shiny !== undefined ? state.storedOres.shiny : 0;
+    document.getElementById('modal-stored-ore-glowy').value = state.storedOres.glowy !== undefined ? state.storedOres.glowy : 0;
+    document.getElementById('modal-stored-ore-starry').value = state.storedOres.starry !== undefined ? state.storedOres.starry : 0;
+
+    const dontAskCheckbox = document.getElementById('modal-stored-ore-dont-ask');
+    if (dontAskCheckbox) dontAskCheckbox.checked = false;
+
+    modal.classList.add('show');
+}
+
+export function initializeStoredOresModal() {
+    const modal = document.getElementById('stored-ores-modal');
+    if (!modal) return;
+
+    const shinyInput = document.getElementById('modal-stored-ore-shiny');
+    const glowyInput = document.getElementById('modal-stored-ore-glowy');
+    const starryInput = document.getElementById('modal-stored-ore-starry');
+
+    if (shinyInput) {
+        addValidation(shinyInput, { inputName: 'modal-stored-ore-shiny' });
+        registerInputPopover(shinyInput, {
+            title: translate('ores.shiny'),
+            min: 0,
+            max: 50000,
+            clickToFill: { max: true }
+        });
+    }
+    if (glowyInput) {
+        addValidation(glowyInput, { inputName: 'modal-stored-ore-glowy' });
+        registerInputPopover(glowyInput, {
+            title: translate('ores.glowy'),
+            min: 0,
+            max: 5000,
+            clickToFill: { max: true }
+        });
+    }
+    if (starryInput) {
+        addValidation(starryInput, { inputName: 'modal-stored-ore-starry' });
+        registerInputPopover(starryInput, {
+            title: translate('ores.starry'),
+            min: 0,
+            max: 1000,
+            clickToFill: { max: true }
+        });
+    }
+
+    const closeBtn = document.getElementById('close-stored-ores-modal-btn');
+    const cancelBtn = document.getElementById('cancel-stored-ores-modal-btn');
+    const saveBtn = document.getElementById('save-stored-ores-modal-btn');
+
+    const closeModal = () => {
+        modal.classList.remove('show');
+    };
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            const shinyVal = parseInt(shinyInput.value, 10) || 0;
+            const glowyVal = parseInt(glowyInput.value, 10) || 0;
+            const starryVal = parseInt(starryInput.value, 10) || 0;
+
+            const dontAskCheckbox = document.getElementById('modal-stored-ore-dont-ask');
+            const dontAsk = dontAskCheckbox ? dontAskCheckbox.checked : false;
+
+            handleStateUpdate(() => {
+                state.storedOres.shiny = shinyVal;
+                state.storedOres.glowy = glowyVal;
+                state.storedOres.starry = starryVal;
+                state.storedOres.lastUpdated = dontAsk ? (Date.now() + 60 * 24 * 60 * 60 * 1000) : Date.now();
+            });
+
+            // Keep tab storage inputs synced
+            const shinyEqInput = document.getElementById('eq-shiny-ore-storage');
+            const glowyEqInput = document.getElementById('eq-glowy-ore-storage');
+            const starryEqInput = document.getElementById('eq-starry-ore-storage');
+
+            if (shinyEqInput) {
+                shinyEqInput.value = shinyVal;
+                shinyEqInput.dataset.lastValidValue = shinyVal.toString();
+            }
+            if (glowyEqInput) {
+                glowyEqInput.value = glowyVal;
+                glowyEqInput.dataset.lastValidValue = glowyVal.toString();
+            }
+            if (starryEqInput) {
+                starryEqInput.value = starryVal;
+                starryEqInput.dataset.lastValidValue = starryVal.toString();
+            }
+
+            closeModal();
+            renderPriorityEditor();
+        });
+    }
+}
+
 export function initializePriorityListModal() {
+    initializeStoredOresModal();
     const modal = document.getElementById('priority-list-modal');
     const closeBtn = document.getElementById('close-priority-list-modal-btn');
     const resetButton = document.getElementById('reset-priority-list-modal-btn');
     const unhideBtn = document.getElementById('unhide-suggestion-btn');
+    const storedOresBtn = document.getElementById('priority-list-stored-ores-btn');
+
+    if (storedOresBtn) {
+        storedOresBtn.addEventListener('click', () => {
+            openStoredOresModal();
+        });
+    }
 
     if (unhideBtn) {
         unhideBtn.addEventListener('click', () => {
@@ -482,7 +732,13 @@ export function initializePriorityListModal() {
     }
 
     if (resetButton) {
-        resetButton.addEventListener('click', () => {
+        resetButton.addEventListener('click', async () => {
+            const confirmed = await showConfirm(
+                translate('planner.confirmResetList'),
+                'status.confirm'
+            );
+            if (!confirmed) return;
+
             handleStateUpdate(() => {
                 for (const heroKey in state.heroes) {
                     const hero = state.heroes[heroKey];
@@ -492,15 +748,9 @@ export function initializePriorityListModal() {
                 }
             });
             renderPriorityEditor();
-            window.location.reload();
+            document.dispatchEvent(new CustomEvent('priorityListUpdated'));
         });
     }
-
-    window.addEventListener('click', (event) => {
-        if (event.target == modal) {
-            modal.classList.remove('show');
-        }
-    });
 
     document.addEventListener('priorityListUpdated', () => {
         renderDraggableList();
@@ -516,7 +766,7 @@ export function initializePriorityListModal() {
                 draggedItem = e.target;
                 const tooltip = draggedItem.querySelector('.priority-item-tooltip');
                 if (tooltip) tooltip.style.display = 'none';
-                
+
                 if (e.dataTransfer && typeof e.dataTransfer.setDragImage === 'function') {
                     const rect = draggedItem.getBoundingClientRect();
                     const offsetX = e.clientX - rect.left;
@@ -572,7 +822,7 @@ export function initializePriorityListModal() {
                         }
                     });
                 });
-                
+
                 renderDraggableList();
             }
         });
@@ -596,7 +846,7 @@ export function initializePriorityListModal() {
                 const editor = document.getElementById('priority-list-editor');
                 const touch = e.touches[0];
                 const afterElement = getDragAfterElement(editor, touch.clientY);
-                
+
                 if (afterElement == null) {
                     editor.appendChild(draggedItem);
                 } else {
@@ -608,7 +858,7 @@ export function initializePriorityListModal() {
         modalBody.addEventListener('touchend', (e) => {
             if (isTouching && draggedItem) {
                 draggedItem.classList.remove('dragging');
-                
+
                 const editor = document.getElementById('priority-list-editor');
                 const newOrderedItems = [...editor.querySelectorAll('.priority-list-editor-item')];
 
@@ -623,7 +873,7 @@ export function initializePriorityListModal() {
                         }
                     });
                 });
-                
+
                 renderDraggableList();
             }
             isTouching = false;
@@ -637,8 +887,8 @@ export function openPriorityListModal() {
     const title = document.getElementById('priority-list-modal-title');
 
     if (modal && title) {
-        title.setAttribute('data-i18n', 'edit_priority_list');
-        title.textContent = translate('edit_priority_list');
+        title.setAttribute('data-i18n', 'editPriorityList');
+        title.textContent = translate('planner.editPriorityList');
         renderPriorityEditor();
         modal.classList.add('show');
         autoPlaceChipsForDateRange();
@@ -646,8 +896,8 @@ export function openPriorityListModal() {
 }
 
 export function renderPriorityListModal(state) {
-   const modal = document.getElementById('priority-list-modal');
-   if (modal && modal.classList.contains('show')) {
-       renderPriorityEditor();
-   }
+    const modal = document.getElementById('priority-list-modal');
+    if (modal && modal.classList.contains('show')) {
+        renderPriorityEditor();
+    }
 }

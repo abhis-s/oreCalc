@@ -5,16 +5,17 @@ export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels)
 
     for (const heroName in heroesState) {
         const hero = heroesState[heroName];
-        if (!hero.enabled) continue;
+        if (hero.enabled === false) continue;
 
         for (const equipName in hero.equipment) {
             const equip = hero.equipment[equipName];
-            if (!equip.checked) continue;
+            if (equip.checked === false) continue;
 
             const equipData = getEquipmentData(heroName, equipName, plannerMaxLevels);
             if (!equipData) continue;
 
-            for (let i = equip.level + 1; i <= equipData.maxLevel; i++) {
+            const currentLevel = equip.level || 1;
+            for (let i = currentLevel + 1; i <= equipData.maxLevel; i++) {
                 if (upgradeCosts[i]) {
                     totalRequired.shiny += upgradeCosts[i].shiny || 0;
                     totalRequired.glowy += upgradeCosts[i].glowy || 0;
@@ -39,6 +40,8 @@ function getEquipmentData(heroName, equipName, plannerMaxLevels) {
     const equipment = hero?.equipment.find(e => e.name === equipName);
     if (!equipment) return null;
 
-    const maxLevel = equipment.type === 'common' ? customMaxLevel.common : customMaxLevel.epic;
+    const maxLevel = equipment.type === 'common' 
+        ? (customMaxLevel?.common || 18) 
+        : (customMaxLevel?.epic || 27);
     return { type: equipment.type, maxLevel: maxLevel };
 }

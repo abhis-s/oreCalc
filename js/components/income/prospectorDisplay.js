@@ -1,12 +1,17 @@
-import { dom } from '../../dom/domElements.js';
 import { state } from '../../core/state.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
-import { getGlobalPriorityList } from '../planner/priorityListModal.js';
 import { heroData, upgradeCosts } from '../../data/heroData.js';
-import { getDailyIncomeFromCalendar } from '../../utils/predictionCalculator.js';
-import { translate } from '../../i18n/translator.js';
-import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
 import { oreMaxValues } from '../../data/oreConversionData.js';
+
+import { dom } from '../../dom/domElements.js';
+import { getGlobalPriorityList, getStepOrderErrors } from '../planner/priorityListModal.js';
+
+import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
+import { formatNumber } from '../../utils/numberFormatter.js';
+import { getSVG } from '../../utils/svgManager.js';
+import { getDailyIncomeFromCalendar } from '../../utils/predictionCalculator.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+
+import { translate } from '../../i18n/translator.js';
 
 export function renderProspectorIncomeDisplay(prospectorIncome) {
     const dailyValues = prospectorIncome.daily || { shiny: 0, glowy: 0, starry: 0 };
@@ -25,9 +30,9 @@ export function renderProspectorIncomeDisplay(prospectorIncome) {
 
 function updateProspectorTip() {
     const tipContainer = dom.income.prospector.tip?.container;
-    const tipEmoji = dom.income.prospector.tip?.emoji;
+    const tipIcon = dom.income.prospector.tip?.icon;
     const tipText = dom.income.prospector.tip?.text;
-    if (!tipContainer || !tipText || !tipEmoji) return;
+    if (!tipContainer || !tipText || !tipIcon) return;
 
     if (!state.income.prospector.goldPass) {
         tipContainer.style.display = 'none';
@@ -36,13 +41,24 @@ function updateProspectorTip() {
 
     const { globalPriorityList } = getGlobalPriorityList();
     if (!globalPriorityList || globalPriorityList.length === 0) {
-        tipEmoji.textContent = '💡';
-        tipText.innerHTML = `<p>Add equipment to your priority list in the <b>Planner</b> tab to get dynamic conversion tips.</p>`;
+        tipIcon.innerHTML = getSVG('suggestion', '', 24, 24, 'currentColor');
+        tipText.innerHTML = `<p>${translate('income.prospector.tips.addToPlanner')}</p>`;
         tipContainer.style.display = 'block';
         return;
     }
 
     const firstItem = globalPriorityList[0];
+    const { errorItems } = getStepOrderErrors(globalPriorityList);
+    const itemKey = `${firstItem.name}-${firstItem.step}`;
+    const hasOrderError = errorItems.has(itemKey);
+
+    if (firstItem.error || hasOrderError) {
+        tipIcon.innerHTML = getSVG('error', '', 24, 24, 'currentColor');
+        tipText.innerHTML = `<p><b>${translate('equipment.' + toCamelCase(firstItem.name))}</b>: ${translate('planner.orderError')}</p>`;
+        tipContainer.style.display = 'block';
+        return;
+    }
+
     const heroDataEntry = heroData[Object.keys(heroData).find(key => heroData[key].name === firstItem.heroName)];
     const equipmentType = heroDataEntry?.equipment.find(eq => eq.name === firstItem.name)?.type;
     const currentLevel = state.heroes[firstItem.heroName]?.equipment[firstItem.name]?.level || 1;
@@ -58,9 +74,9 @@ function updateProspectorTip() {
     }
 
     const missing = {
-        shiny: Math.max(0, req.shiny - state.storedOres.shiny),
-        glowy: Math.max(0, req.glowy - state.storedOres.glowy),
-        starry: Math.max(0, req.starry - state.storedOres.starry)
+        shiny: Math.max(0, req.shiny - (state.storedOres.shiny || 0)),
+        glowy: Math.max(0, req.glowy - (state.storedOres.glowy || 0)),
+        starry: Math.max(0, req.starry - (state.storedOres.starry || 0))
     };
 
     if (missing.shiny === 0 && missing.glowy === 0 && missing.starry === 0) {
@@ -122,12 +138,13 @@ function updateProspectorTip() {
     const currentTo = state.income.prospector.toOre;
     const currentAmount = state.income.prospector.fromAmount;
 
-    const itemName = translate(firstItem.name.toLowerCase().replace(/\s/g, '_')) || firstItem.name;
-    const bottleneckTrans = translate(`${bottleneck}_ore`) || bottleneck;
-    const sourceTrans = translate(`${source}_ore`) || source;
-    const upgradeInfo = `<b>${itemName}</b> (to level ${firstItem.targetLevel})`;
+    const itemName = translate('equipment.' + toCamelCase(firstItem.name)) || firstItem.name;
+    const bottleneckTrans = translate('ores.' + bottleneck) || bottleneck;
+    const sourceTrans = translate('ores.' + source) || source;
+    const toLevelTrans = translate('planner.toLevel', { level: firstItem.targetLevel });
+    const upgradeInfo = `<b>${itemName}</b> ${toLevelTrans}`;
 
-    let emoji = '💡';
+    let iconId = 'suggestion';
     let textContent = '';
 
     // Check if current setting is "Close enough" to optimal
@@ -135,30 +152,30 @@ function updateProspectorTip() {
                       (currentTo === bottleneck && currentFrom === source && Math.abs(currentAmount - optimalN) < step);
 
     if (isOptimal) {
-        emoji = '✅';
+        iconId = 'check';
         const activeRate = (currentTo === bottleneck && currentFrom === source) ? currentAmount : 0;
         const balancedDays = Math.ceil(missing[source] / (baseIncome[source] - activeRate));
-        textContent = `<p><b>Optimal Setting!</b></p><p>Your ores for ${upgradeInfo} are balanced.</p><p>Ready in ~<b>${balancedDays} days</b>.</p>`;
+        textContent = `<p>${translate('income.prospector.tips.optimal')}</p><p>${translate('income.prospector.tips.balanced', { upgradeInfo })}</p><p>${translate('income.prospector.tips.readyIn', { days: balancedDays })}</p>`;
     } else if (currentTo !== bottleneck && currentAmount > 0) {
-        emoji = '💡';
-        textContent = `<p>Your primary bottleneck for ${upgradeInfo} is <b>${bottleneckTrans}</b>.</p><p>Change your conversion target to finish faster.</p>`;
+        iconId = 'suggestion';
+        textContent = `<p>${translate('income.prospector.tips.primaryBottleneck', { upgradeInfo, bottleneck: bottleneckTrans })}</p><p>${translate('income.prospector.tips.changeTarget')}</p>`;
     } else if (currentTo === bottleneck && currentFrom === source && currentAmount > optimalN) {
-        emoji = '⚠️';
-        const recText = optimalN > 0 ? `~<b>${optimalN}</b>` : '<b>0</b> (disable conversion)';
-        textContent = `<p><b>Over-converting!</b></p><p>For ${upgradeInfo}, <b>${sourceTrans}</b> will become your new bottleneck.</p><p>Reduce conversion to ${recText}.</p>`;
+        iconId = 'warning';
+        const recText = optimalN > 0 ? `~<b>${optimalN}</b>` : translate('income.prospector.tips.disableConversion');
+        textContent = `<p>${translate('income.prospector.tips.overConverting')}</p><p>${translate('income.prospector.tips.newBottleneck', { upgradeInfo, source: sourceTrans })}</p><p>${translate('income.prospector.tips.reduceConversion', { recText })}</p>`;
     } else {
-        emoji = '💡';
-        const recText = optimalN > 0 ? `~<b>${optimalN}</b>` : '<b>0</b> (no conversion needed)';
-        textContent = `<p>Finish ${upgradeInfo} faster by converting <b>${sourceTrans}</b> to <b>${bottleneckTrans}</b>.</p><p>Recommended: ${recText}.</p>`;
+        iconId = 'suggestion';
+        const recText = optimalN > 0 ? `~<b>${optimalN}</b>` : translate('income.prospector.tips.noConversionNeeded');
+        textContent = `<p>${translate('income.prospector.tips.finishFaster', { upgradeInfo, source: sourceTrans, bottleneck: bottleneckTrans })}</p><p>${translate('income.prospector.tips.recommended', { recText })}</p>`;
     }
 
     const otherOre = ['shiny', 'glowy', 'starry'].find(o => o !== source && o !== bottleneck);
     if (days[otherOre] > naturalMaxDays) {
-        const otherTrans = translate(`${otherOre}_ore`) || otherOre;
-        textContent += `<small>Note: <b>${otherTrans}</b> is currently your slowest resource; converting other ores won't reduce total time.</small>`;
+        const otherTrans = translate('ores.' + otherOre) || otherOre;
+        textContent += `<small>${translate('income.prospector.tips.slowestResource', { other: otherTrans })}</small>`;
     }
 
-    tipEmoji.textContent = emoji;
+    tipIcon.innerHTML = getSVG(iconId, '', 20, 20, 'currentColor');
     tipText.innerHTML = textContent;
     tipContainer.style.display = 'block';
 }
@@ -175,8 +192,8 @@ export function renderProspectorHomeDisplay(prospectorIncome, timeframe) {
 
     const prospectorState = state.income.prospector;
     if (prospectorState.goldPass) {
-        prospectorRow.resource.textContent = 'Gold Pass';
+        prospectorRow.resource.textContent = translate('income.prospector.goldPass');
     } else {
-        prospectorRow.resource.textContent = 'Silver Pass';
+        prospectorRow.resource.textContent = translate('income.prospector.silverPass');
     }
 }

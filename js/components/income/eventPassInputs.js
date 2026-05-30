@@ -1,76 +1,106 @@
-import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { eventPassData } from '../../data/appData.js';
-import { translate } from '../../i18n/translator.js';
+import { dom } from '../../dom/domElements.js';
 
 import { addValidation } from '../../utils/inputValidator.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 
-function renderEventPassSelectorContent() {
-    const passTypeSelect = dom.income?.eventPass?.passType;
-    if (!passTypeSelect) return;
-
-    const selectedValue = passTypeSelect.value;
-    passTypeSelect.innerHTML = '';
-
-    for (const type in eventPassData) {
-        const option = document.createElement('option');
-        option.value = type;
-        option.textContent = translate(`${type}_pass`);
-        passTypeSelect.appendChild(option);
-    }
-    passTypeSelect.value = selectedValue;
-}
+import { translate } from '../../i18n/translator.js';
 
 export function initializeEventPassInputs() {
-    const passTypeSelect = dom.income?.eventPass?.passType;
-    const equipmentBoughtSelect = dom.income?.eventPass?.equipmentBought;
+    const passToggle = dom.income?.eventPass?.passToggle;
+    const includeEquipmentSelect = dom.income?.eventPass?.includeEquipment;
     const passClaimableMedalsInput = dom.income?.eventPass?.claimableMedals;
     const passBonusTrackMedalsInput = dom.income?.eventPass?.bonusTrackMedals;
 
-    renderEventPassSelectorContent();
+    if (passClaimableMedalsInput) {
+        addValidation(passClaimableMedalsInput, { inputName: translate('income.eventPass.claimableMedals') });
+        registerInputPopover(passClaimableMedalsInput, {
+            title: translate('income.eventPass.claimableMedals'),
+            min: 0,
+            max: 1000,
+            showRecommended: false,
+            clickToFill: {
+                min: true,
+                max: true
+            }
+        });
+    }
+    if (passBonusTrackMedalsInput) {
+        addValidation(passBonusTrackMedalsInput, { inputName: translate('income.eventPass.bonusTrackMedals') });
+        registerInputPopover(passBonusTrackMedalsInput, {
+            title: translate('income.eventPass.bonusTrackMedals'),
+            min: 0,
+            max: 1000,
+            showRecommended: false,
+            clickToFill: {
+                min: true,
+                max: true
+            }
+        });
+    }
 
-    addValidation(passClaimableMedalsInput, { inputName: translate('claimable_medals_colon') });
-    addValidation(passBonusTrackMedalsInput, { inputName: translate('bonus_track_medals_colon') });
-
-    passTypeSelect?.addEventListener('change', (e) => {
+    passToggle?.addEventListener('change', (e) => {
         handleStateUpdate(() => {
-            state.income.eventPass.type = e.target.value;
+            if (!state.income.eventPass) state.income.eventPass = {};
+            state.income.eventPass.eventPass = e.target.checked;
         });
     });
+
     passClaimableMedalsInput?.addEventListener('change', (e) => {
         handleStateUpdate(() => {
-            state.income.eventPass.claimableMedals = parseInt(e.target.value, 10);
+            if (!state.income.eventPass) state.income.eventPass = {};
+            state.income.eventPass.claimableMedals = parseInt(e.target.value, 10) || 0;
         });
     });
+
+    passClaimableMedalsInput?.addEventListener('validated-input', (e) => {
+        handleStateUpdate(() => {
+            if (!state.income.eventPass) state.income.eventPass = {};
+            state.income.eventPass.claimableMedals = e.detail.value;
+        });
+    });
+
     passBonusTrackMedalsInput?.addEventListener('change', (e) => {
         handleStateUpdate(() => {
-            state.income.eventPass.bonusTrackMedals = parseInt(e.target.value, 10);
+            if (!state.income.eventPass) state.income.eventPass = {};
+            state.income.eventPass.bonusTrackMedals = parseInt(e.target.value, 10) || 0;
         });
     });
-    equipmentBoughtSelect?.addEventListener('change', (e) => {
+
+    passBonusTrackMedalsInput?.addEventListener('validated-input', (e) => {
         handleStateUpdate(() => {
-            state.income.eventPass.equipmentBought = e.target.value === 'yes';
+            if (!state.income.eventPass) state.income.eventPass = {};
+            state.income.eventPass.bonusTrackMedals = e.detail.value;
+        });
+    });
+
+    includeEquipmentSelect?.addEventListener('change', (e) => {
+        handleStateUpdate(() => {
+            if (!state.income.eventPass) state.income.eventPass = {};
+            state.income.eventPass.includeEquipment = e.target.checked;
         });
     });
 }
 
 export function renderEventPassInputs(eventPassState) {
-    const passTypeSelect = dom.income?.eventPass?.passType;
-    const equipmentBoughtSelect = dom.income?.eventPass?.equipmentBought;
+    const passToggle = dom.income?.eventPass?.passToggle;
+    const includeEquipmentSelect = dom.income?.eventPass?.includeEquipment;
     const passClaimableMedalsInput = dom.income?.eventPass?.claimableMedals;
     const passBonusTrackMedalsInput = dom.income?.eventPass?.bonusTrackMedals;
 
-    if (passTypeSelect) {
-        passTypeSelect.value = eventPassState.type;
+    const safeState = eventPassState || {};
+
+    if (passToggle) {
+        passToggle.checked = safeState.eventPass || false;
     }
     if (passClaimableMedalsInput) {
-        passClaimableMedalsInput.value = eventPassState.claimableMedals;
+        passClaimableMedalsInput.value = safeState.claimableMedals || 0;
     }
     if (passBonusTrackMedalsInput) {
-        passBonusTrackMedalsInput.value = eventPassState.bonusTrackMedals;
+        passBonusTrackMedalsInput.value = safeState.bonusTrackMedals || 0;
     }
-    if (equipmentBoughtSelect) {
-        equipmentBoughtSelect.value = eventPassState.equipmentBought ? 'yes' : 'no';
+    if (includeEquipmentSelect) {
+        includeEquipmentSelect.checked = safeState.includeEquipment || false;
     }
 }

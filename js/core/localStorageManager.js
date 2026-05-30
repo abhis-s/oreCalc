@@ -1,37 +1,42 @@
-import { state } from './state.js';
+import { state, getDefaultPlayerState as initializeDefaultPlayerState } from './state.js';
 import { showSavingIndicator, hideSavingIndicator, showSaveErrorIndicator } from '../ui/savingIndicator.js';
+import { sanitizeUISettings, sanitizePlayerState } from './stateCleanup.js';
 
 const APP_STATE_KEY = 'oreCalculatorState';
 
 let saveTimeout;
 
-export function saveState(state) {
+export function saveState(state, immediate = false) {
     if (state.uiSettings.saveError) {
         return;
     }
     clearTimeout(saveTimeout);
-    showSavingIndicator();
 
-    saveTimeout = setTimeout(() => {
+    const performSave = () => {
         try {
-            const currentPlayerTag = state.lastPlayerTag;
+            const currentPlayerTag = state.savedPlayerTags[0];
             if (currentPlayerTag) {
-                state.allPlayersData[currentPlayerTag] = {
+                const playerData = {
                     heroes: state.heroes,
                     storedOres: state.storedOres,
                     income: state.income,
                     planner: state.planner,
-                    playerData: state.playerData,
-                    regionalPricingEnabled: state.uiSettings.regionalPricingEnabled,
-                    currency: state.uiSettings.currency,
+                    playerProfile: state.playerProfile,
+                    currency: {
+                        code: state.uiSettings.currency.code,
+                        globalPricing: state.allPlayersData[currentPlayerTag]?.currency?.globalPricing || {}
+                    }
                 };
+
+                sanitizePlayerState(playerData);
+
+                state.allPlayersData[currentPlayerTag] = playerData;
             }
 
             const stateToSave = {
                 appVersion: state.appVersion,
-                lastPlayerTag: state.lastPlayerTag,
                 savedPlayerTags: state.savedPlayerTags.length > 0 ? state.savedPlayerTags : ['DEFAULT0'],
-                uiSettings: state.uiSettings,
+                uiSettings: sanitizeUISettings(state.uiSettings),
                 allPlayersData: state.allPlayersData,
                 timestamp: new Date().toISOString(),
             };
@@ -43,7 +48,14 @@ export function saveState(state) {
             console.error("Could not save state to localStorage", error);
             showSaveErrorIndicator();
         }
-    }, 1000);
+    };
+
+    if (immediate) {
+        performSave();
+    } else {
+        showSavingIndicator();
+        saveTimeout = setTimeout(performSave, 1000);
+    }
 }
 
 
@@ -79,9 +91,26 @@ export function removePlayerTag(playerTagToDelete) {
     }
     try {
         if (state.allPlayersData) {
+            const wasActive = state.savedPlayerTags[0] === playerTagToDelete;
+            
             delete state.allPlayersData[playerTagToDelete];
             state.savedPlayerTags = state.savedPlayerTags.filter(tag => tag !== playerTagToDelete);
-            saveState(state);
+            
+            if (wasActive) {
+                const nextTag = state.savedPlayerTags[0];
+                const nextData = nextTag ? state.allPlayersData[nextTag] : null;
+                
+                // Switch global state objects to the next player's data to prevent "dumping"
+                // the deleted player's data into the next player's slot during saveState.
+                const fallback = nextData || initializeDefaultPlayerState();
+                state.heroes = fallback.heroes || {};
+                state.storedOres = fallback.storedOres || {};
+                state.income = fallback.income || {};
+                state.planner = fallback.planner || {};
+                state.playerProfile = fallback.playerProfile || null;
+            }
+
+            saveState(state, true);
         }
     } catch (error) {
         console.error(`Could not delete data for player ${playerTagToDelete} from localStorage`, error);
@@ -91,21 +120,32 @@ export function removePlayerTag(playerTagToDelete) {
 export function isPlayerTagCached(playerTag) {
     return state.allPlayersData && state.allPlayersData[playerTag] !== undefined;
 }
-
 export function loadPlayerData(playerTag) {
     if (state.allPlayersData && state.allPlayersData[playerTag]) {
-        const playerData = state.allPlayersData[playerTag];
-        const currency = playerData.currency !== undefined ? playerData.currency : (state.uiSettings?.currency !== undefined ? state.uiSettings.currency : 'USD');
-        const regionalPricingEnabled = playerData.regionalPricingEnabled !== undefined ? playerData.regionalPricingEnabled : (state.uiSettings?.regionalPricingEnabled !== undefined ? state.uiSettings.regionalPricingEnabled : false);
+        const playerState = state.allPlayersData[playerTag];
+        
+        // Handle migration/fallback for nested currency
+        let currencyCode = 'USD';
+        let globalPricing = {};
+
+        if (playerState.currency && typeof playerState.currency === 'object') {
+            currencyCode = playerState.currency.code || 'USD';
+            globalPricing = playerState.currency.globalPricing || {};
+        } else {
+            // Fallback to old flat structure or global settings
+            currencyCode = playerState.currency !== undefined ? playerState.currency : (state.uiSettings?.currency?.code || 'USD');
+        }
 
         return {
-            heroes: playerData.heroes,
-            storedOres: playerData.storedOres,
-            income: playerData.income,
-            planner: playerData.planner,
-            playerData: playerData.playerData,
-            regionalPricingEnabled: regionalPricingEnabled,
-            currency: currency,
+            heroes: playerState.heroes,
+            storedOres: playerState.storedOres,
+            income: playerState.income,
+            planner: playerState.planner,
+            playerProfile: playerState.playerProfile || playerState.playerData,
+            currency: {
+                code: currencyCode,
+                globalPricing: globalPricing
+            }
         };
     }
     return null;

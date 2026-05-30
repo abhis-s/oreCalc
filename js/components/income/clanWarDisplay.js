@@ -1,32 +1,8 @@
 import { dom } from '../../dom/domElements.js';
-import { translate } from '../../i18n/translator.js';
+
 import { formatNumber } from '../../utils/numberFormatter.js';
 
-export function renderClanWarHomeDisplay(clanWarIncome, clanWarState, playerData) {
-    const homeElements = dom.income?.home?.incomeCard?.table?.clanWar;
-    const homeResourceElements = dom.income.home.incomeCard.resources;
-    if (!homeElements || !homeResourceElements) return;
-
-    if (homeElements.shiny) {
-        homeElements.shiny.textContent = formatNumber(Math.round(clanWarIncome?.shiny || 0));
-    }
-    if (homeElements.glowy) {
-        homeElements.glowy.textContent = formatNumber(Math.round(clanWarIncome?.glowy || 0));
-    }
-    if (homeElements.starry) {
-        homeElements.starry.textContent = formatNumber(Math.round(clanWarIncome?.starry || 0));
-    }
-    if (homeElements.resource) {
-        homeElements.resource.textContent = clanWarState.warsPerMonth > 0 ? translate('clan_war_resource', { count: clanWarState.warsPerMonth, winRate: clanWarState.winRate }) : translate('no_clan_wars');
-    }
-
-    if (homeResourceElements.clanWarParticipations) {
-        homeResourceElements.clanWarParticipations.textContent = clanWarState.warsPerMonth;
-    }
-    if (homeResourceElements.clanWarIcon) {
-        homeResourceElements.clanWarIcon.src = playerData?.clan?.badgeUrls?.small || 'assets/resources/clan_war.png';
-    }
-}
+import { translate } from '../../i18n/translator.js';
 
 export function renderClanWarIncomeTabDisplay(fullClanWarIncome, clanWarState) {
     const displayElements = dom.income?.clanWar?.display;
@@ -34,7 +10,8 @@ export function renderClanWarIncomeTabDisplay(fullClanWarIncome, clanWarState) {
     if (!displayElements || !resultsElements) return;
     
     if (resultsElements.lossRateValue) {
-        const lossRate = 100 - clanWarState.winRate - clanWarState.drawRate;
+        const winRate = clanWarState.winRate ?? 50;
+        const lossRate = 100 - winRate - (clanWarState.drawRate || 0);
         resultsElements.lossRateValue.value = Math.max(0, lossRate).toFixed(0);
     }
 

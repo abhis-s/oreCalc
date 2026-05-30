@@ -1,9 +1,9 @@
 import { gemTraderData } from '../data/appData.js';
 import { calculateWeeklyIncome } from '../utils/incomeUtils.js';
 
-export function calculateGemTraderIncome(gemTraderState) {
+export function calculateGemTraderIncome(gemTraderState = {}) {
     let weeklyShiny = 0, weeklyGlowy = 10, weeklyStarry = 0, totalCost = 0;
-    const { packs } = gemTraderState;
+    const { packs = {} } = gemTraderState;
 
     gemTraderData.forEach(offer => {
         const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';

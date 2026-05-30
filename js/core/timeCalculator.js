@@ -1,6 +1,10 @@
 export function calculateRemainingTime(requiredOres, monthlyIncome) {
     function formatResult(required, income) {
-        if (income <= 0 || required <= 0) {
+        if (required <= 0) {
+            return { years: 0, months: 0, days: 0, date: null, status: 'DONE' };
+        }
+        
+        if (income <= 0) {
             return { years: null, months: null, days: null, date: "N/A" };
         }
 

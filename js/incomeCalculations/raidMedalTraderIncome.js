@@ -1,9 +1,9 @@
 import { raidMedalTraderData } from '../data/appData.js';
 import { calculateWeeklyIncome } from '../utils/incomeUtils.js';
 
-export function calculateRaidMedalTraderIncome(raidMedalState) {
+export function calculateRaidMedalTraderIncome(raidMedalState = {}) {
     let weeklyShiny = 0, weeklyGlowy = 0, weeklyStarry = 0, totalCost = 0;
-    const { earned, packs } = raidMedalState;
+    const { earned = 0, packs = {} } = raidMedalState;
 
     raidMedalTraderData.forEach(offer => {
         if (offer.shiny > 0 && packs.shiny) {
@@ -22,6 +22,6 @@ export function calculateRaidMedalTraderIncome(raidMedalState) {
 
     const income = calculateWeeklyIncome({ shiny: weeklyShiny, glowy: weeklyGlowy, starry: weeklyStarry });
     income.cost = totalCost;
-    income.remaining = earned - totalCost;
+    income.remaining = (earned || 0) - totalCost;
     return income;
 }
