@@ -1,7 +1,7 @@
 {
     "name": "Ore Calculator",
     "short_name": "OreCalc",
-    "description": "The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.",
+    "description": "Stop guessing, start upgrading! OreCalc helps you manage your equipment and ores with ease. Forecast your income, schedule your next big upgrade on the calendar, and optimize your path to victory. Whether you're a casual player or a maxxer, we've got your back.",
     "start_url": "/",
     "id": "/",
     "scope": "/",

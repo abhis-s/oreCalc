@@ -6,7 +6,7 @@
 
 ## 🌟 Features
 
-This comprehensive Ore Calculator helps Clash of Clans players optimize their hero equipment upgrades and resource management. It provides real-time insights into Shiny, Glowy, and Starry Ore income from various in-game sources.
+Stop guessing, start upgrading! **OreCalc** helps you manage your equipment and ores with ease. Forecast your income, schedule your next big upgrade on the calendar, and optimize your path to victory. Whether you're a casual player or a maxxer, we've got your back.
 
 - **Hero Equipment Ore Calculation:** Determine the exact ore requirements for upgrading your hero equipment.
 - **Income Tracking:** Monitor your daily, weekly, and monthly ore income from:
@@ -30,7 +30,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 - Node.js (LTS version recommended)
-- npm (Node Package Manager)
+- pnpm (Performant NPM package manager)
 - Git
 
 ### Local Development Setup
@@ -44,11 +44,10 @@ These instructions will get you a copy of the project up and running on your loc
 
 2. **Install dependencies:**
 
+    Since this is a pnpm workspace, you can install dependencies for both the frontend and backend in one command from the root:
+
     ```bash
-    npm install
-    cd server
-    npm install
-    cd ..
+    pnpm install
     ```
 
 3. **Set up environment variables for the backend:**
@@ -75,7 +74,7 @@ These instructions will get you a copy of the project up and running on your loc
 5. **Start the frontend development server:**
 
     ```bash
-    npm run start:dev
+    pnpm dev
     ```
 
     This will open your app in your browser at `http://0.0.0.0:8080` (usually localhost:8080, and your local machine IP:port) and watch for changes.
@@ -104,7 +103,7 @@ This guide assumes you have a Google Cloud Project set up and the `gcloud` CLI i
 1. **Build the production-ready frontend assets:**
 
     ```bash
-    npm run build
+    pnpm run build
     ```
 
     This command will create an optimized `dist/` folder.
