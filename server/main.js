@@ -3,6 +3,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const cors = require('cors');
 const admin = require('firebase-admin');
+const helmet = require('helmet');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
@@ -31,21 +32,50 @@ const app = express();
 app.set('trust proxy', 1);
 const port = process.env.PORT || 3000;
 
-const limiter = rateLimit({
+// Enable security headers with Helmet
+app.use(helmet());
+
+// General Rate Limiter (100 requests per 15 minutes)
+const generalLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000,
 	max: 100,
 	message: 'Too many requests from this IP, please try again after 15 minutes.',
 	standardHeaders: true,
 	legacyHeaders: false,
 });
+app.use(generalLimiter);
 
-app.use(limiter);
+// Stricter Rate Limiter for sensitive/destructive operations (5 requests per hour)
+const sensitiveLimiter = rateLimit({
+	windowMs: 60 * 60 * 1000,
+	max: 5,
+	message: 'Too many destructive operations from this IP, please try again after an hour.',
+	standardHeaders: true,
+	legacyHeaders: false,
+});
+
+// Configure restricted CORS origin
+const allowedOrigins = [
+    'https://orecalc.tech',
+    'https://www.orecalc.tech',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080'
+];
 
 app.use(cors({
-    origin: '*',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+            return callback(null, true);
+        } else {
+            return callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-verify-token', 'x-user-id']
 }));
+
 app.use(express.json());
 
 app.get('/proxy/players/:playerTag', async (req, res) => {
@@ -176,7 +206,8 @@ app.get('/api/user-data/load/:userId', async (req, res) => {
     }
 });
 
-app.delete('/api/user-data/delete/:userId', async (req, res) => {
+// Stricter rate limits applied to player deletion
+app.delete('/api/user-data/delete/:userId', sensitiveLimiter, async (req, res) => {
     const userId = req.params.userId;
 
     if (!userId) {
@@ -192,7 +223,8 @@ app.delete('/api/user-data/delete/:userId', async (req, res) => {
     }
 });
 
-app.post('/api/user-data/erase-tag', async (req, res) => {
+// Stricter rate limits applied to global erasure
+app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
     const fetch = (await import('node-fetch')).default;
     const { playerTag, token } = req.body;
     const userId = req.headers['x-user-id']; // Optional, but good to have
@@ -285,7 +317,7 @@ app.post('/api/user-data/erase-tag', async (req, res) => {
 });
 
 app.get('/api/version', (req, res) => {
-    res.json({ currentAppVersion: '1.3.0' });
+    res.json({ currentAppVersion: '2.0.0' });
 });
 
 app.get('/api/check-ip', async (req, res) => {
@@ -299,8 +331,6 @@ app.get('/api/check-ip', async (req, res) => {
         res.status(500).json({ message: 'Failed to check egress IP', error: error.message });
     }
 });
-
-
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`Proxy server listening at http://0.0.0.0:${port}`);
