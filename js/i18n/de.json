@@ -429,7 +429,7 @@
             "cloudSync": "Cloud-Synchronisierung",
             "userId": "Nutzer-ID"
         },
-        "cloudSyncInfo": "Synchronisiere deine Daten über mehrere Geräte hinweg.",
+        "cloudSyncInfo": "Synchronisiere deine Daten geräteübergreifend. Clash of Clans-API bleibt aktiv.",
         "globalPricingTitle": "Globale Preisgestaltung",
         "globalPricingDesc": "Konfiguriere individuelle Preise für deine Währung.",
         "globalPricingModal": {
@@ -492,6 +492,7 @@
         "clipboardNoText": "Kein Text in der Zwischenablage gefunden. Bitte gib die Nutzer-ID manuell ein.",
         "clipboardDenied": "Zugriff auf die Zwischenablage verweigert oder fehlgeschlagen. Bitte gib die Nutzer-ID manuell ein.",
         "userIdNotFound": "Nutzer-ID nicht gefunden.",
+        "copySuccess": "Nutzer-ID kopiert!",
         "copyAndSaveSuccess": "Nutzer-ID kopiert & Fortschritt gespeichert!",
         "copySuccessSaveFailed": "Nutzer-ID kopiert! (Cloud-Sync fehlgeschlagen)",
         "importSuccess": "Daten erfolgreich importiert! App wird neu geladen...",
@@ -506,7 +507,7 @@
         "saveSuccess": "Daten erfolgreich in der Cloud gespeichert!",
         "saveFailed": "Speichern der Daten in der Cloud fehlgeschlagen: {error}",
         "fetchChangelogFailed": "Änderungsprotokoll konnte nicht geladen werden.",
-        "globalErasureSuccess": "Spieler verifiziert. Dieses Kürzel wurde dauerhaft aus allen Benutzerkonten in unserer gesamten Datenbank entfernt."
+        "globalErasureSuccess": "Spieler verifiziert! Dein Spielerkürzel wurde sofort in unseren Systemen gesperrt und fast alle Daten wurden gelöscht. Jeder Versuch, es in Zukunft hinzuzufügen, erfordert eine Verifizierung. Alle verbleibenden Restdaten zu dem angegebenen Kürzel werden in den nächsten 30 Tagen entfernt."
     },
     "confirms": {
         "externalLink": "Du verlässt nun die Anwendung und besuchst eine externe Website. Möchtest du fortfahren?",
@@ -597,12 +598,19 @@
     },
     "apiErrors": {
         "400": "Falsche Parameter angegeben.",
+        "badRequest": "Falsche Parameter angegeben.",
         "403": "Zugriff verweigert. Fehlendes oder falsches API-Token.",
+        "accessDenied": "Zugriff verweigert. Fehlendes oder falsches API-Token.",
         "404": "Spieler nicht gefunden. Bitte überprüfe das Spielerkürzel.",
+        "notFound": "Spieler nicht gefunden. Bitte überprüfe das Spielerkürzel.",
         "429": "Zu viele Anfragen. Bitte versuche es später noch einmal.",
+        "tooManyRequests": "Zu viele Anfragen. Bitte versuche es später noch einmal.",
         "500": "Unbekannter Fehler auf den Clash of Clans-Servern aufgetreten.",
         "503": "Die Clash of Clans-Server sind aufgrund von Wartungsarbeiten vorübergehend nicht erreichbar.",
+        "inMaintenance": "Die Clash of Clans-Server sind aufgrund von Wartungsarbeiten vorübergehend nicht erreichbar.",
         "default": "API-Fehler: {status}",
+        "rateLimitedWithTimeMinutes": "Zu viele Anfragen. Bitte versuche es nach {minutes} Minuten noch einmal.",
+        "deletedUser": "Dieses Benutzerkonto wurde dauerhaft gelöscht.",
         "offline": "Du bist derzeit offline. Bitte überprüfe deine Internetverbindung.",
         "serverOffline": "Es konnte keine Verbindung zum API-Server hergestellt werden. Der Server ist möglicherweise offline oder wird gewartet.",
         "protectedTag": "Dieses Konto ist geschützt. Zur Hinzufügung ist eine Verifizierung erforderlich.",

@@ -17,6 +17,7 @@
     "express-rate-limit": "^8.0.1",
     "firebase-admin": "^13.4.0",
     "helmet": "^8.2.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^8.0.10"
   }
 }

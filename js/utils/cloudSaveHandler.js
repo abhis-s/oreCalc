@@ -32,6 +32,16 @@ export async function initializeAppData() {
         cloudData = await loadUserData(userId);
     } catch (error) {
         logger.error('Failed to load data from cloud, falling back to local storage:', error);
+        if (error.message === 'apiErrors.deletedUser') {
+            await showAlert(translate('apiErrors.deletedUser'));
+            if (window.resetApplication) {
+                window.resetApplication();
+            } else {
+                localStorage.clear();
+                location.reload();
+            }
+            return;
+        }
     }
 
     if (cloudData && localData) {
@@ -167,6 +177,16 @@ export async function triggerCloudSave(options = {}) {
             return true;
         } catch (error) {
             logger.error('Failed to save data to cloud:', error);
+            if (error.message === 'apiErrors.deletedUser') {
+                await showAlert(translate('apiErrors.deletedUser'));
+                if (window.resetApplication) {
+                    window.resetApplication();
+                } else {
+                    localStorage.clear();
+                    location.reload();
+                }
+                return false;
+            }
             if (!silent) {
                 showSaveErrorIndicator();
                 await showAlert(translate('alerts.saveFailed', { error: translate(error.message) }));

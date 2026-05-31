@@ -28,6 +28,12 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+async function isUserDeleted(userId) {
+    if (!userId) return false;
+    const doc = await db.collection('deletedUuids').doc(userId).get();
+    return doc.exists;
+}
+
 const app = express();
 app.set('trust proxy', 1);
 const port = process.env.PORT || 3000;
@@ -73,7 +79,8 @@ app.use(cors({
         }
     },
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-verify-token', 'x-user-id']
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-verify-token', 'x-user-id'],
+    exposedHeaders: ['Retry-After', 'RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset']
 }));
 
 app.use(express.json());
@@ -179,6 +186,9 @@ app.post('/api/user-data/save', async (req, res) => {
     }
 
     try {
+        if (await isUserDeleted(userId)) {
+            return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
         await db.collection('userStates').doc(userId).set(data);
         res.status(200).json({ message: 'Data saved successfully.' });
     } catch (error) {
@@ -195,6 +205,9 @@ app.get('/api/user-data/load/:userId', async (req, res) => {
     }
 
     try {
+        if (await isUserDeleted(userId)) {
+            return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
         const doc = await db.collection('userStates').doc(userId).get();
         if (!doc.exists) {
             return res.status(404).json({ message: 'User data not found.' });
@@ -241,7 +254,7 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const verifyUrl = `${baseUrl}/players/${encodedTag}/verifytoken`;
         
-        console.log(`[ERASE] Verifying token for ${cleanedTag} before erasure...`);
+        console.log(`[ERASE REQUEST] Verifying token for ${cleanedTag} before queueing request...`);
 
         const verifyResponse = await fetch(verifyUrl, {
             method: 'POST',
@@ -255,63 +268,86 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
         const verifyData = await verifyResponse.json();
 
         if (!verifyResponse.ok || verifyData.status !== 'ok') {
-            console.error(`[ERASE] Verification failed for ${cleanedTag}. HTTP: ${verifyResponse.status}`);
+            console.error(`[ERASE REQUEST] Verification failed for ${cleanedTag}. HTTP: ${verifyResponse.status}`);
             return res.status(403).json({ 
                 reason: 'invalidToken',
                 message: 'Global protection failed. Invalid player token provided.' 
             });
         }
 
-        console.log(`[ERASE] Verification successful. Proceeding to erase tag ${cleanedTag} from all users.`);
+        console.log(`[ERASE REQUEST] Verification successful. Creating erasure request for tag ${cleanedTag}.`);
 
-        const snapshot = await db.collection('userStates').get();
-        const batch = db.batch();
-        let affectedCount = 0;
+        const requestData = {
+            playerTag: cleanedTag,
+            token: token,
+            userId: userId || 'unknown',
+            requestedAt: new Date().toISOString(),
+            status: 'pending'
+        };
 
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            let changed = false;
+        // Save to Firestore deletionRequests collection
+        await db.collection('deletionRequests').add(requestData);
 
-            if (data.savedPlayerTags && data.savedPlayerTags.includes(cleanedTag)) {
-                data.savedPlayerTags = data.savedPlayerTags.filter(tag => tag !== cleanedTag);
-                if (data.savedPlayerTags.length === 0) {
-                    data.savedPlayerTags = ['DEFAULT0'];
-                }
-                changed = true;
-            }
-
-            if (data.allPlayersData && data.allPlayersData[cleanedTag]) {
-                delete data.allPlayersData[cleanedTag];
-                changed = true;
-            }
-
-            if (changed) {
-                batch.update(doc.ref, data);
-                affectedCount++;
-            }
-        });
-
-        if (affectedCount > 0) {
-            await batch.commit();
-        }
-
-        // Save the tag to excludedTags to prevent normal addition in the future.
+        // Instantly lock down the tag (add to excludedTags)
         const protectionData = {
             erasedAt: new Date().toISOString(),
             status: 'protected',
             verifiedAt: new Date().toISOString()
         };
 
-        // If a userId was provided, add them to the authorized list immediately
         if (userId) {
             protectionData.verifiedUuids = admin.firestore.FieldValue.arrayUnion(userId);
         }
 
         await db.collection('excludedTags').doc(cleanedTag).set(protectionData, { merge: true });
 
-        res.status(200).json({ message: `Tag erased from ${affectedCount} users and added to exclusion list.` });
+        // Delete the requester's own cloud data and block their UUID permanently
+        if (userId) {
+            await db.collection('userStates').doc(userId).delete();
+            await db.collection('deletedUuids').doc(userId).set({ 
+                deletedAt: new Date().toISOString() 
+            });
+            console.log(`[ERASE REQUEST] Deleted user data and marked UUID ${userId} as deleted.`);
+        }
+
+        // Dispatches email notification if SMTP variables are set in environment
+        let emailSent = false;
+        if (process.env.SMTP_USER && process.env.SMTP_HOST) {
+            try {
+                const nodemailer = require('nodemailer');
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST,
+                    port: parseInt(process.env.SMTP_PORT || '587', 10),
+                    secure: process.env.SMTP_SECURE === 'true',
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS
+                    }
+                });
+
+                const mailOptions = {
+                    from: process.env.EMAIL_FROM || 'noreply@clashcalc.com',
+                    to: process.env.EMAIL_TO || 'privacy@clashcalc.com',
+                    subject: `[ClashCalc] Permanent Data Erasure Request - #${cleanedTag}`,
+                    text: `Hello,\n\nA new permanent data erasure request has been submitted.\n\nDetails:\n- Player Tag: #${cleanedTag}\n- Verification Token: ${token}\n- User ID: ${userId || 'unknown'}\n- Time: ${requestData.requestedAt}\n\nPlease verify and process this request manually in Firestore or CoC systems.\n\nRegards,\nClashCalc System`
+                };
+
+                await transporter.sendMail(mailOptions);
+                emailSent = true;
+                console.log(`[ERASE REQUEST] Notification email sent successfully.`);
+            } catch (mailError) {
+                console.error(`[ERASE REQUEST] Failed to send notification email:`, mailError);
+            }
+        } else {
+            console.log(`[ERASE REQUEST] SMTP not configured. Skipping email dispatch.`);
+        }
+
+        res.status(200).json({ 
+            message: `Erasure request successfully queued. Our administrators will process it within 30 days.`,
+            emailSent
+        });
     } catch (error) {
-        console.error('Error erasing tag:', error);
+        console.error('Error handling tag erasure request:', error);
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 });

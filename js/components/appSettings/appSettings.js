@@ -703,17 +703,16 @@ export function initializeAppSettings() {
                 // This prevents the one-time token from being consumed prematurely.
                 await erasePlayerTagFromAllUsers(tag, token);
 
-                // After global erasure, also remove it from local state if it exists
-                const cleanedTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                if (state.savedPlayerTags.includes(cleanedTag)) {
-                    removePlayerTag(cleanedTag);
-                }
-
                 closeDeleteModal();
                 await showAlert(translate('alerts.globalErasureSuccess'), "status.success");
 
-                // Reload to ensure a clean state
-                window.location.reload();
+                // Wipe everything locally and reload (clearing local state and active User ID)
+                if (window.resetApplication) {
+                    window.resetApplication();
+                } else {
+                    localStorage.clear();
+                    window.location.reload();
+                }
             } catch (err) {
                 if (err.message === 'apiErrors.protectedTag' || err.message === 'apiErrors.invalidToken' || err.message === 'apiErrors.403') {
                     deleteTokenError.textContent = translate('apiErrors.invalidToken');
@@ -784,8 +783,12 @@ export function initializeAppSettings() {
                         if (textElem) textElem.textContent = originalText;
                     }, 2000);
 
-                    const saveSuccess = await triggerCloudSave({ silent: true });
-                    messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
+                    if (state.uiSettings.cloudSync !== false) {
+                        const saveSuccess = await triggerCloudSave({ silent: true });
+                        messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
+                    } else {
+                        messageKey = 'alerts.copySuccess';
+                    }
                     copiedSuccessfully = true;
                 } catch (err) {
                     logger.error('Failed to copy: ', err);
@@ -867,8 +870,13 @@ export function initializeAppSettings() {
                     const currentUserId = localStorage.getItem('oreCalcUserId');
                     if (!currentUserId) return;
                     await navigator.clipboard.writeText(currentUserId);
-                    const saveSuccess = await triggerCloudSave({ silent: true });
-                    const messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
+                    let messageKey = '';
+                    if (state.uiSettings.cloudSync !== false) {
+                        const saveSuccess = await triggerCloudSave({ silent: true });
+                        messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
+                    } else {
+                        messageKey = 'alerts.copySuccess';
+                    }
                     if (dom.appSettings?.qrCopySuccessMessage) {
                         dom.appSettings.qrCopySuccessMessage.textContent = translate(messageKey);
                         dom.appSettings.qrCopySuccessMessage.classList.remove('hidden');
@@ -1097,5 +1105,10 @@ export function renderAppSettings(uiSettings) {
         mobileAccentSwatches.forEach(swatch => {
             swatch.classList.toggle('active', swatch.dataset.color === uiSettings.accentColor);
         });
+    }
+
+    const cloudSyncToggle = dom.appSettings?.cloudSyncToggle || document.getElementById('settings-cloud-sync-toggle');
+    if (cloudSyncToggle) {
+        cloudSyncToggle.checked = uiSettings.cloudSync !== false;
     }
 }

@@ -68,7 +68,24 @@ export function renderFab(playerTag) {
         dom.fab.main.disabled = isDisabled;
     }
 
-    if (dom.controls.saveButton) {
-        dom.controls.saveButton.disabled = isDisabled;
+    const floatingSaveBtn = dom.controls?.saveButton;
+    const fabSaveDataPill = dom.fab?.pills?.saveData;
+    const isCloudSyncDisabled = state.uiSettings.cloudSync === false;
+
+    if (floatingSaveBtn) {
+        floatingSaveBtn.disabled = isDisabled;
+        if (isCloudSyncDisabled) {
+            floatingSaveBtn.style.display = 'none';
+        } else {
+            floatingSaveBtn.style.display = '';
+        }
+    }
+
+    if (fabSaveDataPill) {
+        if (isCloudSyncDisabled) {
+            fabSaveDataPill.style.display = 'none';
+        } else {
+            fabSaveDataPill.style.display = '';
+        }
     }
 }

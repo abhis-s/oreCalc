@@ -38,6 +38,26 @@ export function translate(key, ...args) {
         state.uiSettings.language = 'en';
     }
     const language = state.uiSettings?.language || 'en';
+
+    if (typeof key === 'string' && key.startsWith('apiErrors.rateLimitedWithTime:')) {
+        const seconds = parseInt(key.split(':')[1], 10);
+        const minutes = Math.ceil(seconds / 60);
+        let translation;
+        let isFallbackToEnglish = false;
+
+        translation = getNestedTranslation(language, 'apiErrors.rateLimitedWithTimeMinutes');
+        if (translation === undefined) {
+            translation = getNestedTranslation('en', 'apiErrors.rateLimitedWithTimeMinutes') || "Too many requests. Please try again after {minutes} minutes.";
+            isFallbackToEnglish = true;
+        }
+        translation = translation.replace('{minutes}', minutes);
+
+        if (isFallbackToEnglish && language !== 'en') {
+            return `[EN] ${translation}`;
+        }
+        return translation;
+    }
+
     let translation = getNestedTranslation(language, key);
 
     let isFallbackToEnglish = false;

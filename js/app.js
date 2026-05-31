@@ -490,6 +490,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
+let cloudSaveTimeout = null;
+
 export function handleStateUpdate(updateFn, silent = false) {
     updateFn();
 
@@ -502,15 +504,27 @@ export function handleStateUpdate(updateFn, silent = false) {
     saveState(state);
 
     if (state.uiSettings.cloudSync !== false) {
-        import('./utils/cloudSaveHandler.js').then(module => {
-            module.triggerCloudSave({ silent: true });
-        });
+        if (cloudSaveTimeout) {
+            clearTimeout(cloudSaveTimeout);
+        }
+        cloudSaveTimeout = setTimeout(() => {
+            import('./utils/cloudSaveHandler.js').then(module => {
+                module.triggerCloudSave({ silent: true });
+            });
+        }, 3000);
+    } else {
+        if (cloudSaveTimeout) {
+            clearTimeout(cloudSaveTimeout);
+            cloudSaveTimeout = null;
+        }
     }
 }
 window.resetApplication = () => {
     resetState();
     localStorage.removeItem('oreCalcUserId');
-    location.reload();
+    setTimeout(() => {
+        location.reload();
+    }, 500);
 };
 
 
