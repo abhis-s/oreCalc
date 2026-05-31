@@ -272,6 +272,7 @@
         "common": "Gewöhnlich",
         "epic": "Episch",
         "recommended": "Empfohlen",
+        "standardMax": "Standard-Max",
         "priorityList": "Prioritäten-Liste",
         "calendarTitle": "Kalender-Planer",
         "settingsModal": {

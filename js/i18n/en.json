@@ -271,6 +271,7 @@
         "common": "Common",
         "epic": "Epic",
         "recommended": "Recommended",
+        "standardMax": "Standard Max",
         "priorityList": "Priority List",
         "calendarTitle": "Calendar Planner",
         "settingsModal": {

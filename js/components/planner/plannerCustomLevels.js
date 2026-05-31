@@ -4,6 +4,41 @@ import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
 import { translate } from '../../i18n/translator.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { getMaxTownHall } from '../../utils/dateUtils.js';
+
+function getTownHallMaxLevel(type, townHallLevel) {
+    const maxTH = getMaxTownHall();
+    const th = parseInt(townHallLevel, 10);
+    if (isNaN(th) || th <= 0) {
+        return type === 'common' ? 18 : 27;
+    }
+    
+    // Below 9: 9common / 12epic
+    if (th <= 9) {
+        return type === 'common' ? 9 : 12;
+    }
+    
+    // Dynamic rules based on maxTH
+    if (th >= maxTH) {
+        return type === 'common' ? 18 : 27;
+    }
+    if (th === maxTH - 1) {
+        return type === 'common' ? 18 : 24;
+    }
+    if (th === maxTH - 2) {
+        return type === 'common' ? 15 : 21;
+    }
+    
+    // Intermediate Town Halls
+    if (type === 'common') {
+        if (th <= 11) return 12;
+        return 15;
+    } else { // epic
+        if (th <= 11) return 15;
+        if (th <= 13) return 18;
+        return 21;
+    }
+}
 
 export function initializePlannerCustomLevels() {
     const container = document.querySelector('.max-level-card-header');
@@ -57,7 +92,18 @@ export function initializePlannerCustomLevels() {
             min: 1,
             max: level.max,
             showRange: true,
-            clickToFill: { max: true }
+            showRecommended: true,
+            recommended: () => {
+                const playerTH = state.playerProfile?.townHallLevel;
+                return getTownHallMaxLevel(level.key, playerTH);
+            },
+            recommendedLabel: () => {
+                return translate('planner.recommended') || 'Recommended';
+            },
+            clickToFill: {
+                max: true,
+                recommended: true
+            }
         });
 
         settingsContainer.appendChild(group);
