@@ -64,6 +64,7 @@ export function initializeTabs() {
             document.documentElement.dataset.transitionDirection = direction;
             const transition = document.startViewTransition(updateTab);
             
+            transition.ready.catch(() => {});
             transition.finished.catch(() => {}).finally(() => {
                 delete document.documentElement.dataset.transitionType;
             });
@@ -108,8 +109,10 @@ export function initializeTabs() {
             document.documentElement.dataset.transitionDirection = direction;
             const transition = document.startViewTransition(updateTab);
             
+            transition.ready.catch(() => {});
             transition.finished.catch(() => {}).finally(() => {
                 delete document.documentElement.dataset.transitionType;
+                
             });
         } else {
             document.documentElement.dataset.transitionDirection = direction;

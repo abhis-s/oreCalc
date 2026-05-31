@@ -70,6 +70,7 @@ export function initializePlannerCustomLevels() {
         const input = document.createElement('input');
         input.type = 'number';
         input.id = level.id;
+        input.name = level.id;
         input.className = 'updatable';
         input.value = state.planner.customMaxLevel?.[level.key] || level.max;
         input.min = '1';

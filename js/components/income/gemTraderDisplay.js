@@ -33,6 +33,7 @@ export function renderGemTraderRow(offer, offerState) {
         const select = document.createElement('select');
         select.className = 'offer-input-dropdown dropdown-style';
         select.id = `gem-trader-${offer.id}-dropdown`;
+        select.name = `gem-trader-${offer.id}-dropdown`;
         select.dataset.offerId = offer.id;
         for (let i = 0; i <= offer.maxPacks; i++) {
             const option = document.createElement('option');
@@ -59,6 +60,7 @@ export function renderGemTraderRow(offer, offerState) {
             checkbox.dataset.offerId = offer.id;
             checkbox.dataset.instance = i;
             checkbox.id = `${offer.id}_${i}`;
+            checkbox.name = `${offer.id}_${i}`;
             checkbox.checked = i <= offerState;
             checkboxDiv.appendChild(checkbox);
         }

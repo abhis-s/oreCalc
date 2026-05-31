@@ -22,6 +22,7 @@ export function createOreDisplay(config, oreType) {
         const input = document.createElement('input');
         input.type = 'number';
         input.id = config.idFormat(oreType);
+        input.name = config.idFormat(oreType);
         input.className = 'ore-value updatable';
         input.value = '0';
         input.min = '0';

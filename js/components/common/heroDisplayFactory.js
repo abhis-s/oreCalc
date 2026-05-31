@@ -72,6 +72,7 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `${idPrefix}-${toCamelCase(equip.name)}-toggle`;
+        checkbox.name = `${idPrefix}-${toCamelCase(equip.name)}-toggle`;
         checkbox.checked = isChecked;
         switchLabel.appendChild(checkbox);
 
@@ -116,6 +117,7 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         const levelInput = document.createElement('input');
         levelInput.type = 'number';
         levelInput.id = inputId;
+        levelInput.name = inputId;
         levelInput.className = 'updatable';
         levelInput.min = '1';
         levelInput.max = maxLevel;

@@ -185,6 +185,8 @@ function renderGlobalPricingGrid(currencyCode) {
 
         const input = document.createElement('input');
         input.type = 'text';
+        input.id = `pricing-tier-${tierKey}`;
+        input.name = `pricing-tier-${tierKey}`;
         input.inputMode = 'decimal';
         input.dataset.usdPrice = usdPrice;
         input.dataset.tierKey = tierKey;

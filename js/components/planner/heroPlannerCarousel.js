@@ -96,6 +96,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `planner-${heroKey}-toggle`;
+        checkbox.name = `planner-${heroKey}-toggle`;
         checkbox.checked = heroState.enabled !== false;
         switchLabel.appendChild(checkbox);
 

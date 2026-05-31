@@ -247,6 +247,7 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
             document.body.offsetHeight;
         });
 
+        transition.ready.catch(() => {});
         transition.finished.catch(() => {}).finally(() => {
             document.body.classList.remove('no-transition');
             delete document.documentElement.dataset.transitionType;

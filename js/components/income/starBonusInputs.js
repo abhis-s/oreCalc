@@ -158,6 +158,7 @@ function renderTHPlanningSection() {
         const labelDiv = document.createElement('div');
         labelDiv.className = 'field-descriptor-group';
         const label = document.createElement('label');
+        label.htmlFor = `th-upgrade-month-${th}`;
 
         if (th > maxTH) {
             const releaseYear = getTHReleaseDate(th);
@@ -173,6 +174,8 @@ function renderTHPlanningSection() {
         row.appendChild(labelDiv);
         
         const select = document.createElement('select');
+        select.id = `th-upgrade-month-${th}`;
+        select.name = `th-upgrade-month-${th}`;
         select.className = 'dropdown-style updatable';
         select.innerHTML = `<option value="0">---</option>`;
         

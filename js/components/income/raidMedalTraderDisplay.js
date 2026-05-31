@@ -33,6 +33,7 @@ export function renderRaidMedalTraderRow(offer, offerState) {
             checkbox.dataset.offerId = offer.id;
             checkbox.dataset.instance = i;
             checkbox.id = `${offer.id}_${i}`;
+            checkbox.name = `${offer.id}_${i}`;
             checkbox.checked = i <= offerState;
             checkboxDiv.appendChild(checkbox);
         }

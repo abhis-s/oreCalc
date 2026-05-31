@@ -61,6 +61,7 @@ export function renderShopOfferRow(offer, offerState) {
     const select = document.createElement('select');
     select.className = 'offer-input-dropdown dropdown-style';
     select.id = `shop-offers-${offer.id}-dropdown`;
+    select.name = `shop-offers-${offer.id}-dropdown`;
     select.dataset.offerId = offer.id;
     for (let i = 0; i <= offer.maxPacks; i++) {
         const option = document.createElement('option');
@@ -82,6 +83,7 @@ export function renderShopOfferRow(offer, offerState) {
             checkbox.dataset.offerId = offer.id;
             checkbox.dataset.instance = i;
             checkbox.id = `cb_${offer.id}_${i}`;
+            checkbox.name = `cb_${offer.id}_${i}`;
             checkbox.checked = i <= offerState;
             checkboxDiv.appendChild(checkbox);
         }
