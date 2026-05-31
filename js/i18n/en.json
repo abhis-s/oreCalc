@@ -54,7 +54,7 @@
         "tooltipReached": "The amount of ore that will be reached before the bottleneck is removed for this upgrade.",
         "tooltipBottleneck": "The bottleneck for this upgrade would be: <b>{bottleneck}</b>.",
         "tooltipRequired": "Ores required for this upgrade",
-        "modalStoredOresPrompt": "Please enter the amount of ores you have in you blacksmith",
+        "modalStoredOresPrompt": "Please enter the amount of ores you have in your blacksmith",
         "dontAskTwoMonths": "Don't show again for 2 months",
         "dontAskTwoMonthsDesc": "Mute this stored ores reminder modal for the next two months.",
         "autoPredictTitle": "Auto Predict",
