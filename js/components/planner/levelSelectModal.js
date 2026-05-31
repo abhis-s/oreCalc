@@ -7,6 +7,49 @@ import { toCamelCase } from '../../utils/stringUtils.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 
 let currentEquipment = null;
+let currentHero = null;
+
+function getDefaultLevels(currentLevel, minLevel, maxLevel, type) {
+    let defaultLevel1 = Math.ceil((currentLevel + 1) / 3) * 3;
+    if (defaultLevel1 > maxLevel) {
+        defaultLevel1 = maxLevel;
+    }
+    defaultLevel1 = Math.max(defaultLevel1, 9);
+    defaultLevel1 = Math.max(defaultLevel1, minLevel); 
+
+    let defaultLevel2 = defaultLevel1 + 3;
+    if (defaultLevel2 > maxLevel) {
+        defaultLevel2 = maxLevel;
+    }
+    defaultLevel2 = Math.max(defaultLevel2, type === 'epic' ? 18 : 12);
+    defaultLevel2 = Math.max(defaultLevel2, minLevel); 
+
+    let defaultLevel3 = maxLevel;
+    defaultLevel3 = Math.max(defaultLevel3, minLevel); 
+
+    return { defaultLevel1, defaultLevel2, defaultLevel3 };
+}
+
+function getEquipmentRecommendedLevel(stepIndex) {
+    if (!currentEquipment || !currentHero) return 0;
+    
+    const maxLevel = currentEquipment.type === 'epic' ? 27 : 18;
+    const currentLevel = state.heroes[currentHero.name]?.equipment[currentEquipment.name]?.level || 1;
+    const minLevel = currentLevel + 1;
+    
+    const { defaultLevel1, defaultLevel2, defaultLevel3 } = getDefaultLevels(
+        currentLevel,
+        minLevel,
+        maxLevel,
+        currentEquipment.type
+    );
+
+    if (stepIndex === 1) return defaultLevel1;
+    if (stepIndex === 2) return defaultLevel2;
+    if (stepIndex === 3) return defaultLevel3;
+
+    return 0;
+}
 
 function savePrioritySteps() {
     const rows = document.querySelectorAll('#level-select-table tbody tr');
@@ -55,6 +98,19 @@ function savePrioritySteps() {
                 };
             });
 
+            const oldSteps = [];
+            for (const stepKey in oldUpgradePlan) {
+                const step = oldUpgradePlan[stepKey];
+                if (step.enabled && step.priorityIndex > 0) {
+                    oldSteps.push({
+                        stepKey: stepKey,
+                        level: step.level,
+                        priorityIndex: step.priorityIndex
+                    });
+                }
+            }
+            oldSteps.sort((a, b) => a.level - b.level);
+
             const uniqueLevels = new Set();
             uiSteps.forEach(step => {
                 if (!step.enabled) return;
@@ -67,32 +123,68 @@ function savePrioritySteps() {
             const enabledSteps = uiSteps.filter(step => step.enabled);
             enabledSteps.sort((a, b) => a.level - b.level);
 
+            const N_new = enabledSteps.length;
+            const N_old = oldSteps.length;
+
             if (enabledSteps.length === 0) {
                 delete equipmentInState.upgradePlan;
             } else {
-                // Find existing priority anchor for this equipment
-                let anchorPriority = Infinity;
-                enabledSteps.forEach(step => {
-                    if (step.wasEnabled && step.priorityIndex > 0) {
-                        anchorPriority = Math.min(anchorPriority, step.priorityIndex);
-                    }
-                });
+                equipmentInState.upgradePlan = {};
 
-                if (anchorPriority === Infinity) {
-                    anchorPriority = maxPriority + 1;
+                if (N_old === 0) {
+                    enabledSteps.forEach((step, index) => {
+                        step.priorityIndex = maxPriority + 1 + index;
+                    });
+                } else if (N_new <= N_old) {
+                    enabledSteps.forEach((step, index) => {
+                        step.priorityIndex = oldSteps[index].priorityIndex;
+                    });
+                } else {
+                    const newHighest = enabledSteps[N_new - 1];
+                    const oldHighest = oldSteps[N_old - 1];
+
+                    if (newHighest.level > oldHighest.level) {
+                        newHighest.priorityIndex = maxPriority + 1;
+                    } else {
+                        newHighest.priorityIndex = oldHighest.priorityIndex;
+                    }
+
+                    if (N_old === 1) {
+                        const anchor = oldHighest.priorityIndex;
+                        for (let i = 0; i < N_new - 1; i++) {
+                            enabledSteps[i].priorityIndex = anchor - 0.002 + (i * 0.001);
+                        }
+                    } else if (N_old === 2) {
+                        const S_low = enabledSteps[0];
+                        const S_mid = enabledSteps[1];
+                        const O_low = oldSteps[0];
+
+                        if (S_mid.level > O_low.level) {
+                            S_mid.priorityIndex = O_low.priorityIndex + 0.001;
+                            if (S_low.level === O_low.level) {
+                                S_low.priorityIndex = O_low.priorityIndex;
+                            } else {
+                                S_low.priorityIndex = O_low.priorityIndex - 0.001;
+                            }
+                        } else {
+                            S_low.priorityIndex = O_low.priorityIndex;
+                            S_mid.priorityIndex = O_low.priorityIndex + 0.001;
+                        }
+                    } else if (N_old >= 3) {
+                        enabledSteps.forEach((step, index) => {
+                            step.priorityIndex = oldSteps[index].priorityIndex;
+                        });
+                    }
                 }
 
-                equipmentInState.upgradePlan = {};
                 enabledSteps.forEach((step, index) => {
                     const stepKey = (index + 1).toString();
                     
-                    // Assign a priority index that keeps steps together and ordered
-                    // Using a small offset for ordering within the group
                     const plan = {
                         level: step.level,
                         target: step.level,
                         enabled: true,
-                        priorityIndex: anchorPriority + (index * 0.001)
+                        priorityIndex: step.priorityIndex
                     };
                     
                     equipmentInState.upgradePlan[stepKey] = plan;
@@ -162,7 +254,23 @@ function renderTableRows() {
             min: () => parseInt(input.getAttribute('min')) || 1,
             max: () => parseInt(input.getAttribute('max')) || 18,
             showRange: true,
-            clickToFill: { max: true }
+            showRecommended: () => {
+                if (!currentEquipment) return false;
+                const recVal = getEquipmentRecommendedLevel(i);
+                const minVal = parseInt(input.getAttribute('min')) || 1;
+                return recVal >= minVal;
+            },
+            recommended: () => {
+                if (!currentEquipment) return 0;
+                return getEquipmentRecommendedLevel(i);
+            },
+            recommendedLabel: () => {
+                return translate('planner.recommended') || 'Recommended';
+            },
+            clickToFill: {
+                max: true,
+                recommended: true
+            }
         });
     }
 }
@@ -256,6 +364,7 @@ export function createLevelSelectModal() {
 
 export function openLevelSelectModal(hero, equipment) {
     currentEquipment = equipment;
+    currentHero = hero;
     createLevelSelectModal(); 
 
     const modal = document.getElementById('level-select-modal');
@@ -271,7 +380,7 @@ export function openLevelSelectModal(hero, equipment) {
 
     const equipmentUpgradePlan = state.heroes[hero.name]?.equipment[equipment.name]?.upgradePlan || {};
 
-    const minLevel = currentLevel + 1;
+    const minLevel = Math.max(9, currentLevel + 1);
 
     let stepsToFill = [];
     for (const key in equipmentUpgradePlan) {
@@ -288,6 +397,15 @@ export function openLevelSelectModal(hero, equipment) {
         levelInput.setAttribute('min', minLevel); 
         levelInput.setAttribute('max', maxLevel); 
 
+        const stepNum = index + 1;
+        const recVal = getEquipmentRecommendedLevel(stepNum);
+        const defaultMaxPlaceholder = equipment.type === 'epic' ? 27 : 18;
+        const displayVal = (recVal && recVal >= minLevel) ? recVal : defaultMaxPlaceholder;
+
+        const basePlaceholderText = translate('planner.placeholderLevel') || 'e.g., 18';
+        const prefix = basePlaceholderText.includes('18') ? basePlaceholderText.split('18')[0] : 'e.g., ';
+        levelInput.setAttribute('placeholder', `${prefix}${displayVal}`);
+
         const savedStep = stepsToFill[index];
 
         if (savedStep) { 
@@ -303,24 +421,12 @@ export function openLevelSelectModal(hero, equipment) {
     });
 
     if (currentLevel < maxLevel && stepsToFill.length === 0) {
-        let defaultLevel1, defaultLevel2, defaultLevel3;
-
-        defaultLevel1 = Math.ceil((currentLevel + 1) / 3) * 3;
-        if (defaultLevel1 > maxLevel) {
-            defaultLevel1 = maxLevel;
-        }
-        defaultLevel1 = Math.max(defaultLevel1, 9);
-        defaultLevel1 = Math.max(defaultLevel1, minLevel); 
-
-        defaultLevel2 = defaultLevel1 + 3;
-        if (defaultLevel2 > maxLevel) {
-            defaultLevel2 = maxLevel;
-        }
-        defaultLevel2 = Math.max(defaultLevel2, equipment.type === 'epic' ? 18 : 12);
-        defaultLevel2 = Math.max(defaultLevel2, minLevel); 
-
-        defaultLevel3 = maxLevel;
-        defaultLevel3 = Math.max(defaultLevel3, minLevel); 
+        const { defaultLevel1, defaultLevel2, defaultLevel3 } = getDefaultLevels(
+            currentLevel,
+            minLevel,
+            maxLevel,
+            equipment.type
+        ); 
         
         rows.forEach((row, index) => {
             const levelInput = row.querySelector('.level-input');
@@ -366,4 +472,5 @@ export function closeLevelSelectModal() {
     const modal = document.getElementById('level-select-modal');
     modal.classList.remove('show');
     currentEquipment = null;
+    currentHero = null;
 }
