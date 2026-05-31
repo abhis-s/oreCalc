@@ -7,19 +7,39 @@ const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech"
  * The request is proxied through the API server to avoid CORS or auth issues.
  *
  * @param {string} playerTag - The player tag to query (e.g. "#PPYY9988" or "PPYY9988").
+ * @param {string} [token] - Optional Clash of Clans API verification token for protected tag access.
  * @returns {Promise<Object>} The parsed player data from the API response.
  * @throws {Error} Throws if the API request fails or returns a non-OK HTTP status.
  */
-export async function fetchPlayerData(playerTag) {
+export async function fetchPlayerData(playerTag, token = null) {
     const cleanedTag = playerTag.startsWith('#') ? playerTag.substring(1) : playerTag;
-    const url = `${BASE_URL}/proxy/players/${cleanedTag}`;
+    let url = `${BASE_URL}/proxy/players/${cleanedTag}`;
+    if (token) {
+        url += `?token=${encodeURIComponent(token)}`;
+    }
+
+    const headers = { 'Accept': 'application/json' };
+    const userId = localStorage.getItem('oreCalcUserId');
+    if (userId) {
+        headers['x-user-id'] = userId;
+    }
 
     try {
-        const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        const response = await fetch(url, { headers });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`API Error: ${response.status} - ${errorData.reason || 'Unknown error'}`);
+            let errorKey = `apiErrors.${response.status}`;
+            try {
+                const errorData = await response.json();
+                if (errorData.reason) {
+                    errorKey = `apiErrors.${errorData.reason}`;
+                } else if (errorData.message) {
+                    errorKey = errorData.message;
+                }
+            } catch (jsonErr) {
+                // Keep default status key if not JSON
+            }
+            throw new Error(errorKey);
         }
 
         return await response.json();
@@ -104,5 +124,73 @@ export async function loadUserData(userId) {
     } catch (error) {
         logger.error("Error loading user data:", error);
         return null;
+    }
+}
+
+/**
+ * Deletes a user's cloud data from Firestore.
+ *
+ * @param {string} userId - The unique identifier of the user to delete.
+ * @returns {Promise<Object>} The server response.
+ * @throws {Error} If the API request fails.
+ */
+export async function deleteUserData(userId) {
+    const url = `${BASE_URL}/api/user-data/delete/${userId}`;
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Unknown error during deletion');
+        }
+
+        return await response.json();
+    } catch (error) {
+        logger.error("Error deleting user data:", error);
+        throw error;
+    }
+}
+
+/**
+ * Erases a player tag globally from all user document configurations in Firestore,
+ * verifying ownership using a Clash of Clans API verification token.
+ *
+ * @param {string} playerTag - The player tag to delete globally.
+ * @param {string} token - The API token verifying tag ownership.
+ * @returns {Promise<Object>} The server response.
+ * @throws {Error} If verification or deletion fails, mapped to translation keys.
+ */
+export async function erasePlayerTagFromAllUsers(playerTag, token) {
+    const url = `${BASE_URL}/api/user-data/erase-tag`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ playerTag, token })
+        });
+
+        if (!response.ok) {
+            let errorKey = `apiErrors.${response.status}`;
+            try {
+                const errorData = await response.json();
+                if (errorData.reason) {
+                    errorKey = `apiErrors.${errorData.reason}`;
+                } else if (errorData.message) {
+                    errorKey = errorData.message;
+                }
+            } catch (jsonErr) {
+                // Not JSON, keep default status key
+            }
+            throw new Error(errorKey);
+        }
+
+        return await response.json();
+    } catch (error) {
+        logger.error("Error performing global player tag erasure:", error);
+        throw error;
     }
 }

@@ -17,12 +17,23 @@ function resetModalState() {
     const verifyButton = dom.player.verifyPlayerModalButton;
     const tokenContainer = dom.player.addPlayerTokenContainer;
     const tokenInput = dom.player.addPlayerTokenInput;
+    const errorMessageElement = dom.player.playerTagErrorMessage;
 
-    if (playerTagInput) playerTagInput.disabled = false;
+    if (playerTagInput) {
+        playerTagInput.disabled = false;
+        playerTagInput.classList.remove('input-error');
+    }
     if (loadButton) loadButton.style.display = 'block';
     if (verifyButton) verifyButton.style.display = 'none';
     if (tokenContainer) tokenContainer.style.display = 'none';
-    if (tokenInput) tokenInput.value = '';
+    if (tokenInput) {
+        tokenInput.value = '';
+        tokenInput.classList.remove('input-error');
+    }
+    if (errorMessageElement) {
+        errorMessageElement.textContent = '';
+        errorMessageElement.classList.remove('show');
+    }
     isForcedVerification = false;
 }
 
@@ -49,6 +60,20 @@ export function renderPlayerModal(isVisible, currentTag, message, isError, error
 
     if (currentTag !== undefined && currentTag !== null) {
         playerTagInput.value = currentTag;
+    }
+
+    if (!isError) {
+        if (errorMessageElement) {
+            errorMessageElement.textContent = '';
+            errorMessageElement.classList.remove('show');
+        }
+        if (playerTagInput) {
+            playerTagInput.classList.remove('input-error');
+        }
+        const tokenInput = dom.player.addPlayerTokenInput;
+        if (tokenInput) {
+            tokenInput.classList.remove('input-error');
+        }
     }
 
     // Only run local validation if we don't already have a server error to display
@@ -216,6 +241,11 @@ export function initializePlayerModal() {
         tokenInput?.addEventListener('input', (e) => {
             // Only allow alphanumeric characters
             e.target.value = e.target.value.replace(/[^a-z0-9]/gi, '');
+            tokenInput.classList.remove('input-error');
+            if (errorMessageElement) {
+                errorMessageElement.textContent = '';
+                errorMessageElement.classList.remove('show');
+            }
         });
 
         playerTagInput.addEventListener('keydown', (event) => {

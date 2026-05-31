@@ -16,6 +16,7 @@ import { getSVG } from '../../utils/svgManager.js';
 import { addCurrencyValidation } from '../../utils/inputValidator.js';
 import { formatCurrency } from '../../utils/numberFormatter.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
+import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 
 import { loadTranslations, translate } from '../../i18n/translator.js';
 import { logger } from '../../utils/logger.js';
