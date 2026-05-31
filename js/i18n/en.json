@@ -5,7 +5,8 @@
         "none": "None",
         "madeIn": "Precision-built in 🇩🇪",
         "description": "Stop guessing, start upgrading! OreCalc helps you manage your equipment and ores with ease. Forecast your income, schedule your next big upgrade on the calendar, and optimize your path to victory. Whether you're a casual player or a maxxer, we've got your back.",
-        "comingSoon": "Coming Soon!"
+        "comingSoon": "Coming Soon!",
+        "latest": "Latest"
     },
     "nav": {
         "home": "Home",
@@ -467,7 +468,12 @@
         "saveFailed": "Save failed!"
     },
     "changelog": {
-        "title": "Changelog"
+        "title": "Changelog",
+        "type": {
+            "feature": "Feature",
+            "fix": "Fix",
+            "chore": "Chore"
+        }
     },
     "download": {
         "title": "Download Your Data",

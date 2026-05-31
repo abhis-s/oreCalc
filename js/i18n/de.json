@@ -5,7 +5,8 @@
         "none": "Keines",
         "madeIn": "Präzisionsgefertigt in 🇩🇪",
         "description": "Hör auf zu raten, fang an zu verbessern! OreCalc hilft dir, deine Ausrüstung und Erze mit Leichtigkeit zu verwalten. Prognostiziere dein Einkommen, plane dein nächstes großes Upgrade im Kalender und optimiere deinen Weg zum Sieg. Egal, ob du ein Gelegenheitsspieler oder ein Maxxer bist, wir halten dir den Rücken frei.",
-        "comingSoon": "Demnächst!"
+        "comingSoon": "Demnächst!",
+        "latest": "Aktuell"
     },
     "nav": {
         "home": "Startseite",
@@ -467,7 +468,12 @@
         "saveFailed": "Speichern fehlgeschlagen!"
     },
     "changelog": {
-        "title": "Änderungsprotokoll"
+        "title": "Änderungsprotokoll",
+        "type": {
+            "feature": "Feature",
+            "fix": "Fix",
+            "chore": "Wartung"
+        }
     },
     "download": {
         "title": "Deine Daten herunterladen",

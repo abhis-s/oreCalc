@@ -34,7 +34,7 @@ export function getChangelogHtml() {
 
             html += `
                 <li class="changelog-item ${changeClass}">
-                    <span class="change-badge">${change.type}</span>
+                    <span class="change-badge">${translate('changelog.type.' + change.type) || change.type}</span>
                     <span class="change-text">${change.text}</span>
                 </li>
             `;
