@@ -18,6 +18,18 @@ function toggleFabMenu() {
     overlay.classList.toggle('show', isActive);
 }
 
+export function closeFabMenu() {
+    const { main, menu } = dom.fab;
+    const overlay = dom.overlay;
+
+    if (!main || !menu || !overlay) return;
+    if (main.classList.contains('active')) {
+        main.classList.remove('active');
+        menu.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+}
+
 export function initializeFab() {
     const { main, pills } = dom.fab;
     const overlay = dom.overlay;
@@ -55,10 +67,6 @@ export function initializeFab() {
         }
     });
 
-    pills.saveData?.addEventListener('click', async () => {
-        saveState(state);
-        toggleFabMenu();
-    });
 }
 
 export function renderFab(playerTag) {

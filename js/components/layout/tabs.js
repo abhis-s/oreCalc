@@ -4,6 +4,7 @@ import { state } from '../../core/state.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
 import { navigationRegistry } from '../../data/navigationRegistry.js';
 import { openStoredOresModal } from '../planner/priorityListModal.js';
+import { closeFabMenu } from '../fab/fab.js';
 
 function checkPlannerTabStoredOres() {
     const storedOres = state.storedOres || {};
@@ -77,6 +78,8 @@ export function initializeTabs() {
     document.body.addEventListener('click', (event) => {
         const button = event.target.closest('[data-tab]');
         if (!button) return;
+
+        closeFabMenu();
 
         const tabId = `${button.dataset.tab}-tab`;
         if (tabId === state.activeTab) return;

@@ -59,31 +59,24 @@
     }
 }
 
-.fab-button.saving {
-    cursor: not-allowed;
-    .button-spinner {
-        display: block;
-    }
-    .fab-icon {
-        display: none;
-    }
-}
 
-.fab-button.error {
-    background-color: $color-danger-soft;
-    cursor: not-allowed;
-    .button-spinner, .fab-icon {
-        display: none;
-    }
-    .button-error-icon {
-        display: block;
-    }
-}
 
 
 .fab-icon {
     position: absolute;
+    top: calc(50% - 12px);
+    left: calc(50% - 12px);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
 }
 
 .fab-plus-icon {
@@ -98,32 +91,71 @@
 
 .fab-menu {
     align-items: flex-end;
-    display: none;
+    display: flex;
     flex-direction: column;
     margin-bottom: 10px;
-    opacity: 0;
     pointer-events: none;
-    transform: translateY(20px);
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, visibility 0.3s;
     visibility: hidden;
+    transition: visibility 0.4s;
 
     &.show {
-        display: flex;
-        opacity: 1;
-        pointer-events: auto;
-        transform: translateY(0);
         visibility: visible;
+        pointer-events: auto;
     }
 }
 
 .fab-menu-pill {
-    @include btn-accent-style;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: $bg-surface-secondary;
+    color: $accent-primary;
+    border: 1px solid $border-primary;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
     margin-bottom: 8px;
-    padding: 10px 15px;
+    padding: 10px 16px;
     white-space: nowrap;
     min-height: auto; 
     min-width: auto;
+    font-weight: 500;
+
+    // Collapse/Exit state (collapses back into the main FAB button)
+    opacity: 0;
+    pointer-events: none;
+
+    &:nth-child(1) { // #fab-refresh-pill
+        transform: translateY(100px) scale(0);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1), 
+                    opacity 0.2s ease-in,
+                    background-color 0.2s ease-in-out,
+                    border-color 0.2s ease-in-out;
+        transition-delay: 0s;
+    }
+
+    &:nth-child(2) { // #fab-save-data-pill
+        transform: translateY(50px) scale(0);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1), 
+                    opacity 0.2s ease-in,
+                    background-color 0.2s ease-in-out,
+                    border-color 0.2s ease-in-out;
+        transition-delay: 0.05s;
+    }
+
+    &:hover:not(:disabled) {
+        background-color: $bg-surface-tertiary;
+        border-color: var(--border-secondary);
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.97);
+    }
+
+    &:focus-visible {
+        outline-offset: -3px !important;
+        border-radius: 12px;
+    }
 
     .animated-btn-icon-wrapper {
         opacity: 1;
@@ -135,5 +167,30 @@
         fill: currentColor;
         height: 20px;
         width: 20px;
+    }
+}
+
+// Open/Enter state (spring bounce and stagger delay)
+.fab-menu.show {
+    .fab-menu-pill {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+
+        &:nth-child(1) { // #fab-refresh-pill
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        opacity 0.25s ease-out,
+                        background-color 0.2s ease-in-out,
+                        border-color 0.2s ease-in-out;
+            transition-delay: 0.05s;
+        }
+
+        &:nth-child(2) { // #fab-save-data-pill
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        opacity 0.25s ease-out,
+                        background-color 0.2s ease-in-out,
+                        border-color 0.2s ease-in-out;
+            transition-delay: 0s;
+        }
     }
 }
