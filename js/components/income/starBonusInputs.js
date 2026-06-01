@@ -88,7 +88,7 @@ function renderTHPlanningSection() {
     if (!container) return;
 
     const outerBox = dom.income?.starBonus?.multiplierModal?.querySelector('#star-bonus-4x-section');
-    const separator = dom.income?.starBonus?.multiplierModal?.querySelector('.danger-zone-separator');
+    const separator = dom.income?.starBonus?.multiplierModal?.querySelector('.separator');
 
     // Get current TH level
     let currentTH = 1;

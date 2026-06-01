@@ -386,8 +386,8 @@
         "download": "Herunterladen",
         "request": "Anfordern",
         "localReset": "Lokalen Cache leeren",
-        "localCloudReset": "Meine Daten löschen",
-        "completeDelete": "Dauerhafte Löschung anfordern",
+        "localCloudReset": "Alle Daten löschen",
+        "completeDelete": "Ausschluss vom Dienst anfordern",
         "downloadData": "Meine Daten herunterladen",
         "validate": "Überprüfen",
         "verify": "Bestätigen",
@@ -409,12 +409,12 @@
         "transparency": "Transparenz",
         "privacy": "Datenschutz",
         "terms": "Nutzung",
-        "dangerZone": "Datenlöschung",
+        "dataErasure": "Datenlöschung",
         "completeDeleteInfo": "Hiermit wird deine Eigentümerschaft über die offizielle Clash of Clans API verifiziert. Nach erfolgreicher Verifizierung werden wir dieses Spielerkürzel dauerhaft von allen verknüpften OreCalc-Benutzer-IDs in unserer gesamten Datenbank entfernen. Niemand kann dein Konto ohne erneute Verifizierung hinzufügen.",
         "cards": {
             "preferences": "Präferenzen",
             "backupSync": "Sicherung & Synchronisierung",
-            "dangerZone": "Gefahrenzone",
+            "dataErasure": "Datenlöschung",
             "developmentSupport": "Entwicklung & Unterstützung",
             "transparency": "Rechtliches & Transparenz"
         },
@@ -447,7 +447,7 @@
             "beta": "BETA",
             "new": "NEU"
         },
-        "dangerZoneInfo": "Setzen Sie Ihre Daten zurück oder löschen Sie sie."
+        "dataErasureInfo": "Setzen Sie Ihre Daten zurück oder löschen Sie sie."
     },
     "pricing": {
         "gems": "{count} Juwelen",

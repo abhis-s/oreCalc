@@ -6,7 +6,7 @@ export let state = {};
 
 export function getDefaultState() {
     return {
-        appVersion: '1.0.0',
+        appVersion: '2.0.0',
         activeTab: 'home-tab',
         savedPlayerTags: [],
         allPlayersData: {},

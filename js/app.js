@@ -305,7 +305,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    initializeAppData();
+    (async () => {
+        try {
+            const syncedState = await initializeAppData();
+            if (syncedState) {
+                initializeState(syncedState);
+                saveState(state);
+                const appVersionDisplay = document.getElementById('app-version-display');
+                if (appVersionDisplay) {
+                    appVersionDisplay.textContent = '| v' + (state.appVersion || '2.0.0').replace(/^v/, '');
+                }
+            }
+        } catch (error) {
+            console.error("Error initializing app data:", error);
+        }
+    })();
 
     // 1. PERFORM MINIMAL BACKGROUND INIT IMMEDIATELY
     // Only load core translations and non-DOM state
@@ -485,6 +499,51 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // If the standalone overlay was clicked, close all currently showing modals
                 document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
                 e.target.classList.remove('show');
+            }
+        }
+    });
+
+    // Handle Escape key to close active modal, navigation drawer, or FAB menu
+    document.addEventListener('keydown', async (event) => {
+        if (event.key === 'Escape') {
+            // 1. Prioritize closing open modals
+            const activeModal = document.querySelector('.modal.show');
+            if (activeModal) {
+                const rejectBtn = activeModal.querySelector('.reject-button');
+                const closeBtn = activeModal.querySelector('.close-button');
+                const acceptBtn = activeModal.querySelector('.accept-button');
+
+                if (rejectBtn && window.getComputedStyle(rejectBtn).display !== 'none') {
+                    rejectBtn.click();
+                } else if (closeBtn && window.getComputedStyle(closeBtn).display !== 'none') {
+                    closeBtn.click();
+                } else if (acceptBtn && window.getComputedStyle(acceptBtn).display !== 'none') {
+                    acceptBtn.click();
+                } else {
+                    activeModal.classList.remove('show');
+                    const overlay = document.getElementById('overlay');
+                    if (overlay) overlay.classList.remove('show');
+                }
+                return;
+            }
+
+            // 2. Close navigation drawer if open
+            const drawer = document.querySelector('.navigation-drawer');
+            if (drawer && drawer.classList.contains('open')) {
+                const hamburger = document.querySelector('.hamburger');
+                if (hamburger) {
+                    hamburger.click();
+                    hamburger.focus();
+                }
+                return;
+            }
+
+            // 3. Close FAB menu if active
+            const mainFab = document.getElementById('main-fab');
+            if (mainFab && mainFab.classList.contains('active')) {
+                const { closeFabMenu } = await import('./components/fab/fab.js');
+                closeFabMenu();
+                mainFab.focus();
             }
         }
     });

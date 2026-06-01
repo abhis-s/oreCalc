@@ -386,8 +386,8 @@
         "download": "Download",
         "request": "Request",
         "localReset": "Clear On-Device Data",
-        "localCloudReset": "Delete Synced Data",
-        "completeDelete": "Request Permanent Erasure",
+        "localCloudReset": "Delete All Data",
+        "completeDelete": "Request exclusion from service",
         "downloadData": "Download My Data",
         "validate": "Validate",
         "verify": "Verify",
@@ -409,12 +409,12 @@
         "transparency": "Legal & Transparency",
         "privacy": "Privacy",
         "terms": "Terms",
-        "dangerZone": "Data Erasure",
+        "dataErasure": "Data Erasure",
         "completeDeleteInfo": "This will verify your ownership using the official Clash of Clans API. Once verified, we will permanently remove this player tag from all associated OreCalc user IDs across our entire database. Nobody will be able to add your account without re-verification.",
         "cards": {
             "preferences": "Preferences",
             "backupSync": "Backup & Sync",
-            "dangerZone": "Danger Zone",
+            "dataErasure": "Data Erasure",
             "developmentSupport": "Development & Support",
             "transparency": "Legal & Transparency"
         },
@@ -447,7 +447,7 @@
             "beta": "BETA",
             "new": "NEW"
         },
-        "dangerZoneInfo": "Reset or delete your data."
+        "dataErasureInfo": "Reset or delete your data."
     },
     "pricing": {
         "gems": "{count} Gems",

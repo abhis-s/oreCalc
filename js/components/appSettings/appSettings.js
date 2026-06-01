@@ -74,13 +74,13 @@ function renderLabeledActions(containerSelector, data) {
 
     data.forEach(item => {
         const itemRow = document.createElement('div');
-        itemRow.className = 'support-item';
+        itemRow.className = 'settings-item';
 
         const labelWrapper = document.createElement('div');
-        labelWrapper.className = 'support-item-label-wrapper flex-center-gap-8';
+        labelWrapper.className = 'settings-item-label-wrapper';
 
         const label = document.createElement('span');
-        label.className = 'support-item-label';
+        label.className = 'settings-item-label';
         label.dataset.i18n = item.i18nLabel;
         label.textContent = translate(item.i18nLabel);
         labelWrapper.appendChild(label);
@@ -107,7 +107,7 @@ function renderLabeledActions(containerSelector, data) {
         const btnText = document.createElement('span');
         btnText.className = 'animated-btn-text';
         if (item.id === 'version') {
-            const versionText = state.appVersion || 'v1.0.0';
+            const versionText = state.appVersion || 'v2.0.0';
             btnText.textContent = versionText;
         } else {
             btnText.dataset.i18n = item.i18nAction;
@@ -118,8 +118,8 @@ function renderLabeledActions(containerSelector, data) {
         iconWrapper.className = 'animated-btn-icon-wrapper';
         iconWrapper.innerHTML = getSVG(item.icon, '', 24, 24, 'currentColor');
 
-        btn.appendChild(btnText);
         btn.appendChild(iconWrapper);
+        btn.appendChild(btnText);
         itemRow.appendChild(btn);
         container.appendChild(itemRow);
 
@@ -234,9 +234,9 @@ export function initializeAppSettings() {
         importUserDataBtn,
         userIdDisplayLabel,
         copyUserIdBtn,
-        openDangerZoneBtn,
-        dangerZoneModal,
-        closeDangerZoneModalBtn,
+        openDataErasureBtn,
+        dataErasureModal,
+        closeDataErasureModalBtn,
         importModal,
         importModalInput,
         importModalError,
@@ -588,18 +588,18 @@ export function initializeAppSettings() {
 
     if (resetLocalBtn) {
         resetLocalBtn.addEventListener('click', async () => {
-            if (dom.appSettings?.dangerZoneModal) dom.appSettings.dangerZoneModal.classList.remove('show');
+            if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.remove('show');
             if (await showConfirm(translate('confirms.resetAll'), 'status.confirm', 'actions.reset')) {
                 window.resetApplication();
             } else {
-                if (dom.appSettings?.dangerZoneModal) dom.appSettings.dangerZoneModal.classList.add('show');
+                if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.add('show');
             }
         });
     }
 
     if (resetCloudBtn) {
         resetCloudBtn.addEventListener('click', async () => {
-            if (dom.appSettings?.dangerZoneModal) dom.appSettings.dangerZoneModal.classList.remove('show');
+            if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.remove('show');
             if (await showConfirm(translate('confirms.resetAll'), 'status.confirm', 'actions.reset')) {
                 const currentUserId = localStorage.getItem('oreCalcUserId');
                 if (currentUserId) {
@@ -607,7 +607,7 @@ export function initializeAppSettings() {
                 }
                 window.resetApplication();
             } else {
-                if (dom.appSettings?.dangerZoneModal) dom.appSettings.dangerZoneModal.classList.add('show');
+                if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.add('show');
             }
         });
     }
@@ -627,8 +627,8 @@ export function initializeAppSettings() {
         };
 
         completeDeleteBtn.addEventListener('click', () => {
-            if (dom.appSettings?.dangerZoneModal) {
-                dom.appSettings.dangerZoneModal.classList.remove('show');
+            if (dom.appSettings?.dataErasureModal) {
+                dom.appSettings.dataErasureModal.classList.remove('show');
             }
             deleteModal.classList.add('show');
             dom.overlay.classList.add('show');
@@ -1022,26 +1022,26 @@ export function initializeAppSettings() {
     updateUIWithTranslations();
 
     if (appVersionDisplay) {
-        appVersionDisplay.textContent = '| v' + (state.appVersion || '1.0.0').replace(/^v/, '');
+        appVersionDisplay.textContent = '| v' + (state.appVersion || '2.0.0').replace(/^v/, '');
     }
 
-    if (openDangerZoneBtn && dangerZoneModal) {
-        openDangerZoneBtn.addEventListener('click', () => {
-            dangerZoneModal.classList.add('show');
+    if (openDataErasureBtn && dataErasureModal) {
+        openDataErasureBtn.addEventListener('click', () => {
+            dataErasureModal.classList.add('show');
             if (dom.overlay) dom.overlay.classList.add('show');
         });
     }
 
-    if (closeDangerZoneModalBtn && dangerZoneModal) {
-        closeDangerZoneModalBtn.addEventListener('click', () => {
-            dangerZoneModal.classList.remove('show');
+    if (closeDataErasureModalBtn && dataErasureModal) {
+        closeDataErasureModalBtn.addEventListener('click', () => {
+            dataErasureModal.classList.remove('show');
             if (dom.overlay) dom.overlay.classList.remove('show');
         });
     }
 
-    if (dom.appSettings?.closeDangerZoneHeaderBtn && dangerZoneModal) {
-        dom.appSettings.closeDangerZoneHeaderBtn.addEventListener('click', () => {
-            dangerZoneModal.classList.remove('show');
+    if (dom.appSettings?.closeDataErasureHeaderBtn && dataErasureModal) {
+        dom.appSettings.closeDataErasureHeaderBtn.addEventListener('click', () => {
+            dataErasureModal.classList.remove('show');
             if (dom.overlay) dom.overlay.classList.remove('show');
         });
     }

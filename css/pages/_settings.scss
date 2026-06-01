@@ -46,26 +46,33 @@
 }
 
 
-.support-list {
+.settings-list {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-.support-item {
+.settings-item {
     align-items: center;
     display: flex;
     justify-content: space-between;
     position: relative;
     gap: 10px;
 
-    .support-item-label-wrapper {
+    .settings-item-label-wrapper {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         flex: 1;
         min-width: 0;
-    }
 
-    .support-item-label {
-        overflow-wrap: break-word;
+        label,
+        .settings-item-label {
+            flex: none;
+            overflow-wrap: break-word;
+            width: max-content;
+            max-width: 100%;
+        }
     }
 
     .animated-btn {
@@ -108,13 +115,6 @@
     background-color: var(--color-success-soft);
     color: var(--color-success);
     border-color: $color-success-soft;
-    position: absolute;
-    top: -10px;
-    left: -15px;
-    transform: rotate(-12deg);
-    z-index: 2;
-    pointer-events: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .label-with-badge {
@@ -198,25 +198,25 @@
     margin-left: 5px;
 }
 
-.danger-zone-content {
+.data-erasure-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.danger-zone-title {
+.data-erasure-title {
     margin: 0;
     font-size: 1.1em;
     color: $color-danger;
 }
 
-.danger-zone-description {
+.data-erasure-description {
     margin: 0;
     font-size: 0.9em;
     color: $text-secondary;
 }
 
-.settings-danger-zone {
+.settings-data-erasure {
     margin-top: 10px !important;
     border: none;
 }
@@ -388,23 +388,17 @@
     }
 }
 
-.danger-zone-separator {
-    height: 1px;
-    background: var(--border-primary);
-    margin: 10px 0;
-    opacity: 0.5;
-}
 
 
-.danger-zone-modal-content {
+.data-erasure-modal-content {
     max-width: 400px;
 }
 
-.danger-zone-info-text {
+.data-erasure-info-text {
     text-align: center;
 }
 
-.danger-zone-options {
+.data-erasure-options {
     display: flex;
     flex-direction: column;
     gap: 15px;

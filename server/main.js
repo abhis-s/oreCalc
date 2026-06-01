@@ -328,8 +328,8 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
                 const mailOptions = {
                     from: process.env.EMAIL_FROM || 'noreply@clashcalc.com',
                     to: process.env.EMAIL_TO || 'privacy@clashcalc.com',
-                    subject: `[ClashCalc] Permanent Data Erasure Request - #${cleanedTag}`,
-                    text: `Hello,\n\nA new permanent data erasure request has been submitted.\n\nDetails:\n- Player Tag: #${cleanedTag}\n- Verification Token: ${token}\n- User ID: ${userId || 'unknown'}\n- Time: ${requestData.requestedAt}\n\nPlease verify and process this request manually in Firestore or CoC systems.\n\nRegards,\nClashCalc System`
+                    subject: `[ClashCalc] Exclusion from Service Request - #${cleanedTag}`,
+                    text: `Hello,\n\nA new exclusion from service request has been submitted.\n\nDetails:\n- Player Tag: #${cleanedTag}\n- Verification Token: ${token}\n- User ID: ${userId || 'unknown'}\n- Time: ${requestData.requestedAt}\n\nPlease verify and process this request manually in Firestore or CoC systems.\n\nRegards,\nClashCalc System`
                 };
 
                 await transporter.sendMail(mailOptions);
@@ -343,7 +343,7 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
         }
 
         res.status(200).json({ 
-            message: `Erasure request successfully queued. Our administrators will process it within 30 days.`,
+            message: `Exclusion from service request successfully queued. Our administrators will process it within 30 days.`,
             emailSent
         });
     } catch (error) {

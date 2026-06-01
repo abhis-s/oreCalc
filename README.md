@@ -69,7 +69,7 @@ Every number input features a **contextual popover** with min/max ranges, TH-bas
 - **Data download** — Export all your data as a downloadable file
 - **User ID import** — Import another player's data by pasting their User ID
 - **Tag verification** — Verify tag ownership via Clash of Clans API token for protected profiles
-- **Danger zone** — Reset all data or request global data erasure (GDPR-compliant deletion)
+- **Data erasure** — Reset all data or request global data erasure (GDPR-compliant deletion)
 
 ### 🎨 Customization & Settings
 
