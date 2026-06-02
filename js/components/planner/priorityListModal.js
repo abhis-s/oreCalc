@@ -6,7 +6,7 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { openLevelSelectModal } from './levelSelectModal.js';
 import { calculateCompletionDates } from '../../utils/predictionCalculator.js';
-import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
+import { autoPlaceIncomeChipsForRange } from '../../utils/autoPlaceChips.js';
 import { translate } from '../../i18n/translator.js';
 import { getSVG } from '../../utils/svgManager.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
@@ -15,51 +15,17 @@ import { showConfirm } from '../../ui/noticeModal.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { logger } from '../../utils/logger.js';
 
-let isAutoPlacing = false;
-let autoPlaceTimeoutId = null;
-
 function autoPlaceChipsForDateRange() {
-    if (isAutoPlacing) {
-        logger.log("Auto-placement is already in progress.");
-        return;
-    }
-
     const startTime = new Date();
 
     const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
     const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
 
-    isAutoPlacing = true;
-    let currentYear = MIN_YEAR;
-    let currentMonth = MIN_MONTH;
+    autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR);
 
-    function placeNextMonth() {
-        if (!isAutoPlacing || (currentYear > MAX_YEAR || (currentYear === MAX_YEAR && currentMonth > MAX_MONTH))) {
-            isAutoPlacing = false;
-            const endTime = new Date();
-            const timeTaken = (endTime - startTime) / 1000;
-            setTimeout(() => {
-                logger.log(`Finished auto-placing chips for all months in the range. Total time: ${timeTaken} seconds.`);
-            }, 5000);
-            handleStateUpdate(() => { }, false);
-            return;
-        }
-
-        const monthStr = String(currentMonth).padStart(2, '0');
-        const yearStr = String(currentYear);
-
-        autoPlaceIncomeChips(monthStr, yearStr);
-
-        currentMonth++;
-        if (currentMonth > 12) {
-            currentMonth = 1;
-            currentYear++;
-        }
-
-        autoPlaceTimeoutId = setTimeout(placeNextMonth, 0);
-    }
-
-    placeNextMonth();
+    const endTime = new Date();
+    const timeTaken = (endTime - startTime) / 1000;
+    logger.log(`Finished auto-placing chips for all months in the range. Total time: ${timeTaken} seconds.`);
 }
 
 export function getGlobalPriorityList() {
@@ -890,9 +856,11 @@ export function openPriorityListModal() {
     if (modal && title) {
         title.setAttribute('data-i18n', 'editPriorityList');
         title.textContent = translate('planner.editPriorityList');
+        if (state.planner?.calendar?.isDirty !== false) {
+            autoPlaceChipsForDateRange();
+        }
         renderPriorityEditor();
         modal.classList.add('show');
-        autoPlaceChipsForDateRange();
     }
 }
 

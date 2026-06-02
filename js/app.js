@@ -552,6 +552,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 let cloudSaveTimeout = null;
 
 export function handleStateUpdate(updateFn, silent = false) {
+    if (!silent && state.planner?.calendar) {
+        state.planner.calendar.isDirty = true;
+    }
     updateFn();
 
     // Skip immediate render if we're about to handle it via View Transition (applyTheme)

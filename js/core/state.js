@@ -85,6 +85,7 @@ function getDefaultPlayerStateProperties() {
                     week: `${weekNo}-${year}`,
                 },
                 dates: {},
+                isDirty: true,
                 customChips: [], // Chips waiting to be placed
                 customChipData: {}, // Data for chips already on the calendar
                 lastRecurringProcessed: '', // Last month-year recurring chips were generated
@@ -276,6 +277,9 @@ function ensureStateDefaults(s) {
             if (!ps.planner.calendar.dates) ps.planner.calendar.dates = {};
             if (!ps.planner.calendar.customChips) ps.planner.calendar.customChips = [];
             if (!ps.planner.calendar.customChipData) ps.planner.calendar.customChipData = {};
+            if (ps.planner.calendar.isDirty === undefined) {
+                ps.planner.calendar.isDirty = true;
+            }
             if (!ps.planner.calendar.customChipSettings) {
                 ps.planner.calendar.customChipSettings = {
                     custom: {},

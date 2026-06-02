@@ -51,6 +51,55 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
     }, true);
 }
 
+export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, endYear) {
+    const newCalendarDates = { ...state.planner.calendar.dates };
+
+    let currentYear = startYear;
+    let currentMonth = startMonth;
+
+    while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
+        const monthStr = String(currentMonth).padStart(2, '0');
+        const yearStr = String(currentYear);
+        performAutoPlacementForMonth(monthStr, yearStr, newCalendarDates);
+
+        currentMonth++;
+        if (currentMonth > 12) {
+            currentMonth = 1;
+            currentYear++;
+        }
+    }
+
+    state.planner.calendar.dates = newCalendarDates;
+    state.planner.calendar.isDirty = false;
+
+    // Reindex all non-auto types to ensure numbering is consistent
+    const reindexTypes = new Set();
+    const findReindexTypes = (source, id) => {
+        if (!source.autoGenerateInCalendar && id !== 'raidMedalTrader' && id !== 'gemTrader') {
+            reindexTypes.add(id);
+        }
+        if (source.subCategories) {
+            source.subCategories.forEach(sub => findReindexTypes(sub, sub.id));
+        }
+    };
+    for (const key in incomeData) {
+        findReindexTypes(incomeData[key], key);
+    }
+    reindexTypes.forEach(type => reindexCalendarChips(type));
+
+    // Render the active view month once at the end
+    if (state.planner?.calendar?.view?.month) {
+        const [viewMonthStr, viewYearStr] = state.planner.calendar.view.month.split('-');
+        const viewMonth = parseInt(viewMonthStr, 10) - 1;
+        const viewYear = parseInt(viewYearStr, 10);
+
+        handleStateUpdate(() => {
+            renderCalendar(state.planner);
+            renderIncomeChips(viewYear, viewMonth);
+        }, true);
+    }
+}
+
 function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalendarDates) {
     const currentMonth = parseInt(currentMonthStr, 10) - 1;
     const currentYear = parseInt(currentYearStr, 10);
