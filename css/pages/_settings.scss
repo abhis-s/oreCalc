@@ -59,24 +59,26 @@
     position: relative;
     gap: 10px;
 
-    .settings-item-label-wrapper {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        flex: 1;
-        min-width: 0;
-
-        label,
-        .settings-item-label {
-            flex: none;
-            overflow-wrap: break-word;
-            width: max-content;
-            max-width: 100%;
-        }
-    }
-
     .animated-btn {
         flex-shrink: 0;
+    }
+}
+
+.settings-item-label-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+
+    label,
+    h2,
+    h3,
+    .settings-item-label {
+        flex: none;
+        overflow-wrap: break-word;
+        width: max-content;
+        max-width: 100%;
     }
 }
 

@@ -4,8 +4,8 @@
                     <div id="preferences-card" class="settings-card card">
                         <h2 class="card-title" data-i18n="settings.cards.preferences">Preferences</h2>
                         <div class="app-settings-options flex-column-gap-15">
-                            <div class="input-group-flex">
-                                <div class="flex-center-gap-8">
+                            <div class="settings-item">
+                                <div class="settings-item-label-wrapper">
                                     <label for="settings-theme-toggle" data-i18n="settings.options.theme">Light/Dark Mode</label>
                                     <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
                                 </div>
@@ -17,8 +17,8 @@
                                     </span>
                                 </label>
                             </div>
-                            <div class="input-group-flex">
-                                <div class="flex-center-gap-8">
+                            <div class="settings-item">
+                                <div class="settings-item-label-wrapper">
                                     <label for="mobile-accent-picker-btn" data-i18n="settings.options.accentColor">Accent Color</label>
                                     <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
                                 </div>
@@ -31,34 +31,38 @@
                                     <button class="accent-swatch" data-color="random" title="Random"></button>
                                 </div>
                                 <button id="mobile-accent-picker-btn" class="animated-btn btn-accent mobile-only">
-                                    <span class="animated-btn-text" data-i18n="actions.view">View</span>
                                     <span class="animated-btn-icon-wrapper fill-dark">
                                         <orecalc-assets-svg name="palette"></orecalc-assets-svg>
                                     </span>
+                                    <span class="animated-btn-text" data-i18n="actions.view">View</span>
                                 </button>
                             </div>
-                            <div class="input-group-flex">
-                                <label for="language-select" data-i18n="settings.options.language">Language</label>
+                            <div class="settings-item">
+                                <div class="settings-item-label-wrapper">
+                                    <label for="language-select" data-i18n="settings.options.language">Language</label>
+                                </div>
                                 <select id="language-select" class="dropdown-style updatable">
                                     <!-- Options dynamically populated -->
                                 </select>
                             </div>
-                            <div class="input-group-flex">
-                                <label for="currency-select" data-i18n="settings.options.currency">Currency</label>
+                            <div class="settings-item">
+                                <div class="settings-item-label-wrapper">
+                                    <label for="currency-select" data-i18n="settings.options.currency">Currency</label>
+                                </div>
                                 <select id="currency-select" class="dropdown-style updatable">
                                     <!-- Options dynamically populated -->
                                 </select>
                             </div>
-                            <div class="input-group-flex">
-                                <div class="flex-center-gap-8">
+                            <div class="settings-item">
+                                <div class="settings-item-label-wrapper">
                                     <label for="open-global-pricing-btn" data-i18n="settings.options.globalPricing">Global Pricing</label>
                                     <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
                                 </div>
                                 <button id="open-global-pricing-btn" class="animated-btn btn-pricing">
-                                    <span class="animated-btn-text" data-i18n="actions.view">View</span>
                                     <span class="animated-btn-icon-wrapper fill-dark">
                                         <orecalc-assets-svg name="global-pricing"></orecalc-assets-svg>
                                     </span>
+                                    <span class="animated-btn-text" data-i18n="actions.view">View</span>
                                 </button>
                             </div>
                         </div>
@@ -70,9 +74,11 @@
                         <h2 class="card-title" data-i18n="settings.cards.backupSync">Backup & Sync</h2>
                         <div class="backup-sync-options flex-column-gap-15">
 
-                            <div class="input-group-flex">
+                            <div class="settings-item">
                                 <div class="field-descriptor-group">
-                                    <label for="settings-cloud-sync-toggle" data-i18n="settings.options.cloudSync">Cloud Synchronization</label>
+                                    <div class="settings-item-label-wrapper">
+                                        <label for="settings-cloud-sync-toggle" data-i18n="settings.options.cloudSync">Cloud Synchronization</label>
+                                    </div>
                                     <p class="form-setting-text" data-i18n="settings.cloudSyncInfo">Sync your data across multiple devices.</p>
                                 </div>
                                 <label class="switch">
@@ -81,51 +87,55 @@
                                 </label>
                             </div>
                             
-                            <div class="input-group-flex">
-                                <label id="user-id-display-label" for="copy-user-id-btn" data-i18n="settings.options.userId">User ID: ********</label>
+                            <div class="settings-item">
+                                <div class="settings-item-label-wrapper">
+                                    <label id="user-id-display-label" for="copy-user-id-btn" data-i18n="settings.options.userId">User ID: ********</label>
+                                </div>
                                 <button id="copy-user-id-btn" class="animated-btn btn-accent task-btn">
                                     <span class="button-success-icon"><orecalc-assets-svg name="cloud-check"></orecalc-assets-svg></span>
-                                    <span class="animated-btn-text" data-i18n="actions.copy">Copy</span>
                                     <span class="animated-btn-icon-wrapper fill-dark">
                                         <orecalc-assets-svg name="copy"></orecalc-assets-svg>
                                     </span>
+                                    <span class="animated-btn-text" data-i18n="actions.copy">Copy</span>
                                 </button>
                             </div>
-                            <div class="input-group-flex">
-                                <label for="import-user-data-btn" data-i18n="actions.importUserId">Import User ID</label>
+                            <div class="settings-item">
+                                <div class="settings-item-label-wrapper">
+                                    <label for="import-user-data-btn" data-i18n="actions.importUserId">Import User ID</label>
+                                </div>
                                 <button id="import-user-data-btn" class="animated-btn btn-accent task-btn">
-                                    <span class="animated-btn-text" data-i18n="actions.importShort">Import</span>
                                     <span class="animated-btn-icon-wrapper fill-dark">
                                         <orecalc-assets-svg name="import"></orecalc-assets-svg>
                                     </span>
+                                    <span class="animated-btn-text" data-i18n="actions.importShort">Import</span>
                                 </button>
                             </div>
 
-                            <div class="input-group-flex">
-                                <div class="label-with-badge">
-                                    <span class="new-badge" data-i18n="settings.badges.new">NEW</span>
+                            <div class="settings-item">
+                                <div class="settings-item-label-wrapper">
                                     <label for="download-user-data-btn" data-i18n="actions.downloadData">Download My Data</label>
+                                    <span class="new-badge" data-i18n="settings.badges.new">NEW</span>
                                 </div>
                                 <button id="download-user-data-btn" class="animated-btn btn-download">
-                                    <span class="animated-btn-text" data-i18n="actions.download">Download</span>
                                     <span class="animated-btn-icon-wrapper fill-current">
                                         <orecalc-assets-svg name="download"></orecalc-assets-svg>
                                     </span>
+                                    <span class="animated-btn-text" data-i18n="actions.download">Download</span>
                                 </button>
                             </div>
 
-                            <div class="settings-danger-zone inner-card">
-                                <div class="danger-zone-content">
-                                    <div class="label-with-badge">
+                            <div class="settings-data-erasure inner-card">
+                                <div class="data-erasure-content">
+                                    <div class="settings-item-label-wrapper">
+                                        <h3 class="data-erasure-title" data-i18n="settings.cards.dataErasure">Data Erasure</h3>
                                         <span class="new-badge" data-i18n="settings.badges.new">NEW</span>
-                                        <h3 class="danger-zone-title" data-i18n="settings.cards.dangerZone">Danger Zone</h3>
                                     </div>
-                                    <p class="danger-zone-description" data-i18n="settings.dangerZoneInfo">Reset or delete your data.</p>
-                                    <button id="open-danger-zone-btn" class="animated-btn btn-danger-action full-width push-top-5">
-                                        <span class="animated-btn-text" data-i18n="actions.proceed">Proceed</span>
+                                    <p class="data-erasure-description" data-i18n="settings.dataErasureInfo">Reset or delete your data.</p>
+                                    <button id="open-data-erasure-btn" class="animated-btn btn-danger-action full-width push-top-5">
                                         <span class="animated-btn-icon-wrapper fill-current">
                                             <orecalc-assets-svg name="warning"></orecalc-assets-svg>
                                         </span>
+                                        <span class="animated-btn-text" data-i18n="actions.proceed">Proceed</span>
                                     </button>
                                 </div>
                             </div>
@@ -137,7 +147,7 @@
                 <div class="card-container">
                     <div id="development-card" class="settings-card card">
                         <h2 class="card-title" data-i18n="settings.cards.developmentSupport">Development & Support</h2>
-                        <div class="development-list support-list">
+                        <div class="development-list settings-list">
                             <!-- Links dynamically populated -->
                         </div>
                     </div>
@@ -146,7 +156,7 @@
                 <div class="card-container">
                     <div id="transparency-card" class="settings-card card">
                         <h2 class="card-title" data-i18n="settings.cards.transparency">Legal & Transparency</h2>
-                        <div class="transparency-list support-list">
+                        <div class="transparency-list settings-list">
                             <!-- Links dynamically populated -->
                         </div>
                     </div>
