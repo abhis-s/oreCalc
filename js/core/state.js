@@ -151,6 +151,20 @@ export function initializeState(savedState) {
                 Object.assign(playerState.income, savedPlayerState.income || {});
                 Object.assign(playerState.planner, savedPlayerState.planner || {});
                 
+                if (savedPlayerState.currency) {
+                    if (typeof savedPlayerState.currency === 'string') {
+                        playerState.currency = {
+                            code: savedPlayerState.currency,
+                            globalPricing: {}
+                        };
+                    } else {
+                        playerState.currency = {
+                            code: savedPlayerState.currency.code || 'USD',
+                            globalPricing: savedPlayerState.currency.globalPricing || {}
+                        };
+                    }
+                }
+
                 playerState.playerProfile = savedPlayerState.playerProfile || null;
 
                 migratePlayerState(playerState);
@@ -206,6 +220,24 @@ function ensureStateDefaults(s) {
     if (s.allPlayersData) {
         for (const tag in s.allPlayersData) {
             const ps = s.allPlayersData[tag];
+            
+            if (!ps.currency) {
+                ps.currency = {
+                    code: s.uiSettings?.currency?.code || 'USD',
+                    globalPricing: {}
+                };
+            } else {
+                if (typeof ps.currency === 'string') {
+                    ps.currency = { code: ps.currency, globalPricing: {} };
+                }
+                if (!ps.currency.code) {
+                    ps.currency.code = s.uiSettings?.currency?.code || 'USD';
+                }
+                if (!ps.currency.globalPricing) {
+                    ps.currency.globalPricing = {};
+                }
+            }
+
             if (!ps.planner) ps.planner = {};
             if (!ps.planner.calendar) ps.planner.calendar = {};
             if (!ps.planner.calendar.settings) {

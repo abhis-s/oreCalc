@@ -147,9 +147,19 @@ export function renderShopOfferGrid(shopOfferState) {
             renderRow: renderShopOfferRow
         });
     } else {
-        offersForSet.forEach(offer => {
+        offersForSet.forEach((offer, index) => {
             const currentSetPurchases = shopOfferState[selected] || {};
             const offerState = currentSetPurchases[offer.id] || 0;
+
+            const row = rows[index];
+            if (row) {
+                const costDisplay = row.querySelector('.offer-cost-display');
+                if (costDisplay) {
+                    const currencyValue = getPriceForTier(offer.priceTier);
+                    const currencySymbol = getCurrencySymbol();
+                    costDisplay.innerHTML = `<span>${currencySymbol} ${formatCurrency(currencyValue)}</span>`;
+                }
+            }
 
             const select = container.querySelector(`select[data-offer-id="${offer.id}"]`);
             if (select && parseInt(select.value, 10) !== offerState) {

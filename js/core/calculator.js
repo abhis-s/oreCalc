@@ -44,8 +44,8 @@ export function recalculateAll(state) {
     let totalMonthlyIncome = { shiny: 0, glowy: 0, starry: 0 };
 
     for (const currencyCode of Object.keys(currencyData)) {
-        totalIncomeForTimeframe[currencyCode.toLowerCase()] = 0;
-        totalMonthlyIncome[currencyCode.toLowerCase()] = 0;
+        totalIncomeForTimeframe[currencyCode] = 0;
+        totalMonthlyIncome[currencyCode] = 0;
     }
 
     const timeframe = state.uiSettings.incomeCard?.timeframe || 'monthly';
@@ -78,8 +78,18 @@ export function recalculateAll(state) {
     const prospectorMonthly = incomeSources.prospector?.monthly || {};
 
     const totalMoneyCost = {};
+    let factor = 1;
+    if (timeframe === 'daily') {
+        factor = 1 / 30;
+    } else if (timeframe === 'weekly') {
+        factor = 7 / 30;
+    } else if (timeframe === 'bimonthly') {
+        factor = 2;
+    }
+
     for (const currencyCode of Object.keys(currencyData)) {
-        totalMoneyCost[currencyCode] = (shopOfferMonthly[currencyCode] || 0) + (eventPassMonthly[currencyCode] || 0) + (prospectorMonthly[currencyCode] || 0);
+        const monthlyCost = (shopOfferMonthly[currencyCode] || 0) + (eventPassMonthly[currencyCode] || 0) + (prospectorMonthly[currencyCode] || 0);
+        totalMoneyCost[currencyCode] = monthlyCost * factor;
     }
     state.derived.totalMoneyCost = totalMoneyCost;
 }

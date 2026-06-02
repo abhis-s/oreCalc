@@ -289,9 +289,18 @@ export function initializeAppSettings() {
 
     currencySelect.addEventListener('change', (e) => {
         handleStateUpdate(() => {
+            const selectedCurrency = e.target.value;
             state.uiSettings.currency = {
-                code: e.target.value
+                code: selectedCurrency
             };
+            const activeTag = state.savedPlayerTags[0];
+            if (activeTag && state.allPlayersData[activeTag]) {
+                if (!state.allPlayersData[activeTag].currency) {
+                    state.allPlayersData[activeTag].currency = { code: selectedCurrency, globalPricing: {} };
+                } else {
+                    state.allPlayersData[activeTag].currency.code = selectedCurrency;
+                }
+            }
         });
     });
 
@@ -401,7 +410,9 @@ export function initializeAppSettings() {
                 };
 
                 if (!state.allPlayersData[activeTag].currency) {
-                    state.allPlayersData[activeTag].currency = { code: 'USD' };
+                    state.allPlayersData[activeTag].currency = { code: selectedCurrency, globalPricing: {} };
+                } else {
+                    state.allPlayersData[activeTag].currency.code = selectedCurrency;
                 }
                 if (!state.allPlayersData[activeTag].currency.globalPricing) {
                     state.allPlayersData[activeTag].currency.globalPricing = {};
