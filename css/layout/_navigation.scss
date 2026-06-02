@@ -8,10 +8,11 @@
     color: $text-primary;
     cursor: pointer;
     padding: 8px 15px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
 
-    &:hover {
-        background-color: var(--border-primary);
+    &:hover:not(.active) {
+        background-color: var(--accent-primary-soft);
+        color: var(--accent-primary);
     }
 
     &.active {
@@ -228,12 +229,12 @@
         }
 
         &:focus {
-            background-color: var(--accent-soft);
-            border-radius: $shape-corner-extra-large;
             outline: none;
         }
 
         &:focus-visible {
+            background-color: var(--accent-soft);
+            border-radius: $shape-corner-extra-large;
             outline-offset: -3px !important;
         }
 
