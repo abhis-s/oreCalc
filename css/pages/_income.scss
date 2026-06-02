@@ -703,6 +703,10 @@
     align-items: center;
     margin-bottom: 10px;
 
+    .popover-wrapper {
+        width: 100%;
+    }
+
     input[type="number"] {
         background-color: $bg-surface-primary;
         border: 1px solid $border-primary;
@@ -797,7 +801,7 @@
     .custom-dropdown:first-of-type { grid-area: from-dd; justify-self: start; }
     .custom-dropdown:last-of-type { grid-area: to-dd; justify-self: end; }
 
-    input[type="number"]:first-of-type { grid-area: from-in; }
+    .popover-wrapper { grid-area: from-in; }
     input[type="range"] { grid-area: slider; }
     input[type="number"]:last-of-type { grid-area: to-in; }
 
@@ -836,7 +840,7 @@
 
         .custom-dropdown:first-of-type { grid-area: from-dd; justify-self: start; }
         .custom-dropdown:last-of-type { grid-area: to-dd; justify-self: end; }
-        input[type="number"]:first-of-type { grid-area: from-in; }
+        .popover-wrapper { grid-area: from-in; }
         input[type="number"]:last-of-type { grid-area: to-in; }
         input[type="range"] {
             grid-area: slider;
