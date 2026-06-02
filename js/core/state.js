@@ -249,8 +249,29 @@ function ensureStateDefaults(s) {
             }
             if (!ps.planner.calendar.view) ps.planner.calendar.view = {};
             
-            if (!ps.planner.calendar.view.month) ps.planner.calendar.view.month = defaultMonth;
-            if (!ps.planner.calendar.view.week) ps.planner.calendar.view.week = defaultWeek;
+            if (!ps.planner.calendar.view.month) {
+                ps.planner.calendar.view.month = defaultMonth;
+            } else {
+                const parts = ps.planner.calendar.view.month.split('-');
+                const m = parseInt(parts[0], 10);
+                const y = parseInt(parts[1], 10);
+                const currentMonthNow = now.getMonth() + 1;
+                const currentYearNow = now.getFullYear();
+                if (isNaN(m) || isNaN(y) || y < currentYearNow || (y === currentYearNow && m < currentMonthNow)) {
+                    ps.planner.calendar.view.month = defaultMonth;
+                }
+            }
+
+            if (!ps.planner.calendar.view.week) {
+                ps.planner.calendar.view.week = defaultWeek;
+            } else {
+                const parts = ps.planner.calendar.view.week.split('-');
+                const w = parseInt(parts[0], 10);
+                const y = parseInt(parts[1], 10);
+                if (isNaN(w) || isNaN(y) || y < year || (y === year && w < weekNo)) {
+                    ps.planner.calendar.view.week = defaultWeek;
+                }
+            }
             if (!ps.planner.calendar.view.select) ps.planner.calendar.view.select = 'monthly';
             if (!ps.planner.calendar.dates) ps.planner.calendar.dates = {};
             if (!ps.planner.calendar.customChips) ps.planner.calendar.customChips = [];
