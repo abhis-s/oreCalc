@@ -149,6 +149,36 @@
     @extend .modal;
     @extend .modal-centered;
     z-index: $z-index-modal-top;
+
+    code {
+        font-family: 'Roboto Mono', monospace;
+        background-color: rgba($palette-grey-500, 0.12);
+        border: 1px solid rgba($palette-grey-500, 0.24);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        color: var(--color-danger);
+        display: inline-block;
+        white-space: nowrap;
+        max-width: 100%;
+        overflow-x: auto;
+        vertical-align: middle;
+    }
+}
+
+.error-message code {
+    font-family: 'Roboto Mono', monospace;
+    background-color: rgba($palette-grey-500, 0.12);
+    border: 1px solid rgba($palette-grey-500, 0.24);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--color-danger);
+    display: inline-block;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    vertical-align: middle;
 }
 
 #stored-ores-modal {

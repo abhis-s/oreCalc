@@ -483,7 +483,7 @@
     },
     "alerts": {
         "noPlayerToRefresh": "No player tag selected to refresh.",
-        "refreshFailed": "Failed to refresh player data: {error}",
+        "refreshFailed": "Failed to refresh player data: <code>{error}</code>",
         "clipboardUnsupported": "Clipboard API not supported or accessible in this browser/context.",
         "copiedFailed": "Failed to copy User ID.",
         "uuidDetected": "User ID detected from clipboard",
@@ -497,7 +497,7 @@
         "copySuccessSaveFailed": "User ID copied! (Cloud sync failed)",
         "importSuccess": "Data imported successfully! Reloading app...",
         "importNoData": "No data found for that User ID.",
-        "importFailed": "Failed to import data: {error}",
+        "importFailed": "Failed to import data: <code>{error}</code>",
         "importEmpty": "Please enter a User ID to import.",
         "saveDefaultOnly": "Cannot save to cloud: Only default player tag exists.",
         "versionOutdatedReset": "Your saved data format is outdated. Data has been reset. The page will now reload.",
@@ -505,7 +505,7 @@
         "resetFailedWarning": "Data was not reset. You may experience compatibility issues.\nYou can reset your data anytime from the Settings tab.",
         "progressSaved": "Your progress has been saved!",
         "saveSuccess": "Data saved to cloud successfully!",
-        "saveFailed": "Failed to save data to cloud: {error}",
+        "saveFailed": "Failed to save data to cloud: <code>{error}</code>",
         "fetchChangelogFailed": "Could not fetch changelog.",
         "globalErasureSuccess": "Player verified! Your player tag has been locked from our systems right away, and almost all data has been deleted. Any attempts to add it in the future will require verification. Any stray data left anywhere for the player tag provided will be removed in the next 30 days."
     },
@@ -584,7 +584,7 @@
     },
     "errors": {
         "playerTagRequired": "Please enter a player tag.",
-        "fetchPlayerFailed": "Failed to load player data: {error}",
+        "fetchPlayerFailed": "Failed to load player data: <code>{error}</code>",
         "fixOrder": "Error: Fix Order",
         "invalidChar": "Invalid character entered: \"{char}\". Valid characters are: {validChars}",
         "playerTagLength": "Player tag cannot exceed {max} characters.",

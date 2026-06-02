@@ -483,7 +483,7 @@
     },
     "alerts": {
         "noPlayerToRefresh": "Kein Spielerkürzel zum Aktualisieren ausgewählt.",
-        "refreshFailed": "Fehler beim Aktualisieren der Spielerdaten: {error}",
+        "refreshFailed": "Fehler beim Aktualisieren der Spielerdaten: <code>{error}</code>",
         "clipboardUnsupported": "Clipboard-API wird in diesem Browser/Kontext nicht unterstützt oder ist nicht zugänglich.",
         "copiedFailed": "Fehler beim Kopieren der Nutzer-ID.",
         "uuidDetected": "Nutzer-ID aus der Zwischenablage erkannt",
@@ -497,7 +497,7 @@
         "copySuccessSaveFailed": "Nutzer-ID kopiert! (Cloud-Sync fehlgeschlagen)",
         "importSuccess": "Daten erfolgreich importiert! App wird neu geladen...",
         "importNoData": "Keine Daten für diese Nutzer-ID gefunden.",
-        "importFailed": "Importieren der Daten fehlgeschlagen: {error}",
+        "importFailed": "Importieren der Daten fehlgeschlagen: <code>{error}</code>",
         "importEmpty": "Bitte gib eine Nutzer-ID zum Importieren ein.",
         "saveDefaultOnly": "Speichern in der Cloud nicht möglich: Es existiert nur das Standard-Spielerkürzel.",
         "versionOutdatedReset": "Dein gespeichertes Datenformat ist veraltet. Die Daten wurden zurückgesetzt. Die Seite wird nun neu geladen.",
@@ -505,7 +505,7 @@
         "resetFailedWarning": "Daten wurden nicht zurückgesetzt. Es können Kompatibilitätsprobleme auftreten.\nDu kannst deine Daten jederzeit im Tab 'Einstellungen' zurücksetzen.",
         "progressSaved": "Dein Fortschritt wurde gespeichert!",
         "saveSuccess": "Daten erfolgreich in der Cloud gespeichert!",
-        "saveFailed": "Speichern der Daten in der Cloud fehlgeschlagen: {error}",
+        "saveFailed": "Speichern der Daten in der Cloud fehlgeschlagen: <code>{error}</code>",
         "fetchChangelogFailed": "Änderungsprotokoll konnte nicht geladen werden.",
         "globalErasureSuccess": "Spieler verifiziert! Dein Spielerkürzel wurde sofort in unseren Systemen gesperrt und fast alle Daten wurden gelöscht. Jeder Versuch, es in Zukunft hinzuzufügen, erfordert eine Verifizierung. Alle verbleibenden Restdaten zu dem angegebenen Kürzel werden in den nächsten 30 Tagen entfernt."
     },
@@ -584,7 +584,7 @@
     },
     "errors": {
         "playerTagRequired": "Bitte gib ein Spielerkürzel ein.",
-        "fetchPlayerFailed": "Fehler beim Laden der Spielerdaten: {error}",
+        "fetchPlayerFailed": "Fehler beim Laden der Spielerdaten: <code>{error}</code>",
         "fixOrder": "Fehler: Reihenfolge korrigieren",
         "invalidChar": "Ungültiges Zeichen eingegeben: \"{char}\". Gültige Zeichen sind: {validChars}",
         "playerTagLength": "Das Spielerkürzel darf {max} Zeichen nicht überschreiten.",

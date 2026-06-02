@@ -18,7 +18,7 @@ export function initializeNoticeModal() {
  * @param {string} html - The raw HTML string to sanitize.
  * @returns {string} The sanitized HTML safe for innerHTML insertion.
  */
-function sanitizeHTML(html) {
+export function sanitizeHTML(html) {
     if (!html) return '';
     try {
         const parser = new DOMParser();
