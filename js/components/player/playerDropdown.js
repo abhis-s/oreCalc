@@ -7,6 +7,20 @@ import { translate } from '../../i18n/translator.js';
 import { getSVG } from '../../utils/svgManager.js';
 import { currencyData } from '../../data/appData.js';
 
+export function openDropdown() {
+    const dropdownList = dom.player.dropdownList;
+    const dropdownButton = dom.player.dropdownButton;
+    if (dropdownList) dropdownList.classList.add('show');
+    if (dropdownButton) dropdownButton.classList.add('open');
+}
+
+export function closeDropdown() {
+    const dropdownList = dom.player.dropdownList;
+    const dropdownButton = dom.player.dropdownButton;
+    if (dropdownList) dropdownList.classList.remove('show');
+    if (dropdownButton) dropdownButton.classList.remove('open');
+}
+
 export function initializePlayerDropdown() {
     const dropdownButton = dom.player.dropdownButton;
     const addPlayerButton = dom.player.addPlayerButton;
@@ -16,9 +30,9 @@ export function initializePlayerDropdown() {
             const dropdownList = dom.player.dropdownList;
             if (dropdownList) {
                 if (dropdownList.classList.contains('show')) {
-                    dropdownList.classList.remove('show');
+                    closeDropdown();
                 } else {
-                    dropdownList.classList.add('show');
+                    openDropdown();
                 }
             }
         });
@@ -27,10 +41,7 @@ export function initializePlayerDropdown() {
     if (addPlayerButton) {
         addPlayerButton.addEventListener('click', () => {
             showAddPlayerModal();
-            const dropdownList = dom.player.dropdownList;
-            if (dropdownList) {
-                dropdownList.classList.remove('show');
-            }
+            closeDropdown();
         });
     }
 
@@ -42,10 +53,31 @@ export function initializePlayerDropdown() {
             const isClickInsideDropdownList = dropdownList.contains(event.target);
 
             if (!isClickInsideDropdownButton && !isClickInsideDropdownList) {
-                dropdownList.classList.remove('show');
+                closeDropdown();
             }
         }
     });
+
+    const playerControlsContainer = document.querySelector('.player-controls-container');
+    if (playerControlsContainer) {
+        playerControlsContainer.addEventListener('mouseenter', () => {
+            openDropdown();
+        });
+
+        playerControlsContainer.addEventListener('mouseleave', () => {
+            closeDropdown();
+        });
+
+        playerControlsContainer.addEventListener('focusin', () => {
+            openDropdown();
+        });
+
+        playerControlsContainer.addEventListener('focusout', (event) => {
+            if (!playerControlsContainer.contains(event.relatedTarget)) {
+                closeDropdown();
+            }
+        });
+    }
 }
 
 export function renderPlayerDropdown() {
@@ -78,7 +110,7 @@ export function renderPlayerDropdown() {
                 ? getSVG('cloud-check', 'cache-status-icon', 24, 24, 'currentColor')
                 : getSVG('cloud-error', 'cache-status-icon', 24, 24, 'currentColor');
 
-            return `<div class="player-dropdown-item ${isActive}" data-tag="${tag}">
+            return `<div class="player-dropdown-item ${isActive}" data-tag="${tag}" tabindex="0" role="button">
                         ${cacheIconSvg}
                         <div class="player-info-text">
                             <span>${playerName}</span>
@@ -93,13 +125,27 @@ export function renderPlayerDropdown() {
         playerItemsContainer.innerHTML = playerItemsHtml;
 
         playerItemsContainer.querySelectorAll('.player-dropdown-item').forEach(item => {
+            const selectPlayer = () => {
+                const tag = item.dataset.tag;
+                handlePlayerSelection(tag);
+                closeDropdown();
+            };
+
             item.addEventListener('click', (event) => {
                 if (event.target.closest('.delete-player-button')) {
                     return;
                 }
-                const tag = event.currentTarget.dataset.tag;
-                handlePlayerSelection(tag);
-                dom.player.dropdownList.classList.remove('show');
+                selectPlayer();
+            });
+
+            item.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    if (event.target.closest('.delete-player-button')) {
+                        return;
+                    }
+                    event.preventDefault();
+                    selectPlayer();
+                }
             });
         });
 

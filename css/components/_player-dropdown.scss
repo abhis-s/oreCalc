@@ -12,13 +12,13 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 12px 18px;
-    border: none;
+    padding: 10px 16px;
+    border: 1px solid $border-primary;
     border-radius: 12px;
     background-color: $bg-surface-secondary;
     cursor: pointer;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    transition: all 0.2s ease-in-out;
+    box-shadow: $elevation-1;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     font-size: 14px;
     color: $text-primary;
     font-weight: 500;
@@ -27,14 +27,33 @@
 
     &:hover {
         background-color: $bg-surface-tertiary;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        border-color: var(--border-secondary);
+        box-shadow: $elevation-2;
+    }
+
+    &:focus-visible {
+        outline-offset: -3px !important;
     }
 
     &.open {
         background-color: $bg-surface-primary;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        border-color: $accent-primary;
+        box-shadow: $elevation-2;
+
+        &::after {
+            pointer-events: auto;
+        }
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: transparent;
+        pointer-events: none;
     }
 
     .dropdown-arrow {
@@ -49,26 +68,25 @@
 
 .player-dropdown-list {
     position: absolute;
-    top: calc(100% - 10px);
+    top: calc(100% + 6px);
     left: 0;
     width: 100%;
-    border-radius: 0 0 16px 16px;
+    border-radius: 16px;
     padding: 8px;
     background-color: $bg-surface-primary;
+    border: 1px solid $border-primary;
     z-index: $z-index-component;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: $elevation-3;
     overflow: hidden;
     opacity: 0;
-    clip-path: inset(0 0 100% 0);
-    transition: opacity 0.2s ease-out, transform 0.2s ease-out, clip-path 0.2s ease-out;
+    transform: translateY(-8px) scale(0.96);
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
 }
 
 .player-dropdown-list.show {
-    display: block;
     opacity: 1;
-    transform: translateY(0);
-    clip-path: inset(0 0 0% 0);
+    transform: translateY(0) scale(1);
     pointer-events: auto;
 }
 
@@ -76,16 +94,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
+    padding: 8px 12px;
     margin-bottom: 4px;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background-color 0.15s ease-in-out;
-    font-size: 16px;
+    transition: background-color 0.15s ease-in-out, transform 0.1s;
+    font-size: 15px;
     color: $text-primary;
 
     &:first-child {
-        margin-top: 5px;
+        margin-top: 0;
     }
 
     &:hover {
@@ -100,7 +118,11 @@
     &.active {
         background-color: $accent-primary-soft;
         color: $accent-primary;
-        font-weight: var(--font-weight-bold);
+        font-weight: 600;
+    }
+
+    &:focus-visible {
+        outline-offset: -3px !important;
     }
 
     svg {
@@ -131,25 +153,25 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 12px 18px;
+    padding: 10px 16px;
     margin-top: 8px;
-    background-color: $bg-surface-secondary;
+    background-color: transparent;
     color: $accent-primary;
-    border: 1px dashed $border-primary;
-    border-radius: 12px;
+    border: 1px dashed var(--accent-primary-soft);
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    transition: all 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
 
     &:hover {
-        background-color: $bg-surface-tertiary;
-        border-style: solid;
+        background-color: var(--accent-soft);
+        border-style: dashed;
         border-color: $accent-primary;
     }
 
     svg {
-        margin-right: 8px;
+        margin-right: 6px;
         fill: currentColor;
     }
 }

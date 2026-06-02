@@ -67,6 +67,12 @@
     padding: 10px;
     z-index: #{$z-index-layout + 1};
     position: relative;
+    outline: none;
+
+    &:focus-visible {
+        outline-offset: 2px !important;
+        border-radius: 8px;
+    }
 
     .menu-icon,
     .cross-icon {
