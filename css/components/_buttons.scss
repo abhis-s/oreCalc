@@ -384,12 +384,12 @@
 }
 
 .btn-github {
-    background-color: $bg-surface-tertiary;
+    background-color: rgba($palette-grey-500, 0.1);
     color: $text-primary;
-    border: 1px solid $border-primary;
+    border: 1px solid rgba($palette-grey-500, 0.3);
     &:hover {
-        background-color: var(--border-primary);
-        border-color: $btn-border-grey-hover;
+        background-color: rgba($palette-grey-500, 0.2);
+        border-color: rgba($palette-grey-500, 0.5);
     }
 }
 

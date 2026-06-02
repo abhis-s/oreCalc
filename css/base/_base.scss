@@ -201,12 +201,16 @@
     color: var(--text-primary);
 }
 
+html {
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+}
+
 body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
-    overflow-y: scroll;
     background-color: var(--bg-app);
     color: var(--text-primary);
     -webkit-user-select: none;

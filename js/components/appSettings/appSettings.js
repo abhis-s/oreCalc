@@ -79,7 +79,7 @@ function renderLabeledActions(containerSelector, data) {
         const labelWrapper = document.createElement('div');
         labelWrapper.className = 'settings-item-label-wrapper';
 
-        const label = document.createElement('span');
+        const label = document.createElement('label');
         label.className = 'settings-item-label';
         label.dataset.i18n = item.i18nLabel;
         label.textContent = translate(item.i18nLabel);
@@ -95,13 +95,19 @@ function renderLabeledActions(containerSelector, data) {
 
         itemRow.appendChild(labelWrapper);
 
-        const btn = document.createElement(item.actionType === 'link' ? 'a' : 'button');
+        const btn = document.createElement('button');
         btn.className = `animated-btn ${item.colorClass}`;
+        btn.id = `manual-${item.id}-btn`;
+        label.htmlFor = btn.id;
+
         if (item.actionType === 'link') {
-            btn.href = item.url;
-            btn.target = '_blank';
-        } else {
-            btn.id = `manual-${item.id}-btn`;
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const confirmed = await showConfirm(translate('confirms.externalLink'));
+                if (confirmed) {
+                    window.open(item.url, '_blank', 'noopener,noreferrer');
+                }
+            });
         }
 
         const btnText = document.createElement('span');
@@ -122,6 +128,11 @@ function renderLabeledActions(containerSelector, data) {
         btn.appendChild(btnText);
         itemRow.appendChild(btn);
         container.appendChild(itemRow);
+
+        label.addEventListener('click', (e) => {
+            e.preventDefault();
+            btn.click();
+        });
 
         // Add special handler for modal/placeholder actions
         if (item.actionType === 'modal') {

@@ -62,23 +62,35 @@
     .animated-btn {
         flex-shrink: 0;
     }
+
+    &:hover {
+        .animated-btn:not(:disabled):not(.saving):not(.success):not(.error) {
+            .animated-btn-text {
+                opacity: 0;
+                transform: translateY(100%);
+            }
+
+            .animated-btn-icon-wrapper {
+                transform: translateY(0);
+            }
+        }
+    }
 }
 
 .settings-item-label-wrapper {
-    display: inline-flex;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
     flex: 1;
     min-width: 0;
 
     label,
-    h2,
-    h3,
     .settings-item-label {
-        flex: none;
+        flex: 0 1 auto;
+        min-width: 0;
         overflow-wrap: break-word;
-        width: max-content;
-        max-width: 100%;
+        cursor: pointer;
     }
 }
 
@@ -96,6 +108,7 @@
     letter-spacing: 0.8px;
     display: inline-block;
     border: 1px solid transparent;
+    flex-shrink: 0;
 }
 
 .coming-soon-badge {
