@@ -382,6 +382,7 @@
         "visit": "Visit",
         "support": "Support",
         "report": "Report",
+        "mail": "Mail",
         "translate": "Translate",
         "download": "Download",
         "request": "Request",
@@ -392,7 +393,8 @@
         "validate": "Validate",
         "verify": "Verify",
         "importUserId": "Import User ID",
-        "proceed": "Proceed"
+        "proceed": "Proceed",
+        "submit": "Submit"
     },
     "settings": {
         "english": "English",
@@ -405,9 +407,12 @@
         "changelog": "Changelog",
         "contact": "Contact",
         "bugReport": "Bug Report",
+        "bugReportInfo": "Alternatively, you can report the issue directly on our {link} page.",
+        "bugReportPrivacyInfo": "By submitting this report, you agree that your user data and the provided email address will be processed in accordance with our {link}.",
         "runningCosts": "Project Costs",
         "transparency": "Legal & Transparency",
         "privacy": "Privacy",
+        "privacyPolicyText": "Privacy Policy",
         "terms": "Terms",
         "dataErasure": "Data Erasure",
         "completeDeleteInfo": "This will verify your ownership using the official Clash of Clans API. Once verified, we will permanently remove this player tag from all associated OreCalc user IDs across our entire database. Nobody will be able to add your account without re-verification.",
@@ -427,7 +432,13 @@
             "globalPricing": "Global Pricing",
             "accentColor": "Accent Color",
             "cloudSync": "Cloud Synchronization",
-            "userId": "User ID"
+            "userId": "User ID",
+            "contactEmail": "Contact Email (Optional)",
+            "bugDescription": "Description *",
+            "userDataAttachment": "Attach User Data (Optional)",
+            "uuidAttachmentInfo": "Your unique User ID (UUID) is always attached to help us identify your session.",
+            "emailPlaceholder": "your-email@example.com",
+            "bugDescPlaceholder": "Please describe the issue in detail..."
         },
         "cloudSyncInfo": "Sync your data across devices. Clash of Clans API remains active.",
         "globalPricingTitle": "Global Pricing Configuration",
@@ -465,6 +476,7 @@
         "warning": "Warning",
         "error": "Error",
         "success": "Success",
+        "info": "Information",
         "saving": "Saving...",
         "saveFailed": "Save failed!"
     },
@@ -507,7 +519,9 @@
         "saveSuccess": "Data saved to cloud successfully!",
         "saveFailed": "Failed to save data to cloud: <code>{error}</code>",
         "fetchChangelogFailed": "Could not fetch changelog.",
-        "globalErasureSuccess": "Player verified! Your player tag has been locked from our systems right away, and almost all data has been deleted. Any attempts to add it in the future will require verification. Any stray data left anywhere for the player tag provided will be removed in the next 30 days."
+        "globalErasureSuccess": "Player verified! Your player tag has been locked from our systems right away, and almost all data has been deleted. Any attempts to add it in the future will require verification. Any stray data left anywhere for the player tag provided will be removed in the next 30 days.",
+        "bugReportSuccess": "Bug report submitted successfully! Thank you for your feedback.",
+        "bugReportFailure": "Failed to submit bug report. Please try again later."
     },
     "confirms": {
         "externalLink": "You are about to leave the application and visit an external website. Do you want to continue?",
@@ -594,7 +608,9 @@
         "tokenRequired": "API Token is required.",
         "atLeastOneOreRequired": "At least one ore amount must be greater than 0.",
         "unexpectedError": "An unexpected error occurred. Please reload the page.",
-        "errorTitle": "Error"
+        "errorTitle": "Error",
+        "bugDescriptionRequired": "Please enter a description of at least 20 characters.",
+        "invalidEmail": "Please enter a valid email address or leave it empty."
     },
     "apiErrors": {
         "400": "Incorrect parameters provided.",

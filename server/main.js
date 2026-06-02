@@ -352,6 +352,79 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
     }
 });
 
+app.post('/api/support/bug-report', sensitiveLimiter, async (req, res) => {
+    const { email, description, attachData, userId } = req.body;
+
+    if (!description || description.trim().length < 20) {
+        return res.status(400).json({ message: 'Description must be at least 20 characters long.' });
+    }
+
+    try {
+        const reportData = {
+            description: description.substring(0, 1000),
+            email: email ? email.substring(0, 100) : '',
+            userId: userId || 'unknown',
+            reportedAt: new Date().toISOString(),
+            status: 'new'
+        };
+
+        if (attachData) {
+            reportData.attachedState = attachData;
+        }
+
+        const docRef = await db.collection('bugReports').add(reportData);
+        console.log(`[BUG REPORT] Saved report ${docRef.id} for UserID: ${userId || 'unknown'}`);
+
+        let emailSent = false;
+        if (process.env.SMTP_USER && process.env.SMTP_HOST) {
+            try {
+                const nodemailer = require('nodemailer');
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST,
+                    port: parseInt(process.env.SMTP_PORT || '587', 10),
+                    secure: process.env.SMTP_SECURE === 'true',
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS
+                    }
+                });
+
+                const attachments = [];
+                if (attachData) {
+                    attachments.push({
+                        filename: `user-data-${userId || 'unknown'}.json`,
+                        content: JSON.stringify(attachData, null, 2),
+                        contentType: 'application/json'
+                    });
+                }
+
+                const mailOptions = {
+                    from: process.env.EMAIL_FROM || 'noreply@clashcalc.com',
+                    to: process.env.RECIPIENT_EMAIL_SUPPORT || 'support@clashcalc.com',
+                    subject: `[OreCalc] Bug Report - ${docRef.id} (${userId || 'unknown'})`,
+                    text: `Hello,\n\nA new bug report has been submitted.\n\nDetails:\n- Report ID: ${docRef.id}\n- User ID: ${userId || 'unknown'}\n- Contact Email: ${email || 'none'}\n- Date: ${reportData.reportedAt}\n\nDescription:\n${description}\n\n${attachData ? 'User data is attached to this email.' : 'No user data was attached.'}\n\nRegards,\nOreCalc Support System`,
+                    attachments
+                };
+
+                await transporter.sendMail(mailOptions);
+                emailSent = true;
+                console.log(`[BUG REPORT] Support email notification sent successfully.`);
+            } catch (mailError) {
+                console.error(`[BUG REPORT] Failed to send support email:`, mailError);
+            }
+        }
+
+        res.status(200).json({ 
+            message: 'Bug report submitted successfully.', 
+            reportId: docRef.id, 
+            emailSent 
+        });
+    } catch (error) {
+        console.error('Error handling bug report submission:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+});
+
 app.get('/api/version', (req, res) => {
     res.json({ currentAppVersion: '2.0.0' });
 });

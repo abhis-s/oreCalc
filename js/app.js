@@ -74,6 +74,12 @@ export function updateUIWithTranslations(isInitialLoad = false) {
                 console.error('Failed to parse i18n args:', argsAttr, e);
             }
         }
+
+        if (key === 'settings.bugReportPrivacyInfo') {
+            const privacyText = translate('settings.privacyPolicyText');
+            args.link = `<a href="#" id="bug-report-privacy-link" class="theme-link">${privacyText}</a>`;
+        }
+
         let translatedName = translate(key, args);
         if (key === 'settings.options.userId') {
             const currentUserId = localStorage.getItem('oreCalcUserId');
@@ -503,6 +509,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+
     // Handle Escape key to close active modal, navigation drawer, or FAB menu
     document.addEventListener('keydown', async (event) => {
         if (event.key === 'Escape') {
@@ -544,6 +551,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const { closeFabMenu } = await import('./components/fab/fab.js');
                 closeFabMenu();
                 mainFab.focus();
+            }
+        }
+    });
+
+    // Global link interceptor for all external links
+    document.body.addEventListener('click', async (e) => {
+        const link = e.target.closest('a');
+        if (!link) return;
+
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        // Skip internal/anchor links
+        if (href.startsWith('#') || href.startsWith('javascript:')) return;
+
+        const isHttpExternal = (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(window.location.host);
+
+        if (isHttpExternal) {
+            e.preventDefault();
+            const confirmed = await showConfirm(translate('confirms.externalLink'));
+            if (confirmed) {
+                window.open(href, '_blank', 'noopener,noreferrer');
             }
         }
     });

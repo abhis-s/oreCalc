@@ -4,7 +4,7 @@ import { state } from '../../core/state.js';
 import { currencyData, priceTierRegistry, languagesData, transparencyData, developmentSupportData } from '../../data/appData.js';
 import { dom } from '../../dom/domElements.js';
 
-import { deleteUserData, fetchPlayerData, erasePlayerTagFromAllUsers } from '../../services/apiService.js';
+import { deleteUserData, fetchPlayerData, erasePlayerTagFromAllUsers, submitBugReport } from '../../services/apiService.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
 
 import { renderApp } from '../../core/renderer.js';
@@ -141,6 +141,8 @@ function renderLabeledActions(containerSelector, data) {
                 if (item.id === 'changelog') {
                     const content = getChangelogHtml();
                     showChangelogModal(content);
+                } else if (item.id === 'bugReport') {
+                    openBugReportModal();
                 }
             });
         } else if (item.actionType === 'placeholder') {
@@ -222,6 +224,184 @@ function renderGlobalPricingGrid(currencyCode) {
 
         gridBody.appendChild(row);
     });
+}
+
+function openBugReportModal() {
+    const modal = document.getElementById('bug-report-modal');
+    if (!modal) return;
+
+    const emailInput = document.getElementById('bug-report-email');
+    const emailError = document.getElementById('bug-report-email-error');
+    const descTextarea = document.getElementById('bug-report-desc');
+    const descError = document.getElementById('bug-report-desc-error');
+    const charCount = document.getElementById('bug-report-char-count');
+    
+    const attachCheckbox = document.getElementById('bug-report-attach-checkbox');
+    const submitBtn = document.getElementById('submit-bug-report-btn');
+    const closeHeaderBtn = document.getElementById('close-bug-report-header-btn');
+    const closeBtn = document.getElementById('close-bug-report-modal-btn');
+
+    // Reset Form
+    if (emailInput) {
+        emailInput.value = '';
+        emailInput.classList.remove('input-error');
+    }
+    if (emailError) {
+        emailError.textContent = '';
+        emailError.classList.remove('show');
+    }
+    if (descTextarea) {
+        descTextarea.value = '';
+        descTextarea.classList.remove('input-error');
+    }
+    if (descError) {
+        descError.textContent = '';
+        descError.classList.remove('show');
+    }
+    if (charCount) {
+        charCount.textContent = '0/1000';
+    }
+    if (attachCheckbox) {
+        attachCheckbox.checked = false;
+    }
+
+    // Set up Input Listeners (Character Counter)
+    if (descTextarea && charCount) {
+        descTextarea.oninput = () => {
+            const len = descTextarea.value.length;
+            charCount.textContent = `${len}/1000`;
+            if (len >= 20) {
+                descTextarea.classList.remove('input-error');
+                if (descError) {
+                    descError.textContent = '';
+                    descError.classList.remove('show');
+                }
+            }
+        };
+    }
+
+    if (emailInput && emailError) {
+        emailInput.oninput = () => {
+            emailInput.classList.remove('input-error');
+            emailError.textContent = '';
+            emailError.classList.remove('show');
+        };
+    }
+
+    // Close Handlers
+    const closeModal = () => {
+        modal.classList.remove('show');
+        if (dom.overlay) dom.overlay.classList.remove('show');
+    };
+
+    if (closeHeaderBtn) {
+        closeHeaderBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    // Submit Handler
+    if (submitBtn) {
+        submitBtn.onclick = async (e) => {
+            e.preventDefault();
+            
+            const email = emailInput ? emailInput.value.trim() : '';
+            const description = descTextarea ? descTextarea.value.trim() : '';
+
+            // Validate description (must be at least 20 characters)
+            if (description.length < 20) {
+                if (descError) {
+                    descError.textContent = translate('errors.bugDescriptionRequired');
+                    descError.classList.add('show');
+                }
+                if (descTextarea) {
+                    descTextarea.classList.add('input-error');
+                    descTextarea.classList.remove('shake');
+                    void descTextarea.offsetWidth; // force reflow
+                    descTextarea.classList.add('shake');
+                }
+                return;
+            }
+
+            // Validate email (optional)
+            if (email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    if (emailError) {
+                        emailError.textContent = translate('errors.invalidEmail');
+                        emailError.classList.add('show');
+                    }
+                    if (emailInput) {
+                        emailInput.classList.add('input-error');
+                        emailInput.classList.remove('shake');
+                        void emailInput.offsetWidth; // force reflow
+                        emailInput.classList.add('shake');
+                    }
+                    return;
+                }
+            }
+
+            // Disable buttons and show loading feedback
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = translate('actions.processing');
+            if (closeBtn) closeBtn.disabled = true;
+
+            try {
+                const currentUserId = localStorage.getItem('oreCalcUserId') || 'unknown';
+                
+                let attachedData = null;
+                if (attachCheckbox && attachCheckbox.checked) {
+                    // Clone current state
+                    const stateClone = JSON.parse(JSON.stringify(state));
+                    attachedData = {
+                        ...stateClone,
+                        userId: currentUserId
+                    };
+                }
+                
+                await submitBugReport(email, description, attachedData, currentUserId);
+                
+                closeModal();
+                await showAlert(translate('alerts.bugReportSuccess'), 'status.success');
+            } catch (err) {
+                logger.error('Error submitting bug report:', err);
+                let errMsg = translate('alerts.bugReportFailure');
+                if (err.message && err.message.startsWith('apiErrors.')) {
+                    errMsg = translate(err.message);
+                } else if (err.message) {
+                    errMsg = `${errMsg} (${err.message})`;
+                }
+                await showAlert(errMsg, 'status.error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                if (closeBtn) closeBtn.disabled = false;
+            }
+        };
+    }
+
+
+    // Handle privacy link click
+    const privacyLink = modal.querySelector('#bug-report-privacy-link');
+    if (privacyLink) {
+        privacyLink.onclick = async (e) => {
+            e.preventDefault();
+            await showAlert(translate('app.comingSoon') || 'Coming Soon!', 'status.info');
+        };
+    }
+
+    // Show modal and overlay
+    modal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
 }
 
 export function initializeAppSettings() {

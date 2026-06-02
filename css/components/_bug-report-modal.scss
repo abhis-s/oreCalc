@@ -1,0 +1,208 @@
+@use '../abstracts/variables' as *;
+
+#bug-report-modal {
+    .modal-content {
+        max-width: 480px;
+    }
+
+    .bug-report-form {
+        padding: 16px 24px 24px;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .input-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-secondary;
+    }
+
+    .input-style {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid $border-primary;
+        border-radius: 12px;
+        font-size: 16px;
+        background-color: $bg-surface-primary;
+        color: $text-primary;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+        &:focus {
+            outline: none;
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 3px $accent-primary-soft;
+        }
+
+        &.input-error {
+            border-color: $color-danger;
+            box-shadow: 0 0 0 4px rgba($color-danger, 0.1);
+        }
+    }
+
+    textarea.input-style {
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .textarea-footer {
+        display: flex;
+        justify-content: space-between;
+        align-center: center;
+        width: 100%;
+        margin-top: 4px;
+    }
+
+    .input-error-msg {
+        color: $color-danger;
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 4px;
+        display: none;
+        text-align: left;
+
+        &.show {
+            display: block;
+        }
+    }
+
+    .char-count {
+        color: $text-muted;
+        font-size: 12px;
+    }
+
+    .attachment-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .attachment-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: rgba($color-success, 0.08);
+        border: 1px solid rgba($color-success, 0.2);
+        padding: 8px 16px;
+        border-radius: 12px;
+        transition: opacity 0.2s ease-in-out;
+
+        &.hidden {
+            display: none !important;
+        }
+
+        .success-icon {
+            color: $color-success;
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .text-success {
+            color: $color-success;
+            font-weight: 500;
+            font-size: 14px;
+        }
+    }
+
+    .detach-button {
+        background: none;
+        border: none;
+        color: $color-danger;
+        font-size: 18px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background-color: rgba($color-danger, 0.1);
+        }
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        user-select: none;
+        width: 100%;
+        margin-top: 4px;
+
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            border: 1px solid $border-primary;
+            border-radius: 6px;
+            cursor: pointer;
+            height: 20px;
+            width: 20px;
+            outline: none;
+            position: relative;
+            background-color: $bg-surface-primary;
+            transition: all 0.2s ease-in-out;
+            flex-shrink: 0;
+            margin: 0;
+
+            &:checked {
+                background-color: $accent-primary;
+                border-color: $accent-primary;
+
+                &::after {
+                    content: '\2713';
+                    color: $text-on-accent;
+                    display: block;
+                    font-size: 14px;
+                    line-height: 18px;
+                    text-align: center;
+                    font-weight: bold;
+                }
+            }
+
+            &:focus {
+                box-shadow: 0 0 0 3px $accent-primary-soft;
+            }
+        }
+
+        .checkbox-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: $text-secondary;
+            cursor: pointer;
+        }
+    }
+
+    .privacy-notice {
+        font-size: 11px;
+        color: $text-muted;
+        line-height: 1.4;
+        text-align: left;
+        border-top: 1px solid $border-primary;
+        padding-top: 12px;
+        margin-top: 4px;
+
+        p {
+            margin: 0;
+        }
+    }
+}

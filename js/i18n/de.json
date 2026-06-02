@@ -382,6 +382,7 @@
         "visit": "Besuchen",
         "support": "Unterstützen",
         "report": "Melden",
+        "mail": "E-Mail",
         "translate": "Übersetzen",
         "download": "Herunterladen",
         "request": "Anfordern",
@@ -392,7 +393,8 @@
         "validate": "Überprüfen",
         "verify": "Bestätigen",
         "importUserId": "Nutzer-ID importieren",
-        "proceed": "Fortfahren"
+        "proceed": "Fortfahren",
+        "submit": "Absenden"
     },
     "settings": {
         "english": "Englisch",
@@ -405,9 +407,12 @@
         "changelog": "Neuheiten",
         "contact": "Kontakt",
         "bugReport": "Fehler melden",
+        "bugReportInfo": "Alternativ kannst du das Problem auch direkt auf unserer {link}-Seite melden.",
+        "bugReportPrivacyInfo": "Durch das Absenden dieses Berichts erklärst du dich damit einverstanden, dass deine Benutzerdaten und die angegebene E-Mail-Adresse gemäß unserer {link} verarbeitet werden.",
         "runningCosts": "Projektkosten",
         "transparency": "Transparenz",
         "privacy": "Datenschutz",
+        "privacyPolicyText": "Datenschutzerklärung",
         "terms": "Nutzung",
         "dataErasure": "Datenlöschung",
         "completeDeleteInfo": "Hiermit wird deine Eigentümerschaft über die offizielle Clash of Clans API verifiziert. Nach erfolgreicher Verifizierung werden wir dieses Spielerkürzel dauerhaft von allen verknüpften OreCalc-Benutzer-IDs in unserer gesamten Datenbank entfernen. Niemand kann dein Konto ohne erneute Verifizierung hinzufügen.",
@@ -427,7 +432,13 @@
             "globalPricing": "Globale Preise",
             "accentColor": "Akzentfarbe",
             "cloudSync": "Cloud-Synchronisierung",
-            "userId": "Nutzer-ID"
+            "userId": "Nutzer-ID",
+            "contactEmail": "Kontakt-E-Mail (Optional)",
+            "bugDescription": "Beschreibung *",
+            "userDataAttachment": "Benutzerdaten anhängen (Optional)",
+            "uuidAttachmentInfo": "Deine eindeutige Benutzer-ID (UUID) wird immer angehängt, um uns bei der Identifizierung deiner Sitzung zu helfen.",
+            "emailPlaceholder": "deine-email@beispiel.de",
+            "bugDescPlaceholder": "Bitte beschreibe das Problem im Detail..."
         },
         "cloudSyncInfo": "Synchronisiere deine Daten geräteübergreifend. Clash of Clans-API bleibt aktiv.",
         "globalPricingTitle": "Globale Preisgestaltung",
@@ -465,6 +476,7 @@
         "warning": "Warnung",
         "error": "Fehler",
         "success": "Erfolg",
+        "info": "Information",
         "saving": "Speichern...",
         "saveFailed": "Speichern fehlgeschlagen!"
     },
@@ -507,7 +519,9 @@
         "saveSuccess": "Daten erfolgreich in der Cloud gespeichert!",
         "saveFailed": "Speichern der Daten in der Cloud fehlgeschlagen: <code>{error}</code>",
         "fetchChangelogFailed": "Änderungsprotokoll konnte nicht geladen werden.",
-        "globalErasureSuccess": "Spieler verifiziert! Dein Spielerkürzel wurde sofort in unseren Systemen gesperrt und fast alle Daten wurden gelöscht. Jeder Versuch, es in Zukunft hinzuzufügen, erfordert eine Verifizierung. Alle verbleibenden Restdaten zu dem angegebenen Kürzel werden in den nächsten 30 Tagen entfernt."
+        "globalErasureSuccess": "Spieler verifiziert! Dein Spielerkürzel wurde sofort in unseren Systemen gesperrt und fast alle Daten wurden gelöscht. Jeder Versuch, es in Zukunft hinzuzufügen, erfordert eine Verifizierung. Alle verbleibenden Restdaten zu dem angegebenen Kürzel werden in den nächsten 30 Tagen entfernt.",
+        "bugReportSuccess": "Fehlerbericht erfolgreich übermittelt! Vielen Dank für dein Feedback.",
+        "bugReportFailure": "Fehlerbericht konnte nicht übermittelt werden. Bitte versuche es später noch einmal."
     },
     "confirms": {
         "externalLink": "Du verlässt nun die Anwendung und besuchst eine externe Website. Möchtest du fortfahren?",
@@ -594,7 +608,9 @@
         "tokenRequired": "API-Token ist erforderlich.",
         "atLeastOneOreRequired": "Mindestens eine Erzmenge muss größer als 0 sein.",
         "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte lade die Seite neu.",
-        "errorTitle": "Fehler"
+        "errorTitle": "Fehler",
+        "bugDescriptionRequired": "Bitte gib eine Beschreibung von mindestens 20 Zeichen ein.",
+        "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein oder lass das Feld leer."
     },
     "apiErrors": {
         "400": "Falsche Parameter angegeben.",

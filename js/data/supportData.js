@@ -40,8 +40,7 @@ export const developmentSupportData = [
         i18nLabel: 'settings.bugReport',
         i18nAction: 'actions.report',
         colorClass: 'btn-bug',
-        actionType: 'placeholder',
-        badge: 'settings.badges.comingSoon'
+        actionType: 'modal'
     },
     {
         id: 'contact',

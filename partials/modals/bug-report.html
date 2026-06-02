@@ -1,0 +1,48 @@
+<div id="bug-report-modal" class="modal">
+    <div class="modal-content bug-report-modal-content">
+        <div class="modal-header">
+            <h2 data-i18n="settings.bugReport">Bug Report</h2>
+            <button id="close-bug-report-header-btn" class="close-button">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-info-text text-left">
+            <p data-i18n="settings.bugReportInfo" data-i18n-args='{"link": "<a href=\"https://github.com/abhis-s/oreCalc/issues\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">GitHub Issues</a>"}'>
+                Alternatively, you can report the issue directly on our <a href="https://github.com/abhis-s/oreCalc/issues" target="_blank" rel="noopener noreferrer" class="theme-link">GitHub Issues</a> page.
+            </p>
+        </div>
+        <div class="bug-report-form flex-column-gap-15 text-left push-top-10">
+            <div class="form-group flex-column-gap-5">
+                <label for="bug-report-email" class="input-label" data-i18n="settings.options.contactEmail">Contact Email (Optional)</label>
+                <input type="email" id="bug-report-email" class="input-style width-100" data-i18n-placeholder="settings.options.emailPlaceholder" placeholder="your-email@example.com">
+                <div id="bug-report-email-error" class="input-error-msg"></div>
+            </div>
+            <div class="form-group flex-column-gap-5">
+                <label for="bug-report-desc" class="input-label" data-i18n="settings.options.bugDescription">Description *</label>
+                <textarea id="bug-report-desc" class="input-style width-100" maxlength="1000" rows="5" data-i18n-placeholder="settings.options.bugDescPlaceholder" placeholder="Please describe the issue in detail..."></textarea>
+                <div class="textarea-footer justify-between align-center">
+                    <span id="bug-report-desc-error" class="input-error-msg"></span>
+                    <span id="bug-report-char-count" class="char-count">0/1000</span>
+                </div>
+            </div>
+            <div class="form-group push-top-5">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="bug-report-attach-checkbox">
+                    <span class="checkbox-label" data-i18n="settings.options.userDataAttachment">Attach User Data (Optional)</span>
+                </label>
+                <p class="form-setting-text" data-i18n="settings.options.uuidAttachmentInfo" style="margin-top: 4px;">
+                    Your unique User ID (UUID) is always attached to help us identify your session.
+                </p>
+            </div>
+            <div class="privacy-notice push-top-5">
+                <p data-i18n="settings.bugReportPrivacyInfo" data-i18n-args='{"link": "<a href=\"#\" id=\"bug-report-privacy-link\" class=\"theme-link\">Privacy Policy</a>"}'>
+                    By submitting this report, you agree that your user data and the provided email address will be processed in accordance with our <a href="#" id="bug-report-privacy-link" class="theme-link">Privacy Policy</a>.
+                </p>
+            </div>
+        </div>
+        <div class="modal-actions push-top-15">
+            <button id="close-bug-report-modal-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
+            <button id="submit-bug-report-btn" class="accept-button" data-i18n="actions.submit">Submit</button>
+        </div>
+    </div>
+</div>
