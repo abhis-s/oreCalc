@@ -21,6 +21,11 @@ export function closeDropdown() {
     if (dropdownButton) dropdownButton.classList.remove('open');
 }
 
+let lastTouchTime = 0;
+document.addEventListener('touchstart', () => {
+    lastTouchTime = Date.now();
+}, { passive: true });
+
 export function initializePlayerDropdown() {
     const dropdownButton = dom.player.dropdownButton;
     const addPlayerButton = dom.player.addPlayerButton;
@@ -58,21 +63,29 @@ export function initializePlayerDropdown() {
         }
     });
 
+    window.addEventListener('scroll', () => {
+        closeDropdown();
+    }, { passive: true });
+
     const playerControlsContainer = document.querySelector('.player-controls-container');
     if (playerControlsContainer) {
         playerControlsContainer.addEventListener('mouseenter', () => {
+            if (Date.now() - lastTouchTime < 1000) return;
             openDropdown();
         });
 
         playerControlsContainer.addEventListener('mouseleave', () => {
+            if (Date.now() - lastTouchTime < 1000) return;
             closeDropdown();
         });
 
         playerControlsContainer.addEventListener('focusin', () => {
+            if (Date.now() - lastTouchTime < 1000) return;
             openDropdown();
         });
 
         playerControlsContainer.addEventListener('focusout', (event) => {
+            if (Date.now() - lastTouchTime < 1000) return;
             if (!playerControlsContainer.contains(event.relatedTarget)) {
                 closeDropdown();
             }
