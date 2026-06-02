@@ -3,6 +3,7 @@ import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.j
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 import { translate } from '../../i18n/translator.js';
 import { removePlayerTag } from '../../core/localStorageManager.js';
+import { sanitizeHTML } from '../../ui/noticeModal.js';
 
 let errorTimeout;
 let isForcedVerification = false;
@@ -23,8 +24,15 @@ function resetModalState() {
         playerTagInput.disabled = false;
         playerTagInput.classList.remove('input-error');
     }
-    if (loadButton) loadButton.style.display = 'block';
-    if (verifyButton) verifyButton.style.display = 'none';
+    if (loadButton) {
+        loadButton.style.display = 'block';
+        loadButton.textContent = translate('actions.load');
+    }
+    if (verifyButton) {
+        verifyButton.style.display = 'none';
+        verifyButton.disabled = false;
+        verifyButton.textContent = translate('actions.verify');
+    }
     if (tokenContainer) tokenContainer.style.display = 'none';
     if (tokenInput) {
         tokenInput.value = '';
@@ -97,7 +105,8 @@ export function renderPlayerModal(isVisible, currentTag, message, isError, error
                 displayMessage = `${message}\n\n${translate('player.protectedTagNote')}`;
             }
             
-            errorMessageElement.innerText = displayMessage; // Use innerText for newlines
+            const sanitizedMsg = sanitizeHTML(displayMessage.replace(/\n/g, '<br>'));
+            errorMessageElement.innerHTML = sanitizedMsg;
             errorMessageElement.classList.add('show');
             playerTagInput.classList.add('input-error');
             
@@ -112,7 +121,8 @@ export function renderPlayerModal(isVisible, currentTag, message, isError, error
             return;
         }
 
-        errorMessageElement.textContent = displayMessage;
+        const sanitizedMsg = sanitizeHTML(displayMessage.replace(/\n/g, '<br>'));
+        errorMessageElement.innerHTML = sanitizedMsg;
         errorMessageElement.classList.add('show');
         playerTagInput.classList.add('input-error');
         

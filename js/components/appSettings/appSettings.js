@@ -557,6 +557,10 @@ export function initializeAppSettings() {
         const closeDownloadModal = () => {
             downloadDataModal.classList.remove('show');
             dom.overlay.classList.remove('show');
+            if (confirmDownloadDataBtn) {
+                confirmDownloadDataBtn.disabled = false;
+                confirmDownloadDataBtn.textContent = translate('actions.download');
+            }
         };
 
         downloadUserDataBtn.addEventListener('click', () => {
@@ -635,6 +639,14 @@ export function initializeAppSettings() {
             if (deleteTokenContainer) deleteTokenContainer.classList.add('hidden');
             if (deleteModalActionsValidate) deleteModalActionsValidate.classList.remove('hidden');
             if (deleteModalActionsVerify) deleteModalActionsVerify.classList.add('hidden');
+            if (validateDeletePlayerBtn) {
+                validateDeletePlayerBtn.disabled = false;
+                validateDeletePlayerBtn.textContent = translate('actions.validate');
+            }
+            if (verifyDeletePlayerBtn) {
+                verifyDeletePlayerBtn.disabled = false;
+                verifyDeletePlayerBtn.textContent = translate('actions.verify');
+            }
         };
 
         completeDeleteBtn.addEventListener('click', () => {
@@ -930,6 +942,10 @@ export function initializeAppSettings() {
                 importModalError.classList.remove('show');
             }
             if (importModalInput) importModalInput.classList.remove('input-error');
+            if (confirmImportBtn) {
+                confirmImportBtn.disabled = false;
+                confirmImportBtn.textContent = translate('actions.import');
+            }
         };
 
         importUserDataBtn.addEventListener('click', async () => {
@@ -965,15 +981,19 @@ export function initializeAppSettings() {
 
         cancelImportBtn?.addEventListener('click', closeImportModal);
 
-        confirmImportBtn?.addEventListener('click', () => {
+        confirmImportBtn?.addEventListener('click', async () => {
             const val = importModalInput.value.trim();
             if (isValidUUID(val)) {
                 const originalText = confirmImportBtn.textContent;
-                confirmImportBtn.disabled = true;
-                confirmImportBtn.textContent = translate('actions.processing');
-                
-                importUserData(val);
-                // Note: importUserData reloads the page, so no need to revert text
+                try {
+                    confirmImportBtn.disabled = true;
+                    confirmImportBtn.textContent = translate('actions.processing');
+                    
+                    await importUserData(val);
+                } finally {
+                    confirmImportBtn.disabled = false;
+                    confirmImportBtn.textContent = originalText;
+                }
             } else {
                 importModalError.textContent = translate('alerts.invalidUserId') || "Invalid User ID format";
                 importModalError.classList.remove('success-text');
