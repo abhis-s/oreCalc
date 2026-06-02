@@ -8,6 +8,7 @@ import { translate } from '../i18n/translator.js';
 import { showAlert, showConfirm } from '../ui/noticeModal.js';
 import { escapeHTML } from './stringUtils.js';
 import { logger } from './logger.js';
+import { closeFabMenu } from '../components/fab/fab.js';
 
 export async function initializeAppData() {
     let userId = localStorage.getItem('oreCalcUserId');
@@ -208,6 +209,14 @@ export function initializeCloudSaveButtons() {
         });
     }
     if (fabSaveDataPill) {
-        fabSaveDataPill.addEventListener('click', triggerCloudSave);
+        fabSaveDataPill.addEventListener('click', async () => {
+            saveState(state);
+            const success = await triggerCloudSave();
+            if (success) {
+                setTimeout(() => {
+                    closeFabMenu();
+                }, 2000);
+            }
+        });
     }
 }

@@ -18,6 +18,10 @@
         background-color: var(--accent-primary);
         color: $text-on-accent;
     }
+
+    &:focus-visible {
+        outline-offset: -3px !important;
+    }
 }
 
 .tab-content {
@@ -55,6 +59,11 @@
     &:active {
         box-shadow: none;
         outline: none;
+    }
+
+    &:focus-visible {
+        outline-offset: -3px !important;
+        border-radius: 8px;
     }
 
     .nav-item-content {
@@ -157,12 +166,14 @@
     height: 100%;
     background-color: $bg-surface-primary;
     box-shadow: $elevation-3;
-    transition: left 0.3s ease-in-out;
+    transition: left 0.3s ease-in-out, visibility 0.3s ease-in-out;
     z-index: $z-index-drawer;
     border-radius: 0 $shape-corner-extra-large $shape-corner-extra-large 0;
+    visibility: hidden;
 
     &.open {
         left: 0;
+        visibility: visible;
     }
 
     &__overlay {
@@ -220,6 +231,10 @@
             background-color: var(--accent-soft);
             border-radius: $shape-corner-extra-large;
             outline: none;
+        }
+
+        &:focus-visible {
+            outline-offset: -3px !important;
         }
 
         &.active {

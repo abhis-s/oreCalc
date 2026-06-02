@@ -132,6 +132,19 @@ input[type="number"].offer-input-number {
         }
     }
 
+    .label-container {
+        display: inline-block;
+        min-width: 0;
+        flex: none;
+
+        label {
+            flex: none;
+            display: block;
+            width: max-content;
+            max-width: 100%;
+        }
+    }
+
     .animated-btn,
     .dropdown-style,
     input[type="number"],
