@@ -338,6 +338,10 @@
     border: 1px solid $border-primary;
     border-radius: 20px;
     cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: background-color 0.15s ease-in-out, color 0.15s;
 
     &:hover {
@@ -355,6 +359,10 @@
     border: 1px solid $btn-border-blue;
     border-radius: 20px;
     cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: background-color 0.15s ease-in-out, border-color 0.15s;
 
     &:hover {

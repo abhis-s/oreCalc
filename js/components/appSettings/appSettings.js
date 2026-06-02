@@ -143,6 +143,8 @@ function renderLabeledActions(containerSelector, data) {
                     showChangelogModal(content);
                 } else if (item.id === 'bugReport') {
                     openBugReportModal();
+                } else if (item.id === 'contact') {
+                    openContactModal();
                 }
             });
         } else if (item.actionType === 'placeholder') {
@@ -224,6 +226,45 @@ function renderGlobalPricingGrid(currencyCode) {
 
         gridBody.appendChild(row);
     });
+}
+
+function openContactModal() {
+    const modal = document.getElementById('contact-modal');
+    if (!modal) return;
+
+    const closeHeaderBtn = document.getElementById('close-contact-header-btn');
+    const closeBtn = document.getElementById('close-contact-modal-btn');
+    const mailBtn = document.getElementById('contact-mail-btn');
+
+    const closeModal = () => {
+        modal.classList.remove('show');
+        if (dom.overlay) dom.overlay.classList.remove('show');
+    };
+
+    if (closeHeaderBtn) {
+        closeHeaderBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (mailBtn) {
+        mailBtn.onclick = (e) => {
+            e.stopPropagation();
+            closeModal();
+        };
+    }
+
+    // Show modal and overlay
+    modal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
 }
 
 function openBugReportModal() {

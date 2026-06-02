@@ -394,7 +394,9 @@
         "verify": "Verify",
         "importUserId": "Import User ID",
         "proceed": "Proceed",
-        "submit": "Submit"
+        "submit": "Submit",
+        "close": "Close",
+        "openMailClient": "Open Mail Client"
     },
     "settings": {
         "english": "English",
@@ -406,6 +408,7 @@
         "licenses": "Licenses",
         "changelog": "Changelog",
         "contact": "Contact",
+        "contactInfo": "For questions, feedback, or feature suggestions, you can contact us at <code>support@clashcalc.com</code>. Click the button below to open your mail client.",
         "bugReport": "Bug Report",
         "bugReportInfo": "Alternatively, you can report the issue directly on our {link} page.",
         "bugReportPrivacyInfo": "By submitting this report, you agree that your user data and the provided email address will be processed in accordance with our {link}.",
@@ -525,6 +528,7 @@
     },
     "confirms": {
         "externalLink": "You are about to leave the application and visit an external website. Do you want to continue?",
+        "mailtoLink": "You are about to open your default mail client to send an email. Do you want to continue?",
         "resetAll": "Are you sure you want to erase all your data? This action is permanent and cannot be undone.",
         "resetGlobalPricing": "Are you sure you want to reset custom pricing for this currency? This will restore the default store prices.",
         "cloudSync": "Newer data is available on the cloud. Do you want to sync?",

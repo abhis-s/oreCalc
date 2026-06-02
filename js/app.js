@@ -566,6 +566,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Skip internal/anchor links
         if (href.startsWith('#') || href.startsWith('javascript:')) return;
 
+        const isMailto = href.startsWith('mailto:');
+        if (isMailto) {
+            e.preventDefault();
+            const confirmed = await showConfirm(translate('confirms.mailtoLink'));
+            if (confirmed) {
+                window.location.href = href;
+            }
+            return;
+        }
+
         const isHttpExternal = (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(window.location.host);
 
         if (isHttpExternal) {

@@ -46,10 +46,9 @@ export const developmentSupportData = [
         id: 'contact',
         icon: 'mail',
         i18nLabel: 'settings.contact',
-        i18nAction: 'actions.visit',
+        i18nAction: 'actions.view',
         colorClass: 'btn-contact',
-        actionType: 'placeholder',
-        badge: 'settings.badges.comingSoon'
+        actionType: 'modal'
     }
 ];
 

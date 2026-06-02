@@ -394,7 +394,9 @@
         "verify": "Bestätigen",
         "importUserId": "Nutzer-ID importieren",
         "proceed": "Fortfahren",
-        "submit": "Absenden"
+        "submit": "Absenden",
+        "close": "Schließen",
+        "openMailClient": "E-Mail-Programm öffnen"
     },
     "settings": {
         "english": "Englisch",
@@ -406,6 +408,7 @@
         "licenses": "Lizenzen",
         "changelog": "Neuheiten",
         "contact": "Kontakt",
+        "contactInfo": "Für Fragen, Feedback oder Feature-Vorschläge kannst du uns unter <code>support@clashcalc.com</code> kontaktieren. Klicke auf die Schaltfläche unten, um dein E-Mail-Programm zu öffnen.",
         "bugReport": "Fehler melden",
         "bugReportInfo": "Alternativ kannst du das Problem auch direkt auf unserer {link}-Seite melden.",
         "bugReportPrivacyInfo": "Durch das Absenden dieses Berichts erklärst du dich damit einverstanden, dass deine Benutzerdaten und die angegebene E-Mail-Adresse gemäß unserer {link} verarbeitet werden.",
@@ -525,6 +528,7 @@
     },
     "confirms": {
         "externalLink": "Du verlässt nun die Anwendung und besuchst eine externe Website. Möchtest du fortfahren?",
+        "mailtoLink": "Du bist im Begriff, dein Standard-E-Mail-Programm zu öffnen, um eine E-Mail zu senden. Möchtest du fortfahren?",
         "resetAll": "Bist du sicher, dass du alle deine Daten löschen möchtest? Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden.",
         "resetGlobalPricing": "Sind Sie sicher, dass Sie die individuelle Preisgestaltung für diese Währung zurücksetzen möchten? Dadurch werden die Standard-Store-Preise wiederhergestellt.",
         "cloudSync": "Neuere Daten sind in der Cloud verfügbar. Möchtest du synchronisieren?",
