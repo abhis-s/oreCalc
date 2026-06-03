@@ -56,20 +56,18 @@ export const transparencyData = [
     {
         id: 'privacy',
         icon: 'shield',
-        i18nLabel: 'settings.privacy',
+        i18nLabel: 'settings.privacyPolicy',
         i18nAction: 'actions.view',
         colorClass: 'btn-privacy',
-        actionType: 'placeholder',
-        badge: 'settings.badges.comingSoon'
+        actionType: 'modal'
     },
     {
-        id: 'terms',
+        id: 'termsOfUse',
         icon: 'article',
-        i18nLabel: 'settings.terms',
+        i18nLabel: 'settings.termsOfUse',
         i18nAction: 'actions.view',
-        colorClass: 'btn-terms',
-        actionType: 'placeholder',
-        badge: 'settings.badges.comingSoon'
+        colorClass: 'btn-terms-of-use',
+        actionType: 'modal'
     },
     {
         id: 'licenses',

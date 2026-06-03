@@ -4,6 +4,7 @@ import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 import { translate } from '../../i18n/translator.js';
 import { removePlayerTag } from '../../core/localStorageManager.js';
 import { sanitizeHTML } from '../../ui/noticeModal.js';
+import { openTermsOfUseModal, openPrivacyModal } from '../appSettings/appSettings.js';
 
 let errorTimeout;
 let isForcedVerification = false;
@@ -276,6 +277,25 @@ export function initializePlayerModal() {
     }
 
     modal.addEventListener('click', (event) => {
+        const termsLink = event.target.closest('#add-player-terms-link');
+        const privacyLink = event.target.closest('#add-player-privacy-link');
+
+        if (termsLink) {
+            event.preventDefault();
+            const termsModal = document.getElementById('terms-modal');
+            if (termsModal) termsModal.classList.add('modal-top');
+            openTermsOfUseModal();
+            return;
+        }
+
+        if (privacyLink) {
+            event.preventDefault();
+            const privacyModal = document.getElementById('privacy-modal');
+            if (privacyModal) privacyModal.classList.add('modal-top');
+            openPrivacyModal();
+            return;
+        }
+
         if (event.target === modal) {
             renderPlayerModal(false, '', '', false);
         }

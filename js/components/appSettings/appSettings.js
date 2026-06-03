@@ -1,6 +1,6 @@
 import { handleStateUpdate, updateUIWithTranslations, applyTheme } from '../../app.js';
-import { removePlayerTag } from '../../core/localStorageManager.js';
-import { state } from '../../core/state.js';
+import { removePlayerTag, saveState } from '../../core/localStorageManager.js';
+import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from '../../core/state.js';
 import { currencyData, priceTierRegistry, languagesData, transparencyData, developmentSupportData } from '../../data/appData.js';
 import { dom } from '../../dom/domElements.js';
 
@@ -145,6 +145,10 @@ function renderLabeledActions(containerSelector, data) {
                     openBugReportModal();
                 } else if (item.id === 'contact') {
                     openContactModal();
+                } else if (item.id === 'privacy') {
+                    openPrivacyModal();
+                } else if (item.id === 'termsOfUse') {
+                    openTermsOfUseModal();
                 }
             });
         } else if (item.actionType === 'placeholder') {
@@ -259,6 +263,468 @@ function openContactModal() {
         mailBtn.onclick = (e) => {
             e.stopPropagation();
             closeModal();
+        };
+    }
+
+    // Show modal and overlay
+    modal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
+}
+
+export function openPrivacyModal() {
+    const modal = document.getElementById('privacy-modal');
+    if (!modal) return;
+
+    const privacyTimestamp = state.uiSettings?.acceptanceTimestamp?.privacy;
+    const needsConsent = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
+
+    const closeHeaderBtn = document.getElementById('close-privacy-header-btn');
+    const closeBtn = document.getElementById('close-privacy-modal-btn');
+    const themeBtn = document.getElementById('privacy-theme-toggle-btn');
+    const iframe = document.getElementById('privacy-policy-iframe');
+    const externalBtn = document.getElementById('privacy-open-external-btn');
+    const translateBtn = document.getElementById('privacy-translate-btn');
+
+    const currentLang = state.uiSettings?.language || 'en';
+    const isEnglish = currentLang === 'en';
+    let showingEnglish = isEnglish;
+    const initialUrl = isEnglish ? 'privacy.html' : `privacy/${currentLang}`;
+
+    if (translateBtn) {
+        if (isEnglish) {
+            translateBtn.style.display = 'none';
+        } else {
+            translateBtn.style.display = 'inline-flex';
+            translateBtn.onclick = (e) => {
+                e.preventDefault();
+                showingEnglish = !showingEnglish;
+                let currentTheme = 'dark';
+                if (iframe && iframe.contentDocument) {
+                    try {
+                        currentTheme = iframe.contentDocument.documentElement.getAttribute('data-theme') || state.uiSettings?.theme || 'dark';
+                    } catch (err) {
+                        currentTheme = state.uiSettings?.theme || 'dark';
+                    }
+                } else {
+                    currentTheme = state.uiSettings?.theme || 'dark';
+                }
+                const targetUrl = showingEnglish ? 'privacy.html' : `privacy/${currentLang}`;
+                if (iframe) {
+                    iframe.src = `${targetUrl}?theme=${currentTheme}`;
+                }
+                if (externalBtn) {
+                    externalBtn.href = targetUrl;
+                }
+            };
+        }
+    }
+
+    const updateThemeBtnIcon = (currentTheme) => {
+        if (themeBtn) {
+            const svgIcon = themeBtn.querySelector('orecalc-assets-svg');
+            if (svgIcon) {
+                if (currentTheme === 'light') {
+                    svgIcon.setAttribute('name', 'dark-mode');
+                    svgIcon.setAttribute('class', 'icon-dark');
+                } else {
+                    svgIcon.setAttribute('name', 'light-mode');
+                    svgIcon.setAttribute('class', 'icon-light');
+                }
+            }
+        }
+    };
+
+    const closeModal = () => {
+        modal.classList.remove('show');
+        modal.classList.remove('modal-top');
+        const visibleModals = document.querySelectorAll('.modal.show');
+        if (visibleModals.length === 0 && dom.overlay) {
+            dom.overlay.classList.remove('show');
+        }
+    };
+
+    if (closeHeaderBtn) {
+        closeHeaderBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    const acceptBtn = document.getElementById('accept-privacy-modal-btn');
+    if (acceptBtn) {
+        if (needsConsent) {
+            acceptBtn.style.display = 'inline-block';
+            acceptBtn.onclick = (e) => {
+                e.preventDefault();
+                const now = Date.now();
+                if (!state.uiSettings.acceptanceTimestamp) {
+                    state.uiSettings.acceptanceTimestamp = {};
+                }
+                const privacyAcceptedTime = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
+                state.uiSettings.acceptanceTimestamp.privacy = privacyAcceptedTime;
+                
+                saveState(state);
+                if (typeof window.refreshConsentModalStatus === 'function') {
+                    window.refreshConsentModalStatus();
+                }
+                closeModal();
+                
+                // Hide legal consent modal if both are now accepted
+                const tosTimestamp = state.uiSettings.acceptanceTimestamp.tos;
+                if (tosTimestamp && tosTimestamp >= EFFECTIVE_DATE_TERMS) {
+                    const consentModal = document.getElementById('consent-modal');
+                    if (consentModal) {
+                        consentModal.classList.remove('show');
+                    }
+                }
+                const visibleModals = document.querySelectorAll('.modal.show');
+                if (visibleModals.length === 0 && dom.overlay) {
+                    dom.overlay.classList.remove('show');
+                }
+            };
+        } else {
+            acceptBtn.style.display = 'none';
+        }
+    }
+
+    if (themeBtn) {
+        const initialTheme = state.uiSettings?.theme || 'dark';
+        updateThemeBtnIcon(initialTheme);
+        
+        themeBtn.onclick = (e) => {
+            e.preventDefault();
+            if (iframe && iframe.contentDocument) {
+                try {
+                    const htmlEl = iframe.contentDocument.documentElement;
+                    const currentTheme = htmlEl.getAttribute('data-theme') || 'light';
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    
+                    htmlEl.setAttribute('data-theme', newTheme);
+                    updateThemeBtnIcon(newTheme);
+                } catch (err) {
+                    console.error('Failed to toggle iframe theme:', err);
+                }
+            }
+        };
+    }
+
+    // Show modal and overlay
+    if (iframe) {
+        const initialTheme = state.uiSettings?.theme || 'dark';
+        iframe.src = `${initialUrl}?theme=${initialTheme}`;
+        if (externalBtn) {
+            externalBtn.href = initialUrl;
+        }
+        iframe.onload = () => {
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                iframeDoc.body.addEventListener('click', async (e) => {
+                    const link = e.target.closest('a');
+                    if (!link) return;
+
+                    const href = link.getAttribute('href');
+                    if (!href) return;
+
+                    // Skip internal/anchor links
+                    if (href.startsWith('#') || href.startsWith('javascript:')) return;
+
+                    const isMailto = href.startsWith('mailto:');
+                    if (isMailto) {
+                        e.preventDefault();
+                        const confirmed = await showConfirm(translate('confirms.mailtoLink'));
+                        if (confirmed) {
+                            window.location.href = href;
+                        }
+                        return;
+                    }
+
+                    const isHttpExternal = (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(window.location.host);
+                    if (isHttpExternal) {
+                        e.preventDefault();
+                        const confirmed = await showConfirm(translate('confirms.externalLink'));
+                        if (confirmed) {
+                            window.open(href, '_blank', 'noopener,noreferrer');
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Failed to attach link listener to iframe:', err);
+            }
+        };
+    }
+
+    modal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
+}
+
+export function openTermsOfUseModal() {
+    const modal = document.getElementById('terms-modal');
+    if (!modal) return;
+
+    const tosTimestamp = state.uiSettings?.acceptanceTimestamp?.tos;
+    const needsConsent = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
+
+    const closeHeaderBtn = document.getElementById('close-terms-header-btn');
+    const closeBtn = document.getElementById('close-terms-modal-btn');
+    const themeBtn = document.getElementById('terms-theme-toggle-btn');
+    const iframe = document.getElementById('terms-policy-iframe');
+    const externalBtn = document.getElementById('terms-open-external-btn');
+    const translateBtn = document.getElementById('terms-translate-btn');
+
+    const currentLang = state.uiSettings?.language || 'en';
+    const isEnglish = currentLang === 'en';
+    let showingEnglish = isEnglish;
+    const initialUrl = isEnglish ? 'terms.html' : `terms/${currentLang}`;
+
+    if (translateBtn) {
+        if (isEnglish) {
+            translateBtn.style.display = 'none';
+        } else {
+            translateBtn.style.display = 'inline-flex';
+            translateBtn.onclick = (e) => {
+                e.preventDefault();
+                showingEnglish = !showingEnglish;
+                let currentTheme = 'dark';
+                if (iframe && iframe.contentDocument) {
+                    try {
+                        currentTheme = iframe.contentDocument.documentElement.getAttribute('data-theme') || state.uiSettings?.theme || 'dark';
+                    } catch (err) {
+                        currentTheme = state.uiSettings?.theme || 'dark';
+                    }
+                } else {
+                    currentTheme = state.uiSettings?.theme || 'dark';
+                }
+                const targetUrl = showingEnglish ? 'terms.html' : `terms/${currentLang}`;
+                if (iframe) {
+                    iframe.src = `${targetUrl}?theme=${currentTheme}`;
+                }
+                if (externalBtn) {
+                    externalBtn.href = targetUrl;
+                }
+            };
+        }
+    }
+
+    const updateThemeBtnIcon = (currentTheme) => {
+        if (themeBtn) {
+            const svgIcon = themeBtn.querySelector('orecalc-assets-svg');
+            if (svgIcon) {
+                if (currentTheme === 'light') {
+                    svgIcon.setAttribute('name', 'dark-mode');
+                    svgIcon.setAttribute('class', 'icon-dark');
+                } else {
+                    svgIcon.setAttribute('name', 'light-mode');
+                    svgIcon.setAttribute('class', 'icon-light');
+                }
+            }
+        }
+    };
+
+    const closeModal = () => {
+        modal.classList.remove('show');
+        modal.classList.remove('modal-top');
+        const visibleModals = document.querySelectorAll('.modal.show');
+        if (visibleModals.length === 0 && dom.overlay) {
+            dom.overlay.classList.remove('show');
+        }
+    };
+
+    if (closeHeaderBtn) {
+        closeHeaderBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    const acceptBtn = document.getElementById('accept-terms-modal-btn');
+    if (acceptBtn) {
+        if (needsConsent) {
+            acceptBtn.style.display = 'inline-block';
+            acceptBtn.onclick = (e) => {
+                e.preventDefault();
+                const now = Date.now();
+                if (!state.uiSettings.acceptanceTimestamp) {
+                    state.uiSettings.acceptanceTimestamp = {};
+                }
+                const tosAcceptedTime = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
+                state.uiSettings.acceptanceTimestamp.tos = tosAcceptedTime;
+                
+                saveState(state);
+                if (typeof window.refreshConsentModalStatus === 'function') {
+                    window.refreshConsentModalStatus();
+                }
+                closeModal();
+                
+                // Hide legal consent modal if both are now accepted
+                const privacyTimestamp = state.uiSettings.acceptanceTimestamp.privacy;
+                if (privacyTimestamp && privacyTimestamp >= EFFECTIVE_DATE_PRIVACY) {
+                    const consentModal = document.getElementById('consent-modal');
+                    if (consentModal) {
+                        consentModal.classList.remove('show');
+                    }
+                }
+                const visibleModals = document.querySelectorAll('.modal.show');
+                if (visibleModals.length === 0 && dom.overlay) {
+                    dom.overlay.classList.remove('show');
+                }
+            };
+        } else {
+            acceptBtn.style.display = 'none';
+        }
+    }
+
+    if (themeBtn) {
+        const initialTheme = state.uiSettings?.theme || 'dark';
+        updateThemeBtnIcon(initialTheme);
+        
+        themeBtn.onclick = (e) => {
+            e.preventDefault();
+            if (iframe && iframe.contentDocument) {
+                try {
+                    const htmlEl = iframe.contentDocument.documentElement;
+                    const currentTheme = htmlEl.getAttribute('data-theme') || 'light';
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    
+                    htmlEl.setAttribute('data-theme', newTheme);
+                    updateThemeBtnIcon(newTheme);
+                } catch (err) {
+                    console.error('Failed to toggle iframe theme:', err);
+                }
+            }
+        };
+    }
+
+    // Show modal and overlay
+    if (iframe) {
+        const initialTheme = state.uiSettings?.theme || 'dark';
+        iframe.src = `${initialUrl}?theme=${initialTheme}`;
+        if (externalBtn) {
+            externalBtn.href = initialUrl;
+        }
+        iframe.onload = () => {
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                iframeDoc.body.addEventListener('click', async (e) => {
+                    const link = e.target.closest('a');
+                    if (!link) return;
+
+                    const href = link.getAttribute('href');
+                    if (!href) return;
+
+                    // Skip internal/anchor links
+                    if (href.startsWith('#') || href.startsWith('javascript:')) return;
+
+                    const isMailto = href.startsWith('mailto:');
+                    if (isMailto) {
+                        e.preventDefault();
+                        const confirmed = await showConfirm(translate('confirms.mailtoLink'));
+                        if (confirmed) {
+                            window.location.href = href;
+                        }
+                        return;
+                    }
+
+                    const isHttpExternal = (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(window.location.host);
+                    if (isHttpExternal) {
+                        e.preventDefault();
+                        const confirmed = await showConfirm(translate('confirms.externalLink'));
+                        if (confirmed) {
+                            window.open(href, '_blank', 'noopener,noreferrer');
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Failed to attach link listener to iframe:', err);
+            }
+        };
+    }
+
+    modal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
+}
+
+function openCloudSyncNoticeModal(onConfirm, onCancel) {
+    const modal = document.getElementById('cloud-sync-notice-modal');
+    if (!modal) return;
+
+    const closeHeaderBtn = document.getElementById('close-cloud-sync-notice-header-btn');
+    const cancelBtn = document.getElementById('cancel-cloud-sync-notice-btn');
+    const acceptBtn = document.getElementById('accept-cloud-sync-notice-btn');
+    const viewTermsBtn = document.getElementById('cloud-sync-view-terms-btn');
+    const viewPrivacyBtn = document.getElementById('cloud-sync-view-privacy-btn');
+
+    let resolved = false;
+
+    const closeModal = () => {
+        modal.classList.remove('show');
+        const visibleModals = document.querySelectorAll('.modal.show');
+        if (visibleModals.length === 0 && dom.overlay) {
+            dom.overlay.classList.remove('show');
+        }
+    };
+
+    const handleConfirm = () => {
+        resolved = true;
+        closeModal();
+        if (typeof onConfirm === 'function') onConfirm();
+    };
+
+    const handleCancel = () => {
+        resolved = true;
+        closeModal();
+        if (typeof onCancel === 'function') onCancel();
+    };
+
+    if (closeHeaderBtn) {
+        closeHeaderBtn.onclick = (e) => {
+            e.preventDefault();
+            handleCancel();
+        };
+    }
+
+    if (cancelBtn) {
+        cancelBtn.onclick = (e) => {
+            e.preventDefault();
+            handleCancel();
+        };
+    }
+
+    if (acceptBtn) {
+        acceptBtn.onclick = (e) => {
+            e.preventDefault();
+            handleConfirm();
+        };
+    }
+
+    if (viewTermsBtn) {
+        viewTermsBtn.onclick = (e) => {
+            e.preventDefault();
+            const termsModal = document.getElementById('terms-modal');
+            if (termsModal) termsModal.classList.add('modal-top');
+            openTermsOfUseModal();
+        };
+    }
+
+    if (viewPrivacyBtn) {
+        viewPrivacyBtn.onclick = (e) => {
+            e.preventDefault();
+            const privacyModal = document.getElementById('privacy-modal');
+            if (privacyModal) privacyModal.classList.add('modal-top');
+            openPrivacyModal();
         };
     }
 
@@ -434,9 +900,9 @@ function openBugReportModal() {
     // Handle privacy link click
     const privacyLink = modal.querySelector('#bug-report-privacy-link');
     if (privacyLink) {
-        privacyLink.onclick = async (e) => {
+        privacyLink.onclick = (e) => {
             e.preventDefault();
-            await showAlert(translate('app.comingSoon') || 'Coming Soon!', 'status.info');
+            openPrivacyModal();
         };
     }
 
@@ -510,10 +976,21 @@ export function initializeAppSettings() {
                     cloudSyncToggle.checked = true;
                     return;
                 }
+                handleStateUpdate(() => {
+                    state.uiSettings.cloudSync = false;
+                });
+            } else {
+                openCloudSyncNoticeModal(
+                    () => {
+                        handleStateUpdate(() => {
+                            state.uiSettings.cloudSync = true;
+                        });
+                    },
+                    () => {
+                        cloudSyncToggle.checked = false;
+                    }
+                );
             }
-            handleStateUpdate(() => {
-                state.uiSettings.cloudSync = newState;
-            });
         });
     }
 

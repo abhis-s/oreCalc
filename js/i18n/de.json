@@ -32,7 +32,8 @@
         "placeholderToken": "z.B. a9378kca",
         "apiToken": "In-Game API Token",
         "apiTokenHint": "Hinweis: Du findest dein API Token im Spiel unter Einstellungen > Weitere Einstellungen > API Token.",
-        "protectedTagNote": "Um die Daten für dieses Spielerkürzel zu laden, musst du deinen Besitz nachweisen."
+        "protectedTagNote": "Um die Daten für dieses Spielerkürzel zu laden, musst du deinen Besitz nachweisen.",
+        "disclaimer": "Durch das Laden eines Spieler-Kürzels stimmst du unseren <a href=\"#\" id=\"add-player-terms-link\" class=\"theme-link\">Nutzungsbedingungen</a> zu und bestätigst, dass du unsere <a href=\"#\" id=\"add-player-privacy-link\" class=\"theme-link\">Datenschutzerklärung</a> gelesen hast. Spielerdaten werden von der Clash of Clans-API abgerufen."
     },
     "alts": {
         "oresIcon": "Erz-Icon",
@@ -378,6 +379,10 @@
         "enable": "Aktivieren",
         "trash": "Papierkorb",
         "view": "Ansehen",
+        "accept": "Akzeptieren",
+        "accepted": "Akzeptiert",
+        "acceptAndContinue": "Akzeptieren & Fortfahren",
+        "agreeAndEnable": "Zustimmen & Aktivieren",
         "fix": "Reparieren",
         "visit": "Besuchen",
         "support": "Unterstützen",
@@ -414,9 +419,9 @@
         "bugReportPrivacyInfo": "Durch das Absenden dieses Berichts erklärst du dich damit einverstanden, dass deine Benutzerdaten und die angegebene E-Mail-Adresse gemäß unserer {link} verarbeitet werden.",
         "runningCosts": "Projektkosten",
         "transparency": "Transparenz",
-        "privacy": "Datenschutz",
+        "privacyPolicy": "Datenschutzerklärung",
         "privacyPolicyText": "Datenschutzerklärung",
-        "terms": "Nutzung",
+        "termsOfUse": "Nutzungsbedingungen",
         "dataErasure": "Datenlöschung",
         "completeDeleteInfo": "Hiermit wird deine Eigentümerschaft über die offizielle Clash of Clans API verifiziert. Nach erfolgreicher Verifizierung werden wir dieses Spielerkürzel dauerhaft von allen verknüpften OreCalc-Benutzer-IDs in unserer gesamten Datenbank entfernen. Niemand kann dein Konto ohne erneute Verifizierung hinzufügen.",
         "cards": {
@@ -636,5 +641,13 @@
         "protectedTag": "Dieses Konto ist geschützt. Zur Hinzufügung ist eine Verifizierung erforderlich.",
         "invalidToken": "Verifizierung fehlgeschlagen. Das angegebene API-Token ist ungültig.",
         "unknown": "Unbekannter Fehler"
+    },
+    "legal": {
+        "title": "Nutzungsbedingungen & Datenschutz Update",
+        "description": "Bitte lies und akzeptiere unsere aktualisierten Nutzungsbedingungen und die Datenschutzrichtlinie, um OreCalc weiterhin zu nutzen.",
+        "consentStatement": "Durch Klicken auf \"Akzeptieren & Fortfahren\" stimmst du unseren Nutzungsbedingungen zu und bestätigst, dass du unsere Datenschutzrichtlinie gelesen hast und ihr zustimmst.",
+        "cloudSyncNoticeTitle": "Cloud-Synchronisation aktivieren",
+        "cloudSyncNoticeDesc": "Durch die Aktivierung der Cloud-Synchronisation werden Ihre Einstellungen und lokalen Planer-Konfigurationen sicher auf unseren Servern gespeichert, um eine geräteübergreifende Synchronisation zu ermöglichen.",
+        "cloudSyncNoticeAgree": "Bitte lies unsere Nutzungsbedingungen und die Datenschutzerklärung und stimme ihnen zu, um diese Funktion zu aktivieren."
     }
 }

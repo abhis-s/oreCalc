@@ -1,7 +1,7 @@
 import { showAlert, showConfirm } from './ui/noticeModal.js';
 
 import { dom, initializeDOMElements } from './dom/domElements.js';
-import { state, initializeState } from './core/state.js';
+import { state, initializeState, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from './core/state.js';
 import { saveState, loadState, resetState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
@@ -15,7 +15,7 @@ import { initializeHeroCards } from './components/equipment/heroCard.js';
 import { initializePlayerDropdown } from './components/player/playerDropdown.js';
 import { initializePlayerModal, showAddPlayerModal } from './components/player/playerModal.js';
 import { initializeFab } from './components/fab/fab.js';
-import { initializeAppSettings } from './components/appSettings/appSettings.js';
+import { initializeAppSettings, openTermsOfUseModal, openPrivacyModal } from './components/appSettings/appSettings.js';
 import { initializePlanner } from './components/planner/planner.js';
 import { initializePriorityListModal } from './components/planner/priorityListModal.js';
 import { initializeChangelogModal, showChangelogModal } from './components/changelog/changelogModal.js';
@@ -448,6 +448,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 refreshButton.click();
             }
         }
+        checkLegalConsent();
     }, 2300);
 
     // 3. SYNCHRONIZE PRELOADER REMOVAL
@@ -499,10 +500,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Close any modal when clicking its dark background/overlay
         if (e.target.classList.contains('modal') || e.target.id === 'overlay') {
             if (e.target.classList.contains('modal')) {
+                if (e.target.id === 'consent-modal' || e.target.id === 'cloud-sync-notice-modal') return;
                 e.target.classList.remove('show');
                 if (dom.overlay) dom.overlay.classList.remove('show');
             } else if (e.target.id === 'overlay') {
-                // If the standalone overlay was clicked, close all currently showing modals
+                const consentModal = document.getElementById('consent-modal');
+                const cloudSyncNoticeModal = document.getElementById('cloud-sync-notice-modal');
+                if ((consentModal && consentModal.classList.contains('show')) || (cloudSyncNoticeModal && cloudSyncNoticeModal.classList.contains('show'))) {
+                    document.querySelectorAll('.modal.show').forEach(m => {
+                        if (m.id !== 'consent-modal' && m.id !== 'cloud-sync-notice-modal') m.classList.remove('show');
+                    });
+                    return;
+                }
                 document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
                 e.target.classList.remove('show');
             }
@@ -516,6 +525,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 1. Prioritize closing open modals
             const activeModal = document.querySelector('.modal.show');
             if (activeModal) {
+                if (activeModal.id === 'consent-modal' || activeModal.id === 'cloud-sync-notice-modal') return;
                 const rejectBtn = activeModal.querySelector('.reject-button');
                 const closeBtn = activeModal.querySelector('.close-button');
                 const acceptBtn = activeModal.querySelector('.accept-button');
@@ -627,5 +637,118 @@ window.resetApplication = () => {
         location.reload();
     }, 500);
 };
+
+window.refreshConsentModalStatus = () => {
+    const privacyTimestamp = state.uiSettings?.acceptanceTimestamp?.privacy;
+    const tosTimestamp = state.uiSettings?.acceptanceTimestamp?.tos;
+
+    const privacyAccepted = privacyTimestamp && privacyTimestamp >= EFFECTIVE_DATE_PRIVACY;
+    const tosAccepted = tosTimestamp && tosTimestamp >= EFFECTIVE_DATE_TERMS;
+    
+    const acceptedText = translate('actions.accepted');
+
+    const viewTermsBtn = document.getElementById('consent-view-terms-btn');
+    if (viewTermsBtn && tosAccepted) {
+        viewTermsBtn.removeAttribute('data-i18n');
+        viewTermsBtn.disabled = true;
+        viewTermsBtn.style.backgroundColor = 'transparent';
+        viewTermsBtn.style.borderColor = 'transparent';
+        viewTermsBtn.style.cursor = 'default';
+        viewTermsBtn.style.padding = '0';
+        viewTermsBtn.style.opacity = '1';
+        viewTermsBtn.innerHTML = `<span style="display: flex; align-items: center; gap: 6px; color: var(--color-success); font-size: 0.9em; font-weight: 500;">
+            <orecalc-assets-svg name="check" fill="var(--color-success)"></orecalc-assets-svg>
+            ${acceptedText}
+        </span>`;
+    }
+
+    const viewPrivacyBtn = document.getElementById('consent-view-privacy-btn');
+    if (viewPrivacyBtn && privacyAccepted) {
+        viewPrivacyBtn.removeAttribute('data-i18n');
+        viewPrivacyBtn.disabled = true;
+        viewPrivacyBtn.style.backgroundColor = 'transparent';
+        viewPrivacyBtn.style.borderColor = 'transparent';
+        viewPrivacyBtn.style.cursor = 'default';
+        viewPrivacyBtn.style.padding = '0';
+        viewPrivacyBtn.style.opacity = '1';
+        viewPrivacyBtn.innerHTML = `<span style="display: flex; align-items: center; gap: 6px; color: var(--color-success); font-size: 0.9em; font-weight: 500;">
+            <orecalc-assets-svg name="check" fill="var(--color-success)"></orecalc-assets-svg>
+            ${acceptedText}
+        </span>`;
+    }
+};
+
+function checkLegalConsent() {
+    const privacyTimestamp = state.uiSettings.acceptanceTimestamp?.privacy;
+    const tosTimestamp = state.uiSettings.acceptanceTimestamp?.tos;
+    
+    // Check if consent timestamp is missing, or older than terms/privacy effective dates
+    const needsConsent = !privacyTimestamp || 
+                         privacyTimestamp < EFFECTIVE_DATE_PRIVACY || 
+                         !tosTimestamp || 
+                         tosTimestamp < EFFECTIVE_DATE_TERMS;
+                         
+    if (!needsConsent) return;
+    
+    const consentModal = document.getElementById('consent-modal');
+    if (!consentModal) return;
+    
+    const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
+    const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
+    
+    const termsRow = document.getElementById('consent-terms-row');
+    const privacyRow = document.getElementById('consent-privacy-row');
+    if (termsRow) termsRow.style.display = needsTerms ? 'flex' : 'none';
+    if (privacyRow) privacyRow.style.display = needsPrivacy ? 'flex' : 'none';
+    
+    const viewTermsBtn = document.getElementById('consent-view-terms-btn');
+    const viewPrivacyBtn = document.getElementById('consent-view-privacy-btn');
+    const acceptBtn = document.getElementById('confirm-consent-btn');
+    
+    window.refreshConsentModalStatus();
+    
+    if (viewTermsBtn) {
+        viewTermsBtn.onclick = (e) => {
+            e.preventDefault();
+            const termsModal = document.getElementById('terms-modal');
+            if (termsModal) termsModal.classList.add('modal-top');
+            openTermsOfUseModal();
+        };
+    }
+    
+    if (viewPrivacyBtn) {
+        viewPrivacyBtn.onclick = (e) => {
+            e.preventDefault();
+            const privacyModal = document.getElementById('privacy-modal');
+            if (privacyModal) privacyModal.classList.add('modal-top');
+            openPrivacyModal();
+        };
+    }
+    
+    if (acceptBtn) {
+        acceptBtn.onclick = (e) => {
+            e.preventDefault();
+            const now = Date.now();
+            if (!state.uiSettings.acceptanceTimestamp) {
+                state.uiSettings.acceptanceTimestamp = {};
+            }
+            state.uiSettings.acceptanceTimestamp.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
+            state.uiSettings.acceptanceTimestamp.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
+            saveState(state);
+            
+            consentModal.classList.remove('show');
+            if (dom.overlay) {
+                const visibleModals = document.querySelectorAll('.modal.show');
+                if (visibleModals.length === 0) {
+                    dom.overlay.classList.remove('show');
+                }
+            }
+        };
+    }
+    
+    // Open the consent modal and overlay
+    consentModal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
+}
 
 

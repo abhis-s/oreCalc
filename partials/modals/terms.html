@@ -1,0 +1,28 @@
+<div id="terms-modal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h2 data-i18n="settings.termsOfUse">Terms of Use</h2>
+            <div class="modal-header-actions">
+                <a href="terms.html" target="_blank" id="terms-open-external-btn" class="close-button" aria-label="Open in new tab" title="Open in new tab">
+                    <orecalc-assets-svg name="open-in-new"></orecalc-assets-svg>
+                </a>
+                <button id="terms-translate-btn" class="close-button" aria-label="Translate" title="Translate" style="display: none;">
+                    <orecalc-assets-svg name="translate"></orecalc-assets-svg>
+                </button>
+                <button id="terms-theme-toggle-btn" class="close-button" aria-label="Toggle Theme">
+                    <orecalc-assets-svg name="dark-mode" class="icon-dark"></orecalc-assets-svg>
+                </button>
+                <button id="close-terms-header-btn" class="close-button">
+                    <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                </button>
+            </div>
+        </div>
+        <div class="modal-body text-left" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; flex: 1; min-height: 0;">
+            <iframe id="terms-policy-iframe" src="terms.html" style="border: none; width: 100%; height: 100%; flex: 1; background: transparent;" title="Terms of Use"></iframe>
+        </div>
+        <div class="modal-actions">
+            <button id="close-terms-modal-btn" class="reject-button" data-i18n="actions.close">Close</button>
+            <button id="accept-terms-modal-btn" class="accept-button" style="display: none;" data-i18n="actions.accept">Accept</button>
+        </div>
+    </div>
+</div>

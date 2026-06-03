@@ -334,4 +334,14 @@ orecalc-assets-image {
     display: contents;
 }
 
+.theme-link {
+    color: var(--accent-primary);
+    text-decoration: underline;
+    transition: color 0.2s ease-in-out;
+
+    &:hover {
+        color: var(--accent-primary-hover);
+    }
+}
+
 

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="effective-date-timestamp" content="1780617600000">
+    <title>Datenschutzerklärung - OreCalc</title>
+    <style>
+        :root {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --code-bg: #edf2f7;
+            --code-color: #2b6cb0;
+        }
+
+        /* Explicit light theme */
+        html[data-theme="light"] {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --code-bg: #edf2f7;
+            --code-color: #2b6cb0;
+        }
+
+        /* Explicit dark theme */
+        html[data-theme="dark"] {
+            --bg-color: #121212;
+            --surface-color: #1a1a1a;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border-color: #2d3748;
+            --accent-color: #63b3ed;
+            --code-bg: #2d3748;
+            --code-color: #90cdf4;
+        }
+
+        /* Fallback dark theme */
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]) {
+                --bg-color: #121212;
+                --surface-color: #1a1a1a;
+                --text-primary: #e2e8f0;
+                --text-secondary: #a0aec0;
+                --border-color: #2d3748;
+                --accent-color: #63b3ed;
+                --code-bg: #2d3748;
+                --code-color: #90cdf4;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+            transition: background-color 0.3s ease-in-out, color 0.3s;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            background-color: var(--surface-color);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease-in-out, border-color 0.3s;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .back-link {
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            color: var(--text-primary);
+            background-color: var(--surface-color);
+            transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--code-bg);
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        ul {
+            margin-top: 0;
+            margin-bottom: 16px;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            word-break: normal;
+            overflow-wrap: break-word;
+        }
+
+        .footer {
+            margin-top: 48px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+            text-align: center;
+        }
+
+        /* Embedded iframe overrides */
+        html.is-embedded {
+            background-color: var(--surface-color) !important;
+        }
+        html.is-embedded body {
+            padding: 8px 24px 24px !important;
+            background-color: var(--surface-color) !important;
+        }
+        html.is-embedded .container {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            background-color: var(--surface-color) !important;
+            max-width: 100% !important;
+        }
+        html.is-embedded .header-row,
+        html.is-embedded h1 {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            html.is-embedded body {
+                padding: 8px 16px 16px !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+                font-size: 15px;
+            }
+            .container {
+                padding: 20px;
+                border-radius: 8px;
+            }
+            h1 {
+                font-size: 1.75rem;
+                margin-bottom: 16px;
+            }
+            h2 {
+                font-size: 1.25rem;
+                margin-top: 24px;
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+    <script>
+        // Inline script to prevent theme flash and detect embed
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            let theme = params.get('theme');
+            if (!theme) {
+                // Set theme based on browser preference
+                theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            if (window.self !== window.top) {
+                document.documentElement.classList.add('is-embedded');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <a href="/" class="back-link">&larr; Zurück zur App</a>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Design wechseln">🌙</button>
+        </div>
+
+        <h1>Datenschutzerklärung</h1>
+        <p><strong>Inkrafttreten:</strong> 5. Juni 2026</p>
+        <p>
+            Diese Datenschutzerklärung erläutert, wie <strong>OreCalc</strong> („wir“, „unser“ oder „der Dienst“), derzeit erreichbar unter <code>orecalc.tech</code> (und in Zukunft umziehend auf <code>clashcalc.com</code>), mit Ihren Informationen umgeht. 
+        </p>
+        <p>
+            Unser Dienst ist standardmäßig auf Datenschutz ausgelegt („Privacy-First“). <strong>Wir erheben, speichern oder verarbeiten standardmäßig keine Ihrer personenbezogenen Daten auf unseren Servern.</strong>
+        </p>
+
+        <h2>1. Clientseitige Verarbeitung (Offline standardmäßig)</h2>
+        <p>
+            OreCalc ist eine Progressive Web App (PWA), die Berechnungen und Upgrade-Planungen <strong>vollständig auf Ihrem lokalen Gerät ausführt.</strong>
+        </p>
+        <ul>
+            <li>Es werden keine Berechnungen, Upgrade-Kosten oder Ressourcenschätzungen auf unseren Servern durchgeführt.</li>
+            <li>Abgesehen vom Abrufen von Spielstatistiken und der optionalen Cloud-Synchronisation benötigt der Dienst keine Internetverbindung, um zu funktionieren.</li>
+            <li>Ihre Einstellungen (Sprache, Währung, Design und Planer-Konfigurationen) werden auf Ihrem eigenen Gerät im <code>localStorage</code> des Browsers gespeichert. Wir haben keinen Zugriff auf diese Daten und können sie nicht einsehen.</li>
+        </ul>
+
+        <h2>2. Durch den Dienst verarbeitete Daten</h2>
+        <p>Bei bestimmten Interaktionen verarbeitet der Dienst folgende Daten:</p>
+        <ul>
+            <li>
+                <strong>Clash of Clans Spieler-Kürzel (Player Tags):</strong> Wenn Sie ein Spieler-Kürzel eingeben, fragt die App die offizielle öffentliche Clash of Clans API ab, um Spieldaten abzurufen, einschließlich der Stufen von Heldenausrüstung und Upgrades. Spieler-Kürzel und Spielstatistiken sind öffentlich. Ihr Kürzel wird lokal auf Ihrem Gerät gespeichert, es sei denn, die Cloud-Synchronisation wird explizit aktiviert.
+            </li>
+            <li>
+                <strong>Cloud-Synchronisation (Optional & Opt-In):</strong> Wenn Sie sich für die Aktivierung der Cloud-Synchronisation entscheiden, werden Ihre Einstellungen und Ihre lokale Planer-Konfiguration sicher auf unseren Servern gesichert, um eine geräteübergreifende Synchronisation zu ermöglichen. Bitte beachten Sie, dass Sie Ihre Daten zuerst über die Clash of Clans API abrufen müssen, um die Cloud-Synchronisation zu aktivieren; eine Synchronisation ohne ein gültiges Spieler-Kürzel ist nicht zulässig.
+            </li>
+            <li>
+                <strong>Fehlerberichte (Freiwillig):</strong> Wenn Sie einen Fehlerbericht senden, werden Ihre Nachricht, eine optionale E-Mail-Adresse und ein Schnappschuss Ihres aktuellen lokalen Planer-Status an unseren Support-Mailhandler unter <code>clashcalc.com</code> gesendet, um uns bei der Diagnose des Problems zu helfen.
+            </li>
+        </ul>
+
+        <h2>3. Nutzung der Informationen</h2>
+        <p> Alle vom Dienst verarbeiteten öffentlichen Spielstatistiken oder lokalen Planer-Konfigurationen werden ausschließlich verwendet, um: </p>
+        <ul>
+            <li>Ihre persönliche Planer-Konfiguration und Upgrade-Protokolle darzustellen.</li>
+            <li>Ihre Daten geräteübergreifend zu synchronisieren (nur wenn Sie die Cloud-Synchronisation explizit aktivieren).</li>
+            <li>Softwarefehler zu beheben, wenn Sie freiwillig einen Fehlerbericht einreichen.</li>
+        </ul>
+        <p>Wir verwenden keine Tracking-Cookies, führen keine Werbeskripte aus und werden niemals Nutzerdaten weitergeben oder verkaufen.</p>
+
+        <h2>4. Integrationen von Drittanbietern & Clash of Clans API</h2>
+        <p>
+            Um Ihr Planer-Profil auszufüllen, rufen wir öffentliche Daten direkt von der offiziellen Clash of Clans API ab. Dabei gilt:
+        </p>
+        <ul>
+            <li>Ihre Datenanfrage unterliegt der <a href="https://supercell.com/en/fan-content-policy/" target="_blank">Fan-Content-Richtlinie von Supercell</a> und den <a href="https://supercell.com/en/terms-of-service/" target="_blank">Nutzungsbedingungen von Supercell</a>.</li>
+            <li>Wir erfassen oder verknüpfen keine persönlichen Identitäten der realen Welt mit Clash of Clans Spielerprofilen.</li>
+            <li>Zur Erleichterung der Bereitstellung von API-Anfragen und zur Optimierung der Betriebskosten können Abfragen von Spieler-Kürzeln über Proxy-Server von Drittanbietern (wie beispielsweise <code>coproxy.royaleapi.com</code>) geleitet werden. In diesen Fällen können Verbindungsdaten den <a href="https://royaleapi.com/tos" target="_blank">Nutzungsbedingungen</a> und der <a href="https://royaleapi.com/privacy" target="_blank">Datenschutzerklärung</a> des jeweiligen Proxy-Anbieters unterlegen.</li>
+        </ul>
+
+        <h2>5. Ihre Datenrechte & Löschwerkzeuge</h2>
+        <p>
+            Wir orientieren uns an den globalen Datenschutzstandards wie der EU-DSGVO und dem CCPA, indem wir direkt in den Einstellungen Tools zur Selbstverwaltung Ihrer Daten bereitstellen:
+        </p>
+        <ul>
+            <li>
+                <strong>Nutzerdaten herunterladen:</strong> Exportieren und laden Sie Ihren gesamten Anwendungsstatus jederzeit als JSON-Datei herunter.
+            </li>
+            <li>
+                <strong>Optionen zur Datenlöschung:</strong> Wir bieten drei verschiedene Stufen der Datenlöschung an:
+                <ul>
+                    <li><strong>Lokaler Reset:</strong> Löscht dauerhaft alle lokalen Konfigurationen, Stufen der Heldenausrüstung, Benutzereinstellungen und Offline-Planerdaten, die im <code>localStorage</code> Ihres Browsers gespeichert sind.</li>
+                    <li><strong>Alle Daten löschen (Lokal &amp; Cloud):</strong> Löscht alle lokalen Browserdaten und entfernt Ihr synchronisiertes Backup-Profil sowie Ihre Einstellungen dauerhaft von unseren Cloud-Servern.</li>
+                    <li><strong>Ausschluss beantragen (Vollständige Löschung):</strong> Verifiziert den Besitz Ihres Spieler-Kürzels über die offizielle Clash of Clans API. Nach erfolgreicher Verifizierung wird ein Antrag eingereicht, um Ihr Spieler-Kürzel dauerhaft aus allen OreCalc-Nutzerprofilen in unserer Datenbank zu entfernen. Dieser Antrag wird innerhalb von 30 Tagen bearbeitet. Zudem wird das Spieler-Kürzel auf unseren Servern für andere Nutzer gesperrt. Diese Sperrung verhindert, dass andere Personen Ihr Spieler-Kürzel innerhalb des Dienstes abrufen oder verknüpfen können, ohne zuvor den Besitz nachzuweisen. Bitte beachten Sie, dass diese Sperre nur innerhalb des Dienstes selbst wirksam ist, da alle zugrunde liegenden Clash of Clans-Spieldaten über die offizielle API von Supercell weiterhin öffentlich zugänglich bleiben.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>6. Kontaktieren Sie uns</h2>
+        <p>
+            Wenn Sie Fragen zu dieser Erklärung haben oder Ihre Datenschutzeinstellungen besprechen möchten, kontaktieren Sie uns unter <a href="mailto:legal@clashcalc.com">legal@clashcalc.com</a>.
+        </p>
+
+        <div class="footer">
+            <p style="margin: 0 0 8px;">Diese Übersetzung dient ausschließlich Informationszwecken. Rechtlich verbindlich ist allein die <a href="../../privacy.html">englische Originalfassung</a>.</p>
+            <p style="margin: 0 0 8px;">Diese Seite ist verfügbar unter <a href="https://orecalc.tech/privacy/de" target="_blank">orecalc.tech/privacy/de</a></p>
+            &copy; 2026 OreCalc. Alle Rechte vorbehalten.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeBtn = document.getElementById('theme-toggle-btn');
+            
+            function getTheme() {
+                return document.documentElement.getAttribute('data-theme') || 'dark';
+            }
+
+            function updateTheme(newTheme) {
+                document.documentElement.setAttribute('data-theme', newTheme);
+                if (themeBtn) {
+                    themeBtn.innerHTML = newTheme === 'light' ? '🌙' : '☀️';
+                    themeBtn.setAttribute('aria-label', newTheme === 'light' ? 'Zu dunklem Design wechseln' : 'Zu hellem Design wechseln');
+                }
+            }
+
+            // Sync toggle button initial state
+            updateTheme(getTheme());
+
+            if (themeBtn) {
+                themeBtn.addEventListener('click', () => {
+                    const currentTheme = getTheme();
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    updateTheme(newTheme);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

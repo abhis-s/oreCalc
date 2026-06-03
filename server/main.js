@@ -327,7 +327,7 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
 
                 const mailOptions = {
                     from: process.env.EMAIL_FROM || 'noreply@clashcalc.com',
-                    to: process.env.EMAIL_TO || 'privacy@clashcalc.com',
+                    to: process.env.RECIPIENT_EMAIL_LEGAL || 'legal@clashcalc.com',
                     subject: `[ClashCalc] Exclusion from Service Request - #${cleanedTag}`,
                     text: `Hello,\n\nA new exclusion from service request has been submitted.\n\nDetails:\n- Player Tag: #${cleanedTag}\n- Verification Token: ${token}\n- User ID: ${userId || 'unknown'}\n- Time: ${requestData.requestedAt}\n\nPlease verify and process this request manually in Firestore or CoC systems.\n\nRegards,\nClashCalc System`
                 };

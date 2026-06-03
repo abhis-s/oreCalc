@@ -62,7 +62,9 @@ export const SVGs = {
     'global-pricing': {},
     'light-mode': {},
     'dark-mode': {},
-    'palette': {}
+    'palette': {},
+    'open-in-new': {},
+    'translate': {}
 };
 
 /**

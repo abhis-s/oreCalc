@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="effective-date-timestamp" content="1780617600000">
+    <title>Terms of Use - OreCalc</title>
+    <style>
+        :root {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --code-bg: #edf2f7;
+            --code-color: #2b6cb0;
+        }
+
+        /* Explicit light theme */
+        html[data-theme="light"] {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --code-bg: #edf2f7;
+            --code-color: #2b6cb0;
+        }
+
+        /* Explicit dark theme */
+        html[data-theme="dark"] {
+            --bg-color: #121212;
+            --surface-color: #1a1a1a;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border-color: #2d3748;
+            --accent-color: #63b3ed;
+            --code-bg: #2d3748;
+            --code-color: #90cdf4;
+        }
+
+        /* Fallback dark theme */
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]) {
+                --bg-color: #121212;
+                --surface-color: #1a1a1a;
+                --text-primary: #e2e8f0;
+                --text-secondary: #a0aec0;
+                --border-color: #2d3748;
+                --accent-color: #63b3ed;
+                --code-bg: #2d3748;
+                --code-color: #90cdf4;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+            transition: background-color 0.3s ease-in-out, color 0.3s;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            background-color: var(--surface-color);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease-in-out, border-color 0.3s;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .back-link {
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            color: var(--text-primary);
+            background-color: var(--surface-color);
+            transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--code-bg);
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        ul {
+            margin-top: 0;
+            margin-bottom: 16px;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            word-break: normal;
+            overflow-wrap: break-word;
+        }
+
+        .footer {
+            margin-top: 48px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+            text-align: center;
+        }
+
+        /* Embedded iframe overrides */
+        html.is-embedded {
+            background-color: var(--surface-color) !important;
+        }
+
+        html.is-embedded body {
+            padding: 8px 24px 24px !important;
+            background-color: var(--surface-color) !important;
+        }
+
+        html.is-embedded .container {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            background-color: var(--surface-color) !important;
+            max-width: 100% !important;
+        }
+
+        html.is-embedded .header-row,
+        html.is-embedded h1 {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            html.is-embedded body {
+                padding: 8px 16px 16px !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+                font-size: 15px;
+            }
+
+            .container {
+                padding: 20px;
+                border-radius: 8px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+                margin-bottom: 16px;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+                margin-top: 24px;
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+    <script>
+        // Inline script to prevent theme flash and detect embed
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            let theme = params.get('theme');
+            if (!theme) {
+                // Set theme based on browser preference
+                theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+
+            if (window.self !== window.top) {
+                document.documentElement.classList.add('is-embedded');
+            }
+        })();
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-row">
+            <a href="/" class="back-link">&larr; Back to App</a>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Switch Theme">🌙</button>
+        </div>
+
+        <h1>Terms of Use</h1>
+        <p><strong>Effective Date:</strong> June 5, 2026</p>
+        <p>
+            Welcome to <strong>OreCalc</strong> ("the Service"), currently accessible at <code>orecalc.tech</code> (and
+            migrating to <code>clashcalc.com</code>).
+            By accessing or using our Service, you agree to comply with and be bound by these Terms of Use. If you do
+            not agree to these terms, please do not use the Service.
+        </p>
+
+        <h2>1. Permitted Use</h2>
+        <p>
+            OreCalc is a tool designed to help Clash of Clans players plan their equipment upgrades and calculate ore
+            requirements. You agree to use the Service solely for your own personal, non-commercial entertainment. You
+            must not:
+        </p>
+        <ul>
+            <li>Attempt to reverse engineer, disrupt, or exploit the application or its server functions.</li>
+            <li>Use automated scripts or bots to access or scrape data from the Service.</li>
+            <li>Submit malicious data or attempt to exploit the bug reporting or cloud synchronization features.</li>
+        </ul>
+
+        <h2>2. Data Handling & Cloud Sync</h2>
+        <p>
+            Our Service prioritizes your privacy and offline usability. Most calculations and planner settings are
+            stored locally on your device via <code>localStorage</code>.
+            If you explicitly opt-in and enable Cloud Sync, your configurations will be securely backed up on our
+            servers. You are responsible for keeping your user ID confidential to prevent unauthorized sync overrides.
+            If your User ID is compromised, you can request a player tag lock from the "Data Erasure" options in
+            settings to secure your account data within the app. Note that you must first fetch your data from the Clash
+            of Clans API to be able to sync it to the cloud; we do not allow cloud synchronization without a valid
+            player tag.
+        </p>
+
+        <h2>3. Third-Party Integration & Disclaimer</h2>
+        <p>
+            OreCalc integrates with the official public Clash of Clans API to fetch player tag data. By using these API
+            features, you acknowledge that:
+        </p>
+        <ul>
+            <li>Your player tag data request is subject to Supercell's <a
+                    href="https://supercell.com/en/fan-content-policy/" target="_blank">Fan Content Policy</a> and
+                Supercell's <a href="https://supercell.com/en/terms-of-service/" target="_blank">Terms of Service</a>.
+            </li>
+            <li>This Service is unofficial and is not affiliated with, endorsed, or sponsored by Supercell.</li>
+            <li>Supercell owns all game assets, designs, and statistics. We do not claim any ownership of the fetched
+                data.</li>
+            <li>To facilitate API request delivery and optimize operational costs, player tag queries may be routed through third-party proxy servers (such as <code>coproxy.royaleapi.com</code>). In such instances, connection data may be subject to the respective proxy provider's <a href="https://royaleapi.com/tos" target="_blank">Terms of Service</a> and <a href="https://royaleapi.com/privacy" target="_blank">Privacy Policy</a>.</li>
+        </ul>
+
+        <h2>4. Disclaimers & Limitation of Liability</h2>
+        <p>
+            THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR
+            IMPLIED.
+            We do not guarantee that the Service will be uninterrupted, error-free, or that all calculation estimates
+            (including but not limited to: event timings, ore income numbers or timeline projections) will be 100%
+            accurate at all times.
+            To the maximum extent permitted by law, we shall not be liable for any direct, indirect, incidental, or
+            consequential damages resulting from your use of or inability to use the Service.
+        </p>
+
+        <h2>5. Changes to Terms of Use</h2>
+        <p>
+            We reserve the right to modify or update these Terms of Use at any time without prior notice. When we make updates, the
+            "Effective Date" at the top of this page will be updated. Your continued use of the Service after changes
+            are published constitutes your acceptance of the revised Terms of Use.
+        </p>
+
+        <h2>6. Contact Us</h2>
+        <p>
+            If you have questions about these Terms of Use, please contact us at <a
+                href="mailto:legal@clashcalc.com">legal@clashcalc.com</a>.
+        </p>
+
+        <div class="footer">
+            <p style="margin: 0 0 8px;">This page is available at <a href="https://orecalc.tech/terms.html"
+                    target="_blank">orecalc.tech/terms.html</a></p>
+            &copy; 2026 OreCalc. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeBtn = document.getElementById('theme-toggle-btn');
+
+            function getTheme() {
+                return document.documentElement.getAttribute('data-theme') || 'dark';
+            }
+
+            function updateTheme(newTheme) {
+                document.documentElement.setAttribute('data-theme', newTheme);
+                if (themeBtn) {
+                    themeBtn.innerHTML = newTheme === 'light' ? '🌙' : '☀️';
+                    themeBtn.setAttribute('aria-label', newTheme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+                }
+            }
+
+            // Sync toggle button initial state
+            updateTheme(getTheme());
+
+            if (themeBtn) {
+                themeBtn.addEventListener('click', () => {
+                    const currentTheme = getTheme();
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    updateTheme(newTheme);
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

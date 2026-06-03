@@ -1,0 +1,29 @@
+<div id="cloud-sync-notice-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 data-i18n="legal.cloudSyncNoticeTitle">Enable Cloud Synchronization</h2>
+            <button id="close-cloud-sync-notice-header-btn" class="close-button" aria-label="Close">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-body text-left">
+            <p data-i18n="legal.cloudSyncNoticeDesc">By enabling Cloud Synchronization, your settings and local calculator configurations will be securely stored on our servers to enable cross-device sync.</p>
+            <p data-i18n="legal.cloudSyncNoticeAgree">Please review and agree to our Terms of Use and Privacy Policy to activate this feature.</p>
+            
+            <div class="legal-links" style="display: flex; flex-direction: column; gap: 12px; margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                    <span><strong data-i18n="settings.termsOfUse">Terms of Use</strong></span>
+                    <button id="cloud-sync-view-terms-btn" class="accept-button" style="padding: 6px 12px; font-size: 0.85em; margin: 0; min-height: 0;" data-i18n="actions.view">View</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                    <span><strong data-i18n="settings.privacyPolicy">Privacy Policy</strong></span>
+                    <button id="cloud-sync-view-privacy-btn" class="accept-button" style="padding: 6px 12px; font-size: 0.85em; margin: 0; min-height: 0;" data-i18n="actions.view">View</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button id="cancel-cloud-sync-notice-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
+            <button id="accept-cloud-sync-notice-btn" class="accept-button" data-i18n="actions.agreeAndEnable">Agree & Enable</button>
+        </div>
+    </div>
+</div>

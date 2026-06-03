@@ -1,0 +1,24 @@
+<div id="consent-modal" class="modal" data-backdrop="static">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 data-i18n="legal.title">Terms & Privacy Update</h2>
+        </div>
+        <div class="modal-body text-left">
+            <p data-i18n="legal.description">Please review and accept our updated Terms of Use and Privacy Policy to continue using OreCalc.</p>
+            <div class="legal-links" style="display: flex; flex-direction: column; gap: 12px; margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid var(--border-color);">
+                <div id="consent-terms-row" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                    <span><strong data-i18n="settings.termsOfUse">Terms of Use</strong> <span style="font-size: 0.85em; color: var(--text-secondary);">(v2026-06-05)</span></span>
+                    <button id="consent-view-terms-btn" class="accept-button" style="padding: 6px 12px; font-size: 0.85em; margin: 0; min-height: 0;" data-i18n="actions.view">View</button>
+                </div>
+                <div id="consent-privacy-row" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                    <span><strong data-i18n="settings.privacyPolicy">Privacy Policy</strong> <span style="font-size: 0.85em; color: var(--text-secondary);">(v2026-06-05)</span></span>
+                    <button id="consent-view-privacy-btn" class="accept-button" style="padding: 6px 12px; font-size: 0.85em; margin: 0; min-height: 0;" data-i18n="actions.view">View</button>
+                </div>
+            </div>
+            <p style="font-size: 0.9em; color: var(--text-secondary);" data-i18n="legal.consentStatement">By clicking "Accept & Continue", you agree to our Terms of Use and acknowledge that you have read and agreed to our Privacy Policy.</p>
+        </div>
+        <div class="modal-actions">
+            <button id="confirm-consent-btn" class="accept-button" style="width: 100%; margin: 0;" data-i18n="actions.acceptAndContinue">Accept & Continue</button>
+        </div>
+    </div>
+</div>

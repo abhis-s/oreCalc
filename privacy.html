@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="effective-date-timestamp" content="1780617600000">
+    <title>Privacy Policy - OreCalc</title>
+    <style>
+        :root {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --code-bg: #edf2f7;
+            --code-color: #2b6cb0;
+        }
+
+        /* Explicit light theme */
+        html[data-theme="light"] {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --code-bg: #edf2f7;
+            --code-color: #2b6cb0;
+        }
+
+        /* Explicit dark theme */
+        html[data-theme="dark"] {
+            --bg-color: #121212;
+            --surface-color: #1a1a1a;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border-color: #2d3748;
+            --accent-color: #63b3ed;
+            --code-bg: #2d3748;
+            --code-color: #90cdf4;
+        }
+
+        /* Fallback dark theme */
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]) {
+                --bg-color: #121212;
+                --surface-color: #1a1a1a;
+                --text-primary: #e2e8f0;
+                --text-secondary: #a0aec0;
+                --border-color: #2d3748;
+                --accent-color: #63b3ed;
+                --code-bg: #2d3748;
+                --code-color: #90cdf4;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+            transition: background-color 0.3s ease-in-out, color 0.3s;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            background-color: var(--surface-color);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease-in-out, border-color 0.3s;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .back-link {
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            color: var(--text-primary);
+            background-color: var(--surface-color);
+            transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--code-bg);
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        ul {
+            margin-top: 0;
+            margin-bottom: 16px;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            word-break: normal;
+            overflow-wrap: break-word;
+        }
+
+        .footer {
+            margin-top: 48px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+            text-align: center;
+        }
+
+        /* Embedded iframe overrides */
+        html.is-embedded {
+            background-color: var(--surface-color) !important;
+        }
+        html.is-embedded body {
+            padding: 8px 24px 24px !important;
+            background-color: var(--surface-color) !important;
+        }
+        html.is-embedded .container {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            background-color: var(--surface-color) !important;
+            max-width: 100% !important;
+        }
+        html.is-embedded .header-row,
+        html.is-embedded h1 {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            html.is-embedded body {
+                padding: 8px 16px 16px !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+                font-size: 15px;
+            }
+            .container {
+                padding: 20px;
+                border-radius: 8px;
+            }
+            h1 {
+                font-size: 1.75rem;
+                margin-bottom: 16px;
+            }
+            h2 {
+                font-size: 1.25rem;
+                margin-top: 24px;
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+    <script>
+        // Inline script to prevent theme flash and detect embed
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            let theme = params.get('theme');
+            if (!theme) {
+                // Set theme based on browser preference
+                theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            if (window.self !== window.top) {
+                document.documentElement.classList.add('is-embedded');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <a href="/" class="back-link">&larr; Back to App</a>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Switch Theme">🌙</button>
+        </div>
+
+        <h1>Privacy Policy</h1>
+        <p><strong>Effective Date:</strong> June 5, 2026</p>
+        <p>
+            This Privacy Policy explains how <strong>OreCalc</strong> ("we", "our", or "the Service"), currently accessible at <code>orecalc.tech</code> (and in the future migrating to <code>clashcalc.com</code>), handles your information. 
+        </p>
+        <p>
+            Our Service is designed to be privacy-first. By default, <strong>we do not collect, store, or process any of your personal data on our servers.</strong>
+        </p>
+
+        <h2>1. Client-Side Processing (Offline by Design)</h2>
+        <p>
+            OreCalc is a Progressive Web App (PWA) that executes calculations and runs upgrade planning <strong>entirely on your local machine.</strong>
+        </p>
+        <ul>
+            <li>No calculations, upgrade costs, or resource estimates are computed on our servers.</li>
+            <li>Aside from fetching game statistics and optional cloud synchronization, the Service does not require an internet connection to function.</li>
+            <li>Your preferences (language, currency, theme, and planner configurations) are stored on your own device using browser <code>localStorage</code>. We cannot access or view this data.</li>
+        </ul>
+
+        <h2>2. Data Handled by the Service</h2>
+        <p>Under specific interactions, the Service handles the following data:</p>
+        <ul>
+            <li>
+                <strong>Clash of Clans Player Tags:</strong> When you enter a Player Tag, the app queries the official public Clash of Clans API to fetch player tag data, including hero equipment and upgrade levels. Player tags and game statistics are public. Your tag is stored locally on your device unless Cloud Sync is explicitly enabled.
+            </li>
+            <li>
+                <strong>Cloud Sync (Optional & Opt-In):</strong> If you choose to enable Cloud Synchronization, your settings and local calculator configuration are securely backed up to our servers to allow cross-device sync. Note that you must first fetch your data from the Clash of Clans API to enable Cloud Sync; synchronization is not permitted without a valid player tag.
+            </li>
+            <li>
+                <strong>Bug Reports (Voluntary):</strong> If you choose to submit a bug report, your message, optional email address, and a snapshot of your current local planner state are sent to our support mail handler at <code>clashcalc.com</code> to help us diagnose the issue.
+            </li>
+        </ul>
+
+        <h2>3. Use of Information</h2>
+        <p> Any public game statistics or local planner configurations handled by the Service are used strictly to: </p>
+        <ul>
+            <li>Render your personal calculator configuration and upgrade logs.</li>
+            <li>Synchronize your data across devices (only if you explicitly enable Cloud Sync).</li>
+            <li>Resolve software errors when you voluntarily submit a bug report.</li>
+        </ul>
+        <p>We do not use tracking cookies, we do not run advertising scripts, and we never share or sell any user information.</p>
+
+        <h2>4. Third-Party Integrations & Clash of Clans API</h2>
+        <p>
+            To populate your planner profile, we fetch public data directly from the official Clash of Clans API. When doing so:
+        </p>
+        <ul>
+            <li>Your request is subject to Supercell's <a href="https://supercell.com/en/fan-content-policy/" target="_blank">Fan Content Policy</a> and Supercell's <a href="https://supercell.com/en/terms-of-service/" target="_blank">Terms of Service</a>.</li>
+            <li>We do not collect or link personal real-world identities to Clash of Clans player profiles.</li>
+            <li>To facilitate API request delivery and optimize operational costs, player tag queries may be routed through third-party proxy servers (such as <code>coproxy.royaleapi.com</code>). In such instances, connection data may be subject to the respective proxy provider's <a href="https://royaleapi.com/tos" target="_blank">Terms of Service</a> and <a href="https://royaleapi.com/privacy" target="_blank">Privacy Policy</a>.</li>
+        </ul>
+
+        <h2>5. Your Data Rights & Deletion Tools</h2>
+        <p>
+            We align with EU GDPR, CCPA, and global privacy standards by providing self-service data management directly inside the Settings tab:
+        </p>
+        <ul>
+            <li>
+                <strong>Download User Data:</strong> Export and download your entire application state as a JSON file at any time.
+            </li>
+            <li>
+                <strong>Data Erasure Options:</strong> We provide three distinct levels of self-service data removal:
+                <ul>
+                    <li><strong>Local Reset:</strong> Permanently deletes all local configurations, hero equipment levels, user preferences, and offline planner data stored in your browser's <code>localStorage</code>.</li>
+                    <li><strong>Delete All Data (Local &amp; Cloud):</strong> Wipes all local browser data and permanently deletes your synced backup profile and settings from our cloud servers.</li>
+                    <li><strong>Request Exclusion (Complete Delete):</strong> Verifies ownership of your player tag using the official Clash of Clans API. Once verified, a request is submitted to permanently remove your player tag from all OreCalc user profiles across our database; this request will be processed within 30 days. Additionally, a database lock is placed on the player tag on our servers. This lock prevents other users from fetching or linking your player tag within the Service without first verifying ownership. Please note that this restriction is only effective within the Service itself, as all underlying Clash of Clans game data remains public through Supercell's official API.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>6. Contact Us</h2>
+        <p>
+            If you have questions about this policy or wish to discuss your privacy settings, contact us at <a href="mailto:legal@clashcalc.com">legal@clashcalc.com</a>.
+        </p>
+
+        <div class="footer">
+            <p style="margin: 0 0 8px;">This page is available at <a href="https://orecalc.tech/privacy.html" target="_blank">orecalc.tech/privacy.html</a></p>
+            &copy; 2026 OreCalc. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeBtn = document.getElementById('theme-toggle-btn');
+            
+            function getTheme() {
+                return document.documentElement.getAttribute('data-theme') || 'dark';
+            }
+
+            function updateTheme(newTheme) {
+                document.documentElement.setAttribute('data-theme', newTheme);
+                if (themeBtn) {
+                    themeBtn.innerHTML = newTheme === 'light' ? '🌙' : '☀️';
+                    themeBtn.setAttribute('aria-label', newTheme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+                }
+            }
+
+            // Sync toggle button initial state
+            updateTheme(getTheme());
+
+            if (themeBtn) {
+                themeBtn.addEventListener('click', () => {
+                    const currentTheme = getTheme();
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    updateTheme(newTheme);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

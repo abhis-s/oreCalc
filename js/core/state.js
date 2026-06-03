@@ -4,6 +4,9 @@ import { getISOWeekNumber } from '../utils/dateUtils.js';
 
 export let state = {};
 
+export const EFFECTIVE_DATE_TERMS = 1780617600000; // June 5, 2026 (00:00 UTC)
+export const EFFECTIVE_DATE_PRIVACY = 1780617600000; // June 5, 2026 (00:00 UTC)
+
 export function getDefaultState() {
     return {
         appVersion: '2.0.0',
@@ -23,6 +26,10 @@ export function getDefaultState() {
             hideMaxedEquipment: false,
             hideLockedEquipment: false,
             cloudSync: true,
+            acceptanceTimestamp: {
+                privacy: null,
+                tos: null
+            },
             incomeCard: {
                 timeframe: 'monthly',
                 expanded: true
@@ -181,6 +188,22 @@ export function initializeState(savedState) {
         }
 
         state.uiSettings = { ...defaultState.uiSettings, ...(savedState.uiSettings || {}) };
+        
+        // Migrate and normalize legal consent timestamps
+        if (!state.uiSettings.acceptanceTimestamp) {
+            state.uiSettings.acceptanceTimestamp = {
+                privacy: state.uiSettings.legalAcceptanceTimestamp || null,
+                tos: state.uiSettings.legalAcceptanceTimestamp || null
+            };
+        } else {
+            if (state.uiSettings.acceptanceTimestamp.privacy === undefined) {
+                state.uiSettings.acceptanceTimestamp.privacy = state.uiSettings.legalAcceptanceTimestamp || null;
+            }
+            if (state.uiSettings.acceptanceTimestamp.tos === undefined) {
+                state.uiSettings.acceptanceTimestamp.tos = state.uiSettings.legalAcceptanceTimestamp || null;
+            }
+        }
+        delete state.uiSettings.legalAcceptanceTimestamp;
         
         // Ensure currency is always an object, not a string (legacy/migration fix)
         if (typeof state.uiSettings.currency === 'string') {

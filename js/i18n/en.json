@@ -32,7 +32,8 @@
         "placeholderToken": "e.g. a9378kca",
         "apiToken": "In-Game API Token",
         "apiTokenHint": "Hint: You can find your API Token in game under Settings > More Settings > API Token.",
-        "protectedTagNote": "In order to load the data for this player tag, you must prove your ownership."
+        "protectedTagNote": "In order to load the data for this player tag, you must prove your ownership.",
+        "disclaimer": "By loading a player tag, you agree to our <a href=\"#\" id=\"add-player-terms-link\" class=\"theme-link\">Terms of Use</a> and acknowledge our <a href=\"#\" id=\"add-player-privacy-link\" class=\"theme-link\">Privacy Policy</a>. Player data is retrieved from the Clash of Clans API."
     },
     "alts": {
         "oresIcon": "Ores Icon",
@@ -378,6 +379,10 @@
         "enable": "Enable",
         "trash": "Trash",
         "view": "View",
+        "accept": "Accept",
+        "accepted": "Accepted",
+        "acceptAndContinue": "Accept & Continue",
+        "agreeAndEnable": "Agree & Enable",
         "fix": "Fix",
         "visit": "Visit",
         "support": "Support",
@@ -414,9 +419,9 @@
         "bugReportPrivacyInfo": "By submitting this report, you agree that your user data and the provided email address will be processed in accordance with our {link}.",
         "runningCosts": "Project Costs",
         "transparency": "Legal & Transparency",
-        "privacy": "Privacy",
+        "privacyPolicy": "Privacy Policy",
         "privacyPolicyText": "Privacy Policy",
-        "terms": "Terms",
+        "termsOfUse": "Terms of Use",
         "dataErasure": "Data Erasure",
         "completeDeleteInfo": "This will verify your ownership using the official Clash of Clans API. Once verified, we will permanently remove this player tag from all associated OreCalc user IDs across our entire database. Nobody will be able to add your account without re-verification.",
         "cards": {
@@ -636,5 +641,13 @@
         "protectedTag": "This account is protected. Verification is required to add it.",
         "invalidToken": "Verification failed. The API Token provided is invalid.",
         "unknown": "Unknown error"
+    },
+    "legal": {
+        "title": "Terms & Privacy Update",
+        "description": "Please review and accept our updated Terms of Use and Privacy Policy to continue using OreCalc.",
+        "consentStatement": "By clicking \"Accept & Continue\", you agree to our Terms of Use and acknowledge that you have read and agreed to our Privacy Policy.",
+        "cloudSyncNoticeTitle": "Enable Cloud Synchronization",
+        "cloudSyncNoticeDesc": "By enabling Cloud Synchronization, your settings and local calculator configurations will be securely stored on our servers to enable cross-device sync.",
+        "cloudSyncNoticeAgree": "Please review and agree to our Terms of Use and Privacy Policy to activate this feature."
     }
 }
