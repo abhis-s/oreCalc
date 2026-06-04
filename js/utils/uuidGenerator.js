@@ -1,14 +1,29 @@
 export function generateUUID() {
-    // Public Domain/MIT licensed, from https://stackoverflow.com/a/8809472/1
-    let d = new Date().getTime();
-    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-        d += performance.now(); //use high-precision timer if available
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
     }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        const r = (d + Math.random() * 16) % 16 | 0;
-        d = Math.floor(d / 16);
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
+    const r = new Uint8Array(16);
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+        crypto.getRandomValues(r);
+    } else {
+        for (let i = 0; i < 16; i++) {
+            r[i] = Math.random() * 256 | 0;
+        }
+    }
+    // Version 4
+    r[6] = (r[6] & 0x0f) | 0x40;
+    // Variant RFC4122
+    r[8] = (r[8] & 0x3f) | 0x80;
+    
+    let uuid = '';
+    for (let i = 0; i < 16; i++) {
+        if (i === 4 || i === 6 || i === 8 || i === 10) {
+            uuid += '-';
+        }
+        const val = r[i].toString(16);
+        uuid += val.length === 1 ? '0' + val : val;
+    }
+    return uuid;
 }
 
 export function isValidUUID(uuid) {
