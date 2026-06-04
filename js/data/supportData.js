@@ -75,8 +75,7 @@ export const transparencyData = [
         i18nLabel: 'settings.licenses',
         i18nAction: 'actions.view',
         colorClass: 'btn-licenses',
-        actionType: 'placeholder',
-        badge: 'settings.badges.comingSoon'
+        actionType: 'modal'
     },
     {
         id: 'runningCosts',

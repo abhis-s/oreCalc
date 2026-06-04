@@ -20,6 +20,7 @@ import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 
 import { loadTranslations, translate } from '../../i18n/translator.js';
 import { logger } from '../../utils/logger.js';
+import { licensesData } from '../../data/licensesData.js';
 
 function populateDropdowns() {
     const languageSelect = dom.appSettings?.languageSelect;
@@ -149,6 +150,8 @@ function renderLabeledActions(containerSelector, data) {
                     openPrivacyModal();
                 } else if (item.id === 'termsOfUse') {
                     openTermsOfUseModal();
+                } else if (item.id === 'licenses') {
+                    openLicensesModal();
                 }
             });
         } else if (item.actionType === 'placeholder') {
@@ -264,6 +267,145 @@ function openContactModal() {
             e.stopPropagation();
             closeModal();
         };
+    }
+
+    // Show modal and overlay
+    modal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
+}
+
+export function openLicensesModal() {
+    const modal = document.getElementById('licenses-modal');
+    if (!modal) return;
+
+    const closeHeaderBtn = document.getElementById('close-licenses-header-btn');
+    const closeBtn = document.getElementById('close-licenses-modal-btn');
+    const container = document.getElementById('licenses-container');
+
+    const closeModal = () => {
+        modal.classList.remove('show');
+        const visibleModals = document.querySelectorAll('.modal.show');
+        if (visibleModals.length === 0 && dom.overlay) {
+            dom.overlay.classList.remove('show');
+        }
+    };
+
+    if (closeHeaderBtn) {
+        closeHeaderBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (container) {
+        container.innerHTML = '';
+        licensesData.forEach(item => {
+            const details = document.createElement('details');
+            
+            const summary = document.createElement('summary');
+            
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'license-title';
+            titleSpan.textContent = item.name;
+            summary.appendChild(titleSpan);
+            
+            const badgeSpan = document.createElement('span');
+            badgeSpan.className = 'license-badge';
+            badgeSpan.textContent = item.license;
+            summary.appendChild(badgeSpan);
+            
+            details.appendChild(summary);
+
+            const detailsBody = document.createElement('div');
+            detailsBody.className = 'details-body';
+
+            const metaDiv = document.createElement('div');
+            metaDiv.className = 'meta-row';
+
+            const authorSpan = document.createElement('span');
+            authorSpan.innerHTML = `<strong>${translate('settings.author') || 'Author'}:</strong> ${item.copyright}`;
+            metaDiv.appendChild(authorSpan);
+
+            const link = document.createElement('a');
+            link.href = item.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.className = 'license-link';
+            
+            let text = translate('settings.sourceLink') || 'Source →';
+            text = text.replace(' →', '');
+            
+            const linkText = document.createElement('span');
+            linkText.textContent = text;
+            link.appendChild(linkText);
+
+            const svgIcon = document.createElement('orecalc-assets-svg');
+            svgIcon.setAttribute('name', 'open-in-new');
+            link.appendChild(svgIcon);
+
+            metaDiv.appendChild(link);
+
+            detailsBody.appendChild(metaDiv);
+
+            const pre = document.createElement('pre');
+            pre.className = 'license-text';
+            pre.textContent = translate('settings.loadingLicense') || 'Loading license...';
+            detailsBody.appendChild(pre);
+
+            let isLoaded = false;
+            details.addEventListener('toggle', () => {
+                if (details.open) {
+                    // Close all other details elements to maintain accordion behavior
+                    const allDetails = container.querySelectorAll('details');
+                    allDetails.forEach(d => {
+                        if (d !== details && d.open) {
+                            d.open = false;
+                        }
+                    });
+
+                    // Scroll the opened element to the top of the container
+                    setTimeout(() => {
+                        if (details.open) {
+                            const containerTop = container.getBoundingClientRect().top;
+                            const detailsTop = details.getBoundingClientRect().top;
+                            const scrollOffset = detailsTop - containerTop + container.scrollTop - 5;
+                            container.scrollTo({
+                                top: scrollOffset,
+                                behavior: 'smooth'
+                             });
+                        }
+                    }, 80);
+
+                    if (!isLoaded) {
+                        fetch(item.file)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.text();
+                            })
+                            .then(text => {
+                                pre.textContent = text;
+                                isLoaded = true;
+                            })
+                            .catch(err => {
+                                pre.textContent = `${translate('settings.errorLoadingLicense') || 'Error loading license text.'}\n\n${item.licenseUrl ? 'Please view it here: ' + item.licenseUrl : ''}`;
+                                console.error('Error fetching license:', err);
+                            });
+                    }
+                }
+            });
+
+            details.appendChild(detailsBody);
+            container.appendChild(details);
+        });
     }
 
     // Show modal and overlay

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Source Licenses - OreCalc</title>
+    <style>
+        :root {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --accent-soft: rgba(49, 130, 206, 0.1);
+            --code-bg: #edf2f7;
+            --code-color: #2b6cb0;
+        }
+
+        /* Explicit light theme */
+        html[data-theme="light"] {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --accent-soft: rgba(49, 130, 206, 0.1);
+            --code-bg: #edf2f7;
+            --code-color: #2b6cb0;
+        }
+
+        /* Explicit dark theme */
+        html[data-theme="dark"] {
+            --bg-color: #121212;
+            --surface-color: #1a1a1a;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border-color: #2d3748;
+            --accent-color: #63b3ed;
+            --accent-soft: rgba(99, 179, 237, 0.1);
+            --code-bg: #2d3748;
+            --code-color: #90cdf4;
+        }
+
+        /* Fallback dark theme */
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]) {
+                --bg-color: #121212;
+                --surface-color: #1a1a1a;
+                --text-primary: #e2e8f0;
+                --text-secondary: #a0aec0;
+                --border-color: #2d3748;
+                --accent-color: #63b3ed;
+                --accent-soft: rgba(99, 179, 237, 0.1);
+                --code-bg: #2d3748;
+                --code-color: #90cdf4;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+            transition: background-color 0.3s ease-in-out, color 0.3s;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--surface-color);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease-in-out, border-color 0.3s;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .back-link {
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            color: var(--text-primary);
+            background-color: var(--surface-color);
+            transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--code-bg);
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .intro {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 1.05rem;
+        }
+
+        /* Accordion structure matching the design system */
+        .licenses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        details {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        details[open] {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        details:hover:not([open]) {
+            border-color: var(--accent-color);
+            background-color: var(--code-bg);
+        }
+
+        summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            list-style: none;
+            outline: none;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            transition: transform 0.25s ease;
+        }
+
+        details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .license-name {
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+
+        .license-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background-color: var(--accent-soft);
+            color: var(--accent-color);
+            border: 1px solid var(--border-color);
+            padding: 2px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            margin-left: auto;
+            margin-right: 12px;
+        }
+
+        .details-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--surface-color);
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .meta-row a {
+            margin-left: auto;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .meta-row a:hover {
+            text-decoration: underline;
+        }
+
+        .license-text {
+            padding: 16px 20px;
+            background-color: var(--bg-color);
+            color: var(--text-secondary);
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 0.825rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 320px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+            margin: 0;
+        }
+
+        /* Custom sleek scrollbar for standalone licenses page */
+        .license-text::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .license-text::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .license-text::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
+        }
+        .license-text::-webkit-scrollbar-thumb:hover {
+            background-color: var(--accent-color);
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .container {
+                padding: 20px;
+                border-radius: 8px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            summary {
+                padding: 12px 14px;
+            }
+
+            .license-name {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+    <script>
+        // Inline script to prevent theme flash and detect embed
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            let theme = params.get('theme');
+            if (!theme) {
+                // Set theme based on browser preference
+                theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            if (window.self !== window.top) {
+                document.documentElement.classList.add('is-embedded');
+            }
+        })();
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-row">
+            <a href="/" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to Calculator
+            </a>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">🌙</button>
+        </div>
+
+        <h1>Open Source Licenses</h1>
+        <p class="intro">
+            OreCalc is built using open source software and third-party libraries. Below you will find licensing information and attributions for each project included in our codebase.
+        </p>
+        <p class="trademark-notice" style="margin-top: -10px; margin-bottom: 30px; font-size: 0.9rem; color: var(--text-secondary); opacity: 0.85; line-height: 1.5;">
+            All trademarks, logos, and brand assets (including GitHub, Crowdin, and Buy Me a Coffee) are the property of their respective owners. Their appearance on this page does not imply endorsement or affiliation.
+        </p>
+
+        <div id="licenses-list-container" class="licenses-list">
+            <!-- Dynamic items will be generated here -->
+        </div>
+
+        <div class="footer">
+            <p style="margin: 0 0 8px;">This page is available at <a href="https://orecalc.tech/licenses.html"
+                    target="_blank">orecalc.tech/licenses.html</a></p>
+            &copy; 2026 OreCalc. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeBtn = document.getElementById('theme-toggle-btn');
+
+            // Toggle function and setup
+            function getTheme() {
+                return document.documentElement.getAttribute('data-theme') || 'dark';
+            }
+
+            function updateTheme(newTheme) {
+                document.documentElement.setAttribute('data-theme', newTheme);
+                if (themeBtn) {
+                    themeBtn.innerHTML = newTheme === 'light' ? '🌙' : '☀️';
+                    themeBtn.setAttribute('aria-label', newTheme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+                }
+            }
+
+            updateTheme(getTheme());
+
+            if (themeBtn) {
+                themeBtn.addEventListener('click', () => {
+                    const currentTheme = getTheme();
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    updateTheme(newTheme);
+                });
+            }
+        });
+    </script>
+
+    <script type="module">
+        import { licensesData } from './js/data/licensesData.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('licenses-list-container');
+            if (!container) return;
+
+            licensesData.forEach(item => {
+                const details = document.createElement('details');
+                const summary = document.createElement('summary');
+                
+                const title = document.createElement('span');
+                title.className = 'license-name';
+                title.textContent = item.name;
+                summary.appendChild(title);
+
+                const badge = document.createElement('span');
+                badge.className = 'license-badge';
+                badge.textContent = item.license;
+                summary.appendChild(badge);
+
+                details.appendChild(summary);
+
+                const body = document.createElement('div');
+                body.className = 'details-body';
+
+                const meta = document.createElement('div');
+                meta.className = 'meta-row';
+
+                const copyright = document.createElement('span');
+                copyright.innerHTML = `<strong>Copyright:</strong> ${item.copyright}`;
+                meta.appendChild(copyright);
+
+                const link = document.createElement('a');
+                link.href = item.url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = 'Source →';
+                link.onclick = (e) => e.stopPropagation();
+                meta.appendChild(link);
+
+                body.appendChild(meta);
+
+                const pre = document.createElement('pre');
+                pre.className = 'license-text';
+                pre.textContent = 'Loading license text...';
+                body.appendChild(pre);
+
+                details.appendChild(body);
+                container.appendChild(details);
+
+                let isLoaded = false;
+                details.addEventListener('toggle', () => {
+                    if (details.open) {
+                        const allDetails = container.querySelectorAll('details');
+                        allDetails.forEach(d => {
+                            if (d !== details && d.open) {
+                                d.open = false;
+                            }
+                        });
+
+                        if (!isLoaded) {
+                            fetch(item.file)
+                                .then(res => {
+                                    if (!res.ok) throw new Error();
+                                    return res.text();
+                                })
+                                .then(text => {
+                                    pre.textContent = text;
+                                    isLoaded = true;
+                                })
+                                .catch(() => {
+                                    pre.textContent = 'Error loading license text. Please view it here: ' + item.licenseUrl;
+                                });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

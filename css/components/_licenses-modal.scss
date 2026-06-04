@@ -1,0 +1,187 @@
+@use '../abstracts/variables' as *;
+
+#licenses-modal {
+    .modal-content {
+        max-width: 680px;
+    }
+
+    #licenses-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 1.5rem;
+    }
+
+    details {
+        flex-shrink: 0;
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                    background-color 0.25s ease;
+
+        &[open] {
+            border-color: $accent-primary;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+            summary {
+                &::after {
+                    transform: rotate(180deg);
+                    color: $accent-primary;
+                }
+            }
+        }
+
+        &:hover:not([open]) {
+            border-color: $accent-primary;
+            background-color: $bg-surface-tertiary;
+        }
+    }
+
+    summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        font-weight: 600;
+        color: $text-primary;
+        cursor: pointer;
+        user-select: none;
+        list-style: none; /* Hide standard list-marker */
+        outline: none;
+        transition: background-color 0.2s ease, border-bottom 0.2s ease;
+
+        &::-webkit-details-marker {
+            display: none; /* Hide standard list-marker in Safari */
+        }
+
+        &::after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s ease;
+        }
+
+        &:focus-visible {
+            background-color: rgba($accent-primary, 0.05);
+            outline: 2px solid $accent-primary;
+            outline-offset: -2px;
+        }
+    }
+
+    .license-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: $text-primary;
+    }
+
+    .license-version {
+        font-size: 0.85rem;
+        color: $text-secondary;
+        background-color: rgba($text-secondary, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .license-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        background-color: $accent-primary-soft;
+        color: $accent-primary;
+        border: 1px solid $border-primary;
+        padding: 2px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        margin-left: auto;
+        margin-right: 12px;
+    }
+
+    .details-body {
+        padding: 14px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background-color: $bg-surface-secondary;
+        border-top: 1px solid $border-primary;
+    }
+
+    .meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: $text-secondary;
+
+        .license-link {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: $accent-primary;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: opacity 0.2s ease;
+
+            svg {
+                width: 14px;
+                height: 14px;
+                fill: currentColor;
+                display: inline-block;
+                transition: transform 0.2s ease;
+            }
+
+            &:hover {
+                opacity: 0.8;
+                text-decoration: underline;
+
+                svg {
+                    transform: translate(1px, -1px);
+                }
+            }
+        }
+    }
+
+    .license-text {
+        padding: 16px 20px;
+        background-color: rgba(0, 0, 0, 0.15);
+        color: $text-secondary;
+        font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        font-size: 0.825rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 280px;
+        overflow-y: auto;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        margin-top: 12px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+
+        /* Custom scrollbar styling */
+        &::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: $border-primary;
+            border-radius: 3px;
+        }
+        &::-webkit-scrollbar-thumb:hover {
+            background-color: $accent-primary;
+        }
+    }
+}
