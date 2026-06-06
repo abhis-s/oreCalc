@@ -9,13 +9,13 @@
   "main": "service-worker.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node scripts/dev/copy-workbox.js && concurrently \"pnpm:watch:sass\" \"pnpm:watch:js\" \"pnpm:dev:server\"",
+    "dev": "node scripts/dev/copy-workbox.js && node scripts/fetch-billing-costs.js && concurrently \"pnpm:watch:sass\" \"pnpm:watch:js\" \"pnpm:dev:server\"",
     "watch:sass": "node scripts/dev/watch-sass.js",
     "watch:js": "node scripts/dev/watch-js.js",
     "dev:server": "node -r dotenv/config scripts/dev/start-dev-server.js",
     "build": "VITE_API_BASE_URL=https://api.orecalc.tech pnpm run build:assets",
     "build:dev": "VITE_API_BASE_URL=http://localhost:3000 pnpm run build:assets",
-    "build:assets": "node scripts/build.js && pnpm run build:css && pnpm run build:sw",
+    "build:assets": "node scripts/fetch-billing-costs.js && node scripts/build.js && pnpm run build:css && pnpm run build:sw",
     "build:css": "sass css/main.scss dist/css/main.min.css --style compressed",
     "build:sw": "workbox injectManifest workbox-config.js",
     "start": "node scripts/prod/start-prod-server.js"
@@ -25,6 +25,7 @@
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
+    "@google-cloud/bigquery": "^8.3.1",
     "concurrently": "^9.2.1",
     "cpx": "^1.5.0",
     "dotenv": "^17.4.2",

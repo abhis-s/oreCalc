@@ -1,0 +1,310 @@
+@use '../abstracts/variables' as *;
+
+#running-costs-modal {
+    .modal-content {
+        max-width: 560px;
+    }
+
+    .volunteer-button {
+        text-decoration: none;
+        
+        &:hover, &:focus {
+            color: #ff5a5f !important;
+            border-color: rgba(#ff5a5f, 0.5) !important;
+            background-color: rgba(#ff5a5f, 0.08) !important;
+        }
+    }
+
+    .costs-summary-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba($accent-primary, 0.08), rgba($accent-primary, 0.02));
+        border: 1px solid rgba($accent-primary, 0.15);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .costs-summary-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: $text-secondary;
+        margin-bottom: 0.5rem;
+    }
+
+    .costs-summary-value-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .costs-summary-value {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: $accent-primary;
+        font-family: monospace;
+    }
+
+    .costs-tax-badge {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        transform: translate(8px, -20%);
+        font-size: 0.55rem;
+        padding: 2px 6px;
+        border-radius: 99px;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        background-color: rgba($accent-primary, 0.08);
+        color: $accent-primary;
+        border: 1px solid rgba($accent-primary, 0.25);
+        display: inline-block;
+        white-space: nowrap;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+        @media (max-width: 560px) {
+            position: relative;
+            left: auto;
+            transform: none;
+            margin-left: 4px;
+            margin-top: -6px;
+        }
+    }
+
+    .costs-section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: $text-primary;
+        margin-bottom: 0.75rem;
+    }
+
+    .costs-history-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+        max-height: 340px;
+        overflow-y: auto;
+        padding-right: 4px;
+
+        /* Custom scrollbar styling */
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: $border-primary;
+            border-radius: 3px;
+        }
+        &::-webkit-scrollbar-thumb:hover {
+            background-color: $accent-primary;
+        }
+    }
+
+    .costs-month-card {
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        border-radius: 12px;
+        overflow: hidden;
+        flex-shrink: 0;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            border-color: rgba($accent-primary, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .extra-service {
+            display: none !important;
+        }
+
+        .others-row {
+            display: flex;
+        }
+
+        &.expanded {
+            .extra-service {
+                display: flex !important;
+            }
+
+            .others-row {
+                display: none !important;
+            }
+
+            .costs-toggle-expand-btn {
+                .toggle-icon {
+                    transform: rotate(180deg);
+                }
+            }
+        }
+    }
+
+    .costs-month-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background-color: $bg-surface-secondary;
+        font-weight: 600;
+        border-bottom: 1px solid $border-primary;
+    }
+
+    .costs-month-name {
+        color: $text-primary;
+        font-size: 0.95rem;
+    }
+
+    .costs-month-total {
+        color: $accent-primary;
+        font-family: monospace;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .costs-services-list {
+        padding: 8px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .costs-service-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: $text-secondary;
+        padding: 2px 4px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+
+        .costs-service-name {
+            font-weight: 500;
+        }
+
+        .costs-service-cost {
+            font-family: monospace;
+            color: $text-primary;
+        }
+
+        &.highlighted {
+            background-color: rgba($accent-primary, 0.08);
+            border-left: 3px solid $accent-primary;
+            padding-left: 8px;
+            padding-right: 8px;
+            margin: 1px 0;
+
+            .costs-service-name {
+                font-weight: 700;
+                color: $accent-primary;
+            }
+
+            .costs-service-cost {
+                font-weight: 700;
+                color: $accent-primary;
+            }
+        }
+    }
+
+    .costs-month-footer {
+        font-size: 0.775rem;
+        font-style: italic;
+        color: $text-secondary;
+        padding: 8px 16px 12px;
+        border-top: 1px dashed rgba($border-primary, 0.6);
+        background-color: rgba($bg-surface-secondary, 0.5);
+    }
+
+    .costs-toggle-expand-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 8px 16px;
+        background: transparent;
+        border: none;
+        border-top: 1px solid rgba($border-primary, 0.4);
+        color: $text-secondary;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+
+        &:hover {
+            background-color: rgba($accent-primary, 0.04);
+            color: $accent-primary;
+        }
+
+        .toggle-icon {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+            transition: transform 0.2s ease;
+        }
+    }
+
+    .costs-disclaimer {
+        font-size: 0.825rem;
+        line-height: 1.5;
+        color: $text-secondary;
+        background-color: rgba($text-secondary, 0.05);
+        padding: 12px 16px;
+        border-radius: 8px;
+        border-left: 3px solid $accent-primary;
+        margin-bottom: 0;
+    }
+
+    .running-costs-actions {
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid $border-primary;
+    }
+
+    .running-costs-last-updated {
+        font-size: 0.8rem;
+        color: $text-secondary;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+
+        #running-costs-update-date {
+            font-weight: 600;
+            color: $text-primary;
+        }
+    }
+
+    &.is-mock {
+        .modal-content {
+            position: relative;
+            overflow: hidden;
+
+            &::after {
+                content: "MOCK DATA";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-25deg);
+                font-size: 5.5rem;
+                font-weight: 900;
+                color: $text-primary;
+                opacity: 0.035;
+                pointer-events: none;
+                user-select: none;
+                z-index: 999;
+                white-space: nowrap;
+                letter-spacing: 8px;
+            }
+        }
+    }
+}

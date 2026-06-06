@@ -83,7 +83,6 @@ export const transparencyData = [
         i18nLabel: 'settings.runningCosts',
         i18nAction: 'actions.view',
         colorClass: 'btn-costs',
-        actionType: 'placeholder',
-        badge: 'settings.badges.comingSoon'
+        actionType: 'modal'
     }
 ];

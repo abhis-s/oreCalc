@@ -21,6 +21,7 @@ import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 import { loadTranslations, translate } from '../../i18n/translator.js';
 import { logger } from '../../utils/logger.js';
 import { licensesData } from '../../data/licensesData.js';
+import { runningCostsData } from '../../data/runningCostsData.js';
 
 function populateDropdowns() {
     const languageSelect = dom.appSettings?.languageSelect;
@@ -152,6 +153,8 @@ function renderLabeledActions(containerSelector, data) {
                     openTermsOfUseModal();
                 } else if (item.id === 'licenses') {
                     openLicensesModal();
+                } else if (item.id === 'runningCosts') {
+                    openRunningCostsModal();
                 }
             });
         } else if (item.actionType === 'placeholder') {
@@ -411,6 +414,278 @@ export function openLicensesModal() {
     // Show modal and overlay
     modal.classList.add('show');
     if (dom.overlay) dom.overlay.classList.add('show');
+}
+
+export function openRunningCostsModal() {
+    const modal = document.getElementById('running-costs-modal');
+    if (!modal) return;
+
+    if (runningCostsData.isMock) {
+        modal.classList.add('is-mock');
+    } else {
+        modal.classList.remove('is-mock');
+    }
+
+    const closeBtn = document.getElementById('close-running-costs-modal-btn');
+    const closeActionBtn = document.getElementById('running-costs-close-btn');
+    const totalValue = document.getElementById('running-costs-total-value');
+    const historyContainer = document.getElementById('running-costs-history-container');
+    const updateDate = document.getElementById('running-costs-update-date');
+
+    const closeModal = () => {
+        modal.classList.remove('show');
+        const visibleModals = document.querySelectorAll('.modal.show');
+        if (visibleModals.length === 0 && dom.overlay) {
+            dom.overlay.classList.remove('show');
+        }
+    };
+
+    if (closeBtn) {
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (closeActionBtn) {
+        closeActionBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (totalValue) {
+        totalValue.textContent = `$${formatCurrency(runningCostsData.totalCostTillDate || 0)}`;
+    }
+
+    if (updateDate && runningCostsData.lastUpdated) {
+        try {
+            const date = new Date(runningCostsData.lastUpdated);
+            if (!isNaN(date.getTime())) {
+                const locale = state.uiSettings?.language || 'en';
+                updateDate.textContent = date.toLocaleDateString(locale, { dateStyle: 'medium' });
+            } else {
+                updateDate.textContent = runningCostsData.lastUpdated.split('T')[0];
+            }
+        } catch {
+            updateDate.textContent = runningCostsData.lastUpdated.split('T')[0];
+        }
+    }
+
+    if (historyContainer) {
+        historyContainer.innerHTML = '';
+        if (runningCostsData.breakdown && runningCostsData.breakdown.length > 0) {
+            runningCostsData.breakdown.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'costs-month-card';
+
+                const header = document.createElement('div');
+                header.className = 'costs-month-header';
+
+                const monthName = document.createElement('span');
+                monthName.className = 'costs-month-name';
+                monthName.textContent = formatInvoiceMonth(item.month);
+                header.appendChild(monthName);
+
+                const monthTotal = document.createElement('span');
+                monthTotal.className = 'costs-month-total';
+                monthTotal.textContent = `$${formatCurrency(item.totalCost || 0)}`;
+                header.appendChild(monthTotal);
+
+                card.appendChild(header);
+
+                const list = document.createElement('div');
+                list.className = 'costs-services-list';
+
+                if (item.services && item.services.length > 0) {
+                    const services = item.services;
+                    const highlightedServices = services.filter(s => s.highlight);
+                    const standardServices = services.filter(s => !s.highlight);
+
+                    if (standardServices.length <= 2) {
+                        // Render always-visible highlighted services first
+                        highlightedServices.forEach(service => {
+                            const row = document.createElement('div');
+                            row.className = 'costs-service-row highlighted';
+
+                            const serviceName = document.createElement('span');
+                            serviceName.className = 'costs-service-name';
+                            serviceName.textContent = service.name;
+                            row.appendChild(serviceName);
+
+                            const serviceCost = document.createElement('span');
+                            serviceCost.className = 'costs-service-cost';
+                            serviceCost.textContent = `$${formatCurrency(service.cost || 0)}`;
+                            row.appendChild(serviceCost);
+
+                            list.appendChild(row);
+                        });
+
+                        // Render standard services
+                        standardServices.forEach(service => {
+                            const row = document.createElement('div');
+                            row.className = 'costs-service-row';
+
+                            const serviceName = document.createElement('span');
+                            serviceName.className = 'costs-service-name';
+                            serviceName.textContent = service.name;
+                            row.appendChild(serviceName);
+
+                            const serviceCost = document.createElement('span');
+                            serviceCost.className = 'costs-service-cost';
+                            serviceCost.textContent = `$${formatCurrency(service.cost || 0)}`;
+                            row.appendChild(serviceCost);
+
+                            list.appendChild(row);
+                        });
+                        card.appendChild(list);
+                    } else {
+                        // Render highlighted services first (always visible)
+                        highlightedServices.forEach(service => {
+                            const row = document.createElement('div');
+                            row.className = 'costs-service-row highlighted';
+
+                            const serviceName = document.createElement('span');
+                            serviceName.className = 'costs-service-name';
+                            serviceName.textContent = service.name;
+                            row.appendChild(serviceName);
+
+                            const serviceCost = document.createElement('span');
+                            serviceCost.className = 'costs-service-cost';
+                            serviceCost.textContent = `$${formatCurrency(service.cost || 0)}`;
+                            row.appendChild(serviceCost);
+
+                            list.appendChild(row);
+                        });
+
+                        // Render top 2 standard services (always visible)
+                        const top2 = standardServices.slice(0, 2);
+                        const rest = standardServices.slice(2);
+
+                        top2.forEach(service => {
+                            const row = document.createElement('div');
+                            row.className = 'costs-service-row';
+
+                            const serviceName = document.createElement('span');
+                            serviceName.className = 'costs-service-name';
+                            serviceName.textContent = service.name;
+                            row.appendChild(serviceName);
+
+                            const serviceCost = document.createElement('span');
+                            serviceCost.className = 'costs-service-cost';
+                            serviceCost.textContent = `$${formatCurrency(service.cost || 0)}`;
+                            row.appendChild(serviceCost);
+
+                            list.appendChild(row);
+                        });
+
+                        const restSum = rest.reduce((sum, s) => sum + (s.cost || 0), 0);
+
+                        const othersRow = document.createElement('div');
+                        othersRow.className = 'costs-service-row others-row';
+
+                        const othersName = document.createElement('span');
+                        othersName.className = 'costs-service-name';
+                        othersName.dataset.i18n = 'settings.runningCostsModal.others';
+                        othersName.textContent = translate('settings.runningCostsModal.others') || 'Others';
+                        othersRow.appendChild(othersName);
+
+                        const othersCost = document.createElement('span');
+                        othersCost.className = 'costs-service-cost';
+                        othersCost.textContent = `$${formatCurrency(restSum || 0)}`;
+                        othersRow.appendChild(othersCost);
+
+                        list.appendChild(othersRow);
+
+                        // Render remaining standard services as extra-service rows
+                        rest.forEach(service => {
+                            const row = document.createElement('div');
+                            row.className = 'costs-service-row extra-service';
+
+                            const serviceName = document.createElement('span');
+                            serviceName.className = 'costs-service-name';
+                            serviceName.textContent = service.name;
+                            row.appendChild(serviceName);
+
+                            const serviceCost = document.createElement('span');
+                            serviceCost.className = 'costs-service-cost';
+                            serviceCost.textContent = `$${formatCurrency(service.cost || 0)}`;
+                            row.appendChild(serviceCost);
+
+                            list.appendChild(row);
+                        });
+
+                        card.appendChild(list);
+
+                        const toggleBtn = document.createElement('button');
+                        toggleBtn.className = 'costs-toggle-expand-btn';
+
+                        const btnText = document.createElement('span');
+                        btnText.className = 'btn-text';
+                        btnText.dataset.i18n = 'actions.showMore';
+                        btnText.textContent = translate('actions.showMore') || 'Show More';
+                        toggleBtn.appendChild(btnText);
+
+                        const arrowIcon = document.createElement('orecalc-assets-svg');
+                        arrowIcon.setAttribute('name', 'dropdown');
+                        arrowIcon.className = 'toggle-icon';
+                        toggleBtn.appendChild(arrowIcon);
+
+                        toggleBtn.onclick = (e) => {
+                            e.preventDefault();
+                            const isExpanded = card.classList.toggle('expanded');
+                            if (isExpanded) {
+                                btnText.dataset.i18n = 'actions.showLess';
+                                btnText.textContent = translate('actions.showLess') || 'Show Less';
+                            } else {
+                                btnText.dataset.i18n = 'actions.showMore';
+                                btnText.textContent = translate('actions.showMore') || 'Show More';
+                            }
+                        };
+
+                        card.appendChild(toggleBtn);
+                    }
+                } else {
+                    const row = document.createElement('div');
+                    row.className = 'costs-service-row';
+                    row.style.justifyContent = 'center';
+                    row.textContent = 'No services recorded';
+                    list.appendChild(row);
+                    card.appendChild(list);
+                }
+
+                if (item.footer) {
+                    const footerNote = document.createElement('div');
+                    footerNote.className = 'costs-month-footer';
+                    footerNote.textContent = item.footer;
+                    card.appendChild(footerNote);
+                }
+
+                historyContainer.appendChild(card);
+            });
+        } else {
+            const noData = document.createElement('div');
+            noData.className = 'costs-disclaimer';
+            noData.style.textAlign = 'center';
+            noData.style.borderLeft = 'none';
+            noData.textContent = 'No running costs history available.';
+            historyContainer.appendChild(noData);
+        }
+    }
+
+    modal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
+}
+
+function formatInvoiceMonth(invoiceMonth) {
+    if (!invoiceMonth || invoiceMonth.length !== 7) return invoiceMonth;
+    const parts = invoiceMonth.split('-');
+    if (parts.length !== 2) return invoiceMonth;
+    const year = parts[0];
+    const month = parts[1];
+    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const locale = state.uiSettings?.language || 'en';
+    return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 }
 
 export function openPrivacyModal() {

@@ -64,7 +64,8 @@ export const SVGs = {
     'dark-mode': {},
     'palette': {},
     'open-in-new': {},
-    'translate': {}
+    'translate': {},
+    'volunteer-support': {}
 };
 
 /**

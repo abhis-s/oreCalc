@@ -1,0 +1,24 @@
+{
+  "extras": [
+    {
+      "month": "2026-05",
+      "name": "Domain Purchase (clashcalc.com)",
+      "cost": 11.08
+    },
+    {
+      "month": "2026-07",
+      "name": "Domain Renewal (orecalc.tech)",
+      "cost": 29.99
+    }
+  ],
+  "footers": [
+    {
+      "month": "2026-05",
+      "text": "* Includes domain registration fee for clashcalc.com. Cost optimization changes were deployed on May 8, 2026, which are expected to reduce resource usage and billing in upcoming cycles."
+    },
+    {
+      "month": "2026-07",
+      "text": "* Includes annual domain renewal fee for orecalc.tech."
+    }
+  ]
+}

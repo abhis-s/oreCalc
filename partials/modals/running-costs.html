@@ -1,0 +1,40 @@
+<div id="running-costs-modal" class="modal">
+    <div class="modal-content running-costs-content">
+        <div class="modal-header">
+            <h2 data-i18n="settings.runningCostsModal.title">Project Running Costs</h2>
+            <div class="modal-header-actions">
+                <a id="running-costs-volunteer-btn" href="https://buymeacoffee.com/orecalc" target="_blank" rel="noopener noreferrer" class="volunteer-button close-button" data-i18n-title="actions.support" title="Support">
+                    <orecalc-assets-svg name="volunteer-support"></orecalc-assets-svg>
+                </a>
+                <button id="close-running-costs-modal-btn" class="close-button">
+                    <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                </button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="costs-summary-card">
+                <span class="costs-summary-label" data-i18n="settings.runningCostsModal.totalLabel">Total Cost (Since Inception)</span>
+                <div class="costs-summary-value-wrapper">
+                    <span id="running-costs-total-value" class="costs-summary-value">$0.00</span>
+                    <span class="costs-tax-badge" data-i18n="settings.runningCostsModal.plusTaxes">+ TAX</span>
+                </div>
+            </div>
+            
+            <h3 class="costs-section-title" data-i18n="settings.runningCostsModal.historyTitle">Last 6 Months Breakdown</h3>
+            <div id="running-costs-history-container" class="costs-history-container">
+                <!-- Monthly breakdown cards populated dynamically -->
+            </div>
+            
+            <p class="costs-disclaimer" data-i18n="settings.runningCostsModal.disclaimer">
+                These costs represent the gross hosting and infrastructure costs for running OreCalc on Google Cloud.
+            </p>
+        </div>
+        <div class="modal-actions running-costs-actions">
+            <div class="running-costs-last-updated">
+                <span data-i18n="settings.runningCostsModal.lastUpdated">Last updated on:</span>
+                <span id="running-costs-update-date">2026-06-04</span>
+            </div>
+            <button id="running-costs-close-btn" class="reject-button" data-i18n="actions.close">Close</button>
+        </div>
+    </div>
+</div>

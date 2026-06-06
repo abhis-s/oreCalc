@@ -8,6 +8,9 @@ dist/
 *.css.map
 *.min.js
 
+# Generated billing costs data
+js/data/runningCostsData.js
+
 # Environment variables and sensitive files
 .env
 .ngrok.yml
