@@ -14,7 +14,7 @@
             <input type="text" id="delete-player-tag-input" placeholder="Enter player tag" maxlength="12" data-i18n-placeholder="player.placeholderTag">
             <div id="delete-player-tag-error" class="error-message"></div>
         </div>
-        <div class="player-name-input-container" id="delete-token-container" style="display: none; margin-top: 15px;">
+        <div class="player-name-input-container hidden" id="delete-token-container" style="margin-top: 15px;">
             <label for="delete-player-token-input" data-i18n="player.apiToken">In-Game API Token</label>
             <input type="text" id="delete-player-token-input" placeholder="e.g. a9378kca" maxlength="8" data-i18n-placeholder="player.placeholderToken">
             <small style="color: var(--color-grey-400); font-size: 0.85em; margin-top: 5px; display: block;" data-i18n="player.apiTokenHint">Hint: You can find your API Token in game under Settings > More Settings > API Token.</small>
@@ -24,7 +24,7 @@
             <button id="cancel-delete-player-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
             <button id="validate-delete-player-btn" class="accept-button" data-i18n="actions.validate">Validate</button>
         </div>
-        <div class="modal-actions" id="delete-modal-actions-verify" style="display: none;">
+        <div class="modal-actions hidden" id="delete-modal-actions-verify">
             <button id="cancel-delete-verify-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
             <button id="verify-delete-player-btn" class="accept-button" data-i18n="actions.verify">Verify</button>
         </div>

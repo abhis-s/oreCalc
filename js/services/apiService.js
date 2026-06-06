@@ -271,6 +271,7 @@ export async function erasePlayerTagFromAllUsers(playerTag, token) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'x-user-id': localStorage.getItem('oreCalcUserId') || ''
             },
             body: JSON.stringify({ playerTag, token })
         });

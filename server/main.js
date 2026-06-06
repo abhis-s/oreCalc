@@ -43,21 +43,30 @@ app.use(helmet());
 
 // General Rate Limiter (100 requests per 15 minutes)
 const generalLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000,
-	max: 100,
-	message: 'Too many requests from this IP, please try again after 15 minutes.',
-	standardHeaders: true,
-	legacyHeaders: false,
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: 'Too many requests from this IP, please try again after 15 minutes.',
+    standardHeaders: true,
+    legacyHeaders: false,
 });
 app.use(generalLimiter);
 
 // Stricter Rate Limiter for sensitive/destructive operations (5 requests per hour)
 const sensitiveLimiter = rateLimit({
-	windowMs: 60 * 60 * 1000,
-	max: 5,
-	message: 'Too many destructive operations from this IP, please try again after an hour.',
-	standardHeaders: true,
-	legacyHeaders: false,
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    message: 'Too many destructive operations from this IP, please try again after an hour.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Rate Limiter for Clash of Clans API proxy requests (30 requests per 15 minutes)
+const proxyLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 30,
+    message: 'Too many player fetch requests from this IP, please try again after 15 minutes.',
+    standardHeaders: true,
+    legacyHeaders: false,
 });
 
 // Configure restricted CORS origin
@@ -85,7 +94,7 @@ app.use(cors({
 
 app.use(express.json());
 
-app.get('/proxy/players/:playerTag', async (req, res) => {
+app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
     const fetch = (await import('node-fetch')).default;
     const playerTag = req.params.playerTag;
     const cleanedTag = playerTag.startsWith('#') ? playerTag.substring(1) : playerTag;
@@ -97,11 +106,11 @@ app.get('/proxy/players/:playerTag', async (req, res) => {
 
     try {
         const protectedDoc = await db.collection('excludedTags').doc(cleanedTag).get();
-        
+
         if (protectedDoc.exists) {
             const protectedData = protectedDoc.data();
             const verifiedUuids = protectedData.verifiedUuids || [];
-            
+
             // Check if this user is already authorized via UUID
             const isAuthorized = userId && verifiedUuids.includes(userId);
 
@@ -109,18 +118,18 @@ app.get('/proxy/players/:playerTag', async (req, res) => {
                 console.log(`[GET] Tag ${cleanedTag} access authorized via UUID: ${userId}`);
             } else {
                 console.log(`[GET] Tag ${cleanedTag} is protected. Authorization check failed.`);
-                
+
                 // If not authorized by UUID, we MUST have a token
                 if (!token) {
-                    return res.status(403).json({ 
+                    return res.status(403).json({
                         reason: 'protectedTag',
-                        message: 'This account is protected and requires verification to be added.' 
+                        message: 'This account is protected and requires verification to be added.'
                     });
                 }
 
                 const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
                 const verifyUrl = `${baseUrl}/players/${encodedTag}/verifytoken`;
-                
+
                 const verifyResponse = await fetch(verifyUrl, {
                     method: 'POST',
                     headers: {
@@ -133,9 +142,9 @@ app.get('/proxy/players/:playerTag', async (req, res) => {
                 const verifyData = await verifyResponse.json();
 
                 if (!verifyResponse.ok || verifyData.status !== 'ok') {
-                    return res.status(403).json({ 
+                    return res.status(403).json({
                         reason: 'invalidToken',
-                        message: 'Verification failed. Invalid token.' 
+                        message: 'Verification failed. Invalid token.'
                     });
                 }
 
@@ -155,7 +164,7 @@ app.get('/proxy/players/:playerTag', async (req, res) => {
         // If not protected OR token was valid, proceed to fetch data
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/players/${encodedTag}`;
-        
+
         console.log(`[GET] Proceeding to fetch player data from: ${url}`);
 
         const response = await fetch(url, {
@@ -228,8 +237,45 @@ app.delete('/api/user-data/delete/:userId', sensitiveLimiter, async (req, res) =
     }
 
     try {
+        // 1. Delete user data
         await db.collection('userStates').doc(userId).delete();
-        res.status(200).json({ message: 'Data deleted successfully.' });
+
+        // 2. Lock user ID in deletedUuids collection
+        await db.collection('deletedUuids').doc(userId).set({
+            deletedAt: new Date().toISOString()
+        });
+
+        // 3. Send email notification if SMTP is configured
+        let emailSent = false;
+        if (process.env.SMTP_USER && process.env.SMTP_HOST) {
+            try {
+                const nodemailer = require('nodemailer');
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST,
+                    port: parseInt(process.env.SMTP_PORT || '587', 10),
+                    secure: process.env.SMTP_SECURE === 'true',
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS
+                    }
+                });
+
+                const mailOptions = {
+                    from: process.env.EMAIL_FROM || 'noreply@clashcalc.com',
+                    to: process.env.RECIPIENT_EMAIL_LEGAL || 'legal@clashcalc.com',
+                    subject: `[ClashCalc] Account Deletion Request - ${userId}`,
+                    text: `Hello,\n\nA user has requested permanent deletion of their account.\n\nDetails:\n- User ID: ${userId}\n- Time: ${new Date().toISOString()}\n\nThe user ID has been deleted from userStates and locked in the deletedUuids database.\n\nRegards,\nClashCalc System`
+                };
+
+                await transporter.sendMail(mailOptions);
+                emailSent = true;
+                console.log(`[DELETION] Notification email sent successfully for UserID: ${userId}`);
+            } catch (mailError) {
+                console.error(`[DELETION] Failed to send notification email:`, mailError);
+            }
+        }
+
+        res.status(200).json({ message: 'Data deleted and user ID locked successfully.', emailSent });
     } catch (error) {
         console.error('Error deleting user data:', error);
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
@@ -253,7 +299,7 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
         // MANDATORY: Verify token before allowing global erasure and protection
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const verifyUrl = `${baseUrl}/players/${encodedTag}/verifytoken`;
-        
+
         console.log(`[ERASE REQUEST] Verifying token for ${cleanedTag} before queueing request...`);
 
         const verifyResponse = await fetch(verifyUrl, {
@@ -269,9 +315,9 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
 
         if (!verifyResponse.ok || verifyData.status !== 'ok') {
             console.error(`[ERASE REQUEST] Verification failed for ${cleanedTag}. HTTP: ${verifyResponse.status}`);
-            return res.status(403).json({ 
+            return res.status(403).json({
                 reason: 'invalidToken',
-                message: 'Global protection failed. Invalid player token provided.' 
+                message: 'Global protection failed. Invalid player token provided.'
             });
         }
 
@@ -304,8 +350,8 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
         // Delete the requester's own cloud data and block their UUID permanently
         if (userId) {
             await db.collection('userStates').doc(userId).delete();
-            await db.collection('deletedUuids').doc(userId).set({ 
-                deletedAt: new Date().toISOString() 
+            await db.collection('deletedUuids').doc(userId).set({
+                deletedAt: new Date().toISOString()
             });
             console.log(`[ERASE REQUEST] Deleted user data and marked UUID ${userId} as deleted.`);
         }
@@ -342,7 +388,7 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
             console.log(`[ERASE REQUEST] SMTP not configured. Skipping email dispatch.`);
         }
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: `Exclusion from service request successfully queued. Our administrators will process it within 30 days.`,
             emailSent
         });
@@ -414,10 +460,10 @@ app.post('/api/support/bug-report', sensitiveLimiter, async (req, res) => {
             }
         }
 
-        res.status(200).json({ 
-            message: 'Bug report submitted successfully.', 
-            reportId: docRef.id, 
-            emailSent 
+        res.status(200).json({
+            message: 'Bug report submitted successfully.',
+            reportId: docRef.id,
+            emailSent
         });
     } catch (error) {
         console.error('Error handling bug report submission:', error);
@@ -440,6 +486,17 @@ app.get('/api/check-ip', async (req, res) => {
         res.status(500).json({ message: 'Failed to check egress IP', error: error.message });
     }
 });
+
+// Schedule automatic periodic pruning of inactive user sync data (runs every 15 days)
+const { pruneInactiveUsers } = require('./scripts/prune-inactive-users.js');
+const FIFTEEN_DAYS_MS = 15 * 24 * 60 * 60 * 1000;
+setTimeout(() => {
+    pruneInactiveUsers().catch(err => console.error('[SCHEDULED PRUNE] Initial run failed:', err));
+    
+    setInterval(() => {
+        pruneInactiveUsers().catch(err => console.error('[SCHEDULED PRUNE] Run failed:', err));
+    }, FIFTEEN_DAYS_MS);
+}, 60 * 1000); // 1 minute startup delay
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`Proxy server listening at http://0.0.0.0:${port}`);
