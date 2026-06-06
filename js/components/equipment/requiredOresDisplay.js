@@ -1,4 +1,5 @@
 import { dom } from '../../dom/domElements.js';
+
 import { formatNumber } from '../../utils/numberFormatter.js';
 
 export function renderRequiredOres(requiredOres) {

@@ -1,7 +1,8 @@
 import { dom } from '../../dom/domElements.js';
+
+import { formatNumber } from '../../utils/numberFormatter.js';
 import { incomeData } from '../../data/incomeSourceRegistry.js';
 import { translate } from '../../i18n/translator.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
 
 export function renderHomeIncomeTable(state) {
     const tableBody = dom.income?.home?.incomeCard?.table?.body;

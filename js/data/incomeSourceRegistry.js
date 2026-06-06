@@ -1,7 +1,8 @@
-import { leagueTiers, supercellEventsData, currencyData } from './appData.js';
-import { translate } from '../i18n/translator.js';
 import { formatCurrency } from '../utils/numberFormatter.js';
 import { getSupercellEventsForYear, isStarBonusEventMonth, getStarBonus2xWindow } from '../utils/dateUtils.js';
+import { translate } from '../i18n/translator.js';
+
+import { leagueTiers, supercellEventsData, currencyData } from './appData.js';
 
 export const incomeData = {
     starBonus: {

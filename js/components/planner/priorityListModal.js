@@ -1,19 +1,22 @@
+import { handleStateUpdate } from '../../app.js';
+import { state } from '../../core/state.js';
+
+import { addValidation } from '../../utils/inputValidator.js';
+import { autoPlaceIncomeChipsForRange } from '../../utils/autoPlaceChips.js';
+import { calculateCompletionDates } from '../../utils/predictionCalculator.js';
 import { formatDate } from '../../utils/dateFormatter.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { getMinDate, getMaxDate } from '../../utils/dateUtils.js';
-import { heroData } from '../../data/heroData.js';
-import { state } from '../../core/state.js';
-import { handleStateUpdate } from '../../app.js';
-import { openLevelSelectModal } from './levelSelectModal.js';
-import { calculateCompletionDates } from '../../utils/predictionCalculator.js';
-import { autoPlaceIncomeChipsForRange } from '../../utils/autoPlaceChips.js';
-import { translate } from '../../i18n/translator.js';
 import { getSVG } from '../../utils/svgManager.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
-import { addValidation } from '../../utils/inputValidator.js';
-import { showConfirm } from '../../ui/noticeModal.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { heroData } from '../../data/heroData.js';
 import { logger } from '../../utils/logger.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { translate } from '../../i18n/translator.js';
+
+import { openLevelSelectModal } from './levelSelectModal.js';
+
+import { showConfirm } from '../../ui/noticeModal.js';
 
 function autoPlaceChipsForDateRange() {
     const startTime = new Date();

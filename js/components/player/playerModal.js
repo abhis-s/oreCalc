@@ -1,10 +1,12 @@
 import { dom } from '../../dom/domElements.js';
-import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
-import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
-import { translate } from '../../i18n/translator.js';
 import { removePlayerTag } from '../../core/localStorageManager.js';
-import { sanitizeHTML } from '../../ui/noticeModal.js';
+
+import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
+import { translate } from '../../i18n/translator.js';
+import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
+
 import { openTermsOfUseModal, openPrivacyModal } from '../appSettings/appSettings.js';
+import { sanitizeHTML } from '../../ui/noticeModal.js';
 
 let errorTimeout;
 let isForcedVerification = false;

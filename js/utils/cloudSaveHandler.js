@@ -1,14 +1,19 @@
 import { dom } from '../dom/domElements.js';
-import { state } from '../core/state.js';
 import { saveState } from '../core/localStorageManager.js';
-import { loadUserData, saveUserData } from '../services/apiService.js';
-import { generateUUID } from './uuidGenerator.js';
-import { checkAppVersion } from './versioning.js';
-import { translate } from '../i18n/translator.js';
-import { showAlert, showConfirm } from '../ui/noticeModal.js';
-import { escapeHTML } from './stringUtils.js';
-import { logger } from './logger.js';
+import { state } from '../core/state.js';
+
 import { closeFabMenu } from '../components/fab/fab.js';
+
+import { loadUserData, saveUserData } from '../services/apiService.js';
+import { translate } from '../i18n/translator.js';
+
+import { checkAppVersion } from './versioning.js';
+import { escapeHTML } from './stringUtils.js';
+import { generateUUID } from './uuidGenerator.js';
+import { logger } from './logger.js';
+
+import { showAlert, showConfirm } from '../ui/noticeModal.js';
+import { showSavingIndicator, showSaveSuccessIndicator, showSaveErrorIndicator } from '../ui/savingIndicator.js';
 
 export async function initializeAppData() {
     let userId = localStorage.getItem('oreCalcUserId');
@@ -127,7 +132,6 @@ export async function importUserData(importId) {
     }
 }
 
-import { showSavingIndicator, showSaveSuccessIndicator, showSaveErrorIndicator } from '../ui/savingIndicator.js';
 
 export async function triggerCloudSave(options = {}) {
     const { silent = false } = options;

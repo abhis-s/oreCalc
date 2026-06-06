@@ -1,12 +1,15 @@
-import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
-import { getScheduleDates } from './dateUtils.js';
 import { state } from '../core/state.js';
-import { translate } from '../i18n/translator.js';
-import { formatNumber } from './numberFormatter.js';
+
 import { handleChipDropOnCalendar } from '../components/planner/calendar.js';
 import { handleChipDropOnContainer } from '../components/planner/incomeChips.js';
-import { toCamelCase } from './stringUtils.js';
+
+import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
+import { translate } from '../i18n/translator.js';
+
+import { formatNumber } from './numberFormatter.js';
+import { getScheduleDates } from './dateUtils.js';
 import { getSVG } from './svgManager.js';
+import { toCamelCase } from './stringUtils.js';
 
 let draggedChipData = null;
 

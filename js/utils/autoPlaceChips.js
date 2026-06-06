@@ -1,10 +1,13 @@
-import { state } from '../core/state.js';
-import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
 import { handleStateUpdate } from '../app.js';
+import { state } from '../core/state.js';
+
 import { renderCalendar } from '../components/planner/calendar.js';
 import { renderIncomeChips } from '../components/planner/incomeChips.js';
-import { getDaysInMonth, addDays, findNthDayOfWeek, getDateFromDayAndMonth, getScheduleDates } from './dateUtils.js';
+
+import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
+
 import { createIncomeChip } from './chipFactory.js';
+import { getDaysInMonth, addDays, findNthDayOfWeek, getDateFromDayAndMonth, getScheduleDates } from './dateUtils.js';
 import { reindexCalendarChips } from './chipManager.js';
 
 function idMatchesType(id, type) {

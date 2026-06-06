@@ -1,5 +1,5 @@
-import { gemTraderData } from '../data/appData.js';
 import { calculateWeeklyIncome } from '../utils/incomeUtils.js';
+import { gemTraderData } from '../data/appData.js';
 
 export function calculateGemTraderIncome(gemTraderState = {}) {
     let weeklyShiny = 0, weeklyGlowy = 10, weeklyStarry = 0, totalCost = 0;

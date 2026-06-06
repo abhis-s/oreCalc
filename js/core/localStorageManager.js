@@ -1,6 +1,7 @@
-import { state, getDefaultPlayerState as initializeDefaultPlayerState } from './state.js';
-import { showSavingIndicator, hideSavingIndicator, showSaveErrorIndicator } from '../ui/savingIndicator.js';
 import { sanitizeUISettings, sanitizePlayerState } from './stateCleanup.js';
+import { state, getDefaultPlayerState as initializeDefaultPlayerState } from './state.js';
+
+import { showSavingIndicator, hideSavingIndicator, showSaveErrorIndicator } from '../ui/savingIndicator.js';
 
 const APP_STATE_KEY = 'oreCalculatorState';
 

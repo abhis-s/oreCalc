@@ -1,10 +1,11 @@
-import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
+import { state } from '../../core/state.js';
+
 import { addValidation } from '../../utils/inputValidator.js';
-import { translate } from '../../i18n/translator.js';
 import { getSVG } from '../../utils/svgManager.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { translate } from '../../i18n/translator.js';
 
 let currentEquipment = null;
 let currentHero = null;

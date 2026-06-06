@@ -1,7 +1,6 @@
 import { dom } from '../../dom/domElements.js';
 
 import { formatNumber } from '../../utils/numberFormatter.js';
-
 import { translate } from '../../i18n/translator.js';
 
 export function renderClanWarIncomeTabDisplay(fullClanWarIncome, clanWarState) {

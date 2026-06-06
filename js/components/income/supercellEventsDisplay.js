@@ -1,11 +1,10 @@
-import { state } from '../../core/state.js';
-import { supercellEventsData } from '../../data/appData.js';
 import { dom } from '../../dom/domElements.js';
+import { state } from '../../core/state.js';
 
-import { getSupercellEventsForYear } from '../../utils/dateUtils.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
+import { getSupercellEventsForYear } from '../../utils/dateUtils.js';
+import { supercellEventsData } from '../../data/appData.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
-
 import { translate } from '../../i18n/translator.js';
 
 export function renderSupercellEventsDisplay(supercellEventsIncome, timeframe) {

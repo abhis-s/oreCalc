@@ -1,8 +1,11 @@
 import { dom } from '../../dom/domElements.js';
+
 import { heroData } from '../../data/appData.js';
-import { updatePageDots, getCurrentHeroIndex } from './heroPlannerCarouselDisplay.js'; 
-import { translate } from '../../i18n/translator.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
+import { translate } from '../../i18n/translator.js';
+
+import { updatePageDots, getCurrentHeroIndex } from './heroPlannerCarouselDisplay.js'; 
+
 import { createHeroIcon, createEquipmentItem } from '../common/heroDisplayFactory.js';
 
 /**

@@ -1,11 +1,13 @@
 import { state } from '../core/state.js';
-import { upgradeCosts, heroData } from '../data/heroData.js';
+
 import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
-import { translate } from '../i18n/translator.js';
 import { storageCapacities } from '../data/oreConversionData.js';
-import { toCamelCase } from './stringUtils.js';
 import { supercellEventsData } from '../data/appData.js';
+import { translate } from '../i18n/translator.js';
+import { upgradeCosts, heroData } from '../data/heroData.js';
+
 import { getSupercellEventsForYear } from './dateUtils.js';
+import { toCamelCase } from './stringUtils.js';
 
 export function getDailyIncomeFromCalendar(date) {
     const dailyIncome = { shiny: 0, glowy: 0, starry: 0 };

@@ -100,6 +100,8 @@ async function build() {
             copyWithPromise(path.join(projectRoot, 'js/i18n/**/*.json'), path.join(distDir, 'js/i18n')),
             copyWithPromise(path.join(projectRoot, 'manifest.json'), distDir),
             copyWithPromise(path.join(projectRoot, 'sitemap.xml'), distDir),
+            copyWithPromise(path.join(projectRoot, 'robots.txt'), distDir),
+            copyWithPromise(path.join(projectRoot, 'llms.txt'), distDir),
             copyWithPromise(path.join(projectRoot, 'terms.html'), distDir),
             copyWithPromise(path.join(projectRoot, 'privacy.html'), distDir),
             copyWithPromise(path.join(projectRoot, 'licenses.html'), distDir),

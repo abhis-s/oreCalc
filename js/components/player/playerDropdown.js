@@ -1,11 +1,13 @@
 import { dom } from '../../dom/domElements.js';
-import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
 import { loadPlayerData, updateSavedPlayerTags, removePlayerTag, isPlayerTagCached } from '../../core/localStorageManager.js';
-import { showAddPlayerModal } from './playerModal.js';
-import { translate } from '../../i18n/translator.js';
-import { getSVG } from '../../utils/svgManager.js';
+import { state } from '../../core/state.js';
+
 import { currencyData } from '../../data/appData.js';
+import { getSVG } from '../../utils/svgManager.js';
+import { translate } from '../../i18n/translator.js';
+
+import { showAddPlayerModal } from './playerModal.js';
 
 export function openDropdown() {
     const dropdownList = dom.player.dropdownList;

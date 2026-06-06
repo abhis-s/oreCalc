@@ -1,6 +1,7 @@
 import { currencyData, heroData, shopOfferData, eventPassData, leagueTiers } from '../data/appData.js';
-import { purgeLegacyStateData, normalizeEquipmentState, migrateFullState, migratePlayerState } from './stateCleanup.js';
 import { getISOWeekNumber } from '../utils/dateUtils.js';
+
+import { purgeLegacyStateData, normalizeEquipmentState, migrateFullState, migratePlayerState } from './stateCleanup.js';
 
 export let state = {};
 

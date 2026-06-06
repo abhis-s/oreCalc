@@ -1,0 +1,21 @@
+# OreCalc
+
+> High-performance static Clash of Clans equipment ore calculator and planner.
+
+This is a client-side web application to calculate exact Clash of Clans ore resources (Shiny, Glowy, Starry) required for equipment upgrades, map upgrades on a calendar, and calculate monthly/bimonthly income sources.
+
+## Technology Stack
+- **Core**: HTML5, CSS3, Vanilla JavaScript (ES6 modules).
+- **Service Worker / PWA**: Workbox-based service worker for offline capability.
+- **Build System**: Custom Node.js build pipeline (`scripts/build.js`).
+- **Localization**: Custom client-side translations supporting English and German.
+
+## Architecture & Codebase Structure
+- [index.html](index.html): Main layout compiled from components in `partials/`.
+- [js/app.js](js/app.js): Application entry point and state coordination.
+- [js/core/](js/core/): Core state, rendering, calculation, local storage, and schema migrations.
+- [js/components/](js/components/): Modular UI components (planner, equipment, income).
+- [js/incomeCalculations/](js/incomeCalculations/): Income modules (Clan War, CWL, Star Bonus, Event Pass, etc.).
+- [js/dom/](js/dom/): DOM selectors mapping.
+- [js/utils/](js/utils/): Validations, popovers, formatters, and date functions.
+- [css/](css/): Sass stylesheet compiled to CSS.

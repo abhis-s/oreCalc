@@ -1,12 +1,14 @@
 import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
-import { state } from '../../core/state.js';
 import { saveState } from '../../core/localStorageManager.js';
+import { state } from '../../core/state.js';
+
+import { escapeHTML } from '../../utils/stringUtils.js';
 import { fetchPlayerData } from '../../services/apiService.js';
 import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
 import { translate } from '../../i18n/translator.js';
+
 import { showAlert } from '../../ui/noticeModal.js';
-import { escapeHTML } from '../../utils/stringUtils.js';
 
 function toggleFabMenu() {
     const { main, menu } = dom.fab;

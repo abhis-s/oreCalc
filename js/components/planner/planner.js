@@ -1,15 +1,15 @@
 import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
+
 import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
 
 import { initializeHeroPlannerCarousel } from './heroPlannerCarousel.js';
-import { renderHeroPlannerCarouselDisplay, updatePageDots, scrollToHeroPage, getCurrentHeroIndex, setCurrentHeroIndex } from './heroPlannerCarouselDisplay.js';
-
 import { initializePlannerCustomLevels, renderPlannerCustomLevels } from './plannerCustomLevels.js';
-import { renderIncomeChips, initializeIncomeChipsEventListeners } from './incomeChips.js';
-import { renderCalendar, setAnimateNextRender } from './calendar.js';
 import { initializePriorityList } from './priorityList.js';
+import { renderCalendar, setAnimateNextRender } from './calendar.js';
+import { renderHeroPlannerCarouselDisplay, updatePageDots, scrollToHeroPage, getCurrentHeroIndex, setCurrentHeroIndex } from './heroPlannerCarouselDisplay.js';
+import { renderIncomeChips, initializeIncomeChipsEventListeners } from './incomeChips.js';
 
 let scrollInterval = null;
 

@@ -1,6 +1,6 @@
-import { translate } from '../../i18n/translator.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
 import { getSVG } from '../../utils/svgManager.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { translate } from '../../i18n/translator.js';
 
 export function createHeroIcon(hero, { sizeClass = '', action = '' } = {}) {
     const img = document.createElement('orecalc-assets-image');

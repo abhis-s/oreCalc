@@ -1,6 +1,6 @@
+import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { dom } from '../../dom/domElements.js';
 
 export function initializeSupercellEventsInputs() {
     const selectElement = dom.income?.supercellEvents?.worldChampionship;

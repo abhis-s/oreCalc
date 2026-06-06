@@ -1,27 +1,25 @@
+import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate, updateUIWithTranslations, applyTheme } from '../../app.js';
 import { removePlayerTag, saveState } from '../../core/localStorageManager.js';
-import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from '../../core/state.js';
-import { currencyData, priceTierRegistry, languagesData, transparencyData, developmentSupportData } from '../../data/appData.js';
-import { dom } from '../../dom/domElements.js';
-
-import { deleteUserData, fetchPlayerData, erasePlayerTagFromAllUsers, submitBugReport } from '../../services/apiService.js';
-import { getChangelogHtml } from '../../services/changelogService.js';
-
 import { renderApp } from '../../core/renderer.js';
-import { showAlert, showConfirm } from '../../ui/noticeModal.js';
-import { showChangelogModal } from '../changelog/changelogModal.js';
+import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from '../../core/state.js';
 
-import { importUserData, triggerCloudSave } from '../../utils/cloudSaveHandler.js';
-import { getSVG } from '../../utils/svgManager.js';
 import { addCurrencyValidation } from '../../utils/inputValidator.js';
+import { currencyData, priceTierRegistry, languagesData, transparencyData, developmentSupportData } from '../../data/appData.js';
+import { deleteUserData, fetchPlayerData, erasePlayerTagFromAllUsers, submitBugReport } from '../../services/apiService.js';
 import { formatCurrency } from '../../utils/numberFormatter.js';
+import { getChangelogHtml } from '../../services/changelogService.js';
+import { getSVG } from '../../utils/svgManager.js';
+import { importUserData, triggerCloudSave } from '../../utils/cloudSaveHandler.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
-import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
-
+import { licensesData } from '../../data/licensesData.js';
 import { loadTranslations, translate } from '../../i18n/translator.js';
 import { logger } from '../../utils/logger.js';
-import { licensesData } from '../../data/licensesData.js';
 import { runningCostsData } from '../../data/runningCostsData.js';
+import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
+
+import { showAlert, showConfirm } from '../../ui/noticeModal.js';
+import { showChangelogModal } from '../changelog/changelogModal.js';
 
 function populateDropdowns() {
     const languageSelect = dom.appSettings?.languageSelect;

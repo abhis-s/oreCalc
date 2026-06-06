@@ -1,6 +1,7 @@
-import { supercellEventsData } from "../data/appData.js";
-import { DAYS_IN_WEEK, DAYS_IN_MONTH, MONTHS_IN_BIMONTH } from "../data/timeConstants.js";
 import { state } from "../core/state.js";
+
+import { DAYS_IN_WEEK, DAYS_IN_MONTH, MONTHS_IN_BIMONTH } from "../data/timeConstants.js";
+import { supercellEventsData } from "../data/appData.js";
 
 export function calculateSupercellEventsIncome(isWorldChampionshipEnabled) {
     const scOverride = state.planner?.calendar?.customChipSettings?.supercellEvents;

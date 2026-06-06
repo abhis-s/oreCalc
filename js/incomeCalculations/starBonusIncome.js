@@ -1,5 +1,5 @@
-import { starBonusData, leagueTiers } from "../data/appData.js";
 import { DAYS_IN_WEEK, DAYS_IN_MONTH, MONTHS_IN_BIMONTH } from "../data/timeConstants.js";
+import { starBonusData, leagueTiers } from "../data/appData.js";
 
 export function calculateStarBonusIncome(selectedLeague, eventFrequency = 2, eventDuration = 5, thUpgrades = {}) {
     const leagueData = starBonusData.find(data => data.league === parseInt(selectedLeague)) || starBonusData[0];

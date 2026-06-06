@@ -1,18 +1,18 @@
+import { getPlannerDOMElements } from '../../dom/plannerDom.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { incomeData, getSourceById } from '../../data/incomeSourceRegistry.js';
 
-import { getPlannerDOMElements } from '../../dom/plannerDom.js';
-import { showAlert } from '../../ui/noticeModal.js';
-import { renderCalendar } from '../planner/calendar.js';
-
-import { createIncomeChip, renderIncomeChipsLegend, createOverflowChip } from '../../utils/chipFactory.js';
-import { reindexCalendarChips } from '../../utils/chipManager.js';
-import { getDaysInMonth, getWeeklyOccurrences, getMonthlyOccurrences, getBimonthlyOccurrences } from '../../utils/dateUtils.js';
 import { addValidation } from '../../utils/inputValidator.js';
-
+import { createIncomeChip, renderIncomeChipsLegend, createOverflowChip } from '../../utils/chipFactory.js';
+import { getDaysInMonth, getWeeklyOccurrences, getMonthlyOccurrences, getBimonthlyOccurrences } from '../../utils/dateUtils.js';
+import { incomeData, getSourceById } from '../../data/incomeSourceRegistry.js';
+import { reindexCalendarChips } from '../../utils/chipManager.js';
 import { translate } from '../../i18n/translator.js';
+
 import { openCreateCustomChipsModal, initializeCreateCustomChipsModalListeners } from './createCustomChipsModal.js';
+
+import { renderCalendar } from '../planner/calendar.js';
+import { showAlert } from '../../ui/noticeModal.js';
 
 function calculateIncomeChips(year, month) {
     const daysInCurrentMonth = getDaysInMonth(year, month);

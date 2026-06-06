@@ -1,19 +1,19 @@
 import { handleStateUpdate } from '../../app.js';
-import { showConfirm } from '../../ui/noticeModal.js';
 import { state } from '../../core/state.js';
-import { supercellEventsData } from '../../data/appData.js';
+
+import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
+import { calculateCumulativeOres, reindexCalendarChips, checkAndGenerateRecurringChips } from '../../utils/chipManager.js';
+import { createIncomeChip } from '../../utils/chipFactory.js';
+import { formatDate, getShortDayNames } from '../../utils/dateFormatter.js';
+import { formatNumber } from '../../utils/numberFormatter.js';
+import { getISOWeekNumber, getDaysInMonth, addDays, getSupercellEventsForYear, getDateOfWeek, getMinDate, getMaxDate } from '../../utils/dateUtils.js';
 import { incomeData, getSourceById } from '../../data/incomeSourceRegistry.js';
+import { supercellEventsData } from '../../data/appData.js';
+import { translate } from '../../i18n/translator.js';
 
 import { renderIncomeChips } from './incomeChips.js';
 
-import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
-import { createIncomeChip } from '../../utils/chipFactory.js';
-import { calculateCumulativeOres, reindexCalendarChips, checkAndGenerateRecurringChips } from '../../utils/chipManager.js';
-import { formatDate, getShortDayNames } from '../../utils/dateFormatter.js';
-import { getISOWeekNumber, getDaysInMonth, addDays, getSupercellEventsForYear, getDateOfWeek, getMinDate, getMaxDate } from '../../utils/dateUtils.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
-
-import { translate } from '../../i18n/translator.js';
+import { showConfirm } from '../../ui/noticeModal.js';
 
 const sourceOrder = [];
 for (const key in incomeData) {

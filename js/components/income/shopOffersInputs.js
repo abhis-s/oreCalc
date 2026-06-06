@@ -1,10 +1,12 @@
+import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
+
 import { shopOfferData } from '../../data/appData.js';
-import { dom } from '../../dom/domElements.js';
+
+import { renderShopOfferSelectorContent, renderShopOfferRow, renderShopOfferGrid } from './shopOffersDisplay.js';
 
 import { initializeOfferGrid } from '../common/offerGrid.js';
-import { renderShopOfferSelectorContent, renderShopOfferRow, renderShopOfferGrid } from './shopOffersDisplay.js';
 
 export function updateShopOfferState(offerId, oreType, count) {
     const selector = dom.income?.shopOffers?.dropdown;

@@ -1,13 +1,16 @@
 import { dom } from '../../dom/domElements.js';
-import { heroData } from '../../data/appData.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { translate } from '../../i18n/translator.js';
-import { createHeroCard } from '../common/heroDisplayFactory.js';
+
 import { addValidation } from '../../utils/inputValidator.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { cleanupUpgradePlan, reindexGlobalPriority } from '../../utils/plannerUtils.js';
+import { heroData } from '../../data/appData.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { translate } from '../../i18n/translator.js';
+
 import { markEquipmentManuallyMaxed } from './heroCardDisplay.js';
+
+import { createHeroCard } from '../common/heroDisplayFactory.js';
 
 export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
     const container = dom.equipment.heroesContainer;

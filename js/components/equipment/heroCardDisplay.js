@@ -1,8 +1,9 @@
 import { dom } from '../../dom/domElements.js';
-import { heroData } from '../../data/heroData.js';
-import { translate } from '../../i18n/translator.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
 import { state } from '../../core/state.js';
+
+import { heroData } from '../../data/heroData.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { translate } from '../../i18n/translator.js';
 
 const temporarilyVisibleMaxed = new Set();
 const activeTimeouts = new Map();

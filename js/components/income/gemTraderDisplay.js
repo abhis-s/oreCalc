@@ -1,12 +1,12 @@
-import { gemTraderData } from '../../data/appData.js';
 import { dom } from '../../dom/domElements.js';
 
-import { renderOfferGrid } from '../common/offerGrid.js';
+import { formatNumber } from '../../utils/numberFormatter.js';
+import { gemTraderData } from '../../data/appData.js';
+import { translate } from '../../i18n/translator.js';
+
 import { updateGemTraderState } from './gemTraderInputs.js';
 
-import { formatNumber } from '../../utils/numberFormatter.js';
-
-import { translate } from '../../i18n/translator.js';
+import { renderOfferGrid } from '../common/offerGrid.js';
 
 export function renderGemTraderRow(offer, offerState) {
     const row = document.createElement('div');

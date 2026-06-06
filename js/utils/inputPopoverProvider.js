@@ -1,4 +1,5 @@
 import { translate } from '../i18n/translator.js';
+
 import { formatNumber } from './numberFormatter.js';
 
 /**

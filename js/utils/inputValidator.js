@@ -1,6 +1,9 @@
 import { state } from '../core/state.js';
-import { formatCurrency } from './numberFormatter.js';
+
 import { translate } from '../i18n/translator.js';
+
+import { formatCurrency } from './numberFormatter.js';
+
 import { showToast } from '../ui/toast.js';
 
 export function addCurrencyValidation(inputElement) {

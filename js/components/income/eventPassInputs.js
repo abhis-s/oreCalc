@@ -1,14 +1,14 @@
+import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { dom } from '../../dom/domElements.js';
+
+import { calculateEventPassIncome } from '../../incomeCalculations/eventPassIncome.js';
+import { calculateEventTraderIncome } from '../../incomeCalculations/eventTraderIncome.js';
 
 import { addValidation } from '../../utils/inputValidator.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
-
-import { translate } from '../../i18n/translator.js';
-import { calculateEventTraderIncome } from '../../incomeCalculations/eventTraderIncome.js';
-import { calculateEventPassIncome } from '../../incomeCalculations/eventPassIncome.js';
 import { eventTraderData } from '../../data/appData.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { translate } from '../../i18n/translator.js';
 
 function getRemainingEventMedals() {
     const eventPassIncome = calculateEventPassIncome(state.income.eventPass);

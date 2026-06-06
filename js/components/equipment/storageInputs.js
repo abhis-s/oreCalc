@@ -1,9 +1,10 @@
 import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
+
 import { addValidation } from '../../utils/inputValidator.js';
-import { translate } from '../../i18n/translator.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { translate } from '../../i18n/translator.js';
 
 const maxValues = {
     shiny: 50000,

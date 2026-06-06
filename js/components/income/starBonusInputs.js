@@ -1,10 +1,11 @@
+import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { leagueTiers, townHallLeagueFloors } from '../../data/appData.js';
-import { dom } from '../../dom/domElements.js';
+
+import { addValidation } from '../../utils/inputValidator.js';
 import { formatDate } from '../../utils/dateFormatter.js';
 import { getMaxTownHall, getTHReleaseDate } from '../../utils/dateUtils.js';
-import { addValidation } from '../../utils/inputValidator.js';
+import { leagueTiers, townHallLeagueFloors } from '../../data/appData.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { translate } from '../../i18n/translator.js';
 

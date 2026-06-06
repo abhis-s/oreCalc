@@ -1,12 +1,12 @@
+import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { oreMaxValues } from '../../data/oreConversionData.js';
-import { dom } from '../../dom/domElements.js';
 
 import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
-import { addValidation } from '../../utils/inputValidator.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 
+import { addValidation } from '../../utils/inputValidator.js';
+import { oreMaxValues } from '../../data/oreConversionData.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { translate } from '../../i18n/translator.js';
 
 const oreTypes = {

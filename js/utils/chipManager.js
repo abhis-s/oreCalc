@@ -1,8 +1,10 @@
+import { handleStateUpdate } from '../app.js';
 import { state } from '../core/state.js';
+
 import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
 import { supercellEventsData } from '../data/appData.js';
+
 import { getSupercellEventsForYear } from './dateUtils.js';
-import { handleStateUpdate } from '../app.js';
 
 export function calculateCumulativeOres(targetDate, initialOres) {
     let cumulativeOres = {

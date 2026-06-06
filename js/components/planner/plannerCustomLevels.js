@@ -1,10 +1,11 @@
 import { dom } from '../../dom/domElements.js';
-import { addValidation } from '../../utils/inputValidator.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { translate } from '../../i18n/translator.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+
+import { addValidation } from '../../utils/inputValidator.js';
 import { getMaxTownHall } from '../../utils/dateUtils.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { translate } from '../../i18n/translator.js';
 
 function getTownHallMaxLevel(type, townHallLevel) {
     const maxTH = getMaxTownHall();

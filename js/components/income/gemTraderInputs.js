@@ -1,10 +1,12 @@
+import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
+
 import { gemTraderData } from '../../data/appData.js';
-import { dom } from '../../dom/domElements.js';
+
+import { renderGemTraderRow } from './gemTraderDisplay.js';
 
 import { initializeOfferGrid } from '../common/offerGrid.js';
-import { renderGemTraderRow } from './gemTraderDisplay.js';
 
 export function updateGemTraderState(offerId, oreType, count) {
     handleStateUpdate(() => { 

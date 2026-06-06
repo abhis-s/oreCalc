@@ -1,15 +1,15 @@
+import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { raidMedalTraderData } from '../../data/appData.js';
-import { dom } from '../../dom/domElements.js';
-
-import { initializeOfferGrid } from '../common/offerGrid.js';
-import { renderRaidMedalTraderRow } from './raidMedalTraderDisplay.js';
 
 import { addValidation } from '../../utils/inputValidator.js';
+import { raidMedalTraderData } from '../../data/appData.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
-
 import { translate } from '../../i18n/translator.js';
+
+import { renderRaidMedalTraderRow } from './raidMedalTraderDisplay.js';
+
+import { initializeOfferGrid } from '../common/offerGrid.js';
 
 function updateRaidMedalTraderState(offerId, oreType, count) {
     handleStateUpdate(() => { 

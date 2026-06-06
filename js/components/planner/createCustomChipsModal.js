@@ -1,14 +1,18 @@
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
+
+import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
+
+import { addValidation } from '../../utils/inputValidator.js';
 import { getSourceById } from '../../data/incomeSourceRegistry.js';
 import { oreMaxValues } from '../../data/oreConversionData.js';
-import { renderIncomeChips } from './incomeChips.js';
-import { showAlert } from '../../ui/noticeModal.js';
-import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
-import { addValidation } from '../../utils/inputValidator.js';
-import { translate } from '../../i18n/translator.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { translate } from '../../i18n/translator.js';
 import { warOreTownHallValues } from '../../data/incomeSources/warOres.js';
+
+import { renderIncomeChips } from './incomeChips.js';
+
+import { showAlert } from '../../ui/noticeModal.js';
 
 const oreTypes = {
     shiny: 'assets/shiny_ore.png',

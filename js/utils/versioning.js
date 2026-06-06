@@ -1,10 +1,13 @@
-import { loadState, resetState } from '../core/localStorageManager.js';
+import { compareVersions } from '../core/stateCleanup.js';
 import { initializeState } from '../core/state.js';
+import { loadState, resetState } from '../core/localStorageManager.js';
+
 import { fetchRequiredClientVersion } from '../services/apiService.js';
 import { translate } from '../i18n/translator.js';
-import { compareVersions } from '../core/stateCleanup.js';
-import { showAlert } from '../ui/noticeModal.js';
+
 import { logger } from './logger.js';
+
+import { showAlert } from '../ui/noticeModal.js';
 
 export async function checkAppVersion() {
     let currentAppVersionFromServer = '0.0.0';

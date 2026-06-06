@@ -1,13 +1,13 @@
-import { currencyData, shopOfferData } from '../../data/appData.js';
 import { dom } from '../../dom/domElements.js';
 
-import { renderOfferGrid } from '../common/offerGrid.js';
+import { currencyData, shopOfferData } from '../../data/appData.js';
+import { formatCurrency, formatNumber } from '../../utils/numberFormatter.js';
+import { getPriceForTier, getCurrencySymbol } from '../../utils/incomeUtils.js';
+import { translate } from '../../i18n/translator.js';
+
 import { updateShopOfferState } from './shopOffersInputs.js';
 
-import { getPriceForTier, getCurrencySymbol } from '../../utils/incomeUtils.js';
-import { formatCurrency, formatNumber } from '../../utils/numberFormatter.js';
-
-import { translate } from '../../i18n/translator.js';
+import { renderOfferGrid } from '../common/offerGrid.js';
 
 export function renderShopOfferSelectorContent() {
     const selector = dom.income?.shopOffers?.dropdown;

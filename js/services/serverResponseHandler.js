@@ -1,12 +1,14 @@
-import { state, getDefaultPlayerState } from '../core/state.js';
-import { shopOfferData, leagueTiers, heroData } from '../data/appData.js';
-import { fetchPlayerData } from './apiService.js';
 import { handleStateUpdate } from '../app.js';
+import { state, getDefaultPlayerState } from '../core/state.js';
 import { updateSavedPlayerTags, updateAllPlayersData } from '../core/localStorageManager.js';
-import { translate } from '../i18n/translator.js';
-import { cleanupUpgradePlan, reindexGlobalPriority } from '../utils/plannerUtils.js';
 
 import { showAddPlayerModal } from '../components/player/playerModal.js';
+
+import { cleanupUpgradePlan, reindexGlobalPriority } from '../utils/plannerUtils.js';
+import { shopOfferData, leagueTiers, heroData } from '../data/appData.js';
+import { translate } from '../i18n/translator.js';
+
+import { fetchPlayerData } from './apiService.js';
 
 export async function loadAndProcessPlayerData(playerTag, { verifyToken = null } = {}) {
     if (!playerTag || playerTag.trim() === '') {

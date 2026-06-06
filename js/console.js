@@ -1,10 +1,10 @@
-import { state } from './core/state.js';
-import { handleStateUpdate } from './app.js';
-import { saveState } from './core/localStorageManager.js';
-import { renderApp } from './core/renderer.js';
-import { showChangelogModal } from './components/changelog/changelogModal.js';
 import { getChangelogHtml } from './services/changelogService.js';
+import { handleStateUpdate } from './app.js';
+import { renderApp } from './core/renderer.js';
+import { saveState } from './core/localStorageManager.js';
+import { showChangelogModal } from './components/changelog/changelogModal.js';
 import { showSaveErrorIndicator } from './ui/savingIndicator.js';
+import { state } from './core/state.js';
 
 window.enableLevelInput = () => {
     const newEnableLevelInput = !state.uiSettings.enableLevelInput;

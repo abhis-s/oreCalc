@@ -1,17 +1,17 @@
-import { state } from '../../core/state.js';
-import { heroData, upgradeCosts } from '../../data/heroData.js';
-import { oreMaxValues } from '../../data/oreConversionData.js';
-
 import { dom } from '../../dom/domElements.js';
-import { getGlobalPriorityList, getStepOrderErrors } from '../planner/priorityListModal.js';
+import { state } from '../../core/state.js';
 
 import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
-import { getSVG } from '../../utils/svgManager.js';
-import { getDailyIncomeFromCalendar } from '../../utils/predictionCalculator.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
 
+import { formatNumber } from '../../utils/numberFormatter.js';
+import { getDailyIncomeFromCalendar } from '../../utils/predictionCalculator.js';
+import { getSVG } from '../../utils/svgManager.js';
+import { heroData, upgradeCosts } from '../../data/heroData.js';
+import { oreMaxValues } from '../../data/oreConversionData.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
 import { translate } from '../../i18n/translator.js';
+
+import { getGlobalPriorityList, getStepOrderErrors } from '../planner/priorityListModal.js';
 
 export function renderProspectorIncomeDisplay(prospectorIncome) {
     const dailyValues = prospectorIncome.daily || { shiny: 0, glowy: 0, starry: 0 };

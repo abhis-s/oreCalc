@@ -1,10 +1,13 @@
-import { heroData } from '../../data/heroData.js';
 import { state } from '../../core/state.js';
-import { openPriorityListModal, getGlobalPriorityList, getStepOrderErrors } from './priorityListModal.js';
-import { translate } from '../../i18n/translator.js';
+
 import { formatDate } from '../../utils/dateFormatter.js';
 import { getSVG } from '../../utils/svgManager.js';
+import { heroData } from '../../data/heroData.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
+import { translate } from '../../i18n/translator.js';
+
+import { openPriorityListModal, getGlobalPriorityList, getStepOrderErrors } from './priorityListModal.js';
+
 import { createHeroIcon } from '../common/heroDisplayFactory.js';
 
 export function initializePriorityList() {

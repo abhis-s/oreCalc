@@ -1,10 +1,12 @@
 import { dom } from '../../dom/domElements.js';
 import { renderApp } from '../../core/renderer.js';
 import { state } from '../../core/state.js';
-import { setAnimateNextRender } from '../planner/calendar.js';
+
 import { navigationRegistry } from '../../data/navigationRegistry.js';
-import { openStoredOresModal } from '../planner/priorityListModal.js';
+
 import { closeFabMenu } from '../fab/fab.js';
+import { openStoredOresModal } from '../planner/priorityListModal.js';
+import { setAnimateNextRender } from '../planner/calendar.js';
 
 function checkPlannerTabStoredOres() {
     const storedOres = state.storedOres || {};

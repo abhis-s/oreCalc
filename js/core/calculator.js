@@ -1,7 +1,3 @@
-import { currencyData } from '../data/appData.js';
-import { calculateRequiredOres } from './oreCalculator.js';
-import { calculateRemainingTime } from './timeCalculator.js';
-
 import { calculateClanWarIncome } from '../incomeCalculations/clanWarIncome.js';
 import { calculateCwlIncome } from '../incomeCalculations/cwlIncome.js';
 import { calculateEventPassIncome } from '../incomeCalculations/eventPassIncome.js';
@@ -12,6 +8,11 @@ import { calculateRaidMedalTraderIncome } from '../incomeCalculations/raidMedalT
 import { calculateShopOfferIncome } from '../incomeCalculations/shopOffersIncome.js';
 import { calculateStarBonusIncome } from '../incomeCalculations/starBonusIncome.js';
 import { calculateSupercellEventsIncome } from '../incomeCalculations/supercellEventsIncome.js';
+
+import { currencyData } from '../data/appData.js';
+
+import { calculateRemainingTime } from './timeCalculator.js';
+import { calculateRequiredOres } from './oreCalculator.js';
 
 export function recalculateAll(state) {
     state.derived.requiredOres = calculateRequiredOres(state.heroes, state.storedOres, state.planner);

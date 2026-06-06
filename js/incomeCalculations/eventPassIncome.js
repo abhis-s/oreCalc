@@ -1,5 +1,5 @@
-import { eventPassData, currencyData } from '../data/appData.js';
 import { calculateBimonthlyIncome, getPriceForTier } from '../utils/incomeUtils.js';
+import { eventPassData, currencyData } from '../data/appData.js';
 
 export function calculateEventPassIncome(eventPassState = {}) {
     const { eventPass = false, includeEquipment = false, bonusTrackMedals = 0, purchasedMedals = 0 } = eventPassState;

@@ -1,5 +1,5 @@
-import { shopOfferData, currencyData } from "../data/appData.js";
 import { getPriceForTier } from "../utils/incomeUtils.js";
+import { shopOfferData, currencyData } from "../data/appData.js";
 
 function calculateOfferCosts(priceTier, purchasedCount) {
     const costs = {};

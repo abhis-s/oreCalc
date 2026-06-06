@@ -1,6 +1,7 @@
 import { dom } from '../../dom/domElements.js';
-import { translate } from '../../i18n/translator.js';
+
 import { leagueTiers } from '../../data/appData.js';
+import { translate } from '../../i18n/translator.js';
 
 export function renderHomeResourcesFooter(state) {
     const homeResourceElements = dom.income?.home?.incomeCard?.resources;

@@ -1,5 +1,5 @@
-import { eventTraderData } from '../data/appData.js';
 import { calculateBimonthlyIncome } from '../utils/incomeUtils.js';
+import { eventTraderData } from '../data/appData.js';
 
 export function calculateEventTraderIncome(eventTraderState = {}, availableMedals = 0) {
     let bimonthlyShiny = 0, bimonthlyGlowy = 0, bimonthlyStarry = 0, totalCost = 0;

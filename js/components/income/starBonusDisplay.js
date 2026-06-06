@@ -1,7 +1,7 @@
-import { leagueTiers } from '../../data/appData.js';
 import { dom } from '../../dom/domElements.js';
 
 import { formatNumber } from '../../utils/numberFormatter.js';
+import { leagueTiers } from '../../data/appData.js';
 
 export function renderStarBonusDisplay(starBonusIncome, league, playerData, timeframe) {
     const incomeTabElements = dom.income.starBonus.display;

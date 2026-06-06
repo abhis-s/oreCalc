@@ -1,6 +1,7 @@
 import { dom } from '../dom/domElements.js';
-import { translate } from '../i18n/translator.js';
 import { state } from '../core/state.js';
+
+import { translate } from '../i18n/translator.js';
 
 export function showSavingIndicator() {
     const floatingSaveBtn = dom.controls.saveButton;

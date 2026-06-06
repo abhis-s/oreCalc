@@ -1,4 +1,5 @@
 import { dom } from '../../dom/domElements.js';
+
 import { formatDate } from '../../utils/dateFormatter.js';
 
 export function renderRemainingTime(remainingTime) {

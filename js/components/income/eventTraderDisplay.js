@@ -1,15 +1,15 @@
-import { eventTraderData } from '../../data/appData.js';
 import { dom } from '../../dom/domElements.js';
 import { state } from '../../core/state.js';
 
-import { renderOfferGrid } from '../common/offerGrid.js';
-
-import { formatNumber } from '../../utils/numberFormatter.js';
-
-import { translate } from '../../i18n/translator.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { calculateEventPassIncome } from '../../incomeCalculations/eventPassIncome.js';
+
 import { addValidation } from '../../utils/inputValidator.js';
+import { eventTraderData } from '../../data/appData.js';
+import { formatNumber } from '../../utils/numberFormatter.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { translate } from '../../i18n/translator.js';
+
+import { renderOfferGrid } from '../common/offerGrid.js';
 
 export function renderEventTraderRow(offer, packs) {
     const row = document.createElement('div');

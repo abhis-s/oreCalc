@@ -1,6 +1,6 @@
+import { getISOWeekNumber } from '../utils/dateUtils.js';
 import { heroData } from '../data/heroData.js';
 import { priceTierRegistry } from '../data/pricingData.js';
-import { getISOWeekNumber } from '../utils/dateUtils.js';
 
 /**
  * Normalizes a hero's equipment state, ensuring all expected fields exist.

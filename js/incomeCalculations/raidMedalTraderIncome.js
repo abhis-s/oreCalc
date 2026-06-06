@@ -1,5 +1,5 @@
-import { raidMedalTraderData } from '../data/appData.js';
 import { calculateWeeklyIncome } from '../utils/incomeUtils.js';
+import { raidMedalTraderData } from '../data/appData.js';
 
 export function calculateRaidMedalTraderIncome(raidMedalState = {}) {
     let weeklyShiny = 0, weeklyGlowy = 0, weeklyStarry = 0, totalCost = 0;

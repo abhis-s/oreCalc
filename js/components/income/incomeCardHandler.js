@@ -1,8 +1,9 @@
 import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
-import { formatNumber, formatCurrency } from '../../utils/numberFormatter.js';
+
 import { currencyData } from '../../data/appData.js';
+import { formatNumber, formatCurrency } from '../../utils/numberFormatter.js';
 
 export function initializeIncomeCardHandler() {
     const timeframeSelect = dom.income?.home?.incomeCard?.timeframe;

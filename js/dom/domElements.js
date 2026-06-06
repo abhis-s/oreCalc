@@ -1,11 +1,12 @@
-import { getNavigationDOMElements } from './navigationDom.js';
-import { getPlayerDOMElements } from './playerDom.js';
-import { getEquipmentDOMElements } from './equipmentDom.js';
-import { getIncomeDOMElements } from './incomeDom.js';
-import { getPlannerDOMElements } from './plannerDom.js';
-import { getAppSettingsDOMElements } from './appSettingsDom.js';
 import { populateOreContainer } from '../components/common/oreDisplayFactory.js';
 import { populateTimeframeGrid } from '../components/common/timeframeGridFactory.js';
+
+import { getAppSettingsDOMElements } from './appSettingsDom.js';
+import { getEquipmentDOMElements } from './equipmentDom.js';
+import { getIncomeDOMElements } from './incomeDom.js';
+import { getNavigationDOMElements } from './navigationDom.js';
+import { getPlannerDOMElements } from './plannerDom.js';
+import { getPlayerDOMElements } from './playerDom.js';
 
 export let dom = {};
 

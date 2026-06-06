@@ -1,4 +1,5 @@
 import { dom } from '../../dom/domElements.js';
+
 import { navigationRegistry } from '../../data/navigationRegistry.js';
 import { translate } from '../../i18n/translator.js';
 
