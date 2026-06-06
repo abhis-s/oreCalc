@@ -245,6 +245,12 @@ function ensureStateDefaults(s) {
         for (const tag in s.allPlayersData) {
             const ps = s.allPlayersData[tag];
             
+            if (ps.income && ps.income.eventPass) {
+                const ep = ps.income.eventPass;
+                delete ep.claimableMedals;
+                delete ep.passMedals;
+            }
+            
             if (!ps.currency) {
                 ps.currency = {
                     code: s.uiSettings?.currency?.code || 'USD',

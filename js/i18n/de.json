@@ -151,8 +151,9 @@
             "medalsResource": "{count} Eventmedaillen",
             "medalsColon": "Eventmedaillen:",
             "includeEquipment": "Mit Ausrüstung",
-            "claimableMedals": "Beanspruchbare Medaillen",
-            "bonusTrackMedals": "Bonus-Track-Medaillen",
+            "bonusTrackMedals": "Kostenlose & Bonus-Medaillen",
+            "purchasedMedals": "Gekaufte Medaillen",
+            "previous": "Vorheriges",
             "free": "Gratis Pass"
         },
         "eventTrader": {
@@ -388,6 +389,7 @@
         "fix": "Reparieren",
         "visit": "Besuchen",
         "support": "Unterstützen",
+        "recommendPurchase": "Empfohlener Kauf",
         "report": "Melden",
         "mail": "E-Mail",
         "translate": "Übersetzen",

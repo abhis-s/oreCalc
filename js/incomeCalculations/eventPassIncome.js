@@ -2,7 +2,7 @@ import { eventPassData, currencyData } from '../data/appData.js';
 import { calculateBimonthlyIncome, getPriceForTier } from '../utils/incomeUtils.js';
 
 export function calculateEventPassIncome(eventPassState = {}) {
-    const { eventPass = false, includeEquipment = false, claimableMedals = 0, bonusTrackMedals = 0 } = eventPassState;
+    const { eventPass = false, includeEquipment = false, bonusTrackMedals = 0, purchasedMedals = 0 } = eventPassState;
     const type = eventPass ? 'event' : 'free';
     const passData = eventPassData[type];
     let bimonthlyOres = { shiny: passData.shiny || 0, glowy: passData.glowy || 0, starry: passData.starry || 0 };
@@ -19,8 +19,8 @@ export function calculateEventPassIncome(eventPassState = {}) {
         }
     }
 
-    bimonthlyEventMedals += (claimableMedals || 0);
     bimonthlyEventMedals += (bonusTrackMedals || 0);
+    bimonthlyEventMedals += (purchasedMedals || 0);
 
 
     if (includeEquipment) {

@@ -126,8 +126,8 @@ export function getIncomeDOMElements() {
         eventPass: {
             passToggle: document.getElementById('inc-event-pass-toggle'),
             includeEquipment: document.getElementById('inc-event-include-equipment-toggle'),
-            claimableMedals: document.getElementById('inc-claimable-medals-input'),
             bonusTrackMedals: document.getElementById('inc-bonus-track-medals-input'),
+            purchasedMedals: document.getElementById('inc-event-purchased-medals-input'),
             display: {
                 bimonthly: {
                     shiny: document.getElementById('inc-event-pass-shiny-bimonthly-value'),

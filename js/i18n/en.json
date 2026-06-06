@@ -151,8 +151,9 @@
             "medalsResource": "{count} Event Medals",
             "medalsColon": "Event Medals:",
             "includeEquipment": "Include Equipment",
-            "claimableMedals": "Claimable Medals",
-            "bonusTrackMedals": "Bonus Track Medals",
+            "bonusTrackMedals": "Claimable & Bonus Medals",
+            "purchasedMedals": "Purchased Medals",
+            "previous": "Previous",
             "free": "Free Pass"
         },
         "eventTrader": {
@@ -388,6 +389,7 @@
         "fix": "Fix",
         "visit": "Visit",
         "support": "Support",
+        "recommendPurchase": "Recommend Purchase",
         "report": "Report",
         "mail": "Mail",
         "translate": "Translate",
