@@ -1,13 +1,56 @@
-        <div class="tab-content active" id="home-tab">
+        <div class="tab-content" id="home-tab">
             <div class="main-content">
                 <div class="left-panel">
                     <div id="home-result-quantity-card" class="card small-width-card">
                         <h2 class="results-title"><orecalc-assets-image src="assets/ore_icon.png" alt="Ores Icon" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image><span id="home-required-ores-title" data-i18n="ores.requiredTitle"> Required Ores</span></h2>
+                        <div class="ores">
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
+                                <span id="home-result-quantity-shiny" class="ore-value calculated">0</span>
+                            </div>
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
+                                <span id="home-result-quantity-glowy" class="ore-value calculated">0</span>
+                            </div>
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
+                                <span id="home-result-quantity-starry" class="ore-value calculated">0</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="right-panel">
                     <div id="home-result-time-card" class="card small-width-card">
                         <h2 class="results-title"><orecalc-assets-image src="assets/ore_icon.png" alt="Time Icon" data-i18n-alt="alts.timeIcon" class="title-icon"></orecalc-assets-image><span id="home-remaining-time-title" data-i18n="time.remainingTitle"> Remaining Time</span></h2>
+                        <div class="ores">
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
+                                <span class="ore-time">
+                                    <span id="home-result-time-shiny-years" class="calculated">0</span><span data-i18n="time.yearsSuffix">y</span>
+                                    <span id="home-result-time-shiny-months" class="calculated">0</span><span data-i18n="time.monthsSuffix">m</span>
+                                    <span id="home-result-time-shiny-days" class="calculated">0</span><span data-i18n="time.daysSuffix">d</span>
+                                </span>
+                                <span id="home-result-date-shiny" class="ore-date calculated">-</span>
+                            </div>
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
+                                <span class="ore-time">
+                                    <span id="home-result-time-glowy-years" class="calculated">0</span><span data-i18n="time.yearsSuffix">y</span>
+                                    <span id="home-result-time-glowy-months" class="calculated">0</span><span data-i18n="time.monthsSuffix">m</span>
+                                    <span id="home-result-time-glowy-days" class="calculated">0</span><span data-i18n="time.daysSuffix">d</span>
+                                </span>
+                                <span id="home-result-date-glowy" class="ore-date calculated">-</span>
+                            </div>
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
+                                <span class="ore-time">
+                                    <span id="home-result-time-starry-years" class="calculated">0</span><span data-i18n="time.yearsSuffix">y</span>
+                                    <span id="home-result-time-starry-months" class="calculated">0</span><span data-i18n="time.monthsSuffix">m</span>
+                                    <span id="home-result-time-starry-days" class="calculated">0</span><span data-i18n="time.daysSuffix">d</span>
+                                </span>
+                                <span id="home-result-date-starry" class="ore-date calculated">-</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -33,24 +76,95 @@
                                 <div class="income-table-cell"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image></div>
                                 <div class="income-table-cell" data-i18n="income.resource">Resource</div>
                             </div>
-                            <div id="home-income-table-body"></div>
+                            <div id="home-income-table-body">
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.starBonus.title">Star Bonus</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.shopOffers.title">Shop Offers</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.raidMedalTrader.title">Raid Medal Trader</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.gemTrader.title">Gem Trader</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.eventPass.title">Event Pass</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.eventTrader.title">Event Trader</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.clanWar.title">Clan War</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.cwl.title">CWL</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.supercellEvents.title">Supercell Events</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                                <div class="income-table-row">
+                                    <div class="income-table-cell" data-i18n="income.prospector.title">Prospector</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-value calculated">0</div>
+                                    <div class="income-table-cell income-table-resource calculated"></div>
+                                </div>
+                            </div>
                             <div class="income-table-footer">
                                 <div class="income-table-cell" data-i18n="income.totalTitle">Total Income</div>
-                                <div class="income-table-cell income-table-value calculated" id="home-income-table-total-shiny"></div>
-                                <div class="income-table-cell income-table-value calculated" id="home-income-table-total-glowy"></div>
-                                <div class="income-table-cell income-table-value calculated" id="home-income-table-total-starry"></div>
+                                <div class="income-table-cell income-table-value calculated" id="home-income-table-total-shiny">0</div>
+                                <div class="income-table-cell income-table-value calculated" id="home-income-table-total-glowy">0</div>
+                                <div class="income-table-cell income-table-value calculated" id="home-income-table-total-starry">0</div>
                                 <div class="income-table-cell"></div>
                             </div>
                         </div>
                     </div>
                     <div id="home-required-resources-container" class="required-resources-container">
                         <div class="resources-row">
-                            <span class="resource-item"><img src="https://api-assets.clashofclans.com/leaguetiers/326/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" alt="League Icon" data-i18n-alt="alts.leagueIcon" class="resource-icon calculated" id="home-display-league-icon"><span id="home-display-league-requirement" class="calculated" data-i18n="leagues.unranked"></span></span>
-                            <span class="resource-item"><orecalc-assets-image src="assets/resources/cwl.png" alt="CWL" data-i18n-alt="income.cwl.title"></orecalc-assets-image><span data-i18n="income.cwl.participationsColon">CWL Participations:</span><span id="home-display-cwl-participations" class="calculated"></span></span>
-                            <span class="resource-item"><orecalc-assets-image src="assets/resources/clanWar.png" alt="Clan War" data-i18n-alt="income.clanWar.title" id="home-display-clan-icon" class="calculated"></orecalc-assets-image><span data-i18n="income.clanWar.participationsColon">Clan War Participations:</span><span id="home-display-clan-war-participations" class="calculated"></span></span>
-                            <span class="resource-item"><orecalc-assets-image src="assets/resources/raidMedal.png" alt="Raid Medals" data-i18n-alt="ores.raidMedal"></orecalc-assets-image><span data-i18n="income.raidMedalTrader.medalsColon">Raid Medals:</span><span id="home-display-raid-medals" class="calculated"></span></span>
-                            <span class="resource-item"><orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" data-i18n-alt="income.eventPass.medalsResource"></orecalc-assets-image><span data-i18n="income.eventPass.medalsColon">Event Medals:</span><span id="home-display-event-medals" class="calculated"></span></span>
-                            <span class="resource-item"><orecalc-assets-image src="assets/resources/gem.png" alt="Gems" data-i18n-alt="ores.gem"></orecalc-assets-image><span data-i18n="income.gemTrader.gemsColon">Gems:</span><span id="home-display-gems" class="calculated"></span></span>
+                            <span class="resource-item"><img src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" alt="League Icon" data-i18n-alt="alts.leagueIcon" class="resource-icon calculated" id="home-display-league-icon" width="24" height="24"><span id="home-display-league-requirement" class="calculated" data-i18n="leagues.unranked">Unranked</span></span>
+                            <span class="resource-item"><orecalc-assets-image src="assets/resources/cwl.png" alt="CWL" data-i18n-alt="income.cwl.title"></orecalc-assets-image><span data-i18n="income.cwl.participationsColon">CWL Participations:</span><span id="home-display-cwl-participations" class="calculated">0</span></span>
+                            <span class="resource-item"><orecalc-assets-image src="assets/resources/clanWar.png" alt="Clan War" data-i18n-alt="income.clanWar.title" id="home-display-clan-icon" class="calculated"></orecalc-assets-image><span data-i18n="income.clanWar.participationsColon">Clan War Participations:</span><span id="home-display-clan-war-participations" class="calculated">0</span></span>
+                            <span class="resource-item"><orecalc-assets-image src="assets/resources/raidMedal.png" alt="Raid Medals" data-i18n-alt="ores.raidMedal"></orecalc-assets-image><span data-i18n="income.raidMedalTrader.medalsColon">Raid Medals:</span><span id="home-display-raid-medals" class="calculated">0</span></span>
+                            <span class="resource-item"><orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" data-i18n-alt="income.eventPass.medalsResource"></orecalc-assets-image><span data-i18n="income.eventPass.medalsColon">Event Medals:</span><span id="home-display-event-medals" class="calculated">0</span></span>
+                            <span class="resource-item"><orecalc-assets-image src="assets/resources/gem.png" alt="Gems" data-i18n-alt="ores.gem"></orecalc-assets-image><span data-i18n="income.gemTrader.gemsColon">Gems:</span><span id="home-display-gems" class="calculated">0</span></span>
                             <span class="resource-item"><span id="home-money-symbol" class="currency-symbol">$</span><span id="home-money-value" class="calculated">0.00</span></span>
                         </div>
                     </div>

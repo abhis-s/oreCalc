@@ -1,4 +1,4 @@
-import { handleStateUpdate } from '../../app.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 import { state } from '../../core/state.js';
 
 import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';

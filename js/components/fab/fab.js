@@ -4,8 +4,7 @@ import { saveState } from '../../core/localStorageManager.js';
 import { state } from '../../core/state.js';
 
 import { escapeHTML } from '../../utils/stringUtils.js';
-import { fetchPlayerData } from '../../services/apiService.js';
-import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
+
 import { translate } from '../../i18n/translator.js';
 
 import { showAlert } from '../../ui/noticeModal.js';
@@ -47,6 +46,7 @@ export function initializeFab() {
         
         try {
             pills.refresh.classList.add('saving');
+            const { loadAndProcessPlayerData } = await import('../../services/serverResponseHandler.js');
             const result = await loadAndProcessPlayerData(activeTag);
             
             pills.refresh.classList.remove('saving');

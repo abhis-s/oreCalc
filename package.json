@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "compression": "^1.8.1",
     "express": "^5.2.1",
     "workbox-window": "^7.4.1"
   },

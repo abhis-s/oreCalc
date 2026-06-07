@@ -438,10 +438,58 @@ code {
 
 orecalc-assets-svg {
     display: contents;
+
+    &:empty {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 1;
+
+        // Default dimensions
+        width: 24px;
+        height: 24px;
+
+        &[width="14"] { width: 14px; }
+        &[height="14"] { height: 14px; }
+        &[width="16"] { width: 16px; }
+        &[height="16"] { height: 16px; }
+        &[width="18"] { width: 18px; }
+        &[height="18"] { height: 18px; }
+        &[width="20"] { width: 20px; }
+        &[height="20"] { height: 20px; }
+        &[width="24"] { width: 24px; }
+        &[height="24"] { height: 24px; }
+        &[width="30"] { width: 30px; }
+        &[height="30"] { height: 30px; }
+        &[width="32"] { width: 32px; }
+        &[height="32"] { height: 32px; }
+        &[width="48"] { width: 48px; }
+        &[height="48"] { height: 48px; }
+    }
 }
 
 orecalc-assets-image {
     display: contents;
+
+    &:empty {
+        display: inline-block;
+        vertical-align: middle;
+
+        &.ore-image {
+            height: 30px;
+            width: 30px;
+        }
+
+        &.title-icon {
+            height: 30px;
+            width: 53.3px;
+        }
+
+        // Home required resource images are 24x24
+        .resources-row & {
+            height: 24px;
+            width: 24px;
+        }
+    }
 }
 
 .theme-link {

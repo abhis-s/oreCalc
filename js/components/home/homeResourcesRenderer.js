@@ -11,10 +11,10 @@ export function renderHomeResourcesFooter(state) {
     const leagueId = parseInt(state.income.starBonus?.league || 105000000, 10);
     const leagueData = leagueTiers.items.find(l => l.id === leagueId);
     const unrankedLeague = leagueTiers.items.find(l => l.id === 105000000);
-    const unrankedIcon = unrankedLeague?.iconUrls?.large || '';
+    const unrankedIcon = unrankedLeague?.iconUrls?.small || '';
     
     if (homeResourceElements.leagueIcon) {
-        homeResourceElements.leagueIcon.src = leagueData?.iconUrls?.large || unrankedIcon;
+        homeResourceElements.leagueIcon.src = leagueData?.iconUrls?.small || unrankedIcon;
     }
     if (homeResourceElements.leagueRequirement) {
         const leagueName = leagueData ? leagueData.name : 'Unranked';

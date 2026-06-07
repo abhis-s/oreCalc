@@ -81,6 +81,10 @@ export function populateOreContainer(containerId, config) {
     if (!containerEl) return;
     
     let oresContainer = containerEl.querySelector('.ores');
+    if (oresContainer && oresContainer.children.length > 0) {
+        return;
+    }
+
     if (!oresContainer) {
         oresContainer = document.createElement('div');
         oresContainer.className = 'ores';

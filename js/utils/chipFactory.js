@@ -150,7 +150,7 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         shinyOre.classList.add('ore-count-item');
         const shinyVal = parseFloat(data.shiny);
         const isNegative = shinyVal < 0;
-        shinyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(shinyVal)}</span> <img src="assets/shiny_ore.png" alt="${translate('ores.shiny')}" data-i18n-alt="ores.shiny" class="ore-icon-small">`;
+        shinyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(shinyVal)}</span> <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('ores.shiny')}" data-i18n-alt="ores.shiny" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(shinyOre);
     }
     if (data.glowy !== undefined) {
@@ -158,7 +158,7 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         glowyOre.classList.add('ore-count-item');
         const glowyVal = parseFloat(data.glowy);
         const isNegative = glowyVal < 0;
-        glowyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(glowyVal)}</span> <img src="assets/glowy_ore.png" alt="${translate('ores.glowy')}" data-i18n-alt="ores.glowy" class="ore-icon-small">`;
+        glowyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(glowyVal)}</span> <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('ores.glowy')}" data-i18n-alt="ores.glowy" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(glowyOre);
     }
     if (data.starry !== undefined) {
@@ -166,7 +166,7 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         starryOre.classList.add('ore-count-item');
         const starryVal = parseFloat(data.starry);
         const isNegative = starryVal < 0;
-        starryOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(starryVal)}</span> <img src="assets/starry_ore.png" alt="${translate('ores.starry')}" data-i18n-alt="ores.starry" class="ore-icon-small">`;
+        starryOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(starryVal)}</span> <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('ores.starry')}" data-i18n-alt="ores.starry" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(starryOre);
     }
 
@@ -554,19 +554,19 @@ export function createOverflowChip(count, aggregatedData, type, className) {
     if (aggregatedData.shiny !== undefined) {
         const shinyOre = document.createElement('div');
         shinyOre.classList.add('ore-count-item');
-        shinyOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.shiny))}</span> <img src="assets/shiny_ore.png" alt="${translate('ores.shiny')}" class="ore-icon-small">`;
+        shinyOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.shiny))}</span> <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('ores.shiny')}" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(shinyOre);
     }
     if (aggregatedData.glowy !== undefined) {
         const glowyOre = document.createElement('div');
         glowyOre.classList.add('ore-count-item');
-        glowyOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.glowy))}</span> <img src="assets/glowy_ore.png" alt="${translate('ores.glowy')}" class="ore-icon-small">`;
+        glowyOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.glowy))}</span> <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('ores.glowy')}" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(glowyOre);
     }
     if (aggregatedData.starry !== undefined) {
         const starryOre = document.createElement('div');
         starryOre.classList.add('ore-count-item');
-        starryOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.starry))}</span> <img src="assets/starry_ore.png" alt="${translate('ores.starry')}" class="ore-icon-small">`;
+        starryOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.starry))}</span> <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('ores.starry')}" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(starryOre);
     }
 

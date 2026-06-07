@@ -9,10 +9,18 @@
     width: 18px;
 }
 
-.ore-image {
+orecalc-assets-image {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.ore-image,
+orecalc-assets-image.ore-image {
+    display: inline-block;
     height: 30px;
-    width: auto;
+    width: 30px;
     object-fit: contain;
+    vertical-align: middle;
 
     &[src*="shiny_ore"],
     img[src*="shiny_ore"] {
@@ -26,13 +34,35 @@
     img[src*="starry_ore"] {
         aspect-ratio: 402 / 423;
     }
+    &[src*="raidMedal"],
+    img[src*="raidMedal"],
+    &[src*="gem"],
+    img[src*="gem"],
+    &[src*="cwl"],
+    img[src*="cwl"],
+    &[src*="clanWar"],
+    img[src*="clanWar"],
+    &[src*="eventMedal"],
+    img[src*="eventMedal"],
+    &[src*="eventPass"],
+    img[src*="eventPass"],
+    &[src*="prospector"],
+    img[src*="prospector"],
+    &[src*="shopOffers"],
+    img[src*="shopOffers"],
+    &[src*="supercellEvents"],
+    img[src*="supercellEvents"] {
+        aspect-ratio: 1 / 1;
+    }
 }
 
-.title-icon {
+.title-icon,
+orecalc-assets-image.title-icon {
+    display: inline-block;
     height: 30px;
     margin-right: 10px;
     vertical-align: middle;
-    width: auto;
-    aspect-ratio: 16/9;
+    width: 53.33px;
+    aspect-ratio: 16 / 9;
     object-fit: contain;
 }

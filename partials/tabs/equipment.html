@@ -35,9 +35,43 @@
                     </div>
                     <div id="eq-results-container-card" class="equipment-card card calculated">
                         <h2 class="results-title"><orecalc-assets-image src="assets/ore_icon.png" alt="Ores Icon" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image><span id="results-title-text" data-i18n="ores.requiredTitle">Required Ores</span></h2>
+                        <div class="ores">
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
+                                <span id="eq-shiny-ore-result" class="ore-value calculated">0</span>
+                            </div>
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
+                                <span id="eq-glowy-ore-result" class="ore-value calculated">0</span>
+                            </div>
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
+                                <span id="eq-starry-ore-result" class="ore-value calculated">0</span>
+                            </div>
+                        </div>
                     </div>
                     <div id="eq-storage-container-card" class="equipment-card card calculated">
                         <h2 class="storage-title"><orecalc-assets-image src="assets/ore_icon.png" alt="Ores Icon" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image><span id="storage-title-text" data-i18n="ores.storedTitle">Stored Ores</span></h2>
+                        <div class="ores">
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
+                                <div class="ore-input-wrapper">
+                                    <input type="number" id="eq-shiny-ore-storage" name="eq-shiny-ore-storage" class="ore-value updatable" value="0" min="0" max="50000" maxlength="5" aria-label="Stored Ores - Shiny Ore">
+                                </div>
+                            </div>
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
+                                <div class="ore-input-wrapper">
+                                    <input type="number" id="eq-glowy-ore-storage" name="eq-glowy-ore-storage" class="ore-value updatable" value="0" min="0" max="5000" maxlength="4" aria-label="Stored Ores - Glowy Ore">
+                                </div>
+                            </div>
+                            <div class="ore">
+                                <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
+                                <div class="ore-input-wrapper">
+                                    <input type="number" id="eq-starry-ore-storage" name="eq-starry-ore-storage" class="ore-value updatable" value="0" min="0" max="1000" maxlength="4" aria-label="Stored Ores - Starry Ore">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

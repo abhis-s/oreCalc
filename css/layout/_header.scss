@@ -5,7 +5,7 @@
     @extend %flex-center;
     flex-wrap: nowrap;
     margin: 0 10px 20px;
-    transition: all 0.4s ease-in-out;
+    transition: background-color 0.4s ease-in-out, box-shadow 0.4s ease-in-out, border-radius 0.4s ease-in-out;
     position: relative;
 
     h1 {
@@ -58,7 +58,6 @@
 .header-placeholder {
     display: none;
     height: 0;
-    transition: height 0.4s ease-in-out;
 }
 
 .hamburger {

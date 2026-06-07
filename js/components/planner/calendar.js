@@ -1,4 +1,4 @@
-import { handleStateUpdate } from '../../app.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 import { state } from '../../core/state.js';
 
 import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
@@ -695,6 +695,8 @@ function renderMonthChips() {
         for (let month = startMonth; month <= endMonth; month++) {
             const chip = document.createElement('div');
             chip.classList.add('month-chip');
+            chip.setAttribute('tabindex', '0');
+            chip.setAttribute('role', 'button');
             const monthDate = new Date(Date.UTC(year, month - 1, 1));
             const monthNameSpan = document.createElement('span'); 
             monthNameSpan.classList.add('month-name');
@@ -705,6 +707,12 @@ function renderMonthChips() {
             chip.dataset.year = year;
             chip.dataset.month = String(month).padStart(2, '0');
             chip.addEventListener('click', handleMonthChipClick);
+            chip.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleMonthChipClick(e);
+                }
+            });
 
             const weekNumbersContainer = document.createElement('div');
             weekNumbersContainer.classList.add('week-numbers-container');
@@ -714,10 +722,18 @@ function renderMonthChips() {
             weeksInMonth.forEach(week => {
                 const weekChip = document.createElement('div');
                 weekChip.classList.add('week-chip');
+                weekChip.setAttribute('tabindex', '0');
+                weekChip.setAttribute('role', 'button');
                 weekChip.textContent = week.number;
                 weekChip.dataset.year = week.year;
                 weekChip.dataset.week = week.number;
                 weekChip.addEventListener('click', handleWeekChipClick);
+                weekChip.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleWeekChipClick(e);
+                    }
+                });
                 weekNumbersContainer.appendChild(weekChip);
             });
 

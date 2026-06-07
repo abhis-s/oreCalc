@@ -1,5 +1,5 @@
 import { getPlannerDOMElements } from '../../dom/plannerDom.js';
-import { handleStateUpdate } from '../../app.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 import { state } from '../../core/state.js';
 
 import { addValidation } from '../../utils/inputValidator.js';

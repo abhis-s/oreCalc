@@ -157,23 +157,26 @@
     position: fixed;
     width: 100%;
     z-index: $z-index-layout;
+    height: 76px;
+    box-sizing: border-box;
 }
 
 .navigation-drawer {
     position: fixed;
     top: 0;
-    left: -300px;
+    left: 0;
     width: 300px;
     height: 100%;
     background-color: $bg-surface-primary;
     box-shadow: $elevation-3;
-    transition: left 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s ease-in-out;
     z-index: $z-index-drawer;
     border-radius: 0 $shape-corner-extra-large $shape-corner-extra-large 0;
     visibility: hidden;
 
     &.open {
-        left: 0;
+        transform: translateX(0);
         visibility: visible;
     }
 

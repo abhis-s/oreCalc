@@ -9,7 +9,9 @@ export function initializeHeader() {
     const initialOffset = headerContainer.offsetTop;
 
     const updateHeaderHeight = () => {
-        const height = headerContainer.offsetHeight;
+        // The header has a margin-bottom of 20px when not sticky,
+        // which needs to be accounted for in the placeholder height.
+        const height = headerContainer.offsetHeight + 20;
         headerPlaceholder.style.height = `${height}px`;
     };
 

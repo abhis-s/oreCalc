@@ -1,16 +1,16 @@
 import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate, updateUIWithTranslations, applyTheme } from '../../app.js';
+import { handleStateUpdate } from '../../app.js';
 import { removePlayerTag, saveState } from '../../core/localStorageManager.js';
 import { renderApp } from '../../core/renderer.js';
 import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from '../../core/state.js';
 
 import { addCurrencyValidation } from '../../utils/inputValidator.js';
 import { currencyData, priceTierRegistry, languagesData, transparencyData, developmentSupportData } from '../../data/appData.js';
-import { deleteUserData, fetchPlayerData, erasePlayerTagFromAllUsers, submitBugReport } from '../../services/apiService.js';
+
 import { formatCurrency } from '../../utils/numberFormatter.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
 import { getSVG } from '../../utils/svgManager.js';
-import { importUserData, triggerCloudSave } from '../../utils/cloudSaveHandler.js';
+
 import { isValidUUID } from '../../utils/uuidGenerator.js';
 import { licensesData } from '../../data/licensesData.js';
 import { loadTranslations, translate } from '../../i18n/translator.js';
@@ -1290,6 +1290,7 @@ function openBugReportModal() {
                     };
                 }
                 
+                const { submitBugReport } = await import('../../services/apiService.js');
                 await submitBugReport(email, description, attachedData, currentUserId);
                 
                 closeModal();
@@ -1437,7 +1438,7 @@ export function initializeAppSettings() {
                 state.uiSettings.language = newLanguage;
             });
             
-            updateUIWithTranslations();
+            document.dispatchEvent(new CustomEvent('app:translate'));
             renderApp(state);
             
             const event = new Event('languageChanged');
@@ -1572,7 +1573,7 @@ export function initializeAppSettings() {
             handleStateUpdate(() => {
                 state.uiSettings.theme = newTheme;
             }, true);
-            applyTheme(newTheme, origin);
+            document.dispatchEvent(new CustomEvent('app:theme-change', { detail: { theme: newTheme, origin } }));
         });
     }
 
@@ -1601,7 +1602,7 @@ export function initializeAppSettings() {
             mobileAccentSwatches.forEach(s => s.classList.toggle('active', s.dataset.color === color));
         }
         
-        applyTheme(state.uiSettings.theme, origin);
+        document.dispatchEvent(new CustomEvent('app:theme-change', { detail: { theme: state.uiSettings.theme, origin } }));
     };
 
     if (mobileAccentPickerBtn && accentPickerModal) {
@@ -1742,6 +1743,7 @@ export function initializeAppSettings() {
             if (await showConfirm(translate('confirms.resetAll'), 'status.confirm', 'actions.reset')) {
                 const currentUserId = localStorage.getItem('oreCalcUserId');
                 if (currentUserId) {
+                    const { deleteUserData } = await import('../../services/apiService.js');
                     await deleteUserData(currentUserId);
                 }
                 window.resetApplication();
@@ -1797,6 +1799,7 @@ export function initializeAppSettings() {
             }
             try {
                 validateDeletePlayerBtn.disabled = true;
+                const { fetchPlayerData } = await import('../../services/apiService.js');
                 const playerData = await fetchPlayerData(tag);
                 
                 // Canonical tag correction: replace user input with official tag from API (cleaned)
@@ -1848,6 +1851,7 @@ export function initializeAppSettings() {
                 
                 // The server now performs the verification as part of the erasure process.
                 // This prevents the one-time token from being consumed prematurely.
+                const { erasePlayerTagFromAllUsers } = await import('../../services/apiService.js');
                 await erasePlayerTagFromAllUsers(tag, token);
 
                 closeDeleteModal();
@@ -1931,6 +1935,7 @@ export function initializeAppSettings() {
                     }, 2000);
 
                     if (state.uiSettings.cloudSync !== false) {
+                        const { triggerCloudSave } = await import('../../utils/cloudSaveHandler.js');
                         const saveSuccess = await triggerCloudSave({ silent: true });
                         messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
                     } else {
@@ -2019,6 +2024,7 @@ export function initializeAppSettings() {
                     await navigator.clipboard.writeText(currentUserId);
                     let messageKey = '';
                     if (state.uiSettings.cloudSync !== false) {
+                        const { triggerCloudSave } = await import('../../utils/cloudSaveHandler.js');
                         const saveSuccess = await triggerCloudSave({ silent: true });
                         messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
                     } else {
@@ -2113,6 +2119,7 @@ export function initializeAppSettings() {
                     confirmImportBtn.disabled = true;
                     confirmImportBtn.textContent = translate('actions.processing');
                     
+                    const { importUserData } = await import('../../utils/cloudSaveHandler.js');
                     await importUserData(val);
                 } finally {
                     confirmImportBtn.disabled = false;
@@ -2174,7 +2181,7 @@ export function initializeAppSettings() {
         });
     }
 
-    updateUIWithTranslations();
+    document.dispatchEvent(new CustomEvent('app:translate'));
 
     if (appVersionDisplay) {
         appVersionDisplay.textContent = '| v' + (state.appVersion || '2.0.0').replace(/^v/, '');

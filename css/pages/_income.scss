@@ -362,13 +362,19 @@
         flex-wrap: nowrap;
         gap: 5px;
 
-        .gem-icon,
-        .event-medal-icon {
+        picture.gem-icon,
+        picture.event-medal-icon {
             padding: 5px;
         }
 
-        .gem-icon {
+        picture.gem-icon {
             transform: scale(0.9);
+        }
+
+        img.gem-icon,
+        img.event-medal-icon {
+            padding: 0;
+            transform: none;
         }
     }
 }
@@ -407,8 +413,11 @@
                 width: auto;
             }
 
-            .raid-medal-image {
+            picture.raid-medal-image {
                 transform: scale(1.25);
+            }
+            img.raid-medal-image {
+                transform: none;
             }
         }
     }

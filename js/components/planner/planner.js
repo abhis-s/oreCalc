@@ -1,5 +1,5 @@
 import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 import { state } from '../../core/state.js';
 
 import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';

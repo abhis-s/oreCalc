@@ -5,7 +5,7 @@ import { state, initializeState, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } 
 import { saveState, loadState, resetState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
-import { initializeAppData, importUserData } from './utils/cloudSaveHandler.js';
+import { registerStateUpdateCallback } from './core/stateManager.js';
 
 import { initializeHeader } from './components/layout/header.js';
 import { initializeTabs } from './components/layout/tabs.js';
@@ -33,9 +33,8 @@ import { initializeProspector } from './components/income/prospectorInputs.js';
 
 import { initializeIncomeCardHandler } from './components/income/incomeCardHandler.js';
 import { updateResponsiveText } from './utils/responsiveTextHandler.js';
-import { initializeCloudSaveButtons } from './utils/cloudSaveHandler.js';
 import { validateAllInputs, validateAllSelects } from './utils/inputValidator.js';
-import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
+
 import { loadTranslations, translate } from './i18n/translator.js';
 import { getChangelogHtml } from './services/changelogService.js';
 import { currencyData } from './data/appData.js';
@@ -58,6 +57,8 @@ window.addEventListener('unhandledrejection', (event) => {
 
 // Global modal focus manager for accessibility & usability
 function setupModalFocusManager() {
+    const activeListeners = new Map();
+
     const observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
@@ -74,38 +75,61 @@ function setupModalFocusManager() {
                             target.setAttribute('tabindex', '-1');
                         }
                         
-                        // Focus the first focusable element inside the modal
-                        const focusableElements = target.querySelectorAll(
-                            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-                        );
-                        
-                        let firstFocusable = null;
-                        for (const el of focusableElements) {
-                            if (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0) {
-                                if (!el.closest('.modal-header')) {
-                                    firstFocusable = el;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!firstFocusable) {
-                            for (const el of focusableElements) {
-                                if (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0) {
-                                    firstFocusable = el;
-                                    break;
-                                }
-                            }
-                        }
-                        
                         setTimeout(() => {
+                            const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+                            const focusableElements = Array.from(target.querySelectorAll(focusableSelector))
+                                .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
+                            
+                            let firstFocusable = focusableElements.find(el => !el.closest('.modal-header')) || focusableElements[0];
+
                             if (firstFocusable) {
                                 firstFocusable.focus();
                             } else {
                                 target.focus();
                             }
+
+                            // Trap focus inside the modal
+                            const handleKeyDown = (e) => {
+                                if (e.key !== 'Tab') return;
+                                
+                                const currentFocusables = Array.from(target.querySelectorAll(focusableSelector))
+                                    .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
+                                
+                                if (currentFocusables.length === 0) {
+                                    e.preventDefault();
+                                    target.focus();
+                                    return;
+                                }
+
+                                const first = currentFocusables[0];
+                                const last = currentFocusables[currentFocusables.length - 1];
+
+                                if (e.shiftKey) {
+                                    // Shift + Tab: wrap from first to last
+                                    if (document.activeElement === first || document.activeElement === target) {
+                                        e.preventDefault();
+                                        last.focus();
+                                    }
+                                } else {
+                                    // Tab: wrap from last to first
+                                    if (document.activeElement === last) {
+                                        e.preventDefault();
+                                        first.focus();
+                                    }
+                                }
+                            };
+
+                            target.addEventListener('keydown', handleKeyDown);
+                            activeListeners.set(target, handleKeyDown);
                         }, 50);
                     } else {
+                        // Remove keydown listener
+                        const listener = activeListeners.get(target);
+                        if (listener) {
+                            target.removeEventListener('keydown', listener);
+                            activeListeners.delete(target);
+                        }
+
                         // Restore focus to the previously focused element
                         setTimeout(() => {
                             if (target._previouslyFocusedElement && typeof target._previouslyFocusedElement.focus === 'function') {
@@ -361,6 +385,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     const savedState = loadState();
     initializeState(savedState);
 
+    // Sync active tab with location hash on startup to prevent routing mismatch
+    if (window.location.hash) {
+        const initialTab = `${window.location.hash.substring(1)}-tab`;
+        const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
+        if (validTabs.includes(initialTab)) {
+            state.activeTab = initialTab;
+        }
+    }
+
+    registerStateUpdateCallback((state, silent) => {
+        if (!silent) {
+            recalculateAll(state);
+            renderApp(state);
+        }
+    });
+
+    // Custom event listeners to decouple components from app.js imports
+    document.addEventListener('app:theme-change', (e) => {
+        applyTheme(e.detail.theme, e.detail.origin);
+    });
+
+    document.addEventListener('app:translate', () => {
+        updateUIWithTranslations();
+    });
+
     initializeDOMElements();
     setupModalFocusManager();
 
@@ -388,21 +437,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    (async () => {
-        try {
-            const syncedState = await initializeAppData();
-            if (syncedState) {
-                initializeState(syncedState);
-                saveState(state);
-                const appVersionDisplay = document.getElementById('app-version-display');
-                if (appVersionDisplay) {
-                    appVersionDisplay.textContent = '| v' + (state.appVersion || '2.0.0').replace(/^v/, '');
-                }
-            }
-        } catch (error) {
-            console.error("Error initializing app data:", error);
-        }
-    })();
+
 
     // 1. PERFORM MINIMAL BACKGROUND INIT IMMEDIATELY
     // Only load core translations and non-DOM state
@@ -463,6 +498,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         checkAndGenerateRecurringChips();
         renderApp(state);
 
+        // Make footer notices visible after initial tab rendering to prevent layout shifts
+        const notices = document.querySelectorAll('.supercell-notice, .app-copyright');
+        notices.forEach(notice => notice.classList.add('show'));
+
         initializeHeader();
         initializeTabs();
         initializeNavigation();
@@ -486,7 +525,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         initializeSupercellEventsInputs();
         initializeProspector();
         initializeIncomeCardHandler();
-        initializeCloudSaveButtons();
+        import('./utils/cloudSaveHandler.js').then(module => {
+            module.initializeCloudSaveButtons();
+        });
 
         validateAllInputs();
         validateAllSelects();
@@ -498,6 +539,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (activeTag && activeTag !== 'DEFAULT0') {
                     try {
                         refreshButton.classList.add('saving');
+                        const { loadAndProcessPlayerData } = await import('./services/serverResponseHandler.js');
                         const result = await loadAndProcessPlayerData(activeTag);
                         
                         refreshButton.classList.remove('saving');
@@ -526,7 +568,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
         checkLegalConsent();
-    }, 1000);
+    }, 100);
 
     // 3. SYNCHRONIZE PRELOADER REMOVAL
     if (preloader) {
@@ -560,6 +602,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             wb.register().catch(err => logger.error('SW registration failed:', err));
     }
+
+    // Start background cloud sync initialization after initial render is complete
+    setTimeout(async () => {
+        try {
+            const { initializeAppData } = await import('./utils/cloudSaveHandler.js');
+            const syncedState = await initializeAppData();
+            if (syncedState) {
+                initializeState(syncedState);
+                saveState(state);
+                const appVersionDisplay = document.getElementById('app-version-display');
+                if (appVersionDisplay) {
+                    appVersionDisplay.textContent = '| v' + (state.appVersion || '2.0.0').replace(/^v/, '');
+                }
+                recalculateAll(state);
+                renderApp(state);
+            }
+        } catch (error) {
+            console.error("Error initializing app data:", error);
+        }
+    }, 2000);
 
 
     // Generic handler for modals (close buttons and clicking outside)
@@ -675,38 +737,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-let cloudSaveTimeout = null;
-
-export function handleStateUpdate(updateFn, silent = false) {
-    if (!silent && state.planner?.calendar) {
-        state.planner.calendar.isDirty = true;
-    }
-    updateFn();
-
-    // Skip immediate render if we're about to handle it via View Transition (applyTheme)
-    // This prevents "double-rendering" which breaks transitions.
-    if (!silent) {
-        recalculateAll(state);
-        renderApp(state);
-    }
-    saveState(state);
-
-    if (state.uiSettings.cloudSync !== false) {
-        if (cloudSaveTimeout) {
-            clearTimeout(cloudSaveTimeout);
-        }
-        cloudSaveTimeout = setTimeout(() => {
-            import('./utils/cloudSaveHandler.js').then(module => {
-                module.triggerCloudSave({ silent: true });
-            });
-        }, 3000);
-    } else {
-        if (cloudSaveTimeout) {
-            clearTimeout(cloudSaveTimeout);
-            cloudSaveTimeout = null;
-        }
-    }
-}
+export { handleStateUpdate } from './core/stateManager.js';
 window.resetApplication = () => {
     resetState();
     localStorage.removeItem('oreCalcUserId');

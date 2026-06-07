@@ -12,8 +12,9 @@ workbox.setConfig({ debug: false });
 
 const { PrecacheController, cleanupOutdatedCaches } = workbox.precaching;
 const { registerRoute }                              = workbox.routing;
-const { NetworkFirst, StaleWhileRevalidate }         = workbox.strategies;
+const { NetworkFirst, StaleWhileRevalidate, CacheFirst } = workbox.strategies;
 const { CacheableResponsePlugin }                    = workbox.cacheableResponse;
+const { ExpirationPlugin }                           = workbox.expiration;
 
 // Clean up old caches from previous versions of Workbox
 cleanupOutdatedCaches();
@@ -108,4 +109,19 @@ registerRoute(
 registerRoute(
     ({ request }) => request.mode === 'navigate',
     new StaleWhileRevalidate({ cacheName: 'navigation-cache' })
+);
+
+// Cache Clash of Clans API assets (like league icons)
+registerRoute(
+    /^https:\/\/api-assets\.clashofclans\.com\//,
+    new CacheFirst({
+        cacheName: 'clash-assets-cache',
+        plugins: [
+            new CacheableResponsePlugin({ statuses: [0, 200] }),
+            new ExpirationPlugin({
+                maxEntries: 50,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+            }),
+        ],
+    })
 );
