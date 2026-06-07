@@ -74,7 +74,9 @@ const allowedOrigins = [
     'https://orecalc.tech',
     'https://www.orecalc.tech',
     'http://localhost:8080',
-    'http://127.0.0.1:8080'
+    'http://127.0.0.1:8080',
+    'http://localhost:8081',
+    'http://127.0.0.1:8081'
 ];
 
 app.use(cors({
@@ -487,15 +489,15 @@ app.get('/api/check-ip', async (req, res) => {
     }
 });
 
-// Schedule automatic periodic pruning of inactive user sync data (runs every 15 days)
+// Schedule automatic periodic pruning of inactive user sync data (runs every 7 days)
 const { pruneInactiveUsers } = require('./scripts/prune-inactive-users.js');
-const FIFTEEN_DAYS_MS = 15 * 24 * 60 * 60 * 1000;
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 setTimeout(() => {
     pruneInactiveUsers().catch(err => console.error('[SCHEDULED PRUNE] Initial run failed:', err));
     
     setInterval(() => {
         pruneInactiveUsers().catch(err => console.error('[SCHEDULED PRUNE] Run failed:', err));
-    }, FIFTEEN_DAYS_MS);
+    }, SEVEN_DAYS_MS);
 }, 60 * 1000); // 1 minute startup delay
 
 app.listen(port, '0.0.0.0', () => {

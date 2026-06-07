@@ -35,9 +35,11 @@ async function pruneInactiveUsers() {
 
         console.log(`[PRUNE] Scanning for userStates documents inactive since (90 days): ${thresholdIsoString}`);
 
-        // ISO string comparison works natively in Firestore query sorting/filtering
+        // ISO string comparison works natively in Firestore query sorting/filtering.
+        // Limit to 25 documents per run to avoid large transactions and prune progressively.
         const querySnapshot = await db.collection('userStates')
             .where('timestamp', '<', thresholdIsoString)
+            .limit(25)
             .get();
 
         console.log(`[PRUNE] Found ${querySnapshot.size} inactive userStates documents to prune.`);
@@ -47,11 +49,12 @@ async function pruneInactiveUsers() {
             return;
         }
 
-        // Firestore batch limits operations to 500 writes
+        // Firestore batch limits operations to 500 writes. We use 25 here
+        // to avoid "Transaction too big" errors when documents/index entries are large.
         const docs = querySnapshot.docs;
         const chunks = [];
-        for (let i = 0; i < docs.length; i += 500) {
-            chunks.push(docs.slice(i, i + 500));
+        for (let i = 0; i < docs.length; i += 25) {
+            chunks.push(docs.slice(i, i + 25));
         }
 
         let prunedCount = 0;
