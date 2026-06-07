@@ -26,8 +26,12 @@
 
             &:focus {
                 outline: none;
+            }
+
+            &:focus-visible {
                 border-color: $accent-primary;
                 box-shadow: 0 0 0 3px $accent-primary-soft;
+                outline: none;
             }
 
             &.input-error {
@@ -64,8 +68,12 @@
 
             &:focus {
                 outline: none;
+            }
+
+            &:focus-visible {
                 border-color: $accent-primary;
                 box-shadow: 0 0 0 3px $accent-primary-soft;
+                outline: none;
             }
 
             &.input-error {

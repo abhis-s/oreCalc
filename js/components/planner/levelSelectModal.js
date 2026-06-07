@@ -231,10 +231,10 @@ function renderTableRows() {
         const row = `
             <tr data-step-id="${i}">
                 <td>
-                    <label class="switch">
+                    <div class="switch">
                         <input type="checkbox" id="enable-switch-${i}" class="enable-switch" checked>
                         <span class="slider round"></span>
-                    </label>
+                    </div>
                 </td>
                 <td>#${i}</td>
                 <td class="level-input-cell">

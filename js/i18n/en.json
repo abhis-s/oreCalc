@@ -35,6 +35,14 @@
         "protectedTagNote": "In order to load the data for this player tag, you must prove your ownership.",
         "disclaimer": "By loading a player tag, you agree to our <a href=\"#\" id=\"add-player-terms-link\" class=\"theme-link\">Terms of Use</a> and acknowledge our <a href=\"#\" id=\"add-player-privacy-link\" class=\"theme-link\">Privacy Policy</a>. Player data is retrieved from the Clash of Clans API."
     },
+    "colors": {
+        "blue": "Blue Accent",
+        "gold": "Gold Accent",
+        "purple": "Purple Accent",
+        "green": "Green Accent",
+        "red": "Red Accent",
+        "random": "Random Accent"
+    },
     "alts": {
         "oresIcon": "Ores Icon",
         "timeIcon": "Time Icon",
@@ -78,6 +86,7 @@
         "short": "Time"
     },
     "income": {
+        "timeframeAriaLabel": "Select income timeframe",
         "summaryTitle": "Income Summary",
         "summaryTitleShort": "Summary",
         "source": "Source",
@@ -127,14 +136,20 @@
             "participationsColon": "Clan War Participations:",
             "warsPerMonth": "Wars per Month",
             "resource": "{count} Wars ({winRate}% Wins)",
-            "none": "No Clan Wars"
+            "none": "No Clan Wars",
+            "shinyBonusAriaLabel": "Clan War Shiny Ore per attack bonus",
+            "glowyBonusAriaLabel": "Clan War Glowy Ore per attack bonus",
+            "starryBonusAriaLabel": "Clan War Starry Ore per attack bonus"
         },
         "cwl": {
             "title": "CWL",
             "participationsColon": "CWL Participations:",
             "hitsPerSeason": "Hits per Season",
             "resource": "{count} Hits ({winRate}% Wins)",
-            "none": "No CWL"
+            "none": "No CWL",
+            "shinyBonusAriaLabel": "CWL Shiny Ore per attack bonus",
+            "glowyBonusAriaLabel": "CWL Glowy Ore per attack bonus",
+            "starryBonusAriaLabel": "CWL Starry Ore per attack bonus"
         },
         "raidMedalTrader": {
             "title": "Raid Medal Trader",
@@ -168,7 +183,8 @@
             "th8Set": "TH8 Set",
             "cost": "Cost",
             "offer": "Offer",
-            "packs": "Packs"
+            "packs": "Packs",
+            "packCheckbox": "Select Pack {num} for {name}"
         },
         "supercellEvents": {
             "title": "Supercell Events",
@@ -182,7 +198,8 @@
             "lcq": "Last Chance Qualifier",
             "worldFinals": "World Finals",
             "inDays": "(In {days} day(s))",
-            "bonusesUnknown": "Resource bonuses during events are currently unknown."
+            "bonusesUnknown": "Resource bonuses during events are currently unknown.",
+            "packInput": "Number of {name} packs"
         },
         "prospector": {
             "title": "Prospector",
@@ -190,7 +207,9 @@
             "from": "From",
             "fromOre": "From Ore",
             "to": "To",
+            "toOre": "To Ore",
             "availableDays": "Available Days per Month",
+            "sliderAriaLabel": "Prospector exchange amount slider",
             "tooltipConsider": "Consider using the prospector to balance the ores.",
             "tips": {
                 "addToPlanner": "Add equipment to your priority list in the <b>Planner</b> tab to get dynamic conversion tips.",
@@ -264,6 +283,8 @@
         "legendI": "Legend I"
     },
     "planner": {
+        "toggleHero": "Toggle {name} inclusion",
+        "toggleEquipment": "Toggle {name} inclusion",
         "enableLevelInput": "Enable level input",
         "hideMaxedEquipment": "Hide maxed equipment",
         "equipmentHiddenCount": "{count} maxed equipment hidden",
@@ -274,6 +295,7 @@
         "epic": "Epic",
         "recommended": "Recommended",
         "standardMax": "Standard Max",
+        "editPriorityList": "Edit Priority List",
         "priorityList": "Priority List",
         "calendarTitle": "Calendar Planner",
         "settingsModal": {
@@ -350,6 +372,17 @@
         "confirmDeleteAll": "Are you sure you want to delete all chips from the calendar? This will also remove all unplaced custom chips."
     },
     "actions": {
+        "upgrade": "Upgrade",
+        "upgradeToLevel": "Upgrade {name} to level {level}",
+        "viewSuggestions": "View suggestions",
+        "resetPriorityList": "Reset priority list",
+        "calendarSettings": "Calendar Settings",
+        "deleteMonthChips": "Delete current month's chips",
+        "deleteAllChips": "Delete all chips",
+        "createCustomChips": "Create Custom Chips",
+        "close": "Close",
+        "actionsMenu": "Actions Menu",
+        "delete": "Delete",
         "autoPlace": "Auto Place",
         "manage": "Manage",
         "copyUserId": "Copy User ID",

@@ -63,6 +63,11 @@ export function renderShopOfferRow(offer, offerState) {
     select.id = `shop-offers-${offer.id}-dropdown`;
     select.name = `shop-offers-${offer.id}-dropdown`;
     select.dataset.offerId = offer.id;
+    
+    const oreName = translate('ores.' + oreType);
+    const offerName = `${formatNumber(Math.round(oreValue))} ${oreName}`;
+    select.setAttribute('aria-label', translate('income.supercellEvents.packInput', { name: offerName }));
+
     for (let i = 0; i <= offer.maxPacks; i++) {
         const option = document.createElement('option');
         option.value = i;
@@ -85,6 +90,14 @@ export function renderShopOfferRow(offer, offerState) {
             checkbox.id = `cb_${offer.id}_${i}`;
             checkbox.name = `cb_${offer.id}_${i}`;
             checkbox.checked = i <= offerState;
+            
+            const oreName = translate('ores.' + oreType);
+            const offerName = `${formatNumber(Math.round(oreValue))} ${oreName}`;
+            checkbox.setAttribute('aria-label', translate('income.shopOffers.packCheckbox', {
+                num: i,
+                name: offerName
+            }));
+            
             checkboxDiv.appendChild(checkbox);
         }
         row.appendChild(checkboxDiv);

@@ -18,12 +18,16 @@ export function renderEventTraderRow(offer, packs) {
     const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
     const oreAmount = offer[oreType];
 
+    const oreName = translate('ores.' + oreType);
+    const offerName = `${oreAmount} ${oreName}`;
+    const ariaLabel = translate('income.supercellEvents.packInput', { name: offerName });
+
     row.innerHTML = `
         <div class="offer-cost-display"><orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" class="ore-image event-medal-icon" size="thumbnail"></orecalc-assets-image> ${offer.cost}</div>
         <div class="offer-ore-display"><span>${oreAmount}</span> <orecalc-assets-image src="assets/${oreType}_ore.png" alt="${oreType.charAt(0).toUpperCase() + oreType.slice(1)} Ore" class="ore-image"></orecalc-assets-image></div>
         <div class="offer-input-instance">
             <div class="popover-wrapper">
-                <input type="number" class="updatable offer-input-number" id="event-trader-${offer.id}-input" value="${packs}" min="0" max="${offer.maxPacks}" maxlength="2" data-offer-id="${offer.id}">
+                <input type="number" class="updatable offer-input-number" id="event-trader-${offer.id}-input" value="${packs}" min="0" max="${offer.maxPacks}" maxlength="2" data-offer-id="${offer.id}" aria-label="${ariaLabel}">
             </div>
         </div>
     `;

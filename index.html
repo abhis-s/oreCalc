@@ -32,14 +32,18 @@
     <div id="overlay" class="overlay"></div>
     <div id="preloader">
         <div class="preloader-loader">
-            <span></span><span></span><span></span><span></span><span></span>
+            <div class="preloader-dot-wrapper"><span></span></div>
+            <div class="preloader-dot-wrapper"><span></span></div>
+            <div class="preloader-dot-wrapper"><span></span></div>
+            <div class="preloader-dot-wrapper"><span></span></div>
+            <div class="preloader-dot-wrapper"><span></span></div>
         </div>
     </div>
 
     <!-- include: partials/header.html -->
     <!-- include: partials/navigation-drawer.html -->
 
-    <div class="container">
+    <main class="container">
         <div class="header-placeholder"></div>
 
         <!-- include: partials/tabs/home.html -->
@@ -47,7 +51,7 @@
         <!-- include: partials/tabs/income.html -->
         <!-- include: partials/tabs/planner.html -->
         <!-- include: partials/tabs/settings.html -->
-    </div>
+    </main>
 
     <!-- include: partials/floating-save-button.html -->
     <!-- include: partials/fab.html -->
@@ -90,7 +94,7 @@
     <!-- include: partials/modals/create-custom-chips.html -->
     <!-- include: partials/modals/licenses.html -->
     <!-- include: partials/modals/running-costs.html -->
-    <script src="js/qr-code-styling.js"></script>
+    <script src="js/qr-code-styling.js" defer></script>
 </body>
 
 </html>

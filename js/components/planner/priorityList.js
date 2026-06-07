@@ -25,6 +25,7 @@ export function initializePriorityList() {
 
     const editButton = document.createElement('button');
     editButton.classList.add('edit-priority-list-btn');
+    editButton.setAttribute('aria-label', translate('planner.editPriorityList') || 'Edit Priority List');
     editButton.innerHTML = getSVG('edit', '', 24, 24, 'currentColor');
     editButton.addEventListener('click', () => {
         openPriorityListModal(); 

@@ -35,6 +35,14 @@
         "protectedTagNote": "Um die Daten für dieses Spielerkürzel zu laden, musst du deinen Besitz nachweisen.",
         "disclaimer": "Durch das Laden eines Spieler-Kürzels stimmst du unseren <a href=\"#\" id=\"add-player-terms-link\" class=\"theme-link\">Nutzungsbedingungen</a> zu und bestätigst, dass du unsere <a href=\"#\" id=\"add-player-privacy-link\" class=\"theme-link\">Datenschutzerklärung</a> gelesen hast. Spielerdaten werden von der Clash of Clans-API abgerufen."
     },
+    "colors": {
+        "blue": "Blaues Accent",
+        "gold": "Goldenes Accent",
+        "purple": "Lila Accent",
+        "green": "Grünes Accent",
+        "red": "Rotes Accent",
+        "random": "Zufälliges Accent"
+    },
     "alts": {
         "oresIcon": "Erz-Icon",
         "timeIcon": "Zeit-Icon",
@@ -78,6 +86,7 @@
         "short": "Zeit"
     },
     "income": {
+        "timeframeAriaLabel": "Einkommenszeitrahmen auswählen",
         "summaryTitle": "Einkommensübersicht",
         "summaryTitleShort": "Übersicht",
         "source": "Quelle",
@@ -127,14 +136,20 @@
             "participationsColon": "Clankrieg-Teilnahmen:",
             "warsPerMonth": "Kriege pro Monat",
             "resource": "{count} Kriege ({winRate}% Gewinn)",
-            "none": "Keine Clankriege"
+            "none": "Keine Clankriege",
+            "shinyBonusAriaLabel": "Clankrieg Shiny-Erz-Bonus pro Angriff",
+            "glowyBonusAriaLabel": "Clankrieg Glowy-Erz-Bonus pro Angriff",
+            "starryBonusAriaLabel": "Clankrieg Starry-Erz-Bonus pro Angriff"
         },
         "cwl": {
             "title": "CKL",
             "participationsColon": "CKL-Teilnahmen:",
             "hitsPerSeason": "Angriffe pro Saison",
             "resource": "{count} Angriffe ({winRate}% Gewinn)",
-            "none": "Keine CKL"
+            "none": "Keine CKL",
+            "shinyBonusAriaLabel": "CKL Shiny-Erz-Bonus pro Angriff",
+            "glowyBonusAriaLabel": "CKL Glowy-Erz-Bonus pro Angriff",
+            "starryBonusAriaLabel": "CKL Starry-Erz-Bonus pro Angriff"
         },
         "raidMedalTrader": {
             "title": "Überfallmedaillen-Händler",
@@ -168,7 +183,8 @@
             "th8Set": "RH8 Set",
             "cost": "Kosten",
             "offer": "Angebot",
-            "packs": "Pakete"
+            "packs": "Pakete",
+            "packCheckbox": "Wähle Pack {num} für {name}"
         },
         "supercellEvents": {
             "title": "Supercell-Events",
@@ -183,7 +199,8 @@
             "lcq": "Last Chance Qualifier",
             "worldFinals": "World Finals",
             "inDays": "(In {days} Tag(en))",
-            "bonusesUnknown": "Ressourcen-Boni während Events sind derzeit unbekannt."
+            "bonusesUnknown": "Ressourcen-Boni während Events sind derzeit unbekannt.",
+            "packInput": "Anzahl der {name}-Packs"
         },
         "prospector": {
             "title": "Prospektor",
@@ -191,7 +208,9 @@
             "from": "Von",
             "fromOre": "Vom Erz",
             "to": "Zu",
+            "toOre": "Zum Erz",
             "availableDays": "Verfügbare Tage pro Monat",
+            "sliderAriaLabel": "Prospektor Umtauschbetrag-Schieberegler",
             "tooltipConsider": "Ziehe in Erwägung, den Schürfer zu nutzen, um die Erze auszugleichen.",
             "tips": {
                 "addToPlanner": "Füge Ausrüstung zu deiner Prioritäten-Liste im Tab <b>Planer</b> hinzu, um dynamische Umwandlungs-Tipps zu erhalten.",
@@ -265,6 +284,8 @@
         "legendI": "Legende I"
     },
     "planner": {
+        "toggleHero": "{name}-Einbeziehung umschalten",
+        "toggleEquipment": "{name}-Einbeziehung umschalten",
         "enableLevelInput": "Level-Eingabe aktivieren",
         "hideMaxedEquipment": "Max. Ausrüstung ausblenden",
         "equipmentHiddenCount": "{count} maxierte Ausrüstungen ausgeblendet",
@@ -275,6 +296,7 @@
         "epic": "Episch",
         "recommended": "Empfohlen",
         "standardMax": "Standard-Max",
+        "editPriorityList": "Prioritäten-Liste bearbeiten",
         "priorityList": "Prioritäten-Liste",
         "calendarTitle": "Kalender-Planer",
         "settingsModal": {
@@ -350,6 +372,17 @@
         "confirmDeleteAll": "Sind Sie sicher, dass Sie alle Chips vom Kalender löschen möchten? Dadurch werden auch alle noch nicht platzierten eigenen Chips entfernt."
     },
     "actions": {
+        "upgrade": "Verbessern",
+        "upgradeToLevel": "{name} auf Level {level} verbessern",
+        "viewSuggestions": "Vorschläge anzeigen",
+        "resetPriorityList": "Prioritäten-Liste zurücksetzen",
+        "calendarSettings": "Kalender-Einstellungen",
+        "deleteMonthChips": "Chips des aktuellen Monats löschen",
+        "deleteAllChips": "Alle Chips löschen",
+        "createCustomChips": "Eigene Chips erstellen",
+        "close": "Schließen",
+        "actionsMenu": "Aktionsmenü",
+        "delete": "Löschen",
         "autoPlace": "Auto-Platzierung",
         "manage": "Verwalten",
         "copyUserId": "Nutzer-ID kopieren",

@@ -2,7 +2,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2 data-i18n="ores.storedTitle">Stored Ores</h2>
-            <button id="close-stored-ores-modal-btn" class="close-button">
+            <button id="close-stored-ores-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
@@ -38,10 +38,10 @@
                     </div>
                     <p class="form-setting-text" data-i18n="ores.autoPredictDesc">Predict stored ores using in-game upgrades activity.</p>
                 </div>
-                <label class="switch" style="opacity: 0.6; pointer-events: none;">
+                <div class="switch" style="opacity: 0.6; pointer-events: none;">
                     <input type="checkbox" id="modal-stored-ore-auto-predict" disabled>
                     <span class="slider round"></span>
-                </label>
+                </div>
             </div>
 
             <!-- Don't ask again switch -->
@@ -50,10 +50,10 @@
                     <label for="modal-stored-ore-dont-ask" data-i18n="ores.dontAskTwoMonths">Don't show again for 2 months</label>
                     <p class="form-setting-text" data-i18n="ores.dontAskTwoMonthsDesc">Mute this stored ores reminder modal for the next two months.</p>
                 </div>
-                <label class="switch">
+                <div class="switch">
                     <input type="checkbox" id="modal-stored-ore-dont-ask">
                     <span class="slider round"></span>
-                </label>
+                </div>
             </div>
         </div>
         <div class="modal-actions">

@@ -19,13 +19,22 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
     const selected = dropdownElement.querySelector('.dropdown-selected');
     const options = dropdownElement.querySelector('.dropdown-options');
 
+    dropdownElement.setAttribute('tabindex', '0');
+    dropdownElement.setAttribute('role', 'combobox');
+    dropdownElement.setAttribute('aria-haspopup', 'listbox');
+    dropdownElement.setAttribute('aria-expanded', 'false');
+    const labelKey = whichOre === 'from' ? 'income.prospector.fromOre' : 'income.prospector.toOre';
+    dropdownElement.setAttribute('aria-label', translate(labelKey));
+
     selected.addEventListener('click', () => {
         dropdownElement.classList.toggle('open');
+        dropdownElement.setAttribute('aria-expanded', dropdownElement.classList.contains('open') ? 'true' : 'false');
     });
 
     document.addEventListener('click', (e) => {
         if (!dropdownElement.contains(e.target)) {
             dropdownElement.classList.remove('open');
+            dropdownElement.setAttribute('aria-expanded', 'false');
         }
     });
 
@@ -51,6 +60,49 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
 
             updateConversion();
             dropdownElement.classList.remove('open');
+            dropdownElement.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    dropdownElement.addEventListener('keydown', (e) => {
+        const target = e.target;
+        const isOpen = dropdownElement.classList.contains('open');
+
+        if (target === dropdownElement) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                dropdownElement.classList.toggle('open');
+                dropdownElement.setAttribute('aria-expanded', dropdownElement.classList.contains('open') ? 'true' : 'false');
+                if (dropdownElement.classList.contains('open')) {
+                    const firstOpt = options.querySelector('.dropdown-option');
+                    if (firstOpt) {
+                        setTimeout(() => firstOpt.focus(), 50);
+                    }
+                }
+            }
+        } else if (target.classList.contains('dropdown-option')) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                target.click();
+                dropdownElement.focus();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                dropdownElement.classList.remove('open');
+                dropdownElement.setAttribute('aria-expanded', 'false');
+                dropdownElement.focus();
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                const next = target.nextElementSibling;
+                if (next && next.classList.contains('dropdown-option')) {
+                    next.focus();
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                const prev = target.previousElementSibling;
+                if (prev && prev.classList.contains('dropdown-option')) {
+                    prev.focus();
+                }
+            }
         }
     });
 }
@@ -76,6 +128,8 @@ function updateProspectorDropdowns() {
         if (ore !== fromOreValue) {
             const option = document.createElement('div');
             option.classList.add('dropdown-option');
+            option.setAttribute('tabindex', '0');
+            option.setAttribute('role', 'option');
             option.dataset.value = ore;
             option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
             fromOreOptions.appendChild(option);
@@ -89,6 +143,8 @@ function updateProspectorDropdowns() {
         if (ore !== fromOreValue && ore !== toOreValue) {
             const option = document.createElement('div');
             option.classList.add('dropdown-option');
+            option.setAttribute('tabindex', '0');
+            option.setAttribute('role', 'option');
             option.dataset.value = ore;
             option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
             toOreOptions.appendChild(option);

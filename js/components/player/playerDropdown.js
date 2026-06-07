@@ -73,6 +73,7 @@ export function initializePlayerDropdown() {
     if (playerControlsContainer) {
         playerControlsContainer.addEventListener('mouseenter', () => {
             if (Date.now() - lastTouchTime < 1000) return;
+            if (document.querySelector('.modal.show')) return;
             openDropdown();
         });
 
@@ -83,6 +84,7 @@ export function initializePlayerDropdown() {
 
         playerControlsContainer.addEventListener('focusin', () => {
             if (Date.now() - lastTouchTime < 1000) return;
+            if (document.querySelector('.modal.show')) return;
             openDropdown();
         });
 
@@ -131,7 +133,7 @@ export function renderPlayerDropdown() {
                             <span>${playerName}</span>
                             <span class="player-tag-text">#${tag}</span>
                         </div>
-                        <button class="delete-player-button" data-tag="${tag}" ${isDefaultTag ? 'disabled' : ''}>
+                        <button class="delete-player-button" data-tag="${tag}" ${isDefaultTag ? 'disabled' : ''} aria-label="${translate('actions.delete') || 'Delete'} ${playerName}">
                             ${getSVG('trash', '', 24, 24, 'currentColor')}
                         </button>
                     </div>`;

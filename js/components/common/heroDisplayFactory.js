@@ -74,6 +74,9 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         checkbox.id = `${idPrefix}-${toCamelCase(equip.name)}-toggle`;
         checkbox.name = `${idPrefix}-${toCamelCase(equip.name)}-toggle`;
         checkbox.checked = isChecked;
+        checkbox.setAttribute('aria-label', translate('planner.toggleEquipment', {
+            name: translate('equipment.' + equipKey) || equip.name
+        }));
         switchLabel.appendChild(checkbox);
 
         const slider = document.createElement('span');
@@ -105,6 +108,10 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         upgradeBtn.dataset.action = 'increment-level';
         upgradeBtn.dataset.maxLevel = maxLevel;
         upgradeBtn.style.visibility = isMaxLevel ? 'hidden' : 'visible';
+        upgradeBtn.setAttribute('aria-label', translate('actions.upgradeToLevel', {
+            name: translate('equipment.' + equipKey) || equip.name,
+            level: currentLevel + 1
+        }));
         upgradeBtn.innerHTML = getSVG('arrow-up');
         displayContainer.appendChild(upgradeBtn);
         container.appendChild(displayContainer);

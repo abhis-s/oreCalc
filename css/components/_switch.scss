@@ -8,9 +8,15 @@
     width: 52px;
 
     input {
-        height: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         opacity: 0;
-        width: 0;
+        margin: 0;
+        cursor: pointer;
+        z-index: 3;
     }
 
     .slider {
@@ -47,14 +53,14 @@
             width: 24px;
             z-index: 2;
         }
+    }
 
-        &:hover:before {
-            transform: scale(1.1);
-        }
+    input:hover + .slider:before {
+        transform: scale(1.1);
+    }
 
-        &:active:before {
-            width: 32px; // Stretch effect when holding
-        }
+    input:active + .slider:before {
+        width: 32px; // Stretch effect when holding
     }
 
     input:checked + .slider {
@@ -64,14 +70,18 @@
             background-color: $material-thumb-active;
             transform: translateX(20px);
         }
-
-        &:hover:before {
-            transform: translateX(20px) scale(1.1);
-        }
     }
 
-    input:focus + .slider {
-        box-shadow: 0 0 0 4px $accent-primary-soft;
+    input:checked:hover + .slider:before {
+        transform: translateX(20px) scale(1.1);
+    }
+
+    input:focus {
+        outline: none;
+    }
+
+    input:focus-visible + .slider {
+        box-shadow: 0 0 0 2px $accent-primary, 0 0 0 5px $accent-primary-soft;
     }
 
     // Large Variant (Planner Hero Toggles)
@@ -84,20 +94,20 @@
                 height: 26px;
                 width: 26px;
             }
+        }
 
-            &:active:before {
-                width: 38px;
-            }
+        input:active + .slider:before {
+            width: 38px;
         }
 
         input:checked + .slider {
             &:before {
                 transform: translateX(26px);
             }
+        }
 
-            &:hover:before {
-                transform: translateX(26px) scale(1.1);
-            }
+        input:checked:hover + .slider:before {
+            transform: translateX(26px) scale(1.1);
         }
     }
 
@@ -152,11 +162,13 @@
                 background-color: $theme-switch-thumb-light;
                 transform: translateX(20px);
             }
+        }
 
-            &:hover:before {
-                transform: translateX(20px) scale(1.1);
-            }
+        input:checked:hover + .slider:before {
+            transform: translateX(20px) scale(1.1);
+        }
 
+        input:checked + .slider {
             .icon-light { 
                 opacity: 1; 
                 transform: rotate(0deg) scale(1);

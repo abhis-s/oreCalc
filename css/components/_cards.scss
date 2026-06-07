@@ -239,7 +239,9 @@
             display: inline-block;
             height: 30px;
             margin-right: 10px;
-            width: 60px;
+            width: auto;
+            aspect-ratio: 16/9;
+            object-fit: contain;
         }
     }
 

@@ -45,6 +45,10 @@
             width: 80px;
 
             &:focus {
+                outline: none;
+            }
+
+            &:focus-visible {
                 border-color: $accent-primary;
                 box-shadow: 0 0 0 3px $accent-primary-soft;
                 outline: none;
@@ -239,7 +243,7 @@
 
     .ore-image {
         height: 18px;
-        width: 18px;
+        width: auto;
     }
 }
 
@@ -281,7 +285,7 @@
 
         .ore-image {
             height: 18px;
-            width: 18px;
+            width: auto;
         }
 
         span {
@@ -327,6 +331,11 @@
             }
 
             &:focus {
+                outline: none;
+            }
+
+            &:focus-visible {
+                border-color: $accent-primary;
                 box-shadow: 0 0 0 3px $accent-primary-soft;
             }
 
@@ -395,7 +404,7 @@
 
             .ore-image {
                 height: 24px;
-                width: 24px;
+                width: auto;
             }
 
             .raid-medal-image {
@@ -435,7 +444,7 @@
     .ore-image {
         height: 18px;
         margin-left: 2.5px;
-        width: 18px;
+        width: auto;
     }
 }
 
@@ -720,6 +729,10 @@
         transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     
         &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
             border-color: $accent-primary;
             box-shadow: 0 0 0 3px $accent-primary-soft;
             outline: none;
@@ -736,6 +749,14 @@
 
         &:focus {
             outline: none;
+        }
+
+        &:focus-visible::-webkit-slider-thumb {
+            box-shadow: 0 0 0 2px $accent-primary, 0 0 0 5px $accent-primary-soft;
+        }
+
+        &:focus-visible::-moz-range-thumb {
+            box-shadow: 0 0 0 2px $accent-primary, 0 0 0 5px $accent-primary-soft;
         }
 
         &::-webkit-slider-runnable-track {

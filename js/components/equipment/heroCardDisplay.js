@@ -161,7 +161,14 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             label.classList.toggle('gold-glow', isMaxLevel);
             equipmentImage.classList.toggle('gold-glow', isMaxLevel);
 
-            if (upgradeButton) upgradeButton.style.visibility = isMaxLevel ? 'hidden' : 'visible';
+            if (upgradeButton) {
+                upgradeButton.style.visibility = isMaxLevel ? 'hidden' : 'visible';
+                const equipKey = toCamelCase(equipName);
+                upgradeButton.setAttribute('aria-label', translate('actions.upgradeToLevel', {
+                    name: translate('equipment.' + equipKey) || equipName,
+                    level: currentLevel + 1
+                }));
+            }
 
             let isOverLeveled = false;
             const equipmentData = currentHeroData.equipment.find(e => e.name === equipName);

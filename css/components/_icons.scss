@@ -11,12 +11,28 @@
 
 .ore-image {
     height: 30px;
-    width: 30px;
+    width: auto;
+    object-fit: contain;
+
+    &[src*="shiny_ore"],
+    img[src*="shiny_ore"] {
+        aspect-ratio: 392 / 362;
+    }
+    &[src*="glowy_ore"],
+    img[src*="glowy_ore"] {
+        aspect-ratio: 371 / 381;
+    }
+    &[src*="starry_ore"],
+    img[src*="starry_ore"] {
+        aspect-ratio: 402 / 423;
+    }
 }
 
 .title-icon {
     height: 30px;
     margin-right: 10px;
     vertical-align: middle;
-    width: 60px;
+    width: auto;
+    aspect-ratio: 16/9;
+    object-fit: contain;
 }

@@ -2,7 +2,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2 data-i18n="planner.settingsModal.title">Calendar Settings</h2>
-            <button id="close-calendar-settings-modal-btn" class="close-button">
+            <button id="close-calendar-settings-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
@@ -35,10 +35,10 @@
                     <label for="calendar-show-icons-switch" data-i18n="planner.settingsModal.showChipIcons">Show Resource Icons</label>
                     <p class="form-setting-text" data-i18n="planner.settingsModal.showChipIconsDesc">Display icons for ores and leagues on chips.</p>
                 </div>
-                <label class="switch">
+                <div class="switch">
                     <input type="checkbox" id="calendar-show-icons-switch">
                     <span class="slider round"></span>
-                </label>
+                </div>
             </div>
         </div>
         <div class="modal-actions">

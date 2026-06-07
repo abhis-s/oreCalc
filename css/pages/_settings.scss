@@ -31,6 +31,10 @@
     box-sizing: border-box;
 
     &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
         border-color: $accent-primary;
         box-shadow: 0 0 0 3px $accent-primary-soft;
         outline: none;
@@ -295,6 +299,10 @@
         }
 
         &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
             border-color: $accent-primary;
             box-shadow: 0 0 0 3px $accent-primary-soft;
             outline: none;

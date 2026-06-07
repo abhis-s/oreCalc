@@ -101,6 +101,9 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         checkbox.id = `planner-${heroKey}-toggle`;
         checkbox.name = `planner-${heroKey}-toggle`;
         checkbox.checked = heroState.enabled !== false;
+        checkbox.setAttribute('aria-label', translate('planner.toggleHero', {
+            name: translate(`heroes.${heroKey}`) || hero.name
+        }));
         switchLabel.appendChild(checkbox);
 
         const slider = document.createElement('span');

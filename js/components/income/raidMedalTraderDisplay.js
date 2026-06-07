@@ -34,6 +34,14 @@ export function renderRaidMedalTraderRow(offer, offerState) {
             checkbox.id = `${offer.id}_${i}`;
             checkbox.name = `${offer.id}_${i}`;
             checkbox.checked = i <= offerState;
+            
+            const oreName = translate('ores.' + oreType);
+            const offerName = `${formatNumber(oreValue)} ${oreName}`;
+            checkbox.setAttribute('aria-label', translate('income.shopOffers.packCheckbox', {
+                num: i,
+                name: offerName
+            }));
+            
             checkboxDiv.appendChild(checkbox);
         }
         row.appendChild(checkboxDiv);

@@ -3,13 +3,13 @@
             <div class="modal-header">
                 <h2 id="priority-list-modal-title"></h2>
                 <div class="button-group">
-                    <button id="unhide-suggestion-btn" class="suggestion-message-btn" style="display: none; position: relative;">
+                    <button id="unhide-suggestion-btn" class="suggestion-message-btn" style="display: none; position: relative;" data-i18n-aria-label="actions.viewSuggestions" aria-label="View suggestions">
                         <orecalc-assets-svg name="suggestion" width="20" height="20"></orecalc-assets-svg>
                         <span id="suggestion-badge" class="badge">0</span>
                     </button>
-                    <button id="priority-list-stored-ores-btn" class="stored-ores-button" title="Stored Ores" data-i18n-title="ores.storedTitle"><orecalc-assets-image src="assets/equipment/equip_placeholder.png" alt="Stored Ores" size="thumbnail"></orecalc-assets-image></button>
-                    <button id="reset-priority-list-modal-btn" class="reset-button"><orecalc-assets-svg name="trash"></orecalc-assets-svg></button>
-                    <button id="close-priority-list-modal-btn" class="close-button"><orecalc-assets-svg name="close"></orecalc-assets-svg></button>
+                    <button id="priority-list-stored-ores-btn" class="stored-ores-button" title="Stored Ores" data-i18n-title="ores.storedTitle" data-i18n-aria-label="ores.storedTitle" aria-label="Stored Ores"><orecalc-assets-image src="assets/equipment/equip_placeholder.png" alt="Stored Ores" size="thumbnail"></orecalc-assets-image></button>
+                    <button id="reset-priority-list-modal-btn" class="reset-button" data-i18n-aria-label="actions.resetPriorityList" aria-label="Reset priority list"><orecalc-assets-svg name="trash"></orecalc-assets-svg></button>
+                    <button id="close-priority-list-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close"><orecalc-assets-svg name="close"></orecalc-assets-svg></button>
                 </div>
             </div>
             <div id="priority-list-modal-body" class="modal-body">

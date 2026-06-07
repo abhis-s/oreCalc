@@ -55,6 +55,77 @@ window.addEventListener('unhandledrejection', (event) => {
     logger.error('Unhandled promise rejection:', event.reason);
     showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
 });
+
+// Global modal focus manager for accessibility & usability
+function setupModalFocusManager() {
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const target = mutation.target;
+                if (target.classList.contains('modal')) {
+                    if (target.classList.contains('show')) {
+                        // Save the element that currently has focus
+                        if (document.activeElement && document.activeElement !== document.body && document.activeElement !== target) {
+                            target._previouslyFocusedElement = document.activeElement;
+                        }
+                        
+                        // Ensure the modal container itself can be focused
+                        if (!target.hasAttribute('tabindex')) {
+                            target.setAttribute('tabindex', '-1');
+                        }
+                        
+                        // Focus the first focusable element inside the modal
+                        const focusableElements = target.querySelectorAll(
+                            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                        );
+                        
+                        let firstFocusable = null;
+                        for (const el of focusableElements) {
+                            if (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0) {
+                                if (!el.closest('.modal-header')) {
+                                    firstFocusable = el;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!firstFocusable) {
+                            for (const el of focusableElements) {
+                                if (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0) {
+                                    firstFocusable = el;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        setTimeout(() => {
+                            if (firstFocusable) {
+                                firstFocusable.focus();
+                            } else {
+                                target.focus();
+                            }
+                        }, 50);
+                    } else {
+                        // Restore focus to the previously focused element
+                        setTimeout(() => {
+                            if (target._previouslyFocusedElement && typeof target._previouslyFocusedElement.focus === 'function') {
+                                target._previouslyFocusedElement.focus();
+                            }
+                            delete target._previouslyFocusedElement;
+                        }, 50);
+                    }
+                }
+            }
+        }
+    });
+
+    observer.observe(document.body, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['class']
+    });
+}
+
 import './utils/imageManager.js';
 
 let userId = localStorage.getItem('oreCalcUserId');
@@ -127,6 +198,11 @@ export function updateUIWithTranslations(isInitialLoad = false) {
     document.querySelectorAll('[data-i18n-title]').forEach(element => {
         const key = element.getAttribute('data-i18n-title');
         element.setAttribute('title', translate(key));
+    });
+
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
+        const key = element.getAttribute('data-i18n-aria-label');
+        element.setAttribute('aria-label', translate(key));
     });
 
     const metaDescription = document.querySelector('meta[name="description"]');
@@ -286,6 +362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeState(savedState);
 
     initializeDOMElements();
+    setupModalFocusManager();
 
     const preloader = dom.preloader;
     if (preloader) {
@@ -299,7 +376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         preloader.dataset.accent = effectivePreloaderAccent;
 
         // Randomize circular positions (slots)
-        const dots = preloader.querySelectorAll('.preloader-loader span');
+        const dots = preloader.querySelectorAll('.preloader-loader .preloader-dot-wrapper');
         const angles = [0, 72, 144, 216, 288];
         // Fisher-Yates shuffle for better randomness
         for (let i = angles.length - 1; i > 0; i--) {
@@ -449,7 +526,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
         checkLegalConsent();
-    }, 2300);
+    }, 1000);
 
     // 3. SYNCHRONIZE PRELOADER REMOVAL
     if (preloader) {
@@ -470,7 +547,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 });
             }
-        }, 2800); // 2.3s for animation + 0.5s buffer for renderApp
+        }, 1400); // 1.0s for animation + 0.4s buffer for renderApp
     }
 
     if ('serviceWorker' in navigator && 'workbox' in window) {

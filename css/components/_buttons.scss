@@ -151,7 +151,7 @@
     transform: translate(-50%, -50%);
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), visibility 0.3s;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: none;
 }
 
@@ -206,8 +206,9 @@
         padding: 5px 10px;
         position: absolute;
         text-align: center;
-        transition: opacity 0.3s, visibility 0.3s;
+        transition: opacity 0.3s;
         visibility: hidden;
+        pointer-events: none;
         white-space: nowrap;
         z-index: $z-index-base;
         transform: translateX(-50%);
@@ -382,12 +383,12 @@
 // Support & Community Button Colors (Soft-Solid Pattern)
 
 .btn-changelog {
-    background-color: $btn-bg-teal-soft;
-    color: $btn-color-teal;
-    border: 1px solid $btn-border-teal;
+    background-color: var(--btn-bg-teal);
+    color: var(--btn-color-teal);
+    border: 1px solid var(--btn-border-teal);
     &:hover {
-        background-color: $btn-bg-teal-soft-hover;
-        border-color: $btn-border-teal-hover;
+        background-color: var(--btn-bg-teal-hover);
+        border-color: var(--btn-border-teal-hover);
     }
 }
 
@@ -402,72 +403,72 @@
 }
 
 .btn-crowdin {
-    background-color: $btn-bg-green-soft;
-    color: $btn-color-green;
-    border: 1px solid $btn-border-green;
+    background-color: var(--btn-bg-green);
+    color: var(--btn-color-green);
+    border: 1px solid var(--btn-border-green);
     &:hover {
-        background-color: $btn-bg-green-soft-hover;
-        border-color: $btn-border-green-hover;
+        background-color: var(--btn-bg-green-hover);
+        border-color: var(--btn-border-green-hover);
     }
 }
 
 .btn-bmc {
-    background-color: $btn-bg-amber-soft;
-    color: $btn-color-amber;
-    border: 1px solid $btn-border-amber;
+    background-color: var(--btn-bg-amber);
+    color: var(--btn-color-amber);
+    border: 1px solid var(--btn-border-amber);
     &:hover {
-        background-color: $btn-bg-amber-soft-hover;
-        border-color: $btn-border-amber-hover;
+        background-color: var(--btn-bg-amber-hover);
+        border-color: var(--btn-border-amber-hover);
     }
 }
 
 .btn-privacy {
-    background-color: $btn-bg-cyan-soft;
-    color: $btn-color-cyan;
-    border: 1px solid $btn-border-cyan;
+    background-color: var(--btn-bg-cyan);
+    color: var(--btn-color-cyan);
+    border: 1px solid var(--btn-border-cyan);
     &:hover {
-        background-color: $btn-bg-cyan-soft-hover;
-        border-color: $btn-border-cyan-hover;
+        background-color: var(--btn-bg-cyan-hover);
+        border-color: var(--btn-border-cyan-hover);
     }
 }
 
 .btn-terms-of-use {
-    background-color: $btn-bg-purple-soft;
-    color: $btn-color-purple;
-    border: 1px solid $btn-border-purple;
+    background-color: var(--btn-bg-purple);
+    color: var(--btn-color-purple);
+    border: 1px solid var(--btn-border-purple);
     &:hover {
-        background-color: $btn-bg-purple-soft-hover;
-        border-color: $btn-border-purple-hover;
+        background-color: var(--btn-bg-purple-hover);
+        border-color: var(--btn-border-purple-hover);
     }
 }
 
 .btn-policy {
-    background-color: $btn-bg-red-heavy-soft;
-    color: $btn-color-red-heavy;
-    border: 1px solid $btn-border-red-heavy;
+    background-color: var(--btn-bg-red);
+    color: var(--btn-color-red);
+    border: 1px solid var(--btn-border-red);
     &:hover {
-        background-color: $btn-bg-red-heavy-soft-hover;
-        border-color: $btn-border-red-heavy-hover;
+        background-color: var(--btn-bg-red-hover);
+        border-color: var(--btn-border-red-hover);
     }
 }
 
 .btn-data-info {
-    background-color: $btn-bg-teal-soft;
-    color: $btn-color-teal;
-    border: 1px solid $btn-border-teal;
+    background-color: var(--btn-bg-teal);
+    color: var(--btn-color-teal);
+    border: 1px solid var(--btn-border-teal);
     &:hover {
-        background-color: $btn-bg-teal-soft-hover;
-        border-color: $btn-border-teal-hover;
+        background-color: var(--btn-bg-teal-hover);
+        border-color: var(--btn-border-teal-hover);
     }
 }
 
 .btn-licenses {
-    background-color: $btn-bg-pink-soft;
-    color: $btn-color-pink;
-    border: 1px solid $btn-border-pink;
+    background-color: var(--btn-bg-pink);
+    color: var(--btn-color-pink);
+    border: 1px solid var(--btn-border-pink);
     &:hover {
-        background-color: $btn-bg-pink-soft-hover;
-        border-color: $btn-border-pink-hover;
+        background-color: var(--btn-bg-pink-hover);
+        border-color: var(--btn-border-pink-hover);
     }
 }
 
@@ -476,12 +477,12 @@
 }
 
 .btn-danger-action {
-    background-color: $btn-bg-red-soft;
-    color: $btn-color-red;
-    border: 1px solid $btn-border-red;
+    background-color: var(--btn-bg-red);
+    color: var(--btn-color-red);
+    border: 1px solid var(--btn-border-red);
     &:hover {
-        background-color: $btn-bg-red-soft-hover;
-        border-color: $btn-border-red-hover;
+        background-color: var(--btn-bg-red-hover);
+        border-color: var(--btn-border-red-hover);
     }
 }
 
@@ -496,22 +497,22 @@
 }
 
 .btn-bug {
-    background-color: $btn-bg-red-soft;
-    color: $btn-color-red;
-    border: 1px solid $btn-border-red;
+    background-color: var(--btn-bg-red);
+    color: var(--btn-color-red);
+    border: 1px solid var(--btn-border-red);
     &:hover {
-        background-color: $btn-bg-red-soft-hover;
-        border-color: $btn-border-red-hover;
+        background-color: var(--btn-bg-red-hover);
+        border-color: var(--btn-border-red-hover);
     }
 }
 
 .btn-contact {
-    background-color: $btn-bg-deep-orange-soft;
-    color: $btn-color-deep-orange;
-    border: 1px solid $btn-border-deep-orange;
+    background-color: var(--btn-bg-deep-orange);
+    color: var(--btn-color-deep-orange);
+    border: 1px solid var(--btn-border-deep-orange);
     &:hover {
-        background-color: $btn-bg-deep-orange-soft-hover;
-        border-color: $btn-border-deep-orange-hover;
+        background-color: var(--btn-bg-deep-orange-hover);
+        border-color: var(--btn-border-deep-orange-hover);
     }
 }
 
@@ -520,11 +521,11 @@
 }
 
 .btn-costs {
-    background-color: $btn-bg-emerald-soft;
-    color: $btn-color-emerald;
-    border: 1px solid $btn-border-emerald;
+    background-color: var(--btn-bg-emerald);
+    color: var(--btn-color-emerald);
+    border: 1px solid var(--btn-border-emerald);
     &:hover {
-        background-color: $btn-bg-emerald-soft-hover;
-        border-color: $btn-border-emerald-hover;
+        background-color: var(--btn-bg-emerald-hover);
+        border-color: var(--btn-border-emerald-hover);
     }
 }

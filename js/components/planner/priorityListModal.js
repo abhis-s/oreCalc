@@ -129,12 +129,20 @@ function renderPriorityEditor() {
             if (currentLevel < maxLevel) {
                 const chip = document.createElement('div');
                 chip.classList.add('equipment-chip');
+                chip.setAttribute('tabindex', '0');
+                chip.setAttribute('role', 'button');
                 chip.dataset.equipName = equip.name;
                 chip.innerHTML = `
                     <orecalc-assets-image src="${equip.image}" alt="${translate('equipment.' + toCamelCase(equip.name))}" class="chip-icon" size="thumbnail"></orecalc-assets-image>
                     <span>${translate('equipment.' + toCamelCase(equip.name))}</span>
                 `;
                 chip.addEventListener('click', () => openLevelSelectModal(hero, equip));
+                chip.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        chip.click();
+                    }
+                });
 
                 const isMaxedInPlan = globalPriorityList.some(item =>
                     item.heroName === hero.name &&

@@ -15,6 +15,9 @@ const { registerRoute }                              = workbox.routing;
 const { NetworkFirst, StaleWhileRevalidate }         = workbox.strategies;
 const { CacheableResponsePlugin }                    = workbox.cacheableResponse;
 
+// Clean up old caches from previous versions of Workbox
+cleanupOutdatedCaches();
+
 // ─── AVIF format probe ────────────────────────────────────────────────────────
 
 /**
@@ -28,7 +31,7 @@ const { CacheableResponsePlugin }                    = workbox.cacheableResponse
 async function detectAvifSupport() {
     if (typeof createImageBitmap === 'undefined') return false;
     try {
-        const res = await fetch('/assets/resources/gem-72.avif', { cache: 'no-store' });
+        const res = await fetch('/assets/resources/gem-100.avif', { cache: 'no-store' });
         if (!res.ok) return false;
         await createImageBitmap(await res.blob());
         return true;
@@ -67,7 +70,6 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
     event.waitUntil((async () => {
         await precacheController.activate(event);
-        cleanupOutdatedCaches();
         await clients.claim();
     })());
 });

@@ -35,6 +35,11 @@ export function renderGemTraderRow(offer, offerState) {
         select.id = `gem-trader-${offer.id}-dropdown`;
         select.name = `gem-trader-${offer.id}-dropdown`;
         select.dataset.offerId = offer.id;
+        
+        const oreName = translate('ores.' + oreType);
+        const offerName = `${formatNumber(oreValue)} ${oreName}`;
+        select.setAttribute('aria-label', translate('income.supercellEvents.packInput', { name: offerName }));
+
         for (let i = 0; i <= offer.maxPacks; i++) {
             const option = document.createElement('option');
             option.value = i;
@@ -62,6 +67,14 @@ export function renderGemTraderRow(offer, offerState) {
             checkbox.id = `${offer.id}_${i}`;
             checkbox.name = `${offer.id}_${i}`;
             checkbox.checked = i <= offerState;
+            
+            const oreName = translate('ores.' + oreType);
+            const offerName = `${formatNumber(oreValue)} ${oreName}`;
+            checkbox.setAttribute('aria-label', translate('income.shopOffers.packCheckbox', {
+                num: i,
+                name: offerName
+            }));
+            
             checkboxDiv.appendChild(checkbox);
         }
         row.appendChild(checkboxDiv);

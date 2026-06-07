@@ -1,3 +1,5 @@
+import { translate } from '../../i18n/translator.js';
+
 export function createOreDisplay(config, oreType) {
     const container = document.createElement('div');
     container.className = 'ore';
@@ -26,6 +28,10 @@ export function createOreDisplay(config, oreType) {
         input.className = 'ore-value updatable';
         input.value = '0';
         input.min = '0';
+        
+        // Add aria-label for accessibility
+        const labelText = `${translate('ores.storedTitle') || 'Stored Ores'} - ${translate(`ores.${oreType}`) || (oreType.charAt(0).toUpperCase() + oreType.slice(1) + ' Ore')}`;
+        input.setAttribute('aria-label', labelText);
         
         if (oreType === 'shiny') {
             input.max = '50000';

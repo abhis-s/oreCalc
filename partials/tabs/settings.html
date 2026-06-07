@@ -9,13 +9,13 @@
                                     <label for="settings-theme-toggle" data-i18n="settings.options.theme">Light/Dark Mode</label>
                                     <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
                                 </div>
-                                <label class="switch theme-switch">
+                                <div class="switch theme-switch">
                                     <input type="checkbox" id="settings-theme-toggle">
                                     <span class="slider round">
                                         <orecalc-assets-svg name="dark-mode" class="switch-icon icon-dark"></orecalc-assets-svg>
                                         <orecalc-assets-svg name="light-mode" class="switch-icon icon-light"></orecalc-assets-svg>
                                     </span>
-                                </label>
+                                </div>
                             </div>
                             <div class="settings-item">
                                 <div class="settings-item-label-wrapper">
@@ -23,12 +23,12 @@
                                     <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
                                 </div>
                                 <div class="accent-color-picker">
-                                    <button class="accent-swatch active" data-color="blue"></button>
-                                    <button class="accent-swatch" data-color="gold"></button>
-                                    <button class="accent-swatch" data-color="purple"></button>
-                                    <button class="accent-swatch" data-color="green"></button>
-                                    <button class="accent-swatch" data-color="red"></button>
-                                    <button class="accent-swatch" data-color="random" title="Random"></button>
+                                    <button class="accent-swatch active" data-color="blue" data-i18n-aria-label="colors.blue" aria-label="Blue Accent"></button>
+                                    <button class="accent-swatch" data-color="gold" data-i18n-aria-label="colors.gold" aria-label="Gold Accent"></button>
+                                    <button class="accent-swatch" data-color="purple" data-i18n-aria-label="colors.purple" aria-label="Purple Accent"></button>
+                                    <button class="accent-swatch" data-color="green" data-i18n-aria-label="colors.green" aria-label="Green Accent"></button>
+                                    <button class="accent-swatch" data-color="red" data-i18n-aria-label="colors.red" aria-label="Red Accent"></button>
+                                    <button class="accent-swatch" data-color="random" data-i18n-aria-label="colors.random" aria-label="Random Accent" title="Random"></button>
                                 </div>
                                 <button id="mobile-accent-picker-btn" class="animated-btn btn-accent mobile-only">
                                     <span class="animated-btn-icon-wrapper fill-dark">
@@ -81,10 +81,10 @@
                                     </div>
                                     <p class="form-setting-text" data-i18n="settings.cloudSyncInfo">Sync your data across multiple devices.</p>
                                 </div>
-                                <label class="switch">
+                                <div class="switch">
                                     <input type="checkbox" id="settings-cloud-sync-toggle" checked>
                                     <span class="slider round"></span>
-                                </label>
+                                </div>
                             </div>
                             
                             <div class="settings-item">

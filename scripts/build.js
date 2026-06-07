@@ -149,11 +149,11 @@ async function build() {
                      const baseName = fullPath.substring(0, fullPath.lastIndexOf('.'));
 
                      if (isSubfolder) {
-                         // Generate 72px and 200px sizes
-                         // WebP Thumbnail (72px)
-                         await sharp(fullPath).resize(72, 72).webp({ quality: 80 }).toFile(`${baseName}-72.webp`);
-                         // AVIF Thumbnail (72px)
-                         await sharp(fullPath).resize(72, 72).avif({ quality: 65, effort: 6 }).toFile(`${baseName}-72.avif`);
+                         // Generate 100px and 200px sizes
+                         // WebP Thumbnail (100px)
+                         await sharp(fullPath).resize(100, 100).webp({ quality: 80 }).toFile(`${baseName}-100.webp`);
+                         // AVIF Thumbnail (100px)
+                         await sharp(fullPath).resize(100, 100).avif({ quality: 65, effort: 6 }).toFile(`${baseName}-100.avif`);
 
                          // WebP Standard (200px)
                          await sharp(fullPath).resize(200, 200).webp({ quality: 80 }).toFile(`${baseName}-200.webp`);

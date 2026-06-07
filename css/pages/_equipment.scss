@@ -25,7 +25,20 @@
     }
 
     &.hero-disabled {
-        opacity: 0.6;
+        .hero-icon,
+        .equipment-image {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+
+        .upgrade-btn {
+            opacity: 0.5;
+        }
+
+        .level-display,
+        input[type="number"] {
+            opacity: 0.7;
+        }
     }
 
     &.flash-red {

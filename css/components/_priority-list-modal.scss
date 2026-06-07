@@ -222,8 +222,18 @@
     padding: 6px 12px;
     border-radius: 16px;
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out, border-color 0.2s;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s, box-shadow 0.2s ease-in-out;
     border: 1px solid $border-primary; // Solid border for separation
+
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 3px $accent-primary-soft;
+        outline: none;
+    }
 }
 .equipment-chip:hover {
     background-color: $accent-primary-soft;

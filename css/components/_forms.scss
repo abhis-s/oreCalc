@@ -1,6 +1,26 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
+// Global form control focus and transition styling
+input[type="text"],
+input[type="number"],
+input[type="email"],
+select,
+textarea,
+.dropdown-style {
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 3px $accent-primary-soft;
+        outline: none;
+    }
+}
+
 input[type="number"].offer-input-number {
     background-color: $bg-app;
     border: 1px solid $border-primary;
@@ -10,6 +30,16 @@ input[type="number"].offer-input-number {
     text-align: center;
     transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     width: 80px;
+
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 3px $accent-primary-soft;
+        outline: none;
+    }
 }
 
 .shop-offers-checkbox-instance {
@@ -108,11 +138,6 @@ input[type="number"].offer-input-number {
     color: $text-primary;
     font-size: var(--font-size-sm);
     padding: 5px;
-
-    &:focus {
-        border-color: $accent-primary;
-        outline: none;
-    }
 }
 
 .input-group-flex {
@@ -161,6 +186,17 @@ input[type="number"].offer-input-number {
         padding: 8px;
         text-align: center;
         width: 80px;
+        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 3px $accent-primary-soft;
+            outline: none;
+        }
     }
 
     select {
@@ -183,7 +219,7 @@ input[type="number"].offer-input-number {
     .ore-image {
         height: 24px;
         margin-left: 5px;
-        width: 24px;
+        width: auto;
     }
 
     input[type="number"] {
@@ -195,6 +231,16 @@ input[type="number"].offer-input-number {
         text-align: center;
         transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         width: 80px;
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 3px $accent-primary-soft;
+            outline: none;
+        }
     }
 }
 
@@ -240,6 +286,17 @@ input[type="number"] {
     border-radius: 4px;
     cursor: pointer;
     background-color: $bg-app;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 3px $accent-primary-soft;
+        outline: none;
+    }
 
     .dropdown-selected {
         padding: 5px;
@@ -335,7 +392,7 @@ input[type="number"] {
 
     .ore-image {
         height: 24px;
-        width: 24px;
+        width: auto;
     }
 
     input[type="number"] {
@@ -349,7 +406,12 @@ input[type="number"] {
         transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 
         &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
             border-color: $accent-primary;
+            box-shadow: 0 0 0 3px $accent-primary-soft;
             outline: none;
         }
     }
@@ -375,6 +437,10 @@ input[type="number"] {
         transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 
         &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
             border-color: $accent-primary;
             box-shadow: 0 0 0 3px $accent-primary-soft;
             outline: none;
@@ -448,7 +514,12 @@ input[type="number"] {
             transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 
             &:focus {
+                outline: none;
+            }
+
+            &:focus-visible {
                 border-color: $accent-primary;
+                box-shadow: 0 0 0 3px $accent-primary-soft;
                 outline: none;
             }
         }
@@ -491,7 +562,7 @@ input[type="number"] {
         font-size: var(--font-size-md);
 
         .ore-image {
-            width: 20px;
+            width: auto;
             height: 20px;
             object-fit: contain;
         }

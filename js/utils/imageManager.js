@@ -43,7 +43,7 @@ export function getImage(src, className = '', size = 'standard', alt = '') {
                              base.includes('assets/heroes/') || 
                              base.includes('assets/resources/');
                              
-    const suffix = isSubfolderAsset ? (size === 'thumbnail' ? '-72' : '-200') : '';
+    const suffix = isSubfolderAsset ? (size === 'thumbnail' ? '-100' : '-200') : '';
     
     const avifUrl = `${base}${suffix}.avif`;
     const webpUrl = `${base}${suffix}.webp`;

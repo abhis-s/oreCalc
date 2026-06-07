@@ -39,9 +39,9 @@
 
     // --- TYPOGRAPHY ---
     --text-primary: #{$palette-white};
-    --text-secondary: #{$palette-grey-400};
-    --text-muted: #{$palette-grey-600};
-    --text-disabled: #{$palette-grey-700};
+    --text-secondary: #{$palette-grey-300};
+    --text-muted: #{$palette-grey-400};
+    --text-disabled: #{$palette-grey-500};
     --text-on-accent: #{$palette-slate-500};
     --text-inverse: #{$palette-slate-500};
 
@@ -62,19 +62,19 @@
     --color-gold-glow: #{$palette-yellow-300};
     --color-gold-glow-shadow: rgba(249, 200, 64, 0.6);
 
-    // --- INCOME CHIP COLORS (Dark) ---
-    --color-income-star-bonus: #{$palette-cyan-600};
-    --color-income-clan-war: #{$palette-blue-600};
-    --color-income-cwl: #{$palette-indigo-600};
-    --color-income-raid-medals: #{$palette-grey-500};
-    --color-income-gems: #{$palette-emerald-600};
-    --color-income-event-pass: #{$palette-purple-600};
-    --color-income-event-trader: #{$palette-deep-orange-600};
-    --color-income-shop-offer: #{$palette-amber-600};
-    --color-income-prospector: #{$palette-brown-600};
-    --color-income-supercell-events: #{$palette-teal-600};
-    --color-income-custom: #{$palette-pink-600};
-    --color-on-income: #{$palette-white};
+    // --- INCOME CHIP COLORS (Dark - Accessible Tonal Pastels) ---
+    --color-income-star-bonus: #{$palette-cyan-200};
+    --color-income-clan-war: #{$palette-blue-200};
+    --color-income-cwl: #{$palette-indigo-200};
+    --color-income-raid-medals: #{$palette-grey-300};
+    --color-income-gems: #{$palette-emerald-200};
+    --color-income-event-pass: #{$palette-purple-200};
+    --color-income-event-trader: #{$palette-deep-orange-200};
+    --color-income-shop-offer: #{$palette-amber-200};
+    --color-income-prospector: #{$palette-brown-200};
+    --color-income-supercell-events: #{$palette-teal-200};
+    --color-income-custom: #{$palette-pink-200};
+    --color-on-income: #{$palette-grey-900};
 
     // --- LEGACY COMPATIBILITY MAPPINGS ---
     --bg-primary: var(--bg-app);
@@ -110,6 +110,61 @@
     --color-gold-soft: rgba(253, 214, 99, 0.15);
     --color-event-red: #{$palette-red-500};
     --color-event-red-hover: #{$palette-red-700};
+
+    // --- ACCESSIBLE ACCENT ACTION BUTTONS (Dark Mode Defaults) ---
+    --btn-color-teal: #{$palette-teal-300};
+    --btn-bg-teal: rgba(128, 203, 196, 0.12);
+    --btn-border-teal: rgba(128, 203, 196, 0.3);
+    --btn-bg-teal-hover: rgba(128, 203, 196, 0.22);
+    --btn-border-teal-hover: rgba(128, 203, 196, 0.45);
+
+    --btn-color-red: #{$palette-red-300};
+    --btn-bg-red: rgba(248, 180, 174, 0.12);
+    --btn-border-red: rgba(248, 180, 174, 0.3);
+    --btn-bg-red-hover: rgba(248, 180, 174, 0.22);
+    --btn-border-red-hover: rgba(248, 180, 174, 0.45);
+
+    --btn-color-deep-orange: #{$palette-deep-orange-300};
+    --btn-bg-deep-orange: rgba(255, 171, 145, 0.12);
+    --btn-border-deep-orange: rgba(255, 171, 145, 0.3);
+    --btn-bg-deep-orange-hover: rgba(255, 171, 145, 0.22);
+    --btn-border-deep-orange-hover: rgba(255, 171, 145, 0.45);
+
+    --btn-color-emerald: #{$palette-emerald-300};
+    --btn-bg-emerald: rgba(165, 214, 167, 0.12);
+    --btn-border-emerald: rgba(165, 214, 167, 0.3);
+    --btn-bg-emerald-hover: rgba(165, 214, 167, 0.22);
+    --btn-border-emerald-hover: rgba(165, 214, 167, 0.45);
+
+    --btn-color-green: #{$palette-green-300};
+    --btn-bg-green: rgba(168, 218, 181, 0.12);
+    --btn-border-green: rgba(168, 218, 181, 0.3);
+    --btn-bg-green-hover: rgba(168, 218, 181, 0.22);
+    --btn-border-green-hover: rgba(168, 218, 181, 0.45);
+
+    --btn-color-amber: #{$palette-amber-300};
+    --btn-bg-amber: rgba(255, 224, 130, 0.12);
+    --btn-border-amber: rgba(255, 224, 130, 0.3);
+    --btn-bg-amber-hover: rgba(255, 224, 130, 0.22);
+    --btn-border-amber-hover: rgba(255, 224, 130, 0.45);
+
+    --btn-color-cyan: #{$palette-cyan-300};
+    --btn-bg-cyan: rgba(128, 222, 234, 0.12);
+    --btn-border-cyan: rgba(128, 222, 234, 0.3);
+    --btn-bg-cyan-hover: rgba(128, 222, 234, 0.22);
+    --btn-border-cyan-hover: rgba(128, 222, 234, 0.45);
+
+    --btn-color-purple: #{$palette-purple-300};
+    --btn-bg-purple: rgba(206, 147, 216, 0.12);
+    --btn-border-purple: rgba(206, 147, 216, 0.3);
+    --btn-bg-purple-hover: rgba(206, 147, 216, 0.22);
+    --btn-border-purple-hover: rgba(206, 147, 216, 0.45);
+
+    --btn-color-pink: #{$palette-pink-300};
+    --btn-bg-pink: rgba(244, 143, 177, 0.12);
+    --btn-border-pink: rgba(244, 143, 177, 0.3);
+    --btn-bg-pink-hover: rgba(244, 143, 177, 0.22);
+    --btn-border-pink-hover: rgba(244, 143, 177, 0.45);
 }
 
 .light-mode {
@@ -149,9 +204,9 @@
     --color-info-soft: rgba(26, 115, 232, 0.12);
 
     // --- TYPOGRAPHY ---
-    --text-primary: #{$palette-grey-800};     // Softer than pure black/900
-    --text-secondary: #{$palette-grey-700};
-    --text-muted: #{$palette-grey-600};
+    --text-primary: #{$palette-grey-900};     // Softer than pure black/900
+    --text-secondary: #{$palette-grey-800};
+    --text-muted: #{$palette-grey-700};
     --text-disabled: #{$palette-grey-400};
     --text-on-accent: #{$palette-white};
     --text-inverse: #{$palette-white};
@@ -197,6 +252,61 @@
 
     --font-weight-bold: 600;
 
+    // --- ACCESSIBLE ACCENT ACTION BUTTONS (Light Mode Overrides) ---
+    --btn-color-teal: #{$palette-teal-800};
+    --btn-bg-teal: rgba(0, 121, 107, 0.08);
+    --btn-border-teal: rgba(0, 121, 107, 0.25);
+    --btn-bg-teal-hover: rgba(0, 121, 107, 0.15);
+    --btn-border-teal-hover: rgba(0, 121, 107, 0.4);
+
+    --btn-color-red: #{$palette-red-800};
+    --btn-bg-red: rgba(217, 48, 37, 0.08);
+    --btn-border-red: rgba(217, 48, 37, 0.25);
+    --btn-bg-red-hover: rgba(217, 48, 37, 0.15);
+    --btn-border-red-hover: rgba(217, 48, 37, 0.4);
+
+    --btn-color-deep-orange: #{$palette-deep-orange-900};
+    --btn-bg-deep-orange: rgba(216, 67, 21, 0.08);
+    --btn-border-deep-orange: rgba(216, 67, 21, 0.25);
+    --btn-bg-deep-orange-hover: rgba(216, 67, 21, 0.15);
+    --btn-border-deep-orange-hover: rgba(216, 67, 21, 0.4);
+
+    --btn-color-emerald: #{$palette-emerald-900};
+    --btn-bg-emerald: rgba(56, 142, 60, 0.08);
+    --btn-border-emerald: rgba(56, 142, 60, 0.25);
+    --btn-bg-emerald-hover: rgba(56, 142, 60, 0.15);
+    --btn-border-emerald-hover: rgba(56, 142, 60, 0.4);
+
+    --btn-color-green: #{$palette-green-800};
+    --btn-bg-green: rgba(24, 128, 56, 0.08);
+    --btn-border-green: rgba(24, 128, 56, 0.25);
+    --btn-bg-green-hover: rgba(24, 128, 56, 0.15);
+    --btn-border-green-hover: rgba(24, 128, 56, 0.4);
+
+    --btn-color-amber: #8c5200;
+    --btn-bg-amber: rgba(255, 111, 0, 0.08);
+    --btn-border-amber: rgba(255, 111, 0, 0.25);
+    --btn-bg-amber-hover: rgba(255, 111, 0, 0.15);
+    --btn-border-amber-hover: rgba(255, 111, 0, 0.4);
+
+    --btn-color-cyan: #{$palette-cyan-900};
+    --btn-bg-cyan: rgba(0, 151, 167, 0.08);
+    --btn-border-cyan: rgba(0, 151, 167, 0.25);
+    --btn-bg-cyan-hover: rgba(0, 151, 167, 0.15);
+    --btn-border-cyan-hover: rgba(0, 151, 167, 0.4);
+
+    --btn-color-purple: #{$palette-purple-800};
+    --btn-bg-purple: rgba(123, 31, 162, 0.08);
+    --btn-border-purple: rgba(123, 31, 162, 0.25);
+    --btn-bg-purple-hover: rgba(123, 31, 162, 0.15);
+    --btn-border-purple-hover: rgba(123, 31, 162, 0.4);
+
+    --btn-color-pink: #{$palette-pink-800};
+    --btn-bg-pink: rgba(173, 20, 87, 0.08);
+    --btn-border-pink: rgba(173, 20, 87, 0.25);
+    --btn-bg-pink-hover: rgba(173, 20, 87, 0.15);
+    --btn-border-pink-hover: rgba(173, 20, 87, 0.4);
+
     background-color: var(--bg-app);
     color: var(--text-primary);
 }
@@ -230,7 +340,7 @@ textarea,
     -webkit-tap-highlight-color: transparent;
 }
 
-*:focus-visible {
+*:focus-visible:not(input):not(select):not(textarea):not(.dropdown-style):not(.custom-dropdown) {
     outline: 2px solid var(--outline-focus) !important;
     outline-offset: 2px;
 }
