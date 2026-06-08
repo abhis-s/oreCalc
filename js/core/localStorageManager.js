@@ -61,19 +61,19 @@ export function saveState(state, immediate = false) {
 
 
 export function loadState() {
+    const serializedState = localStorage.getItem(APP_STATE_KEY);
+    if (serializedState === null) {
+        return null;
+    }
     try {
-        const serializedState = localStorage.getItem(APP_STATE_KEY);
-        if (serializedState === null) {
-            return null;
-        }
         let parsedState = JSON.parse(serializedState);
         if (!parsedState.savedPlayerTags || parsedState.savedPlayerTags.length === 0) {
             parsedState.savedPlayerTags = ['DEFAULT0'];
         }
         return parsedState;
     } catch (error) {
-        console.error("Could not load state from localStorage. Resetting.", error);
-        return null;
+        console.error("Could not load state from localStorage:", error);
+        throw new Error("State corruption: Invalid JSON in localStorage. " + error.message);
     }
 }
 

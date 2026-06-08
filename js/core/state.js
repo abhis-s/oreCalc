@@ -131,8 +131,12 @@ export function getDefaultPlayerState() {
 }
 
 export function initializeState(savedState) {
+    const currentActiveTab = state.activeTab;
     const defaultState = getDefaultState();
     state = { ...defaultState };
+    if (currentActiveTab) {
+        state.activeTab = currentActiveTab;
+    }
 
     if (savedState) {
         state.appVersion = savedState.appVersion || defaultState.appVersion;

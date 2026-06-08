@@ -105,6 +105,65 @@
 </head>
 
 <body class="dark-mode" style="color-scheme: dark; --accent-primary: #8ab4f8; --accent-primary-hover: #aecbfa; --accent-primary-active: #8ab4f8; --accent-primary-soft: rgba(138, 180, 248, 0.1); --bg-app: #0f131a; --bg-surface-primary: #1a1f2b; --bg-surface-secondary: #252c3d; --bg-surface-tertiary: #2e374d;">
+    <script>
+        (function() {
+            var appLoaded = false;
+            var initializationError = null;
+
+            window.__APP_LOADED_STATUS__ = false;
+
+            window.__APP_LOADED__ = function() {
+                if (initializationError) {
+                    return;
+                }
+                appLoaded = true;
+                window.__APP_LOADED_STATUS__ = true;
+            };
+
+            function handleCatastrophicError(error, stack) {
+                if (appLoaded) return;
+                initializationError = { error: error, stack: stack };
+                
+                setTimeout(function() {
+                    var screen = document.getElementById('load-failure-screen');
+                    var preloader = document.getElementById('preloader');
+                    if (screen) {
+                        var msgEl = document.getElementById('load-failure-error-msg');
+                        var stackEl = document.getElementById('load-failure-error-stack');
+                        if (msgEl) msgEl.textContent = error || 'Unknown Error';
+                        if (stackEl) stackEl.textContent = stack || 'No stack trace available.';
+                        
+                        if (preloader) preloader.style.display = 'none';
+                        screen.style.display = 'flex';
+                    }
+                }, 100);
+            }
+
+            window.addEventListener('error', function(event) {
+                if (!appLoaded) {
+                    var errorMsg = event.error ? event.error.message : event.message;
+                    var errorStack = event.error ? event.error.stack : '';
+                    handleCatastrophicError(errorMsg, errorStack);
+                }
+            });
+
+            window.addEventListener('unhandledrejection', function(event) {
+                if (!appLoaded) {
+                    var errorMsg = event.reason ? (event.reason.message || event.reason) : 'Unhandled promise rejection';
+                    var errorStack = event.reason ? event.reason.stack : '';
+                    handleCatastrophicError(errorMsg, errorStack);
+                }
+            });
+
+            // Watchdog: If app is not loaded in 8 seconds, show load failure page
+            setTimeout(function() {
+                if (!appLoaded && !initializationError) {
+                    handleCatastrophicError('Timeout: Application initialization took too long.', 'Watchdog triggered after 8000ms.');
+                }
+            }, 8000);
+        })();
+    </script>
+
     <!-- include: partials/svg-sprites.html -->
 
     <div id="overlay" class="overlay"></div>
@@ -115,6 +174,63 @@
             <div class="preloader-dot-wrapper"><span></span></div>
             <div class="preloader-dot-wrapper"><span></span></div>
             <div class="preloader-dot-wrapper"><span></span></div>
+        </div>
+    </div>
+
+    <div id="load-failure-screen" class="load-failure-screen" style="display: none;">
+        <div class="load-failure-card">
+            <div class="load-failure-header">
+                <div class="load-failure-icon-container">
+                    <svg width="32" height="32" fill="var(--color-danger)">
+                        <use href="#icon-warning"></use>
+                    </svg>
+                </div>
+                <h1 data-i18n="errors.loadFailureTitle">Initialization Failed</h1>
+                <p data-i18n="errors.loadFailureMessage">OreCalc could not start because of a critical error during initialization.</p>
+            </div>
+            
+            <div class="load-failure-details-section">
+                <button id="load-failure-details-toggle" class="details-toggle-btn">
+                    <span data-i18n="errors.showDetails">Show Error Details</span>
+                    <span class="chevron-icon">▼</span>
+                </button>
+                <div id="load-failure-details" class="load-failure-details" style="display: none;">
+                    <div class="error-meta">
+                        <strong>Error:</strong> <span id="load-failure-error-msg">N/A</span>
+                    </div>
+                    <pre id="load-failure-error-stack">No stack trace available.</pre>
+                </div>
+            </div>
+
+            <div id="load-failure-report-form" class="load-failure-report-form" style="display: none;">
+                <h3 data-i18n="settings.bugReport">Bug Report</h3>
+                <div class="form-group">
+                    <label for="load-failure-email" class="input-label" data-i18n="settings.options.contactEmail">Contact Email (Optional)</label>
+                    <input type="email" id="load-failure-email" class="input-style" placeholder="your-email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="load-failure-desc" class="input-label" data-i18n="settings.options.bugDescriptionOptional">Description (Optional)</label>
+                    <textarea id="load-failure-desc" class="input-style" rows="3" placeholder="Please describe what you did before the crash..."></textarea>
+                    <div class="textarea-footer">
+                        <span id="load-failure-desc-error" class="input-error-msg"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="load-failure-attach-checkbox" checked>
+                        <span class="checkbox-label" data-i18n="settings.options.userDataAttachment">Attach Diagnostics & User Data</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="load-failure-actions">
+                <button id="load-failure-reset-btn" class="reject-button" onclick="window.resetApplication()">
+                    Reset App
+                </button>
+                <button id="load-failure-action-btn" class="accept-button">
+                    Report Bug
+                </button>
+            </div>
         </div>
     </div>
 
@@ -174,6 +290,113 @@
     <!-- include: partials/modals/licenses.html -->
     <!-- include: partials/modals/running-costs.html -->
     <script src="js/qr-code-styling.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toggleBtn = document.getElementById('load-failure-details-toggle');
+            var detailsContainer = document.getElementById('load-failure-details');
+            if (toggleBtn && detailsContainer) {
+                toggleBtn.addEventListener('click', function() {
+                    var isHidden = detailsContainer.style.display === 'none';
+                    detailsContainer.style.display = isHidden ? 'block' : 'none';
+                    toggleBtn.classList.toggle('active', isHidden);
+                    var chevron = toggleBtn.querySelector('.chevron-icon');
+                    if (chevron) {
+                        chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+                    }
+                });
+            }
+
+            var actionBtn = document.getElementById('load-failure-action-btn');
+            var reportForm = document.getElementById('load-failure-report-form');
+            var resetBtn = document.getElementById('load-failure-reset-btn');
+            var formVisible = false;
+
+            if (actionBtn && reportForm) {
+                actionBtn.addEventListener('click', async function() {
+                    if (!formVisible) {
+                        reportForm.style.display = 'flex';
+                        actionBtn.textContent = 'Submit Report';
+                        if (resetBtn) {
+                            resetBtn.textContent = 'Cancel';
+                            resetBtn.onclick = function(e) {
+                                e.preventDefault();
+                                reportForm.style.display = 'none';
+                                actionBtn.textContent = 'Report Bug';
+                                resetBtn.textContent = 'Reset App';
+                                resetBtn.onclick = function() { window.resetApplication(); };
+                                formVisible = false;
+                            };
+                        }
+                        formVisible = true;
+                    } else {
+                        var emailInput = document.getElementById('load-failure-email');
+                        var descInput = document.getElementById('load-failure-desc');
+                        var errorEl = document.getElementById('load-failure-desc-error');
+                        
+                        var email = emailInput ? emailInput.value.trim() : '';
+                        var description = descInput ? descInput.value.trim() : '';
+                        
+                        if (errorEl) errorEl.textContent = '';
+                        if (descInput) descInput.classList.remove('input-error');
+                        
+                        var origText = actionBtn.textContent;
+                        actionBtn.disabled = true;
+                        actionBtn.textContent = 'Submitting...';
+                        if (resetBtn) resetBtn.disabled = true;
+                        
+                        try {
+                            var currentUserId = localStorage.getItem('oreCalcUserId') || 'unknown';
+                            var errorMsg = document.getElementById('load-failure-error-msg')?.textContent || 'Unknown Load Error';
+                            var errorStack = document.getElementById('load-failure-error-stack')?.textContent || '';
+                            
+                            var attachedData = null;
+                            var attachCheckbox = document.getElementById('load-failure-attach-checkbox');
+                            if (attachCheckbox && attachCheckbox.checked) {
+                                try {
+                                    var savedState = localStorage.getItem('oreCalculatorState');
+                                    if (savedState) {
+                                        attachedData = JSON.parse(savedState);
+                                    }
+                                } catch (e) {
+                                    console.error('Failed to parse localStorage state for bug report:', e);
+                                }
+                            }
+                            
+                            var payload = {
+                                email: email,
+                                description: `[Catastrophic Load Failure]\nError: ${errorMsg}\n\nUser Description:\n${description}\n\nStack:\n${errorStack}`,
+                                attachData: attachedData,
+                                userId: currentUserId
+                            };
+                            
+                            var baseUrl = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                            var response = await fetch(baseUrl + '/api/support/bug-report', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(payload)
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error('Server returned status ' + response.status);
+                            }
+                            
+                            alert('Bug report submitted successfully! Thank you.');
+                            location.reload();
+                        } catch (err) {
+                            console.error('Failed to submit load failure report:', err);
+                            alert('Failed to submit bug report. ' + err.message);
+                        } finally {
+                            actionBtn.disabled = false;
+                            actionBtn.textContent = origText;
+                            if (resetBtn) resetBtn.disabled = false;
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

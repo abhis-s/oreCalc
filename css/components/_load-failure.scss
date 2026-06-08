@@ -1,0 +1,250 @@
+@use '../abstracts/variables' as *;
+
+.load-failure-screen {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-color: $bg-app;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000; // Above preloader
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+
+    .load-failure-card {
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+
+        @media (max-width: 600px) {
+            padding: 20px;
+        }
+    }
+
+    .load-failure-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+
+        .load-failure-icon-container {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: rgba($color-danger, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+
+            svg {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: $text-primary;
+            margin: 0;
+        }
+
+        p {
+            font-size: 14px;
+            color: $text-secondary;
+            margin: 0;
+            line-height: 1.5;
+        }
+    }
+
+    .load-failure-details-section {
+        width: 100%;
+        text-align: left;
+
+        .details-toggle-btn {
+            background: none;
+            border: none;
+            color: $accent-primary;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: space-between;
+
+            &:hover {
+                color: $accent-primary-hover;
+            }
+
+            .chevron-icon {
+                transition: transform 0.2s ease;
+                font-size: 10px;
+            }
+
+            &.active .chevron-icon {
+                transform: rotate(180deg);
+            }
+        }
+
+        .load-failure-details {
+            margin-top: 10px;
+            background-color: $bg-surface-secondary;
+            border: 1px solid $border-secondary;
+            border-radius: 10px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+
+            .error-meta {
+                margin-bottom: 8px;
+                color: $text-primary;
+            }
+
+            pre {
+                margin: 0;
+                color: $text-secondary;
+            }
+        }
+    }
+
+    .load-failure-report-form {
+        width: 100%;
+        text-align: left;
+        border-top: 1px solid $border-secondary;
+        padding-top: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: $text-primary;
+            margin: 0 0 4px 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .input-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: $text-secondary;
+        }
+
+        .input-style {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid $border-primary;
+            border-radius: 10px;
+            font-size: 14px;
+            background-color: $bg-surface-secondary;
+            color: $text-primary;
+            box-sizing: border-box;
+            font-family: inherit;
+
+            &:focus {
+                outline: none;
+                border-color: $accent-primary;
+            }
+
+            &.input-error {
+                border-color: $color-danger;
+            }
+        }
+
+        .input-error-msg {
+            color: $color-danger;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 12px;
+            color: $text-secondary;
+
+            input[type="checkbox"] {
+                cursor: pointer;
+                width: 16px;
+                height: 16px;
+                margin: 0;
+            }
+        }
+    }
+
+    .load-failure-actions {
+        display: flex;
+        gap: 12px;
+        width: 100%;
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-sizing: border-box;
+
+            &:active {
+                transform: scale(0.98);
+            }
+        }
+
+        .reject-button {
+            background-color: transparent;
+            border: 1px solid $border-primary;
+            color: $text-primary;
+
+            &:hover {
+                background-color: rgba($text-primary, 0.05);
+            }
+        }
+
+        .accept-button {
+            background-color: $accent-primary;
+            border: none;
+            color: $text-on-accent;
+
+            &:hover {
+                background-color: $accent-primary-hover;
+            }
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+    }
+}

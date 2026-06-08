@@ -47,11 +47,13 @@ import { logger } from './utils/logger.js';
 // Register global error boundaries immediately
 window.addEventListener('error', (event) => {
     logger.error('Uncaught error:', event.error || event.message);
+    if (!window.__APP_LOADED_STATUS__) return;
     showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
 });
 
 window.addEventListener('unhandledrejection', (event) => {
     logger.error('Unhandled promise rejection:', event.reason);
+    if (!window.__APP_LOADED_STATUS__) return;
     showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
 });
 
@@ -69,17 +71,17 @@ function setupModalFocusManager() {
                         if (document.activeElement && document.activeElement !== document.body && document.activeElement !== target) {
                             target._previouslyFocusedElement = document.activeElement;
                         }
-                        
+
                         // Ensure the modal container itself can be focused
                         if (!target.hasAttribute('tabindex')) {
                             target.setAttribute('tabindex', '-1');
                         }
-                        
+
                         setTimeout(() => {
                             const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
                             const focusableElements = Array.from(target.querySelectorAll(focusableSelector))
                                 .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
-                            
+
                             let firstFocusable = focusableElements.find(el => !el.closest('.modal-header')) || focusableElements[0];
 
                             if (firstFocusable) {
@@ -91,10 +93,10 @@ function setupModalFocusManager() {
                             // Trap focus inside the modal
                             const handleKeyDown = (e) => {
                                 if (e.key !== 'Tab') return;
-                                
+
                                 const currentFocusables = Array.from(target.querySelectorAll(focusableSelector))
                                     .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
-                                
+
                                 if (currentFocusables.length === 0) {
                                     e.preventDefault();
                                     target.focus();
@@ -184,7 +186,7 @@ export function updateUIWithTranslations(isInitialLoad = false) {
                 element.dataset.fullId = currentUserId;
             }
         }
-        
+
         // 1. If translation contains HTML tags (like <a>, <b>, etc.)
         // we must use innerHTML to render it correctly.
         if (translatedName.includes('<') && translatedName.includes('>')) {
@@ -271,51 +273,51 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
 
         const palette = {
             blue: {
-                dark: { 
+                dark: {
                     primary: '#8ab4f8', hover: '#aecbfa', soft: 'rgba(138, 180, 248, 0.1)',
                     bgApp: '#0f131a', bgPrimary: '#1a1f2b', bgSecondary: '#252c3d', bgTertiary: '#2e374d'
                 },
-                light: { 
+                light: {
                     primary: '#1a73e8', hover: '#1967d2', soft: 'rgba(26, 115, 232, 0.12)',
-                    bgApp: '#f4f8ff', bgPrimary: '#ffffff', bgSecondary: '#e9f2ff', bgTertiary: '#d9e8ff' 
+                    bgApp: '#f4f8ff', bgPrimary: '#ffffff', bgSecondary: '#e9f2ff', bgTertiary: '#d9e8ff'
                 }
             },
             gold: {
-                dark: { 
+                dark: {
                     primary: '#fde293', hover: '#feefc3', soft: 'rgba(253, 226, 147, 0.1)',
                     bgApp: '#1a180f', bgPrimary: '#262215', bgSecondary: '#362f1d', bgTertiary: '#423b1f'
                 },
-                light: { 
+                light: {
                     primary: '#f9ab00', hover: '#f29900', soft: 'rgba(249, 171, 0, 0.12)',
                     bgApp: '#fffbf0', bgPrimary: '#ffffff', bgSecondary: '#fff4e1', bgTertiary: '#ffecd1'
                 }
             },
             purple: {
-                dark: { 
+                dark: {
                     primary: '#ce93d8', hover: '#e1bee7', soft: 'rgba(206, 147, 216, 0.1)',
                     bgApp: '#16111a', bgPrimary: '#211a26', bgSecondary: '#2d2236', bgTertiary: '#3b2a47'
                 },
-                light: { 
+                light: {
                     primary: '#9c27b0', hover: '#8e24aa', soft: 'rgba(156, 39, 176, 0.12)',
                     bgApp: '#fbf5ff', bgPrimary: '#ffffff', bgSecondary: '#f3e8ff', bgTertiary: '#ebd9ff'
                 }
             },
             green: {
-                dark: { 
+                dark: {
                     primary: '#a8dab5', hover: '#ceead6', soft: 'rgba(168, 218, 181, 0.1)',
                     bgApp: '#0f1a14', bgPrimary: '#16261d', bgSecondary: '#1d3627', bgTertiary: '#264230'
                 },
-                light: { 
+                light: {
                     primary: '#34a853', hover: '#1e8e3e', soft: 'rgba(52, 168, 83, 0.12)',
                     bgApp: '#f0fff4', bgPrimary: '#ffffff', bgSecondary: '#e2fbe9', bgTertiary: '#cff9de'
                 }
             },
             red: {
-                dark: { 
+                dark: {
                     primary: '#f8b4ae', hover: '#fad2cf', soft: 'rgba(248, 180, 174, 0.1)',
                     bgApp: '#1a0f0f', bgPrimary: '#261515', bgSecondary: '#361d1d', bgTertiary: '#421f1f'
                 },
-                light: { 
+                light: {
                     primary: '#ee675c', hover: '#ea4335', soft: 'rgba(238, 103, 92, 0.12)',
                     bgApp: '#fff5f5', bgPrimary: '#ffffff', bgSecondary: '#ffe3e3', bgTertiary: '#ffd1d1'
                 }
@@ -343,18 +345,18 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
     if (origin && document.startViewTransition) {
         document.documentElement.style.setProperty('--ripple-x', `${origin.x}px`);
         document.documentElement.style.setProperty('--ripple-y', `${origin.y}px`);
-        
+
         document.documentElement.dataset.transitionType = 'theme-switch';
         document.body.classList.add('no-transition');
-        
+
         const transition = document.startViewTransition(() => {
             updateThemeProperties();
             renderApp(state);
             document.body.offsetHeight;
         });
 
-        transition.ready.catch(() => {});
-        transition.finished.catch(() => {}).finally(() => {
+        transition.ready.catch(() => { });
+        transition.finished.catch(() => { }).finally(() => {
             document.body.classList.remove('no-transition');
             delete document.documentElement.dataset.transitionType;
         });
@@ -455,7 +457,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!state.uiSettings.language || state.uiSettings.language === 'auto') {
             const userLangs = navigator.languages || [navigator.language];
             let detectedLang = 'en';
-            
+
             for (const l of userLangs) {
                 if (l.startsWith('de')) { detectedLang = 'de'; break; }
                 if (l.startsWith('fr')) { detectedLang = 'fr'; break; }
@@ -491,7 +493,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Apply theme and translate everything in one batch
         applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'blue', 'manual-toggle');
-        updateUIWithTranslations(true); 
+        updateUIWithTranslations(true);
         updateResponsiveText();
 
         recalculateAll(state);
@@ -541,7 +543,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         refreshButton.classList.add('saving');
                         const { loadAndProcessPlayerData } = await import('./services/serverResponseHandler.js');
                         const result = await loadAndProcessPlayerData(activeTag);
-                        
+
                         refreshButton.classList.remove('saving');
                         if (result.success) {
                             refreshButton.classList.add('success');
@@ -576,13 +578,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             preloader.classList.add('hidden');
             setTimeout(() => {
                 preloader.style.display = 'none';
-            }, 600); 
-            
+                if (typeof window.__APP_LOADED__ === 'function') {
+                    window.__APP_LOADED__();
+                }
+            }, 600);
+
             if (state.activeTab === 'planner-tab') {
                 import('./components/planner/calendar.js').then(module => {
                     module.setAnimateNextRender('all', 0.6); // 0.6s delay to wait for preloader fade out
                     renderApp(state);
-                    
+
                     const calendar = document.getElementById('calendar-container');
                     if (calendar) {
                         calendar.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -590,17 +595,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             }
         }, 1400); // 1.0s for animation + 0.4s buffer for renderApp
+    } else {
+        if (typeof window.__APP_LOADED__ === 'function') {
+            window.__APP_LOADED__();
+        }
     }
 
     if ('serviceWorker' in navigator && 'workbox' in window) {
-            const wb = new workbox.Workbox('/service-worker.js');
+        const wb = new workbox.Workbox('/service-worker.js');
 
-            wb.addEventListener('waiting', (event) => {
-                logger.log('A new version is available. Showing update prompt.');
-                import('./components/modals/updateModal.js').then(m => m.showUpdateModal(wb));
-            });
+        wb.addEventListener('waiting', (event) => {
+            logger.log('A new version is available. Showing update prompt.');
+            import('./components/modals/updateModal.js').then(m => m.showUpdateModal(wb));
+        });
 
-            wb.register().catch(err => logger.error('SW registration failed:', err));
+        wb.register().catch(err => logger.error('SW registration failed:', err));
     }
 
     // Start background cloud sync initialization after initial render is complete
@@ -735,6 +744,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
+
+
 });
 
 export { handleStateUpdate } from './core/stateManager.js';
@@ -752,7 +763,7 @@ window.refreshConsentModalStatus = () => {
 
     const privacyAccepted = privacyTimestamp && privacyTimestamp >= EFFECTIVE_DATE_PRIVACY;
     const tosAccepted = tosTimestamp && tosTimestamp >= EFFECTIVE_DATE_TERMS;
-    
+
     const acceptedText = translate('actions.accepted');
 
     const viewTermsBtn = document.getElementById('consent-view-terms-btn');
@@ -789,32 +800,32 @@ window.refreshConsentModalStatus = () => {
 function checkLegalConsent() {
     const privacyTimestamp = state.uiSettings.acceptanceTimestamp?.privacy;
     const tosTimestamp = state.uiSettings.acceptanceTimestamp?.tos;
-    
+
     // Check if consent timestamp is missing, or older than terms/privacy effective dates
-    const needsConsent = !privacyTimestamp || 
-                         privacyTimestamp < EFFECTIVE_DATE_PRIVACY || 
-                         !tosTimestamp || 
-                         tosTimestamp < EFFECTIVE_DATE_TERMS;
-                         
+    const needsConsent = !privacyTimestamp ||
+        privacyTimestamp < EFFECTIVE_DATE_PRIVACY ||
+        !tosTimestamp ||
+        tosTimestamp < EFFECTIVE_DATE_TERMS;
+
     if (!needsConsent) return;
-    
+
     const consentModal = document.getElementById('consent-modal');
     if (!consentModal) return;
-    
+
     const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
     const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
-    
+
     const termsRow = document.getElementById('consent-terms-row');
     const privacyRow = document.getElementById('consent-privacy-row');
     if (termsRow) termsRow.style.display = needsTerms ? 'flex' : 'none';
     if (privacyRow) privacyRow.style.display = needsPrivacy ? 'flex' : 'none';
-    
+
     const viewTermsBtn = document.getElementById('consent-view-terms-btn');
     const viewPrivacyBtn = document.getElementById('consent-view-privacy-btn');
     const acceptBtn = document.getElementById('confirm-consent-btn');
-    
+
     window.refreshConsentModalStatus();
-    
+
     if (viewTermsBtn) {
         viewTermsBtn.onclick = (e) => {
             e.preventDefault();
@@ -823,7 +834,7 @@ function checkLegalConsent() {
             openTermsOfUseModal();
         };
     }
-    
+
     if (viewPrivacyBtn) {
         viewPrivacyBtn.onclick = (e) => {
             e.preventDefault();
@@ -832,7 +843,7 @@ function checkLegalConsent() {
             openPrivacyModal();
         };
     }
-    
+
     if (acceptBtn) {
         acceptBtn.onclick = (e) => {
             e.preventDefault();
@@ -843,7 +854,7 @@ function checkLegalConsent() {
             state.uiSettings.acceptanceTimestamp.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
             state.uiSettings.acceptanceTimestamp.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
             saveState(state);
-            
+
             consentModal.classList.remove('show');
             if (dom.overlay) {
                 const visibleModals = document.querySelectorAll('.modal.show');
@@ -853,7 +864,7 @@ function checkLegalConsent() {
             }
         };
     }
-    
+
     // Open the consent modal and overlay
     consentModal.classList.add('show');
     if (dom.overlay) dom.overlay.classList.add('show');

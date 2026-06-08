@@ -354,7 +354,6 @@
         "completeByColon": "Fertig bis:",
         "notEnoughIncome": "Nicht genug Einkommen",
         "stepLevelRange": "Stufe #{n} Lvl {x} bis Lvl {y}",
-        "editPriorityList": "Prioritäten-Liste bearbeiten",
         "confirmDeleteStep": "Bist du sicher, dass du diesen Verbesserungs-Schritt ({equipment} auf Level {level}) aus der Prioritäten-Liste entfernen möchtest?",
         "confirmResetList": "Bist du sicher, dass du die gesamte Prioritäten-Liste leeren möchtest? Dies wird alle Verbesserungs-Pläne entfernen.",
         "toLevel": "(auf Level {level})",
@@ -380,7 +379,6 @@
         "deleteMonthChips": "Chips des aktuellen Monats löschen",
         "deleteAllChips": "Alle Chips löschen",
         "createCustomChips": "Eigene Chips erstellen",
-        "close": "Schließen",
         "actionsMenu": "Aktionsmenü",
         "delete": "Löschen",
         "autoPlace": "Auto-Platzierung",
@@ -496,6 +494,7 @@
             "userId": "Nutzer-ID",
             "contactEmail": "Kontakt-E-Mail (Optional)",
             "bugDescription": "Beschreibung *",
+            "bugDescriptionOptional": "Beschreibung (Optional)",
             "userDataAttachment": "Benutzerdaten anhängen (Optional)",
             "uuidAttachmentInfo": "Deine eindeutige Benutzer-ID (UUID) wird immer angehängt, um uns bei der Identifizierung deiner Sitzung zu helfen.",
             "emailPlaceholder": "deine-email@beispiel.de",
@@ -672,7 +671,10 @@
         "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte lade die Seite neu.",
         "errorTitle": "Fehler",
         "bugDescriptionRequired": "Bitte gib eine Beschreibung von mindestens 20 Zeichen ein.",
-        "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein oder lass das Feld leer."
+        "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein oder lass das Feld leer.",
+        "loadFailureTitle": "Initialisierung fehlgeschlagen",
+        "loadFailureMessage": "OreCalc konnte aufgrund eines kritischen Fehlers bei der Initialisierung nicht gestartet werden.",
+        "showDetails": "Fehlerdetails anzeigen"
     },
     "apiErrors": {
         "400": "Falsche Parameter angegeben.",

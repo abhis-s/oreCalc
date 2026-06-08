@@ -353,7 +353,6 @@
         "completeByColon": "Complete by:",
         "notEnoughIncome": "Not enough income",
         "stepLevelRange": "Step #{n} Lvl {x} to Lvl {y}",
-        "editPriorityList": "Edit Priority List",
         "confirmDeleteStep": "Are you sure you want to remove this upgrade step ({equipment} to level {level}) from the priority list?",
         "confirmResetList": "Are you sure you want to clear the entire priority list? This will remove all upgrade plans.",
         "fixOrder": "Fix Order",
@@ -380,7 +379,6 @@
         "deleteMonthChips": "Delete current month's chips",
         "deleteAllChips": "Delete all chips",
         "createCustomChips": "Create Custom Chips",
-        "close": "Close",
         "actionsMenu": "Actions Menu",
         "delete": "Delete",
         "autoPlace": "Auto Place",
@@ -496,6 +494,7 @@
             "userId": "User ID",
             "contactEmail": "Contact Email (Optional)",
             "bugDescription": "Description *",
+            "bugDescriptionOptional": "Description (Optional)",
             "userDataAttachment": "Attach User Data (Optional)",
             "uuidAttachmentInfo": "Your unique User ID (UUID) is always attached to help us identify your session.",
             "emailPlaceholder": "your-email@example.com",
@@ -672,7 +671,10 @@
         "unexpectedError": "An unexpected error occurred. Please reload the page.",
         "errorTitle": "Error",
         "bugDescriptionRequired": "Please enter a description of at least 20 characters.",
-        "invalidEmail": "Please enter a valid email address or leave it empty."
+        "invalidEmail": "Please enter a valid email address or leave it empty.",
+        "loadFailureTitle": "Initialization Failed",
+        "loadFailureMessage": "OreCalc could not start because of a critical error during initialization.",
+        "showDetails": "Show Error Details"
     },
     "apiErrors": {
         "400": "Incorrect parameters provided.",
