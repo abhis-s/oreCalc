@@ -89,7 +89,16 @@ const params = {
         // Custom middleware to intercept index.html requests, dynamically inject environment configs,
         // and serve the processed HTML directly from cache or compile it on the fly.
         function(req, res, next) {
-            if (req.url === '/' || req.url === '/index.html') {
+            // Parse URL safely to extract pathname and query parameters
+            let pathname = req.url;
+            let query = '';
+            const qIdx = req.url.indexOf('?');
+            if (qIdx !== -1) {
+                pathname = req.url.substring(0, qIdx);
+                query = req.url.substring(qIdx);
+            }
+
+            if (pathname === '/' || pathname === '/index.html') {
                 if (!cachedHtml) {
                     const indexPath = path.join(process.cwd(), 'index.html');
                     let content = fs.readFileSync(indexPath, 'utf8');
@@ -101,6 +110,20 @@ const params = {
                 }
                 res.setHeader('Content-Type', 'text/html');
                 res.end(cachedHtml);
+            } else if (['/privacy', '/terms', '/licenses', '/404'].includes(pathname)) {
+                // Serve the corresponding static html file cleanly
+                const filePath = path.join(process.cwd(), `${pathname.substring(1)}.html`);
+                if (fs.existsSync(filePath)) {
+                    res.setHeader('Content-Type', 'text/html');
+                    res.end(fs.readFileSync(filePath, 'utf8'));
+                } else {
+                    next();
+                }
+            } else if (pathname.endsWith('.html') && pathname !== '/index.html') {
+                // Redirect direct requests for .html files to their clean versions
+                const cleanPath = pathname.substring(0, pathname.length - 5);
+                res.writeHead(301, { Location: cleanPath + query });
+                res.end();
             } else {
                 next();
             }

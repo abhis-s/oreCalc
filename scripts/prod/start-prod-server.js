@@ -8,9 +8,21 @@ const PORT = process.env.PORT || 8081;
 // Enable gzip compression for all responses
 app.use(compression());
 
-// Serve static assets with long-term cache headers
 const distPath = path.join(__dirname, '../../dist');
+
+// Redirect direct requests for legal/extra HTML files to extensionless clean URLs
+app.use((req, res, next) => {
+    if (req.path.endsWith('.html') && req.path !== '/index.html') {
+        const cleanPath = req.path.substring(0, req.path.length - 5);
+        const query = req.url.substring(req.path.length);
+        return res.redirect(301, cleanPath + query);
+    }
+    next();
+});
+
+// Serve static assets with clean URLs and long-term cache headers
 app.use(express.static(distPath, {
+    extensions: ['html'],
     maxAge: '1d',
     setHeaders: (res, filePath) => {
         const relativePath = path.relative(distPath, filePath);

@@ -41,7 +41,10 @@ export function initializeTabs() {
         if (tabId === state.activeTab) return;
 
         const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
-        if (!tabOrder.includes(tabId)) return;
+        if (!tabOrder.includes(tabId)) {
+            window.location.href = '/404';
+            return;
+        }
 
         const currentIndex = tabOrder.indexOf(state.activeTab);
         const nextIndex = tabOrder.indexOf(tabId);

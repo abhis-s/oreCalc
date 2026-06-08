@@ -703,7 +703,7 @@ export function openPrivacyModal() {
     const currentLang = state.uiSettings?.language || 'en';
     const isEnglish = currentLang === 'en';
     let showingEnglish = isEnglish;
-    const initialUrl = isEnglish ? 'privacy.html' : `privacy/${currentLang}`;
+    const initialUrl = isEnglish ? 'privacy' : `privacy/${currentLang}`;
 
     if (translateBtn) {
         if (isEnglish) {
@@ -723,7 +723,7 @@ export function openPrivacyModal() {
                 } else {
                     currentTheme = state.uiSettings?.theme || 'dark';
                 }
-                const targetUrl = showingEnglish ? 'privacy.html' : `privacy/${currentLang}`;
+                const targetUrl = showingEnglish ? 'privacy' : `privacy/${currentLang}`;
                 if (iframe) {
                     iframe.src = `${targetUrl}?theme=${currentTheme}`;
                 }
@@ -896,7 +896,7 @@ export function openTermsOfUseModal() {
     const currentLang = state.uiSettings?.language || 'en';
     const isEnglish = currentLang === 'en';
     let showingEnglish = isEnglish;
-    const initialUrl = isEnglish ? 'terms.html' : `terms/${currentLang}`;
+    const initialUrl = isEnglish ? 'terms' : `terms/${currentLang}`;
 
     if (translateBtn) {
         if (isEnglish) {
@@ -916,7 +916,7 @@ export function openTermsOfUseModal() {
                 } else {
                     currentTheme = state.uiSettings?.theme || 'dark';
                 }
-                const targetUrl = showingEnglish ? 'terms.html' : `terms/${currentLang}`;
+                const targetUrl = showingEnglish ? 'terms' : `terms/${currentLang}`;
                 if (iframe) {
                     iframe.src = `${targetUrl}?theme=${currentTheme}`;
                 }

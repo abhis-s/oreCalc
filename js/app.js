@@ -387,12 +387,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const savedState = loadState();
     initializeState(savedState);
 
+    // Redirect invalid pathnames (404 fallback routing)
+    const pathName = window.location.pathname;
+    if (pathName !== '/' && pathName !== '/index.html' && pathName !== '/404') {
+        window.location.href = '/404';
+        return;
+    }
+
     // Sync active tab with location hash on startup to prevent routing mismatch
     if (window.location.hash) {
         const initialTab = `${window.location.hash.substring(1)}-tab`;
         const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
         if (validTabs.includes(initialTab)) {
             state.activeTab = initialTab;
+        } else {
+            window.location.href = '/404';
+            return;
         }
     }
 

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Page not found - OreCalc, the Clash of Clans hero equipment and upgrade planner.">
+    <meta name="robots" content="noindex, follow">
+    <title>404 - Page Not Found - OreCalc</title>
+    <link rel="canonical" href="https://orecalc.tech/404">
+    <link rel="icon" href="assets/favicon.png" type="image/x-icon">
+    <script>
+        // Inline script to prevent theme flash and detect embed
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            let theme = params.get('theme');
+            if (!theme) {
+                // Set theme based on browser preference
+                theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <style>
+        :root {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --accent-hover: #2b6cb0;
+        }
+
+        /* Explicit light theme */
+        html[data-theme="light"] {
+            --bg-color: #f9f9f9;
+            --surface-color: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --accent-hover: #2b6cb0;
+        }
+
+        /* Explicit dark theme */
+        html[data-theme="dark"] {
+            --bg-color: #121212;
+            --surface-color: #1a1a1a;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border-color: #2d3748;
+            --accent-color: #63b3ed;
+            --accent-hover: #90cdf4;
+        }
+
+        /* Fallback dark theme */
+        @media (prefers-color-scheme: dark) {
+            html:not([data-theme="light"]) {
+                --bg-color: #121212;
+                --surface-color: #1a1a1a;
+                --text-primary: #e2e8f0;
+                --text-secondary: #a0aec0;
+                --border-color: #2d3748;
+                --accent-color: #63b3ed;
+                --accent-hover: #90cdf4;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease-in-out, color 0.3s;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background-color: var(--surface-color);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: background-color 0.3s ease-in-out, border-color 0.3s;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-link {
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 4px;
+            border-radius: 4px;
+            transition: transform 0.2s;
+            user-select: none;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.9);
+        }
+
+        .error-code {
+            font-size: 6.5rem;
+            font-weight: 900;
+            line-height: 1;
+            margin: 20px 0 10px;
+            background: linear-gradient(135deg, var(--accent-color), #48bb78);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: #121212;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.2s, transform 0.15s;
+            border: none;
+            box-shadow: 0 4px 12px rgba(99, 179, 237, 0.2);
+        }
+
+        html[data-theme="light"] .btn {
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.25);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .footer {
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-row">
+            <a href="/" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to App
+            </a>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">🌙</button>
+        </div>
+
+        <div class="error-code">404</div>
+        <h1>Page Not Found</h1>
+        <p>The page you are looking for does not exist or has been moved to another address.</p>
+        
+        <a href="/#home" class="btn">Go Back Home</a>
+
+        <div class="footer">
+            &copy; 2026 OreCalc. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeBtn = document.getElementById('theme-toggle-btn');
+
+            function getTheme() {
+                return document.documentElement.getAttribute('data-theme') || 'dark';
+            }
+
+            function updateTheme(newTheme) {
+                document.documentElement.setAttribute('data-theme', newTheme);
+                if (themeBtn) {
+                    themeBtn.innerHTML = newTheme === 'light' ? '🌙' : '☀️';
+                    themeBtn.setAttribute('aria-label', newTheme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+                }
+            }
+
+            // Sync toggle button initial state
+            updateTheme(getTheme());
+
+            if (themeBtn) {
+                themeBtn.addEventListener('click', () => {
+                    const currentTheme = getTheme();
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    updateTheme(newTheme);
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

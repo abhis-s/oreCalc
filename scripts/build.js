@@ -158,6 +158,7 @@ async function build() {
             copyWithPromise(path.join(projectRoot, 'terms.html'), distDir),
             copyWithPromise(path.join(projectRoot, 'privacy.html'), distDir),
             copyWithPromise(path.join(projectRoot, 'licenses.html'), distDir),
+            copyWithPromise(path.join(projectRoot, '404.html'), distDir),
             copyWithPromise(path.join(projectRoot, 'terms/**/*.html'), path.join(distDir, 'terms')),
             copyWithPromise(path.join(projectRoot, 'privacy/**/*.html'), path.join(distDir, 'privacy')),
             copyWithPromise(path.join(projectRoot, 'licenses/**/*.txt'), path.join(distDir, 'licenses')),
