@@ -18,11 +18,9 @@
     },
     "player": {
         "addPlus": "+ Spieler hinzufügen",
-        "placeholderUserId": "Nutzer ID einfügen",
         "dataNotFound": "Spielerdaten nicht gefunden. Bitte ein gültiges Kürzel eingeben oder auf 'Laden' klicken.",
-        "qrTitle": "Benutzer-ID QR-Code",
-        "qrScanInstruction": "Benutze die Kamera deines Geräts, um einen QR-Code zu scannen. Die App wird mit den importierten Daten neu geladen.",
-        "qrDisplayInstruction": "Scanne diesen QR-Code mit einem anderen Gerät, um deine Daten zu importieren.",
+        "qrScanInstruction": "Füge den Synchronisations-Code (Nutzer-ID) von deinem anderen Gerät unten ein, um sie zu verknüpfen, oder scanne den QR-Code auf deinem anderen Gerät mit dessen Kamera. Die Cloud-Synchronisation wird automatisch aktiviert.",
+        "qrDisplayInstruction": "Klicke unten auf den Synchronisations-Code, um ihn in deine Zwischenablage zu kopieren, oder scanne den QR-Code mit der Kamera deines anderen Geräts, um sie sofort zu verknüpfen.",
         "userId": "Nutzer-ID",
         "label": "Spieler",
         "selectPlaceholder": "Wähle einen Spieler",
@@ -393,7 +391,8 @@
         "paste": "Einfügen",
         "resetAll": "Alle Daten löschen",
         "reset": "Zurücksetzen",
-        "sync": "Daten synchronisieren",
+        "sync": "Synchronisieren",
+        "syncToCloud": "Zur Cloud synchronisieren",
         "synced": "Sync erfolgt!",
         "failed": "Fehlgeschlagen",
         "refresh": "Aktualisieren",
@@ -418,7 +417,7 @@
         "accept": "Akzeptieren",
         "accepted": "Akzeptiert",
         "acceptAndContinue": "Akzeptieren & Fortfahren",
-        "agreeAndEnable": "Zustimmen & Aktivieren",
+        "enableAndCopy": "Aktivieren & Kopieren",
         "fix": "Reparieren",
         "visit": "Besuchen",
         "support": "Unterstützen",
@@ -429,12 +428,12 @@
         "download": "Herunterladen",
         "request": "Anfordern",
         "localReset": "Lokalen Cache leeren",
-        "localCloudReset": "Alle Daten löschen",
+        "localCloudReset": "Cloud- UND lokale Daten löschen",
         "completeDelete": "Ausschluss vom Dienst anfordern",
         "downloadData": "Meine Daten herunterladen",
         "validate": "Überprüfen",
+        "linkDevice": "Gerät verknüpfen",
         "verify": "Bestätigen",
-        "importUserId": "Nutzer-ID importieren",
         "proceed": "Fortfahren",
         "submit": "Absenden",
         "close": "Schließen",
@@ -472,6 +471,10 @@
             "others": "Sonstige"
         },
         "transparency": "Transparenz",
+        "deviceSyncTitle": "Gerätesynchronisation",
+        "yourSyncCode": "Dein Synchronisations-Code",
+        "linkDevice": "Anderes Gerät verknüpfen",
+        "placeholderSyncCode": "Synchronisations-Code einfügen (z. B. f81d4fae-...)",
         "privacyPolicy": "Datenschutzerklärung",
         "privacyPolicyText": "Datenschutzerklärung",
         "termsOfUse": "Nutzungsbedingungen",
@@ -484,8 +487,6 @@
             "developmentSupport": "Entwicklung & Unterstützung",
             "transparency": "Rechtliches & Transparenz"
         },
-        "importUserId": "Nutzer-ID importieren",
-        "proceed": "Fortfahren",
         "options": {
             "theme": "Hell-/Dunkelmodus",
             "language": "Sprache",
@@ -493,7 +494,7 @@
             "globalPricing": "Globale Preise",
             "accentColor": "Akzentfarbe",
             "cloudSync": "Cloud-Synchronisierung",
-            "userId": "Nutzer-ID",
+            "deviceSync": "Geräte synchronisieren",
             "contactEmail": "Kontakt-E-Mail (Optional)",
             "bugDescription": "Beschreibung *",
             "bugDescriptionOptional": "Beschreibung (Optional)",
@@ -503,6 +504,10 @@
             "bugDescPlaceholder": "Bitte beschreibe das Problem im Detail..."
         },
         "cloudSyncInfo": "Synchronisiere deine Daten geräteübergreifend. Clash of Clans-API bleibt aktiv.",
+        "deviceSyncInfo": "Verknüpfe und synchronisiere deinen Fortschritt geräteübergreifend.",
+        "cloudSyncDisabledNoPlayer": "Füge zuerst ein Spielerprofil hinzu, um die Cloud-Synchronisation zu aktivieren.",
+        "noPlayerForCopy": "Es sind noch keine Spielerprofile eingerichtet. Füge zuerst ein Profil hinzu, um Daten zu synchronisieren.",
+        "addPlayerProfile": "Spielerprofil hinzufügen",
         "globalPricingTitle": "Globale Preisgestaltung",
         "globalPricingDesc": "Konfiguriere individuelle Preise für deine Währung.",
         "globalPricingModal": {
@@ -555,7 +560,7 @@
     },
     "download": {
         "title": "Deine Daten herunterladen",
-        "description": "Dies exportiert deinen gesamten Anwendungsstatus (Spieler, Ausrüstung, Planer) in eine JSON-Datei. Du kannst diese Datei verwenden, um deinen Fortschritt zu sichern oder ihn auf einem anderen Gerät zu importieren.",
+        "description": "Dies exportiert deinen gesamten Anwendungsstatus (Spieler, Ausrüstung, Planer) in eine JSON-Datei. Du kannst diese Datei verwenden, um deinen Fortschritt zu sichern.",
         "filenameInfo": "Die Datei wird benannt: <b>OreCalc-Data_{uuid}.json</b>"
     },
     "alerts": {
@@ -564,8 +569,11 @@
         "clipboardUnsupported": "Clipboard-API wird in diesem Browser/Kontext nicht unterstützt oder ist nicht zugänglich.",
         "copiedFailed": "Fehler beim Kopieren der Nutzer-ID.",
         "uuidDetected": "Nutzer-ID aus der Zwischenablage erkannt",
+        "validUserId": "Nutzer-ID ist gültig",
         "invalidUserId": "Ungültiges Format für die Nutzer-ID.",
         "invalidUserIdClipboard": "Ungültiges Format der Nutzer-ID in der Zwischenablage.",
+        "incompleteUserId": "Ungültiges Format der Nutzer-ID (muss 36 Zeichen lang sein).",
+        "sameUserId": "Verbindung mit Ihrer eigenen aktiven Nutzer-ID nicht möglich.",
         "clipboardNoText": "Kein Text in der Zwischenablage gefunden. Bitte gib die Nutzer-ID manuell ein.",
         "clipboardDenied": "Zugriff auf die Zwischenablage verweigert oder fehlgeschlagen. Bitte gib die Nutzer-ID manuell ein.",
         "userIdNotFound": "Nutzer-ID nicht gefunden.",
@@ -577,6 +585,7 @@
         "importFailed": "Importieren der Daten fehlgeschlagen: <code>{error}</code>",
         "importEmpty": "Bitte gib eine Nutzer-ID zum Importieren ein.",
         "saveDefaultOnly": "Speichern in der Cloud nicht möglich: Es existiert nur das Standard-Spielerkürzel.",
+        "enableCloudSyncToCopy": "Die Cloud-Synchronisation ist derzeit deaktiviert. Du musst sie aktivieren, um deine Daten über verschiedene Geräte hinweg zu synchronisieren. Möchtest du sie jetzt aktivieren?",
         "versionOutdatedReset": "Dein gespeichertes Datenformat ist veraltet. Die Daten wurden zurückgesetzt. Die Seite wird nun neu geladen.",
         "resetSuccess": "Daten erfolgreich zurückgesetzt. Die Seite wird nun neu geladen.",
         "resetFailedWarning": "Daten wurden nicht zurückgesetzt. Es können Kompatibilitätsprobleme auftreten.\nDu kannst deine Daten jederzeit im Tab 'Einstellungen' zurücksetzen.",
@@ -700,14 +709,12 @@
         "serverOffline": "Es konnte keine Verbindung zum API-Server hergestellt werden. Der Server ist möglicherweise offline oder wird gewartet.",
         "protectedTag": "Dieses Konto ist geschützt. Zur Hinzufügung ist eine Verifizierung erforderlich.",
         "invalidToken": "Verifizierung fehlgeschlagen. Das angegebene API-Token ist ungültig.",
+        "featureDisabled": "Diese Funktion ist derzeit deaktiviert.",
         "unknown": "Unbekannter Fehler"
     },
     "legal": {
         "title": "Nutzungsbedingungen & Datenschutz Update",
         "description": "Bitte lies und akzeptiere unsere aktualisierten Nutzungsbedingungen und die Datenschutzrichtlinie, um OreCalc weiterhin zu nutzen.",
-        "consentStatement": "Durch Klicken auf \"Akzeptieren & Fortfahren\" stimmst du unseren Nutzungsbedingungen zu und bestätigst, dass du unsere Datenschutzrichtlinie gelesen hast und ihr zustimmst.",
-        "cloudSyncNoticeTitle": "Cloud-Synchronisation aktivieren",
-        "cloudSyncNoticeDesc": "Durch die Aktivierung der Cloud-Synchronisation werden Ihre Einstellungen und lokalen Planer-Konfigurationen sicher auf unseren Servern gespeichert, um eine geräteübergreifende Synchronisation zu ermöglichen.",
-        "cloudSyncNoticeAgree": "Bitte lies unsere Nutzungsbedingungen und die Datenschutzerklärung und stimme ihnen zu, um diese Funktion zu aktivieren."
+        "consentStatement": "Durch Klicken auf \"Akzeptieren & Fortfahren\" stimmst du unseren Nutzungsbedingungen zu und bestätigst, dass du unsere Datenschutzrichtlinie gelesen hast und ihr zustimmst."
     }
 }

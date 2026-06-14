@@ -79,7 +79,8 @@
                                     <div class="settings-item-label-wrapper">
                                         <label for="settings-cloud-sync-toggle" data-i18n="settings.options.cloudSync">Cloud Synchronization</label>
                                     </div>
-                                    <p class="form-setting-text" data-i18n="settings.cloudSyncInfo">Sync your data across multiple devices.</p>
+                                    <p id="settings-cloud-sync-info" class="form-setting-text" data-i18n="settings.cloudSyncInfo">Sync your data across multiple devices.</p>
+                                    <a href="#" id="settings-add-player-link" class="theme-link hidden" style="display: inline-block; margin-top: 5px; font-size: 0.85rem;" data-i18n="settings.addPlayerProfile">Add Player Profile</a>
                                 </div>
                                 <div class="switch">
                                     <input type="checkbox" id="settings-cloud-sync-toggle" checked>
@@ -88,26 +89,17 @@
                             </div>
                             
                             <div class="settings-item">
-                                <div class="settings-item-label-wrapper">
-                                    <label id="user-id-display-label" for="copy-user-id-btn" data-i18n="settings.options.userId">User ID: ********</label>
+                                <div class="field-descriptor-group">
+                                    <div class="settings-item-label-wrapper">
+                                        <label for="device-sync-btn" data-i18n="settings.options.deviceSync">Sync Between Devices</label>
+                                    </div>
+                                    <p class="form-setting-text" data-i18n="settings.deviceSyncInfo">Link and sync your progress across multiple devices.</p>
                                 </div>
-                                <button id="copy-user-id-btn" class="animated-btn btn-accent task-btn">
-                                    <span class="button-success-icon"><orecalc-assets-svg name="cloud-check"></orecalc-assets-svg></span>
+                                <button id="device-sync-btn" class="animated-btn btn-accent task-btn">
                                     <span class="animated-btn-icon-wrapper fill-dark">
-                                        <orecalc-assets-svg name="copy"></orecalc-assets-svg>
+                                        <orecalc-assets-svg name="sync"></orecalc-assets-svg>
                                     </span>
-                                    <span class="animated-btn-text" data-i18n="actions.copy">Copy</span>
-                                </button>
-                            </div>
-                            <div class="settings-item">
-                                <div class="settings-item-label-wrapper">
-                                    <label for="import-user-data-btn" data-i18n="actions.importUserId">Import User ID</label>
-                                </div>
-                                <button id="import-user-data-btn" class="animated-btn btn-accent task-btn">
-                                    <span class="animated-btn-icon-wrapper fill-dark">
-                                        <orecalc-assets-svg name="import"></orecalc-assets-svg>
-                                    </span>
-                                    <span class="animated-btn-text" data-i18n="actions.importShort">Import</span>
+                                    <span class="animated-btn-text" data-i18n="actions.sync">Sync</span>
                                 </button>
                             </div>
 

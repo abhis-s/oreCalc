@@ -56,13 +56,11 @@
         pointer-events: none;
     }
 
-    .dropdown-arrow {
-        transition: transform 0.2s ease-in-out;
+    .dropdown-arrow svg {
         fill: $text-primary;
-    }
-
-    &.open .dropdown-arrow {
-        transform: rotate(180deg);
+        width: 16px;
+        height: 16px;
+        display: block;
     }
 }
 

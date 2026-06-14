@@ -18,11 +18,9 @@
     },
     "player": {
         "addPlus": "+ Add Player",
-        "placeholderUserId": "Paste User ID",
         "dataNotFound": "Player data not found. Please enter a valid tag or click Load.",
-        "qrTitle": "User ID QR Code",
-        "qrScanInstruction": "Use your device camera to scan a QR code. The app will reload with the imported data.",
-        "qrDisplayInstruction": "Scan this QR code with another device to import your data.",
+        "qrScanInstruction": "Paste the Sync Code (User ID) from your other device below to link them, or scan the QR code on your other device using its camera. Cloud Synchronization will be enabled automatically.",
+        "qrDisplayInstruction": "Click the Sync Code below to copy it to your clipboard, or scan the QR code with another device's camera to link them instantly.",
         "userId": "User ID",
         "label": "Player",
         "selectPlaceholder": "Select a Player",
@@ -393,7 +391,8 @@
         "paste": "Paste",
         "resetAll": "Clear All Data",
         "reset": "Reset",
-        "sync": "Sync Data",
+        "sync": "Sync",
+        "syncToCloud": "Sync to Cloud",
         "synced": "Synced!",
         "failed": "Failed",
         "refresh": "Refresh",
@@ -418,7 +417,7 @@
         "accept": "Accept",
         "accepted": "Accepted",
         "acceptAndContinue": "Accept & Continue",
-        "agreeAndEnable": "Agree & Enable",
+        "enableAndCopy": "Enable & Copy",
         "fix": "Fix",
         "visit": "Visit",
         "support": "Support",
@@ -429,12 +428,12 @@
         "download": "Download",
         "request": "Request",
         "localReset": "Clear On-Device Data",
-        "localCloudReset": "Delete All Data",
+        "localCloudReset": "Delete Cloud AND On-Device Data",
         "completeDelete": "Request exclusion from service",
         "downloadData": "Download My Data",
         "validate": "Validate",
+        "linkDevice": "Link Device",
         "verify": "Verify",
-        "importUserId": "Import User ID",
         "proceed": "Proceed",
         "submit": "Submit",
         "close": "Close",
@@ -472,6 +471,10 @@
             "others": "Others"
         },
         "transparency": "Legal & Transparency",
+        "deviceSyncTitle": "Device Synchronization",
+        "yourSyncCode": "Your Sync Code",
+        "linkDevice": "Link Another Device",
+        "placeholderSyncCode": "Paste Sync Code (e.g. f81d4fae-...)",
         "privacyPolicy": "Privacy Policy",
         "privacyPolicyText": "Privacy Policy",
         "termsOfUse": "Terms of Use",
@@ -484,8 +487,6 @@
             "developmentSupport": "Development & Support",
             "transparency": "Legal & Transparency"
         },
-        "importUserId": "Import User ID",
-        "proceed": "Proceed",
         "options": {
             "theme": "Light/Dark Mode",
             "language": "Language",
@@ -493,7 +494,7 @@
             "globalPricing": "Global Pricing",
             "accentColor": "Accent Color",
             "cloudSync": "Cloud Synchronization",
-            "userId": "User ID",
+            "deviceSync": "Sync Between Devices",
             "contactEmail": "Contact Email (Optional)",
             "bugDescription": "Description *",
             "bugDescriptionOptional": "Description (Optional)",
@@ -503,6 +504,10 @@
             "bugDescPlaceholder": "Please describe the issue in detail..."
         },
         "cloudSyncInfo": "Sync your data across devices. Clash of Clans API remains active.",
+        "deviceSyncInfo": "Link and sync your progress across multiple devices.",
+        "cloudSyncDisabledNoPlayer": "Add a player profile first to enable cloud synchronization.",
+        "noPlayerForCopy": "No player profiles are set up yet. Add a profile first to sync data.",
+        "addPlayerProfile": "Add Player Profile",
         "globalPricingTitle": "Global Pricing Configuration",
         "globalPricingDesc": "Configure custom prices for your currency.",
         "globalPricingModal": {
@@ -555,7 +560,7 @@
     },
     "download": {
         "title": "Download Your Data",
-        "description": "This will export your entire application state (players, equipment, planner) into a JSON file. You can use this file to backup your progress or import it on another device.",
+        "description": "This will export your entire application state (players, equipment, planner) into a JSON file. You can use this file to backup your progress.",
         "filenameInfo": "The file will be named: <b>OreCalc-Data_{uuid}.json</b>"
     },
     "alerts": {
@@ -564,8 +569,11 @@
         "clipboardUnsupported": "Clipboard API not supported or accessible in this browser/context.",
         "copiedFailed": "Failed to copy User ID.",
         "uuidDetected": "User ID detected from clipboard",
+        "validUserId": "User ID is valid",
         "invalidUserId": "Invalid User ID format.",
         "invalidUserIdClipboard": "Invalid User ID format in clipboard.",
+        "incompleteUserId": "Incomplete User ID format (must be 36 characters).",
+        "sameUserId": "Cannot link to your own active User ID.",
         "clipboardNoText": "No text found in clipboard. Please enter User ID manually.",
         "clipboardDenied": "Clipboard access denied or failed. Please enter User ID manually.",
         "userIdNotFound": "User ID not found.",
@@ -577,6 +585,7 @@
         "importFailed": "Failed to import data: <code>{error}</code>",
         "importEmpty": "Please enter a User ID to import.",
         "saveDefaultOnly": "Cannot save to cloud: Only default player tag exists.",
+        "enableCloudSyncToCopy": "Cloud synchronization is currently disabled. You need to enable it to sync your data across devices. Would you like to enable it now?",
         "versionOutdatedReset": "Your saved data format is outdated. Data has been reset. The page will now reload.",
         "resetSuccess": "Data reset successful. The page will now reload.",
         "resetFailedWarning": "Data was not reset. You may experience compatibility issues.\nYou can reset your data anytime from the Settings tab.",
@@ -700,14 +709,12 @@
         "serverOffline": "Cannot connect to the API server. The server may be offline or under maintenance.",
         "protectedTag": "This account is protected. Verification is required to add it.",
         "invalidToken": "Verification failed. The API Token provided is invalid.",
+        "featureDisabled": "This feature is currently deactivated.",
         "unknown": "Unknown error"
     },
     "legal": {
         "title": "Terms & Privacy Update",
         "description": "Please review and accept our updated Terms of Use and Privacy Policy to continue using OreCalc.",
-        "consentStatement": "By clicking \"Accept & Continue\", you agree to our Terms of Use and acknowledge that you have read and agreed to our Privacy Policy.",
-        "cloudSyncNoticeTitle": "Enable Cloud Synchronization",
-        "cloudSyncNoticeDesc": "By enabling Cloud Synchronization, your settings and local calculator configurations will be securely stored on our servers to enable cross-device sync.",
-        "cloudSyncNoticeAgree": "Please review and agree to our Terms of Use and Privacy Policy to activate this feature."
+        "consentStatement": "By clicking \"Accept & Continue\", you agree to our Terms of Use and acknowledge that you have read and agreed to our Privacy Policy."
     }
 }

@@ -286,6 +286,11 @@ app.delete('/api/user-data/delete/:userId', sensitiveLimiter, async (req, res) =
 
 // Stricter rate limits applied to global erasure
 app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
+    return res.status(403).json({
+        reason: 'featureDisabled',
+        message: 'This feature has been deactivated.'
+    });
+
     const fetch = (await import('node-fetch')).default;
     const { playerTag, token } = req.body;
     const userId = req.headers['x-user-id']; // Optional, but good to have

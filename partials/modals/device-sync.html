@@ -1,0 +1,52 @@
+<div id="device-sync-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 data-i18n="settings.deviceSyncTitle">Device Synchronization</h2>
+            <button id="close-device-sync-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-body text-left" style="padding: 15px 24px;">
+            <!-- Part 1: Your Sync Code (Copy / QR) -->
+            <details class="sync-section" open>
+                <summary>
+                    <span data-i18n="settings.yourSyncCode">Your Sync Code</span>
+                    <orecalc-assets-svg name="chevron-up" class="chevron"></orecalc-assets-svg>
+                </summary>
+                <div class="details-content">
+                    <p data-i18n="player.qrDisplayInstruction" class="form-setting-text" style="margin-bottom: 15px; margin-top: 0;">Click the Sync Code below to copy it to your clipboard, or scan the QR code with another device's camera to link them instantly.</p>
+                    <div class="sync-code-container" style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                        <div id="device-sync-user-id" class="calculated id-child-fields qr-user-id" style="flex: 1; text-align: center; margin-top: 0;" title="Click to copy" data-i18n-title="actions.clickToCopy"></div>
+                        <button id="device-sync-copy-btn" class="animated-btn btn-accent" style="margin: 0; min-height: 0; height: 38px;">
+                            <span class="animated-btn-icon-wrapper fill-dark">
+                                <orecalc-assets-svg name="copy"></orecalc-assets-svg>
+                            </span>
+                            <span class="animated-btn-text" data-i18n="actions.copy">Copy</span>
+                        </button>
+                    </div>
+                    <div id="device-sync-qr-container" style="display: flex; justify-content: center; margin-bottom: 10px;"></div>
+                </div>
+            </details>
+
+            <!-- Part 2: Link/Import Another Device -->
+            <details class="sync-section">
+                <summary>
+                    <span data-i18n="settings.linkDevice">Link Another Device</span>
+                    <orecalc-assets-svg name="chevron-down" class="chevron"></orecalc-assets-svg>
+                </summary>
+                <div class="details-content">
+                    <p data-i18n="player.qrScanInstruction" class="form-setting-text" style="margin-bottom: 15px; margin-top: 0;">Paste the Sync Code (User ID) from your other device below to link them. Cloud Synchronization will be enabled automatically.</p>
+                    <div class="import-data-input-container" style="margin: 0;">
+                        <label for="device-sync-input" data-i18n="player.userId">User ID</label>
+                        <input type="text" id="device-sync-input" placeholder="Paste Sync Code" data-i18n-placeholder="settings.placeholderSyncCode" maxlength="36" spellcheck="false">
+                        <div id="device-sync-status" class="status-message"></div>
+                    </div>
+                </div>
+            </details>
+        </div>
+        <div class="modal-actions" style="margin-top: 10px;">
+            <button id="cancel-device-sync-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
+            <button id="confirm-device-sync-btn" class="accept-button hidden" data-i18n="actions.linkDevice">Link Device</button>
+        </div>
+    </div>
+</div>

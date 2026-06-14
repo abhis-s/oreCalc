@@ -1,0 +1,165 @@
+@use '../abstracts/variables' as *;
+
+#device-sync-modal {
+    .modal-content {
+        max-width: 440px;
+    }
+
+    #device-sync-qr-container {
+        background-color: var(--bg-surface-primary);
+        border: 1px solid var(--border-primary);
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        display: inline-block;
+        margin: 10px 0;
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto !important;
+        }
+    }
+
+    .qr-user-id {
+        display: block;
+        font-family: 'Roboto Mono', monospace;
+        background-color: $bg-surface-tertiary;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.9em;
+        word-break: break-all;
+        cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s;
+        border: 1px solid transparent;
+
+        &:hover {
+            background-color: var(--bg-surface-secondary);
+            border-color: var(--accent-primary);
+        }
+    }
+
+    details {
+        margin-bottom: 15px;
+        border: 1px solid var(--border-primary);
+        border-radius: 12px;
+        background-color: var(--bg-surface-secondary);
+        overflow: hidden;
+        transition: background-color 0.2s, box-shadow 0.2s;
+
+        &.is-open {
+            background-color: var(--bg-surface-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+    }
+
+    summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 18px;
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        cursor: pointer;
+        list-style: none; /* Hide default triangle */
+
+        &::-webkit-details-marker {
+            display: none; /* Hide default Safari triangle */
+        }
+
+        .chevron svg {
+            color: var(--text-secondary);
+            width: 16px;
+            height: 16px;
+            display: block;
+        }
+
+        &:hover {
+            background-color: rgba(var(--accent-primary-rgb, 0), 0.03);
+        }
+    }
+
+    .details-content {
+        padding: 18px;
+        border-top: 1px solid var(--border-primary);
+        background-color: var(--bg-surface-primary);
+    }
+
+    .import-data-input-container {
+        position: relative;
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: $text-secondary;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid $border-primary;
+            border-radius: 12px;
+            font-size: 16px;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            transition: border-color 0.3s ease-in-out;
+
+            &:focus {
+                outline: none;
+            }
+
+            &:focus-visible {
+                border-color: $accent-primary;
+                box-shadow: 0 0 0 3px $accent-primary-soft;
+                outline: none;
+            }
+
+            &.input-error {
+                border-color: $color-danger;
+                box-shadow: 0 0 0 4px rgba($color-danger, 0.1);
+            }
+        }
+    }
+
+    .status-message {
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 8px;
+        text-align: left;
+        display: none;
+
+        &.show {
+            display: block;
+        }
+
+        &.error {
+            color: $color-danger;
+        }
+
+        &.success {
+            color: var(--color-success);
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    #device-sync-modal {
+        #device-sync-copy-btn {
+            min-width: 40px;
+            width: 40px;
+            padding: 8px;
+
+            .animated-btn-text {
+                display: none;
+            }
+
+            .animated-btn-icon-wrapper {
+                transform: translateY(0);
+                transition: none;
+            }
+        }
+    }
+}

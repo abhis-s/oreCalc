@@ -116,6 +116,10 @@ export async function importUserData(importId) {
         try {
             const importedData = await loadUserData(importId);
             if (importedData) {
+                if (!importedData.uiSettings) {
+                    importedData.uiSettings = {};
+                }
+                importedData.uiSettings.cloudSync = true;
                 localStorage.setItem('oreCalculatorState', JSON.stringify(importedData));
                 localStorage.setItem('oreCalcUserId', importId);
                 await showAlert(translate('alerts.importSuccess'));

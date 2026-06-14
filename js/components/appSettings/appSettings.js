@@ -3,6 +3,7 @@ import { handleStateUpdate } from '../../app.js';
 import { removePlayerTag, saveState } from '../../core/localStorageManager.js';
 import { renderApp } from '../../core/renderer.js';
 import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from '../../core/state.js';
+import { showToast } from '../../ui/toast.js';
 
 import { addCurrencyValidation } from '../../utils/inputValidator.js';
 import { currencyData, priceTierRegistry, languagesData, transparencyData, developmentSupportData } from '../../data/appData.js';
@@ -1072,81 +1073,6 @@ export function openTermsOfUseModal() {
     if (dom.overlay) dom.overlay.classList.add('show');
 }
 
-function openCloudSyncNoticeModal(onConfirm, onCancel) {
-    const modal = document.getElementById('cloud-sync-notice-modal');
-    if (!modal) return;
-
-    const closeHeaderBtn = document.getElementById('close-cloud-sync-notice-header-btn');
-    const cancelBtn = document.getElementById('cancel-cloud-sync-notice-btn');
-    const acceptBtn = document.getElementById('accept-cloud-sync-notice-btn');
-    const viewTermsBtn = document.getElementById('cloud-sync-view-terms-btn');
-    const viewPrivacyBtn = document.getElementById('cloud-sync-view-privacy-btn');
-
-    let resolved = false;
-
-    const closeModal = () => {
-        modal.classList.remove('show');
-        const visibleModals = document.querySelectorAll('.modal.show');
-        if (visibleModals.length === 0 && dom.overlay) {
-            dom.overlay.classList.remove('show');
-        }
-    };
-
-    const handleConfirm = () => {
-        resolved = true;
-        closeModal();
-        if (typeof onConfirm === 'function') onConfirm();
-    };
-
-    const handleCancel = () => {
-        resolved = true;
-        closeModal();
-        if (typeof onCancel === 'function') onCancel();
-    };
-
-    if (closeHeaderBtn) {
-        closeHeaderBtn.onclick = (e) => {
-            e.preventDefault();
-            handleCancel();
-        };
-    }
-
-    if (cancelBtn) {
-        cancelBtn.onclick = (e) => {
-            e.preventDefault();
-            handleCancel();
-        };
-    }
-
-    if (acceptBtn) {
-        acceptBtn.onclick = (e) => {
-            e.preventDefault();
-            handleConfirm();
-        };
-    }
-
-    if (viewTermsBtn) {
-        viewTermsBtn.onclick = (e) => {
-            e.preventDefault();
-            const termsModal = document.getElementById('terms-modal');
-            if (termsModal) termsModal.classList.add('modal-top');
-            openTermsOfUseModal();
-        };
-    }
-
-    if (viewPrivacyBtn) {
-        viewPrivacyBtn.onclick = (e) => {
-            e.preventDefault();
-            const privacyModal = document.getElementById('privacy-modal');
-            if (privacyModal) privacyModal.classList.add('modal-top');
-            openPrivacyModal();
-        };
-    }
-
-    // Show modal and overlay
-    modal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
-}
 
 function openBugReportModal() {
     const modal = document.getElementById('bug-report-modal');
@@ -1326,6 +1252,152 @@ function openBugReportModal() {
     modal.classList.add('show');
     if (dom.overlay) dom.overlay.classList.add('show');
 }
+class Accordion {
+    constructor(el) {
+        this.el = el;
+        this.summary = el.querySelector('summary');
+        this.content = el.querySelector('.details-content');
+
+        this.animation = null;
+        this.isClosing = false;
+        this.isExpanding = false;
+        this.el.classList.toggle('is-open', el.open);
+        
+        const icon = this.summary.querySelector('orecalc-assets-svg.chevron');
+        if (icon) {
+            icon.setAttribute('name', el.open ? 'chevron-up' : 'chevron-down');
+        }
+        
+        this.summary.addEventListener('click', (e) => this.onClick(e));
+    }
+
+    onClick(e) {
+        e.preventDefault();
+        if (this.isClosing || this.isExpanding) return;
+
+        if (this.el.open) {
+            const allDetails = this.el.parentElement.querySelectorAll('details.sync-section');
+            const openDetails = Array.from(allDetails).filter(d => d.open);
+            if (openDetails.length <= 1) {
+                return;
+            }
+            this.shrink();
+        } else {
+            this.open();
+        }
+    }
+
+    shrink() {
+        this.isClosing = true;
+        this.el.classList.remove('is-open');
+        
+        const icon = this.summary.querySelector('orecalc-assets-svg.chevron');
+        if (icon) {
+            icon.setAttribute('name', 'chevron-down');
+        }
+
+        document.dispatchEvent(new CustomEvent('deviceSyncStateChange'));
+
+        const startHeight = `${this.el.offsetHeight}px`;
+        const endHeight = `${this.summary.offsetHeight}px`;
+
+        if (this.animation) {
+            this.animation.cancel();
+        }
+
+        this.animation = this.el.animate({
+            height: [startHeight, endHeight]
+        }, {
+            duration: 250,
+            easing: 'ease-out'
+        });
+
+        this.animation.onfinish = () => this.onAnimationFinish(false);
+        this.animation.oncancel = () => this.isClosing = false;
+    }
+
+    async open() {
+        const allDetails = this.el.parentElement.querySelectorAll('details.sync-section');
+        allDetails.forEach(other => {
+            if (other !== this.el && other.open) {
+                const otherAccordion = other._accordionInstance;
+                if (otherAccordion) {
+                    otherAccordion.shrink();
+                } else {
+                    other.open = false;
+                    other.classList.remove('is-open');
+                    const otherIcon = other.querySelector('orecalc-assets-svg.chevron');
+                    if (otherIcon) {
+                        otherIcon.setAttribute('name', 'chevron-down');
+                    }
+                }
+            }
+        });
+
+        this.el.classList.add('is-open');
+        const icon = this.summary.querySelector('orecalc-assets-svg.chevron');
+        if (icon) {
+            icon.setAttribute('name', 'chevron-up');
+        }
+        this.el.style.height = `${this.el.offsetHeight}px`;
+        this.el.open = true;
+
+        const input = this.el.querySelector('#device-sync-input');
+        if (input && !input.value) {
+            try {
+                const clipboardText = await navigator.clipboard.readText();
+                if (clipboardText) {
+                    const trimmed = clipboardText.trim();
+                    const userId = localStorage.getItem('oreCalcUserId');
+                    if (isValidUUID(trimmed) && trimmed !== userId) {
+                        input.value = trimmed;
+                        const statusMsg = this.el.querySelector('#device-sync-status');
+                        if (statusMsg) {
+                            statusMsg.textContent = translate('alerts.uuidDetected') || "User ID detected from clipboard";
+                            statusMsg.classList.remove('error');
+                            statusMsg.classList.add('success');
+                            statusMsg.classList.add('show');
+                        }
+                    }
+                }
+            } catch (err) {
+                logger.warn('Clipboard read failed or denied during manual expand');
+            }
+        }
+
+        document.dispatchEvent(new CustomEvent('deviceSyncStateChange'));
+
+        window.requestAnimationFrame(() => this.expand());
+    }
+
+    expand() {
+        this.isExpanding = true;
+        const startHeight = `${this.el.offsetHeight}px`;
+        const endHeight = `${this.summary.offsetHeight + this.content.offsetHeight}px`;
+
+        if (this.animation) {
+            this.animation.cancel();
+        }
+
+        this.animation = this.el.animate({
+            height: [startHeight, endHeight]
+        }, {
+            duration: 250,
+            easing: 'ease-out'
+        });
+
+        this.animation.onfinish = () => this.onAnimationFinish(true);
+        this.animation.oncancel = () => this.isExpanding = false;
+    }
+
+    onAnimationFinish(open) {
+        this.el.open = open;
+        this.animation = null;
+        this.isClosing = false;
+        this.isExpanding = false;
+        this.el.style.height = '';
+    }
+}
 
 export function initializeAppSettings() {
     let isGlobalPricingDirty = false;
@@ -1375,8 +1447,17 @@ export function initializeAppSettings() {
         validateDeletePlayerBtn,
         cancelDeleteVerifyBtn,
         verifyDeletePlayerBtn,
-        cloudSyncToggle
+        cloudSyncToggle,
+        addPlayerLink
     } = dom.appSettings || {};
+
+    if (addPlayerLink) {
+        addPlayerLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const { showAddPlayerModal } = await import('../player/playerModal.js');
+            showAddPlayerModal();
+        });
+    }
 
     if (cloudSyncToggle) {
         cloudSyncToggle.checked = state.uiSettings.cloudSync !== false;
@@ -1396,16 +1477,9 @@ export function initializeAppSettings() {
                     state.uiSettings.cloudSync = false;
                 });
             } else {
-                openCloudSyncNoticeModal(
-                    () => {
-                        handleStateUpdate(() => {
-                            state.uiSettings.cloudSync = true;
-                        });
-                    },
-                    () => {
-                        cloudSyncToggle.checked = false;
-                    }
-                );
+                handleStateUpdate(() => {
+                    state.uiSettings.cloudSync = true;
+                });
             }
         });
     }
@@ -1905,281 +1979,350 @@ export function initializeAppSettings() {
         }
     }
 
-    const qrCodeModal = dom.appSettings?.qrCodeModal;
-    const closeQrCodeModalBtn = dom.appSettings?.closeQrCodeModalBtn;
-    const qrCodeContainer = dom.appSettings?.qrCodeContainer;
-    const userIdDisplay = dom.appSettings?.userIdDisplay;
+    const {
+        deviceSyncBtn,
+        deviceSyncModal,
+        closeDeviceSyncModalBtn,
+        deviceSyncUserIdDisplay,
+        deviceSyncCopyBtn,
+        deviceSyncQrContainer,
+        deviceSyncInput,
+        deviceSyncStatus,
+        cancelDeviceSyncBtn,
+        confirmDeviceSyncBtn
+    } = dom.appSettings || {};
     const overlay = dom.overlay;
 
-    if (copyUserIdBtn && userIdDisplayLabel && qrCodeModal && qrCodeContainer && overlay) {
-        copyUserIdBtn.addEventListener('click', async () => {
-            // 1. Copy Logic
-            let copiedSuccessfully = false;
-            let messageKey = '';
-            if (!navigator.clipboard || !navigator.clipboard.writeText) {
-                logger.warn('Clipboard API not supported');
-            } else {
-                try {
-                    await navigator.clipboard.writeText(userIdDisplayLabel.dataset.fullId);
-                    
-                    // Visual Feedback
-                    const originalText = copyUserIdBtn.querySelector('.animated-btn-text').textContent;
-                    const textElem = copyUserIdBtn.querySelector('.animated-btn-text');
-                    
-                    copyUserIdBtn.classList.add('success');
-                    if (textElem) textElem.textContent = translate('actions.copied');
-                    
-                    setTimeout(() => {
-                        copyUserIdBtn.classList.remove('success');
-                        if (textElem) textElem.textContent = originalText;
-                    }, 2000);
+    const updateConfirmButtonVisibility = () => {
+        if (!confirmDeviceSyncBtn) return;
+        const linkSection = deviceSyncModal ? deviceSyncModal.querySelectorAll('details.sync-section')[1] : null;
+        const isSection2Open = linkSection ? linkSection.classList.contains('is-open') : false;
+        
+        if (isSection2Open) {
+            confirmDeviceSyncBtn.classList.remove('hidden');
+            const inputValue = deviceSyncInput ? deviceSyncInput.value.trim() : '';
+            const currentUserId = localStorage.getItem('oreCalcUserId');
+            confirmDeviceSyncBtn.disabled = !(isValidUUID(inputValue) && inputValue !== currentUserId);
+        } else {
+            confirmDeviceSyncBtn.classList.add('hidden');
+        }
+    };
 
-                    if (state.uiSettings.cloudSync !== false) {
-                        const { triggerCloudSave } = await import('../../utils/cloudSaveHandler.js');
-                        const saveSuccess = await triggerCloudSave({ silent: true });
-                        messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
-                    } else {
-                        messageKey = 'alerts.copySuccess';
+    document.addEventListener('deviceSyncStateChange', updateConfirmButtonVisibility);
+
+    if (deviceSyncBtn && deviceSyncModal && overlay) {
+        deviceSyncBtn.addEventListener('click', async () => {
+            // First check if cloud sync is disabled
+            if (state.uiSettings.cloudSync === false) {
+                const enableSync = await showConfirm(
+                    translate('alerts.enableCloudSyncToCopy') || "Cloud synchronization is currently disabled. You need to enable it to sync your data across devices. Would you like to enable it now?",
+                    'status.info',
+                    'actions.enableAndCopy'
+                );
+                if (enableSync) {
+                    handleStateUpdate(() => {
+                        state.uiSettings.cloudSync = true;
+                    });
+                    const toggleEl = cloudSyncToggle || document.getElementById('settings-cloud-sync-toggle');
+                    if (toggleEl) {
+                        toggleEl.checked = true;
                     }
-                    copiedSuccessfully = true;
-                } catch (err) {
-                    logger.error('Failed to copy: ', err);
-                }
-            }
-
-            // 2. Modal Logic (always show it even if copy failed, so they can manually copy)
-            const userId = localStorage.getItem('oreCalcUserId');
-            if (userId) {
-                const data = window.location.origin + '?userId=' + userId;
-
-                // Clear previous QR code
-                qrCodeContainer.innerHTML = '';
-
-                // Get current text color for high contrast dots
-                const textPrimaryColor = getComputedStyle(document.body).getPropertyValue('--text-primary').trim();
-
-                const qrCode = new QRCodeStyling({
-                    width: 250,
-                    height: 250,
-                    data: data,
-                    image: 'assets/app_icon_small.png',
-                    dotsOptions: {
-                        color: textPrimaryColor || "#000000",
-                        type: "rounded"
-                    },
-                    backgroundOptions: {
-                        color: "transparent",
-                    },
-                    imageOptions: {
-                        crossOrigin: "anonymous",
-                        margin: 8
-                    },
-                    cornersSquareOptions: {
-                        type: "extra-rounded",
-                        color: textPrimaryColor || "#000000"
-                    },
-                    cornersDotOptions: {
-                        type: "dot",
-                        color: textPrimaryColor || "#000000"
-                    }
-                });
-
-                qrCode.append(qrCodeContainer);
-
-                if (userIdDisplay) {
-                    userIdDisplay.textContent = userId;
-                }
-                
-                const instructionElement = qrCodeModal.querySelector('[data-i18n="player.qrDisplayInstruction"]');
-                if(instructionElement) {
-                    instructionElement.textContent = translate('player.qrDisplayInstruction');
-                }
-                
-                if (dom.appSettings?.qrCopySuccessMessage) {
-                    if (copiedSuccessfully) {
-                        dom.appSettings.qrCopySuccessMessage.textContent = translate(messageKey);
-                        dom.appSettings.qrCopySuccessMessage.classList.remove('hidden');
-                    } else {
-                        dom.appSettings.qrCopySuccessMessage.classList.add('hidden');
-                    }
-                }
-                
-                qrCodeModal.classList.add('show');
-                if (overlay) overlay.classList.add('show');
-            } else if (!copiedSuccessfully) {
-                 await showAlert(translate('alerts.clipboardUnsupported'));
-            }
-        });
-
-        // Add a click listener to the displayed User ID in the modal to allow copying it from there too
-        if (userIdDisplay) {
-            userIdDisplay.addEventListener('click', async () => {
-                if (!navigator.clipboard || !navigator.clipboard.writeText) {
-                    await showAlert(translate('alerts.clipboardUnsupported'));
+                } else {
                     return;
                 }
-                try {
-                    const currentUserId = localStorage.getItem('oreCalcUserId');
-                    if (!currentUserId) return;
-                    await navigator.clipboard.writeText(currentUserId);
-                    let messageKey = '';
-                    if (state.uiSettings.cloudSync !== false) {
-                        const { triggerCloudSave } = await import('../../utils/cloudSaveHandler.js');
-                        const saveSuccess = await triggerCloudSave({ silent: true });
-                        messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
-                    } else {
-                        messageKey = 'alerts.copySuccess';
-                    }
-                    if (dom.appSettings?.qrCopySuccessMessage) {
-                        dom.appSettings.qrCopySuccessMessage.textContent = translate(messageKey);
-                        dom.appSettings.qrCopySuccessMessage.classList.remove('hidden');
-                    }
-                } catch (err) {
-                    logger.error('Failed to copy: ', err);
-                    await showAlert(translate('alerts.copiedFailed'));
-                }
-            });
-        }
+            }
 
-        if (closeQrCodeModalBtn) {
-            closeQrCodeModalBtn.addEventListener('click', () => {
-                qrCodeModal.classList.remove('show');
-                if (overlay) overlay.classList.remove('show');
-                if (dom.appSettings?.qrCopySuccessMessage) {
-                    dom.appSettings.qrCopySuccessMessage.classList.add('hidden');
-                }
-            });
-        }
-
-        overlay.addEventListener('click', () => {
-            if (qrCodeModal.classList.contains('show')) {
-                qrCodeModal.classList.remove('show');
-                if (overlay) overlay.classList.remove('show');
-                if (dom.appSettings?.qrCopySuccessMessage) {
-                    dom.appSettings.qrCopySuccessMessage.classList.add('hidden');
+            // Populate the current user ID if it exists
+            const userId = localStorage.getItem('oreCalcUserId');
+            if (userId && deviceSyncUserIdDisplay) {
+                deviceSyncUserIdDisplay.textContent = userId;
+                deviceSyncUserIdDisplay.dataset.fullId = userId;
+                
+                // Generate QR code
+                if (deviceSyncQrContainer) {
+                    deviceSyncQrContainer.innerHTML = '';
+                    const data = window.location.origin + '?userId=' + userId;
+                    const textPrimaryColor = getComputedStyle(document.body).getPropertyValue('--text-primary').trim();
+                    const qrCode = new QRCodeStyling({
+                        width: 250,
+                        height: 250,
+                        data: data,
+                        image: 'assets/app_icon_small.png',
+                        dotsOptions: {
+                            color: textPrimaryColor || "#000000",
+                            type: "rounded"
+                        },
+                        backgroundOptions: {
+                            color: "transparent",
+                        },
+                        imageOptions: {
+                            crossOrigin: "anonymous",
+                            margin: 8
+                        },
+                        cornersSquareOptions: {
+                            type: "extra-rounded",
+                            color: textPrimaryColor || "#000000"
+                        },
+                        cornersDotOptions: {
+                            type: "dot",
+                            color: textPrimaryColor || "#000000"
+                        }
+                    });
+                    qrCode.append(deviceSyncQrContainer);
                 }
             }
+
+            // Prefill input from clipboard if a valid UUID is found
+            let clipboardHasValidId = false;
+            if (deviceSyncInput) {
+                deviceSyncInput.value = '';
+                try {
+                    const clipboardText = await navigator.clipboard.readText();
+                    if (clipboardText) {
+                        const trimmed = clipboardText.trim();
+                        if (isValidUUID(trimmed) && trimmed !== userId) {
+                            clipboardHasValidId = true;
+                            deviceSyncInput.value = trimmed;
+                            if (deviceSyncStatus) {
+                                deviceSyncStatus.textContent = translate('alerts.uuidDetected') || "User ID detected from clipboard";
+                                deviceSyncStatus.classList.remove('error');
+                                deviceSyncStatus.classList.add('success');
+                                deviceSyncStatus.classList.add('show');
+                            }
+                        }
+                    }
+                } catch (err) {
+                    logger.warn('Clipboard read failed or denied');
+                }
+            }
+
+            // Collapse the first section (and open the second) if there is a valid ID in the clipboard or if the user has no player profiles
+            if (deviceSyncModal) {
+                const syncDetails = deviceSyncModal.querySelectorAll('details.sync-section');
+                const hasOnlyDefaultPlayer = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
+                const shouldCollapseFirst = clipboardHasValidId || hasOnlyDefaultPlayer;
+                
+                syncDetails.forEach((details, idx) => {
+                    details.open = shouldCollapseFirst ? (idx === 1) : (idx === 0);
+                    details.classList.toggle('is-open', details.open);
+                    details.style.height = '';
+                });
+            }
+
+            deviceSyncModal.classList.add('show');
+            overlay.classList.add('show');
+            updateConfirmButtonVisibility();
         });
     }
 
-    if (importUserDataBtn && importModal) {
-        const closeImportModal = () => {
-            importModal.classList.remove('show');
-            dom.overlay.classList.remove('show');
-            if (importModalInput) importModalInput.value = '';
-            if (importModalError) {
-                importModalError.textContent = '';
-                importModalError.classList.remove('show');
-            }
-            if (importModalInput) importModalInput.classList.remove('input-error');
-            if (confirmImportBtn) {
-                confirmImportBtn.disabled = false;
-                confirmImportBtn.textContent = translate('actions.import');
-            }
-        };
+    if (deviceSyncModal) {
+        const syncDetails = deviceSyncModal.querySelectorAll('details.sync-section');
+        syncDetails.forEach(details => {
+            details._accordionInstance = new Accordion(details);
+        });
+    }
 
-        importUserDataBtn.addEventListener('click', async () => {
-            let clipboardValue = '';
-            try {
-                const clipboardText = await navigator.clipboard.readText();
-                if (clipboardText) {
-                    const trimmed = clipboardText.trim();
-                    if (isValidUUID(trimmed)) {
-                        clipboardValue = trimmed;
+    const handleCopySyncCode = async () => {
+        const hasOnlyDefaultPlayer = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
+        if (hasOnlyDefaultPlayer) {
+            await showAlert(translate('settings.noPlayerForCopy') || "No player profiles are set up yet. Add a profile first to sync data.");
+            return;
+        }
+
+        const userId = localStorage.getItem('oreCalcUserId');
+        if (!userId) return;
+
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+            await showAlert(translate('alerts.clipboardUnsupported') || "Clipboard operations are not supported on this browser.");
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(userId);
+            
+            // Visual feedback
+            if (deviceSyncCopyBtn) {
+                deviceSyncCopyBtn.classList.add('success');
+                const textElem = deviceSyncCopyBtn.querySelector('.animated-btn-text');
+                const originalText = textElem ? textElem.textContent : '';
+                if (textElem) {
+                    textElem.textContent = translate('actions.copied') || 'Copied';
+                }
+                setTimeout(() => {
+                    deviceSyncCopyBtn.classList.remove('success');
+                    if (textElem) {
+                        textElem.textContent = originalText;
                     }
+                }, 2000);
+            }
+
+            let messageKey = '';
+            if (state.uiSettings.cloudSync !== false) {
+                const { triggerCloudSave } = await import('../../utils/cloudSaveHandler.js');
+                const saveSuccess = await triggerCloudSave({ silent: true });
+                messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
+            } else {
+                messageKey = 'alerts.copySuccess';
+            }
+            
+            showToast(translate(messageKey) || "User ID copied", 'success');
+        } catch (err) {
+            logger.error('Failed to copy sync code: ', err);
+            await showAlert(translate('alerts.copiedFailed') || "Failed to copy text.");
+        }
+    };
+
+    if (deviceSyncUserIdDisplay) {
+        deviceSyncUserIdDisplay.addEventListener('click', handleCopySyncCode);
+    }
+    if (deviceSyncCopyBtn) {
+        deviceSyncCopyBtn.addEventListener('click', handleCopySyncCode);
+    }
+
+    const closeDeviceSyncModal = () => {
+        if (deviceSyncModal) {
+            deviceSyncModal.classList.remove('show');
+            const syncDetails = deviceSyncModal.querySelectorAll('details.sync-section');
+            syncDetails.forEach((details, idx) => {
+                details.open = (idx === 0);
+                details.classList.toggle('is-open', idx === 0);
+                details.style.height = '';
+                if (details._accordionInstance) {
+                    if (details._accordionInstance.animation) {
+                        details._accordionInstance.animation.cancel();
+                    }
+                    details._accordionInstance.isClosing = false;
+                    details._accordionInstance.isExpanding = false;
+                }
+            });
+        }
+        if (overlay) {
+            overlay.classList.remove('show');
+        }
+        if (deviceSyncInput) {
+            deviceSyncInput.value = '';
+        }
+        if (deviceSyncStatus) {
+            deviceSyncStatus.textContent = '';
+            deviceSyncStatus.className = 'status-message';
+        }
+        if (deviceSyncInput) {
+            deviceSyncInput.classList.remove('input-error');
+        }
+        if (confirmDeviceSyncBtn) {
+            confirmDeviceSyncBtn.disabled = false;
+            confirmDeviceSyncBtn.textContent = translate('actions.linkDevice') || 'Link Device';
+        }
+    };
+
+    closeDeviceSyncModalBtn?.addEventListener('click', closeDeviceSyncModal);
+    cancelDeviceSyncBtn?.addEventListener('click', closeDeviceSyncModal);
+    overlay?.addEventListener('click', () => {
+        if (deviceSyncModal && deviceSyncModal.classList.contains('show')) {
+            closeDeviceSyncModal();
+        }
+    });
+
+    confirmDeviceSyncBtn?.addEventListener('click', async () => {
+        if (!deviceSyncInput) return;
+        const val = deviceSyncInput.value.trim();
+        if (isValidUUID(val)) {
+            const originalText = confirmDeviceSyncBtn.textContent;
+            try {
+                confirmDeviceSyncBtn.disabled = true;
+                confirmDeviceSyncBtn.textContent = translate('actions.processing') || 'Processing...';
+                
+                const { importUserData } = await import('../../utils/cloudSaveHandler.js');
+                await importUserData(val);
+            } finally {
+                confirmDeviceSyncBtn.disabled = false;
+                confirmDeviceSyncBtn.textContent = originalText;
+            }
+        } else {
+            if (deviceSyncStatus) {
+                deviceSyncStatus.textContent = translate('alerts.invalidUserId') || "Invalid User ID format";
+                deviceSyncStatus.classList.remove('success');
+                deviceSyncStatus.classList.add('error');
+                deviceSyncStatus.classList.add('show');
+            }
+            deviceSyncInput.classList.add('input-error');
+            
+            // Interaction Feedback: Shake
+            deviceSyncInput.classList.remove('shake');
+            void deviceSyncInput.offsetWidth; // Force reflow
+            deviceSyncInput.classList.add('shake');
+        }
+    });
+
+    const validateInput = () => {
+        if (!deviceSyncInput) return;
+        const val = deviceSyncInput.value.trim();
+        
+        if (val === '') {
+            if (deviceSyncStatus) {
+                deviceSyncStatus.textContent = '';
+                deviceSyncStatus.className = 'status-message';
+            }
+            deviceSyncInput.classList.remove('input-error');
+        } else if (isValidUUID(val)) {
+            const currentUserId = localStorage.getItem('oreCalcUserId');
+            if (val === currentUserId) {
+                if (deviceSyncStatus) {
+                    deviceSyncStatus.textContent = translate('alerts.sameUserId') || "Cannot link to your own active User ID.";
+                    deviceSyncStatus.classList.remove('success');
+                    deviceSyncStatus.classList.add('error');
+                    deviceSyncStatus.classList.add('show');
+                }
+                deviceSyncInput.classList.add('input-error');
+            } else {
+                if (deviceSyncStatus) {
+                    deviceSyncStatus.textContent = translate('alerts.validUserId') || "User ID is valid";
+                    deviceSyncStatus.classList.remove('error');
+                    deviceSyncStatus.classList.add('success');
+                    deviceSyncStatus.classList.add('show');
+                }
+                deviceSyncInput.classList.remove('input-error');
+            }
+        } else if (val.length < 36) {
+            if (deviceSyncStatus) {
+                deviceSyncStatus.textContent = translate('alerts.incompleteUserId') || "Incomplete User ID format (must be 36 characters).";
+                deviceSyncStatus.classList.remove('success');
+                deviceSyncStatus.classList.add('error');
+                deviceSyncStatus.classList.add('show');
+            }
+            deviceSyncInput.classList.add('input-error');
+        } else {
+            if (deviceSyncStatus) {
+                deviceSyncStatus.textContent = translate('alerts.invalidUserId') || "Invalid User ID format.";
+                deviceSyncStatus.classList.remove('success');
+                deviceSyncStatus.classList.add('error');
+                deviceSyncStatus.classList.add('show');
+            }
+            deviceSyncInput.classList.add('input-error');
+        }
+        updateConfirmButtonVisibility();
+    };
+
+    deviceSyncInput?.addEventListener('input', validateInput);
+    deviceSyncInput?.addEventListener('focus', validateInput);
+    deviceSyncInput?.addEventListener('blur', validateInput);
+
+    deviceSyncInput?.addEventListener('paste', (e) => {
+        const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+        if (pasteData.includes('userId=')) {
+            try {
+                const url = new URL(pasteData);
+                const userId = url.searchParams.get('userId');
+                if (userId) {
+                    e.preventDefault();
+                    deviceSyncInput.value = userId;
+                    deviceSyncInput.dispatchEvent(new Event('input'));
                 }
             } catch (err) {
-                logger.warn('Clipboard read failed or denied');
+                // Ignore URL parse failures, proceed with default paste
             }
-
-            if (importModalInput) {
-                importModalInput.value = clipboardValue;
-                if (clipboardValue) {
-                    importModalError.textContent = translate('alerts.uuidDetected') || "User ID detected from clipboard";
-                    importModalError.classList.add('success-text');
-                    importModalError.classList.add('show');
-                } else {
-                    importModalError.textContent = '';
-                    importModalError.classList.remove('show');
-                    importModalError.classList.remove('success-text');
-                }
-            }
-
-            importModal.classList.add('show');
-            dom.overlay.classList.add('show');
-        });
-
-        cancelImportBtn?.addEventListener('click', closeImportModal);
-
-        confirmImportBtn?.addEventListener('click', async () => {
-            const val = importModalInput.value.trim();
-            if (isValidUUID(val)) {
-                const originalText = confirmImportBtn.textContent;
-                try {
-                    confirmImportBtn.disabled = true;
-                    confirmImportBtn.textContent = translate('actions.processing');
-                    
-                    const { importUserData } = await import('../../utils/cloudSaveHandler.js');
-                    await importUserData(val);
-                } finally {
-                    confirmImportBtn.disabled = false;
-                    confirmImportBtn.textContent = originalText;
-                }
-            } else {
-                importModalError.textContent = translate('alerts.invalidUserId') || "Invalid User ID format";
-                importModalError.classList.remove('success-text');
-                importModalError.classList.add('show');
-                importModalInput.classList.add('input-error');
-                
-                // Interaction Feedback: Shake
-                importModalInput.classList.remove('shake');
-                void importModalInput.offsetWidth; // Force reflow
-                importModalInput.classList.add('shake');
-            }
-        });
-
-        importModalInput?.addEventListener('input', () => {
-            const val = importModalInput.value.trim();
-            if (val === '') {
-                importModalError.textContent = '';
-                importModalError.classList.remove('show');
-                importModalInput.classList.remove('input-error');
-            } else if (isValidUUID(val)) {
-                importModalError.textContent = translate('alerts.uuidDetected') || "User ID detected";
-                importModalError.classList.add('success-text');
-                importModalError.classList.add('show');
-                importModalInput.classList.remove('input-error');
-            } else if (val.length === 36) {
-                // If it's the right length but still invalid format
-                importModalError.textContent = translate('alerts.invalidUserId') || "Invalid User ID format";
-                importModalError.classList.remove('success-text');
-                importModalError.classList.add('show');
-                importModalInput.classList.add('input-error');
-            } else {
-                // While typing, just hide previous errors
-                importModalError.classList.remove('show');
-                importModalInput.classList.remove('input-error');
-            }
-        });
-
-        importModalInput?.addEventListener('paste', (e) => {
-            const pasteData = (e.clipboardData || window.clipboardData).getData('text');
-            if (pasteData.includes('userId=')) {
-                try {
-                    const url = new URL(pasteData);
-                    const userId = url.searchParams.get('userId');
-                    if (userId) {
-                        e.preventDefault();
-                        importModalInput.value = userId;
-                        // Trigger input event to update visual feedback
-                        importModalInput.dispatchEvent(new Event('input'));
-                    }
-                } catch (err) {
-                    // Not a valid URL, let default paste happen
-                }
-            }
-        });
-    }
+        }
+    });
 
     document.dispatchEvent(new CustomEvent('app:translate'));
 
@@ -2270,7 +2413,35 @@ export function renderAppSettings(uiSettings) {
     }
 
     const cloudSyncToggle = dom.appSettings?.cloudSyncToggle || document.getElementById('settings-cloud-sync-toggle');
+    const cloudSyncInfo = dom.appSettings?.cloudSyncInfo || document.getElementById('settings-cloud-sync-info');
+    const addPlayerLink = dom.appSettings?.addPlayerLink || document.getElementById('settings-add-player-link');
+    const hasOnlyDefaultPlayer = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
+
     if (cloudSyncToggle) {
-        cloudSyncToggle.checked = uiSettings.cloudSync !== false;
+        if (hasOnlyDefaultPlayer) {
+            cloudSyncToggle.disabled = true;
+            cloudSyncToggle.checked = false;
+        } else {
+            cloudSyncToggle.disabled = false;
+            cloudSyncToggle.checked = uiSettings.cloudSync !== false;
+        }
+    }
+
+    if (cloudSyncInfo) {
+        if (hasOnlyDefaultPlayer) {
+            cloudSyncInfo.textContent = translate('settings.cloudSyncDisabledNoPlayer');
+            cloudSyncInfo.setAttribute('data-i18n', 'settings.cloudSyncDisabledNoPlayer');
+        } else {
+            cloudSyncInfo.textContent = translate('settings.cloudSyncInfo');
+            cloudSyncInfo.setAttribute('data-i18n', 'settings.cloudSyncInfo');
+        }
+    }
+
+    if (addPlayerLink) {
+        if (hasOnlyDefaultPlayer) {
+            addPlayerLink.classList.remove('hidden');
+        } else {
+            addPlayerLink.classList.add('hidden');
+        }
     }
 }

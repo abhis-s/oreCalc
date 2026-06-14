@@ -685,15 +685,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Close any modal when clicking its dark background/overlay
         if (e.target.classList.contains('modal') || e.target.id === 'overlay') {
             if (e.target.classList.contains('modal')) {
-                if (e.target.id === 'consent-modal' || e.target.id === 'cloud-sync-notice-modal') return;
+                if (e.target.id === 'consent-modal') return;
                 e.target.classList.remove('show');
                 if (dom.overlay) dom.overlay.classList.remove('show');
             } else if (e.target.id === 'overlay') {
                 const consentModal = document.getElementById('consent-modal');
-                const cloudSyncNoticeModal = document.getElementById('cloud-sync-notice-modal');
-                if ((consentModal && consentModal.classList.contains('show')) || (cloudSyncNoticeModal && cloudSyncNoticeModal.classList.contains('show'))) {
+                if (consentModal && consentModal.classList.contains('show')) {
                     document.querySelectorAll('.modal.show').forEach(m => {
-                        if (m.id !== 'consent-modal' && m.id !== 'cloud-sync-notice-modal') m.classList.remove('show');
+                        if (m.id !== 'consent-modal') m.classList.remove('show');
                     });
                     return;
                 }
@@ -710,7 +709,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 1. Prioritize closing open modals
             const activeModal = document.querySelector('.modal.show');
             if (activeModal) {
-                if (activeModal.id === 'consent-modal' || activeModal.id === 'cloud-sync-notice-modal') return;
+                if (activeModal.id === 'consent-modal') return;
                 const rejectBtn = activeModal.querySelector('.reject-button');
                 const closeBtn = activeModal.querySelector('.close-button');
                 const acceptBtn = activeModal.querySelector('.accept-button');

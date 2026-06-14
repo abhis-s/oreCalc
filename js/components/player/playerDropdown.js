@@ -13,14 +13,22 @@ export function openDropdown() {
     const dropdownList = dom.player.dropdownList;
     const dropdownButton = dom.player.dropdownButton;
     if (dropdownList) dropdownList.classList.add('show');
-    if (dropdownButton) dropdownButton.classList.add('open');
+    if (dropdownButton) {
+        dropdownButton.classList.add('open');
+        const arrow = dropdownButton.querySelector('.dropdown-arrow');
+        if (arrow) arrow.setAttribute('name', 'chevron-up');
+    }
 }
 
 export function closeDropdown() {
     const dropdownList = dom.player.dropdownList;
     const dropdownButton = dom.player.dropdownButton;
     if (dropdownList) dropdownList.classList.remove('show');
-    if (dropdownButton) dropdownButton.classList.remove('open');
+    if (dropdownButton) {
+        dropdownButton.classList.remove('open');
+        const arrow = dropdownButton.querySelector('.dropdown-arrow');
+        if (arrow) arrow.setAttribute('name', 'chevron-down');
+    }
 }
 
 let lastTouchTime = 0;

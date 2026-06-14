@@ -42,7 +42,7 @@ export const SVGs = {
     'cloud-upload': {},
     'cloud-off': {},
     'import': {},
-    'save-data': {},
+    'sync-cloud': {},
     'arrow-up': {},
     'edit': {},
     'drag-handle': {},
@@ -65,7 +65,9 @@ export const SVGs = {
     'palette': {},
     'open-in-new': {},
     'translate': {},
-    'volunteer-support': {}
+    'volunteer-support': {},
+    'chevron-down': {},
+    'chevron-up': {}
 };
 
 /**

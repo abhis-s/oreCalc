@@ -38,7 +38,7 @@ export function hideSavingIndicator() {
         floatingSaveBtn.classList.remove('saving');
         const textElement = floatingSaveBtn.querySelector('.animated-btn-text');
         if (textElement) {
-            textElement.textContent = translate('actions.sync');
+            textElement.textContent = translate('actions.syncToCloud');
         }
     }
 
@@ -46,7 +46,7 @@ export function hideSavingIndicator() {
         fabSaveDataPill.classList.remove('saving');
         const textElement = fabSaveDataPill.querySelector('.animated-btn-text');
         if (textElement) {
-            textElement.textContent = translate('actions.sync');
+            textElement.textContent = translate('actions.syncToCloud');
         }
     }
 
@@ -89,7 +89,7 @@ function hideSaveSuccessIndicator() {
             btn.classList.remove('success');
             const textElement = btn.querySelector('.animated-btn-text');
             if (textElement) {
-                textElement.textContent = translate('actions.sync');
+                textElement.textContent = translate('actions.syncToCloud');
             }
         }
     });
@@ -133,7 +133,7 @@ function hideSaveErrorIndicator() {
             btn.classList.remove('error');
             const textElement = btn.querySelector('.animated-btn-text');
             if (textElement) {
-                textElement.textContent = translate('actions.sync');
+                textElement.textContent = translate('actions.syncToCloud');
             }
         }
     });
