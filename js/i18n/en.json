@@ -189,6 +189,7 @@
         "supercellEvents": {
             "title": "Supercell Events",
             "worldChampionship": "World Championship",
+            "perEvent": "Per Event",
             "noSchedule": "The Supercell Events schedule for this year hasn't been officially announced yet. Check back later!",
             "concluded": "This year's Supercell Events season has concluded. See you next year!",
             "tableEvent": "Event",
