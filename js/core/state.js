@@ -1,7 +1,7 @@
 import { currencyData, heroData, shopOfferData, eventPassData, leagueTiers } from '../data/appData.js';
 import { getISOWeekNumber } from '../utils/dateUtils.js';
 
-import { purgeLegacyStateData, normalizeEquipmentState, migrateFullState, migratePlayerState } from './stateCleanup.js';
+import { purgeLegacyStateData, normalizeEquipmentState, migrateFullState, migratePlayerState, compareVersions } from './stateCleanup.js';
 
 export let state = {};
 
@@ -10,7 +10,7 @@ export const EFFECTIVE_DATE_PRIVACY = 1780617600000; // June 5, 2026 (00:00 UTC)
 
 export function getDefaultState() {
     return {
-        appVersion: '2.0.0',
+        appVersion: window.__ENV__?.APP_VERSION || '2.0.0',
         activeTab: 'home-tab',
         savedPlayerTags: [],
         allPlayersData: {},
@@ -139,7 +139,13 @@ export function initializeState(savedState) {
     }
 
     if (savedState) {
-        state.appVersion = savedState.appVersion || defaultState.appVersion;
+        const savedVersion = savedState.appVersion || '1.0.0';
+        const currentVersion = defaultState.appVersion;
+        if (compareVersions(savedVersion, currentVersion) < 0 || savedVersion !== currentVersion) {
+            state.appVersion = currentVersion;
+        } else {
+            state.appVersion = savedVersion;
+        }
 
         if (savedState.savedPlayerTags) {
             state.savedPlayerTags = savedState.savedPlayerTags;

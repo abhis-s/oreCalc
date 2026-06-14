@@ -12,6 +12,8 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
+ARG TAG_NAME
+ENV TAG_NAME=$TAG_NAME
 ENV VERBOSE=true
 RUN pnpm run build
 

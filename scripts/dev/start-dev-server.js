@@ -104,8 +104,59 @@ const params = {
                     let content = fs.readFileSync(indexPath, 'utf8');
                     content = processHtmlIncludes(content, process.cwd());
                     
+                    const packageJson = require(path.join(process.cwd(), 'package.json'));
+                    let gitHash = 'dev';
+                    try {
+                        const { execSync } = require('child_process');
+                        gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+                    } catch (e) {
+                        // fallback
+                    }
+                    const appVersion = `${packageJson.version}+${gitHash}`;
+
+                    let commitsSinceTag = [];
+                    try {
+                        const { execSync } = require('child_process');
+                        let lastTag = '';
+                        try {
+                            lastTag = execSync('git describe --tags --abbrev=0').toString().trim();
+                        } catch (e) {
+                            // No tag exists
+                        }
+
+                        const range = lastTag ? `${lastTag}..HEAD` : '';
+                        const logCmd = range 
+                            ? `git log ${range} --pretty=format:"%h|%at|%s"` 
+                            : `git log -n 50 --pretty=format:"%h|%at|%s"`;
+                        const logOutput = execSync(logCmd).toString().trim();
+
+                        if (logOutput) {
+                            const lines = logOutput.split('\n');
+                            const commits = lines.map(line => {
+                                const parts = line.split('|');
+                                const hash = parts[0];
+                                const timestamp = parseInt(parts[1], 10) * 1000;
+                                const subject = parts.slice(2).join('|');
+                                return { hash, timestamp, subject };
+                            });
+
+                            const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                            const commitsInLastWeek = commits.filter(c => c.timestamp >= oneWeekAgo);
+                            
+                            let selectedCommits = [];
+                            if (commitsInLastWeek.length >= 3) {
+                                selectedCommits = commitsInLastWeek;
+                            } else {
+                                selectedCommits = commits.slice(0, Math.min(3, commits.length));
+                            }
+                            commitsSinceTag = selectedCommits.map(c => ({ hash: c.hash, subject: c.subject }));
+                        }
+                    } catch (error) {
+                        // fallback
+                    }
+
                     // Inject global environment context into index.html head for runtime API endpoint resolving
-                    content = content.replace('<head>', `<head>\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${devApiBaseUrl}" };</script>`);
+                    content = content.replace('<head>', `<head>\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${devApiBaseUrl}", APP_VERSION: "${appVersion}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
                     cachedHtml = content;
                 }
                 res.setHeader('Content-Type', 'text/html');

@@ -2,6 +2,7 @@ import { showAlert, showConfirm } from './ui/noticeModal.js';
 
 import { dom, initializeDOMElements } from './dom/domElements.js';
 import { state, initializeState, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from './core/state.js';
+import { compareVersions } from './core/stateCleanup.js';
 import { saveState, loadState, resetState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
@@ -19,6 +20,7 @@ import { initializeAppSettings, openTermsOfUseModal, openPrivacyModal } from './
 import { initializePlanner } from './components/planner/planner.js';
 import { initializePriorityListModal } from './components/planner/priorityListModal.js';
 import { initializeChangelogModal, showChangelogModal } from './components/changelog/changelogModal.js';
+import { initializeCommitsModal, showCommitsModal } from './components/changelog/commitsModal.js';
 
 import { initializeStarBonusSelector } from './components/income/starBonusInputs.js';
 import { initializeClanWarInputs } from './components/income/clanWarInputs.js';
@@ -385,7 +387,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const savedState = loadState();
+    const originalVersion = savedState?.appVersion || '1.0.0';
     initializeState(savedState);
+    if (savedState && state.appVersion !== originalVersion) {
+        logger.log(`Upgraded localStorage state version from ${originalVersion} to ${state.appVersion}`);
+        saveState(state, true); // Save immediately to persist version bump
+        if (compareVersions(originalVersion, state.appVersion) < 0) {
+            setTimeout(() => {
+                const content = getChangelogHtml();
+                showChangelogModal(content);
+            }, 1200);
+        } else {
+            const commits = window.__ENV__?.COMMITS_SINCE_TAG || [];
+            if (commits.length > 0) {
+                setTimeout(() => {
+                    showCommitsModal(commits);
+                }, 1200);
+            }
+        }
+    }
 
     // Redirect invalid pathnames (404 fallback routing)
     const pathName = window.location.pathname;
@@ -526,6 +546,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initializePlanner();
         initializePriorityListModal();
         initializeChangelogModal();
+        initializeCommitsModal();
         initializeStarBonusSelector();
         initializeClanWarInputs();
         initializeCwlInputs();
@@ -628,11 +649,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { initializeAppData } = await import('./utils/cloudSaveHandler.js');
             const syncedState = await initializeAppData();
             if (syncedState) {
+                const originalVersion = syncedState.appVersion || '1.0.0';
                 initializeState(syncedState);
-                saveState(state);
+                if (state.appVersion !== originalVersion) {
+                    logger.log(`Upgraded synced state version from ${originalVersion} to ${state.appVersion}`);
+                    saveState(state, true); // Save immediately to persist version bump
+                } else {
+                    saveState(state);
+                }
                 const appVersionDisplay = document.getElementById('app-version-display');
                 if (appVersionDisplay) {
-                    appVersionDisplay.textContent = '| v' + (state.appVersion || '2.0.0').replace(/^v/, '');
+                    appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.0.0').replace(/^v/, '');
                 }
                 recalculateAll(state);
                 renderApp(state);

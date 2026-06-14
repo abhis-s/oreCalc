@@ -1,0 +1,111 @@
+@use '../abstracts/variables' as *;
+
+#commits-modal {
+    .modal-content {
+        max-width: 650px;
+    }
+
+    .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 1.5rem;
+        
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+        &::-webkit-scrollbar-track {
+            background: $bg-surface-primary;
+            border-radius: 4px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: $border-primary;
+            border-radius: 4px;
+        }
+    }
+
+    .commits-container {
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-secondary;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .commits-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .commit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        line-height: 1.5;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid $border-secondary;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .commit-hash {
+            background-color: rgba($accent-primary, 0.1);
+            color: $accent-primary;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .commit-subject {
+            color: $text-primary;
+            font-size: 0.95rem;
+
+            .commit-type {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.15rem 0.4rem;
+                border-radius: 4px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-right: 0.4rem;
+
+                &.type-feat {
+                    background-color: rgba($color-success, 0.15);
+                    color: $color-success;
+                    border: 1px solid rgba($color-success, 0.3);
+                }
+
+                &.type-fix {
+                    background-color: rgba($color-warning, 0.15);
+                    color: $color-warning;
+                    border: 1px solid rgba($color-warning, 0.3);
+                }
+
+                &.type-chore, &.type-perf, &.type-docs, &.type-style, &.type-refactor, &.type-test {
+                    background-color: rgba($color-info, 0.15);
+                    color: $color-info;
+                    border: 1px solid rgba($color-info, 0.3);
+                }
+            }
+
+            .commit-scope {
+                color: $text-secondary;
+                font-weight: 600;
+                margin-right: 0.3rem;
+            }
+
+            .commit-msg-text {
+                color: $text-primary;
+            }
+        }
+    }
+}

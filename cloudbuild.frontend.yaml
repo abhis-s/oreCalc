@@ -10,10 +10,11 @@ steps:
   args: ['pnpm', 'run', 'build']
   env:
   - 'VERBOSE=true'
+  - 'TAG_NAME=$TAG_NAME'
 
 # Build the Docker image for the frontend
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/$PROJECT_ID/orecalc-webapp:$COMMIT_SHA', '.']
+  args: ['build', '--build-arg', 'TAG_NAME=$TAG_NAME', '-t', 'gcr.io/$PROJECT_ID/orecalc-webapp:$COMMIT_SHA', '.']
 
 # Push the Docker image to Container Registry
 - name: 'gcr.io/cloud-builders/docker'

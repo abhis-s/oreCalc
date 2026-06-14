@@ -19,6 +19,7 @@
     "build:assets": "node scripts/fetch-billing-costs.js && node scripts/build.js && pnpm run build:css && pnpm run build:sw",
     "build:css": "sass css/main.scss dist/css/main.min.css --style compressed",
     "build:sw": "workbox injectManifest workbox-config.js",
+    "bump": "node scripts/bump.js",
     "start": "node scripts/prod/start-prod-server.js"
   },
   "keywords": [],

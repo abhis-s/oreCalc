@@ -548,6 +548,9 @@
             "chore": "Chore"
         }
     },
+    "commits": {
+        "title": "Recent Dev Updates"
+    },
     "download": {
         "title": "Download Your Data",
         "description": "This will export your entire application state (players, equipment, planner) into a JSON file. You can use this file to backup your progress or import it on another device.",

@@ -548,6 +548,9 @@
             "chore": "Wartung"
         }
     },
+    "commits": {
+        "title": "Neueste Entwicklungs-Updates"
+    },
     "download": {
         "title": "Deine Daten herunterladen",
         "description": "Dies exportiert deinen gesamten Anwendungsstatus (Spieler, Ausrüstung, Planer) in eine JSON-Datei. Du kannst diese Datei verwenden, um deinen Fortschritt zu sichern oder ihn auf einem anderen Gerät zu importieren.",

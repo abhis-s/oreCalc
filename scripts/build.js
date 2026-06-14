@@ -139,11 +139,76 @@ async function build() {
         let indexHtml = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
         indexHtml = processHtmlIncludes(indexHtml);
         
-        const baseUrl = process.env.VITE_API_BASE_URL;
-        if (baseUrl) {
-            indexHtml = indexHtml.replace('<head>', `<head>\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}" };</script>`);
-            console.log(`Injected VITE_API_BASE_URL (${baseUrl}) into index.html head.`);
+        const packageJson = require('../package.json');
+        let gitHash = 'dev';
+        try {
+            const { execSync } = require('child_process');
+            gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+        } catch (e) {
+            // fallback
         }
+        let isTagged = false;
+        if (process.env.TAG_NAME) {
+            isTagged = true;
+        } else if (process.env.STABLE === 'true') {
+            isTagged = true;
+        } else {
+            try {
+                const { execSync } = require('child_process');
+                const gitTag = execSync('git describe --tags --exact-match HEAD', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+                isTagged = !!gitTag;
+            } catch (e) {
+                // not a tagged commit
+            }
+        }
+        const appVersion = isTagged ? packageJson.version : `${packageJson.version}+${gitHash}`;
+        const baseUrl = process.env.VITE_API_BASE_URL || 'https://api.orecalc.tech';
+
+        let commitsSinceTag = [];
+        try {
+            const { execSync } = require('child_process');
+            let lastTag = '';
+            try {
+                // Get the last tag, excluding the current commit if it is already exactly tagged
+                const excludeTagOption = isTagged ? 'HEAD~1' : 'HEAD';
+                lastTag = execSync(`git describe --tags --abbrev=0 ${excludeTagOption}`).toString().trim();
+            } catch (e) {
+                // No tag exists
+            }
+
+            const range = lastTag ? `${lastTag}..HEAD` : '';
+            const logCmd = range 
+                ? `git log ${range} --pretty=format:"%h|%at|%s"` 
+                : `git log -n 50 --pretty=format:"%h|%at|%s"`;
+            const logOutput = execSync(logCmd).toString().trim();
+
+            if (logOutput) {
+                const lines = logOutput.split('\n');
+                const commits = lines.map(line => {
+                    const parts = line.split('|');
+                    const hash = parts[0];
+                    const timestamp = parseInt(parts[1], 10) * 1000;
+                    const subject = parts.slice(2).join('|');
+                    return { hash, timestamp, subject };
+                });
+
+                const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                const commitsInLastWeek = commits.filter(c => c.timestamp >= oneWeekAgo);
+                
+                let selectedCommits = [];
+                if (commitsInLastWeek.length >= 3) {
+                    selectedCommits = commitsInLastWeek;
+                } else {
+                    selectedCommits = commits.slice(0, Math.min(3, commits.length));
+                }
+                commitsSinceTag = selectedCommits.map(c => ({ hash: c.hash, subject: c.subject }));
+            }
+        } catch (error) {
+            console.warn('Failed to fetch commit log:', error);
+        }
+
+        indexHtml = indexHtml.replace('<head>', `<head>\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
+        console.log(`Injected VITE_API_BASE_URL (${baseUrl}), APP_VERSION (${appVersion}), and COMMITS_SINCE_TAG (${commitsSinceTag.length} commits) into index.html head.`);
         
         // Strip other module preloads to avoid 404s for files that are now bundled inside chunk files
         indexHtml = indexHtml.replace(/<link rel="modulepreload" href="js\/(?!app\.js)[^"]+">\s*/g, '');
