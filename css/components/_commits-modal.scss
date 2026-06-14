@@ -51,32 +51,26 @@
             border-bottom: none;
         }
 
-        .commit-hash {
-            background-color: rgba($accent-primary, 0.1);
-            color: $accent-primary;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-family: monospace;
-            font-weight: 600;
+        .commit-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
             flex-shrink: 0;
-        }
-
-        .commit-subject {
-            color: $text-primary;
-            font-size: 0.95rem;
+            min-width: 65px;
 
             .commit-type {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
+                width: 100%;
                 padding: 0.15rem 0.4rem;
                 border-radius: 4px;
                 font-size: 0.75rem;
                 font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                margin-right: 0.4rem;
+                box-sizing: border-box;
 
                 &.type-feat {
                     background-color: rgba($color-success, 0.15);
@@ -97,14 +91,72 @@
                 }
             }
 
+            .commit-hash {
+                background-color: rgba($accent-primary, 0.1);
+                color: $accent-primary;
+                padding: 0.2rem 0.4rem;
+                border-radius: 4px;
+                font-size: 0.8rem;
+                font-family: monospace;
+                font-weight: 600;
+                text-align: center;
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+
+        .commit-subject {
+            color: $text-primary;
+            font-size: 0.95rem;
+            flex: 1;
+            align-self: center;
+
             .commit-scope {
                 color: $text-secondary;
                 font-weight: 600;
-                margin-right: 0.3rem;
             }
 
             .commit-msg-text {
                 color: $text-primary;
+            }
+        }
+    }
+
+    @media (max-width: 600px) {
+        .modal-body {
+            padding: 1rem;
+        }
+
+        .commits-container {
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        .commits-list {
+            gap: 0.5rem;
+        }
+
+        .commit-item {
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+
+            .commit-meta {
+                min-width: 55px;
+                gap: 0.15rem;
+
+                .commit-type {
+                    padding: 0.1rem 0.35rem;
+                    font-size: 0.7rem;
+                }
+
+                .commit-hash {
+                    padding: 0.15rem 0.35rem;
+                    font-size: 0.75rem;
+                }
+            }
+
+            .commit-subject {
+                font-size: 0.875rem;
             }
         }
     }

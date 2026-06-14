@@ -184,4 +184,48 @@
             background-color: $accent-primary;
         }
     }
+
+    @media (max-width: 600px) {
+        #licenses-container {
+            padding: 1rem;
+        }
+
+        details {
+            border-radius: 8px;
+        }
+
+        summary {
+            padding: 10px 14px;
+
+            &::after {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        .license-title {
+            font-size: 0.9rem;
+        }
+
+        .license-version {
+            font-size: 0.8rem;
+            padding: 1px 4px;
+        }
+
+        .license-badge {
+            font-size: 0.7rem;
+            padding: 1px 6px;
+            margin-right: 6px;
+        }
+
+        .details-body {
+            padding: 10px 14px;
+        }
+
+        .license-text {
+            padding: 10px 14px;
+            font-size: 0.775rem;
+            margin-top: 8px;
+        }
+    }
 }

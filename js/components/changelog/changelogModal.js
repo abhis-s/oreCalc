@@ -4,14 +4,21 @@ import { showCommitsModal } from './commitsModal.js';
 export function initializeChangelogModal() {
     const modal = document.getElementById('changelog-modal');
     const closeButton = document.getElementById('close-changelog-modal-btn');
+    const footerCloseButton = document.getElementById('changelog-close-btn');
     const commitsButton = document.getElementById('changelog-commits-btn');
     const overlay = dom.overlay;
 
-    if (modal && closeButton && overlay) {
-        closeButton.addEventListener('click', () => {
-            modal.classList.remove('show');
-            overlay.classList.remove('show');
-        });
+    const closeModal = () => {
+        if (modal) modal.classList.remove('show');
+        if (overlay) overlay.classList.remove('show');
+    };
+
+    if (closeButton) {
+        closeButton.addEventListener('click', closeModal);
+    }
+
+    if (footerCloseButton) {
+        footerCloseButton.addEventListener('click', closeModal);
     }
 
     if (modal && commitsButton) {

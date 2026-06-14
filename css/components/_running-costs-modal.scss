@@ -307,4 +307,56 @@
             }
         }
     }
+
+    @media (max-width: 600px) {
+        .costs-summary-card {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+        }
+
+        .costs-summary-value {
+            font-size: 1.75rem;
+        }
+
+        .costs-section-title {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .costs-history-container {
+            max-height: 220px;
+            margin-bottom: 1rem;
+        }
+
+        .costs-month-card {
+            border-radius: 8px;
+        }
+
+        .costs-month-header {
+            padding: 10px 12px;
+        }
+
+        .costs-month-name {
+            font-size: 0.875rem;
+        }
+
+        .costs-month-total {
+            font-size: 0.9rem;
+        }
+
+        .costs-services-list {
+            padding: 6px 12px;
+            gap: 4px;
+        }
+
+        .costs-service-row {
+            font-size: 0.8rem;
+        }
+
+        .costs-disclaimer {
+            padding: 10px 12px;
+            font-size: 0.775rem;
+        }
+    }
 }

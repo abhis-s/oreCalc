@@ -97,4 +97,21 @@
             display: block;
         }
     }
+
+    @media (max-width: 600px) {
+        .player-name-input-container, .import-data-input-container {
+            padding: 0 20px;
+            margin: 15px 0;
+            
+            label {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+
+            input {
+                padding: 10px 14px;
+                font-size: 15px;
+            }
+        }
+    }
 }

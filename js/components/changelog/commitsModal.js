@@ -25,18 +25,23 @@ export function showCommitsModal(commits) {
         commits.forEach(commit => {
             const match = commit.subject.match(conventionalCommitRegex);
             let subjectHtml = '';
+            let typeHtml = '';
             if (match) {
                 const type = match[1].toLowerCase();
-                const scope = match[2] ? `<span class="commit-scope">(${match[2]})</span>` : '';
+                const scope = match[2] ? `<span class="commit-scope">${match[2]}:</span> ` : '';
                 const message = match[3];
-                subjectHtml = `<span class="commit-type type-${type}">${type}</span>${scope} <span class="commit-msg-text">${message}</span>`;
+                typeHtml = `<span class="commit-type type-${type}">${type}</span>`;
+                subjectHtml = `${scope}<span class="commit-msg-text">${message}</span>`;
             } else {
                 subjectHtml = `<span class="commit-msg-text">${commit.subject}</span>`;
             }
 
             html += `
                 <li class="commit-item">
-                    <code class="commit-hash">${commit.hash}</code>
+                    <div class="commit-meta">
+                        ${typeHtml}
+                        <code class="commit-hash">${commit.hash}</code>
+                    </div>
                     <span class="commit-subject">${subjectHtml}</span>
                 </li>
             `;

@@ -200,4 +200,26 @@
             cursor: pointer;
         }
     }
+
+    @media (max-width: 600px) {
+        .bug-report-form {
+            padding: 12px 20px 20px;
+            gap: 12px;
+        }
+
+        .input-style {
+            padding: 10px 14px;
+            font-size: 0.95rem;
+        }
+
+        .input-label {
+            font-size: 13px;
+        }
+
+        .checkbox-group {
+            .checkbox-label {
+                font-size: 13px;
+            }
+        }
+    }
 }

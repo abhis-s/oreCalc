@@ -123,4 +123,35 @@
     .modal-actions {
         background-color: $bg-surface-tertiary;
     }
+
+    @media (max-width: 600px) {
+        .modal-body {
+            p {
+                margin-bottom: 12px;
+            }
+
+            #level-select-table {
+                th, td {
+                    padding: 10px 4px;
+                    font-size: 0.875rem;
+                }
+
+                .level-input {
+                    padding: 6px;
+                    font-size: 0.9rem;
+                    border-radius: 6px;
+                }
+
+                .trash-btn {
+                    width: 30px;
+                    height: 30px;
+
+                    svg {
+                        width: 16px;
+                        height: 16px;
+                    }
+                }
+            }
+        }
+    }
 }
