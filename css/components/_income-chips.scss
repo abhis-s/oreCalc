@@ -391,6 +391,19 @@ h3.income-chips-title {
     margin: 0;
     font-size: 1.1em;
     color: $text-primary;
+
+    .short-title {
+        display: none;
+    }
+
+    @media (max-width: 425px) {
+        .full-title {
+            display: none;
+        }
+        .short-title {
+            display: inline;
+        }
+    }
 }
 
 .income-chips-actions {

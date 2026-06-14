@@ -307,6 +307,7 @@ input[type="number"] {
         img {
             width: 24px;
             height: 24px;
+            display: block;
         }
     }
 
@@ -335,6 +336,7 @@ input[type="number"] {
             img {
                 width: 24px;
                 height: 24px;
+                display: block;
             }
         }
     }
@@ -449,30 +451,47 @@ input[type="number"] {
 
     @media (max-width: 480px) {
         display: grid;
-        grid-template-columns: 1fr auto 1fr;
+        grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto;
         grid-template-areas:
-            "from-dd  .      to-dd"
-            "from-in  arrow  to-in";
-        gap: 0.5rem 1rem;
-        justify-items: center;
-        align-items: center;
+            "from-dd to-dd"
+            "from-in to-in";
+        gap: 0.5rem;
 
-        .custom-dropdown:first-of-type { grid-area: from-dd; justify-self: center; }
-        .custom-dropdown:last-of-type { grid-area: to-dd; justify-self: center; }
+        .custom-dropdown:first-of-type { 
+            grid-area: from-dd; 
+            justify-self: start; 
+        }
+        
+        .custom-dropdown:last-of-type { 
+            grid-area: to-dd; 
+            justify-self: end; 
+        }
 
-        input[type="number"]:first-of-type { grid-area: from-in; justify-self: center; }
-        .prospector-arrow { grid-area: arrow; align-self: center; padding-bottom: 0; }
-        input[type="number"]:last-of-type { grid-area: to-in; justify-self: center; }
+        .popover-wrapper:first-of-type { 
+            grid-area: from-in; 
+            justify-self: stretch;
+            width: 100%;
+        }
+        
+        .popover-wrapper:last-of-type { 
+            grid-area: to-in; 
+            justify-self: stretch;
+            width: 100%;
+        }
+
+        .prospector-arrow { 
+            display: none; 
+        }
 
         input[type="number"] {
             width: 100%;
-            max-width: 100px;
+            max-width: none;
         }
 
         .custom-dropdown {
-            width: 100%;
-            max-width: 60px;
+            width: calc(100% - 20px);
+            max-width: none;
             
             .dropdown-options {
                 width: calc(100% + 2px);

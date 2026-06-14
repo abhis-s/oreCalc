@@ -238,6 +238,7 @@
         "winRatePct": "Gewinn (%)",
         "drawRatePct": "Unentschieden (%)",
         "lossRatePct": "Niederlage (%)",
+        "chips": "Chips",
         "chipsTitle": "Einkommens-Chips",
         "perUsage": "Pro Nutzung",
         "lossRate": "Niederlage",

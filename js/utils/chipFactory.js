@@ -646,7 +646,7 @@ export function renderIncomeChipsLegend(legendContainer) {
         legendItemDiv.addEventListener('mouseenter', () => {
             const calendarContainer = document.getElementById('calendar-container');
             if (calendarContainer) {
-                const chips = calendarContainer.querySelectorAll(`.income-chip.${item.className}`);
+                const chips = calendarContainer.querySelectorAll(`.income-chip[class*="${item.className}"]`);
                 chips.forEach(chip => chip.classList.add('legend-highlight'));
             }
         });
@@ -654,7 +654,7 @@ export function renderIncomeChipsLegend(legendContainer) {
         legendItemDiv.addEventListener('mouseleave', () => {
             const calendarContainer = document.getElementById('calendar-container');
             if (calendarContainer) {
-                const chips = calendarContainer.querySelectorAll(`.income-chip.${item.className}`);
+                const chips = calendarContainer.querySelectorAll(`.income-chip[class*="${item.className}"]`);
                 chips.forEach(chip => chip.classList.remove('legend-highlight'));
             }
         });
@@ -665,7 +665,7 @@ export function renderIncomeChipsLegend(legendContainer) {
                 // Scroll the calendar into view
                 calendarContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                const chips = calendarContainer.querySelectorAll(`.income-chip.${item.className}`);
+                const chips = calendarContainer.querySelectorAll(`.income-chip[class*="${item.className}"]`);
                 
                 // Add the persistent glow class
                 chips.forEach(chip => chip.classList.add('persistent-glow'));
@@ -686,11 +686,6 @@ export function renderIncomeChipsLegend(legendContainer) {
         });
 
         legendContainer.appendChild(legendItemDiv);
-
-        // Process subcategories if any
-        if (item.subCategories) {
-            item.subCategories.forEach(sub => processLegendItem(sub, sub.id));
-        }
     };
 
     Object.entries(incomeData).forEach(([key, value]) => {

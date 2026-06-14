@@ -238,6 +238,7 @@
         "winRatePct": "Wins (%)",
         "drawRatePct": "Draws (%)",
         "lossRatePct": "Losses (%)",
+        "chips": "Chips",
         "chipsTitle": "Income Chips",
         "perUsage": "Per Usage",
         "lossRate": "Losses",
