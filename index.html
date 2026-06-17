@@ -15,13 +15,15 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://orecalc.tech/">
     <meta property="og:title" content="OreCalc - Clash of Clans Hero Equipment & Ore Planner">
-    <meta property="og:description" content="Stop guessing, start upgrading! OreCalc helps you manage hero equipment and ores. Forecast income, plan upgrades, and optimize your game.">
+    <meta property="og:description"
+        content="Stop guessing, start upgrading! OreCalc helps you manage hero equipment and ores. Forecast income, plan upgrades, and optimize your game.">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary">
     <meta property="twitter:url" content="https://orecalc.tech/">
     <meta property="twitter:title" content="OreCalc - Clash of Clans Hero Equipment & Ore Planner">
-    <meta property="twitter:description" content="Stop guessing, start upgrading! OreCalc helps you manage hero equipment and ores. Forecast income, plan upgrades, and optimize your game.">
+    <meta property="twitter:description"
+        content="Stop guessing, start upgrading! OreCalc helps you manage hero equipment and ores. Forecast income, plan upgrades, and optimize your game.">
     <link rel="stylesheet" href="css/main.css">
     <style>
         #preloader {
@@ -35,38 +37,43 @@
             justify-content: center;
             opacity: 1;
             visibility: visible;
-            z-index: 9999;
+            z-index: 110;
             overflow: hidden;
         }
+
         @media (prefers-color-scheme: light) {
             #preloader:not(.dark-mode-override) {
                 background-color: #ffffff;
             }
         }
+
         .modal {
             position: fixed !important;
             inset: 0 !important;
             display: none !important;
-            z-index: 2000 !important;
         }
+
         .modal.show {
             display: flex !important;
             opacity: 1 !important;
             visibility: visible !important;
         }
-        #notice-modal, #stored-ores-modal {
-            z-index: 2001 !important;
-        }
+
         .tab-content {
             display: none !important;
         }
+
         .tab-content.active {
             display: block !important;
         }
-        .supercell-notice, .app-copyright {
+
+        .supercell-notice,
+        .app-copyright {
             display: none !important;
         }
-        .supercell-notice.show, .app-copyright.show {
+
+        .supercell-notice.show,
+        .app-copyright.show {
             display: block !important;
         }
     </style>
@@ -116,15 +123,16 @@
     <link rel="modulepreload" href="js/utils/chipManager.js">
 </head>
 
-<body class="dark-mode" style="color-scheme: dark; --accent-primary: #8ab4f8; --accent-primary-hover: #aecbfa; --accent-primary-active: #8ab4f8; --accent-primary-soft: rgba(138, 180, 248, 0.1); --bg-app: #0f131a; --bg-surface-primary: #1a1f2b; --bg-surface-secondary: #252c3d; --bg-surface-tertiary: #2e374d;">
+<body class="dark-mode"
+    style="color-scheme: dark; --accent-primary: #8ab4f8; --accent-primary-hover: #aecbfa; --accent-primary-active: #8ab4f8; --accent-primary-soft: rgba(138, 180, 248, 0.1); --bg-app: #0f131a; --bg-surface-primary: #1a1f2b; --bg-surface-secondary: #252c3d; --bg-surface-tertiary: #2e374d;">
     <script>
-        (function() {
+        (function () {
             var appLoaded = false;
             var initializationError = null;
 
             window.__APP_LOADED_STATUS__ = false;
 
-            window.__APP_LOADED__ = function() {
+            window.__APP_LOADED__ = function () {
                 if (initializationError) {
                     return;
                 }
@@ -135,8 +143,8 @@
             function handleCatastrophicError(error, stack) {
                 if (appLoaded) return;
                 initializationError = { error: error, stack: stack };
-                
-                setTimeout(function() {
+
+                setTimeout(function () {
                     var screen = document.getElementById('load-failure-screen');
                     var preloader = document.getElementById('preloader');
                     if (screen) {
@@ -144,14 +152,14 @@
                         var stackEl = document.getElementById('load-failure-error-stack');
                         if (msgEl) msgEl.textContent = error || 'Unknown Error';
                         if (stackEl) stackEl.textContent = stack || 'No stack trace available.';
-                        
+
                         if (preloader) preloader.style.display = 'none';
                         screen.style.display = 'flex';
                     }
                 }, 100);
             }
 
-            window.addEventListener('error', function(event) {
+            window.addEventListener('error', function (event) {
                 if (!appLoaded) {
                     var errorMsg = event.error ? event.error.message : event.message;
                     var errorStack = event.error ? event.error.stack : '';
@@ -159,7 +167,7 @@
                 }
             });
 
-            window.addEventListener('unhandledrejection', function(event) {
+            window.addEventListener('unhandledrejection', function (event) {
                 if (!appLoaded) {
                     var errorMsg = event.reason ? (event.reason.message || event.reason) : 'Unhandled promise rejection';
                     var errorStack = event.reason ? event.reason.stack : '';
@@ -168,7 +176,7 @@
             });
 
             // Watchdog: If app is not loaded in 8 seconds, show load failure page
-            setTimeout(function() {
+            setTimeout(function () {
                 if (!appLoaded && !initializationError) {
                     handleCatastrophicError('Timeout: Application initialization took too long.', 'Watchdog triggered after 8000ms.');
                 }
@@ -198,9 +206,10 @@
                     </svg>
                 </div>
                 <h1 data-i18n="errors.loadFailureTitle">Initialization Failed</h1>
-                <p data-i18n="errors.loadFailureMessage">OreCalc could not start because of a critical error during initialization.</p>
+                <p data-i18n="errors.loadFailureMessage">OreCalc could not start because of a critical error during
+                    initialization.</p>
             </div>
-            
+
             <div class="load-failure-details-section">
                 <button id="load-failure-details-toggle" class="details-toggle-btn">
                     <span data-i18n="errors.showDetails">Show Error Details</span>
@@ -217,12 +226,16 @@
             <div id="load-failure-report-form" class="load-failure-report-form" style="display: none;">
                 <h3 data-i18n="settings.bugReport">Bug Report</h3>
                 <div class="form-group">
-                    <label for="load-failure-email" class="input-label" data-i18n="settings.options.contactEmail">Contact Email (Optional)</label>
-                    <input type="email" id="load-failure-email" class="input-style" placeholder="your-email@example.com">
+                    <label for="load-failure-email" class="input-label"
+                        data-i18n="settings.options.contactEmail">Contact Email (Optional)</label>
+                    <input type="email" id="load-failure-email" class="input-style"
+                        placeholder="your-email@example.com">
                 </div>
                 <div class="form-group">
-                    <label for="load-failure-desc" class="input-label" data-i18n="settings.options.bugDescriptionOptional">Description (Optional)</label>
-                    <textarea id="load-failure-desc" class="input-style" rows="3" placeholder="Please describe what you did before the crash..."></textarea>
+                    <label for="load-failure-desc" class="input-label"
+                        data-i18n="settings.options.bugDescriptionOptional">Description (Optional)</label>
+                    <textarea id="load-failure-desc" class="input-style" rows="3"
+                        placeholder="Please describe what you did before the crash..."></textarea>
                     <div class="textarea-footer">
                         <span id="load-failure-desc-error" class="input-error-msg"></span>
                     </div>
@@ -230,7 +243,8 @@
                 <div class="form-group">
                     <label class="checkbox-group">
                         <input type="checkbox" id="load-failure-attach-checkbox" checked>
-                        <span class="checkbox-label" data-i18n="settings.options.userDataAttachment">Attach Diagnostics & User Data</span>
+                        <span class="checkbox-label" data-i18n="settings.options.userDataAttachment">Attach Diagnostics
+                            & User Data</span>
                     </label>
                 </div>
             </div>
@@ -283,6 +297,8 @@
     <!-- include: partials/modals/privacy.html -->
     <!-- include: partials/modals/terms.html -->
     <!-- include: partials/modals/consent-modal.html -->
+    <!-- include: partials/modals/consent-banner.html -->
+    <!-- include: partials/modals/welcome-modal.html -->
     <!-- include: partials/modals/priority-list.html -->
     <!-- include: partials/modals/stored-ores-modal.html -->
     <!-- include: partials/modals/update-available.html -->
@@ -303,11 +319,11 @@
     <!-- include: partials/modals/running-costs.html -->
     <script src="js/qr-code-styling.js" defer></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var toggleBtn = document.getElementById('load-failure-details-toggle');
             var detailsContainer = document.getElementById('load-failure-details');
             if (toggleBtn && detailsContainer) {
-                toggleBtn.addEventListener('click', function() {
+                toggleBtn.addEventListener('click', function () {
                     var isHidden = detailsContainer.style.display === 'none';
                     detailsContainer.style.display = isHidden ? 'block' : 'none';
                     toggleBtn.classList.toggle('active', isHidden);
@@ -324,18 +340,18 @@
             var formVisible = false;
 
             if (actionBtn && reportForm) {
-                actionBtn.addEventListener('click', async function() {
+                actionBtn.addEventListener('click', async function () {
                     if (!formVisible) {
                         reportForm.style.display = 'flex';
                         actionBtn.textContent = 'Submit Report';
                         if (resetBtn) {
                             resetBtn.textContent = 'Cancel';
-                            resetBtn.onclick = function(e) {
+                            resetBtn.onclick = function (e) {
                                 e.preventDefault();
                                 reportForm.style.display = 'none';
                                 actionBtn.textContent = 'Report Bug';
                                 resetBtn.textContent = 'Reset App';
-                                resetBtn.onclick = function() { window.resetApplication(); };
+                                resetBtn.onclick = function () { window.resetApplication(); };
                                 formVisible = false;
                             };
                         }
@@ -344,23 +360,23 @@
                         var emailInput = document.getElementById('load-failure-email');
                         var descInput = document.getElementById('load-failure-desc');
                         var errorEl = document.getElementById('load-failure-desc-error');
-                        
+
                         var email = emailInput ? emailInput.value.trim() : '';
                         var description = descInput ? descInput.value.trim() : '';
-                        
+
                         if (errorEl) errorEl.textContent = '';
                         if (descInput) descInput.classList.remove('input-error');
-                        
+
                         var origText = actionBtn.textContent;
                         actionBtn.disabled = true;
                         actionBtn.textContent = 'Submitting...';
                         if (resetBtn) resetBtn.disabled = true;
-                        
+
                         try {
                             var currentUserId = localStorage.getItem('oreCalcUserId') || 'unknown';
                             var errorMsg = document.getElementById('load-failure-error-msg')?.textContent || 'Unknown Load Error';
                             var errorStack = document.getElementById('load-failure-error-stack')?.textContent || '';
-                            
+
                             var attachedData = null;
                             var attachCheckbox = document.getElementById('load-failure-attach-checkbox');
                             if (attachCheckbox && attachCheckbox.checked) {
@@ -373,14 +389,14 @@
                                     console.error('Failed to parse localStorage state for bug report:', e);
                                 }
                             }
-                            
+
                             var payload = {
                                 email: email,
                                 description: `[Catastrophic Load Failure]\nError: ${errorMsg}\n\nUser Description:\n${description}\n\nStack:\n${errorStack}`,
                                 attachData: attachedData,
                                 userId: currentUserId
                             };
-                            
+
                             var baseUrl = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
                             var response = await fetch(baseUrl + '/api/support/bug-report', {
                                 method: 'POST',
@@ -389,11 +405,11 @@
                                 },
                                 body: JSON.stringify(payload)
                             });
-                            
+
                             if (!response.ok) {
                                 throw new Error('Server returned status ' + response.status);
                             }
-                            
+
                             alert('Bug report submitted successfully! Thank you.');
                             location.reload();
                         } catch (err) {

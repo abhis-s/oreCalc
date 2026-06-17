@@ -91,7 +91,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
 
         const containerCardOption = hideLockedToggle.closest('.input-group-flex');
         if (containerCardOption) {
-            if (activeTag !== 'DEFAULT0' && hasLockedEquipment) {
+            if (state.playerProfile && hasLockedEquipment) {
                 containerCardOption.style.display = '';
             } else {
                 containerCardOption.style.display = 'none';

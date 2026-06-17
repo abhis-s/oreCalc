@@ -301,7 +301,7 @@
                 opacity: 0.035;
                 pointer-events: none;
                 user-select: none;
-                z-index: 999;
+                z-index: $z-index-base;
                 white-space: nowrap;
                 letter-spacing: 8px;
             }

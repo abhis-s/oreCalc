@@ -1,12 +1,12 @@
 import { showAlert, showConfirm } from './ui/noticeModal.js';
 
 import { dom, initializeDOMElements } from './dom/domElements.js';
-import { state, initializeState, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from './core/state.js';
+import { state, initializeState, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_WELCOME } from './core/state.js';
 import { compareVersions } from './core/stateCleanup.js';
 import { saveState, loadState, resetState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
-import { registerStateUpdateCallback } from './core/stateManager.js';
+import { registerStateUpdateCallback, handleStateUpdate } from './core/stateManager.js';
 
 import { initializeHeader } from './components/layout/header.js';
 import { initializeTabs } from './components/layout/tabs.js';
@@ -32,6 +32,7 @@ import { initializeEventTrader } from './components/income/eventTraderInputs.js'
 import { initializeShopOffers } from './components/income/shopOffersInputs.js';
 import { initializeSupercellEventsInputs } from './components/income/supercellEventsInputs.js';
 import { initializeProspector } from './components/income/prospectorInputs.js';
+import { initializeWelcomeModal, showWelcomeModal } from './components/welcome/welcomeModal.js';
 
 import { initializeIncomeCardHandler } from './components/income/incomeCardHandler.js';
 import { updateResponsiveText } from './utils/responsiveTextHandler.js';
@@ -47,17 +48,21 @@ import './utils/svgManager.js';
 import { logger } from './utils/logger.js';
 
 // Register global error boundaries immediately
-window.addEventListener('error', (event) => {
-    logger.error('Uncaught error:', event.error || event.message);
-    if (!window.__APP_LOADED_STATUS__) return;
-    showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
-});
+if (!window.__APP_INITIALIZED__) {
+    window.__APP_INITIALIZED__ = true;
 
-window.addEventListener('unhandledrejection', (event) => {
-    logger.error('Unhandled promise rejection:', event.reason);
-    if (!window.__APP_LOADED_STATUS__) return;
-    showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
-});
+    window.addEventListener('error', (event) => {
+        logger.error('Uncaught error:', event.error || event.message);
+        if (!window.__APP_LOADED_STATUS__) return;
+        showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+        logger.error('Unhandled promise rejection:', event.reason);
+        if (!window.__APP_LOADED_STATUS__) return;
+        showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
+    });
+}
 
 // Global modal focus manager for accessibility & usability
 function setupModalFocusManager() {
@@ -160,6 +165,8 @@ let userId = localStorage.getItem('oreCalcUserId');
 
 let sessionRandomAccent = null;
 const availableAccents = ['blue', 'gold', 'purple', 'green', 'red'];
+let isTransitioning = false;
+let lastAppliedAccentColor = null;
 
 export function updateUIWithTranslations(isInitialLoad = false) {
     document.querySelectorAll('[data-i18n]').forEach(element => {
@@ -244,7 +251,7 @@ export function updateUIWithTranslations(isInitialLoad = false) {
 
     // Skip applyThemeSettings during initial load as it's already handled by DOMContentLoaded
     if (!isInitialLoad) {
-        applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'blue');
+        applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');
     }
 
     document.documentElement.lang = state.uiSettings.language || 'auto';
@@ -255,7 +262,10 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
     let effectiveAccentColor = accentColor;
     if (accentColor === 'random') {
         if (!sessionRandomAccent || (origin && origin.isSwatchClick)) {
-            sessionRandomAccent = availableAccents[Math.floor(Math.random() * availableAccents.length)];
+            const remainingAccents = lastAppliedAccentColor
+                ? availableAccents.filter(color => color !== lastAppliedAccentColor)
+                : availableAccents;
+            sessionRandomAccent = remainingAccents[Math.floor(Math.random() * remainingAccents.length)];
         }
         effectiveAccentColor = sessionRandomAccent;
     }
@@ -342,9 +352,12 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
         target.style.setProperty('--bg-surface-primary', colors.bgPrimary);
         target.style.setProperty('--bg-surface-secondary', colors.bgSecondary);
         target.style.setProperty('--bg-surface-tertiary', colors.bgTertiary);
+
+        lastAppliedAccentColor = effectiveAccentColor;
     };
 
-    if (origin && document.startViewTransition) {
+    if (origin && document.startViewTransition && !isTransitioning) {
+        isTransitioning = true;
         document.documentElement.style.setProperty('--ripple-x', `${origin.x}px`);
         document.documentElement.style.setProperty('--ripple-y', `${origin.y}px`);
 
@@ -354,28 +367,60 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
         const transition = document.startViewTransition(() => {
             updateThemeProperties();
             renderApp(state);
+
+            // Sync welcome modal accent swatches active class
+            const welcomeModal = document.getElementById('welcome-modal');
+            if (welcomeModal && welcomeModal.classList.contains('show')) {
+                const currentAccent = state.uiSettings.accentColor || 'random';
+                welcomeModal.querySelectorAll('#welcome-accent-picker .accent-swatch').forEach(s => {
+                    s.classList.toggle('active', s.dataset.color === currentAccent);
+                });
+            }
+
             document.body.offsetHeight;
         });
 
-        transition.ready.catch(() => { });
-        transition.finished.catch(() => { }).finally(() => {
+        transition.ready.then(() => {
+            // Transition is ready and animating
+        }).catch((err) => {
+            console.error("[ViewTransition] Transition ready failed/rejected:", err);
+        });
+
+        transition.finished.then(() => {
+            // Transition completed successfully
+        }).catch((err) => {
+            console.error("[ViewTransition] Transition finished failed/rejected:", err);
+        }).finally(() => {
+            isTransitioning = false;
             document.body.classList.remove('no-transition');
             delete document.documentElement.dataset.transitionType;
         });
     } else {
         updateThemeProperties();
-        // Skip renderApp here if it's the initial load (checked via origin)
-        if (origin === 'manual-toggle') {
+
+        // Sync welcome modal accent swatches active class
+        const welcomeModal = document.getElementById('welcome-modal');
+        if (welcomeModal && welcomeModal.classList.contains('show')) {
+            const currentAccent = state.uiSettings.accentColor || 'random';
+            welcomeModal.querySelectorAll('#welcome-accent-picker .accent-swatch').forEach(s => {
+                s.classList.toggle('active', s.dataset.color === currentAccent);
+            });
+        }
+
+        // Render the app if origin is passed (meaning we are not during initial load where renderApp is called afterwards)
+        if (origin) {
             renderApp(state);
         }
     }
 }
 
 export function applyTheme(theme, origin = null) {
-    applyThemeSettings(theme, state.uiSettings.accentColor || 'blue', origin || 'manual-toggle');
+    applyThemeSettings(theme, state.uiSettings.accentColor || 'random', origin || 'manual-toggle');
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
+    window.__DOM_CONTENT_LOADED_REGISTERED__ = true;
+    document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     let userIdFromUrl = urlParams.get('userId');
 
@@ -447,7 +492,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const preloader = dom.preloader;
     if (preloader) {
-        let effectivePreloaderAccent = state.uiSettings.accentColor || 'blue';
+        let effectivePreloaderAccent = state.uiSettings.accentColor || 'random';
         if (effectivePreloaderAccent === 'random') {
             if (!sessionRandomAccent) {
                 sessionRandomAccent = availableAccents[Math.floor(Math.random() * availableAccents.length)];
@@ -456,17 +501,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         preloader.dataset.accent = effectivePreloaderAccent;
 
-        // Randomize circular positions (slots)
-        const dots = preloader.querySelectorAll('.preloader-loader .preloader-dot-wrapper');
-        const angles = [0, 72, 144, 216, 288];
-        // Fisher-Yates shuffle for better randomness
-        for (let i = angles.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [angles[i], angles[j]] = [angles[j], angles[i]];
-        }
-        dots.forEach((dot, i) => {
-            dot.style.setProperty('--angle', `${angles[i]}deg`);
-        });
+
     }
 
 
@@ -522,7 +557,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Apply theme and translate everything in one batch
-        applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'blue', 'manual-toggle');
+        applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');
         updateUIWithTranslations(true);
         updateResponsiveText();
 
@@ -541,6 +576,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initializeHeroCards(state.heroes, state.uiSettings, state.planner);
         initializePlayerDropdown();
         initializePlayerModal();
+        initializeWelcomeModal();
         initializeFab();
         initializeAppSettings();
         initializePlanner();
@@ -573,7 +609,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     try {
                         refreshButton.classList.add('saving');
                         const { loadAndProcessPlayerData } = await import('./services/serverResponseHandler.js');
-                        const result = await loadAndProcessPlayerData(activeTag);
+                        const result = await loadAndProcessPlayerData(activeTag, { updateOrder: false });
 
                         refreshButton.classList.remove('saving');
                         if (result.success) {
@@ -601,7 +637,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
         checkLegalConsent();
-    }, 100);
+    }, 1900);
 
     // 3. SYNCHRONIZE PRELOADER REMOVAL
     if (preloader) {
@@ -612,20 +648,33 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (typeof window.__APP_LOADED__ === 'function') {
                     window.__APP_LOADED__();
                 }
+
+                // Trigger guided tour if onboarding is complete but tour is not yet run
+                const welcomeTimestamp = state.uiSettings?.timestamp?.welcome;
+                const tourTimestamp = state.uiSettings?.timestamp?.tour;
+                const privacyTimestamp = state.uiSettings?.timestamp?.privacy;
+                const tosTimestamp = state.uiSettings?.timestamp?.tos;
+
+                const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
+                const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
+                const hasPendingConsent = needsPrivacy || needsTerms;
+
+                if (welcomeTimestamp && !hasPendingConsent) {
+                    setTimeout(() => {
+                        import('./components/tour/appTour.js').then(module => {
+                            module.startTour();
+                        });
+                    }, 800);
+                }
             }, 600);
 
             if (state.activeTab === 'planner-tab') {
                 import('./components/planner/calendar.js').then(module => {
                     module.setAnimateNextRender('all', 0.6); // 0.6s delay to wait for preloader fade out
                     renderApp(state);
-
-                    const calendar = document.getElementById('calendar-container');
-                    if (calendar) {
-                        calendar.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
                 });
             }
-        }, 1400); // 1.0s for animation + 0.4s buffer for renderApp
+        }, 2100); // 2.1s for scaled animation
     } else {
         if (typeof window.__APP_LOADED__ === 'function') {
             window.__APP_LOADED__();
@@ -684,20 +733,44 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Close any modal when clicking its dark background/overlay
         if (e.target.classList.contains('modal') || e.target.id === 'overlay') {
+            const openModals = Array.from(document.querySelectorAll('.modal.show'));
+            
+            if (e.target.id === 'welcome-modal') {
+                return;
+            }
+            if (e.target.id === 'overlay' && openModals.some(m => m.id === 'welcome-modal')) {
+                return;
+            }
+
+            let closingConsentModal = false;
+
+            if (e.target.id === 'consent-modal') {
+                closingConsentModal = true;
+            } else if (e.target.id === 'overlay') {
+                closingConsentModal = openModals.some(m => m.id === 'consent-modal');
+            }
+
             if (e.target.classList.contains('modal')) {
-                if (e.target.id === 'consent-modal') return;
                 e.target.classList.remove('show');
                 if (dom.overlay) dom.overlay.classList.remove('show');
             } else if (e.target.id === 'overlay') {
-                const consentModal = document.getElementById('consent-modal');
-                if (consentModal && consentModal.classList.contains('show')) {
-                    document.querySelectorAll('.modal.show').forEach(m => {
-                        if (m.id !== 'consent-modal') m.classList.remove('show');
-                    });
-                    return;
-                }
-                document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+                openModals.forEach(m => m.classList.remove('show'));
                 e.target.classList.remove('show');
+            }
+
+            if (closingConsentModal) {
+                const consentBanner = document.getElementById('consent-banner');
+                if (consentBanner) {
+                    const privacyTimestamp = state.uiSettings.timestamp?.privacy;
+                    const tosTimestamp = state.uiSettings.timestamp?.tos;
+                    const needsConsent = !privacyTimestamp ||
+                        privacyTimestamp < EFFECTIVE_DATE_PRIVACY ||
+                        !tosTimestamp ||
+                        tosTimestamp < EFFECTIVE_DATE_TERMS;
+                    if (needsConsent) {
+                        consentBanner.classList.add('show');
+                    }
+                }
             }
         }
     });
@@ -709,7 +782,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 1. Prioritize closing open modals
             const activeModal = document.querySelector('.modal.show');
             if (activeModal) {
-                if (activeModal.id === 'consent-modal') return;
                 const rejectBtn = activeModal.querySelector('.reject-button');
                 const closeBtn = activeModal.querySelector('.close-button');
                 const acceptBtn = activeModal.querySelector('.accept-button');
@@ -782,9 +854,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
 
-});
+    });
+}
 
-export { handleStateUpdate } from './core/stateManager.js';
+export { handleStateUpdate, switchActivePlayer } from './core/stateManager.js';
 window.resetApplication = () => {
     resetState();
     localStorage.removeItem('oreCalcUserId');
@@ -794,8 +867,8 @@ window.resetApplication = () => {
 };
 
 window.refreshConsentModalStatus = () => {
-    const privacyTimestamp = state.uiSettings?.acceptanceTimestamp?.privacy;
-    const tosTimestamp = state.uiSettings?.acceptanceTimestamp?.tos;
+    const privacyTimestamp = state.uiSettings?.timestamp?.privacy;
+    const tosTimestamp = state.uiSettings?.timestamp?.tos;
 
     const privacyAccepted = privacyTimestamp && privacyTimestamp >= EFFECTIVE_DATE_PRIVACY;
     const tosAccepted = tosTimestamp && tosTimestamp >= EFFECTIVE_DATE_TERMS;
@@ -832,65 +905,83 @@ window.refreshConsentModalStatus = () => {
         </span>`;
     }
 };
-
 function checkLegalConsent() {
-    const privacyTimestamp = state.uiSettings.acceptanceTimestamp?.privacy;
-    const tosTimestamp = state.uiSettings.acceptanceTimestamp?.tos;
+    const privacyTimestamp = state.uiSettings?.timestamp?.privacy;
+    const tosTimestamp = state.uiSettings?.timestamp?.tos;
+    const welcomeTimestamp = state.uiSettings?.timestamp?.welcome;
 
-    // Check if consent timestamp is missing, or older than terms/privacy effective dates
-    const needsConsent = !privacyTimestamp ||
-        privacyTimestamp < EFFECTIVE_DATE_PRIVACY ||
-        !tosTimestamp ||
-        tosTimestamp < EFFECTIVE_DATE_TERMS;
+    const isNewUser = !privacyTimestamp && !tosTimestamp;
+    const needsWelcome = !welcomeTimestamp || welcomeTimestamp < EFFECTIVE_DATE_WELCOME;
 
-    if (!needsConsent) return;
+    if (isNewUser || needsWelcome) {
+        showWelcomeModal(true);
+        return;
+    }
 
+    const consentBanner = document.getElementById('consent-banner');
     const consentModal = document.getElementById('consent-modal');
-    if (!consentModal) return;
+    if (!consentBanner || !consentModal) return;
 
     const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
     const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
+
+    if (!needsPrivacy && !needsTerms) {
+        consentBanner.classList.remove('show');
+        consentModal.classList.remove('show');
+        return;
+    }
 
     const termsRow = document.getElementById('consent-terms-row');
     const privacyRow = document.getElementById('consent-privacy-row');
     if (termsRow) termsRow.style.display = needsTerms ? 'flex' : 'none';
     if (privacyRow) privacyRow.style.display = needsPrivacy ? 'flex' : 'none';
 
+    // Set modular banner text based on what was updated
+    const bannerTextElem = document.getElementById('consent-banner-text');
+    if (bannerTextElem) {
+        let key = 'legal.bannerTextBoth';
+        if (needsTerms && !needsPrivacy) {
+            key = 'legal.bannerTextTerms';
+        } else if (needsPrivacy && !needsTerms) {
+            key = 'legal.bannerTextPrivacy';
+        }
+        bannerTextElem.setAttribute('data-i18n', key);
+        bannerTextElem.textContent = translate(key);
+    }
+
     const viewTermsBtn = document.getElementById('consent-view-terms-btn');
     const viewPrivacyBtn = document.getElementById('consent-view-privacy-btn');
     const acceptBtn = document.getElementById('confirm-consent-btn');
+    const closeConsentModalBtn = document.getElementById('close-consent-modal-btn');
 
     window.refreshConsentModalStatus();
 
-    if (viewTermsBtn) {
-        viewTermsBtn.onclick = (e) => {
+    // Banner Buttons
+    const bannerViewBtn = document.getElementById('consent-banner-view-btn');
+    const bannerCloseBtn = document.getElementById('consent-banner-close-btn');
+
+    if (bannerViewBtn) {
+        bannerViewBtn.onclick = (e) => {
             e.preventDefault();
-            const termsModal = document.getElementById('terms-modal');
-            if (termsModal) termsModal.classList.add('modal-top');
-            openTermsOfUseModal();
+            consentBanner.classList.remove('show');
+            consentModal.classList.add('show');
+            if (dom.overlay) dom.overlay.classList.add('show');
         };
     }
 
-    if (viewPrivacyBtn) {
-        viewPrivacyBtn.onclick = (e) => {
+    if (bannerCloseBtn) {
+        bannerCloseBtn.onclick = (e) => {
             e.preventDefault();
-            const privacyModal = document.getElementById('privacy-modal');
-            if (privacyModal) privacyModal.classList.add('modal-top');
-            openPrivacyModal();
-        };
-    }
+            handleStateUpdate(() => {
+                const now = Date.now();
+                if (!state.uiSettings.timestamp) {
+                    state.uiSettings.timestamp = {};
+                }
+                state.uiSettings.timestamp.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
+                state.uiSettings.timestamp.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
+            });
 
-    if (acceptBtn) {
-        acceptBtn.onclick = (e) => {
-            e.preventDefault();
-            const now = Date.now();
-            if (!state.uiSettings.acceptanceTimestamp) {
-                state.uiSettings.acceptanceTimestamp = {};
-            }
-            state.uiSettings.acceptanceTimestamp.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
-            state.uiSettings.acceptanceTimestamp.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
-            saveState(state);
-
+            consentBanner.classList.remove('show');
             consentModal.classList.remove('show');
             if (dom.overlay) {
                 const visibleModals = document.querySelectorAll('.modal.show');
@@ -901,9 +992,104 @@ function checkLegalConsent() {
         };
     }
 
-    // Open the consent modal and overlay
-    consentModal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
+    // Modal Buttons
+    if (viewTermsBtn) {
+        viewTermsBtn.onclick = (e) => {
+            e.preventDefault();
+            const termsModal = document.getElementById('terms-modal');
+            if (termsModal) termsModal.classList.add('modal-top');
+            // Hide consent modal to prevent overlapping
+            consentModal.classList.remove('show');
+            openTermsOfUseModal();
+        };
+    }
+
+    if (viewPrivacyBtn) {
+        viewPrivacyBtn.onclick = (e) => {
+            e.preventDefault();
+            const privacyModal = document.getElementById('privacy-modal');
+            if (privacyModal) privacyModal.classList.add('modal-top');
+            // Hide consent modal to prevent overlapping
+            consentModal.classList.remove('show');
+            openPrivacyModal();
+        };
+    }
+
+    if (acceptBtn) {
+        acceptBtn.onclick = (e) => {
+            e.preventDefault();
+            handleStateUpdate(() => {
+                const now = Date.now();
+                if (!state.uiSettings.timestamp) {
+                    state.uiSettings.timestamp = {};
+                }
+                state.uiSettings.timestamp.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
+                state.uiSettings.timestamp.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
+            });
+
+            consentModal.classList.remove('show');
+            consentBanner.classList.remove('show');
+            if (dom.overlay) {
+                const visibleModals = document.querySelectorAll('.modal.show');
+                if (visibleModals.length === 0) {
+                    dom.overlay.classList.remove('show');
+                }
+            }
+        };
+    }
+
+    if (closeConsentModalBtn) {
+        closeConsentModalBtn.onclick = (e) => {
+            e.preventDefault();
+            consentModal.classList.remove('show');
+            if (dom.overlay) {
+                const visibleModals = document.querySelectorAll('.modal.show');
+                if (visibleModals.length === 0) {
+                    dom.overlay.classList.remove('show');
+                }
+            }
+            // Re-show banner if they dismiss the modal without accepting
+            consentBanner.classList.add('show');
+        };
+    }
+
+    // Listen to close/accept events on terms and privacy modals to re-show consent modal
+    const termsHeaderClose = document.getElementById('close-terms-header-btn');
+    const termsFooterClose = document.getElementById('close-terms-modal-btn');
+    const termsAcceptBtn = document.getElementById('accept-terms-modal-btn');
+    const privacyHeaderClose = document.getElementById('close-privacy-header-btn');
+    const privacyFooterClose = document.getElementById('close-privacy-modal-btn');
+    const privacyAcceptBtn = document.getElementById('accept-privacy-modal-btn');
+
+    const reShowConsentModal = () => {
+        setTimeout(() => {
+            const currentPrivacy = state.uiSettings?.timestamp?.privacy;
+            const currentTos = state.uiSettings?.timestamp?.tos;
+            const needsReConsent = !currentPrivacy ||
+                currentPrivacy < EFFECTIVE_DATE_PRIVACY ||
+                !currentTos ||
+                currentTos < EFFECTIVE_DATE_TERMS;
+
+            if (needsReConsent) {
+                const isNewUser = !currentPrivacy && !currentTos;
+                if (isNewUser) {
+                    showWelcomeModal(true);
+                } else {
+                    consentModal.classList.add('show');
+                }
+            }
+        }, 50);
+    };
+
+    if (termsHeaderClose) termsHeaderClose.addEventListener('click', reShowConsentModal);
+    if (termsFooterClose) termsFooterClose.addEventListener('click', reShowConsentModal);
+    if (termsAcceptBtn) termsAcceptBtn.addEventListener('click', reShowConsentModal);
+    if (privacyHeaderClose) privacyHeaderClose.addEventListener('click', reShowConsentModal);
+    if (privacyFooterClose) privacyFooterClose.addEventListener('click', reShowConsentModal);
+    if (privacyAcceptBtn) privacyAcceptBtn.addEventListener('click', reShowConsentModal);
+
+    // Initially show only the consent banner (not the modal)
+    consentBanner.classList.add('show');
 }
 
 

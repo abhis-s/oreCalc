@@ -63,7 +63,6 @@ export function registerInputPopover(inputElement, options = {}) {
     const popover = document.createElement('div');
     popover.className = 'input-feature-popover';
     popover.style.position = 'fixed';
-    popover.style.zIndex = '2000'; // Overlay above all modals
     popover.style.margin = '0';
     popover.style.transform = 'none';
     popover.style.bottom = 'auto'; // Prevent CSS bottom constraint from collapsing height

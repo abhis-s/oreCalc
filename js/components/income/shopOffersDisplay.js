@@ -128,9 +128,11 @@ export function renderShopOfferGrid(shopOfferState) {
         selected = firstKey ? parseInt(firstKey, 10) : 0;
     }
     
+    const order = { 'shiny_large': 1, 'glowy': 2, 'starry': 3, 'shiny_small': 4 };
     const offersForSet = (selected !== 0 && shopOfferData[selected]) ? 
         Object.entries(shopOfferData[selected])
             .filter(([offerId]) => offerId !== 'townHallLevel')
+            .sort(([idA], [idB]) => (order[idA] || 99) - (order[idB] || 99))
             .map(([offerId, offer]) => ({ 
                 ...offer, 
                 id: offerId 

@@ -47,7 +47,7 @@ export function initializeFab() {
         try {
             pills.refresh.classList.add('saving');
             const { loadAndProcessPlayerData } = await import('../../services/serverResponseHandler.js');
-            const result = await loadAndProcessPlayerData(activeTag);
+            const result = await loadAndProcessPlayerData(activeTag, { updateOrder: false });
             
             pills.refresh.classList.remove('saving');
             if (result.success) {

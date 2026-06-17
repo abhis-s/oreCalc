@@ -1,6 +1,11 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
+html:has(.modal.show),
+body:has(.modal.show) {
+    overflow: hidden !important;
+}
+
 .modal {
     @extend %full-screen-overlay;
     background-color: var(--bg-overlay);
@@ -10,12 +15,25 @@
     padding: 1rem;
     z-index: $z-index-modal;
 
+    // Premium backdrop blur transition
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                visibility 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                backdrop-filter 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                -webkit-backdrop-filter 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+
     &.show {
         opacity: 1;
         visibility: visible;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
 
         .modal-content {
             transform: scale(1);
+            opacity: 1;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
     }
 
@@ -27,8 +45,10 @@
         max-width: 480px;
         max-height: calc(100vh - 40px);
         overflow: hidden;
-        transform: scale(0.95);
-        transition: transform 0.2s ease-in-out;
+        transform: scale(0.92);
+        opacity: 0;
+        transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1),
+                    opacity 0.2s cubic-bezier(0.25, 1, 0.5, 1);
         display: flex;
         flex-direction: column;
 
@@ -37,7 +57,7 @@
             height: 80vh;
         }
 
-        > .privacy-notice {
+        >.privacy-notice {
             padding-left: 24px;
             padding-right: 24px;
         }
@@ -189,6 +209,7 @@
         .modal-header {
             padding: 16px 20px 12px;
             gap: 8px;
+
             h2 {
                 font-size: 1.15rem;
             }
@@ -223,7 +244,7 @@
 #notice-modal {
     @extend .modal;
     @extend .modal-centered;
-    z-index: $z-index-modal-top;
+    z-index: $z-index-semi-high-priority-modal;
 
     code {
         font-family: 'Roboto Mono', monospace;
@@ -256,12 +277,22 @@
     vertical-align: middle;
 }
 
-#stored-ores-modal {
-    @extend .modal;
-    z-index: $z-index-modal-top;
-}
-
 .modal-top {
     z-index: $z-index-modal-top !important;
 }
 
+.high-priority-modal {
+    z-index: $z-index-high-priority-modal !important;
+
+    &.warning {
+        z-index: ($z-index-high-priority-modal - 1) !important;
+    }
+
+    &.error {
+        z-index: $z-index-high-priority-modal !important;
+    }
+
+    &.critical {
+        z-index: ($z-index-high-priority-modal + 1) !important;
+    }
+}

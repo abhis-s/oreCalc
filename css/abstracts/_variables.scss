@@ -75,9 +75,20 @@ $z-index-overlay: 10;
 $z-index-fab: 20;
 $z-index-layout: 30;
 $z-index-drawer: 40;
-$z-index-modal: 50;
-$z-index-modal-top: 60;
-$z-index-preloader: 100;
+$z-index-consent-banner: 50;
+$z-index-modal: 60;
+$z-index-modal-top: 65;
+$z-index-popover: 70;
+$z-index-tooltip: 75;
+$z-index-welcome-modal: 80;
+$z-index-toast: 90;
+$z-index-tour: 100;
+$z-index-tour-target: 101;
+$z-index-tour-tooltip: 102;
+$z-index-preloader: 110;
+$z-index-high-priority-modal: 120;
+$z-index-semi-high-priority-modal: $z-index-high-priority-modal - 1;
+$z-index-load-failure: $z-index-high-priority-modal + 1;
 
 // --- EQUIPMENT RARITIES ---
 $color-rarity-common: var(--color-rarity-common);

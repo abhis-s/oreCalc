@@ -1,3 +1,15 @@
+@property --ripple-x {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --ripple-y {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
 @keyframes pop-in {
     0% {
         opacity: 0;
@@ -28,18 +40,31 @@
 
 // --- View Transitions (Circular Theme Reveal) ---
 [data-transition-type="theme-switch"] {
+  #welcome-modal {
+    view-transition-name: welcome-modal;
+  }
+
   &::view-transition-old(root),
-  &::view-transition-new(root) {
+  &::view-transition-new(root),
+  &::view-transition-old(welcome-modal),
+  &::view-transition-new(welcome-modal) {
     animation: none;
     mix-blend-mode: normal;
   }
 
-  &::view-transition-old(root) {
+  &::view-transition-old(root),
+  &::view-transition-old(welcome-modal) {
     z-index: 1;
   }
 
   &::view-transition-new(root) {
     z-index: 9999;
+    animation: reveal 1s cubic-bezier(0.4, 0, 0.2, 1) both;
+    clip-path: circle(0% at var(--ripple-x) var(--ripple-y));
+  }
+
+  &::view-transition-new(welcome-modal) {
+    z-index: 10000;
     animation: reveal 1s cubic-bezier(0.4, 0, 0.2, 1) both;
     clip-path: circle(0% at var(--ripple-x) var(--ripple-y));
   }

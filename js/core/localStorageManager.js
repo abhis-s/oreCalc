@@ -17,7 +17,9 @@ export function saveState(state, immediate = false) {
         try {
             const currentPlayerTag = state.savedPlayerTags[0];
             if (currentPlayerTag) {
+                const existingData = state.allPlayersData[currentPlayerTag] || {};
                 const playerData = {
+                    ...existingData,
                     heroes: state.heroes,
                     storedOres: state.storedOres,
                     income: state.income,
@@ -25,7 +27,7 @@ export function saveState(state, immediate = false) {
                     playerProfile: state.playerProfile,
                     currency: {
                         code: state.uiSettings.currency.code,
-                        globalPricing: state.allPlayersData[currentPlayerTag]?.currency?.globalPricing || {}
+                        globalPricing: existingData.currency?.globalPricing || {}
                     }
                 };
 

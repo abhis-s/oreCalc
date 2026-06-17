@@ -10,13 +10,14 @@ import { translate } from '../i18n/translator.js';
 
 import { fetchPlayerData } from './apiService.js';
 
-export async function loadAndProcessPlayerData(playerTag, { verifyToken = null } = {}) {
+export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, timeoutMs = null, updateOrder = true } = {}) {
     if (!playerTag || playerTag.trim() === '') {
-        return { success: false, message: translate('errors.playerTagRequired') };
+        return { success: false, message: translate('errors.playerTagRequired'), isNetworkError: false };
     }
 
     try {
-        const playerData = await fetchPlayerData(playerTag, verifyToken);
+        const playerData = await fetchPlayerData(playerTag, verifyToken, timeoutMs);
+
         
         if (!playerData || !playerData.tag) {
             throw new Error('errors.invalidServerData');
@@ -28,27 +29,51 @@ export async function loadAndProcessPlayerData(playerTag, { verifyToken = null }
             if (playerTag !== cleanedServerTag) {
                 console.warn(`Player tag corrected: Original '${playerTag}', Corrected '${cleanedServerTag}'`);
             }
-            processPlayerDataResponse(playerData);
+            processPlayerDataResponse(playerData, { updateOrder });
         });
         return { success: true };
     } catch (error) {
         console.error('Failed to load player data:', error);
         
-        const errorMessage = translate(error.message);
+        const errorKey = error.message;
+        const errorMessage = translate(errorKey);
+
+        // Network-level failures: timeout, server errors (5xx), or no network at all.
+        // These indicate the API itself may be down — count toward circuit-breaker.
+        // 4xx errors mean the API is healthy but rejected this specific request.
+        const isNetworkError =
+            errorKey === 'apiErrors.timeout' ||
+            errorKey === 'apiErrors.500' ||
+            errorKey === 'apiErrors.503' ||
+            errorKey === 'apiErrors.inMaintenance' ||
+            errorKey === 'apiErrors.serverOffline' ||
+            errorKey === 'apiErrors.offline' ||
+            error.name === 'TypeError'; // Failed to fetch (no network)
 
         // Special handling for protected tags found during refresh/load
-        if (error.message === 'apiErrors.protectedTag' || error.message === 'apiErrors.invalidToken') {
-            return { success: false, message: errorMessage, errorType: error.message };
+        if (errorKey === 'apiErrors.protectedTag' || errorKey === 'apiErrors.invalidToken') {
+            return { success: false, message: errorMessage, errorType: errorKey, isNetworkError: false };
         }
 
-        return { success: false, message: translate('errors.fetchPlayerFailed', { error: errorMessage }) };
+        return { success: false, message: translate('errors.fetchPlayerFailed', { error: errorMessage }), isNetworkError };
     }
 }
 
-export function processPlayerDataResponse(playerData) {
+export function processPlayerDataResponse(playerData, { updateOrder = true } = {}) {
     const cleanedTag = playerData.tag.startsWith('#') ? playerData.tag.substring(1) : playerData.tag;
 
-    updateSavedPlayerTags(cleanedTag);
+    if (updateOrder) {
+        // Explicit add or selection: move this player to the front of the list.
+        // This also calls saveState, so only do it when the player's globals are
+        // about to be set correctly (i.e., on intentional user actions).
+        updateSavedPlayerTags(cleanedTag);
+    } else {
+        // Background refresh: player already exists in the list — don't reorder
+        // and don't trigger a premature saveState with stale global state.
+        if (!state.savedPlayerTags.includes(cleanedTag)) {
+            state.savedPlayerTags.push(cleanedTag);
+        }
+    }
 
     let basePlayerState;
     if (state.allPlayersData[cleanedTag]) {
@@ -63,7 +88,15 @@ export function processPlayerDataResponse(playerData) {
     };
 
     const isInitialLoadForBase = !basePlayerState.playerProfile;
-    const previousSyncedHeroes = new Set(basePlayerState.playerProfile?.ownedHeroes || []);
+    const rawOwnedHeroes = basePlayerState.playerProfile?.ownedHeroes;
+    let previousSyncedHeroes;
+    if (Array.isArray(rawOwnedHeroes)) {
+        previousSyncedHeroes = new Set(rawOwnedHeroes);
+    } else if (rawOwnedHeroes && typeof rawOwnedHeroes === 'object') {
+        previousSyncedHeroes = new Set(Object.keys(rawOwnedHeroes));
+    } else {
+        previousSyncedHeroes = new Set();
+    }
     
     let previousSyncedEquipment;
     const rawOwned = basePlayerState.playerProfile?.ownedEquipment;
@@ -130,11 +163,12 @@ export function processPlayerDataResponse(playerData) {
         }
     }
 
-    if (playerData.leagueTier?.id) {
+    const targetLeagueId = playerData.leagueTier?.id;
+    if (targetLeagueId) {
         if (!newPlayerState.income.starBonus) newPlayerState.income.starBonus = {};
-        const leagueExists = leagueTiers.items.some(l => l.id === playerData.leagueTier.id);
+        const leagueExists = leagueTiers.items.some(l => l.id === targetLeagueId);
         if (leagueExists) {
-            newPlayerState.income.starBonus.league = playerData.leagueTier.id;
+            newPlayerState.income.starBonus.league = targetLeagueId;
         } else {
             newPlayerState.income.starBonus.league = 105000000; // Unranked
         }
@@ -161,13 +195,33 @@ export function processPlayerDataResponse(playerData) {
         ...(newPlayerState.income.prospector || {}) 
     };
 
+    const leagueObj = playerData.leagueTier ? {
+        id: playerData.leagueTier.id,
+        name: playerData.leagueTier.name || '',
+        iconUrls: {
+            small: playerData.leagueTier.iconUrls?.small || ''
+        }
+    } : null;
+
     newPlayerState.playerProfile = {
         name: playerData.name,
         tag: playerData.tag,
         townHallLevel: playerData.townHallLevel,
         clanBadgeUrl: playerData.clan?.badgeUrls?.small || '',
-        ownedHeroes: homeHeroes.map(h => h.name),
-        ownedEquipment: Object.fromEntries(homeEquipment.map(e => [e.name, e.level])),
+        clan: playerData.clan ? {
+            name: playerData.clan.name,
+            badgeUrls: {
+                small: playerData.clan.badgeUrls?.small || '',
+                medium: playerData.clan.badgeUrls?.medium || '',
+                large: playerData.clan.badgeUrls?.large || ''
+            }
+        } : null,
+        role: playerData.role || null,
+        leagueTier: leagueObj,
+        trophies: playerData.trophies || 0,
+        warStars: playerData.warStars || 0,
+        ownedHeroes: Object.fromEntries(homeHeroes.map(h => [h.name, { level: h.level, maxLevel: h.maxLevel }])),
+        ownedEquipment: Object.fromEntries(homeEquipment.map(e => [e.name, e.level]))
     };
 
     state.heroes = newPlayerState.heroes;

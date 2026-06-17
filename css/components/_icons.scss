@@ -10,13 +10,24 @@
 }
 
 orecalc-assets-image {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     vertical-align: middle;
+
+    img, picture, picture img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: inherit;
+        display: block;
+    }
 }
 
 .ore-image,
 orecalc-assets-image.ore-image {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     height: 30px;
     width: 30px;
     object-fit: contain;

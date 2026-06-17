@@ -192,7 +192,6 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         tooltip.style.left = `${left}px`;
         tooltip.style.top = `${top}px`;
         tooltip.style.transform = 'translateX(-50%)';
-        tooltip.style.zIndex = '1000';
 
         // Boundary check
         const tooltipRect = tooltip.getBoundingClientRect();
@@ -592,7 +591,6 @@ export function createOverflowChip(count, aggregatedData, type, className) {
         tooltip.style.left = `${left}px`;
         tooltip.style.top = `${top}px`;
         tooltip.style.transform = 'translateX(-50%)';
-        tooltip.style.zIndex = '1000';
 
         // Boundary check
         const tooltipRect = tooltip.getBoundingClientRect();

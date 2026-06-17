@@ -7,6 +7,7 @@ export let state = {};
 
 export const EFFECTIVE_DATE_TERMS = 1780617600000; // June 5, 2026 (00:00 UTC)
 export const EFFECTIVE_DATE_PRIVACY = 1780617600000; // June 5, 2026 (00:00 UTC)
+export const EFFECTIVE_DATE_WELCOME = 1780617600000; // June 5, 2026 (00:00 UTC)
 
 export function getDefaultState() {
     return {
@@ -21,15 +22,16 @@ export function getDefaultState() {
                 code: 'USD',
             },
             theme: 'dark',
-            accentColor: 'blue',
+            accentColor: 'random',
             language: 'auto',
             enableLevelInput: false,
             hideMaxedEquipment: false,
             hideLockedEquipment: false,
             cloudSync: true,
-            acceptanceTimestamp: {
+            timestamp: {
                 privacy: null,
-                tos: null
+                tos: null,
+                welcome: null
             },
             incomeCard: {
                 timeframe: 'monthly',
@@ -159,6 +161,7 @@ export function initializeState(savedState) {
 
         if (savedState.allPlayersData) {
             for (const playerTag in savedState.allPlayersData) {
+                if (playerTag === 'GUEST') continue;
                 const savedPlayerState = savedState.allPlayersData[playerTag];
                 if (!state.allPlayersData[playerTag]) {
                     state.allPlayersData[playerTag] = initializeDefaultPlayerState();
@@ -186,6 +189,11 @@ export function initializeState(savedState) {
 
                 playerState.playerProfile = savedPlayerState.playerProfile || null;
 
+                // Preserve onboarding/metadata flags from saved state
+                if (savedPlayerState.onboardingComplete !== undefined) {
+                    playerState.onboardingComplete = savedPlayerState.onboardingComplete;
+                }
+
                 migratePlayerState(playerState);
             }
         }
@@ -200,20 +208,26 @@ export function initializeState(savedState) {
 
         state.uiSettings = { ...defaultState.uiSettings, ...(savedState.uiSettings || {}) };
         
-        // Migrate and normalize legal consent timestamps
-        if (!state.uiSettings.acceptanceTimestamp) {
-            state.uiSettings.acceptanceTimestamp = {
-                privacy: state.uiSettings.legalAcceptanceTimestamp || null,
-                tos: state.uiSettings.legalAcceptanceTimestamp || null
+        // Migrate and normalize legal consent/welcome timestamps
+        if (!state.uiSettings.timestamp) {
+            const legacyAcceptance = state.uiSettings.acceptanceTimestamp || {};
+            state.uiSettings.timestamp = {
+                privacy: legacyAcceptance.privacy || state.uiSettings.legalAcceptanceTimestamp || null,
+                tos: legacyAcceptance.tos || state.uiSettings.legalAcceptanceTimestamp || null,
+                welcome: legacyAcceptance.welcome || null
             };
         } else {
-            if (state.uiSettings.acceptanceTimestamp.privacy === undefined) {
-                state.uiSettings.acceptanceTimestamp.privacy = state.uiSettings.legalAcceptanceTimestamp || null;
+            if (state.uiSettings.timestamp.privacy === undefined) {
+                state.uiSettings.timestamp.privacy = state.uiSettings.legalAcceptanceTimestamp || null;
             }
-            if (state.uiSettings.acceptanceTimestamp.tos === undefined) {
-                state.uiSettings.acceptanceTimestamp.tos = state.uiSettings.legalAcceptanceTimestamp || null;
+            if (state.uiSettings.timestamp.tos === undefined) {
+                state.uiSettings.timestamp.tos = state.uiSettings.legalAcceptanceTimestamp || null;
+            }
+            if (state.uiSettings.timestamp.welcome === undefined) {
+                state.uiSettings.timestamp.welcome = null;
             }
         }
+        delete state.uiSettings.acceptanceTimestamp;
         delete state.uiSettings.legalAcceptanceTimestamp;
         
         // Ensure currency is always an object, not a string (legacy/migration fix)

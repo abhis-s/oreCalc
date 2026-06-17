@@ -5,6 +5,7 @@ import { saveState } from './core/localStorageManager.js';
 import { showChangelogModal } from './components/changelog/changelogModal.js';
 import { showSaveErrorIndicator } from './ui/savingIndicator.js';
 import { state } from './core/state.js';
+import { showWelcomeModal } from './components/welcome/welcomeModal.js';
 
 window.enableLevelInput = () => {
     const newEnableLevelInput = !state.uiSettings.enableLevelInput;
@@ -73,17 +74,81 @@ window.simulateSaveFail = () => {
     return "Save failure simulated.";
 };
 
+window.triggerWelcomeModal = () => {
+    handleStateUpdate(() => {
+        if (state.uiSettings?.timestamp) {
+            delete state.uiSettings.timestamp.welcome;
+        }
+    });
+    showWelcomeModal(true);
+    return "Welcome modal triggered. Welcome timestamp has been reset.";
+};
+
+window.disableWelcomeModal = () => {
+    showWelcomeModal(false);
+    handleStateUpdate(() => {
+        if (!state.uiSettings.timestamp) {
+            state.uiSettings.timestamp = {};
+        }
+        state.uiSettings.timestamp.welcome = Date.now();
+    });
+    return "Welcome modal closed and marked as completed.";
+};
+
+window.startTour = async (setId) => {
+    const module = await import('./components/tour/appTour.js');
+    if (!setId) {
+        // Reset the tour timestamp so startTour() resolves all steps from the beginning
+        handleStateUpdate(() => {
+            if (state.uiSettings?.timestamp) {
+                delete state.uiSettings.timestamp.tour;
+            }
+        });
+    }
+    await module.startTour(setId);
+    return setId ? `Tour started for set: ${setId}` : "Tour reset and started from the beginning.";
+};
+
+window.resetTour = () => {
+    handleStateUpdate(() => {
+        if (state.uiSettings?.timestamp) {
+            delete state.uiSettings.timestamp.tour;
+        }
+    });
+    return "Tour timestamp reset. Reload or run startTour() to see it again.";
+};
+
+window.disableTour = () => {
+    handleStateUpdate(() => {
+        if (!state.uiSettings.timestamp) {
+            state.uiSettings.timestamp = {};
+        }
+        state.uiSettings.timestamp.tour = Date.now();
+    });
+    return "Tour marked as completed.";
+};
+
 console.info(
     "%c Ore Calculator Console Commands:\n\n" +
-    "%c  enableLevelInput(): %cToggles the 'Enable level input' setting.\n" +
-    "%c  resetApp():       %cInitiates a 5-second countdown to reset all app data and reload. Can be cancelled.\n" +
-    "%c  cancelResetApp(): %cCancels an active resetApp countdown.\n" +
-    "%c  logState():       %cLogs the current state object to the console.\n" +
-    "%c  clearPlannerState(): %cClears all saved chips from the planner calendar.\n" +
-    "%c  showChangelog():  %cDisplays the changelog modal.\n" +
-    "%c  simulateSaveFail(): %cSimulates a save failure to test the error indicator.\n\n" +
+    "%c  enableLevelInput():     %cToggles the 'Enable level input' setting.\n" +
+    "%c  resetApp():             %cInitiates a 5-second countdown to reset all app data and reload. Can be cancelled.\n" +
+    "%c  cancelResetApp():       %cCancels an active resetApp countdown.\n" +
+    "%c  logState():             %cLogs the current state object to the console.\n" +
+    "%c  clearPlannerState():    %cClears all saved chips from the planner calendar.\n" +
+    "%c  showChangelog():        %cDisplays the changelog modal.\n" +
+    "%c  simulateSaveFail():     %cSimulates a save failure to test the error indicator.\n" +
+    "%c  triggerWelcomeModal():  %cTriggers the Welcome modal (resets welcome state).\n" +
+    "%c  disableWelcomeModal():  %cCloses the Welcome modal and marks it as completed.\n" +
+    "%c  startTour(setId):       %cResets and starts tour from beginning (or optionally for a specific set, e.g., 'v1.0').\n" +
+    "%c  resetTour():            %cResets the tour completion state so it triggers again.\n" +
+    "%c  disableTour():          %cMarks the tour as completed.\n\n" +
     "%c For more information, refer to the documentation.",
     "color: #4facfe; font-weight: bold;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",

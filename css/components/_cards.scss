@@ -29,7 +29,7 @@
     align-items: stretch;
     gap: 8px;
     box-shadow: $elevation-4;
-    z-index: $z-index-overlay;
+    z-index: $z-index-popover;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease, transform 0.2s ease;

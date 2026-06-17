@@ -1060,7 +1060,6 @@ function handleDayCellMouseEnter(e) {
     tooltip.style.left = `${left}px`;
     tooltip.style.top = `${top}px`;
     tooltip.style.transform = 'translate(-50%, -100%)';
-    tooltip.style.zIndex = '1000';
 
     // Boundary check
     const tooltipRect = tooltip.getBoundingClientRect();

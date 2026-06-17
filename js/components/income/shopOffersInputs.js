@@ -54,8 +54,10 @@ export function initializeShopOffers() {
     const getDynamicOffers = () => {
         const sel = selector.value; // The selector value is still a string
         if (sel === '0' || !shopOfferData[sel]) return [];
+        const order = { 'shiny_large': 1, 'glowy': 2, 'starry': 3, 'shiny_small': 4 };
         return Object.entries(shopOfferData[sel])
             .filter(([id]) => id !== 'townHallLevel')
+            .sort(([idA], [idB]) => (order[idA] || 99) - (order[idB] || 99))
             .map(([id, data]) => ({ ...data, id }));
     };
 

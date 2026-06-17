@@ -1,0 +1,169 @@
+@use '../abstracts/variables' as *;
+
+/* Tour Highlight Box */
+.tour-highlight-box {
+    position: fixed;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65), 0 0 15px color-mix(in srgb, $accent-primary 40%, transparent);
+    pointer-events: none;
+    z-index: $z-index-tour;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+/* Tour Tooltip */
+.tour-tooltip {
+    position: fixed;
+    z-index: $z-index-tour-tooltip;
+    width: 300px;
+    background: color-mix(in srgb, $bg-surface-secondary 92%, transparent);
+    border: 1px solid color-mix(in srgb, $accent-primary 25%, transparent);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px color-mix(in srgb, $text-primary 5%, transparent);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-sizing: border-box;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    .tour-tooltip-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+
+        .tour-tooltip-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: $accent-primary;
+            margin: 0;
+        }
+
+        .tour-close-btn {
+            background: none;
+            border: none;
+            color: $text-secondary;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+
+            &:hover {
+                opacity: 1;
+                color: $text-primary;
+            }
+        }
+    }
+
+    .tour-tooltip-body {
+        font-size: 13px;
+        color: $text-secondary;
+        line-height: 1.45;
+    }
+
+    .tour-tooltip-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 4px;
+
+        .tour-progress {
+            font-size: 11.5px;
+            font-weight: 500;
+            color: $text-secondary;
+            opacity: 0.85;
+        }
+
+        .tour-actions {
+            display: flex;
+            gap: 8px;
+
+            .tour-btn {
+                background: none;
+                border: 1px solid transparent;
+                border-radius: 8px;
+                padding: 6px 12px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+                &.tour-btn-skip {
+                    color: $text-secondary;
+                    border-color: $border-primary;
+
+                    &:hover {
+                        background-color: color-mix(in srgb, $text-secondary 10%, transparent);
+                        color: $text-primary;
+                    }
+                }
+
+                &.tour-btn-prev {
+                    color: $text-secondary;
+                    border-color: $border-primary;
+
+                    &:hover {
+                        background-color: color-mix(in srgb, $text-secondary 10%, transparent);
+                        color: $text-primary;
+                    }
+                }
+
+                &.tour-btn-next {
+                    background-color: $accent-primary;
+                    color: $bg-surface-primary;
+                    box-shadow: 0 2px 6px color-mix(in srgb, $accent-primary 20%, transparent);
+
+                    &:hover {
+                        background-color: color-mix(in srgb, $accent-primary 85%, white);
+                        box-shadow: 0 4px 10px color-mix(in srgb, $accent-primary 30%, transparent);
+                        transform: translateY(-0.5px);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* Tour Active Target Styling */
+.tour-active-target {
+    z-index: $z-index-tour-target !important;
+
+    &:not(.fab-container):not(#floating-save-btn):not(.floating-save-btn) {
+        position: relative;
+    }
+}
+
+/* Glow and pop-out effect for card titles targeted by the tour */
+.card-title.tour-active-target,
+.card-title.tour-glow-title {
+    color: $text-primary !important;
+    transform: scale(1.05);
+    transform-origin: center;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), text-shadow 0.35s ease !important;
+    animation: tour-pulse-glow 2s infinite alternate ease-in-out;
+}
+
+@keyframes tour-pulse-glow {
+    0% {
+        text-shadow: 
+            0 0 8px color-mix(in srgb, $accent-primary 50%, transparent),
+            0 0 15px $accent-primary,
+            0 0 25px $accent-primary;
+        transform: scale(1.04);
+    }
+    100% {
+        text-shadow: 
+            0 0 15px color-mix(in srgb, $accent-primary 80%, transparent),
+            0 0 25px $accent-primary,
+            0 0 40px $accent-primary,
+            0 0 50px $accent-primary;
+        transform: scale(1.07);
+    }
+}

@@ -9,7 +9,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000; // Above preloader
+    z-index: $z-index-load-failure;
     padding: 20px;
     box-sizing: border-box;
     overflow-y: auto;

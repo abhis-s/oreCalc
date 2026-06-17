@@ -112,7 +112,7 @@ async function handleResponseError(response) {
  * @returns {Promise<Object>} The parsed player data from the API response.
  * @throws {Error} Throws if the API request fails or returns a non-OK HTTP status.
  */
-export async function fetchPlayerData(playerTag, token = null) {
+export async function fetchPlayerData(playerTag, token = null, timeoutMs = null) {
     checkApiBlock();
     checkClashApiBlock();
 
@@ -128,8 +128,15 @@ export async function fetchPlayerData(playerTag, token = null) {
         headers['x-user-id'] = userId;
     }
 
+    let controller = null;
+    let timeoutId = null;
+    if (timeoutMs) {
+        controller = new AbortController();
+        timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    }
+
     try {
-        const response = await fetch(url, { headers });
+        const response = await fetch(url, { headers, signal: controller?.signal });
 
         if (!response.ok) {
             throw new Error(await handleResponseError(response));
@@ -137,8 +144,13 @@ export async function fetchPlayerData(playerTag, token = null) {
 
         return await response.json();
     } catch (error) {
+        if (error.name === 'AbortError') {
+            throw new Error('apiErrors.timeout');
+        }
         logger.error("Error fetching player data:", error);
         throw error;
+    } finally {
+        if (timeoutId) clearTimeout(timeoutId);
     }
 }
 

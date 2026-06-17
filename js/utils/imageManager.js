@@ -41,7 +41,8 @@ export function getImage(src, className = '', size = 'standard', alt = '') {
     // Top-level assets (like shiny_ore, crown, favicon) keep their original resolutions.
     const isSubfolderAsset = base.includes('assets/equipment/') || 
                              base.includes('assets/heroes/') || 
-                             base.includes('assets/resources/');
+                             base.includes('assets/resources/') ||
+                             base.includes('assets/th/');
                              
     const suffix = isSubfolderAsset ? (size === 'thumbnail' ? '-100' : '-200') : '';
     

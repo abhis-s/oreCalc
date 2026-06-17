@@ -7,7 +7,7 @@
     background-color: #121212; // Solid background to avoid variable dependency during jump
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: $z-index-preloader;
     overflow: hidden;
     contain: strict;
@@ -43,7 +43,7 @@
         transform-style: preserve-3d;
         
         // Step 2: Revolve animation (lasts 0.4s, starts at 0.5s)
-        animation: wrapper-revolve 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation: wrapper-revolve 1.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 
         &:nth-child(1) { 
             --target-x: -40px; --target-y: 0;
@@ -77,8 +77,8 @@
         backface-visibility: hidden;
         transform-style: preserve-3d;
 
-        // Step 1: Jump animation (lasts 0.3s)
-        animation: span-jump 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        // Step 1: Jump animation (lasts 0.45s)
+        animation: span-jump 0.45s cubic-bezier(0.25, 1, 0.5, 1) both;
     }
 
     .preloader-dot-wrapper:nth-child(1) span { background-color: $palette-blue-400; animation-delay: 0.05s; }
@@ -90,46 +90,46 @@
     // Step 3: Chosen dot falls to center and spreads
     &[data-accent="blue"] .preloader-dot-wrapper:nth-child(1) {
         z-index: 10;
-        animation: wrapper-revolve-collapse 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation: wrapper-revolve-collapse 1.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     &[data-accent="blue"] .preloader-dot-wrapper:nth-child(1) span {
-        animation: span-jump-spread 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        animation: span-jump-spread 2.1s cubic-bezier(0.25, 1, 0.5, 1) both;
         animation-delay: 0.05s;
     }
 
     &[data-accent="gold"] .preloader-dot-wrapper:nth-child(2) {
         z-index: 10;
-        animation: wrapper-revolve-collapse 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation: wrapper-revolve-collapse 1.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     &[data-accent="gold"] .preloader-dot-wrapper:nth-child(2) span {
-        animation: span-jump-spread 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        animation: span-jump-spread 2.1s cubic-bezier(0.25, 1, 0.5, 1) both;
         animation-delay: 0.1s;
     }
 
     &[data-accent="purple"] .preloader-dot-wrapper:nth-child(3) {
         z-index: 10;
-        animation: wrapper-revolve-collapse 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation: wrapper-revolve-collapse 1.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     &[data-accent="purple"] .preloader-dot-wrapper:nth-child(3) span {
-        animation: span-jump-spread 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        animation: span-jump-spread 2.1s cubic-bezier(0.25, 1, 0.5, 1) both;
         animation-delay: 0.15s;
     }
 
     &[data-accent="green"] .preloader-dot-wrapper:nth-child(4) {
         z-index: 10;
-        animation: wrapper-revolve-collapse 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation: wrapper-revolve-collapse 1.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     &[data-accent="green"] .preloader-dot-wrapper:nth-child(4) span {
-        animation: span-jump-spread 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        animation: span-jump-spread 2.1s cubic-bezier(0.25, 1, 0.5, 1) both;
         animation-delay: 0.2s;
     }
 
     &[data-accent="red"] .preloader-dot-wrapper:nth-child(5) {
         z-index: 10;
-        animation: wrapper-revolve-collapse 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation: wrapper-revolve-collapse 1.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     &[data-accent="red"] .preloader-dot-wrapper:nth-child(5) span {
-        animation: span-jump-spread 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        animation: span-jump-spread 2.1s cubic-bezier(0.25, 1, 0.5, 1) both;
         animation-delay: 0.25s;
     }
 }

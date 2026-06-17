@@ -1,0 +1,1330 @@
+<div id="welcome-modal" class="modal">
+    <div class="modal-content welcome-modal-content">
+        <!-- Static Header -->
+        <div class="welcome-header">
+            <h1 data-i18n="welcome.title">Welcome to OreCalc</h1>
+            <p class="welcome-subtitle" data-i18n="welcome.subtitle">Your Clash of Clans ore calculator and upgrade
+                planner.</p>
+            <button id="welcome-header-skip-btn" class="welcome-header-skip-btn" data-i18n="welcome.skip" style="display: none;">Skip</button>
+        </div>
+
+        <!-- Scrollable/Swipeable Carousel -->
+        <div class="welcome-carousel" id="welcome-carousel">
+            <!-- Page 1: Features & Preferences -->
+            <div class="welcome-page welcome-page-1" id="welcome-page-1" tabindex="0">
+                <div class="welcome-features">
+                    <div class="welcome-feature-item">
+                        <span class="feature-icon">
+                            <orecalc-assets-svg name="bolt-planner" height="24" width="24"></orecalc-assets-svg>
+                        </span>
+                        <div class="feature-text">
+                            <h4 data-i18n="welcome.feature1Title">Upgrade Planner</h4>
+                            <p data-i18n="welcome.feature1Desc">Plan your equipment upgrades and see exactly how many
+                                ores you need.</p>
+                        </div>
+                    </div>
+                    <div class="welcome-feature-item">
+                        <span class="feature-icon">
+                            <orecalc-assets-svg name="sparkles" height="24" width="24"></orecalc-assets-svg>
+                        </span>
+                        <div class="feature-text">
+                            <h4 data-i18n="welcome.feature2Title">Income Calculator</h4>
+                            <p data-i18n="welcome.feature2Desc">Track all your ore sources (Star Bonus, Clan Wars,
+                                Traders) in one place.</p>
+                        </div>
+                    </div>
+                    <div class="welcome-feature-item">
+                        <span class="feature-icon">
+                            <orecalc-assets-svg name="sliders" height="24" width="24"></orecalc-assets-svg>
+                        </span>
+                        <div class="feature-text">
+                            <h4 data-i18n="welcome.feature3Title">High Customizability</h4>
+                            <p data-i18n="welcome.feature3Desc">Create custom chips, configure your active layout, and
+                                choose your preferred language and theme.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="welcome-preferences">
+                    <div class="preference-item">
+                        <span class="preference-label" data-i18n="welcome.chooseLanguage">Language</span>
+                        <div class="preference-switch language-switch" data-active-index="0">
+                            <div class="switch-pill"></div>
+                            <button class="pref-btn" data-lang="en">English</button>
+                            <button class="pref-btn" data-lang="de">Deutsch</button>
+                        </div>
+                    </div>
+                    <div class="preference-item">
+                        <span class="preference-label" data-i18n="welcome.chooseTheme">Appearance</span>
+                        <div class="preference-switch theme-switch" data-active-index="0">
+                            <div class="switch-pill"></div>
+                            <button class="pref-btn" data-theme="dark">
+                                <orecalc-assets-svg name="dark-mode" height="18" width="18"></orecalc-assets-svg>
+                                <span data-i18n="settings.theme.dark">Dark</span>
+                            </button>
+                            <button class="pref-btn" data-theme="light">
+                                <orecalc-assets-svg name="light-mode" height="18" width="18"></orecalc-assets-svg>
+                                <span data-i18n="settings.theme.light">Light</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preference-item">
+                        <span class="preference-label" data-i18n="welcome.chooseAccent">Accent Color</span>
+                        <div class="welcome-accent-picker" id="welcome-accent-picker">
+                            <button class="accent-swatch" data-color="blue" data-i18n-aria-label="colors.blue"
+                                aria-label="Blue Accent"></button>
+                            <button class="accent-swatch" data-color="gold" data-i18n-aria-label="colors.gold"
+                                aria-label="Gold Accent"></button>
+                            <button class="accent-swatch" data-color="purple" data-i18n-aria-label="colors.purple"
+                                aria-label="Purple Accent"></button>
+                            <button class="accent-swatch" data-color="green" data-i18n-aria-label="colors.green"
+                                aria-label="Green Accent"></button>
+                            <button class="accent-swatch" data-color="red" data-i18n-aria-label="colors.red"
+                                aria-label="Red Accent"></button>
+                            <div class="random-swatch-wrapper">
+                                <button class="accent-swatch" data-color="random" data-i18n-aria-label="colors.random"
+                                    aria-label="Random Accent" title="Random"></button>
+                                <span class="random-label" data-i18n="colors.randomLabel">Random</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 2: Player Tag & Consent -->
+            <div class="welcome-page welcome-page-2" id="welcome-page-2" tabindex="0">
+                <div class="player-name-input-container">
+                    <label for="welcome-player-tag-input" data-i18n="welcome.enterTag">Enter your Player Tag to load
+                        your progress:</label>
+                    <div class="input-with-button">
+                        <input type="text" id="welcome-player-tag-input" placeholder="#8PJYGUJC" maxlength="12">
+                        <button id="welcome-load-btn" class="welcome-inline-btn" data-i18n="welcome.loadProfile">Load
+                            Profile</button>
+                    </div>
+                    <div id="welcome-player-tag-error" class="error-message"></div>
+                </div>
+
+                <!-- Loaded Profiles List Container -->
+                <div id="welcome-profiles-list-container" class="welcome-profiles-list-container"
+                    style="display: none; margin-bottom: 20px;">
+                    <label
+                        style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;"
+                        data-i18n="welcome.loadedProfiles">Loaded Profiles:</label>
+                    <div id="welcome-profiles-list" class="welcome-profiles-list">
+                        <!-- Compact profile cards populated dynamically -->
+                    </div>
+                </div>
+
+
+                <!-- Profile Preview Container (Initially Hidden) -->
+                <div id="welcome-profile-preview-container" class="welcome-profile-preview" style="display: none;">
+                    <div class="welcome-anchor-arrow" id="welcome-profile-anchor-arrow"></div>
+                    <div class="profile-card-tabs">
+                        <button class="profile-tab-btn active" data-profile-tab="info" id="welcome-tab-btn-info"
+                            data-i18n="welcome.profileTab">Profile</button>
+                        <button class="profile-tab-btn" data-profile-tab="equipment" id="welcome-tab-btn-equipment"
+                            data-i18n="welcome.equipmentTab">Equipment</button>
+                    </div>
+                    <div class="profile-card-body">
+                        <!-- Tab 1: Info -->
+                        <div class="profile-tab-content active" id="welcome-tab-content-info">
+                            <div class="profile-header-main">
+                                <div class="th-image-wrapper">
+                                    <orecalc-assets-image id="welcome-profile-th-image" src="assets/th/th1.png"
+                                        alt="Town Hall" size="standard"></orecalc-assets-image>
+                                    <span class="th-level-badge" id="welcome-profile-th-level">16</span>
+                                </div>
+                                <div class="player-title-details">
+                                    <h3 id="welcome-profile-name">Player Name</h3>
+                                    <p id="welcome-profile-tag">#9L0V9G9C9</p>
+                                </div>
+                                <button id="welcome-profile-delete-btn" class="welcome-profile-delete-btn"
+                                    aria-label="Delete Profile" title="Delete Profile">
+                                    <orecalc-assets-svg name="trash" height="20" width="20"></orecalc-assets-svg>
+                                </button>
+                            </div>
+                            <div class="profile-clan-details" id="welcome-profile-clan-section">
+                                <img id="welcome-profile-clan-badge" class="clan-badge-img" src="" alt="Clan Badge"
+                                    style="display: none;">
+                                <div class="clan-text-details">
+                                    <span class="clan-label" data-i18n="welcome.clan">Clan</span>
+                                    <div class="clan-name-wrapper"
+                                        style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;">
+                                        <span class="clan-name" id="welcome-profile-clan-name">No Clan</span>
+                                        <span class="clan-role" id="welcome-profile-clan-role"
+                                            style="display: none; font-size: 10px; font-weight: 500; color: var(--text-secondary); opacity: 0.85;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="profile-stats-grid">
+                                <div class="stat-box" id="welcome-profile-league-box">
+                                    <span class="stat-icon" id="welcome-profile-league-icon-container"
+                                        style="display: flex; align-items: center; justify-content: center; height: 18px;">
+                                        <img id="welcome-profile-league-icon" src="" alt="League Icon"
+                                            style="display: none; width: 20px; height: 20px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));">
+                                        <orecalc-assets-svg id="welcome-profile-league-default-icon" name="star-badge"
+                                            height="18" width="18"></orecalc-assets-svg>
+                                    </span>
+                                    <span class="stat-value" id="welcome-profile-league-name"
+                                        style="font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;"
+                                        title="">-</span>
+                                    <span class="stat-label" data-i18n="welcome.league">League</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-icon">
+                                        <orecalc-assets-svg name="trophy" height="18" width="18"></orecalc-assets-svg>
+                                    </span>
+                                    <span class="stat-value" id="welcome-profile-trophies">0</span>
+                                    <span class="stat-label" data-i18n="welcome.trophies">Trophies</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-icon">
+                                        <orecalc-assets-svg name="star" height="18" width="18"></orecalc-assets-svg>
+                                    </span>
+                                    <span class="stat-value" id="welcome-profile-stars">0</span>
+                                    <span class="stat-label" data-i18n="welcome.warStars">War Stars</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tab 2: Equipment -->
+                        <div class="profile-tab-content" id="welcome-tab-content-equipment" style="display: none;">
+                            <div class="welcome-equip-progress-group">
+                                <div class="group-header">
+                                    <span class="group-title" data-i18n="welcome.commonEquip">Common Equipment</span>
+                                    <span class="group-average" id="welcome-profile-common-avg">0%</span>
+                                </div>
+                                <div class="split-progress-container">
+                                    <div class="progress-section shiny">
+                                        <div class="section-header">
+                                            <span>Shiny</span>
+                                            <span id="welcome-profile-common-shiny-pct">0%</span>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div class="progress-fill" id="welcome-profile-common-shiny-fill"
+                                                style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-section glowy">
+                                        <div class="section-header">
+                                            <span>Glowy</span>
+                                            <span id="welcome-profile-common-glowy-pct">0%</span>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div class="progress-fill" id="welcome-profile-common-glowy-fill"
+                                                style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-section starry disabled">
+                                        <div class="section-header">
+                                            <span>Starry</span>
+                                            <span>-</span>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div class="progress-fill" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="welcome-equip-progress-group">
+                                <div class="group-header">
+                                    <span class="group-title" data-i18n="welcome.epicEquip">Epic Equipment</span>
+                                    <span class="group-average" id="welcome-profile-epic-avg">0%</span>
+                                </div>
+                                <div class="split-progress-container">
+                                    <div class="progress-section shiny">
+                                        <div class="section-header">
+                                            <span>Shiny</span>
+                                            <span id="welcome-profile-epic-shiny-pct">0%</span>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div class="progress-fill" id="welcome-profile-epic-shiny-fill"
+                                                style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-section glowy">
+                                        <div class="section-header">
+                                            <span>Glowy</span>
+                                            <span id="welcome-profile-epic-glowy-pct">0%</span>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div class="progress-fill" id="welcome-profile-epic-glowy-fill"
+                                                style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-section starry">
+                                        <div class="section-header">
+                                            <span>Starry</span>
+                                            <span id="welcome-profile-epic-starry-pct">0%</span>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div class="progress-fill" id="welcome-profile-epic-starry-fill"
+                                                style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Scrollable list of heroes and equipment -->
+                            <div id="welcome-profile-heroes-equipment-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 3: Profiles Selection Screen & Setup Wizard -->
+            <div class="welcome-page welcome-page-3" id="welcome-page-3" tabindex="0">
+
+                <!-- Profiles Selection Screen -->
+                <div id="welcome-profiles-selection-view"
+                    style="display: flex; flex-direction: column; height: 100%; width: 100%; box-sizing: border-box;">
+                    <h3 data-i18n="welcome.selectProfileToSetup"
+                        style="font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; text-align: left;">
+                        Select a profile to setup</h3>
+                    <p class="guest-setup-subtitle"
+                        style="font-size: 13px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 16px 0; text-align: left;">
+                        Select one of your loaded profiles or the guest profile to configure options.</p>
+
+                    <div id="welcome-vertical-profiles-list"
+                        style="display: flex; flex-direction: column; overflow-y: auto; flex: 1; padding: 4px 4px 8px 4px; margin-bottom: 12px;">
+                        <!-- Vertical profiles list populated dynamically in JS -->
+                    </div>
+                </div>
+
+                <!-- Setup Wizard Overlay view -->
+                <div id="welcome-profile-setup-loading-view"
+                    style="display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; box-sizing: border-box; position: absolute; top: 0; left: 0; background-color: var(--bg-surface-secondary); z-index: 15;">
+                    <div class="welcome-wizard-loading-spinner" style="width: 40px; height: 40px; border: 3px solid color-mix(in srgb, var(--accent-primary) 20%, transparent); border-top-color: var(--accent-primary); border-radius: 50%; animation: welcome-spinner-spin 0.8s linear infinite; margin-bottom: 12px;"></div>
+                    <span style="font-size: 14px; font-weight: 500; color: var(--text-secondary);" data-i18n="status.loading">Loading...</span>
+                </div>
+
+                <div id="welcome-profile-setup-wizard-view" class="show-recommendations"
+                    style="display: none; flex-direction: column; height: 100%; width: 100%; text-align: left; background-color: var(--bg-surface-secondary); z-index: 10; box-sizing: border-box; position: absolute; top: 0; left: 0;">
+                    <!-- Wizard Header -->
+                    <div class="welcome-wizard-header">
+                        <div class="wizard-profile-info-wrapper">
+                            <!-- Town Hall Image Badge -->
+                            <img id="welcome-wizard-th-img" class="wizard-th-img" src="assets/th/th16.png" alt="TH">
+                            <div>
+                                <span class="wizard-title-label">Setup Profile</span>
+                                <div class="wizard-profile-meta">
+                                    <h3 id="welcome-wizard-profile-name" class="wizard-profile-name">Guest</h3>
+                                    <span id="welcome-wizard-profile-tag" class="wizard-profile-tag">Guest
+                                        Profile</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="welcome-wizard-step-indicator" class="wizard-step-indicator">Step 1 of 5</div>
+                    </div>
+
+                    <!-- Wizard Steps container -->
+                    <div id="welcome-wizard-steps-container"
+                        style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; min-height: 0; padding-right: 4px; scrollbar-width: thin;">
+
+                        <!-- Step 1: Guest Town Hall & League Setup -->
+                        <div class="wizard-step" data-step="1"
+                            style="display: none; flex-direction: column; gap: 16px;">
+                            <p class="wizard-step-subtitle" data-i18n="welcome.guestDesc"
+                                style="font-size: 13px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 10px 0;">
+                                Select your Town Hall and League to populate your profile with base values.</p>
+
+                            <!-- Town Hall Selector -->
+                            <div class="guest-setup-item th-selector-container"
+                                style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"
+                                    data-i18n="welcome.selectTH">Select Town Hall:</label>
+                                <div class="th-badges-scroll" id="welcome-guest-th-list"
+                                    style="display: flex; gap: 10px; overflow-x: auto; padding: 4px; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border-primary); background-color: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent);">
+                                    <!-- Populated in JS -->
+                                </div>
+                            </div>
+
+                            <!-- League Selector -->
+                            <div class="guest-setup-item league-selector-container"
+                                style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"
+                                    data-i18n="welcome.selectLeague">Select League:</label>
+                                <div class="league-select-wrapper"
+                                    style="display: flex; align-items: center; gap: 12px;">
+                                    <span class="guest-league-icon-container"
+                                        style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; background: color-mix(in srgb, var(--bg-surface-primary) 70%, transparent); border-radius: 10px; border: 1px solid var(--border-primary); flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+                                        <img id="welcome-guest-league-icon"
+                                            src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png"
+                                            alt="League Icon" style="width: 30px; height: 30px; object-fit: contain;">
+                                    </span>
+                                    <select id="welcome-guest-league-select" class="welcome-select-input"
+                                        style="flex: 1; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 14px; outline: none; transition: border-color 0.2s; cursor: pointer;">
+                                        <!-- Populated in JS -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Stored Ores -->
+                        <div class="wizard-step" data-step="2"
+                            style="display: none; flex-direction: column; gap: 16px;">
+                            <h4 data-i18n="welcome.wizard.oresTitle"
+                                style="font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0 0 4px 0;">
+                                How many ores do you have in your storage?</h4>
+                            <p class="wizard-step-subtitle" data-i18n="welcome.wizard.oresDesc"
+                                style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 8px 0;">
+                                Enter your current stored Shiny, Glowy, and Starry ore quantities below to calibrate
+                                your upgrade plans.</p>
+                            <div class="welcome-ores-vertical-group"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 16px; border-radius: 12px; border: 1px solid var(--border-primary); align-items: center; width: 100%; box-sizing: border-box;">
+                                <div class="welcome-ore-input-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 280px; gap: 16px;">
+                                    <div class="ore-icon-wrapper" style="display: flex; align-items: center; gap: 8px;">
+                                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore"
+                                            class="ore-image"
+                                            style="width: 28px; height: 28px; object-fit: contain;"></orecalc-assets-image>
+                                    </div>
+                                    <div class="popover-wrapper" style="position: relative;">
+                                        <input type="number" id="welcome-stored-shiny" value="0" min="0" max="50000" step="100"
+                                            maxlength="5"
+                                            style="width: 80px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 13px; outline: none; text-align: center;">
+                                    </div>
+                                </div>
+                                <div class="welcome-ore-input-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 280px; gap: 16px;">
+                                    <div class="ore-icon-wrapper" style="display: flex; align-items: center; gap: 8px;">
+                                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore"
+                                            class="ore-image"
+                                            style="width: 28px; height: 28px; object-fit: contain;"></orecalc-assets-image>
+                                    </div>
+                                    <div class="popover-wrapper" style="position: relative;">
+                                        <input type="number" id="welcome-stored-glowy" value="0" min="0" max="5000" step="10"
+                                            maxlength="4"
+                                            style="width: 80px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 13px; outline: none; text-align: center;">
+                                    </div>
+                                </div>
+                                <div class="welcome-ore-input-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 280px; gap: 16px;">
+                                    <div class="ore-icon-wrapper" style="display: flex; align-items: center; gap: 8px;">
+                                        <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore"
+                                            class="ore-image"
+                                            style="width: 28px; height: 28px; object-fit: contain;"></orecalc-assets-image>
+                                    </div>
+                                    <div class="popover-wrapper" style="position: relative;">
+                                        <input type="number" id="welcome-stored-starry" value="0" min="0" max="1000" step="1"
+                                            maxlength="4"
+                                            style="width: 80px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 13px; outline: none; text-align: center;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recommendations Toggle Group -->
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary); width: 100%; box-sizing: border-box; margin-top: 4px;">
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
+                                        <orecalc-assets-svg name="thumbs-up" height="24" width="24"
+                                            fill="var(--text-secondary)"></orecalc-assets-svg>
+                                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                                            <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                                data-i18n="welcome.wizard.enableRecommendations">Enable Recommendations</span>
+                                            <span style="font-size: 11px; color: var(--text-secondary); line-height: 1.35;"
+                                                data-i18n="welcome.wizard.enableRecommendationsDesc">Show helpful recommendation badges to guide your configuration during the walkthrough.</span>
+                                        </div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-recommendations" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wizard-step" data-step="3"
+                            style="display: none; flex-direction: column; gap: 16px;">
+                            <div style="margin-bottom: 4px; line-height: 1.6;">
+                                <h4 data-i18n="welcome.wizard.warsTitle"
+                                    style="font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0; display: inline; vertical-align: middle;">
+                                    Do you participate in wars?</h4>
+                                <span class="recommended-badge"
+                                    style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; vertical-align: middle; margin-left: 8px;">
+                                    <orecalc-assets-svg name="thumbs-up" height="12" width="12"
+                                        fill="currentColor"></orecalc-assets-svg>
+                                    <span data-i18n="welcome.wizard.recommended">Recommended</span>
+                                </span>
+                            </div>
+                            <p class="wizard-step-subtitle" data-i18n="welcome.wizard.warsDesc"
+                                style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 8px 0;">
+                                Toggle the switch if you participate in Wars or Clan War Leagues, and configure your
+                                settings below.</p>
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                        <img src="assets/resources/clanWar.png" alt="Clan Wars"
+                                            style="width: 24px; height: 24px; object-fit: contain;">
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                            data-i18n="welcome.quickSettings.clanWars">Clan Wars</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-clan-wars-buy">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="welcome-quick-setting-subpanel" id="welcome-pref-clan-wars-panel"
+                                    style="display: none; flex-direction: column; gap: 10px; margin-top: 8px; border-top: 1px solid var(--border-primary); padding-top: 12px;">
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <orecalc-assets-svg name="swords" height="20" width="20"
+                                                fill="var(--text-secondary)"></orecalc-assets-svg>
+                                            <span style="font-size: 12px; color: var(--text-secondary);"
+                                                data-i18n="welcome.quickSettings.warsPerMonth">Wars per Month:</span>
+                                        </div>
+                                        <div class="popover-wrapper" style="position: relative;">
+                                            <input type="number" id="welcome-pref-clan-wars-count" value="8" min="0"
+                                                max="15" maxlength="2"
+                                                style="width: 60px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 12px; outline: none; text-align: center;">
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <orecalc-assets-svg name="trophy" height="20" width="20"
+                                                fill="var(--text-secondary)"></orecalc-assets-svg>
+                                            <span style="font-size: 12px; color: var(--text-secondary);"
+                                                data-i18n="welcome.quickSettings.winRate">Win Rate (%):</span>
+                                        </div>
+                                        <div class="popover-wrapper" style="position: relative;">
+                                            <input type="number" id="welcome-pref-clan-wars-winrate" value="70" min="0"
+                                                max="100" step="10" maxlength="3"
+                                                style="width: 60px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 12px; outline: none; text-align: center;">
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <orecalc-assets-svg name="dnd" height="20" width="20"
+                                                fill="var(--text-secondary)"></orecalc-assets-svg>
+                                            <span style="font-size: 12px; color: var(--text-secondary);"
+                                                data-i18n="welcome.quickSettings.drawRate">Draw Rate (%):</span>
+                                        </div>
+                                        <div class="popover-wrapper" style="position: relative;">
+                                            <input type="number" id="welcome-pref-clan-wars-drawrate" value="0" min="0"
+                                                max="100" step="10" maxlength="3"
+                                                style="width: 60px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 12px; outline: none; text-align: center;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CWL Section -->
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                        <img src="assets/resources/cwl.png" alt="CWL"
+                                            style="width: 24px; height: 24px; object-fit: contain;">
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                            data-i18n="welcome.quickSettings.cwl">Clan War League (CWL)</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-cwl-buy">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="welcome-quick-setting-subpanel" id="welcome-pref-cwl-panel"
+                                    style="display: none; flex-direction: column; gap: 10px; margin-top: 8px; border-top: 1px solid var(--border-primary); padding-top: 12px;">
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <orecalc-assets-svg name="swords" height="20" width="20"
+                                                fill="var(--text-secondary)"></orecalc-assets-svg>
+                                            <span style="font-size: 12px; color: var(--text-secondary);"
+                                                data-i18n="welcome.quickSettings.cwlHits">Hits per Season:</span>
+                                        </div>
+                                        <div class="popover-wrapper" style="position: relative;">
+                                            <input type="number" id="welcome-pref-cwl-hits" value="7" min="0" max="7"
+                                                maxlength="1"
+                                                style="width: 60px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 12px; outline: none; text-align: center;">
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <orecalc-assets-svg name="trophy" height="20" width="20"
+                                                fill="var(--text-secondary)"></orecalc-assets-svg>
+                                            <span style="font-size: 12px; color: var(--text-secondary);"
+                                                data-i18n="welcome.quickSettings.winRate">Win Rate (%):</span>
+                                        </div>
+                                        <div class="popover-wrapper" style="position: relative;">
+                                            <input type="number" id="welcome-pref-cwl-winrate" value="50" min="0"
+                                                max="100" step="10" maxlength="3"
+                                                style="width: 60px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 12px; outline: none; text-align: center;">
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <orecalc-assets-svg name="dnd" height="20" width="20"
+                                                fill="var(--text-secondary)"></orecalc-assets-svg>
+                                            <span style="font-size: 12px; color: var(--text-secondary);"
+                                                data-i18n="welcome.quickSettings.drawRate">Draw Rate (%):</span>
+                                        </div>
+                                        <div class="popover-wrapper" style="position: relative;">
+                                            <input type="number" id="welcome-pref-cwl-drawrate" value="0" min="0"
+                                                max="100" step="10" maxlength="3"
+                                                style="width: 60px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-size: 12px; outline: none; text-align: center;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Traders -->
+                        <div class="wizard-step" data-step="4"
+                            style="display: none; flex-direction: column; gap: 16px;">
+                            <div style="margin-bottom: 4px; line-height: 1.6;">
+                                <h4 data-i18n="welcome.wizard.tradersTitle"
+                                    style="font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0; display: inline; vertical-align: middle;">
+                                    Do you buy ores with Raid Medals or Gems?</h4>
+                                <span class="recommended-badge"
+                                    style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; vertical-align: middle; margin-left: 8px;">
+                                    <orecalc-assets-svg name="thumbs-up" height="12" width="12"
+                                        fill="currentColor"></orecalc-assets-svg>
+                                    <span data-i18n="welcome.wizard.recommended">Recommended</span>
+                                </span>
+                            </div>
+                            <p class="wizard-step-subtitle" data-i18n="welcome.wizard.tradersDesc"
+                                style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 8px 0;">
+                                Weekly purchases from the Trader can accelerate your progression.</p>
+
+                            <!-- Raid Medal Trader -->
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                        <img src="assets/resources/raidMedal.png" alt="Raid Medals"
+                                            style="width: 24px; height: 24px; object-fit: contain;">
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                            data-i18n="welcome.quickSettings.raidMedalsBuy">Raid Medals</span>
+                                        <span class="recommended-badge"
+                                            style="display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-left: 8px;">
+                                            <orecalc-assets-svg name="thumbs-double" height="12" width="12"
+                                                fill="currentColor"></orecalc-assets-svg>
+                                        </span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-raid-medals-buy">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="welcome-quick-setting-subpanel" id="welcome-pref-raid-medals-panel" data-section="raid-medals"
+                                    style="display: none; flex-direction: column; gap: 12px; margin-top: 8px; border-top: 1px solid var(--border-primary); padding-top: 12px;">
+                                    <!-- Ore packs purchase row -->
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;"
+                                            data-i18n="welcome.quickSettings.raidMedalsPacks">Weekly Trader Purchases:
+                                        </div>
+
+                                        <!-- Starry Ore Row -->
+                                        <div data-ore-type="starry"
+                                            style="display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 15%, transparent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--border-primary) 30%, transparent);">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                title="Raid Medal Cost">
+                                                <img src="assets/resources/raidMedal.png" alt="Raid Medals"
+                                                    style="width: 16px; height: 16px; object-fit: contain;">
+                                                <span
+                                                    style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">350</span>
+                                                <span class="recommended-badge ore-row-badge"><orecalc-assets-svg name="thumbs-double" height="12" width="12" fill="currentColor"></orecalc-assets-svg></span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;"
+                                                title="Starry Ore Amount">
+                                                <div
+                                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 75px;">
+                                                    <span
+                                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600;">5</span>
+                                                    <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore"
+                                                        class="ore-image"
+                                                        style="width: 16px; height: 16px; object-fit: contain;"></orecalc-assets-image>
+                                                </div>
+                                            </div>
+                                            <select id="welcome-pref-raid-medals-starry" class="welcome-select-input"
+                                                style="width: 100%; height: 28px; padding: 2px 6px; border-radius: 6px; box-sizing: border-box;">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Glowy Ore Row -->
+                                        <div data-ore-type="glowy"
+                                            style="display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 15%, transparent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--border-primary) 30%, transparent);">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                title="Raid Medal Cost">
+                                                <img src="assets/resources/raidMedal.png" alt="Raid Medals"
+                                                    style="width: 16px; height: 16px; object-fit: contain;">
+                                                <span
+                                                    style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">300</span>
+                                                <span class="recommended-badge ore-row-badge"><orecalc-assets-svg name="thumbs-double" height="12" width="12" fill="currentColor"></orecalc-assets-svg></span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;"
+                                                title="Glowy Ore Amount">
+                                                <div
+                                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 75px;">
+                                                    <span
+                                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600;">50</span>
+                                                    <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore"
+                                                        class="ore-image"
+                                                        style="width: 16px; height: 16px; object-fit: contain;"></orecalc-assets-image>
+                                                </div>
+                                            </div>
+                                            <select id="welcome-pref-raid-medals-glowy" class="welcome-select-input"
+                                                style="width: 100%; height: 28px; padding: 2px 6px; border-radius: 6px; box-sizing: border-box;">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Shiny Ore Row -->
+                                        <div data-ore-type="shiny"
+                                            style="display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 15%, transparent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--border-primary) 30%, transparent);">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                title="Raid Medal Cost">
+                                                <img src="assets/resources/raidMedal.png" alt="Raid Medals"
+                                                    style="width: 16px; height: 16px; object-fit: contain;">
+                                                <span
+                                                    style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">350</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;"
+                                                title="Shiny Ore Amount">
+                                                <div
+                                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 75px;">
+                                                    <span
+                                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600;">500</span>
+                                                    <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore"
+                                                        class="ore-image"
+                                                        style="width: 16px; height: 16px; object-fit: contain;"></orecalc-assets-image>
+                                                </div>
+                                            </div>
+                                            <select id="welcome-pref-raid-medals-shiny" class="welcome-select-input"
+                                                style="width: 100%; height: 28px; padding: 2px 6px; border-radius: 6px; box-sizing: border-box;">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gem Trader -->
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                        <img src="assets/resources/gem.png" alt="Gems"
+                                            style="width: 24px; height: 24px; object-fit: contain;">
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                            data-i18n="welcome.quickSettings.gemsBuy">Gems</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-gems-buy">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="welcome-quick-setting-subpanel" id="welcome-pref-gems-panel" data-section="gems"
+                                    style="display: none; flex-direction: column; gap: 12px; margin-top: 8px; border-top: 1px solid var(--border-primary); padding-top: 12px;">
+                                    <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">
+                                        <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;"
+                                            data-i18n="welcome.quickSettings.raidMedalsPacks">Weekly Trader Purchases:
+                                        </div>
+
+                                        <!-- Starry Ore Row -->
+                                        <div data-ore-type="starry"
+                                            style="display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 15%, transparent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--border-primary) 30%, transparent);">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                title="Gem Cost">
+                                                <img src="assets/resources/gem.png" alt="Gems"
+                                                    style="width: 16px; height: 16px; object-fit: contain;">
+                                                <span
+                                                    style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">275</span>
+                                                <span class="recommended-badge ore-row-badge"><orecalc-assets-svg name="thumbs-up" height="12" width="12" fill="currentColor"></orecalc-assets-svg></span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;"
+                                                title="Starry Ore Amount">
+                                                <div
+                                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 75px;">
+                                                    <span
+                                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600;">15</span>
+                                                    <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore"
+                                                        class="ore-image"
+                                                        style="width: 16px; height: 16px; object-fit: contain;"></orecalc-assets-image>
+                                                </div>
+                                            </div>
+                                            <select id="welcome-pref-gems-starry" class="welcome-select-input"
+                                                style="width: 100%; height: 28px; padding: 2px 6px; border-radius: 6px; box-sizing: border-box;">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Glowy Ore Row -->
+                                        <div data-ore-type="glowy"
+                                            style="display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 15%, transparent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--border-primary) 30%, transparent);">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                title="Gem Cost">
+                                                <img src="assets/resources/gem.png" alt="Gems"
+                                                    style="width: 16px; height: 16px; object-fit: contain;">
+                                                <span
+                                                    style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">150</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;"
+                                                title="Glowy Ore Amount">
+                                                <div
+                                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 75px;">
+                                                    <span
+                                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600;">60</span>
+                                                    <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore"
+                                                        class="ore-image"
+                                                        style="width: 16px; height: 16px; object-fit: contain;"></orecalc-assets-image>
+                                                </div>
+                                            </div>
+                                            <select id="welcome-pref-gems-glowy" class="welcome-select-input"
+                                                style="width: 100%; height: 28px; padding: 2px 6px; border-radius: 6px; box-sizing: border-box;">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Shiny Ore Row -->
+                                        <div data-ore-type="shiny"
+                                            style="display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 15%, transparent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--border-primary) 30%, transparent);">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                title="Gem Cost">
+                                                <img src="assets/resources/gem.png" alt="Gems"
+                                                    style="width: 16px; height: 16px; object-fit: contain;">
+                                                <span
+                                                    style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">150</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;"
+                                                title="Shiny Ore Amount">
+                                                <div
+                                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 75px;">
+                                                    <span
+                                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600;">300</span>
+                                                    <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore"
+                                                        class="ore-image"
+                                                        style="width: 16px; height: 16px; object-fit: contain;"></orecalc-assets-image>
+                                                </div>
+                                            </div>
+                                            <select id="welcome-pref-gems-shiny" class="welcome-select-input"
+                                                style="width: 100%; height: 28px; padding: 2px 6px; border-radius: 6px; box-sizing: border-box;">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Event Pass & Event Trader -->
+                        <div class="wizard-step" data-step="5"
+                            style="display: none; flex-direction: column; gap: 16px;">
+                            <div
+                                style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                                <h4 data-i18n="welcome.wizard.eventTitle"
+                                    style="font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0;">Do
+                                    you participate in special Events?</h4>
+                            </div>
+                            <p class="wizard-step-subtitle" data-i18n="welcome.wizard.eventDesc"
+                                style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 8px 0;">
+                                Configure your Event Pass status and Event Trader purchases to include event resource
+                                boosts in your plans.</p>
+
+                            <!-- Event Pass Group -->
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                                <!-- Question 1: Event Pass -->
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                        <img src="assets/resources/eventPass.png" alt="Event Pass"
+                                            style="width: 24px; height: 24px; object-fit: contain;">
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                            data-i18n="welcome.quickSettings.eventPass">Do you buy the Event
+                                            Pass?</span>
+                                        <span class="recommended-badge"
+                                            style="display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-left: 8px;">
+                                            <orecalc-assets-svg name="thumbs-up" height="12" width="12"
+                                                fill="currentColor"></orecalc-assets-svg>
+                                        </span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-event-pass-buy">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <hr style="border: none; border-top: 1px solid var(--border-primary); margin: 0;">
+                                <!-- Question 2: Include Equipment -->
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                        <img src="assets/equipment/equip_placeholder.png" alt="Event Trader Equipment"
+                                            style="width: 24px; height: 24px; object-fit: contain;">
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                            data-i18n="welcome.quickSettings.eventIncludeEquipment">Do you purchase the
+                                            equipment from the trader?</span>
+                                        <span class="recommended-badge"
+                                            style="display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-left: 8px;">
+                                            <orecalc-assets-svg name="thumbs-up" height="12" width="12"
+                                                fill="currentColor"></orecalc-assets-svg>
+                                        </span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-event-include-equipment">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Event Trader Group -->
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                        <img src="assets/resources/eventMedal.png" alt="Event Trader"
+                                            style="width: 24px; height: 24px; object-fit: contain;">
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                            data-i18n="welcome.quickSettings.eventTraderBuy">Event Trader</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-event-trader-buy">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="welcome-quick-setting-subpanel" id="welcome-pref-event-trader-panel" data-section="event-trader"
+                                    style="display: none; flex-direction: column; gap: 12px; margin-top: 8px; border-top: 1px solid var(--border-primary); padding-top: 12px;">
+                                    <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">
+                                        <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;"
+                                            data-i18n="welcome.quickSettings.eventTraderPacks">Event Trader Purchases:
+                                        </div>
+
+                                        <!-- Starry Ore Row -->
+                                        <div data-ore-type="starry"
+                                            style="display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 15%, transparent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--border-primary) 30%, transparent);">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                title="Event Medal Cost">
+                                                <img src="assets/resources/eventMedal.png" alt="Event Medals"
+                                                    style="width: 16px; height: 16px; object-fit: contain;">
+                                                <span
+                                                    style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">320</span>
+                                                <span class="recommended-badge ore-row-badge"><orecalc-assets-svg name="thumbs-double" height="12" width="12" fill="currentColor"></orecalc-assets-svg></span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;"
+                                                title="Starry Ore Amount">
+                                                <div
+                                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 75px;">
+                                                    <span
+                                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600;">10</span>
+                                                    <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore"
+                                                        class="ore-image"
+                                                        style="width: 16px; height: 16px; object-fit: contain;"></orecalc-assets-image>
+                                                </div>
+                                            </div>
+                                            <select id="welcome-pref-event-trader-starry" class="welcome-select-input"
+                                                style="width: 100%; height: 28px; padding: 2px 6px; border-radius: 6px; box-sizing: border-box;">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                                <option value="8">8</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Glowy Ore Row -->
+                                        <div data-ore-type="glowy"
+                                            style="display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 15%, transparent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--border-primary) 30%, transparent);">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                title="Event Medal Cost">
+                                                <img src="assets/resources/eventMedal.png" alt="Event Medals"
+                                                    style="width: 16px; height: 16px; object-fit: contain;">
+                                                <span
+                                                    style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">280</span>
+                                                <span class="recommended-badge ore-row-badge"><orecalc-assets-svg name="thumbs-up" height="12" width="12" fill="currentColor"></orecalc-assets-svg></span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;"
+                                                title="Glowy Ore Amount">
+                                                <div
+                                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 75px;">
+                                                    <span
+                                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600;">60</span>
+                                                    <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore"
+                                                        class="ore-image"
+                                                        style="width: 16px; height: 16px; object-fit: contain;"></orecalc-assets-image>
+                                                </div>
+                                            </div>
+                                            <select id="welcome-pref-event-trader-glowy" class="welcome-select-input"
+                                                style="width: 100%; height: 28px; padding: 2px 6px; border-radius: 6px; box-sizing: border-box;">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                                <option value="8">8</option>
+                                                <option value="9">9</option>
+                                                <option value="10">10</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Shiny Ore Row -->
+                                        <div data-ore-type="shiny"
+                                            style="display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 15%, transparent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--border-primary) 30%, transparent);">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                title="Event Medal Cost">
+                                                <img src="assets/resources/eventMedal.png" alt="Event Medals"
+                                                    style="width: 16px; height: 16px; object-fit: contain;">
+                                                <span
+                                                    style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">325</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: center;"
+                                                title="Shiny Ore Amount">
+                                                <div
+                                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 75px;">
+                                                    <span
+                                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600;">350</span>
+                                                    <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore"
+                                                        class="ore-image"
+                                                        style="width: 16px; height: 16px; object-fit: contain;"></orecalc-assets-image>
+                                                </div>
+                                            </div>
+                                            <select id="welcome-pref-event-trader-shiny" class="welcome-select-input"
+                                                style="width: 100%; height: 28px; padding: 2px 6px; border-radius: 6px; box-sizing: border-box;">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                                <option value="8">8</option>
+                                                <option value="9">9</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                                <option value="13">13</option>
+                                                <option value="14">14</option>
+                                                <option value="15">15</option>
+                                                <option value="16">16</option>
+                                                <option value="17">17</option>
+                                                <option value="18">18</option>
+                                                <option value="19">19</option>
+                                                <option value="20">20</option>
+                                                <option value="21">21</option>
+                                                <option value="22">22</option>
+                                                <option value="23">23</option>
+                                                <option value="24">24</option>
+                                                <option value="25">25</option>
+                                                <option value="26">26</option>
+                                                <option value="27">27</option>
+                                                <option value="28">28</option>
+                                                <option value="29">29</option>
+                                                <option value="30">30</option>
+                                                <option value="31">31</option>
+                                                <option value="32">32</option>
+                                                <option value="33">33</option>
+                                                <option value="34">34</option>
+                                                <option value="35">35</option>
+                                                <option value="36">36</option>
+                                                <option value="37">37</option>
+                                                <option value="38">38</option>
+                                                <option value="39">39</option>
+                                                <option value="40">40</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 6: Shop Offers & Gold Pass -->
+                        <div class="wizard-step" data-step="6"
+                            style="display: none; flex-direction: column; gap: 16px;">
+                            <h4 data-i18n="welcome.wizard.progressionTitle"
+                                style="font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0 0 4px 0;">
+                                Do you purchase the Gold Pass or Shop Offers?</h4>
+                            <p class="wizard-step-subtitle" data-i18n="welcome.wizard.progressionDesc"
+                                style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 8px 0;">
+                                Toggle the switches below if you purchase the Gold Pass or monthly Shop Offers. For Shop
+                                Offers, specify how many packages you purchase.</p>
+                            <!-- Currency Selection Group -->
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                        <orecalc-assets-svg name="global-pricing" height="24" width="24"
+                                            fill="var(--text-secondary)"></orecalc-assets-svg>
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                            data-i18n="settings.options.currency">Currency</span>
+                                    </div>
+                                    <select id="welcome-pref-currency" class="welcome-select-input"
+                                        style="width: 100px; height: 32px; padding: 4px 8px; border-radius: 8px;">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Gold Pass Group -->
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
+                                        <img src="assets/resources/goldPass.png" alt="Gold Pass"
+                                            style="width: 24px; height: 24px; object-fit: contain; margin-top: 2px;">
+                                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                                            <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                                data-i18n="welcome.quickSettings.goldPass">Do you buy the Gold Pass?</span>
+                                            <span style="font-size: 11px; color: var(--text-secondary); line-height: 1.3;"
+                                                data-i18n="welcome.quickSettings.goldPassDesc">Buying the Gold Pass allows access to the Prospector, which helps convert ores to remove bottlenecks.</span>
+                                        </div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-gold-pass">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Shop Offers Group -->
+                            <div class="group-content"
+                                style="display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                                <div class="welcome-quick-setting-item"
+                                    style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                                    <div class="quick-setting-details"
+                                        style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                        <img src="assets/resources/shopOffers.png" alt="Shop Offers"
+                                            style="width: 24px; height: 24px; object-fit: contain;">
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                            data-i18n="welcome.quickSettings.shopOffersBuy">Do you buy monthly Shop
+                                            Offers?</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="welcome-pref-shop-offers-buy">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="welcome-quick-setting-subpanel" id="welcome-pref-shop-offers-panel"
+                                    style="display: none; flex-direction: column; gap: 8px; margin-top: 8px; border-top: 1px solid var(--border-primary); padding-top: 12px;">
+                                    <div id="welcome-shop-offers-inputs-container"
+                                        style="display: flex; flex-direction: column; gap: 8px;">
+                                        <!-- Dynamically generated list of shop offers based on Town Hall -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Wizard Dots -->
+                    <div class="welcome-dots" id="welcome-wizard-dots">
+                        <!-- Will be dynamically populated in JS -->
+                    </div>
+
+                    <!-- Wizard Footer -->
+                    <div class="modal-actions welcome-actions welcome-wizard-footer" id="welcome-wizard-footer">
+                        <button id="welcome-wizard-back-btn" class="reject-button">Back</button>
+                        <button id="welcome-wizard-next-btn" class="accept-button">Next</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Page 4: Backup & Sync / Device Synchronization -->
+            <div class="welcome-page welcome-page-4" id="welcome-page-4" tabindex="0">
+                <h3 data-i18n="welcome.wizard.syncTitle"
+                    style="font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0;">Do you
+                    want to enable Cloud Synchronization?</h3>
+                <p class="wizard-step-subtitle" data-i18n="welcome.wizard.syncDesc"
+                    style="font-size: 13px; color: var(--text-secondary); line-height: 1.4; margin: 0 0 16px 0;">Toggle
+                    the switch below to enable secure Cloud Synchronization to sync your progress across devices.</p>
+
+                <div class="group-content" id="welcome-cloud-sync-container"
+                    style="position: relative; display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary); flex-shrink: 0; transition: filter 0.3s ease, opacity 0.3s ease; overflow: hidden;">
+                    <!-- Guest Notice Overlay -->
+                    <div id="welcome-cloud-sync-guest-overlay" class="sync-disabled-overlay"
+                        style="display: none; position: absolute; inset: 0; background-color: rgba(0, 0, 0, 0.55); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); z-index: 10; flex-direction: column; align-items: center; justify-content: center; padding: 12px; text-align: center; box-sizing: border-box;">
+                        <span class="sync-overlay-text"
+                            style="font-weight: 600; color: #ffffff; line-height: 1.4; max-width: 85%; font-size: 12px;"
+                            data-i18n="welcome.cloudSyncPlayerTagRequired">You need to add a player tag to enable cloud sync.</span>
+                    </div>
+                    <div class="welcome-quick-setting-item"
+                        style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                        <div class="quick-setting-details"
+                            style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                            <orecalc-assets-svg name="sync-cloud" height="24" width="24"
+                                fill="var(--text-secondary)"></orecalc-assets-svg>
+                            <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);"
+                                data-i18n="welcome.quickSettings.cloudSync">Enable Cloud Synchronization?</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="welcome-pref-cloud-sync" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Direct Device Sync section -->
+                <div class="group-content welcome-device-sync-section"
+                    style="position: relative; display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary); margin-top: 8px; flex-shrink: 0; overflow: hidden;">
+                    <!-- Blur Overlay when disabled -->
+                    <div id="welcome-device-sync-overlay" class="sync-disabled-overlay"
+                        style="display: none; position: absolute; inset: 0; background-color: rgba(0, 0, 0, 0.55); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); z-index: 10; flex-direction: column; align-items: center; justify-content: center; padding: 16px; text-align: center; box-sizing: border-box;">
+                        <orecalc-assets-svg name="warning" height="24" width="24"
+                            fill="var(--color-warning)"></orecalc-assets-svg>
+                        <span class="sync-overlay-text"
+                            style="font-weight: 600; color: #ffffff; margin-top: 8px; line-height: 1.4; max-width: 85%;"
+                            data-i18n="welcome.quickSettings.cloudSyncRequiredForDeviceSync">Cloud Synchronization must
+                            be enabled to link devices.</span>
+                    </div>
+
+                    <!-- Sync Content Wrapper -->
+                    <div class="welcome-device-sync-content"
+                        style="display: flex; flex-direction: column; gap: 12px; width: 100%; height: 100%; transition: filter 0.3s ease;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <orecalc-assets-svg name="sync" height="18" width="18"
+                                fill="var(--text-primary)"></orecalc-assets-svg>
+                            <span class="sync-section-title" style="font-weight: 600; color: var(--text-primary);"
+                                data-i18n="settings.deviceSyncTitle">Device Synchronization</span>
+                        </div>
+                        <p class="sync-section-desc" style="color: var(--text-secondary); line-height: 1.4; margin: 0;">Link this
+                            device with another to sync your profiles across them.</p>
+
+                        <div class="sync-menus-container"
+                            style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
+                            <!-- Menu 1: Your Sync Code -->
+                            <details class="welcome-sync-details" id="welcome-your-sync-code-details" open style="transition: filter 0.3s ease, opacity 0.3s ease;">
+                                <summary class="welcome-sync-summary">
+                                    <span class="sync-summary-title" style="font-weight: 600; color: var(--text-secondary);"
+                                        data-i18n="settings.yourSyncCode">Your Sync Code</span>
+                                    <span class="chevron"
+                                        style="display: flex; align-items: center;"><orecalc-assets-svg
+                                            name="chevron-down" height="14" width="14"></orecalc-assets-svg></span>
+                                </summary>
+                                <div class="welcome-sync-details-content">
+                                    <div
+                                        style="display: flex; flex-direction: column; gap: 10px; padding: 10px 0 4px 0;">
+                                        <div style="display: flex; gap: 8px; align-items: center;">
+                                            <div id="welcome-sync-user-id" class="calculated id-child-fields qr-user-id"
+                                                style="flex: 1; text-align: center; font-family: monospace; padding: 6px; border: 1px dashed var(--border-primary); border-radius: 6px; background: var(--bg-surface-primary); color: var(--text-primary); cursor: pointer;"
+                                                title="Click to copy" data-i18n-title="actions.clickToCopy"></div>
+                                            <button id="welcome-sync-copy-btn" class="accept-button"
+                                                style="margin: 0; padding: 6px 12px; min-height: unset; height: 28px;">Copy</button>
+                                        </div>
+
+                                        <!-- QR Code container -->
+                                        <div
+                                            style="display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 4px 0;">
+                                            <span class="sync-qr-instruction"
+                                                style="color: var(--text-secondary); text-align: center;"
+                                                data-i18n="player.qrDisplayInstruction">Scan with other device</span>
+                                            <div id="welcome-sync-qr-container"
+                                                style="background-color: var(--bg-surface-primary); border: 1px solid var(--border-primary); padding: 8px; border-radius: 8px; width: 256px; height: 256px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Menu 2: Link another device -->
+                            <details class="welcome-sync-details" id="welcome-link-device-details">
+                                <summary class="welcome-sync-summary">
+                                    <span class="sync-summary-title" style="font-weight: 600; color: var(--text-secondary);"
+                                        data-i18n="settings.linkDevice">Link Another Device</span>
+                                    <span class="chevron"
+                                        style="display: flex; align-items: center;"><orecalc-assets-svg
+                                            name="chevron-down" height="14" width="14"></orecalc-assets-svg></span>
+                                </summary>
+                                <div class="welcome-sync-details-content">
+                                    <div
+                                        style="display: flex; flex-direction: column; gap: 10px; padding: 10px 0 4px 0;">
+                                        <p class="sync-scan-instruction" style="color: var(--text-secondary); line-height: 1.4; margin: 0 0 4px 0;"
+                                            data-i18n="player.qrScanInstruction">Paste the Sync Code (User ID) from your
+                                            other device below to link them. Cloud Synchronization will be enabled
+                                            automatically.</p>
+                                        <div style="display: flex; gap: 8px; align-items: center;">
+                                            <input type="text" id="welcome-sync-input" placeholder="Paste Sync Code"
+                                                data-i18n-placeholder="settings.placeholderSyncCode" maxlength="36"
+                                                spellcheck="false"
+                                                style="flex: 1; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-primary); background-color: var(--bg-surface-primary); color: var(--text-primary); font-family: monospace; outline: none; text-align: center;">
+                                            <button id="welcome-sync-link-btn" class="accept-button"
+                                                style="margin: 0; padding: 6px 12px; min-height: unset; height: 28px;">Link</button>
+                                        </div>
+                                        <div id="welcome-sync-status" class="status-message sync-status-msg"
+                                            style="display: none;"></div>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="welcome-consent-box">
+                    <p data-i18n="welcome.disclaimer">
+                        By clicking "Get Started", you agree to our <a href="#" id="welcome-terms-link"
+                            class="theme-link">Terms of Use</a> and acknowledge that you have read and agreed to our <a
+                            href="#" id="welcome-privacy-link" class="theme-link">Privacy Policy</a>.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Pagination Dots -->
+        <div class="welcome-dots" id="welcome-dots">
+            <span class="welcome-dot active" data-page="1"></span>
+            <span class="welcome-dot" data-page="2"></span>
+            <span class="welcome-dot" data-page="3"></span>
+            <span class="welcome-dot" data-page="4"></span>
+        </div>
+
+        <!-- Dynamic actions based on page -->
+        <div class="modal-actions welcome-actions" id="welcome-main-actions">
+            <button id="welcome-back-btn" class="reject-button" style="display: none;"
+                data-i18n="welcome.back">Back</button>
+            <button id="welcome-guest-btn" class="reject-button" style="display: none;"
+                data-i18n="welcome.guest">Explore with Guest Profile</button>
+            <button id="welcome-sync-device-start-btn" class="reject-button"
+                data-i18n="welcome.linkToAnotherDevice">Link to another device</button>
+            <button id="welcome-continue-btn" class="accept-button" data-i18n="welcome.continue">Continue</button>
+            <button id="welcome-submit-btn" class="accept-button" style="display: none;"
+                data-i18n="welcome.getStarted">Get Started</button>
+        </div>
+    </div>
+</div>

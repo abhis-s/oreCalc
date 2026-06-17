@@ -1,5 +1,5 @@
 import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
+import { handleStateUpdate, switchActivePlayer } from '../../app.js';
 import { loadPlayerData, updateSavedPlayerTags, removePlayerTag, isPlayerTagCached } from '../../core/localStorageManager.js';
 import { state } from '../../core/state.js';
 
@@ -113,12 +113,12 @@ export function renderPlayerDropdown() {
         const savedPlayers = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0');
         const activeTag = state.savedPlayerTags[0];
 
-        if (activeTag && activeTag !== 'DEFAULT0') {
+        if (activeTag) {
             const playerState = loadPlayerData(activeTag);
             if (playerState && playerState.playerProfile && playerState.playerProfile.name) {
                 selectedPlayerName.textContent = `${playerState.playerProfile.name}`;
             } else {
-                selectedPlayerName.textContent = translate('player.label');
+                selectedPlayerName.textContent = activeTag === 'DEFAULT0' ? translate('player.selectPlaceholder') : translate('player.label');
             }
         } else {
             selectedPlayerName.textContent = translate('player.selectPlaceholder');
@@ -186,34 +186,6 @@ export function renderPlayerDropdown() {
 }
 
 function handlePlayerSelection(tag) {
-    const playerState = loadPlayerData(tag);
-    if (playerState) {
-        // Helper to safely clone objects with fallbacks
-        const safeClone = (obj, fallback = {}) => {
-            try {
-                return obj ? JSON.parse(JSON.stringify(obj)) : fallback;
-            } catch (e) {
-                console.warn('Failed to clone state object, using fallback', e);
-                return fallback;
-            }
-        };
-
-        state.heroes = safeClone(playerState.heroes);
-        state.storedOres = safeClone(playerState.storedOres);
-        state.income = safeClone(playerState.income);
-        state.planner = safeClone(playerState.planner);
-        state.playerProfile = safeClone(playerState.playerProfile);
-
-        if (playerState.currency && typeof playerState.currency === 'object') {
-            state.uiSettings.currency = {
-                code: playerState.currency.code || 'USD'
-            };
-        }
-
-        handleStateUpdate(() => {});
-        updateSavedPlayerTags(tag);
-        renderPlayerDropdown();
-    } else {
-        console.error('Player data not found for tag:', tag);
-    }
+    switchActivePlayer(tag);
+    renderPlayerDropdown();
 }

@@ -691,7 +691,7 @@ export function openPrivacyModal() {
     const modal = document.getElementById('privacy-modal');
     if (!modal) return;
 
-    const privacyTimestamp = state.uiSettings?.acceptanceTimestamp?.privacy;
+    const privacyTimestamp = state.uiSettings?.timestamp?.privacy;
     const needsConsent = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
 
     const closeHeaderBtn = document.getElementById('close-privacy-header-btn');
@@ -780,11 +780,11 @@ export function openPrivacyModal() {
             acceptBtn.onclick = (e) => {
                 e.preventDefault();
                 const now = Date.now();
-                if (!state.uiSettings.acceptanceTimestamp) {
-                    state.uiSettings.acceptanceTimestamp = {};
+                if (!state.uiSettings.timestamp) {
+                    state.uiSettings.timestamp = {};
                 }
                 const privacyAcceptedTime = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
-                state.uiSettings.acceptanceTimestamp.privacy = privacyAcceptedTime;
+                state.uiSettings.timestamp.privacy = privacyAcceptedTime;
                 
                 saveState(state);
                 if (typeof window.refreshConsentModalStatus === 'function') {
@@ -793,7 +793,7 @@ export function openPrivacyModal() {
                 closeModal();
                 
                 // Hide legal consent modal if both are now accepted
-                const tosTimestamp = state.uiSettings.acceptanceTimestamp.tos;
+                const tosTimestamp = state.uiSettings.timestamp.tos;
                 if (tosTimestamp && tosTimestamp >= EFFECTIVE_DATE_TERMS) {
                     const consentModal = document.getElementById('consent-modal');
                     if (consentModal) {
@@ -884,7 +884,7 @@ export function openTermsOfUseModal() {
     const modal = document.getElementById('terms-modal');
     if (!modal) return;
 
-    const tosTimestamp = state.uiSettings?.acceptanceTimestamp?.tos;
+    const tosTimestamp = state.uiSettings?.timestamp?.tos;
     const needsConsent = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
 
     const closeHeaderBtn = document.getElementById('close-terms-header-btn');
@@ -973,11 +973,11 @@ export function openTermsOfUseModal() {
             acceptBtn.onclick = (e) => {
                 e.preventDefault();
                 const now = Date.now();
-                if (!state.uiSettings.acceptanceTimestamp) {
-                    state.uiSettings.acceptanceTimestamp = {};
+                if (!state.uiSettings.timestamp) {
+                    state.uiSettings.timestamp = {};
                 }
                 const tosAcceptedTime = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
-                state.uiSettings.acceptanceTimestamp.tos = tosAcceptedTime;
+                state.uiSettings.timestamp.tos = tosAcceptedTime;
                 
                 saveState(state);
                 if (typeof window.refreshConsentModalStatus === 'function') {
@@ -986,7 +986,7 @@ export function openTermsOfUseModal() {
                 closeModal();
                 
                 // Hide legal consent modal if both are now accepted
-                const privacyTimestamp = state.uiSettings.acceptanceTimestamp.privacy;
+                const privacyTimestamp = state.uiSettings.timestamp.privacy;
                 if (privacyTimestamp && privacyTimestamp >= EFFECTIVE_DATE_PRIVACY) {
                     const consentModal = document.getElementById('consent-modal');
                     if (consentModal) {
@@ -2099,11 +2099,11 @@ export function initializeAppSettings() {
             // Collapse the first section (and open the second) if there is a valid ID in the clipboard or if the user has no player profiles
             if (deviceSyncModal) {
                 const syncDetails = deviceSyncModal.querySelectorAll('details.sync-section');
-                const hasOnlyDefaultPlayer = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
-                const shouldCollapseFirst = clipboardHasValidId || hasOnlyDefaultPlayer;
+                const hasNoProfiles = state.savedPlayerTags.length === 0 || (state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0');
+                const shouldOpenSecondSection = clipboardHasValidId || hasNoProfiles;
                 
                 syncDetails.forEach((details, idx) => {
-                    details.open = shouldCollapseFirst ? (idx === 1) : (idx === 0);
+                    details.open = shouldOpenSecondSection ? (idx === 1) : (idx === 0);
                     details.classList.toggle('is-open', details.open);
                     details.style.height = '';
                 });

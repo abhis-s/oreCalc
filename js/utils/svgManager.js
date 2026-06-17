@@ -37,6 +37,8 @@ export const SVGs = {
     'plus': {},
     'cloud-check': {},
     'check': {},
+    'check-simple': {},
+    'sync-problem': {},
     'cloud-error': {},
     'error': {},
     'cloud-upload': {},
@@ -59,6 +61,8 @@ export const SVGs = {
     'bug': {},
     'mail': {},
     'costs': {},
+    'swords': {},
+    'dnd': {},
     'global-pricing': {},
     'light-mode': {},
     'dark-mode': {},
@@ -67,7 +71,16 @@ export const SVGs = {
     'translate': {},
     'volunteer-support': {},
     'chevron-down': {},
-    'chevron-up': {}
+    'chevron-up': {},
+    'bolt-planner': {},
+    'sparkles': {},
+    'sliders': {},
+    'star-badge': {},
+    'trophy': {},
+    'star': {},
+    'thumbs-up': {},
+    'thumbs-double': {},
+    'thumbs-down': {}
 };
 
 /**

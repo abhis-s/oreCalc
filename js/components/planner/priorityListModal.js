@@ -595,6 +595,11 @@ export function openStoredOresModal() {
     modal.classList.add('show');
 }
 
+export function closeStoredOresModal() {
+    const modal = document.getElementById('stored-ores-modal');
+    if (modal) modal.classList.remove('show');
+}
+
 export function initializeStoredOresModal() {
     const modal = document.getElementById('stored-ores-modal');
     if (!modal) return;

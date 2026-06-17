@@ -54,10 +54,6 @@ export function initializeTabs() {
             if (tabId === 'planner-tab' && state.activeTab !== 'planner-tab') {
                 setAnimateNextRender('all');
                 setTimeout(() => {
-                    const calendar = document.getElementById('calendar-container');
-                    if (calendar) {
-                        calendar.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
                     checkPlannerTabStoredOres();
                 }, 100);
             }
@@ -99,10 +95,6 @@ export function initializeTabs() {
                 setAnimateNextRender('all');
                 // Scroll calendar into view after render
                 setTimeout(() => {
-                    const calendar = document.getElementById('calendar-container');
-                    if (calendar) {
-                        calendar.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
                     checkPlannerTabStoredOres();
                 }, 100);
             }

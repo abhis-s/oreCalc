@@ -22,7 +22,7 @@ export function getAppSettingsDOMElements() {
         resetCloudBtn: document.getElementById('reset-cloud-btn'),
         completeDeleteBtn: document.getElementById('complete-delete-btn'),
         appVersionDisplay: document.getElementById('app-version-display'),
-        accentColorSwatches: document.querySelectorAll('.accent-swatch'),
+        accentColorSwatches: document.querySelectorAll('#settings-tab .accent-swatch'),
         mobileAccentPickerBtn: document.getElementById('mobile-accent-picker-btn'),
         accentPickerModal: document.getElementById('accent-picker-modal'),
         mobileAccentSwatches: document.querySelectorAll('.mobile-accent-swatch'),
