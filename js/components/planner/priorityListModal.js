@@ -604,6 +604,29 @@ export function initializeStoredOresModal() {
     const modal = document.getElementById('stored-ores-modal');
     if (!modal) return;
 
+    // Observer to stamp lastUpdated when the modal is dismissed/hidden
+    let isModalOpen = modal.classList.contains('show');
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                const isOpenNow = modal.classList.contains('show');
+                if (isModalOpen && !isOpenNow) {
+                    // Modal was dismissed (closed)
+                    handleStateUpdate(() => {
+                        if (!state.storedOres) state.storedOres = {};
+                        const lastUpdated = state.storedOres.lastUpdated || 0;
+                        // Only update if it's not already bumped into the future (e.g. dontAsk)
+                        if (lastUpdated <= Date.now()) {
+                            state.storedOres.lastUpdated = Date.now();
+                        }
+                    });
+                }
+                isModalOpen = isOpenNow;
+            }
+        });
+    });
+    observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+
     const shinyInput = document.getElementById('modal-stored-ore-shiny');
     const glowyInput = document.getElementById('modal-stored-ore-glowy');
     const starryInput = document.getElementById('modal-stored-ore-starry');

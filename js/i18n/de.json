@@ -370,7 +370,7 @@
         "suggestionInterleave": "Beende {itemNames}, während du auf Erze für {itemName} wartest. Dein Plan wird nicht verzögert.",
         "placeholderLevel": "z.B. 18",
         "confirmDeleteMonth": "Sind Sie sicher, dass Sie alle platzierten Chips für den aktuellen Monat löschen möchten?",
-        "confirmDeleteAll": "Sind Sie sicher, dass Sie alle Chips vom Kalender löschen möchten? Dadurch werden auch alle noch nicht platzierten eigenen Chips entfernt."
+        "confirmDeleteAll": "Sind Sie sicher, dass Sie alle Chips vom Kalender löschen möchten? Dadurch werden auch alle eigenen Chips gelöscht."
     },
     "actions": {
         "upgrade": "Verbessern",
@@ -499,6 +499,8 @@
         },
         "options": {
             "theme": "Hell-/Dunkelmodus",
+            "themeLight": "Helles Design",
+            "themeDark": "Dunkles Design",
             "language": "Sprache",
             "currency": "Währung",
             "globalPricing": "Globale Preise",

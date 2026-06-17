@@ -2,10 +2,9 @@
 
 .planner-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: flex-start;
     gap: 20px;
-    margin-bottom: 20px;
 }
 
 .planner-card {
@@ -168,8 +167,8 @@
     }
 }
 
-.full-width-card {
-    margin-bottom: 20px;
+#planner-tab .full-width-card {
+    grid-column: 1 / -1;
 }
 
 .calendar-action-buttons {

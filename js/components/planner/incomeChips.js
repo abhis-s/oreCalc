@@ -159,7 +159,9 @@ function renderUnplacedChips(incomeChipsContainer, groupedChips, placedChipOrigi
         });
 
         if (unplacedChips.length > 0) {
-            incomeChipsContainer.appendChild(unplacedChips[0]);
+            const chipGroup = document.createElement('div');
+            chipGroup.className = 'income-chip-group';
+            chipGroup.appendChild(unplacedChips[0]);
 
             if (unplacedChips.length > 1) {
                 const remainingCount = unplacedChips.length - 1;
@@ -178,8 +180,9 @@ function renderUnplacedChips(incomeChipsContainer, groupedChips, placedChipOrigi
                     type,
                     incomeSource.className
                 );
-                incomeChipsContainer.appendChild(overflowChip);
+                chipGroup.appendChild(overflowChip);
             }
+            incomeChipsContainer.appendChild(chipGroup);
         }
     }
 }
@@ -212,6 +215,24 @@ export function initializeIncomeChipsEventListeners() {
 
     // Wire up modal events
     initializeCreateCustomChipsModalListeners();
+
+    // Use ResizeObserver for robust layout packing (covers visibility transitions)
+    const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            if (entry.contentRect.width > 0) {
+                if (entry.target === incomeChipsContainer) {
+                    requestAnimationFrame(packIncomeChips);
+                } else if (entry.target === document.getElementById('income-chips-legend')) {
+                    requestAnimationFrame(packLegendItems);
+                }
+            }
+        }
+    });
+    resizeObserver.observe(incomeChipsContainer);
+    const legendEl = document.getElementById('income-chips-legend');
+    if (legendEl) {
+        resizeObserver.observe(legendEl);
+    }
 }
 
 export function renderIncomeChips(year, month) {
@@ -273,7 +294,10 @@ export function renderIncomeChips(year, month) {
             }
             const chip = createIncomeChip(displayName, incomeSource.className, data, month, year, data.id);
             chip.classList.add('custom-chip-in-container');
-            incomeChipsContainer.appendChild(chip);
+
+            const chipGroup = document.createElement('div');
+            chipGroup.className = 'income-chip-group';
+            chipGroup.appendChild(chip);
 
             if (group.length > 1) {
                 const remainingCount = group.length - 1;
@@ -290,8 +314,9 @@ export function renderIncomeChips(year, month) {
                     data.type,
                     incomeSource.className
                 );
-                incomeChipsContainer.appendChild(overflowChip);
+                chipGroup.appendChild(overflowChip);
             }
+            incomeChipsContainer.appendChild(chipGroup);
         }
     }
 
@@ -310,6 +335,8 @@ export function renderIncomeChips(year, month) {
     }
 
     renderIncomeChipsLegend(incomeChipsLegend);
+    requestAnimationFrame(packIncomeChips);
+    requestAnimationFrame(packLegendItems);
 }
 
 function handleDragOverForChipContainer(e) {
@@ -397,4 +424,125 @@ export function handleChipDropOnContainer(incomeChipData) {
             renderIncomeChips(state.planner.calendar.view.month.split('-')[1], parseInt(state.planner.calendar.view.month.split('-')[0], 10) - 1);
         }
     }, 0);
+}
+
+export function packIncomeChips() {
+    const container = document.getElementById('income-chips-container');
+    if (!container) return;
+
+    const groups = Array.from(container.querySelectorAll('.income-chip-group'));
+    if (groups.length === 0) return;
+
+    // Reset styles/order before measuring so offsetWidth returns raw unplaced values
+    groups.forEach(g => {
+        g.style.order = '';
+    });
+
+    // Measure actual widths of all groups
+    const items = groups.map(g => ({
+        element: g,
+        width: g.offsetWidth
+    }));
+
+    // If all measured widths are 0, it means the browser has not performed layout yet.
+    // Defer to the next animation frame.
+    const totalWidth = items.reduce((sum, item) => sum + item.width, 0);
+    if (totalWidth === 0) {
+        requestAnimationFrame(packIncomeChips);
+        return;
+    }
+
+    const gap = 8; // matches the gap in CSS (.income-chips-container gap: 8px)
+    const containerWidth = container.clientWidth - 20; // 20px for padding (10px left/right)
+    if (containerWidth <= 0) return;
+
+    // Bin-packing (First-Fit)
+    const bins = []; // Each bin holds { remainingCapacity: number, elements: [] }
+
+    items.forEach(item => {
+        const neededWidth = item.width;
+        let foundBinIndex = -1;
+
+        for (let i = 0; i < bins.length; i++) {
+            const spaceNeeded = bins[i].elements.length > 0 ? neededWidth + gap : neededWidth;
+            if (bins[i].remainingCapacity >= spaceNeeded) {
+                foundBinIndex = i;
+                break;
+            }
+        }
+
+        if (foundBinIndex !== -1) {
+            bins[foundBinIndex].elements.push(item.element);
+            const spaceNeeded = bins[foundBinIndex].elements.length > 1 ? neededWidth + gap : neededWidth;
+            bins[foundBinIndex].remainingCapacity -= spaceNeeded;
+        } else {
+            bins.push({
+                remainingCapacity: containerWidth - neededWidth,
+                elements: [item.element]
+            });
+        }
+    });
+
+    // Assign CSS order based on bin index to let the browser visually re-order them
+    let currentOrder = 1;
+    bins.forEach((bin) => {
+        bin.elements.forEach(el => {
+            el.style.order = currentOrder;
+        });
+        currentOrder++;
+    });
+}
+
+export function packLegendItems() {
+    const container = document.getElementById('income-chips-legend');
+    if (!container) return;
+
+    const items = Array.from(container.querySelectorAll('.legend-item'));
+    if (items.length === 0) return;
+
+    // Reset styles/order before measuring
+    items.forEach(el => { el.style.order = ''; });
+
+    const gap = window.innerWidth <= 425 ? 2 : 8;
+    const containerWidth = container.clientWidth - 30; // 15px padding left/right
+    if (containerWidth <= 0) return;
+
+    const measuredItems = items.map(el => ({ element: el, width: el.offsetWidth }));
+
+    const totalWidth = measuredItems.reduce((sum, item) => sum + item.width, 0);
+    if (totalWidth === 0) {
+        requestAnimationFrame(packLegendItems);
+        return;
+    }
+
+    const bins = [];
+    measuredItems.forEach(item => {
+        const neededWidth = item.width;
+        let foundBinIndex = -1;
+
+        for (let i = 0; i < bins.length; i++) {
+            const spaceNeeded = bins[i].elements.length > 0 ? neededWidth + gap : neededWidth;
+            if (bins[i].remainingCapacity >= spaceNeeded) {
+                foundBinIndex = i;
+                break;
+            }
+        }
+
+        if (foundBinIndex !== -1) {
+            bins[foundBinIndex].elements.push(item.element);
+            const spaceNeeded = bins[foundBinIndex].elements.length > 1 ? neededWidth + gap : neededWidth;
+            bins[foundBinIndex].remainingCapacity -= spaceNeeded;
+        } else {
+            bins.push({
+                remainingCapacity: containerWidth - neededWidth,
+                elements: [item.element]
+            });
+        }
+    });
+
+    let currentOrder = 1;
+    bins.forEach((bin) => {
+        bin.elements.forEach(el => { el.style.order = currentOrder; });
+        currentOrder++;
+    });
 }

@@ -58,7 +58,6 @@
 }
 
 .prospector-tip {
-    margin-top: 1rem;
     padding: 15px !important;
     text-align: center !important;
 
@@ -255,6 +254,10 @@
     margin-top: 15px;
     padding: 0 20px;
 
+    &:empty {
+        display: none !important;
+    }
+
     &#raid-medal-trader-offers {
         grid-template-columns: auto 2fr 1fr 1fr;
     }
@@ -400,13 +403,17 @@
         }
 
         .summary-label {
+            flex: 0 0 50%;
+            text-align: center;
             white-space: nowrap;
         }
 
         .summary-value-with-image {
+            flex: 0 0 50%;
             align-items: center;
             display: flex;
             gap: 5px;
+            justify-content: center;
 
             .ore-image {
                 height: 24px;
@@ -423,9 +430,10 @@
     }
 }
 
-#inc-event-medals-remaining-value {
-    text-align: right;
-    width: 75px;
+
+
+#inc-raid-medals-total-input {
+    width: 60px;
 }
 
 .four-col-grid {
@@ -494,21 +502,12 @@
         --font-size-sm: 12px;
         --font-size-xl: 20px;
         --font-size-xs: 11px;
-        padding: 30px;
 
         #inc-gem-trader-offers {
             grid-template-columns: auto 2fr repeat(2, 1fr);
         }
 
-        #inc-event-medals-total-value,
-        #inc-raid-medals-remaining {
-            text-align: center;
-            width: 75px;
-        }
 
-        #inc-event-medals-total-value {
-            text-align: right;
-        }
 
         > .offer-grid:not(:first-child):not(:last-child) {
             padding: 20px 0;
@@ -540,7 +539,6 @@
             label,
             span:not(.slider):not(.currency-symbol):not(.calculated) {
                 margin-right: 5px !important;
-                text-align: center !important;
                 white-space: normal;
                 width: 100% !important;
 
@@ -549,6 +547,13 @@
                     margin-right: 0 !important;
                     flex-shrink: 0;
                 }
+            }
+
+            label[for="inc-star-bonus-league-select"],
+            label[for="inc-shop-offers-select"],
+            #cwl-per-attack-label,
+            #clan-war-per-attack-label {
+                text-align: center !important;
             }
 
             > select,
@@ -570,7 +575,12 @@
         }
 
         #inc-raid-medals-total-input {
-            width: 75px !important;
+            width: 60px !important;
+        }
+
+        #inc-raid-medals-remaining {
+            padding-left: 10px;
+            padding-right: 10px;
         }
 
         .offer-grid {
@@ -676,6 +686,10 @@
 
                 .summary-label {
                     text-align: right;
+                }
+
+                .summary-value-with-image {
+                    justify-content: flex-start;
                 }
             }
         }

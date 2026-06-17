@@ -1633,7 +1633,17 @@ export function initializeAppSettings() {
     const themeToggle = document.getElementById('settings-theme-toggle');
 
     if (themeToggle) {
+        const themeLabel = document.querySelector('label[for="settings-theme-toggle"]');
+        const updateThemeLabel = () => {
+            if (themeLabel) {
+                const labelKey = themeToggle.checked ? 'settings.options.themeDark' : 'settings.options.themeLight';
+                themeLabel.textContent = translate(labelKey);
+                themeLabel.setAttribute('data-i18n', labelKey);
+            }
+        };
         themeToggle.checked = state.uiSettings.theme === 'light';
+        updateThemeLabel();
+
         themeToggle.addEventListener('change', (e) => {
             const newTheme = e.target.checked ? 'light' : 'dark';
             
@@ -1648,6 +1658,7 @@ export function initializeAppSettings() {
                 state.uiSettings.theme = newTheme;
             }, true);
             document.dispatchEvent(new CustomEvent('app:theme-change', { detail: { theme: newTheme, origin } }));
+            updateThemeLabel();
         });
     }
 
@@ -2397,6 +2408,12 @@ export function renderAppSettings(uiSettings) {
 
     if (themeToggle) {
         themeToggle.checked = uiSettings.theme === 'light';
+        const themeLabel = document.querySelector('label[for="settings-theme-toggle"]');
+        if (themeLabel) {
+            const labelKey = themeToggle.checked ? 'settings.options.themeDark' : 'settings.options.themeLight';
+            themeLabel.textContent = translate(labelKey);
+            themeLabel.setAttribute('data-i18n', labelKey);
+        }
     }
 
     if (accentColorSwatches) {

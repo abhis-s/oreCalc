@@ -16,8 +16,12 @@
 .hero-card {
     background-color: $bg-surface-secondary;
     border-radius: 10px;
-    padding: 20px;
+    padding: 30px;
     transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
+
+    @container (max-width: 445px) {
+        padding: 20px;
+    }
 
     h3 {
         color: $text-primary;
@@ -106,6 +110,8 @@
         margin-right: 10px;
         transition: filter 0.3s ease-in-out;
         width: 40px;
+        aspect-ratio: 1 / 1;
+        flex-shrink: 0;
 
         &.grayscale {
             filter: grayscale(100%);

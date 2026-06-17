@@ -446,6 +446,21 @@ function positionTrackAtIndex(index, animated = false) {
     calendarTrack.style.transition = animated ? 'transform 0.3s ease-out' : 'none';
     currentTranslate = -index * calendarContainer.offsetWidth;
     calendarTrack.style.transform = `translateX(${currentTranslate}px)`;
+
+    const activeGrid = calendarTrack.children[index];
+    if (activeGrid) {
+        requestAnimationFrame(() => {
+            const height = activeGrid.offsetHeight;
+            if (height > 0) {
+                calendarContainer.style.transition = animated ? 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none';
+                calendarContainer.style.height = `${height}px`;
+            } else {
+                calendarContainer.style.height = '';
+            }
+        });
+    } else {
+        calendarContainer.style.height = '';
+    }
 }
 
 function shiftNext() {
@@ -1089,7 +1104,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('resize', () => {
         if (currentView === 'monthly' || currentView === 'weekly') {
-            positionTrackAtIndex(1);
+            const activeIndex = Math.max(0, calendarTrack.children.length - 2);
+            positionTrackAtIndex(activeIndex);
         }
     });
 

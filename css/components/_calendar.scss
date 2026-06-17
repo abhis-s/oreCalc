@@ -9,6 +9,7 @@
 
 #calendar-track {
     display: flex;
+    align-items: flex-start;
     width: 300%;
     position: relative;
 }
@@ -65,6 +66,8 @@
     width: calc(100% / 3);
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: auto;
+    grid-auto-rows: minmax(80px, auto);
     text-align: center;
     flex-shrink: 0;
     border: 1px solid $border-primary;
@@ -104,6 +107,17 @@
                 opacity: 0.4;
                 filter: grayscale(0.5);
             }
+        }
+
+        .chip-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(32px, calc(50% - 2px)), 1fr));
+            gap: 4px;
+            justify-items: center;
+            align-items: center;
+            align-content: flex-start;
+            width: 100%;
+            box-sizing: border-box;
         }
     }
 }

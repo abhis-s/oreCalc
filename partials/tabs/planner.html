@@ -1,10 +1,10 @@
         <div class="tab-content" id="planner-tab">
-            <div class="planner-card card full-width-card">
-                <div class="max-level-card-header">
-                    <!-- Custom Max Levels will be dynamically inserted here -->
-                </div>
-            </div>
             <div class="planner-cards-grid">
+                <div class="planner-card card full-width-card">
+                    <div class="max-level-card-header">
+                        <!-- Custom Max Levels will be dynamically inserted here -->
+                    </div>
+                </div>
                 <div class="planner-card card planner-hero-carousel">
                     <div class="carousel-content" id="planner-hero-carousel-content">
                         <!-- Hero pages will be dynamically inserted here by JavaScript -->
@@ -16,57 +16,55 @@
                 <div class="planner-card card" id="priority-list-card">
                     <!-- Priority list will be dynamically inserted here -->
                 </div>
-                
+                <div class="full-width-planner-section card">
+                    <h2 class="calendar-planner-title" data-i18n="planner.calendarTitle">Calendar Planner</h2>
+                    <div class="inner-card">
+                        <div class="calendar-header">
+                            <div class="calendar-nav">
+                                <h2 id="current-month-year"></h2>
+                            </div>
+                            
+                            <div class="calendar-action-buttons">
+                                <button id="calendar-settings-btn" class="icon-button planner-action-button" data-i18n-aria-label="actions.calendarSettings" aria-label="Calendar Settings">
+                                    <orecalc-assets-svg name="settings-outline"></orecalc-assets-svg>
+                                </button>
+                                <button id="delete-current-month-chips-btn" class="icon-button planner-action-button" data-i18n-aria-label="actions.deleteMonthChips" aria-label="Delete current month's chips">
+                                    <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                                </button>
+                                <button id="delete-all-chips-btn" class="icon-button planner-action-button" data-i18n-aria-label="actions.deleteAllChips" aria-label="Delete all chips">
+                                    <orecalc-assets-svg name="trash-sweep"></orecalc-assets-svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inner-card">
+                        <div id="calendar-container" class="calendar-container">
+                            <div id="calendar-track" class="calendar-track">
+                                <!-- Calendar grids will be dynamically inserted here -->
+                            </div>
+                        </div>
+                        <div id="month-chip-container" class="month-chip-container"></div>
+                    </div>
+                    <div class="inner-card" id="income-chips-card">
+                        <div class="income-chips-header">
+                            <h3 class="income-chips-title">
+                                <span class="full-title" data-i18n="income.chipsTitle">Income Chips</span>
+                                <span class="short-title" data-i18n="income.chips">Chips</span>
+                            </h3>
+                            <div class="income-chips-actions">
+                                <button id="create-custom-chips-btn" class="icon-button create-custom-chips-btn" title="Create Custom Chips" data-i18n-aria-label="actions.createCustomChips" aria-label="Create Custom Chips">
+                                    <orecalc-assets-svg name="edit" width="20" height="20"></orecalc-assets-svg>
+                                </button>
+                                <button id="auto-place-chips-btn" class="auto-place-chips-btn" data-i18n="actions.autoPlace">Auto Place</button>
+                            </div>
+                        </div>
+                        <div id="income-chips-container" class="income-chips-container">
+                            <!-- Draggable chips will be dynamically inserted here -->
+                        </div>
+                        <div id="income-chips-legend" class="income-chips-legend">
+                            <!-- Legend items will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="full-width-planner-section card">
-                <h2 class="calendar-planner-title" data-i18n="planner.calendarTitle">Calendar Planner</h2>
-                <div class="inner-card">
-                    <div class="calendar-header">
-                        <div class="calendar-nav">
-                            <h2 id="current-month-year"></h2>
-                        </div>
-                        
-                        <div class="calendar-action-buttons">
-                            <button id="calendar-settings-btn" class="icon-button planner-action-button" data-i18n-aria-label="actions.calendarSettings" aria-label="Calendar Settings">
-                                <orecalc-assets-svg name="settings-outline"></orecalc-assets-svg>
-                            </button>
-                            <button id="delete-current-month-chips-btn" class="icon-button planner-action-button" data-i18n-aria-label="actions.deleteMonthChips" aria-label="Delete current month's chips">
-                                <orecalc-assets-svg name="trash"></orecalc-assets-svg>
-                            </button>
-                            <button id="delete-all-chips-btn" class="icon-button planner-action-button" data-i18n-aria-label="actions.deleteAllChips" aria-label="Delete all chips">
-                                <orecalc-assets-svg name="trash-sweep"></orecalc-assets-svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="inner-card">
-                    <div id="calendar-container" class="calendar-container">
-                        <div id="calendar-track" class="calendar-track">
-                            <!-- Calendar grids will be dynamically inserted here -->
-                        </div>
-                    </div>
-                    <div id="month-chip-container" class="month-chip-container"></div>
-                </div>
-            <div class="inner-card" id="income-chips-card">
-                    <div class="income-chips-header">
-                        <h3 class="income-chips-title">
-                            <span class="full-title" data-i18n="income.chipsTitle">Income Chips</span>
-                            <span class="short-title" data-i18n="income.chips">Chips</span>
-                        </h3>
-                        <div class="income-chips-actions">
-                            <button id="create-custom-chips-btn" class="icon-button create-custom-chips-btn" title="Create Custom Chips" data-i18n-aria-label="actions.createCustomChips" aria-label="Create Custom Chips">
-                                <orecalc-assets-svg name="edit" width="20" height="20"></orecalc-assets-svg>
-                            </button>
-                            <button id="auto-place-chips-btn" class="auto-place-chips-btn" data-i18n="actions.autoPlace">Auto Place</button>
-                        </div>
-                    </div>
-                    <div id="income-chips-container" class="income-chips-container">
-                        <!-- Draggable chips will be dynamically inserted here -->
-                    </div>
-                    <div id="income-chips-legend" class="income-chips-legend">
-                        <!-- Legend items will be dynamically inserted here -->
-                    </div>
-                </div>
-            </div>
-            
         </div>

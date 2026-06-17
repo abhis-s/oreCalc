@@ -370,7 +370,7 @@
         "suggestionInterleave": "Finish {itemNames} while waiting for {itemName} ores. No delay to your plan.",
         "placeholderLevel": "e.g., 18",
         "confirmDeleteMonth": "Are you sure you want to delete all chips placed in the current month?",
-        "confirmDeleteAll": "Are you sure you want to delete all chips from the calendar? This will also remove all unplaced custom chips."
+        "confirmDeleteAll": "Are you sure you want to delete all chips from the calendar? This will also delete all the custom chips."
     },
     "actions": {
         "upgrade": "Upgrade",
@@ -499,6 +499,8 @@
         },
         "options": {
             "theme": "Light/Dark Mode",
+            "themeLight": "Light Theme",
+            "themeDark": "Dark Theme",
             "language": "Language",
             "currency": "Currency",
             "globalPricing": "Global Pricing",

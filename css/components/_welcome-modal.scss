@@ -99,10 +99,10 @@
             right: 0;
             bottom: 0;
             z-index: -1;
-            background-color: transparent;
-            backdrop-filter: blur(0px);
-            -webkit-backdrop-filter: blur(0px);
-            opacity: 0;
+            background-color: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            opacity: 1;
             transition: opacity 0.8s ease, background-color 0.8s ease, backdrop-filter 0.8s ease;
         }
 
@@ -1073,11 +1073,14 @@
                     position: relative;
                     width: 30px;
                     height: 30px;
+                    flex-shrink: 0;
+                    aspect-ratio: 1 / 1;
 
                     .equipment-image {
                         width: 100%;
                         height: 100%;
                         object-fit: contain;
+                        aspect-ratio: 1 / 1;
                     }
 
                     .equipment-level-box {

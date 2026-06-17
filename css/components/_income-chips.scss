@@ -69,18 +69,22 @@
 
     &.calendar-chip {
         padding: 0;
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
-        min-height: 32px;
+        width: 100%;
+        max-width: 32px;
+        height: auto;
+        aspect-ratio: 1 / 1;
+        min-width: 0;
+        min-height: 0;
         border-radius: 50%;
         overflow: visible;
 
         .chip-text { display: none; }
 
         &.no-icon {
-            width: auto;
-            min-width: 44px;
+            grid-column: 1 / -1;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
             height: 18px;
             min-height: 18px;
             border-radius: 6px;
@@ -96,12 +100,17 @@
                 text-transform: uppercase;
                 letter-spacing: 0.2px;
                 line-height: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
 
         .chip-icon {
-            width: 22px; // Restored for monthly view
-            height: 22px;
+            width: 70%;
+            height: 70%;
+            max-width: 22px;
+            max-height: 22px;
         }
 
         .chip-badge {
@@ -348,17 +357,23 @@
 .income-chips-legend {
     display: flex;
     flex-wrap: wrap;
+    gap: 8px;
     margin-top: 20px;
     padding: 15px;
     border-radius: 12px;
     background-color: $bg-surface-primary;
     border: 1px solid $border-secondary;
+
+    @media (max-width: 425px) {
+        gap: 2px;
+    }
 }
 
 .legend-item {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
     color: $text-secondary;
     font-size: 0.85em;
     font-weight: 500;
@@ -366,6 +381,10 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
+
+    @media (max-width: 425px) {
+        padding: 2px 4px;
+    }
 
     &:hover {
         background-color: $bg-surface-tertiary;
@@ -455,5 +474,12 @@ h3.income-chips-title {
         height: 18px;
         object-fit: contain;
     }
+}
+
+.income-chip-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
 }
 
