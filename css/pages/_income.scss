@@ -472,6 +472,34 @@
     grid-template-columns: 1fr 1fr;
 }
 
+.income-cards-grid.layout-compact,
+.settings-cards-grid.layout-compact {
+    align-items: start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    .layout-grid-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        min-height: 1px;
+    }
+
+    .card-container {
+        height: auto;
+        width: 100%;
+
+        .income-card,
+        .settings-card {
+            height: auto;
+            width: 100%;
+            margin-bottom: 0;
+        }
+    }
+}
+
 .negative-medals,
 .event-trader-error-message {
     color: $color-danger;

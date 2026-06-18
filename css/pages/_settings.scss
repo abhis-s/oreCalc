@@ -473,6 +473,66 @@
     border-color: $color-danger;
 }
 
+.segmented-control {
+    display: flex;
+    background-color: $bg-surface-tertiary;
+    border-radius: 8px;
+    padding: 2px;
+    border: 1px solid $border-primary;
+    
+    .segmented-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border: none;
+        background: transparent;
+        color: $text-secondary;
+        font-size: 0.8em;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        orecalc-assets-svg {
+            width: 14px;
+            height: 14px;
+        }
+        
+        &:hover {
+            color: $text-primary;
+        }
+        
+        &.active {
+            background-color: $bg-surface-primary;
+            color: $accent-primary;
+            box-shadow: $elevation-1;
+        }
+    }
+}
+
+.layout-segmented-control {
+    display: flex;
+    
+    @media (max-width: 599px) {
+        display: none;
+    }
+}
+
+.mobile-only-switch {
+    display: none;
+    
+    @media (max-width: 599px) {
+        display: block;
+    }
+}
+
+.layout-settings-item {
+    @media (max-width: 779px) {
+        display: none !important;
+    }
+}
+
 @container (max-width: 445px) {
     .settings-card {
 

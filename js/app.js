@@ -35,6 +35,7 @@ import { initializeProspector } from './components/income/prospectorInputs.js';
 import { initializeWelcomeModal, showWelcomeModal } from './components/welcome/welcomeModal.js';
 
 import { initializeIncomeCardHandler } from './components/income/incomeCardHandler.js';
+import { initCardLayoutManager, applyCardLayout } from './ui/cardLayoutManager.js';
 import { updateResponsiveText } from './utils/responsiveTextHandler.js';
 import { validateAllInputs, validateAllSelects } from './utils/inputValidator.js';
 
@@ -594,6 +595,13 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         initializeSupercellEventsInputs();
         initializeProspector();
         initializeIncomeCardHandler();
+        initCardLayoutManager();
+        let layoutMode = state.uiSettings.cardLayout;
+        if (layoutMode === 'quilt') {
+            layoutMode = 'compact0';
+            state.uiSettings.cardLayout = 'compact0';
+        }
+        applyCardLayout(layoutMode || 'cozy', false);
         import('./utils/cloudSaveHandler.js').then(module => {
             module.initializeCloudSaveButtons();
         });

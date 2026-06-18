@@ -149,6 +149,10 @@
         }
     }
 
+    #income-tab .income-cards-grid.layout-compact {
+        align-items: start;
+    }
+
     .income-header {
         &:not(.collapsed) {
             #home-total-income-header {

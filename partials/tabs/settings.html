@@ -37,6 +37,29 @@
                                     <span class="animated-btn-text" data-i18n="actions.view">View</span>
                                 </button>
                             </div>
+                            <div class="settings-item layout-settings-item">
+                                <div class="settings-item-label-wrapper">
+                                    <label for="settings-cozy-quilt-toggle" data-i18n="settings.options.cardLayout">Card Layout</label>
+                                    <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
+                                </div>
+                                <div class="segmented-control layout-segmented-control">
+                                    <button type="button" class="segmented-btn active" data-layout="cozy">
+                                        <orecalc-assets-svg name="view-cozy"></orecalc-assets-svg>
+                                        <span data-i18n="settings.options.layoutCozyLabel">Cozy</span>
+                                    </button>
+                                    <button type="button" class="segmented-btn" data-layout="quilt">
+                                        <orecalc-assets-svg name="view-quilt"></orecalc-assets-svg>
+                                        <span data-i18n="settings.options.layoutCompactLabel">Compact</span>
+                                    </button>
+                                </div>
+                                <div class="switch layout-switch mobile-only-switch">
+                                    <input type="checkbox" id="settings-cozy-quilt-toggle">
+                                    <span class="slider round">
+                                        <orecalc-assets-svg name="view-cozy" class="switch-icon icon-dark"></orecalc-assets-svg>
+                                        <orecalc-assets-svg name="view-quilt" class="switch-icon icon-light"></orecalc-assets-svg>
+                                    </span>
+                                </div>
+                            </div>
                             <hr class="settings-divider">
                             <div class="settings-item">
                                 <div class="settings-item-label-wrapper">

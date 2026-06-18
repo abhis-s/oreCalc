@@ -36,7 +36,8 @@ export function getDefaultState() {
             incomeCard: {
                 timeframe: 'monthly',
                 expanded: true
-            }
+            },
+            cardLayout: 'cozy'
         },
 
         ...getDefaultPlayerStateProperties(),

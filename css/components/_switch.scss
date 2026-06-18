@@ -119,7 +119,8 @@
         }
     }
 
-    &.theme-switch {
+    &.theme-switch,
+    &.layout-switch {
         .slider {
             background-color: $theme-switch-track-dark;
             display: block;

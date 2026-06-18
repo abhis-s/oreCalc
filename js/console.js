@@ -6,6 +6,7 @@ import { showChangelogModal } from './components/changelog/changelogModal.js';
 import { showSaveErrorIndicator } from './ui/savingIndicator.js';
 import { state } from './core/state.js';
 import { showWelcomeModal } from './components/welcome/welcomeModal.js';
+import { applyCardLayout } from './ui/cardLayoutManager.js';
 
 window.enableLevelInput = () => {
     const newEnableLevelInput = !state.uiSettings.enableLevelInput;
@@ -14,6 +15,39 @@ window.enableLevelInput = () => {
     });
     const newModeText = newEnableLevelInput ? 'Enabled' : 'Disabled';
     return `Level input has been ${newModeText}.`;
+};
+
+window.switchLayout = (layout) => {
+    let targetLayout;
+    if (layout === undefined || layout === null) {
+        targetLayout = (state.uiSettings.cardLayout === 'compact0' || state.uiSettings.cardLayout === 'compact1') ? 'cozy' : 'compact0';
+    } else if (layout === 'cozy') {
+        targetLayout = 'cozy';
+    } else if (layout === 'compact0' || layout === 'quilt') {
+        targetLayout = 'compact0';
+    } else if (layout === 'compact1') {
+        targetLayout = 'compact1';
+    } else {
+        return "Invalid layout. Options: 'cozy' (default), 'compact0' (keeps row constraints, swaps columns), or 'compact1' (Google Keep masonry flow). Omit to toggle.";
+    }
+
+    handleStateUpdate(() => {
+        state.uiSettings.cardLayout = targetLayout;
+    }, true);
+    applyCardLayout(targetLayout);
+    
+    const cozyQuiltToggle = document.getElementById('settings-cozy-quilt-toggle');
+    if (cozyQuiltToggle) {
+        const isCompact = targetLayout === 'compact0' || targetLayout === 'compact1';
+        cozyQuiltToggle.checked = isCompact;
+        const layoutBtns = document.querySelectorAll('.layout-segmented-control .segmented-btn');
+        layoutBtns.forEach(btn => {
+            const isQuilt = btn.dataset.layout === 'quilt';
+            btn.classList.toggle('active', isQuilt === isCompact);
+        });
+    }
+
+    return `Layout switched to ${targetLayout === 'cozy' ? 'cozy' : targetLayout}.`;
 };
 
 window.resetApp = () => {
@@ -131,6 +165,7 @@ window.disableTour = () => {
 console.info(
     "%c Ore Calculator Console Commands:\n\n" +
     "%c  enableLevelInput():     %cToggles the 'Enable level input' setting.\n" +
+    "%c  switchLayout(layout):   %cSwitches layout ('cozy', 'compact0', or 'compact1'). Omit layout to toggle.\n" +
     "%c  resetApp():             %cInitiates a 5-second countdown to reset all app data and reload. Can be cancelled.\n" +
     "%c  cancelResetApp():       %cCancels an active resetApp countdown.\n" +
     "%c  logState():             %cLogs the current state object to the console.\n" +
@@ -144,6 +179,7 @@ console.info(
     "%c  disableTour():          %cMarks the tour as completed.\n\n" +
     "%c For more information, refer to the documentation.",
     "color: #4facfe; font-weight: bold;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",

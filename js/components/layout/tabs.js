@@ -7,6 +7,7 @@ import { navigationRegistry } from '../../data/navigationRegistry.js';
 import { closeFabMenu } from '../fab/fab.js';
 import { openStoredOresModal } from '../planner/priorityListModal.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
+// import { repackCards } from '../../ui/cardLayoutManager.js';
 
 function checkPlannerTabStoredOres() {
     const storedOres = state.storedOres || {};
@@ -134,4 +135,9 @@ export function renderTabs(activeTabId) {
         const tabDataValue = activeTabId.replace('-tab', '');
         button.classList.toggle('active', button.dataset.tab === tabDataValue);
     });
+
+    // On tab change, repack compact layout (disabled for now)
+    // if (activeTabId === 'income-tab') {
+    //     repackCards();
+    // }
 }

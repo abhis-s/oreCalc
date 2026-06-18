@@ -21,6 +21,7 @@ import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 
 import { showAlert, showConfirm } from '../../ui/noticeModal.js';
 import { showChangelogModal } from '../changelog/changelogModal.js';
+import { initCardLayoutManager, applyCardLayout } from '../../ui/cardLayoutManager.js';
 
 function populateDropdowns() {
     const languageSelect = dom.appSettings?.languageSelect;
@@ -1662,6 +1663,44 @@ export function initializeAppSettings() {
         });
     }
 
+    const cozyQuiltToggle = document.getElementById('settings-cozy-quilt-toggle');
+    const layoutBtns = document.querySelectorAll('.layout-segmented-control .segmented-btn');
+
+    if (cozyQuiltToggle) {
+        const updateLayoutLabel = () => {
+            const isCompact = state.uiSettings.cardLayout === 'compact0' || state.uiSettings.cardLayout === 'compact1';
+            layoutBtns.forEach(btn => {
+                const isQuilt = btn.dataset.layout === 'quilt';
+                btn.classList.toggle('active', isQuilt === isCompact);
+            });
+            cozyQuiltToggle.checked = isCompact;
+        };
+        updateLayoutLabel();
+
+        cozyQuiltToggle.addEventListener('change', (e) => {
+            const layout = e.target.checked ? 'compact0' : 'cozy';
+            handleStateUpdate(() => {
+                state.uiSettings.cardLayout = layout;
+            }, true);
+            applyCardLayout(layout);
+            updateLayoutLabel();
+        });
+
+        layoutBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const layout = btn.dataset.layout;
+                const targetLayout = layout === 'quilt' ? 'compact0' : 'cozy';
+                if (state.uiSettings.cardLayout !== targetLayout) {
+                    handleStateUpdate(() => {
+                        state.uiSettings.cardLayout = targetLayout;
+                    }, true);
+                    applyCardLayout(targetLayout);
+                    updateLayoutLabel();
+                }
+            });
+        });
+    }
+
     const mobileAccentPickerBtn = dom.appSettings?.mobileAccentPickerBtn;
     const accentPickerModal = dom.appSettings?.accentPickerModal;
     const mobileAccentSwatches = dom.appSettings?.mobileAccentSwatches;
@@ -2460,5 +2499,17 @@ export function renderAppSettings(uiSettings) {
         } else {
             addPlayerLink.classList.add('hidden');
         }
+    }
+
+    const cozyQuiltToggle = document.getElementById('settings-cozy-quilt-toggle');
+    const layoutBtns = document.querySelectorAll('.layout-segmented-control .segmented-btn');
+
+    if (cozyQuiltToggle) {
+        const isCompact = uiSettings.cardLayout === 'compact0' || uiSettings.cardLayout === 'compact1' || uiSettings.cardLayout === 'quilt';
+        cozyQuiltToggle.checked = isCompact;
+        layoutBtns.forEach(btn => {
+            const isQuilt = btn.dataset.layout === 'quilt';
+            btn.classList.toggle('active', isQuilt === isCompact);
+        });
     }
 }

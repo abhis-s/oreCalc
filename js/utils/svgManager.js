@@ -80,7 +80,9 @@ export const SVGs = {
     'star': {},
     'thumbs-up': {},
     'thumbs-double': {},
-    'thumbs-down': {}
+    'thumbs-down': {},
+    'view-cozy': {},
+    'view-quilt': {}
 };
 
 /**
