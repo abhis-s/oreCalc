@@ -332,3 +332,126 @@ export async function submitBugReport(email, description, attachData = null, use
         throw error;
     }
 }
+
+/**
+ * Fetches the clan war log for a specific clan tag.
+ *
+ * @param {string} clanTag - The clan tag to query.
+ * @returns {Promise<Object>} The parsed war log data.
+ */
+export async function fetchClanWarLog(clanTag) {
+    checkApiBlock();
+    checkClashApiBlock();
+
+    const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
+    const url = `${BASE_URL}/proxy/clans/${cleanedTag}/warlog`;
+
+    const headers = { 'Accept': 'application/json' };
+    const userId = localStorage.getItem('oreCalcUserId');
+    if (userId) {
+        headers['x-user-id'] = userId;
+    }
+
+    try {
+        const response = await fetch(url, { headers });
+        if (!response.ok) {
+            throw new Error(await handleResponseError(response));
+        }
+        return await response.json();
+    } catch (error) {
+        logger.error("Error fetching clan war log:", error);
+        throw error;
+    }
+}
+
+/**
+ * Fetches the clan war league group information for a specific clan tag.
+ *
+ * @param {string} clanTag - The clan tag to query.
+ * @returns {Promise<Object>} The parsed league group data.
+ */
+export async function fetchCwlLeagueGroup(clanTag) {
+    checkApiBlock();
+    checkClashApiBlock();
+
+    const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
+    const url = `${BASE_URL}/proxy/clans/${cleanedTag}/currentwar/leaguegroup`;
+
+    const headers = { 'Accept': 'application/json' };
+    const userId = localStorage.getItem('oreCalcUserId');
+    if (userId) {
+        headers['x-user-id'] = userId;
+    }
+
+    try {
+        const response = await fetch(url, { headers });
+        if (!response.ok) {
+            throw new Error(await handleResponseError(response));
+        }
+        return await response.json();
+    } catch (error) {
+        logger.error("Error fetching CWL league group:", error);
+        throw error;
+    }
+}
+
+/**
+ * Fetches data for an individual CWL war tag.
+ *
+ * @param {string} warTag - The war tag to query.
+ * @returns {Promise<Object>} The parsed war data.
+ */
+export async function fetchCwlWar(warTag) {
+    checkApiBlock();
+    checkClashApiBlock();
+
+    const cleanedTag = warTag.startsWith('#') ? warTag.substring(1) : warTag;
+    const url = `${BASE_URL}/proxy/clanwarleagues/wars/${cleanedTag}`;
+
+    const headers = { 'Accept': 'application/json' };
+    const userId = localStorage.getItem('oreCalcUserId');
+    if (userId) {
+        headers['x-user-id'] = userId;
+    }
+
+    try {
+        const response = await fetch(url, { headers });
+        if (!response.ok) {
+            throw new Error(await handleResponseError(response));
+        }
+        return await response.json();
+    } catch (error) {
+        logger.error("Error fetching CWL war info:", error);
+        throw error;
+    }
+}
+
+/**
+ * Fetches cached historical CWL wars from our Firestore database for a specific clan tag.
+ *
+ * @param {string} clanTag - The clan tag to query.
+ * @returns {Promise<Array>} List of cached CWL war objects.
+ */
+export async function fetchCwlWarsFromServer(clanTag) {
+    checkApiBlock();
+
+    const cleanedTag = clanTag.startsWith('#') ? clanTag : `#${clanTag}`;
+    const url = `${BASE_URL}/api/cwl/wars?clanTag=${encodeURIComponent(cleanedTag)}`;
+
+    const headers = { 'Accept': 'application/json' };
+    const userId = localStorage.getItem('oreCalcUserId');
+    if (userId) {
+        headers['x-user-id'] = userId;
+    }
+
+    try {
+        const response = await fetch(url, { headers });
+        if (!response.ok) {
+            throw new Error(await handleResponseError(response));
+        }
+        return await response.json();
+    } catch (error) {
+        logger.error("Error fetching cached CWL wars from server:", error);
+        throw error;
+    }
+}

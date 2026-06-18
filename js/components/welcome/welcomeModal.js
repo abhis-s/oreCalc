@@ -3005,14 +3005,51 @@ export function syncWelcomeQuickSettings(tag) {
             const clanWarState = playerObj.income?.clanWar || {};
             clanWarsBuySwitch.checked = (clanWarState.warsPerMonth > 0);
             clanWarsCountInput.value = clanWarState.warsPerMonth || 8;
-            clanWarsWinrateInput.value = clanWarState.winRate ?? 70;
-            clanWarsDrawrateInput.value = clanWarState.drawRate ?? 0;
+
+            let suggestedClanWarWinRate = 70;
+            let suggestedClanWarDrawRate = 0;
+            const profileClanWarStats = playerObj.clanWarStats;
+            if (profileClanWarStats) {
+                const wins = profileClanWarStats.winsCount ?? 0;
+                const ties = profileClanWarStats.drawsCount ?? 0;
+                const total = profileClanWarStats.warsCount ?? 0;
+                suggestedClanWarWinRate = total > 0 ? Math.round((wins / total) * 100) : (profileClanWarStats.winRate ?? 70);
+                suggestedClanWarDrawRate = total > 0 ? Math.round((ties / total) * 100) : (profileClanWarStats.drawRate ?? 0);
+            }
+            clanWarsWinrateInput.value = clanWarState.winRate ?? suggestedClanWarWinRate;
+            clanWarsDrawrateInput.value = clanWarState.drawRate ?? suggestedClanWarDrawRate;
 
             const cwlState = playerObj.income?.cwl || {};
             cwlBuySwitch.checked = (cwlState.hitsPerSeason > 0);
-            cwlHitsInput.value = cwlState.hitsPerSeason || 7;
-            cwlWinrateInput.value = cwlState.winRate ?? 50;
-            cwlDrawrateInput.value = cwlState.drawRate ?? 0;
+
+            let suggestedCwlWinRate = 50;
+            let suggestedCwlDrawRate = 0;
+            let suggestedCwlHits = 7;
+            const cachedCwlSeasons = playerObj.cwlSeasons || [];
+            if (cachedCwlSeasons.length > 0) {
+                let totalWins = 0;
+                let totalDraws = 0;
+                let totalWars = 0;
+                let sumHits = 0;
+                for (const season of cachedCwlSeasons) {
+                    const wars = season.warsCount || 0;
+                    const wins = season.winsCount !== undefined ? season.winsCount : Math.round(((season.winRate ?? 50) * (wars || 7)) / 100);
+                    const draws = season.drawsCount !== undefined ? season.drawsCount : Math.round(((season.drawRate ?? 0) * (wars || 7)) / 100);
+                    totalWins += wins;
+                    totalDraws += draws;
+                    totalWars += wars;
+                    sumHits += (season.hitsCount ?? 7);
+                }
+                if (totalWars > 0) {
+                    suggestedCwlWinRate = Math.round((totalWins / totalWars) * 100);
+                    suggestedCwlDrawRate = Math.round((totalDraws / totalWars) * 100);
+                }
+                suggestedCwlHits = Math.round(sumHits / cachedCwlSeasons.length);
+            }
+
+            cwlHitsInput.value = cwlState.hitsPerSeason || suggestedCwlHits;
+            cwlWinrateInput.value = cwlState.winRate ?? suggestedCwlWinRate;
+            cwlDrawrateInput.value = cwlState.drawRate ?? suggestedCwlDrawRate;
 
             const prospectorState = playerObj.income?.prospector || {};
             goldPassSwitch.checked = prospectorState.goldPass || false;

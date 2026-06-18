@@ -139,7 +139,10 @@
             "none": "Keine Clankriege",
             "shinyBonusAriaLabel": "Clankrieg Glanzerz-Bonus pro Angriff",
             "glowyBonusAriaLabel": "Clankrieg Glimmerz-Bonus pro Angriff",
-            "starryBonusAriaLabel": "Clankrieg Sternenerz-Bonus pro Angriff"
+            "starryBonusAriaLabel": "Clankrieg Sternenerz-Bonus pro Angriff",
+            "last60Days": "Letzte 60 Tage",
+            "lastNWars": "Letzte {count} Kriege",
+            "last60DaysNWars": "Letzte 60 Tage | Letzte {count} Kriege"
         },
         "cwl": {
             "title": "CKL",
@@ -149,7 +152,11 @@
             "none": "Keine CKL",
             "shinyBonusAriaLabel": "CKL Glanzerz-Bonus pro Angriff",
             "glowyBonusAriaLabel": "CKL Glimmerz-Bonus pro Angriff",
-            "starryBonusAriaLabel": "CKL Sternenerz-Bonus pro Angriff"
+            "starryBonusAriaLabel": "CKL Sternenerz-Bonus pro Angriff",
+            "lastCwlHits": "Letzte CKL | {count} Angriffe",
+            "currentCwlHits": "Aktuelle CKL | {count} Angriffe",
+            "cwl1SeasonHits": "CKL (1 Saison) | {count} Angriffe",
+            "cwl2SeasonsHits": "CKL (2 Saisons) | {count} Angriffe"
         },
         "raidMedalTrader": {
             "title": "Überfallmedaillen-Händler",

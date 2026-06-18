@@ -209,6 +209,7 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         townHallLevel: playerData.townHallLevel,
         clanBadgeUrl: playerData.clan?.badgeUrls?.small || '',
         clan: playerData.clan ? {
+            tag: playerData.clan.tag,
             name: playerData.clan.name,
             badgeUrls: {
                 small: playerData.clan.badgeUrls?.small || '',

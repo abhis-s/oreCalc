@@ -139,7 +139,10 @@
             "none": "No Clan Wars",
             "shinyBonusAriaLabel": "Clan War Shiny Ore per attack bonus",
             "glowyBonusAriaLabel": "Clan War Glowy Ore per attack bonus",
-            "starryBonusAriaLabel": "Clan War Starry Ore per attack bonus"
+            "starryBonusAriaLabel": "Clan War Starry Ore per attack bonus",
+            "last60Days": "Last 60 Days",
+            "lastNWars": "Last {count} Wars",
+            "last60DaysNWars": "Last 60 Days | Last {count} Wars"
         },
         "cwl": {
             "title": "CWL",
@@ -149,7 +152,11 @@
             "none": "No CWL",
             "shinyBonusAriaLabel": "CWL Shiny Ore per attack bonus",
             "glowyBonusAriaLabel": "CWL Glowy Ore per attack bonus",
-            "starryBonusAriaLabel": "CWL Starry Ore per attack bonus"
+            "starryBonusAriaLabel": "CWL Starry Ore per attack bonus",
+            "lastCwlHits": "Last CWL | {count} Hits",
+            "currentCwlHits": "Current CWL | {count} Hits",
+            "cwl1SeasonHits": "CWL (1 Season) | {count} Hits",
+            "cwl2SeasonsHits": "CWL (2 Seasons) | {count} Hits"
         },
         "raidMedalTrader": {
             "title": "Raid Medal Trader",
