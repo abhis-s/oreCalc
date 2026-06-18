@@ -1,7 +1,8 @@
 import { dom } from '../../dom/domElements.js';
 import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../app.js';
 
-import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
+import { convertOres, getStepValue, findOptimalConversionSchedule } from '../../incomeCalculations/prospectorManager.js';
 
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { getDailyIncomeFromCalendar } from '../../utils/predictionCalculator.js';
@@ -11,7 +12,13 @@ import { oreMaxValues } from '../../data/oreConversionData.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 import { translate } from '../../i18n/translator.js';
 
-import { getGlobalPriorityList, getStepOrderErrors } from '../planner/priorityListModal.js';
+import { getGlobalPriorityList, getStepOrderErrors, openPriorityListModal } from '../planner/priorityListModal.js';
+import { renderApp } from '../../core/renderer.js';
+import { setAnimateNextRender } from '../planner/calendar.js';
+
+// Session-only toggle for when the planner list is empty. Never persisted to state,
+// so it always resets to false (= show global) on page reload.
+let _emptyPlannerSessionToggle = false;
 
 export function renderProspectorIncomeDisplay(prospectorIncome) {
     const dailyValues = prospectorIncome.daily || { shiny: 0, glowy: 0, starry: 0 };
@@ -28,156 +35,393 @@ export function renderProspectorIncomeDisplay(prospectorIncome) {
     updateProspectorTip();
 }
 
+export function getUpgradeRequirements(items, isSingle = false) {
+    const req = { shiny: 0, glowy: 0, starry: 0 };
+    if (!items || items.length === 0) return req;
+
+    const listToProcess = isSingle ? [items[0]] : items;
+    const startLevels = {};
+
+    for (const item of listToProcess) {
+        const key = `${item.heroName}-${item.name}`;
+        const actualLevel = state.heroes[item.heroName]?.equipment[item.name]?.level || 1;
+        const fromLevel = startLevels[key] !== undefined ? startLevels[key] : actualLevel;
+        
+        if (fromLevel >= item.targetLevel) {
+            continue;
+        }
+
+        const heroDataEntry = heroData[Object.keys(heroData).find(k => heroData[k].name === item.heroName)];
+        const equipmentType = heroDataEntry?.equipment.find(eq => eq.name === item.name)?.type;
+
+        for (let level = fromLevel + 1; level <= item.targetLevel; level++) {
+            const cost = upgradeCosts[level];
+            if (cost) {
+                req.shiny += cost.shiny || 0;
+                req.glowy += cost.glowy || 0;
+                if (equipmentType === 'epic') {
+                    req.starry += cost.starry || 0;
+                }
+            }
+        }
+
+        startLevels[key] = item.targetLevel;
+    }
+
+    return req;
+}
+
+function getAllUnfinishedUpgradeRequirements() {
+    const req = { shiny: 0, glowy: 0, starry: 0 };
+    const customMaxLevel = state.planner?.customMaxLevel || {};
+    const commonMax = customMaxLevel.common !== undefined ? customMaxLevel.common : 18;
+    const epicMax = customMaxLevel.epic !== undefined ? customMaxLevel.epic : 27;
+
+    for (const heroName in (state.heroes || {})) {
+        const hero = state.heroes[heroName];
+        if (hero.enabled === false) continue;
+
+        for (const equipName in hero.equipment) {
+            const equip = hero.equipment[equipName];
+            if (equip.checked === false) continue;
+
+            const heroDataEntry = Object.values(heroData).find(h => h.name === heroName);
+            const eqData = heroDataEntry?.equipment.find(e => e.name === equipName);
+            if (!eqData) continue;
+
+            const maxLevel = eqData.type === 'common' ? commonMax : epicMax;
+            const currentLevel = equip.level || 1;
+
+            if (currentLevel >= maxLevel) continue;
+
+            for (let level = currentLevel + 1; level <= maxLevel; level++) {
+                const cost = upgradeCosts[level];
+                if (cost) {
+                    req.shiny += cost.shiny || 0;
+                    req.glowy += cost.glowy || 0;
+                    if (eqData.type === 'epic') {
+                        req.starry += cost.starry || 0;
+                    }
+                }
+            }
+        }
+    }
+    return req;
+}
+
+export function getBaseIncome() {
+    const incomeSources = state.derived?.incomeSources || {};
+    const baseMonthlyIncome = { shiny: 0, glowy: 0, starry: 0 };
+    for (const source in incomeSources) {
+        if (source === 'prospector') continue;
+        const monthly = incomeSources[source]?.monthly || { shiny: 0, glowy: 0, starry: 0 };
+        baseMonthlyIncome.shiny += monthly.shiny || 0;
+        baseMonthlyIncome.glowy += monthly.glowy || 0;
+        baseMonthlyIncome.starry += monthly.starry || 0;
+    }
+    return {
+        shiny: baseMonthlyIncome.shiny / 30.44,
+        glowy: baseMonthlyIncome.glowy / 30.44,
+        starry: baseMonthlyIncome.starry / 30.44
+    };
+}
+
+
+
+
+function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays = false, subTitleInfo = '', itemImage = '', cardType = '') {
+    const missing = {
+        shiny: Math.max(0, req.shiny - stored.shiny),
+        glowy: Math.max(0, req.glowy - stored.glowy),
+        starry: Math.max(0, req.starry - stored.starry)
+    };
+
+    if (missing.shiny === 0 && missing.glowy === 0 && missing.starry === 0) {
+        return `
+            <div class="prospector-rec-section" data-card-type="${cardType}">
+                <div class="prospector-rec-header">
+                    <span class="prospector-rec-badge">
+                        ${itemImage 
+                            ? `<orecalc-assets-image src="${itemImage}" alt="${title}" class="prospector-rec-icon" size="thumbnail"></orecalc-assets-image>` 
+                            : getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
+                        ${subTitleInfo ? `<span class="prospector-upgrade-subtitle">${subTitleInfo}</span>` : `<span>${title}</span>`}
+                    </span>
+                    <span class="prospector-rec-time"><span style="color:var(--color-success);">${translate('planner.completed')}</span></span>
+                </div>
+                <div class="prospector-rec-empty">
+                    <span>✓ ${translate('income.prospector.tips.optimal')}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    const opt = findOptimalConversionSchedule(req, stored, baseIncome);
+    
+    let timeText = '';
+    if (opt.completionDays === Infinity) {
+        timeText = `<span>${translate('planner.infinity')}</span>`;
+    } else {
+        const roundedOptimal = Math.ceil(opt.completionDays);
+        let maxNatural = 0;
+        for (const ore of ['shiny', 'glowy', 'starry']) {
+            if (opt.naturalDays && opt.naturalDays[ore] > maxNatural) {
+                maxNatural = opt.naturalDays[ore];
+            }
+        }
+        const roundedNatural = maxNatural === Infinity ? Infinity : Math.ceil(maxNatural);
+        const daysLabel = translate('time.daysSuffix') || 'd';
+
+        if (roundedNatural > roundedOptimal) {
+            const naturalText = roundedNatural === Infinity ? '∞' : `${roundedNatural}${daysLabel}`;
+            const displayVal = `${naturalText} ➔ ${roundedOptimal}`;
+            timeText = `${translate('income.prospector.tips.readyIn', { days: displayVal })}`.replace('~', '');
+        } else {
+            timeText = `${translate('income.prospector.tips.readyIn', { days: roundedOptimal })}`.replace('~', '');
+        }
+    }
+
+    let listHtml = '';
+    if (opt.conversions.length === 0) {
+        listHtml = `
+            <div class="prospector-rec-empty">
+                <span style="color:var(--color-success);">✓</span> <span>${translate('income.prospector.tips.noConversionNeeded')}</span>
+            </div>
+        `;
+    } else {
+        listHtml = '<ul class="prospector-rec-list">';
+        for (const conv of opt.conversions) {
+            const fromName = translate('ores.' + conv.from);
+            const toName = translate('ores.' + conv.to);
+            const fromRate = oreMaxValues[conv.from];
+            const toRate = convertOres(conv.from, conv.to, fromRate);
+            
+            const fromImg = `assets/${conv.from}_ore.png`;
+            const toImg = `assets/${conv.to}_ore.png`;
+            
+            const flowText = `<span>${formatNumber(fromRate)} <orecalc-assets-image src="${fromImg}" alt="${fromName}" size="thumbnail"></orecalc-assets-image></span> ➔ <span>${formatNumber(toRate)} <orecalc-assets-image src="${toImg}" alt="${toName}" size="thumbnail"></orecalc-assets-image></span>`;
+            const daysLabel = translate('time.daysSuffix') || 'd';
+            
+            let displayDays = conv.days;
+            if (isActualDays && opt.completionDays !== Infinity) {
+                displayDays = Math.max(1, Math.round(opt.completionDays * conv.days / 30));
+            }
+            
+            listHtml += `
+                <li class="prospector-rec-item">
+                    <span class="day-count">${displayDays}${daysLabel}</span>
+                    <div class="conversion-flow">${flowText}</div>
+                </li>
+            `;
+        }
+        listHtml += '</ul>';
+    }
+
+    return `
+        <div class="prospector-rec-section" data-card-type="${cardType}">
+            <div class="prospector-rec-header">
+                <span class="prospector-rec-badge">
+                    ${itemImage 
+                        ? `<orecalc-assets-image src="${itemImage}" alt="${title}" class="prospector-rec-icon" size="thumbnail"></orecalc-assets-image>` 
+                        : getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
+                    ${subTitleInfo ? `<span class="prospector-upgrade-subtitle">${subTitleInfo}</span>` : `<span>${title}</span>`}
+                </span>
+                <span class="prospector-rec-time">${timeText}</span>
+            </div>
+            ${listHtml}
+        </div>
+    `;
+}
+
 function updateProspectorTip() {
     const tipContainer = dom.income.prospector.tip?.container;
-    const tipIcon = dom.income.prospector.tip?.icon;
-    const tipText = dom.income.prospector.tip?.text;
-    if (!tipContainer || !tipText || !tipIcon) return;
+    if (!tipContainer) return;
 
-    if (!state.income.prospector.goldPass) {
+    if (!state.income.prospector?.goldPass) {
         tipContainer.style.display = 'none';
         return;
     }
 
     const { globalPriorityList } = getGlobalPriorityList();
-    if (!globalPriorityList || globalPriorityList.length === 0) {
-        tipIcon.innerHTML = getSVG('suggestion', '', 24, 24, 'currentColor');
-        tipText.innerHTML = `<p>${translate('income.prospector.tips.addToPlanner')}</p>`;
-        tipContainer.style.display = 'block';
-        return;
-    }
+    const isPriorityListEmpty = !globalPriorityList || globalPriorityList.length === 0;
 
-    const firstItem = globalPriorityList[0];
-    const { errorItems } = getStepOrderErrors(globalPriorityList);
-    const itemKey = `${firstItem.name}-${firstItem.step}`;
-    const hasOrderError = errorItems.has(itemKey);
+    // When the list is non-empty, clear the session toggle so it doesn't linger.
+    if (!isPriorityListEmpty) _emptyPlannerSessionToggle = false;
 
-    if (firstItem.error || hasOrderError) {
-        tipIcon.innerHTML = getSVG('error', '', 24, 24, 'currentColor');
-        tipText.innerHTML = `<p><b>${translate('equipment.' + toCamelCase(firstItem.name))}</b>: ${translate('planner.orderError')}</p>`;
-        tipContainer.style.display = 'block';
-        return;
-    }
-
-    const heroDataEntry = heroData[Object.keys(heroData).find(key => heroData[key].name === firstItem.heroName)];
-    const equipmentType = heroDataEntry?.equipment.find(eq => eq.name === firstItem.name)?.type;
-    const currentLevel = state.heroes[firstItem.heroName]?.equipment[firstItem.name]?.level || 1;
+    let firstItem = null;
+    let hasOrderError = false;
+    let errorItems = new Set();
     
-    let req = { shiny: 0, glowy: 0, starry: 0 };
-    for (let level = currentLevel + 1; level <= firstItem.targetLevel; level++) {
-        const cost = upgradeCosts[level];
-        if (cost) {
-            req.shiny += cost.shiny;
-            req.glowy += cost.glowy;
-            if (equipmentType === 'epic') req.starry += cost.starry;
+    if (!isPriorityListEmpty) {
+        firstItem = globalPriorityList[0];
+        const errorsResult = getStepOrderErrors(globalPriorityList);
+        errorItems = errorsResult.errorItems;
+        const itemKey = `${firstItem.name}-${firstItem.step}`;
+        hasOrderError = errorItems.has(itemKey);
+
+        if (firstItem.error || hasOrderError) {
+            const errName = translate('equipment.' + toCamelCase(firstItem.name)) || firstItem.name;
+            tipContainer.innerHTML = `
+                <div class="prospector-rec-container">
+                    <div class="prospector-rec-section" style="border-color: var(--color-error);" data-card-type="error">
+                        <div class="prospector-rec-header">
+                            <span class="prospector-rec-badge" style="color: var(--color-error);">
+                                ${getSVG('error', 'prospector-rec-icon', 20, 20, 'currentColor')}
+                                <span><b>${errName}</b>: ${translate('planner.orderError')}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            tipContainer.style.display = 'block';
+            return;
         }
     }
 
-    const missing = {
-        shiny: Math.max(0, req.shiny - (state.storedOres.shiny || 0)),
-        glowy: Math.max(0, req.glowy - (state.storedOres.glowy || 0)),
-        starry: Math.max(0, req.starry - (state.storedOres.starry || 0))
-    };
-
-    if (missing.shiny === 0 && missing.glowy === 0 && missing.starry === 0) {
-        tipContainer.style.display = 'none';
-        return;
+    // Bind strategy mode toggling click listener once
+    if (!tipContainer.dataset.listenerAttached) {
+        tipContainer.addEventListener('click', (e) => {
+            const badge = e.target.closest('.prospector-rec-badge');
+            if (badge) {
+                const section = badge.closest('.prospector-rec-section');
+                if (section && section.dataset.cardType === 'overall') {
+                    const listObj = getGlobalPriorityList();
+                    const listEmpty = !listObj.globalPriorityList || listObj.globalPriorityList.length === 0;
+                    if (listEmpty) {
+                        // Session-only toggle — never saved to state so reload always resets to global
+                        _emptyPlannerSessionToggle = !_emptyPlannerSessionToggle;
+                        updateProspectorTip();
+                    } else {
+                        const currentMode = state.income.prospector?.strategyMode || 'planner';
+                        const nextMode = currentMode === 'global' ? 'planner' : 'global';
+                        handleStateUpdate(() => {
+                            state.income.prospector.strategyMode = nextMode;
+                        });
+                    }
+                }
+            }
+        });
+        tipContainer.dataset.listenerAttached = 'true';
     }
 
-    // 1. Get Base Income (Exclude current prospector settings)
-    const totalDailyIncome = getDailyIncomeFromCalendar(new Date());
-    const currentProspectorDaily = state.derived.incomeSources.prospector?.daily || { shiny: 0, glowy: 0, starry: 0 };
-    const baseIncome = {
-        shiny: Math.max(0, totalDailyIncome.shiny - currentProspectorDaily.shiny),
-        glowy: Math.max(0, totalDailyIncome.glowy - currentProspectorDaily.glowy),
-        starry: Math.max(0, totalDailyIncome.starry - currentProspectorDaily.starry)
+    // When list is empty: use session-only toggle (defaults to global on every reload).
+    // When list has items: use persisted strategyMode (defaults to planner).
+    const mode = isPriorityListEmpty
+        ? (_emptyPlannerSessionToggle ? 'planner' : 'global')
+        : (state.income.prospector?.strategyMode || 'planner');
+
+    // 1. Gather input parameters
+    const stored = {
+        shiny: parseFloat(state.storedOres?.shiny) || 0,
+        glowy: parseFloat(state.storedOres?.glowy) || 0,
+        starry: parseFloat(state.storedOres?.starry) || 0
     };
 
-    // 2. Calculate "Natural" days to finish
-    const days = {
-        shiny: missing.shiny > 0 ? (baseIncome.shiny > 0 ? missing.shiny / baseIncome.shiny : Infinity) : 0,
-        glowy: missing.glowy > 0 ? (baseIncome.glowy > 0 ? missing.glowy / baseIncome.glowy : Infinity) : 0,
-        starry: missing.starry > 0 ? (baseIncome.starry > 0 ? missing.starry / baseIncome.starry : Infinity) : 0
-    };
+    const baseIncome = getBaseIncome();
 
-    const naturalMaxDays = Math.max(days.shiny, days.glowy, days.starry);
-    let bottleneck = 'shiny';
-    if (days.glowy === naturalMaxDays) bottleneck = 'glowy';
-    else if (days.starry === naturalMaxDays) bottleneck = 'starry';
+    // 2. Generate recommendations
+    let nextHtml = '';
 
-    let source = 'shiny';
-    const naturalMinDays = Math.min(
-        days.shiny === 0 ? Infinity : days.shiny,
-        days.glowy === 0 ? Infinity : days.glowy,
-        days.starry === 0 ? Infinity : days.starry
-    );
-    if (days.glowy === naturalMinDays) source = 'glowy';
-    else if (days.starry === naturalMinDays) source = 'starry';
-
-    if (bottleneck === source || naturalMaxDays === Infinity) {
-        tipContainer.style.display = 'none';
-        return;
-    }
-
-    // 3. Calculate Optimal Conversion Rate (n)
-    const conversionFactor = convertOres(source, bottleneck, 1000) / 1000;
-    const numerator = (missing[bottleneck] * baseIncome[source]) - (missing[source] * baseIncome[bottleneck]);
-    const denominator = (missing[source] * conversionFactor) + missing[bottleneck];
-    let rawOptimalN = Math.max(0, numerator / denominator);
-    
-    // Round optimalN to the nearest step
-    const step = getStepValue(source, bottleneck);
-    let optimalN = Math.round(rawOptimalN / step) * step;
-
-    // Constraints: Don't convert more than we earn daily, or more than the max limit
-    const limit = Math.min(baseIncome[source], oreMaxValues[source]);
-    optimalN = Math.min(optimalN, limit);
-
-    // 4. Evaluate current user settings
-    const currentFrom = state.income.prospector.fromOre;
-    const currentTo = state.income.prospector.toOre;
-    const currentAmount = state.income.prospector.fromAmount;
-
-    const itemName = translate('equipment.' + toCamelCase(firstItem.name)) || firstItem.name;
-    const bottleneckTrans = translate('ores.' + bottleneck) || bottleneck;
-    const sourceTrans = translate('ores.' + source) || source;
-    const toLevelTrans = translate('planner.toLevel', { level: firstItem.targetLevel });
-    const upgradeInfo = `<b>${itemName}</b> ${toLevelTrans}`;
-
-    let iconId = 'suggestion';
-    let textContent = '';
-
-    // Check if current setting is "Close enough" to optimal
-    const isOptimal = (currentAmount === 0 && optimalN === 0) || 
-                      (currentTo === bottleneck && currentFrom === source && Math.abs(currentAmount - optimalN) < step);
-
-    if (isOptimal) {
-        iconId = 'check';
-        const activeRate = (currentTo === bottleneck && currentFrom === source) ? currentAmount : 0;
-        const balancedDays = Math.ceil(missing[source] / (baseIncome[source] - activeRate));
-        textContent = `<p>${translate('income.prospector.tips.optimal')}</p><p>${translate('income.prospector.tips.balanced', { upgradeInfo })}</p><p>${translate('income.prospector.tips.readyIn', { days: balancedDays })}</p>`;
-    } else if (currentTo !== bottleneck && currentAmount > 0) {
-        iconId = 'suggestion';
-        textContent = `<p>${translate('income.prospector.tips.primaryBottleneck', { upgradeInfo, bottleneck: bottleneckTrans })}</p><p>${translate('income.prospector.tips.changeTarget')}</p>`;
-    } else if (currentTo === bottleneck && currentFrom === source && currentAmount > optimalN) {
-        iconId = 'warning';
-        const recText = optimalN > 0 ? `~<b>${optimalN}</b>` : translate('income.prospector.tips.disableConversion');
-        textContent = `<p>${translate('income.prospector.tips.overConverting')}</p><p>${translate('income.prospector.tips.newBottleneck', { upgradeInfo, source: sourceTrans })}</p><p>${translate('income.prospector.tips.reduceConversion', { recText })}</p>`;
+    if (isPriorityListEmpty) {
+        nextHtml = `
+            <div class="prospector-rec-section" data-card-type="next">
+                <div class="prospector-rec-header">
+                    <span class="prospector-rec-badge">
+                        ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
+                        ${translate('income.prospector.tips.nextTitle')}
+                    </span>
+                </div>
+                <div class="prospector-rec-empty">
+                    <span>${translate('income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-link" id="prospector-go-to-priority-list">${translate('income.prospector.tips.addToPlanner.link')}</button>${translate('income.prospector.tips.addToPlanner.post')}</span>
+                </div>
+            </div>
+        `;
     } else {
-        iconId = 'suggestion';
-        const recText = optimalN > 0 ? `~<b>${optimalN}</b>` : translate('income.prospector.tips.noConversionNeeded');
-        textContent = `<p>${translate('income.prospector.tips.finishFaster', { upgradeInfo, source: sourceTrans, bottleneck: bottleneckTrans })}</p><p>${translate('income.prospector.tips.recommended', { recText })}</p>`;
+        const nextReq = getUpgradeRequirements(globalPriorityList, true);
+        const itemName = translate('equipment.' + toCamelCase(firstItem.name)) || firstItem.name;
+        const currentLevel = state.heroes[firstItem.heroName]?.equipment[firstItem.name]?.level || 1;
+        const subTitleNext = `<span class="upgrade-levels">${currentLevel} ➔ ${firstItem.targetLevel}</span>`;
+
+        nextHtml = generateRecommendationHtml(
+            translate('income.prospector.tips.nextTitle'),
+            nextReq,
+            stored,
+            baseIncome,
+            true,
+            subTitleNext,
+            firstItem.image,
+            'next'
+        );
     }
 
-    const otherOre = ['shiny', 'glowy', 'starry'].find(o => o !== source && o !== bottleneck);
-    if (days[otherOre] > naturalMaxDays) {
-        const otherTrans = translate('ores.' + otherOre) || otherOre;
-        textContent += `<small>${translate('income.prospector.tips.slowestResource', { other: otherTrans })}</small>`;
+    let overallHtml = '';
+    if (mode === 'global') {
+        const overallReq = getAllUnfinishedUpgradeRequirements();
+        overallHtml = generateRecommendationHtml(
+            translate('income.prospector.tips.universalTitle'),
+            overallReq,
+            stored,
+            baseIncome,
+            false,
+            '',
+            '',
+            'overall'
+        );
+    } else {
+        // mode === 'planner'
+        if (isPriorityListEmpty) {
+            overallHtml = `
+                <div class="prospector-rec-section" data-card-type="overall">
+                    <div class="prospector-rec-header">
+                        <span class="prospector-rec-badge">
+                            ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
+                            <span>${translate('income.prospector.tips.plannerTitle')}</span>
+                        </span>
+                    </div>
+                    <div class="prospector-rec-empty">
+                        <span>${translate('income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-link" id="prospector-go-to-priority-list-planner">${translate('income.prospector.tips.addToPlanner.link')}</button>${translate('income.prospector.tips.addToPlanner.post')}</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            const overallReq = getUpgradeRequirements(globalPriorityList, false);
+            overallHtml = generateRecommendationHtml(
+                translate('income.prospector.tips.plannerTitle'),
+                overallReq,
+                stored,
+                baseIncome,
+                false,
+                '',
+                '',
+                'overall'
+            );
+        }
     }
 
-    tipIcon.innerHTML = getSVG(iconId, '', 20, 20, 'currentColor');
-    tipText.innerHTML = textContent;
+    // 3. Render
+    tipContainer.innerHTML = `
+        <div class="prospector-rec-container">
+            ${nextHtml}
+            ${overallHtml}
+        </div>
+    `;
     tipContainer.style.display = 'block';
+
+    // Wire up "Priority List" navigation buttons in the empty states
+    tipContainer.querySelectorAll('.prospector-priority-link').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Navigate to planner tab
+            const currentTab = state.activeTab;
+            if (currentTab !== 'planner-tab') {
+                setAnimateNextRender('all');
+                history.pushState(null, '', '#planner');
+                state.activeTab = 'planner-tab';
+                renderApp(state);
+            }
+            // Open priority list modal after tab switch settles
+            setTimeout(() => openPriorityListModal(), 50);
+        });
+    });
 }
 
 export function renderProspectorHomeDisplay(prospectorIncome, timeframe) {
@@ -196,4 +440,57 @@ export function renderProspectorHomeDisplay(prospectorIncome, timeframe) {
     } else {
         prospectorRow.resource.textContent = translate('income.prospector.silverPass');
     }
+}
+
+export function getRecommendedProspectorAmounts(fromOre, toOre) {
+    const { globalPriorityList } = getGlobalPriorityList();
+    const isPriorityListEmpty = !globalPriorityList || globalPriorityList.length === 0;
+    // Mirror the same session-only toggle logic used in updateProspectorTip
+    const mode = isPriorityListEmpty
+        ? (_emptyPlannerSessionToggle ? 'planner' : 'global')
+        : (state.income.prospector?.strategyMode || 'planner');
+
+    let req;
+    if (mode === 'global') {
+        req = getAllUnfinishedUpgradeRequirements();
+    } else {
+        req = getUpgradeRequirements(globalPriorityList, false);
+    }
+
+    const stored = {
+        shiny: parseFloat(state.storedOres?.shiny) || 0,
+        glowy: parseFloat(state.storedOres?.glowy) || 0,
+        starry: parseFloat(state.storedOres?.starry) || 0
+    };
+
+    const baseIncome = getBaseIncome();
+
+    const missing = {
+        shiny: Math.max(0, req.shiny - stored.shiny),
+        glowy: Math.max(0, req.glowy - stored.glowy),
+        starry: Math.max(0, req.starry - stored.starry)
+    };
+
+    const conversionFactor = convertOres(fromOre, toOre, 1000) / 1000;
+    const num = (missing[toOre] * baseIncome[fromOre]) - (missing[fromOre] * baseIncome[toOre]);
+    const den = (conversionFactor * missing[fromOre]) + missing[toOre];
+
+    if (den <= 0 || num <= 0) {
+        return { preferred: 0, fallback: 0, exceeds: false };
+    }
+
+    const rawN = num / den;
+    const step = getStepValue(fromOre, toOre);
+    let preferred = Math.round(rawN / step) * step;
+
+    // Preferred is capped by maximum conversion limit (e.g. 2000 shiny)
+    const dailyLimit = oreMaxValues[fromOre];
+    preferred = Math.max(0, Math.min(preferred, dailyLimit));
+
+    const incomeLimit = baseIncome[fromOre];
+    const fallback = Math.max(0, Math.min(preferred, incomeLimit));
+
+    const exceeds = preferred > incomeLimit + 1e-3;
+
+    return { preferred, fallback, exceeds };
 }

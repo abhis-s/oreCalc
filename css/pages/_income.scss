@@ -58,25 +58,197 @@
 }
 
 .prospector-tip {
-    padding: 15px !important;
-    text-align: center !important;
+    padding: 10px !important;
+    font-size: 0.85rem;
 
-    .prospector-tip-grid {
+    .prospector-rec-container {
         display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 15px;
-        align-items: center;
+        grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+        gap: 8px;
+        width: 100%;
+        margin-top: 2px;
     }
 
-    .prospector-tip-icon {
-        font-size: 1.5em;
+    .prospector-rec-section {
+        background: color-mix(in srgb, $bg-surface-secondary 40%, transparent);
+        padding: 8px 10px;
+        border-radius: $shape-corner-small;
+        border: 1px solid color-mix(in srgb, $border-primary 80%, transparent);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        p {
+            margin: 0;
+            font-size: 1em;
+            color: $text-primary;
+        }
+
+        &[data-card-type="overall"] {
+            .prospector-rec-badge {
+                cursor: pointer;
+                transition: opacity 0.2s ease;
+                
+                &:hover {
+                    opacity: 0.85;
+                }
+
+                .prospector-rec-icon {
+                    transition: transform 0.2s ease;
+                }
+
+                &:hover .prospector-rec-icon {
+                    transform: scale(1.15);
+                }
+            }
+        }
+    }
+
+    .prospector-rec-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+        border-bottom: 1px solid color-mix(in srgb, $border-primary 50%, transparent);
+        padding-bottom: 4px;
+        margin-bottom: 0;
+        
+        .prospector-rec-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            border-radius: 4px;
+            object-fit: contain;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .prospector-rec-badge {
+        font-weight: 600;
+        font-size: 0.95em;
+        color: $accent-primary;
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 4px;
     }
 
-    .prospector-tip-text {
-        text-align: center;
+    .prospector-rec-badge-group {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .prospector-upgrade-subtitle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        
+        .prospector-upgrade-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            object-fit: contain;
+            display: inline-flex;
+        }
+
+        .upgrade-levels {
+            font-size: 0.88em;
+            color: inherit;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+    }
+
+    .prospector-rec-time {
+        font-size: 0.88em;
+        color: $text-secondary;
+        font-weight: 500;
+        
+        span {
+            font-weight: bold;
+            color: $text-primary;
+        }
+    }
+
+    .prospector-rec-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .prospector-rec-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.88em;
+        color: $text-secondary;
+        flex-wrap: wrap;
+
+        .day-count {
+            font-weight: bold;
+            color: $text-primary;
+            background: color-mix(in srgb, $accent-primary-soft 60%, transparent);
+            padding: 1.5px 5px;
+            border-radius: 4px;
+            min-width: 40px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .conversion-flow {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            
+            span {
+                font-weight: 600;
+                color: $text-primary;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                
+                orecalc-assets-image {
+                    width: 16px;
+                    height: 16px;
+                    display: inline-flex;
+                    vertical-align: middle;
+                }
+            }
+        }
+    }
+
+    .prospector-rec-empty {
+        font-size: 0.88em;
+        color: $text-muted;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 0;
+
+        .prospector-priority-link {
+            all: unset;
+            display: inline;
+            color: var(--color-primary, #bb86fc);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 2px;
+            transition: color 0.15s, text-decoration-style 0.15s;
+
+            &:hover,
+            &:focus-visible {
+                color: var(--color-primary-light, #e0b4ff);
+                text-decoration-style: solid;
+            }
+        }
     }
 }
 
@@ -740,6 +912,41 @@
                 justify-content: space-between;
             }
         }
+    }
+}
+
+.prospector-grid-wrapper {
+    position: relative;
+
+    &.is-assisted {
+        .prospector-grid {
+            filter: blur(2px);
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.5;
+        }
+    }
+}
+
+.prospector-assisted-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, $bg-surface-primary 60%, transparent);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: $shape-corner-small;
+    border: 1px dashed color-mix(in srgb, $accent-primary 50%, transparent);
+    padding: 8px 12px;
+    z-index: 1;
+
+    span {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: $accent-primary;
+        text-align: center;
     }
 }
 

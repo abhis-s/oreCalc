@@ -274,38 +274,45 @@
                                     <span class="slider round"></span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="prospector-grid">
-                            <div class="prospector-labels">
-                                <label for="inc-prospector-from-amount" data-i18n="income.prospector.from">From</label>
-                                <label for="inc-prospector-to-amount" data-i18n="income.prospector.to">To</label>
+                            <div class="input-group-flex">
+                                <label for="inc-prospector-assisted-conversion" data-i18n="income.prospector.assistedConversion">Assisted Conversion</label>
+                                <div class="switch">
+                                    <input type="checkbox" id="inc-prospector-assisted-conversion" class="updatable">
+                                    <span class="slider round"></span>
+                                </div>
                             </div>
-                            <div class="prospector-controls">
-                                <div class="custom-dropdown" id="inc-prospector-from-ore">
-                                    <div class="dropdown-selected">
-                                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny"></orecalc-assets-image>
+                        </div>
+                        <div class="prospector-grid-wrapper">
+                            <div class="prospector-grid">
+                                <div class="prospector-labels">
+                                    <label for="inc-prospector-from-amount" data-i18n="income.prospector.from">From</label>
+                                    <label for="inc-prospector-to-amount" data-i18n="income.prospector.to">To</label>
+                                </div>
+                                <div class="prospector-controls">
+                                    <div class="custom-dropdown" id="inc-prospector-from-ore">
+                                        <div class="dropdown-selected">
+                                            <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny"></orecalc-assets-image>
+                                        </div>
+                                        <div class="dropdown-options"></div>
                                     </div>
-                                    <div class="dropdown-options"></div>
-                                </div>
-                                <div class="popover-wrapper">
-                                    <input type="number" id="inc-prospector-from-amount" class="updatable" value="0" min="0" max="2000" maxlength="6">
-                                </div>
-                                <input type="range" id="inc-prospector-slider" class="updatable" min="0" max="2000" value="0" aria-label="Prospector exchange amount slider" data-i18n-aria-label="income.prospector.sliderAriaLabel">
-                                <input type="number" id="inc-prospector-to-amount" class="calculated" value="0" disabled>
-                                <div class="custom-dropdown" id="inc-prospector-to-ore">
-                                    <div class="dropdown-selected">
-                                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy"></orecalc-assets-image>
+                                    <div class="popover-wrapper">
+                                        <input type="number" id="inc-prospector-from-amount" class="updatable" value="0" min="0" max="2000" maxlength="6">
                                     </div>
-                                    <div class="dropdown-options"></div>
+                                    <input type="range" id="inc-prospector-slider" class="updatable" min="0" max="2000" value="0" aria-label="Prospector exchange amount slider" data-i18n-aria-label="income.prospector.sliderAriaLabel">
+                                    <input type="number" id="inc-prospector-to-amount" class="calculated" value="0" disabled>
+                                    <div class="custom-dropdown" id="inc-prospector-to-ore">
+                                        <div class="dropdown-selected">
+                                            <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy"></orecalc-assets-image>
+                                        </div>
+                                        <div class="dropdown-options"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="prospector-tip notice" id="inc-prospector-tip-container" style="display: none;">
-                            <div class="prospector-tip-grid">
-                                <div class="prospector-tip-icon" id="inc-prospector-tip-icon"></div>
-                                <div class="prospector-tip-text" id="inc-prospector-tip-text"></div>
+                            <div class="prospector-assisted-overlay" id="inc-prospector-assisted-overlay" style="display:none;">
+                                <span data-i18n="income.prospector.assistedConversionActive">Assisted Conversion active — using global strategy</span>
                             </div>
                         </div>
+                        <div class="prospector-tip" id="inc-prospector-tip-container" style="display: none;"></div>
                         
                     </div>
                 </div>

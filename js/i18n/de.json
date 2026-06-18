@@ -212,6 +212,8 @@
         "prospector": {
             "title": "Prospektor",
             "goldPass": "Goldpass",
+            "assistedConversion": "Unterstützte Umwandlung",
+            "assistedConversionActive": "Unterstützte Umwandlung aktiv — globale Strategie wird genutzt",
             "from": "Von",
             "fromOre": "Vom Erz",
             "to": "Zu",
@@ -220,20 +222,32 @@
             "sliderAriaLabel": "Prospektor Umtauschbetrag-Schieberegler",
             "tooltipConsider": "Ziehe in Erwägung, den Schürfer zu nutzen, um die Erze auszugleichen.",
             "tips": {
-                "addToPlanner": "Füge Ausrüstung zu deiner Prioritäten-Liste im Tab <b>Planer</b> hinzu, um dynamische Umwandlungs-Tipps zu erhalten.",
-                "optimal": "<b>Optimale Einstellung!</b>",
+                "addToPlanner": {
+                    "pre": "Ausrüstung in der ",
+                    "link": "Prioritätsliste",
+                    "post": " im Planer-Tab hinzufügen, um Tipps zu erhalten."
+                },
+                "optimal": "Optimale Balance",
                 "balanced": "Deine Erze für {upgradeInfo} sind ausgeglichen.",
-                "readyIn": "Bereit in ~<b>{days} Tagen</b>.",
+                "readyIn": "Bereit in ~<b>{days}T</b>",
                 "primaryBottleneck": "Dein primärer Engpass für {upgradeInfo} ist <b>{bottleneck}</b>.",
                 "changeTarget": "Ändere dein Umwandlungsziel, um schneller fertig zu werden.",
                 "disableConversion": "<b>0</b> (Umwandlung deaktivieren)",
                 "overConverting": "<b>Zu viel umgewandelt!</b>",
                 "newBottleneck": "Für {upgradeInfo} wird <b>{source}</b> dein neuer Engpass.",
                 "reduceConversion": "Reduziere die Umwandlung auf {recText}.",
-                "noConversionNeeded": "<b>0</b> (keine Umwandlung nötig)",
+                "noConversionNeeded": "Keine Umwandlung nötig",
                 "finishFaster": "Schließe {upgradeInfo} schneller ab, indem du <b>{source}</b> in <b>{bottleneck}</b> umwandelst.",
                 "recommended": "Empfohlen: {recText}.",
-                "slowestResource": "Hinweis: <b>{other}</b> ist derzeit deine langsamste Ressource; das Umwandeln anderer Erze wird die Gesamtzeit nicht reduzieren."
+                "slowestResource": "Hinweis: <b>{other}</b> ist derzeit deine langsamste Ressource; das Umwandeln anderer Erze wird die Gesamtzeit nicht reduzieren.",
+                "universalTitle": "Globale Strategie",
+                "plannerTitle": "Planer-Strategie",
+                "nextTitle": "Nächstes Upgrade",
+                "allPlannerItems": "Alle Planungsgegenstände",
+                "day": "Tag",
+                "days": "Tage",
+                "preferred": "Bevorzugt",
+                "fallback": "Fallback"
             },
             "silverPass": "Silberpass"
         },

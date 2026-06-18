@@ -1,7 +1,9 @@
 import { handleStateUpdate } from '../../core/stateManager.js';
 import { state } from '../../core/state.js';
 
-import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
+import { convertOres, getStepValue, findOptimalConversionSchedule } from '../../incomeCalculations/prospectorManager.js';
+import { getGlobalPriorityList } from './priorityListModal.js';
+import { getUpgradeRequirements, getBaseIncome } from '../income/prospectorDisplay.js';
 
 import { addValidation } from '../../utils/inputValidator.js';
 import { getSourceById } from '../../data/incomeSourceRegistry.js';
@@ -25,6 +27,46 @@ const oreLimits = {
     glowy: { max: 2500, maxlength: 4 },
     starry: { max: 500, maxlength: 3 }
 };
+
+function getNextUpgradeProspectorRecommendations() {
+    try {
+        const { globalPriorityList } = getGlobalPriorityList();
+        if (!globalPriorityList || globalPriorityList.length === 0) return [];
+
+        const nextReq = getUpgradeRequirements(globalPriorityList, true);
+        const stored = {
+            shiny: parseFloat(state.storedOres?.shiny) || 0,
+            glowy: parseFloat(state.storedOres?.glowy) || 0,
+            starry: parseFloat(state.storedOres?.starry) || 0
+        };
+        const baseIncome = getBaseIncome();
+        const opt = findOptimalConversionSchedule(nextReq, stored, baseIncome);
+
+        if (opt && opt.conversions && opt.conversions.length > 0) {
+            return opt.conversions.map(c => {
+                const fromRate = oreMaxValues[c.from];
+                const toRate = convertOres(c.from, c.to, fromRate);
+                return {
+                    fromOre: c.from,
+                    toOre: c.to,
+                    fromAmount: fromRate,
+                    toAmount: toRate,
+                    days: c.days
+                };
+            });
+        }
+    } catch (e) {
+        console.error('Error fetching next upgrade prospector recommendations:', e);
+    }
+    return [];
+}
+
+function getNextUpgradeProspectorRecommendation() {
+    const recs = getNextUpgradeProspectorRecommendations();
+    if (recs.length === 0) return null;
+    const sortedConvs = [...recs].sort((a, b) => b.days - a.days);
+    return sortedConvs[0];
+}
 
 let prospectorUIState = {
     fromOre: 'shiny',
@@ -240,21 +282,15 @@ function prefillModalInputs(type) {
 
         case 'prospector':
             {
-                const fromOre = state.income?.prospector?.fromOre || settings.fromOre || 'shiny';
-                const activeToOre = state.income?.prospector?.toOre || settings.toOre || 'glowy';
+                const rec = getNextUpgradeProspectorRecommendation();
+                const fromOre = rec ? rec.fromOre : (state.income?.prospector?.fromOre || settings.fromOre || 'shiny');
+                const toOre = rec ? rec.toOre : (state.income?.prospector?.toOre || settings.toOre || 'glowy');
                 
-                // Select the alternative (second) toOre instead of the active one to avoid duplicating
-                // the auto-generated chip that already matches the active income settings.
-                const allOres = ['shiny', 'glowy', 'starry'];
-                const otherOres = allOres.filter(ore => ore !== fromOre);
-                const toOre = otherOres.find(ore => ore !== activeToOre) || activeToOre;
-
                 prospectorUIState.fromOre = fromOre;
                 prospectorUIState.toOre = toOre;
 
-                let fromAmount = state.income?.prospector?.fromAmount || settings.fromAmount || 0;
-                let toVal = convertOres(fromOre, toOre, fromAmount);
-                // If the fromAmount is too low to yield at least 1 of the target toOre, default both to 0
+                let fromAmount = rec ? rec.fromAmount : (state.income?.prospector?.fromAmount || settings.fromAmount || 0);
+                let toVal = rec ? rec.toAmount : convertOres(fromOre, toOre, fromAmount);
                 if (toVal <= 0) {
                     fromAmount = 0;
                     toVal = 0;
@@ -283,7 +319,7 @@ function prefillModalInputs(type) {
 
                 updateModalProspectorDropdowns();
 
-                if (countInput) countInput.value = settings.count || 1;
+                if (countInput) countInput.value = rec ? rec.days : (settings.count || 1);
                 if (monthlyCheckbox) monthlyCheckbox.checked = settings.monthly || false;
             }
             break;
@@ -338,6 +374,30 @@ function initializeModalCustomDropdown(dropdownElement, whichOre) {
             }
 
             updateModalProspectorDropdowns();
+
+            // Auto-update inputs if matching next target recommendation is found
+            const recs = getNextUpgradeProspectorRecommendations();
+            const matchingRec = recs.find(r => r.fromOre === prospectorUIState.fromOre && r.toOre === prospectorUIState.toOre);
+            if (matchingRec) {
+                const fromAmountInput = document.getElementById('custom-chip-prospector-from-amount');
+                const toAmountInput = document.getElementById('custom-chip-prospector-to-amount');
+                const countInput = document.getElementById('custom-chip-prospector-count');
+                
+                prospectorUIState.fromAmount = matchingRec.fromAmount;
+                if (fromAmountInput) {
+                    fromAmountInput.value = matchingRec.fromAmount;
+                    fromAmountInput.dataset.lastValidValue = matchingRec.fromAmount;
+                }
+                if (toAmountInput) {
+                    toAmountInput.value = matchingRec.toAmount;
+                    toAmountInput.dataset.lastValidValue = matchingRec.toAmount;
+                }
+                if (countInput) {
+                    countInput.value = matchingRec.days;
+                    countInput.dataset.lastValidValue = matchingRec.days;
+                }
+            }
+
             updatePerChipRewardsPreview();
             dropdownElement.classList.remove('open');
             dropdownElement.setAttribute('aria-expanded', 'false');
@@ -702,16 +762,21 @@ export function initializeCreateCustomChipsModalListeners() {
             showRange: true,
             showRecommended: true,
             recommended: () => {
-                const fromOre = state.income?.prospector?.fromOre || 'shiny';
-                const activeToOre = state.income?.prospector?.toOre || 'glowy';
-                const allOres = ['shiny', 'glowy', 'starry'];
-                const otherOres = allOres.filter(ore => ore !== fromOre);
-                const toOre = otherOres.find(ore => ore !== activeToOre) || activeToOre;
-                let fromAmount = state.income?.prospector?.fromAmount || 0;
-                const toVal = convertOres(fromOre, toOre, fromAmount);
-                return toVal <= 0 ? 0 : fromAmount;
+                const recs = getNextUpgradeProspectorRecommendations();
+                const fromOre = document.getElementById('custom-chip-prospector-from-ore')?.dataset.value || 'shiny';
+                const toOre = document.getElementById('custom-chip-prospector-to-ore')?.dataset.value || 'glowy';
+                const rec = recs.find(r => r.fromOre === fromOre && r.toOre === toOre);
+                if (rec) return rec.fromAmount;
+                const gpFromOre = state.income?.prospector?.fromOre || 'shiny';
+                return state.income?.prospector?.fromAmount || 0;
             },
-            recommendedLabel: translate('actions.reset') || 'Reset',
+            recommendedLabel: () => {
+                const recs = getNextUpgradeProspectorRecommendations();
+                const fromOre = document.getElementById('custom-chip-prospector-from-ore')?.dataset.value || 'shiny';
+                const toOre = document.getElementById('custom-chip-prospector-to-ore')?.dataset.value || 'glowy';
+                const rec = recs.find(r => r.fromOre === fromOre && r.toOre === toOre);
+                return rec ? translate('income.prospector.tips.nextTitle') : translate('actions.reset');
+            },
             clickToFill: { max: true, recommended: true }
         });
     }
@@ -727,16 +792,27 @@ export function initializeCreateCustomChipsModalListeners() {
             showRange: true,
             showRecommended: true,
             recommended: () => {
-                const fromOre = state.income?.prospector?.fromOre || 'shiny';
+                const recs = getNextUpgradeProspectorRecommendations();
+                const fromOre = document.getElementById('custom-chip-prospector-from-ore')?.dataset.value || 'shiny';
+                const toOre = document.getElementById('custom-chip-prospector-to-ore')?.dataset.value || 'glowy';
+                const rec = recs.find(r => r.fromOre === fromOre && r.toOre === toOre);
+                if (rec) return rec.toAmount;
+                const gpFromOre = state.income?.prospector?.fromOre || 'shiny';
                 const activeToOre = state.income?.prospector?.toOre || 'glowy';
                 const allOres = ['shiny', 'glowy', 'starry'];
-                const otherOres = allOres.filter(ore => ore !== fromOre);
-                const toOre = otherOres.find(ore => ore !== activeToOre) || activeToOre;
-                const fromAmount = state.income?.prospector?.fromAmount || 0;
-                const toVal = convertOres(fromOre, toOre, fromAmount);
+                const otherOres = allOres.filter(ore => ore !== gpFromOre);
+                const gpToOre = otherOres.find(ore => ore !== activeToOre) || activeToOre;
+                const gpFromAmount = state.income?.prospector?.fromAmount || 0;
+                const toVal = convertOres(gpFromOre, gpToOre, gpFromAmount);
                 return toVal <= 0 ? 0 : toVal;
             },
-            recommendedLabel: translate('actions.reset') || 'Reset',
+            recommendedLabel: () => {
+                const recs = getNextUpgradeProspectorRecommendations();
+                const fromOre = document.getElementById('custom-chip-prospector-from-ore')?.dataset.value || 'shiny';
+                const toOre = document.getElementById('custom-chip-prospector-to-ore')?.dataset.value || 'glowy';
+                const rec = recs.find(r => r.fromOre === fromOre && r.toOre === toOre);
+                return rec ? translate('income.prospector.tips.nextTitle') : translate('actions.reset');
+            },
             clickToFill: { max: true, recommended: true }
         });
     }
@@ -747,7 +823,22 @@ export function initializeCreateCustomChipsModalListeners() {
             min: 1,
             max: 30,
             showRange: true,
-            clickToFill: { max: true }
+            showRecommended: true,
+            recommended: () => {
+                const recs = getNextUpgradeProspectorRecommendations();
+                const fromOre = document.getElementById('custom-chip-prospector-from-ore')?.dataset.value || 'shiny';
+                const toOre = document.getElementById('custom-chip-prospector-to-ore')?.dataset.value || 'glowy';
+                const rec = recs.find(r => r.fromOre === fromOre && r.toOre === toOre);
+                return rec ? rec.days : 1;
+            },
+            recommendedLabel: () => {
+                const recs = getNextUpgradeProspectorRecommendations();
+                const fromOre = document.getElementById('custom-chip-prospector-from-ore')?.dataset.value || 'shiny';
+                const toOre = document.getElementById('custom-chip-prospector-to-ore')?.dataset.value || 'glowy';
+                const rec = recs.find(r => r.fromOre === fromOre && r.toOre === toOre);
+                return rec ? translate('income.prospector.tips.nextTitle') : translate('actions.reset');
+            },
+            clickToFill: { max: true, recommended: true }
         });
     }
 

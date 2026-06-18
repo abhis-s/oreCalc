@@ -5,6 +5,8 @@ import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
 import { supercellEventsData } from '../data/appData.js';
 
 import { getSupercellEventsForYear } from './dateUtils.js';
+import { getProspectorIncomeForDate, getProspectorConversions, convertOres } from '../incomeCalculations/prospectorManager.js';
+import { oreMaxValues } from '../data/oreConversionData.js';
 
 export function calculateCumulativeOres(targetDate, initialOres) {
     let cumulativeOres = {
@@ -39,8 +41,7 @@ export function calculateCumulativeOres(targetDate, initialOres) {
 
         const hasCustomProspector = chipsForThisDay.some(id => id.startsWith('custom-prospector'));
         if (state.income.prospector && state.income.prospector.goldPass && !hasCustomProspector) {
-            const prospectorSource = incomeData.prospector;
-            const prospectorIncome = prospectorSource.getIncome(state);
+            const prospectorIncome = getProspectorIncomeForDate(currentDate, state);
             cumulativeOres.shiny += Math.round(prospectorIncome.shiny || 0);
             cumulativeOres.glowy += Math.round(prospectorIncome.glowy || 0);
             cumulativeOres.starry += Math.round(prospectorIncome.starry || 0);
@@ -206,8 +207,34 @@ export function checkAndGenerateRecurringChips() {
         }
 
         // Prospector
-        if (settings.prospector.monthly && settings.prospector.count > 0) {
-            generate('prospector', { type: 'prospector', shiny: settings.prospector.shiny, glowy: settings.prospector.glowy, starry: settings.prospector.starry }, settings.prospector.count);
+        if (settings.prospector.monthly) {
+            if (state.income.prospector?.assistedConversion) {
+                const conversions = getProspectorConversions(state);
+                let countIndex = 0;
+                conversions.forEach(conv => {
+                    const days = conv.days || 30;
+                    const fromRate = conv.amount || oreMaxValues[conv.from];
+                    const toRate = convertOres(conv.from, conv.to, fromRate);
+                    
+                    const chipData = { type: 'prospector', shiny: 0, glowy: 0, starry: 0 };
+                    chipData[conv.from] = -fromRate;
+                    chipData[conv.to] = toRate;
+                    
+                    for (let i = 0; i < days; i++) {
+                        const shortId = Math.random().toString(36).substring(2, 7);
+                        const newId = `custom-prospector-${shortId}-${countIndex}`;
+                        customChips.push({ ...chipData, id: newId, isCustom: true, isRecurring: true, instance: countIndex + 1 });
+                        countIndex++;
+                    }
+                });
+            } else if (settings.prospector.count > 0) {
+                generate('prospector', {
+                    type: 'prospector',
+                    shiny: settings.prospector.shiny,
+                    glowy: settings.prospector.glowy,
+                    starry: settings.prospector.starry
+                }, settings.prospector.count);
+            }
         }
 
         state.planner.calendar.customChips = customChips;

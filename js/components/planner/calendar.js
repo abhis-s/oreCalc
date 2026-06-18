@@ -10,6 +10,7 @@ import { getISOWeekNumber, getDaysInMonth, addDays, getSupercellEventsForYear, g
 import { incomeData, getSourceById } from '../../data/incomeSourceRegistry.js';
 import { supercellEventsData } from '../../data/appData.js';
 import { translate } from '../../i18n/translator.js';
+import { getProspectorIncomeForDate } from '../../incomeCalculations/prospectorManager.js';
 
 import { renderIncomeChips } from './incomeChips.js';
 
@@ -148,6 +149,8 @@ function createDayCell(date, plannerState) {
             let income;
             if (autoData.income) {
                 income = autoData.income;
+            } else if (source.id === 'prospector' && state.income?.prospector?.assistedConversion) {
+                income = getProspectorIncomeForDate(date, state);
             } else if (source.getBaseIncome) {
                 income = source.getBaseIncome(state);
             } else {
@@ -161,7 +164,9 @@ function createDayCell(date, plannerState) {
             };
             const chipId = `${source.id}-${autoData.instance || displayDay}-${displayMonth}-${displayYear}-cal`;
             const chip = createIncomeChip('', source.className, { type: source.id, instance: autoData.instance, ...roundedIncome }, date.getUTCMonth(), displayYear, chipId);
-            chip.draggable = false;
+            const isAssistedProspector = source.id === 'prospector' && state.income?.prospector?.assistedConversion;
+            chip.draggable = isAssistedProspector ? true : false;
+            chip.setAttribute('draggable', chip.draggable ? 'true' : 'false');
 
             chipsToRender.push({ type: source.id, element: chip });
         }
@@ -863,15 +868,106 @@ function handleDrop(e) {
 export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
     if (!chipContainer || !chipContainer.classList.contains('valid-drop-range')) return;
     chipContainer.classList.remove('valid-drop-target', 'invalid-drop-target');
-    if ((incomeChipData.type === 'starBonus' || incomeChipData.type === 'prospector') && !incomeChipData.isCustom) return;
+    const isAssistedProspector = incomeChipData.type === 'prospector' && state.income?.prospector?.assistedConversion;
+    if ((incomeChipData.type === 'starBonus' || incomeChipData.type === 'prospector') && !incomeChipData.isCustom && !isAssistedProspector) return;
 
     const targetDate = chipContainer.closest('.day-cell').dataset.date;
+    const wasCustom = incomeChipData.isCustom || incomeChipData.id.startsWith('custom-');
+    const originalIncomingId = incomeChipData.id;
+
     let newId = incomeChipData.id;
     let isNewChip = !incomeChipData.id.includes('-cal');
+
+    if (isAssistedProspector && !incomeChipData.isCustom) {
+        incomeChipData.isCustom = true;
+        const shortId = Math.random().toString(36).substring(2, 7);
+        incomeChipData.id = `custom-prospector-${shortId}`;
+        isNewChip = true;
+    }
 
     handleStateUpdate(() => {
         const [year, month, day] = targetDate.split('-');
         const monthYearKey = `${month}-${year}`;
+
+        let swapped = false;
+        if (incomeChipData.type === 'prospector' && incomeChipData.originalDate) {
+            const [origYear, origMonth, origDay] = incomeChipData.originalDate.split('-');
+            const origMonthYearKey = `${origMonth}-${origYear}`;
+
+            const targetChips = state.planner.calendar.dates[monthYearKey]?.[day] || [];
+            let targetProspectorId = targetChips.find(id => id.replace(/^custom-/, '').startsWith('prospector'));
+            
+            if (!targetProspectorId && state.income.prospector && state.income.prospector.goldPass) {
+                targetProspectorId = `prospector-${parseInt(day, 10)}-${month}-${year}-cal`;
+            }
+            
+            if (targetProspectorId) {
+                const dragIsCustom = wasCustom;
+                let finalDraggedId = originalIncomingId;
+                if (!dragIsCustom) {
+                    const shortId = Math.random().toString(36).substring(2, 7);
+                    finalDraggedId = `custom-prospector-${shortId}-cal`;
+                    
+                    const dragIncome = getProspectorIncomeForDate(new Date(incomeChipData.originalDate + 'T00:00:00Z'), state);
+
+                    if (!state.planner.calendar.customChipData) state.planner.calendar.customChipData = {};
+                    state.planner.calendar.customChipData[finalDraggedId] = {
+                        shiny: dragIncome.shiny || 0,
+                        glowy: dragIncome.glowy || 0,
+                        starry: dragIncome.starry || 0
+                    };
+                } else {
+                    finalDraggedId = originalIncomingId.includes('-cal') ? originalIncomingId : `${originalIncomingId}-cal`;
+                }
+
+                const targetIsCustom = targetProspectorId.startsWith('custom-');
+                let finalTargetId = targetProspectorId;
+                if (!targetIsCustom) {
+                    const autoIncome = getProspectorIncomeForDate(new Date(targetDate + 'T00:00:00Z'), state);
+
+                    const shortId = Math.random().toString(36).substring(2, 7);
+                    finalTargetId = `custom-prospector-${shortId}-cal`;
+                    if (!state.planner.calendar.customChipData) state.planner.calendar.customChipData = {};
+                    state.planner.calendar.customChipData[finalTargetId] = {
+                        shiny: autoIncome.shiny || 0,
+                        glowy: autoIncome.glowy || 0,
+                        starry: autoIncome.starry || 0
+                    };
+                }
+
+                const origChips = state.planner.calendar.dates[origMonthYearKey]?.[origDay] || [];
+                const dragIndex = origChips.findIndex(id => id.split('-cal')[0] === originalIncomingId.split('-cal')[0]);
+                if (dragIndex > -1) {
+                    origChips.splice(dragIndex, 1);
+                }
+
+                const targetIndex = targetChips.indexOf(targetProspectorId);
+                if (targetIndex > -1) {
+                    targetChips.splice(targetIndex, 1);
+                }
+
+                if (!state.planner.calendar.dates[origMonthYearKey]) state.planner.calendar.dates[origMonthYearKey] = {};
+                if (!state.planner.calendar.dates[origMonthYearKey][origDay]) state.planner.calendar.dates[origMonthYearKey][origDay] = [];
+                state.planner.calendar.dates[origMonthYearKey][origDay].push(finalTargetId);
+
+                if (!state.planner.calendar.dates[monthYearKey]) state.planner.calendar.dates[monthYearKey] = {};
+                if (!state.planner.calendar.dates[monthYearKey][day]) state.planner.calendar.dates[monthYearKey][day] = [];
+                state.planner.calendar.dates[monthYearKey][day].push(finalDraggedId);
+
+                swapped = true;
+            }
+        }
+
+        if (swapped) return;
+
+        if (isAssistedProspector && isNewChip) {
+            if (!state.planner.calendar.customChipData) state.planner.calendar.customChipData = {};
+            state.planner.calendar.customChipData[`${incomeChipData.id}-cal`] = {
+                shiny: incomeChipData.shiny || 0,
+                glowy: incomeChipData.glowy || 0,
+                starry: incomeChipData.starry || 0
+            };
+        }
 
         if (!isNewChip) {
             const originalId = incomeChipData.id.split('-cal')[0];

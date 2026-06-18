@@ -8,6 +8,7 @@ import { upgradeCosts, heroData } from '../data/heroData.js';
 
 import { getSupercellEventsForYear } from './dateUtils.js';
 import { toCamelCase } from './stringUtils.js';
+import { getProspectorIncomeForDate } from '../incomeCalculations/prospectorManager.js';
 
 export function getDailyIncomeFromCalendar(date) {
     const dailyIncome = { shiny: 0, glowy: 0, starry: 0 };
@@ -31,8 +32,7 @@ export function getDailyIncomeFromCalendar(date) {
 
     const hasCustomProspector = chipsForThisDay.some(id => id.startsWith('custom-prospector'));
     if (state.income.prospector && state.income.prospector.goldPass && !hasCustomProspector) {
-        const prospectorSource = incomeData.prospector;
-        const prospectorIncome = prospectorSource.getIncome(state);
+        const prospectorIncome = getProspectorIncomeForDate(date, state);
         dailyIncome.shiny += Math.round(prospectorIncome.shiny || 0);
         dailyIncome.glowy += Math.round(prospectorIncome.glowy || 0);
         dailyIncome.starry += Math.round(prospectorIncome.starry || 0);

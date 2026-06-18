@@ -10,6 +10,7 @@ import { formatNumber } from './numberFormatter.js';
 import { getScheduleDates } from './dateUtils.js';
 import { getSVG } from './svgManager.js';
 import { toCamelCase } from './stringUtils.js';
+import { getProspectorIncomeForDate } from '../incomeCalculations/prospectorManager.js';
 
 let draggedChipData = null;
 
@@ -82,7 +83,10 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
     
     // Auto-generated chips (Daily Star Bonus, Prospector) are NOT draggable, unless they are custom-created
     const isCustom = data.isCustom === true || data.isCustom === 'true' || String(data.isCustom) === 'true' || (id && id.startsWith('custom-'));
-    const isDraggable = isCustom ? true : (incomeSource ? !incomeSource.autoGenerateInCalendar : true);
+    let isDraggable = isCustom ? true : (incomeSource ? !incomeSource.autoGenerateInCalendar : true);
+    if (data.type === 'prospector' && state.income?.prospector?.assistedConversion) {
+        isDraggable = true;
+    }
     chip.draggable = isDraggable;
     chip.setAttribute('draggable', isDraggable ? 'true' : 'false');
 
@@ -215,6 +219,46 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
     chip.addEventListener('touchstart', hideTooltip);
 
     const highlightDropTargets = () => {
+        const getProspectorDetails = (data, chipId, cellDate) => {
+            const cleanId = chipId ? chipId.split('-cal')[0] : '';
+            const custom = state.planner.calendar.customChipData?.[chipId] || 
+                           state.planner.calendar.customChipData?.[`${cleanId}-cal`] || 
+                           state.planner.calendar.customChips?.find(c => c.id === cleanId);
+            
+            let shiny = 0, glowy = 0, starry = 0;
+            if (custom) {
+                shiny = custom.shiny || 0;
+                glowy = custom.glowy || 0;
+                starry = custom.starry || 0;
+            } else if (data.shiny !== undefined || data.glowy !== undefined || data.starry !== undefined) {
+                shiny = data.shiny || 0;
+                glowy = data.glowy || 0;
+                starry = data.starry || 0;
+            } else if (cellDate) {
+                const autoIncome = getProspectorIncomeForDate(new Date(cellDate + 'T00:00:00Z'), state);
+                shiny = autoIncome.shiny || 0;
+                glowy = autoIncome.glowy || 0;
+                starry = autoIncome.starry || 0;
+            }
+            
+            let fromOre = '';
+            let toOre = '';
+            let amount = 0;
+            
+            if (shiny < 0) { fromOre = 'shiny'; amount = Math.abs(shiny); }
+            else if (glowy < 0) { fromOre = 'glowy'; amount = Math.abs(glowy); }
+            else if (starry < 0) { fromOre = 'starry'; amount = Math.abs(starry); }
+            
+            if (shiny > 0) toOre = 'shiny';
+            else if (glowy > 0) toOre = 'glowy';
+            else if (starry > 0) toOre = 'starry';
+            
+            return {
+                oreMark: `${fromOre}->${toOre}`,
+                amount: amount
+            };
+        };
+
         const formatDate = (date) => {
             if (!date) return null;
             const d = new Date(date);
@@ -308,8 +352,23 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
                     }
                 }
             }
-
             const chipsOnThisDate = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];
+
+            if (chipData.type === 'prospector') {
+                let targetProspectorId = chipsOnThisDate.find(id => id.replace(/^custom-/, '').startsWith('prospector'));
+                let hasTargetProspector = !!targetProspectorId;
+                if (!hasTargetProspector && state.income.prospector && state.income.prospector.goldPass) {
+                    hasTargetProspector = true;
+                }
+                if (hasTargetProspector) {
+                    const dragDetails = getProspectorDetails(chipData, chip.id, chip.closest('.day-cell')?.dataset.date);
+                    const targetDetails = getProspectorDetails({ type: 'prospector' }, targetProspectorId, cellDate);
+                    if (dragDetails.oreMark === targetDetails.oreMark && dragDetails.amount === targetDetails.amount) {
+                        isValidRange = false;
+                    }
+                }
+            }
+
             let hasDuplicateType = false;
             let hasConflictingBonus = false;
 
@@ -405,7 +464,8 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
             e.preventDefault();
             return;
         }
-        const chipData = { ...data, className: className, id: chip.id };
+        const originalDate = chip.closest('.day-cell')?.dataset.date;
+        const chipData = { ...data, className: className, id: chip.id, originalDate };
         draggedChipData = chipData;
         e.dataTransfer.setData('text/plain', JSON.stringify(chipData));
         e.dataTransfer.effectAllowed = 'move';
@@ -438,7 +498,8 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         if (!chip.draggable) return;
         touchTimeout = setTimeout(() => {
             isDragging = true;
-            draggedChipData = { ...data, className: className, id: chip.id };
+            const originalDate = chip.closest('.day-cell')?.dataset.date;
+            draggedChipData = { ...data, className: className, id: chip.id, originalDate };
             highlightDropTargets();
 
             dragImage = chip.cloneNode(true);

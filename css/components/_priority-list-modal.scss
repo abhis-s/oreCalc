@@ -63,9 +63,18 @@
         color: $text-secondary;
         cursor: pointer;
         height: 36px;
-        padding: 0;
+        padding: 6px;
         transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
         width: 36px;
+
+        orecalc-assets-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
 
         img {
             width: 24px;

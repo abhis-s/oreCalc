@@ -3,6 +3,7 @@ import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
 
 import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
+import { getRecommendedProspectorAmounts } from './prospectorDisplay.js';
 
 import { addValidation } from '../../utils/inputValidator.js';
 import { oreMaxValues } from '../../data/oreConversionData.js';
@@ -243,16 +244,29 @@ function updateSlider() {
     updateConversion();
 }
 
+function updateAssistedOverlay(isAssisted) {
+    const overlay = dom.income.prospector.assistedOverlay;
+    const wrapper = overlay?.closest('.prospector-grid-wrapper');
+    if (!overlay || !wrapper) return;
+    overlay.style.display = isAssisted ? 'flex' : 'none';
+    wrapper.classList.toggle('is-assisted', isAssisted);
+}
+
 export function renderProspector(prospectorState) {
     if (!prospectorState) return;
 
     const goldPass = prospectorState.goldPass || false;
+    const assistedConversion = prospectorState.assistedConversion || false;
     const fromOre = prospectorState.fromOre || 'shiny';
     const toOre = prospectorState.toOre || 'glowy';
     const fromAmount = prospectorState.fromAmount || 0;
 
     if (dom.income.prospector.goldPass) {
         dom.income.prospector.goldPass.checked = goldPass;
+    }
+
+    if (dom.income.prospector.assistedConversion) {
+        dom.income.prospector.assistedConversion.checked = assistedConversion;
     }
 
     if (dom.income.prospector.fromOre) {
@@ -276,6 +290,7 @@ export function renderProspector(prospectorState) {
     }
 
     updateConversion(true);
+    updateAssistedOverlay(assistedConversion);
 }
 
 export function initializeProspector() {
@@ -291,8 +306,41 @@ export function initializeProspector() {
             const fromOre = dom.income.prospector.fromOre?.dataset.value || 'shiny';
             return oreMaxValues[fromOre] || 2000;
         },
-        // TODO: Implement recommended value logic (see task 6gjJmWmg6V6Crr24)
         showRecommended: false,
+        customButtons: () => {
+            const fromOre = dom.income.prospector.fromOre?.dataset.value || 'shiny';
+            const toOre = dom.income.prospector.toOre?.dataset.value || 'glowy';
+            const { preferred, fallback, exceeds } = getRecommendedProspectorAmounts(fromOre, toOre);
+
+            if (preferred <= 0) {
+                return [];
+            }
+
+            if (exceeds) {
+                return [
+                    {
+                        label: () => `${translate('planner.recommended')} (${translate('income.prospector.tips.preferred')} ⚠️)`,
+                        value: preferred,
+                        className: 'exceeded-color',
+                        clickToFill: true
+                    },
+                    {
+                        label: () => `${translate('planner.recommended')} (${translate('income.prospector.tips.fallback')})`,
+                        value: fallback,
+                        className: 'match-color',
+                        clickToFill: true
+                    }
+                ];
+            } else {
+                return [
+                    {
+                        label: () => translate('planner.recommended'),
+                        value: preferred,
+                        clickToFill: true
+                    }
+                ];
+            }
+        },
         clickToFill: {
             min: true,
             max: true
@@ -326,6 +374,14 @@ export function initializeProspector() {
             if (!state.income.prospector) state.income.prospector = { fromOre: 'shiny', toOre: 'glowy' };
             state.income.prospector.goldPass = e.target.checked;
         });
+    });
+
+    dom.income.prospector.assistedConversion.addEventListener('change', (e) => {
+        handleStateUpdate(() => {
+            if (!state.income.prospector) state.income.prospector = { fromOre: 'shiny', toOre: 'glowy' };
+            state.income.prospector.assistedConversion = e.target.checked;
+        });
+        updateAssistedOverlay(e.target.checked);
     });
 
     updateConversion(true); // Initial call to sync UI

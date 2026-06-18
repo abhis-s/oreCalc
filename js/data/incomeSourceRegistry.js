@@ -1,6 +1,7 @@
 import { formatCurrency } from '../utils/numberFormatter.js';
 import { getSupercellEventsForYear, isStarBonusEventMonth, getStarBonus2xWindow } from '../utils/dateUtils.js';
 import { translate } from '../i18n/translator.js';
+import { getProspectorIncomeForDate } from '../incomeCalculations/prospectorManager.js';
 
 import { leagueTiers, supercellEventsData, currencyData } from './appData.js';
 
@@ -321,7 +322,14 @@ export const incomeData = {
         },
         getAutomaticSchedule: (date, state) => {
             if (state.income.prospector?.goldPass) {
-                return { instance: date.getUTCDate() };
+                const income = getProspectorIncomeForDate(date, state);
+                if (income.shiny === 0 && income.glowy === 0 && income.starry === 0) {
+                    return null;
+                }
+                return {
+                    instance: date.getUTCDate(),
+                    income: income
+                };
             }
             return null;
         }

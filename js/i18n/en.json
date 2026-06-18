@@ -212,6 +212,8 @@
         "prospector": {
             "title": "Prospector",
             "goldPass": "Gold Pass",
+            "assistedConversion": "Assisted Conversion",
+            "assistedConversionActive": "Assisted Conversion active — using global strategy",
             "from": "From",
             "fromOre": "From Ore",
             "to": "To",
@@ -220,20 +222,32 @@
             "sliderAriaLabel": "Prospector exchange amount slider",
             "tooltipConsider": "Consider using the prospector to balance the ores.",
             "tips": {
-                "addToPlanner": "Add equipment to your priority list in the <b>Planner</b> tab to get dynamic conversion tips.",
-                "optimal": "<b>Optimal Setting!</b>",
+                "addToPlanner": {
+                    "pre": "Add equipment in the ",
+                    "link": "Priority List",
+                    "post": " in the Planner tab to get tips."
+                },
+                "optimal": "Optimal Balance",
                 "balanced": "Your ores for {upgradeInfo} are balanced.",
-                "readyIn": "Ready in ~<b>{days} days</b>.",
+                "readyIn": "Ready in ~<b>{days}d</b>",
                 "primaryBottleneck": "Your primary bottleneck for {upgradeInfo} is <b>{bottleneck}</b>.",
                 "changeTarget": "Change your conversion target to finish faster.",
                 "disableConversion": "<b>0</b> (disable conversion)",
                 "overConverting": "<b>Over-converting!</b>",
                 "newBottleneck": "For {upgradeInfo}, <b>{source}</b> will become your new bottleneck.",
                 "reduceConversion": "Reduce conversion to {recText}.",
-                "noConversionNeeded": "<b>0</b> (no conversion needed)",
+                "noConversionNeeded": "No conversion needed",
                 "finishFaster": "Finish {upgradeInfo} faster by converting <b>{source}</b> to <b>{bottleneck}</b>.",
                 "recommended": "Recommended: {recText}.",
-                "slowestResource": "Note: <b>{other}</b> is currently your slowest resource; converting other ores won't reduce total time."
+                "slowestResource": "Note: <b>{other}</b> is currently your slowest resource; converting other ores won't reduce total time.",
+                "universalTitle": "Global Strategy",
+                "plannerTitle": "Planner Strategy",
+                "nextTitle": "Next Upgrade",
+                "allPlannerItems": "All planner items",
+                "day": "day",
+                "days": "days",
+                "preferred": "Preferred",
+                "fallback": "Fallback"
             },
             "silverPass": "Silver Pass"
         },

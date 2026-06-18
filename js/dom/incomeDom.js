@@ -230,6 +230,8 @@ export function getIncomeDOMElements() {
         },
         prospector: {
             goldPass: document.getElementById('inc-prospector-gold-pass'),
+            assistedConversion: document.getElementById('inc-prospector-assisted-conversion'),
+            assistedOverlay: document.getElementById('inc-prospector-assisted-overlay'),
             fromOre: document.getElementById('inc-prospector-from-ore'),
             toOre: document.getElementById('inc-prospector-to-ore'),
             fromAmount: document.getElementById('inc-prospector-from-amount'),
@@ -249,8 +251,6 @@ export function getIncomeDOMElements() {
             },
             tip: {
                 container: document.getElementById('inc-prospector-tip-container'),
-                icon: document.getElementById('inc-prospector-tip-icon'),
-                text: document.getElementById('inc-prospector-tip-text'),
             }
         }
     };
