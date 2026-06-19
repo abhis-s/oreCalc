@@ -201,6 +201,7 @@
     border-radius: 10px;
     padding: 30px;
     flex: 1;
+    position: relative;
 
     @container (max-width: 445px) {
         padding: 20px;
@@ -346,4 +347,49 @@
     > *:last-child {
         margin-top: auto;
     }
+}
+
+.card-drag-handle {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    cursor: grab;
+    opacity: 0.4;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+
+    @container (max-width: 445px) {
+        top: 20px;
+        left: 20px;
+    }
+
+    svg {
+        display: block;
+        width: 20px;
+        height: 20px;
+    }
+
+    &:hover {
+        opacity: 0.8;
+        transform: scale(1.08);
+    }
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.layout-compact-dev .card-drag-handle {
+    display: none !important;
+}
+
+.card-container.dragging {
+    opacity: 0.3;
+    border: 2px dashed var(--accent-primary);
+    border-radius: 10px;
 }

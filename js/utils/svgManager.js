@@ -48,6 +48,7 @@ export const SVGs = {
     'arrow-up': {},
     'edit': {},
     'drag-handle': {},
+    'drag-indicator': {},
     'warning': {},
     'suggestion': {},
     'changelog': {},

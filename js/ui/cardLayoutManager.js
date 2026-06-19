@@ -1,4 +1,6 @@
 import { logger } from '../utils/logger.js';
+import { state } from '../core/state.js';
+import { handleStateUpdate } from '../core/stateManager.js';
 
 const CONTAINER_SELECTOR = '.card-container';
 const COMPACT_CLASS = 'layout-compact';
@@ -290,6 +292,45 @@ function applyPacking(animate) {
         }
 
         const firstPositions = animate ? recordPositions(layout.originalCards) : null;
+        const [col0, col1] = getOrCreateColumns(layout);
+
+        // If we have a saved custom compact order, restore it directly instead of running the algorithm
+        if (currentMode === 'compact0' && state.uiSettings?.incomeCompactCardOrder && layout.config.name === 'income') {
+            const saved = state.uiSettings.incomeCompactCardOrder;
+            const containerMap = new Map();
+            layout.originalCards.forEach(container => {
+                const card = container.querySelector('.income-card');
+                if (card && card.id) {
+                    containerMap.set(card.id, container);
+                }
+            });
+
+            saved.column0.forEach(id => {
+                const container = containerMap.get(id);
+                if (container) {
+                    col0.appendChild(container);
+                    containerMap.delete(id);
+                }
+            });
+            saved.column1.forEach(id => {
+                const container = containerMap.get(id);
+                if (container) {
+                    col1.appendChild(container);
+                    containerMap.delete(id);
+                }
+            });
+            containerMap.forEach(container => {
+                col0.appendChild(container);
+            });
+
+            if (col0.parentNode !== layout.gridEl) layout.gridEl.appendChild(col0);
+            if (col1.parentNode !== layout.gridEl) layout.gridEl.appendChild(col1);
+
+            if (animate && firstPositions) {
+                flipAnimate(layout.gridEl, layout.originalCards, firstPositions);
+            }
+            continue;
+        }
 
         const columns = currentMode === 'compact1'
             ? packCardsCompact1(layout)
@@ -297,7 +338,6 @@ function applyPacking(animate) {
 
         // Determine left and right column assignments based on original layout votes
         const { leftItems, rightItems } = determineColumnOrder(layout, columns[0].items, columns[1].items);
-        const [col0, col1] = getOrCreateColumns(layout);
 
         // Re-parent card elements to their packed columns
         leftItems.forEach(el => col0.appendChild(el));
@@ -403,6 +443,232 @@ function observeContainers(layout) {
     }
 }
 
+function saveCustomCardOrder(layout) {
+    if (layout.config.name !== 'income') return;
+    
+    if (currentMode === 'compact0') {
+        const col0 = layout.gridEl.querySelector(`#${layout.config.prefix}-column-0`);
+        const col1 = layout.gridEl.querySelector(`#${layout.config.prefix}-column-1`);
+        if (col0 && col1) {
+            const getIds = (col) => Array.from(col.querySelectorAll(':scope > ' + CONTAINER_SELECTOR))
+                .map(container => container.querySelector('.income-card')?.id)
+                .filter(Boolean);
+            
+            handleStateUpdate(() => {
+                if (!state.uiSettings) state.uiSettings = {};
+                state.uiSettings.incomeCompactCardOrder = {
+                    column0: getIds(col0),
+                    column1: getIds(col1)
+                };
+            }, true);
+        }
+        return;
+    }
+    
+    const currentCards = Array.from(layout.gridEl.querySelectorAll(':scope > ' + CONTAINER_SELECTOR));
+    
+    layout.originalCards = currentCards;
+    layout.originalIndices.clear();
+    layout.originalCards.forEach((card, index) => layout.originalIndices.set(card, index));
+    
+    const cardIds = currentCards.map(container => {
+        const card = container.querySelector('.income-card');
+        return card ? card.id : null;
+    }).filter(Boolean);
+    
+    handleStateUpdate(() => {
+        if (!state.uiSettings) state.uiSettings = {};
+        state.uiSettings.incomeCardOrder = cardIds;
+    }, true);
+}
+
+let scrollInterval = null;
+
+function startAutoScroll(speed) {
+    if (scrollInterval) {
+        clearInterval(scrollInterval);
+    }
+    scrollInterval = setInterval(() => {
+        window.scrollBy(0, speed);
+    }, 16);
+}
+
+function stopAutoScroll() {
+    if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+    }
+}
+
+function initCardDragReordering(layout) {
+    if (layout.config.name !== 'income') return;
+    
+    function canMoveToColumn(draggingCard, targetColumn) {
+        if (currentMode === 'cozy') return true;
+        
+        const totalCards = layout.originalCards.length;
+        const limit = Math.floor(totalCards / 2) + 2;
+        
+        const currentInTarget = targetColumn.querySelectorAll(':scope > ' + CONTAINER_SELECTOR);
+        let count = currentInTarget.length;
+        
+        const isAlreadyInTarget = draggingCard.parentNode === targetColumn;
+        if (!isAlreadyInTarget) {
+            count += 1;
+        }
+        
+        return count <= limit;
+    }
+    
+    layout.originalCards.forEach(container => {
+        const card = container.querySelector('.income-card');
+        if (!card) return;
+        
+        if (card.querySelector('.card-drag-handle')) return;
+        
+        const dragHandle = document.createElement('div');
+        dragHandle.className = 'card-drag-handle';
+        dragHandle.setAttribute('draggable', 'true');
+        dragHandle.innerHTML = `<orecalc-assets-svg name="drag-indicator" fill="#e3e3e3"></orecalc-assets-svg>`;
+        
+        card.appendChild(dragHandle);
+        
+        dragHandle.addEventListener('mousedown', () => {
+            if (currentMode === 'compact1') return;
+            container.setAttribute('draggable', 'true');
+        });
+        
+        dragHandle.addEventListener('mouseup', () => {
+            container.setAttribute('draggable', 'false');
+        });
+        
+        dragHandle.addEventListener('touchstart', () => {
+            if (currentMode === 'compact1') return;
+            container.setAttribute('draggable', 'true');
+        }, { passive: true });
+        
+        dragHandle.addEventListener('touchend', () => {
+            container.setAttribute('draggable', 'false');
+        });
+    });
+
+    const gridEl = layout.gridEl;
+    
+    gridEl.addEventListener('dragstart', (e) => {
+        if (currentMode === 'compact1') {
+            e.preventDefault();
+            return;
+        }
+        const container = e.target.closest(CONTAINER_SELECTOR);
+        if (!container) return;
+        
+        container.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    gridEl.addEventListener('dragend', (e) => {
+        const container = e.target.closest(CONTAINER_SELECTOR);
+        if (container) {
+            container.classList.remove('dragging');
+            container.setAttribute('draggable', 'false');
+        }
+        saveCustomCardOrder(layout);
+        stopAutoScroll();
+    });
+
+    gridEl.addEventListener('dragover', (e) => {
+        if (currentMode === 'compact1') return;
+        e.preventDefault();
+        
+        const draggingCard = gridEl.querySelector('.dragging');
+        if (!draggingCard) return;
+        
+        const targetCard = e.target.closest(CONTAINER_SELECTOR);
+        
+        // --- Viewport Auto-scrolling ---
+        const scrollZoneHeight = 120; // pixels from top/bottom of viewport
+        const maxSpeed = 15;
+        const clientY = e.clientY;
+        
+        if (clientY < scrollZoneHeight) {
+            const ratio = (scrollZoneHeight - clientY) / scrollZoneHeight;
+            const speed = -Math.round(ratio * maxSpeed);
+            startAutoScroll(speed);
+        } else if (window.innerHeight - clientY < scrollZoneHeight) {
+            const ratio = (scrollZoneHeight - (window.innerHeight - clientY)) / scrollZoneHeight;
+            const speed = Math.round(ratio * maxSpeed);
+            startAutoScroll(speed);
+        } else {
+            stopAutoScroll();
+        }
+
+        // Handle dragging over the column itself (e.g. empty column space)
+        if (!targetCard) {
+            const targetColumn = e.target.closest('.layout-grid-column');
+            if (targetColumn && draggingCard.parentNode !== targetColumn) {
+                if (canMoveToColumn(draggingCard, targetColumn)) {
+                    targetColumn.appendChild(draggingCard);
+                }
+            }
+            return;
+        }
+        
+        if (targetCard === draggingCard) return;
+
+        const targetColumn = targetCard.parentNode;
+
+        // --- Drag Insertion Logic ---
+        const cards = Array.from(gridEl.querySelectorAll(CONTAINER_SELECTOR));
+        const draggingIndex = cards.indexOf(draggingCard);
+        const targetIndex = cards.indexOf(targetCard);
+        
+        if (draggingIndex === -1 || targetIndex === -1) return;
+        
+        const rect = targetCard.getBoundingClientRect();
+        const dragRect = draggingCard.getBoundingClientRect();
+        
+        const isSameColumn = draggingCard.parentNode === targetColumn;
+        let isAfter;
+        if (isSameColumn) {
+            isAfter = draggingIndex < targetIndex;
+        } else {
+            isAfter = clientY > rect.top + rect.height * 0.5;
+        }
+        
+        if (isAfter) {
+            const targetIsBelow = rect.top > dragRect.top + 10;
+            if (targetIsBelow || !isSameColumn) {
+                if (clientY > rect.top + rect.height * 0.3) {
+                    if (canMoveToColumn(draggingCard, targetColumn)) {
+                        targetColumn.insertBefore(draggingCard, targetCard.nextSibling);
+                    }
+                }
+            } else {
+                if (e.clientX > rect.left + rect.width * 0.3) {
+                    if (canMoveToColumn(draggingCard, targetColumn)) {
+                        targetColumn.insertBefore(draggingCard, targetCard.nextSibling);
+                    }
+                }
+            }
+        } else {
+            const targetIsAbove = rect.bottom < dragRect.bottom - 10;
+            if (targetIsAbove || !isSameColumn) {
+                if (clientY < rect.bottom - rect.height * 0.3) {
+                    if (canMoveToColumn(draggingCard, targetColumn)) {
+                        targetColumn.insertBefore(draggingCard, targetCard);
+                    }
+                }
+            } else {
+                if (e.clientX < rect.right - rect.width * 0.3) {
+                    if (canMoveToColumn(draggingCard, targetColumn)) {
+                        targetColumn.insertBefore(draggingCard, targetCard);
+                    }
+                }
+            }
+        }
+    });
+}
+
 /**
  * Initialize the card layout manager for all configured grids.
  * Call once after DOM is ready and initial render is complete.
@@ -417,9 +683,37 @@ export function initCardLayoutManager() {
         }
 
         layout.gridEl = gridEl;
+
+        if (layout.config.name === 'income' && state.uiSettings?.incomeCardOrder) {
+            const savedOrder = state.uiSettings.incomeCardOrder;
+            const containerMap = new Map();
+            const containers = Array.from(gridEl.querySelectorAll(':scope > ' + CONTAINER_SELECTOR));
+            
+            containers.forEach(container => {
+                const card = container.querySelector('.income-card');
+                if (card && card.id) {
+                    containerMap.set(card.id, container);
+                }
+            });
+            
+            savedOrder.forEach(id => {
+                const container = containerMap.get(id);
+                if (container) {
+                    gridEl.appendChild(container);
+                    containerMap.delete(id);
+                }
+            });
+            
+            containerMap.forEach(container => {
+                gridEl.appendChild(container);
+            });
+        }
+
         layout.originalCards = Array.from(gridEl.querySelectorAll(':scope > ' + CONTAINER_SELECTOR));
         layout.originalIndices.clear();
         layout.originalCards.forEach((card, index) => layout.originalIndices.set(card, index));
+
+        initCardDragReordering(layout);
 
         layout.resizeObserver = new ResizeObserver((entries) => {
             onContainerResize(layout, entries);
@@ -437,18 +731,33 @@ export function initCardLayoutManager() {
  * @param {string} mode - The layout mode ('cozy', 'compact0', 'compact1').
  * @param {boolean} [animate=true] - Whether to animate the transition.
  */
-export function applyCardLayout(mode, animate = true) {
+export function applyCardLayout(mode, animate = true, isUserSwitch = true) {
     currentMode = mode;
     isCompact = (mode === 'compact0' || mode === 'compact1');
+
+    if (isUserSwitch) {
+        handleStateUpdate(() => {
+            if (state.uiSettings) {
+                delete state.uiSettings.incomeCardOrder;
+                delete state.uiSettings.incomeCompactCardOrder;
+            }
+        }, true);
+    }
 
     for (const layout of layouts) {
         if (!layout.gridEl) continue;
 
         if (isCompact) {
             layout.gridEl.classList.add(COMPACT_CLASS);
+            if (mode === 'compact1') {
+                layout.gridEl.classList.add('layout-compact-dev');
+            } else {
+                layout.gridEl.classList.remove('layout-compact-dev');
+            }
             observeContainers(layout);
         } else {
             layout.gridEl.classList.remove(COMPACT_CLASS);
+            layout.gridEl.classList.remove('layout-compact-dev');
             if (layout.resizeObserver) {
                 layout.originalCards.forEach(card => layout.resizeObserver.unobserve(card));
             }

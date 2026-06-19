@@ -601,7 +601,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             layoutMode = 'compact0';
             state.uiSettings.cardLayout = 'compact0';
         }
-        applyCardLayout(layoutMode || 'cozy', false);
+        applyCardLayout(layoutMode || 'cozy', false, false);
         import('./utils/cloudSaveHandler.js').then(module => {
             module.initializeCloudSaveButtons();
         });
