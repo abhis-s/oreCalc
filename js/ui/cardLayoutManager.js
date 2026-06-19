@@ -2,7 +2,6 @@ import { logger } from '../utils/logger.js';
 import { state } from '../core/state.js';
 import { handleStateUpdate } from '../core/stateManager.js';
 
-const CONTAINER_SELECTOR = '.card-container';
 const COMPACT_CLASS = 'layout-compact';
 const HEIGHT_THRESHOLD = 10;
 const DEBOUNCE_MS = 150;
@@ -13,12 +12,59 @@ const LAYOUT_CONFIGS = [
     {
         name: 'income',
         gridSelector: '#income-tab .income-cards-grid',
-        prefix: 'income'
+        containerSelector: '.card-container',
+        dragHandleSelector: '.income-card',
+        orderKey: 'incomeCardOrder',
+        compactOrderKey: 'incomeCompactCardOrder',
+        prefix: 'income',
+        hasCompactMode: true
     },
     {
         name: 'settings',
         gridSelector: '#settings-tab .settings-cards-grid',
-        prefix: 'settings'
+        containerSelector: '.card-container',
+        dragHandleSelector: '.card > h2, .card > h3',
+        orderKey: 'settingsCardOrder',
+        prefix: 'settings',
+        hasCompactMode: false
+    },
+    {
+        name: 'home',
+        gridSelector: '#home-tab .main-content',
+        containerSelector: '.left-panel, .right-panel',
+        dragHandleSelector: '.card h2',
+        orderKey: 'homePanelOrder',
+        prefix: 'home',
+        hasCompactMode: false
+    },
+    {
+        name: 'equipment-left',
+        gridSelector: '#equipment-tab #heroes-container',
+        containerSelector: '.hero-card',
+        dragHandleSelector: '.hero-title',
+        orderKey: 'heroOrder',
+        prefix: 'eq-left',
+        hasCompactMode: false,
+        useHeroNameForId: true
+    },
+    {
+        name: 'equipment-right',
+        gridSelector: '#equipment-tab .right-panel',
+        containerSelector: '.card',
+        dragHandleSelector: 'h2, .input-group-flex:first-child',
+        orderKey: 'equipmentRightCardOrder',
+        prefix: 'eq-right',
+        hasCompactMode: false
+    },
+    {
+        name: 'planner',
+        gridSelector: '#planner-tab .planner-cards-grid',
+        containerSelector: '.planner-card, #priority-list-card, .full-width-planner-section',
+        dragHandleSelector: 'h2, .max-level-card-header, .priority-list-header h3',
+        orderKey: 'plannerCardOrder',
+        prefix: 'planner',
+        hasCompactMode: false,
+        isPlannerLayout: true
     }
 ];
 
@@ -283,6 +329,7 @@ function applyPacking(animate) {
     const isDesktop = window.innerWidth >= 780;
 
     for (const layout of layouts) {
+        if (!layout.config.hasCompactMode) continue;
         if (!layout.gridEl || layout.originalCards.length === 0) continue;
 
         if (!isDesktop) {
@@ -295,8 +342,8 @@ function applyPacking(animate) {
         const [col0, col1] = getOrCreateColumns(layout);
 
         // If we have a saved custom compact order, restore it directly instead of running the algorithm
-        if (currentMode === 'compact0' && state.uiSettings?.incomeCompactCardOrder && layout.config.name === 'income') {
-            const saved = state.uiSettings.incomeCompactCardOrder;
+        if (currentMode === 'compact0' && state.uiSettings?.[layout.config.compactOrderKey] && layout.config.name === 'income') {
+            const saved = state.uiSettings[layout.config.compactOrderKey];
             const containerMap = new Map();
             layout.originalCards.forEach(container => {
                 const card = container.querySelector('.income-card');
@@ -360,6 +407,7 @@ function applyPacking(animate) {
  */
 function clearPacking(animate) {
     for (const layout of layouts) {
+        if (!layout.config.hasCompactMode) continue;
         if (!layout.gridEl || layout.originalCards.length === 0) continue;
 
         const firstPositions = animate ? recordPositions(layout.originalCards) : null;
@@ -444,19 +492,21 @@ function observeContainers(layout) {
 }
 
 function saveCustomCardOrder(layout) {
-    if (layout.config.name !== 'income') return;
-    
-    if (currentMode === 'compact0') {
+    if (layout.config.name === 'planner') {
+        enforcePlannerHalfWidthAdjacency(layout.gridEl);
+    }
+
+    if (layout.config.hasCompactMode && currentMode === 'compact0' && layout.config.compactOrderKey) {
         const col0 = layout.gridEl.querySelector(`#${layout.config.prefix}-column-0`);
         const col1 = layout.gridEl.querySelector(`#${layout.config.prefix}-column-1`);
         if (col0 && col1) {
-            const getIds = (col) => Array.from(col.querySelectorAll(':scope > ' + CONTAINER_SELECTOR))
-                .map(container => container.querySelector('.income-card')?.id)
+            const getIds = (col) => Array.from(col.querySelectorAll(':scope > ' + layout.config.containerSelector))
+                .map(container => container.querySelector(layout.config.dragHandleSelector.split(',')[0])?.id)
                 .filter(Boolean);
             
             handleStateUpdate(() => {
                 if (!state.uiSettings) state.uiSettings = {};
-                state.uiSettings.incomeCompactCardOrder = {
+                state.uiSettings[layout.config.compactOrderKey] = {
                     column0: getIds(col0),
                     column1: getIds(col1)
                 };
@@ -465,20 +515,22 @@ function saveCustomCardOrder(layout) {
         return;
     }
     
-    const currentCards = Array.from(layout.gridEl.querySelectorAll(':scope > ' + CONTAINER_SELECTOR));
+    const currentCards = Array.from(layout.gridEl.querySelectorAll(':scope > ' + layout.config.containerSelector));
     
     layout.originalCards = currentCards;
     layout.originalIndices.clear();
     layout.originalCards.forEach((card, index) => layout.originalIndices.set(card, index));
     
     const cardIds = currentCards.map(container => {
-        const card = container.querySelector('.income-card');
-        return card ? card.id : null;
+        if (layout.config.useHeroNameForId) {
+            return container.dataset.heroName;
+        }
+        return container.id || null;
     }).filter(Boolean);
     
     handleStateUpdate(() => {
         if (!state.uiSettings) state.uiSettings = {};
-        state.uiSettings.incomeCardOrder = cardIds;
+        state.uiSettings[layout.config.orderKey] = cardIds;
     }, true);
 }
 
@@ -500,16 +552,35 @@ function stopAutoScroll() {
     }
 }
 
+function enforcePlannerHalfWidthAdjacency(gridEl) {
+    if (!gridEl) return;
+    const carousel = gridEl.querySelector('#planner-hero-carousel-card');
+    const priority = gridEl.querySelector('#priority-list-card');
+    if (!carousel || !priority) return;
+
+    if (carousel.nextElementSibling !== priority) {
+        carousel.parentNode.insertBefore(priority, carousel.nextSibling);
+    }
+}
+
+function getCardTitleText(container) {
+    const titleEl = container.querySelector('h2, h3');
+    if (titleEl) {
+        return titleEl.textContent.trim();
+    }
+    if (container.dataset.heroName) return container.dataset.heroName;
+    if (container.id) return container.id.replace('planner-', '').replace('-card', '').replace('eq-', '');
+    return 'Card';
+}
+
 function initCardDragReordering(layout) {
-    if (layout.config.name !== 'income') return;
-    
     function canMoveToColumn(draggingCard, targetColumn) {
         if (currentMode === 'cozy') return true;
         
         const totalCards = layout.originalCards.length;
         const limit = Math.floor(totalCards / 2) + 2;
         
-        const currentInTarget = targetColumn.querySelectorAll(':scope > ' + CONTAINER_SELECTOR);
+        const currentInTarget = targetColumn.querySelectorAll(':scope > ' + layout.config.containerSelector);
         let count = currentInTarget.length;
         
         const isAlreadyInTarget = draggingCard.parentNode === targetColumn;
@@ -521,17 +592,21 @@ function initCardDragReordering(layout) {
     }
     
     layout.originalCards.forEach(container => {
-        const card = container.querySelector('.income-card');
-        if (!card) return;
+        if (container.id === 'planner-hero-carousel-card' || container.id === 'eq-settings-container-card') {
+            return;
+        }
+        const handleTarget = container.querySelector(layout.config.dragHandleSelector);
+        if (!handleTarget) return;
         
-        if (card.querySelector('.card-drag-handle')) return;
+        if (handleTarget.querySelector('.card-drag-handle')) return;
         
         const dragHandle = document.createElement('div');
         dragHandle.className = 'card-drag-handle';
         dragHandle.setAttribute('draggable', 'true');
         dragHandle.innerHTML = `<orecalc-assets-svg name="drag-indicator" fill="#e3e3e3"></orecalc-assets-svg>`;
         
-        card.appendChild(dragHandle);
+        // Match drag handle position to card padding dynamically if requested
+        handleTarget.appendChild(dragHandle);
         
         dragHandle.addEventListener('mousedown', () => {
             if (currentMode === 'compact1') return;
@@ -559,15 +634,36 @@ function initCardDragReordering(layout) {
             e.preventDefault();
             return;
         }
-        const container = e.target.closest(CONTAINER_SELECTOR);
+        const container = e.target.closest(layout.config.containerSelector);
         if (!container) return;
         
         container.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
+
+        // Create custom drag preview pill
+        const titleText = getCardTitleText(container);
+        const dragPreview = document.createElement('div');
+        dragPreview.className = 'card-drag-preview-pill';
+        dragPreview.innerHTML = `
+            <div class="drag-preview-handle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="12" r="1.5"></circle>
+                    <circle cx="9" cy="5" r="1.5"></circle>
+                    <circle cx="9" cy="19" r="1.5"></circle>
+                    <circle cx="15" cy="12" r="1.5"></circle>
+                    <circle cx="15" cy="5" r="1.5"></circle>
+                    <circle cx="15" cy="19" r="1.5"></circle>
+                </svg>
+            </div>
+            <span class="drag-preview-title">${titleText}</span>
+        `;
+        document.body.appendChild(dragPreview);
+        e.dataTransfer.setDragImage(dragPreview, 25, 18);
+        setTimeout(() => dragPreview.remove(), 0);
     });
 
     gridEl.addEventListener('dragend', (e) => {
-        const container = e.target.closest(CONTAINER_SELECTOR);
+        const container = e.target.closest(layout.config.containerSelector);
         if (container) {
             container.classList.remove('dragging');
             container.setAttribute('draggable', 'false');
@@ -583,7 +679,7 @@ function initCardDragReordering(layout) {
         const draggingCard = gridEl.querySelector('.dragging');
         if (!draggingCard) return;
         
-        const targetCard = e.target.closest(CONTAINER_SELECTOR);
+        const targetCard = e.target.closest(layout.config.containerSelector);
         
         // --- Viewport Auto-scrolling ---
         const scrollZoneHeight = 120; // pixels from top/bottom of viewport
@@ -615,10 +711,42 @@ function initCardDragReordering(layout) {
         
         if (targetCard === draggingCard) return;
 
+        // Custom logic for Planner layout side-by-side pairing preservation
+        if (layout.config.isPlannerLayout) {
+            const cards = Array.from(gridEl.querySelectorAll(layout.config.containerSelector));
+            const draggingIndex = cards.indexOf(draggingCard);
+            const targetIndex = cards.indexOf(targetCard);
+            
+            if (draggingIndex === -1 || targetIndex === -1) return;
+
+            // Half-width cards: carousel and priority-list
+            const isDraggingHalf = draggingCard.id === 'planner-hero-carousel-card' || draggingCard.id === 'priority-list-card';
+            const isTargetFull = targetCard.id === 'planner-max-levels-card' || targetCard.id === 'planner-calendar-card';
+
+            if (isDraggingHalf && isTargetFull) {
+                // Move both half-width cards together
+                const carousel = gridEl.querySelector('#planner-hero-carousel-card');
+                const priority = gridEl.querySelector('#priority-list-card');
+                if (carousel && priority) {
+                    const rect = targetCard.getBoundingClientRect();
+                    const isAfter = clientY > rect.top + rect.height * 0.5;
+                    
+                    if (isAfter) {
+                        gridEl.insertBefore(carousel, targetCard.nextSibling);
+                        gridEl.insertBefore(priority, carousel.nextSibling);
+                    } else {
+                        gridEl.insertBefore(carousel, targetCard);
+                        gridEl.insertBefore(priority, carousel.nextSibling);
+                    }
+                }
+                return;
+            }
+        }
+
         const targetColumn = targetCard.parentNode;
 
         // --- Drag Insertion Logic ---
-        const cards = Array.from(gridEl.querySelectorAll(CONTAINER_SELECTOR));
+        const cards = Array.from(gridEl.querySelectorAll(layout.config.containerSelector));
         const draggingIndex = cards.indexOf(draggingCard);
         const targetIndex = cards.indexOf(targetCard);
         
@@ -684,15 +812,15 @@ export function initCardLayoutManager() {
 
         layout.gridEl = gridEl;
 
-        if (layout.config.name === 'income' && state.uiSettings?.incomeCardOrder) {
-            const savedOrder = state.uiSettings.incomeCardOrder;
+        const savedOrder = state.uiSettings?.[layout.config.orderKey];
+        if (savedOrder) {
             const containerMap = new Map();
-            const containers = Array.from(gridEl.querySelectorAll(':scope > ' + CONTAINER_SELECTOR));
+            const containers = Array.from(gridEl.querySelectorAll(':scope > ' + layout.config.containerSelector));
             
             containers.forEach(container => {
-                const card = container.querySelector('.income-card');
-                if (card && card.id) {
-                    containerMap.set(card.id, container);
+                const key = layout.config.useHeroNameForId ? container.dataset.heroName : container.id;
+                if (key) {
+                    containerMap.set(key, container);
                 }
             });
             
@@ -709,7 +837,11 @@ export function initCardLayoutManager() {
             });
         }
 
-        layout.originalCards = Array.from(gridEl.querySelectorAll(':scope > ' + CONTAINER_SELECTOR));
+        if (layout.config.name === 'planner') {
+            enforcePlannerHalfWidthAdjacency(gridEl);
+        }
+
+        layout.originalCards = Array.from(gridEl.querySelectorAll(':scope > ' + layout.config.containerSelector));
         layout.originalIndices.clear();
         layout.originalCards.forEach((card, index) => layout.originalIndices.set(card, index));
 
@@ -727,6 +859,64 @@ export function initCardLayoutManager() {
 }
 
 /**
+ * Refresh a specific layout container (e.g. after dynamic contents re-rendering).
+ * @param {string} name
+ */
+export function refreshLayout(name) {
+    const layout = layouts.find(l => l.config.name === name);
+    if (!layout) return;
+
+    const gridEl = document.querySelector(layout.config.gridSelector);
+    if (!gridEl) return;
+
+    layout.gridEl = gridEl;
+
+    // Apply saved order if any
+    const savedOrder = state.uiSettings?.[layout.config.orderKey];
+    if (savedOrder) {
+        const containerMap = new Map();
+        const containers = Array.from(gridEl.querySelectorAll(':scope > ' + layout.config.containerSelector));
+        
+        containers.forEach(container => {
+            const key = layout.config.useHeroNameForId ? container.dataset.heroName : container.id;
+            if (key) {
+                containerMap.set(key, container);
+            }
+        });
+        
+        savedOrder.forEach(id => {
+            const container = containerMap.get(id);
+            if (container) {
+                gridEl.appendChild(container);
+                containerMap.delete(id);
+            }
+        });
+        
+        containerMap.forEach(container => {
+            gridEl.appendChild(container);
+        });
+    }
+
+    if (name === 'planner') {
+        enforcePlannerHalfWidthAdjacency(gridEl);
+    }
+
+    layout.originalCards = Array.from(gridEl.querySelectorAll(':scope > ' + layout.config.containerSelector));
+    layout.originalIndices.clear();
+    layout.originalCards.forEach((card, index) => layout.originalIndices.set(card, index));
+
+    initCardDragReordering(layout);
+
+    if (layout.resizeObserver) {
+        layout.resizeObserver.disconnect();
+    }
+    layout.resizeObserver = new ResizeObserver((entries) => {
+        onContainerResize(layout, entries);
+    });
+    observeContainers(layout);
+}
+
+/**
  * Apply or remove compact layout.
  * @param {string} mode - The layout mode ('cozy', 'compact0', 'compact1').
  * @param {boolean} [animate=true] - Whether to animate the transition.
@@ -738,8 +928,12 @@ export function applyCardLayout(mode, animate = true, isUserSwitch = true) {
     if (isUserSwitch) {
         handleStateUpdate(() => {
             if (state.uiSettings) {
-                delete state.uiSettings.incomeCardOrder;
-                delete state.uiSettings.incomeCompactCardOrder;
+                LAYOUT_CONFIGS.forEach(config => {
+                    delete state.uiSettings[config.orderKey];
+                    if (config.compactOrderKey) {
+                        delete state.uiSettings[config.compactOrderKey];
+                    }
+                });
             }
         }, true);
     }
@@ -747,7 +941,7 @@ export function applyCardLayout(mode, animate = true, isUserSwitch = true) {
     for (const layout of layouts) {
         if (!layout.gridEl) continue;
 
-        if (isCompact) {
+        if (isCompact && layout.config.hasCompactMode) {
             layout.gridEl.classList.add(COMPACT_CLASS);
             if (mode === 'compact1') {
                 layout.gridEl.classList.add('layout-compact-dev');
@@ -780,7 +974,7 @@ export function applyCardLayout(mode, animate = true, isUserSwitch = true) {
 export function repackCards() {
     if (!isCompact) return;
     for (const layout of layouts) {
-        if (layout.gridEl) {
+        if (layout.gridEl && layout.config.hasCompactMode) {
             observeContainers(layout);
         }
     }

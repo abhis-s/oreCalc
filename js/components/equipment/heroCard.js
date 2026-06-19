@@ -12,12 +12,28 @@ import { markEquipmentManuallyMaxed } from './heroCardDisplay.js';
 
 import { createHeroCard } from '../common/heroDisplayFactory.js';
 
+import { initializeHeroCards as originalInitializeHeroCards } from './heroCard.js';
+import { refreshLayout } from '../../ui/cardLayoutManager.js';
+
 export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
     const container = dom.equipment.heroesContainer;
     if (!container) return;
 
     container.innerHTML = '';
-    for (const heroKey in heroData) {
+    let heroKeys = Object.keys(heroData);
+    if (uiSettings?.heroOrder) {
+        const savedOrder = uiSettings.heroOrder;
+        heroKeys.sort((a, b) => {
+            const idxA = savedOrder.indexOf(heroData[a].name);
+            const idxB = savedOrder.indexOf(heroData[b].name);
+            if (idxA === -1 && idxB === -1) return 0;
+            if (idxA === -1) return 1;
+            if (idxB === -1) return -1;
+            return idxA - idxB;
+        });
+    }
+
+    for (const heroKey of heroKeys) {
         const hero = heroData[heroKey];
         const heroState = heroesState[hero.name] || { equipment: {} };
 
@@ -31,6 +47,10 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
         });
         container.appendChild(card);
     }
+
+    // Refresh dynamic layout ordering & drag handles
+    refreshLayout('equipment-left');
+
 
     container.querySelectorAll('input[type="number"]').forEach(input => {
         addValidation(input, { inputName: translate('validation.level') });

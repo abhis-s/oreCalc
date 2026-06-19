@@ -201,6 +201,11 @@ export function renderPlanner(plannerState) {
     
     // Ensure height sync happens after the carousel has been populated
     syncPriorityListHeight();
+    
+    // Refresh planner layout drag handles and restore card order
+    import('../../ui/cardLayoutManager.js').then(module => {
+        module.refreshLayout('planner');
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

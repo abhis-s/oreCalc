@@ -306,6 +306,7 @@
         "legendI": "Legende I"
     },
     "planner": {
+        "heroes": "Helden",
         "toggleHero": "{name}-Einbeziehung umschalten",
         "toggleEquipment": "{name}-Einbeziehung umschalten",
         "enableLevelInput": "Level-Eingabe aktivieren",

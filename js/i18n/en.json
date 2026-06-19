@@ -306,6 +306,7 @@
         "legendI": "Legend I"
     },
     "planner": {
+        "heroes": "Heroes",
         "toggleHero": "Toggle {name} inclusion",
         "toggleEquipment": "Toggle {name} inclusion",
         "enableLevelInput": "Enable level input",

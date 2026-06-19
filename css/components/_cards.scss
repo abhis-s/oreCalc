@@ -306,7 +306,8 @@
     }
 
     .results-title,
-    .storage-title {
+    .storage-title,
+    .settings-title {
         align-items: center;
         color: var(--accent-primary);
         display: flex;
@@ -384,12 +385,64 @@
     }
 }
 
+.hero-card .card-drag-handle {
+    left: auto;
+    right: 30px;
+
+    @container (max-width: 445px) {
+        right: 20px;
+    }
+}
+
 .layout-compact-dev .card-drag-handle {
     display: none !important;
 }
 
-.card-container.dragging {
+.card-container.dragging,
+.hero-card.dragging,
+.planner-card.dragging,
+.left-panel.dragging,
+.right-panel.dragging,
+.full-width-planner-section.dragging,
+.card.dragging,
+.equipment-card.dragging {
     opacity: 0.3;
     border: 2px dashed var(--accent-primary);
     border-radius: 10px;
+}
+
+.card-drag-preview-pill {
+    position: absolute;
+    top: -1000px;
+    left: -1000px;
+    background-color: var(--bg-surface-secondary);
+    border: 1px solid var(--accent-primary);
+    border-radius: 20px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--card-shadow);
+    z-index: 9999;
+    pointer-events: none;
+
+    .drag-preview-handle {
+        display: flex;
+        align-items: center;
+        width: 18px;
+        height: 18px;
+        color: var(--accent-primary);
+        opacity: 0.6;
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .drag-preview-title {
+        color: var(--text-primary);
+        font-weight: var(--font-weight-bold);
+        font-size: 14px;
+        white-space: nowrap;
+    }
 }

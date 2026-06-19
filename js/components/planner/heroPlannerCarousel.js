@@ -8,6 +8,8 @@ import { updatePageDots, getCurrentHeroIndex } from './heroPlannerCarouselDispla
 
 import { createHeroIcon, createEquipmentItem } from '../common/heroDisplayFactory.js';
 
+import { refreshLayout } from '../../ui/cardLayoutManager.js';
+
 /**
  * Updates the existing hero switches without destroying the DOM elements.
  */
@@ -139,4 +141,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
     plannerPageDots.innerHTML = dotsHtml;
 
     updatePageDots(getCurrentHeroIndex());
+    
+    // Refresh planner layout to add handles to new carousel children if needed
+    refreshLayout('planner');
 }
