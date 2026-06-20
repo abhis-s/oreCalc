@@ -7,6 +7,14 @@
     gap: 20px;
 }
 
+.planner-card,
+#priority-list-card,
+.full-width-planner-section {
+    .card-drag-handle {
+        display: none !important;
+    }
+}
+
 .planner-card {
     box-shadow: var(--card-shadow);
 }

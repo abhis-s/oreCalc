@@ -26,7 +26,7 @@ const LAYOUT_CONFIGS = [
         dragHandleSelector: '.card > h2, .card > h3',
         orderKey: 'settingsCardOrder',
         prefix: 'settings',
-        hasCompactMode: false
+        hasCompactMode: true
     },
     {
         name: 'home',
@@ -44,7 +44,7 @@ const LAYOUT_CONFIGS = [
         dragHandleSelector: '.hero-title',
         orderKey: 'heroOrder',
         prefix: 'eq-left',
-        hasCompactMode: false,
+        hasCompactMode: true,
         useHeroNameForId: true
     },
     {
@@ -334,8 +334,18 @@ function applyPacking(animate) {
 
         if (!isDesktop) {
             // Fallback to normal layout on mobile devices
+            layout.gridEl.classList.remove(COMPACT_CLASS);
+            layout.gridEl.classList.remove('layout-compact-dev');
             clearColumns(layout);
             continue;
+        }
+
+        // Ensure classes are present on desktop
+        layout.gridEl.classList.add(COMPACT_CLASS);
+        if (currentMode === 'compact1') {
+            layout.gridEl.classList.add('layout-compact-dev');
+        } else {
+            layout.gridEl.classList.remove('layout-compact-dev');
         }
 
         const firstPositions = animate ? recordPositions(layout.originalCards) : null;
@@ -870,6 +880,18 @@ export function refreshLayout(name) {
     if (!gridEl) return;
 
     layout.gridEl = gridEl;
+
+    if (isCompact && layout.config.hasCompactMode) {
+        gridEl.classList.add(COMPACT_CLASS);
+        if (currentMode === 'compact1') {
+            gridEl.classList.add('layout-compact-dev');
+        } else {
+            gridEl.classList.remove('layout-compact-dev');
+        }
+    } else {
+        gridEl.classList.remove(COMPACT_CLASS);
+        gridEl.classList.remove('layout-compact-dev');
+    }
 
     // Apply saved order if any
     const savedOrder = state.uiSettings?.[layout.config.orderKey];

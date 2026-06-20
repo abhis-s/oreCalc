@@ -295,6 +295,24 @@ body:has(.modal.show) {
         overflow-x: auto;
         vertical-align: middle;
     }
+
+    .external-link-display {
+        display: inline-block;
+        color: $accent-primary;
+        background-color: rgba($accent-primary-soft, 0.1);
+        border: 1px dashed rgba($accent-primary, 0.35);
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 0.85em;
+        font-weight: var(--font-weight-medium);
+        word-break: break-all;
+        margin: 12px 0;
+        max-width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+        user-select: all;
+    }
 }
 
 .error-message code {

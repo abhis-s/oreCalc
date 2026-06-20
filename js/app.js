@@ -854,7 +854,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
         if (isHttpExternal) {
             e.preventDefault();
-            const confirmed = await showConfirm(translate('confirms.externalLink'));
+            const confirmed = await showConfirm(
+                `${translate('confirms.externalLink')}<br><code class="external-link-display">${href}</code><br><br>${translate('confirms.externalLinkConfirm')}`
+            );
             if (confirmed) {
                 window.open(href, '_blank', 'noopener,noreferrer');
             }

@@ -117,7 +117,22 @@ function renderLabeledActions(containerSelector, data) {
             labelWrapper.appendChild(badge);
         }
 
-        itemRow.appendChild(labelWrapper);
+        let labelSide = labelWrapper;
+        if (item.i18nDesc) {
+            const descriptorGroup = document.createElement('div');
+            descriptorGroup.className = 'field-descriptor-group';
+            descriptorGroup.appendChild(labelWrapper);
+
+            const descPara = document.createElement('p');
+            descPara.className = 'form-setting-text';
+            descPara.dataset.i18n = item.i18nDesc;
+            descPara.textContent = translate(item.i18nDesc);
+            descriptorGroup.appendChild(descPara);
+
+            labelSide = descriptorGroup;
+        }
+
+        itemRow.appendChild(labelSide);
 
         const btn = document.createElement('button');
         btn.className = `animated-btn ${item.colorClass}`;
@@ -127,7 +142,9 @@ function renderLabeledActions(containerSelector, data) {
         if (item.actionType === 'link') {
             btn.addEventListener('click', async (e) => {
                 e.preventDefault();
-                const confirmed = await showConfirm(translate('confirms.externalLink'));
+                const confirmed = await showConfirm(
+                    `${translate('confirms.externalLink')}<br><code class="external-link-display">${item.url}</code><br><br>${translate('confirms.externalLinkConfirm')}`
+                );
                 if (confirmed) {
                     window.open(item.url, '_blank', 'noopener,noreferrer');
                 }
@@ -890,7 +907,9 @@ export function openPrivacyModal() {
                     const isHttpExternal = (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(window.location.host);
                     if (isHttpExternal) {
                         e.preventDefault();
-                        const confirmed = await showConfirm(translate('confirms.externalLink'));
+                        const confirmed = await showConfirm(
+                            `${translate('confirms.externalLink')}<br><code class="external-link-display">${href}</code><br><br>${translate('confirms.externalLinkConfirm')}`
+                        );
                         if (confirmed) {
                             window.open(href, '_blank', 'noopener,noreferrer');
                         }
@@ -1083,7 +1102,9 @@ export function openTermsOfUseModal() {
                     const isHttpExternal = (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(window.location.host);
                     if (isHttpExternal) {
                         e.preventDefault();
-                        const confirmed = await showConfirm(translate('confirms.externalLink'));
+                        const confirmed = await showConfirm(
+                            `${translate('confirms.externalLink')}<br><code class="external-link-display">${href}</code><br><br>${translate('confirms.externalLinkConfirm')}`
+                        );
                         if (confirmed) {
                             window.open(href, '_blank', 'noopener,noreferrer');
                         }

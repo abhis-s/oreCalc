@@ -23,6 +23,7 @@ export const developmentSupportData = [
         icon: 'crowdin',
         i18nLabel: 'settings.crowdin',
         i18nAction: 'actions.visit',
+        i18nHelp: 'settings.crowdinHelp',
         colorClass: 'btn-crowdin',
         actionType: 'link'
     },
@@ -32,6 +33,7 @@ export const developmentSupportData = [
         icon: 'bmc',
         i18nLabel: 'settings.buyMeACoffee',
         i18nAction: 'actions.support',
+        i18nDesc: 'settings.buyMeACoffeeDesc',
         colorClass: 'btn-bmc',
         actionType: 'link'
     },

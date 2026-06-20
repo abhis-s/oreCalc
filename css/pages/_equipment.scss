@@ -13,6 +13,25 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
+#heroes-container.layout-compact {
+    align-items: start;
+    display: grid;
+    gap: 20px;
+
+    .layout-grid-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        min-height: 1px;
+    }
+
+    .hero-card {
+        height: auto;
+        margin-bottom: 0;
+    }
+}
+
 .hero-card {
     background-color: $bg-surface-secondary;
     border-radius: 10px;

@@ -23,8 +23,8 @@ export function sanitizeHTML(html) {
     try {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        const allowedTags = new Set(['span', 'strong', 'em', 'code', 'br', 'p', 'b', 'i']);
-        const allowedClasses = new Set(['user-id-code']);
+        const allowedTags = new Set(['span', 'strong', 'em', 'code', 'br', 'p', 'b', 'i', 'a']);
+        const allowedClasses = new Set(['user-id-code', 'external-link']);
         const blockedTags = new Set(['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'svg', 'img', 'video', 'audio']);
 
         function cleanNode(node) {
@@ -42,6 +42,17 @@ export function sanitizeHTML(html) {
                         const classes = Array.from(node.classList).filter(cls => allowedClasses.has(cls));
                         if (classes.length > 0) {
                             cleanedElement.className = classes.join(' ');
+                        }
+                    }
+                    if (tagName === 'a') {
+                        if (node.hasAttribute('href')) {
+                            cleanedElement.setAttribute('href', node.getAttribute('href'));
+                        }
+                        if (node.hasAttribute('target')) {
+                            cleanedElement.setAttribute('target', node.getAttribute('target'));
+                        }
+                        if (node.hasAttribute('rel')) {
+                            cleanedElement.setAttribute('rel', node.getAttribute('rel'));
                         }
                     }
                     for (const child of Array.from(node.childNodes)) {
