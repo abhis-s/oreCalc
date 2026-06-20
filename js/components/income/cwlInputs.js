@@ -105,6 +105,9 @@ function compileCwlSeasonsFromWars(warsList, activePlayerTag, cleanClanTag) {
 
         for (const war of wars) {
             const isClan = war.clan?.tag === cleanClanTag;
+            const isOpponent = war.opponent?.tag === cleanClanTag;
+            if (!isClan && !isOpponent) continue;
+
             const ourTeam = isClan ? war.clan : war.opponent;
             const oppTeam = isClan ? war.opponent : war.clan;
 
@@ -174,12 +177,18 @@ function compileCwlSeasonsFromWars(warsList, activePlayerTag, cleanClanTag) {
     return compiledSeasons.slice(0, 2);
 }
 
+const lastCwlFetchTimes = new Map(); // clanTag -> timestamp
+
 export async function triggerCwlLogFetch(clanTag) {
     if (calculatedCwlStats.isFetching) return;
 
     // Cooldown check!
     const now = Date.now();
-    const lastFetch = state.playerProfile?.lastCwlFetchTime ? new Date(state.playerProfile.lastCwlFetchTime).getTime() : 0;
+    let lastFetch = lastCwlFetchTimes.get(clanTag) || 0;
+    if (lastFetch === 0 && state.playerProfile?.lastCwlFetchTime) {
+        lastFetch = new Date(state.playerProfile.lastCwlFetchTime).getTime();
+        lastCwlFetchTimes.set(clanTag, lastFetch);
+    }
     const cachedSeasons = state.playerProfile?.cwlSeasons || [];
     const currentSeason = cachedSeasons[0];
 
@@ -217,11 +226,13 @@ export async function triggerCwlLogFetch(clanTag) {
         ]);
 
         // Update last fetch time
+        lastCwlFetchTimes.set(clanTag, now);
         if (state.playerProfile) {
-            state.playerProfile.lastCwlFetchTime = new Date().toISOString();
+            state.playerProfile.lastCwlFetchTime = new Date(now).toISOString();
         }
 
         const warsMap = new Map();
+        const cachedWarTags = new Set();
 
         // Load server wars into map
         for (const cachedWar of serverWars) {
@@ -231,30 +242,76 @@ export async function triggerCwlLogFetch(clanTag) {
                     season: cachedWar.season,
                     warData: cachedWar.warData
                 });
+                cachedWarTags.add(cachedWar.warTag);
             }
         }
 
-        // If live groupData is available, fetch its wars and overwrite map entries
+        // If live groupData is available, determine which wars to fetch
         if (groupData && groupData.rounds) {
             const rounds = groupData.rounds || [];
-            const warTags = [];
-            for (const round of rounds) {
+            const warTagsToFetch = [];
+
+            // Map cached war tags to their round index
+            const roundIndexMap = new Map(); // warTag -> roundIndex
+            rounds.forEach((round, roundIdx) => {
                 const tags = round.warTags || [];
-                for (const tag of tags) {
-                    if (tag && tag !== '#NoWar') {
-                        warTags.push(tag);
+                tags.forEach(tag => {
+                    roundIndexMap.set(tag, roundIdx);
+                });
+            });
+
+            // Find which rounds already have a cached ended war
+            const roundsWithEndedWar = new Set();
+            for (const cachedWar of serverWars) {
+                if (cachedWar.warTag && cachedWar.warData) {
+                    const roundIdx = roundIndexMap.get(cachedWar.warTag);
+                    if (roundIdx !== undefined && cachedWar.warData.state === 'warEnded') {
+                        roundsWithEndedWar.add(roundIdx);
                     }
                 }
             }
 
-            if (warTags.length > 0) {
+            // Decide which war tags we need to fetch live
+            rounds.forEach((round, roundIdx) => {
+                // If we already have an ended war cached for this round, we don't fetch anything for this round
+                if (roundsWithEndedWar.has(roundIdx)) {
+                    return;
+                }
+
+                // Otherwise, check if we have a cached in-progress/preparation war for this round
+                const tags = round.warTags || [];
+                let hasInProgressCached = false;
+                let inProgressTag = null;
+
+                for (const tag of tags) {
+                    if (cachedWarTags.has(tag)) {
+                        hasInProgressCached = true;
+                        inProgressTag = tag;
+                        break;
+                    }
+                }
+
+                if (hasInProgressCached && inProgressTag) {
+                    // Only fetch the in-progress war tag to update its live state
+                    warTagsToFetch.push(inProgressTag);
+                } else {
+                    // Fetch all tags for this round to discover which one is ours
+                    tags.forEach(tag => {
+                        if (tag && tag !== '#NoWar' && tag !== '0' && tag !== '#0') {
+                            warTagsToFetch.push(tag);
+                        }
+                    });
+                }
+            });
+
+            if (warTagsToFetch.length > 0) {
                 const liveWars = await Promise.all(
-                    warTags.map(tag => fetchCwlWar(tag).catch(e => null))
+                    warTagsToFetch.map(tag => fetchCwlWar(tag).catch(e => null))
                 );
 
                 for (let i = 0; i < liveWars.length; i++) {
                     const war = liveWars[i];
-                    const tag = warTags[i];
+                    const tag = warTagsToFetch[i];
                     if (war && tag) {
                         warsMap.set(tag, {
                             warTag: tag,
@@ -280,6 +337,7 @@ export async function triggerCwlLogFetch(clanTag) {
         logger.error("Failed to fetch CWL log for recommended values:", error);
 
         // Update last fetch time even on failure so we don't spam the API
+        lastCwlFetchTimes.set(clanTag, Date.now());
         if (state.playerProfile) {
             state.playerProfile.lastCwlFetchTime = new Date().toISOString();
         }

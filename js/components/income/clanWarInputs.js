@@ -28,12 +28,26 @@ function parseCoCDateTime(str) {
     return new Date(Date.UTC(year, month, day, hour, minute, second));
 }
 
+const lastWarFetchTimes = new Map(); // clanTag -> timestamp
+
 export async function triggerWarLogFetch(clanTag) {
     if (calculatedStats.isFetching) return;
+
+    // Cooldown check: 1 hour (3600000 ms)
+    const now = Date.now();
+    const lastFetch = lastWarFetchTimes.get(clanTag) || 0;
+    if (now - lastFetch < 3600000) {
+        logger.debug(`Clan war fetch cooldown active for clan ${clanTag}.`);
+        return;
+    }
+
     calculatedStats.isFetching = true;
     try {
         const { fetchClanWarLog } = await import('../../services/apiService.js');
         const data = await fetchClanWarLog(clanTag);
+        
+        lastWarFetchTimes.set(clanTag, now);
+        
         const wars = data.items || [];
         
         if (wars.length < 5) {
@@ -88,6 +102,9 @@ export async function triggerWarLogFetch(clanTag) {
         }
     } catch (error) {
         logger.error("Failed to fetch clan war log for recommended values:", error);
+        
+        lastWarFetchTimes.set(clanTag, Date.now()); // Set cooldown on failure so we don't spam
+        
         calculatedStats.winRate = 70;
         calculatedStats.drawRate = 0;
         calculatedStats.warsCount = 0;
