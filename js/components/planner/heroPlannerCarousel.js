@@ -90,6 +90,14 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         heroNameSpan.dataset.i18n = `heroes.${heroKey}`;
         infoAndName.appendChild(heroNameSpan);
 
+        const infoBtn = document.createElement('button');
+        infoBtn.className = 'info-btn';
+        infoBtn.dataset.info = 'planner.heroCarouselHelp';
+        infoBtn.setAttribute('aria-label', translate('actions.showInfo') || 'Show Information');
+        infoBtn.dataset.i18nAriaLabel = 'actions.showInfo';
+        infoBtn.innerHTML = '<orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>';
+        infoAndName.appendChild(infoBtn);
+
         headerSection.appendChild(infoAndName);
 
         const toggleSwitch = document.createElement('div');

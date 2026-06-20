@@ -20,7 +20,24 @@ export function initializePriorityList() {
     header.classList.add('priority-list-header');
 
     const title = document.createElement('h3');
-    title.textContent = translate('planner.priorityList');
+    title.style.display = 'flex';
+    title.style.alignItems = 'center';
+    title.style.gap = '6px';
+    title.style.margin = '0';
+
+    const titleText = document.createElement('span');
+    titleText.dataset.i18n = 'planner.priorityList';
+    titleText.textContent = translate('planner.priorityList');
+    title.appendChild(titleText);
+
+    const infoBtn = document.createElement('button');
+    infoBtn.className = 'info-btn';
+    infoBtn.dataset.info = 'planner.priorityListHelp';
+    infoBtn.setAttribute('aria-label', translate('actions.showInfo') || 'Show Information');
+    infoBtn.dataset.i18nAriaLabel = 'actions.showInfo';
+    infoBtn.innerHTML = '<orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>';
+    title.appendChild(infoBtn);
+
     header.appendChild(title);
 
     const editButton = document.createElement('button');

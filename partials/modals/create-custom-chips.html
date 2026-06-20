@@ -2,9 +2,14 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2 data-i18n="planner.createCustomChipsModal.title">Create Custom Chips</h2>
-            <button id="close-create-custom-chips-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
-                <orecalc-assets-svg name="close"></orecalc-assets-svg>
-            </button>
+            <div class="modal-header-actions">
+                <button id="create-custom-chips-modal-info-btn" class="info-button info-btn" data-info="planner.createCustomChipsHelp" data-i18n-aria-label="actions.showInfo" aria-label="Show Information">
+                    <orecalc-assets-svg name="info" class="info-icon" height="24" width="24"></orecalc-assets-svg>
+                </button>
+                <button id="close-create-custom-chips-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+                    <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                </button>
+            </div>
         </div>
         <div class="modal-body flex-column-gap-15">
             <!-- Chip Type Selection -->

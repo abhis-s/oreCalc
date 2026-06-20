@@ -366,8 +366,12 @@ function renderDraggableList(globalPriorityList, suggestions) {
     }
 
     const resetButton = document.getElementById('reset-priority-list-modal-btn');
+    const infoButton = document.getElementById('priority-list-modal-info-btn');
     if (resetButton) {
         resetButton.style.display = globalPriorityList.length === 0 ? 'none' : 'block';
+    }
+    if (infoButton) {
+        infoButton.style.display = globalPriorityList.length === 0 ? 'block' : 'none';
     }
 
     if (globalPriorityList.length === 0) {

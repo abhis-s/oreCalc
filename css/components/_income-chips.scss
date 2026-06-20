@@ -410,6 +410,9 @@ h3.income-chips-title {
     margin: 0;
     font-size: 1.1em;
     color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 
     .short-title {
         display: none;

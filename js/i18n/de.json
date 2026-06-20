@@ -26,6 +26,7 @@
         "label": "Spieler",
         "selectPlaceholder": "Wähle einen Spieler",
         "addTitle": "Füge einen neuen Spieler hinzu",
+        "addPlayerHelp": "Um dein Spielerkürzel zu finden, öffne Clash of Clans, tippe oben links auf deinen Profilnamen und kopiere das eindeutige Kürzel (z. B. #XX88Y22), das direkt unter deinem Namen angezeigt wird.",
         "tag": "Spielerkürzel",
         "placeholderTag": "Spielerkürzel eingeben",
         "placeholderToken": "z.B. a9378kca",
@@ -126,7 +127,8 @@
             "thPlanningTitle": "Plane deine Rathaus-Upgrades",
             "planningStartInfo": "Die Planung ist erst ab Rathaus {th} verfügbar.",
             "upgradeToTH": "Upgrade auf RH {th} in:",
-            "unreleasedTH": "RH {th} (unveröffentlicht, voraussichtliche Veröffentlichung Nov. {year})"
+            "unreleasedTH": "RH {th} (unveröffentlicht, voraussichtliche Veröffentlichung Nov. {year})",
+            "help": "Die täglichen Erz-Belohnungen des Sternenbonus werden durch deine aktive Liga-Stufe bestimmt. Gelegentlich werden 2x-Sternenbonus-Events im Spiel veranstaltet und können etwas zufällig sein, finden aber normalerweise alle 3 bis 4 Monate statt. Den 4x-Sternenbonus erhältst du für 5 Tage, wenn du dein Rathaus verbesserst."
         },
         "starBonusMultiplier": {
             "title": "Sternebonus-Multiplikatoren"
@@ -142,7 +144,8 @@
             "starryBonusAriaLabel": "Clankrieg Sternenerz-Bonus pro Angriff",
             "last60Days": "Letzte 60 Tage",
             "lastNWars": "Letzte {count} Kriege",
-            "last60DaysNWars": "Letzte 60 Tage | Letzte {count} Kriege"
+            "last60DaysNWars": "Letzte 60 Tage | Letzte {count} Kriege",
+            "help": "Die in Clankriegen verdienten Erz-Boni hängen von der Rathaus-Stufe des Ziels ab, das du angreifst. Tipp: Du kannst an Neben-Kriegen in einem anderen Clan teilnehmen, während CWL in deinem Hauptclan läuft, um das Erzeinkommen zu maximieren."
         },
         "cwl": {
             "title": "CKL",
@@ -156,17 +159,20 @@
             "lastCwlHits": "Letzte CKL | {count} Angriffe",
             "currentCwlHits": "Aktuelle CKL | {count} Angriffe",
             "cwl1SeasonHits": "CKL (1 Saison) | {count} Angriffe",
-            "cwl2SeasonsHits": "CKL (2 Saisons) | {count} Angriffe"
+            "cwl2SeasonsHits": "CKL (2 Saisons) | {count} Angriffe",
+            "help": "Berechnet aus den Angriffsboni der Clankriegsliga basierend auf der Rathaus-Stufe des Ziels, das du angreifst, deiner Gesamtzahl an Angriffen und der Gesamtleistung deines Clans."
         },
         "raidMedalTrader": {
             "title": "Überfallmedaillen-Händler",
             "medalsColon": "Überfallmedaillen:",
-            "perWeek": "{count} Überfallmedaillen pro Woche"
+            "perWeek": "{count} Überfallmedaillen pro Woche",
+            "help": "Nimm jedes Wochenende mit deinem Clan an Clan-Überfällen teil, um Überfallsmedaillen zu verdienen, und verwende diese, um wöchentlich Erze beim Händler zu kaufen."
         },
         "gemTrader": {
             "title": "Juwelen-Händler",
             "gemsColon": "Juwelen:",
-            "perWeek": "{count} Juwelen pro Woche"
+            "perWeek": "{count} Juwelen pro Woche",
+            "help": "Du kannst auch Juwelen verwenden, um Erze beim Händler zu kaufen. Diese Angebote werden wöchentlich aktualisiert. Ein Goldpass-Käufer kann normalerweise etwa 200-250 Juwelen pro Woche erhalten, wenn er es effizient macht, welche verwendet werden können, um diese Angebote ohne Echtgeldkäufe zu erwerben."
         },
         "eventPass": {
             "title": "Event-Pass",
@@ -174,12 +180,15 @@
             "medalsColon": "Eventmedaillen:",
             "includeEquipment": "Mit Ausrüstung",
             "bonusTrackMedals": "Kostenlose & Bonus-Medaillen",
+            "bonusTrackMedalsHelp": "Menge der Medaillen auf dem Bonuspfad des Event-Passes sowie beanspruchbare Medaillen aus dem <a href=\"https://store.supercell.com/de/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Store<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
             "purchasedMedals": "Gekaufte Medaillen",
             "previous": "Vorheriges",
-            "free": "Gratis Pass"
+            "free": "Gratis Pass",
+            "help": "Medaillen-Events finden alle zwei Monate statt. Diese Events bringen normalerweise ein neues Ausrüstungsteil mit sich. Der Kauf eines Event-Passes ist der effizienteste Weg, um für Ausrüstungsverbesserungen auszugeben. Wenn du keinen Event-Pass kaufst, wirst du wahrscheinlich entweder nur die Ausrüstung oder die Erz-Pakete beim Event-Händler kaufen können."
         },
         "eventTrader": {
-            "title": "Event-Händler"
+            "title": "Event-Händler",
+            "help": "Tausche Event-Medaillen aus Medaillen-Events ein, um beim Händler ein neues Ausrüstungsteil und Erze zu kaufen."
         },
         "shopOffers": {
             "title": "Shop-Angebote",
@@ -191,7 +200,8 @@
             "cost": "Kosten",
             "offer": "Angebot",
             "packs": "Pakete",
-            "packCheckbox": "Wähle Pack {num} für {name}"
+            "packCheckbox": "Wähle Pack {num} für {name}",
+            "help": "Erz-Angebote können im Shop erscheinen, die mit echtem Geld gekauft werden können. Wähle aus, welche Pakete du kaufen möchtest, um deren Erze in deine Berechnungen einzubeziehen."
         },
         "supercellEvents": {
             "title": "Supercell-Events",
@@ -207,13 +217,17 @@
             "worldFinals": "World Finals",
             "inDays": "(In {days} Tag(en))",
             "bonusesUnknown": "Ressourcen-Boni während Events sind derzeit unbekannt.",
-            "packInput": "Anzahl der {name}-Packs"
+            "packInput": "Anzahl der {name}-Packs",
+            "help": "Offizielle Supercell-Events und -Turniere. Du kannst zusätzliche Erze verdienen, indem du Vorhersagen abgibst und Live-Streams auf der <a href=\"https://event.supercell.com/clashofclans/de\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell-Event<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>-Website ansiehst."
         },
         "prospector": {
             "title": "Prospektor",
             "goldPass": "Goldpass",
             "assistedConversion": "Unterstützte Umwandlung",
             "assistedConversionActive": "Unterstützte Umwandlung aktiv — globale Strategie wird genutzt",
+            "assistedConversionHelp": "Berücksichtigt automatisch optimale Prospektor-Umwandlungen in deinen Planer-Berechnungen und deinem Kalender-Zeitplan. Wenn deaktiviert, wird eine natürliche Erzansammlung angenommen.",
+            "nextUpgradeHelp": "Berechnet den schnellsten Umwandlungsweg, um den nächsten Schritt auf deiner Prioritätsliste abzuschließen.",
+            "strategyModeHelp": "Berechnet den optimalen Weg, um alle geplanten Upgrades (Planer-Strategie) oder alle unfertigen Upgrades (Globale Strategie) gemeinsam abzuschließen. Die Empfehlung zeigt einen monatlichen Zielpfad, der in verschiedene Umwandlungstypen aufgeteilt sein kann und die genaue Anzahl der Tage angibt, die du jeden Typ pro Monat ausführen solltest. Klicke auf dieses Abzeichen, um die Strategie zu wechseln.",
             "from": "Von",
             "fromOre": "Vom Erz",
             "to": "Zu",
@@ -249,7 +263,8 @@
                 "preferred": "Bevorzugt",
                 "fallback": "Fallback"
             },
-            "silverPass": "Silberpass"
+            "silverPass": "Silberpass",
+            "help": "Der Schürfer ist nur im Goldpass verfügbar. Er ermöglicht es dir, Erze von einem Typ in einen anderen umzuwandeln, um deine Ausrüstungsverbesserungen schneller abzuschließen, indem Engpässe optimiert und minimiert werden."
         },
         "totalTitle": "Gesamteinkommen",
         "earned": "Verdient",
@@ -315,13 +330,19 @@
         "hideLockedEquipment": "Gesperrte Ausrüstung ausblenden",
         "lockedEquipmentHiddenCount": "{count} gesperrte Ausrüstungen ausgeblendet",
         "customMaxLevel": "Individuelles max. Level",
+        "customMaxLevelHelp": "Passe deine gewünschten Zielstufen basierend auf dem Ausrüstungstyp an. Der Planer berechnet deine Kosten basierend auf diesen Zielen.",
         "common": "Gewöhnlich",
         "epic": "Episch",
         "recommended": "Empfohlen",
         "standardMax": "Standard-Max",
         "editPriorityList": "Prioritäten-Liste bearbeiten",
         "priorityList": "Prioritäten-Liste",
+        "priorityListHelp": "Erstelle deine Prioritätsliste, um Upgrades in aufeinanderfolgende Schritte zu unterteilen. Ziehe Elemente per Drag & Drop, um sie umzuordnen. Klicke auf die Schaltfläche „Bearbeiten“, um den Editor zu öffnen.",
+        "priorityListModalHelp": "Klicke oben auf die Ausrüstungsnamen, um Upgrade-Schritte zu erstellen. Ordne sie mit den Ziehpunkten auf der linken Seite neu an oder lösche Schritte mit dem Löschen-Symbol.",
         "calendarTitle": "Kalender-Planer",
+        "calendarHelp": "Verfolge deine zukünftigen Upgrades und dein tägliches Erzeinkommen. Ziehe Einkommens-Chips auf Kalendertage, um präzise zu planen.",
+        "heroCarouselHelp": "Deaktiviere Ausrüstungen oder Helden, die du nicht verbessern möchtest. Wische nach links oder rechts, um zwischen den Helden zu wechseln.",
+        "incomeChipsHelp": "Diese Chips repräsentieren deine monatlichen Einkommensquellen. Ziehe sie auf Kalendertage, um deine Erzeingänge zu planen, oder erstelle benutzerdefinierte Chips.",
         "settingsModal": {
             "title": "Kalender-Einstellungen",
             "firstDayOfWeek": "Erster Tag der Woche",
@@ -338,6 +359,7 @@
         },
         "noMoreChips": "Alle Chips für diesen Monat wurden bereits im Kalender platziert.",
         "createCustomChips": "Eigene Chips erstellen",
+        "createCustomChipsHelp": "Mit benutzerdefinierten Chips kannst du eigene Einkommens-Events, Shop-Angebote, Sternenboni oder Kriegsergebnisse direkt an bestimmten Tagen in deinen Planer-Zeitplan eintragen, um individuelle Ressourcen-Boosts zu simulieren.",
         "createCustomChipsModal": {
             "title": "Eigene Chips erstellen",
             "selectType": "Chip-Typ auswählen",
@@ -465,7 +487,8 @@
         "proceed": "Fortfahren",
         "submit": "Absenden",
         "close": "Schließen",
-        "openMailClient": "E-Mail-Programm öffnen"
+        "openMailClient": "E-Mail-Programm öffnen",
+        "showInfo": "Informationen anzeigen"
     },
     "settings": {
         "theme": {
@@ -485,12 +508,14 @@
         "sourceLink": "Quelle →",
         "author": "Autor",
         "changelog": "Neuheiten",
+        "changelogHelp": "Zeige den Verlauf von Updates, Fehlerbehebungen und neuen Funktionen an, die in jeder Version der App hinzugefügt wurden.",
         "contact": "Kontakt",
         "contactInfo": "Für Fragen, Feedback oder Feature-Vorschläge kannst du uns unter <code>support@clashcalc.com</code> kontaktieren. Klicke auf die Schaltfläche unten, um dein E-Mail-Programm zu öffnen.",
         "bugReport": "Fehler melden",
         "bugReportInfo": "Alternativ kannst du das Problem auch direkt auf unserer {link}-Seite melden.",
         "bugReportPrivacyInfo": "Durch das Absenden dieses Berichts erklärst du dich damit einverstanden, dass deine Benutzerdaten und die angegebene E-Mail-Adresse gemäß unserer {link} verarbeitet werden.",
         "runningCosts": "Projektkosten",
+        "runningCostsHelp": "Zeige transparente Daten über die Hosting-, Domain-, API- und Projekt-Infrastrukturkosten an, die für den Betrieb der Anwendung erforderlich sind.",
         "runningCostsModal": {
             "title": "Projekt-Laufzeitkosten",
             "totalLabel": "Gesamtkosten (Seit Start)",
@@ -526,6 +551,7 @@
             "language": "Sprache",
             "currency": "Währung",
             "globalPricing": "Globale Preise",
+            "globalPricingHelp": "Supercell nutzt regionale und personalisierte Preise. Da sich die Paketkosten weltweit je nach Land, Währung oder Konto unterscheiden, kannst du hier individuelle Kosten einrichten, um deine tatsächlichen Shop-Preise genau zu erfassen.",
             "accentColor": "Akzentfarbe",
             "cardLayout": "Kartenlayout",
             "layoutCompact": "Kompaktes Layout",
@@ -548,7 +574,7 @@
         "noPlayerForCopy": "Es sind noch keine Spielerprofile eingerichtet. Füge zuerst ein Profil hinzu, um Daten zu synchronisieren.",
         "addPlayerProfile": "Spielerprofil hinzufügen",
         "globalPricingTitle": "Globale Preisgestaltung",
-        "globalPricingDesc": "Konfiguriere individuelle Preise für deine Währung.",
+        "globalPricingDesc": "Supercell nutzt regionale und personalisierte Preise, was bedeutet, dass sich die Paketkosten weltweit je nach Kaufkraft der Währung, Land oder Ausgabeverhalten des Kontos unterscheiden. Konfiguriere hier individuelle Preise, um sie an die tatsächlichen Kosten in deinem Shop anzupassen, damit die App deine Kosten genau erfassen kann.",
         "globalPricingModal": {
             "title": "Globale Preisgestaltung",
             "selectCurrency": "Konfigurieren für Währung:",
@@ -564,7 +590,11 @@
             "beta": "BETA",
             "new": "NEU"
         },
-        "dataErasureInfo": "Setzen Sie Ihre Daten zurück oder löschen Sie sie."
+        "dataErasureInfo": "Setze deine Daten zurück oder lösche sie.",
+        "dataErasureExplanations": {
+            "local": "Löscht alle App-Fortschritte und Einstellungen nur auf diesem Gerät. Dein Cloud-Backup bleibt unberührt.",
+            "cloud": "Löscht sowohl deinen lokalen App-Fortschritt als auch dein synchronisiertes Cloud-Backup gleichzeitig und dauerhaft."
+        }
     },
     "pricing": {
         "gems": "{count} Juwelen",
@@ -697,7 +727,13 @@
         "rocketBackpack": "Raketenrucksack",
         "commonMax": "Gewöhnlich Max",
         "enable": "Aktivieren",
-        "disable": "Deaktivieren"
+        "disable": "Deaktivieren",
+        "requiredOres": {
+            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen in den Einstellungen angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
+        },
+        "storedOres": {
+            "help": "Die aktuelle Menge an Erzen, die du in deinem In-Game-Lager (Schmiede) angespart hast."
+        }
     },
     "heroes": {
         "barbarianKing": "Barbarenkönig",
@@ -911,5 +947,13 @@
         "preferencesDesc": "Ändere hier das Aussehen der App. Zusätzlich kannst du die globalen Preise für In-Game-Gegenstände und Shop-Angebote anpassen, falls diese nicht mit deinen In-Game-Preisen übereinstimmen.",
         "backupSyncTitle": "Backup & Synchronisierung",
         "backupSyncDesc": "Aktiviere die Cloud-Synchronisierung, um deine Daten zu sichern und automatisch auf mehreren Geräten synchron zu halten."
+    },
+    "home": {
+        "requiredOres": {
+            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen in den Einstellungen angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
+        },
+        "remainingTime": {
+            "help": "Die Zeit, die benötigt wird, um die erforderlichen Erze basierend auf deinem monatlichen Einkommen zu sammeln. Setzt eine gleichbleibende Aktivität voraus; eine Änderung deiner Einkommenskonfiguration beeinflusst diesen Zeitplan."
+        }
     }
 }

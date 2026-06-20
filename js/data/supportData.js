@@ -4,6 +4,7 @@ export const developmentSupportData = [
         icon: 'changelog',
         i18nLabel: 'settings.changelog',
         i18nAction: 'actions.view',
+        i18nHelp: 'settings.changelogHelp',
         colorClass: 'btn-changelog',
         actionType: 'modal'
     },
@@ -82,6 +83,7 @@ export const transparencyData = [
         icon: 'costs',
         i18nLabel: 'settings.runningCosts',
         i18nAction: 'actions.view',
+        i18nHelp: 'settings.runningCostsHelp',
         colorClass: 'btn-costs',
         actionType: 'modal'
     }

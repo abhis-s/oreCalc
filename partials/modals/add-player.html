@@ -2,9 +2,14 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 data-i18n="player.addTitle">Add a New Player</h2>
-                        <button id="close-add-player-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
-                            <orecalc-assets-svg name="close"></orecalc-assets-svg>
-                        </button>
+                        <div class="modal-header-actions">
+                            <button id="add-player-modal-info-btn" class="info-button info-btn" data-info="player.addPlayerHelp" data-i18n-aria-label="actions.showInfo" aria-label="Show Information">
+                                <orecalc-assets-svg name="info" class="info-icon" height="24" width="24"></orecalc-assets-svg>
+                            </button>
+                            <button id="close-add-player-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+                                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="player-name-input-container">
                         <label for="player-tag-input-modal" data-i18n="player.tag">Player Tag</label>

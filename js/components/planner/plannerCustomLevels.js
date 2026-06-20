@@ -45,7 +45,13 @@ export function initializePlannerCustomLevels() {
     const container = document.querySelector('.max-level-card-header');
     if (!container) return;
 
-    container.innerHTML = `<h3 data-i18n="planner.customMaxLevel">${translate('planner.customMaxLevel')}</h3>`;
+    container.innerHTML = `
+        <h3 class="custom-max-level-title" style="display: flex; align-items: center; gap: 6px; margin: 0;">
+            <span data-i18n="planner.customMaxLevel">${translate('planner.customMaxLevel')}</span>
+            <button class="info-btn" data-info="planner.customMaxLevelHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+            </button>
+        </h3>`;
 
     const settingsContainer = document.createElement('div');
     settingsContainer.className = 'level-settings-container';

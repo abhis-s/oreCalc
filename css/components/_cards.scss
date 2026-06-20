@@ -5,6 +5,60 @@
     color: var(--accent-primary);
     margin: 0;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.info-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: color 0.2s ease, transform 0.2s ease;
+    border-radius: 50%;
+    
+    &:hover, &:focus {
+        color: var(--accent-primary);
+        transform: scale(1.15);
+        outline: none;
+    }
+    
+    .info-icon {
+        display: block;
+        fill: currentColor;
+    }
+}
+
+.card-help-popover {
+    position: fixed;
+    z-index: $z-index-popover + 10;
+    background-color: var(--bg-surface-popover);
+    backdrop-filter: blur(20px);
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    padding: 12px 16px;
+    box-shadow: $elevation-4;
+    max-width: 280px;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: 1.4;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    
+    &.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
 }
 
 .card-container {
@@ -312,6 +366,7 @@
         color: var(--accent-primary);
         display: flex;
         justify-content: center;
+        gap: 6px;
     }
 }
 

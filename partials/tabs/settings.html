@@ -79,7 +79,12 @@
                             </div>
                             <div class="settings-item">
                                 <div class="settings-item-label-wrapper">
-                                    <label for="open-global-pricing-btn" data-i18n="settings.options.globalPricing">Global Pricing</label>
+                                    <label for="open-global-pricing-btn" style="display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer;">
+                                        <span data-i18n="settings.options.globalPricing">Global Pricing</span>
+                                        <button class="info-btn" data-info="settings.options.globalPricingHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                            <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+                                        </button>
+                                    </label>
                                     <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
                                 </div>
                                 <button id="open-global-pricing-btn" class="animated-btn btn-pricing">

@@ -26,6 +26,7 @@
         "label": "Player",
         "selectPlaceholder": "Select a Player",
         "addTitle": "Add a New Player",
+        "addPlayerHelp": "To find your player tag, open Clash of Clans, tap your profile name in the top-left corner, and copy the unique code (e.g., #XX88Y22) shown right below your name.",
         "tag": "Player Tag",
         "placeholderTag": "Enter Player Tag",
         "placeholderToken": "e.g. a9378kca",
@@ -126,7 +127,8 @@
             "thPlanningTitle": "Plan your Town Hall Upgrades",
             "planningStartInfo": "Planning is only available starting from Town Hall {th}.",
             "upgradeToTH": "Upgrade to TH {th} in:",
-            "unreleasedTH": "TH {th} (unreleased, likely Nov {year})"
+            "unreleasedTH": "TH {th} (unreleased, likely Nov {year})",
+            "help": "Daily Star Bonus ore rewards are determined by your active League tier. Occasionally, 2x Star Bonus events are run in-game and can be a bit random, but usually occur 3 to 4 months apart. For the 4x Star Bonus, you receive it for 5 days when you upgrade your Town Hall."
         },
         "starBonusMultiplier": {
             "title": "Star Bonus Multipliers"
@@ -142,7 +144,8 @@
             "starryBonusAriaLabel": "Clan War Starry Ore per attack bonus",
             "last60Days": "Last 60 Days",
             "lastNWars": "Last {count} Wars",
-            "last60DaysNWars": "Last 60 Days | Last {count} Wars"
+            "last60DaysNWars": "Last 60 Days | Last {count} Wars",
+            "help": "The ore bonuses earned in Clan Wars depend on the Town Hall level of the target you are attacking. Tip: You can participate in side wars in another clan while CWL is active in your main clan to maximize ore income."
         },
         "cwl": {
             "title": "CWL",
@@ -156,17 +159,20 @@
             "lastCwlHits": "Last CWL | {count} Hits",
             "currentCwlHits": "Current CWL | {count} Hits",
             "cwl1SeasonHits": "CWL (1 Season) | {count} Hits",
-            "cwl2SeasonsHits": "CWL (2 Seasons) | {count} Hits"
+            "cwl2SeasonsHits": "CWL (2 Seasons) | {count} Hits",
+            "help": "Calculated from Clan War League attack bonuses based on the Town Hall level of the target you attack, your total hits, and the overall performance of your clan."
         },
         "raidMedalTrader": {
             "title": "Raid Medal Trader",
             "medalsColon": "Raid Medals:",
-            "perWeek": "{count} Raid Medals per week"
+            "perWeek": "{count} Raid Medals per week",
+            "help": "Participate in Capital Raids every weekend with your clan to earn Raid Medals, and use them to purchase ores from the Trader weekly."
         },
         "gemTrader": {
             "title": "Gem Trader",
             "gemsColon": "Gems:",
-            "perWeek": "{count} Gems per week"
+            "perWeek": "{count} Gems per week",
+            "help": "You can also use gems to purchase ores from the trader, these refresh weekly. A gold pass buyer can usually gain around 200-250 gems per week if they do it efficiently, which can be used to buy these offers, without spending real money."
         },
         "eventPass": {
             "title": "Event Pass",
@@ -174,12 +180,15 @@
             "medalsColon": "Event Medals:",
             "includeEquipment": "Include Equipment",
             "bonusTrackMedals": "Claimable & Bonus Medals",
+            "bonusTrackMedalsHelp": "Amount of medals in the bonus track of the event pass, and claimable medals from the <a href=\"https://store.supercell.com/en/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Store<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
             "purchasedMedals": "Purchased Medals",
             "previous": "Previous",
-            "free": "Free Pass"
+            "free": "Free Pass",
+            "help": "Medal events are run every two months. These events usually come with new equipment. Buying an event pass is the most efficient way of spending for equipment upgrades. If you do not buy an event pass, you will likely be able to only purchase either the equipment or the ore packs from the event trader."
         },
         "eventTrader": {
-            "title": "Event Trader"
+            "title": "Event Trader",
+            "help": "Exchange event medals earned during medal events to buy a new piece of equipment and ores from the Trader."
         },
         "shopOffers": {
             "title": "Shop Offers",
@@ -191,7 +200,8 @@
             "cost": "Cost",
             "offer": "Offer",
             "packs": "Packs",
-            "packCheckbox": "Select Pack {num} for {name}"
+            "packCheckbox": "Select Pack {num} for {name}",
+            "help": "Ore offers can appear in the shop, which can be bought with real money. Toggle which packages you plan to purchase to include their ores in your projections."
         },
         "supercellEvents": {
             "title": "Supercell Events",
@@ -207,13 +217,17 @@
             "worldFinals": "World Finals",
             "inDays": "(In {days} day(s))",
             "bonusesUnknown": "Resource bonuses during events are currently unknown.",
-            "packInput": "Number of {name} packs"
+            "packInput": "Number of {name} packs",
+            "help": "Official Supercell events and tournaments. You can earn bonus ores by placing predictions and watching live streams on the <a href=\"https://event.supercell.com/clashofclans/en\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Event<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a> website."
         },
         "prospector": {
             "title": "Prospector",
             "goldPass": "Gold Pass",
             "assistedConversion": "Assisted Conversion",
             "assistedConversionActive": "Assisted Conversion active — using global strategy",
+            "assistedConversionHelp": "Automatically includes optimal Prospector conversions in your planner calculations and calendar timeline. If disabled, calculations assume natural ore accumulation.",
+            "nextUpgradeHelp": "Calculates the fastest conversion path to complete the very next step on your priority list.",
+            "strategyModeHelp": "Calculates the optimal path to complete all planned upgrades (Planner Strategy) or all unfinished upgrades (Global Strategy) collectively. The recommendation displays a target monthly path, which may be split into different conversion types showing the exact number of days you should run each per month. Click this badge to toggle strategies.",
             "from": "From",
             "fromOre": "From Ore",
             "to": "To",
@@ -249,7 +263,8 @@
                 "preferred": "Preferred",
                 "fallback": "Fallback"
             },
-            "silverPass": "Silver Pass"
+            "silverPass": "Silver Pass",
+            "help": "The Prospector is available only in the Gold Pass. It allows you to convert ores of one type to another to complete your equipment upgrades faster, by optimizing and mitigating bottlenecks."
         },
         "totalTitle": "Total Income",
         "earned": "Earned",
@@ -315,13 +330,19 @@
         "hideLockedEquipment": "Hide locked equipment",
         "lockedEquipmentHiddenCount": "{count} locked equipment hidden",
         "customMaxLevel": "Custom Max Level",
+        "customMaxLevelHelp": "Adjust your desired target levels based on equipment type. The planner will calculate your costs based on these targets.",
         "common": "Common",
         "epic": "Epic",
         "recommended": "Recommended",
         "standardMax": "Standard Max",
         "editPriorityList": "Edit Priority List",
         "priorityList": "Priority List",
+        "priorityListHelp": "Create your priority list to break upgrades into step-by-step milestones. Drag and drop items to reorder them. Click the edit button to open the editor.",
+        "priorityListModalHelp": "Click on equipment names above to create upgrade steps. Reorder them using the drag handles on the left, or delete steps with the delete button.",
         "calendarTitle": "Calendar Planner",
+        "calendarHelp": "Track your future upgrades and daily ore income. Drag and drop income chips onto calendar days to plan precisely.",
+        "heroCarouselHelp": "Disable any equipment or heroes you do not want to upgrade. Swipe left or right to switch between heroes.",
+        "incomeChipsHelp": "These chips represent your monthly income sources. Drag them onto calendar days to map out when you'll receive your ores, or create custom chips.",
         "settingsModal": {
             "title": "Calendar Settings",
             "firstDayOfWeek": "First Day of Week",
@@ -338,6 +359,7 @@
         },
         "noMoreChips": "All chips for this month have already been placed on the calendar.",
         "createCustomChips": "Create Custom Chips",
+        "createCustomChipsHelp": "Custom chips allow you to inject custom income events, shop offers, star bonuses, or war results directly into specific days on your planner timeline to simulate custom resource boosts.",
         "createCustomChipsModal": {
             "title": "Create Custom Chips",
             "selectType": "Select Chip Type",
@@ -465,7 +487,8 @@
         "proceed": "Proceed",
         "submit": "Submit",
         "close": "Close",
-        "openMailClient": "Open Mail Client"
+        "openMailClient": "Open Mail Client",
+        "showInfo": "Show Information"
     },
     "settings": {
         "theme": {
@@ -485,12 +508,14 @@
         "sourceLink": "Source →",
         "author": "Author",
         "changelog": "Changelog",
+        "changelogHelp": "View the history of updates, fixes, and new features added in each version of the app.",
         "contact": "Contact",
         "contactInfo": "For questions, feedback, or feature suggestions, you can contact us at <code>support@clashcalc.com</code>. Click the button below to open your mail client.",
         "bugReport": "Bug Report",
         "bugReportInfo": "Alternatively, you can report the issue directly on our {link} page.",
         "bugReportPrivacyInfo": "By submitting this report, you agree that your user data and the provided email address will be processed in accordance with our {link}.",
         "runningCosts": "Project Costs",
+        "runningCostsHelp": "View transparent data about the hosting, domain, API, and project infrastructure costs required to keep the application running.",
         "runningCostsModal": {
             "title": "Project Running Costs",
             "totalLabel": "Total Cost (Since Inception)",
@@ -526,6 +551,7 @@
             "language": "Language",
             "currency": "Currency",
             "globalPricing": "Global Pricing",
+            "globalPricingHelp": "Supercell implements regional and personalized pricing. Since package costs differ globally based on country, currency, or account patterns, you can configure custom costs here to track your actual store prices accurately.",
             "accentColor": "Accent Color",
             "cardLayout": "Card Layout",
             "layoutCompact": "Compact Layout",
@@ -548,7 +574,7 @@
         "noPlayerForCopy": "No player profiles are set up yet. Add a profile first to sync data.",
         "addPlayerProfile": "Add Player Profile",
         "globalPricingTitle": "Global Pricing Configuration",
-        "globalPricingDesc": "Configure custom prices for your currency.",
+        "globalPricingDesc": "Supercell implements regional and personalized pricing, meaning package costs differ globally based on currency purchasing power, country, or account spending patterns. Configure custom prices here to match the actual costs in your shop, allowing the app to track your costs accurately.",
         "globalPricingModal": {
             "title": "Global Pricing",
             "selectCurrency": "Configure for Currency:",
@@ -564,7 +590,11 @@
             "beta": "BETA",
             "new": "NEW"
         },
-        "dataErasureInfo": "Reset or delete your data."
+        "dataErasureInfo": "Reset or delete your data.",
+        "dataErasureExplanations": {
+            "local": "Wipes all app progress and settings on this device only. Your cloud backup remains untouched.",
+            "cloud": "Permanently deletes both your local app progress and your synced cloud backup simultaneously."
+        }
     },
     "pricing": {
         "gems": "{count} Gems",
@@ -697,7 +727,13 @@
         "rocketBackpack": "Rocket Backpack",
         "commonMax": "Common Max",
         "enable": "Enable",
-        "disable": "Disable"
+        "disable": "Disable",
+        "requiredOres": {
+            "help": "Shows net ores required (total cost minus stored quantity) for your planned upgrades. Numbers can differ from true maxes if target caps are customized in settings, or if you change the desired max levels or disable equipment in the planner tab."
+        },
+        "storedOres": {
+            "help": "The current amount of ores you have saved in your in-game storage (blacksmith)."
+        }
     },
     "heroes": {
         "barbarianKing": "Barbarian King",
@@ -911,5 +947,13 @@
         "preferencesDesc": "Change how the app looks here. Additionally, you can adjust the global pricing of in-game items and shop offers if they do not match your in-game prices.",
         "backupSyncTitle": "Backup & Sync",
         "backupSyncDesc": "Enable cloud sync to back up your data and keep it in sync across multiple devices automatically."
+    },
+    "home": {
+        "requiredOres": {
+            "help": "Shows net ores required (total cost minus stored quantity) for your planned upgrades. Numbers can differ from true maxes if target caps are customized in settings, or if you change the desired max levels or disable equipment in the planner tab."
+        },
+        "remainingTime": {
+            "help": "Time needed to gather the required ores based on your monthly income. Assumes consistent activity; changing your income configuration alters this timeline."
+        }
     }
 }

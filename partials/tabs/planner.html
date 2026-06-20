@@ -17,7 +17,12 @@
                     <!-- Priority list will be dynamically inserted here -->
                 </div>
                 <div id="planner-calendar-card" class="full-width-planner-section card">
-                    <h2 class="calendar-planner-title" data-i18n="planner.calendarTitle">Calendar Planner</h2>
+                    <h2 class="calendar-planner-title">
+                        <span data-i18n="planner.calendarTitle">Calendar Planner</span>
+                        <button class="info-btn" data-info="planner.calendarHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+                        </button>
+                    </h2>
                     <div class="inner-card">
                         <div class="calendar-header">
                             <div class="calendar-nav">
@@ -50,6 +55,9 @@
                             <h3 class="income-chips-title">
                                 <span class="full-title" data-i18n="income.chipsTitle">Income Chips</span>
                                 <span class="short-title" data-i18n="income.chips">Chips</span>
+                                <button class="info-btn" data-info="planner.incomeChipsHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                    <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+                                </button>
                             </h3>
                             <div class="income-chips-actions">
                                 <button id="create-custom-chips-btn" class="icon-button create-custom-chips-btn" title="Create Custom Chips" data-i18n-aria-label="actions.createCustomChips" aria-label="Create Custom Chips">

@@ -181,6 +181,41 @@ body:has(.modal.show) {
         }
     }
 
+    .info-button.info-btn {
+        @extend %flex-center;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: 12px;
+        color: $text-secondary;
+        cursor: pointer;
+        height: 36px;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+        width: 36px;
+
+        svg {
+            fill: currentColor;
+            width: 24px;
+            height: 24px;
+        }
+
+        &:hover,
+        &:focus {
+            background-color: $bg-surface-tertiary;
+            border-color: $accent-primary;
+            color: $text-primary;
+            transform: scale(1.05);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
     // Centered variant for alerts/notices
     &.modal-centered {
         .modal-header {

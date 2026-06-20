@@ -83,8 +83,30 @@ function renderLabeledActions(containerSelector, data) {
 
         const label = document.createElement('label');
         label.className = 'settings-item-label';
-        label.dataset.i18n = item.i18nLabel;
-        label.textContent = translate(item.i18nLabel);
+        if (item.i18nHelp) {
+            const labelTextSpan = document.createElement('span');
+            labelTextSpan.dataset.i18n = item.i18nLabel;
+            labelTextSpan.textContent = translate(item.i18nLabel);
+            label.appendChild(labelTextSpan);
+
+            const infoBtn = document.createElement('button');
+            infoBtn.className = 'info-btn';
+            infoBtn.dataset.info = item.i18nHelp;
+            infoBtn.setAttribute('aria-label', translate('actions.showInfo') || 'Show Information');
+            infoBtn.dataset.i18nAriaLabel = 'actions.showInfo';
+            infoBtn.innerHTML = '<orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>';
+            
+            label.style.display = 'flex';
+            label.style.alignItems = 'center';
+            label.style.gap = '6px';
+            label.style.margin = '0';
+            label.style.cursor = 'pointer';
+            
+            label.appendChild(infoBtn);
+        } else {
+            label.dataset.i18n = item.i18nLabel;
+            label.textContent = translate(item.i18nLabel);
+        }
         labelWrapper.appendChild(label);
 
         if (item.badge) {
@@ -132,6 +154,9 @@ function renderLabeledActions(containerSelector, data) {
         container.appendChild(itemRow);
 
         label.addEventListener('click', (e) => {
+            if (e.target.closest('.info-btn')) {
+                return;
+            }
             e.preventDefault();
             btn.click();
         });

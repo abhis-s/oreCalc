@@ -462,6 +462,24 @@
     text-align: center;
 }
 
+.data-erasure-explanations {
+    padding: 0 24px 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .data-erasure-explanation-item {
+        line-height: 1.45;
+
+        strong {
+            color: $color-danger;
+            display: inline;
+        }
+    }
+}
+
 .data-erasure-options {
     display: flex;
     flex-direction: column;

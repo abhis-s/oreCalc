@@ -136,6 +136,9 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
         starry: Math.max(0, req.starry - stored.starry)
     };
 
+    const infoKey = cardType === 'next' ? 'income.prospector.nextUpgradeHelp' : 'income.prospector.strategyModeHelp';
+    const infoBtnHtml = `<button class="info-btn" data-info="${infoKey}" aria-label="Show Information" data-i18n-aria-label="actions.showInfo"><orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg></button>`;
+
     if (missing.shiny === 0 && missing.glowy === 0 && missing.starry === 0) {
         return `
             <div class="prospector-rec-section" data-card-type="${cardType}">
@@ -145,6 +148,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
                             ? `<orecalc-assets-image src="${itemImage}" alt="${title}" class="prospector-rec-icon" size="thumbnail"></orecalc-assets-image>` 
                             : getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
                         ${subTitleInfo ? `<span class="prospector-upgrade-subtitle">${subTitleInfo}</span>` : `<span>${title}</span>`}
+                        ${infoBtnHtml}
                     </span>
                     <span class="prospector-rec-time"><span style="color:var(--color-success);">${translate('planner.completed')}</span></span>
                 </div>
@@ -224,6 +228,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
                         ? `<orecalc-assets-image src="${itemImage}" alt="${title}" class="prospector-rec-icon" size="thumbnail"></orecalc-assets-image>` 
                         : getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
                     ${subTitleInfo ? `<span class="prospector-upgrade-subtitle">${subTitleInfo}</span>` : `<span>${title}</span>`}
+                    ${infoBtnHtml}
                 </span>
                 <span class="prospector-rec-time">${timeText}</span>
             </div>
@@ -280,6 +285,7 @@ function updateProspectorTip() {
     // Bind strategy mode toggling click listener once
     if (!tipContainer.dataset.listenerAttached) {
         tipContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.info-btn')) return;
             const badge = e.target.closest('.prospector-rec-badge');
             if (badge) {
                 const section = badge.closest('.prospector-rec-section');
@@ -327,7 +333,10 @@ function updateProspectorTip() {
                 <div class="prospector-rec-header">
                     <span class="prospector-rec-badge">
                         ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
-                        ${translate('income.prospector.tips.nextTitle')}
+                        <span>${translate('income.prospector.tips.nextTitle')}</span>
+                        <button class="info-btn" data-info="income.prospector.nextUpgradeHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+                        </button>
                     </span>
                 </div>
                 <div class="prospector-rec-empty">
@@ -375,6 +384,9 @@ function updateProspectorTip() {
                         <span class="prospector-rec-badge">
                             ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
                             <span>${translate('income.prospector.tips.plannerTitle')}</span>
+                            <button class="info-btn" data-info="income.prospector.strategyModeHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+                            </button>
                         </span>
                     </div>
                     <div class="prospector-rec-empty">
