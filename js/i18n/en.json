@@ -807,6 +807,30 @@
         "bannerTextTerms": "We have updated our Terms of Use.",
         "bannerTextPrivacy": "We have updated our Privacy Policy."
     },
+    "roles": {
+        "leader": "Leader",
+        "coleader": "Co-Leader",
+        "admin": "Elder",
+        "member": "Member"
+    },
+    "homeProfile": {
+        "title": "Player Profile",
+        "noProfileTitle": "No Profile Connected",
+        "noProfileDesc": "Connect your player tag to see your Town Hall, active heroes, and equipment progress directly on the homepage.",
+        "connectBtn": "Connect Profile",
+        "activeHeroes": "Active Heroes",
+        "overallProgress": "Overall Ore Progress",
+        "equippedAvg": "Equipped Avg",
+        "ownedAvg": "Owned Avg",
+        "locked": "Locked",
+        "equippedColon": "Equipped:",
+        "remaining": "remaining",
+        "remainingColon": "Remaining:",
+        "maxed": "Maxed",
+        "maxedEquipment": "Maxed Equipment",
+        "guestNotice": "Guest Profile: Connect a player tag to enable automatic progress syncing.",
+        "syncNotice": "Note: Progress metrics are based strictly on synced game data. Manual planner selections, manual level changes, and stored ores are excluded from these totals and will only update upon the next API sync."
+    },
     "welcome": {
         "title": "<span class=\"welcome-prefix\">Welcome to </span><span class=\"brand-name\"><span class=\"brand-ore\">Ore</span><span class=\"brand-calc\">Calc</span></span>",
         "subtitle": "Your Clash of Clans ore calculator and upgrade planner.",

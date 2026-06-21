@@ -83,7 +83,9 @@ export const SVGs = {
     'thumbs-double': {},
     'thumbs-down': {},
     'view-cozy': {},
-    'view-quilt': {}
+    'view-quilt': {},
+    'cloud-lock': {},
+    'user': {}
 };
 
 /**

@@ -1,5 +1,5 @@
 import { dom } from '../../dom/domElements.js';
-import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_WELCOME } from '../../core/state.js';
+import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_WELCOME, getDefaultPlayerState } from '../../core/state.js';
 import { handleStateUpdate, switchActivePlayer } from '../../core/stateManager.js';
 import { loadAndProcessPlayerData, processPlayerDataResponse } from '../../services/serverResponseHandler.js';
 import { fetchPlayerData } from '../../services/apiService.js';
@@ -952,9 +952,16 @@ export function initializeWelcomeModal() {
             // Generate Guest profile
             if (!state.savedPlayerTags.includes('DEFAULT0')) {
                 const guestPlayerData = generateGuestPlayerData(selectedTH, selectedLeague);
-                guestPlayerData.onboardingComplete = false;
+                const guestPlayerState = {
+                    ...getDefaultPlayerState(),
+                    playerProfile: guestPlayerData,
+                    onboardingComplete: false
+                };
+                initializeGuestHeroesState(guestPlayerState);
+                
                 handleStateUpdate(() => {
-                    processPlayerDataResponse(guestPlayerData);
+                    updateSavedPlayerTags('DEFAULT0');
+                    state.allPlayersData['DEFAULT0'] = guestPlayerState;
                 }, true);
             }
 
@@ -1807,13 +1814,9 @@ export function initializeWelcomeModal() {
 
 function formatClanRole(role) {
     if (!role) return '';
-    const rolesMap = {
-        'leader': 'Leader',
-        'coLeader': 'Co-Leader',
-        'admin': 'Elder',
-        'member': 'Member'
-    };
-    return rolesMap[role] || role;
+    const key = `roles.${role.toLowerCase()}`;
+    const translated = translate(key);
+    return translated !== key ? translated : role;
 }
 
 function calculateEquipmentProgress(playerData) {
@@ -1983,7 +1986,25 @@ function renderProfilePreviewCard(playerData) {
     }
 
     document.getElementById('welcome-profile-trophies').textContent = playerData.trophies || '0';
-    document.getElementById('welcome-profile-stars').textContent = playerData.warStars || '0';
+
+    const maxedEquipEl = document.getElementById('welcome-profile-maxed-equip');
+    if (maxedEquipEl) {
+        let maxedCount = 0;
+        let totalCount = 0;
+        const ownedEquip = playerData.ownedEquipment || {};
+        for (const heroKey in heroData) {
+            for (const equip of heroData[heroKey].equipment) {
+                totalCount++;
+                const isEpic = equip.type === 'epic';
+                const maxLevel = isEpic ? 27 : 18;
+                const currentLevel = ownedEquip[equip.name];
+                if (currentLevel !== undefined && currentLevel >= maxLevel) {
+                    maxedCount++;
+                }
+            }
+        }
+        maxedEquipEl.textContent = `${maxedCount}/${totalCount}`;
+    }
 
     // Update progress bars
     const progress = calculateEquipmentProgress(playerData);
@@ -2288,7 +2309,11 @@ function initializeGuestSetup() {
             const guestProfile = state.allPlayersData['DEFAULT0'];
             if (guestProfile) {
                 handleStateUpdate(() => {
-                    guestProfile.townHallLevel = th;
+                    const target = guestProfile.playerProfile || guestProfile;
+                    target.townHallLevel = th;
+                    if (state.playerProfile && state.savedPlayerTags[0] === 'DEFAULT0') {
+                        state.playerProfile.townHallLevel = th;
+                    }
                 }, true);
             }
             syncWelcomeQuickSettings('DEFAULT0');
@@ -2323,7 +2348,11 @@ function initializeGuestSetup() {
         const guestProfile = state.allPlayersData['DEFAULT0'];
         if (guestProfile) {
             handleStateUpdate(() => {
-                guestProfile.leagueTier = { id: leagueId };
+                const target = guestProfile.playerProfile || guestProfile;
+                target.leagueTier = { id: leagueId };
+                if (state.playerProfile && state.savedPlayerTags[0] === 'DEFAULT0') {
+                    state.playerProfile.leagueTier = { id: leagueId };
+                }
             }, true);
         }
 
@@ -2405,11 +2434,11 @@ function generateGuestPlayerData(thLevel, leagueId) {
 
     const heroUnlockLevels = {
         "Barbarian King": 7,
-        "Archer Queen": 9,
+        "Archer Queen": 8,
+        "Minion Prince": 9,
         "Grand Warden": 11,
         "Royal Champion": 13,
-        "Minion Prince": 16,
-        "Dragon Duke": 17
+        "Dragon Duke": 15
     };
 
     for (const heroKey in heroData) {
@@ -2421,9 +2450,11 @@ function generateGuestPlayerData(thLevel, leagueId) {
                 maxLevel: 95 // arbitrary
             };
 
-            // Unlock all equipment (both common and epic) at level 1 for this hero
+            // Only unlock common equipment at level 1 for this hero
             hero.equipment.forEach(eq => {
-                playerEquipment[eq.name] = 1;
+                if (eq.type === 'common') {
+                    playerEquipment[eq.name] = 1;
+                }
             });
         }
     }
@@ -2440,6 +2471,48 @@ function generateGuestPlayerData(thLevel, leagueId) {
         ownedHeroes: playerHeroes,
         ownedEquipment: playerEquipment
     };
+}
+
+function initializeGuestHeroesState(guestPlayerState) {
+    if (!guestPlayerState || !guestPlayerState.playerProfile) return;
+    const thLevel = guestPlayerState.playerProfile.townHallLevel;
+    const heroUnlockLevels = {
+        "Barbarian King": 7,
+        "Archer Queen": 8,
+        "Minion Prince": 9,
+        "Grand Warden": 11,
+        "Royal Champion": 13,
+        "Dragon Duke": 15
+    };
+
+    for (const heroKey in heroData) {
+        const hero = heroData[heroKey];
+        const unlockTH = heroUnlockLevels[hero.name] || 1;
+        const isUnlocked = thLevel >= unlockTH;
+        const heroName = hero.name;
+
+        if (!guestPlayerState.heroes[heroName]) {
+            guestPlayerState.heroes[heroName] = { enabled: isUnlocked, equipment: {} };
+        }
+        const heroState = guestPlayerState.heroes[heroName];
+        heroState.enabled = isUnlocked;
+
+        hero.equipment.forEach(eq => {
+            const equipName = eq.name;
+            const isCommon = eq.type === 'common';
+            const shouldBeChecked = isUnlocked && isCommon;
+            if (!heroState.equipment[equipName]) {
+                heroState.equipment[equipName] = { 
+                    level: 1, 
+                    checked: shouldBeChecked 
+                };
+            } else {
+                if (!isUnlocked) {
+                    heroState.equipment[equipName].checked = false;
+                }
+            }
+        });
+    }
 }
 
 function applyChecklistToProfile(playerObj) {
@@ -3456,14 +3529,25 @@ function openSetupWizard(tag) {
 
     if (tag === 'DEFAULT0' && !state.allPlayersData['DEFAULT0']) {
         const guestPlayerData = generateGuestPlayerData(selectedTH, selectedLeague);
-        guestPlayerData.onboardingComplete = false;
-        state.allPlayersData['DEFAULT0'] = guestPlayerData;
+        const guestPlayerState = {
+            ...getDefaultPlayerState(),
+            playerProfile: guestPlayerData,
+            onboardingComplete: false
+        };
+        initializeGuestHeroesState(guestPlayerState);
+        state.allPlayersData['DEFAULT0'] = guestPlayerState;
     }
 
     const playerObj = state.allPlayersData[tag];
     if (!playerObj) return;
 
     const isGuest = (tag === 'DEFAULT0');
+    if (isGuest) {
+        const profile = playerObj.playerProfile || playerObj;
+        selectedTH = profile.townHallLevel || 16;
+        selectedLeague = profile.leagueTier?.id || 105000000;
+        initializeGuestSetup();
+    }
     
     // Set up step indices: step 1 is Guest TH/League (only for DEFAULT0)
     if (isGuest) {
@@ -3653,9 +3737,21 @@ function finishWizard() {
             // Re-generate guest profile using selected TH & League to ensure hero/equipment unlocked levels are correct,
             // then copy the quick settings.
             const guestData = generateGuestPlayerData(selectedTH, selectedLeague);
-            applyChecklistToProfile(guestData);
-            guestData.onboardingComplete = true;
-            state.allPlayersData['DEFAULT0'] = guestData;
+            const guestPlayerState = {
+                ...getDefaultPlayerState(),
+                playerProfile: guestData,
+                onboardingComplete: true
+            };
+            initializeGuestHeroesState(guestPlayerState);
+            applyChecklistToProfile(guestPlayerState);
+            state.allPlayersData['DEFAULT0'] = guestPlayerState;
+            
+            // Sync global references to point to the new guest profile properties
+            state.heroes = guestPlayerState.heroes;
+            state.storedOres = guestPlayerState.storedOres;
+            state.income = guestPlayerState.income;
+            state.planner = guestPlayerState.planner;
+            state.playerProfile = guestPlayerState.playerProfile;
         } else {
             applyChecklistToProfile(playerObj);
             playerObj.onboardingComplete = true;

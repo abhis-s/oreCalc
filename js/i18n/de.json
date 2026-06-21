@@ -807,6 +807,30 @@
         "bannerTextTerms": "Wir haben unsere Nutzungsbedingungen aktualisiert.",
         "bannerTextPrivacy": "Wir haben unsere Datenschutzrichtlinie aktualisiert."
     },
+    "roles": {
+        "leader": "Anführer",
+        "coleader": "Vize-Anführer",
+        "admin": "Ältester",
+        "member": "Mitglied"
+    },
+    "homeProfile": {
+        "title": "Spielerprofil",
+        "noProfileTitle": "Kein Profil verknüpft",
+        "noProfileDesc": "Verknüpfe dein Spieler-Kürzel, um dein Rathaus, aktive Helden und den Ausrüstungsfortschritt direkt auf der Startseite zu sehen.",
+        "connectBtn": "Profil verknüpfen",
+        "activeHeroes": "Aktive Helden",
+        "overallProgress": "Gesamter Erzfortschritt",
+        "equippedAvg": "Ausrüstung Ø",
+        "ownedAvg": "Besessen Ø",
+        "locked": "Gesperrt",
+        "equippedColon": "Ausrüstung:",
+        "remaining": "verbleibend",
+        "remainingColon": "Verbleibend:",
+        "maxed": "Maximiert",
+        "maxedEquipment": "Maximierte Ausrüstung",
+        "guestNotice": "Gast-Profil: Verknüpfe ein Spieler-Kürzel, um die automatische Fortschritts-Synchronisierung zu aktivieren.",
+        "syncNotice": "Hinweis: Der Fortschritt basiert ausschließlich auf synchronisierten Spieldaten. Manuelle Planereinstellungen, Leveländerungen im Tool und gelagerte Erze sind hier ausgeschlossen und aktualisieren sich nur bei der nächsten API-Synchronisierung."
+    },
     "welcome": {
         "title": "<span class=\"welcome-prefix\">Willkommen bei </span><span class=\"brand-name\"><span class=\"brand-ore\">Ore</span><span class=\"brand-calc\">Calc</span></span>",
         "subtitle": "Dein Clash of Clans Erz-Rechner und Upgrade-Planer.",

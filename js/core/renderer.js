@@ -13,6 +13,7 @@ import { renderGemTraderGrid } from '../components/income/gemTraderDisplay.js';
 import { renderHeroCards } from '../components/equipment/heroCardDisplay.js';
 import { renderHomeIncomeTable } from '../components/home/homeTableRenderer.js';
 import { renderHomeResourcesFooter } from '../components/home/homeResourcesRenderer.js';
+import { renderHomeProfile } from '../components/home/homeProfileRenderer.js';
 import { renderIncomeCard } from '../components/income/incomeCardHandler.js';
 import { renderNavigation } from '../components/layout/navigationRenderer.js';
 import { renderPlanner } from '../components/planner/planner.js';
@@ -32,39 +33,12 @@ import { renderSupercellEventsDisplay } from '../components/income/supercellEven
 import { renderSupercellEventsInputs } from '../components/income/supercellEventsInputs.js';
 import { renderTabs } from '../components/layout/tabs.js';
 
-let previousMaxDate = null;
 
 export function renderApp(state) {
     const timeframe = state.uiSettings.incomeCard?.timeframe || 'monthly';
     const incomeSources = state.derived.incomeSources;
     const remainingTime = state.derived.remainingTime;
 
-    // Calculate current max date
-    let currentMaxDate = null;
-    if (remainingTime) {
-        Object.values(remainingTime).forEach(data => {
-            if (data && data.date instanceof Date) {
-                if (!currentMaxDate || data.date > currentMaxDate) {
-                    currentMaxDate = new Date(data.date);
-                }
-            }
-        });
-    }
-
-    // Optimization Glow: if new time is less than previous time
-    if (previousMaxDate && currentMaxDate && currentMaxDate < previousMaxDate) {
-        const timeCard = document.getElementById('home-result-time-card');
-        if (timeCard) {
-            timeCard.classList.remove('glow-success');
-            void timeCard.offsetWidth; // Trigger reflow
-            timeCard.classList.add('glow-success');
-            setTimeout(() => timeCard.classList.remove('glow-success'), 2000);
-        }
-    }
-
-    if (currentMaxDate) {
-        previousMaxDate = currentMaxDate;
-    }
 
     renderTabs(state.activeTab);
     renderNavigation(state.activeTab);
@@ -94,6 +68,7 @@ export function renderApp(state) {
 
     renderHomeIncomeTable(state);
     renderHomeResourcesFooter(state);
+    renderHomeProfile(state);
 
     const starBonusIncome = incomeSources.starBonus || {};
     renderStarBonusDisplay(starBonusIncome, state.income.starBonus?.league || 105000000, state.playerProfile, timeframe);

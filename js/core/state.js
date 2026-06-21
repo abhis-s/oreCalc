@@ -163,7 +163,33 @@ export function initializeState(savedState) {
         if (savedState.allPlayersData) {
             for (const playerTag in savedState.allPlayersData) {
                 if (playerTag === 'GUEST') continue;
-                const savedPlayerState = savedState.allPlayersData[playerTag];
+                let savedPlayerState = savedState.allPlayersData[playerTag];
+                
+                // Migrate legacy flat guest profile structure (DEFAULT0) to nested structure
+                if (playerTag === 'DEFAULT0' && savedPlayerState && savedPlayerState.townHallLevel !== undefined && !savedPlayerState.playerProfile) {
+                    savedPlayerState = {
+                        playerProfile: {
+                            name: savedPlayerState.name,
+                            tag: savedPlayerState.tag,
+                            townHallLevel: savedPlayerState.townHallLevel,
+                            clanBadgeUrl: savedPlayerState.clanBadgeUrl || '',
+                            clan: savedPlayerState.clan || null,
+                            role: savedPlayerState.role || null,
+                            leagueTier: savedPlayerState.leagueTier || null,
+                            trophies: savedPlayerState.trophies || 0,
+                            warStars: savedPlayerState.warStars || 0,
+                            ownedHeroes: savedPlayerState.ownedHeroes || {},
+                            ownedEquipment: savedPlayerState.ownedEquipment || {}
+                        },
+                        heroes: savedPlayerState.heroes || {},
+                        storedOres: savedPlayerState.storedOres || {},
+                        income: savedPlayerState.income || {},
+                        planner: savedPlayerState.planner || {},
+                        currency: savedPlayerState.currency,
+                        onboardingComplete: savedPlayerState.onboardingComplete
+                    };
+                }
+
                 if (!state.allPlayersData[playerTag]) {
                     state.allPlayersData[playerTag] = initializeDefaultPlayerState();
                 }

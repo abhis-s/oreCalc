@@ -221,7 +221,11 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         leagueTier: leagueObj,
         trophies: playerData.trophies || 0,
         warStars: playerData.warStars || 0,
-        ownedHeroes: Object.fromEntries(homeHeroes.map(h => [h.name, { level: h.level, maxLevel: h.maxLevel }])),
+        ownedHeroes: Object.fromEntries(homeHeroes.map(h => [h.name, { 
+            level: h.level, 
+            maxLevel: h.maxLevel,
+            equipment: h.equipment?.map(eq => ({ name: eq.name, level: eq.level })) || []
+        }])),
         ownedEquipment: Object.fromEntries(homeEquipment.map(e => [e.name, e.level]))
     };
 

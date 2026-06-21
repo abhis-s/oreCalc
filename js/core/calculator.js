@@ -126,6 +126,7 @@ export function recalculateAll(state) {
         }
     }
     state.derived.totalIncome = totalIncomeForTimeframe;
+    state.derived.totalMonthlyIncome = totalMonthlyIncome;
 
     state.derived.remainingTime = calculateRemainingTime(state.derived.requiredOres, totalMonthlyIncome);
 
