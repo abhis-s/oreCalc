@@ -371,7 +371,7 @@ function renderDraggableList(globalPriorityList, suggestions) {
         resetButton.style.display = globalPriorityList.length === 0 ? 'none' : 'block';
     }
     if (infoButton) {
-        infoButton.style.display = globalPriorityList.length === 0 ? 'block' : 'none';
+        infoButton.style.display = globalPriorityList.length === 0 ? 'flex' : 'none';
     }
 
     if (globalPriorityList.length === 0) {
@@ -474,16 +474,7 @@ function renderDraggableList(globalPriorityList, suggestions) {
         `;
 
         const deleteBtn = listItem.querySelector('.delete-item-btn');
-        deleteBtn.addEventListener('click', async () => {
-            const confirmed = await showConfirm(
-                translate('planner.confirmDeleteStep', { 
-                    equipment: translate('equipment.' + toCamelCase(item.name)), 
-                    level: item.targetLevel 
-                }),
-                'status.confirm'
-            );
-            if (!confirmed) return;
-
+        deleteBtn.addEventListener('click', () => {
             handleStateUpdate(() => {
                 const equipmentInState = state.heroes[heroName]?.equipment[equipName];
                 if (!equipmentInState || !equipmentInState.upgradePlan) return;

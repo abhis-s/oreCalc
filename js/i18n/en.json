@@ -339,6 +339,7 @@
         "priorityList": "Priority List",
         "priorityListHelp": "Create your priority list to break upgrades into step-by-step milestones. Drag and drop items to reorder them. Click the edit button to open the editor.",
         "priorityListModalHelp": "Click on equipment names above to create upgrade steps. Reorder them using the drag handles on the left, or delete steps with the delete button.",
+        "levelSelectModalHelp": "Set target levels for up to 3 upgrade steps. The app automatically suggests targets in multiples of 3. Clear inputs to disable steps.",
         "calendarTitle": "Calendar Planner",
         "calendarHelp": "Track your future upgrades and daily ore income. Drag and drop income chips onto calendar days to plan precisely.",
         "heroCarouselHelp": "Disable any equipment or heroes you do not want to upgrade. Swipe left or right to switch between heroes.",

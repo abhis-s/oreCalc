@@ -46,8 +46,14 @@ function getEquipmentRecommendedLevel(stepIndex) {
     );
 
     if (stepIndex === 1) return defaultLevel1;
-    if (stepIndex === 2) return defaultLevel2;
-    if (stepIndex === 3) return defaultLevel3;
+    if (stepIndex === 2) {
+        if (defaultLevel2 <= defaultLevel1) return 0;
+        return defaultLevel2;
+    }
+    if (stepIndex === 3) {
+        if (defaultLevel3 <= defaultLevel2 || defaultLevel3 <= defaultLevel1) return 0;
+        return defaultLevel3;
+    }
 
     return 0;
 }
@@ -239,7 +245,7 @@ function renderTableRows() {
                 <td>#${i}</td>
                 <td class="level-input-cell">
                     <div class="popover-wrapper">
-                        <input type="number" id="level-input-${i}" class="level-input" placeholder="${translate('planner.placeholderLevel')}" maxlength="2">
+                        <input type="number" id="level-input-${i}" class="level-input" placeholder="${translate('planner.placeholderLevel')}" maxlength="2" data-allow-empty="true">
                     </div>
                 </td>
                 <td class="trash-cell">
@@ -285,6 +291,38 @@ function addTableEventListeners() {
             trashStep(stepId);
         }
     });
+
+    table.addEventListener('change', (event) => {
+        if (event.target.classList.contains('enable-switch')) {
+            const row = event.target.closest('tr');
+            const levelInput = row.querySelector('.level-input');
+            const stepId = parseInt(row.dataset.stepId, 10);
+            if (!event.target.checked) {
+                levelInput.value = '';
+                levelInput.dispatchEvent(new Event('change', { bubbles: true }));
+            } else {
+                if (levelInput.value === '') {
+                    const recVal = getEquipmentRecommendedLevel(stepId);
+                    const minVal = parseInt(levelInput.getAttribute('min')) || 1;
+                    const maxVal = parseInt(levelInput.getAttribute('max')) || 18;
+                    levelInput.value = (recVal && recVal >= minVal) ? recVal : maxVal;
+                    levelInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+        }
+    });
+
+    table.addEventListener('input', (event) => {
+        if (event.target.classList.contains('level-input')) {
+            const row = event.target.closest('tr');
+            const enableSwitch = row.querySelector('.enable-switch');
+            if (event.target.value === '') {
+                enableSwitch.checked = false;
+            } else {
+                enableSwitch.checked = true;
+            }
+        }
+    });
 }
 
 function trashStep(stepId) {
@@ -319,8 +357,13 @@ export function createLevelSelectModal() {
         <div id="level-select-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>${translate('planner.setTargetFor')} <span id="level-select-modal-equip-name"></span></h2>
-                    <button id="close-level-select-modal-btn" class="close-button">${getSVG('close', '', 24, 24, 'currentColor')}</button>
+                    <h2><span class="set-target-text">${translate('planner.setTargetFor')}</span> <span id="level-select-modal-equip-name"></span></h2>
+                    <div class="modal-header-actions">
+                        <button id="level-select-modal-info-btn" class="info-button info-btn" data-info="planner.levelSelectModalHelp" data-i18n-aria-label="actions.showInfo" aria-label="Show Information">
+                            ${getSVG('info', 'info-icon', 24, 24, 'currentColor')}
+                        </button>
+                        <button id="close-level-select-modal-btn" class="close-button">${getSVG('close', '', 24, 24, 'currentColor')}</button>
+                    </div>
                 </div>
                 <div class="modal-body">
                     <p>${translate('planner.currentLevel')} <span id="current-equipment-level"></span></p>
@@ -429,6 +472,8 @@ export function openLevelSelectModal(hero, equipment) {
             equipment.type
         ); 
         
+        let maxAssignedLevel = currentLevel;
+
         rows.forEach((row, index) => {
             const levelInput = row.querySelector('.level-input');
             const enableSwitch = row.querySelector('.enable-switch');
@@ -436,28 +481,35 @@ export function openLevelSelectModal(hero, equipment) {
             levelInput.value = ''; 
             enableSwitch.checked = true; 
 
-            let currentDefaultLevel;
+            let currentDefaultLevel = 0;
 
             if (index === 0) { 
-                levelInput.value = defaultLevel1;
                 currentDefaultLevel = defaultLevel1;
             } else if (index === 1) { 
-                levelInput.value = defaultLevel2;
                 currentDefaultLevel = defaultLevel2;
             } else if (index === 2) { 
-                levelInput.value = defaultLevel3;
                 currentDefaultLevel = defaultLevel3;
             }
 
-            if (currentDefaultLevel > maxLevel || currentDefaultLevel <= currentLevel) {
+            if (currentDefaultLevel > maxLevel || currentDefaultLevel <= maxAssignedLevel) {
                 levelInput.value = '';
                 enableSwitch.checked = false;
+            } else {
+                levelInput.value = currentDefaultLevel;
+                enableSwitch.checked = true;
+                maxAssignedLevel = currentDefaultLevel;
             }
 
-            // If a previous step reached max level, disable subsequent ones
+            // If a previous step reached max level or was disabled, disable subsequent ones
             if (index > 0) {
-                const prevLevel = parseInt(rows[index-1].querySelector('.level-input').value, 10);
-                if (prevLevel >= maxLevel) {
+                const prevValStr = rows[index-1].querySelector('.level-input').value;
+                if (prevValStr) {
+                    const prevLevel = parseInt(prevValStr, 10);
+                    if (prevLevel >= maxLevel) {
+                        levelInput.value = '';
+                        enableSwitch.checked = false;
+                    }
+                } else {
                     levelInput.value = '';
                     enableSwitch.checked = false;
                 }

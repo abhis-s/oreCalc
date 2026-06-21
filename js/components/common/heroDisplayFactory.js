@@ -126,6 +126,8 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         levelInput.id = inputId;
         levelInput.name = inputId;
         levelInput.className = 'updatable';
+        levelInput.maxLength = 2;
+        levelInput.setAttribute('maxlength', '2');
         levelInput.min = '1';
         levelInput.max = maxLevel;
         levelInput.value = currentLevel;

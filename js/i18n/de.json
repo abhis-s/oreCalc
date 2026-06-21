@@ -339,6 +339,7 @@
         "priorityList": "Prioritäten-Liste",
         "priorityListHelp": "Erstelle deine Prioritätsliste, um Upgrades in aufeinanderfolgende Schritte zu unterteilen. Ziehe Elemente per Drag & Drop, um sie umzuordnen. Klicke auf die Schaltfläche „Bearbeiten“, um den Editor zu öffnen.",
         "priorityListModalHelp": "Klicke oben auf die Ausrüstungsnamen, um Upgrade-Schritte zu erstellen. Ordne sie mit den Ziehpunkten auf der linken Seite neu an oder lösche Schritte mit dem Löschen-Symbol.",
+        "levelSelectModalHelp": "Lege Zielstufen für bis zu 3 Upgrade-Schritte fest. Die App schlägt automatisch Ziele in 3er-Schritten vor. Leere Felder deaktivieren einen Schritt.",
         "calendarTitle": "Kalender-Planer",
         "calendarHelp": "Verfolge deine zukünftigen Upgrades und dein tägliches Erzeinkommen. Ziehe Einkommens-Chips auf Kalendertage, um präzise zu planen.",
         "heroCarouselHelp": "Deaktiviere Ausrüstungen oder Helden, die du nicht verbessern möchtest. Wische nach links oder rechts, um zwischen den Helden zu wechseln.",

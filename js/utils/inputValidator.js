@@ -63,7 +63,7 @@ export function addValidation(inputElement, { inputName = 'value' }) {
     const min = isNaN(minRaw) ? 0 : minRaw;
     const max = isNaN(maxRaw) ? Number.MAX_SAFE_INTEGER : maxRaw;
 
-    inputElement.dataset.lastValidValue = inputElement.value.trim() === '' ? min.toString() : inputElement.value;
+    inputElement.dataset.lastValidValue = inputElement.value.trim() === '' ? (inputElement.dataset.allowEmpty === 'true' ? '' : min.toString()) : inputElement.value;
 
     let warningTimeout = null;
     let errorTimeout = null;
@@ -164,7 +164,19 @@ export function addValidation(inputElement, { inputName = 'value' }) {
         const min = isNaN(minRaw) ? 0 : minRaw;
         const max = isNaN(maxRaw) ? Number.MAX_SAFE_INTEGER : maxRaw;
         let value = event.target.value.trim();
-        if (value === '') value = min.toString();
+        if (value === '') {
+            if (inputElement.dataset.allowEmpty === 'true') {
+                inputElement.value = '';
+                inputElement.dataset.lastValidValue = '';
+                inputElement.dispatchEvent(new CustomEvent('validated-input', {
+                    detail: { value: '' },
+                    bubbles: true,
+                    composed: true
+                }));
+                return;
+            }
+            value = min.toString();
+        }
 
         let currentValue = parseInt(value, 10);
 

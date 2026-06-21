@@ -9,6 +9,10 @@
 
     .modal-header {
         h2 {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+
             #level-select-modal-equip-name {
                 color: var(--accent-primary);
             }
@@ -125,6 +129,26 @@
     }
 
     @media (max-width: 600px) {
+        .modal-header {
+            h2 {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+                line-height: 1.2;
+
+                .set-target-text {
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    color: $text-secondary;
+                }
+
+                #level-select-modal-equip-name {
+                    font-size: 1.15rem;
+                }
+            }
+        }
+
         .modal-body {
             p {
                 margin-bottom: 12px;
