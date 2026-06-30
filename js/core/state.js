@@ -60,7 +60,7 @@ function getDefaultPlayerStateProperties() {
         heroes: {},
         storedOres: {},
         income: {
-            shopOffers: { selectedSet: 0, '0': {} },
+            shopOffers: { selectedSet: null, '0': {} },
             raidMedals: { packs: {} },
             gems: { packs: {} },
             eventPass: {},

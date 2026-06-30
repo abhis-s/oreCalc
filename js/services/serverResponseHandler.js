@@ -174,8 +174,8 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         }
     }
 
-    const selected = Object.keys(newPlayerState.income.shopOffers || {})[0] || '0';
-    if (selected === '0' && playerData.townHallLevel) {
+    const selected = newPlayerState.income.shopOffers?.selectedSet;
+    if ((selected === undefined || selected === null) && playerData.townHallLevel) {
         const thLevel = playerData.townHallLevel;
         let bestMatchSet = '0';
         let closestTh = -1;
@@ -187,7 +187,9 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                 bestMatchSet = setKey;
             }
         }
-        newPlayerState.income.shopOffers = { [bestMatchSet]: {} };
+        if (!newPlayerState.income.shopOffers) newPlayerState.income.shopOffers = {};
+        newPlayerState.income.shopOffers.selectedSet = parseInt(bestMatchSet, 10);
+        newPlayerState.income.shopOffers[bestMatchSet] = {};
     }
 
     newPlayerState.income.prospector = { 

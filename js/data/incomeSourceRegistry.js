@@ -103,8 +103,8 @@ export const incomeData = {
         },
         getIncome: (state) => state.derived.incomeSources.shopOffers?.monthly || { shiny: 0, glowy: 0, starry: 0 },
         getResourceString: (state) => {
-            const selected = Object.keys(state.income.shopOffers)[0] || '0';
-            if (!selected || selected === '0') return '';
+            const selected = state.income.shopOffers?.selectedSet;
+            if (selected === undefined || selected === null || selected === 0) return '';
             
             const selectedCurrencyKey = state.uiSettings.currency.code.toUpperCase();
             const cost = state.derived.incomeSources.shopOffers?.monthly?.[selectedCurrencyKey] || state.derived.incomeSources.shopOffers?.monthly?.USD || 0;

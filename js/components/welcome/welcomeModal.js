@@ -3069,8 +3069,7 @@ export function syncWelcomeQuickSettings(tag) {
             const thLevel = parseInt(th, 10);
             const bestSetKey = getBestMatchShopOfferSet(thLevel);
             const bestSetNum = parseInt(bestSetKey, 10);
-            const shopOffersState = playerObj.income?.shopOffers || {};
-            const selectedSet = (shopOffersState.selectedSet !== undefined && shopOffersState.selectedSet !== 0) ? shopOffersState.selectedSet : bestSetNum;
+            const selectedSet = (shopOffersState.selectedSet !== undefined && shopOffersState.selectedSet !== null) ? shopOffersState.selectedSet : bestSetNum;
             const purchasedOffers = shopOffersState[selectedSet] || {};
             const hasShopOffers = Object.values(purchasedOffers).some(count => count > 0);
             shopOffersBuySwitch.checked = hasShopOffers;

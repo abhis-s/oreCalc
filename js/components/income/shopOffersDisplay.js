@@ -110,7 +110,7 @@ export function renderShopOfferSelector(shopOfferState) {
     const selector = dom.income?.shopOffers?.dropdown;
     if (selector) {
         let selected = shopOfferState.selectedSet;
-        if (selected === undefined) {
+        if (selected === undefined || selected === null) {
             const firstKey = Object.keys(shopOfferState).find(k => k !== 'selectedSet');
             selected = firstKey ? parseInt(firstKey, 10) : 0;
         }
@@ -123,7 +123,7 @@ export function renderShopOfferGrid(shopOfferState) {
     if (!container) return;
 
     let selected = shopOfferState.selectedSet;
-    if (selected === undefined) {
+    if (selected === undefined || selected === null) {
         const firstKey = Object.keys(shopOfferState).find(k => k !== 'selectedSet');
         selected = firstKey ? parseInt(firstKey, 10) : 0;
     }
