@@ -24,13 +24,13 @@ export function renderProspectorIncomeDisplay(prospectorIncome) {
     const dailyValues = prospectorIncome.daily || { shiny: 0, glowy: 0, starry: 0 };
     const monthlyValues = prospectorIncome.monthly || { shiny: 0, glowy: 0, starry: 0 };
 
-    dom.income.prospector.display.daily.shiny.textContent = formatNumber(dailyValues.shiny);
-    dom.income.prospector.display.daily.glowy.textContent = formatNumber(dailyValues.glowy);
-    dom.income.prospector.display.daily.starry.textContent = formatNumber(dailyValues.starry);
+    dom.income.prospector.display.daily.shiny.textContent = formatNumber(Math.round(dailyValues.shiny));
+    dom.income.prospector.display.daily.glowy.textContent = formatNumber(Math.round(dailyValues.glowy));
+    dom.income.prospector.display.daily.starry.textContent = formatNumber(Math.round(dailyValues.starry));
 
-    dom.income.prospector.display.monthly.shiny.textContent = formatNumber(monthlyValues.shiny);
-    dom.income.prospector.display.monthly.glowy.textContent = formatNumber(monthlyValues.glowy);
-    dom.income.prospector.display.monthly.starry.textContent = formatNumber(monthlyValues.starry);
+    dom.income.prospector.display.monthly.shiny.textContent = formatNumber(Math.round(monthlyValues.shiny));
+    dom.income.prospector.display.monthly.glowy.textContent = formatNumber(Math.round(monthlyValues.glowy));
+    dom.income.prospector.display.monthly.starry.textContent = formatNumber(Math.round(monthlyValues.starry));
 
     updateProspectorTip();
 }

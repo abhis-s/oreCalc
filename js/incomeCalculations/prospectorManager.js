@@ -343,37 +343,40 @@ export function calculateProspectorIncome(prospectorState, assistedContext = nul
     }
 
     const daily = { shiny: 0, glowy: 0, starry: 0 };
+    const monthly = { shiny: 0, glowy: 0, starry: 0 };
+    const weekly = { shiny: 0, glowy: 0, starry: 0 };
+    const bimonthly = { shiny: 0, glowy: 0, starry: 0 };
 
     if (assistedConversion && assistedContext) {
-        // Drive income from the optimal global-recommendation schedule.
-        // Round to integers to match manual mode (fromAmount is always a whole number).
-        const delta = computeAssistedDailyDelta(assistedContext.missing, assistedContext.baseIncome);
-        daily.shiny = Math.round(delta.shiny);
-        daily.glowy = Math.round(delta.glowy);
-        daily.starry = Math.round(delta.starry);
+        // Drive income from the optimal global-recommendation schedule (monthly is true source)
+        const opt = findOptimalConversionSchedule(assistedContext.missing, { shiny: 0, glowy: 0, starry: 0 }, assistedContext.baseIncome);
+        if (opt && opt.conversions) {
+            for (const conv of opt.conversions) {
+                const fromRate = oreMaxValues[conv.from];
+                const toRate = convertOres(conv.from, conv.to, fromRate);
+                monthly[conv.from] -= conv.days * fromRate;
+                monthly[conv.to] += conv.days * toRate;
+            }
+        }
+
+        // Derive other timeframes without premature rounding
+        for (const ore of ['shiny', 'glowy', 'starry']) {
+            daily[ore] = monthly[ore] / 30;
+            weekly[ore] = monthly[ore] * (7 / 30);
+            bimonthly[ore] = monthly[ore] * 2;
+        }
     } else {
+        // Manual mode: daily is the true source
         const toAmount = convertOres(fromOre, toOre, fromAmount);
         daily[fromOre] -= fromAmount;
         daily[toOre]   += toAmount;
+
+        for (const ore of ['shiny', 'glowy', 'starry']) {
+            monthly[ore] = daily[ore] * 30;
+            weekly[ore] = daily[ore] * 7;
+            bimonthly[ore] = monthly[ore] * 2;
+        }
     }
-
-    const monthly = {
-        shiny: daily.shiny * 30,
-        glowy: daily.glowy * 30,
-        starry: daily.starry * 30,
-    };
-
-    const weekly = {
-        shiny: daily.shiny * 7,
-        glowy: daily.glowy * 7,
-        starry: daily.starry * 7,
-    };
-
-    const bimonthly = {
-        shiny: monthly.shiny * 2,
-        glowy: monthly.glowy * 2,
-        starry: monthly.starry * 2,
-    };
 
     // Gold Pass subscription cost
     if (prospectorData.priceTier) {
