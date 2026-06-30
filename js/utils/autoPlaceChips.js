@@ -1,4 +1,4 @@
-import { handleStateUpdate } from '../app.js';
+import { handleStateUpdate } from '../core/stateManager.js';
 import { state } from '../core/state.js';
 
 import { renderCalendar } from '../components/planner/calendar.js';
@@ -54,7 +54,7 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
     }, true);
 }
 
-export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, endYear) {
+export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, endYear, skipRender = false) {
     const newCalendarDates = { ...state.planner.calendar.dates };
 
     let currentYear = startYear;
@@ -89,6 +89,10 @@ export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, en
         findReindexTypes(incomeData[key], key);
     }
     reindexTypes.forEach(type => reindexCalendarChips(type));
+
+    if (skipRender) {
+        return;
+    }
 
     // Render the active view month once at the end
     if (state.planner?.calendar?.view?.month) {

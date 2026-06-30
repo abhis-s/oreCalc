@@ -44,7 +44,32 @@ export function saveState(state, immediate = false) {
                 timestamp: new Date().toISOString(),
             };
 
-            const serializedState = JSON.stringify(stateToSave);
+            const serializedState = JSON.stringify(stateToSave, (key, value) => {
+                if (key === 'isHydrated') {
+                    return undefined;
+                }
+                if (key === 'dates' && value && typeof value === 'object') {
+                    const cleanDates = {};
+                    for (const monthYearKey in value) {
+                        const monthDays = value[monthYearKey];
+                        const cleanDays = {};
+                        for (const dayKey in monthDays) {
+                            const chips = monthDays[dayKey];
+                            if (Array.isArray(chips)) {
+                                const cleanChips = chips.filter(id => typeof id === 'string' && !id.endsWith('-cal-auto'));
+                                if (cleanChips.length > 0) {
+                                    cleanDays[dayKey] = cleanChips;
+                                }
+                            }
+                        }
+                        if (Object.keys(cleanDays).length > 0) {
+                            cleanDates[monthYearKey] = cleanDays;
+                        }
+                    }
+                    return cleanDates;
+                }
+                return value;
+            });
             localStorage.setItem(APP_STATE_KEY, serializedState);
             hideSavingIndicator();
         } catch (error) {

@@ -43,6 +43,8 @@ import { loadTranslations, translate } from './i18n/translator.js';
 import { getChangelogHtml } from './services/changelogService.js';
 import { currencyData } from './data/appData.js';
 import { checkAndGenerateRecurringChips } from './utils/chipManager.js';
+import { getMinDate, getMaxDate } from './utils/dateUtils.js';
+import { autoPlaceIncomeChipsForRange } from './utils/autoPlaceChips.js';
 
 import './console.js';
 import './utils/svgManager.js';
@@ -473,6 +475,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     }
 
     registerStateUpdateCallback((state, silent) => {
+        if (state.planner?.calendar && !state.planner.calendar.isHydrated) {
+            const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+            const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
+            autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
+            state.planner.calendar.isHydrated = true;
+        }
         if (!silent) {
             recalculateAll(state);
             renderApp(state);
@@ -562,6 +570,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         updateUIWithTranslations(true);
         updateResponsiveText();
 
+        if (state.planner?.calendar && !state.planner.calendar.isHydrated) {
+            const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+            const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
+            autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
+            state.planner.calendar.isHydrated = true;
+        }
         recalculateAll(state);
         checkAndGenerateRecurringChips();
         renderApp(state);
