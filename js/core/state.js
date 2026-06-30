@@ -88,7 +88,9 @@ function getDefaultPlayerStateProperties() {
                 settings: {
                     firstDayOfWeek: 'auto', // 'auto', 'monday', 'sunday'
                     showChipIcons: true,
-                    autoPlaceScope: 'month' // 'month', 'year'
+                    autoPlaceScope: 'month', // 'month', 'year'
+                    showEquipmentMilestones: true,
+                    highlightUpgradeRanges: true
                 },
                 view: {
                     select: 'monthly',

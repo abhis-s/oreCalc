@@ -13,6 +13,7 @@ import { translate } from '../../i18n/translator.js';
 import { getProspectorIncomeForDate } from '../../incomeCalculations/prospectorManager.js';
 
 import { renderIncomeChips } from './incomeChips.js';
+import { getGlobalPriorityList } from './priorityListModal.js';
 
 import { showConfirm } from '../../ui/noticeModal.js';
 
@@ -40,6 +41,8 @@ const cancelCalendarSettingsBtn = document.getElementById('cancel-calendar-setti
 const saveCalendarSettingsBtn = document.getElementById('save-calendar-settings-btn');
 const firstDaySelect = document.getElementById('calendar-first-day-select');
 const showIconsSwitch = document.getElementById('calendar-show-icons-switch');
+const showEquipmentMilestonesSwitch = document.getElementById('calendar-show-equipment-milestones-switch');
+const highlightUpgradeRangesSwitch = document.getElementById('calendar-highlight-upgrade-ranges-switch');
 const autoPlaceScopeSelect = document.getElementById('calendar-auto-place-scope-select');
 
 let currentView = 'monthly';
@@ -60,6 +63,140 @@ export function setAnimateNextRender(val, delay = 0.2) {
     animationBaseDelay = delay;
 }
 
+let activeEquipmentSchedule = { milestones: {}, ranges: [] };
+
+function getMidnightUTCTime(d) {
+    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+
+function getHeroColor(heroName) {
+    if (!heroName) return '#7f8c8d';
+    const lower = heroName.toLowerCase();
+    if (lower.includes('king')) return '#d4af37';    // Gold
+    if (lower.includes('queen')) return '#a020f0';   // Purple
+    if (lower.includes('warden')) return '#00bfff';  // Sky Blue
+    if (lower.includes('champion')) return '#e74c3c'; // Red
+    if (lower.includes('prince')) return '#27ae60';   // Green
+    return '#7f8c8d';
+}
+
+function getEquipmentSchedule() {
+    const { globalPriorityList } = getGlobalPriorityList();
+    const milestones = {};
+    const ranges = [];
+
+    if (!globalPriorityList || globalPriorityList.length === 0) {
+        return { milestones, ranges };
+    }
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const todayUTC = getMidnightUTCTime(today);
+
+    let lastCompletionTime = todayUTC;
+
+    globalPriorityList.forEach((item, idx) => {
+        if (!item.completionDate) return;
+
+        const compDate = new Date(item.completionDate);
+        const compTime = getMidnightUTCTime(compDate);
+
+        // Milestone
+        const year = compDate.getUTCFullYear();
+        const month = String(compDate.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(compDate.getUTCDate()).padStart(2, '0');
+        const compDateStr = `${year}-${month}-${day}`;
+
+        if (!milestones[compDateStr]) {
+            milestones[compDateStr] = [];
+        }
+        milestones[compDateStr].push(item);
+
+        // Range
+        let rangeStartTime = lastCompletionTime;
+        if (idx > 0) {
+            // Start the day after the previous completion
+            const prevCompDate = new Date(lastCompletionTime);
+            prevCompDate.setUTCDate(prevCompDate.getUTCDate() + 1);
+            rangeStartTime = getMidnightUTCTime(prevCompDate);
+        }
+
+        if (rangeStartTime <= compTime) {
+            ranges.push({
+                start: rangeStartTime,
+                end: compTime,
+                item: item
+            });
+        }
+
+        lastCompletionTime = compTime;
+    });
+
+    return { milestones, ranges };
+}
+
+function handleEquipmentBadgeMouseEnter(e, item) {
+    e.stopPropagation();
+    const badge = e.currentTarget;
+    
+    // Remove existing tooltips
+    const existingTooltip = document.getElementById('active-calendar-tooltip');
+    if (existingTooltip) existingTooltip.remove();
+
+    const tooltip = document.createElement('div');
+    tooltip.classList.add('ore-tooltip');
+    tooltip.id = 'active-calendar-tooltip';
+
+    const heroName = item.heroName || '';
+    const equipName = item.name || '';
+    const targetLvl = item.targetLevel || 1;
+    const bottleneckTrans = item.bottleneckOre ? translate(`ores.${item.bottleneckOre}`) : '';
+    
+    let requiredHtml = '';
+    if (item.requiredOres) {
+        requiredHtml = `
+            <div class="tooltip-req-ores">
+                ${item.requiredOres.shiny > 0 ? `<span>${formatNumber(item.requiredOres.shiny)} <orecalc-assets-image src="assets/shiny_ore.png"></orecalc-assets-image></span>` : ''}
+                ${item.requiredOres.glowy > 0 ? `<span>${formatNumber(item.requiredOres.glowy)} <orecalc-assets-image src="assets/glowy_ore.png"></orecalc-assets-image></span>` : ''}
+                ${item.requiredOres.starry > 0 ? `<span>${formatNumber(item.requiredOres.starry)} <orecalc-assets-image src="assets/starry_ore.png"></orecalc-assets-image></span>` : ''}
+            </div>
+        `;
+    }
+
+    tooltip.innerHTML = `
+        <div class="tooltip-header" style="color: ${getHeroColor(item.heroName)}; font-weight: bold;">${equipName} (Lvl ${targetLvl})</div>
+        ${item.message ? `<div class="tooltip-message" style="color: #ff7675;">${item.message}</div>` : ''}
+        ${item.bottleneckOre ? `<div class="tooltip-bottleneck">${translate('ores.bottleneckLabel') || 'Bottleneck'}: ${bottleneckTrans}</div>` : ''}
+        ${requiredHtml}
+    `;
+
+    document.body.appendChild(tooltip);
+
+    const rect = badge.getBoundingClientRect();
+    const scrollX = window.scrollX || window.pageXOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
+
+    let left = rect.left + rect.width / 2 + scrollX;
+    let top = rect.top + scrollY - 10;
+
+    tooltip.style.position = 'absolute';
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+    tooltip.style.transform = 'translate(-50%, -100%)';
+
+    const tooltipRect = tooltip.getBoundingClientRect();
+    if (tooltipRect.left < 10) {
+        tooltip.style.left = `${10 + tooltipRect.width / 2 + scrollX}px`;
+    } else if (tooltipRect.right > window.innerWidth - 10) {
+        tooltip.style.left = `${window.innerWidth - 10 - tooltipRect.width / 2 + scrollX}px`;
+    }
+}
+
+function handleEquipmentBadgeMouseLeave(e) {
+    const tooltip = document.getElementById('active-calendar-tooltip');
+    if (tooltip) tooltip.remove();
+}
+
 function createDayCell(date, plannerState) {
 
     const dayCell = document.createElement('div');
@@ -77,6 +214,9 @@ function createDayCell(date, plannerState) {
     }
 
     if (currentView === 'weekly') {
+        const dayMeta = document.createElement('div');
+        dayMeta.classList.add('day-meta-container');
+
         const dayInfo = document.createElement('div');
         dayInfo.classList.add('day-info');
         const formattedDay = formatDate(date, { weekday: 'short' });
@@ -91,7 +231,8 @@ function createDayCell(date, plannerState) {
         
         dayInfo.appendChild(dayNameSpan);
         dayInfo.appendChild(dateDisplay);
-        dayCell.appendChild(dayInfo);
+        dayMeta.appendChild(dayInfo);
+        dayCell.appendChild(dayMeta);
     } else {
         const dateDisplay = document.createElement('div');
         dateDisplay.classList.add('date-display');
@@ -258,6 +399,84 @@ function createDayCell(date, plannerState) {
         chipContainer.appendChild(item.element);
     });
 
+    // Equipment Integration: Milestones and Ranges
+    const cellTime = getMidnightUTCTime(date);
+    const dateStr = `${displayYear}-${displayMonth}-${displayDay}`;
+
+    // 1. Highlight Ranges
+    const showRanges = state.planner.calendar.settings.highlightUpgradeRanges !== false;
+    if (showRanges && activeEquipmentSchedule.ranges) {
+        const activeRange = activeEquipmentSchedule.ranges.find(r => cellTime >= r.start && cellTime <= r.end);
+        if (activeRange) {
+            dayCell.classList.add('equipment-accumulating');
+            dayCell.dataset.equipmentHero = activeRange.item.heroName || '';
+            dayCell.dataset.equipmentName = activeRange.item.name || '';
+            dayCell.style.setProperty('--equip-color', getHeroColor(activeRange.item.heroName));
+            
+            if (cellTime === activeRange.start) {
+                dayCell.classList.add('range-start');
+            }
+            if (cellTime === activeRange.end) {
+                dayCell.classList.add('range-end');
+            }
+        }
+    }
+
+    // 2. Milestones
+    const showMilestones = state.planner.calendar.settings.showEquipmentMilestones !== false;
+    if (showMilestones && activeEquipmentSchedule.milestones) {
+        const milestones = activeEquipmentSchedule.milestones[dateStr];
+        if (milestones && milestones.length > 0) {
+            dayCell.classList.add('equipment-completion-day');
+            
+            const equipContainer = document.createElement('div');
+            equipContainer.classList.add('calendar-equipment-container');
+            
+            milestones.forEach(item => {
+                const badge = document.createElement('div');
+                badge.classList.add('calendar-equipment-badge');
+                badge.dataset.hero = item.heroName;
+                badge.style.setProperty('--equip-color', getHeroColor(item.heroName));
+
+                // Image or Fallback text
+                if (item.image) {
+                    const img = document.createElement('orecalc-assets-image');
+                    img.setAttribute('src', item.image);
+                    img.classList.add('calendar-equipment-icon');
+                    badge.appendChild(img);
+                } else {
+                    const fallback = document.createElement('span');
+                    fallback.classList.add('calendar-equipment-fallback');
+                    fallback.textContent = item.name.substring(0, 2).toUpperCase();
+                    badge.appendChild(fallback);
+                }
+
+                // Level text
+                const levelSpan = document.createElement('span');
+                levelSpan.classList.add('calendar-equipment-level');
+                levelSpan.textContent = `Lvl ${item.targetLevel}`;
+                badge.appendChild(levelSpan);
+
+                // Tooltip interaction
+                badge.addEventListener('mouseenter', (e) => handleEquipmentBadgeMouseEnter(e, item));
+                badge.addEventListener('mouseleave', handleEquipmentBadgeMouseLeave);
+
+                equipContainer.appendChild(badge);
+            });
+            
+            if (currentView === 'weekly') {
+                const dayMeta = dayCell.querySelector('.day-meta-container');
+                if (dayMeta) {
+                    dayMeta.appendChild(equipContainer);
+                } else {
+                    dayCell.appendChild(equipContainer);
+                }
+            } else {
+                dayCell.appendChild(equipContainer);
+            }
+        }
+    }
+
     return dayCell;
 }
 
@@ -341,6 +560,13 @@ export function renderCalendar(plannerState) {
     calendarTrack.innerHTML = '';
     
     autoPlaceStaggerCounter = 0;
+
+    const settings = state.planner.calendar.settings;
+    if (settings.showEquipmentMilestones !== false || settings.highlightUpgradeRanges !== false) {
+        activeEquipmentSchedule = getEquipmentSchedule();
+    } else {
+        activeEquipmentSchedule = { milestones: {}, ranges: [] };
+    }
 
     if (currentView === 'monthly') {
         calendarTrack.classList.remove('weekly-view-grid');
@@ -1148,6 +1374,26 @@ function handleDayCellMouseEnter(e) {
     const cumulativeOres = calculateCumulativeOres(targetDate, state.storedOres);
     const formattedDate = formatDate(targetDate, { month: 'short', day: 'numeric', weekday: 'short' });
 
+    const cellTime = getMidnightUTCTime(targetDate);
+    const activeRange = activeEquipmentSchedule.ranges ? activeEquipmentSchedule.ranges.find(r => cellTime >= r.start && cellTime <= r.end) : null;
+    let inProgressHtml = '';
+
+    if (activeRange && activeRange.item) {
+        const compDateObj = new Date(activeRange.end);
+        const compDateFormatted = formatDate(compDateObj, { month: 'short', day: 'numeric', weekday: 'short' });
+        const heroColor = getHeroColor(activeRange.item.heroName);
+        
+        inProgressHtml = `
+            <div class="tooltip-in-progress">
+                <div class="in-progress-title">${translate('ores.byLabel') || 'By'}: ${compDateFormatted}</div>
+                <div class="in-progress-badge" style="--equip-color: ${heroColor}; border-color: ${heroColor};">
+                    ${activeRange.item.image ? `<orecalc-assets-image src="${activeRange.item.image}" class="in-progress-icon"></orecalc-assets-image>` : `<span class="in-progress-fallback">${activeRange.item.name.substring(0, 2).toUpperCase()}</span>`}
+                    <span class="in-progress-level">Lvl ${activeRange.item.targetLevel}</span>
+                </div>
+            </div>
+        `;
+    }
+
     const tooltip = document.createElement('div');
     tooltip.classList.add('ore-tooltip');
     tooltip.id = 'active-calendar-tooltip';
@@ -1156,6 +1402,7 @@ function handleDayCellMouseEnter(e) {
         <div class="ore-count-item"><span>${formatNumber(cumulativeOres.shiny)}</span> <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('ores.shiny')}" class="ore-icon-small"></orecalc-assets-image></div>
         <div class="ore-count-item"><span>${formatNumber(cumulativeOres.glowy)}</span> <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('ores.glowy')}" class="ore-icon-small"></orecalc-assets-image></div>
         <div class="ore-count-item"><span>${formatNumber(cumulativeOres.starry)}</span> <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('ores.starry')}" class="ore-icon-small"></orecalc-assets-image></div>
+        ${inProgressHtml}
     `;
     
     document.body.appendChild(tooltip);
@@ -1248,6 +1495,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const settings = state.planner.calendar.settings;
         firstDaySelect.value = settings.firstDayOfWeek;
         showIconsSwitch.checked = settings.showChipIcons;
+        showEquipmentMilestonesSwitch.checked = settings.showEquipmentMilestones !== false;
+        highlightUpgradeRangesSwitch.checked = settings.highlightUpgradeRanges !== false;
         autoPlaceScopeSelect.value = settings.autoPlaceScope;
         calendarSettingsModal.classList.add('show');
     });
@@ -1265,6 +1514,8 @@ document.addEventListener('DOMContentLoaded', () => {
             state.planner.calendar.settings = {
                 firstDayOfWeek: firstDaySelect.value,
                 showChipIcons: showIconsSwitch.checked,
+                showEquipmentMilestones: showEquipmentMilestonesSwitch.checked,
+                highlightUpgradeRanges: highlightUpgradeRangesSwitch.checked,
                 autoPlaceScope: autoPlaceScopeSelect.value
             };
         });

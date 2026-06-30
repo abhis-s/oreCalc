@@ -356,6 +356,7 @@
         background-color: $bg-surface-primary;
         min-height: auto;
         gap: 15px;
+        overflow: hidden;
 
         &:hover {
             border-color: $accent-primary;
@@ -425,3 +426,255 @@
         }
     }
 }
+
+/* Equipment Upgrades Calendar Styles */
+
+// Range Highlight styles for day cells
+.day-cell.equipment-accumulating {
+    background-color: color-mix(in srgb, var(--equip-color) 4%, #{$bg-surface-primary}) !important;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: var(--equip-color);
+        opacity: 0.7;
+        z-index: 2;
+        transition: all 0.2s ease;
+    }
+
+    &.range-start::after {
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+        left: 4px;
+    }
+
+    &.range-end::after {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        right: 4px;
+    }
+}
+
+// Milestone Badges styling
+.calendar-equipment-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: auto; // Push to bottom of day cell
+    padding-top: 6px;
+    box-sizing: border-box;
+    z-index: 3;
+}
+
+.calendar-equipment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(45, 52, 54, 0.4);
+    border: 1.5px solid color-mix(in srgb, var(--equip-color) 40%, #{$border-primary});
+    border-radius: 6px;
+    padding: 3px 6px;
+    cursor: help;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(4px);
+
+    &:hover {
+        transform: translateY(-1px) scale(1.05);
+        background: rgba(45, 52, 54, 0.6);
+        border-color: var(--equip-color);
+        box-shadow: 0 0 8px color-mix(in srgb, var(--equip-color) 60%, transparent), 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.calendar-equipment-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+
+.calendar-equipment-fallback {
+    font-size: 0.7em;
+    font-weight: var(--font-weight-bold);
+    color: #dfe6e9;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2d3436;
+    border-radius: 4px;
+}
+
+.calendar-equipment-level {
+    font-size: 0.72em;
+    font-weight: var(--font-weight-bold);
+    color: #ffffff;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+// Weekly View Layout Adjustments
+#calendar-track > .weekly-view-grid .day-cell {
+    &.equipment-accumulating {
+        &::after {
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: auto;
+            width: 4px;
+            height: 100%;
+            border-top-left-radius: inherit;
+            border-bottom-left-radius: inherit;
+        }
+        
+        &.range-start::after {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            top: 4px;
+            height: calc(100% - 4px);
+        }
+        
+        &.range-end::after {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: inherit;
+            bottom: 4px;
+            height: calc(100% - 4px);
+        }
+    }
+
+    .day-meta-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        flex-shrink: 0;
+        min-width: 60px;
+
+        .calendar-equipment-container {
+            margin-top: 2px;
+            margin-left: 0;
+            width: auto;
+            padding-top: 0;
+            justify-content: flex-start;
+        }
+    }
+}
+
+// Adaptable and Responsive Tooltip styling
+.ore-tooltip {
+    font-size: clamp(11px, 2.5vw, 13px) !important;
+    padding: clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 14px) !important;
+    gap: clamp(4px, 1vw, 6px) !important;
+    max-width: 90vw;
+    box-sizing: border-box;
+
+    .tooltip-header {
+        font-size: clamp(12px, 2.8vw, 14px) !important;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .tooltip-message {
+        font-size: clamp(9px, 2vw, 11px) !important;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .tooltip-bottleneck {
+        font-size: clamp(10px, 2.2vw, 12px) !important;
+        font-weight: 600;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .tooltip-req-ores {
+        display: flex;
+        gap: clamp(4px, 1vw, 8px);
+        margin-top: 3px;
+        align-items: center;
+
+        span {
+            display: inline-flex;
+            align-items: center;
+            gap: clamp(2px, 0.5vw, 4px);
+            font-size: clamp(10px, 2.2vw, 12px) !important;
+        }
+
+        orecalc-assets-image, img {
+            width: clamp(10px, 2.2vw, 13px) !important;
+            height: clamp(10px, 2.2vw, 13px) !important;
+        }
+    }
+
+    .tooltip-in-progress {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        margin-top: 8px;
+        width: 100%;
+        border-top: 1px dashed $border-primary;
+        padding-top: 8px;
+        box-sizing: border-box;
+        
+        .in-progress-title {
+            font-size: clamp(9px, 2vw, 11px);
+            opacity: 0.8;
+            font-weight: 500;
+            text-align: center;
+            width: 100%;
+        }
+
+        .in-progress-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(45, 52, 54, 0.4);
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--equip-color, #2d3436);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            margin-top: 2px;
+        }
+
+        .in-progress-icon {
+            width: clamp(12px, 2.5vw, 16px) !important;
+            height: clamp(12px, 2.5vw, 16px) !important;
+            object-fit: contain;
+        }
+
+        .in-progress-fallback {
+            font-size: 0.7em;
+            font-weight: var(--font-weight-bold);
+            color: #dfe6e9;
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2d3436;
+            border-radius: 4px;
+        }
+
+        .in-progress-level {
+            font-size: clamp(9px, 2.2vw, 11px);
+            font-weight: var(--font-weight-bold);
+            color: #ffffff;
+            white-space: nowrap;
+        }
+    }
+}
+
+
