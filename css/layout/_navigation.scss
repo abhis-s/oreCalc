@@ -609,3 +609,13 @@
     }
 }
 
+/* Android/Default Device color fallbacks for currentColor compatibility */
+.nav-button:not(.active) {
+    .icon-outline svg {
+        fill: var(--text-secondary);
+    }
+    span {
+        color: var(--text-secondary);
+    }
+}
+

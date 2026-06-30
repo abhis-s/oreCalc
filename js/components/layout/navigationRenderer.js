@@ -1,7 +1,6 @@
-import { dom } from '../../dom/domElements.js';
-
 import { navigationRegistry } from '../../data/navigationRegistry.js';
 import { translate } from '../../i18n/translator.js';
+import { renderAppleNavigation } from './appleNavigationRenderer.js';
 
 /**
  * Checks if an SVG symbol with the given ID exists in the DOM.
@@ -15,7 +14,14 @@ function symbolExists(id) {
 }
 
 export function renderNavigation(activeTabId) {
-    renderBottomNav(activeTabId);
+    const isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) || 
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isApple) {
+        document.body.classList.add('platform-apple');
+        renderAppleNavigation(activeTabId);
+    } else {
+        renderBottomNav(activeTabId);
+    }
     renderNavigationDrawer(activeTabId);
 
     // Dynamic import to avoid circular dependencies
@@ -51,10 +57,10 @@ function renderBottomNav(activeTabId) {
             <div class="nav-item-content">
                 <div class="nav-icon-wrapper">
                     <span class="icon-outline">
-                        <orecalc-assets-svg name="${nameOutline}" fill="var(--text-secondary)"></orecalc-assets-svg>
+                        <orecalc-assets-svg name="${nameOutline}" fill="currentColor"></orecalc-assets-svg>
                     </span>
                     <span class="icon-filled">
-                        <orecalc-assets-svg name="${nameFilled}" fill="var(--accent-primary)"></orecalc-assets-svg>
+                        <orecalc-assets-svg name="${nameFilled}" fill="currentColor"></orecalc-assets-svg>
                     </span>
                 </div>
                 <span data-i18n="${tab.i18nKey}">${translate(tab.i18nKey)}</span>

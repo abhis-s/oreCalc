@@ -1,0 +1,447 @@
+@use '../abstracts/variables' as *;
+
+/* --- Liquid Glass UI for Apple Platform (iOS 26 / 27) --- */
+body.platform-apple {
+    .bottom-nav-bar {
+        position: fixed;
+        bottom: 16px;
+        left: 8px;
+        right: 8px;
+        width: calc(100% - 16px);
+        max-width: 480px;
+        margin: 0 auto;
+        height: 46px;
+        border-radius: 23px;
+        padding: 0;
+        --navbar-height: 46px;
+        --overlay-height: 46px;
+        --indicator-top: 4px;
+        --indicator-bottom: 4px;
+        --indicator-radius: 19px;
+        --indicator-height: 38px;
+        --lens-scale: 1;
+        
+        /* Reset default bottom nav styles to enable transparency/glassmorphism */
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        
+        transition: max-width 0.4s ease, height 0.4s ease, border-radius 0.4s ease, bottom 0.4s ease, padding 0.4s ease, transform 0.3s cubic-bezier(0.25, 1.25, 0.4, 1);
+        
+        &.grabbing {
+            height: 58px;
+            border-radius: 29px;
+            bottom: 10px; /* grow symmetrically from bottom too! */
+            --navbar-height: 58px;
+            --lens-scale: 1.75; /* larger than the enlarged inactive copy */
+            --active-indicator-bg: rgba(255, 255, 255, 0.03) !important;
+            cursor: grabbing;
+            
+            &::before {
+                background: rgba(255, 255, 255, 0.01) !important;
+                backdrop-filter: blur(1.5px) saturate(190%) !important;
+                -webkit-backdrop-filter: blur(1.5px) saturate(190%) !important;
+            }
+            
+            > .nav-button {
+                transform: scale(1.15);
+                opacity: 0.22 !important; /* make inactive copy more transparent */
+                color: rgba(255, 255, 255, 0.55) !important; /* keep text color consistent */
+                
+                &.under-lens {
+                    opacity: 0 !important; /* hide the ghost copy behind the lens */
+                }
+                
+                .icon-outline {
+                    display: block !important;
+                }
+                .icon-filled {
+                    display: none !important;
+                }
+                span {
+                    font-weight: 400 !important;
+                    color: currentColor !important;
+                }
+            }
+            
+            .active-indicator {
+                transition: none !important;
+                
+                &::after {
+                    transform: scale(var(--lens-scale, 1.75)); /* scale matches lens-scale exactly */
+                    backdrop-filter: blur(1px) !important; /* very minimum blur */
+                    -webkit-backdrop-filter: blur(1px) !important;
+                    transition: transform 0.2s ease !important;
+                }
+            }
+            
+            .active-overlay {
+                transition: none !important;
+                
+                .nav-button {
+                    transform: scale(1);
+                }
+            }
+        }
+        
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 0;
+            
+            /* Materiality: Translucent glassmorphism (frosted glass) - clearer blur */
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px) saturate(190%);
+            -webkit-backdrop-filter: blur(12px) saturate(190%);
+            
+            /* Dual-layer border details (iOS 27 Specular border & Floating shadow) */
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.35), /* Top specular highlight */
+                0 6px 20px rgba(0, 0, 0, 0.12),          /* Floating shadow */
+                0 1px 3px rgba(0, 0, 0, 0.2);            /* Dark bottom contrast edge */
+                
+            mask: url(#navbar-mask);
+            -webkit-mask: url(#navbar-mask);
+            transition: background-color 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease;
+        }
+            
+        contain: layout size;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    /* Active droplet indicator */
+    .active-indicator {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: var(--active-width, 56px);
+        height: 100%;
+        transform: translateY(-50%) translateX(var(--active-left, 0px));
+        transition: transform 0.45s cubic-bezier(0.25, 1.25, 0.4, 1), width 0.45s cubic-bezier(0.25, 1.25, 0.4, 1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+        z-index: 2; /* Sit above base buttons to hide them underneath */
+        
+        &::after {
+            content: '';
+            width: 100%;
+            height: var(--indicator-height, 50px);
+            background: var(--active-indicator-bg, rgba(255, 255, 255, 0.12));
+            border-radius: var(--indicator-radius, 25px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.05);
+            /* Extra frosting blur on the active droplet pill */
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            transform: scale(var(--lens-scale, 1));
+            transform-origin: center;
+            transition: background-color 0.4s ease-in-out, height 0.45s cubic-bezier(0.25, 1.25, 0.4, 1), border-radius 0.45s cubic-bezier(0.25, 1.25, 0.4, 1), transform 0.2s ease;
+        }
+    }
+
+    .nav-button {
+        position: relative;
+        z-index: 1; /* Sit below active indicator droplet background */
+        height: 100%;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: rgba(255, 255, 255, 0.55) !important; /* Muted white inactive */
+        transition: transform 0.3s cubic-bezier(0.25, 1.25, 0.4, 1);
+        
+        .icon-outline {
+            display: block;
+        }
+        .icon-filled {
+            display: none;
+        }
+        
+        span {
+            font-weight: 400 !important;
+            font-size: 10px !important;
+            margin-top: 2px !important;
+        }
+        
+        svg {
+            width: 20px !important;
+            height: 20px !important;
+        }
+        
+        .nav-item-content {
+            border-radius: 0;
+            background-color: transparent !important;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s, flex-direction 0.4s ease;
+        }
+        
+        .nav-icon-wrapper {
+            background-color: transparent !important;
+            width: auto !important;
+        }
+        
+        svg {
+            fill: currentColor !important;
+        }
+        
+        span {
+            color: currentColor !important;
+            transition: color 0.3s, margin-top 0.4s ease;
+        }
+        
+        &:hover {
+            .nav-icon-wrapper {
+                background-color: transparent !important;
+            }
+        }
+        
+        &.active {
+            /* Accessibility fallback when active-overlay is disabled */
+            @media (prefers-reduced-transparency: reduce) {
+                color: #ffffff !important;
+                .icon-outline {
+                    display: none;
+                }
+                .icon-filled {
+                    display: block;
+                }
+                span {
+                    font-weight: 600 !important;
+                }
+            }
+        }
+    }
+
+    /* Active overlay layer (reveal layer inside the lens) */
+    .active-overlay {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: var(--overlay-height, 46px); /* usual size */
+        border-radius: calc(var(--overlay-height, 46px) / 2); /* usual radius */
+        transform: translateY(-50%);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0;
+        pointer-events: none;
+        z-index: 3; /* Sit above active indicator (droplet) */
+        box-sizing: border-box;
+        
+        /* Glassmorphic border details at the usual size */
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 
+            inset 0 1px 0 rgba(255, 255, 255, 0.35),
+            0 6px 20px rgba(0, 0, 0, 0.12),
+            0 1px 3px rgba(0, 0, 0, 0.2);
+        
+        /* Glassmorphic active lens clip-path matching droplet bounds and radius */
+        clip-path: inset(
+            calc((var(--overlay-height, 46px) - var(--indicator-height, 38px) * var(--lens-scale, 1)) / 2)
+            calc(100% - (var(--active-left, 0px) + var(--active-width, 0px) / 2 + var(--active-width, 0px) * var(--lens-scale, 1) / 2))
+            calc((var(--overlay-height, 46px) - var(--indicator-height, 38px) * var(--lens-scale, 1)) / 2)
+            calc(var(--active-left, 0px) + var(--active-width, 0px) / 2 - var(--active-width, 0px) * var(--lens-scale, 1) / 2)
+            round calc(var(--indicator-radius, 19px) * var(--lens-scale, 1))
+        );
+        
+        transition: clip-path 0.45s cubic-bezier(0.25, 1.25, 0.4, 1), height 0.4s ease, border-radius 0.4s ease;
+        
+        .nav-button {
+            z-index: 2;
+            color: #ffffff !important; /* Pure white active */
+            transition: transform 0.2s ease;
+            
+            .icon-outline {
+                display: none;
+            }
+            .icon-filled {
+                display: block;
+            }
+            
+            span {
+                font-weight: 600 !important;
+            }
+        }
+    }
+
+    /* Spacing adjustments for other mobile overlays to clear the floating capsule nav */
+    .fab-container {
+        bottom: 74px !important;
+        transition: bottom 0.4s ease;
+    }
+
+    #toast-container {
+        bottom: 70px !important;
+        transition: bottom 0.4s ease;
+    }
+
+    @media (min-width: 500px) {
+        .bottom-nav-bar {
+            max-width: 600px;
+            height: 52px;
+            border-radius: 26px;
+            padding: 0;
+            --navbar-height: 52px;
+            --overlay-height: 52px;
+            --indicator-top: 4px;
+            --indicator-bottom: 4px;
+            --indicator-radius: 22px;
+            --indicator-height: 44px;
+            
+            &.grabbing {
+                height: 64px;
+                border-radius: 32px;
+                --navbar-height: 64px;
+            }
+        }
+        
+        .active-overlay {
+            height: var(--overlay-height, 52px);
+            border-radius: calc(var(--overlay-height, 52px) / 2);
+        }
+        
+        .nav-button {
+            svg {
+                width: 22px !important;
+                height: 22px !important;
+            }
+            
+            .nav-item-content {
+                flex-direction: row !important;
+                gap: 8px !important;
+            }
+            
+            span {
+                margin-top: 0 !important;
+                font-size: var(--font-size-sm) !important;
+            }
+        }
+        
+        .fab-container {
+            bottom: 80px !important;
+        }
+        
+        #toast-container {
+            bottom: 76px !important;
+        }
+    }
+}
+
+body.light-mode.platform-apple {
+    .bottom-nav-bar {
+        --active-indicator-bg: rgba(255, 255, 255, 0.18);
+        
+        &::before {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.5),
+                0 8px 32px rgba(0, 0, 0, 0.08),
+                0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+            
+        &.grabbing {
+            --active-indicator-bg: rgba(255, 255, 255, 0.06) !important;
+            
+            &::before {
+                background: rgba(255, 255, 255, 0.02) !important;
+            }
+        }
+    }
+    
+    .active-overlay {
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        box-shadow: 
+            inset 0 1px 0 rgba(255, 255, 255, 0.5),
+            0 8px 32px rgba(0, 0, 0, 0.08),
+            0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+}
+
+body.dark-mode.platform-apple {
+    .bottom-nav-bar {
+        --active-indicator-bg: rgba(255, 255, 255, 0.05);
+        
+        &::before {
+            background: rgba(26, 31, 43, 0.06); /* blend into deep blue app dark bg */
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.12),
+                0 8px 32px rgba(0, 0, 0, 0.28),
+                0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+            
+        &.grabbing {
+            --active-indicator-bg: rgba(255, 255, 255, 0.02) !important;
+            
+            &::before {
+                background: rgba(26, 31, 43, 0.02) !important;
+            }
+        }
+    }
+    
+    .active-overlay {
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        box-shadow: 
+            inset 0 1px 0 rgba(255, 255, 255, 0.12),
+            0 8px 32px rgba(0, 0, 0, 0.28),
+            0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* Accessible fallbacks under preferences */
+@media (prefers-reduced-transparency: reduce) {
+    body.platform-apple {
+        .bottom-nav-bar {
+            background: $bg-surface-secondary !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid $border-primary !important;
+            filter: none !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        .active-indicator::after {
+            background: var(--accent-primary-soft) !important;
+            transition: transform 0.2s ease-out !important;
+        }
+
+        .active-overlay {
+            display: none !important;
+        }
+    }
+}
+
+body.grabbing-nav {
+    .fab-container {
+        bottom: 86px !important;
+    }
+    #toast-container {
+        bottom: 82px !important;
+    }
+    
+    @media (min-width: 500px) {
+        .fab-container {
+            bottom: 92px !important;
+        }
+        #toast-container {
+            bottom: 88px !important;
+        }
+    }
+}
+
+

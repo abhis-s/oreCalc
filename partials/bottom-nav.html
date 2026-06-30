@@ -1,3 +1,15 @@
     <nav class="bottom-nav-bar">
         <!-- Tabs will be dynamically inserted here -->
     </nav>
+
+    <!-- SVG Refraction & Mask Filters for Liquid Glass UI -->
+    <svg style="position: absolute; width: 0; height: 0; pointer-events: none;">
+        <filter id="liquid-refraction">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <mask id="navbar-mask" maskUnits="userSpaceOnUse">
+            <rect class="mask-bg" fill="white" x="-100" y="-100" width="2000" height="1000" />
+            <rect class="mask-cutout" fill="black" x="0" y="0" width="0" height="0" rx="0" ry="0" />
+        </mask>
+    </svg>
