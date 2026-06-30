@@ -46,6 +46,7 @@ const highlightUpgradeRangesSwitch = document.getElementById('calendar-highlight
 const autoPlaceScopeSelect = document.getElementById('calendar-auto-place-scope-select');
 
 let currentView = 'monthly';
+let hasRendered = false;
 let isSwiping = false;
 let touchStartX = 0;
 let currentTranslate = 0;
@@ -556,6 +557,20 @@ function generateWeekGrid(date, plannerState) {
 
 export function renderCalendar(plannerState) {
     if (!plannerState || !plannerState.calendar?.view?.month) return;
+
+    const isPlannerTab = state.activeTab === 'planner-tab';
+    if (!isPlannerTab) {
+        plannerState.calendar.isDirty = true;
+        return;
+    }
+
+    if (plannerState.calendar.isDirty === false && hasRendered) {
+        return;
+    }
+
+    hasRendered = true;
+    plannerState.calendar.isDirty = false;
+
     checkAndGenerateRecurringChips();
     calendarTrack.innerHTML = '';
     

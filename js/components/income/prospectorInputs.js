@@ -285,7 +285,7 @@ export function renderProspector(prospectorState) {
         }
     }
 
-    if (dom.income.prospector.fromAmount) {
+    if (dom.income.prospector.fromAmount && dom.income.prospector.fromAmount.value !== String(fromAmount)) {
         dom.income.prospector.fromAmount.value = fromAmount;
     }
 

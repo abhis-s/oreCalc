@@ -69,27 +69,34 @@ export function addValidation(inputElement, { inputName = 'value' }) {
     let errorTimeout = null;
 
     const setInputStatus = (status, duration = 2000) => {
-        inputElement.classList.remove('input-status-warning', 'input-status-error', 'input-status-success', 'success-glow-pulse', 'soft-shake');
-        
-        // Force reflow
-        void inputElement.offsetWidth;
-
         if (status === 'warning') {
+            if (inputElement.classList.contains('input-status-warning')) {
+                return;
+            }
+            inputElement.classList.remove('input-status-error', 'input-status-success', 'success-glow-pulse', 'soft-shake');
             inputElement.classList.add('input-status-warning');
             if (warningTimeout) clearTimeout(warningTimeout);
             warningTimeout = setTimeout(() => {
                 inputElement.classList.remove('input-status-warning');
             }, duration);
         } else if (status === 'error') {
-            inputElement.classList.add('input-status-error');
-            inputElement.classList.add('soft-shake');
+            inputElement.classList.remove('input-status-warning', 'input-status-success', 'success-glow-pulse', 'soft-shake');
+            
+            // Force reflow for shake animation
+            void inputElement.offsetWidth;
+            
+            inputElement.classList.add('input-status-error', 'soft-shake');
             if (errorTimeout) clearTimeout(errorTimeout);
             errorTimeout = setTimeout(() => {
                 inputElement.classList.remove('input-status-error', 'soft-shake');
             }, duration);
         } else if (status === 'success') {
-            inputElement.classList.add('input-status-success');
-            inputElement.classList.add('success-glow-pulse');
+            inputElement.classList.remove('input-status-warning', 'input-status-error', 'input-status-success', 'success-glow-pulse', 'soft-shake');
+            
+            // Force reflow for success pulse
+            void inputElement.offsetWidth;
+            
+            inputElement.classList.add('input-status-success', 'success-glow-pulse');
             setTimeout(() => {
                 inputElement.classList.remove('input-status-success', 'success-glow-pulse');
             }, 600);

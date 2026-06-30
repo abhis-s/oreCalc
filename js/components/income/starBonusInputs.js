@@ -53,20 +53,27 @@ function renderLastEventOptions() {
         return;
     }
 
-    select.innerHTML = '';
-    const currentMonthBase = new Date();
-    currentMonthBase.setUTCDate(1);
+    const monthYearKey = `${currentYear}-${currentMonth}`;
+    const needsRebuild = select.dataset.renderedFrequency !== String(frequency) || select.dataset.renderedMonthYear !== monthYearKey || select.options.length === 0;
 
-    for (let i = 0; i < frequency; i++) {
-        const date = new Date(currentMonthBase);
-        date.setUTCMonth(date.getUTCMonth() - i);
-        
-        const monthLabel = formatDate(date, { month: 'short', year: '2-digit' });
-        
-        const option = document.createElement('option');
-        option.value = -i; // Negative offset
-        option.textContent = monthLabel;
-        select.appendChild(option);
+    if (needsRebuild) {
+        select.innerHTML = '';
+        const currentMonthBase = new Date();
+        currentMonthBase.setUTCDate(1);
+
+        for (let i = 0; i < frequency; i++) {
+            const date = new Date(currentMonthBase);
+            date.setUTCMonth(date.getUTCMonth() - i);
+            
+            const monthLabel = formatDate(date, { month: 'short', year: '2-digit' });
+            
+            const option = document.createElement('option');
+            option.value = -i; // Negative offset
+            option.textContent = monthLabel;
+            select.appendChild(option);
+        }
+        select.dataset.renderedFrequency = frequency;
+        select.dataset.renderedMonthYear = monthYearKey;
     }
 
     // The current saved offset relative to now
@@ -287,35 +294,43 @@ function renderStarBonusSelectorContent() {
 
     const floorLeagueId = townHallLeagueFloors[townHallLevel] || 0;
 
-    selectElement.innerHTML = '';
+    const currentLang = state.uiSettings.language || 'en';
+    const needsRebuild = selectElement.dataset.renderedThLevel !== String(townHallLevel) || selectElement.dataset.renderedLang !== currentLang || selectElement.options.length === 0;
 
-    // Always add Unranked
-    const unrankedLeague = leagueTiers.items.find(l => l.id === 105000000);
-    if (unrankedLeague) {
-        const option = document.createElement('option');
-        option.value = unrankedLeague.id;
-        const translationKey = 'leagues.' + unrankedLeague.name.toLowerCase()
-            .replace(/\./g, '')
-            .replace(/\s(i+)$/i, (match, p1) => p1.toUpperCase())
-            .replace(/\s/g, '_');
-        option.textContent = translate(translationKey);
-        selectElement.appendChild(option);
-    }
+    if (needsRebuild) {
+        selectElement.innerHTML = '';
 
-    leagueTiers.items.forEach(league => {
-        if (league.id !== 105000000) { // Exclude unranked as it's already added
-            if (floorLeagueId === 0 || league.id >= floorLeagueId) {
-                const option = document.createElement('option');
-                option.value = league.id;
-                const translationKey = 'leagues.' + league.name.toLowerCase()
-                    .replace(/\./g, '')
-                    .replace(/\s(i+)$/i, (match, p1) => p1.toUpperCase())
-                    .replace(/\s/g, '_');
-                option.textContent = translate(translationKey);
-                selectElement.appendChild(option);
-            }
+        // Always add Unranked
+        const unrankedLeague = leagueTiers.items.find(l => l.id === 105000000);
+        if (unrankedLeague) {
+            const option = document.createElement('option');
+            option.value = unrankedLeague.id;
+            const translationKey = 'leagues.' + unrankedLeague.name.toLowerCase()
+                .replace(/\./g, '')
+                .replace(/\s(i+)$/i, (match, p1) => p1.toUpperCase())
+                .replace(/\s/g, '_');
+            option.textContent = translate(translationKey);
+            selectElement.appendChild(option);
         }
-    });
+
+        leagueTiers.items.forEach(league => {
+            if (league.id !== 105000000) { // Exclude unranked as it's already added
+                if (floorLeagueId === 0 || league.id >= floorLeagueId) {
+                    const option = document.createElement('option');
+                    option.value = league.id;
+                    const translationKey = 'leagues.' + league.name.toLowerCase()
+                        .replace(/\./g, '')
+                        .replace(/\s(i+)$/i, (match, p1) => p1.toUpperCase())
+                        .replace(/\s/g, '_');
+                    option.textContent = translate(translationKey);
+                    selectElement.appendChild(option);
+                }
+            }
+        });
+
+        selectElement.dataset.renderedThLevel = townHallLevel;
+        selectElement.dataset.renderedLang = currentLang;
+    }
 
     if (selectedValue && Array.from(selectElement.options).some(opt => opt.value === selectedValue)) {
         selectElement.value = selectedValue;

@@ -143,7 +143,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
 
             const currentLevel = equipState.level || 1;
             if (levelDisplay) levelDisplay.textContent = currentLevel;
-            if (levelInput) levelInput.value = currentLevel;
+            if (levelInput && levelInput.value !== String(currentLevel)) levelInput.value = currentLevel;
 
             const maxLevel = parseInt(levelInput?.max || upgradeButton?.dataset.maxLevel, 10);
             const isMaxLevel = currentLevel >= maxLevel;

@@ -10,6 +10,9 @@ import { getSupercellEventsForYear } from './dateUtils.js';
 import { toCamelCase } from './stringUtils.js';
 import { getProspectorIncomeForDate } from '../incomeCalculations/prospectorManager.js';
 
+let lastEventsYear = null;
+let cachedEvents = null;
+
 export function getDailyIncomeFromCalendar(date) {
     const dailyIncome = { shiny: 0, glowy: 0, starry: 0 };
     const monthYearKey = `${String(date.getUTCMonth() + 1).padStart(2, '0')}-${date.getUTCFullYear()}`;
@@ -39,29 +42,40 @@ export function getDailyIncomeFromCalendar(date) {
     }
 
     if (state.income.supercellEvents && state.income.supercellEvents.worldChampionship) {
-        const supercellEvents = getSupercellEventsForYear(date.getUTCFullYear(), supercellEventsData);
-        supercellEvents.forEach((event) => {
-            const startDate = new Date(event.start);
-            const endDate = new Date(event.end);
-            
-            const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
-            const endUTC = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+        const year = date.getUTCFullYear();
+        if (year !== lastEventsYear || !cachedEvents) {
+            const rawEvents = getSupercellEventsForYear(year, supercellEventsData);
+            cachedEvents = rawEvents.map(event => {
+                const startDate = new Date(event.start);
+                const endDate = new Date(event.end);
+                
+                const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+                const endUTC = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
 
-            const diffDays = Math.round((endUTC - startUTC) / (1000 * 60 * 60 * 24));
-            const middleDayOffset = Math.floor(diffDays / 2);
-            const middleDateUTC = new Date(startUTC);
-            middleDateUTC.setUTCDate(startUTC.getUTCDate() + middleDayOffset);
+                const diffDays = Math.round((endUTC - startUTC) / (1000 * 60 * 60 * 24));
+                const middleDayOffset = Math.floor(diffDays / 2);
+                const middleDateUTC = new Date(startUTC);
+                middleDateUTC.setUTCDate(startUTC.getUTCDate() + middleDayOffset);
 
-            const checkDateUTC = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+                return {
+                    name: event.name,
+                    middleTime: middleDateUTC.getTime()
+                };
+            });
+            lastEventsYear = year;
+        }
 
-            if (checkDateUTC.getTime() === middleDateUTC.getTime()) {
+        const checkTime = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+
+        cachedEvents.forEach((event) => {
+            if (checkTime === event.middleTime) {
                 let rewardType = 'otherEvents';
                 if (event.name === 'Monthly Finals') rewardType = 'monthlyQualifiers';
                 else if (event.name === 'Last Chance Qualifier') rewardType = 'lastChanceQualifiers';
                 else if (event.name === 'World Finals') rewardType = 'worldChampionships';
 
-                let rewardsYear = date.getUTCFullYear();
-                if (!supercellEventsData.rewards[rewardsYear]) rewardsYear = date.getUTCFullYear() - 1;
+                let rewardsYear = year;
+                if (!supercellEventsData.rewards[rewardsYear]) rewardsYear = year - 1;
                 if (!supercellEventsData.rewards[rewardsYear]) {
                     const availableYears = Object.keys(supercellEventsData.rewards).map(Number).sort((a, b) => b - a);
                     rewardsYear = availableYears[0] || 2025;

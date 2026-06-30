@@ -44,7 +44,7 @@ export function initializeStorageInputs() {
 
 export function renderStorageInputs(storedOres) {
     const inputs = dom.equipment.storage.quantity;
-    if (inputs.shiny) inputs.shiny.value = storedOres.shiny || 0;
-    if (inputs.glowy) inputs.glowy.value = storedOres.glowy || 0;
-    if (inputs.starry) inputs.starry.value = storedOres.starry || 0;
+    if (inputs.shiny && inputs.shiny.value !== String(storedOres.shiny || 0)) inputs.shiny.value = storedOres.shiny || 0;
+    if (inputs.glowy && inputs.glowy.value !== String(storedOres.glowy || 0)) inputs.glowy.value = storedOres.glowy || 0;
+    if (inputs.starry && inputs.starry.value !== String(storedOres.starry || 0)) inputs.starry.value = storedOres.starry || 0;
 }

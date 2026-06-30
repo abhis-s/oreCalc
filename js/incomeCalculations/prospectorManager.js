@@ -296,18 +296,42 @@ export function getSprinkledPattern(conversions) {
     return items;
 }
 
+let lastCacheKey = '';
+let cachedPattern = null;
+
 /**
  * Get daily prospector income for a specific date, following the sprinkled pattern.
  */
 export function getProspectorIncomeForDate(date, state) {
-    const conversions = getProspectorConversions(state);
-    if (conversions.length === 0) {
+    const pState = state.income?.prospector || {};
+    const req = state.derived?.requiredOres || {};
+    
+    // Calculate base monthly income sum to detect income setting changes
+    let baseMonthlySum = 0;
+    if (state.derived?.incomeSources) {
+        for (const key in state.derived.incomeSources) {
+            if (key === 'prospector') continue;
+            const monthly = state.derived.incomeSources[key]?.monthly;
+            if (monthly) {
+                baseMonthlySum += (monthly.shiny || 0) + (monthly.glowy || 0) + (monthly.starry || 0);
+            }
+        }
+    }
+
+    const cacheKey = `${pState.goldPass}-${pState.assistedConversion}-${pState.fromOre}-${pState.toOre}-${pState.fromAmount}-${req.shiny}-${req.glowy}-${req.starry}-${baseMonthlySum}`;
+
+    if (cacheKey !== lastCacheKey || !cachedPattern) {
+        const conversions = getProspectorConversions(state);
+        cachedPattern = conversions.length > 0 ? getSprinkledPattern(conversions) : [];
+        lastCacheKey = cacheKey;
+    }
+
+    if (cachedPattern.length === 0) {
         return { shiny: 0, glowy: 0, starry: 0 };
     }
 
-    const pattern = getSprinkledPattern(conversions);
     const dayIndex = (date.getUTCDate() - 1) % 30;
-    const item = pattern[dayIndex];
+    const item = cachedPattern[dayIndex];
 
     if (!item || item.type === 'none') {
         return { shiny: 0, glowy: 0, starry: 0 };
