@@ -85,7 +85,8 @@ export const SVGs = {
     'view-cozy': {},
     'view-quilt': {},
     'cloud-lock': {},
-    'user': {}
+    'user': {},
+    'update': {}
 };
 
 /**

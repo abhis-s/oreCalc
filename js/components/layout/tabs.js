@@ -83,6 +83,13 @@ export function initializeTabs() {
 
         closeFabMenu();
 
+        // If clicking on Settings with update pending, trigger the update modal
+        if (button.dataset.tab === 'settings' && button.classList.contains('update-pending') && window.__WB__) {
+            import('../modals/updateModal.js').then(module => {
+                module.showUpdateModal(window.__WB__);
+            }).catch(err => console.error('Failed to show update modal:', err));
+        }
+
         const tabId = `${button.dataset.tab}-tab`;
         if (tabId === state.activeTab) return;
 

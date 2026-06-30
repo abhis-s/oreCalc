@@ -52,6 +52,13 @@ export function initializeNavigation() {
 
             const tab = event.target.closest('.navigation-drawer__tab');
             if (tab) {
+                // If clicking on Settings with update pending, trigger the update modal
+                if (tab.dataset.tab === 'settings' && tab.classList.contains('update-pending') && window.__WB__) {
+                    import('../modals/updateModal.js').then(module => {
+                        module.showUpdateModal(window.__WB__);
+                    }).catch(err => console.error('Failed to show update modal:', err));
+                }
+
                 const tabId = `${tab.dataset.tab}-tab`;
                 history.pushState(null, '', `#${tab.dataset.tab}`);
                 state.activeTab = tabId;

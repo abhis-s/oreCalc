@@ -84,6 +84,12 @@ async function handleResponseError(response) {
         return 'apiErrors.deletedUser';
     }
 
+    if (response.status === 426) {
+        localStorage.setItem('oreCalcUpdateDetectedAt', '1');
+        document.dispatchEvent(new CustomEvent('app:api-version-force-update'));
+        return 'apiErrors.updateRequired';
+    }
+
     let errorKey = `apiErrors.${response.status}`;
     try {
         const errorData = await response.json();

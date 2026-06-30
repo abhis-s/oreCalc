@@ -691,13 +691,83 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
     if ('serviceWorker' in navigator && 'workbox' in window) {
         const wb = new workbox.Workbox('/service-worker.js');
+        window.__WB__ = wb;
+
+        // Render any initial badge and settings card if an update is already pending
+        if (localStorage.getItem('oreCalcUpdateDetectedAt')) {
+            import('./components/modals/updateModal.js').then(m => {
+                m.updateNavigationBadges();
+                m.initSettingsUpdateCard(wb);
+            });
+        }
+
+        // Listen for server-forced update events (e.g., on 426 responses)
+        document.addEventListener('app:api-version-force-update', () => {
+            const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
+            const now = Date.now();
+            if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
+                logger.warn('Forced update reload loop detected. Aborting automatic reload.');
+                return;
+            }
+            sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
+            localStorage.removeItem('oreCalcUpdateDetectedAt');
+
+            wb.register().then(reg => {
+                if (reg && reg.waiting) {
+                    wb.addEventListener('controlling', () => {
+                        window.location.reload();
+                    });
+                    wb.messageSkipWaiting();
+                } else {
+                    window.location.reload(true); // Force reload from network to fetch updates
+                }
+            });
+        });
 
         wb.addEventListener('waiting', (event) => {
             logger.log('A new version is available. Showing update prompt.');
             import('./components/modals/updateModal.js').then(m => m.showUpdateModal(wb));
         });
 
-        wb.register().catch(err => logger.error('SW registration failed:', err));
+        wb.register().then(reg => {
+            if (reg) {
+                if (reg.waiting) {
+                    const detectedAtStr = localStorage.getItem('oreCalcUpdateDetectedAt');
+                    if (detectedAtStr) {
+                        const detectedAt = parseInt(detectedAtStr, 10);
+                        const limitMs = 48 * 60 * 60 * 1000;
+                        if (Date.now() - detectedAt >= limitMs) {
+                            // Safeguard to prevent infinite reload loops (e.g. if blocked by another tab)
+                            const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
+                            const now = Date.now();
+                            if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
+                                logger.warn('Forced update reload loop detected. Aborting automatic reload.');
+                                return;
+                            }
+
+                            sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
+                            localStorage.removeItem('oreCalcUpdateDetectedAt');
+
+                            wb.addEventListener('controlling', () => {
+                                window.location.reload();
+                            });
+                            wb.messageSkipWaiting();
+                        } else {
+                            // Pending update but within 48h - initialize settings card
+                            import('./components/modals/updateModal.js').then(m => m.initSettingsUpdateCard(wb));
+                        }
+                    }
+                } else {
+                    // Update finished or no update pending, clear the key
+                    localStorage.removeItem('oreCalcUpdateDetectedAt');
+                }
+
+                // Check for updates every 6 hours
+                setInterval(() => {
+                    wb.update().catch(err => logger.error('SW manual update check failed:', err));
+                }, 6 * 60 * 60 * 1000);
+            }
+        }).catch(err => logger.error('SW registration failed:', err));
     }
 
     // Start background cloud sync initialization after initial render is complete

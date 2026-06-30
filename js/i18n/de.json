@@ -617,6 +617,9 @@
     "status": {
         "updateAvailable": "Update Verfügbar",
         "updatePrompt": "Eine neue Version der Anwendung ist verfügbar. Lade die Seite neu, um die neuesten Funktionen und Korrekturen zu erhalten.",
+        "updateForcedIn": "Empfohlenes Update wird in {time} automatisch installiert.",
+        "updateAvailableMsg": "Eine neue Version der Anwendung ist verfügbar.",
+        "updateForcedShort": "Auto-Update in: {time}",
         "notice": "Hinweis",
         "confirm": "Bestätigen",
         "warning": "Warnung",

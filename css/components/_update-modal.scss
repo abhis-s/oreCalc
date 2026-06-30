@@ -3,15 +3,113 @@
 #update-available-modal {
     .modal-content {
         max-width: 400px;
-        gap: 1rem;
+    }
+
+    .modal-notice-footer {
+        font-size: 11px;
+        color: $text-muted;
+        line-height: 1.4;
+        text-align: left;
+        border-top: 1px solid $border-primary;
+        padding-top: 12px;
+        margin-top: 16px;
+
+        p {
+            margin: 0;
+        }
     }
 
     .modal-actions {
-        gap: 1rem;
-
         .reject-button,
         .accept-button {
             flex: 1;
+        }
+    }
+}
+
+// Settings page update available card layout and responsiveness
+#settings-update-card {
+    .settings-card {
+        border: 1px solid var(--accent-primary);
+        background: var(--accent-primary-soft);
+        padding: 16px 20px;
+        border-radius: 12px;
+        transition: border-color 0.3s, background-color 0.3s;
+    }
+
+    .update-card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .update-card-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 280px;
+
+        .update-card-message {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .info-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    .update-card-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+        flex-shrink: 0;
+
+        .update-card-timer {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin: 0;
+            white-space: nowrap;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .update-card-content {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .update-card-left {
+            justify-content: center;
+            min-width: unset;
+        }
+
+        .update-card-right {
+            align-items: center;
+
+            #settings-update-now-btn {
+                width: 100%;
+            }
         }
     }
 }

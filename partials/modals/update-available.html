@@ -1,13 +1,18 @@
-    <div id="update-available-modal" class="modal modal-centered">
+    <div id="update-available-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 data-i18n="status.updateAvailable">Update Available</h2>
-                <button id="close-update-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
-                    <orecalc-assets-svg name="close"></orecalc-assets-svg>
-                </button>
+                <div class="modal-header-actions">
+                    <button id="close-update-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+                        <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                    </button>
+                </div>
             </div>
             <div class="modal-body">
                 <p data-i18n="status.updatePrompt">A new version of the application is available. Reload to get the latest features and fixes.</p>
+                <div class="modal-notice-footer">
+                    <p id="update-force-countdown-text"></p>
+                </div>
             </div>
             <div class="modal-actions">
                 <button id="update-later-button" class="reject-button" data-i18n="actions.later">Later</button>

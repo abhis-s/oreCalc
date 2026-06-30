@@ -1,5 +1,22 @@
         <div class="tab-content" id="settings-tab">
             <div class="settings-cards-grid">
+                <div class="card-container full-width-card" id="settings-update-card" style="display: none; grid-column: 1 / -1; width: 100%;">
+                    <div class="settings-card card">
+                        <div class="update-card-content">
+                            <div class="update-card-left">
+                                <orecalc-assets-svg name="update" height="20" width="20" fill="var(--accent-primary)"></orecalc-assets-svg>
+                                <span class="update-card-message" data-i18n="status.updateAvailableMsg">A new version of the application is available.</span>
+                                <button class="info-btn" data-info="status.updatePrompt" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                    <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+                                </button>
+                            </div>
+                            <div class="update-card-right">
+                                <button id="settings-update-now-btn" class="accept-button animated-btn" style="background-color: var(--accent-primary); color: var(--bg-app); border: none; font-weight: 600; padding: 10px 24px; border-radius: 8px; cursor: pointer; transition: background-color 0.2s;" data-i18n="actions.reload">Reload</button>
+                                <p id="settings-update-countdown" class="update-card-timer"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card-container">
                     <div id="preferences-card" class="settings-card card">
                         <h2 class="card-title" data-i18n="settings.cards.preferences">Preferences</h2>
