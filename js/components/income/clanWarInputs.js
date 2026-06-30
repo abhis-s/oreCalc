@@ -125,7 +125,7 @@ export async function triggerWarLogFetch(clanTag) {
 
 function setupWarInputPopover(oreType, input) {
     registerInputPopover(input, {
-        title: translate('validation.amount'),
+        title: () => translate('validation.amount'),
         min: 0,
         showRecommended: true,
         recommended: () => {
@@ -175,7 +175,7 @@ export function initializeClanWarInputs() {
 
     addValidation(inputs.warsPerMonthInput, { inputName: translate('income.clanWar.warsPerMonth') });
     registerInputPopover(inputs.warsPerMonthInput, {
-        title: translate('income.clanWar.warsPerMonth'),
+        title: () => translate('income.clanWar.warsPerMonth'),
         min: 0,
         max: 15,
         showRecommended: true,
@@ -191,7 +191,7 @@ export function initializeClanWarInputs() {
 
     addValidation(inputs.warResults.winRateInput, { inputName: translate('income.winRate') });
     registerInputPopover(inputs.warResults.winRateInput, {
-        title: translate('income.winRate'),
+        title: () => translate('income.winRate'),
         min: 0,
         max: 100,
         showRange: true,
@@ -213,7 +213,7 @@ export function initializeClanWarInputs() {
 
     addValidation(inputs.warResults.drawRateInput, { inputName: translate('income.drawRate') });
     registerInputPopover(inputs.warResults.drawRateInput, {
-        title: translate('income.drawRate'),
+        title: () => translate('income.drawRate'),
         min: 0,
         max: 100,
         showRange: true,

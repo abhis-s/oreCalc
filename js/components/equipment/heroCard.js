@@ -92,14 +92,14 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
         ];
 
         registerInputPopover(input, {
-            title: translate('validation.level'),
+            title: () => translate('validation.level'),
             showRange: true,
             showRecommended: () => {
                 const equipItem = input.closest('.equipment-item');
                 const equipName = equipItem?.dataset.equipName;
                 return state.playerProfile?.ownedEquipment?.[equipName] !== undefined;
             },
-            recommendedLabel: translate('actions.reset') || 'Reset',
+            recommendedLabel: () => translate('actions.reset') || 'Reset',
             recommended: () => {
                 const equipItem = input.closest('.equipment-item');
                 const equipName = equipItem?.dataset.equipName;

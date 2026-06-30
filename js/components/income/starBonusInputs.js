@@ -363,7 +363,7 @@ export function initializeStarBonusSelector() {
     if (frequencyInput) {
         addValidation(frequencyInput, { inputName: translate('income.starBonus.eventFrequency') });
         registerInputPopover(frequencyInput, {
-            title: translate('income.starBonus.eventFrequency'),
+            title: () => translate('income.starBonus.eventFrequency'),
             min: 1,
             max: 4,
             showRange: true,
@@ -390,7 +390,7 @@ export function initializeStarBonusSelector() {
     if (durationInput) {
         addValidation(durationInput, { inputName: translate('income.starBonus.eventDuration') });
         registerInputPopover(durationInput, {
-            title: translate('income.starBonus.eventDuration'),
+            title: () => translate('income.starBonus.eventDuration'),
             min: 0,
             max: 7,
             showMin: true,

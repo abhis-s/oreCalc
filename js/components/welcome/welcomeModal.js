@@ -1218,7 +1218,7 @@ export function initializeWelcomeModal() {
     if (storedShinyInput) {
         addValidation(storedShinyInput, { inputName: translate('ores.shiny') || "Shiny Ore" });
         registerInputPopover(storedShinyInput, {
-            title: translate('ores.shiny') || "Shiny Ore",
+            title: () => translate('ores.shiny') || "Shiny Ore",
             min: 0,
             max: 50000,
             showRange: true,
@@ -1230,7 +1230,7 @@ export function initializeWelcomeModal() {
     if (storedGlowyInput) {
         addValidation(storedGlowyInput, { inputName: translate('ores.glowy') || "Glowy Ore" });
         registerInputPopover(storedGlowyInput, {
-            title: translate('ores.glowy') || "Glowy Ore",
+            title: () => translate('ores.glowy') || "Glowy Ore",
             min: 0,
             max: 5000,
             showRange: true,
@@ -1242,7 +1242,7 @@ export function initializeWelcomeModal() {
     if (storedStarryInput) {
         addValidation(storedStarryInput, { inputName: translate('ores.starry') || "Starry Ore" });
         registerInputPopover(storedStarryInput, {
-            title: translate('ores.starry') || "Starry Ore",
+            title: () => translate('ores.starry') || "Starry Ore",
             min: 0,
             max: 1000,
             showRange: true,
@@ -1254,7 +1254,7 @@ export function initializeWelcomeModal() {
     if (raidMedalsEarnedInput) {
         addValidation(raidMedalsEarnedInput, { inputName: translate('ores.raidMedal') || "Raid Medals" });
         registerInputPopover(raidMedalsEarnedInput, {
-            title: translate('ores.raidMedal') || "Raid Medals",
+            title: () => translate('ores.raidMedal') || "Raid Medals",
             min: 0,
             max: 1970,
             showRange: true,
@@ -1266,7 +1266,7 @@ export function initializeWelcomeModal() {
     if (raidMedalsShinyInput && raidMedalsShinyInput.tagName === 'INPUT') {
         addValidation(raidMedalsShinyInput, { inputName: `${translate('ores.shiny')} ${translate('shopOffers.packs') || 'Packs'}` });
         registerInputPopover(raidMedalsShinyInput, {
-            title: `${translate('ores.shiny')} ${translate('shopOffers.packs') || 'Packs'}`,
+            title: () => `${translate('ores.shiny')} ${translate('shopOffers.packs') || 'Packs'}`,
             min: 0,
             max: 2,
             showRange: true,
@@ -1278,7 +1278,7 @@ export function initializeWelcomeModal() {
     if (raidMedalsGlowyInput && raidMedalsGlowyInput.tagName === 'INPUT') {
         addValidation(raidMedalsGlowyInput, { inputName: `${translate('ores.glowy')} ${translate('shopOffers.packs') || 'Packs'}` });
         registerInputPopover(raidMedalsGlowyInput, {
-            title: `${translate('ores.glowy')} ${translate('shopOffers.packs') || 'Packs'}`,
+            title: () => `${translate('ores.glowy')} ${translate('shopOffers.packs') || 'Packs'}`,
             min: 0,
             max: 2,
             showRange: true,
@@ -1290,7 +1290,7 @@ export function initializeWelcomeModal() {
     if (raidMedalsStarryInput && raidMedalsStarryInput.tagName === 'INPUT') {
         addValidation(raidMedalsStarryInput, { inputName: `${translate('ores.starry')} ${translate('shopOffers.packs') || 'Packs'}` });
         registerInputPopover(raidMedalsStarryInput, {
-            title: `${translate('ores.starry')} ${translate('shopOffers.packs') || 'Packs'}`,
+            title: () => `${translate('ores.starry')} ${translate('shopOffers.packs') || 'Packs'}`,
             min: 0,
             max: 2,
             showRange: true,
@@ -1302,7 +1302,7 @@ export function initializeWelcomeModal() {
     if (clanWarsCountInput) {
         addValidation(clanWarsCountInput, { inputName: translate('income.clanWar.warsPerMonth') || "Wars per Month" });
         registerInputPopover(clanWarsCountInput, {
-            title: translate('income.clanWar.warsPerMonth') || "Wars per Month",
+            title: () => translate('income.clanWar.warsPerMonth') || "Wars per Month",
             min: 0,
             max: 15,
             showRange: true,
@@ -1314,7 +1314,7 @@ export function initializeWelcomeModal() {
     if (clanWarsWinrateInput) {
         addValidation(clanWarsWinrateInput, { inputName: translate('income.clanWar.winRate') || "Win Rate (%)" });
         registerInputPopover(clanWarsWinrateInput, {
-            title: translate('income.clanWar.winRate') || "Win Rate (%)",
+            title: () => translate('income.clanWar.winRate') || "Win Rate (%)",
             min: 0,
             max: 100,
             showRange: true,
@@ -1326,7 +1326,7 @@ export function initializeWelcomeModal() {
     if (cwlHitsInput) {
         addValidation(cwlHitsInput, { inputName: translate('welcome.quickSettings.cwlHits') || "Hits per Season" });
         registerInputPopover(cwlHitsInput, {
-            title: translate('welcome.quickSettings.cwlHits') || "Hits per Season",
+            title: () => translate('welcome.quickSettings.cwlHits') || "Hits per Season",
             min: 0,
             max: 7,
             showRange: true,
@@ -1338,7 +1338,7 @@ export function initializeWelcomeModal() {
     if (cwlWinrateInput) {
         addValidation(cwlWinrateInput, { inputName: translate('income.winRate') || "Win Rate (%)" });
         registerInputPopover(cwlWinrateInput, {
-            title: translate('income.winRate') || "Win Rate (%)",
+            title: () => translate('income.winRate') || "Win Rate (%)",
             min: 0,
             max: 100,
             showRange: true,
@@ -1350,7 +1350,7 @@ export function initializeWelcomeModal() {
     if (clanWarsDrawrateInput) {
         addValidation(clanWarsDrawrateInput, { inputName: translate('welcome.quickSettings.drawRate') || "Draw Rate (%)" });
         registerInputPopover(clanWarsDrawrateInput, {
-            title: translate('welcome.quickSettings.drawRate') || "Draw Rate (%)",
+            title: () => translate('welcome.quickSettings.drawRate') || "Draw Rate (%)",
             min: 0,
             max: 100,
             showRange: true,
@@ -1362,7 +1362,7 @@ export function initializeWelcomeModal() {
     if (cwlDrawrateInput) {
         addValidation(cwlDrawrateInput, { inputName: translate('welcome.quickSettings.drawRate') || "Draw Rate (%)" });
         registerInputPopover(cwlDrawrateInput, {
-            title: translate('welcome.quickSettings.drawRate') || "Draw Rate (%)",
+            title: () => translate('welcome.quickSettings.drawRate') || "Draw Rate (%)",
             min: 0,
             max: 100,
             showRange: true,
@@ -1375,7 +1375,7 @@ export function initializeWelcomeModal() {
     if (eventBonusMedalsInput) {
         addValidation(eventBonusMedalsInput, { inputName: translate('income.eventPass.bonusTrackMedals') || "Bonus Medals" });
         registerInputPopover(eventBonusMedalsInput, {
-            title: translate('income.eventPass.bonusTrackMedals') || "Bonus Medals",
+            title: () => translate('income.eventPass.bonusTrackMedals') || "Bonus Medals",
             min: 0,
             max: 2000,
             showRange: true,
@@ -1387,7 +1387,7 @@ export function initializeWelcomeModal() {
     if (eventPurchasedMedalsInput) {
         addValidation(eventPurchasedMedalsInput, { inputName: translate('income.eventPass.purchasedMedals') || "Purchased Medals" });
         registerInputPopover(eventPurchasedMedalsInput, {
-            title: translate('income.eventPass.purchasedMedals') || "Purchased Medals",
+            title: () => translate('income.eventPass.purchasedMedals') || "Purchased Medals",
             min: 0,
             max: 30000,
             showRange: true,

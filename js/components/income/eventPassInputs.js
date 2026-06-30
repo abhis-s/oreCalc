@@ -25,12 +25,12 @@ export function initializeEventPassInputs() {
     if (bonusTrackMedalsInput) {
         addValidation(bonusTrackMedalsInput, { inputName: translate('income.eventPass.bonusTrackMedals') });
         registerInputPopover(bonusTrackMedalsInput, {
-            title: translate('income.eventPass.bonusTrackMedals'),
+            title: () => translate('income.eventPass.bonusTrackMedals'),
             min: 0,
             max: 2000,
             showRecommended: true,
             recommended: 200,
-            recommendedLabel: translate('income.eventPass.previous') || 'Previous',
+            recommendedLabel: () => translate('income.eventPass.previous') || 'Previous',
             clickToFill: {
                 min: true,
                 max: true,
@@ -49,12 +49,12 @@ export function initializeEventPassInputs() {
         };
 
         registerInputPopover(purchasedMedalsInput, {
-            title: translate('income.eventPass.purchasedMedals'),
+            title: () => translate('income.eventPass.purchasedMedals'),
             min: 0,
             max: 30000,
             showRecommended: () => getRecommendedPurchased() > 0,
             recommended: getRecommendedPurchased,
-            recommendedLabel: translate('actions.recommendPurchase') || 'Recommend Purchase',
+            recommendedLabel: () => translate('actions.recommendPurchase') || 'Recommend Purchase',
             clickToFill: {
                 min: true,
                 max: true,

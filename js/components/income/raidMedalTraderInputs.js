@@ -37,7 +37,7 @@ export function initializeRaidMedalTrader() {
     });
     addValidation(earnedInput, { inputName: translate('ores.raidMedal') });
     registerInputPopover(earnedInput, {
-        title: translate('ores.raidMedal'),
+        title: () => translate('ores.raidMedal'),
         min: 0,
         max: 1970,
         showRecommended: () => {

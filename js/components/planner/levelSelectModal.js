@@ -257,7 +257,7 @@ function renderTableRows() {
 
         const input = tbody.querySelector(`#level-input-${i}`);
         registerInputPopover(input, {
-            title: translate('planner.level'),
+            title: () => translate('planner.level'),
             min: () => parseInt(input.getAttribute('min')) || 1,
             max: () => parseInt(input.getAttribute('max')) || 18,
             showRange: true,

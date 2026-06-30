@@ -629,7 +629,7 @@ export function initializeStoredOresModal() {
     if (shinyInput) {
         addValidation(shinyInput, { inputName: 'modal-stored-ore-shiny' });
         registerInputPopover(shinyInput, {
-            title: translate('ores.shiny'),
+            title: () => translate('ores.shiny'),
             min: 0,
             max: 50000,
             clickToFill: { max: true }
@@ -638,7 +638,7 @@ export function initializeStoredOresModal() {
     if (glowyInput) {
         addValidation(glowyInput, { inputName: 'modal-stored-ore-glowy' });
         registerInputPopover(glowyInput, {
-            title: translate('ores.glowy'),
+            title: () => translate('ores.glowy'),
             min: 0,
             max: 5000,
             clickToFill: { max: true }
@@ -647,7 +647,7 @@ export function initializeStoredOresModal() {
     if (starryInput) {
         addValidation(starryInput, { inputName: 'modal-stored-ore-starry' });
         registerInputPopover(starryInput, {
-            title: translate('ores.starry'),
+            title: () => translate('ores.starry'),
             min: 0,
             max: 1000,
             clickToFill: { max: true }

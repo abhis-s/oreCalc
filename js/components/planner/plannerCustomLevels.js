@@ -96,7 +96,7 @@ export function initializePlannerCustomLevels() {
 
         // Register custom input popover
         registerInputPopover(input, {
-            title: translate(level.i18n),
+            title: () => translate(level.i18n),
             min: 1,
             max: level.max,
             showRange: true,

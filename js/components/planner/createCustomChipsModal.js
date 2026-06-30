@@ -596,7 +596,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const extrasShiny = document.getElementById('custom-chip-extras-shiny');
     if (extrasShiny) {
         registerInputPopover(extrasShiny, {
-            title: translate('ores.shiny'),
+            title: () => translate('ores.shiny'),
             min: 0,
             max: 25000,
             showRange: true,
@@ -606,7 +606,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const extrasGlowy = document.getElementById('custom-chip-extras-glowy');
     if (extrasGlowy) {
         registerInputPopover(extrasGlowy, {
-            title: translate('ores.glowy'),
+            title: () => translate('ores.glowy'),
             min: 0,
             max: 2500,
             showRange: true,
@@ -616,7 +616,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const extrasStarry = document.getElementById('custom-chip-extras-starry');
     if (extrasStarry) {
         registerInputPopover(extrasStarry, {
-            title: translate('ores.starry'),
+            title: () => translate('ores.starry'),
             min: 0,
             max: 500,
             showRange: true,
@@ -626,7 +626,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const extrasCount = document.getElementById('custom-chip-extras-count');
     if (extrasCount) {
         registerInputPopover(extrasCount, {
-            title: translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
+            title: () => translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
             min: 1,
             max: 9,
             showRange: true,
@@ -638,7 +638,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const starBonusCount = document.getElementById('custom-chip-starBonus-count');
     if (starBonusCount) {
         registerInputPopover(starBonusCount, {
-            title: translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
+            title: () => translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
             min: 1,
             max: 15,
             showRange: true,
@@ -652,13 +652,13 @@ export function initializeCreateCustomChipsModalListeners() {
         if (!input) return;
         const limits = { shiny: 25000, glowy: 2500, starry: 500 };
         registerInputPopover(input, {
-            title: translate(`ores.${oreType}`),
+            title: () => translate(`ores.${oreType}`),
             min: 0,
             max: limits[oreType] || 25000,
             showRange: true,
             showRecommended: true,
             recommended: getRecFn,
-            recommendedLabel: translate('actions.reset') || 'Reset',
+            recommendedLabel: () => translate('actions.reset') || 'Reset',
             clickToFill: { max: true, recommended: true }
         });
     };
@@ -699,7 +699,7 @@ export function initializeCreateCustomChipsModalListeners() {
         if (!input) return;
         const limits = { shiny: 1110, glowy: 39, starry: 6 };
         registerInputPopover(input, {
-            title: translate('validation.amount'),
+            title: () => translate('validation.amount'),
             min: 0,
             max: limits[oreType] || 1110,
             showRecommended: true,
@@ -726,7 +726,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const clanWarCount = document.getElementById('custom-chip-clanWar-count');
     if (clanWarCount) {
         registerInputPopover(clanWarCount, {
-            title: translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
+            title: () => translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
             min: 1,
             max: 15,
             showRange: true,
@@ -741,7 +741,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const cwlCount = document.getElementById('custom-chip-cwl-count');
     if (cwlCount) {
         registerInputPopover(cwlCount, {
-            title: translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
+            title: () => translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
             min: 1,
             max: 7,
             showRange: true,
@@ -753,7 +753,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const prospectorFromAmount = document.getElementById('custom-chip-prospector-from-amount');
     if (prospectorFromAmount) {
         registerInputPopover(prospectorFromAmount, {
-            title: translate('income.prospector.fromOre') || 'From Ore',
+            title: () => translate('income.prospector.fromOre') || 'From Ore',
             min: 0,
             max: () => {
                 const fromOre = document.getElementById('custom-chip-prospector-from-ore')?.dataset.value || 'shiny';
@@ -783,7 +783,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const prospectorToAmount = document.getElementById('custom-chip-prospector-to-amount');
     if (prospectorToAmount) {
         registerInputPopover(prospectorToAmount, {
-            title: translate('income.prospector.toOre') || 'To Ore',
+            title: () => translate('income.prospector.toOre') || 'To Ore',
             min: 0,
             max: () => {
                 const toOre = document.getElementById('custom-chip-prospector-to-ore')?.dataset.value || 'glowy';
@@ -819,7 +819,7 @@ export function initializeCreateCustomChipsModalListeners() {
     const prospectorCount = document.getElementById('custom-chip-prospector-count');
     if (prospectorCount) {
         registerInputPopover(prospectorCount, {
-            title: translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
+            title: () => translate('planner.createCustomChipsModal.numChips') || 'Number of chips',
             min: 1,
             max: 30,
             showRange: true,

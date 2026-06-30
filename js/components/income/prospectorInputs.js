@@ -300,7 +300,7 @@ export function initializeProspector() {
     // --- Add Validation ---
     addValidation(dom.income.prospector.fromAmount, { inputName: translate('validation.amount') });
     registerInputPopover(dom.income.prospector.fromAmount, {
-        title: translate('income.prospector.fromOre') || 'From Ore',
+        title: () => translate('income.prospector.fromOre') || 'From Ore',
         min: 0,
         max: () => {
             const fromOre = dom.income.prospector.fromOre?.dataset.value || 'shiny';

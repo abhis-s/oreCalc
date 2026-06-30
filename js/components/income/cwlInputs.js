@@ -375,7 +375,7 @@ export async function triggerCwlLogFetch(clanTag) {
 
 function setupWarInputPopover(oreType, input) {
     registerInputPopover(input, {
-        title: translate('validation.amount'),
+        title: () => translate('validation.amount'),
         min: 0,
         showRecommended: true,
         recommended: () => {
@@ -425,7 +425,7 @@ export function initializeCwlInputs() {
 
     addValidation(inputs.hitsPerSeasonInput, { inputName: translate('income.cwl.hitsPerSeason') });
     registerInputPopover(inputs.hitsPerSeasonInput, {
-        title: translate('income.cwl.hitsPerSeason'),
+        title: () => translate('income.cwl.hitsPerSeason'),
         min: 0,
         max: 7,
         showRecommended: true,
@@ -441,7 +441,7 @@ export function initializeCwlInputs() {
 
     addValidation(inputs.warResults.winRateInput, { inputName: translate('income.winRate') });
     registerInputPopover(inputs.warResults.winRateInput, {
-        title: translate('income.winRate'),
+        title: () => translate('income.winRate'),
         min: 0,
         max: 100,
         showRange: true,
@@ -458,7 +458,7 @@ export function initializeCwlInputs() {
 
     addValidation(inputs.warResults.drawRateInput, { inputName: translate('income.drawRate') });
     registerInputPopover(inputs.warResults.drawRateInput, {
-        title: translate('income.drawRate'),
+        title: () => translate('income.drawRate'),
         min: 0,
         max: 100,
         showRange: true,

@@ -19,7 +19,7 @@ function addListenerToInput(oreType) {
     addValidation(input, { inputName: `${oreType} Ore` });
     
     registerInputPopover(input, {
-        title: translate(`ores.${oreType}`),
+        title: () => translate(`ores.${oreType}`),
         min: 0,
         max: maxValues[oreType],
         placement: 'prefer-below',

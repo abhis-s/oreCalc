@@ -59,7 +59,7 @@ export function renderEventTraderGrid(eventTraderState) {
                     
                     if (oreType === 'shiny') {
                         registerInputPopover(input, {
-                            title: translate('ores.shiny'),
+                            title: () => translate('ores.shiny'),
                             min: 0,
                             max: offer.maxPacks,
                             showRecommended: false,
@@ -84,7 +84,7 @@ export function renderEventTraderGrid(eventTraderState) {
                         };
 
                         registerInputPopover(input, {
-                            title: translate('ores.' + oreType),
+                            title: () => translate('ores.' + oreType),
                             min: 0,
                             max: offer.maxPacks,
                             showRecommended: () => getRecommendedVal() > 0,

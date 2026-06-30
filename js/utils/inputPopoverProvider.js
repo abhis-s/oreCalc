@@ -49,7 +49,12 @@ export function registerInputPopover(inputElement, options = {}) {
         return !!options.showRecommended;
     };
     
-    const titleText = options.title || '';
+    const getTitleText = () => {
+        if (typeof options.title === 'function') {
+            return options.title();
+        }
+        return options.title !== undefined ? options.title : '';
+    };
     const enableValidationColoring = options.enableValidationColoring !== false;
 
     const clickToFill = {
@@ -171,6 +176,7 @@ export function registerInputPopover(inputElement, options = {}) {
         let html = '';
 
         // Render Title
+        const titleText = getTitleText();
         if (showTitle && titleText) {
             html += `<div class="popover-title">${titleText}</div>`;
         }
