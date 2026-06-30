@@ -253,7 +253,7 @@ function createDayCell(date, plannerState) {
         dayCell.addEventListener('mouseleave', handleDayCellMouseLeave);
     }
 
-    const monthYearKey = `${displayMonth}-${displayYear}`;
+    const monthYearKey = `${displayYear}-${displayMonth}`;
     const chipsOnThisDay = plannerState.calendar.dates[monthYearKey]?.[displayDay] || [];
 
     const chipsToRender = [];
@@ -326,11 +326,11 @@ function createDayCell(date, plannerState) {
             originalMonth = date.getUTCMonth();
             originalYear = displayYear;
         } else {
-            // ID: [type]-[instance]-[month]-[year]-cal
+            // ID: [type]-[instance]-[year]-[month]-cal
             type = parts[0];
             instance = parseInt(parts[1], 10);
-            const originalMonthNum = parseInt(parts[2], 10);
-            const originalYearNum = parseInt(parts[3], 10);
+            const originalYearNum = parseInt(parts[2], 10);
+            const originalMonthNum = parseInt(parts[3], 10);
             originalMonth = !isNaN(originalMonthNum) ? (originalMonthNum - 1) : date.getUTCMonth();
             originalYear = !isNaN(originalYearNum) ? originalYearNum : displayYear;
         }
@@ -585,7 +585,7 @@ export function renderCalendar(plannerState) {
 
     if (currentView === 'monthly') {
         calendarTrack.classList.remove('weekly-view-grid');
-        const [monthStr, yearStr] = plannerState.calendar.view.month.split('-');
+        const [yearStr, monthStr] = plannerState.calendar.view.month.split('-');
         const currentYear = parseInt(yearStr, 10);
         const currentMonth = parseInt(monthStr, 10) - 1;
 
@@ -617,7 +617,7 @@ export function renderCalendar(plannerState) {
         renderIncomeChips(currentYear, currentMonth);
     } else if (currentView === 'weekly') {
         calendarTrack.classList.add('weekly-view-grid');
-        const [weekStr, yearStr] = plannerState.calendar.view.week.split('-');
+        const [yearStr, weekStr] = plannerState.calendar.view.week.split('-');
         const currentYear = parseInt(yearStr, 10);
         const currentWeek = parseInt(weekStr, 10);
 
@@ -714,8 +714,8 @@ function shiftNext() {
         return;
     }
 
-    const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
-    const [weekStr, weeklyYearStr] = state.planner.calendar.view.week.split('-');
+    const [yearStr, monthStr] = state.planner.calendar.view.month.split('-');
+    const [weeklyYearStr, weekStr] = state.planner.calendar.view.week.split('-');
 
     if (currentView === 'monthly') {
         const currentYear = parseInt(yearStr, 10);
@@ -748,18 +748,18 @@ function onNextReady() {
     isTransitioning = false;
 
     if (currentView === 'monthly') {
-        const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
+        const [yearStr, monthStr] = state.planner.calendar.view.month.split('-');
         const oldYear = parseInt(yearStr, 10);
         const oldMonth0Index = parseInt(monthStr, 10) - 1;
         const newCurrentDate = new Date(Date.UTC(oldYear, oldMonth0Index + 1, 1));
         const [newWeekYear, newWeekNo] = getISOWeekNumber(newCurrentDate);
 
         handleStateUpdate(() => {
-            state.planner.calendar.view.month = `${String(newCurrentDate.getUTCMonth() + 1).padStart(2, '0')}-${newCurrentDate.getUTCFullYear()}`;
-            state.planner.calendar.view.week = `${newWeekNo}-${newWeekYear}`;
+            state.planner.calendar.view.month = `${newCurrentDate.getUTCFullYear()}-${String(newCurrentDate.getUTCMonth() + 1).padStart(2, '0')}`;
+            state.planner.calendar.view.week = `${newWeekYear}-${String(newWeekNo).padStart(2, '0')}`;
         });
     } else {
-        const [weekStr, yearStr] = state.planner.calendar.view.week.split('-');
+        const [yearStr, weekStr] = state.planner.calendar.view.week.split('-');
         const currentWeek = parseInt(weekStr, 10);
         const currentYear = parseInt(yearStr, 10);
 
@@ -784,8 +784,8 @@ function onNextReady() {
         }
 
         handleStateUpdate(() => {
-            state.planner.calendar.view.week = `${nextWeekNumber}-${nextWeekYear}`;
-            state.planner.calendar.view.month = `${String(nextMonth).padStart(2, '0')}-${nextYearOfMonth}`;
+            state.planner.calendar.view.week = `${nextWeekYear}-${String(nextWeekNumber).padStart(2, '0')}`;
+            state.planner.calendar.view.month = `${nextYearOfMonth}-${String(nextMonth).padStart(2, '0')}`;
         });
     }
 
@@ -795,8 +795,8 @@ function onNextReady() {
 
 function shiftPrev() {
     if (isTransitioning) return;
-    const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
-    const [weekStr, weeklyYearStr] = state.planner.calendar.view.week.split('-');
+    const [yearStr, monthStr] = state.planner.calendar.view.month.split('-');
+    const [weeklyYearStr, weekStr] = state.planner.calendar.view.week.split('-');
 
     if (currentView === 'monthly') {
         if (parseInt(yearStr, 10) <= getMinDate().year && parseInt(monthStr, 10) <= getMinDate().month) {
@@ -818,18 +818,18 @@ function shiftPrev() {
 
 function onPrevReady() {
     if (currentView === 'monthly') {
-        const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
+        const [yearStr, monthStr] = state.planner.calendar.view.month.split('-');
         const oldYear = parseInt(yearStr, 10);
         const oldMonth0Index = parseInt(monthStr, 10) - 1;
         const newCurrentDate = new Date(Date.UTC(oldYear, oldMonth0Index - 1, 1));
         const [newWeekYear, newWeekNo] = getISOWeekNumber(newCurrentDate);
 
         handleStateUpdate(() => {
-            state.planner.calendar.view.month = `${String(newCurrentDate.getUTCMonth() + 1).padStart(2, '0')}-${newCurrentDate.getUTCFullYear()}`;
-            state.planner.calendar.view.week = `${newWeekNo}-${newWeekYear}`;
+            state.planner.calendar.view.month = `${newCurrentDate.getUTCFullYear()}-${String(newCurrentDate.getUTCMonth() + 1).padStart(2, '0')}`;
+            state.planner.calendar.view.week = `${newWeekYear}-${String(newWeekNo).padStart(2, '0')}`;
         });
     } else {
-        let [weekStr, yearStr] = state.planner.calendar.view.week.split('-');
+        let [yearStr, weekStr] = state.planner.calendar.view.week.split('-');
         let week = parseInt(weekStr, 10) - 1;
         let year = parseInt(yearStr, 10);
         
@@ -856,8 +856,8 @@ function onPrevReady() {
         }
 
         handleStateUpdate(() => {
-            state.planner.calendar.view.week = `${week}-${year}`;
-            state.planner.calendar.view.month = `${String(newMonth).padStart(2, '0')}-${newYearOfMonth}`;
+            state.planner.calendar.view.week = `${year}-${String(week).padStart(2, '0')}`;
+            state.planner.calendar.view.month = `${newYearOfMonth}-${String(newMonth).padStart(2, '0')}`;
         });
     }
 
@@ -1038,8 +1038,8 @@ function handleWeekChipClick(e) {
 
 function updateActiveChip() {
     if (!state.planner || !state.planner.calendar.view.month || !state.planner.calendar.view.week) return;
-    const [currentMonth, currentYear] = state.planner.calendar.view.month.split('-');
-    const [currentWeek, currentWeekYear] = state.planner.calendar.view.week.split('-');
+    const [currentYear, currentMonth] = state.planner.calendar.view.month.split('-');
+    const [currentWeekYear, currentWeek] = state.planner.calendar.view.week.split('-');
 
     const chips = monthChipContainer.querySelectorAll('.month-chip');
     
@@ -1128,18 +1128,18 @@ export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
 
     handleStateUpdate(() => {
         const [year, month, day] = targetDate.split('-');
-        const monthYearKey = `${month}-${year}`;
+        const monthYearKey = `${year}-${month}`;
 
         let swapped = false;
         if (incomeChipData.type === 'prospector' && incomeChipData.originalDate) {
             const [origYear, origMonth, origDay] = incomeChipData.originalDate.split('-');
-            const origMonthYearKey = `${origMonth}-${origYear}`;
+            const origMonthYearKey = `${origYear}-${origMonth}`;
 
             const targetChips = state.planner.calendar.dates[monthYearKey]?.[day] || [];
             let targetProspectorId = targetChips.find(id => id.replace(/^custom-/, '').startsWith('prospector'));
             
             if (!targetProspectorId && state.income.prospector && state.income.prospector.goldPass) {
-                targetProspectorId = `prospector-${parseInt(day, 10)}-${month}-${year}-cal`;
+                targetProspectorId = `prospector-${parseInt(day, 10)}-${year}-${month}-cal`;
             }
             
             if (targetProspectorId) {
@@ -1360,7 +1360,7 @@ export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
 
     renderCalendar(state.planner);
     if (state.planner?.calendar?.view?.month) {
-        renderIncomeChips(state.planner.calendar.view.month.split('-')[1], parseInt(state.planner.calendar.view.month.split('-')[0], 10) - 1);
+        renderIncomeChips(state.planner.calendar.view.month.split('-')[0], parseInt(state.planner.calendar.view.month.split('-')[1], 10) - 1);
     }
 
     // Add pulse effect for confirmation
@@ -1472,8 +1472,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm) return;
         handleStateUpdate(() => {
             if (!state.planner?.calendar?.view?.month) return;
-            const [month, year] = state.planner.calendar.view.month.split('-');
-            const monthYearKey = `${month}-${year}`;
+            const [year, month] = state.planner.calendar.view.month.split('-');
+            const monthYearKey = `${year}-${month}`;
             if (state.planner.calendar.dates[monthYearKey]) {
                 delete state.planner.calendar.dates[monthYearKey];
             }
@@ -1493,14 +1493,14 @@ document.addEventListener('DOMContentLoaded', () => {
         animateNextRender = true;
         renderCalendar(state.planner);
         if (state.planner?.calendar?.view?.month) {
-            const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
+            const [yearStr, monthStr] = state.planner.calendar.view.month.split('-');
             renderIncomeChips(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1);
         }
     });
 
     if (autoPlaceChipsBtn) {
         autoPlaceChipsBtn.addEventListener('click', () => {
-            const [monthStr, yearStr] = state.planner.calendar.view.month.split('-');
+            const [yearStr, monthStr] = state.planner.calendar.view.month.split('-');
             setAnimateNextRender('auto-placed');
             autoPlaceIncomeChips(monthStr, yearStr);
         });

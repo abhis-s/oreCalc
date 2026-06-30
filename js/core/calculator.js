@@ -28,9 +28,7 @@ export function recalculateAll(state) {
     const baseIncomeSources = {
         starBonus: calculateStarBonusIncome(
             state.income.starBonus?.league || 105000000,
-            state.income.starBonus?.eventFrequency ?? 2,
-            state.income.starBonus?.eventDuration ?? 5,
-            state.income.starBonus?.thUpgrades || {}
+            state.income.starBonus || {}
         ),
         supercellEvents: calculateSupercellEventsIncome(supercellEventsState.worldChampionship),
         clanWar: calculateClanWarIncome(state.income.clanWar),
@@ -104,7 +102,7 @@ export function recalculateAll(state) {
         totalMonthlyIncome[currencyCode] = 0;
     }
 
-    const timeframe = state.uiSettings.incomeCard?.timeframe || 'monthly';
+    const timeframe = state.uiSettings.summaryTimeframe || 'monthly';
     for (const source in incomeSources) {
         const timeframeIncome = incomeSources[source]?.[timeframe];
         const monthlyIncome = incomeSources[source]?.['monthly'];

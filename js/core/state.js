@@ -33,10 +33,7 @@ export function getDefaultState() {
                 tos: null,
                 welcome: null
             },
-            incomeCard: {
-                timeframe: 'monthly',
-                expanded: true
-            },
+            summaryTimeframe: 'monthly',
             cardLayout: 'cozy'
         },
 
@@ -75,10 +72,15 @@ function getDefaultPlayerStateProperties() {
             prospector: {
                 fromOre: 'shiny',
                 toOre: 'glowy',
+                assistedConversion: true
             },
             starBonus: {
-                eventFrequency: 2,
-                eventDuration: 5,
+                league: 105000000,
+                "2x": {
+                    frequency: 2,
+                    duration: 5,
+                    lastEvent: '2026-05'
+                },
                 thUpgrades: {}
             }
         },
@@ -94,8 +96,8 @@ function getDefaultPlayerStateProperties() {
                 },
                 view: {
                     select: 'monthly',
-                    month: `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`,
-                    week: `${weekNo}-${year}`,
+                    month: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`,
+                    week: `${year}-${String(weekNo).padStart(2, '0')}`,
                 },
                 dates: {},
                 isDirty: true,
@@ -292,8 +294,8 @@ export function initializeState(savedState) {
 function ensureStateDefaults(s) {
     const now = new Date();
     const [year, weekNo] = getISOWeekNumber(now);
-    const defaultMonth = `${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
-    const defaultWeek = `${weekNo}-${year}`;
+    const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const defaultWeek = `${year}-${String(weekNo).padStart(2, '0')}`;
 
     if (s.allPlayersData) {
         for (const tag in s.allPlayersData) {
@@ -337,8 +339,8 @@ function ensureStateDefaults(s) {
                 ps.planner.calendar.view.month = defaultMonth;
             } else {
                 const parts = ps.planner.calendar.view.month.split('-');
-                const m = parseInt(parts[0], 10);
-                const y = parseInt(parts[1], 10);
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10);
                 const currentMonthNow = now.getMonth() + 1;
                 const currentYearNow = now.getFullYear();
                 if (isNaN(m) || isNaN(y) || y < currentYearNow || (y === currentYearNow && m < currentMonthNow)) {
@@ -350,8 +352,8 @@ function ensureStateDefaults(s) {
                 ps.planner.calendar.view.week = defaultWeek;
             } else {
                 const parts = ps.planner.calendar.view.week.split('-');
-                const w = parseInt(parts[0], 10);
-                const y = parseInt(parts[1], 10);
+                const y = parseInt(parts[0], 10);
+                const w = parseInt(parts[1], 10);
                 if (isNaN(w) || isNaN(y) || y < year || (y === year && w < weekNo)) {
                     ps.planner.calendar.view.week = defaultWeek;
                 }

@@ -256,7 +256,7 @@ export function renderProspector(prospectorState) {
     if (!prospectorState) return;
 
     const goldPass = prospectorState.goldPass || false;
-    const assistedConversion = prospectorState.assistedConversion || false;
+    const assistedConversion = prospectorState.assistedConversion !== undefined ? prospectorState.assistedConversion : true;
     const fromOre = prospectorState.fromOre || 'shiny';
     const toOre = prospectorState.toOre || 'glowy';
     const fromAmount = prospectorState.fromAmount || 0;

@@ -96,7 +96,7 @@ export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, en
 
     // Render the active view month once at the end
     if (state.planner?.calendar?.view?.month) {
-        const [viewMonthStr, viewYearStr] = state.planner.calendar.view.month.split('-');
+        const [viewYearStr, viewMonthStr] = state.planner.calendar.view.month.split('-');
         const viewMonth = parseInt(viewMonthStr, 10) - 1;
         const viewYear = parseInt(viewYearStr, 10);
 
@@ -110,7 +110,7 @@ export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, en
 function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalendarDates) {
     const currentMonth = parseInt(currentMonthStr, 10) - 1;
     const currentYear = parseInt(currentYearStr, 10);
-    const monthYearKey = `${String(currentMonth + 1).padStart(2, '0')}-${currentYear}`;
+    const monthYearKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
     if (!newCalendarDates[monthYearKey]) {
         newCalendarDates[monthYearKey] = {};
@@ -233,7 +233,7 @@ function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalend
                 for (const day in searchDates) {
                     const chipsOnDay = searchDates[day];
                     for (const historicalChipId of chipsOnDay) {
-                        const [type, instanceStr, monthStr, yearStr] = historicalChipId.split('-');
+                        const [type, instanceStr, yearStr, monthStr] = historicalChipId.split('-');
                         if (type === chip.type && parseInt(instanceStr, 10) === chip.instance) {
                             let targetDay = null;
                             const historicalDay = parseInt(day, 10);
@@ -270,7 +270,7 @@ function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalend
                             }
 
                             if (targetDay !== null) {
-                                const newChipId = `${chip.type}-${String(chip.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
+                                const newChipId = `${chip.type}-${String(chip.instance).padStart(2, '0')}-${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-cal-auto`;
                                 const paddedTargetDay = String(targetDay).padStart(2, '0');
                                 if (!newCalendarDates[monthYearKey][paddedTargetDay]) {
                                     newCalendarDates[monthYearKey][paddedTargetDay] = [];
@@ -357,7 +357,7 @@ function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalend
             const targetDay = targetDate.getUTCDate();
             const paddedTargetDay = String(targetDay).padStart(2, '0');
 
-            const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
+            const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-cal-auto`;
 
             if (!newCalendarDates[monthYearKey][paddedTargetDay]) {
                 newCalendarDates[monthYearKey][paddedTargetDay] = [];
@@ -385,7 +385,7 @@ function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalend
                 const chipToPlace = cwlChipsToPlaceActual[placedCount];
                 const targetDay = appendDate.getUTCDate();
                 const paddedTargetDay = String(targetDay).padStart(2, '0');
-                const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
+                const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-cal-auto`;
 
                 if (!newCalendarDates[monthYearKey][paddedTargetDay]) newCalendarDates[monthYearKey][paddedTargetDay] = [];
                 const hasConflict = newCalendarDates[monthYearKey][paddedTargetDay].some(id => idMatchesType(id, 'cwl-'));
@@ -518,7 +518,7 @@ function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalend
         }
 
         if (targetDay !== null) {
-            const newChipId = `${chip.type}-${String(chip.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
+            const newChipId = `${chip.type}-${String(chip.instance).padStart(2, '0')}-${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-cal-auto`;
             const paddedTargetDay = String(targetDay).padStart(2, '0');
             if (!newCalendarDates[monthYearKey][paddedTargetDay]) newCalendarDates[monthYearKey][paddedTargetDay] = [];
             
@@ -638,7 +638,7 @@ function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalend
             if (placementDay === -1) break;
 
             const chipToPlace = allClanWarChips[placedCount];
-            const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}-cal-auto`;
+            const newChipId = `${chipToPlace.type}-${String(chipToPlace.instance).padStart(2, '0')}-${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-cal-auto`;
             const paddedDay = String(placementDay).padStart(2, '0');
             if (!newCalendarDates[monthYearKey][paddedDay]) newCalendarDates[monthYearKey][paddedDay] = [];
             newCalendarDates[monthYearKey][paddedDay].push(newChipId);

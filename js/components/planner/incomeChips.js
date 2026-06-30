@@ -421,7 +421,7 @@ export function handleChipDropOnContainer(incomeChipData) {
     setTimeout(() => {
         renderCalendar(state.planner);
         if (state.planner?.calendar?.view?.month) {
-            renderIncomeChips(state.planner.calendar.view.month.split('-')[1], parseInt(state.planner.calendar.view.month.split('-')[0], 10) - 1);
+            renderIncomeChips(state.planner.calendar.view.month.split('-')[0], parseInt(state.planner.calendar.view.month.split('-')[1], 10) - 1);
         }
     }, 0);
 }

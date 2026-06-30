@@ -35,7 +35,7 @@ import { renderTabs } from '../components/layout/tabs.js';
 
 
 export function renderApp(state) {
-    const timeframe = state.uiSettings.incomeCard?.timeframe || 'monthly';
+    const timeframe = state.uiSettings.summaryTimeframe || 'monthly';
     const incomeSources = state.derived.incomeSources;
     const remainingTime = state.derived.remainingTime;
 

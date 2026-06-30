@@ -257,8 +257,8 @@ export function reindexCalendarChips(chipType) {
                 const parts = chipId.split('-');
                 const type = parts[0];
                 const instance = parseInt(parts[1], 10);
-                const month = parseInt(parts[2], 10) - 1;
-                const year = parseInt(parts[3], 10);
+                const year = parseInt(parts[2], 10);
+                const month = parseInt(parts[3], 10) - 1;
                 const date = new Date(Date.UTC(year, month, parseInt(dayStr, 10)));
 
                 const incomeSource = getSourceById(type);
@@ -293,8 +293,9 @@ export function reindexCalendarChips(chipType) {
                 }
 
                 const newInstanceStr = String(newInstance).padStart(2, '0');
-                const newMonthStr = String(parseInt(chip.monthYearKey.split('-')[0], 10)).padStart(2, '0');
-                let newChipId = `${chip.type}-${newInstanceStr}-${newMonthStr}-${chip.monthYearKey.split('-')[1]}-cal`;
+                const newYearStr = chip.monthYearKey.split('-')[0];
+                const newMonthStr = String(parseInt(chip.monthYearKey.split('-')[1], 10)).padStart(2, '0');
+                let newChipId = `${chip.type}-${newInstanceStr}-${newYearStr}-${newMonthStr}-cal`;
                 if (wasAuto) {
                     newChipId += '-auto';
                 }

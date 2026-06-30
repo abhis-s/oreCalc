@@ -93,10 +93,7 @@ export function initializeIncomeCardHandler() {
 
     timeframeSelect.addEventListener('change', (e) => {
         handleStateUpdate(() => {
-            if (!state.uiSettings.incomeCard) {
-                state.uiSettings.incomeCard = { timeframe: 'monthly' };
-            }
-            state.uiSettings.incomeCard.timeframe = e.target.value;
+            state.uiSettings.summaryTimeframe = e.target.value;
         });
     });
 }
@@ -106,7 +103,7 @@ export function renderIncomeCard(totalIncome, uiSettings, totalMoneyCost) {
 
     if (!timeframeSelect) return;
 
-    const timeframe = uiSettings.incomeCard?.timeframe || 'monthly';
+    const timeframe = uiSettings.summaryTimeframe || 'monthly';
     timeframeSelect.value = timeframe;
 
     const footerShiny = dom.income?.home?.incomeCard?.table?.totalRow?.shiny;

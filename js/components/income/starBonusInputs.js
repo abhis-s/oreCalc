@@ -18,8 +18,13 @@ function renderLastEventOptions() {
     const currentMonth = now.getUTCMonth();
     const currentYear = now.getUTCFullYear();
 
-    let savedMonth = state.income.starBonus?.lastEventMonth;
-    let savedYear = state.income.starBonus?.lastEventYear;
+    let savedMonth, savedYear;
+    const lastEventStr = state.income.starBonus?.["2x"]?.lastEvent;
+    if (lastEventStr) {
+        const [year, month] = lastEventStr.split('-').map(Number);
+        savedYear = year;
+        savedMonth = month - 1;
+    }
 
     // Initialize if missing
     if (savedMonth === undefined || savedYear === undefined) {
@@ -27,8 +32,8 @@ function renderLastEventOptions() {
         savedYear = currentYear;
         handleStateUpdate(() => {
             if (!state.income.starBonus) state.income.starBonus = {};
-            state.income.starBonus.lastEventMonth = currentMonth;
-            state.income.starBonus.lastEventYear = currentYear;
+            if (!state.income.starBonus["2x"]) state.income.starBonus["2x"] = {};
+            state.income.starBonus["2x"].lastEvent = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
         }, { skipRender: true });
     }
 
@@ -39,8 +44,8 @@ function renderLastEventOptions() {
         savedYear = currentYear;
         handleStateUpdate(() => {
             if (!state.income.starBonus) state.income.starBonus = {};
-            state.income.starBonus.lastEventMonth = currentMonth;
-            state.income.starBonus.lastEventYear = currentYear;
+            if (!state.income.starBonus["2x"]) state.income.starBonus["2x"] = {};
+            state.income.starBonus["2x"].lastEvent = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
         }, { skipRender: true });
     }
 
@@ -85,8 +90,8 @@ function renderLastEventOptions() {
         select.value = 0;
         handleStateUpdate(() => {
             if (!state.income.starBonus) state.income.starBonus = {};
-            state.income.starBonus.lastEventMonth = currentMonth;
-            state.income.starBonus.lastEventYear = currentYear;
+            if (!state.income.starBonus["2x"]) state.income.starBonus["2x"] = {};
+            state.income.starBonus["2x"].lastEvent = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
         }, { skipRender: true });
     }
 }
@@ -145,7 +150,8 @@ function renderTHPlanningSection() {
     for (const th in planningData) {
         const plan = planningData[th];
         if (plan) {
-            const diff = (plan.year - currentYear) * 12 + (plan.month - currentMonth);
+            const [year, month] = plan.split('-').map(Number);
+            const diff = (year - currentYear) * 12 + (month - 1 - currentMonth);
             if (diff < 0) {
                 delete planningData[th];
                 stateChanged = true;
@@ -216,7 +222,8 @@ function renderTHPlanningSection() {
         
         const savedPlan = planningData[th];
         if (savedPlan) {
-            const savedOffset = (savedPlan.year - currentYear) * 12 + (savedPlan.month - currentMonth) + 1;
+            const [year, month] = savedPlan.split('-').map(Number);
+            const savedOffset = (year - currentYear) * 12 + (month - 1 - currentMonth) + 1;
             select.value = (savedOffset >= startOffset && savedOffset <= endOffset) ? savedOffset : 0;
         } else {
             select.value = 0;
@@ -234,23 +241,18 @@ function renderTHPlanningSection() {
                 } else {
                     const targetDate = new Date(currentMonthBase);
                     targetDate.setUTCMonth(targetDate.getUTCMonth() + (offset - 1));
-                    state.income.starBonus.thUpgrades[th] = {
-                        month: targetDate.getUTCMonth(),
-                        year: targetDate.getUTCFullYear()
-                    };
+                    state.income.starBonus.thUpgrades[th] = `${targetDate.getUTCFullYear()}-${String(targetDate.getUTCMonth() + 1).padStart(2, '0')}`;
                     
                     let currentLimitOffset = offset;
                     for (let subsequent = th + 1; subsequent <= thLimit; subsequent++) {
                         const subPlan = state.income.starBonus.thUpgrades[subsequent];
                         if (subPlan) {
-                            const subOffset = (subPlan.year - currentYear) * 12 + (subPlan.month - currentMonth) + 1;
+                            const [subYear, subMonth] = subPlan.split('-').map(Number);
+                            const subOffset = (subYear - currentYear) * 12 + (subMonth - 1 - currentMonth) + 1;
                             if (subOffset <= currentLimitOffset) {
                                 const nextDate = new Date(currentMonthBase);
                                 nextDate.setUTCMonth(nextDate.getUTCMonth() + currentLimitOffset);
-                                state.income.starBonus.thUpgrades[subsequent] = {
-                                    month: nextDate.getUTCMonth(),
-                                    year: nextDate.getUTCFullYear()
-                                };
+                                state.income.starBonus.thUpgrades[subsequent] = `${nextDate.getUTCFullYear()}-${String(nextDate.getUTCMonth() + 1).padStart(2, '0')}`;
                                 currentLimitOffset++;
                             } else {
                                 currentLimitOffset = subOffset;
@@ -396,7 +398,8 @@ export function initializeStarBonusSelector() {
             
             handleStateUpdate(() => {
                 if (!state.income.starBonus) state.income.starBonus = {};
-                state.income.starBonus.eventFrequency = value;
+                if (!state.income.starBonus["2x"]) state.income.starBonus["2x"] = {};
+                state.income.starBonus["2x"].frequency = value;
             });
             renderLastEventOptions();
         });
@@ -425,7 +428,8 @@ export function initializeStarBonusSelector() {
             
             handleStateUpdate(() => {
                 if (!state.income.starBonus) state.income.starBonus = {};
-                state.income.starBonus.eventDuration = value;
+                if (!state.income.starBonus["2x"]) state.income.starBonus["2x"] = {};
+                state.income.starBonus["2x"].duration = value;
             });
         });
     }
@@ -445,8 +449,8 @@ export function initializeStarBonusSelector() {
             
             handleStateUpdate(() => {
                 if (!state.income.starBonus) state.income.starBonus = {};
-                state.income.starBonus.lastEventMonth = month;
-                state.income.starBonus.lastEventYear = year;
+                if (!state.income.starBonus["2x"]) state.income.starBonus["2x"] = {};
+                state.income.starBonus["2x"].lastEvent = `${year}-${String(month + 1).padStart(2, '0')}`;
             });
         });
     }
@@ -477,9 +481,9 @@ export function renderStarBonusControls(incomeState) {
     const lastEventSelect = dom.income?.starBonus?.lastEventSelect;
 
     if (frequencyInput) {
-        frequencyInput.value = safeState.eventFrequency || 2;
+        frequencyInput.value = safeState["2x"]?.frequency || 2;
     }
     if (durationInput) {
-        durationInput.value = safeState.eventDuration !== undefined ? safeState.eventDuration : 5;
+        durationInput.value = safeState["2x"]?.duration !== undefined ? safeState["2x"].duration : 5;
     }
 }

@@ -42,7 +42,7 @@ export function getDateOfWeek(w, y) {
 }
 
 export function isDateInRange(day, month, year, schedule) {
-    const targetDate = `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
+    const targetDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const { startDate, endDate } = getScheduleDates(year, month - 1, schedule);
 
     const formatDate = (date) => {
@@ -51,7 +51,7 @@ export function isDateInRange(day, month, year, schedule) {
         const day = String(d.getUTCDate()).padStart(2, '0');
         const month = String(d.getUTCMonth() + 1).padStart(2, '0');
         const year = d.getUTCFullYear();
-        return `${day}-${month}-${year}`;
+        return `${year}-${month}-${day}`;
     };
 
     return getDatesInRange({
@@ -190,7 +190,7 @@ export function getDatesInRange(options = {}) {
     const { startDate: start, endDate: end, isDateInRange: targetDate, month, year } = options;
     
     const parseDate = (dateStr) => {
-        const [day, month, year] = dateStr.split('-').map(Number);
+        const [year, month, day] = dateStr.split('-').map(Number);
         return new Date(Date.UTC(year, month - 1, day));
     };
 
@@ -219,7 +219,7 @@ export function getDatesInRange(options = {}) {
             const day = String(currentDate.getUTCDate()).padStart(2, '0');
             const monthStr = String(currentDate.getUTCMonth() + 1).padStart(2, '0');
             const yearStr = currentDate.getUTCFullYear();
-            dates.push(`${day}-${monthStr}-${yearStr}`);
+            dates.push(`${yearStr}-${monthStr}-${day}`);
             currentDate.setUTCDate(currentDate.getUTCDate() + 1);
         }
         return dates;

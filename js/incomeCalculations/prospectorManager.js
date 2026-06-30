@@ -360,7 +360,7 @@ export function calculateProspectorIncome(prospectorState, assistedContext = nul
         return { daily: zeroIncome, weekly: zeroIncome, monthly: zeroIncome, bimonthly: zeroIncome };
     }
 
-    const { goldPass = false, fromOre = 'shiny', toOre = 'glowy', fromAmount = 0, assistedConversion = false } = prospectorState;
+    const { goldPass = false, fromOre = 'shiny', toOre = 'glowy', fromAmount = 0, assistedConversion = true } = prospectorState;
 
     if (!goldPass) {
         return { daily: zeroIncome, weekly: zeroIncome, monthly: zeroIncome, bimonthly: zeroIncome };

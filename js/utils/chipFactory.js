@@ -265,10 +265,10 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
             const day = String(d.getUTCDate()).padStart(2, '0');
             const month = String(d.getUTCMonth() + 1).padStart(2, '0');
             const year = d.getUTCFullYear();
-            return `${day}-${month}-${year}`;
+            return `${year}-${month}-${day}`;
         };
 
-        const [calMonth, calYear] = state.planner.calendar.view.month.split('-').map(Number);
+        const [calYear, calMonth] = state.planner.calendar.view.month.split('-').map(Number);
         
         const chipStartDate = chip.dataset.startDate;
         const chipEndDate = chip.dataset.endDate;

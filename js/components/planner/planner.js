@@ -16,7 +16,7 @@ let scrollInterval = null;
 function renderPlannerUI(plannerState) {
     renderCalendar(plannerState);
     if (!plannerState?.calendar?.view?.month) return;
-    const [monthStr, yearStr] = plannerState.calendar.view.month.split('-');
+    const [yearStr, monthStr] = plannerState.calendar.view.month.split('-');
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthStr, 10) - 1;
     renderIncomeChips(year, month);

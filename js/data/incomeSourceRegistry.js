@@ -44,14 +44,23 @@ export const incomeData = {
                 getSVGUrl: (state) => state.derived.incomeSources.starBonus?.iconUrl || '',
                 getCount: (state, month, year) => {
                     if (month === undefined || year === undefined) return 0;
+                    let lastMonth, lastYear;
+                    const lastEventStr = state.income.starBonus?.["2x"]?.lastEvent;
+                    if (lastEventStr) {
+                        const [yr, mo] = lastEventStr.split('-').map(Number);
+                        lastYear = yr;
+                        lastMonth = mo - 1;
+                    }
+                    const frequency = state.income.starBonus?.["2x"]?.frequency || 2;
+                    const duration = state.income.starBonus?.["2x"]?.duration || 0;
                     const isEventMonth = isStarBonusEventMonth(
                         month, 
                         year, 
-                        state.income.starBonus?.eventFrequency || 2,
-                        state.income.starBonus?.lastEventMonth,
-                        state.income.starBonus?.lastEventYear
+                        frequency,
+                        lastMonth,
+                        lastYear
                     );
-                    return isEventMonth ? (state.income.starBonus?.eventDuration || 0) : 0;
+                    return isEventMonth ? duration : 0;
                 },
                 getIncome: (state) => {
                     const base = state.derived.incomeSources.starBonus?.baseDaily || { shiny: 0, glowy: 0, starry: 0 };
@@ -74,7 +83,8 @@ export const incomeData = {
                 getCount: (state, month, year) => {
                     if (month === undefined || year === undefined) return 0;
                     const upgrades = state.income.starBonus?.thUpgrades || {};
-                    const isUpgradeMonth = Object.values(upgrades).some(u => u.month === month && u.year === year);
+                    const targetStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+                    const isUpgradeMonth = Object.values(upgrades).some(u => u === targetStr);
                     return isUpgradeMonth ? 6 : 0;
                 },
                 getIncome: (state) => {

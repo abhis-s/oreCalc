@@ -8,7 +8,7 @@ export function renderHomeIncomeTable(state) {
     const tableBody = dom.income?.home?.incomeCard?.table?.body;
     if (!tableBody) return;
 
-    const timeframe = state.uiSettings.incomeCard?.timeframe || 'monthly';
+    const timeframe = state.uiSettings.summaryTimeframe || 'monthly';
     const sources = state.derived.incomeSources;
     
     let html = '';

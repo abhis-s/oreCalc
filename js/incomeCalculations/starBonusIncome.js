@@ -1,10 +1,29 @@
 import { DAYS_IN_WEEK, DAYS_IN_MONTH, MONTHS_IN_BIMONTH } from "../data/timeConstants.js";
 import { starBonusData, leagueTiers } from "../data/appData.js";
 
-export function calculateStarBonusIncome(selectedLeague, eventFrequency = 2, eventDuration = 5, thUpgrades = {}) {
+export function calculateStarBonusIncome(selectedLeague, starBonusState = {}) {
     const leagueData = starBonusData.find(data => data.league === parseInt(selectedLeague)) || starBonusData[0];
     const tierData = leagueTiers.items.find(l => l.id === parseInt(selectedLeague)) || leagueTiers.items.find(l => l.id === 105000000);
     const iconUrl = tierData?.iconUrls?.small || '';
+
+    let eventFrequency = 2;
+    let eventDuration = 5;
+    let duration4x = 6;
+    let thUpgrades = {};
+
+    if (typeof starBonusState === 'number') {
+        // Fallback for old signature: (selectedLeague, eventFrequency, eventDuration, thUpgrades)
+        eventFrequency = starBonusState;
+        eventDuration = arguments[2] !== undefined ? arguments[2] : 5;
+        thUpgrades = arguments[3] || {};
+    } else if (starBonusState && typeof starBonusState === 'object') {
+        // New nested signature
+        const config2x = starBonusState["2x"] || {};
+        eventFrequency = config2x.frequency !== undefined ? config2x.frequency : 2;
+        eventDuration = config2x.duration !== undefined ? config2x.duration : 5;
+
+        thUpgrades = starBonusState.thUpgrades || {};
+    }
 
     let extraInstancesPerMonth = 0;
 
@@ -15,11 +34,11 @@ export function calculateStarBonusIncome(selectedLeague, eventFrequency = 2, eve
     }
 
     // 4x Star Bonus (TH Upgrade) Averaging
-    // Each upgrade gives 6 days of 4x bonus (3 extra instances per day)
+    // Each upgrade gives duration4x days of 4x bonus (3 extra instances per day)
     // We average these over a 12-month window for long-term projection
     const upgradeCount = Object.keys(thUpgrades).length;
-    if (upgradeCount > 0) {
-        const totalExtra4xInstances = upgradeCount * 6 * 3;
+    if (upgradeCount > 0 && duration4x > 0) {
+        const totalExtra4xInstances = upgradeCount * duration4x * 3;
         extraInstancesPerMonth += totalExtra4xInstances / 12;
     }
 
