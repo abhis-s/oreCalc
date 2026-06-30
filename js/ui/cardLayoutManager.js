@@ -137,17 +137,18 @@ function clearColumns(layout) {
  * Compact0 layout: cards can only move left/right (swap columns) but not up/down.
  * Keeps row groupings exact.
  * @param {Object} layout
+ * @param {HTMLElement[]} visibleCards
  * @returns {Object[]}
  */
-function packCardsCompact0(layout) {
+function packCardsCompact0(layout, visibleCards) {
     const columns = [
         { height: 0, items: [] },
         { height: 0, items: [] }
     ];
 
-    for (let i = 0; i < layout.originalCards.length; i += 2) {
-        const card0 = layout.originalCards[i];
-        const card1 = layout.originalCards[i + 1] || null;
+    for (let i = 0; i < visibleCards.length; i += 2) {
+        const card0 = visibleCards[i];
+        const card1 = visibleCards[i + 1] || null;
 
         if (!card1) {
             // Only one card left in the row
@@ -185,10 +186,11 @@ function packCardsCompact0(layout) {
 /**
  * Compact1 layout: greedy bin-packing (tallest-first) and then sorted by original order.
  * @param {Object} layout
+ * @param {HTMLElement[]} visibleCards
  * @returns {Object[]}
  */
-function packCardsCompact1(layout) {
-    const measured = layout.originalCards.map(el => ({
+function packCardsCompact1(layout, visibleCards) {
+    const measured = visibleCards.map(el => ({
         element: el,
         height: layout.heightMap.get(el) || el.getBoundingClientRect().height
     }));
@@ -222,39 +224,53 @@ function packCardsCompact1(layout) {
  * @returns {{ leftItems: HTMLElement[], rightItems: HTMLElement[] }}
  */
 function determineColumnOrder(layout, colA_items, colB_items) {
-    let oddCountA = 0;
-    let evenCountA = 0;
-    let oddCountB = 0;
-    let evenCountB = 0;
+    let leftCountA = 0;
+    let rightCountA = 0;
+    let leftCountB = 0;
+    let rightCountB = 0;
 
     colA_items.forEach(el => {
         const index = layout.originalIndices.get(el);
-        if (index % 2 === 1) oddCountA++;
-        else evenCountA++;
+        if (index % 2 === 0) leftCountA++;
+        else rightCountA++;
     });
 
     colB_items.forEach(el => {
         const index = layout.originalIndices.get(el);
-        if (index % 2 === 1) oddCountB++;
-        else evenCountB++;
+        if (index % 2 === 0) leftCountB++;
+        else rightCountB++;
     });
 
-    // Score is (odd - even). Lower score means more even items (Left). Higher score means more odd items (Right).
-    const scoreA = oddCountA - evenCountA;
-    const scoreB = oddCountB - evenCountB;
+    // Check if column A has a majority (> 50%) of left-origin or right-origin items
+    const totalA = colA_items.length;
+    const isALeftMajority = leftCountA > totalA / 2;
+    const isARightMajority = rightCountA > totalA / 2;
 
-    if (scoreA < scoreB) {
+    if (isALeftMajority) {
         return { leftItems: colA_items, rightItems: colB_items };
-    } else if (scoreB < scoreA) {
+    }
+    if (isARightMajority) {
         return { leftItems: colB_items, rightItems: colA_items };
+    }
+
+    // Check if column B has a majority (> 50%) of left-origin or right-origin items
+    const totalB = colB_items.length;
+    const isBLeftMajority = leftCountB > totalB / 2;
+    const isBRightMajority = rightCountB > totalB / 2;
+
+    if (isBLeftMajority) {
+        return { leftItems: colB_items, rightItems: colA_items };
+    }
+    if (isBRightMajority) {
+        return { leftItems: colA_items, rightItems: colB_items };
+    }
+
+    // Tie-breaker: column containing the first card of the original layout (index 0) goes left
+    const hasFirstCardA = colA_items.some(el => layout.originalIndices.get(el) === 0);
+    if (hasFirstCardA) {
+        return { leftItems: colA_items, rightItems: colB_items };
     } else {
-        // Tie breaker: the column containing the first card of the original layout (Star Bonus / Preferences) goes left
-        const hasFirstCardA = colA_items.some(el => layout.originalIndices.get(el) === 0);
-        if (hasFirstCardA) {
-            return { leftItems: colA_items, rightItems: colB_items };
-        } else {
-            return { leftItems: colB_items, rightItems: colA_items };
-        }
+        return { leftItems: colB_items, rightItems: colA_items };
     }
 }
 
@@ -389,9 +405,18 @@ function applyPacking(animate) {
             continue;
         }
 
+        // Filter out hidden cards so they do not affect columns or origin indices
+        const visibleCards = layout.originalCards.filter(card => {
+            return window.getComputedStyle(card).display !== 'none';
+        });
+
+        // Re-index originalIndices based only on visible cards
+        layout.originalIndices.clear();
+        visibleCards.forEach((card, index) => layout.originalIndices.set(card, index));
+
         const columns = currentMode === 'compact1'
-            ? packCardsCompact1(layout)
-            : packCardsCompact0(layout);
+            ? packCardsCompact1(layout, visibleCards)
+            : packCardsCompact0(layout, visibleCards);
 
         // Determine left and right column assignments based on original layout votes
         const { leftItems, rightItems } = determineColumnOrder(layout, columns[0].items, columns[1].items);
