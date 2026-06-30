@@ -4,6 +4,8 @@ const path = require('path');
 const cors = require('cors');
 const admin = require('firebase-admin');
 const helmet = require('helmet');
+const compression = require('compression');
+const crypto = require('crypto');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
@@ -40,6 +42,7 @@ const port = process.env.PORT || 3000;
 
 // Enable security headers with Helmet
 app.use(helmet());
+app.use(compression());
 
 // General Rate Limiter (100 requests per 15 minutes)
 const generalLimiter = rateLimit({
@@ -93,6 +96,48 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'x-verify-token', 'x-user-id'],
     exposedHeaders: ['Retry-After', 'RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset']
 }));
+
+const memoryCache = new Map();
+
+function generateETag(data) {
+    const str = typeof data === 'string' ? data : JSON.stringify(data);
+    return crypto.createHash('md5').update(str).digest('hex');
+}
+
+function getCachedData(key, allowExpired = false) {
+    const item = memoryCache.get(key);
+    if (!item) return null;
+    const isExpired = Date.now() > item.expiresAt;
+    if (isExpired && !allowExpired) {
+        memoryCache.delete(key);
+        return null;
+    }
+    return { data: item.data, etag: item.etag, isExpired };
+}
+
+function getRemainingTTL(key) {
+    const item = memoryCache.get(key);
+    if (!item) return 0;
+    const remaining = Math.round((item.expiresAt - Date.now()) / 1000);
+    return Math.max(0, remaining);
+}
+
+function setCachedData(key, data, ttlSeconds) {
+    if (memoryCache.size > 1000) {
+        const now = Date.now();
+        for (const [k, v] of memoryCache.entries()) {
+            if (now > v.expiresAt || memoryCache.size > 500) {
+                memoryCache.delete(k);
+            }
+        }
+    }
+    const etag = generateETag(data);
+    memoryCache.set(key, {
+        data,
+        etag,
+        expiresAt: Date.now() + (ttlSeconds * 1000)
+    });
+}
 
 app.use(express.json());
 
@@ -164,22 +209,101 @@ app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
         }
 
         // If not protected OR token was valid, proceed to fetch data
+        const cacheKey = `player_${cleanedTag.toUpperCase()}`;
+        const cached = getCachedData(cacheKey);
+        
+        if (cached) {
+            const clientETag = req.headers['if-none-match'];
+            if (clientETag && clientETag === `"${cached.etag}"`) {
+                console.log(`[Cache] ETag match. Serving 304 for player ${cleanedTag}`);
+                res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+                res.setHeader('ETag', `"${cached.etag}"`);
+                return res.status(304).end();
+            }
+
+            console.log(`[Cache] Serving cached player data for ${cleanedTag}`);
+            res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+            res.setHeader('ETag', `"${cached.etag}"`);
+            return res.json(cached.data);
+        }
+
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/players/${encodedTag}`;
 
         console.log(`[GET] Proceeding to fetch player data from: ${url}`);
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+        let response;
+        try {
+            response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+                }
+            });
+        } catch (fetchError) {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API fetch failed. Serving STALE player data for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
             }
-        });
+
+            // Fallback to Firestore cache snapshot
+            try {
+                const doc = await db.collection('playersCache').doc(cleanedTag.toUpperCase()).get();
+                if (doc.exists) {
+                    const snap = doc.data();
+                    console.warn(`[Firestore Cache] Clash API offline. Serving Firestore snapshot for player ${cleanedTag}`);
+                    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                    return res.json(snap.playerData);
+                }
+            } catch (dbError) {
+                console.error(`[Firestore Cache] Failed to load snapshot for player ${cleanedTag}:`, dbError);
+            }
+
+            throw fetchError;
+        }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
             const data = await response.json();
+            setCachedData(cacheKey, data, 60); // Cache for 60 seconds
+            const cachedItem = getCachedData(cacheKey);
+
+            // Write to Firestore snapshot cache in the background (asynchronously)
+            db.collection('playersCache').doc(cleanedTag.toUpperCase()).set({
+                tag: cleanedTag.toUpperCase(),
+                playerData: data,
+                cachedAt: new Date().toISOString()
+            }).catch(err => console.error(`[Firestore Cache] Error saving player snapshot for ${cleanedTag}:`, err));
+
+            res.setHeader('Cache-Control', 'public, max-age=60');
+            if (cachedItem && cachedItem.etag) {
+                res.setHeader('ETag', `"${cachedItem.etag}"`);
+            }
             res.status(response.status).json(data);
         } else {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE player data for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
+            }
+
+            // Fallback to Firestore cache snapshot
+            try {
+                const doc = await db.collection('playersCache').doc(cleanedTag.toUpperCase()).get();
+                if (doc.exists) {
+                    const snap = doc.data();
+                    console.warn(`[Firestore Cache] Clash API error status ${response.status}. Serving Firestore snapshot for player ${cleanedTag}`);
+                    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                    return res.json(snap.playerData);
+                }
+            } catch (dbError) {
+                console.error(`[Firestore Cache] Failed to load snapshot for player ${cleanedTag}:`, dbError);
+            }
+
             const text = await response.text();
             res.status(response.status).send(text);
         }
@@ -198,21 +322,100 @@ app.get('/proxy/clans/:clanTag', proxyLimiter, async (req, res) => {
 
     console.log(`[GET] Fetching clan data for tag: ${cleanedTag}, UserID: ${userId || 'none'}`);
 
+    const cacheKey = `clan_${cleanedTag.toUpperCase()}`;
+    const cached = getCachedData(cacheKey);
+    
+    if (cached) {
+        const clientETag = req.headers['if-none-match'];
+        if (clientETag && clientETag === `"${cached.etag}"`) {
+            console.log(`[Cache] ETag match. Serving 304 for clan ${cleanedTag}`);
+            res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+            res.setHeader('ETag', `"${cached.etag}"`);
+            return res.status(304).end();
+        }
+
+        console.log(`[Cache] Serving cached clan data for ${cleanedTag}`);
+        res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+        res.setHeader('ETag', `"${cached.etag}"`);
+        return res.json(cached.data);
+    }
+
     try {
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/clans/${encodedTag}`;
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+        let response;
+        try {
+            response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+                }
+            });
+        } catch (fetchError) {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API fetch failed. Serving STALE clan data for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
             }
-        });
+
+            // Fallback to Firestore cache snapshot
+            try {
+                const doc = await db.collection('clansCache').doc(cleanedTag.toUpperCase()).get();
+                if (doc.exists) {
+                    const snap = doc.data();
+                    console.warn(`[Firestore Cache] Clash API offline. Serving Firestore snapshot for clan ${cleanedTag}`);
+                    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                    return res.json(snap.clanData);
+                }
+            } catch (dbError) {
+                console.error(`[Firestore Cache] Failed to load snapshot for clan ${cleanedTag}:`, dbError);
+            }
+
+            throw fetchError;
+        }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
             const data = await response.json();
+            setCachedData(cacheKey, data, 180); // Cache for 3 minutes (180s)
+            const cachedItem = getCachedData(cacheKey);
+
+            // Write to Firestore snapshot cache in the background (asynchronously)
+            db.collection('clansCache').doc(cleanedTag.toUpperCase()).set({
+                tag: cleanedTag.toUpperCase(),
+                clanData: data,
+                cachedAt: new Date().toISOString()
+            }).catch(err => console.error(`[Firestore Cache] Error saving clan snapshot for ${cleanedTag}:`, err));
+
+            res.setHeader('Cache-Control', 'public, max-age=180');
+            if (cachedItem && cachedItem.etag) {
+                res.setHeader('ETag', `"${cachedItem.etag}"`);
+            }
             res.status(response.status).json(data);
         } else {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE clan data for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
+            }
+
+            // Fallback to Firestore cache snapshot
+            try {
+                const doc = await db.collection('clansCache').doc(cleanedTag.toUpperCase()).get();
+                if (doc.exists) {
+                    const snap = doc.data();
+                    console.warn(`[Firestore Cache] Clash API error status ${response.status}. Serving Firestore snapshot for clan ${cleanedTag}`);
+                    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                    return res.json(snap.clanData);
+                }
+            } catch (dbError) {
+                console.error(`[Firestore Cache] Failed to load snapshot for clan ${cleanedTag}:`, dbError);
+            }
+
             const text = await response.text();
             res.status(response.status).send(text);
         }
@@ -231,21 +434,65 @@ app.get('/proxy/clans/:clanTag/warlog', proxyLimiter, async (req, res) => {
 
     console.log(`[GET] Fetching war log for tag: ${cleanedTag}, UserID: ${userId || 'none'}`);
 
+    const cacheKey = `warlog_${cleanedTag.toUpperCase()}`;
+    const cached = getCachedData(cacheKey);
+    
+    if (cached) {
+        const clientETag = req.headers['if-none-match'];
+        if (clientETag && clientETag === `"${cached.etag}"`) {
+            console.log(`[Cache] ETag match. Serving 304 for war log ${cleanedTag}`);
+            res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+            res.setHeader('ETag', `"${cached.etag}"`);
+            return res.status(304).end();
+        }
+
+        console.log(`[Cache] Serving cached war log for ${cleanedTag}`);
+        res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+        res.setHeader('ETag', `"${cached.etag}"`);
+        return res.json(cached.data);
+    }
+
     try {
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/clans/${encodedTag}/warlog`;
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+        let response;
+        try {
+            response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+                }
+            });
+        } catch (fetchError) {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API fetch failed. Serving STALE war log for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
             }
-        });
+            throw fetchError;
+        }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
             const data = await response.json();
+            setCachedData(cacheKey, data, 300); // Cache for 5 minutes (300s)
+            const cachedItem = getCachedData(cacheKey);
+
+            res.setHeader('Cache-Control', 'public, max-age=300');
+            if (cachedItem && cachedItem.etag) {
+                res.setHeader('ETag', `"${cachedItem.etag}"`);
+            }
             res.status(response.status).json(data);
         } else {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE war log for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
+            }
             const text = await response.text();
             res.status(response.status).send(text);
         }
@@ -264,24 +511,68 @@ app.get('/proxy/clans/:clanTag/currentwar/leaguegroup', proxyLimiter, async (req
 
     console.log(`[GET] Fetching CWL league group for tag: ${cleanedTag}, UserID: ${userId || 'none'}`);
 
+    const cacheKey = `leaguegroup_${cleanedTag.toUpperCase()}`;
+    const cached = getCachedData(cacheKey);
+    
+    if (cached) {
+        const clientETag = req.headers['if-none-match'];
+        if (clientETag && clientETag === `"${cached.etag}"`) {
+            console.log(`[Cache] ETag match. Serving 304 for CWL league group ${cleanedTag}`);
+            res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+            res.setHeader('ETag', `"${cached.etag}"`);
+            return res.status(304).end();
+        }
+
+        console.log(`[Cache] Serving cached CWL league group for ${cleanedTag}`);
+        res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+        res.setHeader('ETag', `"${cached.etag}"`);
+        return res.json(cached.data);
+    }
+
     try {
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/clans/${encodedTag}/currentwar/leaguegroup`;
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+        let response;
+        try {
+            response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+                }
+            });
+        } catch (fetchError) {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API fetch failed. Serving STALE CWL league group for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
             }
-        });
+            throw fetchError;
+        }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
             const data = await response.json();
             registerGroupWarsBackground(data).catch(err => {
                 console.error("[Scraper] Error registering group wars in background:", err);
             });
+            setCachedData(cacheKey, data, 300); // Cache for 5 minutes (300s)
+            const cachedItem = getCachedData(cacheKey);
+
+            res.setHeader('Cache-Control', 'public, max-age=300');
+            if (cachedItem && cachedItem.etag) {
+                res.setHeader('ETag', `"${cachedItem.etag}"`);
+            }
             res.status(response.status).json(data);
         } else {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE CWL league group for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
+            }
             const text = await response.text();
             res.status(response.status).send(text);
         }
@@ -300,21 +591,65 @@ app.get('/proxy/clanwarleagues/wars/:warTag', proxyLimiter, async (req, res) => 
 
     console.log(`[GET] Fetching CWL war data for tag: ${cleanedTag}, UserID: ${userId || 'none'}`);
 
+    const cacheKey = `wartag_${cleanedTag.toUpperCase()}`;
+    const cached = getCachedData(cacheKey);
+    
+    if (cached) {
+        const clientETag = req.headers['if-none-match'];
+        if (clientETag && clientETag === `"${cached.etag}"`) {
+            console.log(`[Cache] ETag match. Serving 304 for CWL war data ${cleanedTag}`);
+            res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+            res.setHeader('ETag', `"${cached.etag}"`);
+            return res.status(304).end();
+        }
+
+        console.log(`[Cache] Serving cached CWL war data for ${cleanedTag}`);
+        res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+        res.setHeader('ETag', `"${cached.etag}"`);
+        return res.json(cached.data);
+    }
+
     try {
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/clanwarleagues/wars/${encodedTag}`;
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+        let response;
+        try {
+            response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+                }
+            });
+        } catch (fetchError) {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API fetch failed. Serving STALE CWL war data for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
             }
-        });
+            throw fetchError;
+        }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
             const data = await response.json();
+            setCachedData(cacheKey, data, 300); // Cache for 5 minutes (300s)
+            const cachedItem = getCachedData(cacheKey);
+
+            res.setHeader('Cache-Control', 'public, max-age=300');
+            if (cachedItem && cachedItem.etag) {
+                res.setHeader('ETag', `"${cachedItem.etag}"`);
+            }
             res.status(response.status).json(data);
         } else {
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE CWL war data for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
+            }
             const text = await response.text();
             res.status(response.status).send(text);
         }
