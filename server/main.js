@@ -6,6 +6,7 @@ const admin = require('firebase-admin');
 const helmet = require('helmet');
 const compression = require('compression');
 const crypto = require('crypto');
+const https = require('https');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
@@ -97,6 +98,13 @@ app.use(cors({
     exposedHeaders: ['Retry-After', 'RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset']
 }));
 
+const httpsAgent = new https.Agent({
+    keepAlive: true,
+    maxSockets: 64,
+    keepAliveMsecs: 30000,
+    timeout: 60000
+});
+
 const memoryCache = new Map();
 
 function generateETag(data) {
@@ -139,11 +147,48 @@ function setCachedData(key, data, ttlSeconds) {
     });
 }
 
+const clashApiStatus = {
+    isOffline: false,
+    trippedAt: 0,
+    tripDurationMs: 5 * 60 * 1000 // 5 minutes
+};
+
+function checkCircuitBreaker() {
+    if (clashApiStatus.isOffline) {
+        const elapsed = Date.now() - clashApiStatus.trippedAt;
+        if (elapsed > clashApiStatus.tripDurationMs) {
+            clashApiStatus.isOffline = false;
+            console.log("[Circuit Breaker] Resetting Clash API breaker. Retrying live fetches.");
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+function tripCircuitBreaker(statusCode = 503) {
+    clashApiStatus.isOffline = true;
+    clashApiStatus.trippedAt = Date.now();
+    console.warn(`[Circuit Breaker] Tripped due to HTTP ${statusCode}. Offline mode active for 5 minutes.`);
+}
+
+function isValidTag(tag) {
+    if (!tag) return false;
+    const cleaned = tag.startsWith('#') ? tag.substring(1) : tag;
+    const cocTagRegex = /^[0289CGJLPQRUVY]{3,14}$/i;
+    return cocTagRegex.test(cleaned);
+}
+
 app.use(express.json());
 
 app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
     const fetch = (await import('node-fetch')).default;
     const playerTag = req.params.playerTag;
+
+    if (!isValidTag(playerTag)) {
+        return res.status(400).json({ message: 'Invalid Clash of Clans tag format.' });
+    }
+
     const cleanedTag = playerTag.startsWith('#') ? playerTag.substring(1) : playerTag;
     const encodedTag = encodeURIComponent(`#${cleanedTag}`);
     const token = req.headers['x-verify-token'];
@@ -210,6 +255,31 @@ app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
 
         // If not protected OR token was valid, proceed to fetch data
         const cacheKey = `player_${cleanedTag.toUpperCase()}`;
+
+        // Check circuit breaker first
+        if (checkCircuitBreaker()) {
+            console.log(`[Circuit Breaker] Breaker is tripped. Serving cached fallback immediately for player ${cleanedTag}`);
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                return res.json(stale.data);
+            }
+            try {
+                const doc = await db.collection('playersCache').doc(cleanedTag.toUpperCase()).get();
+                if (doc.exists) {
+                    const snap = doc.data();
+                    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                    return res.json(snap.playerData);
+                }
+            } catch (dbError) {
+                console.error(`[Circuit Breaker] Firestore fallback failed for player ${cleanedTag}:`, dbError);
+            }
+            return res.status(503).json({
+                message: 'Clash of Clans API is currently in maintenance. No cached snapshot found.'
+            });
+        }
+
         const cached = getCachedData(cacheKey);
         
         if (cached) {
@@ -232,18 +302,27 @@ app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
 
         console.log(`[GET] Proceeding to fetch player data from: ${url}`);
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         let response;
         try {
             response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
-                }
+                },
+                agent: httpsAgent,
+                signal: controller.signal
             });
         } catch (fetchError) {
+            tripCircuitBreaker(503); // Trip the breaker
             const stale = getCachedData(cacheKey, true);
+            const isTimeout = fetchError.name === 'AbortError';
+            const reason = isTimeout ? 'timeout' : 'fetch failed';
+
             if (stale) {
-                console.warn(`[Cache] Clash API fetch failed. Serving STALE player data for ${cleanedTag}`);
+                console.warn(`[Cache] Clash API ${reason}. Serving STALE player data for ${cleanedTag}`);
                 res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                 if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
                 return res.json(stale.data);
@@ -254,7 +333,7 @@ app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
                 const doc = await db.collection('playersCache').doc(cleanedTag.toUpperCase()).get();
                 if (doc.exists) {
                     const snap = doc.data();
-                    console.warn(`[Firestore Cache] Clash API offline. Serving Firestore snapshot for player ${cleanedTag}`);
+                    console.warn(`[Firestore Cache] Clash API ${reason}. Serving Firestore snapshot for player ${cleanedTag}`);
                     res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                     return res.json(snap.playerData);
                 }
@@ -263,6 +342,8 @@ app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
             }
 
             throw fetchError;
+        } finally {
+            clearTimeout(timeoutId);
         }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
@@ -283,6 +364,9 @@ app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
             }
             res.status(response.status).json(data);
         } else {
+            if (response.status === 503) {
+                tripCircuitBreaker(503); // Trip the breaker on 503 maintenance
+            }
             const stale = getCachedData(cacheKey, true);
             if (stale) {
                 console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE player data for ${cleanedTag}`);
@@ -316,6 +400,11 @@ app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
 app.get('/proxy/clans/:clanTag', proxyLimiter, async (req, res) => {
     const fetch = (await import('node-fetch')).default;
     const clanTag = req.params.clanTag;
+
+    if (!isValidTag(clanTag)) {
+        return res.status(400).json({ message: 'Invalid Clash of Clans tag format.' });
+    }
+
     const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
     const encodedTag = encodeURIComponent(`#${cleanedTag}`);
     const userId = req.headers['x-user-id'];
@@ -323,6 +412,31 @@ app.get('/proxy/clans/:clanTag', proxyLimiter, async (req, res) => {
     console.log(`[GET] Fetching clan data for tag: ${cleanedTag}, UserID: ${userId || 'none'}`);
 
     const cacheKey = `clan_${cleanedTag.toUpperCase()}`;
+
+    // Check circuit breaker first
+    if (checkCircuitBreaker()) {
+        console.log(`[Circuit Breaker] Breaker is tripped. Serving cached fallback immediately for clan ${cleanedTag}`);
+        const stale = getCachedData(cacheKey, true);
+        if (stale) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+            if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+            return res.json(stale.data);
+        }
+        try {
+            const doc = await db.collection('clansCache').doc(cleanedTag.toUpperCase()).get();
+            if (doc.exists) {
+                const snap = doc.data();
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                return res.json(snap.clanData);
+            }
+        } catch (dbError) {
+            console.error(`[Circuit Breaker] Firestore fallback failed for clan ${cleanedTag}:`, dbError);
+        }
+        return res.status(503).json({
+            message: 'Clash of Clans API is currently in maintenance. No cached snapshot found.'
+        });
+    }
+
     const cached = getCachedData(cacheKey);
     
     if (cached) {
@@ -344,18 +458,27 @@ app.get('/proxy/clans/:clanTag', proxyLimiter, async (req, res) => {
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/clans/${encodedTag}`;
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         let response;
         try {
             response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
-                }
+                },
+                agent: httpsAgent,
+                signal: controller.signal
             });
         } catch (fetchError) {
+            tripCircuitBreaker(503); // Trip the breaker
             const stale = getCachedData(cacheKey, true);
+            const isTimeout = fetchError.name === 'AbortError';
+            const reason = isTimeout ? 'timeout' : 'fetch failed';
+
             if (stale) {
-                console.warn(`[Cache] Clash API fetch failed. Serving STALE clan data for ${cleanedTag}`);
+                console.warn(`[Cache] Clash API ${reason}. Serving STALE clan data for ${cleanedTag}`);
                 res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                 if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
                 return res.json(stale.data);
@@ -366,7 +489,7 @@ app.get('/proxy/clans/:clanTag', proxyLimiter, async (req, res) => {
                 const doc = await db.collection('clansCache').doc(cleanedTag.toUpperCase()).get();
                 if (doc.exists) {
                     const snap = doc.data();
-                    console.warn(`[Firestore Cache] Clash API offline. Serving Firestore snapshot for clan ${cleanedTag}`);
+                    console.warn(`[Firestore Cache] Clash API ${reason}. Serving Firestore snapshot for clan ${cleanedTag}`);
                     res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                     return res.json(snap.clanData);
                 }
@@ -375,11 +498,13 @@ app.get('/proxy/clans/:clanTag', proxyLimiter, async (req, res) => {
             }
 
             throw fetchError;
+        } finally {
+            clearTimeout(timeoutId);
         }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
             const data = await response.json();
-            setCachedData(cacheKey, data, 180); // Cache for 3 minutes (180s)
+            setCachedData(cacheKey, data, 600); // Cache for 10 minutes (600s)
             const cachedItem = getCachedData(cacheKey);
 
             // Write to Firestore snapshot cache in the background (asynchronously)
@@ -389,12 +514,15 @@ app.get('/proxy/clans/:clanTag', proxyLimiter, async (req, res) => {
                 cachedAt: new Date().toISOString()
             }).catch(err => console.error(`[Firestore Cache] Error saving clan snapshot for ${cleanedTag}:`, err));
 
-            res.setHeader('Cache-Control', 'public, max-age=180');
+            res.setHeader('Cache-Control', 'public, max-age=600');
             if (cachedItem && cachedItem.etag) {
                 res.setHeader('ETag', `"${cachedItem.etag}"`);
             }
             res.status(response.status).json(data);
         } else {
+            if (response.status === 503) {
+                tripCircuitBreaker(503); // Trip the breaker on 503 maintenance
+            }
             const stale = getCachedData(cacheKey, true);
             if (stale) {
                 console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE clan data for ${cleanedTag}`);
@@ -428,6 +556,11 @@ app.get('/proxy/clans/:clanTag', proxyLimiter, async (req, res) => {
 app.get('/proxy/clans/:clanTag/warlog', proxyLimiter, async (req, res) => {
     const fetch = (await import('node-fetch')).default;
     const clanTag = req.params.clanTag;
+
+    if (!isValidTag(clanTag)) {
+        return res.status(400).json({ message: 'Invalid Clash of Clans tag format.' });
+    }
+
     const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
     const encodedTag = encodeURIComponent(`#${cleanedTag}`);
     const userId = req.headers['x-user-id'];
@@ -435,9 +568,37 @@ app.get('/proxy/clans/:clanTag/warlog', proxyLimiter, async (req, res) => {
     console.log(`[GET] Fetching war log for tag: ${cleanedTag}, UserID: ${userId || 'none'}`);
 
     const cacheKey = `warlog_${cleanedTag.toUpperCase()}`;
+
+    // Check circuit breaker first
+    if (checkCircuitBreaker()) {
+        console.log(`[Circuit Breaker] Breaker is tripped. Serving cached fallback immediately for war log ${cleanedTag}`);
+        const stale = getCachedData(cacheKey, true);
+        if (stale) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+            if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+            return res.json(stale.data);
+        }
+        return res.status(503).json({
+            message: 'Clash of Clans API is currently in maintenance. No cached snapshot found.'
+        });
+    }
+
     const cached = getCachedData(cacheKey);
     
     if (cached) {
+        if (cached.isPrivateWarLog) {
+            if (cached.data) {
+                console.log(`[Cache] Private log hit. Serving cached fallback for war log ${cleanedTag}`);
+                res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+                if (cached.etag) res.setHeader('ETag', `"${cached.etag}"`);
+                return res.json(cached.data);
+            } else {
+                console.log(`[Cache] Private log hit (no fallback). Serving cached 403 for war log ${cleanedTag}`);
+                res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+                return res.status(403).json({ message: 'Clan war log is private' });
+            }
+        }
+
         const clientETag = req.headers['if-none-match'];
         if (clientETag && clientETag === `"${cached.etag}"`) {
             console.log(`[Cache] ETag match. Serving 304 for war log ${cleanedTag}`);
@@ -456,42 +617,87 @@ app.get('/proxy/clans/:clanTag/warlog', proxyLimiter, async (req, res) => {
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/clans/${encodedTag}/warlog`;
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         let response;
         try {
             response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
-                }
+                },
+                agent: httpsAgent,
+                signal: controller.signal
             });
         } catch (fetchError) {
+            tripCircuitBreaker(503); // Trip the breaker
             const stale = getCachedData(cacheKey, true);
+            const isTimeout = fetchError.name === 'AbortError';
+            const reason = isTimeout ? 'timeout' : 'fetch failed';
+
             if (stale) {
-                console.warn(`[Cache] Clash API fetch failed. Serving STALE war log for ${cleanedTag}`);
+                console.warn(`[Cache] Clash API ${reason}. Serving STALE war log for ${cleanedTag}`);
                 res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                 if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
-                return res.json(stale.data);
+                const actualStaleData = stale.isPrivateWarLog ? stale.data : stale.data || stale;
+                return res.json(actualStaleData);
             }
             throw fetchError;
+        } finally {
+            clearTimeout(timeoutId);
         }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
             const data = await response.json();
-            setCachedData(cacheKey, data, 300); // Cache for 5 minutes (300s)
+            setCachedData(cacheKey, data, 600); // Cache for 10 minutes (600s)
             const cachedItem = getCachedData(cacheKey);
 
-            res.setHeader('Cache-Control', 'public, max-age=300');
+            res.setHeader('Cache-Control', 'public, max-age=600');
             if (cachedItem && cachedItem.etag) {
                 res.setHeader('ETag', `"${cachedItem.etag}"`);
             }
             res.status(response.status).json(data);
         } else {
+            if (response.status === 403) {
+                // Get the old stale cache before we overwrite it
+                const stale = getCachedData(cacheKey, true);
+                const oldData = stale ? (stale.isPrivateWarLog ? stale.data : stale.data || stale) : null;
+
+                // Mark clan's war log as private in firestore metadata
+                db.collection('clanMetadata').doc(cleanedTag.toUpperCase()).set({
+                    tag: cleanedTag.toUpperCase(),
+                    isPrivateWarLog: true,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true }).catch(err => console.error("Error setting private war log metadata: ", err));
+
+                // Cache the 403 state with oldData in memory for 10 minutes (600s)
+                const cacheValue = {
+                    isPrivateWarLog: true,
+                    data: oldData
+                };
+                setCachedData(cacheKey, cacheValue, 600);
+
+                if (oldData) {
+                    console.warn(`[Cache] Clash API returned status 403. Serving STALE war log for ${cleanedTag}`);
+                    res.setHeader('Cache-Control', 'public, max-age=600');
+                    return res.json(oldData);
+                } else {
+                    console.warn(`[Cache] Clash API returned status 403. No fallback found for war log ${cleanedTag}`);
+                    return res.status(403).json({ message: 'Clan war log is private' });
+                }
+            }
+
+            if (response.status === 503) {
+                tripCircuitBreaker(503); // Trip breaker
+            }
             const stale = getCachedData(cacheKey, true);
             if (stale) {
                 console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE war log for ${cleanedTag}`);
                 res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                 if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
-                return res.json(stale.data);
+                const actualStaleData = stale.isPrivateWarLog ? stale.data : stale.data || stale;
+                return res.json(actualStaleData);
             }
             const text = await response.text();
             res.status(response.status).send(text);
@@ -505,6 +711,11 @@ app.get('/proxy/clans/:clanTag/warlog', proxyLimiter, async (req, res) => {
 app.get('/proxy/clans/:clanTag/currentwar/leaguegroup', proxyLimiter, async (req, res) => {
     const fetch = (await import('node-fetch')).default;
     const clanTag = req.params.clanTag;
+
+    if (!isValidTag(clanTag)) {
+        return res.status(400).json({ message: 'Invalid Clash of Clans tag format.' });
+    }
+
     const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
     const encodedTag = encodeURIComponent(`#${cleanedTag}`);
     const userId = req.headers['x-user-id'];
@@ -512,6 +723,21 @@ app.get('/proxy/clans/:clanTag/currentwar/leaguegroup', proxyLimiter, async (req
     console.log(`[GET] Fetching CWL league group for tag: ${cleanedTag}, UserID: ${userId || 'none'}`);
 
     const cacheKey = `leaguegroup_${cleanedTag.toUpperCase()}`;
+
+    // Check circuit breaker first
+    if (checkCircuitBreaker()) {
+        console.log(`[Circuit Breaker] Breaker is tripped. Serving cached fallback immediately for CWL league group ${cleanedTag}`);
+        const stale = getCachedData(cacheKey, true);
+        if (stale) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+            if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+            return res.json(stale.data);
+        }
+        return res.status(503).json({
+            message: 'Clash of Clans API is currently in maintenance. No cached snapshot found.'
+        });
+    }
+
     const cached = getCachedData(cacheKey);
     
     if (cached) {
@@ -533,23 +759,34 @@ app.get('/proxy/clans/:clanTag/currentwar/leaguegroup', proxyLimiter, async (req
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/clans/${encodedTag}/currentwar/leaguegroup`;
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         let response;
         try {
             response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
-                }
+                },
+                agent: httpsAgent,
+                signal: controller.signal
             });
         } catch (fetchError) {
+            tripCircuitBreaker(503); // Trip the breaker
             const stale = getCachedData(cacheKey, true);
+            const isTimeout = fetchError.name === 'AbortError';
+            const reason = isTimeout ? 'timeout' : 'fetch failed';
+
             if (stale) {
-                console.warn(`[Cache] Clash API fetch failed. Serving STALE CWL league group for ${cleanedTag}`);
+                console.warn(`[Cache] Clash API ${reason}. Serving STALE CWL league group for ${cleanedTag}`);
                 res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                 if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
                 return res.json(stale.data);
             }
             throw fetchError;
+        } finally {
+            clearTimeout(timeoutId);
         }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
@@ -557,15 +794,18 @@ app.get('/proxy/clans/:clanTag/currentwar/leaguegroup', proxyLimiter, async (req
             registerGroupWarsBackground(data).catch(err => {
                 console.error("[Scraper] Error registering group wars in background:", err);
             });
-            setCachedData(cacheKey, data, 300); // Cache for 5 minutes (300s)
+            setCachedData(cacheKey, data, 600); // Cache for 10 minutes (600s)
             const cachedItem = getCachedData(cacheKey);
 
-            res.setHeader('Cache-Control', 'public, max-age=300');
+            res.setHeader('Cache-Control', 'public, max-age=600');
             if (cachedItem && cachedItem.etag) {
                 res.setHeader('ETag', `"${cachedItem.etag}"`);
             }
             res.status(response.status).json(data);
         } else {
+            if (response.status === 503) {
+                tripCircuitBreaker(503); // Trip breaker
+            }
             const stale = getCachedData(cacheKey, true);
             if (stale) {
                 console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE CWL league group for ${cleanedTag}`);
@@ -585,6 +825,11 @@ app.get('/proxy/clans/:clanTag/currentwar/leaguegroup', proxyLimiter, async (req
 app.get('/proxy/clanwarleagues/wars/:warTag', proxyLimiter, async (req, res) => {
     const fetch = (await import('node-fetch')).default;
     const warTag = req.params.warTag;
+
+    if (!isValidTag(warTag)) {
+        return res.status(400).json({ message: 'Invalid Clash of Clans tag format.' });
+    }
+
     const cleanedTag = warTag.startsWith('#') ? warTag.substring(1) : warTag;
     const encodedTag = encodeURIComponent(`#${cleanedTag}`);
     const userId = req.headers['x-user-id'];
@@ -592,6 +837,21 @@ app.get('/proxy/clanwarleagues/wars/:warTag', proxyLimiter, async (req, res) => 
     console.log(`[GET] Fetching CWL war data for tag: ${cleanedTag}, UserID: ${userId || 'none'}`);
 
     const cacheKey = `wartag_${cleanedTag.toUpperCase()}`;
+
+    // Check circuit breaker first
+    if (checkCircuitBreaker()) {
+        console.log(`[Circuit Breaker] Breaker is tripped. Serving cached fallback immediately for CWL war data ${cleanedTag}`);
+        const stale = getCachedData(cacheKey, true);
+        if (stale) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+            if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+            return res.json(stale.data);
+        }
+        return res.status(503).json({
+            message: 'Clash of Clans API is currently in maintenance. No cached snapshot found.'
+        });
+    }
+
     const cached = getCachedData(cacheKey);
     
     if (cached) {
@@ -613,36 +873,50 @@ app.get('/proxy/clanwarleagues/wars/:warTag', proxyLimiter, async (req, res) => 
         const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
         const url = `${baseUrl}/clanwarleagues/wars/${encodedTag}`;
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         let response;
         try {
             response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
-                }
+                },
+                agent: httpsAgent,
+                signal: controller.signal
             });
         } catch (fetchError) {
+            tripCircuitBreaker(503); // Trip the breaker
             const stale = getCachedData(cacheKey, true);
+            const isTimeout = fetchError.name === 'AbortError';
+            const reason = isTimeout ? 'timeout' : 'fetch failed';
+
             if (stale) {
-                console.warn(`[Cache] Clash API fetch failed. Serving STALE CWL war data for ${cleanedTag}`);
+                console.warn(`[Cache] Clash API ${reason}. Serving STALE CWL war data for ${cleanedTag}`);
                 res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                 if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
                 return res.json(stale.data);
             }
             throw fetchError;
+        } finally {
+            clearTimeout(timeoutId);
         }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
             const data = await response.json();
-            setCachedData(cacheKey, data, 300); // Cache for 5 minutes (300s)
+            setCachedData(cacheKey, data, 600); // Cache for 10 minutes (600s)
             const cachedItem = getCachedData(cacheKey);
 
-            res.setHeader('Cache-Control', 'public, max-age=300');
+            res.setHeader('Cache-Control', 'public, max-age=600');
             if (cachedItem && cachedItem.etag) {
                 res.setHeader('ETag', `"${cachedItem.etag}"`);
             }
             res.status(response.status).json(data);
         } else {
+            if (response.status === 503) {
+                tripCircuitBreaker(503); // Trip breaker
+            }
             const stale = getCachedData(cacheKey, true);
             if (stale) {
                 console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE CWL war data for ${cleanedTag}`);
@@ -1003,12 +1277,102 @@ async function fetchWarFromApi(warTag) {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
-        }
+        },
+        agent: httpsAgent
     });
     if (!response.ok) {
         throw new Error(`CoC API status ${response.status}`);
     }
     return await response.json();
+}
+
+async function fetchClassicWarFromApi(clanTag) {
+    const fetch = (await import('node-fetch')).default;
+    const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
+    const encodedTag = encodeURIComponent(`#${cleanedTag}`);
+    const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
+    const url = `${baseUrl}/clans/${encodedTag}/currentwar`;
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+        },
+        agent: httpsAgent
+    });
+    if (!response.ok) {
+        throw new Error(`CoC API status ${response.status}`);
+    }
+    return await response.json();
+}
+
+async function recordWarResult(warData) {
+    if (!warData || !warData.clan || !warData.opponent) return;
+    const clanTag = warData.clan.tag.toUpperCase();
+    const opponentTag = warData.opponent.tag.toUpperCase();
+    const endTime = warData.endTime;
+    const teamSize = warData.teamSize || 15;
+
+    const clanStars = warData.clan.stars || 0;
+    const clanDestruction = warData.clan.destructionPercentage || 0;
+    const oppStars = warData.opponent.stars || 0;
+    const oppDestruction = warData.opponent.destructionPercentage || 0;
+
+    let clanResult = 'tie';
+    let oppResult = 'tie';
+
+    if (clanStars > oppStars) {
+        clanResult = 'win';
+        oppResult = 'lose';
+    } else if (clanStars < oppStars) {
+        clanResult = 'lose';
+        oppResult = 'win';
+    } else {
+        if (clanDestruction > oppDestruction) {
+            clanResult = 'win';
+            oppResult = 'lose';
+        } else if (clanDestruction < oppDestruction) {
+            clanResult = 'lose';
+            oppResult = 'win';
+        }
+    }
+
+    const logId = `${clanTag.substring(1)}_${opponentTag.substring(1)}_${endTime}`;
+    
+    // Save for our clan
+    await db.collection('clanWarLogs').doc(`${clanTag.substring(1)}_${logId}`).set({
+        clanTag,
+        opponentTag,
+        result: clanResult,
+        endTime,
+        teamSize,
+        stars: clanStars,
+        destructionPercentage: clanDestruction,
+        opponent: {
+            tag: opponentTag,
+            name: warData.opponent.name || '',
+            stars: oppStars,
+            destructionPercentage: oppDestruction
+        },
+        recordedAt: new Date().toISOString()
+    }).catch(err => console.error("[Scraper] Error saving war log entry for clan: ", err));
+
+    // Save for opponent clan
+    await db.collection('clanWarLogs').doc(`${opponentTag.substring(1)}_${logId}`).set({
+        clanTag: opponentTag,
+        opponentTag: clanTag,
+        result: oppResult,
+        endTime,
+        teamSize,
+        stars: oppStars,
+        destructionPercentage: oppDestruction,
+        opponent: {
+            tag: clanTag,
+            name: warData.clan.name || '',
+            stars: clanStars,
+            destructionPercentage: clanDestruction
+        },
+        recordedAt: new Date().toISOString()
+    }).catch(err => console.error("[Scraper] Error saving war log entry for opponent: ", err));
 }
 
 async function registerGroupWarsBackground(groupData) {
@@ -1055,6 +1419,11 @@ async function registerGroupWarsBackground(groupData) {
                         lastFetchTime: new Date().toISOString(),
                         warData: war
                     });
+
+                    // If already completed on initial register, log it
+                    if ((war.state || 'warEnded') === 'warEnded') {
+                        await recordWarResult(war);
+                    }
                 }
             }
         } catch (err) {
@@ -1064,14 +1433,14 @@ async function registerGroupWarsBackground(groupData) {
 }
 
 function startCwlBackgroundScraper() {
-    console.log("[Scraper] Starting CWL background scraper (1-hour interval)");
+    console.log("[Scraper] Starting background scraper (1-hour interval)");
     
     setInterval(async () => {
         try {
             const now = new Date();
-            console.log(`[Scraper] Running periodic CWL war fetch and prune checks at ${now.toISOString()}`);
+            console.log(`[Scraper] Running periodic war fetch checks at ${now.toISOString()}`);
             
-            // 1. Prune wars older than 3 months (90 days)
+            // 1. Prune old CWL wars (90 days)
             const ninetyDaysAgo = new Date();
             ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
             
@@ -1084,23 +1453,19 @@ function startCwlBackgroundScraper() {
                 console.log(`[Scraper] Pruned old war document: ${oldDoc.id}`);
             }
             
-            // 2. Fetch/update in-progress wars whose scheduled endTime has passed
+            // 2. Fetch/update in-progress CWL wars whose scheduled endTime has passed
             const snapshot = await db.collection('cwlWars')
                 .where('state', '!=', 'warEnded')
                 .get();
                 
-            if (snapshot.empty) {
-                return;
-            }
-            
             for (const doc of snapshot.docs) {
                 const war = doc.data();
                 const endTime = parseCocDate(war.endTime);
                 if (!endTime) continue;
                 
-                // Fetch if the scheduled endTime has passed (+ 5-minute buffer)
+                // Only check after war has ended
                 if (now.getTime() >= endTime.getTime() + 5 * 60 * 1000) {
-                    console.log(`[Scraper] War ${war.warTag} endTime passed. Fetching final stats...`);
+                    console.log(`[Scraper] CWL War ${war.warTag} endTime passed. Fetching final stats...`);
                     try {
                         const freshWarData = await fetchWarFromApi(war.warTag);
                         if (freshWarData) {
@@ -1111,21 +1476,392 @@ function startCwlBackgroundScraper() {
                                 warData: freshWarData,
                                 lastFetchTime: new Date().toISOString()
                             });
-                            console.log(`[Scraper] Updated war ${war.warTag} state to: ${freshWarData.state}`);
+                            console.log(`[Scraper] Updated CWL war ${war.warTag} state to: ${freshWarData.state}`);
+                            if ((freshWarData.state || 'warEnded') === 'warEnded') {
+                                await recordWarResult(freshWarData);
+                            }
                         }
                     } catch (err) {
-                        console.error(`[Scraper] Failed to update war ${war.warTag}:`, err.message);
+                        console.error(`[Scraper] Failed to update CWL war ${war.warTag}:`, err.message);
+                    }
+                }
+            }
+
+            // 3. Fetch/update in-progress Classic Wars
+            const classicSnapshot = await db.collection('classicWars')
+                .where('state', '!=', 'warEnded')
+                .get();
+
+            for (const doc of classicSnapshot.docs) {
+                const war = doc.data();
+                const clanTag = war.clanTag; // clean tag has '#' prefix
+                const cleanedClanTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
+                
+                const metaDoc = await db.collection('clanMetadata').doc(cleanedClanTag.toUpperCase()).get();
+                const isPrivate = metaDoc.exists && metaDoc.data().isPrivateWarLog === true;
+                
+                const nowTime = now.getTime();
+                const endTime = parseCocDate(war.endTime);
+                if (!endTime) continue;
+
+                // Respect the 4-hour check interval for private war log clans, 1-hour for public
+                const lastFetch = war.lastFetchTime ? new Date(war.lastFetchTime) : new Date(0);
+                
+                // Only check after war has ended
+                if (nowTime >= endTime.getTime() + 5 * 60 * 1000) {
+                    const cooldown = isPrivate ? 4 * 60 * 60 * 1000 : 1 * 60 * 60 * 1000;
+                    if (nowTime - lastFetch.getTime() >= cooldown) {
+                        console.log(`[Scraper] Updating classic war ${doc.id} for clan ${clanTag} (Private: ${isPrivate})`);
+                        try {
+                            const freshWarData = await fetchClassicWarFromApi(clanTag);
+                            
+                            if (freshWarData) {
+                                if (freshWarData.state === 'warEnded' || freshWarData.state === 'notInWar') {
+                                    await recordWarResult(freshWarData);
+                                    await doc.ref.update({
+                                        state: 'warEnded',
+                                        lastFetchTime: new Date().toISOString()
+                                    });
+                                    console.log(`[Scraper] Classic war ${doc.id} ended. Outcome recorded.`);
+                                } else {
+                                    await doc.ref.update({
+                                        state: freshWarData.state,
+                                        lastFetchTime: new Date().toISOString()
+                                    });
+                                }
+                            }
+                        } catch (err) {
+                            if (err.message.includes('403') || err.message.includes('Forbidden')) {
+                                // Mark as private log in metadata
+                                await db.collection('clanMetadata').doc(cleanedClanTag.toUpperCase()).set({
+                                    tag: cleanedClanTag.toUpperCase(),
+                                    isPrivateWarLog: true,
+                                    updatedAt: new Date().toISOString()
+                                }, { merge: true });
+                                
+                                await doc.ref.update({
+                                    lastFetchTime: new Date().toISOString()
+                                });
+                                console.warn(`[Scraper] Classic war ${doc.id} returned 403. Set metadata to Private.`);
+                            } else {
+                                console.error(`[Scraper] Failed to update classic war ${doc.id}:`, err.message);
+                            }
+                        }
                     }
                 }
             }
         } catch (err) {
-            console.error("[Scraper] Error in CWL background scraper interval:", err);
+            console.error("[Scraper] Error in background scraper interval:", err);
         }
     }, 60 * 60 * 1000); // 1 hour
 }
 
-// Start scraper background job
+// Start background job
 startCwlBackgroundScraper();
+
+app.get('/proxy/clans/:clanTag/currentwar', proxyLimiter, async (req, res) => {
+    const fetch = (await import('node-fetch')).default;
+    const clanTag = req.params.clanTag;
+
+    if (!isValidTag(clanTag)) {
+        return res.status(400).json({ message: 'Invalid Clash of Clans tag format.' });
+    }
+
+    const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
+    const encodedTag = encodeURIComponent(`#${cleanedTag}`);
+    const userId = req.headers['x-user-id'];
+
+    console.log(`[GET] Fetching current war for tag: ${cleanedTag}, UserID: ${userId || 'none'}`);
+
+    const cacheKey = `currentwar_${cleanedTag.toUpperCase()}`;
+    
+    // Check circuit breaker first
+    if (checkCircuitBreaker()) {
+        console.log(`[Circuit Breaker] Breaker is tripped. Serving cached fallback immediately for current war ${cleanedTag}`);
+        const stale = getCachedData(cacheKey, true);
+        if (stale) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+            if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+            return res.json(stale.data);
+        }
+        try {
+            const doc = await db.collection('classicWarsCache').doc(cleanedTag.toUpperCase()).get();
+            if (doc.exists) {
+                const snap = doc.data();
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                return res.json(snap.warData);
+            }
+        } catch (dbError) {
+            console.error(`[Circuit Breaker] Firestore fallback failed for current war ${cleanedTag}:`, dbError);
+        }
+        return res.status(503).json({
+            message: 'Clash of Clans API is currently in maintenance. No cached snapshot found.'
+        });
+    }
+
+    const cached = getCachedData(cacheKey);
+    if (cached) {
+        if (cached.isPrivateWarLog) {
+            if (cached.data) {
+                console.log(`[Cache] Private log hit. Serving cached fallback for current war ${cleanedTag}`);
+                res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+                if (cached.etag) res.setHeader('ETag', `"${cached.etag}"`);
+                return res.json(cached.data);
+            } else {
+                console.log(`[Cache] Private log hit (no fallback). Serving cached 403 for current war ${cleanedTag}`);
+                res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+                return res.status(403).json({ message: 'Clan war log is private' });
+            }
+        }
+
+        const clientETag = req.headers['if-none-match'];
+        if (clientETag && clientETag === `"${cached.etag}"`) {
+            console.log(`[Cache] ETag match. Serving 304 for current war ${cleanedTag}`);
+            res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+            res.setHeader('ETag', `"${cached.etag}"`);
+            return res.status(304).end();
+        }
+
+        console.log(`[Cache] Serving cached current war for ${cleanedTag}`);
+        res.setHeader('Cache-Control', `public, max-age=${getRemainingTTL(cacheKey)}`);
+        res.setHeader('ETag', `"${cached.etag}"`);
+        return res.json(cached.data);
+    }
+
+    try {
+        const baseUrl = process.env.COC_API_BASE_URL || 'https://cocproxy.royaleapi.dev/v1';
+        const url = `${baseUrl}/clans/${encodedTag}/currentwar`;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        let response;
+        try {
+            response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${process.env.CLASH_OF_CLANS_API_TOKEN}`
+                },
+                agent: httpsAgent,
+                signal: controller.signal
+            });
+        } catch (fetchError) {
+            tripCircuitBreaker(503);
+            const stale = getCachedData(cacheKey, true);
+            const isTimeout = fetchError.name === 'AbortError';
+            const reason = isTimeout ? 'timeout' : 'fetch failed';
+
+            if (stale) {
+                console.warn(`[Cache] Clash API ${reason}. Serving STALE current war data for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                const actualStaleData = stale.isPrivateWarLog ? stale.data : stale.data || stale;
+                return res.json(actualStaleData);
+            }
+
+            // Fallback to Firestore cache snapshot
+            try {
+                const doc = await db.collection('classicWarsCache').doc(cleanedTag.toUpperCase()).get();
+                if (doc.exists) {
+                    const snap = doc.data();
+                    console.warn(`[Firestore Cache] Clash API ${reason}. Serving Firestore snapshot for current war ${cleanedTag}`);
+                    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                    return res.json(snap.warData);
+                }
+            } catch (dbError) {
+                console.error(`[Firestore Cache] Failed to load snapshot for current war ${cleanedTag}:`, dbError);
+            }
+
+            throw fetchError;
+        } finally {
+            clearTimeout(timeoutId);
+        }
+
+        if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+            const data = await response.json();
+            
+            // Set memory cache for 10 minutes (600s)
+            setCachedData(cacheKey, data, 600);
+            const cachedItem = getCachedData(cacheKey);
+
+            // Write to Firestore snapshot cache in the background
+            db.collection('classicWarsCache').doc(cleanedTag.toUpperCase()).set({
+                tag: cleanedTag.toUpperCase(),
+                warData: data,
+                cachedAt: new Date().toISOString()
+            }).catch(err => console.error(`[Firestore Cache] Error saving current war snapshot for ${cleanedTag}:`, err));
+
+            // Register war in classicWars collection for background scraper tracking
+            if (data.state && data.state !== 'notInWar' && data.opponent) {
+                const oppTag = data.opponent.tag;
+                const warId = `${cleanedTag.toUpperCase()}_${oppTag.substring(1).toUpperCase()}_${data.endTime}`;
+                db.collection('classicWars').doc(warId).set({
+                    warId,
+                    clanTag: `#${cleanedTag.toUpperCase()}`,
+                    opponentTag: oppTag,
+                    endTime: data.endTime,
+                    state: data.state,
+                    lastFetchTime: new Date().toISOString(),
+                    isPrivate: false
+                }).catch(err => console.error(`[Scraper] Error registering classic war for ${cleanedTag}:`, err));
+            }
+
+            res.setHeader('Cache-Control', 'public, max-age=600');
+            if (cachedItem && cachedItem.etag) {
+                res.setHeader('ETag', `"${cachedItem.etag}"`);
+            }
+            res.status(response.status).json(data);
+        } else {
+            if (response.status === 403) {
+                // Mark clan's war log as private in firestore metadata
+                db.collection('clanMetadata').doc(cleanedTag.toUpperCase()).set({
+                    tag: cleanedTag.toUpperCase(),
+                    isPrivateWarLog: true,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true }).catch(err => console.error("Error setting private war log metadata: ", err));
+
+                // Try to get Firestore fallback snapshot
+                let fallbackData = null;
+                try {
+                    const doc = await db.collection('classicWarsCache').doc(cleanedTag.toUpperCase()).get();
+                    if (doc.exists) {
+                        fallbackData = doc.data().warData;
+                    }
+                } catch (dbError) {
+                    console.error(`[Firestore Cache] Failed to load snapshot for current war ${cleanedTag}:`, dbError);
+                }
+
+                // Cache 403 state with fallbackData in memory for 10 minutes (600s)
+                const cacheValue = {
+                    isPrivateWarLog: true,
+                    data: fallbackData
+                };
+                setCachedData(cacheKey, cacheValue, 600);
+
+                if (fallbackData) {
+                    console.warn(`[Cache] Clash API returned status 403. Serving Firestore fallback for current war ${cleanedTag}`);
+                    res.setHeader('Cache-Control', 'public, max-age=600');
+                    return res.json(fallbackData);
+                } else {
+                    console.warn(`[Cache] Clash API returned status 403. No fallback found for current war ${cleanedTag}`);
+                    return res.status(403).json({ message: 'Clan war log is private' });
+                }
+            }
+
+            if (response.status === 503) {
+                tripCircuitBreaker(503);
+            }
+
+            const stale = getCachedData(cacheKey, true);
+            if (stale) {
+                console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE current war data for ${cleanedTag}`);
+                res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
+                const actualStaleData = stale.isPrivateWarLog ? stale.data : stale.data || stale;
+                return res.json(actualStaleData);
+            }
+
+            // Fallback to Firestore cache snapshot
+            try {
+                const doc = await db.collection('classicWarsCache').doc(cleanedTag.toUpperCase()).get();
+                if (doc.exists) {
+                    const snap = doc.data();
+                    console.warn(`[Firestore Cache] Clash API error status ${response.status}. Serving Firestore snapshot for current war ${cleanedTag}`);
+                    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+                    const actualStaleData = snap.warData;
+                    return res.json(actualStaleData);
+                }
+            } catch (dbError) {
+                console.error(`[Firestore Cache] Failed to load snapshot for current war ${cleanedTag}:`, dbError);
+            }
+
+            const text = await response.text();
+            res.status(response.status).send(text);
+        }
+    } catch (error) {
+        console.error(`[GET] Error in proxy/clans/${cleanedTag}/currentwar:`, error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// GET /api/clans/:clanTag/warlog
+app.get('/api/clans/:clanTag/warlog', async (req, res) => {
+    const clanTag = req.params.clanTag;
+    const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
+    const cleanClanTag = `#${cleanedTag.toUpperCase()}`;
+
+    try {
+        // 1. Fetch public war log from proxy endpoint (which caches for 10 mins)
+        let publicLog = [];
+        try {
+            const baseUrl = `http://localhost:${port}`;
+            const fetch = (await import('node-fetch')).default;
+            const response = await fetch(`${baseUrl}/proxy/clans/${cleanedTag}/warlog`, {
+                headers: {
+                    'x-user-id': 'internal-scraper'
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                publicLog = data.items || [];
+            }
+        } catch (err) {
+            console.warn(`[Unified Warlog] Could not fetch public log for ${cleanClanTag}:`, err.message);
+        }
+
+        // 2. Fetch recorded custom war logs from Firestore cwlWars and clanWarLogs collections
+        const customLogSnapshot = await db.collection('clanWarLogs')
+            .where('clanTag', '==', cleanClanTag)
+            .get();
+
+        const customEntries = [];
+        customLogSnapshot.forEach(doc => {
+            const data = doc.data();
+            customEntries.push({
+                result: data.result,
+                endTime: data.endTime,
+                teamSize: data.teamSize,
+                clan: {
+                    tag: data.clanTag,
+                    stars: data.stars,
+                    destructionPercentage: data.destructionPercentage
+                },
+                opponent: {
+                    tag: data.opponent.tag,
+                    name: data.opponent.name,
+                    stars: data.opponent.stars,
+                    destructionPercentage: data.opponent.destructionPercentage
+                },
+                source: 'recorded'
+            });
+        });
+
+        // 3. Merge and deduplicate by endTime + opponent tag
+        const mergedMap = new Map();
+
+        // Insert public log entries first
+        publicLog.forEach(entry => {
+            const key = `${entry.endTime}_${entry.opponent.tag.toUpperCase()}`;
+            mergedMap.set(key, { ...entry, source: 'public' });
+        });
+
+        // Insert custom entries
+        customEntries.forEach(entry => {
+            const key = `${entry.endTime}_${entry.opponent.tag.toUpperCase()}`;
+            mergedMap.set(key, entry);
+        });
+
+        // Convert to array and sort by endTime descending
+        const mergedList = Array.from(mergedMap.values()).sort((a, b) => {
+            return b.endTime.localeCompare(a.endTime);
+        });
+
+        res.json(mergedList);
+    } catch (error) {
+        console.error(`Error generating unified war log for clan ${cleanClanTag}:`, error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 // GET /api/cwl/wars?clanTag={clanTag}
 app.get('/api/cwl/wars', async (req, res) => {
