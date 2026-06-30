@@ -776,7 +776,9 @@ export function initializePriorityListModal() {
                 }
 
                 setTimeout(() => {
-                    draggedItem.classList.add('dragging');
+                    if (draggedItem) {
+                        draggedItem.classList.add('dragging');
+                    }
                 }, 0);
             }
         });
