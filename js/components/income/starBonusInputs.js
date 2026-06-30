@@ -419,12 +419,19 @@ export function initializeStarBonusSelector() {
         lastEventSelect.addEventListener('change', (e) => {
             const offset = parseInt(e.target.value, 10);
             const now = new Date();
-            const date = new Date(now.getUTCFullYear(), now.getUTCMonth() + offset, 1);
+            
+            let year = now.getUTCFullYear();
+            let month = now.getUTCMonth() + offset;
+            
+            while (month < 0) {
+                month += 12;
+                year -= 1;
+            }
             
             handleStateUpdate(() => {
                 if (!state.income.starBonus) state.income.starBonus = {};
-                state.income.starBonus.lastEventMonth = date.getUTCMonth();
-                state.income.starBonus.lastEventYear = date.getUTCFullYear();
+                state.income.starBonus.lastEventMonth = month;
+                state.income.starBonus.lastEventYear = year;
             });
         });
     }
