@@ -24,6 +24,7 @@ export const heroData = {
             { name: "Frozen Arrow", type: "epic", image: "assets/equipment/archer_queen/AQ_frozen_arrow.png" },
             { name: "Magic Mirror", type: "epic", image: "assets/equipment/archer_queen/AQ_magic_mirror.png" },
             { name: "Action Figure", type: "epic", image: "assets/equipment/archer_queen/AQ_action_figure.png" },
+            { name: "Monolith Arrow", type: "epic", image: "assets/equipment/archer_queen/AQ_monolith_arrow.png" },
         ],
     },
     minionPrince: {
