@@ -8,15 +8,29 @@ input[type="email"],
 select,
 textarea,
 .dropdown-style {
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s cubic-bezier(0.2, 1, 0.2, 1);
+
+    &:hover {
+        transform: translateY(-1px);
+    }
 
     &:focus {
         outline: none;
     }
 
+@keyframes input-glow-pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.2);
+        }
+        50% {
+            box-shadow: 0 0 0 5px rgba(138, 180, 248, 0.4);
+        }
+    }
+
     &:focus-visible {
         border-color: $accent-primary;
-        box-shadow: 0 0 0 3px $accent-primary-soft;
+        animation: input-glow-pulse 1.8s infinite ease-in-out;
+        transform: translateY(-1px) scale(1.01);
         outline: none;
     }
 }

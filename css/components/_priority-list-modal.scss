@@ -281,8 +281,27 @@
     padding: 10px;
     border-radius: 8px;
     margin-bottom: 10px;
-    box-shadow: $elevation-2; // Increased shadow
-    border: 1px solid $border-primary; // Stronger border
+    box-shadow: $elevation-2;
+    border: 1px solid $border-primary;
+    
+    transition: transform 0.25s cubic-bezier(0.2, 1, 0.2, 1), 
+                box-shadow 0.25s cubic-bezier(0.2, 1, 0.2, 1), 
+                background-color 0.25s cubic-bezier(0.2, 1, 0.2, 1), 
+                border-color 0.25s cubic-bezier(0.2, 1, 0.2, 1);
+                
+    &:not(.dragging):not(.disabled-dragging):hover {
+        background-color: $bg-surface-secondary;
+        border-color: $border-secondary;
+        box-shadow: $elevation-4;
+        
+        .drag-handle {
+            color: $text-primary;
+        }
+    }
+    
+    &:not(.dragging):not(.disabled-dragging):active {
+        box-shadow: $elevation-2;
+    }
 }
 .priority-list-editor-item.disabled-dragging {
     opacity: 0.6;
@@ -294,7 +313,11 @@
 }
 
 .priority-list-editor-item.dragging {
-    opacity: 0.5;
+    opacity: 0.3;
+    background-color: $bg-surface-secondary !important;
+    border: 1px dashed $border-secondary !important;
+    box-shadow: none !important;
+    transform: scale(0.97) !important;
 }
 .priority-list-editor-item .drag-handle {
     cursor: grab;
@@ -651,7 +674,7 @@
     font-size: var(--font-size-xs);
     text-align: center;
     margin-right: 5px;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -665,6 +688,20 @@
     
     &:hover {
         background-color: $accent-primary-soft;
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(0.92);
+    }
+
+    @keyframes badge-scale-pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.2);
+        }
     }
 
     .badge {
@@ -684,5 +721,6 @@
         justify-content: center;
         border: 2px solid $bg-surface-secondary;
         box-sizing: border-box;
+        animation: badge-scale-pulse 2s infinite ease-in-out;
     }
 }

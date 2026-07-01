@@ -4,7 +4,7 @@ import { state } from '../../core/state.js';
 import { translate } from '../../i18n/translator.js';
 
 import { currencyData } from '../../data/appData.js';
-import { formatNumber, formatCurrency } from '../../utils/numberFormatter.js';
+import { formatNumber, formatCurrency, updateCalculatedValue } from '../../utils/numberFormatter.js';
 
 export function initializeIncomeCardHandler() {
     // 1. Card Help Popover Setup
@@ -110,9 +110,9 @@ export function renderIncomeCard(totalIncome, uiSettings, totalMoneyCost) {
     const footerGlowy = dom.income?.home?.incomeCard?.table?.totalRow?.glowy;
     const footerStarry = dom.income?.home?.incomeCard?.table?.totalRow?.starry;
 
-    if (footerShiny) footerShiny.textContent = formatNumber(Math.round(totalIncome.shiny || 0));
-    if (footerGlowy) footerGlowy.textContent = formatNumber(Math.round(totalIncome.glowy || 0));
-    if (footerStarry) footerStarry.textContent = formatNumber(Math.round(totalIncome.starry || 0));
+    updateCalculatedValue(footerShiny, totalIncome.shiny || 0);
+    updateCalculatedValue(footerGlowy, totalIncome.glowy || 0);
+    updateCalculatedValue(footerStarry, totalIncome.starry || 0);
 
     const homeResourceElements = dom.income.home.incomeCard.resources;
     if (homeResourceElements.moneyValue) {

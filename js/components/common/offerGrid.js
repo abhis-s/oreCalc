@@ -88,6 +88,33 @@ export function initializeOfferGrid({ container, offers, onStateChange, getDynam
 
 export function renderOfferGrid({ container, offers, stateSelector, renderRow, onRowAppended }) {
     if (!container) return;
+
+    if (offers.length === 0) {
+        if (container.children.length > 0) {
+            container.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(-10px)';
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+                container.style.opacity = '';
+                container.style.transform = '';
+                container.style.transition = '';
+                import('../../ui/cardLayoutManager.js').then(m => m.repackCards());
+            }, 200);
+        } else {
+            container.innerHTML = '';
+        }
+        return;
+    }
+
+    container.style.transition = 'none';
+    container.style.opacity = '0';
+    container.style.transform = 'translateY(-10px)';
+    
+    // Force a reflow
+    container.offsetHeight;
+
     container.innerHTML = '';
 
     offers.forEach(offer => {
@@ -99,5 +126,11 @@ export function renderOfferGrid({ container, offers, stateSelector, renderRow, o
                 onRowAppended(rowElement, offer);
             }
         }
+    });
+
+    requestAnimationFrame(() => {
+        container.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+        container.style.opacity = '1';
+        container.style.transform = 'translateY(0)';
     });
 }

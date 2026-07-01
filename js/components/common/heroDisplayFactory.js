@@ -19,6 +19,9 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
     container.className = mode === 'planner' ? 'equipment-item-planner' : 'equipment-item';
     container.dataset.equipName = equip.name;
     container.dataset.equipType = equip.type;
+    if (mode === 'interactive') {
+        container.style.viewTransitionName = `eq-${toCamelCase(equip.name)}`;
+    }
 
     const isChecked = equipState?.checked ?? true;
     const currentLevel = equipState?.level ?? 1;
@@ -143,6 +146,9 @@ export function createHeroCard({ hero, heroState, heroKey, mode = 'interactive',
     const heroDisabledClass = (heroState.enabled === false) ? 'hero-disabled' : '';
     card.className = `hero-card card ${heroDisabledClass}`;
     card.dataset.heroName = hero.name;
+    if (mode === 'interactive') {
+        card.style.viewTransitionName = `hc-${toCamelCase(hero.name)}`;
+    }
 
     const titleDiv = document.createElement('div');
     titleDiv.className = 'hero-title';

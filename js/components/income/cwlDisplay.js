@@ -1,6 +1,6 @@
 import { dom } from '../../dom/domElements.js';
 
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { translate } from '../../i18n/translator.js';
 
 export function renderCwlIncomeTabDisplay(fullCwlIncome, cwlState) {
@@ -14,11 +14,11 @@ export function renderCwlIncomeTabDisplay(fullCwlIncome, cwlState) {
         resultsElements.lossRateValue.value = Math.max(0, lossRate).toFixed(0);
     }
 
-    if(displayElements.perHit?.shiny) displayElements.perHit.shiny.textContent = formatNumber(Math.round(fullCwlIncome.perEvent?.shiny || 0));
-    if(displayElements.perHit?.glowy) displayElements.perHit.glowy.textContent = formatNumber(Math.round(fullCwlIncome.perEvent?.glowy || 0));
-    if(displayElements.perHit?.starry) displayElements.perHit.starry.textContent = formatNumber(Math.round(fullCwlIncome.perEvent?.starry || 0));
+    updateCalculatedValue(displayElements.perHit?.shiny, fullCwlIncome.perEvent?.shiny || 0);
+    updateCalculatedValue(displayElements.perHit?.glowy, fullCwlIncome.perEvent?.glowy || 0);
+    updateCalculatedValue(displayElements.perHit?.starry, fullCwlIncome.perEvent?.starry || 0);
     
-    if(displayElements.monthly?.shiny) displayElements.monthly.shiny.textContent = formatNumber(Math.round(fullCwlIncome.monthly?.shiny || 0));
-    if(displayElements.monthly?.glowy) displayElements.monthly.glowy.textContent = formatNumber(Math.round(fullCwlIncome.monthly?.glowy || 0));
-    if(displayElements.monthly?.starry) displayElements.monthly.starry.textContent = formatNumber(Math.round(fullCwlIncome.monthly?.starry || 0));
+    updateCalculatedValue(displayElements.monthly?.shiny, fullCwlIncome.monthly?.shiny || 0);
+    updateCalculatedValue(displayElements.monthly?.glowy, fullCwlIncome.monthly?.glowy || 0);
+    updateCalculatedValue(displayElements.monthly?.starry, fullCwlIncome.monthly?.starry || 0);
 }

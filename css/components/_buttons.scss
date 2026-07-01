@@ -196,6 +196,15 @@
     right: 20px;
     z-index: $z-index-fab;
 
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+    transform-origin: bottom right;
+    transition: opacity 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                bottom 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                right 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+
     .save-button-tooltip {
         background-color: $bg-surface-tertiary;
         border-radius: 6px;
@@ -343,11 +352,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.15s ease-in-out, color 0.15s;
+    transition: background-color 0.15s ease-in-out, color 0.15s, transform 0.1s;
 
     &:hover {
         background-color: $btn-bg-grey-soft-hover;
         color: $text-primary;
+    }
+
+    &:active {
+        transform: scale(0.96);
     }
 }
 
@@ -364,11 +377,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.15s ease-in-out, border-color 0.15s;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s, transform 0.1s;
 
     &:hover {
         background-color: $btn-hover-blue-bg;
         border-color: $btn-border-blue-hover;
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.96);
     }
 
     &:disabled {
@@ -529,3 +546,4 @@
         border-color: var(--btn-border-emerald-hover);
     }
 }
+

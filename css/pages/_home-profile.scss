@@ -333,7 +333,7 @@
             width: 0;
             background: linear-gradient(90deg, #00b0ff 0%, #aa00ff 50%, #ffd700 100%);
             border-radius: 4px;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 2.0s cubic-bezier(0.25, 1, 0.5, 1);
 
             &.maxed-fill {
                 background: linear-gradient(90deg, #ffd700 0%, #fff176 50%, #ffd700 100%);
@@ -458,7 +458,7 @@
                 width: 0;
                 background: linear-gradient(90deg, var(--accent-primary) 0%, color-mix(in srgb, var(--accent-primary) 70%, #fff) 100%);
                 border-radius: 2.5px;
-                transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: width 1.8s cubic-bezier(0.25, 1, 0.5, 1);
 
                 &.shiny-fill {
                     background: linear-gradient(90deg, #00b0ff 0%, #80d8ff 100%);

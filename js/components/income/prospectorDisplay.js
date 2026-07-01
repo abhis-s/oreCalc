@@ -4,7 +4,7 @@ import { handleStateUpdate } from '../../app.js';
 
 import { convertOres, getStepValue, findOptimalConversionSchedule } from '../../incomeCalculations/prospectorManager.js';
 
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { getDailyIncomeFromCalendar } from '../../utils/predictionCalculator.js';
 import { getSVG } from '../../utils/svgManager.js';
 import { heroData, upgradeCosts } from '../../data/heroData.js';
@@ -25,13 +25,13 @@ export function renderProspectorIncomeDisplay(prospectorIncome) {
     const dailyValues = prospectorIncome.daily || { shiny: 0, glowy: 0, starry: 0 };
     const monthlyValues = prospectorIncome.monthly || { shiny: 0, glowy: 0, starry: 0 };
 
-    dom.income.prospector.display.daily.shiny.textContent = formatNumber(Math.round(dailyValues.shiny));
-    dom.income.prospector.display.daily.glowy.textContent = formatNumber(Math.round(dailyValues.glowy));
-    dom.income.prospector.display.daily.starry.textContent = formatNumber(Math.round(dailyValues.starry));
+    updateCalculatedValue(dom.income.prospector.display.daily.shiny, dailyValues.shiny);
+    updateCalculatedValue(dom.income.prospector.display.daily.glowy, dailyValues.glowy);
+    updateCalculatedValue(dom.income.prospector.display.daily.starry, dailyValues.starry);
 
-    dom.income.prospector.display.monthly.shiny.textContent = formatNumber(Math.round(monthlyValues.shiny));
-    dom.income.prospector.display.monthly.glowy.textContent = formatNumber(Math.round(monthlyValues.glowy));
-    dom.income.prospector.display.monthly.starry.textContent = formatNumber(Math.round(monthlyValues.starry));
+    updateCalculatedValue(dom.income.prospector.display.monthly.shiny, monthlyValues.shiny);
+    updateCalculatedValue(dom.income.prospector.display.monthly.glowy, monthlyValues.glowy);
+    updateCalculatedValue(dom.income.prospector.display.monthly.starry, monthlyValues.starry);
 
     updateProspectorTip();
 }

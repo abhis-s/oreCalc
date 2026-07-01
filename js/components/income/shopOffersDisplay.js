@@ -1,7 +1,7 @@
 import { dom } from '../../dom/domElements.js';
 
 import { currencyData, shopOfferData } from '../../data/appData.js';
-import { formatCurrency, formatNumber } from '../../utils/numberFormatter.js';
+import { formatCurrency, formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { getPriceForTier, getCurrencySymbol } from '../../utils/incomeUtils.js';
 import { translate } from '../../i18n/translator.js';
 
@@ -198,11 +198,11 @@ export function renderShopOfferIncomeTabDisplay(shopOfferIncome, uiSettings) {
     const incomeTabDisplayElements = dom.income.shopOffers.display;
     if (!incomeTabDisplayElements) return;
 
-    if (incomeTabDisplayElements.shiny) incomeTabDisplayElements.shiny.textContent = formatNumber(Math.round(shopOfferIncome.monthly?.shiny || 0));
-    if (incomeTabDisplayElements.glowy) incomeTabDisplayElements.glowy.textContent = formatNumber(Math.round(shopOfferIncome.monthly?.glowy || 0));
-    if (incomeTabDisplayElements.starry) incomeTabDisplayElements.starry.textContent = formatNumber(Math.round(shopOfferIncome.monthly?.starry || 0));
-    if (incomeTabDisplayElements.eur) incomeTabDisplayElements.eur.textContent = formatCurrency(shopOfferIncome.monthly?.EUR || 0);
-    if (incomeTabDisplayElements.usd) incomeTabDisplayElements.usd.textContent = formatCurrency(shopOfferIncome.monthly?.USD || 0);
+    updateCalculatedValue(incomeTabDisplayElements.shiny, shopOfferIncome.monthly?.shiny || 0);
+    updateCalculatedValue(incomeTabDisplayElements.glowy, shopOfferIncome.monthly?.glowy || 0);
+    updateCalculatedValue(incomeTabDisplayElements.starry, shopOfferIncome.monthly?.starry || 0);
+    updateCalculatedValue(incomeTabDisplayElements.eur, shopOfferIncome.monthly?.EUR || 0, 2);
+    updateCalculatedValue(incomeTabDisplayElements.usd, shopOfferIncome.monthly?.USD || 0, 2);
     if (incomeTabDisplayElements.dynamic) {
         let displayCurrencyCode = uiSettings.currency.code.toUpperCase();
         let displaySymbol = currencyData[uiSettings.currency.code]?.symbol || '';
@@ -213,7 +213,7 @@ export function renderShopOfferIncomeTabDisplay(shopOfferIncome, uiSettings) {
         }
 
         const dynamicValue = (shopOfferIncome.monthly?.[displayCurrencyCode] || 0);
-        incomeTabDisplayElements.dynamic.textContent = formatCurrency(dynamicValue);
+        updateCalculatedValue(incomeTabDisplayElements.dynamic, dynamicValue, 2);
         incomeTabDisplayElements.dynamicCurrencySymbol.textContent = displaySymbol;
     }
 }

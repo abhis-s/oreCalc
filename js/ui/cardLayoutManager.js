@@ -5,8 +5,11 @@ import { handleStateUpdate } from '../core/stateManager.js';
 const COMPACT_CLASS = 'layout-compact';
 const HEIGHT_THRESHOLD = 10;
 const DEBOUNCE_MS = 150;
-const TRANSITION_DURATION = 350;
-const TRANSITION_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
+const TRANSITION_DURATION = 250;
+const TRANSITION_EASING = 'cubic-bezier(0.2, 1, 0.2, 1)';
+
+let isWindowResizing = false;
+let windowResizeTimeout = null;
 
 const LAYOUT_CONFIGS = [
     {
@@ -349,10 +352,15 @@ function applyPacking(animate) {
         if (!layout.gridEl || layout.originalCards.length === 0) continue;
 
         if (!isDesktop) {
-            // Fallback to normal layout on mobile devices
+            // Fallback to normal layout on mobile devices smoothly
             layout.gridEl.classList.remove(COMPACT_CLASS);
             layout.gridEl.classList.remove('layout-compact-dev');
+            
+            const firstPositions = animate ? recordPositions(layout.originalCards) : null;
             clearColumns(layout);
+            if (animate && firstPositions) {
+                flipAnimate(layout.gridEl, layout.originalCards, firstPositions);
+            }
             continue;
         }
 
@@ -490,6 +498,34 @@ function onContainerResize(layout, entries) {
         if (Math.abs(newHeight - prevHeight) >= HEIGHT_THRESHOLD) {
             layout.heightMap.set(el, newHeight);
             changed = true;
+
+            if (prevHeight > 0 && !isWindowResizing) {
+                requestAnimationFrame(() => {
+                    // Cancel any ongoing height animation timeout
+                    if (el.__heightTimeout) {
+                        clearTimeout(el.__heightTimeout);
+                    }
+
+                    // Force layout styles to animate height smoothly
+                    el.style.transition = 'none';
+                    el.style.height = `${prevHeight}px`;
+                    el.style.overflow = 'hidden';
+                    
+                    // Force a repaint
+                    el.offsetHeight;
+
+                    // Animate to new height
+                    el.style.transition = `height ${TRANSITION_DURATION}ms ${TRANSITION_EASING}`;
+                    el.style.height = `${newHeight}px`;
+
+                    el.__heightTimeout = setTimeout(() => {
+                        el.style.transition = '';
+                        el.style.height = '';
+                        el.style.overflow = '';
+                        el.__heightTimeout = null;
+                    }, TRANSITION_DURATION);
+                });
+            }
         }
     }
 
@@ -502,13 +538,22 @@ function onContainerResize(layout, entries) {
  * Window resize handler - rebuilds layout or resets based on screen width.
  */
 function onWindowResize() {
+    isWindowResizing = true;
+    if (windowResizeTimeout !== null) {
+        clearTimeout(windowResizeTimeout);
+    }
+    windowResizeTimeout = setTimeout(() => {
+        isWindowResizing = false;
+        windowResizeTimeout = null;
+    }, 300);
+
     if (resizeTimer !== null) {
         clearTimeout(resizeTimer);
     }
     resizeTimer = debounce(() => {
         resizeTimer = null;
         if (isCompact) {
-            applyPacking(false);
+            applyPacking(true);
         }
     }, DEBOUNCE_MS);
 }
@@ -521,6 +566,9 @@ function observeContainers(layout) {
     if (!layout.resizeObserver) return;
 
     for (const el of layout.originalCards) {
+        if (el.id === 'priority-list-card' || el.id === 'planner-calendar-card') {
+            continue;
+        }
         layout.resizeObserver.observe(el);
         layout.heightMap.set(el, el.getBoundingClientRect().height);
     }
@@ -608,6 +656,29 @@ function getCardTitleText(container) {
     return 'Card';
 }
 
+const willChangePosition = (card, targetParent, targetSibling) => {
+    return card.parentNode !== targetParent || card.nextSibling !== targetSibling;
+};
+
+let lastSwapTime = 0;
+let lastSwapCards = null;
+
+const animateInsertion = (layout, action, targetCard) => {
+    const draggingCard = layout.gridEl.querySelector('.dragging');
+    if (draggingCard && targetCard) {
+        const now = Date.now();
+        if (lastSwapCards && lastSwapCards.has(draggingCard) && lastSwapCards.has(targetCard) && (now - lastSwapTime < 350)) {
+            return;
+        }
+        lastSwapTime = now;
+        lastSwapCards = new Set([draggingCard, targetCard]);
+    }
+
+    const firstPositions = recordPositions(layout.originalCards);
+    action();
+    flipAnimate(layout.gridEl, layout.originalCards, firstPositions);
+};
+
 function initCardDragReordering(layout) {
     function canMoveToColumn(draggingCard, targetColumn) {
         if (currentMode === 'cozy') return true;
@@ -638,7 +709,7 @@ function initCardDragReordering(layout) {
         const dragHandle = document.createElement('div');
         dragHandle.className = 'card-drag-handle';
         dragHandle.setAttribute('draggable', 'true');
-        dragHandle.innerHTML = `<orecalc-assets-svg name="drag-indicator" fill="#e3e3e3"></orecalc-assets-svg>`;
+        dragHandle.innerHTML = `<orecalc-assets-svg name="drag-indicator" fill="currentColor"></orecalc-assets-svg>`;
         
         // Match drag handle position to card padding dynamically if requested
         handleTarget.appendChild(dragHandle);
@@ -707,6 +778,8 @@ function initCardDragReordering(layout) {
             container.classList.remove('dragging');
             container.setAttribute('draggable', 'false');
         }
+        lastSwapCards = null;
+        lastSwapTime = 0;
         saveCustomCardOrder(layout);
         stopAutoScroll();
     });
@@ -742,7 +815,11 @@ function initCardDragReordering(layout) {
             const targetColumn = e.target.closest('.layout-grid-column');
             if (targetColumn && draggingCard.parentNode !== targetColumn) {
                 if (canMoveToColumn(draggingCard, targetColumn)) {
-                    targetColumn.appendChild(draggingCard);
+                    if (willChangePosition(draggingCard, targetColumn, null)) {
+                        animateInsertion(layout, () => {
+                            targetColumn.appendChild(draggingCard);
+                        });
+                    }
                 }
             }
             return;
@@ -771,11 +848,20 @@ function initCardDragReordering(layout) {
                     const isAfter = clientY > rect.top + rect.height * 0.5;
                     
                     if (isAfter) {
-                        gridEl.insertBefore(carousel, targetCard.nextSibling);
-                        gridEl.insertBefore(priority, carousel.nextSibling);
+                        const targetSibling = targetCard.nextSibling;
+                        if (willChangePosition(carousel, gridEl, targetSibling) || willChangePosition(priority, gridEl, carousel.nextSibling)) {
+                            animateInsertion(layout, () => {
+                                gridEl.insertBefore(carousel, targetSibling);
+                                gridEl.insertBefore(priority, carousel.nextSibling);
+                            });
+                        }
                     } else {
-                        gridEl.insertBefore(carousel, targetCard);
-                        gridEl.insertBefore(priority, carousel.nextSibling);
+                        if (willChangePosition(carousel, gridEl, targetCard) || willChangePosition(priority, gridEl, carousel.nextSibling)) {
+                            animateInsertion(layout, () => {
+                                gridEl.insertBefore(carousel, targetCard);
+                                gridEl.insertBefore(priority, carousel.nextSibling);
+                            });
+                        }
                     }
                 }
                 return;
@@ -804,16 +890,25 @@ function initCardDragReordering(layout) {
         
         if (isAfter) {
             const targetIsBelow = rect.top > dragRect.top + 10;
+            const targetSibling = targetCard.nextSibling;
             if (targetIsBelow || !isSameColumn) {
                 if (clientY > rect.top + rect.height * 0.3) {
                     if (canMoveToColumn(draggingCard, targetColumn)) {
-                        targetColumn.insertBefore(draggingCard, targetCard.nextSibling);
+                        if (willChangePosition(draggingCard, targetColumn, targetSibling)) {
+                            animateInsertion(layout, () => {
+                                targetColumn.insertBefore(draggingCard, targetSibling);
+                            }, targetCard);
+                        }
                     }
                 }
             } else {
                 if (e.clientX > rect.left + rect.width * 0.3) {
                     if (canMoveToColumn(draggingCard, targetColumn)) {
-                        targetColumn.insertBefore(draggingCard, targetCard.nextSibling);
+                        if (willChangePosition(draggingCard, targetColumn, targetSibling)) {
+                            animateInsertion(layout, () => {
+                                targetColumn.insertBefore(draggingCard, targetSibling);
+                            }, targetCard);
+                        }
                     }
                 }
             }
@@ -822,13 +917,21 @@ function initCardDragReordering(layout) {
             if (targetIsAbove || !isSameColumn) {
                 if (clientY < rect.bottom - rect.height * 0.3) {
                     if (canMoveToColumn(draggingCard, targetColumn)) {
-                        targetColumn.insertBefore(draggingCard, targetCard);
+                        if (willChangePosition(draggingCard, targetColumn, targetCard)) {
+                            animateInsertion(layout, () => {
+                                targetColumn.insertBefore(draggingCard, targetCard);
+                            }, targetCard);
+                        }
                     }
                 }
             } else {
                 if (e.clientX < rect.right - rect.width * 0.3) {
                     if (canMoveToColumn(draggingCard, targetColumn)) {
-                        targetColumn.insertBefore(draggingCard, targetCard);
+                        if (willChangePosition(draggingCard, targetColumn, targetCard)) {
+                            animateInsertion(layout, () => {
+                                targetColumn.insertBefore(draggingCard, targetCard);
+                            }, targetCard);
+                        }
                     }
                 }
             }
@@ -999,14 +1102,11 @@ export function applyCardLayout(mode, animate = true, isUserSwitch = true) {
             } else {
                 layout.gridEl.classList.remove('layout-compact-dev');
             }
-            observeContainers(layout);
         } else {
             layout.gridEl.classList.remove(COMPACT_CLASS);
             layout.gridEl.classList.remove('layout-compact-dev');
-            if (layout.resizeObserver) {
-                layout.originalCards.forEach(card => layout.resizeObserver.unobserve(card));
-            }
         }
+        observeContainers(layout);
     }
 
     if (isCompact) {

@@ -5,7 +5,16 @@
     @extend %flex-center;
     flex-wrap: nowrap;
     margin: 0 10px 20px;
-    transition: background-color 0.4s ease-in-out, box-shadow 0.4s ease-in-out, border-radius 0.4s ease-in-out;
+    padding: 12px 20px;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    transition: background-color 0.3s ease-in-out, 
+                box-shadow 0.3s ease-in-out, 
+                border-radius 0.3s ease-in-out, 
+                top 0.3s ease-in-out, 
+                padding 0.3s ease-in-out, 
+                border-color 0.3s ease-in-out, 
+                margin 0.3s ease-in-out;
     position: relative;
 
     h1 {
@@ -13,17 +22,20 @@
     }
 
     &.sticky {
-        background-color: $bg-surface-secondary;
-        border-radius: 0 0 15px 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        left: 0;
+        background-color: color-mix(in srgb, $bg-surface-secondary 80%, transparent);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-color: color-mix(in srgb, $border-primary 50%, transparent);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        left: 15px;
+        right: 15px;
         margin: 0 auto;
-        padding: 10px 20px;
+        padding: 10px 24px;
         position: fixed;
-        right: 0;
-        top: 0;
-        width: 100%;
-        max-width: 1200px;
+        top: 15px;
+        width: calc(100% - 30px);
+        max-width: 1170px;
         z-index: $z-index-layout;
     }
 }
@@ -38,6 +50,17 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     -webkit-overflow-scrolling: touch;
+
+    opacity: 1;
+    pointer-events: auto;
+    max-width: 1000px;
+    transform: scale(1) translateX(0);
+    transform-origin: left center;
+    transition: opacity 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                max-width 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                margin 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                padding 0.3s cubic-bezier(0.2, 1, 0.2, 1);
 
     &::-webkit-scrollbar {
         display: none;
@@ -62,12 +85,28 @@
 }
 
 .hamburger {
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    padding: 10px;
     z-index: #{$z-index-layout + 1};
     position: relative;
     outline: none;
+
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    transform: scale(0.5);
+    transition: opacity 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                width 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                height 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                padding 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+                margin 0.3s cubic-bezier(0.2, 1, 0.2, 1);
 
     &:focus-visible {
         outline-offset: 2px !important;
@@ -99,6 +138,13 @@ body.open-drawer .hamburger .cross-icon {
 @media (max-width: 779px) {
     .header-container {
         justify-content: space-between;
+        padding-left: 10px;
+        padding-right: 10px;
+
+        &.sticky {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
     }
 
     .header-container h1 {
@@ -106,7 +152,12 @@ body.open-drawer .hamburger .cross-icon {
     }
 
     .hamburger {
-        display: block;
+        opacity: 1;
+        pointer-events: auto;
+        width: 44px;
+        height: 44px;
+        transform: scale(1);
+        margin-right: 10px;
     }
 
     .player-controls-container {
@@ -114,7 +165,13 @@ body.open-drawer .hamburger .cross-icon {
     }
 
     .tab-bar-container {
-        display: none;
+        opacity: 0;
+        pointer-events: none;
+        max-width: 0;
+        margin: 0;
+        padding: 0;
+        transform: scale(0.6) translateX(-50px);
+        overflow: hidden;
     }
 
     #refresh-button {

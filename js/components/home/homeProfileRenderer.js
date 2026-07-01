@@ -2,7 +2,7 @@ import { heroData, upgradeCosts } from '../../data/heroData.js';
 import { leagueTiers } from '../../data/appData.js';
 import { translate } from '../../i18n/translator.js';
 import { showAddPlayerModal } from '../player/playerModal.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { formatNumber, animateValue } from '../../utils/numberFormatter.js';
 import { calculateRemainingTime } from '../../core/timeCalculator.js';
 
 /**
@@ -177,6 +177,7 @@ function subtextHTML(key, pct, subData) {
     </div>`;
 }
 
+
 /**
  * Applies a delta update to already-rendered bars without rebuilding innerHTML.
  * Shows a green overlay for gains and a red overlay for losses.
@@ -244,7 +245,9 @@ function applyProgressDelta(container, prevProg, currProg, subData, state) {
 
         // Update the % label.
         const valEl = container.querySelector(`[data-ore-value="${key}"]`);
-        if (valEl) valEl.textContent = `${curr}%`;
+        if (valEl) {
+            animateValue(valEl, prev, curr, key === 'overall' ? 2000 : 1800, val => `${Math.round(val)}%`);
+        }
 
         // Update the storage progress bar indicator.
         if (key !== 'overall' && state) {
@@ -301,7 +304,7 @@ function applyProgressDelta(container, prevProg, currProg, subData, state) {
 /**
  * Triggers the CSS width transition on all bar fills and calls onComplete when done.
  */
-function triggerFillAnimation(container, onComplete) {
+function triggerFillAnimation(container, progressObj, onComplete) {
     let fired = false;
     const done = () => { if (!fired) { fired = true; onComplete(); } };
 
@@ -311,10 +314,20 @@ function triggerFillAnimation(container, onComplete) {
                 bar.style.width = bar.dataset.barWidth;
             });
 
+            // Trigger count-up animation for labels from 0 to target
+            const oreKeys = ['overall', 'shiny', 'glowy', 'starry'];
+            for (const key of oreKeys) {
+                const valEl = container.querySelector(`[data-ore-value="${key}"]`);
+                if (valEl) {
+                    const targetVal = progressObj[key] || 0;
+                    animateValue(valEl, 0, targetVal, key === 'overall' ? 2000 : 1800, val => `${Math.round(val)}%`);
+                }
+            }
+
             const firstFill = container.querySelector('.progress-bar-fill[data-bar-width]');
             if (firstFill) {
                 firstFill.addEventListener('transitionend', done, { once: true });
-                setTimeout(done, 1200); // Safety fallback if transitionend never fires.
+                setTimeout(done, 2400); // Safety fallback if transitionend never fires.
             } else {
                 done();
             }
@@ -503,7 +516,7 @@ export function renderHomeProfile(state) {
                         <img class="ore-icon-overall" src="assets/ore_icon.png" alt="Ore">
                         <span class="overall-progress-label" data-i18n="homeProfile.overallProgress">${translate('homeProfile.overallProgress') || 'Overall Ore Progress'}</span>
                     </span>
-                    <span class="overall-progress-value" data-ore-value="overall">${progress.overall}%</span>
+                    <span class="overall-progress-value" data-ore-value="overall">0%</span>
                 </div>
                 <div class="progress-bar-overall" data-ore="overall">
                     <div class="progress-bar-fill overall-fill ${progress.overall >= 100 ? 'maxed-fill' : ''}" data-bar-width="${progress.overall}%" style="${progress.overall < 100 ? `background: ${getOverallGradient(progress)}` : ''}"></div>
@@ -517,7 +530,7 @@ export function renderHomeProfile(state) {
                             <img class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny">
                             <span class="stat-box-label" data-i18n="ores.shiny">${translate('ores.shiny') || 'Shiny Ore'}</span>
                         </span>
-                        <span class="stat-box-value" data-ore-value="shiny">${progress.shiny}%</span>
+                        <span class="stat-box-value" data-ore-value="shiny">0%</span>
                     </div>
                     <div class="progress-bar-mini" data-ore="shiny">
                         <div class="progress-bar-storage" style="width: ${shinyStoragePct}%"></div>
@@ -531,7 +544,7 @@ export function renderHomeProfile(state) {
                             <img class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy">
                             <span class="stat-box-label" data-i18n="ores.glowy">${translate('ores.glowy') || 'Glowy Ore'}</span>
                         </span>
-                        <span class="stat-box-value" data-ore-value="glowy">${progress.glowy}%</span>
+                        <span class="stat-box-value" data-ore-value="glowy">0%</span>
                     </div>
                     <div class="progress-bar-mini" data-ore="glowy">
                         <div class="progress-bar-storage" style="width: ${glowyStoragePct}%"></div>
@@ -545,7 +558,7 @@ export function renderHomeProfile(state) {
                             <img class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry">
                             <span class="stat-box-label" data-i18n="ores.starry">${translate('ores.starry') || 'Starry Ore'}</span>
                         </span>
-                        <span class="stat-box-value" data-ore-value="starry">${progress.starry}%</span>
+                        <span class="stat-box-value" data-ore-value="starry">0%</span>
                     </div>
                     <div class="progress-bar-mini" data-ore="starry">
                         <div class="progress-bar-storage" style="width: ${starryStoragePct}%"></div>
@@ -563,7 +576,7 @@ export function renderHomeProfile(state) {
 
     cardContainer.style.display = 'block';
 
-    triggerFillAnimation(cardContainer, () => {
+    triggerFillAnimation(cardContainer, progress, () => {
         renderState.isAnimating  = false;
         renderState.lastProgress = progress;
 

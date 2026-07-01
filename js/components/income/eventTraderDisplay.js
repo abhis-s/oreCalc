@@ -5,7 +5,7 @@ import { calculateEventPassIncome } from '../../incomeCalculations/eventPassInco
 
 import { addValidation } from '../../utils/inputValidator.js';
 import { eventTraderData } from '../../data/appData.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { translate } from '../../i18n/translator.js';
 
@@ -114,20 +114,20 @@ export function renderEventTraderIncomeTabDisplay(eventTraderIncome) {
     const incomeTabSummaryElements = dom.income?.eventTrader;
     if (!incomeTabDisplayElements || !incomeTabSummaryElements) return;
 
-    if (incomeTabDisplayElements.monthly?.shiny) incomeTabDisplayElements.monthly.shiny.textContent = formatNumber(Math.round(eventTraderIncome.monthly?.shiny || 0));
-    if (incomeTabDisplayElements.monthly?.glowy) incomeTabDisplayElements.monthly.glowy.textContent = formatNumber(Math.round(eventTraderIncome.monthly?.glowy || 0));
-    if (incomeTabDisplayElements.monthly?.starry) incomeTabDisplayElements.monthly.starry.textContent = formatNumber(Math.round(eventTraderIncome.monthly?.starry || 0));
+    updateCalculatedValue(incomeTabDisplayElements.monthly?.shiny, eventTraderIncome.monthly?.shiny || 0);
+    updateCalculatedValue(incomeTabDisplayElements.monthly?.glowy, eventTraderIncome.monthly?.glowy || 0);
+    updateCalculatedValue(incomeTabDisplayElements.monthly?.starry, eventTraderIncome.monthly?.starry || 0);
 
-    if (incomeTabDisplayElements.bimonthly?.shiny) incomeTabDisplayElements.bimonthly.shiny.textContent = formatNumber(Math.round(eventTraderIncome.bimonthly?.shiny || 0));
-    if (incomeTabDisplayElements.bimonthly?.glowy) incomeTabDisplayElements.bimonthly.glowy.textContent = formatNumber(Math.round(eventTraderIncome.bimonthly?.glowy || 0));
-    if (incomeTabDisplayElements.bimonthly?.starry) incomeTabDisplayElements.bimonthly.starry.textContent = formatNumber(Math.round(eventTraderIncome.bimonthly?.starry || 0));
+    updateCalculatedValue(incomeTabDisplayElements.bimonthly?.shiny, eventTraderIncome.bimonthly?.shiny || 0);
+    updateCalculatedValue(incomeTabDisplayElements.bimonthly?.glowy, eventTraderIncome.bimonthly?.glowy || 0);
+    updateCalculatedValue(incomeTabDisplayElements.bimonthly?.starry, eventTraderIncome.bimonthly?.starry || 0);
 
     if (incomeTabSummaryElements.total) {
-        incomeTabSummaryElements.total.textContent = formatNumber(Math.round(eventTraderIncome.totalMedalsEarned || 0));
+        updateCalculatedValue(incomeTabSummaryElements.total, eventTraderIncome.totalMedalsEarned || 0);
     }
 
     if (incomeTabSummaryElements.remaining) {
-        incomeTabSummaryElements.remaining.textContent = formatNumber(Math.round(eventTraderIncome.remaining || 0));
+        updateCalculatedValue(incomeTabSummaryElements.remaining, eventTraderIncome.remaining || 0);
         incomeTabSummaryElements.remaining.classList.toggle("negative-medals", eventTraderIncome.remaining < 0);
     }
 }

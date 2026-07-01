@@ -1825,9 +1825,21 @@ export function initializeAppSettings() {
         hideMaxedToggle.checked = state.uiSettings.hideMaxedEquipment;
 
         hideMaxedToggle.addEventListener('change', (e) => {
-            handleStateUpdate(() => {
+            const updateState = () => {
                 state.uiSettings.hideMaxedEquipment = e.target.checked;
-            });
+            };
+            if (document.startViewTransition) {
+                document.startViewTransition(() => {
+                    window.__FORCE_SYNC_RENDER__ = true;
+                    try {
+                        handleStateUpdate(updateState);
+                    } finally {
+                        window.__FORCE_SYNC_RENDER__ = false;
+                    }
+                });
+            } else {
+                handleStateUpdate(updateState);
+            }
         });
     }
 
@@ -1836,9 +1848,21 @@ export function initializeAppSettings() {
         hideLockedToggle.checked = state.uiSettings.hideLockedEquipment;
 
         hideLockedToggle.addEventListener('change', (e) => {
-            handleStateUpdate(() => {
+            const updateState = () => {
                 state.uiSettings.hideLockedEquipment = e.target.checked;
-            });
+            };
+            if (document.startViewTransition) {
+                document.startViewTransition(() => {
+                    window.__FORCE_SYNC_RENDER__ = true;
+                    try {
+                        handleStateUpdate(updateState);
+                    } finally {
+                        window.__FORCE_SYNC_RENDER__ = false;
+                    }
+                });
+            } else {
+                handleStateUpdate(updateState);
+            }
         });
     }
 

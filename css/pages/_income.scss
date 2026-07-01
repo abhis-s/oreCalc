@@ -629,6 +629,11 @@
     display: flex;
     gap: 5px;
     justify-content: flex-end;
+    transition: transform 0.2s cubic-bezier(0.2, 1, 0.2, 1);
+
+    &:hover {
+        transform: scale(1.08);
+    }
 
     .ore-image {
         height: 18px;

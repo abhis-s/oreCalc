@@ -1,7 +1,7 @@
 import { dom } from '../../dom/domElements.js';
 import { state } from '../../core/state.js';
 
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { getSupercellEventsForYear } from '../../utils/dateUtils.js';
 import { supercellEventsData } from '../../data/appData.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
@@ -14,13 +14,13 @@ export function renderSupercellEventsDisplay(supercellEventsIncome, timeframe) {
 
     const timeframeIncome = supercellEventsIncome[timeframe] || {};
 
-    if (supercellEventsElements.perEvent?.shiny) supercellEventsElements.perEvent.shiny.textContent = formatNumber(Math.round(supercellEventsIncome.perEvent?.shiny || 0));
-    if (supercellEventsElements.perEvent?.glowy) supercellEventsElements.perEvent.glowy.textContent = formatNumber(Math.round(supercellEventsIncome.perEvent?.glowy || 0));
-    if (supercellEventsElements.perEvent?.starry) supercellEventsElements.perEvent.starry.textContent = formatNumber(Math.round(supercellEventsIncome.perEvent?.starry || 0));
+    updateCalculatedValue(supercellEventsElements.perEvent?.shiny, supercellEventsIncome.perEvent?.shiny || 0);
+    updateCalculatedValue(supercellEventsElements.perEvent?.glowy, supercellEventsIncome.perEvent?.glowy || 0);
+    updateCalculatedValue(supercellEventsElements.perEvent?.starry, supercellEventsIncome.perEvent?.starry || 0);
 
-    if (supercellEventsElements.monthly?.shiny) supercellEventsElements.monthly.shiny.textContent = formatNumber(Math.round(supercellEventsIncome.monthly?.shiny || 0));
-    if (supercellEventsElements.monthly?.glowy) supercellEventsElements.monthly.glowy.textContent = formatNumber(Math.round(supercellEventsIncome.monthly?.glowy || 0));
-    if (supercellEventsElements.monthly?.starry) supercellEventsElements.monthly.starry.textContent = formatNumber(Math.round(supercellEventsIncome.monthly?.starry || 0));
+    updateCalculatedValue(supercellEventsElements.monthly?.shiny, supercellEventsIncome.monthly?.shiny || 0);
+    updateCalculatedValue(supercellEventsElements.monthly?.glowy, supercellEventsIncome.monthly?.glowy || 0);
+    updateCalculatedValue(supercellEventsElements.monthly?.starry, supercellEventsIncome.monthly?.starry || 0);
 
     renderSupercellEvents();
 }

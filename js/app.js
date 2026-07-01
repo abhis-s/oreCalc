@@ -166,7 +166,7 @@ import './utils/imageManager.js';
 
 let userId = localStorage.getItem('oreCalc_userId');
 
-let sessionRandomAccent = null;
+let sessionRandomAccent = window.sessionRandomAccent || null;
 const availableAccents = ['blue', 'gold', 'purple', 'green', 'red'];
 let isTransitioning = false;
 let lastAppliedAccentColor = null;
@@ -542,14 +542,23 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             state.planner.calendar.isHydrated = true;
         }
         if (!silent) {
-            if (renderFrameId) {
-                cancelAnimationFrame(renderFrameId);
-            }
-            renderFrameId = requestAnimationFrame(() => {
+            if (window.__FORCE_SYNC_RENDER__) {
+                if (renderFrameId) {
+                    cancelAnimationFrame(renderFrameId);
+                    renderFrameId = null;
+                }
                 recalculateAll(state);
                 renderApp(state);
-                renderFrameId = null;
-            });
+            } else {
+                if (renderFrameId) {
+                    cancelAnimationFrame(renderFrameId);
+                }
+                renderFrameId = requestAnimationFrame(() => {
+                    recalculateAll(state);
+                    renderApp(state);
+                    renderFrameId = null;
+                });
+            }
         }
     });
 
@@ -567,16 +576,17 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
     const preloader = dom.preloader;
     if (preloader) {
-        let effectivePreloaderAccent = state.uiSettings.accentColor || 'random';
-        if (effectivePreloaderAccent === 'random') {
-            if (!sessionRandomAccent) {
-                sessionRandomAccent = availableAccents[Math.floor(Math.random() * availableAccents.length)];
+        let effectivePreloaderAccent = preloader.getAttribute('data-accent');
+        if (!effectivePreloaderAccent) {
+            effectivePreloaderAccent = state.uiSettings.accentColor || 'random';
+            if (effectivePreloaderAccent === 'random') {
+                if (!sessionRandomAccent) {
+                    sessionRandomAccent = availableAccents[Math.floor(Math.random() * availableAccents.length)];
+                }
+                effectivePreloaderAccent = sessionRandomAccent;
             }
-            effectivePreloaderAccent = sessionRandomAccent;
+            preloader.dataset.accent = effectivePreloaderAccent;
         }
-        preloader.dataset.accent = effectivePreloaderAccent;
-
-
     }
 
 
@@ -644,11 +654,6 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         }
         recalculateAll(state);
         checkAndGenerateRecurringChips();
-        renderApp(state);
-
-        // Make footer notices visible after initial tab rendering to prevent layout shifts
-        const notices = document.querySelectorAll('.supercell-notice, .app-copyright');
-        notices.forEach(notice => notice.classList.add('show'));
 
         initializeHeader();
         initializeTabs();
@@ -688,6 +693,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
         validateAllInputs();
         validateAllSelects();
+
+        renderApp(state);
+
+        // Make footer notices visible after initial tab rendering to prevent layout shifts
+        const notices = document.querySelectorAll('.supercell-notice, .app-copyright');
+        notices.forEach(notice => notice.classList.add('show'));
 
         const refreshButton = dom.controls.refreshButton;
         if (refreshButton) {

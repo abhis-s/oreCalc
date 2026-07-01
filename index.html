@@ -188,6 +188,26 @@
 
     <div id="overlay" class="overlay"></div>
     <div id="preloader">
+        <script>
+            (function () {
+                var accent = 'blue';
+                try {
+                    var settingsStr = localStorage.getItem('oreCalc_appSettings');
+                    if (settingsStr) {
+                        var parsed = JSON.parse(settingsStr);
+                        if (parsed && parsed.accentColor) {
+                            accent = parsed.accentColor;
+                        }
+                    }
+                } catch (e) {}
+                if (accent === 'random') {
+                    var accents = ['blue', 'gold', 'purple', 'green', 'red'];
+                    accent = accents[Math.floor(Math.random() * accents.length)];
+                    window.sessionRandomAccent = accent;
+                }
+                document.getElementById('preloader').setAttribute('data-accent', accent);
+            })();
+        </script>
         <div class="preloader-loader">
             <div class="preloader-dot-wrapper"><span></span></div>
             <div class="preloader-dot-wrapper"><span></span></div>

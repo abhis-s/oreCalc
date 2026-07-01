@@ -204,19 +204,13 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
                 lockedHiddenCount++;
             }
 
-            if (shouldHide) {
-                equipItem.style.display = 'none';
-            } else {
-                equipItem.style.display = '';
+            equipItem.classList.toggle('eq-hidden', shouldHide);
+            if (!shouldHide) {
                 heroAllHidden = false;
             }
         }
 
-        if (heroAllHidden && (isHideMaxedEnabled || isHideLockedEnabled)) {
-            heroCard.style.display = 'none';
-        } else {
-            heroCard.style.display = '';
-        }
+        heroCard.classList.toggle('hero-hidden', heroAllHidden && (isHideMaxedEnabled || isHideLockedEnabled));
     }
 
     const hiddenCountLabel = dom.equipment?.hiddenCountLabel;

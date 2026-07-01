@@ -56,14 +56,28 @@
         pointer-events: none;
     }
 
-    .dropdown-arrow svg {
-        fill: $text-primary;
-        width: 16px;
-        height: 16px;
-        display: block;
+    .dropdown-arrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s cubic-bezier(0.2, 1, 0.2, 1);
+
+        svg {
+            fill: $text-primary;
+            width: 16px;
+            height: 16px;
+            display: block;
+        }
+    }
+
+    &.open {
+        .dropdown-arrow {
+            transform: rotate(180deg);
+        }
     }
 }
 
+// Custom spring transition for opening the list dropdown
 .player-dropdown-list {
     position: absolute;
     top: calc(100% + 6px);
@@ -78,7 +92,7 @@
     overflow: hidden;
     opacity: 0;
     transform: translateY(-8px) scale(0.96);
-    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
 }
 
@@ -92,11 +106,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: 8px 12px 8px 9px;
     margin-bottom: 4px;
     border-radius: 10px;
+    border-left: 3px solid transparent;
     cursor: pointer;
-    transition: background-color 0.15s ease-in-out, transform 0.1s;
+    transition: background-color 0.15s ease-in-out, transform 0.15s cubic-bezier(0.2, 1, 0.2, 1), border-left-color 0.15s, padding-left 0.15s;
     font-size: 15px;
     color: $text-primary;
 
@@ -106,6 +121,7 @@
 
     &:hover {
         background-color: $bg-surface-secondary;
+        transform: translateX(2px);
     }
 
     &:active {
@@ -117,6 +133,8 @@
         background-color: $accent-primary-soft;
         color: $accent-primary;
         font-weight: 600;
+        border-left-color: $accent-primary;
+        padding-left: 12px;
     }
 
     &:focus-visible {

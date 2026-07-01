@@ -70,6 +70,11 @@
                 border-radius: 8px;
                 color: $text-primary;
                 text-align: center;
+                transition: border-color 0.2s, box-shadow 0.2s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+                &:hover {
+                    transform: scale(1.04);
+                }
 
                 &:focus {
                     outline: none;
@@ -77,7 +82,8 @@
 
                 &:focus-visible {
                     border-color: $accent-primary;
-                    box-shadow: 0 0 0 3px $accent-primary-soft;
+                    animation: input-glow-pulse 1.8s infinite ease-in-out;
+                    transform: scale(1.06);
                     outline: none;
                 }
             }
@@ -106,13 +112,20 @@
                 cursor: pointer;
                 transition: background-color 0.2s ease, transform 0.1s;
 
+                @keyframes trash-shake {
+                    0%, 100% { transform: scale(1.1) rotate(0deg); }
+                    25% { transform: scale(1.1) rotate(-8deg); }
+                    75% { transform: scale(1.1) rotate(8deg); }
+                }
+
                 &:hover {
                     background-color: $color-danger-soft-hover;
-                    transform: scale(1.1);
+                    animation: trash-shake 0.3s ease-in-out infinite;
                 }
 
                 &:active {
                     transform: scale(0.9);
+                    animation: none;
                 }
 
                 svg {

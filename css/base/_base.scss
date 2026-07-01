@@ -314,6 +314,55 @@
 html {
     overflow-x: hidden;
     scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+/* Sleek global custom scrollbars */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.24);
+    }
+}
+
+/* Light mode overrides for scrollbars */
+html:has(body.light-mode) {
+    scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+
+    ::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.12);
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.24);
+        }
+    }
+}
+
+input[type="checkbox"] {
+    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+
+    &:hover {
+        transform: scale(1.15);
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
 }
 
 body {

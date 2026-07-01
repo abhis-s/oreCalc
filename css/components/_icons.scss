@@ -7,6 +7,7 @@
     margin-left: 2.5px;
     text-align: center;
     width: 18px;
+    transition: transform 0.2s cubic-bezier(0.2, 1, 0.2, 1), filter 0.2s ease;
 }
 
 orecalc-assets-image {
@@ -32,6 +33,7 @@ orecalc-assets-image.ore-image {
     width: 30px;
     object-fit: contain;
     vertical-align: middle;
+    transition: transform 0.2s cubic-bezier(0.2, 1, 0.2, 1), filter 0.2s ease;
 
     &[src*="shiny_ore"],
     img[src*="shiny_ore"] {
@@ -64,6 +66,19 @@ orecalc-assets-image.ore-image {
     &[src*="supercellEvents"],
     img[src*="supercellEvents"] {
         aspect-ratio: 1 / 1;
+    }
+}
+
+/* Hover/focus triggers for resource icons next to input fields */
+.input-group,
+.rate-column,
+.input-group-flex,
+.level-input-container {
+    input:focus ~ .currency-symbol,
+    input:focus ~ orecalc-assets-image,
+    input:focus ~ .ore-image {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 6px rgba(138, 180, 248, 0.4));
     }
 }
 

@@ -5,7 +5,7 @@ import { addValidation } from '../../utils/inputValidator.js';
 import { autoPlaceIncomeChipsForRange } from '../../utils/autoPlaceChips.js';
 import { calculateCompletionDates } from '../../utils/predictionCalculator.js';
 import { formatDate } from '../../utils/dateFormatter.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { getMinDate, getMaxDate } from '../../utils/dateUtils.js';
 import { getSVG } from '../../utils/svgManager.js';
 import { heroData } from '../../data/heroData.js';
@@ -357,6 +357,25 @@ function renderDraggableList(globalPriorityList, suggestions) {
     const editor = document.getElementById('priority-list-editor');
     if (!editor) return;
 
+    const prevValues = {};
+    const oldItems = editor.querySelectorAll('.priority-list-editor-item');
+    oldItems.forEach(item => {
+        const { heroName, equipName, step } = item.dataset;
+        if (heroName && equipName && step) {
+            const key = `${heroName}-${equipName}-${step}`;
+            const shinySpan = item.querySelector('.shiny-val');
+            const glowySpan = item.querySelector('.glowy-val');
+            const starrySpan = item.querySelector('.starry-val');
+            if (shinySpan && glowySpan && starrySpan) {
+                prevValues[key] = {
+                    shiny: parseInt(shinySpan.textContent.replace(/[^0-9]/g, ''), 10) || 0,
+                    glowy: parseInt(glowySpan.textContent.replace(/[^0-9]/g, ''), 10) || 0,
+                    starry: parseInt(starrySpan.textContent.replace(/[^0-9]/g, ''), 10) || 0
+                };
+            }
+        }
+    });
+
     editor.innerHTML = '';
 
     if (!globalPriorityList) {
@@ -368,7 +387,7 @@ function renderDraggableList(globalPriorityList, suggestions) {
     const resetButton = document.getElementById('reset-priority-list-modal-btn');
     const infoButton = document.getElementById('priority-list-modal-info-btn');
     if (resetButton) {
-        resetButton.style.display = globalPriorityList.length === 0 ? 'none' : 'block';
+        resetButton.style.display = globalPriorityList.length === 0 ? 'none' : 'flex';
     }
     if (infoButton) {
         infoButton.style.display = globalPriorityList.length === 0 ? 'flex' : 'none';
@@ -435,6 +454,9 @@ function renderDraggableList(globalPriorityList, suggestions) {
         listItem.dataset.equipName = equipName;
         listItem.dataset.step = item.step;
 
+        const key = `${heroName}-${equipName}-${item.step}`;
+        const prev = prevValues[key];
+
         let oresHtml = '';
         if (!item.error && !hasOrderError && item.oresPreCompletion && item.requiredOres && item.bottleneckOre) {
             const bottleneckTrans = translate('ores.' + item.bottleneckOre) || item.bottleneckOre;
@@ -445,11 +467,15 @@ function renderDraggableList(globalPriorityList, suggestions) {
                 reqHtml += ` <span>${formatNumber(item.requiredOres.starry)} <orecalc-assets-image src="assets/starry_ore.png" class="ore-icon-small"></orecalc-assets-image></span>`;
             }
 
+            const initialShiny = prev ? prev.shiny : (item.oresPreCompletion.shiny || 0);
+            const initialGlowy = prev ? prev.glowy : (item.oresPreCompletion.glowy || 0);
+            const initialStarry = prev ? prev.starry : (item.oresPreCompletion.starry || 0);
+
             oresHtml = `
                 <div class="priority-item-ores tooltip-container">
-                    <span>${formatNumber(item.oresPreCompletion.shiny)} <orecalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
-                    <span>${formatNumber(item.oresPreCompletion.glowy)} <orecalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
-                    <span>${formatNumber(item.oresPreCompletion.starry)} <orecalc-assets-image src="assets/starry_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
+                    <span><span class="shiny-val">${formatNumber(initialShiny)}</span> <orecalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
+                    <span><span class="glowy-val">${formatNumber(initialGlowy)}</span> <orecalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
+                    <span><span class="starry-val">${formatNumber(initialStarry)}</span> <orecalc-assets-image src="assets/starry_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
                     
                     <div class="priority-item-tooltip">
                         <p>${translate('ores.tooltipReached')}</p>
@@ -545,6 +571,16 @@ function renderDraggableList(globalPriorityList, suggestions) {
 
         editor.appendChild(listItem);
 
+        if (prev) {
+            const shinyEl = listItem.querySelector('.shiny-val');
+            const glowyEl = listItem.querySelector('.glowy-val');
+            const starryEl = listItem.querySelector('.starry-val');
+            
+            updateCalculatedValue(shinyEl, item.oresPreCompletion.shiny || 0);
+            updateCalculatedValue(glowyEl, item.oresPreCompletion.glowy || 0);
+            updateCalculatedValue(starryEl, item.oresPreCompletion.starry || 0);
+        }
+
         effectiveLevels[equipName] = item.targetLevel;
     });
     renderSuggestionsAndErrors(globalPriorityList, suggestions);
@@ -562,6 +598,125 @@ function getDragAfterElement(container, y) {
             return closest;
         }
     }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function animateShiftingElements(editor, action) {
+    const children = Array.from(editor.querySelectorAll('.priority-list-editor-item'));
+    
+    // 1. Record starting positions
+    const positions = children.map(child => {
+        return {
+            element: child,
+            rect: child.getBoundingClientRect()
+        };
+    });
+    
+    // 2. Perform the DOM insertion
+    action();
+    
+    // 3. Record new positions, calculate deltas, and apply instant inverse transform
+    positions.forEach(pos => {
+        const newRect = pos.element.getBoundingClientRect();
+        const deltaY = pos.rect.top - newRect.top;
+        const deltaX = pos.rect.left - newRect.left;
+        
+        if (deltaY !== 0 || deltaX !== 0) {
+            // Cancel any ongoing shift timeout
+            if (pos.element.__shiftTimeout) {
+                clearTimeout(pos.element.__shiftTimeout);
+            }
+            
+            // Disable transitions momentarily
+            pos.element.style.transition = 'none';
+            pos.element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            
+            // Force a repaint
+            pos.element.offsetHeight;
+            
+            // Enable transition and animate back to normal
+            pos.element.style.transition = 'transform 0.25s cubic-bezier(0.2, 1, 0.2, 1)';
+            pos.element.style.transform = 'translate(0px, 0px)';
+            
+            // Clean up inline styles after transition finishes
+            pos.element.__shiftTimeout = setTimeout(() => {
+                pos.element.style.transition = '';
+                pos.element.style.transform = '';
+                pos.element.__shiftTimeout = null;
+            }, 250);
+        }
+    });
+}
+
+function updateDraggableListValues() {
+    const editor = document.getElementById('priority-list-editor');
+    if (!editor) return;
+
+    const { globalPriorityList, suggestions } = getGlobalPriorityList();
+    const { errorItems } = getStepOrderErrors(globalPriorityList);
+    const equipmentsWithErrors = new Set();
+    errorItems.forEach(itemKey => {
+        const equipName = itemKey.split('-').slice(0, -1).join('-');
+        equipmentsWithErrors.add(equipName);
+    });
+
+    const effectiveLevels = {};
+    const domItems = editor.querySelectorAll('.priority-list-editor-item');
+
+    globalPriorityList.forEach((item, index) => {
+        const domItem = domItems[index];
+        if (!domItem) return;
+
+        const heroName = item.heroName;
+        const equipName = item.name;
+
+        let startLevel;
+        if (equipmentsWithErrors.has(equipName)) {
+            startLevel = 'XX';
+        } else if (!effectiveLevels[equipName]) {
+            startLevel = state.heroes[heroName]?.equipment[equipName]?.level || 1;
+        } else {
+            startLevel = effectiveLevels[equipName];
+        }
+
+        let completionDateText;
+        const itemKey = `${item.name}-${item.step}`;
+        const hasOrderError = errorItems.has(itemKey);
+
+        if (hasOrderError) {
+            completionDateText = translate('errors.fixOrder');
+        } else if (item.error) {
+            completionDateText = item.message;
+        } else if (item.completionDate) {
+            completionDateText = `${translate('planner.completeByColon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+        } else {
+            completionDateText = translate('planner.notEnoughIncome');
+        }
+
+        // 1. Update completion date text
+        const dateEl = domItem.querySelector('.priority-item-date');
+        if (dateEl) dateEl.textContent = completionDateText;
+
+        // 2. Update item name with start/target level range
+        const nameEl = domItem.querySelector('.item-name');
+        if (nameEl) {
+            nameEl.textContent = translate('planner.stepLevelRange', { n: item.step, x: startLevel, y: item.targetLevel });
+        }
+
+        // 3. Animate accumulated ore values
+        const shinyEl = domItem.querySelector('.shiny-val');
+        const glowyEl = domItem.querySelector('.glowy-val');
+        const starryEl = domItem.querySelector('.starry-val');
+
+        if (item.oresPreCompletion) {
+            updateCalculatedValue(shinyEl, item.oresPreCompletion.shiny || 0);
+            updateCalculatedValue(glowyEl, item.oresPreCompletion.glowy || 0);
+            updateCalculatedValue(starryEl, item.oresPreCompletion.starry || 0);
+        }
+
+        effectiveLevels[equipName] = item.targetLevel;
+    });
+
+    renderSuggestionsAndErrors(globalPriorityList, suggestions);
 }
 
 export function autoPredictStoredOres() {
@@ -798,10 +953,17 @@ export function initializePriorityListModal() {
                 const afterElement = getDragAfterElement(editor, e.clientY);
                 const dragging = document.querySelector('.dragging');
                 if (dragging) {
-                    if (afterElement == null) {
-                        editor.appendChild(dragging);
-                    } else {
-                        editor.insertBefore(dragging, afterElement);
+                    const oldIndex = Array.from(editor.children).indexOf(dragging);
+                    const newIndex = afterElement ? Array.from(editor.children).indexOf(afterElement) : editor.children.length;
+                    
+                    if (oldIndex !== newIndex && oldIndex !== -1) {
+                        animateShiftingElements(editor, () => {
+                            if (afterElement == null) {
+                                editor.appendChild(dragging);
+                            } else {
+                                editor.insertBefore(dragging, afterElement);
+                            }
+                        });
                     }
                 }
             }
@@ -813,6 +975,7 @@ export function initializePriorityListModal() {
                 const editor = document.getElementById('priority-list-editor');
                 const newOrderedItems = [...editor.querySelectorAll('.priority-list-editor-item')];
 
+                window.__IS_REORDERING__ = true;
                 handleStateUpdate(() => {
                     newOrderedItems.forEach((domItem, index) => {
                         const { heroName, equipName, step } = domItem.dataset;
@@ -824,8 +987,9 @@ export function initializePriorityListModal() {
                         }
                     });
                 });
+                window.__IS_REORDERING__ = false;
 
-                renderDraggableList();
+                updateDraggableListValues();
             }
         });
 
@@ -849,10 +1013,17 @@ export function initializePriorityListModal() {
                 const touch = e.touches[0];
                 const afterElement = getDragAfterElement(editor, touch.clientY);
 
-                if (afterElement == null) {
-                    editor.appendChild(draggedItem);
-                } else {
-                    editor.insertBefore(draggedItem, afterElement);
+                const oldIndex = Array.from(editor.children).indexOf(draggedItem);
+                const newIndex = afterElement ? Array.from(editor.children).indexOf(afterElement) : editor.children.length;
+                
+                if (oldIndex !== newIndex && oldIndex !== -1) {
+                    animateShiftingElements(editor, () => {
+                        if (afterElement == null) {
+                            editor.appendChild(draggedItem);
+                        } else {
+                            editor.insertBefore(draggedItem, afterElement);
+                        }
+                    });
                 }
             }
         });
@@ -864,6 +1035,7 @@ export function initializePriorityListModal() {
                 const editor = document.getElementById('priority-list-editor');
                 const newOrderedItems = [...editor.querySelectorAll('.priority-list-editor-item')];
 
+                window.__IS_REORDERING__ = true;
                 handleStateUpdate(() => {
                     newOrderedItems.forEach((domItem, index) => {
                         const { heroName, equipName, step } = domItem.dataset;
@@ -875,8 +1047,9 @@ export function initializePriorityListModal() {
                         }
                     });
                 });
+                window.__IS_REORDERING__ = false;
 
-                renderDraggableList();
+                updateDraggableListValues();
             }
             isTouching = false;
             draggedItem = null;
@@ -900,6 +1073,7 @@ export function openPriorityListModal() {
 }
 
 export function renderPriorityListModal(state) {
+    if (window.__IS_REORDERING__) return;
     const modal = document.getElementById('priority-list-modal');
     if (modal && modal.classList.contains('show')) {
         renderPriorityEditor();

@@ -13,15 +13,29 @@
     }
 
     .bottom-nav-bar {
-        display: flex;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    .container {
+        padding-bottom: 100px !important;
     }
 
     .fab-container {
-        display: flex;
+        opacity: 1;
+        pointer-events: auto;
+        transform: scale(1);
+        bottom: 90px;
+        right: 30px;
     }
 
     #floating-save-btn {
-        display: none;
+        opacity: 0;
+        pointer-events: none;
+        transform: scale(0.5);
+        bottom: 90px;
+        right: 30px;
     }
 
     #home-total-income-header {
@@ -96,6 +110,17 @@
 
 @media (max-width: 399px) {
     .header-container {
+        margin-left: 0;
+        margin-right: 0;
+
+        &.sticky {
+            left: 0;
+            right: 0;
+            top: 0;
+            width: 100%;
+            border-radius: 0;
+        }
+
         h1 {
             font-size: var(--font-size-lg);
         }
@@ -110,7 +135,9 @@
 
 @media (min-width: 780px) {
     .bottom-nav-bar {
-        display: none;
+        opacity: 0;
+        transform: translateY(120%);
+        pointer-events: none;
     }
 
     .header-container {

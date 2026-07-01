@@ -1,6 +1,6 @@
 import { dom } from '../../dom/domElements.js';
 
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { raidMedalTraderData } from '../../data/appData.js';
 import { translate } from '../../i18n/translator.js';
 
@@ -94,16 +94,16 @@ export function renderRaidMedalTraderDisplay(raidMedalIncome, timeframe) {
     if (incomeTabDisplayElements.display) {
         const remaining = raidMedalIncome.remaining || 0;
         if (incomeTabDisplayElements.remaining) {
-            incomeTabDisplayElements.remaining.textContent = formatNumber(remaining);
+            updateCalculatedValue(incomeTabDisplayElements.remaining, remaining);
             incomeTabDisplayElements.remaining.classList.toggle("negative-medals", remaining < 0);
         }
 
-        if (incomeTabDisplayElements.display.monthly?.shiny) incomeTabDisplayElements.display.monthly.shiny.textContent = formatNumber(Math.round(raidMedalIncome.monthly?.shiny || 0));
-        if (incomeTabDisplayElements.display.monthly?.glowy) incomeTabDisplayElements.display.monthly.glowy.textContent = formatNumber(Math.round(raidMedalIncome.monthly?.glowy || 0));
-        if (incomeTabDisplayElements.display.monthly?.starry) incomeTabDisplayElements.display.monthly.starry.textContent = formatNumber(Math.round(raidMedalIncome.monthly?.starry || 0));
+        updateCalculatedValue(incomeTabDisplayElements.display.monthly?.shiny, raidMedalIncome.monthly?.shiny || 0);
+        updateCalculatedValue(incomeTabDisplayElements.display.monthly?.glowy, raidMedalIncome.monthly?.glowy || 0);
+        updateCalculatedValue(incomeTabDisplayElements.display.monthly?.starry, raidMedalIncome.monthly?.starry || 0);
 
-        if (incomeTabDisplayElements.display.weekly?.shiny) incomeTabDisplayElements.display.weekly.shiny.textContent = formatNumber(Math.round(raidMedalIncome.weekly?.shiny || 0));
-        if (incomeTabDisplayElements.display.weekly?.glowy) incomeTabDisplayElements.display.weekly.glowy.textContent = formatNumber(Math.round(raidMedalIncome.weekly?.glowy || 0));
-        if (incomeTabDisplayElements.display.weekly?.starry) incomeTabDisplayElements.display.weekly.starry.textContent = formatNumber(Math.round(raidMedalIncome.weekly?.starry || 0));
+        updateCalculatedValue(incomeTabDisplayElements.display.weekly?.shiny, raidMedalIncome.weekly?.shiny || 0);
+        updateCalculatedValue(incomeTabDisplayElements.display.weekly?.glowy, raidMedalIncome.weekly?.glowy || 0);
+        updateCalculatedValue(incomeTabDisplayElements.display.weekly?.starry, raidMedalIncome.weekly?.starry || 0);
     }
 }

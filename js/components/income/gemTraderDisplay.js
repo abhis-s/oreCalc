@@ -1,6 +1,6 @@
 import { dom } from '../../dom/domElements.js';
 
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { gemTraderData } from '../../data/appData.js';
 import { translate } from '../../i18n/translator.js';
 
@@ -128,11 +128,11 @@ export function renderGemIncomeTabDisplay(gemIncome) {
     const incomeTabDisplayElements = dom.income?.gems?.display;
     if (!incomeTabDisplayElements) return;
 
-    if (incomeTabDisplayElements.monthly?.shiny) incomeTabDisplayElements.monthly.shiny.textContent = formatNumber(Math.round(gemIncome.monthly?.shiny || 0));
-    if (incomeTabDisplayElements.monthly?.glowy) incomeTabDisplayElements.monthly.glowy.textContent = formatNumber(Math.round(gemIncome.monthly?.glowy || 0));
-    if (incomeTabDisplayElements.monthly?.starry) incomeTabDisplayElements.monthly.starry.textContent = formatNumber(Math.round(gemIncome.monthly?.starry || 0));
+    updateCalculatedValue(incomeTabDisplayElements.monthly?.shiny, gemIncome.monthly?.shiny || 0);
+    updateCalculatedValue(incomeTabDisplayElements.monthly?.glowy, gemIncome.monthly?.glowy || 0);
+    updateCalculatedValue(incomeTabDisplayElements.monthly?.starry, gemIncome.monthly?.starry || 0);
 
-    if (incomeTabDisplayElements.weekly?.shiny) incomeTabDisplayElements.weekly.shiny.textContent = formatNumber(Math.round(gemIncome.weekly?.shiny || 0));
-    if (incomeTabDisplayElements.weekly?.glowy) incomeTabDisplayElements.weekly.glowy.textContent = formatNumber(Math.round(gemIncome.weekly?.glowy || 0));
-    if (incomeTabDisplayElements.weekly?.starry) incomeTabDisplayElements.weekly.starry.textContent = formatNumber(Math.round(gemIncome.weekly?.starry || 0));
+    updateCalculatedValue(incomeTabDisplayElements.weekly?.shiny, gemIncome.weekly?.shiny || 0);
+    updateCalculatedValue(incomeTabDisplayElements.weekly?.glowy, gemIncome.weekly?.glowy || 0);
+    updateCalculatedValue(incomeTabDisplayElements.weekly?.starry, gemIncome.weekly?.starry || 0);
 }

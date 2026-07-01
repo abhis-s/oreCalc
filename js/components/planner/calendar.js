@@ -34,6 +34,14 @@ const calendarSettingsBtn = document.getElementById('calendar-settings-btn');
 const autoPlaceChipsBtn = document.getElementById('auto-place-chips-btn');
 const monthChipContainer = document.getElementById('month-chip-container');
 
+function updateHeader(text) {
+    if (!currentMonthYearHeader) return;
+    currentMonthYearHeader.textContent = text;
+    currentMonthYearHeader.classList.remove('header-fade-in');
+    void currentMonthYearHeader.offsetWidth; // trigger reflow
+    currentMonthYearHeader.classList.add('header-fade-in');
+}
+
 // Settings Modal Elements
 const calendarSettingsModal = document.getElementById('calendar-settings-modal');
 const closeCalendarSettingsModalBtn = document.getElementById('close-calendar-settings-modal-btn');
@@ -615,7 +623,7 @@ export function renderCalendar(plannerState) {
         }
         // move the translation logic from locale to date formatter
 
-        currentMonthYearHeader.textContent = formatDate(currentDate, { month: 'long', year: 'numeric' });
+        updateHeader(formatDate(currentDate, { month: 'long', year: 'numeric' }));
         renderIncomeChips(currentYear, currentMonth);
     } else if (currentView === 'weekly') {
         calendarTrack.classList.add('weekly-view-grid');
@@ -678,7 +686,7 @@ export function renderCalendar(plannerState) {
         }
 
         const monthName = formatDate(new Date(Date.UTC(displayYear, displayMonth, 1)), { month: 'short' });
-        currentMonthYearHeader.textContent = translate('time.weekOfYear', { week: currentWeek, year: currentYear, month: monthName });
+        updateHeader(translate('time.weekOfYear', { week: currentWeek, year: currentYear, month: monthName }));
         renderIncomeChips(displayYear, displayMonth);
     }
     updateActiveChip();
