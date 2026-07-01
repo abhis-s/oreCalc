@@ -23,12 +23,24 @@ export function saveState(state, immediate = false) {
             const currentPlayerTag = state.savedPlayerTags[0];
             if (currentPlayerTag) {
                 const existingData = state.allPlayersData[currentPlayerTag] || {};
+                // Clone planner sub-structure to avoid mutating running in-memory state during save
+                let serializedPlanner = state.planner;
+                if (state.planner) {
+                    serializedPlanner = {
+                        ...state.planner,
+                        calendar: state.planner.calendar ? {
+                            ...state.planner.calendar,
+                            dates: state.planner.calendar.dates
+                        } : undefined
+                    };
+                }
+
                 const playerData = {
                     ...existingData,
                     heroes: state.heroes,
                     storedOres: state.storedOres,
                     income: state.income,
-                    planner: state.planner,
+                    planner: serializedPlanner,
                     playerProfile: state.playerProfile,
                     currency: {
                         code: state.uiSettings.currency?.code || 'USD',

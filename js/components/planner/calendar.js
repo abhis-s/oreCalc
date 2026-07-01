@@ -564,14 +564,16 @@ export function renderCalendar(plannerState) {
         return;
     }
 
-    if (plannerState.calendar.isDirty === false && hasRendered) {
-        return;
-    }
-
     hasRendered = true;
     plannerState.calendar.isDirty = false;
 
     checkAndGenerateRecurringChips();
+    
+    const previousHeight = calendarContainer ? calendarContainer.offsetHeight : 0;
+    if (previousHeight > 0) {
+        calendarContainer.style.minHeight = `${previousHeight}px`;
+    }
+
     calendarTrack.innerHTML = '';
     
     autoPlaceStaggerCounter = 0;
@@ -686,6 +688,12 @@ export function renderCalendar(plannerState) {
             animateNextRender = false;
         }, 500);
     }
+
+    requestAnimationFrame(() => {
+        if (calendarContainer) {
+            calendarContainer.style.minHeight = '';
+        }
+    });
 }
 
 function positionTrackAtIndex(index, animated = false) {
@@ -1007,14 +1015,14 @@ function renderMonthChips() {
 function handleMonthChipClick(e) {
     const year = e.currentTarget.dataset.year;
     const month = e.currentTarget.dataset.month;
-    const newMonth = `${month}-${year}`;
+    const newMonth = `${year}-${month}`;
 
     if (state.planner.calendar.view.month !== newMonth) {
         handleStateUpdate(() => {
             state.planner.calendar.view.month = newMonth;
             const firstDayOfMonth = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1));
             const [firstWeekYear, firstWeekNumber] = getISOWeekNumber(firstDayOfMonth);
-            state.planner.calendar.view.week = `${firstWeekNumber}-${firstWeekYear}`;
+            state.planner.calendar.view.week = `${firstWeekYear}-${String(firstWeekNumber).padStart(2, '0')}`;
         });
         animateNextRender = true;
         renderCalendar(state.planner);
@@ -1025,7 +1033,7 @@ function handleWeekChipClick(e) {
     e.stopPropagation(); 
     const year = e.currentTarget.dataset.year;
     const week = e.currentTarget.dataset.week;
-    const newWeek = `${week}-${year}`;
+    const newWeek = `${year}-${String(week).padStart(2, '0')}`;
 
     if (state.planner.calendar.view.week !== newWeek) {
         handleStateUpdate(() => {
@@ -1345,7 +1353,7 @@ export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
                     if (!monthDays[paddedDay]) monthDays[paddedDay] = [];
                     if (!monthDays[paddedDay].some(id => id.startsWith(draggedType))) {
                         // Use a dummy instance '00', reindex will fix it
-                        const newAutoId = `${draggedType}-00-${month}-${year}-cal-auto`;
+                        const newAutoId = `${draggedType}-00-${year}-${month}-cal-auto`;
                         monthDays[paddedDay].push(newAutoId);
                     }
                 }

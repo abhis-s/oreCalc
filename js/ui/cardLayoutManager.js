@@ -672,6 +672,10 @@ function initCardDragReordering(layout) {
         const container = e.target.closest(layout.config.containerSelector);
         if (!container) return;
         
+        if (container.getAttribute('draggable') !== 'true') {
+            return;
+        }
+        
         container.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
 

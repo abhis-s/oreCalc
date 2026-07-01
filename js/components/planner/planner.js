@@ -12,6 +12,7 @@ import { renderHeroPlannerCarouselDisplay, updatePageDots, scrollToHeroPage, get
 import { renderIncomeChips, initializeIncomeChipsEventListeners } from './incomeChips.js';
 
 let scrollInterval = null;
+let isLayoutInitialized = false;
 
 function renderPlannerUI(plannerState) {
     renderCalendar(plannerState);
@@ -202,10 +203,13 @@ export function renderPlanner(plannerState) {
     // Ensure height sync happens after the carousel has been populated
     syncPriorityListHeight();
     
-    // Refresh planner layout drag handles and restore card order
-    import('../../ui/cardLayoutManager.js').then(module => {
-        module.refreshLayout('planner');
-    });
+    // Refresh planner layout drag handles and restore card order only on initialization
+    if (!isLayoutInitialized) {
+        import('../../ui/cardLayoutManager.js').then(module => {
+            module.refreshLayout('planner');
+        });
+        isLayoutInitialized = true;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

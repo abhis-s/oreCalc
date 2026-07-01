@@ -354,7 +354,7 @@
             "showChipIcons": "Ressourcen-Icons anzeigen",
             "showChipIconsDesc": "Zeige Icons für Erze und Ligen auf den Chips.",
             "autoPlaceScope": "Auto-Platzierung Umfang",
-            "autoPlaceScopeDesc": "Entscheide, ob Chips für den Monat oder das Jahr platziert werden.",
+            "autoPlaceScopeDesc": "Entscheide, ob Chips für den aktuellen Monat oder bis zum Ende platziert werden.",
             "showEquipmentMilestones": "Ausrüstungs-Verbesserungen anzeigen",
             "showEquipmentMilestonesDesc": "Zeige Meilensteine zum Abschluss der Ausrüstungs-Verbesserungen am jeweiligen Zieldatum.",
             "highlightUpgradeRanges": "Ansparzeiträume hervorheben",
@@ -363,7 +363,8 @@
             "monday": "Montag",
             "sunday": "Sonntag",
             "currentMonth": "Aktueller Monat",
-            "entireYear": "Ganzes Jahr"
+            "entireYear": "Ganzes Jahr",
+            "tillEnd": "Bis zum Ende"
         },
         "noMoreChips": "Alle Chips für diesen Monat wurden bereits im Kalender platziert.",
         "createCustomChips": "Eigene Chips erstellen",

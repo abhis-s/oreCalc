@@ -7,20 +7,20 @@ export function calculateStarBonusIncome(selectedLeague, starBonusState = {}) {
     const iconUrl = tierData?.iconUrls?.small || '';
 
     let eventFrequency = 2;
-    let eventDuration = 5;
+    let eventDuration = 0;
     let duration4x = 6;
     let thUpgrades = {};
 
     if (typeof starBonusState === 'number') {
         // Fallback for old signature: (selectedLeague, eventFrequency, eventDuration, thUpgrades)
         eventFrequency = starBonusState;
-        eventDuration = arguments[2] !== undefined ? arguments[2] : 5;
+        eventDuration = arguments[2] !== undefined ? arguments[2] : 0;
         thUpgrades = arguments[3] || {};
     } else if (starBonusState && typeof starBonusState === 'object') {
         // New nested signature
         const config2x = starBonusState["2x"] || {};
         eventFrequency = config2x.frequency !== undefined ? config2x.frequency : 2;
-        eventDuration = config2x.duration !== undefined ? config2x.duration : 5;
+        eventDuration = config2x.duration !== undefined ? config2x.duration : 0;
 
         thUpgrades = starBonusState.thUpgrades || {};
     }

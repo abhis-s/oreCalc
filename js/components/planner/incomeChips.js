@@ -131,10 +131,11 @@ function getPlacedChipIds() {
 
     for (const countKey in typePlacedCounts) {
         const [baseType, monthYearKey] = countKey.split('|');
+        const [year, month] = monthYearKey.split('-');
         const count = typePlacedCounts[countKey];
         for (let i = 0; i < count; i++) {
             const instanceStr = String(i + 1).padStart(2, '0');
-            const standardId = `${baseType}-${instanceStr}-${monthYearKey}`;
+            const standardId = `${baseType}-${instanceStr}-${month}-${year}`;
             placedChipOriginalIds.add(standardId);
         }
     }

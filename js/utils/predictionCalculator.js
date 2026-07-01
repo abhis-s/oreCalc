@@ -15,7 +15,7 @@ let cachedEvents = null;
 
 export function getDailyIncomeFromCalendar(date) {
     const dailyIncome = { shiny: 0, glowy: 0, starry: 0 };
-    const monthYearKey = `${String(date.getUTCMonth() + 1).padStart(2, '0')}-${date.getUTCFullYear()}`;
+    const monthYearKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
     const dayKey = String(date.getUTCDate()).padStart(2, '0');
 
     const chipsForThisDay = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];

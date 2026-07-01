@@ -21,7 +21,7 @@ export function calculateCumulativeOres(targetDate, initialOres) {
     currentDate.setUTCDate(currentDate.getUTCDate() + 1); // Start calculations from the next day
 
     while (currentDate.getTime() <= targetDate.getTime()) {
-        const monthYearKey = `${String(currentDate.getUTCMonth() + 1).padStart(2, '0')}-${currentDate.getUTCFullYear()}`;
+        const monthYearKey = `${currentDate.getUTCFullYear()}-${String(currentDate.getUTCMonth() + 1).padStart(2, '0')}`;
         const dayKey = String(currentDate.getUTCDate()).padStart(2, '0');
 
         const chipsForThisDay = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];

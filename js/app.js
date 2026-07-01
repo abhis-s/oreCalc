@@ -628,7 +628,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         updateUIWithTranslations(true);
         updateResponsiveText();
 
-        if (state.planner?.calendar && !state.planner.calendar.isHydrated) {
+        if (state.planner?.calendar) {
             const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
             const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
             autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
@@ -850,6 +850,14 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             if (syncedState) {
                 const originalVersion = syncedState.appVersion || '1.0.0';
                 initializeState(syncedState);
+                if (state.planner?.calendar) {
+                    const { getMinDate, getMaxDate } = await import('./utils/dateUtils.js');
+                    const { autoPlaceIncomeChipsForRange } = await import('./utils/autoPlaceChips.js');
+                    const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+                    const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
+                    autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
+                    state.planner.calendar.isHydrated = true;
+                }
                 if (state.appVersion !== originalVersion) {
                     logger.log(`Upgraded synced state version from ${originalVersion} to ${state.appVersion}`);
                     saveState(state, true); // Save immediately to persist version bump

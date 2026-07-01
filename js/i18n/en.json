@@ -354,7 +354,7 @@
             "showChipIcons": "Show Resource Icons",
             "showChipIconsDesc": "Display icons for ores and leagues on chips.",
             "autoPlaceScope": "Auto-Placement Scope",
-            "autoPlaceScopeDesc": "Decide if chips are placed for the month or year.",
+            "autoPlaceScopeDesc": "Decide if chips are placed for the current month or till the end.",
             "showEquipmentMilestones": "Show Equipment Upgrades",
             "showEquipmentMilestonesDesc": "Show equipment completion milestones on their target date.",
             "highlightUpgradeRanges": "Highlight Accumulation Ranges",
@@ -363,7 +363,8 @@
             "monday": "Monday",
             "sunday": "Sunday",
             "currentMonth": "Current Month",
-            "entireYear": "Entire Year"
+            "entireYear": "Entire Year",
+            "tillEnd": "Till the End"
         },
         "noMoreChips": "All chips for this month have already been placed on the calendar.",
         "createCustomChips": "Create Custom Chips",

@@ -484,6 +484,6 @@ export function renderStarBonusControls(incomeState) {
         frequencyInput.value = safeState["2x"]?.frequency || 2;
     }
     if (durationInput) {
-        durationInput.value = safeState["2x"]?.duration !== undefined ? safeState["2x"].duration : 5;
+        durationInput.value = safeState["2x"]?.duration !== undefined ? safeState["2x"].duration : 0;
     }
 }

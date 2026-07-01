@@ -177,7 +177,7 @@ export function migratePlayerState(playerState, tag) {
                 league: oldStar.league || 105000000,
                 "2x": {
                     frequency: 2,
-                    duration: 5,
+                    duration: 0,
                     lastEvent: '2026-05'
                 },
                 thUpgrades: {}
@@ -255,7 +255,7 @@ export function migratePlayerState(playerState, tag) {
                 epic: oldPlan.customMaxLevel?.epic || 27
             },
             calendar: {
-                settings: { firstDayOfWeek: 'auto', showChipIcons: true, autoPlaceScope: 'year' },
+                settings: { firstDayOfWeek: 'auto', showChipIcons: true, autoPlaceScope: 'tillEnd' },
                 view: { select: 'monthly', month: '', week: '' },
                 dates: {},
                 isDirty: true,

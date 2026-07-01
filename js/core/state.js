@@ -78,7 +78,7 @@ function getDefaultPlayerStateProperties() {
                 league: 105000000,
                 "2x": {
                     frequency: 2,
-                    duration: 5,
+                    duration: 0,
                     lastEvent: '2026-05'
                 },
                 thUpgrades: {}
@@ -90,7 +90,7 @@ function getDefaultPlayerStateProperties() {
                 settings: {
                     firstDayOfWeek: 'auto', // 'auto', 'monday', 'sunday'
                     showChipIcons: true,
-                    autoPlaceScope: 'year', // 'month', 'year'
+                    autoPlaceScope: 'tillEnd', // 'month', 'tillEnd'
                     showEquipmentMilestones: true,
                     highlightUpgradeRanges: true
                 },
@@ -298,7 +298,7 @@ function ensureStateDefaults(s) {
                 ps.planner.calendar.settings = {
                     firstDayOfWeek: 'auto',
                     showChipIcons: true,
-                    autoPlaceScope: 'year'
+                    autoPlaceScope: 'tillEnd'
                 };
             }
             if (!ps.planner.calendar.view) ps.planner.calendar.view = {};

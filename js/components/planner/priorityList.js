@@ -149,3 +149,7 @@ export function initializePriorityList() {
         priorityListContainer.appendChild(errorMsg);
     }
 }
+
+document.addEventListener('priorityListUpdated', () => {
+    initializePriorityList();
+});

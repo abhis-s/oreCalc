@@ -7,7 +7,7 @@ import { renderIncomeChips } from '../components/planner/incomeChips.js';
 import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
 
 import { createIncomeChip } from './chipFactory.js';
-import { getDaysInMonth, addDays, findNthDayOfWeek, getDateFromDayAndMonth, getScheduleDates } from './dateUtils.js';
+import { getDaysInMonth, addDays, findNthDayOfWeek, getDateFromDayAndMonth, getScheduleDates, getMinDate, getMaxDate } from './dateUtils.js';
 import { reindexCalendarChips } from './chipManager.js';
 
 function idMatchesType(id, type) {
@@ -16,13 +16,25 @@ function idMatchesType(id, type) {
 }
 
 export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
-    const scope = state.planner?.calendar?.settings?.autoPlaceScope || 'month';
+    const scope = state.planner?.calendar?.settings?.autoPlaceScope || 'tillEnd';
     const newCalendarDates = { ...state.planner.calendar.dates };
 
-    if (scope === 'year') {
-        for (let m = 1; m <= 12; m++) {
+    if (scope === 'tillEnd') {
+        const minBound = getMinDate();
+        const maxBound = getMaxDate();
+        let m = minBound.month;
+        let y = minBound.year;
+        
+        while (y < maxBound.year || (y === maxBound.year && m <= maxBound.month)) {
             const monthStr = String(m).padStart(2, '0');
-            performAutoPlacementForMonth(monthStr, currentYearStr, newCalendarDates);
+            const yearStr = String(y);
+            performAutoPlacementForMonth(monthStr, yearStr, newCalendarDates);
+            
+            m++;
+            if (m > 12) {
+                m = 1;
+                y++;
+            }
         }
     } else {
         performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalendarDates);
@@ -52,6 +64,8 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
         renderCalendar(state.planner);
         renderIncomeChips(currentYear, currentMonth);
     }, true);
+
+    document.dispatchEvent(new CustomEvent('priorityListUpdated'));
 }
 
 export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, endYear, skipRender = false) {
@@ -105,6 +119,8 @@ export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, en
             renderIncomeChips(viewYear, viewMonth);
         }, true);
     }
+
+    document.dispatchEvent(new CustomEvent('priorityListUpdated'));
 }
 
 function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalendarDates) {
