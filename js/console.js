@@ -125,6 +125,12 @@ window.disableWelcomeModal = () => {
             state.uiSettings.timestamp = {};
         }
         state.uiSettings.timestamp.welcome = Date.now();
+        for (const tag of state.savedPlayerTags) {
+            const player = state.allPlayersData?.[tag];
+            if (player) {
+                delete player.onboardingComplete;
+            }
+        }
     });
     return "Welcome modal closed and marked as completed.";
 };
@@ -162,6 +168,53 @@ window.disableTour = () => {
     return "Tour marked as completed.";
 };
 
+window.checkMigration = async (testUserId) => {
+    if (!testUserId) {
+        console.error("[Migration Test] Please provide a valid user ID string.");
+        return "Error: User ID is required.";
+    }
+    console.log(`[Migration Test] Fetching legacy data for user ID: ${testUserId}...`);
+    try {
+        const { loadUserData } = await import('./services/apiService.js');
+        const { generateUUID } = await import('./utils/uuidGenerator.js');
+
+        const importedData = await loadUserData(testUserId);
+        if (!importedData) {
+            console.error(`[Migration Test] No data found in Cloud/Firebase for user ID: ${testUserId}`);
+            return `Error: No data found for ${testUserId}`;
+        }
+
+        console.log("[Migration Test] Legacy monolithic data fetched successfully:", importedData);
+
+        // Generate a new random local user ID so we don't overwrite or push back to the tested cloud ID
+        const newLocalUserId = generateUUID();
+
+        // Purge settings/profiles to prevent collision before simulating migration
+        localStorage.removeItem('oreCalc_appSettings');
+        localStorage.removeItem('oreCalc_players');
+        localStorage.removeItem('oreCalc_playerTags');
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('oreCalc_player_')) {
+                localStorage.removeItem(key);
+                i--;
+            }
+        }
+
+        // Set the legacy monolithic state on disk to be migrated by application boot
+        localStorage.setItem('oreCalculatorState', JSON.stringify(importedData));
+        localStorage.setItem('oreCalc_userId', newLocalUserId);
+        console.log(`[Migration Test] Simulated environment: local user ID set to ${newLocalUserId}, old monolithic data stored.`);
+
+        console.log("[Migration Test] Reloading page to trigger Migration Lock and run migration natively...");
+        location.reload();
+        return "Migration test initiated. Page is reloading to run boot migration.";
+    } catch (error) {
+        console.error("[Migration Test] Error testing migration:", error);
+        return `Error: ${error.message}`;
+    }
+};
+
 console.info(
     "%c Ore Calculator Console Commands:\n\n" +
     "%c  enableLevelInput():     %cToggles the 'Enable level input' setting.\n" +
@@ -176,9 +229,11 @@ console.info(
     "%c  disableWelcomeModal():  %cCloses the Welcome modal and marks it as completed.\n" +
     "%c  startTour(setId):       %cResets and starts tour from beginning (or optionally for a specific set, e.g., 'v1.0').\n" +
     "%c  resetTour():            %cResets the tour completion state so it triggers again.\n" +
-    "%c  disableTour():          %cMarks the tour as completed.\n\n" +
+    "%c  disableTour():          %cMarks the tour as completed.\n" +
+    "%c  checkMigration(userId): %cTests migration of legacy user data by fetching from cloud and migrating locally under a new random userId.\n\n" +
     "%c For more information, refer to the documentation.",
     "color: #4facfe; font-weight: bold;",
+    "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",
     "color: #a5d6a7; font-weight: bold;", "color: #e3e2e6;",

@@ -1,9 +1,13 @@
-import { sanitizeUISettings, sanitizePlayerState } from './stateCleanup.js';
+import { sanitizeUISettings, sanitizePlayerState, migrateFullState } from './stateCleanup.js';
 import { state, getDefaultPlayerState as initializeDefaultPlayerState } from './state.js';
 
 import { showSavingIndicator, hideSavingIndicator, showSaveErrorIndicator } from '../ui/savingIndicator.js';
 
-const APP_STATE_KEY = 'oreCalculatorState';
+const APP_SETTINGS_KEY = 'oreCalc_appSettings';
+const APP_PLAYERS_INDEX_KEY = 'oreCalc_players';
+const PLAYER_TAGS_KEY = 'oreCalc_playerTags';
+const PLAYER_PREFIX = 'oreCalc_player_';
+const LEGACY_APP_STATE_KEY = 'oreCalculatorState';
 
 let saveTimeout;
 
@@ -15,6 +19,7 @@ export function saveState(state, immediate = false) {
 
     const performSave = () => {
         try {
+            // 1. Sync active player data back to allPlayersData
             const currentPlayerTag = state.savedPlayerTags[0];
             if (currentPlayerTag) {
                 const existingData = state.allPlayersData[currentPlayerTag] || {};
@@ -26,32 +31,17 @@ export function saveState(state, immediate = false) {
                     planner: state.planner,
                     playerProfile: state.playerProfile,
                     currency: {
-                        code: state.uiSettings.currency.code,
+                        code: state.uiSettings.currency?.code || 'USD',
                         globalPricing: existingData.currency?.globalPricing || {}
                     }
                 };
 
-                sanitizePlayerState(playerData);
-
-                state.allPlayersData[currentPlayerTag] = playerData;
-            }
-
-            const stateToSave = {
-                appVersion: state.appVersion,
-                savedPlayerTags: state.savedPlayerTags.length > 0 ? state.savedPlayerTags : ['DEFAULT0'],
-                uiSettings: sanitizeUISettings(state.uiSettings),
-                allPlayersData: state.allPlayersData,
-                timestamp: new Date().toISOString(),
-            };
-
-            const serializedState = JSON.stringify(stateToSave, (key, value) => {
-                if (key === 'isHydrated') {
-                    return undefined;
-                }
-                if (key === 'dates' && value && typeof value === 'object') {
+                // Strip auto-placed events from calendar dates before saving
+                if (playerData.planner?.calendar?.dates) {
                     const cleanDates = {};
-                    for (const monthYearKey in value) {
-                        const monthDays = value[monthYearKey];
+                    const val = playerData.planner.calendar.dates;
+                    for (const monthYearKey in val) {
+                        const monthDays = val[monthYearKey];
                         const cleanDays = {};
                         for (const dayKey in monthDays) {
                             const chips = monthDays[dayKey];
@@ -66,14 +56,31 @@ export function saveState(state, immediate = false) {
                             cleanDates[monthYearKey] = cleanDays;
                         }
                     }
-                    return cleanDates;
+                    playerData.planner.calendar.dates = cleanDates;
                 }
-                return value;
-            });
-            localStorage.setItem(APP_STATE_KEY, serializedState);
+
+                sanitizePlayerState(playerData);
+                state.allPlayersData[currentPlayerTag] = playerData;
+
+                // Write player specific data key
+                localStorage.setItem(`${PLAYER_PREFIX}${currentPlayerTag}`, JSON.stringify(playerData));
+            }
+
+            // 2. Write UI/App settings
+            const cleanAppSettings = sanitizeUISettings(state.uiSettings);
+            const appSettingsToSave = {
+                ...cleanAppSettings,
+                appVersion: state.appVersion || '2.0.0'
+            };
+            localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(appSettingsToSave));
+
+            // 3. Write index metadata key (directly save the array)
+            const tagsToSave = state.savedPlayerTags.length > 0 ? state.savedPlayerTags : ['DEFAULT0'];
+            localStorage.setItem(PLAYER_TAGS_KEY, JSON.stringify(tagsToSave));
+
             hideSavingIndicator();
         } catch (error) {
-            console.error("Could not save state to localStorage", error);
+            console.error("Could not save partitioned state to localStorage", error);
             showSaveErrorIndicator();
         }
     };
@@ -88,25 +95,81 @@ export function saveState(state, immediate = false) {
 
 
 export function loadState() {
-    const serializedState = localStorage.getItem(APP_STATE_KEY);
-    if (serializedState === null) {
+    // Migrate legacy user ID if it exists
+    const legacyUserId = localStorage.getItem('oreCalcUserId');
+    if (legacyUserId) {
+        localStorage.setItem('oreCalc_userId', legacyUserId);
+        localStorage.removeItem('oreCalcUserId');
+    }
+
+    // 1. Detect if legacy monolithic state exists. If so, migrate it first!
+    const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
+    if (legacyStateStr !== null) {
+        try {
+            const legacyState = JSON.parse(legacyStateStr);
+            if (legacyState && typeof legacyState === 'object' && (legacyState.allPlayersData || legacyState.savedPlayerTags || legacyState.uiSettings)) {
+                migrateFullState(legacyState);
+            }
+        } catch (e) {
+            console.error("Error migrating legacy state during loadState:", e);
+        }
+    }
+
+    // 2. Load partitioned tags index
+    const tagsStr = localStorage.getItem(PLAYER_TAGS_KEY);
+    if (tagsStr === null) {
         return null;
     }
+
     try {
-        let parsedState = JSON.parse(serializedState);
-        if (!parsedState.savedPlayerTags || parsedState.savedPlayerTags.length === 0) {
-            parsedState.savedPlayerTags = ['DEFAULT0'];
+        const savedPlayerTags = JSON.parse(tagsStr) || ['DEFAULT0'];
+
+        // 3. Load app settings
+        const appSettingsStr = localStorage.getItem(APP_SETTINGS_KEY);
+        const appSettings = appSettingsStr ? JSON.parse(appSettingsStr) : {};
+        const savedAppVersion = appSettings.appVersion || '2.0.0';
+        const uiSettings = { ...appSettings };
+        delete uiSettings.appVersion;
+
+        // 4. Load all players data
+        const allPlayersData = {};
+        for (const tag of savedPlayerTags) {
+            const playerStr = localStorage.getItem(`${PLAYER_PREFIX}${tag}`);
+            if (playerStr) {
+                allPlayersData[tag] = JSON.parse(playerStr);
+            } else {
+                allPlayersData[tag] = initializeDefaultPlayerState();
+            }
         }
-        return parsedState;
+
+        // 5. Reconstruct monolithic state object
+        const reconstructedState = {
+            appVersion: savedAppVersion,
+            savedPlayerTags,
+            uiSettings,
+            allPlayersData
+        };
+        return reconstructedState;
     } catch (error) {
-        console.error("Could not load state from localStorage:", error);
-        throw new Error("State corruption: Invalid JSON in localStorage. " + error.message);
+        console.error("Could not load state from partitioned localStorage:", error);
+        throw new Error("State corruption: Invalid JSON in partitioned localStorage. " + error.message);
     }
 }
 
 export function resetState() {
     try {
-        localStorage.removeItem(APP_STATE_KEY);
+        localStorage.removeItem(LEGACY_APP_STATE_KEY);
+        localStorage.removeItem(APP_SETTINGS_KEY);
+        localStorage.removeItem(APP_PLAYERS_INDEX_KEY);
+        
+        // Remove all player profile keys
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(PLAYER_PREFIX)) {
+                localStorage.removeItem(key);
+                i--; // Adjust index as key removal shifts array
+            }
+        }
     } catch (error) {
         console.error("Could not reset state in localStorage", error);
     }
@@ -121,15 +184,17 @@ export function removePlayerTag(playerTagToDelete) {
         if (state.allPlayersData) {
             const wasActive = state.savedPlayerTags[0] === playerTagToDelete;
             
+            // Delete in-memory references
             delete state.allPlayersData[playerTagToDelete];
             state.savedPlayerTags = state.savedPlayerTags.filter(tag => tag !== playerTagToDelete);
             
+            // Delete from disk
+            localStorage.removeItem(`${PLAYER_PREFIX}${playerTagToDelete}`);
+
             if (wasActive) {
                 const nextTag = state.savedPlayerTags[0];
                 const nextData = nextTag ? state.allPlayersData[nextTag] : null;
                 
-                // Switch global state objects to the next player's data to prevent "dumping"
-                // the deleted player's data into the next player's slot during saveState.
                 const fallback = nextData || initializeDefaultPlayerState();
                 state.heroes = fallback.heroes || {};
                 state.storedOres = fallback.storedOres || {};
@@ -148,6 +213,7 @@ export function removePlayerTag(playerTagToDelete) {
 export function isPlayerTagCached(playerTag) {
     return state.allPlayersData && state.allPlayersData[playerTag] !== undefined;
 }
+
 export function loadPlayerData(playerTag) {
     if (state.allPlayersData && state.allPlayersData[playerTag]) {
         const playerState = state.allPlayersData[playerTag];
@@ -160,7 +226,6 @@ export function loadPlayerData(playerTag) {
             currencyCode = playerState.currency.code || 'USD';
             globalPricing = playerState.currency.globalPricing || {};
         } else {
-            // Fallback to old flat structure or global settings
             currencyCode = playerState.currency !== undefined ? playerState.currency : (state.uiSettings?.currency?.code || 'USD');
         }
 
@@ -169,7 +234,7 @@ export function loadPlayerData(playerTag) {
             storedOres: playerState.storedOres,
             income: playerState.income,
             planner: playerState.planner,
-            playerProfile: playerState.playerProfile || playerState.playerData,
+            playerProfile: playerState.playerProfile,
             currency: {
                 code: currencyCode,
                 globalPricing: globalPricing
@@ -185,6 +250,7 @@ export function updateSavedPlayerTags(playerTag) {
             state.savedPlayerTags = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0');
             if (state.allPlayersData['DEFAULT0']) {
                 delete state.allPlayersData['DEFAULT0'];
+                localStorage.removeItem(`${PLAYER_PREFIX}DEFAULT0`);
             }
         }
 
@@ -194,7 +260,11 @@ export function updateSavedPlayerTags(playerTag) {
         }
         state.savedPlayerTags.unshift(playerTag);
         if (state.savedPlayerTags.length > 12) {
-            state.savedPlayerTags.pop();
+            const poppedTag = state.savedPlayerTags.pop();
+            if (poppedTag) {
+                delete state.allPlayersData[poppedTag];
+                localStorage.removeItem(`${PLAYER_PREFIX}${poppedTag}`);
+            }
         }
         saveState(state);
     } catch (error) {
@@ -205,16 +275,28 @@ export function updateSavedPlayerTags(playerTag) {
 export function updateAllPlayersData(playerTag, playerState) {
     try {
         state.allPlayersData[playerTag] = playerState;
+        localStorage.setItem(`${PLAYER_PREFIX}${playerTag}`, JSON.stringify(playerState));
 
         const newAllPlayersData = {};
+        const tagsToRemove = [];
         let count = 0;
+        
         for (const tag of state.savedPlayerTags) {
             if (state.allPlayersData[tag] && count < 6) {
                 newAllPlayersData[tag] = state.allPlayersData[tag];
                 count++;
+            } else {
+                tagsToRemove.push(tag);
             }
         }
+        
         state.allPlayersData = newAllPlayersData;
+        
+        // Remove surplus tags from disk
+        for (const tag of tagsToRemove) {
+            localStorage.removeItem(`${PLAYER_PREFIX}${tag}`);
+        }
+        
         saveState(state);
     } catch (error) {
         console.error(`Could not update all players data for ${playerTag} in localStorage`, error);

@@ -16,10 +16,10 @@ import { showAlert, showConfirm } from '../ui/noticeModal.js';
 import { showSavingIndicator, showSaveSuccessIndicator, showSaveErrorIndicator } from '../ui/savingIndicator.js';
 
 export async function initializeAppData() {
-    let userId = localStorage.getItem('oreCalcUserId');
+    let userId = localStorage.getItem('oreCalc_userId');
     if (!userId) {
         userId = generateUUID();
-        localStorage.setItem('oreCalcUserId', userId);
+        localStorage.setItem('oreCalc_userId', userId);
     }
 
     if (state.uiSettings.cloudSync === false) {
@@ -77,7 +77,7 @@ export async function initializeAppData() {
             }
         } else if (localTimestamp > cloudTimestamp) {
             logger.log("Local data is newer. Automatically pushing to cloud.");
-            const userId = localStorage.getItem('oreCalcUserId');
+            const userId = localStorage.getItem('oreCalc_userId');
             if (userId) {
                 try {
                     await saveUserData(userId, localData);
@@ -99,7 +99,7 @@ export async function initializeAppData() {
 
 export async function importUserData(importId) {
     if (importId) {
-        const currentUserId = localStorage.getItem('oreCalcUserId');
+        const currentUserId = localStorage.getItem('oreCalc_userId');
         const safeImportId = escapeHTML(importId);
         const userIdHtml = `<code class="user-id-code">${safeImportId}</code>`;
 
@@ -121,7 +121,7 @@ export async function importUserData(importId) {
                 }
                 importedData.uiSettings.cloudSync = true;
                 localStorage.setItem('oreCalculatorState', JSON.stringify(importedData));
-                localStorage.setItem('oreCalcUserId', importId);
+                localStorage.setItem('oreCalc_userId', importId);
                 await showAlert(translate('alerts.importSuccess'));
                 location.reload();
             } else {
@@ -145,7 +145,7 @@ export async function triggerCloudSave(options = {}) {
         return false;
     }
 
-    const currentUserId = localStorage.getItem('oreCalcUserId');
+    const currentUserId = localStorage.getItem('oreCalc_userId');
     if (currentUserId) {
         if (!silent) showSavingIndicator();
         try {            

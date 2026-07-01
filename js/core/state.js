@@ -90,7 +90,7 @@ function getDefaultPlayerStateProperties() {
                 settings: {
                     firstDayOfWeek: 'auto', // 'auto', 'monday', 'sunday'
                     showChipIcons: true,
-                    autoPlaceScope: 'month', // 'month', 'year'
+                    autoPlaceScope: 'year', // 'month', 'year'
                     showEquipmentMilestones: true,
                     highlightUpgradeRanges: true
                 },
@@ -224,42 +224,11 @@ export function initializeState(savedState) {
                 if (savedPlayerState.onboardingComplete !== undefined) {
                     playerState.onboardingComplete = savedPlayerState.onboardingComplete;
                 }
-
-                migratePlayerState(playerState);
             }
         }
 
-        // Copy top-level properties
-        const preservedKeys = ['derived', 'heroes', 'storedOres', 'income', 'playerData', 'playerProfile', 'allPlayersData', 'planner', 'lastPlayerTag', 'savedPlayerTags', 'uiSettings'];
-        for (const key in savedState) {
-            if (!preservedKeys.includes(key)) {
-                state[key] = savedState[key];
-            }
-        }
 
         state.uiSettings = { ...defaultState.uiSettings, ...(savedState.uiSettings || {}) };
-        
-        // Migrate and normalize legal consent/welcome timestamps
-        if (!state.uiSettings.timestamp) {
-            const legacyAcceptance = state.uiSettings.acceptanceTimestamp || {};
-            state.uiSettings.timestamp = {
-                privacy: legacyAcceptance.privacy || state.uiSettings.legalAcceptanceTimestamp || null,
-                tos: legacyAcceptance.tos || state.uiSettings.legalAcceptanceTimestamp || null,
-                welcome: legacyAcceptance.welcome || null
-            };
-        } else {
-            if (state.uiSettings.timestamp.privacy === undefined) {
-                state.uiSettings.timestamp.privacy = state.uiSettings.legalAcceptanceTimestamp || null;
-            }
-            if (state.uiSettings.timestamp.tos === undefined) {
-                state.uiSettings.timestamp.tos = state.uiSettings.legalAcceptanceTimestamp || null;
-            }
-            if (state.uiSettings.timestamp.welcome === undefined) {
-                state.uiSettings.timestamp.welcome = null;
-            }
-        }
-        delete state.uiSettings.acceptanceTimestamp;
-        delete state.uiSettings.legalAcceptanceTimestamp;
         
         // Ensure currency is always an object, not a string (legacy/migration fix)
         if (typeof state.uiSettings.currency === 'string') {
@@ -268,7 +237,6 @@ export function initializeState(savedState) {
         
         state.uiSettings.saveError = false;
 
-        migrateFullState(state);
         ensureStateDefaults(state);
 
         if (activePlayerTag && state.allPlayersData[activePlayerTag]) {
@@ -330,7 +298,7 @@ function ensureStateDefaults(s) {
                 ps.planner.calendar.settings = {
                     firstDayOfWeek: 'auto',
                     showChipIcons: true,
-                    autoPlaceScope: 'month'
+                    autoPlaceScope: 'year'
                 };
             }
             if (!ps.planner.calendar.view) ps.planner.calendar.view = {};

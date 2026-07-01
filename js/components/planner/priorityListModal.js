@@ -43,14 +43,14 @@ export function getGlobalPriorityList() {
                 for (const stepNum in equipment.upgradePlan) {
                     const stepData = equipment.upgradePlan[stepNum];
                     const currentLevel = state.heroes[heroKey]?.equipment[equipName]?.level || 1;
-                    if (stepData.enabled && stepData.target > currentLevel) {
+                    if (stepData.enabled && stepData.targetLevel > currentLevel) {
                         const heroDataKey = heroNameMap[heroKey];
                         if (!heroDataKey) continue;
 
                         globalPriorityList.push({
                             name: equipName,
                             image: heroData[heroDataKey].equipment.find(e => e.name === equipName)?.image,
-                            targetLevel: stepData.target,
+                            targetLevel: stepData.targetLevel,
                             step: parseInt(stepNum, 10),
                             priorityIndex: stepData.priorityIndex,
                             heroName: heroKey
@@ -499,13 +499,12 @@ function renderDraggableList(globalPriorityList, suggestions) {
                 if (remainingSteps.length === 0) {
                     delete equipmentInState.upgradePlan;
                 } else {
-                    remainingSteps.sort((a, b) => a.target - b.target);
+                    remainingSteps.sort((a, b) => a.targetLevel - b.targetLevel);
                     equipmentInState.upgradePlan = {};
                     remainingSteps.forEach((step, idx) => {
                         const newStepKey = (idx + 1).toString();
                         equipmentInState.upgradePlan[newStepKey] = {
-                            level: step.level,
-                            target: step.target,
+                            targetLevel: step.targetLevel,
                             enabled: true,
                             priorityIndex: step.priorityIndex
                         };

@@ -231,12 +231,14 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         ownedEquipment: Object.fromEntries(homeEquipment.map(e => [e.name, e.level]))
     };
 
-    state.heroes = newPlayerState.heroes;
-    state.storedOres = newPlayerState.storedOres;
-    state.income = newPlayerState.income;
-    state.planner = newPlayerState.planner;
-    state.playerProfile = newPlayerState.playerProfile;
-
-    reindexGlobalPriority();
+    const activePlayerTag = state.savedPlayerTags[0];
+    if (cleanedTag === activePlayerTag) {
+        state.heroes = newPlayerState.heroes;
+        state.storedOres = newPlayerState.storedOres;
+        state.income = newPlayerState.income;
+        state.planner = newPlayerState.planner;
+        state.playerProfile = newPlayerState.playerProfile;
+        reindexGlobalPriority();
+    }
     updateAllPlayersData(cleanedTag, newPlayerState);
 }

@@ -210,6 +210,44 @@ export function showWelcomeModal(isVisible, startTag = null) {
             dom.overlay.classList.remove('show');
         }
 
+        // Auto-place income chips for all profiles once onboarding welcome modal ends
+        import('../../utils/autoPlaceChips.js').then(({ autoPlaceIncomeChipsForRange }) => {
+            import('../../utils/dateUtils.js').then(({ getMinDate, getMaxDate }) => {
+                const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+                const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
+
+                const originalPlanner = state.planner;
+                const originalHeroes = state.heroes;
+                const originalIncome = state.income;
+                const originalProfile = state.playerProfile;
+
+                state.savedPlayerTags.forEach(tag => {
+                    const player = state.allPlayersData[tag];
+                    if (player) {
+                        state.planner = player.planner;
+                        state.heroes = player.heroes;
+                        state.income = player.income;
+                        state.playerProfile = player.playerProfile;
+
+                        autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
+                        if (player.planner?.calendar) {
+                            player.planner.calendar.isHydrated = true;
+                        }
+                    }
+                });
+
+                state.planner = originalPlanner;
+                state.heroes = originalHeroes;
+                state.income = originalIncome;
+                state.playerProfile = originalProfile;
+
+                if (state.planner?.calendar) {
+                    state.planner.calendar.isHydrated = true;
+                }
+                handleStateUpdate(() => {}, false);
+            });
+        });
+
         // Trigger guided tour if onboarding is complete
         const welcomeTimestamp = state.uiSettings?.timestamp?.welcome;
         if (welcomeTimestamp) {
@@ -412,7 +450,7 @@ export function initializeWelcomeModal() {
                 if (cameFromSyncStartBtn) {
                     const syncInput = document.getElementById('welcome-sync-input');
                     const val = syncInput ? syncInput.value.trim() : '';
-                    const currentUserId = localStorage.getItem('oreCalcUserId');
+                    const currentUserId = localStorage.getItem('oreCalc_userId');
                     submitBtn.disabled = !(isValidUUID(val) && val !== currentUserId);
 
                     // Focus the input when programmatic scroll transitions settle
@@ -570,7 +608,7 @@ export function initializeWelcomeModal() {
         headerSkipBtn.addEventListener('click', async () => {
             if (activeWizardTag) {
                 // Skip only that player's setup, mark it done, and return to page 3 list
-                finishWizard();
+                finishWizard(true);
                 return;
             }
 
@@ -587,6 +625,16 @@ export function initializeWelcomeModal() {
                     'actions.cancel'
                 );
                 if (!confirmed) return;
+
+                // Mark all pending tags as onboardingComplete = true without overwriting their state
+                handleStateUpdate(() => {
+                    pendingTags.forEach(tag => {
+                        const p = state.allPlayersData[tag];
+                        if (p) {
+                            p.onboardingComplete = true;
+                        }
+                    });
+                }, false);
             }
 
             // Expand copy section (idx === 0) and collapse paste section (idx === 1)
@@ -908,6 +956,7 @@ export function initializeWelcomeModal() {
                     if (player) {
                         if (!player.storedOres) player.storedOres = {};
                         player.storedOres.lastUpdated = now;
+                        delete player.onboardingComplete;
                     }
                 }
             });
@@ -1637,7 +1686,7 @@ export function initializeWelcomeModal() {
         const welcomeSyncStatus = document.getElementById('welcome-sync-status');
 
         const handleWelcomeCopySyncCode = async () => {
-            const userId = localStorage.getItem('oreCalcUserId');
+            const userId = localStorage.getItem('oreCalc_userId');
             if (!userId) return;
 
             if (!navigator.clipboard || !navigator.clipboard.writeText) {
@@ -1746,7 +1795,7 @@ export function initializeWelcomeModal() {
             
             const submitBtn = document.getElementById('welcome-submit-btn');
             if (submitBtn && cameFromSyncStartBtn) {
-                const currentUserId = localStorage.getItem('oreCalcUserId');
+                const currentUserId = localStorage.getItem('oreCalc_userId');
                 submitBtn.disabled = !(isValidUUID(val) && val !== currentUserId);
             }
             
@@ -1758,7 +1807,7 @@ export function initializeWelcomeModal() {
                 }
                 welcomeSyncInput.classList.remove('input-error');
             } else if (isValidUUID(val)) {
-                const currentUserId = localStorage.getItem('oreCalcUserId');
+                const currentUserId = localStorage.getItem('oreCalc_userId');
                 if (val === currentUserId) {
                     if (welcomeSyncStatus) {
                         welcomeSyncStatus.textContent = translate('alerts.sameUserId') || "Cannot link to your own active User ID.";
@@ -2634,7 +2683,6 @@ function applyChecklistToProfile(playerObj) {
 
     if (!playerObj.income.eventTrader) playerObj.income.eventTrader = { packs: {} };
     if (!playerObj.income.eventTrader.packs) playerObj.income.eventTrader.packs = {};
-    playerObj.income.eventTrader.buyEventTrader = tempEventTraderBuy;
     if (tempEventTraderBuy) {
         playerObj.income.eventTrader.packs.shiny = tempEventTraderShiny;
         playerObj.income.eventTrader.packs.glowy = tempEventTraderGlowy;
@@ -2651,7 +2699,7 @@ function createCompactProfileCard(tag, activeTag, upd, err, prefix = 'welcome-pr
     const playerObj = state.allPlayersData[tag];
     const isGuest = (tag === 'DEFAULT0');
     const name = isGuest ? (translate('player.guest') || 'Guest') : (playerObj?.playerProfile?.name || playerObj?.playerData?.name || tag);
-    const thLevel = playerObj?.playerProfile?.townHallLevel || playerObj?.playerData?.townHallLevel || 1;
+    const thLevel = playerObj?.playerProfile?.townHallLevel || playerObj?.townHallLevel || playerObj?.playerData?.townHallLevel || 1;
 
     const card = document.createElement('div');
     card.className = 'welcome-profile-card-compact';
@@ -3067,6 +3115,7 @@ export function syncWelcomeQuickSettings(tag) {
 
             const th = playerObj.playerProfile?.townHallLevel || playerObj.townHallLevel || 16;
             const thLevel = parseInt(th, 10);
+            const shopOffersState = playerObj.income?.shopOffers || {};
             const bestSetKey = getBestMatchShopOfferSet(thLevel);
             const bestSetNum = parseInt(bestSetKey, 10);
             const selectedSet = (shopOffersState.selectedSet !== undefined && shopOffersState.selectedSet !== null) ? shopOffersState.selectedSet : bestSetNum;
@@ -3135,7 +3184,7 @@ export function syncWelcomeQuickSettings(tag) {
             const eventTraderState = playerObj.income?.eventTrader || {};
             const eventTraderPacks = eventTraderState.packs || {};
             const hasEventTraderPacks = (eventTraderPacks.shiny > 0 || eventTraderPacks.glowy > 0 || eventTraderPacks.starry > 0);
-            eventTraderBuySwitch.checked = eventTraderState.buyEventTrader || hasEventTraderPacks;
+            eventTraderBuySwitch.checked = hasEventTraderPacks;
             eventTraderShinySelect.value = eventTraderPacks.shiny || 0;
             eventTraderGlowySelect.value = eventTraderPacks.glowy || 0;
             eventTraderStarrySelect.value = eventTraderPacks.starry || 0;
@@ -3200,10 +3249,10 @@ function setupDirectDeviceSyncInWizard() {
     const welcomeSyncUserIdDisplay = document.getElementById('welcome-sync-user-id');
     const welcomeSyncQrContainer = document.getElementById('welcome-sync-qr-container');
     
-    let userId = localStorage.getItem('oreCalcUserId');
+    let userId = localStorage.getItem('oreCalc_userId');
     if (!userId) {
         userId = crypto.randomUUID ? crypto.randomUUID() : (Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
-        localStorage.setItem('oreCalcUserId', userId);
+        localStorage.setItem('oreCalc_userId', userId);
     }
     
     if (welcomeSyncUserIdDisplay) {
@@ -3726,33 +3775,35 @@ function exitWizard() {
     updateHeaderSkipButtonVisibility();
 }
 
-function finishWizard() {
+function finishWizard(isSkipped = false) {
     if (!activeWizardTag) return;
 
     // Apply values to the profile
     const playerObj = state.allPlayersData[activeWizardTag];
     if (playerObj) {
         if (activeWizardTag === 'DEFAULT0') {
-            // Re-generate guest profile using selected TH & League to ensure hero/equipment unlocked levels are correct,
-            // then copy the quick settings.
-            const guestData = generateGuestPlayerData(selectedTH, selectedLeague);
-            const guestPlayerState = {
-                ...getDefaultPlayerState(),
-                playerProfile: guestData,
-                onboardingComplete: true
-            };
-            initializeGuestHeroesState(guestPlayerState);
-            applyChecklistToProfile(guestPlayerState);
-            state.allPlayersData['DEFAULT0'] = guestPlayerState;
+            if (!playerObj.playerProfile) {
+                playerObj.playerProfile = {};
+            }
+            playerObj.playerProfile.townHallLevel = selectedTH;
+            if (selectedLeague) {
+                playerObj.playerProfile.leagueTier = { id: selectedLeague };
+            }
+            if (!isSkipped) {
+                applyChecklistToProfile(playerObj);
+            }
+            playerObj.onboardingComplete = true;
             
-            // Sync global references to point to the new guest profile properties
-            state.heroes = guestPlayerState.heroes;
-            state.storedOres = guestPlayerState.storedOres;
-            state.income = guestPlayerState.income;
-            state.planner = guestPlayerState.planner;
-            state.playerProfile = guestPlayerState.playerProfile;
+            // Sync global references to point to the guest profile properties
+            state.heroes = playerObj.heroes;
+            state.storedOres = playerObj.storedOres;
+            state.income = playerObj.income;
+            state.planner = playerObj.planner;
+            state.playerProfile = playerObj.playerProfile;
         } else {
-            applyChecklistToProfile(playerObj);
+            if (!isSkipped) {
+                applyChecklistToProfile(playerObj);
+            }
             playerObj.onboardingComplete = true;
         }
         

@@ -111,7 +111,7 @@ function savePrioritySteps() {
                 if (step.enabled && step.priorityIndex > 0) {
                     oldSteps.push({
                         stepKey: stepKey,
-                        level: step.level,
+                        level: step.targetLevel,
                         priorityIndex: step.priorityIndex
                     });
                 }
@@ -188,8 +188,7 @@ function savePrioritySteps() {
                     const stepKey = (index + 1).toString();
                     
                     const plan = {
-                        level: step.level,
-                        target: step.level,
+                        targetLevel: step.level,
                         enabled: true,
                         priorityIndex: step.priorityIndex
                     };
@@ -428,11 +427,11 @@ export function openLevelSelectModal(hero, equipment) {
 
     let stepsToFill = [];
     for (const key in equipmentUpgradePlan) {
-        if (equipmentUpgradePlan[key].enabled && equipmentUpgradePlan[key].level > currentLevel) {
+        if (equipmentUpgradePlan[key].enabled && equipmentUpgradePlan[key].targetLevel > currentLevel) {
             stepsToFill.push(equipmentUpgradePlan[key]);
         }
     }
-    stepsToFill.sort((a, b) => a.level - b.level);
+    stepsToFill.sort((a, b) => a.targetLevel - b.targetLevel);
 
     rows.forEach((row, index) => {
         const levelInput = row.querySelector('.level-input');
@@ -453,7 +452,7 @@ export function openLevelSelectModal(hero, equipment) {
         const savedStep = stepsToFill[index];
 
         if (savedStep) { 
-            levelInput.value = savedStep.level; 
+            levelInput.value = savedStep.targetLevel; 
             enableSwitch.checked = true;
             levelInput.disabled = false;
         } else {

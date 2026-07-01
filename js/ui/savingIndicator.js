@@ -4,6 +4,7 @@ import { state } from '../core/state.js';
 import { translate } from '../i18n/translator.js';
 
 export function showSavingIndicator() {
+    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;
     const fabSaveDataPill = dom.fab.pills.saveData;
     const mainFab = dom.fab.main;
@@ -30,6 +31,7 @@ export function showSavingIndicator() {
 }
 
 export function hideSavingIndicator() {
+    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;
     const fabSaveDataPill = dom.fab.pills.saveData;
     const mainFab = dom.fab.main;
@@ -56,6 +58,7 @@ export function hideSavingIndicator() {
 }
 
 export function showSaveSuccessIndicator() {
+    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;
     const fabSaveDataPill = dom.fab.pills.saveData;
     const mainFab = dom.fab.main;
@@ -79,6 +82,7 @@ export function showSaveSuccessIndicator() {
 }
 
 function hideSaveSuccessIndicator() {
+    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;
     const fabSaveDataPill = dom.fab.pills.saveData;
     const mainFab = dom.fab.main;
@@ -96,6 +100,7 @@ function hideSaveSuccessIndicator() {
 }
 
 export function showSaveErrorIndicator() {
+    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;
     const fabSaveDataPill = dom.fab.pills.saveData;
     const mainFab = dom.fab.main;
@@ -121,6 +126,7 @@ export function showSaveErrorIndicator() {
 }
 
 function hideSaveErrorIndicator() {
+    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;
     const fabSaveDataPill = dom.fab.pills.saveData;
     const mainFab = dom.fab.main;

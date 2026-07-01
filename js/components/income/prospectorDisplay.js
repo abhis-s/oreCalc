@@ -297,8 +297,8 @@ function updateProspectorTip() {
                         _emptyPlannerSessionToggle = !_emptyPlannerSessionToggle;
                         updateProspectorTip();
                     } else {
-                        const currentMode = state.income.prospector?.strategyMode || 'planner';
-                        const nextMode = currentMode === 'global' ? 'planner' : 'global';
+                        const currentMode = state.income.prospector?.strategyMode !== undefined ? state.income.prospector.strategyMode : 1;
+                        const nextMode = currentMode === 0 ? 1 : 0;
                         handleStateUpdate(() => {
                             state.income.prospector.strategyMode = nextMode;
                         });
@@ -312,8 +312,8 @@ function updateProspectorTip() {
     // When list is empty: use session-only toggle (defaults to global on every reload).
     // When list has items: use persisted strategyMode (defaults to planner).
     const mode = isPriorityListEmpty
-        ? (_emptyPlannerSessionToggle ? 'planner' : 'global')
-        : (state.income.prospector?.strategyMode || 'planner');
+        ? (_emptyPlannerSessionToggle ? 1 : 0)
+        : (state.income.prospector?.strategyMode !== undefined ? state.income.prospector.strategyMode : 1);
 
     // 1. Gather input parameters
     const stored = {
@@ -363,7 +363,7 @@ function updateProspectorTip() {
     }
 
     let overallHtml = '';
-    if (mode === 'global') {
+    if (mode === 0) {
         const overallReq = getAllUnfinishedUpgradeRequirements();
         overallHtml = generateRecommendationHtml(
             translate('income.prospector.tips.universalTitle'),
@@ -459,11 +459,11 @@ export function getRecommendedProspectorAmounts(fromOre, toOre) {
     const isPriorityListEmpty = !globalPriorityList || globalPriorityList.length === 0;
     // Mirror the same session-only toggle logic used in updateProspectorTip
     const mode = isPriorityListEmpty
-        ? (_emptyPlannerSessionToggle ? 'planner' : 'global')
-        : (state.income.prospector?.strategyMode || 'planner');
+        ? (_emptyPlannerSessionToggle ? 1 : 0)
+        : (state.income.prospector?.strategyMode !== undefined ? state.income.prospector.strategyMode : 1);
 
     let req;
-    if (mode === 'global') {
+    if (mode === 0) {
         req = getAllUnfinishedUpgradeRequirements();
     } else {
         req = getUpgradeRequirements(globalPriorityList, false);

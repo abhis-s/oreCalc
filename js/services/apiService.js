@@ -129,7 +129,7 @@ export async function fetchPlayerData(playerTag, token = null, timeoutMs = null)
     }
 
     const headers = { 'Accept': 'application/json' };
-    const userId = localStorage.getItem('oreCalcUserId');
+    const userId = localStorage.getItem('oreCalc_userId');
     if (userId) {
         headers['x-user-id'] = userId;
     }
@@ -289,7 +289,7 @@ export async function erasePlayerTagFromAllUsers(playerTag, token) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-user-id': localStorage.getItem('oreCalcUserId') || ''
+                'x-user-id': localStorage.getItem('oreCalc_userId') || ''
             },
             body: JSON.stringify({ playerTag, token })
         });
@@ -353,7 +353,7 @@ export async function fetchClanWarLog(clanTag) {
     const url = `${BASE_URL}/proxy/clans/${cleanedTag}/warlog`;
 
     const headers = { 'Accept': 'application/json' };
-    const userId = localStorage.getItem('oreCalcUserId');
+    const userId = localStorage.getItem('oreCalc_userId');
     if (userId) {
         headers['x-user-id'] = userId;
     }
@@ -384,7 +384,7 @@ export async function fetchCwlLeagueGroup(clanTag) {
     const url = `${BASE_URL}/proxy/clans/${cleanedTag}/currentwar/leaguegroup`;
 
     const headers = { 'Accept': 'application/json' };
-    const userId = localStorage.getItem('oreCalcUserId');
+    const userId = localStorage.getItem('oreCalc_userId');
     if (userId) {
         headers['x-user-id'] = userId;
     }
@@ -415,7 +415,7 @@ export async function fetchCwlWar(warTag) {
     const url = `${BASE_URL}/proxy/clanwarleagues/wars/${cleanedTag}`;
 
     const headers = { 'Accept': 'application/json' };
-    const userId = localStorage.getItem('oreCalcUserId');
+    const userId = localStorage.getItem('oreCalc_userId');
     if (userId) {
         headers['x-user-id'] = userId;
     }
@@ -445,7 +445,7 @@ export async function fetchCwlWarsFromServer(clanTag) {
     const url = `${BASE_URL}/api/cwl/wars?clanTag=${encodeURIComponent(cleanedTag)}`;
 
     const headers = { 'Accept': 'application/json' };
-    const userId = localStorage.getItem('oreCalcUserId');
+    const userId = localStorage.getItem('oreCalc_userId');
     if (userId) {
         headers['x-user-id'] = userId;
     }

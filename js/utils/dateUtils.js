@@ -6,7 +6,7 @@ export function getMinDate() {
     const currentYearNow = now.getFullYear();
 
     const FLOOR_YEAR = 2026;
-    const FLOOR_MONTH = 3;
+    const FLOOR_MONTH = 7;
 
     const minYear = Math.max(FLOOR_YEAR, currentYearNow);
     const minMonth = (currentYearNow > FLOOR_YEAR) ? currentMonthNow : Math.max(FLOOR_MONTH, currentMonthNow);

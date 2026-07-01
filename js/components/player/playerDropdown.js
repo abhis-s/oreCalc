@@ -187,5 +187,19 @@ export function renderPlayerDropdown() {
 
 function handlePlayerSelection(tag) {
     switchActivePlayer(tag);
+    
+    // Auto place chips for the newly selected active player to keep the calendar fully up to date
+    import('../../utils/autoPlaceChips.js').then(({ autoPlaceIncomeChipsForRange }) => {
+        import('../../utils/dateUtils.js').then(({ getMinDate, getMaxDate }) => {
+            const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+            const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
+            autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
+            if (state.planner?.calendar) {
+                state.planner.calendar.isHydrated = true;
+            }
+            handleStateUpdate(() => {}, false);
+        });
+    });
+
     renderPlayerDropdown();
 }

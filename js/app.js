@@ -2,7 +2,7 @@ import { showAlert, showConfirm } from './ui/noticeModal.js';
 
 import { dom, initializeDOMElements } from './dom/domElements.js';
 import { state, initializeState, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_WELCOME } from './core/state.js';
-import { compareVersions } from './core/stateCleanup.js';
+import { compareVersions, migrateFullState } from './core/stateCleanup.js';
 import { saveState, loadState, resetState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
@@ -164,7 +164,7 @@ function setupModalFocusManager() {
 
 import './utils/imageManager.js';
 
-let userId = localStorage.getItem('oreCalcUserId');
+let userId = localStorage.getItem('oreCalc_userId');
 
 let sessionRandomAccent = null;
 const availableAccents = ['blue', 'gold', 'purple', 'green', 'red'];
@@ -191,7 +191,7 @@ export function updateUIWithTranslations(isInitialLoad = false) {
 
         let translatedName = translate(key, args);
         if (key === 'settings.options.userId') {
-            const currentUserId = localStorage.getItem('oreCalcUserId');
+            const currentUserId = localStorage.getItem('oreCalc_userId');
             const maskedId = currentUserId ? (currentUserId.length > 8 ? currentUserId.substring(0, 8) + '...' : currentUserId) : '********';
             translatedName = `${translatedName}: ${maskedId}`;
             if (currentUserId) {
@@ -428,9 +428,67 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     let userIdFromUrl = urlParams.get('userId');
 
     if (userIdFromUrl) {
-        localStorage.setItem('oreCalcUserId', userIdFromUrl);
+        localStorage.setItem('oreCalc_userId', userIdFromUrl);
         window.history.replaceState({}, document.title, window.location.pathname);
         location.reload();
+        return;
+    }
+
+    const checkMigrationLock = () => {
+        const appSettingsStr = localStorage.getItem('oreCalc_appSettings');
+        const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
+
+        let needsMigration = false;
+        if (!appSettingsStr && legacyStateStr) {
+            needsMigration = true;
+        } else if (appSettingsStr) {
+            try {
+                const settings = JSON.parse(appSettingsStr) || {};
+                const version = settings.appVersion || '1.0.0';
+                if (version.startsWith('1.') || compareVersions(version, '2.0.0') < 0) {
+                    needsMigration = true;
+                }
+            } catch (e) {
+                if (legacyStateStr) needsMigration = true;
+            }
+        }
+
+        if (needsMigration) {
+            console.log('Migration Lock Active: Running monolithic state migration to 2.0.0...');
+            let legacyState = null;
+            if (legacyStateStr) {
+                try {
+                    legacyState = JSON.parse(legacyStateStr);
+                } catch (e) {
+                    console.error('Failed to parse legacy state:', e);
+                }
+            }
+            try {
+                migrateFullState(legacyState);
+                console.log('Migration completed successfully. Reloading page...');
+                window.location.reload();
+            } catch (err) {
+                console.error('CRITICAL ERROR DURING MIGRATION:', err);
+                // Safe recovery: ensure appVersion is written and monolithic keys removed to prevent reload loops
+                const appSettingsStr = localStorage.getItem('oreCalc_appSettings');
+                let cleanAppSettings = {};
+                if (appSettingsStr) {
+                    try {
+                        cleanAppSettings = JSON.parse(appSettingsStr) || {};
+                    } catch (e) {}
+                }
+                cleanAppSettings.appVersion = '2.0.0';
+                localStorage.setItem('oreCalc_appSettings', JSON.stringify(cleanAppSettings));
+                localStorage.removeItem('oreCalculatorState');
+                localStorage.removeItem('OreCalculatorState');
+                window.location.reload();
+            }
+            return true;
+        }
+        return false;
+    };
+
+    if (checkMigrationLock()) {
         return;
     }
 
@@ -954,7 +1012,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 export { handleStateUpdate, switchActivePlayer } from './core/stateManager.js';
 window.resetApplication = () => {
     resetState();
-    localStorage.removeItem('oreCalcUserId');
+    localStorage.removeItem('oreCalc_userId');
     setTimeout(() => {
         location.reload();
     }, 500);

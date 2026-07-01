@@ -1251,7 +1251,7 @@ function openBugReportModal() {
             if (closeBtn) closeBtn.disabled = true;
 
             try {
-                const currentUserId = localStorage.getItem('oreCalcUserId') || 'unknown';
+                const currentUserId = localStorage.getItem('oreCalc_userId') || 'unknown';
                 
                 let attachedData = null;
                 if (attachCheckbox && attachCheckbox.checked) {
@@ -1395,7 +1395,7 @@ class Accordion {
                 const clipboardText = await navigator.clipboard.readText();
                 if (clipboardText) {
                     const trimmed = clipboardText.trim();
-                    const userId = localStorage.getItem('oreCalcUserId');
+                    const userId = localStorage.getItem('oreCalc_userId');
                     if (isValidUUID(trimmed) && trimmed !== userId) {
                         input.value = trimmed;
                         const statusMsg = this.el.querySelector('#device-sync-status');
@@ -1859,7 +1859,7 @@ export function initializeAppSettings() {
         };
 
         downloadUserDataBtn.addEventListener('click', () => {
-            const currentUserId = localStorage.getItem('oreCalcUserId') || 'unknown';
+            const currentUserId = localStorage.getItem('oreCalc_userId') || 'unknown';
             if (downloadFilenamePreview) {
                 downloadFilenamePreview.innerHTML = translate('download.filenameInfo', { uuid: currentUserId });
             }
@@ -1875,7 +1875,7 @@ export function initializeAppSettings() {
             confirmDownloadDataBtn.disabled = true;
             confirmDownloadDataBtn.textContent = translate('actions.processing');
 
-            const currentUserId = localStorage.getItem('oreCalcUserId') || 'unknown';
+            const currentUserId = localStorage.getItem('oreCalc_userId') || 'unknown';
             const dataToExport = {
                 ...state,
                 userId: currentUserId
@@ -1911,7 +1911,7 @@ export function initializeAppSettings() {
         resetCloudBtn.addEventListener('click', async () => {
             if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.remove('show');
             if (await showConfirm(translate('confirms.resetAll'), 'status.confirm', 'actions.reset')) {
-                const currentUserId = localStorage.getItem('oreCalcUserId');
+                const currentUserId = localStorage.getItem('oreCalc_userId');
                 if (currentUserId) {
                     const { deleteUserData } = await import('../../services/apiService.js');
                     await deleteUserData(currentUserId);
@@ -2067,7 +2067,7 @@ export function initializeAppSettings() {
     }
 
     if (userIdDisplayLabel) {
-        const currentUserId = localStorage.getItem('oreCalcUserId');
+        const currentUserId = localStorage.getItem('oreCalc_userId');
         if (currentUserId) {
             const maskedId = currentUserId.length > 8 ? currentUserId.substring(0, 8) + '...' : currentUserId;
             userIdDisplayLabel.textContent = `${translate('settings.options.userId')}: ${maskedId}`;
@@ -2097,7 +2097,7 @@ export function initializeAppSettings() {
         if (isSection2Open) {
             confirmDeviceSyncBtn.classList.remove('hidden');
             const inputValue = deviceSyncInput ? deviceSyncInput.value.trim() : '';
-            const currentUserId = localStorage.getItem('oreCalcUserId');
+            const currentUserId = localStorage.getItem('oreCalc_userId');
             confirmDeviceSyncBtn.disabled = !(isValidUUID(inputValue) && inputValue !== currentUserId);
         } else {
             confirmDeviceSyncBtn.classList.add('hidden');
@@ -2129,7 +2129,7 @@ export function initializeAppSettings() {
             }
 
             // Populate the current user ID if it exists
-            const userId = localStorage.getItem('oreCalcUserId');
+            const userId = localStorage.getItem('oreCalc_userId');
             if (userId && deviceSyncUserIdDisplay) {
                 deviceSyncUserIdDisplay.textContent = userId;
                 deviceSyncUserIdDisplay.dataset.fullId = userId;
@@ -2225,7 +2225,7 @@ export function initializeAppSettings() {
             return;
         }
 
-        const userId = localStorage.getItem('oreCalcUserId');
+        const userId = localStorage.getItem('oreCalc_userId');
         if (!userId) return;
 
         if (!navigator.clipboard || !navigator.clipboard.writeText) {
@@ -2361,7 +2361,7 @@ export function initializeAppSettings() {
             }
             deviceSyncInput.classList.remove('input-error');
         } else if (isValidUUID(val)) {
-            const currentUserId = localStorage.getItem('oreCalcUserId');
+            const currentUserId = localStorage.getItem('oreCalc_userId');
             if (val === currentUserId) {
                 if (deviceSyncStatus) {
                     deviceSyncStatus.textContent = translate('alerts.sameUserId') || "Cannot link to your own active User ID.";

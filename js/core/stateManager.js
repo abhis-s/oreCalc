@@ -62,7 +62,7 @@ export function switchActivePlayer(newTag) {
         
         // 1. Save old active player data to their slot in allPlayersData
         if (oldTag && state.allPlayersData[oldTag]) {
-            state.allPlayersData[oldTag] = {
+            const oldPlayerData = {
                 ...state.allPlayersData[oldTag],
                 heroes: JSON.parse(JSON.stringify(state.heroes)),
                 storedOres: JSON.parse(JSON.stringify(state.storedOres)),
@@ -70,6 +70,8 @@ export function switchActivePlayer(newTag) {
                 planner: JSON.parse(JSON.stringify(state.planner)),
                 playerProfile: state.playerProfile ? JSON.parse(JSON.stringify(state.playerProfile)) : null
             };
+            state.allPlayersData[oldTag] = oldPlayerData;
+            localStorage.setItem(`oreCalc_player_${oldTag}`, JSON.stringify(oldPlayerData));
         }
 
         // 2. Load the new player's data from allPlayersData
@@ -108,7 +110,7 @@ export function switchActivePlayer(newTag) {
         state.storedOres = safeClone(newPlayerData.storedOres);
         state.income = safeClone(newPlayerData.income);
         state.planner = safeClone(newPlayerData.planner);
-        state.playerProfile = safeClone(newPlayerData.playerProfile);
+        state.playerProfile = safeClone(newPlayerData.playerProfile, null);
 
         if (newPlayerData.currency && typeof newPlayerData.currency === 'object') {
             state.uiSettings.currency = {

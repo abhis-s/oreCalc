@@ -12,7 +12,7 @@ export function cleanupUpgradePlan(equipment) {
 
     for (const stepKey in equipment.upgradePlan) {
         const step = equipment.upgradePlan[stepKey];
-        if (step.enabled && step.target > currentLevel) {
+        if (step.enabled && step.targetLevel > currentLevel) {
             remainingSteps.push(step);
         }
     }
@@ -20,10 +20,14 @@ export function cleanupUpgradePlan(equipment) {
     if (remainingSteps.length === 0) {
         delete equipment.upgradePlan;
     } else {
-        remainingSteps.sort((a, b) => a.target - b.target);
+        remainingSteps.sort((a, b) => a.targetLevel - b.targetLevel);
         const newUpgradePlan = {};
         remainingSteps.forEach((step, index) => {
-            newUpgradePlan[(index + 1).toString()] = step;
+            newUpgradePlan[(index + 1).toString()] = {
+                targetLevel: step.targetLevel,
+                enabled: step.enabled,
+                priorityIndex: step.priorityIndex
+            };
         });
         equipment.upgradePlan = newUpgradePlan;
     }
