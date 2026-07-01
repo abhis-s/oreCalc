@@ -532,6 +532,8 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         }
     }
 
+    let renderFrameId = null;
+
     registerStateUpdateCallback((state, silent) => {
         if (state.planner?.calendar && !state.planner.calendar.isHydrated) {
             const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
@@ -540,8 +542,14 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             state.planner.calendar.isHydrated = true;
         }
         if (!silent) {
-            recalculateAll(state);
-            renderApp(state);
+            if (renderFrameId) {
+                cancelAnimationFrame(renderFrameId);
+            }
+            renderFrameId = requestAnimationFrame(() => {
+                recalculateAll(state);
+                renderApp(state);
+                renderFrameId = null;
+            });
         }
     });
 

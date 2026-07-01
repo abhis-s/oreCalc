@@ -15,6 +15,7 @@ import { translate } from '../../i18n/translator.js';
 import { getGlobalPriorityList, getStepOrderErrors, openPriorityListModal } from '../planner/priorityListModal.js';
 import { renderApp } from '../../core/renderer.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
+import { calculateRequiredOres } from '../../core/oreCalculator.js';
 
 // Session-only toggle for when the planner list is empty. Never persisted to state,
 // so it always resets to false (= show global) on page reload.
@@ -72,41 +73,7 @@ export function getUpgradeRequirements(items, isSingle = false) {
 }
 
 function getAllUnfinishedUpgradeRequirements() {
-    const req = { shiny: 0, glowy: 0, starry: 0 };
-    const customMaxLevel = state.planner?.customMaxLevel || {};
-    const commonMax = customMaxLevel.common !== undefined ? customMaxLevel.common : 18;
-    const epicMax = customMaxLevel.epic !== undefined ? customMaxLevel.epic : 27;
-
-    for (const heroName in (state.heroes || {})) {
-        const hero = state.heroes[heroName];
-        if (hero.enabled === false) continue;
-
-        for (const equipName in hero.equipment) {
-            const equip = hero.equipment[equipName];
-            if (equip.checked === false) continue;
-
-            const heroDataEntry = Object.values(heroData).find(h => h.name === heroName);
-            const eqData = heroDataEntry?.equipment.find(e => e.name === equipName);
-            if (!eqData) continue;
-
-            const maxLevel = eqData.type === 'common' ? commonMax : epicMax;
-            const currentLevel = equip.level || 1;
-
-            if (currentLevel >= maxLevel) continue;
-
-            for (let level = currentLevel + 1; level <= maxLevel; level++) {
-                const cost = upgradeCosts[level];
-                if (cost) {
-                    req.shiny += cost.shiny || 0;
-                    req.glowy += cost.glowy || 0;
-                    if (eqData.type === 'epic') {
-                        req.starry += cost.starry || 0;
-                    }
-                }
-            }
-        }
-    }
-    return req;
+    return calculateRequiredOres(state.heroes, { shiny: 0, glowy: 0, starry: 0 }, state.planner);
 }
 
 export function getBaseIncome() {

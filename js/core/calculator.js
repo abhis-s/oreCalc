@@ -56,38 +56,7 @@ export function recalculateAll(state) {
             glowy: baseMonthly.glowy / 30.44,
             starry: baseMonthly.starry / 30.44,
         };
-        const globalReq = { shiny: 0, glowy: 0, starry: 0 };
-        const customMaxLevel = state.planner?.customMaxLevel || {};
-        const commonMax = customMaxLevel.common !== undefined ? customMaxLevel.common : 18;
-        const epicMax = customMaxLevel.epic !== undefined ? customMaxLevel.epic : 27;
-        for (const heroName in (state.heroes || {})) {
-            const hero = state.heroes[heroName];
-            if (hero.enabled === false) continue;
-            for (const equipName in hero.equipment) {
-                const equip = hero.equipment[equipName];
-                if (equip.checked === false) continue;
-                const heroDataEntry = Object.values(heroData).find(h => h.name === heroName);
-                const eqData = heroDataEntry?.equipment.find(e => e.name === equipName);
-                if (!eqData) continue;
-                const maxLevel = eqData.type === 'common' ? commonMax : epicMax;
-                const currentLevel = equip.level || 1;
-                if (currentLevel >= maxLevel) continue;
-                for (let level = currentLevel + 1; level <= maxLevel; level++) {
-                    const cost = upgradeCosts[level];
-                    if (cost) {
-                        globalReq.shiny += cost.shiny || 0;
-                        globalReq.glowy += cost.glowy || 0;
-                        if (eqData.type === 'epic') globalReq.starry += cost.starry || 0;
-                    }
-                }
-            }
-        }
-        const storedOres = state.storedOres || {};
-        const missing = {
-            shiny: Math.max(0, globalReq.shiny - (parseFloat(storedOres.shiny) || 0)),
-            glowy: Math.max(0, globalReq.glowy - (parseFloat(storedOres.glowy) || 0)),
-            starry: Math.max(0, globalReq.starry - (parseFloat(storedOres.starry) || 0)),
-        };
+        const missing = state.derived.requiredOres;
         prospectorIncome = calculateProspectorIncome(state.income.prospector, { missing, baseIncome });
     }
 
