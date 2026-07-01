@@ -7,7 +7,7 @@ const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech"
  * Throws an error immediately if blocked.
  */
 function checkApiBlock() {
-    const blockedUntilStr = localStorage.getItem('oreCalcApiBlockedUntil');
+    const blockedUntilStr = sessionStorage.getItem('oreCalcApiBlockedUntil');
     if (blockedUntilStr) {
         const blockedUntil = parseInt(blockedUntilStr, 10);
         const now = Date.now();
@@ -15,7 +15,7 @@ function checkApiBlock() {
             const secondsLeft = Math.ceil((blockedUntil - now) / 1000);
             throw new Error(`apiErrors.rateLimitedWithTime:${secondsLeft}`);
         } else {
-            localStorage.removeItem('oreCalcApiBlockedUntil');
+            sessionStorage.removeItem('oreCalcApiBlockedUntil');
         }
     }
 }
@@ -25,14 +25,14 @@ function checkApiBlock() {
  * Throws an error immediately if blocked.
  */
 function checkClashApiBlock() {
-    const blockedUntilStr = localStorage.getItem('oreCalcClashApiBlockedUntil');
+    const blockedUntilStr = sessionStorage.getItem('oreCalcClashApiBlockedUntil');
     if (blockedUntilStr) {
         const blockedUntil = parseInt(blockedUntilStr, 10);
         const now = Date.now();
         if (now < blockedUntil) {
             throw new Error('apiErrors.503');
         } else {
-            localStorage.removeItem('oreCalcClashApiBlockedUntil');
+            sessionStorage.removeItem('oreCalcClashApiBlockedUntil');
         }
     }
 }
@@ -44,7 +44,7 @@ function checkClashApiBlock() {
  */
 function setApiBlock(seconds) {
     const blockDurationMs = Math.max(seconds, 60) * 1000;
-    localStorage.setItem('oreCalcApiBlockedUntil', (Date.now() + blockDurationMs).toString());
+    sessionStorage.setItem('oreCalcApiBlockedUntil', (Date.now() + blockDurationMs).toString());
 }
 
 /**
@@ -52,7 +52,7 @@ function setApiBlock(seconds) {
  */
 function setClashApiBlock() {
     const blockDurationMs = 60 * 1000; // minimum 60 seconds
-    localStorage.setItem('oreCalcClashApiBlockedUntil', (Date.now() + blockDurationMs).toString());
+    sessionStorage.setItem('oreCalcClashApiBlockedUntil', (Date.now() + blockDurationMs).toString());
 }
 
 /**

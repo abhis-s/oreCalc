@@ -28,14 +28,12 @@ function parseCoCDateTime(str) {
     return new Date(Date.UTC(year, month, day, hour, minute, second));
 }
 
-const lastWarFetchTimes = new Map(); // clanTag -> timestamp
-
 export async function triggerWarLogFetch(clanTag) {
     if (calculatedStats.isFetching) return;
 
     // Cooldown check: 1 hour (3600000 ms)
     const now = Date.now();
-    const lastFetch = lastWarFetchTimes.get(clanTag) || 0;
+    const lastFetch = parseInt(sessionStorage.getItem(`oreCalc_cooldown_warlog_${clanTag}`), 10) || 0;
     if (now - lastFetch < 3600000) {
         logger.debug(`Clan war fetch cooldown active for clan ${clanTag}.`);
         return;
@@ -46,7 +44,7 @@ export async function triggerWarLogFetch(clanTag) {
         const { fetchClanWarLog } = await import('../../services/apiService.js');
         const data = await fetchClanWarLog(clanTag);
         
-        lastWarFetchTimes.set(clanTag, now);
+        sessionStorage.setItem(`oreCalc_cooldown_warlog_${clanTag}`, now.toString());
         
         const wars = data.items || [];
         
@@ -103,7 +101,7 @@ export async function triggerWarLogFetch(clanTag) {
     } catch (error) {
         logger.error("Failed to fetch clan war log for recommended values:", error);
         
-        lastWarFetchTimes.set(clanTag, Date.now()); // Set cooldown on failure so we don't spam
+        sessionStorage.setItem(`oreCalc_cooldown_warlog_${clanTag}`, Date.now().toString()); // Set cooldown on failure so we don't spam
         
         calculatedStats.winRate = 70;
         calculatedStats.drawRate = 0;

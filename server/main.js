@@ -45,10 +45,10 @@ const port = process.env.PORT || 3000;
 app.use(helmet());
 app.use(compression());
 
-// General Rate Limiter (100 requests per 15 minutes)
+// General Rate Limiter (500 requests per 15 minutes)
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 500,
     message: 'Too many requests from this IP, please try again after 15 minutes.',
     standardHeaders: true,
     legacyHeaders: false,
@@ -64,10 +64,10 @@ const sensitiveLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-// Rate Limiter for Clash of Clans API proxy requests (30 requests per 15 minutes)
+// Rate Limiter for Clash of Clans API proxy requests (250 requests per 15 minutes)
 const proxyLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 30,
+    max: 250,
     message: 'Too many player fetch requests from this IP, please try again after 15 minutes.',
     standardHeaders: true,
     legacyHeaders: false,

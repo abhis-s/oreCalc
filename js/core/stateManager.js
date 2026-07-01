@@ -120,3 +120,49 @@ export function switchActivePlayer(newTag) {
     });
 }
 
+// Flush pending changes on page unload
+window.addEventListener('beforeunload', () => {
+    // 1. Force immediate local storage save
+    saveState(state, true);
+
+    // 2. Force immediate cloud save via sendBeacon if cloudSync is enabled
+    if (cloudSaveTimeout && state.uiSettings?.cloudSync !== false) {
+        clearTimeout(cloudSaveTimeout);
+        cloudSaveTimeout = null;
+
+        const currentUserId = localStorage.getItem('oreCalc_userId');
+        if (currentUserId) {
+            const currentPlayerTag = state.savedPlayerTags[0];
+            if (currentPlayerTag) {
+                state.allPlayersData[currentPlayerTag] = {
+                    heroes: state.heroes,
+                    storedOres: state.storedOres,
+                    income: state.income,
+                    planner: state.planner,
+                    playerProfile: state.playerProfile,
+                    currency: {
+                        code: state.uiSettings.currency?.code || 'USD',
+                        globalPricing: state.allPlayersData[currentPlayerTag]?.currency?.globalPricing || {}
+                    }
+                };
+            }
+
+            const stateToSave = {
+                appVersion: state.appVersion,
+                savedPlayerTags: state.savedPlayerTags,
+                uiSettings: state.uiSettings,
+                allPlayersData: state.allPlayersData,
+                timestamp: state.timestamp,
+            };
+
+            const isOnlyDefault = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
+            if (!isOnlyDefault) {
+                const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                const url = `${BASE_URL}/api/user-data/save`;
+                const blob = new Blob([JSON.stringify({ userId: currentUserId, data: stateToSave })], { type: 'application/json' });
+                navigator.sendBeacon(url, blob);
+            }
+        }
+    }
+});
+

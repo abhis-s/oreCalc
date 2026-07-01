@@ -177,17 +177,15 @@ function compileCwlSeasonsFromWars(warsList, activePlayerTag, cleanClanTag) {
     return compiledSeasons.slice(0, 2);
 }
 
-const lastCwlFetchTimes = new Map(); // clanTag -> timestamp
-
 export async function triggerCwlLogFetch(clanTag) {
     if (calculatedCwlStats.isFetching) return;
 
     // Cooldown check!
     const now = Date.now();
-    let lastFetch = lastCwlFetchTimes.get(clanTag) || 0;
+    let lastFetch = parseInt(sessionStorage.getItem(`oreCalc_cooldown_cwl_${clanTag}`), 10) || 0;
     if (lastFetch === 0 && state.playerProfile?.lastCwlFetchTime) {
         lastFetch = new Date(state.playerProfile.lastCwlFetchTime).getTime();
-        lastCwlFetchTimes.set(clanTag, lastFetch);
+        sessionStorage.setItem(`oreCalc_cooldown_cwl_${clanTag}`, lastFetch.toString());
     }
     const cachedSeasons = state.playerProfile?.cwlSeasons || [];
     const currentSeason = cachedSeasons[0];
@@ -226,7 +224,7 @@ export async function triggerCwlLogFetch(clanTag) {
         ]);
 
         // Update last fetch time
-        lastCwlFetchTimes.set(clanTag, now);
+        sessionStorage.setItem(`oreCalc_cooldown_cwl_${clanTag}`, now.toString());
         if (state.playerProfile) {
             state.playerProfile.lastCwlFetchTime = new Date(now).toISOString();
         }
@@ -337,7 +335,7 @@ export async function triggerCwlLogFetch(clanTag) {
         logger.error("Failed to fetch CWL log for recommended values:", error);
 
         // Update last fetch time even on failure so we don't spam the API
-        lastCwlFetchTimes.set(clanTag, Date.now());
+        sessionStorage.setItem(`oreCalc_cooldown_cwl_${clanTag}`, Date.now().toString());
         if (state.playerProfile) {
             state.playerProfile.lastCwlFetchTime = new Date().toISOString();
         }
