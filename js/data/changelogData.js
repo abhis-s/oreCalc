@@ -1,6 +1,24 @@
 export const changelogData = [
 
     {
+        version: "v2.0.0",
+        date: "2026-07-02",
+        changes: [
+            { type: "feature", text: "<strong>Core Architecture Overhaul</strong>: Modularized the 1,200-line <code>index.html</code> into 27 partial templates, introduced an SVG sprite system, and implemented automatic state migration (<code>stateCleanup.js</code>) with decoupled localStorage partitioning." },
+            { type: "feature", text: "<strong>Custom Chip System</strong>: Added a highly flexible custom chip creation module supporting 11 distinct chip types with advanced scheduling, assisted conversion, and dynamic placement rules." },
+            { type: "feature", text: "<strong>Navigation & Layout Overhaul</strong>: Redesigned the navigation drawer and responsive layout with dynamic bottom nav rendering, customizable card layouts (Cozy, Cozy-Compact, and Compact Quilt), and layout drag-and-drop card reordering across tabs." },
+            { type: "feature", text: "<strong>Priority Planner Enhancements</strong>: Integrated upgrade resource and bottleneck ore tooltips, suggested Town Hall-specific max levels, and added a toggle to hide or show suggestion messages." },
+            { type: "feature", text: "<strong>Supercell Events & Income</strong>: Added a dynamic scheduler for Supercell Events (formerly Championship) with live-watch tracking, automated CWL background scraping, and dynamic war log recommendations." },
+            { type: "feature", text: "<strong>Aesthetic & UI Personalization</strong>: Introduced an accent color picker (5 presets plus random generation), global pricing modals for per-currency customization, and monospace fonts for notice logs." },
+            { type: "feature", text: "<strong>Security & GDPR Compliance</strong>: Implemented player tag protection and API token verification, backend hardening (CORS, Helmet, rate-limiting), and a GDPR-compliant global data erasure flow." },
+            { type: "feature", text: "<strong>Transparency & Help Centers</strong>: Added a Google Cloud running costs transparency modal, open-source licenses page, onboarding welcome wizard with app tour, and a state-attaching bug report tool." },
+            { type: "fix", text: "<strong>Calculations & UI Tuning</strong>: Resolved calculations lag by batching state changes, fixed timezone offset logic on Star Bonus events, corrected Prospector rounding drift, and fixed calendar lock/key bugs." },
+            { type: "fix", text: "<strong>Accessibility & SEO</strong>: Cleaned up Lighthouse audit accessibility warnings (contrast, labels, touch targets) and unified meta tags, clean URLs, and canonical links." },
+            { type: "chore", text: "<strong>Build & Deployment Pipeline</strong>: Migrated build system to a <code>pnpm</code> workspace with Docker and Google Cloud Build integration, and pruned 19 obsolete dead files." },
+            { type: "chore", text: "<strong>PWA Indicator & Auto-Update</strong>: Enabled forced service worker updates with client-facing update-available indicators to prevent local caching issues." }
+        ]
+    },
+    {
         version: "v1.3.0",
         date: "2025-08-08",
         changes: [
