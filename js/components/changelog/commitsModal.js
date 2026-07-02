@@ -14,6 +14,9 @@ export function initializeCommitsModal() {
 }
 
 function isInterruptionRestricted() {
+    if (window.isAppStartingUp) {
+        return true;
+    }
     const welcomeModal = document.getElementById('welcome-modal');
     if (welcomeModal && welcomeModal.classList.contains('show')) {
         return true;
@@ -28,6 +31,9 @@ function isInterruptionRestricted() {
     }
     const tourTooltip = document.querySelector('.tour-tooltip');
     if (tourTooltip && tourTooltip.style.display !== 'none' && tourTooltip.style.opacity !== '0') {
+        return true;
+    }
+    if (window.isTourPending || window.isTourRunning) {
         return true;
     }
     return false;

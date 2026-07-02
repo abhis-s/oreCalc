@@ -362,8 +362,13 @@ export async function startTour(setId) {
     }
 
     if (activeSteps.length === 0) {
-        return; // Exit silently with no side effects
+        window.isTourRunning = false;
+        window.isTourPending = false;
+        return false; // Exit silently with no side effects
     }
+
+    window.isTourRunning = true;
+    window.isTourPending = false;
 
     // Land on home tab silently first (only if there are active steps to show)
     const tabButton = document.querySelector('[data-tab="home"]');
@@ -412,9 +417,12 @@ export async function startTour(setId) {
     document.body.classList.add('tour-active');
 
     showStep();
+    return true;
 }
 
 export function closeTour() {
+    window.isTourRunning = false;
+    window.isTourPending = false;
     document.body.classList.remove('tour-active');
 
     window.removeEventListener('resize', updatePositions);

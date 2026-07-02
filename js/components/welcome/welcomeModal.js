@@ -34,6 +34,7 @@ let updatingProfiles = {};
 let errorProfiles = {};
 let successProfiles = {};
 let activeWizardTag = null;
+let wasAlreadyOnboarded = false;
 let currentWizardStepIndex = 0;
 let wizardSteps = [];
 let tempStoredShiny = 0;
@@ -252,11 +253,20 @@ export function showWelcomeModal(isVisible, startTag = null) {
         // Trigger guided tour if onboarding is complete
         const welcomeTimestamp = state.uiSettings?.timestamp?.welcome;
         if (welcomeTimestamp) {
+            window.isTourPending = true;
             setTimeout(() => {
                 import('../tour/appTour.js').then(module => {
-                    module.startTour();
+                    module.startTour().then(started => {
+                        window.isAppStartingUp = false;
+                        if (!started) {
+                            window.isTourPending = false;
+                            document.dispatchEvent(new CustomEvent('tour:close'));
+                        }
+                    });
                 });
             }, 400);
+        } else {
+            window.isAppStartingUp = false;
         }
     }
 }
@@ -556,8 +566,7 @@ export function initializeWelcomeModal() {
             }
             if (currentPage === 3) {
                 const pendingTags = state.savedPlayerTags.filter(tag => {
-                    const p = state.allPlayersData[tag];
-                    return !p || p.onboardingComplete !== true;
+                    return sessionStorage.getItem(`oreCalc_onboardingComplete_${tag}`) !== 'true';
                 });
 
                 if (pendingTags.length > 0) {
@@ -614,8 +623,7 @@ export function initializeWelcomeModal() {
             }
 
             const pendingTags = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0').filter(tag => {
-                const p = state.allPlayersData[tag];
-                return !p || p.onboardingComplete !== true;
+                return sessionStorage.getItem(`oreCalc_onboardingComplete_${tag}`) !== 'true';
             });
 
             if (pendingTags.length > 0) {
@@ -627,15 +635,11 @@ export function initializeWelcomeModal() {
                 );
                 if (!confirmed) return;
 
-                // Mark all pending tags as onboardingComplete = true without overwriting their state
-                handleStateUpdate(() => {
-                    pendingTags.forEach(tag => {
-                        const p = state.allPlayersData[tag];
-                        if (p) {
-                            p.onboardingComplete = true;
-                        }
-                    });
-                }, false);
+                // Mark all pending tags as onboardingComplete = true in sessionStorage
+                pendingTags.forEach(tag => {
+                    sessionStorage.setItem(`oreCalc_onboardingComplete_${tag}`, 'true');
+                });
+                renderVerticalProfilesList();
             }
 
             // Expand copy section (idx === 0) and collapse paste section (idx === 1)
@@ -957,8 +961,8 @@ export function initializeWelcomeModal() {
                     if (player) {
                         if (!player.storedOres) player.storedOres = {};
                         player.storedOres.lastUpdated = now;
-                        delete player.onboardingComplete;
                     }
+                    sessionStorage.setItem(`oreCalc_onboardingComplete_${tag}`, 'true');
                 }
             });
             // Dismiss stored ores modal if it somehow opened during onboarding
@@ -1004,8 +1008,7 @@ export function initializeWelcomeModal() {
                 const guestPlayerData = generateGuestPlayerData(selectedTH, selectedLeague);
                 const guestPlayerState = {
                     ...getDefaultPlayerState(),
-                    playerProfile: guestPlayerData,
-                    onboardingComplete: false
+                    playerProfile: guestPlayerData
                 };
                 initializeGuestHeroesState(guestPlayerState);
                 
@@ -1013,6 +1016,7 @@ export function initializeWelcomeModal() {
                     updateSavedPlayerTags('DEFAULT0');
                     state.allPlayersData['DEFAULT0'] = guestPlayerState;
                 }, true);
+                sessionStorage.removeItem('oreCalc_onboardingComplete_DEFAULT0');
             }
 
             // Switch active player to DEFAULT0
@@ -1042,7 +1046,7 @@ export function initializeWelcomeModal() {
     if (wizardBackBtn) {
         wizardBackBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            if (currentWizardStepIndex === 0) {
+            if (currentWizardStepIndex === 0 && !wasAlreadyOnboarded) {
                 const confirmed = await showConfirm(
                     translate('confirms.cancelSetup') || "Are you sure you want to cancel the setup? Your progress might be lost.",
                     'status.confirm',
@@ -3541,7 +3545,7 @@ export function renderVerticalProfilesList() {
         const statusContainer = document.createElement('div');
         statusContainer.className = 'welcome-profile-card-status';
 
-        const onboardingComplete = playerObj.onboardingComplete === true;
+        const onboardingComplete = sessionStorage.getItem(`oreCalc_onboardingComplete_${tag}`) === 'true';
 
         if (updatingProfiles[tag]) {
             statusContainer.innerHTML = `<span class="status-icon loading-spinner"></span>`;
@@ -3575,16 +3579,21 @@ export function renderVerticalProfilesList() {
 function openSetupWizard(tag) {
     activeWizardTag = tag;
     currentWizardStepIndex = 0;
+    
+    // Check if player was already onboarded before starting wizard
+    wasAlreadyOnboarded = (tag === 'DEFAULT0')
+        ? (sessionStorage.getItem('oreCalc_onboardingComplete_DEFAULT0') === 'true')
+        : (sessionStorage.getItem(`oreCalc_onboardingComplete_${tag}`) === 'true');
 
     if (tag === 'DEFAULT0' && !state.allPlayersData['DEFAULT0']) {
         const guestPlayerData = generateGuestPlayerData(selectedTH, selectedLeague);
         const guestPlayerState = {
             ...getDefaultPlayerState(),
-            playerProfile: guestPlayerData,
-            onboardingComplete: false
+            playerProfile: guestPlayerData
         };
         initializeGuestHeroesState(guestPlayerState);
         state.allPlayersData['DEFAULT0'] = guestPlayerState;
+        sessionStorage.removeItem('oreCalc_onboardingComplete_DEFAULT0');
     }
 
     const playerObj = state.allPlayersData[tag];
@@ -3737,10 +3746,11 @@ function goToNextWizardStep() {
 function goToPrevWizardStep() {
     if (currentWizardStepIndex === 0) {
         const tag = activeWizardTag;
-        if (tag) {
-            const playerObj = state.allPlayersData[tag];
-            if (playerObj) {
-                playerObj.onboardingComplete = false;
+        if (tag && !wasAlreadyOnboarded) {
+            if (tag === 'DEFAULT0') {
+                sessionStorage.removeItem('oreCalc_onboardingComplete_DEFAULT0');
+            } else {
+                sessionStorage.removeItem(`oreCalc_onboardingComplete_${tag}`);
             }
         }
         exitWizard();
@@ -3793,7 +3803,7 @@ function finishWizard(isSkipped = false) {
             if (!isSkipped) {
                 applyChecklistToProfile(playerObj);
             }
-            playerObj.onboardingComplete = true;
+            sessionStorage.setItem('oreCalc_onboardingComplete_DEFAULT0', 'true');
             
             // Sync global references to point to the guest profile properties
             state.heroes = playerObj.heroes;
@@ -3805,7 +3815,7 @@ function finishWizard(isSkipped = false) {
             if (!isSkipped) {
                 applyChecklistToProfile(playerObj);
             }
-            playerObj.onboardingComplete = true;
+            sessionStorage.setItem(`oreCalc_onboardingComplete_${activeWizardTag}`, 'true');
         }
         
         // Save state
@@ -3821,8 +3831,7 @@ function updateWelcomeContinueButtonText(pageNumber) {
 
     if (pageNumber === 3) {
         const allComplete = state.savedPlayerTags.every(tag => {
-            const p = state.allPlayersData[tag];
-            return p && p.onboardingComplete === true;
+            return sessionStorage.getItem(`oreCalc_onboardingComplete_${tag}`) === 'true';
         });
 
         if (allComplete && state.savedPlayerTags.length > 0) {
@@ -3847,8 +3856,7 @@ export function updateHeaderSkipButtonVisibility() {
             headerSkipBtn.style.display = 'block';
         } else {
             const hasPendingSetup = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0').some(tag => {
-                const p = state.allPlayersData[tag];
-                return !p || p.onboardingComplete !== true;
+                return sessionStorage.getItem(`oreCalc_onboardingComplete_${tag}`) !== 'true';
             });
             headerSkipBtn.style.display = hasPendingSetup ? 'block' : 'none';
         }

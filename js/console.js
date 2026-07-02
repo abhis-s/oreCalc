@@ -114,6 +114,9 @@ window.triggerWelcomeModal = () => {
             delete state.uiSettings.timestamp.welcome;
         }
     });
+    for (const tag of state.savedPlayerTags) {
+        sessionStorage.removeItem(`oreCalc_onboardingComplete_${tag}`);
+    }
     showWelcomeModal(true);
     return "Welcome modal triggered. Welcome timestamp has been reset.";
 };
@@ -125,13 +128,10 @@ window.disableWelcomeModal = () => {
             state.uiSettings.timestamp = {};
         }
         state.uiSettings.timestamp.welcome = Date.now();
-        for (const tag of state.savedPlayerTags) {
-            const player = state.allPlayersData?.[tag];
-            if (player) {
-                delete player.onboardingComplete;
-            }
-        }
     });
+    for (const tag of state.savedPlayerTags) {
+        sessionStorage.setItem(`oreCalc_onboardingComplete_${tag}`, 'true');
+    }
     return "Welcome modal closed and marked as completed.";
 };
 

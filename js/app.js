@@ -53,6 +53,7 @@ import { logger } from './utils/logger.js';
 // Register global error boundaries immediately
 if (!window.__APP_INITIALIZED__) {
     window.__APP_INITIALIZED__ = true;
+    window.isAppStartingUp = true;
 
     window.addEventListener('error', (event) => {
         logger.error('Uncaught error:', event.error || event.message);
@@ -172,6 +173,9 @@ let isTransitioning = false;
 let lastAppliedAccentColor = null;
 
 function isInterruptionRestricted() {
+    if (window.isAppStartingUp) {
+        return true;
+    }
     const welcomeModal = document.getElementById('welcome-modal');
     if (welcomeModal && welcomeModal.classList.contains('show')) {
         return true;
@@ -186,6 +190,9 @@ function isInterruptionRestricted() {
     }
     const tourTooltip = document.querySelector('.tour-tooltip');
     if (tourTooltip && tourTooltip.style.display !== 'none' && tourTooltip.style.opacity !== '0') {
+        return true;
+    }
+    if (window.isTourPending || window.isTourRunning) {
         return true;
     }
     return false;
@@ -528,7 +535,14 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     }
 
     const savedState = loadState();
-    const originalVersion = savedState?.appVersion || '1.0.0';
+    let originalVersion = savedState?.appVersion || '1.0.0';
+
+    const migratedFrom = localStorage.getItem('oreCalc_showChangelogFromVersion');
+    if (migratedFrom) {
+        originalVersion = migratedFrom;
+        localStorage.removeItem('oreCalc_showChangelogFromVersion');
+    }
+
     initializeState(savedState);
     if (savedState && state.appVersion !== originalVersion) {
         logger.log(`Upgraded localStorage state version from ${originalVersion} to ${state.appVersion}`);
@@ -813,11 +827,21 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 const hasPendingConsent = needsPrivacy || needsTerms;
 
                 if (welcomeTimestamp && !hasPendingConsent) {
+                    window.isTourPending = true;
                     setTimeout(() => {
                         import('./components/tour/appTour.js').then(module => {
-                            module.startTour();
+                            module.startTour().then(started => {
+                                window.isAppStartingUp = false;
+                                if (!started) {
+                                    window.isTourPending = false;
+                                    triggerPendingModals();
+                                }
+                            });
                         });
                     }, 800);
+                } else {
+                    window.isAppStartingUp = false;
+                    triggerPendingModals();
                 }
             }, 600);
 
