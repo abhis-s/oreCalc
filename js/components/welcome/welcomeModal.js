@@ -209,6 +209,7 @@ export function showWelcomeModal(isVisible, startTag = null) {
         if (visibleModals.length === 0 && dom.overlay) {
             dom.overlay.classList.remove('show');
         }
+        document.dispatchEvent(new CustomEvent('welcome:close'));
 
         // Auto-place income chips for all profiles once onboarding welcome modal ends
         import('../../utils/autoPlaceChips.js').then(({ autoPlaceIncomeChipsForRange }) => {

@@ -729,7 +729,29 @@ export function autoPredictStoredOres() {
     };
 }
 
+function isInterruptionRestricted() {
+    const welcomeModal = document.getElementById('welcome-modal');
+    if (welcomeModal && welcomeModal.classList.contains('show')) {
+        return true;
+    }
+    const consentBanner = document.getElementById('consent-banner');
+    if (consentBanner && consentBanner.classList.contains('show')) {
+        return true;
+    }
+    const consentModal = document.getElementById('consent-modal');
+    if (consentModal && consentModal.classList.contains('show')) {
+        return true;
+    }
+    const tourTooltip = document.querySelector('.tour-tooltip');
+    if (tourTooltip && tourTooltip.style.display !== 'none' && tourTooltip.style.opacity !== '0') {
+        return true;
+    }
+    return false;
+}
+
 export function openStoredOresModal() {
+    if (isInterruptionRestricted()) return;
+
     const modal = document.getElementById('stored-ores-modal');
     if (!modal) return;
 

@@ -955,6 +955,8 @@
         "step": "Step {current} of {total}",
         "profileTitle": "Active Profile Selector",
         "profileDesc": "Switch between different saved profiles, press the refresh button to update player data, or click '+ Add Player' to add more accounts.",
+        "profileCardTitle": "Player Overview & Progress",
+        "profileCardDesc": "This card provides a high-level overview of your active profile. It displays your profile, the number of maxed equipment, and detailed completion percentages for each ore upgrade.",
         "fabTitle": "Action Menu",
         "fabDesc": "Access quick actions like refreshing your active profile data or manually syncing/saving your data to the cloud.",
         "saveTitle": "Cloud Sync & Save",

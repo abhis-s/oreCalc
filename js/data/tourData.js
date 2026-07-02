@@ -26,9 +26,19 @@ export const tourSteps = [
         }
     },
     {
-        id: 'action-sync',
+        id: 'player-profile-card',
         setId: 'v1.0',
         order: 2,
+        target: '#home-player-profile-card',
+        tab: 'home',
+        titleKey: 'tour.profileCardTitle',
+        descKey: 'tour.profileCardDesc',
+        placement: 'bottom'
+    },
+    {
+        id: 'action-sync',
+        setId: 'v1.0',
+        order: 3,
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.fab-container' : '#floating-save-btn';
@@ -80,7 +90,7 @@ export const tourSteps = [
         // Navigates to Equipment, then highlights the tab button
         id: 'nav-equipment',
         setId: 'v1.0',
-        order: 3,
+        order: 4,
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.nav-button[data-tab="equipment"]' : '.tab-button[data-tab="equipment"]';
@@ -96,7 +106,7 @@ export const tourSteps = [
     {
         id: 'eq-settings',
         setId: 'v1.0',
-        order: 4,
+        order: 5,
         target: '#eq-settings-container-card',
         tab: 'equipment',
         titleKey: 'tour.eqSettingsTitle',
@@ -106,7 +116,7 @@ export const tourSteps = [
     {
         id: 'ore-storage',
         setId: 'v1.0',
-        order: 5,
+        order: 6,
         target: '#eq-storage-container-card',
         tab: 'equipment',
         titleKey: 'tour.oresTitle',
@@ -117,7 +127,7 @@ export const tourSteps = [
         // Navigates to Income, highlights the tab button, and glows all income card titles
         id: 'nav-income',
         setId: 'v1.0',
-        order: 6,
+        order: 7,
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.nav-button[data-tab="income"]' : '.tab-button[data-tab="income"]';
@@ -144,7 +154,7 @@ export const tourSteps = [
         // Navigates to Planner, highlights the tab button
         id: 'nav-planner',
         setId: 'v1.0',
-        order: 7,
+        order: 8,
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.nav-button[data-tab="planner"]' : '.tab-button[data-tab="planner"]';
@@ -160,8 +170,8 @@ export const tourSteps = [
     {
         id: 'target-levels',
         setId: 'v1.0',
-        order: 8,
-        target: '.max-level-card-header',
+        order: 9,
+        target: '#planner-max-levels-card',
         tab: 'planner',
         titleKey: 'tour.targetTitle',
         descKey: 'tour.targetDesc',
@@ -170,7 +180,7 @@ export const tourSteps = [
     {
         id: 'hero-carousel',
         setId: 'v1.0',
-        order: 9,
+        order: 10,
         target: '.planner-hero-carousel',
         tab: 'planner',
         titleKey: 'tour.heroCarouselTitle',
@@ -180,7 +190,7 @@ export const tourSteps = [
     {
         id: 'priority-list',
         setId: 'v1.0',
-        order: 10,
+        order: 11,
         target: '#priority-list-card',
         tab: 'planner',
         titleKey: 'tour.priorityTitle',
@@ -190,7 +200,7 @@ export const tourSteps = [
     {
         id: 'calendar-planner',
         setId: 'v1.0',
-        order: 11,
+        order: 12,
         target: '#calendar-container',
         tab: 'planner',
         titleKey: 'tour.calendarTitle',
@@ -200,7 +210,7 @@ export const tourSteps = [
     {
         id: 'income-chips',
         setId: 'v1.0',
-        order: 12,
+        order: 13,
         target: '#income-chips-card',
         tab: 'planner',
         titleKey: 'tour.incomeChipsTitle',
@@ -211,7 +221,7 @@ export const tourSteps = [
         // Navigates to Settings, highlights the tab button
         id: 'nav-settings',
         setId: 'v1.0',
-        order: 13,
+        order: 14,
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.nav-button[data-tab="settings"]' : '.tab-button[data-tab="settings"]';
@@ -227,7 +237,7 @@ export const tourSteps = [
     {
         id: 'preferences',
         setId: 'v1.0',
-        order: 14,
+        order: 15,
         target: '#preferences-card',
         tab: 'settings',
         titleKey: 'tour.preferencesTitle',
@@ -237,7 +247,7 @@ export const tourSteps = [
     {
         id: 'backup-sync',
         setId: 'v1.0',
-        order: 15,
+        order: 16,
         target: '#backup-sync-card',
         tab: 'settings',
         titleKey: 'tour.backupSyncTitle',

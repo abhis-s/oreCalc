@@ -446,6 +446,8 @@ export function closeTour() {
         tooltipEl.remove();
         tooltipEl = null;
     }
+
+    document.dispatchEvent(new CustomEvent('tour:close'));
 }
 
 export function finishTour() {

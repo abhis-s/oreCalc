@@ -955,6 +955,8 @@
         "step": "Schritt {current} von {total}",
         "profileTitle": "Aktive Profilauswahl",
         "profileDesc": "Wechsle zwischen verschiedenen gespeicherten Profilen, klicke auf die Aktualisieren-Schaltfläche, um die Spielerdaten zu aktualisieren, oder klicke auf '+ Spieler hinzufügen', um weitere Konten hinzuzufügen.",
+        "profileCardTitle": "Spielerübersicht & Fortschritt",
+        "profileCardDesc": "Diese Karte bietet eine allgemeine Übersicht deines aktiven Profils. Sie zeigt dein Profil, die Anzahl der maximierten Ausrüstungsgegenstände sowie detaillierte prozentuale Fortschritte für jedes Erz-Upgrade.",
         "fabTitle": "Aktionsmenü",
         "fabDesc": "Rufe Schnellaktionen auf, wie das Aktualisieren deiner aktiven Profildaten oder das manuelle Synchronisieren/Speichern deiner Daten in der Cloud.",
         "saveTitle": "Cloud-Synchronisierung & Speichern",
