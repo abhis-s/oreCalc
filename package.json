@@ -9,6 +9,7 @@
   "description": "",
   "main": "service-worker.js",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node scripts/dev/copy-workbox.js && node scripts/fetch-billing-costs.js && concurrently \"pnpm:watch:sass\" \"pnpm:watch:js\" \"pnpm:dev:server\"",
     "watch:sass": "node scripts/dev/watch-sass.js",
