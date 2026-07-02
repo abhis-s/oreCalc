@@ -251,7 +251,7 @@ export function showWelcomeModal(isVisible, startTag = null) {
         });
 
         // Trigger guided tour if onboarding is complete
-        const welcomeTimestamp = state.uiSettings?.timestamp?.welcome;
+        const welcomeTimestamp = state.uiSettings?.uiTimestamps?.welcome;
         if (welcomeTimestamp) {
             window.isTourPending = true;
             setTimeout(() => {
@@ -945,12 +945,12 @@ export function initializeWelcomeModal() {
         submitBtn.addEventListener('click', async () => {
             handleStateUpdate(() => {
                 const now = Date.now();
-                if (!state.uiSettings.timestamp) {
-                    state.uiSettings.timestamp = {};
+                if (!state.uiSettings.uiTimestamps) {
+                    state.uiSettings.uiTimestamps = {};
                 }
-                state.uiSettings.timestamp.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
-                state.uiSettings.timestamp.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
-                state.uiSettings.timestamp.welcome = Math.max(now, EFFECTIVE_DATE_WELCOME + 1);
+                state.uiSettings.uiTimestamps.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
+                state.uiSettings.uiTimestamps.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
+                state.uiSettings.uiTimestamps.welcome = Math.max(now, EFFECTIVE_DATE_WELCOME + 1);
 
                 // Stamp storedOres.lastUpdated for every player so the stored ores
                 // reminder modal doesn't immediately re-trigger after the welcome flow

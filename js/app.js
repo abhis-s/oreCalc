@@ -821,10 +821,10 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 }
 
                 // Trigger guided tour if onboarding is complete but tour is not yet run
-                const welcomeTimestamp = state.uiSettings?.timestamp?.welcome;
-                const tourTimestamp = state.uiSettings?.timestamp?.tour;
-                const privacyTimestamp = state.uiSettings?.timestamp?.privacy;
-                const tosTimestamp = state.uiSettings?.timestamp?.tos;
+                const welcomeTimestamp = state.uiSettings?.uiTimestamps?.welcome;
+                const tourTimestamp = state.uiSettings?.uiTimestamps?.tour;
+                const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
+                const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
 
                 const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
                 const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
@@ -1020,8 +1020,8 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             if (closingConsentModal) {
                 const consentBanner = document.getElementById('consent-banner');
                 if (consentBanner) {
-                    const privacyTimestamp = state.uiSettings.timestamp?.privacy;
-                    const tosTimestamp = state.uiSettings.timestamp?.tos;
+                    const privacyTimestamp = state.uiSettings.uiTimestamps?.privacy;
+                    const tosTimestamp = state.uiSettings.uiTimestamps?.tos;
                     const needsConsent = !privacyTimestamp ||
                         privacyTimestamp < EFFECTIVE_DATE_PRIVACY ||
                         !tosTimestamp ||
@@ -1128,8 +1128,8 @@ window.resetApplication = () => {
 };
 
 window.refreshConsentModalStatus = () => {
-    const privacyTimestamp = state.uiSettings?.timestamp?.privacy;
-    const tosTimestamp = state.uiSettings?.timestamp?.tos;
+    const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
+    const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
 
     const privacyAccepted = privacyTimestamp && privacyTimestamp >= EFFECTIVE_DATE_PRIVACY;
     const tosAccepted = tosTimestamp && tosTimestamp >= EFFECTIVE_DATE_TERMS;
@@ -1167,9 +1167,9 @@ window.refreshConsentModalStatus = () => {
     }
 };
 function checkLegalConsent() {
-    const privacyTimestamp = state.uiSettings?.timestamp?.privacy;
-    const tosTimestamp = state.uiSettings?.timestamp?.tos;
-    const welcomeTimestamp = state.uiSettings?.timestamp?.welcome;
+    const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
+    const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
+    const welcomeTimestamp = state.uiSettings?.uiTimestamps?.welcome;
 
     const isNewUser = !privacyTimestamp && !tosTimestamp;
     const needsWelcome = !welcomeTimestamp || welcomeTimestamp < EFFECTIVE_DATE_WELCOME;
@@ -1235,11 +1235,11 @@ function checkLegalConsent() {
             e.preventDefault();
             handleStateUpdate(() => {
                 const now = Date.now();
-                if (!state.uiSettings.timestamp) {
-                    state.uiSettings.timestamp = {};
+                if (!state.uiSettings.uiTimestamps) {
+                    state.uiSettings.uiTimestamps = {};
                 }
-                state.uiSettings.timestamp.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
-                state.uiSettings.timestamp.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
+                state.uiSettings.uiTimestamps.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
+                state.uiSettings.uiTimestamps.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
             });
 
             consentBanner.classList.remove('show');
@@ -1281,11 +1281,11 @@ function checkLegalConsent() {
             e.preventDefault();
             handleStateUpdate(() => {
                 const now = Date.now();
-                if (!state.uiSettings.timestamp) {
-                    state.uiSettings.timestamp = {};
+                if (!state.uiSettings.uiTimestamps) {
+                    state.uiSettings.uiTimestamps = {};
                 }
-                state.uiSettings.timestamp.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
-                state.uiSettings.timestamp.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
+                state.uiSettings.uiTimestamps.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
+                state.uiSettings.uiTimestamps.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
             });
 
             consentModal.classList.remove('show');

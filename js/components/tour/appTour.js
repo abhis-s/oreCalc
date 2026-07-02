@@ -357,7 +357,7 @@ export async function startTour(setId) {
             .sort((a, b) => a.order - b.order);
     } else {
         // Resolve steps dynamically based on user timestamp
-        const lastTour = state.uiSettings?.timestamp?.tour;
+        const lastTour = state.uiSettings?.uiTimestamps?.tour;
         activeSteps = resolveSteps(lastTour);
     }
 
@@ -460,10 +460,10 @@ export function closeTour() {
 
 export function finishTour() {
     handleStateUpdate(() => {
-        if (!state.uiSettings.timestamp) {
-            state.uiSettings.timestamp = {};
+        if (!state.uiSettings.uiTimestamps) {
+            state.uiSettings.uiTimestamps = {};
         }
-        state.uiSettings.timestamp.tour = Date.now();
+        state.uiSettings.uiTimestamps.tour = Date.now();
     });
     closeTour();
 }

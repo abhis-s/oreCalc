@@ -734,7 +734,7 @@ export function openPrivacyModal() {
     const modal = document.getElementById('privacy-modal');
     if (!modal) return;
 
-    const privacyTimestamp = state.uiSettings?.timestamp?.privacy;
+    const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
     const needsConsent = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
 
     const closeHeaderBtn = document.getElementById('close-privacy-header-btn');
@@ -823,11 +823,11 @@ export function openPrivacyModal() {
             acceptBtn.onclick = (e) => {
                 e.preventDefault();
                 const now = Date.now();
-                if (!state.uiSettings.timestamp) {
-                    state.uiSettings.timestamp = {};
+                if (!state.uiSettings.uiTimestamps) {
+                    state.uiSettings.uiTimestamps = {};
                 }
                 const privacyAcceptedTime = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
-                state.uiSettings.timestamp.privacy = privacyAcceptedTime;
+                state.uiSettings.uiTimestamps.privacy = privacyAcceptedTime;
                 
                 saveState(state);
                 if (typeof window.refreshConsentModalStatus === 'function') {
@@ -836,7 +836,7 @@ export function openPrivacyModal() {
                 closeModal();
                 
                 // Hide legal consent modal if both are now accepted
-                const tosTimestamp = state.uiSettings.timestamp.tos;
+                const tosTimestamp = state.uiSettings.uiTimestamps.tos;
                 if (tosTimestamp && tosTimestamp >= EFFECTIVE_DATE_TERMS) {
                     const consentModal = document.getElementById('consent-modal');
                     if (consentModal) {
@@ -929,7 +929,7 @@ export function openTermsOfUseModal() {
     const modal = document.getElementById('terms-modal');
     if (!modal) return;
 
-    const tosTimestamp = state.uiSettings?.timestamp?.tos;
+    const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
     const needsConsent = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
 
     const closeHeaderBtn = document.getElementById('close-terms-header-btn');
@@ -1018,11 +1018,11 @@ export function openTermsOfUseModal() {
             acceptBtn.onclick = (e) => {
                 e.preventDefault();
                 const now = Date.now();
-                if (!state.uiSettings.timestamp) {
-                    state.uiSettings.timestamp = {};
+                if (!state.uiSettings.uiTimestamps) {
+                    state.uiSettings.uiTimestamps = {};
                 }
                 const tosAcceptedTime = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
-                state.uiSettings.timestamp.tos = tosAcceptedTime;
+                state.uiSettings.uiTimestamps.tos = tosAcceptedTime;
                 
                 saveState(state);
                 if (typeof window.refreshConsentModalStatus === 'function') {
@@ -1031,7 +1031,7 @@ export function openTermsOfUseModal() {
                 closeModal();
                 
                 // Hide legal consent modal if both are now accepted
-                const privacyTimestamp = state.uiSettings.timestamp.privacy;
+                const privacyTimestamp = state.uiSettings.uiTimestamps.privacy;
                 if (privacyTimestamp && privacyTimestamp >= EFFECTIVE_DATE_PRIVACY) {
                     const consentModal = document.getElementById('consent-modal');
                     if (consentModal) {

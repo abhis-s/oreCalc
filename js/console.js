@@ -110,8 +110,8 @@ window.simulateSaveFail = () => {
 
 window.triggerWelcomeModal = () => {
     handleStateUpdate(() => {
-        if (state.uiSettings?.timestamp) {
-            delete state.uiSettings.timestamp.welcome;
+        if (state.uiSettings?.uiTimestamps) {
+            delete state.uiSettings.uiTimestamps.welcome;
         }
     });
     for (const tag of state.savedPlayerTags) {
@@ -124,10 +124,10 @@ window.triggerWelcomeModal = () => {
 window.disableWelcomeModal = () => {
     showWelcomeModal(false);
     handleStateUpdate(() => {
-        if (!state.uiSettings.timestamp) {
-            state.uiSettings.timestamp = {};
+        if (!state.uiSettings.uiTimestamps) {
+            state.uiSettings.uiTimestamps = {};
         }
-        state.uiSettings.timestamp.welcome = Date.now();
+        state.uiSettings.uiTimestamps.welcome = Date.now();
     });
     for (const tag of state.savedPlayerTags) {
         sessionStorage.setItem(`oreCalc_onboardingComplete_${tag}`, 'true');
@@ -140,8 +140,8 @@ window.startTour = async (setId) => {
     if (!setId) {
         // Reset the tour timestamp so startTour() resolves all steps from the beginning
         handleStateUpdate(() => {
-            if (state.uiSettings?.timestamp) {
-                delete state.uiSettings.timestamp.tour;
+            if (state.uiSettings?.uiTimestamps) {
+                delete state.uiSettings.uiTimestamps.tour;
             }
         });
     }
@@ -151,8 +151,8 @@ window.startTour = async (setId) => {
 
 window.resetTour = () => {
     handleStateUpdate(() => {
-        if (state.uiSettings?.timestamp) {
-            delete state.uiSettings.timestamp.tour;
+        if (state.uiSettings?.uiTimestamps) {
+            delete state.uiSettings.uiTimestamps.tour;
         }
     });
     return "Tour timestamp reset. Reload or run startTour() to see it again.";
@@ -160,10 +160,10 @@ window.resetTour = () => {
 
 window.disableTour = () => {
     handleStateUpdate(() => {
-        if (!state.uiSettings.timestamp) {
-            state.uiSettings.timestamp = {};
+        if (!state.uiSettings.uiTimestamps) {
+            state.uiSettings.uiTimestamps = {};
         }
-        state.uiSettings.timestamp.tour = Date.now();
+        state.uiSettings.uiTimestamps.tour = Date.now();
     });
     return "Tour marked as completed.";
 };

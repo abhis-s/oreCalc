@@ -73,7 +73,13 @@ export function migrateAppSettings(oldUI, legacyStateTimestamp) {
         },
         language: oldUI.language || 'auto',
         enableLevelInput: !!oldUI.enableLevelInput,
-        summaryTimeframe: oldUI.incomeTimeframe || 'monthly'
+        summaryTimeframe: oldUI.incomeTimeframe || 'monthly',
+        uiTimestamps: oldUI.timestamp || oldUI.uiTimestamps || {
+            privacy: null,
+            tos: null,
+            welcome: null,
+            tour: null
+        }
     };
 }
 

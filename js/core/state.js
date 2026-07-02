@@ -29,10 +29,11 @@ export function getDefaultState() {
             hideMaxedEquipment: false,
             hideLockedEquipment: false,
             cloudSync: true,
-            timestamp: {
+            uiTimestamps: {
                 privacy: null,
                 tos: null,
-                welcome: null
+                welcome: null,
+                tour: null
             },
             summaryTimeframe: 'monthly',
             cardLayout: 'cozy'
