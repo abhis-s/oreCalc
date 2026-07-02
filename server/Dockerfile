@@ -6,7 +6,7 @@ COPY package.json ./
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-RUN pnpm install --prod
+RUN pnpm install --prod --ignore-scripts
 
 COPY . .
 
