@@ -802,6 +802,7 @@
         "tooManyRequests": "Too many requests. Please try again later.",
         "500": "Unknown error occurred on the Clash of Clans servers.",
         "503": "Clash of Clans servers are temporarily unavailable due to maintenance.",
+        "525": "SSL Handshake Failed. Connection between the server and Clash of Clans API failed.",
         "inMaintenance": "Clash of Clans servers are temporarily unavailable due to maintenance.",
         "default": "API Error: {status}",
         "rateLimitedWithTimeMinutes": "Too many requests. Please try again after {minutes} minutes.",

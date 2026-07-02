@@ -107,9 +107,9 @@
                 <!-- Loaded Profiles List Container -->
                 <div id="welcome-profiles-list-container" class="welcome-profiles-list-container"
                     style="display: none; margin-bottom: 20px;">
-                    <label
+                    <span
                         style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;"
-                        data-i18n="welcome.loadedProfiles">Loaded Profiles:</label>
+                        data-i18n="welcome.loadedProfiles">Loaded Profiles:</span>
                     <div id="welcome-profiles-list" class="welcome-profiles-list">
                         <!-- Compact profile cards populated dynamically -->
                     </div>
@@ -330,8 +330,8 @@
                             <!-- Town Hall Selector -->
                             <div class="guest-setup-item th-selector-container"
                                 style="display: flex; flex-direction: column; gap: 8px;">
-                                <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"
-                                    data-i18n="welcome.selectTH">Select Town Hall:</label>
+                                <span style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"
+                                    data-i18n="welcome.selectTH">Select Town Hall:</span>
                                 <div class="th-badges-scroll" id="welcome-guest-th-list"
                                     style="display: flex; gap: 10px; overflow-x: auto; padding: 4px; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border-primary); background-color: color-mix(in srgb, var(--bg-surface-primary) 30%, transparent);">
                                     <!-- Populated in JS -->
@@ -341,7 +341,7 @@
                             <!-- League Selector -->
                             <div class="guest-setup-item league-selector-container"
                                 style="display: flex; flex-direction: column; gap: 8px;">
-                                <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"
+                                <label for="welcome-guest-league-select" style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"
                                     data-i18n="welcome.selectLeague">Select League:</label>
                                 <div class="league-select-wrapper"
                                     style="display: flex; align-items: center; gap: 12px;">
