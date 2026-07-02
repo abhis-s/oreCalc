@@ -2124,10 +2124,11 @@ function renderProfilePreviewCard(playerData) {
                 heroBadge.classList.add('max-level');
             }
 
-            const heroImg = document.createElement('img');
-            heroImg.className = 'welcome-hero-img';
-            heroImg.src = heroInfo.image;
-            heroImg.alt = heroInfo.name;
+            const heroImg = document.createElement('orecalc-assets-image');
+            heroImg.setAttribute('class', 'welcome-hero-img');
+            heroImg.setAttribute('src', heroInfo.image);
+            heroImg.setAttribute('alt', heroInfo.name);
+            heroImg.setAttribute('size', 'thumbnail');
             heroBadge.appendChild(heroImg);
 
             const heroName = document.createElement('span');
@@ -2342,10 +2343,11 @@ function initializeGuestSetup() {
         }
         thItem.dataset.th = th;
 
-        const img = document.createElement('img');
-        img.src = `assets/th/th${th}.png`;
-        img.alt = `TH ${th}`;
-        img.className = 'th-badge-img';
+        const img = document.createElement('orecalc-assets-image');
+        img.setAttribute('src', `assets/th/th${th}.png`);
+        img.setAttribute('alt', `TH ${th}`);
+        img.setAttribute('class', 'th-badge-img');
+        img.setAttribute('size', 'thumbnail');
 
         const label = document.createElement('span');
         label.textContent = `TH ${th}`;
@@ -2715,10 +2717,11 @@ function createCompactProfileCard(tag, activeTag, upd, err, prefix = 'welcome-pr
 
 
     // Create TH badge inside compact card
-    const thImg = document.createElement('img');
-    thImg.className = 'welcome-profile-card-th-img';
-    thImg.src = `assets/th/th${thLevel}.png`;
-    thImg.alt = `TH ${thLevel}`;
+    const thImg = document.createElement('orecalc-assets-image');
+    thImg.setAttribute('class', 'welcome-profile-card-th-img');
+    thImg.setAttribute('src', `assets/th/th${thLevel}.png`);
+    thImg.setAttribute('alt', `TH ${thLevel}`);
+    thImg.setAttribute('size', 'thumbnail');
 
     // Create Text details container
     const details = document.createElement('div');
@@ -3521,10 +3524,11 @@ export function renderVerticalProfilesList() {
         card.dataset.tag = tag;
 
         // TH badge
-        const thImg = document.createElement('img');
-        thImg.className = 'welcome-profile-card-th-img';
-        thImg.src = `assets/th/th${thLevel}.png`;
-        thImg.alt = `TH ${thLevel}`;
+        const thImg = document.createElement('orecalc-assets-image');
+        thImg.setAttribute('class', 'welcome-profile-card-th-img');
+        thImg.setAttribute('src', `assets/th/th${thLevel}.png`);
+        thImg.setAttribute('alt', `TH ${thLevel}`);
+        thImg.setAttribute('size', 'thumbnail');
 
         // Text details container
         const details = document.createElement('div');

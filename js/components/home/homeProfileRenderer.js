@@ -513,7 +513,7 @@ export function renderHomeProfile(state) {
             <div class="home-profile-overall-progress${progress.overall >= 100 ? ' fully-maxed' : ''}">
                 <div class="overall-progress-header">
                     <span class="overall-progress-label-wrapper">
-                        <img class="ore-icon-overall" src="assets/ore_icon.png" alt="Ore">
+                        <orecalc-assets-image class="ore-icon-overall" src="assets/ore_icon.png" alt="Ore"></orecalc-assets-image>
                         <span class="overall-progress-label" data-i18n="homeProfile.overallProgress">${translate('homeProfile.overallProgress') || 'Overall Ore Progress'}</span>
                     </span>
                     <span class="overall-progress-value" data-ore-value="overall">0%</span>
@@ -527,7 +527,7 @@ export function renderHomeProfile(state) {
                 <div class="profile-stat-box progress-box">
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
-                            <img class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny">
+                            <orecalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></orecalc-assets-image>
                             <span class="stat-box-label" data-i18n="ores.shiny">${translate('ores.shiny') || 'Shiny Ore'}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="shiny">0%</span>
@@ -541,7 +541,7 @@ export function renderHomeProfile(state) {
                 <div class="profile-stat-box progress-box">
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
-                            <img class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy">
+                            <orecalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></orecalc-assets-image>
                             <span class="stat-box-label" data-i18n="ores.glowy">${translate('ores.glowy') || 'Glowy Ore'}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="glowy">0%</span>
@@ -555,7 +555,7 @@ export function renderHomeProfile(state) {
                 <div class="profile-stat-box progress-box">
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
-                            <img class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry">
+                            <orecalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></orecalc-assets-image>
                             <span class="stat-box-label" data-i18n="ores.starry">${translate('ores.starry') || 'Starry Ore'}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="starry">0%</span>
