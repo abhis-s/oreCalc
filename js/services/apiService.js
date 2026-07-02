@@ -170,7 +170,7 @@ export async function fetchPlayerData(playerTag, token = null, timeoutMs = null)
 export async function fetchRequiredClientVersion() {
     checkApiBlock();
 
-    const url = `${BASE_URL}/api/version`;
+    const url = `${BASE_URL}/api/version?v=2`;
     try {
         const response = await fetch(url);
         if (!response.ok) {

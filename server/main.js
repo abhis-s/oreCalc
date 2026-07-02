@@ -1224,7 +1224,11 @@ app.post('/api/support/bug-report', sensitiveLimiter, async (req, res) => {
 });
 
 app.get('/api/version', (req, res) => {
-    res.json({ currentAppVersion: '2.0.0' });
+    if (req.query.v === '2') {
+        res.json({ currentAppVersion: '2.0.0' });
+    } else {
+        res.json({ currentAppVersion: '1.3.0' });
+    }
 });
 
 app.get('/api/check-ip', async (req, res) => {
