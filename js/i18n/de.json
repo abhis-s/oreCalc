@@ -14,7 +14,9 @@
         "income": "Einkommen",
         "planner": "Planer",
         "settings": "Einstellungen",
-        "drawerTitle": "Tabs & Tools"
+        "drawerTitle": "Tabs & Tools",
+        "privacy": "Datenschutzerklärung",
+        "tos": "Nutzungsbedingungen"
     },
     "player": {
         "guest": "Gast",

@@ -14,7 +14,9 @@
         "income": "Income",
         "planner": "Planner",
         "settings": "Settings",
-        "drawerTitle": "Tabs & Tools"
+        "drawerTitle": "Tabs & Tools",
+        "privacy": "Privacy Policy",
+        "tos": "Terms of Use"
     },
     "player": {
         "guest": "Guest",

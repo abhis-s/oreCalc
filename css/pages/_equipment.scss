@@ -40,6 +40,10 @@
     box-shadow: $elevation-1;
     transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out, transform 0.25s cubic-bezier(0.2, 1, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
     position: relative;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    box-sizing: border-box;
 
     &:hover:not(.dragging) {
         transform: translateY(-2px);

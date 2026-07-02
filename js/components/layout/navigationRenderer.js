@@ -93,5 +93,137 @@ function renderNavigationDrawer(activeTabId) {
         `;
         container.appendChild(button);
     });
+
+    // Secondary actions container (at the bottom)
+    const secondaryContainer = document.querySelector('.navigation-drawer__secondary-actions');
+    if (secondaryContainer) {
+        secondaryContainer.innerHTML = '';
+        
+        const secondaryItems = [
+            {
+                id: 'changelog',
+                icon: 'changelog',
+                i18nKey: 'settings.changelog',
+                action: () => {
+                    Promise.all([
+                        import('../changelog/changelogModal.js'),
+                        import('../../services/changelogService.js')
+                    ]).then(([modalModule, serviceModule]) => {
+                        const content = serviceModule.getChangelogHtml();
+                        modalModule.showChangelogModal(content);
+                    }).catch(err => console.error(err));
+                }
+            },
+            {
+                id: 'github',
+                icon: 'github',
+                i18nKey: 'settings.github',
+                url: 'https://github.com/abhis-s/oreCalc'
+            },
+            {
+                id: 'support',
+                icon: 'bmc',
+                i18nKey: 'settings.buyMeACoffee',
+                url: 'https://buymeacoffee.com/orecalc'
+            }
+        ];
+
+        secondaryItems.forEach(item => {
+            let el;
+            if (item.url) {
+                el = document.createElement('a');
+                el.href = item.url;
+                el.target = '_blank';
+                el.rel = 'noopener noreferrer';
+                el.addEventListener('click', () => {
+                    // Close navigation drawer so that the confirmation notice modal is not covered
+                    import('./navigation.js').then(module => {
+                        const isOpen = document.querySelector('.navigation-drawer').classList.contains('open');
+                        if (isOpen) {
+                            const overlay = document.querySelector('.navigation-drawer__overlay');
+                            document.querySelector('.navigation-drawer').classList.remove('open');
+                            if (overlay) overlay.classList.remove('show');
+                            document.body.classList.remove('open-drawer');
+                        }
+                    });
+                });
+            } else {
+                el = document.createElement('button');
+                if (item.action) {
+                    el.addEventListener('click', () => {
+                        import('./navigation.js').then(module => {
+                            const isOpen = document.querySelector('.navigation-drawer').classList.contains('open');
+                            if (isOpen) {
+                                const overlay = document.querySelector('.navigation-drawer__overlay');
+                                document.querySelector('.navigation-drawer').classList.remove('open');
+                                if (overlay) overlay.classList.remove('show');
+                                document.body.classList.remove('open-drawer');
+                            }
+                        });
+                        item.action();
+                    });
+                }
+            }
+            el.className = 'navigation-drawer__tab secondary-tab';
+            el.dataset.actionId = item.id;
+            
+            const openInIconHtml = item.url 
+                ? `<orecalc-assets-svg name="open-in-new" class="open-in-icon" fill="var(--text-secondary)"></orecalc-assets-svg>`
+                : '';
+
+            el.innerHTML = `
+                <orecalc-assets-svg name="${item.icon}" fill="var(--text-secondary)"></orecalc-assets-svg>
+                <span class="tab-label" data-i18n="${item.i18nKey}">${translate(item.i18nKey)}</span>
+                ${openInIconHtml}
+            `;
+            secondaryContainer.appendChild(el);
+        });
+    }
+
+    // Update dynamic footer version
+    const versionEl = document.querySelector('.navigation-drawer__app-version');
+    if (versionEl) {
+        const appVersion = (window.__ENV__?.APP_VERSION || '2.0.0').replace(/^v/, '');
+        versionEl.textContent = `v${appVersion}`;
+    }
+
+    // Setup modal listeners for privacy policy and terms of use links
+    const privacyLink = document.querySelector('.navigation-drawer__footer-links a[href="privacy.html"]');
+    if (privacyLink) {
+        privacyLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            import('./navigation.js').then(module => {
+                const isOpen = document.querySelector('.navigation-drawer').classList.contains('open');
+                if (isOpen) {
+                    const overlay = document.querySelector('.navigation-drawer__overlay');
+                    document.querySelector('.navigation-drawer').classList.remove('open');
+                    if (overlay) overlay.classList.remove('show');
+                    document.body.classList.remove('open-drawer');
+                }
+            });
+            import('../appSettings/appSettings.js').then(module => {
+                module.openPrivacyModal();
+            }).catch(err => console.error(err));
+        });
+    }
+
+    const termsLink = document.querySelector('.navigation-drawer__footer-links a[href="terms.html"]');
+    if (termsLink) {
+        termsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            import('./navigation.js').then(module => {
+                const isOpen = document.querySelector('.navigation-drawer').classList.contains('open');
+                if (isOpen) {
+                    const overlay = document.querySelector('.navigation-drawer__overlay');
+                    document.querySelector('.navigation-drawer').classList.remove('open');
+                    if (overlay) overlay.classList.remove('show');
+                    document.body.classList.remove('open-drawer');
+                }
+            });
+            import('../appSettings/appSettings.js').then(module => {
+                module.openTermsOfUseModal();
+            }).catch(err => console.error(err));
+        });
+    }
 }
 

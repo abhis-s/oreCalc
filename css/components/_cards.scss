@@ -279,10 +279,16 @@
         padding: 20px;
     }
 
-    &.full-width-card,
+    &.full-width-card {
+        width: 100%;
+    }
+
     &.small-width-card,
     &.equipment-card {
         width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+        box-sizing: border-box;
     }
 
     &.settings-card {
@@ -325,15 +331,19 @@
     }
 
     .ores {
-        display: flex;
-        justify-content: space-around;
-        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        width: 100%;
+        max-width: 480px;
+        margin: 15px auto 0;
     }
 
     .ore {
-        align-items: center;
         display: flex;
         flex-direction: column;
+        align-items: center;
+        width: 100%;
         position: relative;
         text-align: center;
 
@@ -350,11 +360,12 @@
     .ore-value,
     .ore-time,
     .ore-date {
-        display: inline-block;
+        display: block;
         font-size: var(--font-size-lg);
         padding-top: 5px;
         text-align: center;
-        width: 100px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .ore-date {

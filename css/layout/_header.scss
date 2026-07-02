@@ -68,10 +68,16 @@
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.1s;
 
-    &:hover {
-        background-color: var(--bg-surface-tertiary);
+    @media (hover: hover) {
+        &:hover {
+            background-color: var(--bg-surface-tertiary);
+        }
+    }
+
+    &:active {
+        transform: scale(0.95);
     }
 
     &:focus-visible {
@@ -79,33 +85,10 @@
         outline-offset: 2px;
     }
 
-    .menu-icon,
-    .cross-icon {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+    .menu-icon {
         fill: $text-primary;
         width: 24px;
         height: 24px;
-    }
-
-    .cross-icon {
-        opacity: 0;
-        transform: translate(-50%, -50%) rotate(-90deg);
-    }
-}
-
-/* Drawer open state transitions for hamburger */
-body.open-drawer .hamburger {
-    .menu-icon {
-        opacity: 0;
-        transform: translate(-50%, -50%) rotate(90deg);
-    }
-    .cross-icon {
-        opacity: 1;
-        transform: translate(-50%, -50%) rotate(0deg);
     }
 }
 
@@ -336,4 +319,5 @@ body.open-drawer .hamburger {
             display: none; // Hide title on tiny screens to fit dropdown safely
         }
     }
+
 }

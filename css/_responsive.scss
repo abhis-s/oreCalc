@@ -1,6 +1,9 @@
 @use 'abstracts/variables' as *;
 @use 'base/placeholder';
 
+/* ==========================================
+   Mobile/Tablet Breakpoint (< 780px)
+   ========================================== */
 @media (max-width: 779px) {
     :root {
         --font-size-em-lg: 1.1em;
@@ -18,9 +21,7 @@
         pointer-events: auto;
     }
 
-    .container {
-        padding-bottom: 100px !important;
-    }
+
 
     .fab-container {
         opacity: 1;
@@ -62,7 +63,14 @@
     }
 
     .main-content {
-        align-items: center;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .left-panel {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .card {
@@ -85,6 +93,9 @@
         display: flex;
         flex-direction: column;
         gap: 20px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
 
         .ore-value[type="number"] {
             width: 60px;
@@ -100,14 +111,9 @@
     }
 }
 
-@media (min-width: 400px) and (max-width: 779px) {
-    .card {
-        .ore {
-            width: 89.6px;
-        }
-    }
-}
-
+/* ==========================================
+   Extremely Narrow Viewports (< 400px)
+   ========================================== */
 @media (max-width: 399px) {
     .header-container {
         margin-left: 0;
@@ -125,14 +131,11 @@
             font-size: var(--font-size-lg);
         }
     }
-
-    .card {
-        .ore {
-            width: 70px;
-        }
-    }
 }
 
+/* ==========================================
+   Desktop Breakpoint (>= 780px)
+   ========================================== */
 @media (min-width: 780px) {
     .bottom-nav-bar {
         opacity: 0;

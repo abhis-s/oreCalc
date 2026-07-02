@@ -46,12 +46,17 @@ export function initializeNavigation() {
         dom.drawer.overlay.addEventListener('click', closeNavigationDrawer);
     }
 
+    if (dom.drawer.close) {
+        dom.drawer.close.addEventListener('click', closeNavigationDrawer);
+    }
+
+
+
     if (dom.drawer.drawer) {
         dom.drawer.drawer.addEventListener('click', (event) => {
-            event.stopPropagation();
 
             const tab = event.target.closest('.navigation-drawer__tab');
-            if (tab) {
+            if (tab && !tab.classList.contains('secondary-tab')) {
                 // If clicking on Settings with update pending, trigger the update modal
                 if (tab.dataset.tab === 'settings' && tab.classList.contains('update-pending') && window.__WB__) {
                     import('../modals/updateModal.js').then(module => {
