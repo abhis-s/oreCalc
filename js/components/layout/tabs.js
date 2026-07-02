@@ -28,8 +28,13 @@ function checkPlannerTabStoredOres() {
 }
 
 export function initializeTabs() {
-    // Handle initial state if starting on planner tab
-    const initialTab = window.location.hash ? `${window.location.hash.substring(1)}-tab` : 'home-tab';
+    const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
+    let initialTab = window.location.hash ? `${window.location.hash.substring(1)}-tab` : 'home-tab';
+    
+    if (!validTabs.includes(initialTab)) {
+        history.replaceState(null, '', window.location.pathname);
+        initialTab = 'home-tab';
+    }
     state.activeTab = initialTab;
 
     if (initialTab === 'planner-tab') {
@@ -38,13 +43,13 @@ export function initializeTabs() {
 
     window.addEventListener('popstate', () => {
         const hash = window.location.hash;
-        const tabId = hash ? `${hash.substring(1)}-tab` : 'home-tab';
+        let tabId = hash ? `${hash.substring(1)}-tab` : 'home-tab';
         if (tabId === state.activeTab) return;
 
         const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
         if (!tabOrder.includes(tabId)) {
-            window.location.href = '/404';
-            return;
+            history.replaceState(null, '', window.location.pathname);
+            tabId = 'home-tab';
         }
 
         const currentIndex = tabOrder.indexOf(state.activeTab);

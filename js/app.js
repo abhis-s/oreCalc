@@ -570,8 +570,8 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         if (validTabs.includes(initialTab)) {
             state.activeTab = initialTab;
         } else {
-            window.location.href = '/404';
-            return;
+            history.replaceState(null, '', window.location.pathname);
+            state.activeTab = 'home-tab';
         }
     }
 
