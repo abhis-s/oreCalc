@@ -776,7 +776,6 @@ export function initializeWelcomeModal() {
                 y: rect.top + rect.height / 2,
                 isSwatchClick: true
             };
-            console.log("[welcomeModal] Dispatching app:theme-change. Origin:", origin, "Current Theme:", state.uiSettings.theme);
             document.dispatchEvent(new CustomEvent('app:theme-change', { detail: { theme: state.uiSettings.theme, origin } }));
         });
     });

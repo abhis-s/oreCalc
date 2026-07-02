@@ -206,6 +206,8 @@ function triggerPendingModals() {
         const content = window.pendingChangelogContent;
         window.pendingChangelogContent = null;
         showChangelogModal(content);
+        sessionStorage.removeItem('oreCalc_showChangelog');
+        sessionStorage.removeItem('oreCalc_showChangelogFromVersion');
     } else if (window.pendingCommits) {
         const commits = window.pendingCommits;
         window.pendingCommits = null;
@@ -537,23 +539,25 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     const savedState = loadState();
     let originalVersion = savedState?.appVersion || '1.0.0';
 
-    const migratedFrom = localStorage.getItem('oreCalc_showChangelogFromVersion');
-    if (migratedFrom) {
+    const showChangelogFlag = sessionStorage.getItem('oreCalc_showChangelog') === 'true';
+    const migratedFrom = sessionStorage.getItem('oreCalc_showChangelogFromVersion');
+    if (showChangelogFlag && migratedFrom) {
         originalVersion = migratedFrom;
-        localStorage.removeItem('oreCalc_showChangelogFromVersion');
     }
 
     initializeState(savedState);
-    if (savedState && state.appVersion !== originalVersion) {
+    if (savedState && (state.appVersion !== originalVersion || showChangelogFlag)) {
         logger.log(`Upgraded localStorage state version from ${originalVersion} to ${state.appVersion}`);
         saveState(state, true); // Save immediately to persist version bump
-        if (compareVersions(originalVersion, state.appVersion) < 0) {
+        if (compareVersions(originalVersion, state.appVersion) < 0 || showChangelogFlag) {
             setTimeout(() => {
                 const content = getChangelogHtml();
                 if (isInterruptionRestricted()) {
                     window.pendingChangelogContent = content;
                 } else {
                     showChangelogModal(content);
+                    sessionStorage.removeItem('oreCalc_showChangelog');
+                    sessionStorage.removeItem('oreCalc_showChangelogFromVersion');
                 }
             }, 1200);
         } else {

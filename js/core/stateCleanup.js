@@ -332,7 +332,8 @@ export function migrateFullState(legacyState) {
 
     const originalVersion = legacyState.appVersion || '1.0.0';
     try {
-        localStorage.setItem('oreCalc_showChangelogFromVersion', originalVersion);
+        sessionStorage.setItem('oreCalc_showChangelog', 'true');
+        sessionStorage.setItem('oreCalc_showChangelogFromVersion', originalVersion);
     } catch (e) {
         console.error('Error setting migration changelog version flag:', e);
     }
