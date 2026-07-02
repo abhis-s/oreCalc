@@ -24,13 +24,14 @@ export async function initializeAppData() {
 
     if (state.uiSettings.cloudSync === false) {
         logger.log("Cloud sync is disabled in settings. Skipping initialization sync.");
-        return await checkAppVersion();
+        await checkAppVersion();
+        return null;
     }
 
     const localData = await checkAppVersion();
     if (localData && localData.savedPlayerTags.length === 1 && localData.savedPlayerTags[0] === 'DEFAULT0') {
         logger.log("Skipping cloud sync: Only default player tag exists locally.");
-        return localData;
+        return null;
     }
 
     let cloudData = null;
@@ -58,7 +59,7 @@ export async function initializeAppData() {
 
         if (timeDifference < timeTolerance) {
             logger.log("Local and cloud data are within 5 seconds discrepancy. Considering them in sync.");
-            return localData;
+            return null;
         } else if (cloudTimestamp > localTimestamp) {
             if (await showConfirm(translate('confirms.cloudSync'))) {
                 logger.log("User chose to sync. Using cloud data.");
@@ -66,14 +67,14 @@ export async function initializeAppData() {
             } else {
                 logger.log("User chose not to sync. Using local data and pushing to cloud.");
                 if (userId) { 
-                    try {
-                        await saveUserData(userId, localData);
-                        logger.log("Local data pushed to cloud.");
-                    } catch (error) {
-                        logger.error("Failed to push local data to cloud:", error);
-                    }
+                     try {
+                         await saveUserData(userId, localData);
+                         logger.log("Local data pushed to cloud.");
+                     } catch (error) {
+                         logger.error("Failed to push local data to cloud:", error);
+                     }
                 }
-                return localData;
+                return null;
             }
         } else if (localTimestamp > cloudTimestamp) {
             logger.log("Local data is newer. Automatically pushing to cloud.");
@@ -86,14 +87,14 @@ export async function initializeAppData() {
                     logger.error("Failed to push local data to cloud:", error);
                 }
             }
-            return localData;
+            return null;
         }
     } else if (cloudData) {
         logger.log("Only cloud data found. Using cloud data.");
         return cloudData;
     } else {
         logger.log("Only local data found. Using local data.");
-        return localData;
+        return null;
     }
 }
 

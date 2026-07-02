@@ -270,6 +270,8 @@ export function migratePlayerState(playerState, tag) {
 
     return {
         heroes,
+        // storedOres is intentionally NOT migrated (deleted/reset during migration)
+        // to align with the clean state tracking.
         storedOres: {
             shiny: 0,
             glowy: 0,
@@ -277,6 +279,8 @@ export function migratePlayerState(playerState, tag) {
         },
         income,
         planner,
+        // playerProfile is intentionally NOT migrated (deleted/reset during migration)
+        // because it is supposed to load fresh from the Clash of Clans API.
         playerProfile: null,
         currency: {
             code: typeof playerState.currency === 'string' ? playerState.currency : 'USD',
@@ -326,6 +330,13 @@ export function migrateFullState(legacyState) {
         return;
     }
 
+    const originalVersion = legacyState.appVersion || '1.0.0';
+    try {
+        localStorage.setItem('oreCalc_showChangelogFromVersion', originalVersion);
+    } catch (e) {
+        console.error('Error setting migration changelog version flag:', e);
+    }
+
     try {
         // Migrate user ID key
         const legacyUserId = localStorage.getItem('oreCalcUserId');
@@ -365,12 +376,15 @@ export function migrateFullState(legacyState) {
             const upperTag = tag.toUpperCase();
             if (upperTag.includes('DEFAULT') || upperTag.includes('GUEST')) continue;
             
-            const oldPlayer = legacyState.allPlayersData[tag];
+            const cleanTag = upperTag.startsWith('#') ? upperTag.substring(1) : upperTag;
+            
+            const oldPlayer = legacyState.allPlayersData[tag] || legacyState.allPlayersData[upperTag] || legacyState.allPlayersData[cleanTag];
+            
             if (oldPlayer) {
-                const cleanPlayer = migratePlayerState(oldPlayer, tag);
+                const cleanPlayer = migratePlayerState(oldPlayer, cleanTag);
                 if (cleanPlayer) {
-                    localStorage.setItem(`oreCalc_player_${tag}`, JSON.stringify(cleanPlayer));
-                    migratedPlayerTags.push(tag);
+                    localStorage.setItem(`oreCalc_player_${cleanTag}`, JSON.stringify(cleanPlayer));
+                    migratedPlayerTags.push(cleanTag);
                 }
             }
         } catch (e) {
@@ -400,8 +414,8 @@ export function migrateFullState(legacyState) {
 export function compareVersions(v1, v2) {
     if (typeof v1 !== 'string') v1 = String(v1 || '0.0.0');
     if (typeof v2 !== 'string') v2 = String(v2 || '0.0.0');
-    const cleanV1 = v1.split(/[+-]/)[0];
-    const cleanV2 = v2.split(/[+-]/)[0];
+    const cleanV1 = v1.replace(/^v/i, '').split(/[+-]/)[0];
+    const cleanV2 = v2.replace(/^v/i, '').split(/[+-]/)[0];
     const parts1 = cleanV1.split('.').map(Number);
     const parts2 = cleanV2.split('.').map(Number);
     for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {

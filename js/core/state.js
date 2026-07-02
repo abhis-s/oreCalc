@@ -189,8 +189,7 @@ export function initializeState(savedState) {
                         storedOres: savedPlayerState.storedOres || {},
                         income: savedPlayerState.income || {},
                         planner: savedPlayerState.planner || {},
-                        currency: savedPlayerState.currency,
-                        onboardingComplete: savedPlayerState.onboardingComplete
+                        currency: savedPlayerState.currency
                     };
                 }
 
@@ -218,12 +217,7 @@ export function initializeState(savedState) {
                     }
                 }
 
-                playerState.playerProfile = savedPlayerState.playerProfile || null;
-
-                // Preserve onboarding/metadata flags from saved state
-                if (savedPlayerState.onboardingComplete !== undefined) {
-                    playerState.onboardingComplete = savedPlayerState.onboardingComplete;
-                }
+                playerState.playerProfile = savedPlayerState.playerProfile || playerState.playerProfile || null;
             }
         }
 
