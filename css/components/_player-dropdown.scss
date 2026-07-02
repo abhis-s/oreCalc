@@ -81,8 +81,8 @@
 .player-dropdown-list {
     position: absolute;
     top: calc(100% + 6px);
-    left: 0;
-    width: 100%;
+    right: 0;
+    width: 175px;
     border-radius: 16px;
     padding: 8px;
     background-color: $bg-surface-primary;
@@ -240,9 +240,11 @@
 }
 
 #selected-player-name {
-    display: block;
+    flex-grow: 1;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100px;
+    text-align: left;
+    margin-right: 8px;
 }

@@ -1,116 +1,82 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
+/* ==========================================
+   Header Container (Parent Panel)
+   ========================================== */
 .header-container {
-    @extend %flex-center;
-    flex-wrap: nowrap;
-    margin: 0 10px 20px;
-    padding: 12px 20px;
-    border: 1px solid transparent;
-    border-radius: 20px;
-    transition: background-color 0.3s ease-in-out, 
-                box-shadow 0.3s ease-in-out, 
-                border-radius 0.3s ease-in-out, 
-                top 0.3s ease-in-out, 
-                padding 0.3s ease-in-out, 
-                border-color 0.3s ease-in-out, 
-                margin 0.3s ease-in-out;
-    position: relative;
-
-    h1 {
-        margin-right: auto;
-    }
-
-    &.sticky {
-        background-color: color-mix(in srgb, $bg-surface-secondary 80%, transparent);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-color: color-mix(in srgb, $border-primary 50%, transparent);
-        border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-        left: 15px;
-        right: 15px;
-        margin: 0 auto;
-        padding: 10px 24px;
-        position: fixed;
-        top: 15px;
-        width: calc(100% - 30px);
-        max-width: 1170px;
-        z-index: $z-index-layout;
-    }
-}
-
-.tab-bar-container {
-    display: flex;
-    flex-grow: 1;
-    gap: 10px;
-    margin: -4px 20px;
-    padding: 4px 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    -webkit-overflow-scrolling: touch;
-
-    opacity: 1;
-    pointer-events: auto;
-    max-width: 1000px;
-    transform: scale(1) translateX(0);
-    transform-origin: left center;
-    transition: opacity 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                max-width 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                margin 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                padding 0.3s cubic-bezier(0.2, 1, 0.2, 1);
-
-    &::-webkit-scrollbar {
-        display: none;
-    }
-
-    .tab-button {
-        flex-shrink: 0;
-    }
-}
-
-.player-controls-container {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-    flex-grow: 0;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    
+    // Cozy panel layout
+    height: 64px;
+    box-sizing: border-box;
+    margin: 15px auto 20px;
+    padding: 0 24px;
+    background-color: color-mix(in srgb, $bg-surface-secondary 40%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid color-mix(in srgb, $border-primary 30%, transparent);
+    border-radius: 20px;
+    max-width: 1170px;
+    position: relative;
+    z-index: $z-index-layout;
+
+    transition: background-color 0.3s ease, 
+                box-shadow 0.3s ease, 
+                border-color 0.3s ease,
+                top 0.3s ease,
+                margin 0.3s ease,
+                padding 0.3s ease;
+
+    /* Sticky Mode */
+    &.sticky {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        width: calc(100% - 30px);
+        margin: 0 auto;
+        padding: 0 24px;
+        background-color: color-mix(in srgb, $bg-surface-secondary 35%, transparent);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-color: color-mix(in srgb, $border-primary 60%, transparent);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
 }
 
+/* Header Placeholder (used when sticky) */
 .header-placeholder {
     display: none;
     height: 0;
 }
 
+/* ==========================================
+   Hamburger Button (Mobile Only)
+   ========================================== */
 .hamburger {
-    display: flex;
+    display: none; // Hidden by default on desktop
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: #{$z-index-layout + 1};
     position: relative;
     outline: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
 
-    opacity: 0;
-    pointer-events: none;
-    width: 0;
-    height: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    transform: scale(0.5);
-    transition: opacity 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                width 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                height 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                padding 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                margin 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+    &:hover {
+        background-color: var(--bg-surface-tertiary);
+    }
 
     &:focus-visible {
-        outline-offset: 2px !important;
-        border-radius: 8px;
+        outline: 2px solid var(--accent-primary);
+        outline-offset: 2px;
     }
 
     .menu-icon,
@@ -119,72 +85,255 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        transition: opacity 0.3s ease-in-out;
+        transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+        fill: $text-primary;
+        width: 24px;
+        height: 24px;
     }
 
     .cross-icon {
         opacity: 0;
+        transform: translate(-50%, -50%) rotate(-90deg);
     }
 }
 
-body.open-drawer .hamburger .menu-icon {
-    opacity: 0;
+/* Drawer open state transitions for hamburger */
+body.open-drawer .hamburger {
+    .menu-icon {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(90deg);
+    }
+    .cross-icon {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
 }
 
-body.open-drawer .hamburger .cross-icon {
-    opacity: 1;
+/* ==========================================
+   Brand Section (Title)
+   ========================================== */
+.header-brand {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+
+    .brand-title {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+        background: linear-gradient(135deg, var(--accent-primary) 30%, #a8c0ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: opacity 0.25s ease;
+    }
 }
 
-@media (max-width: 779px) {
-    .header-container {
-        justify-content: space-between;
-        padding-left: 10px;
-        padding-right: 10px;
+/* ==========================================
+   Tab Bar Navigation Container (Desktop)
+   ========================================== */
+.tab-bar-container {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-surface-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 99px;
+    padding: 4px;
+    gap: 2px;
+    margin: 0 auto; // Centers the tab bar in the header panel
+    overflow: hidden;
+    flex-grow: 0;
+    flex-shrink: 0;
+    
+    // Hide scrollbar just in case it wraps
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
 
-        &.sticky {
-            padding-left: 10px;
-            padding-right: 10px;
+    .tab-button {
+        flex-shrink: 0;
+        background-color: transparent;
+        border: none;
+        border-radius: 99px;
+        color: var(--text-secondary);
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        padding: 6px 16px;
+        cursor: pointer;
+        box-shadow: none;
+        transition: background-color 0.2s ease,
+                    color 0.2s ease,
+                    transform 0.15s ease;
+
+        &:hover:not(.active) {
+            background-color: var(--accent-primary-soft);
+            color: var(--accent-primary);
+            transform: scale(1.02);
+        }
+
+        &:active {
+            transform: scale(0.96);
+        }
+
+        &.active {
+            background-color: var(--accent-primary);
+            color: var(--text-on-accent);
+            box-shadow: 0 2px 8px var(--accent-primary-soft);
+        }
+    }
+}
+
+/* ==========================================
+   Right Side Controls (Player Dropdown & Refresh)
+   ========================================== */
+.player-dropdown-container {
+    margin-left: 12px;
+    flex-shrink: 0;
+}
+
+.data-buttons-container {
+    margin-left: 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+
+    #refresh-button {
+        min-height: 36px;
+        min-width: auto;
+        padding: 6px 14px;
+        border-radius: 99px;
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+
+        .animated-btn-icon-wrapper svg {
+            width: 15px;
+            height: 15px;
+        }
+    }
+}
+
+
+/* ==========================================
+   Responsive Adaptations (Predictable Media Queries)
+   ========================================== */
+
+/* 1. Desktop Width Adjustments (>= 780px) */
+@media (min-width: 780px) {
+    /* Narrow Desktop: Viewports between 780px and 960px */
+    @media (max-width: 960px) {
+        .header-container {
+            padding: 0 16px;
+        }
+        
+        .header-brand .brand-title {
+            display: none; // Hide title to keep layout clean
+        }
+
+        .tab-bar-container {
+            margin-left: 0;
+            margin-right: auto;
+        }
+
+        .data-buttons-container #refresh-button {
+            padding: 6px 10px;
+            .animated-btn-text {
+                display: none; // Icon-only refresh to save space
+            }
+            .animated-btn-icon-wrapper {
+                transform: translateY(0);
+                position: relative;
+                width: 100%;
+                height: 100%;
+            }
         }
     }
 
-    .header-container h1 {
-        margin-right: 0;
+}
+
+/* 2. Mobile Mode (< 780px) */
+@media (max-width: 779px) {
+    .header-container {
+        height: 56px; // Slightly shorter header panel on mobile
+        margin: 10px 10px 15px;
+        padding: 0 12px;
+        border-radius: 14px;
+
+        &.sticky {
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            width: calc(100% - 20px);
+            padding: 0 12px;
+            border-radius: 14px;
+        }
     }
 
     .hamburger {
-        opacity: 1;
-        pointer-events: auto;
-        width: 44px;
-        height: 44px;
-        transform: scale(1);
-        margin-right: 10px;
+        display: flex; // Show hamburger toggle
+        margin-right: 8px;
     }
 
-    .player-controls-container {
-        margin-left: auto;
+    .header-brand {
+        margin-right: auto; // Pushes dropdown & refresh to the right
+        
+        .brand-title {
+            display: block; // Always show title on mobile since tabs are hidden
+            font-size: 18px;
+        }
     }
 
     .tab-bar-container {
-        opacity: 0;
-        pointer-events: none;
-        max-width: 0;
-        margin: 0;
-        padding: 0;
-        transform: scale(0.6) translateX(-50px);
-        overflow: hidden;
+        display: none !important; // Hide desktop tab buttons completely
     }
 
-    #refresh-button {
-        min-width: 60px;
-        padding: 8px 12px;
+    .player-dropdown-container {
+        margin-left: 8px;
+        width: 130px; // Cozy mobile dropdown size
+    }
+    
+    #selected-player-name {
+        max-width: 65px;
+    }
 
-        .animated-btn-text {
-            display: none;
+    .data-buttons-container {
+        margin-left: 8px;
+
+        #refresh-button {
+            min-width: 36px;
+            width: 36px;
+            height: 36px;
+            min-height: 36px;
+            padding: 0;
+            border-radius: 50%; // Circular refresh button on mobile
+
+            .animated-btn-text {
+                display: none;
+            }
+
+            .animated-btn-icon-wrapper {
+                transform: translateY(0);
+                position: relative;
+                width: 100%;
+                height: 100%;
+                
+                svg {
+                    width: 15px;
+                    height: 15px;
+                }
+            }
         }
+    }
 
-        .animated-btn-icon-wrapper {
-            transform: translateY(0);
-            transition: none;
+    /* Extremely narrow mobile viewports (< 380px) */
+    @media (max-width: 380px) {
+        .header-brand .brand-title {
+            display: none; // Hide title on tiny screens to fit dropdown safely
         }
     }
 }

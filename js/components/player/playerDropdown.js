@@ -77,28 +77,34 @@ export function initializePlayerDropdown() {
         closeDropdown();
     }, { passive: true });
 
-    const playerControlsContainer = document.querySelector('.player-controls-container');
-    if (playerControlsContainer) {
-        playerControlsContainer.addEventListener('mouseenter', () => {
+    const playerDropdownContainer = document.querySelector('.player-dropdown-container');
+    if (playerDropdownContainer) {
+        playerDropdownContainer.addEventListener('mouseenter', () => {
+            if (!window.matchMedia('(hover: hover)').matches) return;
+            if (document.body.classList.contains('tour-active')) return;
             if (Date.now() - lastTouchTime < 1000) return;
             if (document.querySelector('.modal.show')) return;
             openDropdown();
         });
 
-        playerControlsContainer.addEventListener('mouseleave', () => {
+        playerDropdownContainer.addEventListener('mouseleave', () => {
+            if (!window.matchMedia('(hover: hover)').matches) return;
+            if (document.body.classList.contains('tour-active')) return;
             if (Date.now() - lastTouchTime < 1000) return;
             closeDropdown();
         });
 
-        playerControlsContainer.addEventListener('focusin', () => {
+        playerDropdownContainer.addEventListener('focusin', () => {
+            if (document.body.classList.contains('tour-active')) return;
             if (Date.now() - lastTouchTime < 1000) return;
             if (document.querySelector('.modal.show')) return;
             openDropdown();
         });
 
-        playerControlsContainer.addEventListener('focusout', (event) => {
+        playerDropdownContainer.addEventListener('focusout', (event) => {
+            if (document.body.classList.contains('tour-active')) return;
             if (Date.now() - lastTouchTime < 1000) return;
-            if (!playerControlsContainer.contains(event.relatedTarget)) {
+            if (!playerDropdownContainer.contains(event.relatedTarget)) {
                 closeDropdown();
             }
         });
