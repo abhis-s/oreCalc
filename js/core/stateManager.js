@@ -25,6 +25,7 @@ export function handleStateUpdate(updateFn, silent = false) {
     if (!silent && state.planner?.calendar) {
         state.planner.calendar.isDirty = true;
     }
+    state.timestamp = new Date().toISOString();
     updateFn();
 
     if (stateUpdateCallback) {

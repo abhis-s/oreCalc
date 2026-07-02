@@ -82,7 +82,8 @@ export function saveState(state, immediate = false) {
             const cleanAppSettings = sanitizeUISettings(state.uiSettings);
             const appSettingsToSave = {
                 ...cleanAppSettings,
-                appVersion: state.appVersion || '2.0.0'
+                appVersion: state.appVersion || '2.0.0',
+                timestamp: state.timestamp || new Date().toISOString()
             };
             localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(appSettingsToSave));
 
@@ -140,8 +141,10 @@ export function loadState() {
         const appSettingsStr = localStorage.getItem(APP_SETTINGS_KEY);
         const appSettings = appSettingsStr ? JSON.parse(appSettingsStr) : {};
         const savedAppVersion = appSettings.appVersion || '2.0.0';
+        const savedTimestamp = appSettings.timestamp;
         const uiSettings = { ...appSettings };
         delete uiSettings.appVersion;
+        delete uiSettings.timestamp;
 
         // 4. Load all players data
         const allPlayersData = {};
@@ -157,6 +160,7 @@ export function loadState() {
         // 5. Reconstruct monolithic state object
         const reconstructedState = {
             appVersion: savedAppVersion,
+            timestamp: savedTimestamp,
             savedPlayerTags,
             uiSettings,
             allPlayersData

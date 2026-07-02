@@ -353,6 +353,7 @@ export function migrateFullState(legacyState) {
         const oldUI = legacyState.uiSettings || {};
         const cleanAppSettings = migrateAppSettings(oldUI, legacyState.timestamp);
         cleanAppSettings.appVersion = '2.0.0';
+        cleanAppSettings.timestamp = legacyState.timestamp || new Date().toISOString();
         localStorage.setItem('oreCalc_appSettings', JSON.stringify(cleanAppSettings));
     } catch (e) {
         console.error('Error migrating global UI settings:', e);

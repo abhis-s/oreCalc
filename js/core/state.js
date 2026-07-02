@@ -12,6 +12,7 @@ export const EFFECTIVE_DATE_WELCOME = 1780617600000; // June 5, 2026 (00:00 UTC)
 export function getDefaultState() {
     return {
         appVersion: window.__ENV__?.APP_VERSION || '2.0.0',
+        timestamp: new Date().toISOString(),
         activeTab: 'home-tab',
         savedPlayerTags: [],
         allPlayersData: {},
@@ -146,6 +147,7 @@ export function initializeState(savedState) {
     }
 
     if (savedState) {
+        state.timestamp = savedState.timestamp || defaultState.timestamp;
         const savedVersion = savedState.appVersion || '1.0.0';
         const currentVersion = defaultState.appVersion;
         if (compareVersions(savedVersion, currentVersion) < 0 || savedVersion !== currentVersion) {
