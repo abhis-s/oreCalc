@@ -93,6 +93,7 @@ app.use(cors({
             return callback(new Error('Not allowed by CORS'));
         }
     },
+    credentials: true,
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-verify-token', 'x-user-id'],
     exposedHeaders: ['Retry-After', 'RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset']
@@ -1008,7 +1009,7 @@ app.delete('/api/user-data/delete/:userId', sensitiveLimiter, async (req, res) =
                 });
 
                 const mailOptions = {
-                    from: process.env.EMAIL_FROM || 'noreply@clashcalc.com',
+                    from: `"ClashCalc System" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
                     to: process.env.RECIPIENT_EMAIL_LEGAL || 'legal@clashcalc.com',
                     subject: `[ClashCalc] Account Deletion Request - ${userId}`,
                     text: `Hello,\n\nA user has requested permanent deletion of their account.\n\nDetails:\n- User ID: ${userId}\n- Time: ${new Date().toISOString()}\n\nThe user ID has been deleted from userStates and locked in the deletedUuids database.\n\nRegards,\nClashCalc System`
@@ -1124,7 +1125,7 @@ app.post('/api/user-data/erase-tag', sensitiveLimiter, async (req, res) => {
                 });
 
                 const mailOptions = {
-                    from: process.env.EMAIL_FROM || 'noreply@clashcalc.com',
+                    from: `"ClashCalc System" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
                     to: process.env.RECIPIENT_EMAIL_LEGAL || 'legal@clashcalc.com',
                     subject: `[ClashCalc] Exclusion from Service Request - #${cleanedTag}`,
                     text: `Hello,\n\nA new exclusion from service request has been submitted.\n\nDetails:\n- Player Tag: #${cleanedTag}\n- Verification Token: ${token}\n- User ID: ${userId || 'unknown'}\n- Time: ${requestData.requestedAt}\n\nPlease verify and process this request manually in Firestore or CoC systems.\n\nRegards,\nClashCalc System`
@@ -1197,12 +1198,16 @@ app.post('/api/support/bug-report', sensitiveLimiter, async (req, res) => {
                 }
 
                 const mailOptions = {
-                    from: process.env.EMAIL_FROM || 'noreply@clashcalc.com',
+                    from: `"ClashCalc System" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
                     to: process.env.RECIPIENT_EMAIL_SUPPORT || 'support@clashcalc.com',
                     subject: `[OreCalc] Bug Report - ${docRef.id} (${userId || 'unknown'})`,
                     text: `Hello,\n\nA new bug report has been submitted.\n\nDetails:\n- Report ID: ${docRef.id}\n- User ID: ${userId || 'unknown'}\n- Contact Email: ${email || 'none'}\n- Date: ${reportData.reportedAt}\n\nDescription:\n${description}\n\n${attachData ? 'User data is attached to this email.' : 'No user data was attached.'}\n\nRegards,\nOreCalc Support System`,
                     attachments
                 };
+
+                if (email) {
+                    mailOptions.replyTo = email;
+                }
 
                 await transporter.sendMail(mailOptions);
                 emailSent = true;

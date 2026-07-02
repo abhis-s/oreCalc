@@ -1157,7 +1157,7 @@ function openBugReportModal() {
         charCount.textContent = '0/1000';
     }
     if (attachCheckbox) {
-        attachCheckbox.checked = false;
+        attachCheckbox.checked = true;
     }
 
     // Set up Input Listeners (Character Counter)
