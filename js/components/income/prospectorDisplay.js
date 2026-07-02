@@ -208,8 +208,13 @@ function updateProspectorTip() {
     const tipContainer = dom.income.prospector.tip?.container;
     if (!tipContainer) return;
 
-    if (!state.income.prospector?.goldPass) {
-        tipContainer.style.display = 'none';
+    const goldPass = state.income.prospector?.goldPass || false;
+    const assistedConversion = state.income.prospector?.assistedConversion !== undefined 
+        ? state.income.prospector.assistedConversion 
+        : true;
+
+    if (!goldPass || !assistedConversion) {
+        tipContainer.classList.remove('show');
         return;
     }
 
@@ -244,7 +249,7 @@ function updateProspectorTip() {
                     </div>
                 </div>
             `;
-            tipContainer.style.display = 'block';
+            tipContainer.classList.add('show');
             return;
         }
     }
@@ -383,7 +388,7 @@ function updateProspectorTip() {
             ${overallHtml}
         </div>
     `;
-    tipContainer.style.display = 'block';
+    tipContainer.classList.add('show');
 
     // Wire up "Priority List" navigation buttons in the empty states
     tipContainer.querySelectorAll('.prospector-priority-link').forEach(btn => {

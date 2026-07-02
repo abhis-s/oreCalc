@@ -58,8 +58,28 @@
 }
 
 .prospector-tip {
-    padding: 10px !important;
     font-size: 0.85rem;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.2, 1, 0.2, 1), 
+                max-height 0.3s cubic-bezier(0.2, 1, 0.2, 1), 
+                transform 0.3s cubic-bezier(0.2, 1, 0.2, 1), 
+                margin 0.3s cubic-bezier(0.2, 1, 0.2, 1), 
+                padding 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+    margin-top: 0;
+    padding: 0 10px !important;
+
+    &.show {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
+        pointer-events: auto;
+        margin-top: 15px;
+        padding: 10px !important;
+    }
 
     .prospector-rec-container {
         display: grid;
@@ -67,6 +87,7 @@
         gap: 8px;
         width: 100%;
         margin-top: 2px;
+        transition: none !important;
     }
 
     .prospector-rec-section {
@@ -77,6 +98,7 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
+        transition: none !important;
 
         p {
             margin: 0;

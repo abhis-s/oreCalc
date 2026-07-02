@@ -498,34 +498,6 @@ function onContainerResize(layout, entries) {
         if (Math.abs(newHeight - prevHeight) >= HEIGHT_THRESHOLD) {
             layout.heightMap.set(el, newHeight);
             changed = true;
-
-            if (prevHeight > 0 && !isWindowResizing) {
-                requestAnimationFrame(() => {
-                    // Cancel any ongoing height animation timeout
-                    if (el.__heightTimeout) {
-                        clearTimeout(el.__heightTimeout);
-                    }
-
-                    // Force layout styles to animate height smoothly
-                    el.style.transition = 'none';
-                    el.style.height = `${prevHeight}px`;
-                    el.style.overflow = 'hidden';
-                    
-                    // Force a repaint
-                    el.offsetHeight;
-
-                    // Animate to new height
-                    el.style.transition = `height ${TRANSITION_DURATION}ms ${TRANSITION_EASING}`;
-                    el.style.height = `${newHeight}px`;
-
-                    el.__heightTimeout = setTimeout(() => {
-                        el.style.transition = '';
-                        el.style.height = '';
-                        el.style.overflow = '';
-                        el.__heightTimeout = null;
-                    }, TRANSITION_DURATION);
-                });
-            }
         }
     }
 

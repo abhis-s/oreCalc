@@ -441,7 +441,26 @@ function createDayCell(date, plannerState) {
             const equipContainer = document.createElement('div');
             equipContainer.classList.add('calendar-equipment-container');
             
+            const uniqueMilestones = [];
+            const milestoneMap = new Map();
+            
             milestones.forEach(item => {
+                const key = `${item.heroName || ''}||${item.name || ''}`;
+                const existing = milestoneMap.get(key);
+                if (!existing || item.targetLevel > existing.targetLevel) {
+                    milestoneMap.set(key, item);
+                }
+            });
+            
+            milestones.forEach(item => {
+                const key = `${item.heroName || ''}||${item.name || ''}`;
+                const bestItem = milestoneMap.get(key);
+                if (bestItem && !uniqueMilestones.includes(bestItem)) {
+                    uniqueMilestones.push(bestItem);
+                }
+            });
+
+            uniqueMilestones.forEach(item => {
                 const badge = document.createElement('div');
                 badge.classList.add('calendar-equipment-badge');
                 badge.dataset.hero = item.heroName;
