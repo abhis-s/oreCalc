@@ -70,6 +70,10 @@ export function translate(key, ...args) {
         }
     }
 
+    if (typeof translation !== 'string') {
+        translation = typeof key === 'string' ? key : '';
+    }
+
     if (args.length > 0 && typeof args[0] === 'object') {
         const replacements = args[0];
         translation = translation.replace(/\{(\w+)\}/g, (placeholderWithBraces, placeholderKey) => {

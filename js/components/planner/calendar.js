@@ -25,14 +25,14 @@ for (const key in incomeData) {
     }
 }
 
-const calendarContainer = document.getElementById('calendar-container');
-const calendarTrack = document.getElementById('calendar-track');
-const currentMonthYearHeader = document.getElementById('current-month-year');
-const deleteCurrentMonthChipsBtn = document.getElementById('delete-current-month-chips-btn');
-const deleteAllChipsBtn = document.getElementById('delete-all-chips-btn');
-const calendarSettingsBtn = document.getElementById('calendar-settings-btn');
-const autoPlaceChipsBtn = document.getElementById('auto-place-chips-btn');
-const monthChipContainer = document.getElementById('month-chip-container');
+let calendarContainer = document.getElementById('calendar-container');
+let calendarTrack = document.getElementById('calendar-track');
+let currentMonthYearHeader = document.getElementById('current-month-year');
+let deleteCurrentMonthChipsBtn = document.getElementById('delete-current-month-chips-btn');
+let deleteAllChipsBtn = document.getElementById('delete-all-chips-btn');
+let calendarSettingsBtn = document.getElementById('calendar-settings-btn');
+let autoPlaceChipsBtn = document.getElementById('auto-place-chips-btn');
+let monthChipContainer = document.getElementById('month-chip-container');
 
 function updateHeader(text) {
     if (!currentMonthYearHeader) return;
@@ -43,15 +43,15 @@ function updateHeader(text) {
 }
 
 // Settings Modal Elements
-const calendarSettingsModal = document.getElementById('calendar-settings-modal');
-const closeCalendarSettingsModalBtn = document.getElementById('close-calendar-settings-modal-btn');
-const cancelCalendarSettingsBtn = document.getElementById('cancel-calendar-settings-btn');
-const saveCalendarSettingsBtn = document.getElementById('save-calendar-settings-btn');
-const firstDaySelect = document.getElementById('calendar-first-day-select');
-const showIconsSwitch = document.getElementById('calendar-show-icons-switch');
-const showEquipmentMilestonesSwitch = document.getElementById('calendar-show-equipment-milestones-switch');
-const highlightUpgradeRangesSwitch = document.getElementById('calendar-highlight-upgrade-ranges-switch');
-const autoPlaceScopeSelect = document.getElementById('calendar-auto-place-scope-select');
+let calendarSettingsModal = document.getElementById('calendar-settings-modal');
+let closeCalendarSettingsModalBtn = document.getElementById('close-calendar-settings-modal-btn');
+let cancelCalendarSettingsBtn = document.getElementById('cancel-calendar-settings-btn');
+let saveCalendarSettingsBtn = document.getElementById('save-calendar-settings-btn');
+let firstDaySelect = document.getElementById('calendar-first-day-select');
+let showIconsSwitch = document.getElementById('calendar-show-icons-switch');
+let showEquipmentMilestonesSwitch = document.getElementById('calendar-show-equipment-milestones-switch');
+let highlightUpgradeRangesSwitch = document.getElementById('calendar-highlight-upgrade-ranges-switch');
+let autoPlaceScopeSelect = document.getElementById('calendar-auto-place-scope-select');
 
 let currentView = 'monthly';
 let hasRendered = false;
@@ -1486,52 +1486,79 @@ function handleDayCellMouseLeave(e) {
 const mediaQuery = window.matchMedia('(max-width: 630px)');
 
 document.addEventListener('DOMContentLoaded', () => {
-    calendarContainer.addEventListener('wheel', handleWheel, { passive: false });
-    calendarContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
-    calendarContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
-    calendarContainer.addEventListener('touchend', handleTouchEnd);
-    calendarContainer.addEventListener('touchcancel', handleTouchEnd);
+    calendarContainer = calendarContainer || document.getElementById('calendar-container');
+    calendarTrack = calendarTrack || document.getElementById('calendar-track');
+    currentMonthYearHeader = currentMonthYearHeader || document.getElementById('current-month-year');
+    deleteCurrentMonthChipsBtn = deleteCurrentMonthChipsBtn || document.getElementById('delete-current-month-chips-btn');
+    deleteAllChipsBtn = deleteAllChipsBtn || document.getElementById('delete-all-chips-btn');
+    calendarSettingsBtn = calendarSettingsBtn || document.getElementById('calendar-settings-btn');
+    autoPlaceChipsBtn = autoPlaceChipsBtn || document.getElementById('auto-place-chips-btn');
+    monthChipContainer = monthChipContainer || document.getElementById('month-chip-container');
+
+    calendarSettingsModal = calendarSettingsModal || document.getElementById('calendar-settings-modal');
+    closeCalendarSettingsModalBtn = closeCalendarSettingsModalBtn || document.getElementById('close-calendar-settings-modal-btn');
+    cancelCalendarSettingsBtn = cancelCalendarSettingsBtn || document.getElementById('cancel-calendar-settings-btn');
+    saveCalendarSettingsBtn = saveCalendarSettingsBtn || document.getElementById('save-calendar-settings-btn');
+    firstDaySelect = firstDaySelect || document.getElementById('calendar-first-day-select');
+    showIconsSwitch = showIconsSwitch || document.getElementById('calendar-show-icons-switch');
+    showEquipmentMilestonesSwitch = showEquipmentMilestonesSwitch || document.getElementById('calendar-show-equipment-milestones-switch');
+    highlightUpgradeRangesSwitch = highlightUpgradeRangesSwitch || document.getElementById('calendar-highlight-upgrade-ranges-switch');
+    autoPlaceScopeSelect = autoPlaceScopeSelect || document.getElementById('calendar-auto-place-scope-select');
+
+    if (calendarContainer) {
+        calendarContainer.addEventListener('wheel', handleWheel, { passive: false });
+        calendarContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+        calendarContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+        calendarContainer.addEventListener('touchend', handleTouchEnd);
+        calendarContainer.addEventListener('touchcancel', handleTouchEnd);
+    }
 
     mediaQuery.addEventListener('change', handleMediaQueryChange);
     handleMediaQueryChange(mediaQuery);
 
     window.addEventListener('resize', () => {
         if (currentView === 'monthly' || currentView === 'weekly') {
-            const activeIndex = Math.max(0, calendarTrack.children.length - 2);
-            positionTrackAtIndex(activeIndex);
+            if (calendarTrack) {
+                const activeIndex = Math.max(0, calendarTrack.children.length - 2);
+                positionTrackAtIndex(activeIndex);
+            }
         }
     });
 
-    deleteCurrentMonthChipsBtn.addEventListener('click', async () => {
-        const confirm = await showConfirm(translate('planner.confirmDeleteMonth'));
-        if (!confirm) return;
-        handleStateUpdate(() => {
-            if (!state.planner?.calendar?.view?.month) return;
-            const [year, month] = state.planner.calendar.view.month.split('-');
-            const monthYearKey = `${year}-${month}`;
-            if (state.planner.calendar.dates[monthYearKey]) {
-                delete state.planner.calendar.dates[monthYearKey];
+    if (deleteCurrentMonthChipsBtn) {
+        deleteCurrentMonthChipsBtn.addEventListener('click', async () => {
+            const confirm = await showConfirm(translate('planner.confirmDeleteMonth'));
+            if (!confirm) return;
+            handleStateUpdate(() => {
+                if (!state.planner?.calendar?.view?.month) return;
+                const [year, month] = state.planner.calendar.view.month.split('-');
+                const monthYearKey = `${year}-${month}`;
+                if (state.planner.calendar.dates[monthYearKey]) {
+                    delete state.planner.calendar.dates[monthYearKey];
+                }
+            });
+            animateNextRender = true;
+            renderCalendar(state.planner);
+        });
+    }
+
+    if (deleteAllChipsBtn) {
+        deleteAllChipsBtn.addEventListener('click', async () => {
+            const confirm = await showConfirm(translate('planner.confirmDeleteAll'));
+            if (!confirm) return;
+            handleStateUpdate(() => {
+                state.planner.calendar.dates = {};
+                state.planner.calendar.customChips = [];
+                state.planner.calendar.customChipData = {};
+            });
+            animateNextRender = true;
+            renderCalendar(state.planner);
+            if (state.planner?.calendar?.view?.month) {
+                const [yearStr, monthStr] = state.planner.calendar.view.month.split('-');
+                renderIncomeChips(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1);
             }
         });
-        animateNextRender = true;
-        renderCalendar(state.planner);
-    });
-
-    deleteAllChipsBtn.addEventListener('click', async () => {
-        const confirm = await showConfirm(translate('planner.confirmDeleteAll'));
-        if (!confirm) return;
-        handleStateUpdate(() => {
-            state.planner.calendar.dates = {};
-            state.planner.calendar.customChips = [];
-            state.planner.calendar.customChipData = {};
-        });
-        animateNextRender = true;
-        renderCalendar(state.planner);
-        if (state.planner?.calendar?.view?.month) {
-            const [yearStr, monthStr] = state.planner.calendar.view.month.split('-');
-            renderIncomeChips(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1);
-        }
-    });
+    }
 
     if (autoPlaceChipsBtn) {
         autoPlaceChipsBtn.addEventListener('click', () => {
@@ -1541,38 +1568,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    calendarSettingsBtn.addEventListener('click', () => {
-        const settings = state.planner.calendar.settings;
-        firstDaySelect.value = settings.firstDayOfWeek;
-        showIconsSwitch.checked = settings.showChipIcons;
-        showEquipmentMilestonesSwitch.checked = settings.showEquipmentMilestones !== false;
-        highlightUpgradeRangesSwitch.checked = settings.highlightUpgradeRanges !== false;
-        autoPlaceScopeSelect.value = settings.autoPlaceScope;
-        calendarSettingsModal.classList.add('show');
-    });
-
-    closeCalendarSettingsModalBtn.addEventListener('click', () => {
-        calendarSettingsModal.classList.remove('show');
-    });
-
-    cancelCalendarSettingsBtn.addEventListener('click', () => {
-        calendarSettingsModal.classList.remove('show');
-    });
-
-    saveCalendarSettingsBtn.addEventListener('click', () => {
-        handleStateUpdate(() => {
-            state.planner.calendar.settings = {
-                firstDayOfWeek: firstDaySelect.value,
-                showChipIcons: showIconsSwitch.checked,
-                showEquipmentMilestones: showEquipmentMilestonesSwitch.checked,
-                highlightUpgradeRanges: highlightUpgradeRangesSwitch.checked,
-                autoPlaceScope: autoPlaceScopeSelect.value
-            };
+    if (calendarSettingsBtn) {
+        calendarSettingsBtn.addEventListener('click', () => {
+            const settings = state.planner.calendar.settings;
+            if (firstDaySelect) firstDaySelect.value = settings.firstDayOfWeek;
+            if (showIconsSwitch) showIconsSwitch.checked = settings.showChipIcons;
+            if (showEquipmentMilestonesSwitch) showEquipmentMilestonesSwitch.checked = settings.showEquipmentMilestones !== false;
+            if (highlightUpgradeRangesSwitch) highlightUpgradeRangesSwitch.checked = settings.highlightUpgradeRanges !== false;
+            if (autoPlaceScopeSelect) autoPlaceScopeSelect.value = settings.autoPlaceScope;
+            if (calendarSettingsModal) calendarSettingsModal.classList.add('show');
         });
-        calendarSettingsModal.classList.remove('show');
-        animateNextRender = true;
-        renderCalendar(state.planner);
-    });
+    }
+
+    if (closeCalendarSettingsModalBtn) {
+        closeCalendarSettingsModalBtn.addEventListener('click', () => {
+            if (calendarSettingsModal) calendarSettingsModal.classList.remove('show');
+        });
+    }
+
+    if (cancelCalendarSettingsBtn) {
+        cancelCalendarSettingsBtn.addEventListener('click', () => {
+            if (calendarSettingsModal) calendarSettingsModal.classList.remove('show');
+        });
+    }
+
+    if (saveCalendarSettingsBtn) {
+        saveCalendarSettingsBtn.addEventListener('click', () => {
+            handleStateUpdate(() => {
+                state.planner.calendar.settings = {
+                    firstDayOfWeek: firstDaySelect ? firstDaySelect.value : '0',
+                    showChipIcons: showIconsSwitch ? showIconsSwitch.checked : true,
+                    showEquipmentMilestones: showEquipmentMilestonesSwitch ? showEquipmentMilestonesSwitch.checked : true,
+                    highlightUpgradeRanges: highlightUpgradeRangesSwitch ? highlightUpgradeRangesSwitch.checked : true,
+                    autoPlaceScope: autoPlaceScopeSelect ? autoPlaceScopeSelect.value : 'all'
+                };
+            });
+            if (calendarSettingsModal) calendarSettingsModal.classList.remove('show');
+            animateNextRender = true;
+            renderCalendar(state.planner);
+        });
+    }
 
     document.addEventListener('languageChanged', () => {
         animateNextRender = true;
