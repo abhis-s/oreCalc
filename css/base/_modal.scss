@@ -176,6 +176,13 @@ body:has(.modal.show) {
             transform: scale(1.08) rotate(90deg);
         }
 
+        &[target="_blank"] {
+            &:hover,
+            &:focus {
+                transform: scale(1.08);
+            }
+        }
+
         &:active {
             transform: scale(0.94);
         }
