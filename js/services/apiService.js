@@ -461,3 +461,23 @@ export async function fetchCwlWarsFromServer(clanTag) {
         throw error;
     }
 }
+
+/**
+ * Fetches the live/cached running costs data from the server.
+ *
+ * @returns {Promise<Object>} The running costs data.
+ */
+export async function fetchRunningCosts() {
+    checkApiBlock();
+    const url = `${BASE_URL}/api/billing/costs`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        logger.error("Error fetching running costs from server:", error);
+        throw error;
+    }
+}

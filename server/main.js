@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const cors = require('cors');
@@ -1906,6 +1907,252 @@ app.get('/api/cwl/wars', async (req, res) => {
         console.error(`Error fetching cached CWL wars for clan ${cleanClanTag}:`, error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
+});
+
+
+// --- BILLING COSTS CACHE & ENDPOINT ---
+const { BigQuery } = require('@google-cloud/bigquery');
+
+let cachedBillingData = null;
+let isFetchingBillingData = false;
+
+function getMockBillingData(monthStr) {
+    return {
+        lastUpdated: new Date().toISOString(),
+        isMock: true,
+        billingMonth: monthStr,
+        totalCostTillDate: 0,
+        breakdown: [
+            {
+                month: "2026-05",
+                totalCost: 37.00,
+                services: [
+                    { name: "Compute Engine", cost: 9.50 },
+                    { name: "Networking", cost: 27.50 }
+                ]
+            }
+        ]
+    };
+}
+
+async function fetchBillingCostsFromBigQuery() {
+    const projectId = process.env.GCP_BILLING_PROJECT_ID || 'orecalc';
+    const datasetId = process.env.GCP_BILLING_DATASET_ID || 'orecalc_billing_bq';
+    const tableId = process.env.GCP_BILLING_TABLE_ID || 'unified_billing_data';
+
+    const bigquery = new BigQuery({ projectId: projectId });
+    const query = `
+        SELECT 
+          service_name,
+          sku_name,
+          ROUND(SUM(amount), 2) as total_cost,
+          FORMAT_TIMESTAMP('%Y-%m', activity_date) as billing_month
+        FROM \`${projectId}.${datasetId}.${tableId}\`
+        GROUP BY 1, 2, 4
+        ORDER BY billing_month DESC, total_cost DESC
+    `;
+
+    console.log(`[Billing Cache] Fetching billing costs from BigQuery...`);
+    const [rows] = await bigquery.query({ query });
+
+    const currentDate = new Date();
+    const currentMonthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
+    let totalCostTillDate = 0;
+    const monthlyGroups = {};
+
+    rows.forEach(row => {
+        const cost = parseFloat(row.total_cost || 0);
+        const month = row.billing_month;
+        if (!month) return;
+
+        if (month < currentMonthStr) {
+            totalCostTillDate += cost;
+        }
+
+        if (!monthlyGroups[month]) {
+            monthlyGroups[month] = {
+                month: month,
+                services: {}
+            };
+        }
+
+        const serviceName = row.service_name || 'Other Services';
+        if (!monthlyGroups[month].services[serviceName]) {
+            monthlyGroups[month].services[serviceName] = 0;
+        }
+        monthlyGroups[month].services[serviceName] += cost;
+    });
+
+    let extrasConfig = { extras: [], footers: [] };
+    const extrasPath = path.join(__dirname, 'billing-extras.json');
+    if (fs.existsSync(extrasPath)) {
+        try {
+            extrasConfig = JSON.parse(fs.readFileSync(extrasPath, 'utf8'));
+        } catch (err) {
+            console.error('[Billing Cache] Error parsing billing-extras.json:', err);
+        }
+    }
+
+    if (extrasConfig.extras && extrasConfig.extras.length > 0) {
+        extrasConfig.extras.forEach(extra => {
+            const cost = parseFloat(extra.cost || 0);
+            const month = extra.month;
+            if (!month) return;
+
+            if (month < currentMonthStr) {
+                totalCostTillDate += cost;
+            }
+
+            if (!monthlyGroups[month]) {
+                monthlyGroups[month] = {
+                    month: month,
+                    services: {}
+                };
+            }
+        });
+    }
+
+    const sortedMonths = Object.keys(monthlyGroups).sort((a, b) => b.localeCompare(a));
+    const historyMonths = sortedMonths.filter(m => m < currentMonthStr).slice(0, 6);
+
+    const breakdown = historyMonths.map(month => {
+        const group = monthlyGroups[month];
+        const servicesArray = Object.keys(group.services).map(name => ({
+            name: name,
+            cost: parseFloat(group.services[name].toFixed(2))
+        }));
+
+        let negligibleSum = 0;
+        const filteredServices = [];
+        servicesArray.forEach(s => {
+            if (s.cost < 0.01) {
+                negligibleSum += s.cost;
+            } else {
+                filteredServices.push(s);
+            }
+        });
+
+        if (negligibleSum > 0) {
+            filteredServices.push({
+                name: 'Others',
+                cost: parseFloat(negligibleSum.toFixed(2))
+            });
+        }
+
+        filteredServices.sort((a, b) => b.cost - a.cost);
+
+        const monthExtras = (extrasConfig.extras || [])
+            .filter(e => e.month === month)
+            .map(e => ({
+                name: e.name,
+                cost: parseFloat((e.cost || 0).toFixed(2)),
+                highlight: true
+            }));
+
+        const finalServices = [...monthExtras, ...filteredServices];
+        const totalCost = parseFloat(finalServices.reduce((sum, s) => sum + s.cost, 0).toFixed(2));
+        const footerMatch = (extrasConfig.footers || []).find(f => f.month === month);
+
+        const result = {
+            month: month,
+            totalCost: totalCost,
+            services: finalServices
+        };
+
+        if (footerMatch && footerMatch.text) {
+            result.footer = footerMatch.text;
+        }
+
+        return result;
+    });
+
+    const data = {
+        lastUpdated: new Date().toISOString(),
+        totalCostTillDate: parseFloat(totalCostTillDate.toFixed(2)),
+        breakdown: breakdown
+    };
+
+    return data;
+}
+
+async function getOrUpdateBillingCache() {
+    const currentDate = new Date();
+    const currentMonthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
+    if (cachedBillingData && cachedBillingData.billingMonth === currentMonthStr) {
+        return cachedBillingData;
+    }
+
+    try {
+        const docRef = db.collection('metadata').doc('billingCosts');
+        const docSnap = await docRef.get();
+
+        if (docSnap.exists) {
+            const data = docSnap.data();
+            if (data.billingMonth === currentMonthStr) {
+                cachedBillingData = data;
+                return cachedBillingData;
+            }
+
+            if (!isFetchingBillingData) {
+                triggerBackgroundBillingFetch(currentMonthStr);
+            }
+            cachedBillingData = data;
+            return cachedBillingData;
+        }
+    } catch (err) {
+        console.error('[Billing Cache] Failed to read from Firestore:', err);
+    }
+
+    if (!isFetchingBillingData) {
+        try {
+            isFetchingBillingData = true;
+            const data = await fetchBillingCostsFromBigQuery();
+            data.billingMonth = currentMonthStr;
+            await db.collection('metadata').doc('billingCosts').set(data);
+            cachedBillingData = data;
+        } catch (err) {
+            console.error('[Billing Cache] Synchronous BigQuery fetch failed:', err);
+            cachedBillingData = getMockBillingData(currentMonthStr);
+        } finally {
+            isFetchingBillingData = false;
+        }
+    }
+
+    return cachedBillingData;
+}
+
+function triggerBackgroundBillingFetch(targetMonthStr) {
+    isFetchingBillingData = true;
+    console.log(`[Billing Cache] Outdated cache detected. Triggering background BigQuery fetch for ${targetMonthStr}...`);
+    fetchBillingCostsFromBigQuery().then(async (data) => {
+        data.billingMonth = targetMonthStr;
+        await db.collection('metadata').doc('billingCosts').set(data);
+        cachedBillingData = data;
+        console.log(`[Billing Cache] Background cache update successful for ${targetMonthStr}.`);
+    }).catch(err => {
+        console.error(`[Billing Cache] Background cache update failed:`, err);
+    }).finally(() => {
+        isFetchingBillingData = false;
+    });
+}
+
+app.get('/api/billing/costs', async (req, res) => {
+    try {
+        const data = await getOrUpdateBillingCache();
+        res.json(data);
+    } catch (err) {
+        console.error('Failed to serve billing costs:', err);
+        res.status(500).json({ error: 'Failed to retrieve billing costs' });
+    }
+});
+
+// Warm up the billing costs cache on startup
+getOrUpdateBillingCache().then(() => {
+    console.log('[Billing Cache] Startup cache warm-up complete.');
+}).catch(err => {
+    console.error('[Billing Cache] Failed to warm up cache on startup:', err);
 });
 
 app.listen(port, '0.0.0.0', () => {

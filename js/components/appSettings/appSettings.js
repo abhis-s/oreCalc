@@ -17,6 +17,7 @@ import { licensesData } from '../../data/licensesData.js';
 import { loadTranslations, translate } from '../../i18n/translator.js';
 import { logger } from '../../utils/logger.js';
 import { runningCostsData } from '../../data/runningCostsData.js';
+import { fetchRunningCosts } from '../../services/apiService.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 
 import { showAlert, showConfirm } from '../../ui/noticeModal.js';
@@ -458,15 +459,12 @@ export function openLicensesModal() {
     if (dom.overlay) dom.overlay.classList.add('show');
 }
 
-export function openRunningCostsModal() {
+export async function openRunningCostsModal() {
     const modal = document.getElementById('running-costs-modal');
     if (!modal) return;
 
-    if (runningCostsData.isMock) {
-        modal.classList.add('is-mock');
-    } else {
-        modal.classList.remove('is-mock');
-    }
+    modal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
 
     const closeBtn = document.getElementById('close-running-costs-modal-btn');
     const closeActionBtn = document.getElementById('running-costs-close-btn');
@@ -496,28 +494,50 @@ export function openRunningCostsModal() {
         };
     }
 
-    if (totalValue) {
-        totalValue.textContent = `$${formatCurrency(runningCostsData.totalCostTillDate || 0)}`;
+    // Set temporary loading state
+    if (totalValue) totalValue.textContent = '...';
+    if (historyContainer) {
+        historyContainer.innerHTML = '<div class="costs-disclaimer" style="text-align: center; border-left: none;">Loading costs history...</div>';
     }
 
-    if (updateDate && runningCostsData.lastUpdated) {
+    try {
+        const data = await fetchRunningCosts();
+        renderRunningCostsData(modal, data, totalValue, historyContainer, updateDate);
+    } catch (err) {
+        console.warn('Failed to load live running costs from server, falling back to static/cached data:', err);
+        renderRunningCostsData(modal, runningCostsData, totalValue, historyContainer, updateDate);
+    }
+}
+
+function renderRunningCostsData(modal, data, totalValue, historyContainer, updateDate) {
+    if (data.isMock) {
+        modal.classList.add('is-mock');
+    } else {
+        modal.classList.remove('is-mock');
+    }
+
+    if (totalValue) {
+        totalValue.textContent = `$${formatCurrency(data.totalCostTillDate || 0)}`;
+    }
+
+    if (updateDate && data.lastUpdated) {
         try {
-            const date = new Date(runningCostsData.lastUpdated);
+            const date = new Date(data.lastUpdated);
             if (!isNaN(date.getTime())) {
                 const locale = state.uiSettings?.language || 'en';
                 updateDate.textContent = date.toLocaleDateString(locale, { dateStyle: 'medium' });
             } else {
-                updateDate.textContent = runningCostsData.lastUpdated.split('T')[0];
+                updateDate.textContent = data.lastUpdated.split('T')[0];
             }
         } catch {
-            updateDate.textContent = runningCostsData.lastUpdated.split('T')[0];
+            updateDate.textContent = data.lastUpdated.split('T')[0];
         }
     }
 
     if (historyContainer) {
         historyContainer.innerHTML = '';
-        if (runningCostsData.breakdown && runningCostsData.breakdown.length > 0) {
-            runningCostsData.breakdown.forEach(item => {
+        if (data.breakdown && data.breakdown.length > 0) {
+            data.breakdown.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'costs-month-card';
 
@@ -714,9 +734,6 @@ export function openRunningCostsModal() {
             historyContainer.appendChild(noData);
         }
     }
-
-    modal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
 }
 
 function formatInvoiceMonth(invoiceMonth) {
