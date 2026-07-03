@@ -127,6 +127,12 @@
     style="color-scheme: dark; --accent-primary: #8ab4f8; --accent-primary-hover: #aecbfa; --accent-primary-active: #8ab4f8; --accent-primary-soft: rgba(138, 180, 248, 0.1); --bg-app: #0f131a; --bg-surface-primary: #1a1f2b; --bg-surface-secondary: #252c3d; --bg-surface-tertiary: #2e374d;">
     <script>
         (function () {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.addEventListener('controllerchange', function () {
+                    window.location.reload();
+                });
+            }
+
             var appLoaded = false;
             var initializationError = null;
 
@@ -143,6 +149,20 @@
             function handleCatastrophicError(error, stack) {
                 if (appLoaded) return;
                 initializationError = { error: error, stack: stack };
+
+                // Force service worker update on catastrophic failure so it can self-heal
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistration().then(function (reg) {
+                        if (reg) {
+                            reg.update().catch(function (err) {
+                                console.error('Watchdog: SW update check failed:', err);
+                            });
+                            if (reg.waiting) {
+                                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                            }
+                        }
+                    });
+                }
 
                 setTimeout(function () {
                     var screen = document.getElementById('load-failure-screen');

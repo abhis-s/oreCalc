@@ -71,7 +71,20 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
     event.waitUntil((async () => {
         await precacheController.activate(event);
-        await clients.claim();
+        await self.clients.claim();
+        
+        // Force all open clients (PWA standalone apps, browser tabs) to reload immediately.
+        // This is particularly critical for recovering crashed clients stuck on older files.
+        try {
+            const windowClients = await self.clients.matchAll({ type: 'window' });
+            for (const client of windowClients) {
+                if (client.url) {
+                    await client.navigate(client.url);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to navigate/reload client on activate:', err);
+        }
     })());
 });
 

@@ -6,6 +6,9 @@ module.exports = {
         // caching anything — so only ~half the images ever touch the cache.
         '**/*.{js,css,html,png,jpg,jpeg,svg,gif,json,ico,webp,avif,txt}'
     ],
+    globIgnores: [
+        '**/404.html'
+    ],
     // injectManifest: workbox-cli injects self.__WB_MANIFEST into our custom SW template.
     // All routing + runtime caching logic lives in service-worker-src.js.
     swSrc: './service-worker-src.js',
