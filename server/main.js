@@ -989,16 +989,12 @@ app.get('/api/user-data/load/:userId', async (req, res) => {
         }
 
         const data = doc.data();
-        const cloudVersion = data.appVersion || '1.0.0';
+        const clientVersion = req.headers['x-app-version'] || '';
 
-        // Prevent older clients from downloading newer version data
-        if (cloudVersion.startsWith('2')) {
-            const clientVersion = req.headers['x-app-version'] || '';
-            if (!clientVersion.startsWith('2')) {
-                return res.status(426).json({ 
-                    reason: 'versionMismatch', 
-                    message: 'A newer version of the application is required to sync this data. Please reload or update the application.' 
-                });
+        // Backward compatibility shim: if client is older than v2, convert currency object to string to prevent crashes on startup
+        if (!clientVersion.startsWith('2')) {
+            if (data.uiSettings && typeof data.uiSettings.currency === 'object' && data.uiSettings.currency !== null) {
+                data.uiSettings.currency = data.uiSettings.currency.code || 'USD';
             }
         }
 
