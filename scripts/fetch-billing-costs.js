@@ -19,15 +19,7 @@ async function main() {
     const datasetId = process.env.GCP_BILLING_DATASET_ID || 'orecalc_billing_bq';
     const tableId = process.env.GCP_BILLING_TABLE_ID || 'unified_billing_data';
 
-    // We check if we have credentials set up
-    const hasCredentials = process.env.GOOGLE_APPLICATION_CREDENTIALS || 
-                           fs.existsSync(path.join(projectRoot, 'service-account-key.json'));
 
-    if (!hasCredentials && !process.env.GCP_BILLING_PROJECT_ID) {
-        console.warn('GCP Billing credentials not configured. Generating default running costs data.');
-        writeMockData();
-        return;
-    }
 
     // Load optional billing extras
     let extrasConfig = { extras: [], footers: [] };
