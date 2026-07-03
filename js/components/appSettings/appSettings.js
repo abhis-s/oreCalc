@@ -1940,10 +1940,11 @@ export function initializeAppSettings() {
     if (resetLocalBtn) {
         resetLocalBtn.addEventListener('click', async () => {
             if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.remove('show');
-            if (await showConfirm(translate('confirms.resetAll'), 'status.confirm', 'actions.reset')) {
+            if (await showConfirm(translate('confirms.resetLocal'), 'status.confirm', 'actions.reset')) {
                 window.resetApplication();
             } else {
                 if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.add('show');
+                if (dom.overlay) dom.overlay.classList.add('show');
             }
         });
     }
@@ -1951,15 +1952,21 @@ export function initializeAppSettings() {
     if (resetCloudBtn) {
         resetCloudBtn.addEventListener('click', async () => {
             if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.remove('show');
-            if (await showConfirm(translate('confirms.resetAll'), 'status.confirm', 'actions.reset')) {
+            if (await showConfirm(translate('confirms.resetCloud'), 'status.confirm', 'actions.reset')) {
                 const currentUserId = localStorage.getItem('oreCalc_userId');
                 if (currentUserId) {
-                    const { deleteUserData } = await import('../../services/apiService.js');
-                    await deleteUserData(currentUserId);
+                    try {
+                        const { deleteUserData } = await import('../../services/apiService.js');
+                        await deleteUserData(currentUserId);
+                    } catch (error) {
+                        logger.error("Failed to delete cloud data:", error);
+                        await showAlert(translate('alerts.deleteCloudFailed', { error: error.message || error }));
+                    }
                 }
                 window.resetApplication();
             } else {
                 if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.add('show');
+                if (dom.overlay) dom.overlay.classList.add('show');
             }
         });
     }

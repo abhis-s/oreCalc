@@ -177,6 +177,7 @@ export function resetState() {
         localStorage.removeItem(LEGACY_APP_STATE_KEY);
         localStorage.removeItem(APP_SETTINGS_KEY);
         localStorage.removeItem(APP_PLAYERS_INDEX_KEY);
+        localStorage.removeItem(PLAYER_TAGS_KEY);
         
         // Remove all player profile keys
         for (let i = 0; i < localStorage.length; i++) {
