@@ -180,18 +180,44 @@
             }
 
             window.addEventListener('error', function (event) {
+                var errorMsg = event.error ? event.error.message : event.message;
+                
+                // If a dynamic import fails (chunk mismatch due to new deployment), reload the page to load fresh assets
+                if (typeof errorMsg === 'string' && errorMsg.indexOf('Failed to fetch dynamically imported module') !== -1) {
+                    var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+                    var now = Date.now();
+                    if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
+                        sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+                        console.warn('Watchdog: Dynamic import failed. Reloading page...');
+                        window.location.reload();
+                        return;
+                    }
+                }
+
                 if (!appLoaded) {
-                    var errorMsg = event.error ? event.error.message : event.message;
                     var errorStack = event.error ? event.error.stack : '';
                     handleCatastrophicError(errorMsg, errorStack);
                 }
             });
 
             window.addEventListener('unhandledrejection', function (event) {
+                var errorMsg = event.reason ? (event.reason.message || event.reason || '') : '';
+                
+                // If a dynamic import fails (chunk mismatch due to new deployment), reload the page to load fresh assets
+                if (typeof errorMsg === 'string' && errorMsg.indexOf('Failed to fetch dynamically imported module') !== -1) {
+                    var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+                    var now = Date.now();
+                    if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
+                        sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+                        console.warn('Watchdog: Dynamic import failed. Reloading page...');
+                        window.location.reload();
+                        return;
+                    }
+                }
+
                 if (!appLoaded) {
-                    var errorMsg = event.reason ? (event.reason.message || event.reason) : 'Unhandled promise rejection';
                     var errorStack = event.reason ? event.reason.stack : '';
-                    handleCatastrophicError(errorMsg, errorStack);
+                    handleCatastrophicError(errorMsg || 'Unhandled promise rejection', errorStack);
                 }
             });
 
