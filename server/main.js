@@ -96,7 +96,7 @@ app.use(cors({
     },
     credentials: true,
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-verify-token', 'x-user-id'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-verify-token', 'x-user-id', 'x-app-version'],
     exposedHeaders: ['Retry-After', 'RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset']
 }));
 
