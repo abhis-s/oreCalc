@@ -53,6 +53,19 @@ export async function initializeAppData() {
     }
 
     if (cloudData) {
+        // Version Check: Prevent syncing if cloud data was saved by a newer version than current running client
+        const runningAppVersion = window.__ENV__?.APP_VERSION || '2.0.0';
+        const cloudAppVersion = cloudData.appVersion || '1.0.0';
+        const { compareVersions } = await import('../core/stateCleanup.js');
+        
+        if (compareVersions(cloudAppVersion, runningAppVersion) > 0) {
+            logger.warn(`Cloud data version (${cloudAppVersion}) is newer than running app version (${runningAppVersion}). Skipping sync until client updates.`);
+            if (window.__WB__) {
+                window.__WB__.update().catch(err => logger.error('Forced SW update check failed:', err));
+            }
+            return null;
+        }
+
         const hasOnlyDefaultLocal = localData && (localData.savedPlayerTags.length === 1 && localData.savedPlayerTags[0] === 'DEFAULT0');
         if (hasOnlyDefaultLocal) {
             logger.log("Fresh local install detected. Restoring data from cloud.");
@@ -150,6 +163,21 @@ export async function importUserData(importId) {
         try {
             const importedData = await loadUserData(importId);
             if (importedData) {
+                // Version Check: Prevent importing if data was saved by a newer version than current running client
+                const runningAppVersion = window.__ENV__?.APP_VERSION || '2.0.0';
+                const importedVersion = importedData.appVersion || '1.0.0';
+                const { compareVersions } = await import('../core/stateCleanup.js');
+                if (compareVersions(importedVersion, runningAppVersion) > 0) {
+                    await showAlert(translate('alerts.importNewerVersionRequired'));
+                    if (window.__WB__) {
+                        window.__WB__.update().catch(err => logger.error('Forced SW update check failed:', err));
+                    }
+                    if (welcomeWasVisible && welcomeModalModule) {
+                        welcomeModalModule.showWelcomeModal(true);
+                    }
+                    return;
+                }
+
                 if (!importedData.uiSettings) {
                     importedData.uiSettings = {};
                 }

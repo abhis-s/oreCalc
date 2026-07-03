@@ -200,6 +200,7 @@ export async function saveUserData(userId, data) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
             },
             body: JSON.stringify({ userId, data })
         });
@@ -227,7 +228,11 @@ export async function loadUserData(userId) {
 
     const url = `${BASE_URL}/api/user-data/load/${userId}`;
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+            }
+        });
 
         if (!response.ok) {
             if (response.status === 404) {

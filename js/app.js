@@ -472,11 +472,39 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     let userIdFromUrl = urlParams.get('userId');
 
     if (userIdFromUrl) {
-        localStorage.setItem('oreCalc_userId', userIdFromUrl);
-        sessionStorage.setItem('oreCalc_justSyncedFromQr', 'true');
-        window.history.replaceState({}, document.title, window.location.pathname);
-        location.reload();
-        return;
+        const playerTagsStr = localStorage.getItem('oreCalc_playerTags');
+        const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
+        const currentUserId = localStorage.getItem('oreCalc_userId');
+        
+        let hasRealLocalData = false;
+        if (playerTagsStr) {
+            try {
+                const tags = JSON.parse(playerTagsStr);
+                if (Array.isArray(tags) && tags.length > 0) {
+                    hasRealLocalData = true;
+                }
+            } catch (e) {}
+        } else if (legacyStateStr) {
+            try {
+                const legacy = JSON.parse(legacyStateStr);
+                if (legacy.savedPlayerTags && legacy.savedPlayerTags.length > 0 && legacy.savedPlayerTags[0] !== 'DEFAULT0') {
+                    hasRealLocalData = true;
+                }
+            } catch (e) {}
+        }
+
+        const isDifferentUser = currentUserId && currentUserId !== userIdFromUrl;
+
+        if (hasRealLocalData && isDifferentUser) {
+            localStorage.setItem('oreCalc_pendingQrUserId', userIdFromUrl);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+            localStorage.setItem('oreCalc_userId', userIdFromUrl);
+            sessionStorage.setItem('oreCalc_justSyncedFromQr', 'true');
+            window.history.replaceState({}, document.title, window.location.pathname);
+            location.reload();
+            return;
+        }
     }
 
     const checkMigrationLock = () => {
@@ -867,13 +895,21 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         const wb = new workbox.Workbox('/service-worker.js');
         window.__WB__ = wb;
 
-        // Render any initial badge and settings card if an update is already pending
-        if (localStorage.getItem('oreCalcUpdateDetectedAt')) {
-            import('./components/modals/updateModal.js').then(m => {
-                m.updateNavigationBadges();
-                m.initSettingsUpdateCard(wb);
+        const forceSWUpdate = () => {
+            const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
+            const now = Date.now();
+            if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
+                logger.warn('Forced update reload loop detected. Aborting automatic reload.');
+                return;
+            }
+            sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
+            localStorage.removeItem('oreCalcUpdateDetectedAt');
+
+            wb.addEventListener('controlling', () => {
+                window.location.reload();
             });
-        }
+            wb.messageSkipWaiting();
+        };
 
         // Listen for server-forced update events (e.g., on 426 responses)
         document.addEventListener('app:api-version-force-update', () => {
@@ -899,38 +935,15 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         });
 
         wb.addEventListener('waiting', (event) => {
-            logger.log('A new version is available. Showing update prompt.');
-            import('./components/modals/updateModal.js').then(m => m.showUpdateModal(wb));
+            logger.log('A new version is available. Forcing update and reloading...');
+            forceSWUpdate();
         });
 
         wb.register().then(reg => {
             if (reg) {
                 if (reg.waiting) {
-                    const detectedAtStr = localStorage.getItem('oreCalcUpdateDetectedAt');
-                    if (detectedAtStr) {
-                        const detectedAt = parseInt(detectedAtStr, 10);
-                        const limitMs = 48 * 60 * 60 * 1000;
-                        if (Date.now() - detectedAt >= limitMs) {
-                            // Safeguard to prevent infinite reload loops (e.g. if blocked by another tab)
-                            const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
-                            const now = Date.now();
-                            if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
-                                logger.warn('Forced update reload loop detected. Aborting automatic reload.');
-                                return;
-                            }
-
-                            sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
-                            localStorage.removeItem('oreCalcUpdateDetectedAt');
-
-                            wb.addEventListener('controlling', () => {
-                                window.location.reload();
-                            });
-                            wb.messageSkipWaiting();
-                        } else {
-                            // Pending update but within 48h - initialize settings card
-                            import('./components/modals/updateModal.js').then(m => m.initSettingsUpdateCard(wb));
-                        }
-                    }
+                    logger.log('Pending update found. Forcing update...');
+                    forceSWUpdate();
                 } else {
                     // Update finished or no update pending, clear the key
                     localStorage.removeItem('oreCalcUpdateDetectedAt');
@@ -947,6 +960,15 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     // Start background cloud sync initialization after initial render is complete
     setTimeout(async () => {
         try {
+            // Check for pending QR user ID import first
+            const pendingQrUserId = localStorage.getItem('oreCalc_pendingQrUserId');
+            if (pendingQrUserId) {
+                localStorage.removeItem('oreCalc_pendingQrUserId');
+                const { importUserData } = await import('./utils/cloudSaveHandler.js');
+                await importUserData(pendingQrUserId);
+                return;
+            }
+
             const { initializeAppData } = await import('./utils/cloudSaveHandler.js');
             const syncedState = await initializeAppData();
             if (syncedState) {

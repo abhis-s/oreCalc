@@ -669,6 +669,7 @@
         "importSuccess": "Daten erfolgreich importiert! App wird neu geladen...",
         "importNoData": "Keine Daten für diese Nutzer-ID gefunden.",
         "importFailed": "Importieren der Daten fehlgeschlagen: <code>{error}</code>",
+        "importNewerVersionRequired": "Die Daten, die du laden möchtest, wurden von einer neueren Version der Anwendung gespeichert. Bitte aktualisiere die Anwendung vor der Synchronisation.",
         "importEmpty": "Bitte gib eine Nutzer-ID zum Importieren ein.",
         "saveDefaultOnly": "Speichern in der Cloud nicht möglich: Es existiert nur das Standard-Spielerkürzel.",
         "enableCloudSyncToCopy": "Die Cloud-Synchronisation ist derzeit deaktiviert. Du musst sie aktivieren, um deine Daten über verschiedene Geräte hinweg zu synchronisieren. Möchtest du sie jetzt aktivieren?",

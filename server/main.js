@@ -947,6 +947,23 @@ app.post('/api/user-data/save', async (req, res) => {
         if (await isUserDeleted(userId)) {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
         }
+
+        // Prevent older clients from overwriting newer version data in Firestore
+        const doc = await db.collection('userStates').doc(userId).get();
+        if (doc.exists) {
+            const existingData = doc.data();
+            const existingVersion = existingData.appVersion || '1.0.0';
+            if (existingVersion.startsWith('2')) {
+                const clientVersion = req.headers['x-app-version'] || '';
+                if (!clientVersion.startsWith('2')) {
+                    return res.status(426).json({ 
+                        reason: 'versionMismatch', 
+                        message: 'A newer version of the application is required to save to this account. Please reload or update the application.' 
+                    });
+                }
+            }
+        }
+
         await db.collection('userStates').doc(userId).set(data);
         res.status(200).json({ message: 'Data saved successfully.' });
     } catch (error) {
@@ -970,7 +987,22 @@ app.get('/api/user-data/load/:userId', async (req, res) => {
         if (!doc.exists) {
             return res.status(404).json({ message: 'User data not found.' });
         }
-        res.status(200).json(doc.data());
+
+        const data = doc.data();
+        const cloudVersion = data.appVersion || '1.0.0';
+
+        // Prevent older clients from downloading newer version data
+        if (cloudVersion.startsWith('2')) {
+            const clientVersion = req.headers['x-app-version'] || '';
+            if (!clientVersion.startsWith('2')) {
+                return res.status(426).json({ 
+                    reason: 'versionMismatch', 
+                    message: 'A newer version of the application is required to sync this data. Please reload or update the application.' 
+                });
+            }
+        }
+
+        res.status(200).json(data);
     } catch (error) {
         console.error('Error loading user data:', error);
         res.status(500).json({ message: 'Internal Server Error', error: error.message });

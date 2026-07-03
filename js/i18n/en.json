@@ -669,6 +669,7 @@
         "importSuccess": "Data imported successfully! Reloading app...",
         "importNoData": "No data found for that User ID.",
         "importFailed": "Failed to import data: <code>{error}</code>",
+        "importNewerVersionRequired": "The data you are trying to load was saved by a newer version of the application. Please update the application before syncing.",
         "importEmpty": "Please enter a User ID to import.",
         "saveDefaultOnly": "Cannot save to cloud: Only default player tag exists.",
         "enableCloudSyncToCopy": "Cloud synchronization is currently disabled. You need to enable it to sync your data across devices. Would you like to enable it now?",
