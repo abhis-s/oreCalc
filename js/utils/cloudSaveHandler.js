@@ -29,7 +29,8 @@ export async function initializeAppData() {
     }
 
     const localData = await checkAppVersion();
-    if (localData && localData.savedPlayerTags.length === 1 && localData.savedPlayerTags[0] === 'DEFAULT0') {
+    const justSyncedFromQr = sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true';
+    if (!justSyncedFromQr && localData && localData.savedPlayerTags.length === 1 && localData.savedPlayerTags[0] === 'DEFAULT0') {
         logger.log("Skipping cloud sync: Only default player tag exists locally.");
         return null;
     }
@@ -51,49 +52,68 @@ export async function initializeAppData() {
         }
     }
 
-    if (cloudData && localData) {
-        const cloudTimestamp = new Date(cloudData.timestamp || 0);
-        const localTimestamp = new Date(localData.timestamp || 0);
-        const timeDifference = Math.abs(cloudTimestamp.getTime() - localTimestamp.getTime());
-        const timeTolerance = 5 * 1000; 
+    if (cloudData) {
+        const hasOnlyDefaultLocal = localData && (localData.savedPlayerTags.length === 1 && localData.savedPlayerTags[0] === 'DEFAULT0');
+        if (hasOnlyDefaultLocal) {
+            logger.log("Fresh local install detected. Restoring data from cloud.");
+            return cloudData;
+        }
 
-        if (timeDifference < timeTolerance) {
-            logger.log("Local and cloud data are within 5 seconds discrepancy. Considering them in sync.");
-            return null;
-        } else if (cloudTimestamp > localTimestamp) {
-            if (await showConfirm(translate('confirms.cloudSync'))) {
-                logger.log("User chose to sync. Using cloud data.");
-                return cloudData;
-            } else {
-                logger.log("User chose not to sync. Using local data and pushing to cloud.");
-                if (userId) { 
-                     try {
-                         await saveUserData(userId, localData);
-                         logger.log("Local data pushed to cloud.");
-                     } catch (error) {
-                         logger.error("Failed to push local data to cloud:", error);
-                     }
+        if (localData) {
+            const cloudTimestamp = new Date(cloudData.timestamp || 0);
+            const localTimestamp = new Date(localData.timestamp || 0);
+            const timeDifference = Math.abs(cloudTimestamp.getTime() - localTimestamp.getTime());
+            const timeTolerance = 5 * 1000; 
+
+            if (timeDifference < timeTolerance) {
+                logger.log("Local and cloud data are within 5 seconds discrepancy. Considering them in sync.");
+                return null;
+            } else if (cloudTimestamp > localTimestamp) {
+                const welcomeModal = document.getElementById('welcome-modal');
+                const welcomeWasVisible = welcomeModal && welcomeModal.classList.contains('show');
+                let welcomeModalModule = null;
+                if (welcomeWasVisible) {
+                    welcomeModalModule = await import('../components/welcome/welcomeModal.js');
+                    welcomeModalModule.showWelcomeModal(false);
+                }
+
+                const confirmed = await showConfirm(translate('confirms.cloudSync'));
+
+                if (welcomeWasVisible && welcomeModalModule && !confirmed) {
+                    welcomeModalModule.showWelcomeModal(true);
+                }
+
+                if (confirmed) {
+                    logger.log("User chose to sync. Using cloud data.");
+                    return cloudData;
+                } else {
+                    logger.log("User chose not to sync. Using local data and pushing to cloud.");
+                    if (userId) { 
+                         try {
+                             await saveUserData(userId, localData);
+                             logger.log("Local data pushed to cloud.");
+                         } catch (error) {
+                             logger.error("Failed to push local data to cloud:", error);
+                         }
+                    }
+                    return null;
+                }
+            } else if (localTimestamp > cloudTimestamp) {
+                logger.log("Local data is newer. Automatically pushing to cloud.");
+                const userId = localStorage.getItem('oreCalc_userId');
+                if (userId) {
+                    try {
+                        await saveUserData(userId, localData);
+                        logger.log("Local data pushed to cloud.");
+                    } catch (error) {
+                        logger.error("Failed to push local data to cloud:", error);
+                    }
                 }
                 return null;
             }
-        } else if (localTimestamp > cloudTimestamp) {
-            logger.log("Local data is newer. Automatically pushing to cloud.");
-            const userId = localStorage.getItem('oreCalc_userId');
-            if (userId) {
-                try {
-                    await saveUserData(userId, localData);
-                    logger.log("Local data pushed to cloud.");
-                } catch (error) {
-                    logger.error("Failed to push local data to cloud:", error);
-                }
-            }
-            return null;
         }
-    } else if (cloudData) {
-        logger.log("Only cloud data found. Using cloud data.");
-        return cloudData;
     } else {
-        logger.log("Only local data found. Using local data.");
+        logger.log("No cloud data found.");
         return null;
     }
 }
@@ -104,14 +124,27 @@ export async function importUserData(importId) {
         const safeImportId = escapeHTML(importId);
         const userIdHtml = `<code class="user-id-code">${safeImportId}</code>`;
 
+        const welcomeModal = document.getElementById('welcome-modal');
+        const welcomeWasVisible = welcomeModal && welcomeModal.classList.contains('show');
+        let welcomeModalModule = null;
+        if (welcomeWasVisible) {
+            welcomeModalModule = await import('../components/welcome/welcomeModal.js');
+            welcomeModalModule.showWelcomeModal(false);
+        }
+
+        let confirmed = false;
         if (importId === currentUserId) {
-            if (!(await showConfirm(translate('confirms.importSameId', { userId: userIdHtml }), 'status.notice', 'actions.loadAnyway'))) {
-                return;
-            }
+            confirmed = await showConfirm(translate('confirms.importSameId', { userId: userIdHtml }), 'status.notice', 'actions.loadAnyway');
         } else {
-            if (!(await showConfirm(translate('confirms.importOverwrite', { userId: userIdHtml })))) {
-                return;
-            }
+            confirmed = await showConfirm(translate('confirms.importOverwrite', { userId: userIdHtml }));
+        }
+
+        if (welcomeWasVisible && welcomeModalModule && !confirmed) {
+            welcomeModalModule.showWelcomeModal(true);
+        }
+
+        if (!confirmed) {
+            return;
         }
 
         try {
@@ -127,10 +160,16 @@ export async function importUserData(importId) {
                 location.reload();
             } else {
                 await showAlert(translate('alerts.importNoData'));
+                if (welcomeWasVisible && welcomeModalModule) {
+                    welcomeModalModule.showWelcomeModal(true);
+                }
             }
         } catch (error) {
             logger.error('Error importing data:', error);
             await showAlert(translate('alerts.importFailed', { error: translate(error.message) }));
+            if (welcomeWasVisible && welcomeModalModule) {
+                welcomeModalModule.showWelcomeModal(true);
+            }
         }
     } else {
         await showAlert(translate('alerts.importEmpty'));

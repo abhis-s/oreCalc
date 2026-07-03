@@ -473,6 +473,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
     if (userIdFromUrl) {
         localStorage.setItem('oreCalc_userId', userIdFromUrl);
+        sessionStorage.setItem('oreCalc_justSyncedFromQr', 'true');
         window.history.replaceState({}, document.title, window.location.pathname);
         location.reload();
         return;
@@ -972,8 +973,16 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 recalculateAll(state);
                 renderApp(state);
             }
+            if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
+                sessionStorage.removeItem('oreCalc_justSyncedFromQr');
+                checkLegalConsent();
+            }
         } catch (error) {
             console.error("Error initializing app data:", error);
+            if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
+                sessionStorage.removeItem('oreCalc_justSyncedFromQr');
+                checkLegalConsent();
+            }
         }
     }, 2000);
 
@@ -1167,6 +1176,10 @@ window.refreshConsentModalStatus = () => {
     }
 };
 function checkLegalConsent() {
+    if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
+        return;
+    }
+
     const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
     const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
     const welcomeTimestamp = state.uiSettings?.uiTimestamps?.welcome;
