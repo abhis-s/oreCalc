@@ -996,12 +996,28 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 renderApp(state);
             }
             if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
+                if (!state.uiSettings) state.uiSettings = {};
+                if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
+                const now = Date.now();
+                state.uiSettings.uiTimestamps.welcome = now;
+                state.uiSettings.uiTimestamps.privacy = now;
+                state.uiSettings.uiTimestamps.tos = now;
+                saveState(state);
+
                 sessionStorage.removeItem('oreCalc_justSyncedFromQr');
                 checkLegalConsent();
             }
         } catch (error) {
             console.error("Error initializing app data:", error);
             if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
+                if (!state.uiSettings) state.uiSettings = {};
+                if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
+                const now = Date.now();
+                state.uiSettings.uiTimestamps.welcome = now;
+                state.uiSettings.uiTimestamps.privacy = now;
+                state.uiSettings.uiTimestamps.tos = now;
+                saveState(state);
+
                 sessionStorage.removeItem('oreCalc_justSyncedFromQr');
                 checkLegalConsent();
             }
