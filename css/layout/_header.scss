@@ -208,21 +208,8 @@
 
 /* 1. Desktop Width Adjustments (>= 780px) */
 @media (min-width: 780px) {
-    /* Narrow Desktop: Viewports between 780px and 960px */
-    @media (max-width: 960px) {
-        .header-container {
-            padding: 0 16px;
-        }
-        
-        .header-brand .brand-title {
-            display: none; // Hide title to keep layout clean
-        }
-
-        .tab-bar-container {
-            margin-left: 0;
-            margin-right: auto;
-        }
-
+    /* Narrow Desktop: Viewports between 780px and 1200px */
+    @media (max-width: 1200px) {
         .data-buttons-container #refresh-button {
             padding: 6px 10px;
             .animated-btn-text {
@@ -237,6 +224,37 @@
         }
     }
 
+    /* Extra Narrow Desktop: Viewports between 780px and 960px */
+    @media (max-width: 960px) {
+        .header-container {
+            padding: 0 16px;
+        }
+        
+        .header-brand .brand-title {
+            display: none; // Hide title to keep layout clean
+        }
+
+        .tab-bar-container {
+            margin-left: 0;
+            margin-right: auto;
+        }
+
+        .player-dropdown-container {
+            width: 130px;
+        }
+
+        .player-dropdown-button {
+            padding: 10px 10px;
+        }
+
+        .player-dropdown-list {
+            width: 130px;
+        }
+
+        #selected-player-name {
+            max-width: 65px;
+        }
+    }
 }
 
 /* 2. Mobile Mode (< 780px) */
