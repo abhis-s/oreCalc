@@ -37,68 +37,69 @@ import { renderTabs } from '../components/layout/tabs.js';
 export function renderApp(state) {
     const timeframe = state.uiSettings.summaryTimeframe || 'monthly';
     const incomeSources = state.derived.incomeSources;
-    const remainingTime = state.derived.remainingTime;
-
 
     renderTabs(state.activeTab);
     renderNavigation(state.activeTab);
-    renderAppSettings(state.uiSettings);
-    renderFab(state.savedPlayerTags[0]);
-    renderPlanner(state.planner);
-    renderPriorityListModal(state);
-
-    renderHeroCards(state.heroes, state.uiSettings, state.planner);
-    renderStorageInputs(state.storedOres);
     renderPlayerDropdown();
+    renderFab(state.savedPlayerTags[0]);
 
-    renderStarBonusControls(state.income);
-    renderClanWarInputs(state.income.clanWar);
-    renderCwlInputs(state.income.cwl);
-    renderEventPassInputs(state.income.eventPass);
-    renderSupercellEventsInputs(state.income);
-    renderRaidMedalTraderGrid(state.income.raidMedals);
-    renderGemTraderGrid(state.income.gems);
-    renderEventTraderGrid(state.income.eventTrader);
-    renderShopOfferSelector(state.income.shopOffers);
-    renderShopOfferGrid(state.income.shopOffers);
-    renderProspector(state.income.prospector);
+    if (state.activeTab === 'home-tab') {
+        renderHomeIncomeTable(state);
+        renderHomeResourcesFooter(state);
+        renderHomeProfile(state);
+    } else if (state.activeTab === 'planner-tab') {
+        renderPlanner(state.planner);
+        renderPriorityListModal(state);
+    } else if (state.activeTab === 'equipment-tab') {
+        renderHeroCards(state.heroes, state.uiSettings, state.planner);
+        renderStorageInputs(state.storedOres);
+        renderRequiredOres(state.derived.requiredOres);
+        renderRemainingTime(state.derived.remainingTime);
+    } else if (state.activeTab === 'income-tab') {
+        renderStarBonusControls(state.income);
+        renderClanWarInputs(state.income.clanWar);
+        renderCwlInputs(state.income.cwl);
+        renderEventPassInputs(state.income.eventPass);
+        renderSupercellEventsInputs(state.income);
+        renderRaidMedalTraderGrid(state.income.raidMedals);
+        renderGemTraderGrid(state.income.gems);
+        renderEventTraderGrid(state.income.eventTrader);
+        renderShopOfferSelector(state.income.shopOffers);
+        renderShopOfferGrid(state.income.shopOffers);
+        renderProspector(state.income.prospector);
 
-    renderRequiredOres(state.derived.requiredOres);
-    renderRemainingTime(state.derived.remainingTime);
+        const starBonusIncome = incomeSources.starBonus || {};
+        renderStarBonusDisplay(starBonusIncome, state.income.starBonus?.league || 105000000, state.playerProfile, timeframe);
 
-    renderHomeIncomeTable(state);
-    renderHomeResourcesFooter(state);
-    renderHomeProfile(state);
+        const clanWarIncome = incomeSources.clanWar || {};
+        renderClanWarIncomeTabDisplay(clanWarIncome, state.income.clanWar);
 
-    const starBonusIncome = incomeSources.starBonus || {};
-    renderStarBonusDisplay(starBonusIncome, state.income.starBonus?.league || 105000000, state.playerProfile, timeframe);
+        const cwlIncome = incomeSources.cwl || {};
+        renderCwlIncomeTabDisplay(cwlIncome, state.income.cwl);
 
-    const clanWarIncome = incomeSources.clanWar || {};
-    renderClanWarIncomeTabDisplay(clanWarIncome, state.income.clanWar);
+        const supercellEventsIncome = incomeSources.supercellEvents || {};
+        renderSupercellEventsDisplay(supercellEventsIncome, timeframe);
 
-    const cwlIncome = incomeSources.cwl || {};
-    renderCwlIncomeTabDisplay(cwlIncome, state.income.cwl);
+        const raidMedalIncome = incomeSources.raidMedalTrader || {};
+        renderRaidMedalTraderDisplay(raidMedalIncome, timeframe);
 
-    const supercellEventsIncome = incomeSources.supercellEvents || {};
-    renderSupercellEventsDisplay(supercellEventsIncome, timeframe);
+        const gemIncome = incomeSources.gemTrader || {};
+        renderGemIncomeTabDisplay(gemIncome);
 
-    const raidMedalIncome = incomeSources.raidMedalTrader || {};
-    renderRaidMedalTraderDisplay(raidMedalIncome, timeframe);
+        const eventPassIncome = incomeSources.eventPass || {};
+        renderEventPassIncomeTabDisplay(eventPassIncome);
 
-    const gemIncome = incomeSources.gemTrader || {};
-    renderGemIncomeTabDisplay(gemIncome);
+        const eventTraderIncome = incomeSources.eventTrader || {};
+        renderEventTraderIncomeTabDisplay(eventTraderIncome);
 
-    const eventPassIncome = incomeSources.eventPass || {};
-    renderEventPassIncomeTabDisplay(eventPassIncome);
+        const shopOfferIncome = incomeSources.shopOffers || {};
+        renderShopOfferIncomeTabDisplay(shopOfferIncome, state.uiSettings);
 
-    const eventTraderIncome = incomeSources.eventTrader || {};
-    renderEventTraderIncomeTabDisplay(eventTraderIncome);
+        const prospectorIncome = incomeSources.prospector || {};
+        renderProspectorIncomeDisplay(prospectorIncome);
 
-    const shopOfferIncome = incomeSources.shopOffers || {};
-    renderShopOfferIncomeTabDisplay(shopOfferIncome, state.uiSettings);
-
-    const prospectorIncome = incomeSources.prospector || {};
-    renderProspectorIncomeDisplay(prospectorIncome);
-
-    renderIncomeCard(state.derived.totalIncome, state.uiSettings, state.derived.totalMoneyCost);
+        renderIncomeCard(state.derived.totalIncome, state.uiSettings, state.derived.totalMoneyCost);
+    } else if (state.activeTab === 'settings-tab') {
+        renderAppSettings(state.uiSettings);
+    }
 }

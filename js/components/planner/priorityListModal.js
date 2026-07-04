@@ -31,7 +31,15 @@ function autoPlaceChipsForDateRange() {
     logger.log(`Finished auto-placing chips for all months in the range. Total time: ${timeTaken} seconds.`);
 }
 
+let cachedPriorityList = null;
+let cachedSuggestions = null;
+let cachedTimestamp = null;
+
 export function getGlobalPriorityList() {
+    if (cachedPriorityList && cachedTimestamp === state.timestamp) {
+        return { globalPriorityList: cachedPriorityList, suggestions: cachedSuggestions };
+    }
+
     const globalPriorityList = [];
     const heroNameMap = Object.fromEntries(Object.entries(heroData).map(([key, val]) => [val.name, key]));
 
@@ -79,6 +87,10 @@ export function getGlobalPriorityList() {
             item.bottleneckOre = prediction.bottleneckOre;
         }
     });
+
+    cachedPriorityList = globalPriorityList;
+    cachedSuggestions = suggestions;
+    cachedTimestamp = state.timestamp;
 
     return { globalPriorityList, suggestions };
 }
