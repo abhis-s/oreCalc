@@ -1530,12 +1530,10 @@ export function initializeWelcomeModal() {
                 scrollTargetPage = 4;
                 const visualIndex = getVisualIndexFromPage(4);
                 const carousel = document.getElementById('welcome-carousel');
-                console.log(`[SyncStartBtn] Clicked — scrollTargetPage=4, visualIndex=${visualIndex}, carousel clientWidth=${carousel?.clientWidth}, currentPage=${currentPage}`);
                 if (carousel) {
                     carousel.scrollTo({ left: visualIndex * (carousel.clientWidth + 32), behavior: 'smooth' });
-                    console.log(`[SyncStartBtn] scrollTo called — left=${visualIndex * (carousel.clientWidth + 32)}`);
                 } else {
-                    console.warn('[SyncStartBtn] carousel element not found!');
+                    logger.warn('[SyncStartBtn] carousel element not found!');
                 }
 
                 // Directly expand the paste section and collapse the copy section
