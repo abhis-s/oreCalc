@@ -270,6 +270,14 @@ async function build() {
         const libsSource = path.join(projectRoot, 'node_modules/workbox-window/build/workbox-window.prod.umd.js');
         const libsDest = path.join(libsDestDir, 'workbox-window.js');
         fs.copyFileSync(libsSource, libsDest);
+
+        // Also copy the source map to prevent 404 console warnings in devtools
+        const mapSource = path.join(projectRoot, 'node_modules/workbox-window/build/workbox-window.prod.umd.js.map');
+        const mapDest = path.join(libsDestDir, 'workbox-window.prod.umd.js.map');
+        if (fs.existsSync(mapSource)) {
+            fs.copyFileSync(mapSource, mapDest);
+        }
+
         if (verbose) {
             console.log(`Copied: ${libsSource} -> ${libsDest}`);
         }
