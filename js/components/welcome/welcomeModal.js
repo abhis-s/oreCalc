@@ -943,6 +943,25 @@ export function initializeWelcomeModal() {
 
     if (submitBtn) {
         submitBtn.addEventListener('click', async () => {
+            const welcomeSyncInput = document.getElementById('welcome-sync-input');
+            const val = welcomeSyncInput ? welcomeSyncInput.value.trim() : '';
+            const currentUserId = localStorage.getItem('oreCalc_userId');
+
+            if (cameFromSyncStartBtn && isValidUUID(val) && val !== currentUserId) {
+                const originalText = submitBtn.textContent;
+                try {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = translate('actions.processing') || 'Processing...';
+
+                    const { importUserData } = await import('../../utils/cloudSaveHandler.js');
+                    await importUserData(val);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+                return;
+            }
+
             handleStateUpdate(() => {
                 const now = Date.now();
                 if (!state.uiSettings.uiTimestamps) {
