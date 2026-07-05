@@ -68,7 +68,7 @@ let animationBaseDelay = 0.2;
 let autoPlaceStaggerCounter = 0;
 
 export function setAnimateNextRender(val, delay = 0.2) {
-    animateNextRender = val;
+    animateNextRender = false;
     animationBaseDelay = delay;
 }
 
@@ -400,11 +400,6 @@ function createDayCell(date, plannerState) {
 
     // Render sorted chips
     chipsToRender.forEach(item => {
-        if (animateNextRender === 'all' || (animateNextRender === 'auto-placed' && item.element.id.includes('-auto'))) {
-            item.element.classList.add('animate-autoplace');
-            item.element.style.animationDelay = `${animationBaseDelay + (autoPlaceStaggerCounter * 0.06)}s`;
-            autoPlaceStaggerCounter++;
-        }
         chipContainer.appendChild(item.element);
     });
 
