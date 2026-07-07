@@ -274,9 +274,9 @@ function prefillModalInputs(type) {
             break;
 
         case 'supercellEvents':
-            document.getElementById('custom-chip-supercellEvents-shiny').value = (settings.shiny !== undefined && settings.shiny !== 0) ? settings.shiny : 1500;
-            document.getElementById('custom-chip-supercellEvents-glowy').value = (settings.glowy !== undefined && settings.glowy !== 0) ? settings.glowy : 75;
-            document.getElementById('custom-chip-supercellEvents-starry').value = (settings.starry !== undefined && settings.starry !== 0) ? settings.starry : 15;
+            document.getElementById('custom-chip-supercellEvents-shiny').value = (settings.shiny !== undefined && settings.shiny !== 0) ? settings.shiny : 1000;
+            document.getElementById('custom-chip-supercellEvents-glowy').value = (settings.glowy !== undefined && settings.glowy !== 0) ? settings.glowy : 50;
+            document.getElementById('custom-chip-supercellEvents-starry').value = (settings.starry !== undefined && settings.starry !== 0) ? settings.starry : 10;
             document.getElementById('custom-chip-supercellEvents-override').checked = settings.globalOverride || false;
             break;
 
@@ -689,9 +689,9 @@ export function initializeCreateCustomChipsModalListeners() {
     registerResetPopover('custom-chip-eventPass-starry', 'starry', () => state.derived?.incomeSources?.eventPass?.bimonthly?.starry || 0);
 
     // 8. Supercell Events
-    registerResetPopover('custom-chip-supercellEvents-shiny', 'shiny', () => 1500);
-    registerResetPopover('custom-chip-supercellEvents-glowy', 'glowy', () => 75);
-    registerResetPopover('custom-chip-supercellEvents-starry', 'starry', () => 15);
+    registerResetPopover('custom-chip-supercellEvents-shiny', 'shiny', () => 1000);
+    registerResetPopover('custom-chip-supercellEvents-glowy', 'glowy', () => 50);
+    registerResetPopover('custom-chip-supercellEvents-starry', 'starry', () => 10);
 
     // Helper for War inputs (Clan War & CWL)
     const registerWarPopover = (elementId, oreType) => {

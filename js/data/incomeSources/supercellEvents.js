@@ -1,10 +1,10 @@
 export const supercellEventsData = {
     rewards: {
         2025: {
-            monthlyQualifiers: { shiny: 1500, glowy: 75, starry: 15 },
-            lastChanceQualifiers: { shiny: 1500, glowy: 75, starry: 15 },
-            worldChampionships: { shiny: 1500, glowy: 75, starry: 15 },
-            otherEvents: { shiny: 1500, glowy: 75, starry: 15 },
+            monthlyQualifiers: { shiny: 1000, glowy: 50, starry: 10 },
+            lastChanceQualifiers: { shiny: 1000, glowy: 50, starry: 10 },
+            worldChampionships: { shiny: 1000, glowy: 50, starry: 10 },
+            otherEvents: { shiny: 1000, glowy: 50, starry: 10 },
         }
     },
     events: {
