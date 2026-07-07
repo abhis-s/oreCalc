@@ -180,6 +180,21 @@
             }
 
             window.addEventListener('error', function (event) {
+                var target = event.target;
+                if (target && (target.tagName === 'LINK' || target.tagName === 'SCRIPT')) {
+                    var url = target.src || target.href || '';
+                    if (url.indexOf('chunk-') !== -1 && url.indexOf('.js') !== -1) {
+                        var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+                        var now = Date.now();
+                        if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
+                            sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+                            console.warn('Watchdog: Chunk resource failed to load. Reloading page...');
+                            window.location.reload();
+                            return;
+                        }
+                    }
+                }
+
                 var errorMsg = event.error ? event.error.message : event.message;
                 
                 // If a dynamic import fails (chunk mismatch due to new deployment), reload the page to load fresh assets
@@ -198,11 +213,11 @@
                     }
                 }
 
-                if (!appLoaded) {
+                if (!appLoaded && (!target || (target.tagName !== 'LINK' && target.tagName !== 'SCRIPT'))) {
                     var errorStack = event.error ? event.error.stack : '';
                     handleCatastrophicError(errorMsg, errorStack);
                 }
-            });
+            }, true);
 
             window.addEventListener('unhandledrejection', function (event) {
                 var errorMsg = event.reason ? (event.reason.message || event.reason || '') : '';
