@@ -138,6 +138,49 @@
 
             window.__APP_LOADED_STATUS__ = false;
 
+            window.resetApplication = function () {
+                try {
+                    localStorage.removeItem('oreCalculatorState');
+                    localStorage.removeItem('oreCalc_appSettings');
+                    localStorage.removeItem('oreCalc_players');
+                    localStorage.removeItem('oreCalc_playerTags');
+                    localStorage.removeItem('oreCalc_userId');
+                    
+                    // Remove all player profile keys
+                    for (var i = 0; i < localStorage.length; i++) {
+                        var key = localStorage.key(i);
+                        if (key && key.indexOf('oreCalc_player_') === 0) {
+                            localStorage.removeItem(key);
+                            i--; // Adjust index as key removal shifts array
+                        }
+                    }
+                } catch (e) {
+                    console.error('Reset failed:', e);
+                }
+                setTimeout(function () {
+                    window.location.reload();
+                }, 500);
+            };
+
+            window.handleChunkError = function (error) {
+                if (!error) return false;
+                var msg = error.message || error.toString() || '';
+                var isChunk = msg.indexOf('Failed to fetch dynamically imported module') !== -1 || 
+                             msg.indexOf('Importing a module script failed') !== -1 ||
+                             msg.indexOf('error loading dynamically imported module') !== -1;
+                if (isChunk) {
+                    var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+                    var now = Date.now();
+                    if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
+                        sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+                        console.warn('Watchdog: Chunk import error handled. Reloading page...');
+                        window.location.reload();
+                    }
+                    return true;
+                }
+                return false;
+            };
+
             window.__APP_LOADED__ = function () {
                 if (initializationError) {
                     return;
@@ -213,7 +256,8 @@
                     }
                 }
 
-                if (!appLoaded && (!target || (target.tagName !== 'LINK' && target.tagName !== 'SCRIPT'))) {
+                // Only trigger catastrophic failure screen for actual JS execution/runtime errors
+                if (!appLoaded && (event.error || event.message) && (!target || (target.tagName !== 'LINK' && target.tagName !== 'SCRIPT'))) {
                     var errorStack = event.error ? event.error.stack : '';
                     handleCatastrophicError(errorMsg, errorStack);
                 }

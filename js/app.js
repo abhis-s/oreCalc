@@ -823,6 +823,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                             }
                         }
                     } catch (error) {
+                        if (window.handleChunkError && window.handleChunkError(error)) return;
                         logger.error("Refresh failed:", error);
                         refreshButton.classList.remove('saving');
                         refreshButton.classList.add('error');
@@ -1008,6 +1009,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 checkLegalConsent();
             }
         } catch (error) {
+            if (window.handleChunkError && window.handleChunkError(error)) return;
             console.error("Error initializing app data:", error);
             if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
                 if (!state.uiSettings) state.uiSettings = {};
