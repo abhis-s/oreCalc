@@ -141,35 +141,28 @@ async function build() {
         
         const packageJson = require('../package.json');
         let gitHash = 'dev';
+        let isTagged = false;
+        let commitsSinceTag = [];
+        let gitSuccess = false;
+
+        // 1. Try local Git first
         try {
             const { execSync } = require('child_process');
             gitHash = execSync('git rev-parse --short HEAD').toString().trim();
-        } catch (e) {
-            // fallback
-        }
-        let isTagged = false;
-        if (process.env.TAG_NAME) {
-            isTagged = true;
-        } else if (process.env.STABLE === 'true') {
-            isTagged = true;
-        } else {
-            try {
-                const { execSync } = require('child_process');
-                const gitTag = execSync('git describe --tags --exact-match HEAD', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
-                isTagged = !!gitTag;
-            } catch (e) {
-                // not a tagged commit
+            
+            if (process.env.TAG_NAME || process.env.STABLE === 'true') {
+                isTagged = true;
+            } else {
+                try {
+                    const gitTag = execSync('git describe --tags --exact-match HEAD', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+                    isTagged = !!gitTag;
+                } catch (e) {
+                    // not exactly tagged
+                }
             }
-        }
-        const appVersion = isTagged ? packageJson.version : `${packageJson.version}+${gitHash}`;
-        const baseUrl = process.env.VITE_API_BASE_URL || 'https://api.orecalc.tech';
 
-        let commitsSinceTag = [];
-        try {
-            const { execSync } = require('child_process');
             let lastTag = '';
             try {
-                // Get the last tag, excluding the current commit if it is already exactly tagged
                 const excludeTagOption = isTagged ? 'HEAD~1' : 'HEAD';
                 lastTag = execSync(`git describe --tags --abbrev=0 ${excludeTagOption}`).toString().trim();
             } catch (e) {
@@ -203,9 +196,77 @@ async function build() {
                 }
                 commitsSinceTag = selectedCommits.map(c => ({ hash: c.hash, subject: c.subject }));
             }
-        } catch (error) {
-            console.warn('Failed to fetch commit log:', error);
+            gitSuccess = true;
+        } catch (localGitError) {
+            console.log('Local git commands failed or .git folder not present. Falling back to GitHub API lookup...');
         }
+
+        // 2. Fallback to GitHub API
+        if (!gitSuccess) {
+            try {
+                const commitsResponse = await fetch('https://api.github.com/repos/abhis-s/oreCalc/commits?per_page=50', {
+                    headers: { 'User-Agent': 'oreCalc-build-script' }
+                });
+
+                if (commitsResponse.ok) {
+                    const ghCommits = await commitsResponse.json();
+                    if (ghCommits && ghCommits.length > 0) {
+                        gitHash = ghCommits[0].sha.substring(0, 7);
+                        
+                        const parsedCommits = ghCommits.map(c => ({
+                            hash: c.sha.substring(0, 7),
+                            timestamp: new Date(c.commit.committer.date).getTime(),
+                            subject: c.commit.message.split('\n')[0]
+                        }));
+
+                        let latestTagSha = '';
+                        try {
+                            const tagsResponse = await fetch('https://api.github.com/repos/abhis-s/oreCalc/tags', {
+                                headers: { 'User-Agent': 'oreCalc-build-script' }
+                            });
+                            if (tagsResponse.ok) {
+                                const tags = await tagsResponse.json();
+                                if (tags && tags.length > 0) {
+                                    latestTagSha = tags[0].commit.sha;
+                                }
+                            }
+                        } catch (tagError) {
+                            console.warn('Failed to fetch tags from GitHub API:', tagError);
+                        }
+
+                        let selectedCommits = [];
+                        if (latestTagSha) {
+                            const tagIndex = parsedCommits.findIndex(c => c.hash === latestTagSha.substring(0, 7));
+                            if (tagIndex !== -1) {
+                                selectedCommits = parsedCommits.slice(0, tagIndex);
+                            }
+                        }
+
+                        if (selectedCommits.length === 0) {
+                            const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                            const commitsInLastWeek = parsedCommits.filter(c => c.timestamp >= oneWeekAgo);
+                            if (commitsInLastWeek.length >= 3) {
+                                selectedCommits = commitsInLastWeek;
+                            } else {
+                                selectedCommits = parsedCommits.slice(0, Math.min(3, parsedCommits.length));
+                            }
+                        }
+
+                        commitsSinceTag = selectedCommits.map(c => ({ hash: c.hash, subject: c.subject }));
+                    }
+                } else {
+                    console.warn(`GitHub API request failed with status: ${commitsResponse.status}`);
+                }
+            } catch (apiError) {
+                console.warn('Failed to fetch versioning and commit data from GitHub API:', apiError);
+            }
+        }
+
+        if (process.env.TAG_NAME || process.env.STABLE === 'true') {
+            isTagged = true;
+        }
+        const appVersion = isTagged ? packageJson.version : `${packageJson.version}+${gitHash}`;
+        const baseUrl = process.env.VITE_API_BASE_URL || 'https://api.orecalc.tech';
 
         indexHtml = indexHtml.replace('<head>', `<head>\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
         console.log(`Injected VITE_API_BASE_URL (${baseUrl}), APP_VERSION (${appVersion}), and COMMITS_SINCE_TAG (${commitsSinceTag.length} commits) into index.html head.`);

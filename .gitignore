@@ -5,7 +5,7 @@ package-lock.json
 # Build output
 dist/
 *.css
-*.css.map
+*.map
 *.min.js
 
 # Generated billing costs data
