@@ -122,6 +122,152 @@
         }
     }
 
+    .milestones-section {
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, rgba($accent-primary, 0.08) 0%, rgba($color-success, 0.04) 50%, rgba($color-warning, 0.02) 100%);
+        border: 1px solid rgba($accent-primary, 0.22);
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+
+        .milestones-title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: $accent-primary;
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+
+            .milestones-icon {
+                color: $color-warning;
+                height: 20px;
+                width: 20px;
+                filter: drop-shadow(0 0 4px rgba($color-warning, 0.6));
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        .milestones-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .milestone-item {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            background: rgba($bg-surface-primary, 0.45);
+            border: 1px solid $border-secondary;
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.925rem;
+            color: $text-primary;
+            line-height: 1.45;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+            &:hover {
+                transform: translateY(-1px);
+                border-color: rgba($accent-primary, 0.35);
+                box-shadow: 0 4px 12px rgba($accent-primary, 0.08);
+            }
+
+            .commit-scope {
+                background: rgba($accent-primary, 0.12);
+                color: $accent-primary;
+                padding: 2px 5px;
+                border-radius: 4px;
+                font-size: 0.725rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-right: 0.25rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba($accent-primary, 0.18);
+                height: fit-content;
+                line-height: 1;
+            }
+        }
+    }
+
+    .other-updates-heading {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: $text-secondary;
+        letter-spacing: 0.5px;
+        margin-top: 1.25rem;
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+        border-bottom: 1px solid $border-secondary;
+        padding-bottom: 0.25rem;
+    }
+
+    .other-updates-details {
+        margin-top: 1.5rem;
+        border: 1px solid $border-secondary;
+        border-radius: 8px;
+        background-color: rgba($bg-surface-primary, 0.5);
+        overflow: hidden;
+
+        &[open] {
+            .summary-toggle-icon {
+                transform: rotate(180deg);
+            }
+        }
+
+        .other-updates-summary {
+            list-style: none;
+            outline: none;
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: $text-secondary;
+            user-select: none;
+            transition: background-color 0.2s ease;
+
+            &::-webkit-details-marker {
+                display: none;
+            }
+
+            &:hover {
+                background-color: rgba($border-primary, 0.05);
+                color: $text-primary;
+            }
+
+            .summary-toggle-icon {
+                height: 16px;
+                width: 16px;
+                transition: transform 0.2s ease;
+                color: $text-secondary;
+            }
+        }
+
+        .other-updates-content {
+            padding: 0.5rem 1rem 1rem 1rem;
+            border-top: 1px solid $border-secondary;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    }
+
     @media (max-width: 600px) {
         .modal-body {
             padding: 1rem;

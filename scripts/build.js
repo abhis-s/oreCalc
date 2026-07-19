@@ -172,7 +172,7 @@ async function build() {
             const range = lastTag ? `${lastTag}..HEAD` : '';
             const logCmd = range 
                 ? `git log ${range} --pretty=format:"%h|%at|%s"` 
-                : `git log -n 50 --pretty=format:"%h|%at|%s"`;
+                : `git log -n 10 --pretty=format:"%h|%at|%s"`;
             const logOutput = execSync(logCmd).toString().trim();
 
             if (logOutput) {
@@ -204,7 +204,7 @@ async function build() {
         // 2. Fallback to GitHub API
         if (!gitSuccess) {
             try {
-                const commitsResponse = await fetch('https://api.github.com/repos/abhis-s/oreCalc/commits?per_page=50', {
+                const commitsResponse = await fetch('https://api.github.com/repos/abhis-s/oreCalc/commits?per_page=10', {
                     headers: { 'User-Agent': 'oreCalc-build-script' }
                 });
 

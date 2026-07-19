@@ -642,7 +642,10 @@
         }
     },
     "commits": {
-        "title": "Minor Updates"
+        "title": "Minor Updates",
+        "milestoneTitle": "New Feature Released!",
+        "highlightsTitle": "Key Highlights",
+        "otherUpdatesTitle": "Other Updates"
     },
     "download": {
         "title": "Download Your Data",
