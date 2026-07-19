@@ -711,10 +711,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
             for (const l of userLangs) {
                 if (l.startsWith('de')) { detectedLang = 'de'; break; }
-                if (l.startsWith('fr')) { detectedLang = 'fr'; break; }
-                if (l.startsWith('it')) { detectedLang = 'it'; break; }
-                if (l.startsWith('es')) { detectedLang = 'es'; break; }
-                if (l.startsWith('nl')) { detectedLang = 'nl'; break; }
+                if (l.startsWith('tr')) { detectedLang = 'tr'; break; }
             }
             state.uiSettings.language = detectedLang;
         }
@@ -722,11 +719,15 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         if (!state.uiSettings.currency || !state.uiSettings.currency.code) {
             const userLangs = navigator.languages || [navigator.language];
             let detectedCurrency = 'USD';
-            const enabledCurrencies = ['USD', 'EUR', 'GBP', 'INR', 'CAD', 'AUD', 'JPY', 'CNY', 'BRL'];
+            const enabledCurrencies = ['USD', 'EUR', 'GBP', 'INR', 'CAD', 'AUD', 'JPY', 'CHF', 'NZD', 'TRY'];
 
             for (const l of userLangs) {
                 if (l.startsWith('de') || l.startsWith('fr') || l.startsWith('it') || l.startsWith('es') || l.startsWith('nl')) {
                     detectedCurrency = 'EUR';
+                    break;
+                }
+                if (l.startsWith('tr')) {
+                    detectedCurrency = 'TRY';
                     break;
                 }
             }

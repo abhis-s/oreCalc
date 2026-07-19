@@ -7,7 +7,8 @@ export const currencyData = {
     "CHF": { symbol: "₣", enabled: true },
     "INR": { symbol: "₹", enabled: true },
     "JPY": { symbol: "¥", enabled: true },
-    "NZD": { symbol: "NZ$", enabled: true }
+    "NZD": { symbol: "NZ$", enabled: true },
+    "TRY": { symbol: "₺", enabled: true }
 };
 
 export const priceTierRegistry = {
@@ -22,7 +23,8 @@ export const priceTierRegistry = {
         "CHF": 1.00,
         "INR": 89.00,
         "JPY": 160.00,
-        "NZD": 1.69
+        "NZD": 1.69,
+        "TRY": 44.99
     },
     "tier3": {
         "i18nKey": "pricing.miniEventPass",
@@ -34,7 +36,8 @@ export const priceTierRegistry = {
         "CHF": 3.00,
         "INR": 269.00,
         "JPY": 480.00,
-        "NZD": 4.99
+        "NZD": 4.99,
+        "TRY": 134.99
     },
     "tier4": {
         "i18nKey": "pricing.tier4",
@@ -46,7 +49,8 @@ export const priceTierRegistry = {
         "CHF": 4.00,
         "INR": 349.00,
         "JPY": 600.00,
-        "NZD": 6.99
+        "NZD": 6.99,
+        "TRY": 179.99
     },
     "tier5": {
         "i18nKey": "pricing.gemsEventPass",
@@ -59,7 +63,8 @@ export const priceTierRegistry = {
         "CHF": 5.00,
         "INR": 449.00,
         "JPY": 800.00,
-        "NZD": 8.99
+        "NZD": 8.99,
+        "TRY": 224.99
     },
     "tier6": {
         "i18nKey": "pricing.tier6",
@@ -71,7 +76,8 @@ export const priceTierRegistry = {
         "CHF": 6.00,
         "INR": 499.00,
         "JPY": 900.00,
-        "NZD": 9.99
+        "NZD": 9.99,
+        "TRY": 269.99
     },
     "tier7": {
         "i18nKey": "pricing.goldPass",
@@ -83,7 +89,8 @@ export const priceTierRegistry = {
         "CHF": 7.00,
         "INR": 599.00,
         "JPY": 1100.00,
-        "NZD": 11.99
+        "NZD": 11.99,
+        "TRY": 319.99
     },
     "tier10": {
         "i18nKey": "pricing.gems",
@@ -96,7 +103,8 @@ export const priceTierRegistry = {
         "CHF": 10.00,
         "INR": 899.00,
         "JPY": 1500.00,
-        "NZD": 16.99
+        "NZD": 16.99,
+        "TRY": 449.99
     },
     "tier15": {
         "i18nKey": "pricing.gems",
@@ -109,7 +117,8 @@ export const priceTierRegistry = {
         "CHF": 15.00,
         "INR": 1399.00,
         "JPY": 2400.00,
-        "NZD": 24.99
+        "NZD": 24.99,
+        "TRY": 679.99
     },
     "tier20": {
         "i18nKey": "pricing.gems",
@@ -122,7 +131,8 @@ export const priceTierRegistry = {
         "CHF": 20.00,
         "INR": 1799.00,
         "JPY": 3200.00,
-        "NZD": 34.99
+        "NZD": 34.99,
+        "TRY": 899.99
     },
     "tier50": {
         "i18nKey": "pricing.gems",
@@ -135,7 +145,8 @@ export const priceTierRegistry = {
         "CHF": 50.00,
         "INR": 4499.00,
         "JPY": 8000.00,
-        "NZD": 89.99
+        "NZD": 89.99,
+        "TRY": 2249.99
     },
     "tier100": {
         "i18nKey": "pricing.gems",
@@ -148,7 +159,8 @@ export const priceTierRegistry = {
         "CHF": 100.00,
         "INR": 8900.00,
         "JPY": 15800.00,
-        "NZD": 169.99
+        "NZD": 169.99,
+        "TRY": 4499.99
     },
     "tier200": {
         "i18nKey": "pricing.gems",
@@ -161,6 +173,7 @@ export const priceTierRegistry = {
         "CHF": 200.00,
         "INR": 17900.00,
         "JPY": 31800.00,
-        "NZD": 339.99
-    },
+        "NZD": 339.99,
+        "TRY": 8999.99
+    }
 };

@@ -508,6 +508,7 @@
         },
         "english": "English",
         "german": "German",
+        "turkish": "Turkish",
         "github": "GitHub",
         "crowdin": "Help Us Translate",
         "crowdinHelp": "Contribute translations to help us localize the app into your language.",
