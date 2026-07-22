@@ -131,7 +131,11 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                 heroState.enabled = basePlayerState.heroes[heroName]?.enabled ?? true;
             }
         } else {
-            heroState.enabled = false;
+            if (isInitialLoadForBase) {
+                heroState.enabled = false;
+            } else {
+                heroState.enabled = basePlayerState.heroes[heroName]?.enabled ?? false;
+            }
         }
 
         const heroInfo = heroData[heroKey];
@@ -154,7 +158,11 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                     equipState.checked = basePlayerState.heroes[heroName]?.equipment[equipKey]?.checked ?? true;
                 }
             } else {
-                equipState.checked = false;
+                if (isInitialLoadForBase) {
+                    equipState.checked = false;
+                } else {
+                    equipState.checked = basePlayerState.heroes[heroName]?.equipment[equipKey]?.checked ?? false;
+                }
             }
         }
 
