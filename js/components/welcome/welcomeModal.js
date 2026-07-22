@@ -147,7 +147,8 @@ export function showWelcomeModal(isVisible, startTag = null) {
 
         const langSwitch = modal.querySelector('.language-switch');
         if (langSwitch) {
-            langSwitch.setAttribute('data-active-index', currentLang === 'en' ? '0' : '1');
+            const langIndex = currentLang === 'de' ? '1' : (currentLang === 'tr' ? '2' : '0');
+            langSwitch.setAttribute('data-active-index', langIndex);
         }
 
         const themeSwitch = modal.querySelector('.theme-switch');
@@ -694,7 +695,8 @@ export function initializeWelcomeModal() {
 
             const langSwitch = modal.querySelector('.language-switch');
             if (langSwitch) {
-                langSwitch.setAttribute('data-active-index', newLang === 'en' ? '0' : '1');
+                const langIndex = newLang === 'de' ? '1' : (newLang === 'tr' ? '2' : '0');
+                langSwitch.setAttribute('data-active-index', langIndex);
             }
 
             modal.querySelectorAll('.language-switch .pref-btn').forEach(b => b.classList.remove('active'));

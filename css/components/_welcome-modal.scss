@@ -111,10 +111,6 @@
             font-weight: 700;
             color: $text-primary;
             margin: 0;
-            background: linear-gradient(135deg, $text-primary 0%, color-mix(in srgb, $text-primary 70%, transparent) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
             text-align: center;
             display: flex;
             align-items: center;
@@ -131,7 +127,9 @@
                 color: $accent-primary;
                 -webkit-text-fill-color: currentColor;
                 background: none;
-                transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), margin-right 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                overflow: hidden;
+                visibility: visible;
+                transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), margin-right 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s cubic-bezier(0.16, 1, 0.3, 1);
             }
 
             .brand-name {
@@ -223,6 +221,8 @@
                     margin-right: 0;
                     transform: translateX(-20px);
                     pointer-events: none;
+                    overflow: hidden;
+                    visibility: hidden;
                 }
             }
 
@@ -364,7 +364,6 @@
                 border-radius: 20px;
                 padding: 3px;
                 gap: 2px;
-                width: 180px;
                 flex-shrink: 0;
 
                 @media (max-width: 380px) {
@@ -391,6 +390,30 @@
                     }
                 }
 
+                &.language-switch {
+                    .switch-pill {
+                        width: calc(33.333% - 4px);
+                    }
+
+                    &[data-active-index="0"] {
+                        .switch-pill {
+                            transform: translateX(0);
+                        }
+                    }
+
+                    &[data-active-index="1"] {
+                        .switch-pill {
+                            transform: translateX(calc(100% + 2px));
+                        }
+                    }
+
+                    &[data-active-index="2"] {
+                        .switch-pill {
+                            transform: translateX(calc(200% + 4px));
+                        }
+                    }
+                }
+
                 .pref-btn {
                     position: relative;
                     z-index: 2;
@@ -403,16 +426,24 @@
                     font-size: 12px;
                     font-weight: 500;
                     padding: 5px 12px;
+                    white-space: nowrap;
                     cursor: pointer;
                     display: inline-flex;
                     align-items: center;
-                    gap: 6px;
+                    gap: 5px;
                     transition: all 0.2s ease-in-out;
                     margin: 0;
 
-                    svg {
+                    svg,
+                    orecalc-assets-svg {
                         fill: currentColor;
                         display: block;
+                    }
+
+                    &:has(svg),
+                    &:has(orecalc-assets-svg) {
+                        padding-left: 10px;
+                        padding-right: 16px;
                     }
 
                     &:hover {
