@@ -10,9 +10,18 @@ const PLAYER_PREFIX = 'oreCalc_player_';
 const LEGACY_APP_STATE_KEY = 'oreCalculatorState';
 
 let saveTimeout;
+let isResettingState = false;
+
+export function setResettingState(val) {
+    isResettingState = val;
+}
+
+export function getResettingState() {
+    return isResettingState;
+}
 
 export function saveState(state, immediate = false) {
-    if (state.uiSettings.saveError) {
+    if (isResettingState || state.uiSettings?.saveError) {
         return;
     }
     clearTimeout(saveTimeout);
@@ -173,20 +182,26 @@ export function loadState() {
 }
 
 export function resetState() {
+    isResettingState = true;
+    clearTimeout(saveTimeout);
     try {
         localStorage.removeItem(LEGACY_APP_STATE_KEY);
+        localStorage.removeItem('OreCalculatorState');
         localStorage.removeItem(APP_SETTINGS_KEY);
         localStorage.removeItem(APP_PLAYERS_INDEX_KEY);
         localStorage.removeItem(PLAYER_TAGS_KEY);
+        localStorage.removeItem('oreCalc_userId');
         
         // Remove all player profile keys
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && key.startsWith(PLAYER_PREFIX)) {
+            if (key && (key.startsWith(PLAYER_PREFIX) || key.startsWith('oreCalc_'))) {
                 localStorage.removeItem(key);
                 i--; // Adjust index as key removal shifts array
             }
         }
+        localStorage.clear();
+        sessionStorage.clear();
     } catch (error) {
         console.error("Could not reset state in localStorage", error);
     }

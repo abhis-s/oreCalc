@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { saveState } from './localStorageManager.js';
+import { saveState, getResettingState } from './localStorageManager.js';
 
 let stateUpdateCallback = null;
 let cloudSaveTimeout = null;
@@ -123,6 +123,11 @@ export function switchActivePlayer(newTag) {
 
 // Flush pending changes on page unload
 window.addEventListener('beforeunload', () => {
+    // Abort if state is being reset or if storage was cleared
+    if (getResettingState() || localStorage.getItem('oreCalc_playerTags') === null) {
+        return;
+    }
+
     // 1. Force immediate local storage save
     saveState(state, true);
 

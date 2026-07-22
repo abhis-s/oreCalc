@@ -3,7 +3,7 @@ import { showAlert, showConfirm } from './ui/noticeModal.js';
 import { dom, initializeDOMElements } from './dom/domElements.js';
 import { state, initializeState, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_WELCOME } from './core/state.js';
 import { compareVersions, migrateFullState } from './core/stateCleanup.js';
-import { saveState, loadState, resetState } from './core/localStorageManager.js';
+import { saveState, loadState, resetState, setResettingState } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
 import { registerStateUpdateCallback, handleStateUpdate } from './core/stateManager.js';
@@ -1170,11 +1170,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
 export { handleStateUpdate, switchActivePlayer } from './core/stateManager.js';
 window.resetApplication = () => {
+    setResettingState(true);
     resetState();
-    localStorage.removeItem('oreCalc_userId');
-    setTimeout(() => {
-        location.reload();
-    }, 500);
+    if (window.location.hash) {
+        history.replaceState(null, '', window.location.pathname);
+    }
+    window.location.href = window.location.origin + window.location.pathname;
 };
 
 window.refreshConsentModalStatus = () => {
