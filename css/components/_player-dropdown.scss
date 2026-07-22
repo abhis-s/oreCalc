@@ -83,6 +83,7 @@
     top: calc(100% + 6px);
     right: 0;
     width: 175px;
+    min-width: 175px;
     border-radius: 16px;
     padding: 8px;
     background-color: $bg-surface-primary;
