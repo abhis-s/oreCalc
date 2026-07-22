@@ -135,6 +135,10 @@ function formatRemainingTime(timeObj) {
 // ---------------------------------------------------------------------------
 const renderState = {
     renderedTag: null,      // player tag of the last full rebuild
+    renderedLang: null,     // language of the last full rebuild
+    renderedTH: null,       // Town Hall level of the last full rebuild
+    renderedClan: null,     // Clan name of the last full rebuild
+    renderedLeague: null,   // League tier ID of the last full rebuild
     lastProgress: null,     // progress snapshot after the last completed animation
     isAnimating: false,     // true while the fill-in transition is running
     pendingSnapshot: null,  // { progress, subData } queued to apply after animation
@@ -168,12 +172,12 @@ function buildSubData(progress, state) {
  */
 function subtextHTML(key, pct, subData) {
     if (pct >= 100) {
-        return `<div class="stat-box-maxed">✓ ${translate('homeProfile.maxed') || 'Maxed'}</div>`;
+        return `<div class="stat-box-maxed" data-i18n="homeProfile.maxed">✓ ${translate('homeProfile.maxed') || 'Maxed'}</div>`;
     }
     const { spent, total, remaining, time, col } = subData[key];
     return `<div class="stat-box-sub">
         <div>${formatNumber(spent)} / ${formatNumber(total)}</div>
-        <div>${col} ${formatNumber(remaining)} | ${time}</div>
+        <div><span data-i18n="homeProfile.remainingColon">${col}</span> ${formatNumber(remaining)} | ${time}</div>
     </div>`;
 }
 
@@ -183,9 +187,23 @@ function subtextHTML(key, pct, subData) {
  * Shows a green overlay for gains and a red overlay for losses.
  * Returns false if a full rebuild is needed (e.g. overall maxed state toggled).
  */
-function applyProgressDelta(container, prevProg, currProg, subData, state) {
+function applyProgressDelta(container, prevProg, currProg, subData, state, maxedCount, totalCount, profile) {
     // If the row visibility needs to change (overall crossed 100%), do a full rebuild.
     if ((prevProg.overall >= 100) !== (currProg.overall >= 100)) return false;
+
+    // Update header stats (maxed count, trophies)
+    if (maxedCount !== undefined && totalCount !== undefined) {
+        const maxedCountEl = container.querySelector('.maxed-count');
+        if (maxedCountEl) {
+            maxedCountEl.textContent = `${maxedCount}/${totalCount}`;
+        }
+    }
+    if (profile && profile.trophies !== undefined) {
+        const trophiesEl = container.querySelector('.player-trophies-mini span');
+        if (trophiesEl) {
+            trophiesEl.textContent = formatNumber(profile.trophies);
+        }
+    }
 
     const oreKeys = ['overall', 'shiny', 'glowy', 'starry'];
 
@@ -198,49 +216,49 @@ function applyProgressDelta(container, prevProg, currProg, subData, state) {
         if (!barWrap) continue;
 
         const fill = barWrap.querySelector('.progress-bar-fill');
-        if (!fill) continue;
+        if (fill) {
+            // Remove stale overlays from a previous delta pass.
+            barWrap.querySelectorAll('.bar-delta-overlay').forEach(el => el.remove());
 
-        // Remove stale overlays from a previous delta pass.
-        barWrap.querySelectorAll('.bar-delta-overlay').forEach(el => el.remove());
+            // Update the gold-glow class.
+            fill.classList.toggle('maxed-fill', curr >= 100);
 
-        // Update the gold-glow class.
-        fill.classList.toggle('maxed-fill', curr >= 100);
-
-        if (key === 'overall') {
-            if (curr >= 100) {
-                fill.style.background = '';
-            } else {
-                fill.style.background = getOverallGradient(currProg);
+            if (key === 'overall') {
+                if (curr >= 100) {
+                    fill.style.background = '';
+                } else {
+                    fill.style.background = getOverallGradient(currProg);
+                }
             }
-        }
 
-        if (Math.abs(delta) >= 0.5) {
-            const overlay = document.createElement('div');
-            overlay.className = `bar-delta-overlay ${delta > 0 ? 'delta-positive' : 'delta-negative'}`;
+            if (Math.abs(delta) >= 0.5) {
+                const overlay = document.createElement('div');
+                overlay.className = `bar-delta-overlay ${delta > 0 ? 'delta-positive' : 'delta-negative'}`;
 
-            if (delta > 0) {
-                // Green strip animates from prev → curr
-                overlay.style.cssText = `left:${Math.min(prev, 100)}%; width:0;`;
-                barWrap.appendChild(overlay);
-                requestAnimationFrame(() => {
+                if (delta > 0) {
+                    // Green strip animates from prev → curr
+                    overlay.style.cssText = `left:${Math.min(prev, 100)}%; width:0;`;
+                    barWrap.appendChild(overlay);
                     requestAnimationFrame(() => {
-                        overlay.style.width = `${Math.min(delta, 100 - prev)}%`;
-                        fill.style.width = `${Math.min(curr, 100)}%`;
+                        requestAnimationFrame(() => {
+                            overlay.style.width = `${Math.min(delta, 100 - prev)}%`;
+                            fill.style.width = `${Math.min(curr, 100)}%`;
+                        });
                     });
-                });
+                } else {
+                    // Red strip shows the lost portion then fades.
+                    overlay.style.cssText = `left:${Math.max(curr, 0)}%; width:${Math.abs(delta)}%;`;
+                    barWrap.appendChild(overlay);
+                    fill.style.width = `${Math.max(curr, 0)}%`;
+                    setTimeout(() => {
+                        overlay.style.transition = 'opacity 0.5s ease';
+                        overlay.style.opacity = '0';
+                        setTimeout(() => overlay.remove(), 500);
+                    }, 2500);
+                }
             } else {
-                // Red strip shows the lost portion then fades.
-                overlay.style.cssText = `left:${Math.max(curr, 0)}%; width:${Math.abs(delta)}%;`;
-                barWrap.appendChild(overlay);
-                fill.style.width = `${Math.max(curr, 0)}%`;
-                setTimeout(() => {
-                    overlay.style.transition = 'opacity 0.5s ease';
-                    overlay.style.opacity = '0';
-                    setTimeout(() => overlay.remove(), 500);
-                }, 2500);
+                fill.style.width = `${Math.min(curr, 100)}%`;
             }
-        } else {
-            fill.style.width = `${Math.min(curr, 100)}%`;
         }
 
         // Update the % label.
@@ -261,35 +279,33 @@ function applyProgressDelta(container, prevProg, currProg, subData, state) {
         }
 
         // Update the subtext for individual ore boxes.
-        if (key !== 'overall') {
+        if (key !== 'overall' && subData && subData[key]) {
             const statBox = barWrap.closest('.profile-stat-box');
-            if (!statBox) continue;
+            if (statBox) {
+                const existing = statBox.querySelector('.stat-box-sub, .stat-box-maxed');
+                if (existing) {
+                    const wasMaxed = existing.classList.contains('stat-box-maxed');
+                    const isMaxed  = curr >= 100;
 
-            const existing = statBox.querySelector('.stat-box-sub, .stat-box-maxed');
-            if (!existing) continue;
-
-            const wasMaxed = existing.classList.contains('stat-box-maxed');
-            const isMaxed  = curr >= 100;
-
-            if (isMaxed && !wasMaxed) {
-                // Transition subtext → maxed label
-                const el = document.createElement('div');
-                el.className = 'stat-box-maxed';
-                el.textContent = `✓ ${translate('homeProfile.maxed') || 'Maxed'}`;
-                existing.replaceWith(el);
-            } else if (!isMaxed && wasMaxed) {
-                // Transition maxed label → subtext (edge case: regressed)
-                const { spent, total, remaining, time, col } = subData[key];
-                const el = document.createElement('div');
-                el.className = 'stat-box-sub';
-                el.innerHTML = `<div>${formatNumber(spent)} / ${formatNumber(total)}</div>
-                    <div>${col} ${formatNumber(remaining)} | ${time}</div>`;
-                existing.replaceWith(el);
-            } else if (!isMaxed) {
-                // Update existing subtext numbers in place.
-                const { spent, total, remaining, time, col } = subData[key];
-                existing.innerHTML = `<div>${formatNumber(spent)} / ${formatNumber(total)}</div>
-                    <div>${col} ${formatNumber(remaining)} | ${time}</div>`;
+                    if (isMaxed && !wasMaxed) {
+                        const el = document.createElement('div');
+                        el.className = 'stat-box-maxed';
+                        el.setAttribute('data-i18n', 'homeProfile.maxed');
+                        el.textContent = `✓ ${translate('homeProfile.maxed') || 'Maxed'}`;
+                        existing.replaceWith(el);
+                    } else if (!isMaxed && wasMaxed) {
+                        const { spent, total, remaining, time, col } = subData[key];
+                        const el = document.createElement('div');
+                        el.className = 'stat-box-sub';
+                        el.innerHTML = `<div>${formatNumber(spent)} / ${formatNumber(total)}</div>
+                            <div><span data-i18n="homeProfile.remainingColon">${col}</span> ${formatNumber(remaining)} | ${time}</div>`;
+                        existing.replaceWith(el);
+                    } else if (!isMaxed) {
+                        const { spent, total, remaining, time, col } = subData[key];
+                        existing.innerHTML = `<div>${formatNumber(spent)} / ${formatNumber(total)}</div>
+                            <div><span data-i18n="homeProfile.remainingColon">${col}</span> ${formatNumber(remaining)} | ${time}</div>`;
+                    }
+                }
             }
         }
     }
@@ -345,10 +361,14 @@ export function renderHomeProfile(state) {
     const profile = state.playerProfile;
 
     // ── No profile connected ────────────────────────────────────────────────
-    if (!profile) {
-        renderState.renderedTag   = null;
-        renderState.lastProgress  = null;
-        renderState.isAnimating   = false;
+    if (!profile || profile.tag === 'DEFAULT0') {
+        renderState.renderedTag    = null;
+        renderState.renderedLang   = null;
+        renderState.renderedTH     = null;
+        renderState.renderedClan   = null;
+        renderState.renderedLeague = null;
+        renderState.lastProgress   = null;
+        renderState.isAnimating    = false;
         renderState.pendingSnapshot = null;
 
         cardContainer.innerHTML = `
@@ -420,17 +440,31 @@ export function renderHomeProfile(state) {
     const glowyStoragePct = progress.glowyTotal > 0 ? ((stored.glowy || 0) / progress.glowyTotal) * 100 : 0;
     const starryStoragePct = progress.starryTotal > 0 ? ((stored.starry || 0) / progress.starryTotal) * 100 : 0;
 
-    // ── Incremental update path (same player already rendered) ──────────────
-    if (profile.tag === renderState.renderedTag &&
-        (renderState.lastProgress !== null || renderState.isAnimating)) {
-        if (renderState.isAnimating) {
-            // Animation still running — queue for after it finishes.
-            renderState.pendingSnapshot = { progress, subData };
-            return;
-        }
+    const currentLang  = state.uiSettings?.language || 'en';
+    const thLevel      = profile.townHallLevel || 1;
+    const clanName     = profile.clan?.name || '';
+    const leagueId     = parseInt(profile.leagueTier?.id || 105000000, 10);
 
-        // Apply delta to existing DOM.
-        const ok = applyProgressDelta(cardContainer, renderState.lastProgress, progress, subData, state);
+    const isSamePlayer = profile.tag === renderState.renderedTag;
+    const isSameLang   = currentLang === renderState.renderedLang;
+    const isSameTH     = thLevel === renderState.renderedTH;
+    const isSameClan   = clanName === renderState.renderedClan;
+    const isSameLeague = leagueId === renderState.renderedLeague;
+
+    // ── Incremental update path (same player, same lang, same th, clan, league) ──────
+    if (isSamePlayer && isSameLang && isSameTH && isSameClan && isSameLeague &&
+        (renderState.lastProgress !== null || renderState.isAnimating)) {
+
+        const ok = applyProgressDelta(
+            cardContainer,
+            renderState.lastProgress || progress,
+            progress,
+            subData,
+            state,
+            maxedCount,
+            totalCount,
+            profile
+        );
         if (ok) {
             renderState.lastProgress = progress;
             return;
@@ -438,14 +472,17 @@ export function renderHomeProfile(state) {
         // Fall through to full rebuild if overall maxed state toggled.
     }
 
-    // ── Full rebuild (new player, or maxed-state change) ───────────────────
+    // ── Full rebuild ───────────────────────────────────────────────────
     renderState.renderedTag    = profile.tag;
+    renderState.renderedLang   = currentLang;
+    renderState.renderedTH     = thLevel;
+    renderState.renderedClan   = clanName;
+    renderState.renderedLeague = leagueId;
     renderState.lastProgress   = null;
     renderState.pendingSnapshot = null;
     renderState.isAnimating    = true;
 
     // Header: TH badge, name, clan, league
-    const thLevel  = profile.townHallLevel || 1;
     const thImgUrl = `assets/th/th${thLevel}.png`;
 
     let clanHtml = '';
@@ -458,7 +495,6 @@ export function renderHomeProfile(state) {
         clanHtml = `<div class="player-clan-mini"><span class="clan-name-mini text-muted" data-i18n="welcome.noClan">${translate('welcome.noClan') || 'No Clan'}</span></div>`;
     }
 
-    const leagueId   = parseInt(profile.leagueTier?.id || 105000000, 10);
     const leagueData = leagueTiers.items.find(l => l.id === leagueId);
     let leagueIconHtml  = `<orecalc-assets-svg name="star-badge" height="24" width="24" class="league-default-icon"></orecalc-assets-svg>`;
     let leagueNameText  = translate('leagues.unranked') || 'Unranked';
@@ -474,7 +510,7 @@ export function renderHomeProfile(state) {
     }
 
     const tagHtml = isGuest
-        ? `<span class="player-tag-guest-badge">${translate('welcome.guestProfileTag') || 'Guest Profile'}</span>`
+        ? `<span class="player-tag-guest-badge" data-i18n="welcome.guestProfileTag">${translate('welcome.guestProfileTag') || 'Guest Profile'}</span>`
         : `<span class="player-tag">${profile.tag}</span>`;
 
     cardContainer.innerHTML = `
@@ -504,7 +540,7 @@ export function renderHomeProfile(state) {
                 </div>
                 <div class="player-maxed-equip-mini" title="${translate('homeProfile.maxedEquipment') || 'Maxed Equipment'}">
                     <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
-                    <span>${maxedCount}/${totalCount} ${translate('homeProfile.maxedEquipment') || 'Maxed Equipment'}</span>
+                    <span><span class="maxed-count">${maxedCount}/${totalCount}</span> <span data-i18n="homeProfile.maxedEquipment">${translate('homeProfile.maxedEquipment') || 'Maxed Equipment'}</span></span>
                 </div>
             </div>
         </div>
@@ -585,12 +621,19 @@ export function renderHomeProfile(state) {
             const { progress: pProg, subData: pSub } = renderState.pendingSnapshot;
             renderState.pendingSnapshot = null;
 
-            const ok = applyProgressDelta(cardContainer, progress, pProg, pSub, state);
+            const ok = applyProgressDelta(
+                cardContainer,
+                progress,
+                pProg,
+                pSub,
+                state,
+                maxedCount,
+                totalCount,
+                profile
+            );
             if (ok) {
                 renderState.lastProgress = pProg;
             } else {
-                // Overall maxed state changed — need a proper rebuild.
-                // Synthesise a minimal state object for the recursive call.
                 renderHomeProfile(state);
             }
         }

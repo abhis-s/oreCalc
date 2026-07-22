@@ -43,6 +43,9 @@ export function renderApp(state) {
     renderPlayerDropdown();
     renderFab(state.savedPlayerTags[0]);
 
+    renderRequiredOres(state.derived.requiredOres);
+    renderRemainingTime(state.derived.remainingTime);
+
     if (state.activeTab === 'home-tab') {
         renderHomeIncomeTable(state);
         renderHomeResourcesFooter(state);
@@ -53,8 +56,6 @@ export function renderApp(state) {
     } else if (state.activeTab === 'equipment-tab') {
         renderHeroCards(state.heroes, state.uiSettings, state.planner);
         renderStorageInputs(state.storedOres);
-        renderRequiredOres(state.derived.requiredOres);
-        renderRemainingTime(state.derived.remainingTime);
     } else if (state.activeTab === 'income-tab') {
         renderStarBonusControls(state.income);
         renderClanWarInputs(state.income.clanWar);
