@@ -17,6 +17,16 @@ app.use((req, res, next) => {
         const query = req.url.substring(req.path.length);
         return res.redirect(301, cleanPath + query);
     }
+    
+    // Explicitly serve root-level HTML files for clean paths that share directory names (e.g. /privacy, /terms, /licenses)
+    if (!req.path.includes('.')) {
+        const htmlFile = path.join(distPath, `${req.path.substring(1)}.html`);
+        const fs = require('fs');
+        if (fs.existsSync(htmlFile)) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            return res.sendFile(htmlFile);
+        }
+    }
     next();
 });
 

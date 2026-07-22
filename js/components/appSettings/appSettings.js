@@ -761,13 +761,14 @@ export function openPrivacyModal() {
     const externalBtn = document.getElementById('privacy-open-external-btn');
     const translateBtn = document.getElementById('privacy-translate-btn');
 
+    const SUPPORTED_LEGAL_LANGS = ['de'];
     const currentLang = state.uiSettings?.language || 'en';
-    const isEnglish = currentLang === 'en';
-    let showingEnglish = isEnglish;
-    const initialUrl = isEnglish ? 'privacy' : `privacy/${currentLang}`;
+    const hasTranslation = currentLang !== 'en' && SUPPORTED_LEGAL_LANGS.includes(currentLang);
+    let showingEnglish = !hasTranslation;
+    const initialUrl = hasTranslation ? `privacy/${currentLang}` : 'privacy';
 
     if (translateBtn) {
-        if (isEnglish) {
+        if (!hasTranslation) {
             translateBtn.style.display = 'none';
         } else {
             translateBtn.style.display = 'inline-flex';
@@ -901,6 +902,14 @@ export function openPrivacyModal() {
         iframe.onload = () => {
             try {
                 const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (iframeDoc && (iframeDoc.title === '404' || (iframeDoc.body && iframeDoc.body.innerText.includes('404 Page Not Found')))) {
+                    const currentTheme = state.uiSettings?.theme || 'dark';
+                    iframe.src = `privacy?theme=${currentTheme}`;
+                    if (externalBtn) externalBtn.href = 'privacy';
+                    if (translateBtn) translateBtn.style.display = 'none';
+                    return;
+                }
+                if (!iframeDoc || !iframeDoc.body) return;
                 iframeDoc.body.addEventListener('click', async (e) => {
                     const link = e.target.closest('a');
                     if (!link) return;
@@ -956,13 +965,14 @@ export function openTermsOfUseModal() {
     const externalBtn = document.getElementById('terms-open-external-btn');
     const translateBtn = document.getElementById('terms-translate-btn');
 
+    const SUPPORTED_LEGAL_LANGS = ['de'];
     const currentLang = state.uiSettings?.language || 'en';
-    const isEnglish = currentLang === 'en';
-    let showingEnglish = isEnglish;
-    const initialUrl = isEnglish ? 'terms' : `terms/${currentLang}`;
+    const hasTranslation = currentLang !== 'en' && SUPPORTED_LEGAL_LANGS.includes(currentLang);
+    let showingEnglish = !hasTranslation;
+    const initialUrl = hasTranslation ? `terms/${currentLang}` : 'terms';
 
     if (translateBtn) {
-        if (isEnglish) {
+        if (!hasTranslation) {
             translateBtn.style.display = 'none';
         } else {
             translateBtn.style.display = 'inline-flex';
@@ -1096,6 +1106,14 @@ export function openTermsOfUseModal() {
         iframe.onload = () => {
             try {
                 const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (iframeDoc && (iframeDoc.title === '404' || (iframeDoc.body && iframeDoc.body.innerText.includes('404 Page Not Found')))) {
+                    const currentTheme = state.uiSettings?.theme || 'dark';
+                    iframe.src = `terms?theme=${currentTheme}`;
+                    if (externalBtn) externalBtn.href = 'terms';
+                    if (translateBtn) translateBtn.style.display = 'none';
+                    return;
+                }
+                if (!iframeDoc || !iframeDoc.body) return;
                 iframeDoc.body.addEventListener('click', async (e) => {
                     const link = e.target.closest('a');
                     if (!link) return;

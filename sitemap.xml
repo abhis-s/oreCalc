@@ -1,15 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+              http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
+  <url>
+    <loc>https://orecalc.tech/</loc>
+    <lastmod>2026-07-23T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
 
-<url>
-  <loc>https://orecalc.tech/</loc>
-  <lastmod>2025-11-29T08:09:40+00:00</lastmod>
-</url>
+  <url>
+    <loc>https://orecalc.tech/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orecalc.tech/privacy" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orecalc.tech/privacy/de" />
+    <lastmod>2026-07-23T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
 
+  <url>
+    <loc>https://orecalc.tech/privacy/de</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orecalc.tech/privacy" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orecalc.tech/privacy/de" />
+    <lastmod>2026-07-23T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://orecalc.tech/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orecalc.tech/terms" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orecalc.tech/terms/de" />
+    <lastmod>2026-07-23T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://orecalc.tech/terms/de</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orecalc.tech/terms" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orecalc.tech/terms/de" />
+    <lastmod>2026-07-23T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://orecalc.tech/licenses</loc>
+    <lastmod>2026-07-23T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
 
 </urlset>
