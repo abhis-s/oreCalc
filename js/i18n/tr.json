@@ -528,6 +528,9 @@
         "bugReport": "Hata Bildirimi",
         "bugReportInfo": "Alternatif olarak, sorunu doğrudan {link} sayfamız üzerinden bildirebilirsiniz.",
         "bugReportPrivacyInfo": "Bu raporu göndererek, kullanıcı verilerinizin ve verdiğiniz e-posta adresinin {link} politikamıza uygun olarak işlenmesini kabul etmiş olursunuz.",
+        "bugReportSWTitle": "Güncelleme sorunu mu yaşıyorsunuz?",
+        "bugReportSWDesc": "En son sürümü ve düzeltmeleri zorla almak için yerel uygulama önbelleğini temizleyin.",
+        "bugReportResetSWLabel": "Güncellemeyi Zorla",
         "runningCosts": "Proje Maliyetleri",
         "runningCostsHelp": "Uygulamanın çalışır durumda kalması için gereken barındırma, alan adı, API ve proje altyapı maliyetleri hakkında şeffaf verilere ulaşın.",
         "runningCostsModal": {
@@ -861,6 +864,8 @@
         "feature3Title": "Yüksek Özelleştirilebilirlik",
         "feature3Desc": "Özel fişler oluşturun, aktif düzeninizi yapılandırın ve tercih ettiğiniz dili ve temayı seçin.",
         "enterTag": "Oyun içi ilerlemenizi görüntülemek için oyuncu etiketinizi girin:",
+        "reportIssuePrompt": "Bir sorun mu buldunuz veya geri bildiriminiz mi var?",
+        "reportIssueLink": "Hata bildir",
         "disclaimer": "\"Başlayın\"ı tıklayarak <a href=\"#\" id=\"welcome-terms-link\" class=\"theme-link\">Kullanım Şartlarımızı</a> kabul etmiş ve <a href=\"#\" id=\"welcome-privacy-link\" class=\"theme-link\">Gizlilik Politikamızı</a> okuyup kabul ettiğinizi onaylamış olursunuz.",
         "guest": "Misafir Profili ile Keşfedin",
         "getStarted": "Başlayın",

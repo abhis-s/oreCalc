@@ -528,6 +528,9 @@
         "bugReport": "Bug Report",
         "bugReportInfo": "Alternatively, you can report the issue directly on our {link} page.",
         "bugReportPrivacyInfo": "By submitting this report, you agree that your user data and the provided email address will be processed in accordance with our {link}.",
+        "bugReportSWTitle": "App Not Updating?",
+        "bugReportSWDesc": "Clear local app caches to force fetch the latest version and fixes.",
+        "bugReportResetSWLabel": "Force Update",
         "runningCosts": "Project Costs",
         "runningCostsHelp": "View transparent data about the hosting, domain, API, and project infrastructure costs required to keep the application running.",
         "runningCostsModal": {
@@ -866,6 +869,8 @@
         "feature3Title": "High Customizability",
         "feature3Desc": "Create custom chips, configure your active layout, and choose your preferred language and theme.",
         "enterTag": "Enter your Player Tag to load your progress:",
+        "reportIssuePrompt": "Found an issue or have feedback?",
+        "reportIssueLink": "Report an issue",
         "disclaimer": "By clicking \"Get Started\", you agree to our <a href=\"#\" id=\"welcome-terms-link\" class=\"theme-link\">Terms of Use</a> and acknowledge that you have read and agreed to our <a href=\"#\" id=\"welcome-privacy-link\" class=\"theme-link\">Privacy Policy</a>.",
         "guest": "Explore with Guest Profile",
         "getStarted": "Get Started",

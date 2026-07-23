@@ -528,6 +528,9 @@
         "bugReport": "Fehler melden",
         "bugReportInfo": "Alternativ kannst du das Problem auch direkt auf unserer {link}-Seite melden.",
         "bugReportPrivacyInfo": "Durch das Absenden dieses Berichts erklärst du dich damit einverstanden, dass deine Benutzerdaten und die angegebene E-Mail-Adresse gemäß unserer {link} verarbeitet werden.",
+        "bugReportSWTitle": "Probleme beim Aktualisieren?",
+        "bugReportSWDesc": "Lösche den lokalen App-Cache, um die neueste Version und Fixes zu erzwingen.",
+        "bugReportResetSWLabel": "Update erzwingen",
         "runningCosts": "Projektkosten",
         "runningCostsHelp": "Zeige transparente Daten über die Hosting-, Domain-, API- und Projekt-Infrastrukturkosten an, die für den Betrieb der Anwendung erforderlich sind.",
         "runningCostsModal": {
@@ -866,6 +869,8 @@
         "feature3Title": "Hohe Anpassbarkeit",
         "feature3Desc": "Erstelle eigene Chips, konfiguriere dein aktives Layout und wähle deine bevorzugte Sprache und dein Design.",
         "enterTag": "Gib dein Kürzel ein, um deinen Fortschritt zu laden:",
+        "reportIssuePrompt": "Ein Problem gefunden oder Feedback?",
+        "reportIssueLink": "Fehler melden",
         "disclaimer": "Durch Klicken auf \"Loslegen\" stimmst du unseren <a href=\"#\" id=\"welcome-terms-link\" class=\"theme-link\">Nutzungsbedingungen</a> zu und bestätigst, dass du unsere <a href=\"#\" id=\"welcome-privacy-link\" class=\"theme-link\">Datenschutzrichtlinie</a> gelesen hast und ihr zustimmst.",
         "guest": "Mit Gast-Profil erkunden",
         "getStarted": "Loslegen",

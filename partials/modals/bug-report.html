@@ -34,6 +34,18 @@
                     Your unique User ID (UUID) is always attached to help us identify your session.
                 </p>
             </div>
+            <div class="sw-troubleshoot-box push-top-5" style="background: color-mix(in srgb, var(--bg-surface-primary) 50%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
+                <div class="sw-troubleshoot-content" style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                    <div class="sw-troubleshoot-text" style="display: flex; flex-direction: column; gap: 2px; flex: 1;">
+                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);" data-i18n="settings.bugReportSWTitle">App Not Updating?</span>
+                        <span style="font-size: 11px; color: var(--text-secondary); line-height: 1.35;" data-i18n="settings.bugReportSWDesc">Clear local app caches to force fetch the latest version and fixes.</span>
+                    </div>
+                    <button id="bug-report-reset-sw-btn" type="button" class="bug-report-sw-btn">
+                        <orecalc-assets-svg name="sync" height="14" width="14"></orecalc-assets-svg>
+                        <span data-i18n="settings.bugReportResetSWLabel">Force Update</span>
+                    </button>
+                </div>
+            </div>
             <div class="privacy-notice push-top-5">
                 <p data-i18n="settings.bugReportPrivacyInfo" data-i18n-args='{"link": "<a href=\"#\" id=\"bug-report-privacy-link\" class=\"theme-link\">Privacy Policy</a>"}'>
                     By submitting this report, you agree that your user data and the provided email address will be processed in accordance with our <a href="#" id="bug-report-privacy-link" class="theme-link">Privacy Policy</a>.

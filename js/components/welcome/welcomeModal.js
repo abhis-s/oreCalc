@@ -6,7 +6,7 @@ import { fetchPlayerData } from '../../services/apiService.js';
 import { translate, loadTranslations } from '../../i18n/translator.js';
 import { renderApp } from '../../core/renderer.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
-import { openTermsOfUseModal, openPrivacyModal } from '../appSettings/appSettings.js';
+import { openTermsOfUseModal, openPrivacyModal, openBugReportModal } from '../appSettings/appSettings.js';
 import { heroData, upgradeCosts } from '../../data/heroData.js';
 import { leagueTiers, townHallLeagueFloors, shopOfferData, currencyData } from '../../data/appData.js';
 import { loadPlayerData, updateSavedPlayerTags, removePlayerTag } from '../../core/localStorageManager.js';
@@ -1101,6 +1101,14 @@ export function initializeWelcomeModal() {
             openPrivacyModal();
         });
     }
+
+    const reportIssueLinks = modal.querySelectorAll('.welcome-report-issue-link');
+    reportIssueLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            openBugReportModal();
+        });
+    });
 
     // Onboarding Quick Settings Checklist listeners
     const storedShinyInput = document.getElementById('welcome-stored-shiny');

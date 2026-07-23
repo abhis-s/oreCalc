@@ -1156,7 +1156,7 @@ export function openTermsOfUseModal() {
 }
 
 
-function openBugReportModal() {
+export function openBugReportModal() {
     const modal = document.getElementById('bug-report-modal');
     if (!modal) return;
 
@@ -1235,6 +1235,41 @@ function openBugReportModal() {
         closeBtn.onclick = (e) => {
             e.preventDefault();
             closeModal();
+        };
+    }
+
+    const resetSWBtn = document.getElementById('bug-report-reset-sw-btn');
+    if (resetSWBtn) {
+        resetSWBtn.onclick = async (e) => {
+            e.preventDefault();
+            resetSWBtn.disabled = true;
+            resetSWBtn.style.opacity = '0.7';
+
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const registration of registrations) {
+                        await registration.unregister();
+                    }
+                } catch (err) {
+                    console.error('Failed to unregister service workers:', err);
+                }
+            }
+
+            if ('caches' in window) {
+                try {
+                    const keys = await caches.keys();
+                    for (const key of keys) {
+                        await caches.delete(key);
+                    }
+                } catch (err) {
+                    console.error('Failed to clear caches:', err);
+                }
+            }
+
+            sessionStorage.removeItem('oreCalcLastUpdateReload');
+            localStorage.removeItem('oreCalcUpdateDetectedAt');
+            window.location.reload(true);
         };
     }
 

@@ -1,6 +1,8 @@
 @use '../abstracts/variables' as *;
 
 #bug-report-modal {
+    z-index: $z-index-welcome-modal + 1;
+
     .modal-content {
         max-width: 480px;
     }
@@ -201,6 +203,33 @@
         }
     }
 
+    .bug-report-sw-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 14px;
+        background-color: $accent-primary;
+        border: 1px solid $btn-border-blue;
+        border-radius: 10px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: $text-on-accent;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        &:hover {
+            background-color: color-mix(in srgb, $accent-primary 85%, black);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
     @media (max-width: 600px) {
         .bug-report-form {
             padding: 12px 20px 20px;
@@ -219,6 +248,24 @@
         .checkbox-group {
             .checkbox-label {
                 font-size: 13px;
+            }
+        }
+
+        .sw-troubleshoot-box {
+            .sw-troubleshoot-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .sw-troubleshoot-text {
+                text-align: center;
+            }
+
+            #bug-report-reset-sw-btn {
+                align-self: center;
+                margin: 0 auto;
             }
         }
     }
