@@ -7,7 +7,7 @@ export async function loadTranslations(language) {
         state.uiSettings.language = 'en';
     }
     try {
-        const response = await fetch(`js/i18n/${language}.json`);
+        const response = await fetch(`/js/i18n/${language}.json`);
         if (!response.ok) {
             throw new Error(`Failed to load translation file for ${language}`);
         }

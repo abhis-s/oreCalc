@@ -1,6 +1,7 @@
 import { dom } from '../../dom/domElements.js';
 import { renderApp } from '../../core/renderer.js';
 import { state } from '../../core/state.js';
+import { getLanguageFromPath } from '../../core/languageRouter.js';
 
 function toggleNavigationDrawer() {
     const isOpen = dom.drawer.drawer.classList.toggle('open');
@@ -65,7 +66,9 @@ export function initializeNavigation() {
                 }
 
                 const tabId = `${tab.dataset.tab}-tab`;
-                history.pushState(null, '', `#${tab.dataset.tab}`);
+                const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
+                const hash = tab.dataset.tab === 'home' ? '' : `#${tab.dataset.tab}`;
+                history.pushState(null, '', `/${currentLang}/${hash}`);
                 state.activeTab = tabId;
                 renderApp(state);
                 closeNavigationDrawer();

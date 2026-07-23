@@ -237,6 +237,16 @@
                 }
             }
 
+            // Preserve language route on 404 links
+            const segments = window.location.pathname.split('/').filter(Boolean);
+            let lang = 'en';
+            if (segments.length > 0 && ['en', 'de', 'tr'].includes(segments[0].toLowerCase())) {
+                lang = segments[0].toLowerCase();
+            }
+            document.querySelectorAll('.back-link, .btn').forEach(link => {
+                link.href = `/${lang}/`;
+            });
+
             // Sync toggle button initial state
             updateTheme(getTheme());
 

@@ -4,6 +4,7 @@ import { handleStateUpdate, switchActivePlayer } from '../../core/stateManager.j
 import { loadAndProcessPlayerData, processPlayerDataResponse } from '../../services/serverResponseHandler.js';
 import { fetchPlayerData } from '../../services/apiService.js';
 import { translate, loadTranslations } from '../../i18n/translator.js';
+import { syncLanguageUrl } from '../../core/languageRouter.js';
 import { renderApp } from '../../core/renderer.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 import { openTermsOfUseModal, openPrivacyModal, openBugReportModal } from '../appSettings/appSettings.js';
@@ -713,6 +714,7 @@ export function initializeWelcomeModal() {
 
             handleStateUpdate(() => {
                 state.uiSettings.language = newLang;
+                syncLanguageUrl(newLang, false);
             });
 
             document.dispatchEvent(new CustomEvent('app:translate'));

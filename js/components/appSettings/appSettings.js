@@ -4,6 +4,7 @@ import { removePlayerTag, saveState } from '../../core/localStorageManager.js';
 import { renderApp } from '../../core/renderer.js';
 import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from '../../core/state.js';
 import { showToast } from '../../ui/toast.js';
+import { syncLanguageUrl } from '../../core/languageRouter.js';
 
 import { addCurrencyValidation } from '../../utils/inputValidator.js';
 import { currencyData, priceTierRegistry, languagesData, transparencyData, developmentSupportData } from '../../data/appData.js';
@@ -1627,6 +1628,7 @@ export function initializeAppSettings() {
 
             handleStateUpdate(() => {
                 state.uiSettings.language = newLanguage;
+                syncLanguageUrl(newLanguage, false);
             });
             
             document.dispatchEvent(new CustomEvent('app:translate'));

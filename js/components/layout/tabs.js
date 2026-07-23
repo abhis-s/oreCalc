@@ -3,11 +3,11 @@ import { renderApp } from '../../core/renderer.js';
 import { state } from '../../core/state.js';
 
 import { navigationRegistry } from '../../data/navigationRegistry.js';
+import { getLanguageFromPath } from '../../core/languageRouter.js';
 
 import { closeFabMenu } from '../fab/fab.js';
 import { openStoredOresModal } from '../planner/priorityListModal.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
-// import { repackCards } from '../../ui/cardLayoutManager.js';
 
 function checkPlannerTabStoredOres() {
     const storedOres = state.storedOres || {};
@@ -32,7 +32,8 @@ export function initializeTabs() {
     let initialTab = window.location.hash ? `${window.location.hash.substring(1)}-tab` : 'home-tab';
     
     if (!validTabs.includes(initialTab)) {
-        history.replaceState(null, '', window.location.pathname);
+        const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
+        history.replaceState(null, '', `/${currentLang}/`);
         initialTab = 'home-tab';
     }
     state.activeTab = initialTab;
@@ -48,7 +49,8 @@ export function initializeTabs() {
 
         const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
         if (!tabOrder.includes(tabId)) {
-            history.replaceState(null, '', window.location.pathname);
+            const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
+            history.replaceState(null, '', `/${currentLang}/`);
             tabId = 'home-tab';
         }
 
@@ -112,7 +114,9 @@ export function initializeTabs() {
                 }, 100);
             }
             
-            history.pushState(null, '', `#${button.dataset.tab}`);
+            const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
+            const targetUrl = button.dataset.tab === 'home' ? `/${currentLang}/` : `/${currentLang}/#${button.dataset.tab}`;
+            history.pushState(null, '', targetUrl);
             state.activeTab = tabId;
             renderApp(state);
         };
