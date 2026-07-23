@@ -7,6 +7,7 @@ import { saveState, loadState, resetState, setResettingState } from './core/loca
 import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
 import { registerStateUpdateCallback, handleStateUpdate } from './core/stateManager.js';
+import { detectLanguage, syncLanguageUrl, getLanguageFromPath, isValidRoute } from './core/languageRouter.js';
 
 import { initializeHeader } from './components/layout/header.js';
 import { initializeTabs } from './components/layout/tabs.js';
@@ -228,8 +229,12 @@ export function updateUIWithTranslations(isInitialLoad = false) {
             }
         }
 
+        if (key === 'settings.bugReportInfo') {
+            args.link = '<a href="https://github.com/abhis-s/oreCalc/issues" target="_blank" rel="noopener noreferrer" class="theme-link">GitHub Issues</a>';
+        }
+
         if (key === 'settings.bugReportPrivacyInfo') {
-            const privacyText = translate('settings.privacyPolicyText');
+            const privacyText = translate('settings.privacyPolicyText') || 'Privacy Policy';
             args.link = `<a href="#" id="bug-report-privacy-link" class="theme-link">${privacyText}</a>`;
         }
 
@@ -605,8 +610,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
     // Redirect invalid pathnames (404 fallback routing)
     const pathName = window.location.pathname;
-    if (pathName !== '/' && pathName !== '/index.html' && pathName !== '/404') {
-        window.location.href = '/404';
+    if (!isValidRoute(pathName)) {
+        const currentLang = getLanguageFromPath() || 'en';
+        window.location.href = `/${currentLang}/404`;
         return;
     }
 
@@ -693,11 +699,14 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
 
     // 1. PERFORM MINIMAL BACKGROUND INIT IMMEDIATELY
-    // Only load core translations and non-DOM state
+    const initialLang = detectLanguage();
+    state.uiSettings.language = initialLang;
+    syncLanguageUrl(initialLang, true);
+
     (async () => {
         await loadTranslations('en');
-        if (state.uiSettings.language && state.uiSettings.language !== 'en' && state.uiSettings.language !== 'auto') {
-            await loadTranslations(state.uiSettings.language);
+        if (initialLang !== 'en') {
+            await loadTranslations(initialLang);
         }
     })();
 
@@ -705,16 +714,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     // This gives the CPU 2.3s of complete silence to perform the 60fps cinematic sequence.
     // The "hiccup" of rendering happens at 2.3s while the screen is covered by a solid color.
     setTimeout(async () => {
-        if (!state.uiSettings.language || state.uiSettings.language === 'auto') {
-            const userLangs = navigator.languages || [navigator.language];
-            let detectedLang = 'en';
-
-            for (const l of userLangs) {
-                if (l.startsWith('de')) { detectedLang = 'de'; break; }
-                if (l.startsWith('tr')) { detectedLang = 'tr'; break; }
-            }
-            state.uiSettings.language = detectedLang;
-        }
+        state.uiSettings.language = initialLang;
 
         if (!state.uiSettings.currency || !state.uiSettings.currency.code) {
             const userLangs = navigator.languages || [navigator.language];

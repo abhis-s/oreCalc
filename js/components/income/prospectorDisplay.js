@@ -1,6 +1,7 @@
 import { dom } from '../../dom/domElements.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../app.js';
+import { getLanguageFromPath } from '../../core/languageRouter.js';
 
 import { convertOres, getStepValue, findOptimalConversionSchedule } from '../../incomeCalculations/prospectorManager.js';
 
@@ -398,7 +399,8 @@ function updateProspectorTip() {
             const currentTab = state.activeTab;
             if (currentTab !== 'planner-tab') {
                 setAnimateNextRender('all');
-                history.pushState(null, '', '#planner');
+                const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
+                history.pushState(null, '', `/${currentLang}/#planner`);
                 state.activeTab = 'planner-tab';
                 renderApp(state);
             }

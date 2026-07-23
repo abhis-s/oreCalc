@@ -309,9 +309,111 @@ async function build() {
         const esbuildQrCmd = `npx esbuild "${path.join(projectRoot, 'js/qr-code-styling.js')}" --minify --outfile="${path.join(jsDestDir, 'qr-code-styling.js')}"`;
         execSync(esbuildQrCmd, { stdio: verbose ? 'inherit' : 'ignore' });
         
-        // Write index.html
-        fs.writeFileSync(path.join(distDir, 'index.html'), indexHtml, 'utf8');
-        console.log(`Compiled and bundled index.html.`);
+        // Write index.html for root and each supported language route (/en/, /de/, /tr/)
+        const localesMap = { en: 'en_US', de: 'de_DE', tr: 'tr_TR' };
+        function getNestedValue(obj, keyPath) {
+            return keyPath.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
+        }
+        function generateLocalizedHtml(baseHtml, lang) {
+            const i18nFilePath = path.join(projectRoot, `js/i18n/${lang}.json`);
+            if (!fs.existsSync(i18nFilePath)) {
+                return baseHtml;
+            }
+            const translations = JSON.parse(fs.readFileSync(i18nFilePath, 'utf8'));
+            const title = translations.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | OreCalc';
+            const description = translations.app?.description || '';
+            const locale = localesMap[lang] || `${lang}_${lang.toUpperCase()}`;
+            const url = `https://orecalc.tech/${lang}/`;
+
+            let html = baseHtml;
+            html = html.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);
+            html = html.replace(/<title[^>]*>.*?<\/title>/s, `<title data-i18n="app.title">${title}</title>`);
+            html = html.replace(/<meta name="description"\s+content="[^"]*">/s, `<meta name="description" content="${description}">`);
+            html = html.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">`);
+            html = html.replace(/<meta property="og:title" content="[^"]*">/g, `<meta property="og:title" content="${title}">`);
+            html = html.replace(/<meta property="og:description"\s+content="[^"]*">/g, `<meta property="og:description" content="${description}">`);
+            html = html.replace(/<meta property="og:url" content="[^"]*">/g, `<meta property="og:url" content="${url}">`);
+            if (html.includes('<meta property="og:locale"')) {
+                html = html.replace(/<meta property="og:locale" content="[^"]*">/, `<meta property="og:locale" content="${locale}">`);
+            } else {
+                html = html.replace(/<meta property="og:type" content="website">/, `<meta property="og:type" content="website">\n    <meta property="og:locale" content="${locale}">`);
+            }
+            html = html.replace(/<meta property="twitter:title" content="[^"]*">/g, `<meta property="twitter:title" content="${title}">`);
+            html = html.replace(/<meta property="twitter:description"\s+content="[^"]*">/g, `<meta property="twitter:description" content="${description}">`);
+            html = html.replace(/<meta property="twitter:url" content="[^"]*">/g, `<meta property="twitter:url" content="${url}">`);
+            html = html.replace(/"description": "[^"]*"/, `"description": "${description.replace(/"/g, '\\"')}"`);
+            html = html.replace(/"url": "[^"]*"/, `"url": "${url}"`);
+
+            // Pre-render static body elements marked with data-i18n
+            html = html.replace(/<([a-z1-6]+)([^>]*?)\s+data-i18n="([^"]+)"([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tagName, attrsBefore, key, attrsAfter, innerContent) => {
+                let val = getNestedValue(translations, key);
+                if (typeof val === 'string' && val.trim()) {
+                    if (key === 'settings.bugReportInfo') {
+                        val = val.replace('{link}', '<a href="https://github.com/abhis-s/oreCalc/issues" target="_blank" rel="noopener noreferrer" class="theme-link">GitHub Issues</a>');
+                    } else if (key === 'settings.bugReportPrivacyInfo') {
+                        const privacyText = getNestedValue(translations, 'settings.privacyPolicyText') || 'Privacy Policy';
+                        val = val.replace('{link}', `<a href="#" id="bug-report-privacy-link" class="theme-link">${privacyText}</a>`);
+                    }
+                    return `<${tagName}${attrsBefore} data-i18n="${key}"${attrsAfter}>${val}</${tagName}>`;
+                }
+                return match;
+            });
+
+            return html;
+        }
+
+        const supportedLanguages = ['en', 'de', 'tr'];
+        for (const lang of supportedLanguages) {
+            const langDir = path.join(distDir, lang);
+            if (!fs.existsSync(langDir)) {
+                fs.mkdirSync(langDir, { recursive: true });
+            }
+            const localizedHtml = generateLocalizedHtml(indexHtml, lang);
+            fs.writeFileSync(path.join(langDir, 'index.html'), localizedHtml, 'utf8');
+            console.log(`Generated localized route: dist/${lang}/index.html`);
+        }
+
+        // Build legal pages with uniform language subdirectories (/en/, /de/, /tr/)
+        const legalPages = [
+            { name: 'privacy', srcEn: 'privacy.html', srcDe: 'privacy/de/index.html' },
+            { name: 'terms', srcEn: 'terms.html', srcDe: 'terms/de/index.html' },
+            { name: 'licenses', srcEn: 'licenses.html', srcDe: 'licenses.html' }
+        ];
+
+        for (const page of legalPages) {
+            for (const lang of supportedLanguages) {
+                let srcFile = page.srcEn;
+                let canonicalUrl = `https://orecalc.tech/${lang}/${page.name}`;
+                
+                if (lang === 'de' && page.srcDe) {
+                    srcFile = page.srcDe;
+                } else if (lang === 'tr') {
+                    // Turkish uses English legal document with canonical link pointing to /en/page
+                    srcFile = page.srcEn;
+                    canonicalUrl = `https://orecalc.tech/en/${page.name}`;
+                }
+
+                const srcPath = path.join(projectRoot, srcFile);
+                if (!fs.existsSync(srcPath)) continue;
+
+                let html = fs.readFileSync(srcPath, 'utf8');
+
+                if (html.includes('<link rel="canonical"')) {
+                    html = html.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonicalUrl}">`);
+                } else {
+                    html = html.replace('</head>', `    <link rel="canonical" href="${canonicalUrl}">\n</head>`);
+                }
+
+                const pageDestDir = path.join(distDir, lang, page.name);
+                fs.mkdirSync(pageDestDir, { recursive: true });
+                fs.writeFileSync(path.join(pageDestDir, 'index.html'), html, 'utf8');
+                console.log(`Generated legal page route: dist/${lang}/${page.name}/index.html`);
+            }
+        }
+
+        const defaultHtml = generateLocalizedHtml(indexHtml, 'en');
+        fs.writeFileSync(path.join(distDir, 'index.html'), defaultHtml, 'utf8');
+        console.log(`Compiled and bundled index.html for root and language routes.`);
         
         const libsDestDir = path.join(distDir, 'js');
         const libsSource = path.join(projectRoot, 'node_modules/workbox-window/build/workbox-window.prod.umd.js');
@@ -422,7 +524,7 @@ async function build() {
         // 5. Replace CSS path in HTML
         console.log('\n--- Updating HTML for production ---');
         await replaceInFile({
-            files: path.join(distDir, 'index.html'),
+            files: [path.join(distDir, 'index.html'), path.join(distDir, '**/index.html')],
             from: /css\/main\.css/g,
             to: 'css/main.min.css',
         });

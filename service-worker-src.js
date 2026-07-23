@@ -106,9 +106,39 @@ registerRoute(
     })
 );
 
+const navigationStrategy = new NetworkFirst({
+    cacheName: 'navigation-cache',
+    plugins: [new CacheableResponsePlugin({ statuses: [200] })]
+});
+
 registerRoute(
-    ({ request }) => request.mode === 'navigate',
-    new StaleWhileRevalidate({ cacheName: 'navigation-cache' })
+    ({ request, url }) => request.mode === 'navigate' && !url.pathname.includes('/api/'),
+    async (options) => {
+        try {
+            const response = await navigationStrategy.handle(options);
+            if (response) return response;
+        } catch (error) {
+            // Network failed or offline
+        }
+
+        const pathname = options.url.pathname;
+        const segments = pathname.split('/').filter(Boolean);
+        let lang = 'en';
+        if (segments.length > 0 && ['en', 'de', 'tr'].includes(segments[0].toLowerCase())) {
+            lang = segments[0].toLowerCase();
+        }
+
+        const localizedKey = precacheController.getCacheKeyForURL(`/${lang}/index.html`) 
+                          || precacheController.getCacheKeyForURL('/index.html');
+
+        if (localizedKey) {
+            const cache = await caches.open(workbox.core.cacheNames.precache);
+            const cachedResponse = await cache.match(localizedKey);
+            if (cachedResponse) return cachedResponse;
+        }
+
+        return Response.error();
+    }
 );
 
 // Cache Clash of Clans API assets (like league icons)
