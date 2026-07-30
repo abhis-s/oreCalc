@@ -314,7 +314,7 @@ async function build() {
         function getNestedValue(obj, keyPath) {
             return keyPath.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
         }
-        function generateLocalizedHtml(baseHtml, lang) {
+        function generateLocalizedHtml(baseHtml, lang, isRoot = false) {
             const i18nFilePath = path.join(projectRoot, `js/i18n/${lang}.json`);
             if (!fs.existsSync(i18nFilePath)) {
                 return baseHtml;
@@ -323,7 +323,7 @@ async function build() {
             const title = translations.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | OreCalc';
             const description = translations.app?.description || '';
             const locale = localesMap[lang] || `${lang}_${lang.toUpperCase()}`;
-            const url = `https://orecalc.tech/${lang}/`;
+            const url = isRoot ? 'https://orecalc.tech/' : `https://orecalc.tech/${lang}/`;
 
             let html = baseHtml;
             html = html.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);
@@ -373,7 +373,7 @@ async function build() {
             console.log(`Generated localized route: dist/${lang}/index.html`);
         }
 
-        // Build legal pages with uniform language subdirectories (/en/, /de/, /tr/)
+        // Build legal pages (root for English, /de/ for German)
         const legalPages = [
             { name: 'privacy', srcEn: 'privacy.html', srcDe: 'privacy/de/index.html' },
             { name: 'terms', srcEn: 'terms.html', srcDe: 'terms/de/index.html' },
@@ -381,37 +381,42 @@ async function build() {
         ];
 
         for (const page of legalPages) {
-            for (const lang of supportedLanguages) {
-                let srcFile = page.srcEn;
-                let canonicalUrl = `https://orecalc.tech/${lang}/${page.name}`;
-                
-                if (lang === 'de' && page.srcDe) {
-                    srcFile = page.srcDe;
-                } else if (lang === 'tr') {
-                    // Turkish uses English legal document with canonical link pointing to /en/page
-                    srcFile = page.srcEn;
-                    canonicalUrl = `https://orecalc.tech/en/${page.name}`;
-                }
-
-                const srcPath = path.join(projectRoot, srcFile);
-                if (!fs.existsSync(srcPath)) continue;
-
-                let html = fs.readFileSync(srcPath, 'utf8');
-
-                if (html.includes('<link rel="canonical"')) {
-                    html = html.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonicalUrl}">`);
+            // Build root English legal page
+            const srcPathEn = path.join(projectRoot, page.srcEn);
+            if (fs.existsSync(srcPathEn)) {
+                let htmlEn = fs.readFileSync(srcPathEn, 'utf8');
+                const canonicalUrlEn = `https://orecalc.tech/${page.name}`;
+                if (htmlEn.includes('<link rel="canonical"')) {
+                    htmlEn = htmlEn.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonicalUrlEn}">`);
                 } else {
-                    html = html.replace('</head>', `    <link rel="canonical" href="${canonicalUrl}">\n</head>`);
+                    htmlEn = htmlEn.replace('</head>', `    <link rel="canonical" href="${canonicalUrlEn}">\n</head>`);
                 }
+                const pageDestDirEn = path.join(distDir, page.name);
+                fs.mkdirSync(pageDestDirEn, { recursive: true });
+                fs.writeFileSync(path.join(pageDestDirEn, 'index.html'), htmlEn, 'utf8');
+                console.log(`Generated root legal page route: dist/${page.name}/index.html`);
+            }
 
-                const pageDestDir = path.join(distDir, lang, page.name);
-                fs.mkdirSync(pageDestDir, { recursive: true });
-                fs.writeFileSync(path.join(pageDestDir, 'index.html'), html, 'utf8');
-                console.log(`Generated legal page route: dist/${lang}/${page.name}/index.html`);
+            // Build German legal page
+            if (page.srcDe) {
+                const srcPathDe = path.join(projectRoot, page.srcDe);
+                if (fs.existsSync(srcPathDe)) {
+                    let htmlDe = fs.readFileSync(srcPathDe, 'utf8');
+                    const canonicalUrlDe = `https://orecalc.tech/de/${page.name}`;
+                    if (htmlDe.includes('<link rel="canonical"')) {
+                        htmlDe = htmlDe.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonicalUrlDe}">`);
+                    } else {
+                        htmlDe = htmlDe.replace('</head>', `    <link rel="canonical" href="${canonicalUrlDe}">\n</head>`);
+                    }
+                    const pageDestDirDe = path.join(distDir, 'de', page.name);
+                    fs.mkdirSync(pageDestDirDe, { recursive: true });
+                    fs.writeFileSync(path.join(pageDestDirDe, 'index.html'), htmlDe, 'utf8');
+                    console.log(`Generated German legal page route: dist/de/${page.name}/index.html`);
+                }
             }
         }
 
-        const defaultHtml = generateLocalizedHtml(indexHtml, 'en');
+        const defaultHtml = generateLocalizedHtml(indexHtml, 'en', true);
         fs.writeFileSync(path.join(distDir, 'index.html'), defaultHtml, 'utf8');
         console.log(`Compiled and bundled index.html for root and language routes.`);
         

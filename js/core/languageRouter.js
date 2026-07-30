@@ -51,8 +51,19 @@ export function syncLanguageUrl(lang, replace = false) {
     if (!SUPPORTED_LANGUAGES.includes(lang)) return;
 
     const pathSegments = window.location.pathname.split('/').filter(Boolean);
-    // Remove existing language segment if present
-    if (pathSegments.length > 0 && SUPPORTED_LANGUAGES.includes(pathSegments[0].toLowerCase())) {
+    const hasLangPrefix = pathSegments.length > 0 && SUPPORTED_LANGUAGES.includes(pathSegments[0].toLowerCase());
+
+    // If English and on root without language prefix, keep URL clean at /
+    if (lang === 'en' && !hasLangPrefix) {
+        document.documentElement.lang = 'en';
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            canonical.href = 'https://orecalc.tech/';
+        }
+        return;
+    }
+
+    if (hasLangPrefix) {
         pathSegments.shift();
     }
 
