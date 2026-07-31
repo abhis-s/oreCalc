@@ -326,11 +326,15 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
         if (theme === 'light') {
             document.body.classList.add('light-mode');
             document.body.classList.remove('dark-mode');
+            document.documentElement.classList.add('light-mode');
+            document.documentElement.classList.remove('dark-mode');
             document.documentElement.style.setProperty('color-scheme', 'light');
             document.body.style.setProperty('color-scheme', 'light');
         } else {
             document.body.classList.add('dark-mode');
             document.body.classList.remove('light-mode');
+            document.documentElement.classList.add('dark-mode');
+            document.documentElement.classList.remove('light-mode');
             document.documentElement.style.setProperty('color-scheme', 'dark');
             document.body.style.setProperty('color-scheme', 'dark');
         }
@@ -404,6 +408,15 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
         target.style.setProperty('--bg-surface-primary', colors.bgPrimary);
         target.style.setProperty('--bg-surface-secondary', colors.bgSecondary);
         target.style.setProperty('--bg-surface-tertiary', colors.bgTertiary);
+
+        // Dynamically sync Android/PWA system status bar & navigation bar theme color
+        let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (!metaThemeColor) {
+            metaThemeColor = document.createElement('meta');
+            metaThemeColor.name = 'theme-color';
+            document.head.appendChild(metaThemeColor);
+        }
+        metaThemeColor.setAttribute('content', colors.bgApp);
 
         lastAppliedAccentColor = effectiveAccentColor;
     };

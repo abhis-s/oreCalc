@@ -13,6 +13,10 @@ export function calculateRemainingTime(requiredOres, monthlyIncome) {
         const months = Math.floor(totalMonths % 12);
         let days = Math.round((totalMonths * 30.44) % 30.44);
 
+        if (years >= 5) {
+            return { years: null, months: null, days: null, date: "N/A" };
+        }
+
         const totalDays = totalMonths * 30.44;
         const futureDate = new Date();
         futureDate.setDate(futureDate.getDate() + totalDays);

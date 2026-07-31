@@ -402,13 +402,18 @@ input[type="number"] {
 
     label {
         cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
+        flex-shrink: 0;
     }
 
-    .ore-image {
+    .ore-image,
+    orecalc-assets-image.ore-image {
         height: 24px;
-        width: auto;
+        width: 24px;
+        aspect-ratio: 1 / 1;
+        object-fit: contain;
+        flex-shrink: 0;
     }
 
     input[type="number"] {

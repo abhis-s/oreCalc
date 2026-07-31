@@ -465,7 +465,6 @@
 
 // --- Tab Slide Transitions ---
 [data-transition-type="tab-switch"] {
-    .header-container { view-transition-name: header; }
     .bottom-nav-bar { view-transition-name: bottom-nav; }
     .fab-container { view-transition-name: fab; }
     .floating-save-btn { view-transition-name: floating-save; }

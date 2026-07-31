@@ -82,10 +82,31 @@
             display: block !important;
         }
     </style>
-    <meta name="theme-color" content="#2c2e30">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#0f131a">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f8ff">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f131a">
+    <script>
+        (function() {
+            try {
+                var s = JSON.parse(localStorage.getItem('oreCalc_appSettings') || '{}');
+                var isLight = (s.theme === 'light');
+                var bg = isLight ? '#f4f8ff' : '#0f131a';
+                var m = document.querySelector('meta[name="theme-color"]:not([media])');
+                if (m) m.setAttribute('content', bg);
+                document.documentElement.style.backgroundColor = bg;
+                document.documentElement.style.colorScheme = isLight ? 'light' : 'dark';
+                if (isLight) {
+                    document.documentElement.classList.add('light-mode');
+                } else {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) {}
+        })();
+    </script>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="OreCalc">
     <meta property="og:site_name" content="OreCalc">
     <meta property="og:title" content="Ore Calculator for Clash of Clans">

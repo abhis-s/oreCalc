@@ -1,51 +1,47 @@
 import { translate } from '../i18n/translator.js';
 
-const storageTitle = document.getElementById('storage-title-text');
-const resultsTitle = document.getElementById('results-title-text');
-const homeRequiredOresTitle = document.getElementById('home-required-ores-title');
-const homeRemainingTimeTitle = document.getElementById('home-remaining-time-title');
-const incomeSummaryTitle = document.querySelector('.income-summary-title');
+/**
+ * Dynamically adapts card titles based on container overflow:
+ * 1. Default to Full Title text (Icon is always preserved).
+ * 2. If title text overflows container width, switch text to Short Title version.
+ */
+function adaptTitle(titleEl, fullKey, shortKey) {
+    if (!titleEl) return;
+    const headerContainer = titleEl.closest('h2, .income-header, .card-header, .income-summary-title') || titleEl.parentElement;
+    if (!headerContainer) return;
 
-const mediaQuery = window.matchMedia('(max-width: 779px)');
+    // 1. Set Full Title text
+    titleEl.setAttribute('data-i18n', fullKey);
+    titleEl.textContent = translate(fullKey);
 
-export function updateResponsiveText() {
-    if (mediaQuery.matches) {
-        // set data-i18n attributes to short versions
-        if (storageTitle) storageTitle.setAttribute('data-i18n', 'ores.storedShort');
-        if (resultsTitle) resultsTitle.setAttribute('data-i18n', 'ores.requiredShort');
-        if (storageTitle) storageTitle.textContent = translate('ores.storedShort');
-        if (resultsTitle) resultsTitle.textContent = translate('ores.requiredShort');
-        if (homeRequiredOresTitle) homeRequiredOresTitle.setAttribute('data-i18n', 'ores.short');
-        if (homeRemainingTimeTitle) homeRemainingTimeTitle.setAttribute('data-i18n', 'time.short');
-        if (homeRequiredOresTitle) homeRequiredOresTitle.textContent = translate('ores.short');
-        if (homeRemainingTimeTitle) homeRemainingTimeTitle.textContent = translate('time.short');
-        if (incomeSummaryTitle) {
-            incomeSummaryTitle.setAttribute('data-i18n', 'income.summaryTitleShort');
-            incomeSummaryTitle.textContent = translate('income.summaryTitleShort');
-        }
-    } else {
-        // set data-i18n attributes to full versions
-        if (resultsTitle) resultsTitle.setAttribute('data-i18n', 'ores.requiredTitle');
-        if (storageTitle) storageTitle.setAttribute('data-i18n', 'ores.storedTitle');
-        if (resultsTitle) resultsTitle.textContent = translate('ores.requiredTitle');
-        if (storageTitle) storageTitle.textContent = translate('ores.storedTitle');
-        if (homeRequiredOresTitle) homeRequiredOresTitle.setAttribute('data-i18n', 'ores.requiredTitle');
-        if (homeRemainingTimeTitle) homeRemainingTimeTitle.setAttribute('data-i18n', 'time.remainingTitle');
-        if (homeRequiredOresTitle) homeRequiredOresTitle.textContent = translate('ores.requiredTitle');
-        if (homeRemainingTimeTitle) homeRemainingTimeTitle.textContent = translate('time.remainingTitle');
-        if (incomeSummaryTitle) {
-            incomeSummaryTitle.setAttribute('data-i18n', 'income.summaryTitle');
-            incomeSummaryTitle.textContent = translate('income.summaryTitle');
-        }
+    // 2. If full title overflows container width, switch to Short Title text
+    if (headerContainer.scrollWidth > headerContainer.clientWidth + 1) {
+        titleEl.setAttribute('data-i18n', shortKey);
+        titleEl.textContent = translate(shortKey);
     }
 }
 
-function handleMediaQueryChange(event) {
-    updateResponsiveText();
+export function updateResponsiveText() {
+    const storageTitle = document.getElementById('storage-title-text');
+    const resultsTitle = document.getElementById('results-title-text');
+    const homeRequiredOresTitle = document.getElementById('home-required-ores-title');
+    const homeRemainingTimeTitle = document.getElementById('home-remaining-time-title');
+    const incomeSummaryTitle = document.querySelector('.income-summary-title');
+
+    adaptTitle(resultsTitle, 'ores.requiredTitle', 'ores.requiredShort');
+    adaptTitle(storageTitle, 'ores.storedTitle', 'ores.storedShort');
+    adaptTitle(homeRequiredOresTitle, 'ores.requiredTitle', 'ores.short');
+    adaptTitle(homeRemainingTimeTitle, 'time.remainingTitle', 'time.short');
+    adaptTitle(incomeSummaryTitle, 'income.summaryTitle', 'income.summaryTitleShort');
 }
 
-// Listen for media query changes
-mediaQuery.addEventListener('change', handleMediaQueryChange);
+// Observe container/window resize automatically
+if (typeof ResizeObserver !== 'undefined') {
+    const observer = new ResizeObserver(() => {
+        window.requestAnimationFrame(updateResponsiveText);
+    });
+    observer.observe(document.body);
+}
 
 // Listen for language changes
 document.addEventListener('languageChanged', updateResponsiveText);

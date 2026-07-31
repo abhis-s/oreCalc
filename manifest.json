@@ -14,8 +14,8 @@
     ],
     "display": "standalone",
     "display_override": ["window-controls-overlay"],
-    "background_color": "#1a1c1e",
-    "theme_color": "#2c2e30",
+    "background_color": "#0f131a",
+    "theme_color": "#0f131a",
     "icons": [
         {
             "src": "assets/app_icon_small.png",

@@ -2,30 +2,12 @@ import { dom } from '../../dom/domElements.js';
 
 export function initializeHeader() {
     const headerContainer = dom.header?.container;
-    const headerPlaceholder = dom.header?.placeholder;
-
-    if (!headerContainer || !headerPlaceholder) return;
-
-    const initialOffset = headerContainer.offsetTop;
-
-    const updateHeaderHeight = () => {
-        // The header has a margin-bottom of 20px when not sticky,
-        // which needs to be accounted for in the placeholder height.
-        const height = headerContainer.offsetHeight + 20;
-        headerPlaceholder.style.height = `${height}px`;
-    };
+    if (!headerContainer) return;
 
     const handleScroll = () => {
-        // Add a 10px cushion to prevent flickering.
-        // The header becomes sticky only after scrolling 10px past its starting position.
-        if (window.scrollY > initialOffset + 10) {
-            headerContainer.classList.add('sticky');
-            headerPlaceholder.style.display = 'block';
-        } else if (window.scrollY <= initialOffset) {
-            // It becomes un-sticky only when scrolling back to its original position.
-            headerContainer.classList.remove('sticky');
-            headerPlaceholder.style.display = 'none';
-        }
+        const isScrolled = window.scrollY > 5;
+        headerContainer.classList.toggle('is-scrolled', isScrolled);
+        headerContainer.classList.toggle('sticky', isScrolled);
     };
 
     let ticking = false;
@@ -37,10 +19,7 @@ export function initializeHeader() {
             });
             ticking = true;
         }
-    });
+    }, { passive: true });
 
-    window.addEventListener('resize', updateHeaderHeight);
-    
-    updateHeaderHeight();
     handleScroll();
 }
