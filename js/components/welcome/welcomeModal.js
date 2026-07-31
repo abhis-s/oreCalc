@@ -3828,6 +3828,7 @@ function finishWizard(isSkipped = false) {
             if (!playerObj.playerProfile) {
                 playerObj.playerProfile = {};
             }
+            playerObj.playerProfile.tag = 'DEFAULT0';
             playerObj.playerProfile.townHallLevel = selectedTH;
             if (selectedLeague) {
                 playerObj.playerProfile.leagueTier = { id: selectedLeague };

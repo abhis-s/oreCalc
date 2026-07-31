@@ -177,7 +177,7 @@ export function initializeState(savedState) {
                     savedPlayerState = {
                         playerProfile: {
                             name: savedPlayerState.name,
-                            tag: savedPlayerState.tag,
+                            tag: savedPlayerState.tag || 'DEFAULT0',
                             townHallLevel: savedPlayerState.townHallLevel,
                             clanBadgeUrl: savedPlayerState.clanBadgeUrl || '',
                             clan: savedPlayerState.clan || null,

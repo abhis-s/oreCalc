@@ -361,7 +361,7 @@ export function renderHomeProfile(state) {
     const profile = state.playerProfile;
 
     // ── No profile connected ────────────────────────────────────────────────
-    if (!profile || profile.tag === 'DEFAULT0') {
+    if (!profile || !profile.tag || profile.tag === 'DEFAULT0') {
         renderState.renderedTag    = null;
         renderState.renderedLang   = null;
         renderState.renderedTH     = null;
