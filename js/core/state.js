@@ -51,12 +51,33 @@ export function getDefaultState() {
     };
 }
 
+function getDefaultHeroesState() {
+    const heroes = {};
+    for (const heroKey in heroData) {
+        const hero = heroData[heroKey];
+        const heroName = hero.name;
+        heroes[heroName] = {
+            enabled: true,
+            equipment: {}
+        };
+        if (hero.equipment && Array.isArray(hero.equipment)) {
+            hero.equipment.forEach(eq => {
+                heroes[heroName].equipment[eq.name] = {
+                    level: 1,
+                    checked: true
+                };
+            });
+        }
+    }
+    return heroes;
+}
+
 function getDefaultPlayerStateProperties() {
     const now = new Date();
     const [year, weekNo] = getISOWeekNumber(now);
 
     return {
-        heroes: {},
+        heroes: getDefaultHeroesState(),
         storedOres: {},
         income: {
             shopOffers: { selectedSet: null, '0': {} },
@@ -266,6 +287,29 @@ function ensureStateDefaults(s) {
         for (const tag in s.allPlayersData) {
             const ps = s.allPlayersData[tag];
             
+            if (!ps.heroes || Object.keys(ps.heroes).length === 0) {
+                ps.heroes = getDefaultHeroesState();
+            } else {
+                for (const heroKey in heroData) {
+                    const hero = heroData[heroKey];
+                    const heroName = hero.name;
+                    if (!ps.heroes[heroName]) {
+                        ps.heroes[heroName] = { enabled: true, equipment: {} };
+                    }
+                    if (!ps.heroes[heroName].equipment) {
+                        ps.heroes[heroName].equipment = {};
+                    }
+                    if (hero.equipment && Array.isArray(hero.equipment)) {
+                        hero.equipment.forEach(eq => {
+                            const equipName = eq.name;
+                            if (!ps.heroes[heroName].equipment[equipName]) {
+                                ps.heroes[heroName].equipment[equipName] = { level: 1, checked: true };
+                            }
+                        });
+                    }
+                }
+            }
+
             if (ps.income && ps.income.eventPass) {
                 const ep = ps.income.eventPass;
                 delete ep.claimableMedals;
