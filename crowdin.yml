@@ -1,0 +1,14 @@
+project_id_env: CROWDIN_PROJECT_ID
+api_token_env: CROWDIN_PERSONAL_TOKEN
+
+# Quality Control & Export Filtering
+export_approved_only: true         # Only download proofread & approved translations
+skip_untranslated_strings: true    # Omit missing keys to enable runtime i18n fallback in translator.js
+skip_untranslated_files: true      # Avoid creating empty 0%-translated locale files
+
+# File Specifications
+files:
+  - source: /js/i18n/en.json
+    translation: /js/i18n/%two_letters_code%.json
+    type: json
+    update_option: update_as_unapproved
