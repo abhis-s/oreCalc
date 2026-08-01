@@ -1,0 +1,22 @@
+{
+  "id": "hog_rider_puppet",
+  "type": "active",
+  "rarity": "common",
+  "staticStats": [
+    {"key": "invisibilityDuration", "value": 1, "valueUnit": "seconds"}
+  ],
+  "statsMeta": [
+    {"key": "summonedUnitsCount", "category": "ability", "valueUnit": "number"},
+    {"key": "summonedUnitsLevel", "category": "ability", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "healthRecoveryIncrease", "category": "heroBoost", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [8, 5, 60, 180], "2": [8, 5, 90, 220], "3": [8, 6, 120, 270],
+    "4": [8, 6, 150, 320], "5": [8, 6, 180, 370], "6": [9, 7, 210, 420],
+    "7": [9, 7, 240, 470], "8": [9, 7, 270, 520], "9": [9, 8, 300, 560],
+    "10": [9, 8, 330, 610], "11": [9, 8, 360, 660], "12": [9, 9, 390, 700],
+    "13": [9, 9, 420, 750], "14": [9, 9, 450, 800], "15": [10, 10, 480, 850],
+    "16": [10, 10, 510, 900], "17": [10, 10, 540, 950], "18": [10, 12, 570, 1000]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "haste_vial",
+  "type": "active",
+  "rarity": "common",
+  "statsMeta": [
+    {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
+    {"key": "movementSpeedIncrease", "category": "ability", "valueUnit": "number"},
+    {"key": "attackSpeedIncrease", "category": "ability", "valueUnit": "percentage"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"}
+  ],
+  "levels": {
+    "1": [7.0, 18.0, 60, 20, 5], "2": [7.0, 18.0, 60, 24, 6], "3": [7.5, 22.3, 60, 28, 6],
+    "4": [7.5, 22.3, 60, 32, 7], "5": [7.5, 22.3, 60, 36, 8], "6": [8.0, 25.5, 80, 40, 8],
+    "7": [8.0, 25.5, 80, 44, 9], "8": [8.0, 25.5, 80, 48, 10], "9": [8.5, 28.7, 80, 52, 10],
+    "10": [8.5, 28.7, 80, 56, 11], "11": [8.5, 28.7, 80, 60, 12], "12": [9.0, 32.0, 80, 64, 12],
+    "13": [9.0, 32.0, 80, 68, 13], "14": [9.0, 32.0, 80, 72, 14], "15": [9.5, 35.1, 100, 76, 14],
+    "16": [9.5, 35.1, 100, 80, 15], "17": [9.5, 35.1, 100, 84, 16], "18": [10.0, 38.3, 100, 88, 16]
+  }
+}

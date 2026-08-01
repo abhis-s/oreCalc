@@ -1,0 +1,18 @@
+{
+  "id": "vampstache",
+  "type": "passive",
+  "rarity": "common",
+  "statsMeta": [
+    {"key": "healPerHit", "category": "ability", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"}
+  ],
+  "levels": {
+    "1": [60, 10, 5], "2": [60, 15, 6], "3": [90, 20, 7],
+    "4": [90, 25, 8], "5": [90, 30, 9], "6": [120, 40, 10],
+    "7": [120, 45, 11], "8": [120, 50, 12], "9": [160, 60, 13],
+    "10": [160, 65, 14], "11": [160, 70, 15], "12": [200, 80, 16],
+    "13": [200, 85, 17], "14": [200, 90, 18], "15": [250, 100, 19],
+    "16": [250, 105, 20], "17": [250, 110, 21], "18": [300, 120, 22]
+  }
+}

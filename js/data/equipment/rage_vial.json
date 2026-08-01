@@ -1,0 +1,22 @@
+{
+  "id": "rage_vial",
+  "type": "active",
+  "rarity": "common",
+  "staticStats": [
+    {"key": "abilityDuration", "value": 10, "valueUnit": "seconds"}
+  ],
+  "statsMeta": [
+    {"key": "damageIncrease", "category": "ability", "valueUnit": "percentage"},
+    {"key": "movementSpeedIncrease", "category": "ability", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "healthRecoveryIncrease", "category": "heroBoost", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [120, 18.0, 17, 150], "2": [120, 18.0, 22, 225], "3": [130, 22.3, 27, 300],
+    "4": [130, 22.3, 32, 375], "5": [130, 22.3, 37, 450], "6": [135, 25.5, 42, 525],
+    "7": [135, 25.5, 48, 600], "8": [135, 25.5, 54, 675], "9": [140, 28.7, 60, 780],
+    "10": [140, 28.7, 66, 900], "11": [140, 28.7, 72, 1020], "12": [145, 32.0, 79, 1155],
+    "13": [145, 32.0, 86, 1290], "14": [145, 32.0, 94, 1410], "15": [150, 35.1, 104, 1590],
+    "16": [150, 35.1, 112, 1695], "17": [150, 35.1, 120, 1800], "18": [155, 38.3, 128, 1890]
+  }
+}

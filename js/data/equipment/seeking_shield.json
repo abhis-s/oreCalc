@@ -1,0 +1,21 @@
+{
+  "id": "seeking_shield",
+  "type": "active",
+  "rarity": "common",
+  "staticStats": [
+    {"key": "numberOfTargets", "value": 4, "valueUnit": "number"},
+    {"key": "targets", "value": "Ground & Air", "valueUnit": "string"}
+  ],
+  "statsMeta": [
+    {"key": "projectileDamage", "category": "ability", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "ability", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [1000, 40], "2": [1000, 60], "3": [1250, 80],
+    "4": [1250, 100], "5": [1250, 120], "6": [1500, 140],
+    "7": [1500, 160], "8": [1500, 180], "9": [1750, 200],
+    "10": [1750, 220], "11": [1750, 240], "12": [2000, 260],
+    "13": [2000, 280], "14": [2000, 300], "15": [2250, 320],
+    "16": [2250, 340], "17": [2250, 360], "18": [2500, 380]
+  }
+}

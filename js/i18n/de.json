@@ -89,7 +89,8 @@
         "perHit": "Pro Angriff",
         "perEvent": "Pro Event",
         "weekOfYear": "Woche {week} von {year} ({month})",
-        "short": "Zeit"
+        "short": "Zeit",
+        "secondsSuffix": "s"
     },
     "income": {
         "timeframeAriaLabel": "Einkommenszeitrahmen auswählen",
@@ -755,15 +756,26 @@
         "electroFangs": "Elektrozähne",
         "rocketBackpack": "Raketenrucksack",
         "comingSoon": "Demnächst",
-        "commonMax": "Gewöhnlich Max",
-        "enable": "Aktivieren",
-        "disable": "Deaktivieren",
         "requiredOres": {
             "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen in den Einstellungen angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
         },
         "storedOres": {
             "help": "Die aktuelle Menge an Erzen, die du in deinem In-Game-Lager (Schmiede) angespart hast."
-        }
+        },
+
+        "commonMax": "Gewöhnlich Max",
+        "enable": "Aktivieren",
+        "disable": "Deaktivieren",
+        "maxLevel": "Max. Level",
+        "requiredTownHall": "Erforderliches Rathaus",
+        "cost": "Kosten",
+        "ability": "Fähigkeit",
+        "heroBoost": "Helden-Boost",
+        "active": "Aktiv",
+        "passive": "Passiv",
+        "common": "Gewöhnlich",
+        "epic": "Epidisch",
+        "tilesSuffix": "Felder"
     },
     "heroes": {
         "barbarianKing": "Barbarenkönig",

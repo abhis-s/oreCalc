@@ -1,0 +1,23 @@
+{
+  "id": "stun_blaster",
+  "type": "active",
+  "rarity": "common",
+  "staticStats": [
+    {"key": "damageRadius", "value": 8, "valueUnit": "tiles"}
+  ],
+  "statsMeta": [
+    {"key": "abilityDamage", "category": "ability", "valueUnit": "number"},
+    {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [150, 4.5, 40, 150, 450], "2": [150, 4.5, 43, 250, 650], "3": [200, 5, 46, 350, 850],
+    "4": [200, 5, 49, 450, 1000], "5": [200, 5, 52, 550, 1150], "6": [250, 5.5, 55, 650, 1300],
+    "7": [250, 5.5, 58, 750, 1450], "8": [250, 5.5, 61, 850, 1600], "9": [300, 6, 64, 950, 1750],
+    "10": [300, 6, 67, 1050, 1900], "11": [300, 6, 70, 1100, 2000], "12": [350, 6.5, 73, 1150, 2100],
+    "13": [350, 6.5, 76, 1180, 2200], "14": [350, 6.5, 79, 1210, 2275], "15": [375, 7, 82, 1240, 2325],
+    "16": [375, 7, 85, 1270, 2375], "17": [375, 7, 88, 1290, 2400], "18": [400, 7.5, 90, 1300, 2400]
+  }
+}

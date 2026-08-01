@@ -1,0 +1,24 @@
+{
+  "id": "heroic_torch",
+  "type": "active",
+  "rarity": "epic",
+  "statsMeta": [
+    {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
+    {"key": "movementSpeedIncrease", "category": "ability", "valueUnit": "number"},
+    {"key": "incomingDamageReduction", "category": "ability", "valueUnit": "percentage"},
+    {"key": "healthRecoveryIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [16, 5, 6, 110, 12, 35], "2": [16, 5, 6, 120, 13, 40], "3": [17, 6, 7, 130, 14, 42],
+    "4": [17, 6, 7, 140, 16, 45], "5": [17, 6, 7, 150, 18, 50], "6": [18, 6, 8, 160, 20, 52],
+    "7": [18, 6, 8, 170, 22, 55], "8": [18, 6, 8, 180, 24, 60], "9": [19, 7, 9, 190, 27, 63],
+    "10": [19, 7, 9, 200, 29, 66], "11": [19, 7, 9, 210, 31, 71], "12": [21, 7, 10, 220, 34, 74],
+    "13": [21, 7, 10, 230, 36, 77], "14": [21, 7, 10, 240, 38, 82], "15": [23, 7, 11, 250, 41, 85],
+    "16": [23, 7, 11, 260, 43, 88], "17": [23, 7, 11, 270, 45, 93], "18": [24, 8, 12, 285, 48, 96],
+    "19": [24, 8, 12, 295, 51, 99], "20": [24, 8, 12, 305, 54, 104], "21": [25, 8, 13, 320, 58, 107],
+    "22": [25, 8, 13, 330, 61, 110], "23": [25, 8, 13, 340, 64, 115], "24": [26, 8, 14, 355, 68, 118],
+    "25": [26, 8, 14, 365, 71, 121], "26": [26, 8, 14, 375, 74, 126], "27": [27.5, 9, 15, 390, 78, 137]
+  }
+}

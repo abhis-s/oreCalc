@@ -1,0 +1,18 @@
+{
+  "id": "rage_gem",
+  "type": "passive",
+  "rarity": "common",
+  "statsMeta": [
+    {"key": "damageIncrease", "category": "ability", "valueUnit": "percentage"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"}
+  ],
+  "levels": {
+    "1": [15, 12, 5], "2": [15, 14, 6], "3": [20, 16, 7],
+    "4": [20, 18, 8], "5": [20, 20, 9], "6": [25, 22, 10],
+    "7": [25, 24, 11], "8": [25, 26, 12], "9": [30, 30, 13],
+    "10": [30, 36, 14], "11": [30, 43, 15], "12": [35, 49, 16],
+    "13": [35, 56, 17], "14": [35, 62, 18], "15": [45, 69, 19],
+    "16": [45, 75, 20], "17": [45, 82, 21], "18": [50, 88, 22]
+  }
+}

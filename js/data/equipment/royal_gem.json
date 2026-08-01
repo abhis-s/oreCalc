@@ -1,0 +1,18 @@
+{
+  "id": "royal_gem",
+  "type": "active",
+  "rarity": "common",
+  "statsMeta": [
+    {"key": "healthRecovery", "category": "ability", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [1200, 35, 60], "2": [1200, 40, 90], "3": [1450, 45, 120],
+    "4": [1450, 50, 150], "5": [1450, 55, 180], "6": [1600, 60, 210],
+    "7": [1600, 65, 240], "8": [1600, 70, 270], "9": [1800, 75, 300],
+    "10": [1800, 80, 330], "11": [1800, 85, 360], "12": [2000, 90, 390],
+    "13": [2000, 95, 420], "14": [2000, 100, 450], "15": [2200, 105, 480],
+    "16": [2200, 110, 510], "17": [2200, 115, 540], "18": [2400, 120, 570]
+  }
+}

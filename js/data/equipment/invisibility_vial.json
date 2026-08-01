@@ -1,0 +1,18 @@
+{
+  "id": "invisibility_vial",
+  "type": "active",
+  "rarity": "common",
+  "statsMeta": [
+    {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
+    {"key": "damagePerShotIncrease", "category": "ability", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "ability", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [4.2, 340, 80], "2": [4.2, 440, 100], "3": [4.8, 540, 120],
+    "4": [4.8, 640, 140], "5": [4.8, 730, 170], "6": [5.4, 820, 200],
+    "7": [5.4, 920, 250], "8": [5.4, 1020, 300], "9": [6.0, 1120, 340],
+    "10": [6.0, 1220, 380], "11": [6.0, 1310, 420], "12": [6.6, 1370, 460],
+    "13": [6.6, 1430, 500], "14": [6.6, 1490, 540], "15": [7.2, 1560, 580],
+    "16": [7.2, 1620, 620], "17": [7.2, 1680, 660], "18": [7.8, 1740, 700]
+  }
+}

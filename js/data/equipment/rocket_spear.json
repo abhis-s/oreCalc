@@ -1,0 +1,26 @@
+{
+  "id": "rocket_spear",
+  "type": "active",
+  "rarity": "epic",
+  "staticStats": [
+    {"key": "attackRange", "value": 10, "valueUnit": "tiles"},
+    {"key": "damageRadius", "value": 0.8, "valueUnit": "tiles"}
+  ],
+  "statsMeta": [
+    {"key": "damagePerShotIncrease", "category": "ability", "valueUnit": "number"},
+    {"key": "numberOfAttacks", "category": "ability", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [350, 7, 35, 50], "2": [350, 7, 40, 75], "3": [420, 7, 45, 100],
+    "4": [420, 7, 50, 125], "5": [420, 7, 55, 150], "6": [490, 7, 60, 175],
+    "7": [490, 7, 66, 200], "8": [490, 7, 72, 225], "9": [560, 8, 78, 250],
+    "10": [560, 8, 85, 275], "11": [560, 8, 92, 300], "12": [630, 8, 99, 325],
+    "13": [630, 8, 105, 350], "14": [630, 8, 111, 375], "15": [700, 8, 117, 400],
+    "16": [700, 8, 122, 425], "17": [700, 8, 127, 450], "18": [770, 9, 132, 475],
+    "19": [770, 9, 136, 500], "20": [770, 9, 140, 525], "21": [840, 9, 144, 550],
+    "22": [840, 9, 148, 575], "23": [840, 9, 152, 600], "24": [910, 9, 156, 625],
+    "25": [910, 9, 160, 650], "26": [910, 9, 164, 675], "27": [980, 10, 168, 700]
+  }
+}

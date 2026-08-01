@@ -9,6 +9,7 @@ import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { translate } from '../../i18n/translator.js';
 
 import { markEquipmentManuallyMaxed } from './heroCardDisplay.js';
+import { openEquipmentDetailsModal, initializeEquipmentDetailsModal } from './equipmentDetailsModal.js';
 
 import { createHeroCard } from '../common/heroDisplayFactory.js';
 
@@ -16,6 +17,8 @@ import { initializeHeroCards as originalInitializeHeroCards } from './heroCard.j
 import { refreshLayout } from '../../ui/cardLayoutManager.js';
 
 export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
+    initializeEquipmentDetailsModal();
+
     const container = dom.equipment.heroesContainer;
     if (!container) return;
 
@@ -115,6 +118,20 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
     });
 
     container.addEventListener('click', (event) => {
+        const equipClickable = event.target.closest('.equipment-image, .equipment-name label');
+        if (equipClickable) {
+            const equipItem = equipClickable.closest('.equipment-item');
+            const heroCard = equipClickable.closest('.hero-card');
+            const equipName = equipItem ? equipItem.dataset.equipName : null;
+            const heroName = heroCard ? heroCard.dataset.heroName : null;
+
+            if (equipName) {
+                const currentLevel = state.heroes[heroName]?.equipment?.[equipName]?.level || 1;
+                openEquipmentDetailsModal(equipName, currentLevel);
+            }
+            return;
+        }
+
         const actionElement = event.target.closest('[data-action]');
         if (!actionElement) return;
 

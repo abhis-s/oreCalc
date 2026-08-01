@@ -1,0 +1,24 @@
+{
+  "id": "dark_crown",
+  "type": "passive",
+  "rarity": "epic",
+  "statsMeta": [
+    {"key": "firstHealthDamageIncrease", "category": "ability", "valueUnit": "percentage"},
+    {"key": "secondHealthDamageIncrease", "category": "ability", "valueUnit": "percentage"},
+    {"key": "hitpointIncrease", "category": "ability", "valueUnit": "percentage"},
+    {"key": "maxDamageIncrease", "category": "ability", "valueUnit": "percentage"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"}
+  ],
+  "levels": {
+    "1": [1, 2, 3, 3, 550, 1], "2": [1, 2, 3, 3, 575, 2], "3": [2, 4, 6, 6, 600, 2],
+    "4": [2, 4, 6, 6, 625, 3], "5": [2, 4, 6, 6, 650, 3], "6": [3, 6, 9, 9, 675, 3],
+    "7": [3, 6, 9, 9, 700, 4], "8": [3, 6, 9, 9, 725, 4], "9": [4, 8, 12, 12, 750, 4],
+    "10": [4, 8, 12, 12, 775, 5], "11": [4, 8, 12, 12, 800, 5], "12": [5, 10, 15, 15, 825, 5],
+    "13": [5, 10, 15, 15, 850, 6], "14": [5, 10, 15, 15, 875, 6], "15": [6, 12, 18, 18, 900, 6],
+    "16": [6, 12, 18, 18, 925, 7], "17": [6, 12, 18, 18, 950, 7], "18": [7, 14, 21, 21, 975, 7],
+    "19": [7, 14, 21, 21, 1000, 8], "20": [7, 14, 21, 21, 1025, 8], "21": [8, 16, 24, 24, 1050, 8],
+    "22": [8, 16, 24, 24, 1075, 9], "23": [8, 16, 24, 24, 1100, 9], "24": [9, 18, 27, 27, 1125, 9],
+    "25": [9, 18, 27, 27, 1150, 10], "26": [9, 18, 27, 27, 1175, 10], "27": [10, 20, 30, 30, 1200, 11]
+  }
+}

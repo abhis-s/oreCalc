@@ -30,3 +30,6 @@ server/.env
 server/orecalc-firestore-sa-key.json
 server/node_modules/
 server/package-lock.json
+
+# Temporary generation workspace & markdowns
+scratch/

@@ -54,6 +54,7 @@ export const SVGs = {
     'changelog': {},
     'shield': {},
     'article': {},
+    'target': {},
     'gavel': {},
     'info': {},
     'library': {},
