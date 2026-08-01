@@ -126,9 +126,11 @@ function renderSupercellEvents() {
     html += `
             </tbody>
         </table>
+        <!--
         <div class="notice">
             <p>${translate('income.supercellEvents.bonusesUnknown')}</p>
         </div>
+        -->
     `;
 
     container.innerHTML = html;
