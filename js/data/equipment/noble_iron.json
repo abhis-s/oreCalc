@@ -4,7 +4,7 @@
   "rarity": "common",
   "statsMeta": [
     {"key": "damagePerShotIncrease", "category": "ability", "valueUnit": "number"},
-    {"key": "attackRange", "category": "ability", "valueUnit": "number"},
+    {"key": "attackRange", "category": "ability", "valueUnit": "tiles"},
     {"key": "numberOfAttacks", "category": "ability", "valueUnit": "number"},
     {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"},
     {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}

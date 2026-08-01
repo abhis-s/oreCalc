@@ -5,7 +5,7 @@
   "statsMeta": [
     {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
     {"key": "damagePerShotIncrease", "category": "ability", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "ability", "valueUnit": "number"}
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
   ],
   "levels": {
     "1": [4.2, 340, 80], "2": [4.2, 440, 100], "3": [4.8, 540, 120],

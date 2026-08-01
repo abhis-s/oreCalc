@@ -23,8 +23,12 @@ async function getRecommendationsData() {
 }
 
 function safeTranslate(key, fallback) {
-    const res = translate(key);
-    return (res && res !== key) ? res : fallback;
+    let res = translate(key);
+    if (!res || res === key) return fallback !== undefined ? fallback : key;
+    if (typeof res === 'string' && res.startsWith('[EN] ')) {
+        res = res.substring(5);
+    }
+    return res;
 }
 
 export function getRecommendedLevelForTownHall(recommendation, userTH) {
@@ -128,6 +132,9 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
 
     const heroEquipFallbackText = safeTranslate('equipment.heroEquipment', 'Hero Equipment');
 
+    const emptyStateContainer = document.getElementById('eq-details-empty-state-container');
+    const contentWrapper = document.getElementById('eq-details-content-wrapper');
+
     if (!data) {
         // Render Empty / Unavailable State
         const fallbackTitle = safeTranslate(`equipment.${toCamelCase(equipmentName)}`, equipmentName);
@@ -137,23 +144,12 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             `Detailed level stats and upgrade breakdown for ${fallbackTitle} are not available yet.`
         ).replace('{name}', fallbackTitle);
 
-        if (heroImg) heroImg.src = heroImageSrc;
-        if (itemImg) itemImg.src = equipImageSrc;
         if (titleEl) titleEl.textContent = fallbackTitle;
-        if (descEl) descEl.textContent = heroEquipFallbackText;
 
-        if (typeBadge) {
-            typeBadge.textContent = safeTranslate(`planner.${equipmentType.toLowerCase()}`, equipmentType);
-            typeBadge.className = `eq-badge badge-${equipmentType.toLowerCase()}`;
-        }
-        if (rarityBadge) {
-            const rText = safeTranslate(`planner.${equipmentRarity.toLowerCase()}`, equipmentRarity);
-            rarityBadge.textContent = rText;
-            rarityBadge.className = `eq-badge badge-${equipmentRarity.toLowerCase()}`;
-        }
-
-        if (modalBody) {
-            modalBody.innerHTML = `
+        if (contentWrapper) contentWrapper.style.display = 'none';
+        if (emptyStateContainer) {
+            emptyStateContainer.style.display = 'block';
+            emptyStateContainer.innerHTML = `
                 <div class="eq-details-empty-state">
                     <div class="empty-state-icon">
                         <orecalc-assets-svg name="close"></orecalc-assets-svg>
@@ -168,31 +164,19 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
         return;
     }
 
+    // Restore full modal content wrapper if previously showing empty state
+    if (emptyStateContainer) {
+        emptyStateContainer.style.display = 'none';
+        emptyStateContainer.innerHTML = '';
+    }
+    if (contentWrapper) {
+        contentWrapper.style.display = 'block';
+    }
+
     // Normalize levels format (supports both Object Map {"1": {...}} and Array [{...}])
     const levelsArray = Array.isArray(data.levels)
         ? data.levels
-        : Object.keys(data.levels).sort((a, b) => Number(a) - Number(b)).map(k => data.levels[k]);
-
-    // Restore full modal structure if previously rendered empty state
-    if (modalBody && !document.getElementById('eq-details-props-grid')) {
-        const levelLabelText = safeTranslate('validation.level', 'Level');
-        modalBody.innerHTML = `
-            <div id="eq-details-props-grid" class="eq-details-props-grid"></div>
-            <div class="eq-details-current-level-box">
-                <div class="eq-details-level-header">
-                    <span>${levelLabelText} <strong id="eq-details-current-lvl-text">1</strong></span>
-                    <span id="eq-details-max-lvl-text" class="text-secondary"></span>
-                </div>
-                <div id="eq-details-stats-progress-list" class="eq-details-stats-progress-list"></div>
-            </div>
-            <div class="eq-details-table-container">
-                <table class="eq-details-table">
-                    <thead id="eq-details-table-head"></thead>
-                    <tbody id="eq-details-table-body"></tbody>
-                </table>
-            </div>
-        `;
-    }
+        : (data.levels ? Object.keys(data.levels).sort((a, b) => Number(a) - Number(b)).map(k => data.levels[k]) : []);
 
     // Populate Header with Automatic i18n Translation & Dynamic Hero Data
     const translatedTitle = safeTranslate(`equipment.${toCamelCase(data.id || equipmentName)}`, equipmentName);
@@ -362,6 +346,125 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
         } else {
             staticStatsContent.innerHTML = '';
             staticStatsContent.style.display = 'none';
+        }
+    }
+
+    // Render Unit Stats Toggle View for Equipment-Scaled Spawners
+    const toggleBtn = document.getElementById('eq-unit-stats-toggle-btn');
+    const staticBox = document.getElementById('eq-details-static-box');
+    const unitStatsContent = document.getElementById('eq-details-unit-stats-content');
+    const overviewElements = staticBox ? staticBox.querySelectorAll('.eq-details-avatars, .eq-details-badges, #eq-details-static-stats-content') : [];
+
+    const isEquipmentScaledSpawner = Boolean(data.hasSpawnedUnits && data.spawnedUnits && data.spawnedUnits.scalingType === 'equipmentLevel');
+
+    let currentViewMode = 'overview';
+
+    const renderUnitStatsView = (targetLevel) => {
+        if (!unitStatsContent || !data.spawnedUnits) return;
+
+        const sp = data.spawnedUnits;
+        const unitTypeKey = sp.unitType;
+        const translatedUnitName = safeTranslate(`equipment.unitTypes.${unitTypeKey}`, unitTypeKey);
+
+        let summonedLevelIdx = -1;
+        if (data.statsMeta) {
+            summonedLevelIdx = data.statsMeta.findIndex(m => m.key === 'summonedUnitsLevel');
+        }
+
+        const levelObj = levelsArray[targetLevel - 1] || levelsArray[0];
+        let unitLevel = targetLevel;
+
+        if (summonedLevelIdx !== -1 && Array.isArray(levelObj)) {
+            unitLevel = levelObj[summonedLevelIdx] || targetLevel;
+        } else if (levelObj && typeof levelObj === 'object') {
+            unitLevel = levelObj.summonedUnitsLevel || targetLevel;
+        }
+
+        const spLevelsMap = sp.levels || {};
+        const unitStatValues = spLevelsMap[String(unitLevel)] || spLevelsMap[unitLevel] || [];
+
+        const allSpLevels = Object.keys(spLevelsMap).map(Number).sort((a, b) => a - b);
+        const maxSpLevel = allSpLevels.length > 0 ? allSpLevels[allSpLevels.length - 1] : unitLevel;
+        const maxUnitStatValues = spLevelsMap[String(maxSpLevel)] || unitStatValues;
+
+        const levelLabelText = safeTranslate('validation.level', 'Level');
+
+        const rowsHTML = (sp.statsMeta || []).map((meta, idx) => {
+            const numVal = Array.isArray(unitStatValues) ? unitStatValues[idx] : unitStatValues[meta.key];
+            const maxVal = Array.isArray(maxUnitStatValues) ? maxUnitStatValues[idx] : maxUnitStatValues[meta.key];
+            const safeNum = typeof numVal === 'number' ? numVal : 0;
+            const safeMax = typeof maxVal === 'number' && maxVal > 0 ? maxVal : safeNum || 1;
+
+            const pct = Math.min(100, Math.round((safeNum / safeMax) * 100));
+            const statLabel = safeTranslate(`equipment.stats.${meta.key}`, safeTranslate(`equipment.${meta.key}`, meta.key));
+
+            const formatVal = (v, vUnit) => {
+                if (v === undefined || v === null) return '-';
+                if (vUnit === 'percentage' || vUnit === 'percent') return `${v}%`;
+                if (vUnit === 'seconds') return `${v}s`;
+                if (vUnit === 'tiles') return `${v} tiles`;
+                return Number(v).toLocaleString();
+            };
+
+            const formattedVal = formatVal(safeNum, meta.valueUnit);
+
+            return `
+                <div class="stat-progress-row">
+                    <div class="stat-label-line">
+                        <span class="stat-name">${statLabel}</span>
+                        <span class="stat-val">${formattedVal}</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        unitStatsContent.innerHTML = `
+            <div class="unit-stats-card-box">
+                <div class="unit-stats-header">
+                    <div class="unit-stats-title-group">
+                        <span class="unit-title">${translatedUnitName}</span>
+                        <span class="unit-level-badge">${levelLabelText} ${unitLevel}</span>
+                    </div>
+                </div>
+                <div class="eq-details-stats-progress-list unit-stats-list">
+                    ${rowsHTML}
+                </div>
+            </div>
+        `;
+    };
+
+    if (toggleBtn) {
+        if (isEquipmentScaledSpawner) {
+            const unitStatsBtnLabel = safeTranslate('equipment.unitStats', 'Unit Stats');
+            const overviewBtnLabel = safeTranslate('equipment.overview', 'Overview');
+
+            toggleBtn.style.display = 'inline-flex';
+            toggleBtn.innerHTML = `<orecalc-assets-svg name="group" class="toggle-btn-icon"></orecalc-assets-svg> <span>${unitStatsBtnLabel}</span>`;
+            currentViewMode = 'overview';
+            if (unitStatsContent) unitStatsContent.style.display = 'none';
+            overviewElements.forEach(el => el.style.display = '');
+
+            toggleBtn.onclick = () => {
+                if (currentViewMode === 'overview') {
+                    currentViewMode = 'unitStats';
+                    toggleBtn.innerHTML = `<orecalc-assets-svg name="group" class="toggle-btn-icon"></orecalc-assets-svg> <span>${overviewBtnLabel}</span>`;
+                    overviewElements.forEach(el => el.style.display = 'none');
+                    renderUnitStatsView(currentLevel);
+                    if (unitStatsContent) unitStatsContent.style.display = 'block';
+                } else {
+                    currentViewMode = 'overview';
+                    toggleBtn.innerHTML = `<orecalc-assets-svg name="group" class="toggle-btn-icon"></orecalc-assets-svg> <span>${unitStatsBtnLabel}</span>`;
+                    if (unitStatsContent) unitStatsContent.style.display = 'none';
+                    overviewElements.forEach(el => el.style.display = '');
+                }
+            };
+        } else {
+            toggleBtn.style.display = 'none';
+            if (unitStatsContent) unitStatsContent.style.display = 'none';
+            overviewElements.forEach(el => el.style.display = '');
         }
     }
 
@@ -558,14 +661,51 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
 
     modal.classList.add('show');
 
-    // Always scroll the current level row to the top of the table
-    setTimeout(() => {
-        const activeRow = modal.querySelector('.active-level-row');
-        const tableContainer = modal.querySelector('.eq-details-table-container');
-        if (activeRow && tableContainer) {
-            tableContainer.scrollTop = activeRow.offsetTop;
-        }
-    }, 50);
+    // Setup Expand Table button toggle
+    const expandBtn = modal.querySelector('#expand-eq-table-btn');
+    const tableWrapper = modal.querySelector('.eq-details-table-wrapper');
+    const tableContainer = modal.querySelector('.eq-details-table-container');
+
+    if (expandBtn && tableWrapper) {
+        tableWrapper.classList.remove('table-expanded');
+        modal.classList.remove('has-expanded-table');
+        const iconSvg = expandBtn.querySelector('orecalc-assets-svg');
+        if (iconSvg) iconSvg.setAttribute('name', 'expand');
+
+        expandBtn.onclick = () => {
+            const isExpanded = tableWrapper.classList.toggle('table-expanded');
+            modal.classList.toggle('has-expanded-table', isExpanded);
+            if (iconSvg) {
+                iconSvg.setAttribute('name', isExpanded ? 'compress' : 'expand');
+            }
+            expandBtn.setAttribute(
+                'title',
+                isExpanded ? safeTranslate('actions.compressTable', 'Compress Table') : safeTranslate('actions.expandTable', 'Expand Table')
+            );
+
+            requestAnimationFrame(() => {
+                const activeRow = modal.querySelector('.active-level-row, .active-max-level-row');
+                const tableHead = modal.querySelector('#eq-details-table-head');
+                if (activeRow && tableContainer) {
+                    const headerHeight = tableHead ? tableHead.offsetHeight : 0;
+                    tableContainer.scrollTop = Math.max(0, activeRow.offsetTop - headerHeight);
+                }
+            });
+        };
+    }
+
+    // Always scroll the current level row directly below the sticky header
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            const activeRow = modal.querySelector('.active-level-row, .active-max-level-row');
+            const tableHead = modal.querySelector('#eq-details-table-head');
+            if (activeRow && tableContainer) {
+                const headerHeight = tableHead ? tableHead.offsetHeight : 0;
+                const targetScrollTop = Math.max(0, activeRow.offsetTop - headerHeight);
+                tableContainer.scrollTop = targetScrollTop;
+            }
+        }, 80);
+    });
 }
 
 export function initializeEquipmentDetailsModal() {

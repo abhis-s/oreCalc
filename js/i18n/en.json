@@ -784,6 +784,7 @@
             "cooldownTime": "Cooldown Time",
             "damageIncrease": "Damage Increase",
             "damagePerHit": "Damage per Hit",
+            "damagePerSecond": "Damage per Second",
             "damagePerSecondIncrease": "Damage per Second Increase",
             "damagePerShotIncrease": "Damage per Shot Increase",
             "damageRadius": "Damage Radius",
@@ -795,6 +796,7 @@
             "healthRecovery": "Health Recovery",
             "healthRecoveryIncrease": "Health Recovery Increase",
             "hitpointIncrease": "Hitpoint Increase",
+            "hitpoints": "Hitpoints",
             "incomingDamageReduction": "Incoming Damage Reduction",
             "invisibilityDuration": "Invisibility Duration",
             "maxDamageIncrease": "Max Damage Increase",
@@ -831,7 +833,19 @@
         "passive": "Passive",
         "common": "Common",
         "epic": "Epic",
-        "tilesSuffix": "tiles"
+        "tilesSuffix": "tiles",
+        "unitStats": "Unit Stats",
+        "overview": "Overview",
+        "unitTypes": {
+            "archer": "Archer",
+            "barbarian": "Barbarian",
+            "giantGiant": "Giant Giant",
+            "healer": "Healer",
+            "henchmen": "Henchmen",
+            "hogRider": "Hog Rider",
+            "lavaloon": "Lavaloon",
+            "snake": "Snake"
+        }
     },
     "heroes": {
         "barbarianKing": "Barbarian King",

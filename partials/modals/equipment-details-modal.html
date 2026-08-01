@@ -12,35 +12,45 @@
             </div>
         </div>
         <div class="modal-body">
-            <div id="eq-details-props-grid" class="eq-details-props-grid"></div>
-            <div id="eq-details-rec-banner-container"></div>
-            <div class="eq-details-boxes-row">
-                <div id="eq-details-static-box" class="eq-details-static-stats-box">
-                    <div class="eq-details-avatars">
-                        <orecalc-assets-image id="eq-details-hero-img" src="" alt="Hero" data-i18n-alt="alts.hero" class="eq-details-hero-img"></orecalc-assets-image>
-                        <div class="avatar-sep"></div>
-                        <orecalc-assets-image id="eq-details-item-img" src="" alt="Equipment" data-i18n-alt="nav.equipment" class="eq-details-item-img"></orecalc-assets-image>
+            <div id="eq-details-empty-state-container" style="display: none;"></div>
+            <div id="eq-details-content-wrapper">
+                <div id="eq-details-props-grid" class="eq-details-props-grid"></div>
+                <div id="eq-details-rec-banner-container"></div>
+                <div class="eq-details-boxes-row">
+                    <div id="eq-details-static-box" class="eq-details-static-stats-box">
+                        <button type="button" id="eq-unit-stats-toggle-btn" class="eq-unit-stats-toggle-btn" style="display: none;"></button>
+                        <div class="eq-details-avatars">
+                            <orecalc-assets-image id="eq-details-hero-img" src="" alt="Hero" data-i18n-alt="alts.hero" class="eq-details-hero-img"></orecalc-assets-image>
+                            <div class="avatar-sep"></div>
+                            <orecalc-assets-image id="eq-details-item-img" src="" alt="Equipment" data-i18n-alt="nav.equipment" class="eq-details-item-img"></orecalc-assets-image>
+                        </div>
+                        <div class="eq-details-badges">
+                            <span id="eq-details-type-badge" class="eq-badge"></span>
+                            <span id="eq-details-rarity-badge" class="eq-badge"></span>
+                            <span id="eq-details-rec-badge" class="eq-badge" style="display: none;"></span>
+                        </div>
+                        <div id="eq-details-static-stats-content"></div>
+                        <div id="eq-details-unit-stats-content" class="eq-details-unit-stats-content" style="display: none; width: 100%;"></div>
                     </div>
-                    <div class="eq-details-badges">
-                        <span id="eq-details-type-badge" class="eq-badge"></span>
-                        <span id="eq-details-rarity-badge" class="eq-badge"></span>
-                        <span id="eq-details-rec-badge" class="eq-badge" style="display: none;"></span>
+                    <div class="eq-details-current-level-box">
+                        <div class="eq-details-level-header">
+                            <span><span data-i18n="validation.level">Level</span> <strong id="eq-details-current-lvl-text">1</strong></span>
+                            <span id="eq-details-max-lvl-text" class="text-secondary"></span>
+                        </div>
+                        <div id="eq-details-stats-progress-list" class="eq-details-stats-progress-list"></div>
                     </div>
-                    <div id="eq-details-static-stats-content"></div>
                 </div>
-                <div class="eq-details-current-level-box">
-                    <div class="eq-details-level-header">
-                        <span><span data-i18n="validation.level">Level</span> <strong id="eq-details-current-lvl-text">1</strong></span>
-                        <span id="eq-details-max-lvl-text" class="text-secondary"></span>
+                <div class="eq-details-table-wrapper">
+                    <button type="button" id="expand-eq-table-btn" class="expand-table-btn" title="Expand Table" aria-label="Expand Table" data-i18n-title="actions.expandTable">
+                        <orecalc-assets-svg name="expand"></orecalc-assets-svg>
+                    </button>
+                    <div class="eq-details-table-container">
+                        <table class="eq-details-table">
+                            <thead id="eq-details-table-head"></thead>
+                            <tbody id="eq-details-table-body"></tbody>
+                        </table>
                     </div>
-                    <div id="eq-details-stats-progress-list" class="eq-details-stats-progress-list"></div>
                 </div>
-            </div>
-            <div class="eq-details-table-container">
-                <table class="eq-details-table">
-                    <thead id="eq-details-table-head"></thead>
-                    <tbody id="eq-details-table-body"></tbody>
-                </table>
             </div>
         </div>
     </div>
