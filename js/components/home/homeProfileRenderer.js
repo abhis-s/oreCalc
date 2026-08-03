@@ -4,6 +4,7 @@ import { translate } from '../../i18n/translator.js';
 import { showAddPlayerModal } from '../player/playerModal.js';
 import { formatNumber, animateValue } from '../../utils/numberFormatter.js';
 import { calculateRemainingTime } from '../../core/timeCalculator.js';
+import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 
 /**
  * Calculates overall ore-cost-based progress percentage for common and epic equipment.
@@ -20,7 +21,7 @@ function calculateEquipmentProgress(ownedEquipment, ownedHeroes) {
             for (const equip of heroInfo.equipment) {
                 const isEpic = equip.type === 'epic';
                 const currentLevel = ownedEquipment[equip.name] !== undefined ? ownedEquipment[equip.name] : 1;
-                const maxLevel = isEpic ? 27 : 18;
+                const maxLevel = getEquipmentMaxLevel(equip.type);
 
                 if (ownedEquipment[equip.name] !== undefined) {
                     for (let lvl = 2; lvl <= currentLevel; lvl++) {
@@ -426,7 +427,7 @@ export function renderHomeProfile(state) {
         for (const equip of heroData[heroKey].equipment) {
             totalCount++;
             const isEpic = equip.type === 'epic';
-            const maxLevel = isEpic ? 27 : 18;
+            const maxLevel = getEquipmentMaxLevel(equip.type);
             const currentLevel = ownedEquipment[equip.name];
             if (currentLevel !== undefined && currentLevel >= maxLevel) {
                 maxedCount++;

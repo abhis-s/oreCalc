@@ -2,7 +2,8 @@ import { state } from '../core/state.js';
 
 const locales = {
     en: 'en-US',
-    de: 'de-DE'
+    de: 'de-DE',
+    tr: 'tr-TR'
 };
 
 export function formatNumber(number) {

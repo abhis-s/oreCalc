@@ -9,8 +9,8 @@
   "statsMeta": [
     {"key": "damagePerShotIncrease", "category": "ability", "valueUnit": "number"},
     {"key": "numberOfAttacks", "category": "ability", "valueUnit": "number"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [350, 7, 35, 50], "2": [350, 7, 40, 75], "3": [420, 7, 45, 100],

@@ -13,6 +13,7 @@ import { logger } from '../../utils/logger.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 import { translate } from '../../i18n/translator.js';
+import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 
 import { openLevelSelectModal } from './levelSelectModal.js';
 
@@ -136,7 +137,7 @@ function renderPriorityEditor() {
 
         hero.equipment.forEach(equip => {
             const currentLevel = state.heroes[hero.name]?.equipment[equip.name]?.level || 1;
-            const maxLevel = equip.type === 'epic' ? 27 : 18;
+            const maxLevel = getEquipmentMaxLevel(equip.type);
 
             if (currentLevel < maxLevel) {
                 const chip = document.createElement('div');
@@ -165,7 +166,7 @@ function renderPriorityEditor() {
                     chip.classList.add('maxed-in-plan');
                 }
 
-                const customMaxLevel = state.planner.customMaxLevel?.[equip.type] || (equip.type === 'epic' ? 27 : 18);
+                const customMaxLevel = state.planner.customMaxLevel?.[equip.type] || getEquipmentMaxLevel(equip.type);
                 const isCustomMaxedInPlan = globalPriorityList.some(item =>
                     item.heroName === hero.name &&
                     item.name === equip.name &&
@@ -305,8 +306,8 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
             `).join('');
             suggestionsHtml += `</div>`;
 
-            errorContainer.classList.add('suggestion-only');
-            suggestionsHtml += `<button class="hide-suggestion-btn" id="hide-suggestion-btn">${translate('actions.hide')}</button>`;
+            errorContainer.classList.add('app-message-box', 'suggestion-only');
+            suggestionsHtml += `<button class="hide-suggestion-btn app-message-box-btn" id="hide-suggestion-btn">${translate('actions.hide')}</button>`;
 
             errorContainer.innerHTML += suggestionsHtml;
 
@@ -588,9 +589,10 @@ function renderDraggableList(globalPriorityList, suggestions) {
             const glowyEl = listItem.querySelector('.glowy-val');
             const starryEl = listItem.querySelector('.starry-val');
             
-            updateCalculatedValue(shinyEl, item.oresPreCompletion.shiny || 0);
-            updateCalculatedValue(glowyEl, item.oresPreCompletion.glowy || 0);
-            updateCalculatedValue(starryEl, item.oresPreCompletion.starry || 0);
+            const ores = item.oresPreCompletion || {};
+            updateCalculatedValue(shinyEl, ores.shiny || 0);
+            updateCalculatedValue(glowyEl, ores.glowy || 0);
+            updateCalculatedValue(starryEl, ores.starry || 0);
         }
 
         effectiveLevels[equipName] = item.targetLevel;

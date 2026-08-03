@@ -4,7 +4,7 @@
   "rarity": "common",
   "statsMeta": [
     {"key": "damageIncrease", "category": "ability", "valueUnit": "percentage"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
     {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"}
   ],
   "levels": {

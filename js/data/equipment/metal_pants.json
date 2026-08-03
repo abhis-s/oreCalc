@@ -5,8 +5,8 @@
   "statsMeta": [
     {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
     {"key": "incomingDamageReduction", "category": "ability", "valueUnit": "percentage"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "healthRecoveryIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"}
   ],
   "levels": {
     "1": [9, 46, 850, 1600], "2": [9, 46, 900, 1675], "3": [10, 50, 950, 1750],

@@ -4,8 +4,8 @@
   "rarity": "common",
   "statsMeta": [
     {"key": "healthRecovery", "category": "ability", "valueUnit": "number"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [1200, 35, 60], "2": [1200, 40, 90], "3": [1450, 45, 120],

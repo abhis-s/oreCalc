@@ -4,6 +4,7 @@ import { state } from '../../core/state.js';
 import { heroData } from '../../data/heroData.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 import { translate } from '../../i18n/translator.js';
+import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 
 const temporarilyVisibleMaxed = new Set();
 const activeTimeouts = new Map();
@@ -49,7 +50,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
         for (const equip of currentHeroData.equipment) {
             const equipState = heroState.equipment?.[equip.name] || {};
             const currentLevel = equipState.level || 1;
-            const maxLevel = equip.type === 'common' ? 18 : 27;
+            const maxLevel = getEquipmentMaxLevel(equip.type);
             if (currentLevel >= maxLevel) {
                 hasMaxedEquipment = true;
                 break;
@@ -173,8 +174,8 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             let isOverLeveled = false;
             const equipmentData = currentHeroData.equipment.find(e => e.name === equipName);
             if (equipmentData && plannerState) {
-                const customCommonMax = plannerState.customMaxLevel?.common ?? 18;
-                const customEpicMax = plannerState.customMaxLevel?.epic ?? 27;
+                const customCommonMax = plannerState.customMaxLevel?.common ?? getEquipmentMaxLevel('common');
+                const customEpicMax = plannerState.customMaxLevel?.epic ?? getEquipmentMaxLevel('epic');
                 const customMaxLevel = equipmentData.type === 'common' ? customCommonMax : customEpicMax;
                 isOverLeveled = currentLevel >= customMaxLevel && currentLevel < maxLevel;
             }

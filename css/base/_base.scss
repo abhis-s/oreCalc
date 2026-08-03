@@ -386,6 +386,7 @@ input[type="checkbox"] {
 html,
 body {
     background-color: var(--bg-app);
+    overscroll-behavior-x: none;
 }
 
 body {

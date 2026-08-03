@@ -8,8 +8,8 @@
   ],
   "statsMeta": [
     {"key": "projectileDamage", "category": "ability", "valueUnit": "number"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [750, 20, 80], "2": [750, 23, 93], "3": [850, 27, 106],

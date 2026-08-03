@@ -762,6 +762,7 @@
         "disable": "Devre dışı bırak",
         "maxLevel": "Maksimum Seviye",
         "requiredTownHall": "Gerekli Belediye Binası",
+        "thShort": "BB {level}",
         "cost": "Maliyet",
         "ability": "Yetenek",
         "heroBoost": "Kahraman Güçlendirmesi",

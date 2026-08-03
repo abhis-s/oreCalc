@@ -5,8 +5,8 @@
   "statsMeta": [
     {"key": "summonedUnitsCount", "category": "ability", "valueUnit": "number"},
     {"key": "summonedUnitsLevel", "category": "ability", "valueUnit": "number"},
-    {"key": "healingPerSecond", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "selfHealingPerSecond", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [1, 4, 6, 132], "2": [1, 4, 8, 154], "3": [1, 5, 10, 177],
@@ -22,13 +22,14 @@
     "scalingType": "equipmentLevel",
     "statsMeta": [
       {"key": "healingPerSecond", "valueUnit": "number"},
+      {"key": "healingPerSecondHeroes", "valueUnit": "number"},
       {"key": "hitpoints", "valueUnit": "number"}
     ],
     "levels": {
-      "1": [36, 500], "2": [48, 700], "3": [60, 900],
-      "4": [66, 1200], "5": [72, 1500], "6": [72, 1600],
-      "7": [72, 1700], "8": [76, 1800], "9": [80, 1900],
-      "10": [80, 2000], "11": [82, 2100]
+      "1": [36, 19, 500], "2": [48, 26, 700], "3": [60, 33, 900],
+      "4": [66, 36, 1200], "5": [72, 48, 1500], "6": [72, 56, 1600],
+      "7": [72, 62, 1700], "8": [76, 68, 1800], "9": [80, 75, 1900],
+      "10": [80, 78, 2000], "11": [82, 88, 2100]
     }
   }
 }

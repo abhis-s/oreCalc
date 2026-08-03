@@ -21,6 +21,7 @@ import { formatNumber } from '../../utils/numberFormatter.js';
 import { getSVG } from '../../utils/svgManager.js';
 import { closeStoredOresModal } from '../planner/priorityListModal.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
+import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 
 let currentPage = 1;
 let cameFromSyncStartBtn = false;
@@ -1914,7 +1915,7 @@ function calculateEquipmentProgress(playerData) {
         for (const equip of heroInfo.equipment) {
             const isEpic = equip.type === 'epic';
             const currentLevel = ownedEquip[equip.name] !== undefined ? ownedEquip[equip.name] : 1;
-            const maxLevel = isEpic ? 27 : 18;
+            const maxLevel = getEquipmentMaxLevel(equip.type);
 
             // Spent
             for (let lvl = 2; lvl <= currentLevel; lvl++) {
@@ -2078,7 +2079,7 @@ function renderProfilePreviewCard(playerData) {
             for (const equip of heroData[heroKey].equipment) {
                 totalCount++;
                 const isEpic = equip.type === 'epic';
-                const maxLevel = isEpic ? 27 : 18;
+                const maxLevel = getEquipmentMaxLevel(equip.type);
                 const currentLevel = ownedEquip[equip.name];
                 if (currentLevel !== undefined && currentLevel >= maxLevel) {
                     maxedCount++;
@@ -2185,7 +2186,7 @@ function renderProfilePreviewCard(playerData) {
              heroInfo.equipment.forEach(equip => {
                 const hasEquip = ownedEquip[equip.name] !== undefined;
                 const currentLevel = hasEquip ? ownedEquip[equip.name] : 1;
-                const maxLevel = equip.type === 'epic' ? 27 : 18;
+                const maxLevel = getEquipmentMaxLevel(equip.type);
                 const isMax = hasEquip && currentLevel >= maxLevel;
 
                 const equipItem = document.createElement('div');

@@ -9,8 +9,8 @@
     {"key": "projectileDamage", "category": "ability", "valueUnit": "number"},
     {"key": "slowDown", "category": "ability", "valueUnit": "percentage"},
     {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [45, 20, 8, 10, 588], "2": [45, 20, 8, 13, 603], "3": [55, 25, 9, 18, 617],

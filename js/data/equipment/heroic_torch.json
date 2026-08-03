@@ -6,9 +6,9 @@
     {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
     {"key": "movementSpeedIncrease", "category": "ability", "valueUnit": "number"},
     {"key": "incomingDamageReduction", "category": "ability", "valueUnit": "percentage"},
-    {"key": "healthRecoveryIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [16, 5, 6, 110, 12, 35], "2": [16, 5, 6, 120, 13, 40], "3": [17, 6, 7, 130, 14, 42],

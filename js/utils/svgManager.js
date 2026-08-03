@@ -55,7 +55,8 @@ export const SVGs = {
     'changelog': {},
     'shield': {},
     'article': {},
-    'target': {},
+    'extension': {},
+    'attribution': {},
     'group': {},
     'gavel': {},
     'info': {},
@@ -90,7 +91,9 @@ export const SVGs = {
     'cloud-lock': {},
     'user': {},
     'update': {},
-    'star-shine': {}
+    'star-shine': {},
+    'forward': {},
+    'backward': {}
 };
 
 /**

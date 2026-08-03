@@ -5,6 +5,13 @@
             <div class="header-actions">
                 <button type="button" id="unhide-eq-note-btn" class="suggestion-message-btn unhide-note-btn" style="display: none;" title="Show Strategy Note" data-i18n-title="actions.showNote" aria-label="Show Strategy Note">
                     <orecalc-assets-svg name="suggestion" width="20" height="20"></orecalc-assets-svg>
+                    <span class="badge">!</span>
+                </button>
+                <button type="button" id="eq-details-prev-btn" class="modal-header-btn modal-nav-btn prev-eq-btn" title="Previous Equipment" data-i18n-title="actions.previous" aria-label="Previous Equipment" data-i18n-aria-label="actions.previous">
+                    <orecalc-assets-svg name="backward"></orecalc-assets-svg>
+                </button>
+                <button type="button" id="eq-details-next-btn" class="modal-header-btn modal-nav-btn next-eq-btn" title="Next Equipment" data-i18n-title="actions.next" aria-label="Next Equipment" data-i18n-aria-label="actions.next">
+                    <orecalc-assets-svg name="forward"></orecalc-assets-svg>
                 </button>
                 <button type="button" id="close-eq-details-modal-btn" class="close-button" aria-label="Close" data-i18n-aria-label="actions.close">
                     <orecalc-assets-svg name="close"></orecalc-assets-svg>
@@ -12,46 +19,52 @@
             </div>
         </div>
         <div class="modal-body">
-            <div id="eq-details-empty-state-container" style="display: none;"></div>
             <div id="eq-details-content-wrapper">
                 <div id="eq-details-props-grid" class="eq-details-props-grid"></div>
                 <div id="eq-details-rec-banner-container"></div>
                 <div class="eq-details-boxes-row">
                     <div id="eq-details-static-box" class="eq-details-static-stats-box">
-                        <button type="button" id="eq-unit-stats-toggle-btn" class="eq-unit-stats-toggle-btn" style="display: none;"></button>
-                        <div class="eq-details-avatars">
-                            <orecalc-assets-image id="eq-details-hero-img" src="" alt="Hero" data-i18n-alt="alts.hero" class="eq-details-hero-img"></orecalc-assets-image>
-                            <div class="avatar-sep"></div>
-                            <orecalc-assets-image id="eq-details-item-img" src="" alt="Equipment" data-i18n-alt="nav.equipment" class="eq-details-item-img"></orecalc-assets-image>
+                        <div class="eq-details-header-row">
+                            <div class="eq-details-avatars">
+                                <orecalc-assets-image id="eq-details-hero-emblem" src="" alt="Hero" data-i18n-alt="alts.hero" class="eq-details-hero-emblem"></orecalc-assets-image>
+                                <div class="avatar-sep"></div>
+                                <orecalc-assets-image id="eq-details-item-img" src="" alt="Equipment" data-i18n-alt="nav.equipment" class="eq-details-item-img"></orecalc-assets-image>
+                            </div>
+                            <div class="eq-details-badges">
+                                <span id="eq-details-type-badge" class="eq-badge"></span>
+                                <span id="eq-details-rarity-badge" class="eq-badge"></span>
+                                <span id="eq-details-rec-badge" class="eq-badge" style="display: none;"></span>
+                            </div>
                         </div>
-                        <div class="eq-details-badges">
-                            <span id="eq-details-type-badge" class="eq-badge"></span>
-                            <span id="eq-details-rarity-badge" class="eq-badge"></span>
-                            <span id="eq-details-rec-badge" class="eq-badge" style="display: none;"></span>
-                        </div>
+                        <div id="eq-details-modifier-tabs" class="eq-details-modifier-tabs"></div>
                         <div id="eq-details-static-stats-content"></div>
                         <div id="eq-details-unit-stats-content" class="eq-details-unit-stats-content" style="display: none; width: 100%;"></div>
+                        <div class="eq-unit-stats-toggle-row">
+                            <button type="button" id="eq-unit-stats-toggle-btn" class="eq-unit-stats-toggle-btn" style="display: none;"></button>
+                        </div>
                     </div>
                     <div class="eq-details-current-level-box">
                         <div class="eq-details-level-header">
-                            <span><span data-i18n="validation.level">Level</span> <strong id="eq-details-current-lvl-text">1</strong></span>
+                            <span><span id="eq-details-lvl-header-label" data-i18n="validation.level">Level</span> <strong id="eq-details-current-lvl-text">1</strong></span>
                             <span id="eq-details-max-lvl-text" class="text-secondary"></span>
                         </div>
                         <div id="eq-details-stats-progress-list" class="eq-details-stats-progress-list"></div>
                     </div>
                 </div>
-                <div class="eq-details-table-wrapper">
-                    <button type="button" id="expand-eq-table-btn" class="expand-table-btn" title="Expand Table" aria-label="Expand Table" data-i18n-title="actions.expandTable">
-                        <orecalc-assets-svg name="expand"></orecalc-assets-svg>
-                    </button>
-                    <div class="eq-details-table-container">
-                        <table class="eq-details-table">
-                            <thead id="eq-details-table-head"></thead>
-                            <tbody id="eq-details-table-body"></tbody>
-                        </table>
-                    </div>
+            </div>
+            <div id="eq-details-empty-state-container" style="display: none;"></div>
+            <div class="eq-details-table-wrapper">
+                <button type="button" id="expand-eq-table-btn" class="expand-table-btn" title="Expand Table" aria-label="Expand Table" data-i18n-title="actions.expandTable">
+                    <orecalc-assets-svg name="expand"></orecalc-assets-svg>
+                </button>
+                <div class="eq-details-table-container">
+                    <table class="eq-details-table">
+                        <thead id="eq-details-table-head"></thead>
+                        <tbody id="eq-details-table-body"></tbody>
+                    </table>
                 </div>
             </div>
+            <div id="eq-details-footer-meta" class="eq-details-footer-meta"></div>
         </div>
     </div>
 </div>

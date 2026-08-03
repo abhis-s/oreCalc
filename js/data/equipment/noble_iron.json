@@ -7,7 +7,7 @@
     {"key": "attackRange", "category": "ability", "valueUnit": "tiles"},
     {"key": "numberOfAttacks", "category": "ability", "valueUnit": "number"},
     {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [350, 10, 5, 6, 500], "2": [350, 10, 5, 7, 500], "3": [420, 10.5, 6, 7, 500],

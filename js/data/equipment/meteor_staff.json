@@ -8,8 +8,8 @@
   "statsMeta": [
     {"key": "cooldownTime", "category": "ability", "valueUnit": "seconds"},
     {"key": "damagePerHit", "category": "ability", "valueUnit": "number"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [10, 250, 13, 558], "2": [10, 250, 17, 587], "3": [9.5, 300, 21, 615],

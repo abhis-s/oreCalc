@@ -9,8 +9,8 @@
   "statsMeta": [
     {"key": "buildingDamage", "category": "ability", "valueUnit": "percentage"},
     {"key": "troopDamage", "category": "ability", "valueUnit": "percentage"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [10, 5, 13, 209], "2": [10, 5, 15, 244], "3": [20, 10, 17, 278],

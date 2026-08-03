@@ -7,8 +7,8 @@
   ],
   "statsMeta": [
     {"key": "abilityDamage", "category": "ability", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "healthRecoveryIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"}
   ],
   "levels": {
     "1": [1300, 500, 150], "2": [1300, 700, 250], "3": [1375, 900, 350],

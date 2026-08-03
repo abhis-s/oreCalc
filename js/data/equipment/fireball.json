@@ -5,7 +5,7 @@
   "statsMeta": [
     {"key": "damageRadius", "category": "ability", "valueUnit": "tiles"},
     {"key": "projectileDamage", "category": "ability", "valueUnit": "number"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [4, 1500, 21], "2": [4, 1500, 24], "3": [4, 1700, 27],

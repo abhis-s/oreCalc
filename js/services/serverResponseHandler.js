@@ -6,6 +6,7 @@ import { showAddPlayerModal } from '../components/player/playerModal.js';
 
 import { cleanupUpgradePlan, reindexGlobalPriority } from '../utils/plannerUtils.js';
 import { shopOfferData, leagueTiers, heroData } from '../data/appData.js';
+import { LAB_SCALING_TROOP_KEYS } from '../data/labTroopsData.js';
 import { translate } from '../i18n/translator.js';
 
 import { fetchPlayerData } from './apiService.js';
@@ -236,7 +237,12 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
             maxLevel: h.maxLevel,
             equipment: h.equipment?.map(eq => ({ name: eq.name, level: eq.level })) || []
         }])),
-        ownedEquipment: Object.fromEntries(homeEquipment.map(e => [e.name, e.level]))
+        ownedEquipment: Object.fromEntries(homeEquipment.map(e => [e.name, e.level])),
+        labTroops: Object.fromEntries(
+            (playerData.troops?.filter(t => t.village === 'home') || [])
+                .filter(t => LAB_SCALING_TROOP_KEYS[t.name])
+                .map(t => [LAB_SCALING_TROOP_KEYS[t.name], t.level])
+        )
     };
 
     const activePlayerTag = state.savedPlayerTags[0];

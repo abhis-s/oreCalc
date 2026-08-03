@@ -9,7 +9,7 @@
     {"key": "projectileDamage", "category": "ability", "valueUnit": "number"},
     {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
     {"key": "numberOfTargets", "category": "ability", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [105, 5.2, 4, 50], "2": [105, 5.2, 4, 75], "3": [126, 5.4, 4, 100],

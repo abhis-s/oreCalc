@@ -6,39 +6,15 @@ import { addValidation } from '../../utils/inputValidator.js';
 import { getMaxTownHall } from '../../utils/dateUtils.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { translate } from '../../i18n/translator.js';
+import { getEquipmentMaxLevel, getTownHallCaps } from '../../data/equipmentCommonData.js';
 
 function getTownHallMaxLevel(type, townHallLevel) {
-    const maxTH = getMaxTownHall();
     const th = parseInt(townHallLevel, 10);
     if (isNaN(th) || th <= 0) {
-        return type === 'common' ? 18 : 27;
+        return getEquipmentMaxLevel(type);
     }
-    
-    // Below 9: 9common / 12epic
-    if (th <= 9) {
-        return type === 'common' ? 9 : 12;
-    }
-    
-    // Dynamic rules based on maxTH
-    if (th >= maxTH) {
-        return type === 'common' ? 18 : 27;
-    }
-    if (th === maxTH - 1) {
-        return type === 'common' ? 18 : 24;
-    }
-    if (th === maxTH - 2) {
-        return type === 'common' ? 15 : 21;
-    }
-    
-    // Intermediate Town Halls
-    if (type === 'common') {
-        if (th <= 11) return 12;
-        return 15;
-    } else { // epic
-        if (th <= 11) return 15;
-        if (th <= 13) return 18;
-        return 21;
-    }
+    const capInfo = getTownHallCaps(th);
+    return type === 'epic' ? capInfo.epicMax : capInfo.commonMax;
 }
 
 export function initializePlannerCustomLevels() {
@@ -57,8 +33,8 @@ export function initializePlannerCustomLevels() {
     settingsContainer.className = 'level-settings-container';
 
     const levels = [
-        { id: 'planner-common-max-level', key: 'common', i18n: 'planner.common', max: 18 },
-        { id: 'planner-epic-max-level', key: 'epic', i18n: 'planner.epic', max: 27 }
+        { id: 'planner-common-max-level', key: 'common', i18n: 'planner.common', max: getEquipmentMaxLevel('common') },
+        { id: 'planner-epic-max-level', key: 'epic', i18n: 'planner.epic', max: getEquipmentMaxLevel('epic') }
     ];
 
     levels.forEach(level => {
@@ -132,9 +108,9 @@ export function renderPlannerCustomLevels(plannerState) {
     const epicMaxLevelInput = dom.planner?.customMaxLevel?.epic;
 
     if (commonMaxLevelInput) {
-        commonMaxLevelInput.value = plannerState.customMaxLevel?.common || 18;
+        commonMaxLevelInput.value = plannerState.customMaxLevel?.common || getEquipmentMaxLevel('common');
     }
     if (epicMaxLevelInput) {
-        epicMaxLevelInput.value = plannerState.customMaxLevel?.epic || 27;
+        epicMaxLevelInput.value = plannerState.customMaxLevel?.epic || getEquipmentMaxLevel('epic');
     }
 }

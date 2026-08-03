@@ -9,7 +9,7 @@
   "statsMeta": [
     {"key": "damagePerHit", "category": "ability", "valueUnit": "number"},
     {"key": "numberOfTargets", "category": "ability", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [330, 1, 400], "2": [330, 1, 650], "3": [340, 2, 850],

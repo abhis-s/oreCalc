@@ -768,6 +768,7 @@
         "disable": "Deaktivieren",
         "maxLevel": "Max. Level",
         "requiredTownHall": "Erforderliches Rathaus",
+        "thShort": "RH {level}",
         "cost": "Kosten",
         "ability": "Fähigkeit",
         "heroBoost": "Helden-Boost",

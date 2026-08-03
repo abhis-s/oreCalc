@@ -1,3 +1,5 @@
+export const EQUIPMENT_STATS_LAST_UPDATED = "2026-08-01";
+
 export const upgradeCosts = {
     2: { shiny: 120, glowy: 0, starry: 0 }, 3: { shiny: 240, glowy: 20, starry: 0 },
     4: { shiny: 400, glowy: 0, starry: 0 }, 5: { shiny: 600, glowy: 0, starry: 0 },
@@ -34,13 +36,19 @@ export const townHallCapsMap = {
     15: { commonMax: 18, epicMax: 24, unlocks: ['Haste Vial'] },
     16: { commonMax: 18, epicMax: 27, unlocks: ['Stun Blaster'] },
     17: { commonMax: 18, epicMax: 27, unlocks: ['Electro Fangs'] },
+    18: { commonMax: 18, epicMax: 27, unlocks: [] },
 };
+
+export const MAX_COMMON_LEVEL = 18;
+export const MAX_EPIC_LEVEL = 27;
 
 /**
  * Returns the maximum level cap based on equipment rarity (Common = 18, Epic = 27).
  */
 export function getEquipmentMaxLevel(rarity = 'Common') {
-    return rarity.toLowerCase() === 'epic' ? 27 : 18;
+    if (!rarity) return MAX_COMMON_LEVEL;
+    const r = rarity.toLowerCase();
+    return r === 'epic' ? MAX_EPIC_LEVEL : MAX_COMMON_LEVEL;
 }
 
 /**
@@ -74,4 +82,16 @@ export function getRequiredTownHall(level, rarity = 'Common', heroKey = null) {
     const heroUnlockTH = heroKey && heroUnlockTownHallMap[heroKey] ? heroUnlockTownHallMap[heroKey] : 8;
 
     return Math.max(heroUnlockTH, levelTH);
+}
+
+/**
+ * Returns the Town Hall equipment caps ({ commonMax, epicMax, unlocks }) for a given Town Hall level.
+ * Falls back to TH 8 caps for TH < 8, and the highest available TH caps for TH > 18.
+ */
+export function getTownHallCaps(townHallLevel = 8) {
+    const th = parseInt(townHallLevel, 10);
+    if (isNaN(th) || th < 8) {
+        return townHallCapsMap[8];
+    }
+    return townHallCapsMap[th] || townHallCapsMap[18] || townHallCapsMap[8];
 }

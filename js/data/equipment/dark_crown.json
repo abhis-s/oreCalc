@@ -7,7 +7,7 @@
     {"key": "secondHealthDamageIncrease", "category": "ability", "valueUnit": "percentage"},
     {"key": "hitpointIncrease", "category": "ability", "valueUnit": "percentage"},
     {"key": "maxDamageIncrease", "category": "ability", "valueUnit": "percentage"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
     {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"}
   ],
   "levels": {

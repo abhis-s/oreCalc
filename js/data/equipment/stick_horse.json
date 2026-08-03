@@ -6,8 +6,8 @@
     {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
     {"key": "movementSpeedIncrease", "category": "ability", "valueUnit": "number"},
     {"key": "attackSpeedIncrease", "category": "ability", "valueUnit": "percentage"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [12, 9.5, 2, 35, 311], "2": [12, 9.5, 2, 38, 482], "3": [14, 11.1, 5, 42, 653],

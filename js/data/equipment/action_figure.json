@@ -7,9 +7,9 @@
   ],
   "statsMeta": [
     {"key": "summonedUnitsLevel", "category": "ability", "valueUnit": "number"},
-    {"key": "healingPerSecond", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number"},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "selfHealingPerSecond", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
     "1": [1, 6, 28, 159], "2": [1, 8, 32, 184], "3": [2, 10, 36, 200],

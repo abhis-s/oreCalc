@@ -2,6 +2,7 @@ export const heroData = {
     barbarianKing: {
         name: "Barbarian King",
         image: "assets/heroes/barbarianKing.png",
+        emblem: "assets/heroes/emblemBarbarianKing.png",
         equipment: [
             { name: "Barbarian Puppet", type: "common", image: "assets/equipment/barbarian_king/BK_barbarian_puppet.png" },
             { name: "Rage Vial", type: "common", image: "assets/equipment/barbarian_king/BK_rage_vial.png" },
@@ -16,6 +17,7 @@ export const heroData = {
     archerQueen: {
         name: "Archer Queen",
         image: "assets/heroes/archerQueen.png",
+        emblem: "assets/heroes/emblemArcherQueen.png",
         equipment: [
             { name: "Archer Puppet", type: "common", image: "assets/equipment/archer_queen/AQ_archer_puppet.png" },
             { name: "Invisibility Vial", type: "common", image: "assets/equipment/archer_queen/AQ_invisibility_vial.png" },
@@ -30,6 +32,7 @@ export const heroData = {
     minionPrince: {
         name: "Minion Prince",
         image: "assets/heroes/minionPrince.png",
+        emblem: "assets/heroes/emblemMinionPrince.png",
         equipment: [
             { name: "Henchmen Puppet", type: "common", image: "assets/equipment/minion_prince/MP_henchmen_puppet.png" },
             { name: "Dark Orb", type: "common", image: "assets/equipment/minion_prince/MP_dark_orb.png" },
@@ -42,6 +45,7 @@ export const heroData = {
     grandWarden: {
         name: "Grand Warden",
         image: "assets/heroes/grandWarden.png",
+        emblem: "assets/heroes/emblemGrandWarden.png",
         equipment: [
             { name: "Eternal Tome", type: "common", image: "assets/equipment/grand_warden/GW_eternal_tome.png" },
             { name: "Life Gem", type: "common", image: "assets/equipment/grand_warden/GW_life_gem.png" },
@@ -55,6 +59,7 @@ export const heroData = {
     royalChampion: {
         name: "Royal Champion",
         image: "assets/heroes/royalChampion.png",
+        emblem: "assets/heroes/emblemRoyalChampion.png",
         equipment: [
             { name: "Royal Gem", type: "common", image: "assets/equipment/royal_champion/RC_royal_gem.png" },
             { name: "Seeking Shield", type: "common", image: "assets/equipment/royal_champion/RC_seeking_shield.png" },
@@ -68,6 +73,7 @@ export const heroData = {
     dragonDuke: {
         name: "Dragon Duke",
         image: "assets/heroes/dragonDuke.png",
+        emblem: "assets/heroes/emblemDragonDuke.png",
         equipment: [
             { name: "Fire Heart", type: "common", image: "assets/equipment/dragon_duke/DD_fire_heart.png" },
             { name: "Flame Blower", type: "common", image: "assets/equipment/dragon_duke/DD_flame_blower.png" },

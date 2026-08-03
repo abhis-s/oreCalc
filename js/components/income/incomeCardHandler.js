@@ -25,14 +25,23 @@ export function initializeIncomeCardHandler() {
         activeHelpBtn = null;
     };
 
-    const showHelpPopover = (btn, text) => {
+    const showHelpPopover = (btn, content) => {
         if (activeHelpBtn === btn) {
             hideHelpPopover();
             return;
         }
 
         activeHelpBtn = btn;
-        helpPopover.innerHTML = text;
+
+        let bodyHtml = typeof content === 'string' ? content : (content?.body || '');
+        let footerHtml = typeof content === 'object' ? (content?.footer || null) : null;
+
+        let innerHTML = `<div class="popover-body">${bodyHtml}</div>`;
+        if (footerHtml) {
+            innerHTML += `<div class="popover-footer">${footerHtml}</div>`;
+        }
+
+        helpPopover.innerHTML = innerHTML;
         helpPopover.classList.add('show');
 
         const positionPopover = () => {
@@ -44,8 +53,6 @@ export function initializeIncomeCardHandler() {
             const viewportWidth = window.innerWidth;
 
             const spaceAbove = btnRect.top;
-            const spaceBelow = viewportHeight - btnRect.bottom;
-
             const placeBelow = spaceAbove < popoverRect.height + 10;
 
             let top = 0;
@@ -71,15 +78,97 @@ export function initializeIncomeCardHandler() {
         setTimeout(positionPopover, 0);
     };
 
+    function formatRegionalDate(isoDateStr) {
+        if (!isoDateStr) return '';
+        try {
+            const parts = isoDateStr.split('-');
+            if (parts.length !== 3) return isoDateStr;
+            const [year, month, day] = parts.map(Number);
+            const date = new Date(Date.UTC(year, month - 1, day));
+            const lang = state.uiSettings?.language || 'en';
+            return new Intl.DateTimeFormat(lang, {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                timeZone: 'UTC'
+            }).format(date);
+        } catch (e) {
+            return isoDateStr;
+        }
+    }
+
+    const getPopoverContent = (btnOrKey) => {
+        const infoKey = typeof btnOrKey === 'string' ? btnOrKey : btnOrKey.getAttribute('data-info');
+        let body = '';
+        let footer = null;
+
+        if (infoKey === 'equipment.badgeRarityHelp' && typeof btnOrKey === 'object' && btnOrKey) {
+            const rarity = btnOrKey.getAttribute('data-info-rarity') || btnOrKey.textContent.trim();
+            body = translate('equipment.badgeRarityHelp', { rarity });
+        } else {
+            body = translate(infoKey);
+        }
+
+        // Allow element to supply custom footer text or translation key via data attributes
+        if (typeof btnOrKey === 'object' && btnOrKey) {
+            const customFooterKey = btnOrKey.getAttribute('data-info-footer-key');
+            const customFooter = btnOrKey.getAttribute('data-info-footer');
+            if (customFooterKey) {
+                footer = translate(customFooterKey);
+            } else if (customFooter) {
+                footer = customFooter;
+            }
+        }
+
+        // Automatic recommendation last updated date footer for rec badges
+        if (!footer && infoKey && infoKey.startsWith('equipment.rec')) {
+            const recDate = '2026-08-01';
+            const formattedDate = formatRegionalDate(recDate);
+            footer = translate('equipment.recommendationsLastUpdated', { date: formattedDate });
+        }
+
+        return { body, footer };
+    };
+
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.info-btn');
+        const bugReportLink = e.target.closest('.open-inaccuracies-link, .open-bug-report-link');
+        if (bugReportLink) {
+            e.preventDefault();
+            e.stopPropagation();
+            hideHelpPopover();
+            import('../appSettings/appSettings.js').then(module => {
+                if (module.openBugReportModal) {
+                    module.openBugReportModal();
+                }
+            });
+            return;
+        }
+
+        const btn = e.target.closest('.info-btn, .eq-badge[data-info]');
         if (btn) {
             e.stopPropagation();
-            const infoKey = btn.getAttribute('data-info');
-            const text = translate(infoKey);
+            const text = getPopoverContent(btn);
             showHelpPopover(btn, text);
         } else {
             hideHelpPopover();
+        }
+    });
+
+    document.addEventListener('mouseover', (e) => {
+        const badge = e.target.closest('.eq-badge[data-info]');
+        if (badge && activeHelpBtn !== badge) {
+            const text = getPopoverContent(badge);
+            showHelpPopover(badge, text);
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        const badge = e.target.closest('.eq-badge[data-info]');
+        if (badge && activeHelpBtn === badge) {
+            const related = e.relatedTarget;
+            if (!related || !badge.contains(related)) {
+                hideHelpPopover();
+            }
         }
     });
 
