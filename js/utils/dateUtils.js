@@ -1,4 +1,6 @@
 import { state } from '../core/state.js';
+import { getLocale } from '../data/languagesData.js';
+
 
 export function getMinDate() {
     const now = new Date();
@@ -245,32 +247,32 @@ export function findLastDayOfWeek(year, month, dayOfWeek) {
  */
 export function formatSupercellEventsDate(startDate, endDate) {
     const language = state.uiSettings?.language || 'en';
-    const lang = language === 'de' ? 'de-DE' : 'en-US';
-    const isGerman = language === 'de';
+    const locale = getLocale(language);
+    const isDayFirst = language !== 'en';
     
     // Check if it's a full month event (like World Finals often are in the schedule)
     const isFullMonth = startDate.getUTCDate() === 1 && 
                        (endDate.getUTCDate() >= 28 || (endDate.getUTCMonth() !== startDate.getUTCMonth()));
 
     if (isFullMonth) {
-        return startDate.toLocaleString(lang, { month: 'long', timeZone: 'UTC' });
+        return startDate.toLocaleString(locale, { month: 'long', timeZone: 'UTC' });
     }
 
-    const startMonth = startDate.toLocaleString(lang, { month: 'short', timeZone: 'UTC' });
+    const startMonth = startDate.toLocaleString(locale, { month: 'short', timeZone: 'UTC' });
     const startDay = startDate.getUTCDate();
     const endDay = endDate.getUTCDate();
 
     if (startDate.getUTCMonth() === endDate.getUTCMonth()) {
         if (startDay === endDay) {
-            return isGerman ? `${startDay}. ${startMonth}` : `${startMonth} ${startDay}`;
+            return isDayFirst ? `${startDay} ${startMonth}` : `${startMonth} ${startDay}`;
         }
-        // e.g., "Jun 27, 28" or "27., 28. Jun"
-        return isGerman ? `${startDay}., ${endDay}. ${startMonth}` : `${startMonth} ${startDay}, ${endDay}`;
+        // e.g., "Jun 27, 28" or "27-28 Jun"
+        return isDayFirst ? `${startDay}-${endDay} ${startMonth}` : `${startMonth} ${startDay}, ${endDay}`;
     } else {
-        const endMonth = endDate.toLocaleString(lang, { month: 'short', timeZone: 'UTC' });
+        const endMonth = endDate.toLocaleString(locale, { month: 'short', timeZone: 'UTC' });
         // e.g., "Oct 31 - Nov 2" or "31. Okt - 2. Nov"
-        return isGerman ? 
-            `${startDay}. ${startMonth} - ${endDay}. ${endMonth}` : 
+        return isDayFirst ? 
+            `${startDay} ${startMonth} - ${endDay} ${endMonth}` : 
             `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
     }
 }

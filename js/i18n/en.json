@@ -1,7 +1,7 @@
 {
     "app": {
         "title": "Ore Calculator",
-        "supercellDisclaimer": "This material is unofficial and is not endorsed by Supercell. For more information see Supercell's Fan Content Policy: <a href=\"https://www.supercell.com/fan-content-policy\" target=\"_blank\">www.supercell.com/fan-content-policy</a>.",
+        "supercellDisclaimer": "This material is unofficial and is not endorsed by Supercell. For more information see Supercell's Fan Content Policy: <a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">{displayUrl}</a>.",
         "none": "None",
         "madeIn": "Precision-built in 🇩🇪",
         "description": "The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.",
@@ -223,7 +223,7 @@
             "inDays": "(In {days} day(s))",
             "bonusesUnknown": "Resource bonuses during events are currently unknown.",
             "packInput": "Number of {name} packs",
-            "help": "Official Supercell events and tournaments. You can earn bonus ores by placing predictions and watching live streams on the <a href=\"https://event.supercell.com/clashofclans/en\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Event<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a> website."
+            "help": "Official Supercell events and tournaments. You can earn bonus ores by placing predictions and watching live streams on the <a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Event<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a> website."
         },
         "prospector": {
             "title": "Prospector",
@@ -363,7 +363,10 @@
             "highlightUpgradeRangesDesc": "Highlight the date ranges during which ores are accumulated for each upgrade.",
             "auto": "Auto",
             "monday": "Monday",
+            "tuesday": "Tuesday",
             "sunday": "Sunday",
+            "saturday": "Saturday",
+            "friday": "Friday",
             "currentMonth": "Current Month",
             "entireYear": "Entire Year",
             "tillEnd": "Till the End"
@@ -506,9 +509,6 @@
             "dark": "Dark",
             "light": "Light"
         },
-        "english": "English",
-        "german": "German",
-        "turkish": "Turkish",
         "github": "GitHub",
         "crowdin": "Help Us Translate",
         "crowdinHelp": "Contribute translations to help us localize the app into your language.",
@@ -611,6 +611,35 @@
         "dataErasureExplanations": {
             "local": "Wipes all app progress and settings on this device only. Your cloud backup remains untouched.",
             "cloud": "Permanently deletes both your local app progress and your synced cloud backup simultaneously."
+        },
+        "languages": {
+            "english": "English",
+            "german": "German",
+            "turkish": "Turkish",
+            "chineseSimplified": "Chinese (Simplified)",
+            "czech": "Czech",
+            "danish": "Danish",
+            "greek": "Greek",
+            "spanish": "Spanish",
+            "finnish": "Finnish",
+            "french": "French",
+            "hebrew": "Hebrew",
+            "hungarian": "Hungarian",
+            "italian": "Italian",
+            "japanese": "Japanese",
+            "korean": "Korean",
+            "dutch": "Dutch",
+            "norwegian": "Norwegian",
+            "polish": "Polish",
+            "portugueseBR": "Portuguese (Brazil)",
+            "portuguese": "Portuguese (Portugal)",
+            "romanian": "Romanian",
+            "russian": "Russian",
+            "serbian": "Serbian",
+            "swedish": "Swedish",
+            "ukrainian": "Ukrainian",
+            "vietnamese": "Vietnamese",
+            "chineseTraditional": "Chinese (Traditional)"
         }
     },
     "pricing": {
@@ -758,6 +787,7 @@
         "commonMax": "Common Max",
         "enable": "Enable",
         "disable": "Disable",
+        "lvlShort": "Lvl",
         "requiredOres": {
             "help": "Shows net ores required (total cost minus stored quantity) for your planned upgrades. Numbers can differ from true maxes if target caps are customized in settings, or if you change the desired max levels or disable equipment in the planner tab."
         },
@@ -805,16 +835,16 @@
     },
     "apiErrors": {
         "400": "Incorrect parameters provided.",
-        "badRequest": "Incorrect parameters provided.",
         "403": "Access denied. Missing or incorrect API token.",
-        "accessDenied": "Access denied. Missing or incorrect API token.",
         "404": "Player not found. Please check the player tag.",
-        "notFound": "Player not found. Please check the player tag.",
         "429": "Too many requests. Please try again later.",
-        "tooManyRequests": "Too many requests. Please try again later.",
         "500": "Unknown error occurred on the Clash of Clans servers.",
         "503": "Clash of Clans servers are temporarily unavailable due to maintenance.",
         "525": "SSL Handshake Failed. Connection between the server and Clash of Clans API failed.",
+        "badRequest": "Incorrect parameters provided.",
+        "accessDenied": "Access denied. Missing or incorrect API token.",
+        "notFound": "Player not found. Please check the player tag.",
+        "tooManyRequests": "Too many requests. Please try again later.",
         "inMaintenance": "Clash of Clans servers are temporarily unavailable due to maintenance.",
         "default": "API Error: {status}",
         "rateLimitedWithTimeMinutes": "Too many requests. Please try again after {minutes} minutes.",

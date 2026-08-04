@@ -9,6 +9,7 @@ import { formatNumber } from './numberFormatter.js';
  * @param {Object} options - Configuration options for the popover features.
  */
 export function registerInputPopover(inputElement, options = {}) {
+    if (!inputElement) return;
     const parent = inputElement.parentNode;
     if (!parent) return;
 

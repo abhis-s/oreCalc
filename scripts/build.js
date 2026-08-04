@@ -310,7 +310,40 @@ async function build() {
         execSync(esbuildQrCmd, { stdio: verbose ? 'inherit' : 'ignore' });
         
         // Write index.html for root and each supported language route (/en/, /de/, /tr/)
-        const localesMap = { en: 'en_US', de: 'de_DE', tr: 'tr_TR' };
+        const localesMap = {
+            en: 'en_US',
+            de: 'de_DE',
+            tr: 'tr_TR',
+            ar: 'ar_SA',
+            be: 'be_BY',
+            cs: 'cs_CZ',
+            da: 'da_DK',
+            nl: 'nl_NL',
+            fi: 'fi_FI',
+            fr: 'fr_FR',
+            el: 'el_GR',
+            he: 'he_IL',
+            hu: 'hu_HU',
+            it: 'it_IT',
+            ja: 'ja_JP',
+            ko: 'ko_KR',
+            no: 'no_NO',
+            nb: 'nb_NO',
+            pl: 'pl_PL',
+            pt: 'pt_PT',
+            'pt-BR': 'pt_BR',
+            ro: 'ro_RO',
+            ru: 'ru_RU',
+            sr: 'sr_RS',
+            sk: 'sk_SK',
+            es: 'es_ES',
+            sv: 'sv_SE',
+            uk: 'uk_UA',
+            vi: 'vi_VN',
+            zh: 'zh_CN',
+            'zh-CN': 'zh_CN',
+            'zh-TW': 'zh_TW'
+        };
         function getNestedValue(obj, keyPath) {
             return keyPath.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
         }
@@ -330,6 +363,11 @@ async function build() {
             html = html.replace(/<title[^>]*>.*?<\/title>/s, `<title data-i18n="app.title">${title}</title>`);
             html = html.replace(/<meta name="description"\s+content="[^"]*">/s, `<meta name="description" content="${description}">`);
             html = html.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">`);
+
+            const hreflangTags = supportedLanguages.map(l =>
+                `<link rel="alternate" hreflang="${l}" href="https://orecalc.tech/${l === 'en' ? '' : l + '/'}" />`
+            ).concat(['<link rel="alternate" hreflang="x-default" href="https://orecalc.tech/" />']).join('\n    ');
+            html = html.replace(/(<link rel="alternate" hreflang="[^"]*" href="[^"]*" \/>\s*)+/g, `${hreflangTags}\n    `);
             html = html.replace(/<meta property="og:title" content="[^"]*">/g, `<meta property="og:title" content="${title}">`);
             html = html.replace(/<meta property="og:description"\s+content="[^"]*">/g, `<meta property="og:description" content="${description}">`);
             html = html.replace(/<meta property="og:url" content="[^"]*">/g, `<meta property="og:url" content="${url}">`);
@@ -345,6 +383,19 @@ async function build() {
             html = html.replace(/"url": "[^"]*"/, `"url": "${url}"`);
 
             // Pre-render static body elements marked with data-i18n
+            const validFanContentPolicySubpaths = new Set([
+                'id', 'ms', 'de', 'es', 'fr', 'it', 'nl', 'no', 'pt', 'fi',
+                'vi', 'tr', 'ru', 'ar', 'fa', 'th', 'ko', 'jp', 'cn', 'cnt'
+            ]);
+            function getFanContentPolicyUrl(langCode = 'en') {
+                const overrideMap = { zh: 'cn', 'zh-TW': 'cnt', ja: 'jp', 'pt-BR': 'pt', 'es-ES': 'es' };
+                const subPath = overrideMap[langCode] || langCode;
+                if (subPath && validFanContentPolicySubpaths.has(subPath)) {
+                    return `https://supercell.com/en/fan-content-policy/${subPath}/`;
+                }
+                return 'https://supercell.com/en/fan-content-policy/';
+            }
+
             html = html.replace(/<([a-z1-6]+)([^>]*?)\s+data-i18n="([^"]+)"([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tagName, attrsBefore, key, attrsAfter, innerContent) => {
                 let val = getNestedValue(translations, key);
                 if (typeof val === 'string' && val.trim()) {
@@ -353,6 +404,10 @@ async function build() {
                     } else if (key === 'settings.bugReportPrivacyInfo') {
                         const privacyText = getNestedValue(translations, 'settings.privacyPolicyText') || 'Privacy Policy';
                         val = val.replace('{link}', `<a href="#" id="bug-report-privacy-link" class="theme-link">${privacyText}</a>`);
+                    } else if (key === 'app.supercellDisclaimer') {
+                        const policyUrl = getFanContentPolicyUrl(lang);
+                        const displayUrl = policyUrl.replace(/^https?:\/\//, '');
+                        val = val.replace('{url}', policyUrl).replace('{displayUrl}', displayUrl);
                     }
                     return `<${tagName}${attrsBefore} data-i18n="${key}"${attrsAfter}>${val}</${tagName}>`;
                 }
@@ -362,7 +417,18 @@ async function build() {
             return html;
         }
 
-        const supportedLanguages = ['en', 'de', 'tr'];
+        // Dynamically extract enabled languages from languagesData.js
+        let supportedLanguages = ['en', 'de', 'tr'];
+        try {
+            const languagesDataFile = fs.readFileSync(path.join(projectRoot, 'js/data/languagesData.js'), 'utf8');
+            const matches = [...languagesDataFile.matchAll(/code:\s*'([a-z]{2})'[^}]*enabled:\s*true/g)].map(m => m[1]);
+            if (matches.length > 0) {
+                supportedLanguages = matches;
+            }
+        } catch (e) {
+            console.warn('Could not parse languagesData.js dynamically, using fallback supported languages');
+        }
+
         for (const lang of supportedLanguages) {
             const langDir = path.join(distDir, lang);
             if (!fs.existsSync(langDir)) {
@@ -419,6 +485,38 @@ async function build() {
         const defaultHtml = generateLocalizedHtml(indexHtml, 'en', true);
         fs.writeFileSync(path.join(distDir, 'index.html'), defaultHtml, 'utf8');
         console.log(`Compiled and bundled index.html for root and language routes.`);
+
+        // Dynamically generate dist/sitemap.xml for all enabled languages
+        const sitemapDate = new Date().toISOString().split('T')[0] + 'T00:00:00+00:00';
+        let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+              http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+`;
+
+        const alternateLinks = supportedLanguages.map(l => 
+            `    <xhtml:link rel="alternate" hreflang="${l}" href="https://orecalc.tech/${l === 'en' ? '' : l + '/'}" />`
+        ).concat(['    <xhtml:link rel="alternate" hreflang="x-default" href="https://orecalc.tech/" />']).join('\n');
+
+        sitemapXml += `  <url>\n    <loc>https://orecalc.tech/</loc>\n${alternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n\n`;
+
+        for (const lang of supportedLanguages) {
+            if (lang === 'en') continue;
+            sitemapXml += `  <url>\n    <loc>https://orecalc.tech/${lang}/</loc>\n${alternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n\n`;
+        }
+
+        for (const pageName of ['privacy', 'terms', 'licenses']) {
+            sitemapXml += `  <url>\n    <loc>https://orecalc.tech/${pageName}</loc>\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.5</priority>\n  </url>\n\n`;
+            if (supportedLanguages.includes('de')) {
+                sitemapXml += `  <url>\n    <loc>https://orecalc.tech/de/${pageName}</loc>\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.5</priority>\n  </url>\n\n`;
+            }
+        }
+
+        sitemapXml += `</urlset>\n`;
+        fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml, 'utf8');
+        console.log('Generated dynamic dist/sitemap.xml for enabled languages.');
         
         const libsDestDir = path.join(distDir, 'js');
         const libsSource = path.join(projectRoot, 'node_modules/workbox-window/build/workbox-window.prod.umd.js');
