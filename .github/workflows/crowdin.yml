@@ -6,6 +6,7 @@ on:
     paths:
       - 'js/i18n/en.json'
       - 'crowdin.yml'
+      - '.github/workflows/crowdin.yml'
   schedule:
     - cron: '0 0 * * *' # Daily sync check at midnight UTC
   workflow_dispatch:
