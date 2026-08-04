@@ -74,10 +74,11 @@ const proxyLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-// Configure restricted CORS origin
 const allowedOrigins = [
     'https://orecalc.tech',
     'https://www.orecalc.tech',
+    'https://beta.orecalc.tech',
+    'https://orecalc-beta.pages.dev',
     'http://localhost:8080',
     'http://127.0.0.1:8080',
     'http://localhost:8081',
@@ -88,7 +89,7 @@ app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps, curl, or server-to-server)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+        if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.pages.dev') || process.env.NODE_ENV === 'development') {
             return callback(null, true);
         } else {
             return callback(new Error('Not allowed by CORS'));

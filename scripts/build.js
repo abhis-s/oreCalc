@@ -277,7 +277,7 @@ async function build() {
         await Promise.all([
             copyWithPromise(path.join(projectRoot, 'assets/**/*.*'), path.join(distDir, 'assets')),
             copyWithPromise(path.join(projectRoot, 'js/i18n/**/*.json'), path.join(distDir, 'js/i18n')),
-            copyWithPromise(path.join(projectRoot, 'js/data/equipment/**/*.json'), path.join(distDir, 'js/data/equipment')),
+            copyWithPromise(path.join(projectRoot, 'js/data/**/*.json'), path.join(distDir, 'js/data')),
             copyWithPromise(path.join(projectRoot, 'js/data/licensesData.js'), path.join(distDir, 'js/data')),
             copyWithPromise(path.join(projectRoot, 'manifest.json'), distDir),
             copyWithPromise(path.join(projectRoot, 'sitemap.xml'), distDir),
