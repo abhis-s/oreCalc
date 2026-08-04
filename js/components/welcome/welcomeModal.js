@@ -24,6 +24,7 @@ import { getSVG } from '../../utils/svgManager.js';
 import { closeStoredOresModal } from '../planner/priorityListModal.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
 
 let currentPage = 1;
 let cameFromSyncStartBtn = false;
@@ -2148,22 +2149,26 @@ function renderProfilePreviewCard(playerData) {
                 heroBadge.classList.add('max-level');
             }
 
+            const translatedHeroName = translate('heroes.' + heroKey) || heroInfo.name;
+
             const heroImg = document.createElement('orecalc-assets-image');
             heroImg.setAttribute('class', 'welcome-hero-img');
             heroImg.setAttribute('src', heroInfo.image);
-            heroImg.setAttribute('alt', heroInfo.name);
+            heroImg.setAttribute('alt', translatedHeroName);
             heroImg.setAttribute('size', 'thumbnail');
             heroBadge.appendChild(heroImg);
 
             const heroName = document.createElement('span');
             heroName.className = 'welcome-hero-name';
-            heroName.textContent = heroInfo.name;
+            heroName.textContent = translatedHeroName;
             heroBadge.appendChild(heroName);
 
             // Add Hero Level
             const heroLevelEl = document.createElement('span');
             heroLevelEl.className = 'welcome-hero-level';
-            heroLevelEl.textContent = heroLevel > 0 ? `Lvl ${heroLevel}` : 'Locked';
+            const lvlPrefix = translate('equipment.lvl') || 'Lvl';
+            const lockedText = translate('homeProfile.locked') || 'Locked';
+            heroLevelEl.textContent = heroLevel > 0 ? `${lvlPrefix} ${heroLevel}` : lockedText;
             if (isHeroMax) {
                 heroLevelEl.classList.add('max-level-text');
             }
@@ -2192,13 +2197,16 @@ function renderProfilePreviewCard(playerData) {
                     equipItem.classList.add('max-level');
                 }
 
+                const equipCamel = toCamelCase(equip.name);
+                const translatedEquipName = translate('equipment.' + equipCamel) || equip.name;
+
                 // Image Container
                 const imgContainer = document.createElement('div');
                 imgContainer.className = 'equipment-image-container';
 
                 const equipImg = document.createElement('orecalc-assets-image');
                 equipImg.setAttribute('src', equip.image);
-                equipImg.setAttribute('alt', equip.name);
+                equipImg.setAttribute('alt', translatedEquipName);
                 equipImg.setAttribute('class', 'equipment-image');
                 equipImg.setAttribute('size', 'thumbnail');
                 imgContainer.appendChild(equipImg);
@@ -2218,8 +2226,8 @@ function renderProfilePreviewCard(playerData) {
                 // Name tag
                 const equipName = document.createElement('span');
                 equipName.className = 'welcome-equip-name';
-                equipName.textContent = equip.name;
-                equipName.title = equip.name;
+                equipName.textContent = translatedEquipName;
+                equipName.title = translatedEquipName;
                 equipItem.appendChild(equipName);
 
                 if (hasEquip) {
