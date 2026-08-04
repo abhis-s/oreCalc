@@ -77,7 +77,7 @@ if (fs.existsSync(partialsDir)) {
 
 const openBrowser = process.env.OPEN_BROWSER !== 'false' && !process.argv.includes('--no-open');
 
-let supportedLanguages = ['en', 'de', 'tr'];
+let supportedLanguages = ['en', 'de', 'tr', 'zh'];
 try {
     const languagesDataFile = fs.readFileSync(path.join(process.cwd(), 'js/data/languagesData.js'), 'utf8');
     const matches = [...languagesDataFile.matchAll(/code:\s*'([a-z0-9-]+)'[^}]*enabled:\s*true/g)].map(m => m[1]);

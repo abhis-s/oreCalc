@@ -3,7 +3,7 @@ export const languagesData = [
     { code: 'en', locale: 'en-US', flag: '🇺🇸', nameI18n: 'settings.languages.english', fallbackName: 'English', nativeName: 'English', enabled: true },
     { code: 'de', locale: 'de-DE', flag: '🇩🇪', nameI18n: 'settings.languages.german', fallbackName: 'German', nativeName: 'Deutsch', enabled: true },
     { code: 'tr', locale: 'tr-TR', flag: '🇹🇷', nameI18n: 'settings.languages.turkish', fallbackName: 'Turkish', nativeName: 'Türkçe', enabled: true },
-    { code: 'zh', locale: 'zh-CN', flag: '🇨🇳', nameI18n: 'settings.languages.chineseSimplified', fallbackName: 'Chinese (Simplified)', nativeName: '中文（简体）', enabled: false },
+    { code: 'zh', locale: 'zh-CN', flag: '🇨🇳', nameI18n: 'settings.languages.chineseSimplified', fallbackName: 'Chinese (Simplified)', nativeName: '中文（简体）', enabled: true },
 
     // Additional Crowdin Target Languages (Set enabled: true when ready to release)
     { code: 'cs', locale: 'cs-CZ', flag: '🇨🇿', nameI18n: 'settings.languages.czech', fallbackName: 'Czech', nativeName: 'Čeština', enabled: false },
