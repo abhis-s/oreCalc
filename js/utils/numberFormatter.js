@@ -1,20 +1,15 @@
 import { state } from '../core/state.js';
-
-const locales = {
-    en: 'en-US',
-    de: 'de-DE',
-    tr: 'tr-TR'
-};
+import { getLocale } from '../data/languagesData.js';
 
 export function formatNumber(number) {
     const language = state.uiSettings?.language || 'en';
-    const locale = locales[language] || 'en-US';
+    const locale = getLocale(language);
     return new Intl.NumberFormat(locale).format(number);
 }
 
 export function formatCurrency(number) {
     const language = state.uiSettings?.language || 'en';
-    const locale = locales[language] || 'en-US';
+    const locale = getLocale(language);
     return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
 }
 
@@ -55,7 +50,7 @@ export function animateValue(element, start, end, duration = 750, formatFn = val
 
 export function formatFloat(number, decimals, integerDigits = 1) {
     const language = state.uiSettings?.language || 'en';
-    const locale = locales[language] || 'en-US';
+    const locale = getLocale(language);
     const clampedDecimals = Math.min(5, Math.max(0, decimals));
     const clampedIntegers = Math.min(5, Math.max(1, integerDigits));
     return new Intl.NumberFormat(locale, { 

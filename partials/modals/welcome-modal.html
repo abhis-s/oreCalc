@@ -47,16 +47,20 @@
 
                 <div class="welcome-preferences">
                     <div class="preference-item">
-                        <span class="preference-label" data-i18n="welcome.chooseLanguage">Language</span>
-                        <div class="preference-switch language-switch" data-active-index="0">
-                            <div class="switch-pill"></div>
-                            <button class="pref-btn" data-lang="en">English</button>
-                            <button class="pref-btn" data-lang="de">Deutsch</button>
-                            <button class="pref-btn" data-lang="tr">Türkçe</button>
+                        <span class="preference-label">
+                            <orecalc-assets-svg name="translate" height="18" width="18" class="pref-label-icon"></orecalc-assets-svg>
+                            <span data-i18n="welcome.chooseLanguage">Language</span>
+                        </span>
+                        <div class="preference-select-wrapper language-select-wrapper">
+                            <select class="preference-select language-select" id="welcome-language-select" aria-label="Select Language"></select>
+                            <span class="select-arrow"><orecalc-assets-svg name="chevron-down" height="14" width="14"></orecalc-assets-svg></span>
                         </div>
                     </div>
                     <div class="preference-item">
-                        <span class="preference-label" data-i18n="welcome.chooseTheme">Appearance</span>
+                        <span class="preference-label">
+                            <orecalc-assets-svg name="routine" height="18" width="18" class="pref-label-icon"></orecalc-assets-svg>
+                            <span data-i18n="welcome.chooseTheme">Appearance</span>
+                        </span>
                         <div class="preference-switch theme-switch" data-active-index="0">
                             <div class="switch-pill"></div>
                             <button class="pref-btn" data-theme="dark">
@@ -70,7 +74,10 @@
                         </div>
                     </div>
                     <div class="preference-item">
-                        <span class="preference-label" data-i18n="welcome.chooseAccent">Accent Color</span>
+                        <span class="preference-label">
+                            <orecalc-assets-svg name="colors" height="18" width="18" class="pref-label-icon"></orecalc-assets-svg>
+                            <span data-i18n="welcome.chooseAccent">Accent Color</span>
+                        </span>
                         <div class="welcome-accent-picker" id="welcome-accent-picker">
                             <button class="accent-swatch" data-color="blue" data-i18n-aria-label="colors.blue"
                                 aria-label="Blue Accent"></button>

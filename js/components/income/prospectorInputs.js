@@ -109,6 +109,8 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
 }
 
 function updateProspectorDropdowns() {
+    if (!dom.income?.prospector?.fromOre || !dom.income?.prospector?.toOre) return;
+
     const fromOreValue = dom.income.prospector.fromOre.dataset.value;
     let toOreValue = dom.income.prospector.toOre.dataset.value;
 
@@ -154,6 +156,8 @@ function updateProspectorDropdowns() {
 }
 
 function updateConversionUI() {
+    if (!dom.income?.prospector?.fromOre || !dom.income?.prospector?.toOre || !dom.income?.prospector?.fromAmount || !dom.income?.prospector?.slider) return;
+
     updateProspectorDropdowns();
 
     const fromOre = dom.income.prospector.fromOre.dataset.value;
@@ -190,6 +194,8 @@ function updateConversionUI() {
 }
 
 export function updateConversion(isSilent = false) {
+    if (!dom.income?.prospector?.fromOre || !dom.income?.prospector?.toOre || !dom.income?.prospector?.fromAmount) return;
+
     if (isSilent) {
         updateConversionUI();
         const fromOre = dom.income.prospector.fromOre.dataset.value;
@@ -294,6 +300,8 @@ export function renderProspector(prospectorState) {
 }
 
 export function initializeProspector() {
+    if (!dom.income?.prospector?.fromAmount) return;
+
     // --- Set Initial UI Values from State ---
     renderProspector(state.income.prospector);
 

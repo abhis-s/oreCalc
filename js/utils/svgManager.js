@@ -93,7 +93,9 @@ export const SVGs = {
     'update': {},
     'star-shine': {},
     'forward': {},
-    'backward': {}
+    'backward': {},
+    'routine': {},
+    'colors': {}
 };
 
 /**

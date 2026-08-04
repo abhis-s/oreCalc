@@ -261,55 +261,57 @@ export function initializePlayerModal() {
             }
         });
 
-        playerTagInput.addEventListener('keydown', (event) => {
+        playerTagInput?.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                if (loadButton.style.display !== 'none') {
+                if (loadButton && loadButton.style.display !== 'none') {
                     loadButton.click();
-                } else if (verifyButton.style.display !== 'none') {
+                } else if (verifyButton && verifyButton.style.display !== 'none') {
                     verifyButton.click();
                 }
             }
         });
 
-        playerTagInput.addEventListener('input', () => {
+        playerTagInput?.addEventListener('input', () => {
             validatePlayerTagInput(playerTagInput, errorMessageElement);
             updateLoadButtonState(playerTagInput, loadButton);
         });
     }
 
-    modal.addEventListener('click', (event) => {
-        const termsLink = event.target.closest('#add-player-terms-link');
-        const privacyLink = event.target.closest('#add-player-privacy-link');
+    if (modal) {
+        modal.addEventListener('click', (event) => {
+            const termsLink = event.target.closest('#add-player-terms-link');
+            const privacyLink = event.target.closest('#add-player-privacy-link');
 
-        if (termsLink) {
-            event.preventDefault();
-            const termsModal = document.getElementById('terms-modal');
-            if (termsModal) termsModal.classList.add('modal-top');
-            openTermsOfUseModal();
-            return;
-        }
+            if (termsLink) {
+                event.preventDefault();
+                const termsModal = document.getElementById('terms-modal');
+                if (termsModal) termsModal.classList.add('modal-top');
+                openTermsOfUseModal();
+                return;
+            }
 
-        if (privacyLink) {
-            event.preventDefault();
-            const privacyModal = document.getElementById('privacy-modal');
-            if (privacyModal) privacyModal.classList.add('modal-top');
-            openPrivacyModal();
-            return;
-        }
+            if (privacyLink) {
+                event.preventDefault();
+                const privacyModal = document.getElementById('privacy-modal');
+                if (privacyModal) privacyModal.classList.add('modal-top');
+                openPrivacyModal();
+                return;
+            }
 
-        if (event.target === modal) {
-            renderPlayerModal(false, '', '', false);
-        }
-    });
+            if (event.target === modal) {
+                renderPlayerModal(false, '', '', false);
+            }
+        });
 
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && modal.classList.contains('show')) {
-            renderPlayerModal(false, '', '', false);
-        }
-    });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && modal.classList.contains('show')) {
+                renderPlayerModal(false, '', '', false);
+            }
+        });
 
-    renderPlayerModal(false, '', '', false);
+        renderPlayerModal(false, '', '', false);
+    }
 }
 
 export function showAddPlayerModal(tag = '', forced = false) {

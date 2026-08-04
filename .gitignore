@@ -1,5 +1,6 @@
 # Node.js dependencies
 node_modules/
+.pnpm-store/
 package-lock.json
 
 # Build output

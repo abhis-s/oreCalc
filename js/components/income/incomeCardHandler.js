@@ -2,6 +2,7 @@ import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
 import { translate } from '../../i18n/translator.js';
+import { getSupercellEventUrl } from '../../data/languagesData.js';
 
 import { currencyData } from '../../data/appData.js';
 import { formatNumber, formatCurrency, updateCalculatedValue } from '../../utils/numberFormatter.js';
@@ -102,7 +103,10 @@ export function initializeIncomeCardHandler() {
         let body = '';
         let footer = null;
 
-        if (infoKey === 'equipment.badgeRarityHelp' && typeof btnOrKey === 'object' && btnOrKey) {
+        if (infoKey === 'income.supercellEvents.help') {
+            const currentLang = state.uiSettings?.language || 'en';
+            body = translate(infoKey, { url: getSupercellEventUrl(currentLang) });
+        } else if (infoKey === 'equipment.badgeRarityHelp' && typeof btnOrKey === 'object' && btnOrKey) {
             const rarity = btnOrKey.getAttribute('data-info-rarity') || btnOrKey.textContent.trim();
             body = translate('equipment.badgeRarityHelp', { rarity });
         } else {

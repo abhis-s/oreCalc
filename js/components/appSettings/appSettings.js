@@ -6,8 +6,8 @@ import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from '../../core/
 import { showToast } from '../../ui/toast.js';
 import { syncLanguageUrl } from '../../core/languageRouter.js';
 
-import { addCurrencyValidation } from '../../utils/inputValidator.js';
 import { currencyData, priceTierRegistry, languagesData, transparencyData, developmentSupportData } from '../../data/appData.js';
+import { getLocale } from '../../data/languagesData.js';
 
 import { formatCurrency } from '../../utils/numberFormatter.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
@@ -31,27 +31,16 @@ function populateDropdowns() {
 
     if (languageSelect) {
         languageSelect.innerHTML = '';
-        languagesData.forEach(lang => {
+        languagesData.filter(lang => lang.enabled).forEach(lang => {
             const option = document.createElement('option');
             option.value = lang.code;
             option.dataset.i18nLangName = lang.nameI18n;
             option.dataset.nativeName = lang.nativeName || '';
             option.dataset.fallbackName = lang.fallbackName || 'Unknown';
             
-            const translatedName = translate(lang.nameI18n);
-            const nativeName = lang.nativeName;
-            const fallbackName = lang.fallbackName;
-
-            let displayName;
-            if (!nativeName || !translatedName || translatedName.startsWith('[EN]')) {
-                displayName = fallbackName;
-            } else if (nativeName === translatedName) {
-                displayName = nativeName;
-            } else {
-                displayName = `${nativeName} (${translatedName})`;
-            }
-
-            option.textContent = displayName;
+            const name = lang.nativeName || lang.fallbackName;
+            const flag = lang.flag ? `${lang.flag} ` : '';
+            option.textContent = `${flag}${name}`;
             languageSelect.appendChild(option);
         });
     }
@@ -525,7 +514,7 @@ function renderRunningCostsData(modal, data, totalValue, historyContainer, updat
         try {
             const date = new Date(data.lastUpdated);
             if (!isNaN(date.getTime())) {
-                const locale = state.uiSettings?.language || 'en';
+                const locale = getLocale(state.uiSettings?.language || 'en');
                 updateDate.textContent = date.toLocaleDateString(locale, { dateStyle: 'medium' });
             } else {
                 updateDate.textContent = data.lastUpdated.split('T')[0];
@@ -744,7 +733,7 @@ function formatInvoiceMonth(invoiceMonth) {
     const year = parts[0];
     const month = parts[1];
     const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-    const locale = state.uiSettings?.language || 'en';
+    const locale = getLocale(state.uiSettings?.language || 'en');
     return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 }
 
