@@ -77,7 +77,18 @@ if (fs.existsSync(partialsDir)) {
 
 const openBrowser = process.env.OPEN_BROWSER !== 'false' && !process.argv.includes('--no-open');
 
-const localesMap = { en: 'en_US', de: 'de_DE', tr: 'tr_TR' };
+let supportedLanguages = ['en', 'de', 'tr'];
+try {
+    const languagesDataFile = fs.readFileSync(path.join(process.cwd(), 'js/data/languagesData.js'), 'utf8');
+    const matches = [...languagesDataFile.matchAll(/code:\s*'([a-z0-9-]+)'[^}]*enabled:\s*true/g)].map(m => m[1]);
+    if (matches.length > 0) {
+        supportedLanguages = matches;
+    }
+} catch (e) {
+    console.warn('[Dev Server] Could not parse languagesData.js dynamically');
+}
+
+const localesMap = { en: 'en_US', de: 'de_DE', tr: 'tr_TR', zh: 'zh_CN', 'zh-TW': 'zh_TW' };
 function getNestedValue(obj, keyPath) {
     return keyPath.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
 }
@@ -203,8 +214,13 @@ const params = {
     logLevel: 2,
     middleware: [
         function(req, res, next) {
-            // Strip language prefix (/en/, /de/, /tr/) for static asset requests if present
-            const langPrefixMatch = req.url.match(/^\/(en|de|tr)\/(.+)$/);
+            const langPatternStr = supportedLanguages.join('|');
+            const langAssetRegex = new RegExp(`^\\/(${langPatternStr})\\/(.+)$`);
+            const langMatchRegex = new RegExp(`^\\/(${langPatternStr})(\\/|$)`);
+            const exactLangNoSlash = supportedLanguages.map(l => `/${l}`);
+
+            // Strip language prefix (/en/, /de/, /tr/, /zh/) for static asset requests if present
+            const langPrefixMatch = req.url.match(langAssetRegex);
             if (langPrefixMatch) {
                 const potentialAssetPath = path.join(process.cwd(), langPrefixMatch[2]);
                 if (fs.existsSync(potentialAssetPath) && fs.statSync(potentialAssetPath).isFile()) {
@@ -221,8 +237,8 @@ const params = {
             }
 
             const isRoot = pathname === '/' || pathname === '/index.html';
-            const isExactLangNoSlash = ['/en', '/de', '/tr'].includes(pathname);
-            const langMatch = pathname.match(/^\/(en|de|tr)(\/|$)/);
+            const isExactLangNoSlash = exactLangNoSlash.includes(pathname);
+            const langMatch = pathname.match(langMatchRegex);
 
             if (isExactLangNoSlash) {
                 res.writeHead(301, { Location: `${pathname}/${query}` });

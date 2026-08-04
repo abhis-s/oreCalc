@@ -2,7 +2,7 @@ name: Crowdin Sync
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feat/crowdin-sync, crowdin-sync ]
     paths:
       - 'js/i18n/en.json'
       - 'crowdin.yml'
@@ -32,6 +32,8 @@ jobs:
           pull_request_body: 'Automated pull request with latest translations from Crowdin.'
           pull_request_branch: 'crowdin-translations'
           commit_message: 'i18n: sync translations from Crowdin [skip ci]'
+          labels: 'i18n, crowdin'
         env:
-          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
-          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID || secrets.PROJECT_ID || secrets.CROWDIN_PROJECT }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN || secrets.PAM || secrets.CROWDIN_PAM || secrets.CROWDIN_PAT || secrets.PERSONAL_ACCESS_TOKEN }}
+

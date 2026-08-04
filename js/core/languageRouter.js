@@ -1,6 +1,8 @@
 import { state } from './state.js';
+import { SUPPORTED_LANGUAGES } from '../data/languagesData.js';
 
-export const SUPPORTED_LANGUAGES = ['en', 'de', 'tr'];
+export { SUPPORTED_LANGUAGES };
+
 
 /**
  * Extracts a supported language code from the URL path.

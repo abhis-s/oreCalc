@@ -6,6 +6,7 @@ import { getSupercellEventsForYear } from '../../utils/dateUtils.js';
 import { supercellEventsData } from '../../data/appData.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 import { translate } from '../../i18n/translator.js';
+import { getSupercellEventUrl } from '../../data/languagesData.js';
 
 export function renderSupercellEventsDisplay(supercellEventsIncome, timeframe) {
     const supercellEventsElements = dom.income.supercellEvents.display;
@@ -90,8 +91,8 @@ function renderSupercellEvents() {
 
         let watchLiveHtml = '';
         if (isLive) {
-            let lang = state.uiSettings.language === 'de' ? 'de' : 'en';
-            const url = `https://event.supercell.com/clashofclans/${lang}/`;
+            const currentLang = state.uiSettings?.language || 'en';
+            const url = getSupercellEventUrl(currentLang);
             watchLiveHtml = `<a href="${url}" target="_blank" class="watch-live-btn">${translate('income.supercellEvents.live')}</a>`;
         }
 

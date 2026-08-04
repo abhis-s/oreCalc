@@ -1,5 +1,7 @@
 import { handleStateUpdate } from '../../core/stateManager.js';
 import { state } from '../../core/state.js';
+import { getWeekStart } from '../../data/languagesData.js';
+
 
 import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
 import { calculateCumulativeOres, reindexCalendarChips, checkAndGenerateRecurringChips } from '../../utils/chipManager.js';
@@ -10,6 +12,7 @@ import { getISOWeekNumber, getDaysInMonth, addDays, getSupercellEventsForYear, g
 import { incomeData, getSourceById } from '../../data/incomeSourceRegistry.js';
 import { supercellEventsData } from '../../data/appData.js';
 import { translate } from '../../i18n/translator.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
 import { getProspectorIncomeForDate } from '../../incomeCalculations/prospectorManager.js';
 
 import { renderIncomeChips } from './incomeChips.js';
@@ -157,23 +160,25 @@ function handleEquipmentBadgeMouseEnter(e, item) {
     tooltip.id = 'active-calendar-tooltip';
 
     const heroName = item.heroName || '';
-    const equipName = item.name || '';
+    const rawEquipName = item.name || '';
+    const translatedEquipName = translate(`equipment.${toCamelCase(rawEquipName)}`) || rawEquipName;
     const targetLvl = item.targetLevel || 1;
+    const lvlPrefix = translate('equipment.lvlShort') || 'Lvl';
     const bottleneckTrans = item.bottleneckOre ? translate(`ores.${item.bottleneckOre}`) : '';
     
     let requiredHtml = '';
     if (item.requiredOres) {
         requiredHtml = `
             <div class="tooltip-req-ores">
-                ${item.requiredOres.shiny > 0 ? `<span>${formatNumber(item.requiredOres.shiny)} <orecalc-assets-image src="assets/shiny_ore.png"></orecalc-assets-image></span>` : ''}
-                ${item.requiredOres.glowy > 0 ? `<span>${formatNumber(item.requiredOres.glowy)} <orecalc-assets-image src="assets/glowy_ore.png"></orecalc-assets-image></span>` : ''}
-                ${item.requiredOres.starry > 0 ? `<span>${formatNumber(item.requiredOres.starry)} <orecalc-assets-image src="assets/starry_ore.png"></orecalc-assets-image></span>` : ''}
+                ${item.requiredOres.shiny > 0 ? `<span>${formatNumber(item.requiredOres.shiny)} <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('ores.shiny')}"></orecalc-assets-image></span>` : ''}
+                ${item.requiredOres.glowy > 0 ? `<span>${formatNumber(item.requiredOres.glowy)} <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('ores.glowy')}"></orecalc-assets-image></span>` : ''}
+                ${item.requiredOres.starry > 0 ? `<span>${formatNumber(item.requiredOres.starry)} <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('ores.starry')}"></orecalc-assets-image></span>` : ''}
             </div>
         `;
     }
 
     tooltip.innerHTML = `
-        <div class="tooltip-header" style="color: ${getHeroColor(item.heroName)}; font-weight: bold;">${equipName} (Lvl ${targetLvl})</div>
+        <div class="tooltip-header" style="color: ${getHeroColor(item.heroName)}; font-weight: bold;">${translatedEquipName} (${lvlPrefix} ${targetLvl})</div>
         ${item.message ? `<div class="tooltip-message" style="color: #ff7675;">${item.message}</div>` : ''}
         ${item.bottleneckOre ? `<div class="tooltip-bottleneck">${translate('ores.bottleneckLabel') || 'Bottleneck'}: ${bottleneckTrans}</div>` : ''}
         ${requiredHtml}
@@ -477,7 +482,8 @@ function createDayCell(date, plannerState) {
                 // Level text
                 const levelSpan = document.createElement('span');
                 levelSpan.classList.add('calendar-equipment-level');
-                levelSpan.textContent = `Lvl ${item.targetLevel}`;
+                const lvlPrefix = translate('equipment.lvlShort') || 'Lvl';
+                levelSpan.textContent = `${lvlPrefix} ${item.targetLevel}`;
                 badge.appendChild(levelSpan);
 
                 // Tooltip interaction
@@ -514,9 +520,13 @@ function generateMonthGrid(dateForMonth, plannerState) {
     const language = state.uiSettings?.language || 'en';
     let effectiveStartDay = firstDayOfWeekSetting;
     if (effectiveStartDay === 'auto') {
-        effectiveStartDay = language === 'de' ? 'monday' : 'sunday';
+        effectiveStartDay = getWeekStart(language);
     }
-    const startDayIndex = effectiveStartDay === 'monday' ? 1 : 0;
+    let startDayIndex = 0;
+    if (effectiveStartDay === 'monday') startDayIndex = 1;
+    else if (effectiveStartDay === 'tuesday') startDayIndex = 2;
+    else if (effectiveStartDay === 'friday') startDayIndex = 5;
+    else if (effectiveStartDay === 'saturday') startDayIndex = 6;
 
     const dayNames = getShortDayNames(firstDayOfWeekSetting);
     dayNames.forEach(day => {
@@ -559,9 +569,13 @@ function generateWeekGrid(date, plannerState) {
     const language = state.uiSettings?.language || 'en';
     let effectiveStartDay = firstDayOfWeekSetting;
     if (effectiveStartDay === 'auto') {
-        effectiveStartDay = language === 'de' ? 'monday' : 'sunday';
+        effectiveStartDay = getWeekStart(language);
     }
-    const startDayIndex = effectiveStartDay === 'monday' ? 1 : 0;
+    let startDayIndex = 0;
+    if (effectiveStartDay === 'monday') startDayIndex = 1;
+    else if (effectiveStartDay === 'tuesday') startDayIndex = 2;
+    else if (effectiveStartDay === 'friday') startDayIndex = 5;
+    else if (effectiveStartDay === 'saturday') startDayIndex = 6;
 
     const startOfWeek = new Date(date);
     const diff = (startOfWeek.getUTCDay() - startDayIndex + 7) % 7;
@@ -971,6 +985,10 @@ function getWeeksInMonth(year, month) {
 }
 
 function renderMonthChips() {
+    if (!monthChipContainer) {
+        monthChipContainer = document.getElementById('month-chip-container');
+    }
+    if (!monthChipContainer) return;
     monthChipContainer.innerHTML = '';
     let currentYear = 0;
 
@@ -1427,13 +1445,15 @@ function handleDayCellMouseEnter(e) {
         const compDateObj = new Date(activeRange.end);
         const compDateFormatted = formatDate(compDateObj, { month: 'short', day: 'numeric', weekday: 'short' });
         const heroColor = getHeroColor(activeRange.item.heroName);
+        const translatedItemName = translate(`equipment.${toCamelCase(activeRange.item.name)}`) || activeRange.item.name;
+        const lvlPrefix = translate('equipment.lvlShort') || 'Lvl';
         
         inProgressHtml = `
             <div class="tooltip-in-progress">
                 <div class="in-progress-title">${translate('ores.byLabel') || 'By'}: ${compDateFormatted}</div>
                 <div class="in-progress-badge" style="--equip-color: ${heroColor}; border-color: ${heroColor};">
-                    ${activeRange.item.image ? `<orecalc-assets-image src="${activeRange.item.image}" class="in-progress-icon"></orecalc-assets-image>` : `<span class="in-progress-fallback">${activeRange.item.name.substring(0, 2).toUpperCase()}</span>`}
-                    <span class="in-progress-level">Lvl ${activeRange.item.targetLevel}</span>
+                    ${activeRange.item.image ? `<orecalc-assets-image src="${activeRange.item.image}" class="in-progress-icon" alt="${translatedItemName}"></orecalc-assets-image>` : `<span class="in-progress-fallback">${activeRange.item.name.substring(0, 2).toUpperCase()}</span>`}
+                    <span class="in-progress-level">${lvlPrefix} ${activeRange.item.targetLevel}</span>
                 </div>
             </div>
         `;

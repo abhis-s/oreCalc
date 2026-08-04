@@ -8,6 +8,7 @@ import { renderApp } from './core/renderer.js';
 import { recalculateAll } from './core/calculator.js';
 import { registerStateUpdateCallback, handleStateUpdate } from './core/stateManager.js';
 import { detectLanguage, syncLanguageUrl, getLanguageFromPath, isValidRoute } from './core/languageRouter.js';
+import { getFanContentPolicyUrl } from './data/languagesData.js';
 
 import { initializeHeader } from './components/layout/header.js';
 import { initializeTabs } from './components/layout/tabs.js';
@@ -236,6 +237,13 @@ export function updateUIWithTranslations(isInitialLoad = false) {
         if (key === 'settings.bugReportPrivacyInfo') {
             const privacyText = translate('settings.privacyPolicyText') || 'Privacy Policy';
             args.link = `<a href="#" id="bug-report-privacy-link" class="theme-link">${privacyText}</a>`;
+        }
+
+        if (key === 'app.supercellDisclaimer') {
+            const currentLang = state.uiSettings?.language || 'en';
+            const policyUrl = getFanContentPolicyUrl(currentLang);
+            args.url = policyUrl;
+            args.displayUrl = policyUrl.replace(/^https?:\/\//, '');
         }
 
         let translatedName = translate(key, args);
@@ -716,17 +724,15 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     state.uiSettings.language = initialLang;
     syncLanguageUrl(initialLang, true);
 
-    (async () => {
-        await loadTranslations('en');
-        if (initialLang !== 'en') {
-            await loadTranslations(initialLang);
-        }
-    })();
-
-    // 2. DEFER ALL HEAVY RENDERING AND THEME APPLICATION
-    // This gives the CPU 2.3s of complete silence to perform the 60fps cinematic sequence.
-    // The "hiccup" of rendering happens at 2.3s while the screen is covered by a solid color.
     setTimeout(async () => {
+        try {
+            await loadTranslations('en');
+            if (initialLang !== 'en') {
+                await loadTranslations(initialLang);
+            }
+        } catch (e) {
+            console.error('Failed loading initial translations:', e);
+        }
         state.uiSettings.language = initialLang;
 
         if (!state.uiSettings.currency || !state.uiSettings.currency.code) {

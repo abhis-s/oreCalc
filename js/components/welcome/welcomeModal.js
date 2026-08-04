@@ -1,5 +1,7 @@
 import { dom } from '../../dom/domElements.js';
 import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_WELCOME, getDefaultPlayerState } from '../../core/state.js';
+import { enabledLanguages } from '../../data/languagesData.js';
+
 import { handleStateUpdate, switchActivePlayer } from '../../core/stateManager.js';
 import { loadAndProcessPlayerData, processPlayerDataResponse } from '../../services/serverResponseHandler.js';
 import { fetchPlayerData } from '../../services/apiService.js';
@@ -146,24 +148,22 @@ export function showWelcomeModal(isVisible, startTag = null) {
         const currentLang = state.uiSettings.language || 'en';
         const currentTheme = state.uiSettings.theme || 'dark';
 
-        const langSwitch = modal.querySelector('.language-switch');
-        if (langSwitch) {
-            const langIndex = currentLang === 'de' ? '1' : (currentLang === 'tr' ? '2' : '0');
-            langSwitch.setAttribute('data-active-index', langIndex);
+        const langSelect = modal.querySelector('#welcome-language-select');
+        if (langSelect) {
+            langSelect.innerHTML = '';
+            enabledLanguages.forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang.code;
+                const name = lang.nativeName || lang.fallbackName;
+                const flag = lang.flag ? `${lang.flag} ` : '';
+                option.textContent = `${flag}${name}`;
+                if (lang.code === currentLang) {
+                    option.selected = true;
+                }
+                langSelect.appendChild(option);
+            });
+            langSelect.value = currentLang;
         }
-
-        const themeSwitch = modal.querySelector('.theme-switch');
-        if (themeSwitch) {
-            themeSwitch.setAttribute('data-active-index', currentTheme === 'dark' ? '0' : '1');
-        }
-
-        modal.querySelectorAll('.language-switch .pref-btn').forEach(btn => {
-            if (btn.getAttribute('data-lang') === currentLang) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
 
         modal.querySelectorAll('.theme-switch .pref-btn').forEach(btn => {
             if (btn.getAttribute('data-theme') === currentTheme) {
@@ -689,25 +689,16 @@ export function initializeWelcomeModal() {
     });
 
     // Initialize preference switch listeners
-    modal.querySelectorAll('.language-switch .pref-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const newLang = btn.getAttribute('data-lang');
+    const welcomeLangSelect = modal.querySelector('#welcome-language-select');
+    if (welcomeLangSelect) {
+        welcomeLangSelect.addEventListener('change', async (e) => {
+            const newLang = e.target.value;
             if (state.uiSettings.language === newLang) return;
-
-            const langSwitch = modal.querySelector('.language-switch');
-            if (langSwitch) {
-                const langIndex = newLang === 'de' ? '1' : (newLang === 'tr' ? '2' : '0');
-                langSwitch.setAttribute('data-active-index', langIndex);
-            }
-
-            modal.querySelectorAll('.language-switch .pref-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
 
             const header = modal.querySelector('.welcome-header');
             if (header) header.classList.add('translating-header');
             if (carousel) carousel.classList.add('translating');
-            
-            // Wait 150ms for the fade-out animation to complete
+
             await new Promise(resolve => setTimeout(resolve, 150));
 
             await loadTranslations(newLang);
@@ -726,7 +717,7 @@ export function initializeWelcomeModal() {
             if (header) header.classList.remove('translating-header');
             if (carousel) carousel.classList.remove('translating');
         });
-    });
+    }
 
     modal.querySelectorAll('.theme-switch .pref-btn').forEach(btn => {
         btn.addEventListener('click', async (e) => {

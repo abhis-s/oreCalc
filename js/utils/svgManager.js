@@ -87,7 +87,9 @@ export const SVGs = {
     'cloud-lock': {},
     'user': {},
     'update': {},
-    'star-shine': {}
+    'star-shine': {},
+    'routine': {},
+    'colors': {}
 };
 
 /**

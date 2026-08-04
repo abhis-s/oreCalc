@@ -2,6 +2,7 @@ import { dom } from '../../dom/domElements.js';
 import { handleStateUpdate } from '../../app.js';
 import { state } from '../../core/state.js';
 import { translate } from '../../i18n/translator.js';
+import { getSupercellEventUrl } from '../../data/languagesData.js';
 
 import { currencyData } from '../../data/appData.js';
 import { formatNumber, formatCurrency, updateCalculatedValue } from '../../utils/numberFormatter.js';
@@ -76,7 +77,12 @@ export function initializeIncomeCardHandler() {
         if (btn) {
             e.stopPropagation();
             const infoKey = btn.getAttribute('data-info');
-            const text = translate(infoKey);
+            let args = {};
+            if (infoKey === 'income.supercellEvents.help') {
+                const currentLang = state.uiSettings?.language || 'en';
+                args.url = getSupercellEventUrl(currentLang);
+            }
+            const text = translate(infoKey, args);
             showHelpPopover(btn, text);
         } else {
             hideHelpPopover();

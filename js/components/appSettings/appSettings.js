@@ -31,27 +31,16 @@ function populateDropdowns() {
 
     if (languageSelect) {
         languageSelect.innerHTML = '';
-        languagesData.forEach(lang => {
+        languagesData.filter(lang => lang.enabled).forEach(lang => {
             const option = document.createElement('option');
             option.value = lang.code;
             option.dataset.i18nLangName = lang.nameI18n;
             option.dataset.nativeName = lang.nativeName || '';
             option.dataset.fallbackName = lang.fallbackName || 'Unknown';
             
-            const translatedName = translate(lang.nameI18n);
-            const nativeName = lang.nativeName;
-            const fallbackName = lang.fallbackName;
-
-            let displayName;
-            if (!nativeName || !translatedName || translatedName.startsWith('[EN]')) {
-                displayName = fallbackName;
-            } else if (nativeName === translatedName) {
-                displayName = nativeName;
-            } else {
-                displayName = `${nativeName} (${translatedName})`;
-            }
-
-            option.textContent = displayName;
+            const name = lang.nativeName || lang.fallbackName;
+            const flag = lang.flag ? `${lang.flag} ` : '';
+            option.textContent = `${flag}${name}`;
             languageSelect.appendChild(option);
         });
     }

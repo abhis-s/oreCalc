@@ -1,7 +1,7 @@
 {
     "app": {
         "title": "Cevher Hesaplayıcı",
-        "supercellDisclaimer": "Bu materyal resmi değildir ve Supercell tarafından onaylanmamıştır. Daha fazla bilgi için Supercell'in Hayran İçeriği Politikasına bakın: <a href=\"https://www.supercell.com/fan-content-policy\" target=\"_blank\">www.supercell.com/fan-content-policy</a>.",
+        "supercellDisclaimer": "Bu materyal resmi değildir ve Supercell tarafından onaylanmamıştır. Daha fazla bilgi için Supercell'in Hayran İçeriği Politikasına bakın: <a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">{displayUrl}</a>.",
         "none": "Hiçbiri",
         "madeIn": "Almanya'da hassas bir şekilde üretilmiştir",
         "description": "En gelişmiş Clash of Clans Cevher Hesaplayıcısı ve Planlayıcısı. Cevher gelirinizi tahmin edin, sürükle-bırak takvimi ile kahraman ekipmanı yükseltmelerini planlayın ve birden fazla hesabı yönetin. Kapsamlı gelir takibi, yükseltme öncelik listeleri, çevrimdışı destek (PWA) ve bulut senkronizasyonu içerir.",
@@ -70,7 +70,7 @@
         "bottleneckLabel": "Darboğaz",
         "completedBy": "Tarafından tamamlandı",
         "byLabel": "İle",
-        "modalStoredOresPrompt": "Lütfen demircinizde bulunan cevher miktarını girin",
+        "modalStoredOresPrompt": "Lütfen demircinizde bulunan cevher miktarını girin.",
         "dontAskTwoMonths": "2 ay boyunca tekrar gösterme",
         "dontAskTwoMonthsDesc": "Depolanan cevherler hatırlatıcısı olan bu pencereyi önümüzdeki iki ay boyunca sessize alın.",
         "autoPredictTitle": "Otomatik Tahmin",
@@ -136,7 +136,7 @@
             "help": "Günlük Yıldız Bonusu cevher ödülleri, aktif Lig seviyenize göre belirlenir. Ara sıra, oyunda 2x Yıldız Bonusu etkinlikleri düzenlenir ve bunlar biraz rastgele olabilir, ancak genellikle 3 ila 4 ay arayla gerçekleşir. 4x Yıldız Bonusu için, Belediye Binasınızı yükselttiğinizde 5 gün boyunca bu bonusu alırsınız."
         },
         "starBonusMultiplier": {
-            "title": "Yıldız Bonus Çarpanları"
+            "title": "Yıldız Bonusu Çarpanları"
         },
         "clanWar": {
             "title": "Klan Savaşı",
@@ -223,7 +223,7 @@
             "inDays": "({days} gün içinde)",
             "bonusesUnknown": "Etkinlikler sırasında verilecek kaynak bonuslarının miktarı şu anda bilinmiyor.",
             "packInput": "{name} paket sayısı",
-            "help": "Resmi Supercell etkinlikleri ve turnuvaları. <a href=\"https://event.supercell.com/clashofclans/en\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Event<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a> web sitesinde tahminlerde bulunarak ve canlı yayınları izleyerek bonus cevherler kazanabilirsiniz."
+            "help": "Resmi Supercell etkinlikleri ve turnuvaları. <a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Event<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a> web sitesinde tahminlerde bulunarak ve canlı yayınları izleyerek bonus cevherler kazanabilirsiniz."
         },
         "prospector": {
             "title": "Maden Avcısı",
@@ -242,9 +242,9 @@
             "tooltipConsider": "Cevherleri dengelemek için maden avcısını kullanmayı düşünün.",
             "tips": {
                 "addToPlanner": {
-                    "pre": "Ekipmanları ekleyin  ",
+                    "pre": "Ekipmanları ",
                     "link": "Öncelik Listesi",
-                    "post": "Planlayıcı sekmesinden ipuçları alabilirsiniz. "
+                    "post": " bölümüne ekleyerek Planlayıcı sekmesinden ipuçları alabilirsiniz."
                 },
                 "optimal": "Optimal Denge",
                 "balanced": "{upgradeInfo} için cevherleriniz dengede.",
@@ -354,7 +354,7 @@
             "firstDayOfWeek": "Haftanın İlk Günü",
             "firstDayOfWeekDesc": "Takvimde haftanızın başlangıç ​​tarihini seçin.",
             "showChipIcons": "Kaynak Simgelerini Göster",
-            "showChipIconsDesc": " Cevher ve ligler için fişler üzerinde simgeleri görüntüleyin.",
+            "showChipIconsDesc": "Cevher ve ligler için fişler üzerinde simgeleri görüntüleyin.",
             "autoPlaceScope": "Otomatik Yerleştirme Kapsamı",
             "autoPlaceScopeDesc": "Fişlerin mevcut ay için mi yoksa ay sonuna kadar mı yerleştirileceğine karar verin.",
             "showEquipmentMilestones": "Ekipman Yükseltmelerini Göster",
@@ -363,7 +363,10 @@
             "highlightUpgradeRangesDesc": "Her bir yükseltme için cevherlerin biriktirildiği tarih aralıklarını vurgulayın.",
             "auto": "Otomatik",
             "monday": "Pazartesi",
+            "tuesday": "Salı",
             "sunday": "Pazar",
+            "saturday": "Cumartesi",
+            "friday": "Cuma",
             "currentMonth": "Mevcut Ay",
             "entireYear": "Tüm Yıl",
             "tillEnd": "Sonuna Kadar"
@@ -422,7 +425,7 @@
         "step": "Kademe",
         "level": "Seviye",
         "setTargetFor": "Hedef Seviyeleri Belirleyin",
-        "suggestionInterleave": "{itemName} cevheri beklerken {itemName} ürününü tamamlayın. Planınızda herhangi bir gecikme olmayacak.",
+        "suggestionInterleave": "{itemName} cevherlerini beklerken {itemNames} yükseltmesini tamamlayın. Planınızda herhangi bir gecikme olmayacak.",
         "placeholderLevel": "örn; 18",
         "confirmDeleteMonth": "Mevcut ayda yerleştirilen tüm fişleri silmek istediğinizden emin misiniz?",
         "confirmDeleteAll": "Takvimdeki tüm fişleri silmek istediğinizden emin misiniz? Bu işlem, tüm özel fişleri de silecektir."
@@ -506,9 +509,6 @@
             "dark": "Koyu",
             "light": "Açık"
         },
-        "english": "İngilizce",
-        "german": "Almanca",
-        "turkish": "Türkçe",
         "github": "GitHub",
         "crowdin": "Çeviriye Yardım Edin",
         "crowdinHelp": "Uygulamayı kendi dilinize yerelleştirmemize yardımcı olmak için çeviriler gönderin.",
@@ -581,8 +581,8 @@
             "bugDescription": "Tanım *",
             "bugDescriptionOptional": "Açıklama (İsteğe bağlı)",
             "userDataAttachment": "Kullanıcı Verilerini Ekle (İsteğe Bağlı)",
-            "uuidAttachmentInfo": "Oturumunuzu tanımlamamıza yardımcı olmak için size özel Kullanıcı Kimliğiniz (UUID) her zaman kaydedilir.",
-            "emailPlaceholder": "your-email@example.com",
+            "uuidAttachmentInfo": "Benzersiz Kullanıcı Kimliğiniz (UUID), oturumunuzu tanımlamamıza yardımcı olmak için her zaman eklenir.",
+            "emailPlaceholder": "epostaniz@ornek.com",
             "bugDescPlaceholder": "Lütfen sorunu ayrıntılı olarak açıklayın..."
         },
         "cloudSyncInfo": "Verilerinizi cihazlar arasında senkronize edin. Clash of Clans API'si aktif kalmaya devam ediyor.",
@@ -611,10 +611,16 @@
         "dataErasureExplanations": {
             "local": "Yalnızca bu cihazdaki tüm uygulama ilerlemesini ve ayarlarını siler. Bulut yedeklemeniz etkilenmez.",
             "cloud": "Hem yerel uygulama ilerlemenizi hem de senkronize edilmiş bulut yedeklemenizi aynı anda kalıcı olarak siler."
+        },
+        "languages": {
+            "english": "İngilizce",
+            "german": "Almanca",
+            "turkish": "Türkçe",
+            "chineseSimplified": "Çince (Basitleştirilmiş)"
         }
     },
     "pricing": {
-        "gems": "{sayı} Yeşil Taş",
+        "gems": "{count} Yeşil Taş",
         "goldPass": "Altın Bilet",
         "miniEventPass": "Mini Etkinlik Bileti",
         "gemsEventPass": "{count} Yeşi Taş / Etkinlik Bileti",
@@ -676,6 +682,7 @@
         "importSuccess": "Veriler başarıyla içe aktarıldı! Uygulama yeniden yükleniyor...",
         "importNoData": "Bu kullanıcı kimliği için hiçbir veri bulunamadı.",
         "importFailed": "Veri içe aktarma başarısız oldu: <code>{error}</code>",
+        "importNewerVersionRequired": "Yüklemeye çalıştığınız veriler uygulamanın daha yeni bir sürümü tarafından kaydedilmiş. Lütfen senkronize etmeden önce uygulamayı güncelleyin.",
         "importEmpty": "Lütfen içe aktarmak için bir Kullanıcı Kimliği girin.",
         "saveDefaultOnly": "Buluta kaydedilemiyor: Yalnızca varsayılan oynatıcı etiketi mevcut.",
         "enableCloudSyncToCopy": "Bulut senkronizasyonu şu anda devre dışı. Verilerinizi cihazlar arasında senkronize etmek için bunu etkinleştirmeniz gerekiyor. Şimdi etkinleştirmek ister misiniz?",
@@ -686,6 +693,7 @@
         "progressSaved": "İlerlemeniz kaydedildi!",
         "saveSuccess": "Veriler buluta başarıyla kaydedildi!",
         "saveFailed": "Veriler buluta kaydedilemedi: <code>{error}</code>",
+        "deleteCloudFailed": "Bulut yedeği silinemedi: <code>{error}</code>. Yerel veriler yine de temizlenecek.",
         "fetchChangelogFailed": "Değişiklik günlüğü alınamadı.",
         "globalErasureSuccess": "Oyuncu doğrulandı! Oyuncu etiketiniz sistemlerimizden hemen kilitlendi ve neredeyse tüm veriler silindi. Gelecekte ekleme girişimleri doğrulama gerektirecektir. Sağlanan oyuncu etiketiyle ilgili olarak herhangi bir yerde kalan tüm veriler önümüzdeki 30 gün içinde silinecektir.",
         "bugReportSuccess": "Hata raporu başarıyla gönderildi! Geri bildiriminiz için teşekkür ederiz.",
@@ -698,6 +706,8 @@
         "externalLinkConfirm": "Devam etmek istiyor musunuz?",
         "mailtoLink": "Varsayılan e-posta istemcinizi açıp bir e-posta göndermek üzeresiniz. Devam etmek istiyor musunuz?",
         "resetAll": "Tüm verilerinizi silmek istediğinizden emin misiniz? Bu işlem kalıcıdır ve geri alınamaz.",
+        "resetLocal": "Bu cihazdaki tüm verileri temizlemek istediğinizden emin misiniz? Senkronize edilmiş bulut yedeğiniz silinmeyecektir.",
+        "resetCloud": "Hem yerel ilerlemenizi HEM DE senkronize edilmiş bulut yedeğinizi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem kalıcıdır ve geri alınamaz.",
         "resetGlobalPricing": "Bu para birimi için özel fiyatlandırmayı sıfırlamak istediğinizden emin misiniz? Bu işlem, varsayılan mağaza fiyatlarını geri yükleyecektir.",
         "cloudSync": "Bulutta daha yeni veriler mevcut. Senkronize etmek ister misiniz?",
         "importOverwrite": "{userId} kullanıcı kimliği için veri içe aktarılsın mı? Bu, mevcut verilerinizin üzerine yazacaktır.",
@@ -750,9 +760,11 @@
         "stunBlaster": "Sersemletici Tabanca",
         "electroFangs": "Elektro Dişler",
         "rocketBackpack": "Sırt Roketi",
+        "comingSoon": "Yakında gelecek",
         "commonMax": "Sıradan Maksimum",
         "enable": "Etkinleştir",
         "disable": "Devre dışı bırak",
+        "lvlShort": "Sev.",
         "requiredOres": {
             "help": "Planladığınız yükseltmeler için gereken net cevher miktarını {(toplam maliyet) - (depolanan miktar)} gösterir. Hedef kapasiteler ayarlarda özelleştirilirse veya planlayıcı sekmesinde istenen maksimum seviyeleri değiştirirseniz ya da ekipmanı devre dışı bırakırsanız, sayılar gerçek maksimum değerlerden farklı olabilir."
         },
@@ -800,16 +812,16 @@
     },
     "apiErrors": {
         "400": "Yanlış parametreler girildi.",
-        "badRequest": "Yanlış parametreler girildi.",
         "403": "Erişim engellendi. API belirteci eksik veya hatalı.",
-        "accessDenied": "Erişim engellendi. API belirteci eksik veya hatalı.",
         "404": "Oyuncu bulunamadı. Lütfen oyuncu etiketini kontrol edin.",
-        "notFound": "Oyuncu bulunamadı. Lütfen oyuncu etiketini kontrol edin.",
         "429": "Çok fazla istek. Lütfen daha sonra tekrar deneyin.",
-        "tooManyRequests": "Çok fazla istek. Lütfen daha sonra tekrar deneyin.",
         "500": "Clash of Clans sunucularında bilinmeyen bir hata oluştu.",
         "503": "Clash of Clans sunucuları bakım çalışmaları nedeniyle geçici olarak kullanılamıyor.",
         "525": "SSL el sıkışması başarısız oldu. Sunucu ile Clash of Clans API'si arasındaki bağlantı kesildi.",
+        "badRequest": "Yanlış parametreler girildi.",
+        "accessDenied": "Erişim engellendi. API belirteci eksik veya hatalı.",
+        "notFound": "Oyuncu bulunamadı. Lütfen oyuncu etiketini kontrol edin.",
+        "tooManyRequests": "Çok fazla istek. Lütfen daha sonra tekrar deneyin.",
         "inMaintenance": "Clash of Clans sunucuları bakım çalışmaları nedeniyle geçici olarak kullanılamıyor.",
         "default": "API Hatası: {status}",
         "rateLimitedWithTimeMinutes": "Çok fazla istek. Lütfen {minutes} dakika sonra tekrar deneyin.",
@@ -917,7 +929,7 @@
         "guestTitle": "Misafir Profilini Yapılandır",
         "guestProfileTag": "Misafir Profili",
         "guestDesc": "Profilinizi temel değerlerle doldurmak için Belediye Binası ve Liginizi seçin.",
-        "selectTH": "Belediye binasını seçin:",
+        "selectTH": "Belediye Binasını seçin:",
         "selectLeague": "Lig Seçin:",
         "loadedProfiles": "Yüklenen Profiller:",
         "quickSettingsTitle": "Hızlı Ayarlar Kontrol Listesi",
@@ -951,7 +963,7 @@
             "cwl": "Klan Savaş Ligi (KSL)",
             "cwlHits": "Sezon başına saldırı:",
             "groupProgression": "İlerleme & Satın Alımlar",
-            "goldPass": "Altın  Bilet satın alıyor musunuz?",
+            "goldPass": "Altın Bilet satın alıyor musunuz?",
             "goldPassDesc": "Altın Bilet satın almak, cevherleri işleyerek darboğazları ortadan kaldırmaya yardımcı olan Maden Avcısına erişim sağlar.",
             "groupSync": "Yedekleme & Senkronizasyon",
             "cloudSync": "Bulut Senkronizasyonunu Etkinleştir?",
