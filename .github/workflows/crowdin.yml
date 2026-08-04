@@ -56,5 +56,6 @@ jobs:
           title: 'i18n: Update translations from Crowdin'
           body: 'Automated pull request with latest verified translations from Crowdin.'
           branch: 'crowdin-translations'
+          base: 'main'
           labels: 'i18n, crowdin'
 
