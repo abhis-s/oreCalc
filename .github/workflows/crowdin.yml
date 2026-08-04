@@ -22,20 +22,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Synchronize with Crowdin
+      - name: Upload Source Strings to Crowdin
         uses: crowdin/github-action@v2
         with:
           upload_sources: true
           upload_translations: false
-          download_translations: true
-          create_pull_request: true
-          pull_request_title: 'i18n: Update translations from Crowdin'
-          pull_request_body: 'Automated pull request with latest translations from Crowdin.'
-          localization_branch_name: 'crowdin-translations'
-          commit_message: 'i18n: sync translations from Crowdin [skip ci]'
-          pull_request_labels: 'i18n, crowdin'
+          download_translations: false
+          create_pull_request: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID || secrets.PROJECT_ID || secrets.CROWDIN_PROJECT }}
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN || secrets.PAM || secrets.CROWDIN_PAM || secrets.CROWDIN_PAT || secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Download & Prune Eligible Translations
+        run: |
+          npm install -g @crowdin/cli
+          node scripts/crowdin-download.js
+          node scripts/validate-i18n.js
+        env:
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID || secrets.PROJECT_ID || secrets.CROWDIN_PROJECT }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN || secrets.PAM || secrets.CROWDIN_PAM || secrets.CROWDIN_PAT || secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'i18n: sync translations from Crowdin [skip ci]'
+          title: 'i18n: Update translations from Crowdin'
+          body: 'Automated pull request with latest verified translations from Crowdin.'
+          branch: 'crowdin-translations'
+          labels: 'i18n, crowdin'
 

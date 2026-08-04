@@ -176,8 +176,13 @@ function sanitizeDownloadedTranslations() {
                     // Strings with only placeholders and symbols/punctuation (e.g. "{equipmentName} (#{step})") are structural templates, not English words
                     const isPurePlaceholderFormat = val.replace(/\{[^{}]+\}/g, '').replace(/[^a-zA-Z]/g, '').length === 0;
 
+                    // Strip Crowdin In-Context / Pseudo-localization strings (e.g. "crwdns573:0...")
+                    if (val.includes('crwdns') || val.includes('crwdne')) {
+                        delete obj[key];
+                        strippedCount++;
+                    }
                     // Strip if value is identical to English source text AND (it's >= 15 chars OR a language name key) AND not an allowed brand term or placeholder format
-                    if (enVal && val === enVal && (isLongString || isLanguageName) && !isAllowedBrand && !isPurePlaceholderFormat) {
+                    else if (enVal && val === enVal && (isLongString || isLanguageName) && !isAllowedBrand && !isPurePlaceholderFormat) {
                         delete obj[key];
                         strippedCount++;
                     }
