@@ -60,6 +60,7 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
         
         const customButtons = [
             {
+                hotkey: 'd',
                 label: () => {
                     const heroCard = input.closest('.hero-card');
                     const heroName = heroCard?.dataset.heroName;

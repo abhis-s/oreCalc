@@ -385,7 +385,7 @@ function setupWarInputPopover(oreType, input) {
         },
         recommendedLabel: () => {
             const playerTH = parseInt(state.playerProfile?.townHallLevel || 16, 10);
-            return `TH ${playerTH}`;
+            return translate('equipment.thShort', { level: playerTH });
         },
         hideRecommendedIfHigher: false,
         clickToFill: {
