@@ -53,7 +53,7 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'i18n: sync translations from Crowdin [skip ci]'
+          commit-message: 'i18n: sync translations from Crowdin'
           title: 'i18n: Update translations from Crowdin'
           body: 'Automated pull request with latest verified translations from Crowdin.'
           branch: 'crowdin-translations'
