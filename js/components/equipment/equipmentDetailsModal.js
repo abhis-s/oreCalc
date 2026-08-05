@@ -824,7 +824,6 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             const lvlPrefix = translate('equipment.lvl');
             const formattedLevel = (showLevelInBadge && targetRecLevel) ? `${lvlPrefix} ${targetRecLevel}` : '';
             const levelDisplay = (showLevelInBadge && isAutoMax) ? `${translate('validation.max')} (${formattedLevel})` : formattedLevel;
-
             if (isUnreleased) {
                 recBadge.style.display = 'inline-flex';
                 recBadge.innerHTML = `<orecalc-assets-svg name="sparkles" class="badge-icon"></orecalc-assets-svg> <span>${translate('equipment.unreleased')}</span>`;

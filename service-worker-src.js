@@ -63,7 +63,11 @@ self.addEventListener('install', event => {
         });
 
         precacheController.addToCacheList(filteredManifest);
-        await precacheController.install(event);
+        try {
+            await precacheController.install(event);
+        } catch (err) {
+            console.warn('[ServiceWorker] Precache install warning (stale chunk or asset missing):', err);
+        }
         self.skipWaiting();
     })());
 });
