@@ -14,6 +14,25 @@ let snakeSVG = null;
 let snakeRect = null;
 let snakeAnim = null;
 
+function parseOrderParts(order) {
+    if (order === undefined || order === null) return [0];
+    if (typeof order === 'number') return [order];
+    return String(order).split('.').map(n => parseInt(n, 10) || 0);
+}
+
+export function compareOrders(aOrder, bOrder) {
+    const aParts = parseOrderParts(aOrder);
+    const bParts = parseOrderParts(bOrder);
+    const maxLen = Math.max(aParts.length, bParts.length);
+
+    for (let i = 0; i < maxLen; i++) {
+        const valA = aParts[i] ?? 0;
+        const valB = bParts[i] ?? 0;
+        if (valA !== valB) return valA - valB;
+    }
+    return 0;
+}
+
 export function resolveSteps(lastTourTimestamp) {
     const setRelease = Object.fromEntries(
         tourSets.map(s => [s.id, s.releasedAt])
@@ -29,11 +48,7 @@ export function resolveSteps(lastTourTimestamp) {
             // Otherwise, only show steps added after the user's last tour completion
             return setTime > lastTourTimestamp;
         })
-        .sort((a, b) => {
-            const timeA = setRelease[a.setId] ?? 0;
-            const timeB = setRelease[b.setId] ?? 0;
-            return timeA !== timeB ? timeA - timeB : a.order - b.order;
-        });
+        .sort((a, b) => compareOrders(a.order, b.order));
 }
 
 // Creates (or reuses) the SVG snake overlay inside the highlight box.
@@ -80,11 +95,21 @@ function updateSnakeSVG(w, h) {
     snakeAnim.setAttribute('values', `0;${-perimeter}`);
 }
 
+function resolveTargetElement(targetProp) {
+    const rawTarget = typeof targetProp === 'function' ? targetProp() : targetProp;
+    if (typeof rawTarget === 'string') {
+        return document.querySelector(rawTarget);
+    }
+    if (rawTarget instanceof Element || (rawTarget && rawTarget.nodeType === 1)) {
+        return rawTarget;
+    }
+    return null;
+}
+
 function updatePositions() {
     if (currentStepIndex < 0 || currentStepIndex >= activeSteps.length) return;
     const step = activeSteps[currentStepIndex];
-    const targetSelector = typeof step.target === 'function' ? step.target() : step.target;
-    const target = document.querySelector(targetSelector);
+    const target = resolveTargetElement(step.target);
     if (!target || !highlightBox || !tooltipEl) return;
 
     let rect = target.getBoundingClientRect();
@@ -248,10 +273,9 @@ async function showStep() {
     }
 
     // 2. Find target element
-    const targetSelector = typeof step.target === 'function' ? step.target() : step.target;
-    const target = document.querySelector(targetSelector);
+    const target = resolveTargetElement(step.target);
     if (!target) {
-        console.warn(`Tour target element not found: ${targetSelector}`);
+        console.warn(`Tour target element not found for step: ${step.id}`);
         currentStepIndex++;
         showStep();
         return;
@@ -354,7 +378,7 @@ export async function startTour(setId) {
         // Resolve steps only for the specified set ID
         activeSteps = tourSteps
             .filter(step => step.setId === setId)
-            .sort((a, b) => a.order - b.order);
+            .sort((a, b) => compareOrders(a.order, b.order));
     } else {
         // Resolve steps dynamically based on user timestamp
         const lastTour = state.uiSettings?.uiTimestamps?.tour;
@@ -459,11 +483,12 @@ export function closeTour() {
 }
 
 export function finishTour() {
+    const maxReleaseTime = Math.max(0, ...tourSets.map(s => s.releasedAt || 0));
     handleStateUpdate(() => {
         if (!state.uiSettings.uiTimestamps) {
             state.uiSettings.uiTimestamps = {};
         }
-        state.uiSettings.uiTimestamps.tour = Date.now();
+        state.uiSettings.uiTimestamps.tour = Math.max(Date.now(), maxReleaseTime + 1);
     });
     closeTour();
 }
