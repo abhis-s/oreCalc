@@ -3,6 +3,11 @@ export const tourSets = [
         id: 'v1.0',
         releasedAt: 0, // 0 ensures all existing users get the full tour on first run
         label: 'Initial Release'
+    },
+    {
+        id: 'v2.0-equipment-details',
+        releasedAt: 1786060800000, // August 7, 2026 00:00 UTC
+        label: 'Equipment Details Modal'
     }
 ];
 
@@ -10,7 +15,7 @@ export const tourSteps = [
     {
         id: 'profile-dropdown',
         setId: 'v1.0',
-        order: 1,
+        order: '01.01',
         target: '.player-dropdown-container',
         tab: 'home',
         titleKey: 'tour.profileTitle',
@@ -28,7 +33,7 @@ export const tourSteps = [
     {
         id: 'player-profile-card',
         setId: 'v1.0',
-        order: 2,
+        order: '01.02',
         target: '#home-player-profile-card',
         tab: 'home',
         titleKey: 'tour.profileCardTitle',
@@ -38,7 +43,7 @@ export const tourSteps = [
     {
         id: 'action-sync',
         setId: 'v1.0',
-        order: 3,
+        order: '01.10',
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.fab-container' : '#floating-save-btn';
@@ -90,7 +95,7 @@ export const tourSteps = [
         // Navigates to Equipment, then highlights the tab button
         id: 'nav-equipment',
         setId: 'v1.0',
-        order: 4,
+        order: '02',
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.nav-button[data-tab="equipment"]' : '.tab-button[data-tab="equipment"]';
@@ -104,9 +109,43 @@ export const tourSteps = [
         }
     },
     {
+        id: 'eq-details-card',
+        setId: 'v2.0-equipment-details',
+        order: '02.01',
+        target: () => {
+            return document.querySelector('#heroes-container .equipment-image, .hero-equipment-card .equipment-image, .equipment-card .equipment-image') || document.querySelector('.equipment-image') || '#heroes-container';
+        },
+        tab: 'equipment',
+        titleKey: 'tour.eqDetailsCardTitle',
+        descKey: 'tour.eqDetailsCardDesc',
+        placement: 'bottom'
+    },
+    {
+        id: 'eq-details-modal',
+        setId: 'v2.0-equipment-details',
+        order: '02.01.01',
+        target: () => {
+            return document.querySelector('#equipment-details-modal .eq-details-modal-container') || document.querySelector('#equipment-details-modal .modal-content') || '#equipment-details-modal';
+        },
+        tab: 'equipment',
+        titleKey: 'tour.eqDetailsModalTitle',
+        descKey: 'tour.eqDetailsModalDesc',
+        placement: 'bottom',
+        onEnter: async () => {
+            const { openEquipmentDetailsModal } = await import('../components/equipment/equipmentDetailsModal.js');
+            const { state } = await import('../core/state.js');
+            const playerLevel = state.heroes?.['Dragon Duke']?.equipment?.['Fire Heart']?.level || 1;
+            await openEquipmentDetailsModal('Fire Heart', playerLevel);
+        },
+        onLeave: async () => {
+            const closeBtn = document.getElementById('close-eq-details-modal-btn');
+            if (closeBtn) closeBtn.click();
+        }
+    },
+    {
         id: 'eq-settings',
         setId: 'v1.0',
-        order: 5,
+        order: '02.02',
         target: '#eq-settings-container-card',
         tab: 'equipment',
         titleKey: 'tour.eqSettingsTitle',
@@ -116,7 +155,7 @@ export const tourSteps = [
     {
         id: 'ore-storage',
         setId: 'v1.0',
-        order: 6,
+        order: '02.03',
         target: '#eq-storage-container-card',
         tab: 'equipment',
         titleKey: 'tour.oresTitle',
@@ -127,7 +166,7 @@ export const tourSteps = [
         // Navigates to Income, highlights the tab button, and glows all income card titles
         id: 'nav-income',
         setId: 'v1.0',
-        order: 7,
+        order: '03',
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.nav-button[data-tab="income"]' : '.tab-button[data-tab="income"]';
@@ -154,7 +193,7 @@ export const tourSteps = [
         // Navigates to Planner, highlights the tab button
         id: 'nav-planner',
         setId: 'v1.0',
-        order: 8,
+        order: '04',
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.nav-button[data-tab="planner"]' : '.tab-button[data-tab="planner"]';
@@ -170,7 +209,7 @@ export const tourSteps = [
     {
         id: 'target-levels',
         setId: 'v1.0',
-        order: 9,
+        order: '04.01',
         target: '#planner-max-levels-card',
         tab: 'planner',
         titleKey: 'tour.targetTitle',
@@ -180,7 +219,7 @@ export const tourSteps = [
     {
         id: 'hero-carousel',
         setId: 'v1.0',
-        order: 10,
+        order: '04.02',
         target: '.planner-hero-carousel',
         tab: 'planner',
         titleKey: 'tour.heroCarouselTitle',
@@ -190,7 +229,7 @@ export const tourSteps = [
     {
         id: 'priority-list',
         setId: 'v1.0',
-        order: 11,
+        order: '04.03',
         target: '#priority-list-card',
         tab: 'planner',
         titleKey: 'tour.priorityTitle',
@@ -200,7 +239,7 @@ export const tourSteps = [
     {
         id: 'calendar-planner',
         setId: 'v1.0',
-        order: 12,
+        order: '04.04',
         target: '#calendar-container',
         tab: 'planner',
         titleKey: 'tour.calendarTitle',
@@ -210,7 +249,7 @@ export const tourSteps = [
     {
         id: 'income-chips',
         setId: 'v1.0',
-        order: 13,
+        order: '04.05',
         target: '#income-chips-card',
         tab: 'planner',
         titleKey: 'tour.incomeChipsTitle',
@@ -221,7 +260,7 @@ export const tourSteps = [
         // Navigates to Settings, highlights the tab button
         id: 'nav-settings',
         setId: 'v1.0',
-        order: 14,
+        order: '05',
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? '.nav-button[data-tab="settings"]' : '.tab-button[data-tab="settings"]';
@@ -237,7 +276,7 @@ export const tourSteps = [
     {
         id: 'preferences',
         setId: 'v1.0',
-        order: 15,
+        order: '05.01',
         target: '#preferences-card',
         tab: 'settings',
         titleKey: 'tour.preferencesTitle',
@@ -247,7 +286,7 @@ export const tourSteps = [
     {
         id: 'backup-sync',
         setId: 'v1.0',
-        order: 16,
+        order: '05.02',
         target: '#backup-sync-card',
         tab: 'settings',
         titleKey: 'tour.backupSyncTitle',
