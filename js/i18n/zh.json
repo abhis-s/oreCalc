@@ -57,6 +57,9 @@
         "shiny": "闪亮矿石",
         "glowy": "璀璨矿石",
         "starry": "星辉矿石",
+        "shinyShort": "蓝矿",
+        "glowyShort": "紫矿",
+        "starryShort": "黄矿",
         "raidMedal": "突袭奖章",
         "gem": "宝石",
         "storedTitle": "已储存矿石",
@@ -207,6 +210,7 @@
             "offer": "礼包",
             "packs": "礼包数量",
             "packCheckbox": "为{name}选择礼包 {num}",
+            "noOffers": "当前大本营等级暂无可用礼包。",
             "help": "商店中可能会出现矿石礼包，可使用现金购买。选择你计划购买的礼包后，系统会将其中的矿石计入收益预测。"
         },
         "supercellEvents": {
@@ -340,6 +344,8 @@
         "common": "普通",
         "epic": "史诗",
         "recommended": "推荐",
+        "completed": "已完成",
+        "infinity": "无限",
         "standardMax": "默认最高等级",
         "editPriorityList": "编辑优先升级列表",
         "priorityList": "优先升级列表",
@@ -453,6 +459,8 @@
         "link": "链接",
         "resetAll": "清除所有数据",
         "reset": "重置",
+        "expandTable": "展开表格",
+        "compressTable": "收起表格",
         "sync": "同步",
         "syncToCloud": "同步到云端",
         "synced": "已同步！",
@@ -545,10 +553,13 @@
             "disclaimer": "以上费用为 OreCalc 在 Google Cloud 上运行所产生的服务器及基础设施总成本。如需支持项目开发，欢迎前往 <a href=\"https://buymeacoffee.com/orecalc\" target=\"_blank\" rel=\"noopener noreferrer\">Buy Me a Coffee</a> 赞助我们。",
             "lastUpdated": "最后更新：",
             "plusTaxes": "+ 税费",
-            "others": "其他"
+            "others": "其他",
+            "noServices": "暂无服务记录",
+            "noHistory": "暂无运行成本记录。"
         },
         "transparency": "法律与透明度",
         "deviceSyncTitle": "设备同步",
+        "deviceSyncDesc": "将此设备与其他设备关联，以在设备之间同步玩家资料。",
         "yourSyncCode": "你的同步码",
         "linkDevice": "关联其他设备",
         "placeholderSyncCode": "粘贴同步码（例如：f81d4fae-...）",
@@ -724,6 +735,7 @@
         "globalErasureSuccess": "玩家验证成功！该玩家标签已受到保护，并已删除绝大部分数据。后续重新添加时需再次验证，剩余数据将在 30 天内彻底清除。",
         "bugReportSuccess": "问题反馈提交成功！感谢你的反馈。",
         "bugReportFailure": "提交问题反馈失败，请稍后再试。",
+        "clipboardPermissionDenied": "读取剪贴板失败，请确认已授予剪贴板权限。",
         "setupProfilesFirst": "请先完成所有已加载资料的设置。"
     },
     "confirms": {
@@ -871,6 +883,7 @@
         "totalCost": "总花费",
         "requiredTownHall": "所需大本营",
         "thShort": "{level}级大本营",
+        "generalStats": "通用属性",
         "dataNotAvailable": "暂无数据",
         "detailsNotAvailableDesc": "暂无该装备的详细等级属性与升级数据明细。",
         "contributeMissingData": "如果你掌握该装备的属性或相关信息，请<a href=\"#\" class=\"theme-link open-inaccuracies-link\">在此补充提供</a>。",
@@ -921,13 +934,18 @@
     "validation": {
         "level": "等级",
         "amount": "数量",
+        "min": "最小值",
+        "max": "最大值",
+        "recommended": "推荐",
         "maxValue": "最大值：{max}",
         "minValue": "最小值：{min}",
         "maxLength": "最多可输入 {maxLength} 位数字。",
         "invalidRevert": "输入无效，已还原为上一次的有效值。",
         "range": "范围",
         "prospectorSameOre": "转换前后的矿石不能相同。",
-        "prospectorZeroAmount": "探矿者的两个转换数量都必须大于 0。"
+        "prospectorZeroAmount": "探矿者的两个转换数量都必须大于 0。",
+        "invalidCurrency": "无效的货币格式",
+        "invalidNumber": "仅支持输入数字"
     },
     "errors": {
         "playerTagRequired": "请输入玩家标签。",
@@ -1040,12 +1058,16 @@
         "clan": "部落",
         "noClan": "无部落",
         "selectProfileToSetup": "选择一个村庄资料开始配置",
+        "selectProfileSubtitle": "选择已加载的玩家资料或访客资料以配置选项。",
         "skipSetup": "跳过配置",
         "setupProfiles": "配置玩家资料",
+        "setupProfileTitle": "配置玩家资料",
         "skip": "跳过",
         "setupRequired": "需要完成设置",
         "complete": "已完成",
         "done": "完成",
+        "syncSuccess": "同步成功",
+        "syncRequired": "需要同步",
         "next": "下一步",
         "wizard": {
             "oresTitle": "你当前拥有多少矿石？",
