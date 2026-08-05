@@ -651,7 +651,7 @@
             "russian": "Русский",
             "serbian": "塞尔维亚语",
             "swedish": "瑞典语",
-            "ukrainian": "乌克兰",
+            "ukrainian": "乌克兰语",
             "vietnamese": "Tiếng Việt",
             "chineseTraditional": "中文（繁體）"
         }
@@ -841,7 +841,6 @@
             "healingPerSecondHeroes": "每秒治疗量（英雄）",
             "healthRecovery": "生命恢复",
             "counterDamage": "Counter Damage",
-            "healPerCounter": "Heal per Counter",
             "hitpointIncrease": "生命值提升",
             "hitpoints": "生命值",
             "incomingDamageReduction": "受到伤害降低",
