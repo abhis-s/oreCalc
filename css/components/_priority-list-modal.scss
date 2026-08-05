@@ -490,7 +490,7 @@
         justify-content: space-between;
         align-items: center;
         text-align: left;
-        gap: 12px;
+        gap: 6px;
 
         .error-messages-wrapper {
             flex-grow: 1;
@@ -506,7 +506,7 @@
             padding: 15px;
 
             .error-messages-wrapper {
-                margin-bottom: 12px;
+                margin-bottom: 6px;
 
                 .error-message {
                     justify-content: center;
@@ -558,9 +558,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     &:not(:first-child) {
-        margin-top: 8px;
+        margin-top: 6px;
     }
 }
 
@@ -581,7 +581,7 @@
     align-items: center;
     justify-content: flex-start;
     text-align: left;
-    gap: 8px;
+    gap: 6px;
     padding: 8px 0;
     margin: 0;
 

@@ -1,12 +1,12 @@
 /**
- * Converts a string with spaces into camelCase.
- * Example: "Giant Gauntlet" -> "giantGauntlet"
+ * Converts a string with spaces or underscores into camelCase.
+ * Example: "Giant Gauntlet" -> "giantGauntlet", "barbarian_puppet" -> "barbarianPuppet"
  * @param {string} str 
  * @returns {string}
  */
 export function toCamelCase(str) {
     if (!str) return '';
-    const words = str.trim().toLowerCase().split(/\s+/).filter(word => word.length > 0);
+    const words = str.trim().toLowerCase().split(/[\s_]+/).filter(word => word.length > 0);
     if (words.length === 0) return '';
     return words[0] + words.slice(1).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 }
@@ -25,4 +25,3 @@ export function escapeHTML(str) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
-

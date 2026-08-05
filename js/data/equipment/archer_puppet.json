@@ -1,0 +1,35 @@
+{
+  "id": "archer_puppet",
+  "type": "active",
+  "rarity": "common",
+  "statsMeta": [
+    {"key": "summonedUnitsCount", "category": "ability", "valueUnit": "number"},
+    {"key": "invisibilityDuration", "category": "ability", "valueUnit": "seconds"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [5, 3.5, 28, 176], "2": [5, 3.5, 37, 193], "3": [10, 4, 46, 209],
+    "4": [10, 4, 54, 226], "5": [10, 4, 61, 242], "6": [15, 4.5, 68, 259],
+    "7": [15, 4.5, 78, 275], "8": [15, 4.5, 88, 292], "9": [20, 5, 99, 308],
+    "10": [20, 5, 110, 323], "11": [20, 5, 120, 341], "12": [25, 5.5, 127, 358],
+    "13": [25, 5.5, 134, 374], "14": [25, 5.5, 140, 396], "15": [30, 6, 145, 418],
+    "16": [30, 6, 150, 440], "17": [30, 6, 154, 462], "18": [35, 6.5, 159, 484]
+  },
+  "hasSpawnedUnits": true,
+  "spawnedUnits": {
+    "unitType": "archer",
+    "scalingType": "laboratoryLevel",
+    "statsMeta": [
+      {"key": "damagePerSecond", "valueUnit": "number"},
+      {"key": "hitpoints", "valueUnit": "number"}
+    ],
+    "levels": {
+      "1": [8, 22], "2": [10, 26], "3": [13, 29],
+      "4": [16, 33], "5": [20, 40], "6": [22, 44],
+      "7": [25, 48], "8": [28, 52], "9": [31, 56],
+      "10": [34, 60], "11": [37, 64], "12": [40, 68],
+      "13": [43, 72], "14": [46, 76]
+    }
+  }
+}

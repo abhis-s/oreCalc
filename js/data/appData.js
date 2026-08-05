@@ -9,6 +9,7 @@ import { raidMedalTraderData, gemTraderData, eventTraderData } from "./incomeSou
 import { shopOfferData } from "./incomeSources/shopOffers.js";
 import { starBonusData, townHallLeagueFloors } from "./incomeSources/starBonus.js";
 import { supercellEventsData } from "./incomeSources/supercellEvents.js";
+import { LAB_SCALING_TROOP_KEYS } from "./labTroopsData.js";
 
 export {
     currencyData,
@@ -28,4 +29,5 @@ export {
     townHallLeagueFloors,
     supercellEventsData,
     prospectorData,
+    LAB_SCALING_TROOP_KEYS,
 };

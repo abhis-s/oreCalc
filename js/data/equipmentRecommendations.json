@@ -1,0 +1,294 @@
+{
+  "_comment": "Supported recStatus types: 'must_have', 'recommended', 'niche', 'not_recommended', 'unreleased'. Note: Modifiers (modifiers.esports, modifiers.legend1, modifiers.default, etc.) support overriding recStatus for different modifiers, but do not support recommended levels.",
+  "_lastUpdated": "2026-08-01",
+  "barbarianPuppet": {
+    "recStatus": "not_recommended"
+  },
+  "rageVial": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 12
+    },
+    "modifiers": {
+      "default": {
+        "recStatus": "not_recommended"
+      }
+    }
+  },
+  "earthquakeBoots": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 1,
+      "byTownHall": {
+        "15": 12,
+        "16": 15,
+        "17": 18
+      }
+    }
+  },
+  "vampstache": {
+    "recStatus": "not_recommended"
+  },
+  "giantGauntlet": {
+    "recStatus": "recommended",
+    "recommendedLevels": {
+      "default": 18
+    }
+  },
+  "spikyBall": {
+    "recStatus": "must_have",
+    "recommendedLevels": {
+      "default": 18,
+      "byTownHall": {
+        "17": 27,
+        "18": 27
+      }
+    }
+  },
+  "snakeBracelet": {
+    "recStatus": "recommended",
+    "recommendedLevels": {
+      "default": 18
+    },
+    "modifiers": {
+      "default": {
+        "recStatus": "must_have"
+      }
+    }
+  },
+  "stickHorse": {
+    "recStatus": "recommended",
+    "recommendedLevels": {
+      "default": 18
+    }
+  },
+  "archerPuppet": {
+    "recStatus": "not_recommended"
+  },
+  "invisibilityVial": {
+    "recStatus": "not_recommended"
+  },
+  "giantArrow": {
+    "recStatus": "must_have",
+    "recommendedLevels": {
+      "default": 6,
+      "byTownHall": {
+        "17": 18,
+        "18": 18
+      }
+    }
+  },
+  "healerPuppet": {
+    "recStatus": "not_recommended"
+  },
+  "frozenArrow": {
+    "recStatus": "not_recommended"
+  },
+  "magicMirror": {
+    "recStatus": "recommended",
+    "recommendedLevels": {
+      "default": 18
+    }
+  },
+  "actionFigure": {
+    "recStatus": "must_have",
+    "recommendedLevels": {
+      "default": 21
+    }
+  },
+  "monolithArrow": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 9,
+      "byTownHall": {
+        "18": 12
+      }
+    }
+  },
+  "henchmenPuppet": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 12
+    }
+  },
+  "darkOrb": {
+    "recStatus": "must_have",
+    "recommendedLevels": {
+      "default": 15
+    }
+  },
+  "metalPants": {
+    "recStatus": "not_recommended"
+  },
+  "nobleIron": {
+    "recStatus": "not_recommended"
+  },
+  "darkCrown": {
+    "recStatus": "recommended",
+    "recommendedLevels": {
+      "default": 21,
+      "byTownHall": {
+        "18": 24
+      }
+    },
+    "modifiers": {
+      "default": {
+        "recStatus": "niche"
+      }
+    }
+  },
+  "meteorStaff": {
+    "recStatus": "must_have",
+    "recommendedLevels": {
+      "default": 18,
+      "byTownHall": {
+        "18": 21
+      }
+    }
+  },
+  "eternalTome": {
+    "recommendedLevels": {
+      "default": 9,
+      "byTownHall": {
+        "17": 12,
+        "18": 15
+      }
+    },
+    "recStatus": "must_have"
+  },
+  "lifeGem": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 12
+    }
+  },
+  "rageGem": {
+    "recStatus": "must_have",
+    "recommendedLevels": {
+      "default": 12,
+      "byTownHall": {
+        "18": 15
+      }
+    }
+  },
+  "healingTome": {
+    "recStatus": "must_have",
+    "recommendedLevels": {
+      "default": 12,
+      "byTownHall": {
+        "18": 15
+      }
+    }
+  },
+  "fireball": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 24
+    }
+  },
+  "lavaloonPuppet": {
+    "recStatus": "not_recommended"
+  },
+  "heroicTorch": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 18
+    },
+    "modifiers": {
+      "default": {
+        "recStatus": "recommended"
+      }
+    }
+  },
+  "royalGem": {
+    "recStatus": "not_recommended"
+  },
+  "seekingShield": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 15
+    },
+    "modifiers": {
+      "default": {
+        "recStatus": "must_have"
+      }
+    }
+  },
+  "hogRiderPuppet": {
+    "recStatus": "not_recommended"
+  },
+  "hasteVial": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 15
+    }
+  },
+  "rocketSpear": {
+    "recStatus": "must_have",
+    "recommendedLevels": {
+      "default": 18
+    }
+  },
+  "electroBoots": {
+    "recStatus": "recommended",
+    "recommendedLevels": {
+      "default": 12
+    },
+    "modifiers": {
+      "default": {
+        "recStatus": "not_recommended"
+      }
+    }
+  },
+  "frostFlake": {
+    "recStatus": "not_recommended"
+  },
+  "fireHeart": {
+    "modifiers": {
+      "default": {
+        "recStatus": "recommended"
+      }
+    },
+    "recommendedLevels": {
+      "default": 12,
+      "byTownHall": {
+        "18": 15
+      }
+    },
+    "recStatus": "must_have"
+  },
+  "flameBlower": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 18
+    }
+  },
+  "stunBlaster": {
+    "recStatus": "niche",
+    "recommendedLevels": {
+      "default": 15
+    }
+  },
+  "electroFangs": {
+    "recStatus": "must_have",
+    "recommendedLevels": {
+      "default": 12
+    }
+  },
+  "rocketBackpack": {
+    "recommendedLevels": {
+      "default": 21,
+      "byTownHall": {
+        "17": 24,
+        "18": 27
+      }
+    },
+    "recStatus": "recommended"
+  },
+  "eternalChalice": {
+    "recStatus": "recommended",
+    "recommendedLevels": {
+      "default": 9
+    }
+  }
+}

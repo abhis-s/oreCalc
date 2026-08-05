@@ -1,0 +1,22 @@
+{
+  "id": "giant_arrow",
+  "type": "active",
+  "rarity": "common",
+  "staticStats": [
+    {"key": "damageRadius", "value": 1, "valueUnit": "tiles"},
+    {"key": "favoriteTarget", "value": "Air Defense(Damage 2x)", "valueUnit": "string"}
+  ],
+  "statsMeta": [
+    {"key": "projectileDamage", "category": "ability", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
+  ],
+  "levels": {
+    "1": [750, 20, 80], "2": [750, 23, 93], "3": [850, 27, 106],
+    "4": [850, 30, 119], "5": [850, 33, 133], "6": [1000, 37, 146],
+    "7": [1000, 40, 159], "8": [1000, 43, 172], "9": [1100, 50, 199],
+    "10": [1100, 59, 241], "11": [1100, 68, 284], "12": [1200, 77, 326],
+    "13": [1200, 86, 369], "14": [1200, 96, 411], "15": [1350, 105, 454],
+    "16": [1350, 114, 496], "17": [1350, 123, 539], "18": [1500, 132, 581]
+  }
+}

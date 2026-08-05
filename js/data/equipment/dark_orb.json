@@ -1,0 +1,23 @@
+{
+  "id": "dark_orb",
+  "type": "active",
+  "rarity": "common",
+  "staticStats": [
+    {"key": "damageRadius", "value": 5, "valueUnit": "tiles"}
+  ],
+  "statsMeta": [
+    {"key": "projectileDamage", "category": "ability", "valueUnit": "number"},
+    {"key": "slowDown", "category": "ability", "valueUnit": "percentage"},
+    {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
+  ],
+  "levels": {
+    "1": [45, 20, 8, 10, 588], "2": [45, 20, 8, 13, 603], "3": [55, 25, 9, 18, 617],
+    "4": [55, 25, 9, 21, 631], "5": [55, 25, 9, 24, 647], "6": [65, 30, 10, 29, 661],
+    "7": [65, 30, 10, 32, 675], "8": [65, 30, 10, 35, 600], "9": [75, 35, 11, 40, 719],
+    "10": [75, 35, 11, 43, 766], "11": [75, 35, 11, 46, 813], "12": [100, 40, 13, 51, 859],
+    "13": [100, 40, 13, 54, 906], "14": [100, 40, 13, 57, 953], "15": [150, 45, 15, 62, 1000],
+    "16": [150, 45, 15, 65, 1046], "17": [150, 45, 15, 68, 1093], "18": [200, 50, 18, 73, 1140]
+  }
+}

@@ -6,8 +6,8 @@ import { state, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY } from '../../core/
 import { showToast } from '../../ui/toast.js';
 import { syncLanguageUrl } from '../../core/languageRouter.js';
 
-import { addCurrencyValidation } from '../../utils/inputValidator.js';
 import { currencyData, priceTierRegistry, languagesData, transparencyData, developmentSupportData } from '../../data/appData.js';
+import { getLocale } from '../../data/languagesData.js';
 
 import { formatCurrency } from '../../utils/numberFormatter.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
@@ -514,7 +514,7 @@ function renderRunningCostsData(modal, data, totalValue, historyContainer, updat
         try {
             const date = new Date(data.lastUpdated);
             if (!isNaN(date.getTime())) {
-                const locale = state.uiSettings?.language || 'en';
+                const locale = getLocale(state.uiSettings?.language || 'en');
                 updateDate.textContent = date.toLocaleDateString(locale, { dateStyle: 'medium' });
             } else {
                 updateDate.textContent = data.lastUpdated.split('T')[0];
@@ -733,7 +733,7 @@ function formatInvoiceMonth(invoiceMonth) {
     const year = parts[0];
     const month = parts[1];
     const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-    const locale = state.uiSettings?.language || 'en';
+    const locale = getLocale(state.uiSettings?.language || 'en');
     return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 }
 

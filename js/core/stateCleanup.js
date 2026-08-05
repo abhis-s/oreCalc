@@ -1,4 +1,6 @@
 
+import { getEquipmentMaxLevel } from '../data/equipmentCommonData.js';
+
 /**
  * Normalizes a hero's equipment state.
  */
@@ -257,8 +259,8 @@ export function migratePlayerState(playerState, tag) {
         const oldPlan = playerState.planner || {};
         planner = {
             customMaxLevel: {
-                common: oldPlan.customMaxLevel?.common || 18,
-                epic: oldPlan.customMaxLevel?.epic || 27
+                common: oldPlan.customMaxLevel?.common || getEquipmentMaxLevel('common'),
+                epic: oldPlan.customMaxLevel?.epic || getEquipmentMaxLevel('epic')
             },
             calendar: {
                 settings: { firstDayOfWeek: 'auto', showChipIcons: true, autoPlaceScope: 'tillEnd' },

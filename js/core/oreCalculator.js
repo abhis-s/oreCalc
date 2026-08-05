@@ -1,4 +1,5 @@
 import { upgradeCosts, heroData } from '../data/appData.js';
+import { getEquipmentMaxLevel } from '../data/equipmentCommonData.js';
 
 export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels) {
     let totalRequired = { shiny: 0, glowy: 0, starry: 0 };
@@ -40,8 +41,6 @@ function getEquipmentData(heroName, equipName, plannerMaxLevels) {
     const equipment = hero?.equipment.find(e => e.name === equipName);
     if (!equipment) return null;
 
-    const maxLevel = equipment.type === 'common' 
-        ? (customMaxLevel?.common || 18) 
-        : (customMaxLevel?.epic || 27);
+    const maxLevel = customMaxLevel?.[equipment.type] || getEquipmentMaxLevel(equipment.type);
     return { type: equipment.type, maxLevel: maxLevel };
 }

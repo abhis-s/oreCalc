@@ -22,6 +22,7 @@ export const SVGs = {
     'settings-outline': {},
     'settings-filled': {},
     'collapse': {},
+    'compress': {},
     'expand': {},
     'trash': {},
     'trash-sweep': {},
@@ -54,6 +55,9 @@ export const SVGs = {
     'changelog': {},
     'shield': {},
     'article': {},
+    'extension': {},
+    'attribution': {},
+    'group': {},
     'gavel': {},
     'info': {},
     'library': {},
@@ -88,6 +92,8 @@ export const SVGs = {
     'user': {},
     'update': {},
     'star-shine': {},
+    'forward': {},
+    'backward': {},
     'routine': {},
     'colors': {}
 };

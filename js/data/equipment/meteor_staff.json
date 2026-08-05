@@ -1,0 +1,25 @@
+{
+  "id": "meteor_staff",
+  "type": "passive",
+  "rarity": "epic",
+  "staticStats": [
+    {"key": "damageRadius", "value": 2, "valueUnit": "tiles"}
+  ],
+  "statsMeta": [
+    {"key": "cooldownTime", "category": "ability", "valueUnit": "seconds"},
+    {"key": "damagePerHit", "category": "ability", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
+  ],
+  "levels": {
+    "1": [10, 250, 13, 558], "2": [10, 250, 17, 587], "3": [9.5, 300, 21, 615],
+    "4": [9.5, 300, 25, 644], "5": [9.5, 300, 29, 673], "6": [9, 350, 33, 702],
+    "7": [9, 350, 37, 730], "8": [9, 350, 41, 759], "9": [8.5, 400, 45, 788],
+    "10": [8.5, 400, 49, 817], "11": [8.5, 400, 53, 845], "12": [8, 450, 57, 874],
+    "13": [8, 450, 61, 903], "14": [8, 450, 65, 932], "15": [7.5, 500, 69, 960],
+    "16": [7.5, 500, 73, 989], "17": [7.5, 500, 77, 1018], "18": [7, 575, 81, 1047],
+    "19": [7, 575, 85, 1107], "20": [7, 575, 90, 1139], "21": [6.5, 650, 95, 1171],
+    "22": [6.5, 650, 100, 1205], "23": [6.5, 650, 105, 1239], "24": [6, 750, 110, 1273],
+    "25": [6, 750, 115, 1309], "26": [6, 750, 120, 1345], "27": [5, 850, 125, 1381]
+  }
+}

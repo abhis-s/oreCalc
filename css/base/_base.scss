@@ -62,6 +62,19 @@
     --color-gold-glow: #{$palette-yellow-300};
     --color-gold-glow-shadow: rgba(249, 200, 64, 0.3);
 
+    // --- ORES ---
+    --shiny-ore: #{$palette-ore-shiny};
+    --glowy-ore: #{$palette-ore-glowy};
+    --starry-ore: #{$palette-ore-starry};
+
+    // --- HEROES (Extracted from in-game hero-colors.png) ---
+    --hero-bk: #{$palette-hero-bk};
+    --hero-aq: #{$palette-hero-aq};
+    --hero-mp: #{$palette-hero-mp};
+    --hero-gw: #{$palette-hero-gw};
+    --hero-rc: #{$palette-hero-rc};
+    --hero-dd: #{$palette-hero-dd};
+
     // --- INCOME CHIP COLORS (Dark - Accessible Tonal Pastels) ---
     --color-income-star-bonus: #{$palette-cyan-200};
     --color-income-clan-war: #{$palette-blue-200};
@@ -228,6 +241,11 @@
     --color-gold-glow: #{$palette-amber-900};
     --color-gold-glow-shadow: rgba(255, 111, 0, 0.4);
 
+    // --- ORES (Light Mode) ---
+    --shiny-ore: #0088cc;
+    --glowy-ore: #c020db;
+    --starry-ore: #d97706;
+
     // --- INCOME CHIP COLORS (Light - Softer/Pastel) ---
     --color-income-star-bonus: #{$palette-cyan-200};
     --color-income-clan-war: #{$palette-blue-200};
@@ -368,6 +386,7 @@ input[type="checkbox"] {
 html,
 body {
     background-color: var(--bg-app);
+    overscroll-behavior-x: none;
 }
 
 body {

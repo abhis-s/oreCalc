@@ -1,6 +1,7 @@
 import { getSVG } from '../../utils/svgManager.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 import { translate } from '../../i18n/translator.js';
+import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 
 export function createHeroIcon(hero, { sizeClass = '', action = '' } = {}) {
     const img = document.createElement('orecalc-assets-image');
@@ -24,13 +25,13 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
     const isChecked = equipState?.checked ?? true;
     const currentLevel = equipState?.level ?? 1;
     const grayscaleClass = !isChecked ? 'grayscale' : '';
-    const maxLevel = equip.type === 'common' ? 18 : 27;
+    const maxLevel = getEquipmentMaxLevel(equip.type);
     const isMaxLevel = currentLevel >= maxLevel;
 
     let isOverLeveled = false;
     if (plannerState) {
-        const customCommonMax = plannerState.customMaxLevel?.common ?? 18;
-        const customEpicMax = plannerState.customMaxLevel?.epic ?? 27;
+        const customCommonMax = plannerState.customMaxLevel?.common ?? getEquipmentMaxLevel('common');
+        const customEpicMax = plannerState.customMaxLevel?.epic ?? getEquipmentMaxLevel('epic');
         const customMaxLevel = equip.type === 'common' ? customCommonMax : customEpicMax;
         isOverLeveled = currentLevel >= customMaxLevel && currentLevel < maxLevel;
     }

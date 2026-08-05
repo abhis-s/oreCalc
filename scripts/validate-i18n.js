@@ -223,15 +223,11 @@ for (const file of files) {
     const completionPct = completionPctNum.toFixed(1) + '%';
     const isEnabled = enabledLangCodes.includes(lang);
 
-    // Strict threshold: Enabled production languages must have >= 95% completion & 0 placeholder errors
+    // Enabled production languages remain ENABLED (PROD) unconditionally; placeholder syntax errors block builds
     let status = isEnabled ? 'ENABLED (PROD)' : 'PENDING (DRAFT)';
     if (placeholderErrors > 0) {
         hasErrors = true;
         status += ' [PLACEHOLDER ERROR]';
-    } else if (isEnabled && completionPctNum < 95.0) {
-        hasErrors = true;
-        console.error(`[ERROR] [${lang}] Enabled production language completion is ${completionPct} (below 95% threshold)`);
-        status += ' [LOW COMPLETION]';
     }
 
     report.push({

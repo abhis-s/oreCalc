@@ -1,0 +1,35 @@
+{
+  "id": "healer_puppet",
+  "type": "active",
+  "rarity": "common",
+  "statsMeta": [
+    {"key": "summonedUnitsCount", "category": "ability", "valueUnit": "number"},
+    {"key": "summonedUnitsLevel", "category": "ability", "valueUnit": "number"},
+    {"key": "selfHealingPerSecond", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
+  ],
+  "levels": {
+    "1": [1, 4, 6, 132], "2": [1, 4, 8, 154], "3": [1, 5, 10, 177],
+    "4": [1, 5, 12, 199], "5": [1, 5, 14, 221], "6": [2, 5, 16, 243],
+    "7": [2, 5, 18, 265], "8": [2, 5, 20, 287], "9": [2, 6, 22, 331],
+    "10": [2, 6, 24, 402], "11": [2, 6, 26, 473], "12": [2, 7, 28, 543],
+    "13": [2, 7, 30, 614], "14": [2, 7, 31, 685], "15": [3, 7, 32, 756],
+    "16": [3, 7, 33, 826], "17": [3, 7, 34, 897], "18": [3, 8, 35, 968]
+  },
+  "hasSpawnedUnits": true,
+  "spawnedUnits": {
+    "unitType": "healer",
+    "scalingType": "equipmentLevel",
+    "statsMeta": [
+      {"key": "healingPerSecond", "valueUnit": "number"},
+      {"key": "healingPerSecondHeroes", "valueUnit": "number"},
+      {"key": "hitpoints", "valueUnit": "number"}
+    ],
+    "levels": {
+      "1": [36, 19, 500], "2": [48, 26, 700], "3": [60, 33, 900],
+      "4": [66, 36, 1200], "5": [72, 48, 1500], "6": [72, 56, 1600],
+      "7": [72, 62, 1700], "8": [76, 68, 1800], "9": [80, 75, 1900],
+      "10": [80, 78, 2000], "11": [82, 88, 2100]
+    }
+  }
+}

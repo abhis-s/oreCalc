@@ -89,7 +89,8 @@
         "perHit": "Saldırı Başına",
         "perEvent": "Etkinlik Başına",
         "weekOfYear": "{year}' nın {week}. haftası ({month})",
-        "short": "Zaman"
+        "short": "Zaman",
+        "secondsSuffix": "sn"
     },
     "income": {
         "timeframeAriaLabel": "Gelir zaman aralığını seçin",
@@ -761,16 +762,27 @@
         "electroFangs": "Elektro Dişler",
         "rocketBackpack": "Sırt Roketi",
         "comingSoon": "Yakında gelecek",
-        "commonMax": "Sıradan Maksimum",
-        "enable": "Etkinleştir",
-        "disable": "Devre dışı bırak",
         "lvlShort": "Sev.",
         "requiredOres": {
             "help": "Planladığınız yükseltmeler için gereken net cevher miktarını {(toplam maliyet) - (depolanan miktar)} gösterir. Hedef kapasiteler ayarlarda özelleştirilirse veya planlayıcı sekmesinde istenen maksimum seviyeleri değiştirirseniz ya da ekipmanı devre dışı bırakırsanız, sayılar gerçek maksimum değerlerden farklı olabilir."
         },
         "storedOres": {
             "help": "Oyun içi deponuzda (demirci) şu anda sakladığınız cevher miktarı."
-        }
+        },
+        "commonMax": "Sıradan Maksimum",
+        "enable": "Etkinleştir",
+        "disable": "Devre dışı bırak",
+        "maxLevel": "Maksimum Seviye",
+        "requiredTownHall": "Gerekli Belediye Binası",
+        "thShort": "BB {level}",
+        "cost": "Maliyet",
+        "ability": "Yetenek",
+        "heroBoost": "Kahraman Güçlendirmesi",
+        "active": "Aktif",
+        "passive": "Pasif",
+        "common": "Yaygın",
+        "epic": "Destansı",
+        "tilesSuffix": "Kare"
     },
     "heroes": {
         "barbarianKing": "Barbar Kral",

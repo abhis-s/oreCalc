@@ -1,0 +1,22 @@
+{
+  "id": "fire_heart",
+  "type": "passive",
+  "rarity": "common",
+  "staticStats": [
+    {"key": "damageRadius", "value": 4, "valueUnit": "tiles"}
+  ],
+  "statsMeta": [
+    {"key": "deathDamage", "category": "ability", "valueUnit": "number"},
+    {"key": "selfHealingPerSecond", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
+  ],
+  "levels": {
+    "1": [1000, 50, 10, 900], "2": [1000, 50, 10, 1200], "3": [1350, 70, 12, 1450],
+    "4": [1350, 70, 12, 1750], "5": [1350, 70, 12, 2000], "6": [1700, 90, 14, 2300],
+    "7": [1700, 90, 14, 2600], "8": [1700, 90, 14, 2850], "9": [2000, 110, 16, 3150],
+    "10": [2000, 110, 16, 3400], "11": [2000, 110, 16, 3700], "12": [2350, 130, 18, 4000],
+    "13": [2350, 130, 18, 4250], "14": [2350, 130, 18, 4550], "15": [2700, 140, 20, 4800],
+    "16": [2700, 140, 20, 5100], "17": [2700, 140, 20, 5450], "18": [3000, 150, 23, 5600]
+  }
+}

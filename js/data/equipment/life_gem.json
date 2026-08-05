@@ -1,0 +1,19 @@
+{
+  "id": "life_gem",
+  "type": "passive",
+  "rarity": "common",
+  "statsMeta": [
+    {"key": "hitpointIncrease", "category": "ability", "valueUnit": "percentage"},
+    {"key": "hitpointIncrease", "category": "ability", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
+  ],
+  "levels": {
+    "1": [50, 640, 11, 170], "2": [50, 640, 13, 184], "3": [60, 750, 16, 195],
+    "4": [60, 750, 19, 205], "5": [60, 750, 21, 217], "6": [75, 830, 23, 230],
+    "7": [75, 830, 25, 255], "8": [75, 830, 27, 282], "9": [90, 930, 32, 311],
+    "10": [90, 930, 36, 344], "11": [90, 930, 43, 381], "12": [100, 1010, 47, 398],
+    "13": [100, 1010, 53, 415], "14": [100, 1010, 57, 432], "15": [110, 1120, 61, 449],
+    "16": [110, 1120, 66, 466], "17": [110, 1120, 70, 483], "18": [120, 1200, 75, 500]
+  }
+}

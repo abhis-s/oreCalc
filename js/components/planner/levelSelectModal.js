@@ -6,6 +6,7 @@ import { getSVG } from '../../utils/svgManager.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 import { translate } from '../../i18n/translator.js';
+import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 
 let currentEquipment = null;
 let currentHero = null;
@@ -34,7 +35,7 @@ function getDefaultLevels(currentLevel, minLevel, maxLevel, type) {
 function getEquipmentRecommendedLevel(stepIndex) {
     if (!currentEquipment || !currentHero) return 0;
     
-    const maxLevel = currentEquipment.type === 'epic' ? 27 : 18;
+    const maxLevel = getEquipmentMaxLevel(currentEquipment.type);
     const currentLevel = state.heroes[currentHero.name]?.equipment[currentEquipment.name]?.level || 1;
     const minLevel = currentLevel + 1;
     
@@ -417,7 +418,7 @@ export function openLevelSelectModal(hero, equipment) {
     const currentLevelSpan = document.getElementById('current-equipment-level');
 
     const rows = document.querySelectorAll('#level-select-table tbody tr');
-    const maxLevel = equipment.type === 'epic' ? 27 : 18;
+    const maxLevel = getEquipmentMaxLevel(equipment.type);
     const currentLevel = state.heroes[hero.name]?.equipment[equipment.name]?.level || 1;
     currentLevelSpan.textContent = currentLevel;
 
@@ -442,7 +443,7 @@ export function openLevelSelectModal(hero, equipment) {
 
         const stepNum = index + 1;
         const recVal = getEquipmentRecommendedLevel(stepNum);
-        const defaultMaxPlaceholder = equipment.type === 'epic' ? 27 : 18;
+        const defaultMaxPlaceholder = getEquipmentMaxLevel(equipment.type);
         const displayVal = (recVal && recVal >= minLevel) ? recVal : defaultMaxPlaceholder;
 
         const basePlaceholderText = translate('planner.placeholderLevel') || 'e.g., 18';

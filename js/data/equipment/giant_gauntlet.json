@@ -1,0 +1,25 @@
+{
+  "id": "giant_gauntlet",
+  "type": "active",
+  "rarity": "epic",
+  "staticStats": [
+    {"key": "damageRadius", "value": 2.5, "valueUnit": "tiles"}
+  ],
+  "statsMeta": [
+    {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
+    {"key": "incomingDamageReduction", "category": "ability", "valueUnit": "percentage"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "selfHealingPerSecond", "category": "heroBoost", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [14, 20, 17, 6], "2": [14, 20, 20, 8], "3": [14.5, 25, 23, 10],
+    "4": [14.5, 25, 26, 12], "5": [14.5, 25, 29, 14], "6": [15, 30, 32, 16],
+    "7": [15, 30, 34, 18], "8": [15, 30, 37, 20], "9": [15.5, 35, 43, 22],
+    "10": [15.5, 35, 53, 24], "11": [15.5, 35, 63, 26], "12": [16, 40, 74, 28],
+    "13": [16, 40, 84, 30], "14": [16, 40, 94, 31], "15": [16.5, 45, 104, 32],
+    "16": [16.5, 45, 115, 33], "17": [16.5, 45, 125, 34], "18": [17, 50, 135, 35],
+    "19": [17, 50, 137, 36], "20": [17, 50, 140, 36], "21": [17.5, 50, 142, 37],
+    "22": [17.5, 50, 145, 37], "23": [17.5, 50, 147, 38], "24": [18, 55, 150, 38],
+    "25": [18, 55, 152, 39], "26": [18, 55, 155, 39], "27": [19, 60, 160, 40]
+  }
+}

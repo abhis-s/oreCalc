@@ -1,0 +1,26 @@
+{
+  "id": "electro_boots",
+  "type": "passive",
+  "rarity": "epic",
+  "staticStats": [
+    {"key": "auraAttackSpeed", "value": 0.4, "valueUnit": "seconds"},
+    {"key": "auraRadius", "value": 5, "valueUnit": "tiles"}
+  ],
+  "statsMeta": [
+    {"key": "auraDamagePerSecond", "category": "ability", "valueUnit": "number"},
+    {"key": "auraDamagePerHit", "category": "ability", "valueUnit": "number"},
+    {"key": "selfHealingPerSecond", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
+  ],
+  "levels": {
+    "1": [132, 52.8, 6, 50], "2": [132, 52.8, 8, 75], "3": [140, 56, 10, 100],
+    "4": [140, 56, 12, 125], "5": [140, 56, 14, 150], "6": [147, 58.8, 16, 175],
+    "7": [147, 58.8, 18, 200], "8": [147, 58.8, 20, 225], "9": [155, 62, 22, 250],
+    "10": [155, 62, 24, 275], "11": [155, 62, 26, 300], "12": [162, 64.8, 28, 325],
+    "13": [162, 64.8, 30, 350], "14": [162, 64.8, 32, 375], "15": [170, 68, 33, 400],
+    "16": [170, 68, 34, 425], "17": [170, 68, 35, 450], "18": [177, 70.8, 36, 475],
+    "19": [177, 70.8, 37, 500], "20": [177, 70.8, 38, 525], "21": [185, 74, 39, 550],
+    "22": [185, 74, 40, 575], "23": [185, 74, 41, 600], "24": [192, 76.8, 42, 625],
+    "25": [192, 76.8, 43, 650], "26": [192, 76.8, 44, 675], "27": [200, 80, 45, 700]
+  }
+}

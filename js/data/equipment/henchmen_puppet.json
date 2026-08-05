@@ -1,0 +1,37 @@
+{
+  "id": "henchmen_puppet",
+  "type": "active",
+  "rarity": "common",
+  "staticStats": [
+    {"key": "summonedUnitsCount", "value": 2, "valueUnit": "number"},
+    {"key": "invisibilityDuration", "value": 1, "valueUnit": "seconds"}
+  ],
+  "statsMeta": [
+    {"key": "summonedUnitsLevel", "category": "ability", "valueUnit": "number"},
+    {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
+    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"}
+  ],
+  "levels": {
+    "1": [1, 33, 500, 176], "2": [1, 38, 500, 193], "3": [2, 46, 500, 209],
+    "4": [2, 51, 500, 226], "5": [2, 56, 500, 242], "6": [3, 64, 500, 259],
+    "7": [3, 71, 500, 275], "8": [3, 78, 500, 292], "9": [4, 92, 500, 308],
+    "10": [4, 103, 500, 325], "11": [4, 114, 500, 341], "12": [5, 131, 500, 358],
+    "13": [5, 140, 500, 388], "14": [5, 149, 500, 418], "15": [6, 162, 500, 448],
+    "16": [6, 169, 500, 478], "17": [6, 176, 500, 508], "18": [7, 188, 500, 538]
+  },
+  "hasSpawnedUnits": true,
+  "spawnedUnits": {
+    "unitType": "henchmen",
+    "scalingType": "equipmentLevel",
+    "statsMeta": [
+      {"key": "damagePerSecond", "valueUnit": "number"},
+      {"key": "hitpoints", "valueUnit": "number"}
+    ],
+    "levels": {
+      "1": [102, 1600], "2": [110, 1700], "3": [118, 1750],
+      "4": [126, 1800], "5": [134, 1950], "6": [142, 2100],
+      "7": [150, 2500]
+    }
+  }
+}

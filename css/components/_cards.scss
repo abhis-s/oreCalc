@@ -59,6 +59,25 @@
         pointer-events: auto;
         transform: translateY(0);
     }
+
+    .popover-body {
+        p {
+            margin: 0;
+
+            & + p {
+                margin-top: 8px;
+            }
+        }
+    }
+
+    .popover-footer {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid color-mix(in srgb, var(--border-primary) 60%, transparent);
+        font-size: 0.74rem;
+        color: var(--text-tertiary);
+        line-height: 1.35;
+    }
 }
 
 .card-container {
