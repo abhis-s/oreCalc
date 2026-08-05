@@ -167,7 +167,8 @@ function sanitizeDownloadedTranslations() {
                     // Exclude genuine proper nouns, brand names, and short strings (< 15 chars) that are legitimately identical across languages
                     const allowedIdenticalKeys = [
                         'settings.github',
-                        'settings.buyMeACoffee'
+                        'settings.buyMeACoffee',
+                        'settings.options.emailPlaceholder'
                     ];
 
                     const isLanguageName = fullKey.startsWith('settings.languages.');
