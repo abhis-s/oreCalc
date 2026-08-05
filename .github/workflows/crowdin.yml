@@ -7,6 +7,7 @@ on:
       - 'js/i18n/en.json'
       - 'crowdin.yml'
       - '.github/workflows/crowdin.yml'
+      - 'scripts/crowdin-download.js'
   schedule:
     - cron: '0 0 * * *' # Daily sync check at midnight UTC
   workflow_dispatch:

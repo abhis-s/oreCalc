@@ -89,9 +89,15 @@ function fetchLanguagesAndDownload() {
     });
 }
 
+const crowdinLangMap = {
+    'zh': 'zh-CN',
+    'zh-TW': 'zh-TW'
+};
+
 function downloadLanguages(langCodes) {
-    console.log(`\n[OK] Downloading translations for eligible languages: ${langCodes.join(', ')}`);
-    const langFlags = langCodes.map(c => `-l ${c}`).join(' ');
+    const crowdinCodes = langCodes.map(c => crowdinLangMap[c] || c);
+    console.log(`\n[OK] Downloading translations for eligible languages: ${langCodes.join(', ')} (Crowdin codes: ${crowdinCodes.join(', ')})`);
+    const langFlags = crowdinCodes.map(c => `-l ${c}`).join(' ');
     const cmd = `npx @crowdin/cli download ${langFlags}`;
     
     try {
