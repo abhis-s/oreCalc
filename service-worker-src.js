@@ -128,7 +128,7 @@ registerRoute(
         const pathname = options.url.pathname;
         const segments = pathname.split('/').filter(Boolean);
         let lang = 'en';
-        if (segments.length > 0 && ['en', 'de', 'tr'].includes(segments[0].toLowerCase())) {
+        if (segments.length > 0 && ['en', 'de', 'tr', 'zh'].includes(segments[0].toLowerCase())) {
             lang = segments[0].toLowerCase();
         }
 

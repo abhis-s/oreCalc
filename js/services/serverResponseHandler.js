@@ -36,8 +36,11 @@ export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, 
     } catch (error) {
         console.error('Failed to load player data:', error);
         
-        const errorKey = error.message;
-        const errorMessage = translate(errorKey);
+        let errorKey = error.message;
+        if (error.name === 'TypeError' || errorKey === 'Failed to fetch' || (typeof errorKey === 'string' && errorKey.includes('Failed to fetch'))) {
+            errorKey = 'apiErrors.serverOffline';
+        }
+        const errorMessage = translate(errorKey) || errorKey;
 
         // Network-level failures: timeout, server errors (5xx), or no network at all.
         // These indicate the API itself may be down — count toward circuit-breaker.

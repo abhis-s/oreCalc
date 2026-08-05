@@ -712,7 +712,7 @@ export function initializeCreateCustomChipsModalListeners() {
             },
             recommendedLabel: () => {
                 const playerTH = parseInt(state.playerProfile?.townHallLevel || 16, 10);
-                return `TH ${playerTH}`;
+                return translate('equipment.thShort', { level: playerTH });
             },
             hideRecommendedIfHigher: true,
             clickToFill: { max: true, recommended: true }

@@ -738,7 +738,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         if (!state.uiSettings.currency || !state.uiSettings.currency.code) {
             const userLangs = navigator.languages || [navigator.language];
             let detectedCurrency = 'USD';
-            const enabledCurrencies = ['USD', 'EUR', 'GBP', 'INR', 'CAD', 'AUD', 'JPY', 'CHF', 'NZD', 'TRY'];
+            const enabledCurrencies = ['USD', 'EUR', 'GBP', 'INR', 'CAD', 'AUD', 'JPY', 'CHF', 'NZD', 'TRY', 'CNY'];
 
             for (const l of userLangs) {
                 if (l.startsWith('de') || l.startsWith('fr') || l.startsWith('it') || l.startsWith('es') || l.startsWith('nl')) {
@@ -747,6 +747,10 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 }
                 if (l.startsWith('tr')) {
                     detectedCurrency = 'TRY';
+                    break;
+                }
+                if (l.startsWith('zh')) {
+                    detectedCurrency = 'CNY';
                     break;
                 }
             }

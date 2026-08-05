@@ -16,7 +16,7 @@ function addListenerToInput(oreType) {
     const input = dom.equipment.storage.quantity[oreType];
     if (!input) return;
 
-    addValidation(input, { inputName: `${oreType} Ore` });
+    addValidation(input, { inputName: translate(`ores.${oreType}`) });
     
     registerInputPopover(input, {
         title: () => translate(`ores.${oreType}`),

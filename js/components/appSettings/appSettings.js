@@ -19,6 +19,7 @@ import { loadTranslations, translate } from '../../i18n/translator.js';
 import { logger } from '../../utils/logger.js';
 import { runningCostsData } from '../../data/runningCostsData.js';
 import { fetchRunningCosts } from '../../services/apiService.js';
+import { addCurrencyValidation } from '../../utils/inputValidator.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 
 import { showAlert, showConfirm } from '../../ui/noticeModal.js';
@@ -701,7 +702,7 @@ function renderRunningCostsData(modal, data, totalValue, historyContainer, updat
                     const row = document.createElement('div');
                     row.className = 'costs-service-row';
                     row.style.justifyContent = 'center';
-                    row.textContent = 'No services recorded';
+                    row.textContent = translate('settings.runningCostsModal.noServices') || 'No services recorded';
                     list.appendChild(row);
                     card.appendChild(list);
                 }
@@ -720,7 +721,7 @@ function renderRunningCostsData(modal, data, totalValue, historyContainer, updat
             noData.className = 'costs-disclaimer';
             noData.style.textAlign = 'center';
             noData.style.borderLeft = 'none';
-            noData.textContent = 'No running costs history available.';
+            noData.textContent = translate('settings.runningCostsModal.noHistory') || 'No running costs history available.';
             historyContainer.appendChild(noData);
         }
     }
@@ -2162,7 +2163,7 @@ export function initializeAppSettings() {
         const currentUserId = localStorage.getItem('oreCalc_userId');
         if (currentUserId) {
             const maskedId = currentUserId.length > 8 ? currentUserId.substring(0, 8) + '...' : currentUserId;
-            userIdDisplayLabel.textContent = `${translate('settings.options.userId')}: ${maskedId}`;
+            userIdDisplayLabel.textContent = `${translate('player.userId')}: ${maskedId}`;
             userIdDisplayLabel.dataset.fullId = currentUserId;
         }
     }

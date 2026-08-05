@@ -13,7 +13,7 @@ import { openTermsOfUseModal, openPrivacyModal, openBugReportModal } from '../ap
 import { heroData, upgradeCosts } from '../../data/heroData.js';
 import { leagueTiers, townHallLeagueFloors, shopOfferData, currencyData } from '../../data/appData.js';
 import { loadPlayerData, updateSavedPlayerTags, removePlayerTag } from '../../core/localStorageManager.js';
-import { showConfirm, showAlert } from '../../ui/noticeModal.js';
+import { showConfirm, showAlert, sanitizeHTML } from '../../ui/noticeModal.js';
 import { showToast } from '../../ui/toast.js';
 import { warOreTownHallValues } from '../../data/incomeSources/warOres.js';
 import { adjustWarRates, getPriceForTier, getCurrencySymbol } from '../../utils/incomeUtils.js';
@@ -24,6 +24,7 @@ import { getSVG } from '../../utils/svgManager.js';
 import { closeStoredOresModal } from '../planner/priorityListModal.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
 
 let currentPage = 1;
 let cameFromSyncStartBtn = false;
@@ -913,8 +914,12 @@ export function initializeWelcomeModal() {
                 }
             } catch (err) {
                 console.error('Failed to load player preview data:', err);
-                const transMsg = translate(err.message) || err.message;
-                errorMsg.textContent = translate('errors.fetchPlayerFailed', { error: transMsg });
+                let errKey = err.message;
+                if (err.name === 'TypeError' || errKey === 'Failed to fetch' || (typeof errKey === 'string' && errKey.includes('Failed to fetch'))) {
+                    errKey = 'apiErrors.serverOffline';
+                }
+                const transMsg = translate(errKey) || errKey;
+                errorMsg.innerHTML = sanitizeHTML(translate('errors.fetchPlayerFailed', { error: transMsg }));
                 errorMsg.classList.add('show');
                 input.classList.add('input-error');
                 input.classList.remove('shake');
@@ -1340,9 +1345,9 @@ export function initializeWelcomeModal() {
         });
     }
     if (raidMedalsShinyInput && raidMedalsShinyInput.tagName === 'INPUT') {
-        addValidation(raidMedalsShinyInput, { inputName: `${translate('ores.shiny')} ${translate('shopOffers.packs') || 'Packs'}` });
+        addValidation(raidMedalsShinyInput, { inputName: `${translate('ores.shiny')} ${translate('income.shopOffers.packs') || 'Packs'}` });
         registerInputPopover(raidMedalsShinyInput, {
-            title: () => `${translate('ores.shiny')} ${translate('shopOffers.packs') || 'Packs'}`,
+            title: () => `${translate('ores.shiny')} ${translate('income.shopOffers.packs') || 'Packs'}`,
             min: 0,
             max: 2,
             showRange: true,
@@ -1352,9 +1357,9 @@ export function initializeWelcomeModal() {
         });
     }
     if (raidMedalsGlowyInput && raidMedalsGlowyInput.tagName === 'INPUT') {
-        addValidation(raidMedalsGlowyInput, { inputName: `${translate('ores.glowy')} ${translate('shopOffers.packs') || 'Packs'}` });
+        addValidation(raidMedalsGlowyInput, { inputName: `${translate('ores.glowy')} ${translate('income.shopOffers.packs') || 'Packs'}` });
         registerInputPopover(raidMedalsGlowyInput, {
-            title: () => `${translate('ores.glowy')} ${translate('shopOffers.packs') || 'Packs'}`,
+            title: () => `${translate('ores.glowy')} ${translate('income.shopOffers.packs') || 'Packs'}`,
             min: 0,
             max: 2,
             showRange: true,
@@ -1364,9 +1369,9 @@ export function initializeWelcomeModal() {
         });
     }
     if (raidMedalsStarryInput && raidMedalsStarryInput.tagName === 'INPUT') {
-        addValidation(raidMedalsStarryInput, { inputName: `${translate('ores.starry')} ${translate('shopOffers.packs') || 'Packs'}` });
+        addValidation(raidMedalsStarryInput, { inputName: `${translate('ores.starry')} ${translate('income.shopOffers.packs') || 'Packs'}` });
         registerInputPopover(raidMedalsStarryInput, {
-            title: () => `${translate('ores.starry')} ${translate('shopOffers.packs') || 'Packs'}`,
+            title: () => `${translate('ores.starry')} ${translate('income.shopOffers.packs') || 'Packs'}`,
             min: 0,
             max: 2,
             showRange: true,
@@ -1388,9 +1393,9 @@ export function initializeWelcomeModal() {
         });
     }
     if (clanWarsWinrateInput) {
-        addValidation(clanWarsWinrateInput, { inputName: translate('income.clanWar.winRate') || "Win Rate (%)" });
+        addValidation(clanWarsWinrateInput, { inputName: translate('income.winRate') || "Win Rate (%)" });
         registerInputPopover(clanWarsWinrateInput, {
-            title: () => translate('income.clanWar.winRate') || "Win Rate (%)",
+            title: () => translate('income.winRate') || "Win Rate (%)",
             min: 0,
             max: 100,
             showRange: true,
@@ -2144,22 +2149,26 @@ function renderProfilePreviewCard(playerData) {
                 heroBadge.classList.add('max-level');
             }
 
+            const translatedHeroName = translate('heroes.' + heroKey) || heroInfo.name;
+
             const heroImg = document.createElement('orecalc-assets-image');
             heroImg.setAttribute('class', 'welcome-hero-img');
             heroImg.setAttribute('src', heroInfo.image);
-            heroImg.setAttribute('alt', heroInfo.name);
+            heroImg.setAttribute('alt', translatedHeroName);
             heroImg.setAttribute('size', 'thumbnail');
             heroBadge.appendChild(heroImg);
 
             const heroName = document.createElement('span');
             heroName.className = 'welcome-hero-name';
-            heroName.textContent = heroInfo.name;
+            heroName.textContent = translatedHeroName;
             heroBadge.appendChild(heroName);
 
             // Add Hero Level
             const heroLevelEl = document.createElement('span');
             heroLevelEl.className = 'welcome-hero-level';
-            heroLevelEl.textContent = heroLevel > 0 ? `Lvl ${heroLevel}` : 'Locked';
+            const lvlPrefix = translate('equipment.lvl') || 'Lvl';
+            const lockedText = translate('homeProfile.locked') || 'Locked';
+            heroLevelEl.textContent = heroLevel > 0 ? `${lvlPrefix} ${heroLevel}` : lockedText;
             if (isHeroMax) {
                 heroLevelEl.classList.add('max-level-text');
             }
@@ -2188,13 +2197,16 @@ function renderProfilePreviewCard(playerData) {
                     equipItem.classList.add('max-level');
                 }
 
+                const equipCamel = toCamelCase(equip.name);
+                const translatedEquipName = translate('equipment.' + equipCamel) || equip.name;
+
                 // Image Container
                 const imgContainer = document.createElement('div');
                 imgContainer.className = 'equipment-image-container';
 
                 const equipImg = document.createElement('orecalc-assets-image');
                 equipImg.setAttribute('src', equip.image);
-                equipImg.setAttribute('alt', equip.name);
+                equipImg.setAttribute('alt', translatedEquipName);
                 equipImg.setAttribute('class', 'equipment-image');
                 equipImg.setAttribute('size', 'thumbnail');
                 imgContainer.appendChild(equipImg);
@@ -2214,8 +2226,8 @@ function renderProfilePreviewCard(playerData) {
                 // Name tag
                 const equipName = document.createElement('span');
                 equipName.className = 'welcome-equip-name';
-                equipName.textContent = equip.name;
-                equipName.title = equip.name;
+                equipName.textContent = translatedEquipName;
+                equipName.title = translatedEquipName;
                 equipItem.appendChild(equipName);
 
                 if (hasEquip) {
@@ -2370,7 +2382,7 @@ function initializeGuestSetup() {
         img.setAttribute('size', 'thumbnail');
 
         const label = document.createElement('span');
-        label.textContent = `TH ${th}`;
+        label.textContent = translate('equipment.thShort', { level: th });
         label.className = 'th-badge-label';
 
         thItem.appendChild(img);
@@ -2931,7 +2943,7 @@ function renderWelcomeShopOffers(thLevel, purchasedOffers) {
         const noOffersMsg = document.createElement('div');
         noOffersMsg.style.fontSize = '12px';
         noOffersMsg.style.color = 'var(--text-secondary)';
-        noOffersMsg.textContent = 'No offers available for this Town Hall level.';
+        noOffersMsg.textContent = translate('income.shopOffers.noOffers') || 'No offers available for this Town Hall level.';
         container.appendChild(noOffersMsg);
         return;
     }

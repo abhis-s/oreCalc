@@ -57,6 +57,9 @@
         "shiny": "Shiny Ore",
         "glowy": "Glowy Ore",
         "starry": "Starry Ore",
+        "shinyShort": "Shiny",
+        "glowyShort": "Glowy",
+        "starryShort": "Starry",
         "raidMedal": "Raid Medal",
         "gem": "Gem",
         "storedTitle": "Stored Ores",
@@ -207,6 +210,7 @@
             "offer": "Offer",
             "packs": "Packs",
             "packCheckbox": "Select Pack {num} for {name}",
+            "noOffers": "No offers available for this Town Hall level.",
             "help": "Ore offers can appear in the shop, which can be bought with real money. Toggle which packages you plan to purchase to include their ores in your projections."
         },
         "supercellEvents": {
@@ -340,6 +344,8 @@
         "common": "Common",
         "epic": "Epic",
         "recommended": "Recommended",
+        "completed": "Completed",
+        "infinity": "Infinity",
         "standardMax": "Standard Max",
         "editPriorityList": "Edit Priority List",
         "priorityList": "Priority List",
@@ -453,6 +459,8 @@
         "link": "Link",
         "resetAll": "Clear All Data",
         "reset": "Reset",
+        "expandTable": "Expand Table",
+        "compressTable": "Compress Table",
         "sync": "Sync",
         "syncToCloud": "Sync to Cloud",
         "synced": "Synced!",
@@ -545,10 +553,13 @@
             "disclaimer": "These costs represent the gross hosting and infrastructure costs for running OreCalc on Google Cloud. You can support the project on <a href=\"https://buymeacoffee.com/orecalc\" target=\"_blank\" rel=\"noopener noreferrer\">Buy Me a Coffee</a>.",
             "lastUpdated": "Last updated on:",
             "plusTaxes": "+ TAX",
-            "others": "Others"
+            "others": "Others",
+            "noServices": "No services recorded",
+            "noHistory": "No running costs history available."
         },
         "transparency": "Legal & Transparency",
         "deviceSyncTitle": "Device Synchronization",
+        "deviceSyncDesc": "Link this device with another to sync your profiles across them.",
         "yourSyncCode": "Your Sync Code",
         "linkDevice": "Link to Another Device",
         "placeholderSyncCode": "Paste Sync Code (e.g. f81d4fae-...)",
@@ -724,6 +735,7 @@
         "globalErasureSuccess": "Player verified! Your player tag has been locked from our systems right away, and almost all data has been deleted. Any attempts to add it in the future will require verification. Any stray data left anywhere for the player tag provided will be removed in the next 30 days.",
         "bugReportSuccess": "Bug report submitted successfully! Thank you for your feedback.",
         "bugReportFailure": "Failed to submit bug report. Please try again later.",
+        "clipboardPermissionDenied": "Failed to read from clipboard. Please ensure clipboard permission is granted.",
         "setupProfilesFirst": "Please set up all loaded profiles before continuing."
     },
     "confirms": {
@@ -871,6 +883,7 @@
         "totalCost": "Total Cost",
         "requiredTownHall": "Required Town Hall",
         "thShort": "TH {level}",
+        "generalStats": "General Stats",
         "dataNotAvailable": "Data Not Available",
         "detailsNotAvailableDesc": "Detailed level stats and upgrade breakdown for this equipment are not available yet.",
         "contributeMissingData": "If you have stats or info for this equipment, please <a href=\"#\" class=\"theme-link open-inaccuracies-link\">contribute them here</a>.",
@@ -921,13 +934,18 @@
     "validation": {
         "level": "Level",
         "amount": "Amount",
+        "min": "Min",
+        "max": "Max",
+        "recommended": "Recommended",
         "maxValue": "Max: {max}",
         "minValue": "Min: {min}",
         "maxLength": "Max length is {maxLength} digits.",
         "invalidRevert": "Invalid. Reverting to last valid value.",
         "range": "Range",
         "prospectorSameOre": "From and To ores cannot be the same.",
-        "prospectorZeroAmount": "Both Prospector amounts must be greater than 0."
+        "prospectorZeroAmount": "Both Prospector amounts must be greater than 0.",
+        "invalidCurrency": "Invalid currency format",
+        "invalidNumber": "Only numbers are allowed"
     },
     "errors": {
         "playerTagRequired": "Please enter a player tag.",
@@ -1040,12 +1058,16 @@
         "clan": "Clan",
         "noClan": "No Clan",
         "selectProfileToSetup": "Select a profile to setup",
+        "selectProfileSubtitle": "Select one of your loaded profiles or the guest profile to configure options.",
         "skipSetup": "Skip Setup",
         "setupProfiles": "Setup Profiles",
+        "setupProfileTitle": "Setup Profile",
         "skip": "Skip",
         "setupRequired": "Setup Needed",
         "complete": "Complete",
         "done": "Done",
+        "syncSuccess": "Sync Success",
+        "syncRequired": "Sync Required",
         "next": "Next",
         "wizard": {
             "oresTitle": "How many ores do you have in your storage?",

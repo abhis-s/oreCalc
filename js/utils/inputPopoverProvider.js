@@ -86,7 +86,7 @@ export function registerInputPopover(inputElement, options = {}) {
         if (typeof options.recommendedLabel === 'function') {
             return options.recommendedLabel();
         }
-        return options.recommendedLabel !== undefined ? options.recommendedLabel : 'Recommended';
+        return options.recommendedLabel !== undefined ? options.recommendedLabel : (translate('validation.recommended') || 'Recommended');
     };
 
     const getCustomButtons = () => {
@@ -146,8 +146,11 @@ export function registerInputPopover(inputElement, options = {}) {
 
     const getButtonHotkey = (btn, btnLabel) => {
         if (btn.hotkey) return btn.hotkey;
-        const lowerLabel = btnLabel.toLowerCase();
-        if (lowerLabel.includes('disable') || lowerLabel.includes('enable')) {
+        const lowerLabel = (btnLabel || '').toLowerCase();
+        const disableText = (translate('equipment.disable') || 'disable').toLowerCase();
+        const enableText = (translate('equipment.enable') || 'enable').toLowerCase();
+        if (lowerLabel.includes('disable') || lowerLabel.includes('enable') ||
+            lowerLabel.includes(disableText) || lowerLabel.includes(enableText)) {
             return 'd';
         }
         return null;
@@ -225,7 +228,7 @@ export function registerInputPopover(inputElement, options = {}) {
             const hotkeyLabel = isClickable ? ' <kbd class="popover-key-badge">N</kbd>' : '';
             html += `
                 <div class="popover-opt-btn ${clickableClass} ${statusClass}" data-action="min" role="${isClickable ? 'button' : 'document'}">
-                     <span>Min${hotkeyLabel}</span>
+                     <span>${translate('validation.min') || 'Min'}${hotkeyLabel}</span>
                     <strong>${formatNumber(currMin)}</strong>
                 </div>
             `;
@@ -261,7 +264,7 @@ export function registerInputPopover(inputElement, options = {}) {
             const hotkeyLabel = isClickable ? ' <kbd class="popover-key-badge">X</kbd>' : '';
             html += `
                 <div class="popover-opt-btn ${clickableClass} ${statusClass}" data-action="max" role="${isClickable ? 'button' : 'document'}">
-                     <span>Max${hotkeyLabel}</span>
+                     <span>${translate('validation.max') || 'Max'}${hotkeyLabel}</span>
                     <strong>${formatNumber(currMax)}</strong>
                 </div>
             `;
