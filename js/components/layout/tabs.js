@@ -8,6 +8,7 @@ import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { closeFabMenu } from '../fab/fab.js';
 import { openStoredOresModal } from '../planner/priorityListModal.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
+import { showUpdateModal } from '../modals/updateModal.js';
 
 function checkPlannerTabStoredOres() {
     const storedOres = state.storedOres || {};
@@ -92,9 +93,7 @@ export function initializeTabs() {
 
         // If clicking on Settings with update pending, trigger the update modal
         if (button.dataset.tab === 'settings' && button.classList.contains('update-pending') && window.__WB__) {
-            import('../modals/updateModal.js').then(module => {
-                module.showUpdateModal(window.__WB__);
-            }).catch(err => console.error('Failed to show update modal:', err));
+            showUpdateModal(window.__WB__);
         }
 
         const tabId = `${button.dataset.tab}-tab`;

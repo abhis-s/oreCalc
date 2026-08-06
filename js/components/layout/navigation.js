@@ -2,6 +2,7 @@ import { dom } from '../../dom/domElements.js';
 import { renderApp } from '../../core/renderer.js';
 import { state } from '../../core/state.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
+import { showUpdateModal } from '../modals/updateModal.js';
 
 function toggleNavigationDrawer() {
     const isOpen = dom.drawer.drawer.classList.toggle('open');
@@ -60,9 +61,7 @@ export function initializeNavigation() {
             if (tab && !tab.classList.contains('secondary-tab')) {
                 // If clicking on Settings with update pending, trigger the update modal
                 if (tab.dataset.tab === 'settings' && tab.classList.contains('update-pending') && window.__WB__) {
-                    import('../modals/updateModal.js').then(module => {
-                        module.showUpdateModal(window.__WB__);
-                    }).catch(err => console.error('Failed to show update modal:', err));
+                    showUpdateModal(window.__WB__);
                 }
 
                 const tabId = `${tab.dataset.tab}-tab`;

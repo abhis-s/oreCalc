@@ -14,14 +14,12 @@ function symbolExists(id) {
     return !!document.getElementById(symbolId);
 }
 
+import { updateNavigationBadges } from '../modals/updateModal.js';
+
 export function renderNavigation(activeTabId) {
     renderBottomNav(activeTabId);
     renderNavigationDrawer(activeTabId);
-
-    // Dynamic import to avoid circular dependencies
-    import('../modals/updateModal.js').then(module => {
-        module.updateNavigationBadges();
-    }).catch(err => console.error('Failed to update nav badges:', err));
+    updateNavigationBadges();
 }
 
 function renderBottomNav(activeTabId) {
