@@ -201,6 +201,18 @@
                 }
             });
 
+            var origConsoleError = console.error;
+            console.error = function () {
+                var args = Array.prototype.slice.call(arguments);
+                origConsoleError.apply(console, args);
+                try {
+                    var msg = args.map(function (a) {
+                        return (a && typeof a === 'object') ? (a.message || String(a)) : String(a);
+                    }).join(' ');
+                    reportClientError('Console Error: ' + msg, '', 0, 0, '');
+                } catch (e) {}
+            };
+
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.addEventListener('controllerchange', function () {
                     window.location.reload();
