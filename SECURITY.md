@@ -40,7 +40,7 @@ To support formatted player notices without exposing users to Cross-Site Scripti
 
 The API server utilizes `Helmet` to configure secure HTTP headers, mitigating common vectors:
 
-- **Clickjacking Protection**: Configures `X-Frame-Options: DENY` to prevent the application from being embedded in malicious iframes.
+- **Clickjacking Protection**: Configures `X-Frame-Options: SAMEORIGIN` to allow same-origin iframe embedding while preventing malicious third-party framing.
 - **MIME-Type Sniffing**: Enforces `X-Content-Type-Options: nosniff` to prevent browsers from executing non-executable MIME types as script/CSS.
 - **Content Security Policy (CSP)**: Locks down allowed media, script, and styling sources to prevent unauthorized script injections.
 
