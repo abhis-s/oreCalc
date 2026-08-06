@@ -49,8 +49,18 @@ app.use(express.static(distPath, {
     setHeaders: (res, filePath) => {
         const relativePath = path.relative(distPath, filePath);
         
-        // Don't aggressively cache HTML documents or service worker
-        if (filePath.endsWith('.html') || relativePath === 'service-worker.js') {
+        // Don't aggressively cache HTML documents, app entry points, manifests, metadata, or JSON dictionaries
+        const isNonCacheable = filePath.endsWith('.html') || 
+                               filePath.endsWith('.json') ||
+                               filePath.endsWith('sitemap.xml') ||
+                               filePath.endsWith('robots.txt') ||
+                               filePath.endsWith('llms.txt') ||
+                               relativePath === 'service-worker.js' ||
+                               relativePath.endsWith('app.js') ||
+                               relativePath.endsWith('workbox-window.js') ||
+                               relativePath.endsWith('qr-code-styling.js');
+
+        if (isNonCacheable) {
             res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             res.setHeader('Pragma', 'no-cache');
             res.setHeader('Expires', '0');
