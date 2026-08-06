@@ -52,19 +52,38 @@ import './console.js';
 import './utils/svgManager.js';
 import { logger } from './utils/logger.js';
 
+function handleDynamicImportError(err) {
+    const errorMsg = String(err?.message || err?.reason?.message || err?.reason || err || '');
+    if (errorMsg.includes('dynamically imported module') || errorMsg.includes('Importing a module script failed')) {
+        logger.warn('Dynamic import chunk missing due to app update. Triggering self-healing reload...');
+        if (!sessionStorage.getItem('orecalc_module_reload_triggered')) {
+            sessionStorage.setItem('orecalc_module_reload_triggered', 'true');
+            window.location.reload();
+            return true;
+        }
+    }
+    return false;
+}
+
 // Register global error boundaries immediately
 if (!window.__APP_INITIALIZED__) {
     window.__APP_INITIALIZED__ = true;
     window.isAppStartingUp = true;
 
+    try {
+        sessionStorage.removeItem('orecalc_module_reload_triggered');
+    } catch (e) {}
+
     window.addEventListener('error', (event) => {
         logger.error('Uncaught error:', event.error || event.message);
+        if (handleDynamicImportError(event.error || event.message)) return;
         if (!window.__APP_LOADED_STATUS__) return;
         showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
     });
 
     window.addEventListener('unhandledrejection', (event) => {
         logger.error('Unhandled promise rejection:', event.reason);
+        if (handleDynamicImportError(event.reason)) return;
         if (!window.__APP_LOADED_STATUS__) return;
         showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
     });
@@ -920,6 +939,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         const wb = new workbox.Workbox('/service-worker.js');
         window.__WB__ = wb;
 
+        const markSWUpdated = () => {
+            try {
+                localStorage.setItem('oreCalcSWUpdatedTime', new Date().toISOString());
+            } catch (_) {}
+        };
+
         const forceSWUpdate = () => {
             const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
             const now = Date.now();
@@ -929,8 +954,10 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             }
             sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
             localStorage.removeItem('oreCalcUpdateDetectedAt');
+            markSWUpdated();
 
             wb.addEventListener('controlling', () => {
+                markSWUpdated();
                 window.location.reload();
             });
             wb.messageSkipWaiting();
@@ -946,10 +973,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             }
             sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
             localStorage.removeItem('oreCalcUpdateDetectedAt');
+            markSWUpdated();
 
             wb.register().then(reg => {
                 if (reg && reg.waiting) {
                     wb.addEventListener('controlling', () => {
+                        markSWUpdated();
                         window.location.reload();
                     });
                     wb.messageSkipWaiting();
@@ -961,11 +990,19 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
         wb.addEventListener('waiting', (event) => {
             logger.log('A new version is available. Forcing update and reloading...');
+            markSWUpdated();
             forceSWUpdate();
+        });
+
+        wb.addEventListener('controlling', () => {
+            markSWUpdated();
         });
 
         wb.register().then(reg => {
             if (reg) {
+                if (!localStorage.getItem('oreCalcSWUpdatedTime')) {
+                    markSWUpdated();
+                }
                 if (reg.waiting) {
                     logger.log('Pending update found. Forcing update...');
                     forceSWUpdate();
@@ -973,6 +1010,10 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     // Update finished or no update pending, clear the key
                     localStorage.removeItem('oreCalcUpdateDetectedAt');
                 }
+
+                reg.addEventListener('updatefound', () => {
+                    markSWUpdated();
+                });
 
                 // Check for updates every 6 hours
                 setInterval(() => {
