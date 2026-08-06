@@ -270,6 +270,11 @@ async function build() {
         const buildTime = process.env.BUILD_TIME || new Date().toISOString();
 
         indexHtml = indexHtml.replace('<head>', `<head>\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
+        
+        // Cache-bust app.js script and modulepreload tags to force instant self-healing on all mobile and desktop browsers
+        indexHtml = indexHtml.replace(/src="js\/app\.js(\?v=[^"]+)?"/g, `src="js/app.js?v=${encodeURIComponent(appVersion)}"`);
+        indexHtml = indexHtml.replace(/href="js\/app\.js(\?v=[^"]+)?"/g, `href="js/app.js?v=${encodeURIComponent(appVersion)}"`);
+
         console.log(`Injected VITE_API_BASE_URL (${baseUrl}), APP_VERSION (${appVersion}), BUILD_TIME (${buildTime}), and COMMITS_SINCE_TAG (${commitsSinceTag.length} commits) into index.html head.`);
         
         // Strip other module preloads to avoid 404s for files that are now bundled inside chunk files
