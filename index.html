@@ -209,7 +209,23 @@
                     var msg = args.map(function (a) {
                         return (a && typeof a === 'object') ? (a.message || String(a)) : String(a);
                     }).join(' ');
-                    reportClientError('Console Error: ' + msg, '', 0, 0, '');
+
+                    var errObj = args.find(function (a) { return a && a.stack; });
+                    var stack = errObj ? errObj.stack : (new Error()).stack;
+
+                    var sourceFile = '';
+                    var lineNo = 0;
+                    var colNo = 0;
+                    if (stack) {
+                        var match = stack.match(/(https?:\/\/[^\s]+):(\d+):(\d+)/);
+                        if (match) {
+                            sourceFile = match[1];
+                            lineNo = parseInt(match[2], 10) || 0;
+                            colNo = parseInt(match[3], 10) || 0;
+                        }
+                    }
+
+                    reportClientError('Console Error: ' + msg, sourceFile, lineNo, colNo, stack);
                 } catch (e) {}
             };
 

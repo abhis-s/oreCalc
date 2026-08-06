@@ -1266,6 +1266,9 @@ app.post('/api/support/client-error', sensitiveLimiter, async (req, res) => {
     }
 
     try {
+        const now = new Date();
+        const expireDate = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000); // 15-day TTL expiry date
+
         const errorData = {
             userId: userId || 'unknown',
             environment: environment || 'unknown',
@@ -1276,7 +1279,8 @@ app.post('/api/support/client-error', sensitiveLimiter, async (req, res) => {
             stack: stack ? String(stack).substring(0, 4000) : '',
             url: url ? String(url).substring(0, 500) : '',
             userAgent: userAgent ? String(userAgent).substring(0, 300) : '',
-            reportedAt: new Date().toISOString(),
+            reportedAt: now.toISOString(),
+            expireAt: admin.firestore.Timestamp.fromDate(expireDate),
             status: 'new'
         };
 
@@ -1284,9 +1288,10 @@ app.post('/api/support/client-error', sensitiveLimiter, async (req, res) => {
         const docRef = await db.collection('clientErrors').add(errorData);
         console.error(`[CLIENT ERROR] ${environment} | User: ${userId || 'unknown'} | ${message} at ${source}:${line}`);
 
-        // 2. Email notification via Nodemailer
+        // 2. Email notification via Nodemailer (only if RECIPIENT_EMAIL_ALERTS is explicitly set)
         let emailSent = false;
-        if (process.env.SMTP_USER && process.env.SMTP_HOST) {
+        const recipientEmail = process.env.RECIPIENT_EMAIL_ALERTS;
+        if (recipientEmail && process.env.SMTP_USER && process.env.SMTP_HOST) {
             try {
                 const nodemailer = require('nodemailer');
                 const transporter = nodemailer.createTransport({
@@ -1301,14 +1306,14 @@ app.post('/api/support/client-error', sensitiveLimiter, async (req, res) => {
 
                 const mailOptions = {
                     from: `"OreCalc Error Alert" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
-                    to: process.env.RECIPIENT_EMAIL_SUPPORT || 'support@clashcalc.com',
+                    to: recipientEmail,
                     subject: `[OreCalc Error Alert] ${environment} - User ${userId || 'unknown'}`,
-                    text: `Hello,\n\nAn automated client console error was reported on ${environment}.\n\nError Details:\n- Record ID: ${docRef.id}\n- User ID: ${userId || 'unknown'}\n- Environment: ${environment}\n- Page URL: ${url}\n- Date: ${errorData.reportedAt}\n- User Agent: ${userAgent}\n\nMessage:\n${message}\n\nSource: ${source}:${line}:${col}\n\nStack Trace:\n${stack || 'None provided'}\n\nRegards,\nOreCalc Error Monitoring`
+                    text: `Hello,\n\nAn automated client console error was reported on ${environment}.\n\nError Details:\n- Record ID: ${docRef.id}\n- User ID: ${userId || 'unknown'}\n- Environment: ${environment}\n- Page URL: ${url}\n- Date: ${errorData.reportedAt}\n- Expires At (TTL): ${expireDate.toISOString()}\n- User Agent: ${userAgent}\n\nMessage:\n${message}\n\nSource: ${source}:${line}:${col}\n\nStack Trace:\n${stack || 'None provided'}\n\nRegards,\nOreCalc Error Monitoring`
                 };
 
                 await transporter.sendMail(mailOptions);
                 emailSent = true;
-                console.log(`[CLIENT ERROR] Error email alert sent successfully for ${docRef.id}`);
+                console.log(`[CLIENT ERROR] Error email alert sent successfully to ${recipientEmail} for ${docRef.id}`);
             } catch (mailError) {
                 console.error(`[CLIENT ERROR] Failed to send error email:`, mailError);
             }

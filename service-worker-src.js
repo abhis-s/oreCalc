@@ -74,6 +74,16 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
     event.waitUntil((async () => {
+        try {
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheName.includes('workbox-precache') && cacheName !== precacheController.strategy.cacheName) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        } catch (e) {}
         await precacheController.activate(event);
         await self.clients.claim();
     })());
