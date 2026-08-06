@@ -153,6 +153,54 @@
     style="color-scheme: dark; --accent-primary: #8ab4f8; --accent-primary-hover: #aecbfa; --accent-primary-active: #8ab4f8; --accent-primary-soft: rgba(138, 180, 248, 0.1); --bg-app: #0f131a; --bg-surface-primary: #1a1f2b; --bg-surface-secondary: #252c3d; --bg-surface-tertiary: #2e374d;">
     <script>
         (function () {
+            // Client Console Error & Exception Monitoring
+            var reportedErrors = new Set();
+            function reportClientError(msg, source, line, col, stack) {
+                try {
+                    var hostname = window.location.hostname;
+                    if (hostname === 'localhost' || hostname === '127.0.0.1') return; // Disabled on dev server
+
+                    var errorKey = (msg || '') + ':' + (source || '') + ':' + (line || 0);
+                    if (reportedErrors.has(errorKey)) return;
+                    reportedErrors.add(errorKey);
+                    setTimeout(function () { reportedErrors.delete(errorKey); }, 10000);
+
+                    var baseUrl = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                    var payload = {
+                        userId: localStorage.getItem('oreCalc_userId') || 'unknown',
+                        environment: hostname,
+                        message: String(msg || 'Unknown Client Error'),
+                        source: String(source || ''),
+                        line: line || 0,
+                        col: col || 0,
+                        stack: String(stack || ''),
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    };
+
+                    fetch(baseUrl + '/api/support/client-error', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }).catch(function () {});
+                } catch (e) {}
+            }
+
+            window.addEventListener('error', function (event) {
+                if (event && event.message) {
+                    reportClientError(event.message, event.filename, event.lineno, event.colno, event.error ? event.error.stack : '');
+                }
+            });
+
+            window.addEventListener('unhandledrejection', function (event) {
+                if (event && event.reason) {
+                    var reason = event.reason;
+                    var msg = reason.message || String(reason);
+                    var stack = reason.stack || '';
+                    reportClientError('Unhandled Promise Rejection: ' + msg, '', 0, 0, stack);
+                }
+            });
+
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.addEventListener('controllerchange', function () {
                     window.location.reload();

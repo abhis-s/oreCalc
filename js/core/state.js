@@ -6,7 +6,7 @@ import { purgeLegacyStateData, normalizeEquipmentState, migrateFullState, migrat
 export let state = {};
 
 export const EFFECTIVE_DATE_TERMS = 1780617600000; // June 5, 2026 (00:00 UTC)
-export const EFFECTIVE_DATE_PRIVACY = 1780617600000; // June 5, 2026 (00:00 UTC)
+export const EFFECTIVE_DATE_PRIVACY = 1786060800000; // August 7, 2026 (00:00 UTC)
 export const EFFECTIVE_DATE_WELCOME = 1780617600000; // June 5, 2026 (00:00 UTC)
 
 export function getDefaultState() {

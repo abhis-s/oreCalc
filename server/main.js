@@ -1258,6 +1258,73 @@ app.post('/api/support/bug-report', sensitiveLimiter, async (req, res) => {
     }
 });
 
+app.post('/api/support/client-error', sensitiveLimiter, async (req, res) => {
+    const { userId, environment, message, source, line, col, stack, url, userAgent } = req.body;
+
+    if (!message) {
+        return res.status(400).json({ message: 'Error message is required.' });
+    }
+
+    try {
+        const errorData = {
+            userId: userId || 'unknown',
+            environment: environment || 'unknown',
+            message: String(message).substring(0, 1000),
+            source: source ? String(source).substring(0, 500) : '',
+            line: line || 0,
+            col: col || 0,
+            stack: stack ? String(stack).substring(0, 4000) : '',
+            url: url ? String(url).substring(0, 500) : '',
+            userAgent: userAgent ? String(userAgent).substring(0, 300) : '',
+            reportedAt: new Date().toISOString(),
+            status: 'new'
+        };
+
+        // 1. Save to Firestore clientErrors collection
+        const docRef = await db.collection('clientErrors').add(errorData);
+        console.error(`[CLIENT ERROR] ${environment} | User: ${userId || 'unknown'} | ${message} at ${source}:${line}`);
+
+        // 2. Email notification via Nodemailer
+        let emailSent = false;
+        if (process.env.SMTP_USER && process.env.SMTP_HOST) {
+            try {
+                const nodemailer = require('nodemailer');
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST,
+                    port: parseInt(process.env.SMTP_PORT || '587', 10),
+                    secure: process.env.SMTP_SECURE === 'true',
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS
+                    }
+                });
+
+                const mailOptions = {
+                    from: `"OreCalc Error Alert" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
+                    to: process.env.RECIPIENT_EMAIL_SUPPORT || 'support@clashcalc.com',
+                    subject: `[OreCalc Error Alert] ${environment} - User ${userId || 'unknown'}`,
+                    text: `Hello,\n\nAn automated client console error was reported on ${environment}.\n\nError Details:\n- Record ID: ${docRef.id}\n- User ID: ${userId || 'unknown'}\n- Environment: ${environment}\n- Page URL: ${url}\n- Date: ${errorData.reportedAt}\n- User Agent: ${userAgent}\n\nMessage:\n${message}\n\nSource: ${source}:${line}:${col}\n\nStack Trace:\n${stack || 'None provided'}\n\nRegards,\nOreCalc Error Monitoring`
+                };
+
+                await transporter.sendMail(mailOptions);
+                emailSent = true;
+                console.log(`[CLIENT ERROR] Error email alert sent successfully for ${docRef.id}`);
+            } catch (mailError) {
+                console.error(`[CLIENT ERROR] Failed to send error email:`, mailError);
+            }
+        }
+
+        res.status(200).json({
+            message: 'Client error logged successfully.',
+            errorId: docRef.id,
+            emailSent
+        });
+    } catch (error) {
+        console.error('Error handling client error submission:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+});
+
 app.get('/api/version', (req, res) => {
     if (req.query.v === '2') {
         res.json({ currentAppVersion: '2.0.0' });

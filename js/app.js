@@ -1249,36 +1249,39 @@ window.refreshConsentModalStatus = () => {
     const privacyAccepted = privacyTimestamp && privacyTimestamp >= EFFECTIVE_DATE_PRIVACY;
     const tosAccepted = tosTimestamp && tosTimestamp >= EFFECTIVE_DATE_TERMS;
 
-    const acceptedText = translate('actions.accepted');
+    const consentBanner = document.getElementById('consent-banner');
+    const consentModal = document.getElementById('consent-modal');
 
-    const viewTermsBtn = document.getElementById('consent-view-terms-btn');
-    if (viewTermsBtn && tosAccepted) {
-        viewTermsBtn.removeAttribute('data-i18n');
-        viewTermsBtn.disabled = true;
-        viewTermsBtn.style.backgroundColor = 'transparent';
-        viewTermsBtn.style.borderColor = 'transparent';
-        viewTermsBtn.style.cursor = 'default';
-        viewTermsBtn.style.padding = '0';
-        viewTermsBtn.style.opacity = '1';
-        viewTermsBtn.innerHTML = `<span style="display: flex; align-items: center; gap: 6px; color: var(--color-success); font-size: 0.9em; font-weight: 500;">
-            <orecalc-assets-svg name="check" fill="var(--color-success)"></orecalc-assets-svg>
-            ${acceptedText}
-        </span>`;
+    if (privacyAccepted && tosAccepted) {
+        if (consentBanner) consentBanner.classList.remove('show');
+        if (consentModal) consentModal.classList.remove('show');
+        if (dom.overlay) {
+            const visibleModals = document.querySelectorAll('.modal.show');
+            if (visibleModals.length === 0) {
+                dom.overlay.classList.remove('show');
+            }
+        }
+        return;
     }
 
-    const viewPrivacyBtn = document.getElementById('consent-view-privacy-btn');
-    if (viewPrivacyBtn && privacyAccepted) {
-        viewPrivacyBtn.removeAttribute('data-i18n');
-        viewPrivacyBtn.disabled = true;
-        viewPrivacyBtn.style.backgroundColor = 'transparent';
-        viewPrivacyBtn.style.borderColor = 'transparent';
-        viewPrivacyBtn.style.cursor = 'default';
-        viewPrivacyBtn.style.padding = '0';
-        viewPrivacyBtn.style.opacity = '1';
-        viewPrivacyBtn.innerHTML = `<span style="display: flex; align-items: center; gap: 6px; color: var(--color-success); font-size: 0.9em; font-weight: 500;">
-            <orecalc-assets-svg name="check" fill="var(--color-success)"></orecalc-assets-svg>
-            ${acceptedText}
-        </span>`;
+    const needsPrivacy = !privacyAccepted;
+    const needsTerms = !tosAccepted;
+
+    const termsRow = document.getElementById('consent-terms-row');
+    const privacyRow = document.getElementById('consent-privacy-row');
+    if (termsRow) termsRow.style.display = needsTerms ? 'flex' : 'none';
+    if (privacyRow) privacyRow.style.display = needsPrivacy ? 'flex' : 'none';
+
+    const bannerTextElem = document.getElementById('consent-banner-text');
+    if (bannerTextElem) {
+        let key = 'legal.bannerTextBoth';
+        if (needsTerms && !needsPrivacy) {
+            key = 'legal.bannerTextTerms';
+        } else if (needsPrivacy && !needsTerms) {
+            key = 'legal.bannerTextPrivacy';
+        }
+        bannerTextElem.setAttribute('data-i18n', key);
+        bannerTextElem.textContent = translate(key);
     }
 };
 function checkLegalConsent() {
@@ -1315,6 +1318,21 @@ function checkLegalConsent() {
     const privacyRow = document.getElementById('consent-privacy-row');
     if (termsRow) termsRow.style.display = needsTerms ? 'flex' : 'none';
     if (privacyRow) privacyRow.style.display = needsPrivacy ? 'flex' : 'none';
+
+    function formatVersionBadge(timestamp) {
+        if (!timestamp) return '';
+        const d = new Date(timestamp);
+        const yyyy = d.getUTCFullYear();
+        const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const dd = String(d.getUTCDate()).padStart(2, '0');
+        return `(v${yyyy}-${mm}-${dd})`;
+    }
+
+    const termsBadge = document.getElementById('consent-terms-version-badge');
+    if (termsBadge) termsBadge.textContent = formatVersionBadge(EFFECTIVE_DATE_TERMS);
+
+    const privacyBadge = document.getElementById('consent-privacy-version-badge');
+    if (privacyBadge) privacyBadge.textContent = formatVersionBadge(EFFECTIVE_DATE_PRIVACY);
 
     // Set modular banner text based on what was updated
     const bannerTextElem = document.getElementById('consent-banner-text');
@@ -1443,19 +1461,29 @@ function checkLegalConsent() {
 
     const reShowConsentModal = () => {
         setTimeout(() => {
-            const currentPrivacy = state.uiSettings?.timestamp?.privacy;
-            const currentTos = state.uiSettings?.timestamp?.tos;
+            const currentPrivacy = state.uiSettings?.uiTimestamps?.privacy;
+            const currentTos = state.uiSettings?.uiTimestamps?.tos;
+            const currentWelcome = state.uiSettings?.uiTimestamps?.welcome;
             const needsReConsent = !currentPrivacy ||
                 currentPrivacy < EFFECTIVE_DATE_PRIVACY ||
                 !currentTos ||
                 currentTos < EFFECTIVE_DATE_TERMS;
 
             if (needsReConsent) {
-                const isNewUser = !currentPrivacy && !currentTos;
+                const isNewUser = !currentPrivacy && !currentTos && !currentWelcome;
                 if (isNewUser) {
                     showWelcomeModal(true);
                 } else {
                     consentModal.classList.add('show');
+                }
+            } else {
+                if (consentBanner) consentBanner.classList.remove('show');
+                if (consentModal) consentModal.classList.remove('show');
+                if (dom.overlay) {
+                    const visibleModals = document.querySelectorAll('.modal.show');
+                    if (visibleModals.length === 0) {
+                        dom.overlay.classList.remove('show');
+                    }
                 }
             }
         }, 50);

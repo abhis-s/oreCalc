@@ -281,7 +281,17 @@
         </div>
 
         <h1>Datenschutzerklärung</h1>
-        <p><strong>Inkrafttreten:</strong> 5. Juni 2026</p>
+        <p><strong>Inkrafttreten:</strong> 7. August 2026 (Ursprünglich veröffentlicht: 5. Juni 2026)</p>
+
+        <div style="background: var(--code-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 18px; margin: 15px 0 20px 0;">
+            <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 1.05em; color: var(--accent-color);">Zusammenfassung der letzten Aktualisierungen (7. August 2026)</h3>
+            <ul style="margin: 0; padding-left: 20px; font-size: 0.95em; line-height: 1.5;">
+                <li><strong>Automatisierte Fehlerdiagnose:</strong> Offenlegung der selbstgehosteten, anonymisierten Fehlerprotokollierung zur Identifizierung von Softwareabstürzen und Stack-Traces.</li>
+                <li><strong>Klarstellung zu Fehlerberichten:</strong> Klarstellung, dass das Anhängen von Planer-Daten an freiwillige Fehlerberichte rein optional ist.</li>
+                <li><strong>Performance-Analysen:</strong> Offenlegung von cookie-freien, datenschutzfreundlichen Analysen zur Messung der aggregierten Website-Performance.</li>
+            </ul>
+        </div>
+
         <p>
             Diese Datenschutzerklärung erläutert, wie <strong>OreCalc</strong> („wir“, „unser“ oder „der Dienst“), derzeit erreichbar unter <code>orecalc.tech</code> (und in Zukunft umziehend auf <code>clashcalc.com</code>), mit Ihren Informationen umgeht. 
         </p>
@@ -309,27 +319,39 @@
                 <strong>Cloud-Synchronisation (Optional & Opt-In):</strong> Wenn Sie sich für die Aktivierung der Cloud-Synchronisation entscheiden, werden Ihre Einstellungen und Ihre lokale Planer-Konfiguration sicher auf unseren Servern gesichert, um eine geräteübergreifende Synchronisation zu ermöglichen. Bitte beachten Sie, dass Sie Ihre Daten zuerst über die Clash of Clans API abrufen müssen, um die Cloud-Synchronisation zu aktivieren; eine Synchronisation ohne ein gültiges Spieler-Kürzel ist nicht zulässig.
             </li>
             <li>
-                <strong>Fehlerberichte (Freiwillig):</strong> Wenn Sie einen Fehlerbericht senden, werden Ihre Nachricht, eine optionale E-Mail-Adresse und ein Schnappschuss Ihres aktuellen lokalen Planer-Status an unseren Support-Mailhandler unter <code>clashcalc.com</code> gesendet, um uns bei der Diagnose des Problems zu helfen.
+                <strong>Automatisierte Fehlerdiagnose (Selbstgehostet):</strong> Wenn ein unerwarteter Laufzeitfehler oder eine JavaScript-Exception auftritt, werden technische Diagnosedaten (Fehlermeldung, Stack-Trace, Browserversion, Seiten-URL und Ihre Anwendungs-Nutzer-ID) an unsere sicheren Backend-Server gesendet, um uns bei der Fehlerbehebung zu helfen. Diese Diagnosedaten werden auf unseren eigenen Servern verarbeitet, enthalten keine Tracking-Cookies und werden niemals an Drittanbieter-Trackingdienste weitergegeben.
+            </li>
+            <li>
+                <strong>Fehlerberichte (Freiwillig):</strong> Wenn Sie einen Fehlerbericht senden, werden Ihre Nachricht, eine optionale E-Mail-Adresse und ein optionaler Schnappschuss Ihres lokalen Planer-Status (nur wenn Sie das Kontrollkästchen „Nutzerdaten anhängen“ aktiviert lassen) an unseren Support-Mailhandler unter <code>clashcalc.com</code> gesendet, um uns bei der Diagnose des Problems zu helfen.
             </li>
         </ul>
 
         <h2>3. Nutzung der Informationen</h2>
-        <p> Alle vom Dienst verarbeiteten öffentlichen Spielstatistiken oder lokalen Planer-Konfigurationen werden ausschließlich verwendet, um: </p>
+        <p> Alle vom Dienst verarbeiteten öffentlichen Spielstatistiken, Diagnoseprotokolle oder lokalen Planer-Konfigurationen werden ausschließlich verwendet, um: </p>
         <ul>
             <li>Ihre persönliche Planer-Konfiguration und Upgrade-Protokolle darzustellen.</li>
             <li>Ihre Daten geräteübergreifend zu synchronisieren (nur wenn Sie die Cloud-Synchronisation explizit aktivieren).</li>
-            <li>Softwarefehler zu beheben, wenn Sie freiwillig einen Fehlerbericht einreichen.</li>
+            <li>Softwarefehler zu beheben und freiwillige Fehlerberichte zu bearbeiten.</li>
         </ul>
-        <p>Wir verwenden keine Tracking-Cookies, führen keine Werbeskripte aus und werden niemals Nutzerdaten weitergeben oder verkaufen.</p>
+        <p>Wir verwenden keine Tracking-Cookies, führen keine Werbeskripte aus und werden niemals Nutzerdaten weitergeben oder verkaufen. Wir verwenden cookie-freie, datenschutzfreundliche Analysen ausschließlich zur Messung der aggregierten Website-Performance und Seitenaufrufe.</p>
 
-        <h2>4. Integrationen von Drittanbietern & Clash of Clans API</h2>
+        <h2>4. Integrationen von Drittanbietern & Analysen</h2>
         <p>
-            Um Ihr Planer-Profil auszufüllen, rufen wir öffentliche Daten direkt von der offiziellen Clash of Clans API ab. Dabei gilt:
+            Um Ihr Planer-Profil auszufüllen und die Systemstabilität zu überwachen, binden wir folgende Dienste ein:
         </p>
         <ul>
-            <li>Ihre Datenanfrage unterliegt der <a href="https://supercell.com/en/fan-content-policy/" target="_blank">Fan-Content-Richtlinie von Supercell</a> und den <a href="https://supercell.com/en/terms-of-service/" target="_blank">Nutzungsbedingungen von Supercell</a>.</li>
-            <li>Wir erfassen oder verknüpfen keine persönlichen Identitäten der realen Welt mit Clash of Clans Spielerprofilen.</li>
-            <li>Zur Erleichterung der Bereitstellung von API-Anfragen und zur Optimierung der Betriebskosten können Abfragen von Spieler-Kürzeln über Proxy-Server von Drittanbietern (wie beispielsweise <code>coproxy.royaleapi.com</code>) geleitet werden. In diesen Fällen können Verbindungsdaten den <a href="https://royaleapi.com/tos" target="_blank">Nutzungsbedingungen</a> und der <a href="https://royaleapi.com/privacy" target="_blank">Datenschutzerklärung</a> des jeweiligen Proxy-Anbieters unterlegen.</li>
+            <li>
+                <strong>Clash of Clans API:</strong> Ihre Datenanfrage unterliegt der <a href="https://supercell.com/en/fan-content-policy/" target="_blank">Fan-Content-Richtlinie von Supercell</a> und den <a href="https://supercell.com/en/terms-of-service/" target="_blank">Nutzungsbedingungen von Supercell</a>.
+            </li>
+            <li>
+                <strong>API-Proxies:</strong> Zur Erleichterung der Bereitstellung von API-Anfragen und zur Optimierung der Betriebskosten können Abfragen von Spieler-Kürzeln über Proxy-Server von Drittanbietern (wie beispielsweise <code>coproxy.royaleapi.com</code>) geleitet werden. Verbindungsdaten unterliegen den <a href="https://royaleapi.com/tos" target="_blank">Nutzungsbedingungen</a> und der <a href="https://royaleapi.com/privacy" target="_blank">Datenschutzerklärung</a> des jeweiligen Anbieters.
+            </li>
+            <li>
+                <strong>Cloudflare Web Analytics:</strong> Wir verwenden Cloudflare Web Analytics, um aggregierte, nicht-personenbezogene Seitenaufrufe und Core Web Vitals-Performancedaten zu messen. Cloudflare Web Analytics funktioniert ohne Tracking-Cookies, speichert keine persönlichen IP-Adressen und verfolgt Nutzer nicht über Websites von Drittanbietern hinweg.
+            </li>
+            <li>
+                <strong>Schutz der Identität:</strong> Wir erfassen oder verknüpfen keine persönlichen Identitäten der realen Welt mit Clash of Clans Spielerprofilen.
+            </li>
         </ul>
 
         <h2>5. Ihre Datenrechte & Löschwerkzeuge</h2>
