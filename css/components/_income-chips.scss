@@ -58,6 +58,9 @@
     min-width: 32px;
     min-height: 28px;
     flex-shrink: 0;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 
     .chip-icon {
         width: 16px; // Standard for sidebar pills
@@ -349,6 +352,29 @@
     .ore-icon-small {
         width: 16px;
         height: 16px;
+    }
+
+    .tooltip-valid-range {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px dashed var(--border-primary, rgba(255, 255, 255, 0.15));
+        font-size: 0.8em;
+        color: var(--text-secondary, #9aa0a6);
+        width: 100%;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+
+        .valid-range-label {
+            opacity: 0.8;
+        }
+
+        .valid-range-value {
+            font-weight: 600;
+            color: var(--accent-primary, #8ab4f8);
+        }
     }
 }
 

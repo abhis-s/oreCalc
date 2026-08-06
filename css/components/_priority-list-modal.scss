@@ -313,11 +313,13 @@
 }
 
 .priority-list-editor-item.dragging {
-    opacity: 0.3;
-    background-color: $bg-surface-secondary !important;
-    border: 1px dashed $border-secondary !important;
+    background-color: var(--accent-primary-soft, rgba(138, 180, 248, 0.08)) !important;
+    border: 1.5px dashed var(--accent-primary, #8ab4f8) !important;
     box-shadow: none !important;
-    transform: scale(0.97) !important;
+
+    > * {
+        visibility: hidden !important;
+    }
 }
 .priority-list-editor-item .drag-handle {
     cursor: grab;

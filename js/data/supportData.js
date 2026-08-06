@@ -42,6 +42,7 @@ export const developmentSupportData = [
         icon: 'bug',
         i18nLabel: 'settings.bugReport',
         i18nAction: 'actions.report',
+        i18nDesc: 'settings.bugReportDesc',
         colorClass: 'btn-bug',
         actionType: 'modal'
     },

@@ -635,40 +635,427 @@ const willChangePosition = (card, targetParent, targetSibling) => {
 let lastSwapTime = 0;
 let lastSwapCards = null;
 
-const animateInsertion = (layout, action, targetCard) => {
-    const draggingCard = layout.gridEl.querySelector('.dragging');
-    if (draggingCard && targetCard) {
-        const now = Date.now();
-        if (lastSwapCards && lastSwapCards.has(draggingCard) && lastSwapCards.has(targetCard) && (now - lastSwapTime < 350)) {
-            return;
-        }
-        lastSwapTime = now;
-        lastSwapCards = new Set([draggingCard, targetCard]);
-    }
-
-    const firstPositions = recordPositions(layout.originalCards);
+const animateInsertion = (layout, action) => {
     action();
-    flipAnimate(layout.gridEl, layout.originalCards, firstPositions);
 };
 
-function initCardDragReordering(layout) {
-    function canMoveToColumn(draggingCard, targetColumn) {
-        if (currentMode === 'cozy') return true;
-        
-        const totalCards = layout.originalCards.length;
-        const limit = Math.floor(totalCards / 2) + 2;
-        
-        const currentInTarget = targetColumn.querySelectorAll(':scope > ' + layout.config.containerSelector);
-        let count = currentInTarget.length;
-        
-        const isAlreadyInTarget = draggingCard.parentNode === targetColumn;
-        if (!isAlreadyInTarget) {
-            count += 1;
+// --- Global GPU Transform Drag Engine (Shared across all card layouts) ---
+let activeDragCard = null;
+let activeDragLayout = null;
+let activePreviewPill = null;
+let activeTouchId = null;
+let cardRectsMap = new Map();
+let originalCardsList = [];
+let startIndex = -1;
+let currentDropIndex = -1;
+let isDragMovePending = false;
+
+function cleanupActiveCardDrag() {
+    window.removeEventListener('touchmove', handleGlobalTouchMove, { passive: false });
+    window.removeEventListener('touchend', handleGlobalTouchRelease, { passive: false });
+    window.removeEventListener('touchcancel', handleGlobalTouchRelease, { passive: false });
+    window.removeEventListener('mousemove', handleGlobalMouseMove);
+    window.removeEventListener('mouseup', handleGlobalMouseRelease);
+    window.removeEventListener('blur', cleanupActiveCardDrag);
+
+    // Reset GPU transforms and classes on all cards
+    if (originalCardsList) {
+        originalCardsList.forEach(card => {
+            card.style.transition = '';
+            card.style.transform = '';
+            card.style.minHeight = '';
+            card.classList.remove('dragging');
+            card.setAttribute('draggable', 'false');
+        });
+    }
+
+    if (activeDragCard) {
+        activeDragCard.classList.remove('dragging');
+        activeDragCard.setAttribute('draggable', 'false');
+    }
+
+    if (activePreviewPill) {
+        activePreviewPill.remove();
+        activePreviewPill = null;
+    }
+
+    // Failsafe: purge any orphaned drag preview pills from document.body
+    document.querySelectorAll('.card-drag-preview-pill').forEach(pill => pill.remove());
+
+    activeDragCard = null;
+    activeDragLayout = null;
+    activeTouchId = null;
+    cardRectsMap = new Map();
+    originalCardsList = [];
+    startIndex = -1;
+    currentDropIndex = -1;
+    isDragMovePending = false;
+
+    stopAutoScroll();
+}
+
+function startCardDrag(layout, cardContainer, touchOrPointer, touchId = null) {
+    cleanupActiveCardDrag();
+
+    if (navigator.vibrate) {
+        try {
+            navigator.vibrate(15);
+        } catch (_) {}
+    }
+
+    activeDragCard = cardContainer;
+    activeDragLayout = layout;
+    activeTouchId = touchId;
+
+    const gridEl = layout.gridEl;
+
+    // Snapshot ALL cards in the layout grid across all columns BEFORE modifying anything
+    originalCardsList = Array.from(gridEl.querySelectorAll(layout.config.containerSelector));
+    startIndex = originalCardsList.indexOf(cardContainer);
+    currentDropIndex = startIndex;
+
+    cardRectsMap = new Map();
+    originalCardsList.forEach((c, idx) => {
+        const rect = c.getBoundingClientRect();
+        cardRectsMap.set(c, {
+            rect,
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+            centerX: rect.left + rect.width / 2,
+            centerY: rect.top + rect.height / 2,
+            index: idx
+        });
+    });
+
+    activeDragCard.classList.add('dragging');
+
+    // Create fixed drag preview pill
+    const titleText = getCardTitleText(cardContainer);
+    activePreviewPill = document.createElement('div');
+    activePreviewPill.className = 'card-drag-preview-pill';
+    activePreviewPill.style.position = 'fixed';
+    activePreviewPill.style.pointerEvents = 'none';
+    activePreviewPill.style.zIndex = '99999';
+    activePreviewPill.style.left = `${touchOrPointer.clientX - 30}px`;
+    activePreviewPill.style.top = `${touchOrPointer.clientY - 20}px`;
+
+    activePreviewPill.innerHTML = `
+        <div class="drag-preview-handle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="12" r="1.5"></circle>
+                <circle cx="9" cy="5" r="1.5"></circle>
+                <circle cx="9" cy="19" r="1.5"></circle>
+                <circle cx="15" cy="12" r="1.5"></circle>
+                <circle cx="15" cy="5" r="1.5"></circle>
+                <circle cx="15" cy="19" r="1.5"></circle>
+            </svg>
+        </div>
+        <span class="drag-preview-title">${titleText}</span>
+    `;
+    document.body.appendChild(activePreviewPill);
+
+    if (touchId !== null) {
+        window.addEventListener('touchmove', handleGlobalTouchMove, { passive: false });
+        window.addEventListener('touchend', handleGlobalTouchRelease, { passive: false });
+        window.addEventListener('touchcancel', handleGlobalTouchRelease, { passive: false });
+    } else {
+        window.addEventListener('mousemove', handleGlobalMouseMove);
+        window.addEventListener('mouseup', handleGlobalMouseRelease);
+    }
+    window.addEventListener('blur', cleanupActiveCardDrag);
+}
+
+function processDragMove(clientX, clientY) {
+    if (!activeDragCard || !activeDragLayout || originalCardsList.length === 0) return;
+
+    // 1. Move preview pill
+    if (activePreviewPill) {
+        activePreviewPill.style.left = `${clientX - 30}px`;
+        activePreviewPill.style.top = `${clientY - 20}px`;
+    }
+
+    // 2. Viewport Auto-scrolling
+    const scrollZoneHeight = 120;
+    const maxSpeed = 15;
+    if (clientY < scrollZoneHeight) {
+        const ratio = (scrollZoneHeight - clientY) / scrollZoneHeight;
+        startAutoScroll(-Math.round(ratio * maxSpeed));
+    } else if (window.innerHeight - clientY < scrollZoneHeight) {
+        const ratio = (scrollZoneHeight - (window.innerHeight - clientY)) / scrollZoneHeight;
+        startAutoScroll(Math.round(ratio * maxSpeed));
+    } else {
+        stopAutoScroll();
+    }
+
+    // 3. Find candidate card under/closest to (clientX, clientY)
+    let hoverIndex = startIndex;
+    let minDistance = Infinity;
+
+    for (let i = 0; i < originalCardsList.length; i++) {
+        const c = originalCardsList[i];
+        const data = cardRectsMap.get(c);
+        if (!data) continue;
+
+        const rect = data.rect;
+        if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+            hoverIndex = i;
+            break;
         }
-        
-        return count <= limit;
+
+        const dist = Math.hypot(clientX - data.centerX, clientY - data.centerY);
+        if (dist < minDistance) {
+            minDistance = dist;
+            hoverIndex = i;
+        }
+    }
+
+    const newTargetIndex = Math.max(0, Math.min(originalCardsList.length - 1, hoverIndex));
+
+    if (newTargetIndex !== currentDropIndex) {
+        currentDropIndex = newTargetIndex;
+        updateGPUTransforms();
+    }
+}
+
+function updateGPUTransforms() {
+    if (!originalCardsList || originalCardsList.length === 0) return;
+
+    // 1. Build map of which card is visually assigned to each virtual slot index
+    const slotToCardMap = new Map();
+
+    originalCardsList.forEach((c, idx) => {
+        let targetIndex = idx;
+        if (c === activeDragCard) {
+            targetIndex = currentDropIndex;
+        } else if (startIndex < currentDropIndex) {
+            if (idx > startIndex && idx <= currentDropIndex) {
+                targetIndex = idx - 1;
+            }
+        } else if (startIndex > currentDropIndex) {
+            if (idx >= currentDropIndex && idx < startIndex) {
+                targetIndex = idx + 1;
+            }
+        }
+        slotToCardMap.set(targetIndex, c);
+    });
+
+    // 2. Detect column structure of the layout grid (1 column vs multi-column)
+    const numCards = originalCardsList.length;
+    const slotVisualRects = new Map();
+
+    let numCols = 1;
+    if (numCards >= 2) {
+        const r0 = cardRectsMap.get(originalCardsList[0]);
+        const r1 = cardRectsMap.get(originalCardsList[1]);
+        if (r0 && r1 && Math.abs(r0.top - r1.top) < r0.height * 0.5) {
+            numCols = 2;
+        }
+    }
+
+    const verticalGap = 20;
+
+    if (numCols === 1) {
+        let currentTop = cardRectsMap.get(originalCardsList[0])?.top || 0;
+        const initialLeft = cardRectsMap.get(originalCardsList[0])?.left || 0;
+
+        for (let slot = 0; slot < numCards; slot++) {
+            const cardInSlot = slotToCardMap.get(slot);
+            const cardHeight = cardRectsMap.get(cardInSlot)?.height || 0;
+
+            slotVisualRects.set(slot, { left: initialLeft, top: currentTop });
+            currentTop += cardHeight + verticalGap;
+        }
+    } else {
+        let colTop0 = cardRectsMap.get(originalCardsList[0])?.top || 0;
+        let colTop1 = cardRectsMap.get(originalCardsList[1])?.top || colTop0;
+        const colLeft0 = cardRectsMap.get(originalCardsList[0])?.left || 0;
+        const colLeft1 = cardRectsMap.get(originalCardsList[1])?.left || colLeft0;
+
+        for (let slot = 0; slot < numCards; slot++) {
+            const colIndex = slot % 2;
+            const cardInSlot = slotToCardMap.get(slot);
+            const cardHeight = cardRectsMap.get(cardInSlot)?.height || 0;
+
+            if (colIndex === 0) {
+                slotVisualRects.set(slot, { left: colLeft0, top: colTop0 });
+                colTop0 += cardHeight + verticalGap;
+            } else {
+                slotVisualRects.set(slot, { left: colLeft1, top: colTop1 });
+                colTop1 += cardHeight + verticalGap;
+            }
+        }
+    }
+
+    // 3. Apply GPU translate3d to each card based on its target visual position
+    originalCardsList.forEach((c, idx) => {
+        const originData = cardRectsMap.get(c);
+        if (!originData) return;
+
+        let targetIndex = idx;
+        if (c === activeDragCard) {
+            targetIndex = currentDropIndex;
+        } else if (startIndex < currentDropIndex) {
+            if (idx > startIndex && idx <= currentDropIndex) {
+                targetIndex = idx - 1;
+            }
+        } else if (startIndex > currentDropIndex) {
+            if (idx >= currentDropIndex && idx < startIndex) {
+                targetIndex = idx + 1;
+            }
+        }
+
+        const targetVisualPos = slotVisualRects.get(targetIndex);
+        if (targetVisualPos) {
+            const dx = targetVisualPos.left - originData.left;
+            const dy = targetVisualPos.top - originData.top;
+
+            if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+                c.style.transition = 'transform 180ms cubic-bezier(0.2, 0, 0, 1)';
+                c.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+                return;
+            }
+        }
+
+        c.style.transition = 'transform 180ms cubic-bezier(0.2, 0, 0, 1)';
+        c.style.transform = '';
+    });
+}
+
+function commitCardDrop() {
+    if (!activeDragCard || !activeDragLayout) {
+        cleanupActiveCardDrag();
+        return;
+    }
+
+    const layout = activeDragLayout;
+    const card = activeDragCard;
+
+    // 1. Reset GPU transforms & min-heights
+    if (originalCardsList) {
+        originalCardsList.forEach(c => {
+            c.style.transition = '';
+            c.style.transform = '';
+            c.style.minHeight = '';
+        });
+    }
+
+    // 2. Perform SINGLE DOM commit across columns
+    if (originalCardsList && currentDropIndex !== startIndex && startIndex !== -1 && currentDropIndex !== -1) {
+        const targetCard = originalCardsList[currentDropIndex];
+        if (targetCard && targetCard !== card) {
+            const targetParent = targetCard.parentNode;
+            let targetSibling = null;
+            if (startIndex < currentDropIndex) {
+                targetSibling = targetCard.nextSibling;
+            } else {
+                targetSibling = targetCard;
+            }
+
+            if (willChangePosition(card, targetParent, targetSibling)) {
+                targetParent.insertBefore(card, targetSibling);
+            }
+        }
+    }
+
+    // 3. Save layout order and repack columns if compact mode is enabled
+    saveCustomCardOrder(layout);
+
+    if (layout.config.hasCompactMode && isCompact) {
+        repackLayout(layout);
+    }
+
+    cleanupActiveCardDrag();
+}
+
+function handleGlobalTouchMove(e) {
+    if (!activeDragCard || activeTouchId === null) return;
+
+    let touch = null;
+    for (let i = 0; i < e.touches.length; i++) {
+        if (e.touches[i].identifier === activeTouchId) {
+            touch = e.touches[i];
+            break;
+        }
+    }
+    if (!touch) return;
+    if (e.cancelable) e.preventDefault();
+
+    if (isDragMovePending) return;
+    isDragMovePending = true;
+
+    const clientX = touch.clientX;
+    const clientY = touch.clientY;
+
+    requestAnimationFrame(() => {
+        isDragMovePending = false;
+        processDragMove(clientX, clientY);
+    });
+}
+
+function handleGlobalTouchRelease(e) {
+    if (!activeDragCard) return;
+
+    if (e && e.type !== 'blur' && e.type !== 'touchcancel') {
+        let touchEnded = false;
+        if (e.changedTouches) {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === activeTouchId) {
+                    touchEnded = true;
+                    break;
+                }
+            }
+        }
+        if (!touchEnded) return;
+    }
+
+    commitCardDrop();
+}
+
+function handleGlobalMouseMove(e) {
+    if (!activeDragCard) return;
+    if (isDragMovePending) return;
+    isDragMovePending = true;
+
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    requestAnimationFrame(() => {
+        isDragMovePending = false;
+        processDragMove(clientX, clientY);
+    });
+}
+
+function handleGlobalMouseRelease(e) {
+    if (!activeDragCard) return;
+    commitCardDrop();
+}
+
+function canMoveToColumn(layout, draggingCard, targetColumn) {
+    if (currentMode === 'cozy') return true;
+    
+    const totalCards = layout.originalCards.length;
+    const limit = Math.floor(totalCards / 2) + 2;
+    
+    const currentInTarget = targetColumn.querySelectorAll(':scope > ' + layout.config.containerSelector);
+    let count = currentInTarget.length;
+    
+    const isAlreadyInTarget = draggingCard.parentNode === targetColumn;
+    if (!isAlreadyInTarget) {
+        count += 1;
     }
     
+    return count <= limit;
+}
+
+function initCardDragReordering(layout) {
+    if (layout.cleanupListeners) {
+        layout.cleanupListeners();
+        layout.cleanupListeners = null;
+    }
+
+    // Attach drag handles to cards
     layout.originalCards.forEach(container => {
         if (container.id === 'planner-hero-carousel-card' || container.id === 'eq-settings-container-card') {
             return;
@@ -680,235 +1067,36 @@ function initCardDragReordering(layout) {
         
         const dragHandle = document.createElement('div');
         dragHandle.className = 'card-drag-handle';
-        dragHandle.setAttribute('draggable', 'true');
         dragHandle.innerHTML = `<orecalc-assets-svg name="drag-indicator" fill="currentColor"></orecalc-assets-svg>`;
         
-        // Match drag handle position to card padding dynamically if requested
         handleTarget.appendChild(dragHandle);
         
-        dragHandle.addEventListener('mousedown', () => {
+        dragHandle.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        const handleStart = (e) => {
             if (currentMode === 'compact1') return;
-            container.setAttribute('draggable', 'true');
-        });
-        
-        dragHandle.addEventListener('mouseup', () => {
-            container.setAttribute('draggable', 'false');
-        });
-        
-        dragHandle.addEventListener('touchstart', () => {
-            if (currentMode === 'compact1') return;
-            container.setAttribute('draggable', 'true');
-        }, { passive: true });
-        
-        dragHandle.addEventListener('touchend', () => {
-            container.setAttribute('draggable', 'false');
-        });
+            const containerCard = e.target.closest(layout.config.containerSelector);
+            if (!containerCard) return;
+
+            if (e.type === 'touchstart') {
+                if (e.cancelable) e.preventDefault();
+                startCardDrag(layout, containerCard, e.touches[0], e.touches[0].identifier);
+            } else if (e.type === 'mousedown') {
+                e.preventDefault();
+                startCardDrag(layout, containerCard, e, null);
+            }
+        };
+
+        dragHandle.addEventListener('touchstart', handleStart, { passive: false });
+        dragHandle.addEventListener('mousedown', handleStart);
     });
 
     const gridEl = layout.gridEl;
-    
-    gridEl.addEventListener('dragstart', (e) => {
-        if (currentMode === 'compact1') {
-            e.preventDefault();
-            return;
-        }
-        const container = e.target.closest(layout.config.containerSelector);
-        if (!container) return;
-        
-        if (container.getAttribute('draggable') !== 'true') {
-            return;
-        }
-        
-        container.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
+    if (!gridEl) return;
 
-        // Create custom drag preview pill
-        const titleText = getCardTitleText(container);
-        const dragPreview = document.createElement('div');
-        dragPreview.className = 'card-drag-preview-pill';
-        dragPreview.innerHTML = `
-            <div class="drag-preview-handle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="9" cy="12" r="1.5"></circle>
-                    <circle cx="9" cy="5" r="1.5"></circle>
-                    <circle cx="9" cy="19" r="1.5"></circle>
-                    <circle cx="15" cy="12" r="1.5"></circle>
-                    <circle cx="15" cy="5" r="1.5"></circle>
-                    <circle cx="15" cy="19" r="1.5"></circle>
-                </svg>
-            </div>
-            <span class="drag-preview-title">${titleText}</span>
-        `;
-        document.body.appendChild(dragPreview);
-        e.dataTransfer.setDragImage(dragPreview, 25, 18);
-        setTimeout(() => dragPreview.remove(), 0);
-    });
-
-    gridEl.addEventListener('dragend', (e) => {
-        const container = e.target.closest(layout.config.containerSelector);
-        if (container) {
-            container.classList.remove('dragging');
-            container.setAttribute('draggable', 'false');
-        }
-        lastSwapCards = null;
-        lastSwapTime = 0;
-        saveCustomCardOrder(layout);
-        stopAutoScroll();
-    });
-
-    gridEl.addEventListener('dragover', (e) => {
-        if (currentMode === 'compact1') return;
-        e.preventDefault();
-        
-        const draggingCard = gridEl.querySelector('.dragging');
-        if (!draggingCard) return;
-        
-        const targetCard = e.target.closest(layout.config.containerSelector);
-        
-        // --- Viewport Auto-scrolling ---
-        const scrollZoneHeight = 120; // pixels from top/bottom of viewport
-        const maxSpeed = 15;
-        const clientY = e.clientY;
-        
-        if (clientY < scrollZoneHeight) {
-            const ratio = (scrollZoneHeight - clientY) / scrollZoneHeight;
-            const speed = -Math.round(ratio * maxSpeed);
-            startAutoScroll(speed);
-        } else if (window.innerHeight - clientY < scrollZoneHeight) {
-            const ratio = (scrollZoneHeight - (window.innerHeight - clientY)) / scrollZoneHeight;
-            const speed = Math.round(ratio * maxSpeed);
-            startAutoScroll(speed);
-        } else {
-            stopAutoScroll();
-        }
-
-        // Handle dragging over the column itself (e.g. empty column space)
-        if (!targetCard) {
-            const targetColumn = e.target.closest('.layout-grid-column');
-            if (targetColumn && draggingCard.parentNode !== targetColumn) {
-                if (canMoveToColumn(draggingCard, targetColumn)) {
-                    if (willChangePosition(draggingCard, targetColumn, null)) {
-                        animateInsertion(layout, () => {
-                            targetColumn.appendChild(draggingCard);
-                        });
-                    }
-                }
-            }
-            return;
-        }
-        
-        if (targetCard === draggingCard) return;
-
-        // Custom logic for Planner layout side-by-side pairing preservation
-        if (layout.config.isPlannerLayout) {
-            const cards = Array.from(gridEl.querySelectorAll(layout.config.containerSelector));
-            const draggingIndex = cards.indexOf(draggingCard);
-            const targetIndex = cards.indexOf(targetCard);
-            
-            if (draggingIndex === -1 || targetIndex === -1) return;
-
-            // Half-width cards: carousel and priority-list
-            const isDraggingHalf = draggingCard.id === 'planner-hero-carousel-card' || draggingCard.id === 'priority-list-card';
-            const isTargetFull = targetCard.id === 'planner-max-levels-card' || targetCard.id === 'planner-calendar-card';
-
-            if (isDraggingHalf && isTargetFull) {
-                // Move both half-width cards together
-                const carousel = gridEl.querySelector('#planner-hero-carousel-card');
-                const priority = gridEl.querySelector('#priority-list-card');
-                if (carousel && priority) {
-                    const rect = targetCard.getBoundingClientRect();
-                    const isAfter = clientY > rect.top + rect.height * 0.5;
-                    
-                    if (isAfter) {
-                        const targetSibling = targetCard.nextSibling;
-                        if (willChangePosition(carousel, gridEl, targetSibling) || willChangePosition(priority, gridEl, carousel.nextSibling)) {
-                            animateInsertion(layout, () => {
-                                gridEl.insertBefore(carousel, targetSibling);
-                                gridEl.insertBefore(priority, carousel.nextSibling);
-                            });
-                        }
-                    } else {
-                        if (willChangePosition(carousel, gridEl, targetCard) || willChangePosition(priority, gridEl, carousel.nextSibling)) {
-                            animateInsertion(layout, () => {
-                                gridEl.insertBefore(carousel, targetCard);
-                                gridEl.insertBefore(priority, carousel.nextSibling);
-                            });
-                        }
-                    }
-                }
-                return;
-            }
-        }
-
-        const targetColumn = targetCard.parentNode;
-
-        // --- Drag Insertion Logic ---
-        const cards = Array.from(gridEl.querySelectorAll(layout.config.containerSelector));
-        const draggingIndex = cards.indexOf(draggingCard);
-        const targetIndex = cards.indexOf(targetCard);
-        
-        if (draggingIndex === -1 || targetIndex === -1) return;
-        
-        const rect = targetCard.getBoundingClientRect();
-        const dragRect = draggingCard.getBoundingClientRect();
-        
-        const isSameColumn = draggingCard.parentNode === targetColumn;
-        let isAfter;
-        if (isSameColumn) {
-            isAfter = draggingIndex < targetIndex;
-        } else {
-            isAfter = clientY > rect.top + rect.height * 0.5;
-        }
-        
-        if (isAfter) {
-            const targetIsBelow = rect.top > dragRect.top + 10;
-            const targetSibling = targetCard.nextSibling;
-            if (targetIsBelow || !isSameColumn) {
-                if (clientY > rect.top + rect.height * 0.3) {
-                    if (canMoveToColumn(draggingCard, targetColumn)) {
-                        if (willChangePosition(draggingCard, targetColumn, targetSibling)) {
-                            animateInsertion(layout, () => {
-                                targetColumn.insertBefore(draggingCard, targetSibling);
-                            }, targetCard);
-                        }
-                    }
-                }
-            } else {
-                if (e.clientX > rect.left + rect.width * 0.3) {
-                    if (canMoveToColumn(draggingCard, targetColumn)) {
-                        if (willChangePosition(draggingCard, targetColumn, targetSibling)) {
-                            animateInsertion(layout, () => {
-                                targetColumn.insertBefore(draggingCard, targetSibling);
-                            }, targetCard);
-                        }
-                    }
-                }
-            }
-        } else {
-            const targetIsAbove = rect.bottom < dragRect.bottom - 10;
-            if (targetIsAbove || !isSameColumn) {
-                if (clientY < rect.bottom - rect.height * 0.3) {
-                    if (canMoveToColumn(draggingCard, targetColumn)) {
-                        if (willChangePosition(draggingCard, targetColumn, targetCard)) {
-                            animateInsertion(layout, () => {
-                                targetColumn.insertBefore(draggingCard, targetCard);
-                            }, targetCard);
-                        }
-                    }
-                }
-            } else {
-                if (e.clientX < rect.right - rect.width * 0.3) {
-                    if (canMoveToColumn(draggingCard, targetColumn)) {
-                        if (willChangePosition(draggingCard, targetColumn, targetCard)) {
-                            animateInsertion(layout, () => {
-                                targetColumn.insertBefore(draggingCard, targetCard);
-                            }, targetCard);
-                        }
-                    }
-                }
-            }
-        }
-    });
+    layout.cleanupListeners = () => {
+        cleanupActiveCardDrag();
+    };
 }
 
 /**

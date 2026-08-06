@@ -435,7 +435,9 @@
         "suggestionInterleave": "Beende {itemNames}, während du auf Erze für {itemName} wartest. Dein Plan wird nicht verzögert.",
         "placeholderLevel": "z.B. 18",
         "confirmDeleteMonth": "Sind Sie sicher, dass Sie alle platzierten Chips für den aktuellen Monat löschen möchten?",
-        "confirmDeleteAll": "Sind Sie sicher, dass Sie alle Chips vom Kalender löschen möchten? Dadurch werden auch alle eigenen Chips gelöscht."
+        "confirmDeleteAll": "Sind Sie sicher, dass Sie alle Chips vom Kalender löschen möchten? Dadurch werden auch alle eigenen Chips gelöscht.",
+        "validDates": "Gültiger Bereich",
+        "anyDate": "Jedes Datum"
     },
     "actions": {
         "upgrade": "Verbessern",
@@ -537,6 +539,7 @@
         "contact": "Kontakt",
         "contactInfo": "Für Fragen, Feedback oder Feature-Vorschläge kannst du uns unter <code>support@clashcalc.com</code> kontaktieren. Klicke auf die Schaltfläche unten, um dein E-Mail-Programm zu öffnen.",
         "bugReport": "Fehler melden",
+        "bugReportDesc": "Zuletzt aktualisiert: {date}",
         "bugReportInfo": "Alternativ kannst du das Problem auch direkt auf unserer {link}-Seite melden.",
         "bugReportPrivacyInfo": "Durch das Absenden dieses Berichts erklärst du dich damit einverstanden, dass deine Benutzerdaten und die angegebene E-Mail-Adresse gemäß unserer {link} verarbeitet werden.",
         "bugReportSWTitle": "App aktualisiert nicht?",

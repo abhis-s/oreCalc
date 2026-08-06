@@ -267,9 +267,10 @@ async function build() {
         }
         const appVersion = isTagged ? packageJson.version : `${packageJson.version}+${gitHash}`;
         const baseUrl = process.env.VITE_API_BASE_URL || 'https://api.orecalc.tech';
+        const buildTime = process.env.BUILD_TIME || new Date().toISOString();
 
-        indexHtml = indexHtml.replace('<head>', `<head>\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
-        console.log(`Injected VITE_API_BASE_URL (${baseUrl}), APP_VERSION (${appVersion}), and COMMITS_SINCE_TAG (${commitsSinceTag.length} commits) into index.html head.`);
+        indexHtml = indexHtml.replace('<head>', `<head>\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
+        console.log(`Injected VITE_API_BASE_URL (${baseUrl}), APP_VERSION (${appVersion}), BUILD_TIME (${buildTime}), and COMMITS_SINCE_TAG (${commitsSinceTag.length} commits) into index.html head.`);
         
         // Strip other module preloads to avoid 404s for files that are now bundled inside chunk files
         indexHtml = indexHtml.replace(/<link rel="modulepreload" href="js\/(?!app\.js)[^"]+">\s*/g, '');

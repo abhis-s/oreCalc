@@ -7,12 +7,68 @@ import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
 import { translate } from '../i18n/translator.js';
 
 import { formatNumber } from './numberFormatter.js';
+import { formatDate } from './dateFormatter.js';
 import { getScheduleDates } from './dateUtils.js';
 import { getSVG } from './svgManager.js';
 import { toCamelCase } from './stringUtils.js';
 import { getProspectorIncomeForDate } from '../incomeCalculations/prospectorManager.js';
 
 let draggedChipData = null;
+
+function getChipValidRangeString(chip, data, incomeSource) {
+    const [calYear, calMonth] = (state.planner?.calendar?.view?.month || '2026-08').split('-').map(Number);
+    const chipStartDate = chip.dataset.startDate;
+    const chipEndDate = chip.dataset.endDate;
+
+    const formatDateShort = (dateInput) => {
+        if (!dateInput) return '';
+        const d = typeof dateInput === 'string' ? new Date(dateInput.includes('T') ? dateInput : dateInput + 'T00:00:00Z') : dateInput;
+        if (isNaN(d.getTime())) return '';
+        return formatDate(d, { day: '2-digit', month: 'short' });
+    };
+
+    if (chipStartDate && chipEndDate) {
+        return `${formatDateShort(chipStartDate)} – ${formatDateShort(chipEndDate)}`;
+    }
+
+    if (incomeSource?.isValidDate && incomeSource.id === 'starBonus2x') {
+        const validDays = [];
+        const daysInMonth = new Date(calYear, calMonth, 0).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
+            if (incomeSource.isValidDate(day, calMonth - 1, calYear)) {
+                validDays.push(day);
+            }
+        }
+        if (validDays.length > 0) {
+            const firstDate = new Date(Date.UTC(calYear, calMonth - 1, validDays[0]));
+            const lastDate = new Date(Date.UTC(calYear, calMonth - 1, validDays[validDays.length - 1]));
+            return `${formatDateShort(firstDate)} – ${formatDateShort(lastDate)}`;
+        }
+    }
+
+    if (incomeSource?.schedule) {
+        const scheduled = getScheduleDates(calYear, calMonth - 1, incomeSource.schedule);
+        if (scheduled && scheduled.length > 0) {
+            if (incomeSource.schedule.type === 'daily') {
+                return translate('planner.anyDate');
+            }
+            const firstItem = scheduled[0];
+            const lastItem = scheduled[scheduled.length - 1];
+
+            const firstDate = firstItem instanceof Date ? firstItem : (firstItem?.startDate || null);
+            const lastDate = lastItem instanceof Date ? lastItem : (lastItem?.endDate || lastItem?.startDate || null);
+
+            if (firstDate && lastDate) {
+                if (firstDate.getTime() === lastDate.getTime()) {
+                    return formatDateShort(firstDate);
+                }
+                return `${formatDateShort(firstDate)} – ${formatDateShort(lastDate)}`;
+            }
+        }
+    }
+
+    return translate('planner.anyDate');
+}
 
 export function createIncomeChip(text, className, data, month, year, id = null) {
     const chip = document.createElement('div');
@@ -174,6 +230,14 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         tooltipContent.appendChild(starryOre);
     }
 
+    const validRangeText = getChipValidRangeString(chip, data, incomeSource);
+    if (validRangeText) {
+        const validRangeEl = document.createElement('div');
+        validRangeEl.classList.add('tooltip-valid-range');
+        validRangeEl.innerHTML = `<span class="valid-range-label">${translate('planner.validDates')}:</span> <span class="valid-range-value">${validRangeText}</span>`;
+        tooltipContent.appendChild(validRangeEl);
+    }
+
     tooltip.appendChild(tooltipContent);
     
     const showTooltip = (e) => {
@@ -331,12 +395,11 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
                 isValidRange = true;
             } else if (incomeSource?.isValidDate) {
                 isValidRange = incomeSource.isValidDate(day, month - 1, year);
-            } else if (chipStartDate && chipEndDate) {
+            } else if (validDates.length > 0) {
                 const formattedCellDate = formatDate(cellDate);
                 isValidRange = validDates.includes(formattedCellDate);
             } else {
-                const formattedCellDate = formatDate(cellDate);
-                isValidRange = validDates.includes(formattedCellDate);
+                isValidRange = true;
             }
 
             // Consecutive Constraint: The new span must not exceed maxChips
@@ -491,83 +554,159 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         dragImage = null;
     });
 
-    let touchTimeout;
+    let touchId = null;
     let isDragging = false;
-    
+
+    chip.addEventListener('contextmenu', (e) => e.preventDefault());
+
     chip.addEventListener('touchstart', (e) => {
-        if (!chip.draggable) return;
-        touchTimeout = setTimeout(() => {
-            isDragging = true;
-            const originalDate = chip.closest('.day-cell')?.dataset.date;
-            draggedChipData = { ...data, className: className, id: chip.id, originalDate };
-            highlightDropTargets();
+        if (!chip.draggable || chip.draggable === false) return;
+        if (e.cancelable) e.preventDefault();
 
-            dragImage = chip.cloneNode(true);
-            const tooltip = dragImage.querySelector('.chip-tooltip');
-            if (tooltip) {
-                tooltip.remove();
-            }
-            dragImage.classList.add('dragging-clone');
-            document.body.appendChild(dragImage);
+        touchId = e.touches[0].identifier;
+        isDragging = true;
 
-            const touch = e.touches[0];
-            dragImage.style.left = `${touch.pageX - dragImage.offsetWidth / 2}px`;
-            dragImage.style.top = `${touch.pageY - dragImage.offsetHeight / 2}px`;
-            
-            chip.classList.add('dragging');
-            state.isChipDragging = true;
+        const originalDate = chip.closest('.day-cell')?.dataset.date;
+        draggedChipData = { ...data, className: className, id: chip.id, originalDate };
 
-        }, 500); 
+        highlightDropTargets();
+
+        dragImage = chip.cloneNode(true);
+        const tooltip = dragImage.querySelector('.chip-tooltip');
+        if (tooltip) {
+            tooltip.remove();
+        }
+        dragImage.classList.add('dragging-clone');
+        dragImage.style.position = 'fixed';
+        dragImage.style.pointerEvents = 'none';
+        dragImage.style.zIndex = '99999';
+        document.body.appendChild(dragImage);
+
+        const touch = e.touches[0];
+        dragImage.style.left = `${touch.clientX - dragImage.offsetWidth / 2}px`;
+        dragImage.style.top = `${touch.clientY - dragImage.offsetHeight / 2}px`;
+
+        chip.classList.add('dragging');
+        state.isChipDragging = true;
     }, { passive: true });
 
     chip.addEventListener('touchmove', (e) => {
-        if (isDragging && dragImage) {
-            if (e.cancelable) {
-                e.preventDefault();
+        if (!isDragging || !dragImage) return;
+
+        let touch = null;
+        for (let i = 0; i < e.touches.length; i++) {
+            if (e.touches[i].identifier === touchId) {
+                touch = e.touches[i];
+                break;
             }
-            const touch = e.touches[0];
-            dragImage.style.left = `${touch.pageX - dragImage.offsetWidth / 2}px`;
-            dragImage.style.top = `${touch.pageY - dragImage.offsetHeight / 2}px`;
+        }
+        if (!touch) return;
+        if (e.cancelable) e.preventDefault();
+
+        dragImage.style.left = `${touch.clientX - dragImage.offsetWidth / 2}px`;
+        dragImage.style.top = `${touch.clientY - dragImage.offsetHeight / 2}px`;
+
+        // Bounded viewport auto-scrolling (restricted strictly within #planner-calendar-card bounds)
+        const scrollZoneHeight = 100;
+        const maxSpeed = 12;
+        const calendarCard = document.getElementById('planner-calendar-card');
+        if (calendarCard) {
+            const cardRect = calendarCard.getBoundingClientRect();
+            const currentScrollY = window.scrollY;
+            const minScrollY = Math.max(0, cardRect.top + currentScrollY - 20);
+            const maxScrollY = Math.max(minScrollY, cardRect.bottom + currentScrollY - window.innerHeight + 20);
+
+            if (touch.clientY < scrollZoneHeight && currentScrollY > minScrollY) {
+                const ratio = (scrollZoneHeight - touch.clientY) / scrollZoneHeight;
+                const speed = Math.round(ratio * maxSpeed);
+                window.scrollTo({ top: Math.max(minScrollY, currentScrollY - speed), behavior: 'instant' });
+            } else if (window.innerHeight - touch.clientY < scrollZoneHeight && currentScrollY < maxScrollY) {
+                const ratio = (scrollZoneHeight - (window.innerHeight - touch.clientY)) / scrollZoneHeight;
+                const speed = Math.round(ratio * maxSpeed);
+                window.scrollTo({ top: Math.min(maxScrollY, currentScrollY + speed), behavior: 'instant' });
+            }
+        }
+
+        // Update hover target highlights in real time
+        const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
+        let targetCell = null;
+        for (let i = 0; i < elements.length; i++) {
+            const el = elements[i];
+            if (el.classList && el.classList.contains('chip-container')) {
+                targetCell = el;
+                break;
+            }
+        }
+
+        // Highlight valid vs invalid hover targets
+        document.querySelectorAll('.chip-container').forEach(container => {
+            container.classList.remove('valid-drop-target', 'invalid-drop-target');
+        });
+
+        if (targetCell) {
+            if (targetCell.classList.contains('valid-drop-range')) {
+                targetCell.classList.add('valid-drop-target');
+            } else {
+                targetCell.classList.add('invalid-drop-target');
+            }
         }
     }, { passive: false });
 
     chip.addEventListener('touchend', (e) => {
-        clearTimeout(touchTimeout);
-        if (isDragging && dragImage) {
-            const touch = e.changedTouches[0];
-            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-            
-            if (dropTarget) {
-                const chipContainer = dropTarget.closest('.chip-container');
-                if (chipContainer) {
-                    handleChipDropOnCalendar(draggedChipData, chipContainer);
-                } else {
-                    const incomeChipsContainer = dropTarget.closest('#income-chips-container');
-                    if (incomeChipsContainer) {
-                        handleChipDropOnContainer(draggedChipData);
-                    }
+        if (!isDragging) return;
+
+        let touch = null;
+        if (e.changedTouches) {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === touchId) {
+                    touch = e.changedTouches[i];
+                    break;
                 }
             }
         }
-        
+
+        if (touch) {
+            const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
+            let dropTarget = null;
+            for (let i = 0; i < elements.length; i++) {
+                const el = elements[i];
+                if (el.closest) {
+                    const cell = el.closest('.chip-container') || el.closest('#income-chips-container') || el.closest('#income-chip-trash-drop-zone');
+                    if (cell) {
+                        dropTarget = cell;
+                        break;
+                    }
+                }
+            }
+
+            if (dropTarget) {
+                if (dropTarget.classList.contains('chip-container')) {
+                    handleChipDropOnCalendar(draggedChipData, dropTarget);
+                } else if (dropTarget.id === 'income-chips-container' || dropTarget.id === 'income-chip-trash-drop-zone') {
+                    handleChipDropOnContainer(draggedChipData);
+                }
+            }
+        }
+
         if (dragImage && document.body.contains(dragImage)) {
             document.body.removeChild(dragImage);
         }
         isDragging = false;
         state.isChipDragging = false;
         dragImage = null;
+        touchId = null;
         chip.classList.remove('dragging');
         clearDropTargetHighlights();
     });
 
     chip.addEventListener('touchcancel', () => {
-        clearTimeout(touchTimeout);
         if (dragImage && document.body.contains(dragImage)) {
             document.body.removeChild(dragImage);
         }
         isDragging = false;
         state.isChipDragging = false;
         dragImage = null;
+        touchId = null;
         chip.classList.remove('dragging');
         clearDropTargetHighlights();
     });

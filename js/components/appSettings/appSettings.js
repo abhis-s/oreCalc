@@ -10,6 +10,7 @@ import { currencyData, priceTierRegistry, languagesData, transparencyData, devel
 import { getLocale } from '../../data/languagesData.js';
 
 import { formatCurrency } from '../../utils/numberFormatter.js';
+import { formatDate } from '../../utils/dateFormatter.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
 import { getSVG } from '../../utils/svgManager.js';
 
@@ -58,6 +59,29 @@ function populateDropdowns() {
             }
         });
     }
+}
+
+function getAppLastUpdatedDateFormatted() {
+    let dateObj;
+    const swUpdateTime = localStorage.getItem('oreCalcSWUpdatedTime');
+    if (swUpdateTime) {
+        dateObj = new Date(swUpdateTime);
+    }
+    if (!dateObj || isNaN(dateObj.getTime())) {
+        if (window.__ENV__?.BUILD_TIME) {
+            dateObj = new Date(window.__ENV__.BUILD_TIME);
+        }
+    }
+    if (!dateObj || isNaN(dateObj.getTime())) {
+        dateObj = new Date();
+    }
+    return formatDate(dateObj, {
+        day: '2-digit',
+        month: 'short',
+        year: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 }
 
 function renderLabeledActions(containerSelector, data) {
@@ -118,9 +142,16 @@ function renderLabeledActions(containerSelector, data) {
             const descPara = document.createElement('p');
             descPara.className = 'form-setting-text';
             descPara.dataset.i18n = item.i18nDesc;
-            descPara.textContent = translate(item.i18nDesc);
-            descriptorGroup.appendChild(descPara);
 
+            if (item.id === 'bugReport') {
+                const formattedDate = getAppLastUpdatedDateFormatted();
+                descPara.dataset.i18nArgs = JSON.stringify({ date: formattedDate });
+                descPara.textContent = translate(item.i18nDesc, { date: formattedDate });
+            } else {
+                descPara.textContent = translate(item.i18nDesc);
+            }
+
+            descriptorGroup.appendChild(descPara);
             labelSide = descriptorGroup;
         }
 

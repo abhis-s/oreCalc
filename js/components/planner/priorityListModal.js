@@ -949,68 +949,122 @@ export function initializePriorityListModal() {
 
     const modalBody = document.getElementById('priority-list-modal-body');
     if (modalBody) {
-        let draggedItem = null;
+        let activePriorityDragItem = null;
+        let activePriorityDragIndex = -1;
+        let currentPriorityDropIndex = -1;
+        let priorityOriginalList = [];
+        let priorityInitialRects = [];
+        let priorityDragImage = null;
+        let priorityTouchId = null;
+        let priorityDragPointerOffsetY = 0;
 
-        // Mouse drag events
-        modalBody.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('priority-list-editor-item')) {
-                draggedItem = e.target;
-                const tooltip = draggedItem.querySelector('.priority-item-tooltip');
-                if (tooltip) tooltip.style.display = 'none';
-
-                if (e.dataTransfer && typeof e.dataTransfer.setDragImage === 'function') {
-                    const rect = draggedItem.getBoundingClientRect();
-                    const offsetX = e.clientX - rect.left;
-                    const offsetY = e.clientY - rect.top;
-                    e.dataTransfer.setDragImage(draggedItem, offsetX, offsetY);
-                }
-
-                setTimeout(() => {
-                    if (draggedItem) {
-                        draggedItem.classList.add('dragging');
-                    }
-                }, 0);
-            }
-        });
-
-        modalBody.addEventListener('dragend', (e) => {
-            if (draggedItem) {
-                const tooltip = draggedItem.querySelector('.priority-item-tooltip');
-                if (tooltip) tooltip.style.display = '';
-                draggedItem.classList.remove('dragging');
-                draggedItem = null;
-            }
-        });
-
-        modalBody.addEventListener('dragover', (e) => {
-            e.preventDefault();
+        function startPriorityDrag(item, clientX, clientY) {
             const editor = document.getElementById('priority-list-editor');
-            if (editor) {
-                const afterElement = getDragAfterElement(editor, e.clientY);
-                const dragging = document.querySelector('.dragging');
-                if (dragging) {
-                    const oldIndex = Array.from(editor.children).indexOf(dragging);
-                    const newIndex = afterElement ? Array.from(editor.children).indexOf(afterElement) : editor.children.length;
-                    
-                    if (oldIndex !== newIndex && oldIndex !== -1) {
-                        animateShiftingElements(editor, () => {
-                            if (afterElement == null) {
-                                editor.appendChild(dragging);
-                            } else {
-                                editor.insertBefore(dragging, afterElement);
-                            }
-                        });
-                    }
+            if (!editor) return;
+
+            priorityOriginalList = Array.from(editor.querySelectorAll('.priority-list-editor-item'));
+            activePriorityDragIndex = priorityOriginalList.indexOf(item);
+            if (activePriorityDragIndex === -1) return;
+
+            activePriorityDragItem = item;
+            currentPriorityDropIndex = activePriorityDragIndex;
+
+            priorityInitialRects = priorityOriginalList.map(el => el.getBoundingClientRect());
+
+            const itemRect = priorityInitialRects[activePriorityDragIndex];
+            priorityDragPointerOffsetY = clientY - itemRect.top;
+
+            // Create floating GPU-accelerated clone
+            priorityDragImage = item.cloneNode(true);
+            const tooltip = priorityDragImage.querySelector('.priority-item-tooltip');
+            if (tooltip) tooltip.remove();
+
+            priorityDragImage.classList.add('dragging-clone');
+            priorityDragImage.style.position = 'fixed';
+            priorityDragImage.style.pointerEvents = 'none';
+            priorityDragImage.style.zIndex = '99999';
+            priorityDragImage.style.width = `${itemRect.width}px`;
+            priorityDragImage.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.35)';
+            priorityDragImage.style.transform = 'scale(1.02)';
+            priorityDragImage.style.transition = 'transform 0.1s ease, box-shadow 0.1s ease';
+            priorityDragImage.style.left = `${itemRect.left}px`;
+            priorityDragImage.style.top = `${clientY - priorityDragPointerOffsetY}px`;
+            document.body.appendChild(priorityDragImage);
+
+            item.classList.add('dragging');
+        }
+
+        function updatePriorityGPUTransforms(clientY) {
+            if (!activePriorityDragItem || activePriorityDragIndex === -1 || priorityOriginalList.length === 0) return;
+
+            if (priorityDragImage) {
+                priorityDragImage.style.top = `${clientY - priorityDragPointerOffsetY}px`;
+            }
+
+            // Calculate target slot index based on snapshot midpoints
+            let targetIndex = 0;
+            for (let i = 0; i < priorityOriginalList.length; i++) {
+                const rect = priorityInitialRects[i];
+                const midY = rect.top + rect.height / 2;
+                if (clientY > midY) {
+                    targetIndex = i;
                 }
             }
-        });
 
-        modalBody.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedItem) {
-                const editor = document.getElementById('priority-list-editor');
+            currentPriorityDropIndex = targetIndex;
+
+            const dragItemHeight = priorityInitialRects[activePriorityDragIndex].height;
+
+            priorityOriginalList.forEach((el, index) => {
+                el.style.transition = 'transform 0.2s cubic-bezier(0.2, 1, 0.2, 1)';
+
+                if (index === activePriorityDragIndex) {
+                    const targetRect = priorityInitialRects[currentPriorityDropIndex];
+                    const placeholderOffsetY = targetRect.top - priorityInitialRects[activePriorityDragIndex].top;
+                    el.style.transform = `translate3d(0, ${placeholderOffsetY}px, 0)`;
+                } else if (activePriorityDragIndex < currentPriorityDropIndex) {
+                    if (index > activePriorityDragIndex && index <= currentPriorityDropIndex) {
+                        el.style.transform = `translate3d(0, ${-dragItemHeight}px, 0)`;
+                    } else {
+                        el.style.transform = `translate3d(0, 0, 0)`;
+                    }
+                } else if (activePriorityDragIndex > currentPriorityDropIndex) {
+                    if (index >= currentPriorityDropIndex && index < activePriorityDragIndex) {
+                        el.style.transform = `translate3d(0, ${dragItemHeight}px, 0)`;
+                    } else {
+                        el.style.transform = `translate3d(0, 0, 0)`;
+                    }
+                } else {
+                    el.style.transform = `translate3d(0, 0, 0)`;
+                }
+            });
+        }
+
+        function commitPriorityDrop() {
+            if (!activePriorityDragItem || activePriorityDragIndex === -1) return;
+
+            const editor = document.getElementById('priority-list-editor');
+
+            if (priorityDragImage && document.body.contains(priorityDragImage)) {
+                document.body.removeChild(priorityDragImage);
+            }
+            priorityDragImage = null;
+
+            priorityOriginalList.forEach(el => {
+                el.style.transition = 'none';
+                el.style.transform = '';
+                el.classList.remove('dragging');
+            });
+
+            if (editor && currentPriorityDropIndex !== activePriorityDragIndex) {
+                const targetElement = priorityOriginalList[currentPriorityDropIndex];
+                if (currentPriorityDropIndex > activePriorityDragIndex) {
+                    editor.insertBefore(activePriorityDragItem, targetElement.nextSibling);
+                } else {
+                    editor.insertBefore(activePriorityDragItem, targetElement);
+                }
+
                 const newOrderedItems = [...editor.querySelectorAll('.priority-list-editor-item')];
-
                 window.__IS_REORDERING__ = true;
                 handleStateUpdate(() => {
                     newOrderedItems.forEach((domItem, index) => {
@@ -1027,68 +1081,82 @@ export function initializePriorityListModal() {
 
                 updateDraggableListValues();
             }
-        });
 
-        // Touch events
-        let isTouching = false;
+            activePriorityDragItem = null;
+            activePriorityDragIndex = -1;
+            currentPriorityDropIndex = -1;
+            priorityOriginalList = [];
+            priorityInitialRects = [];
+            priorityTouchId = null;
+        }
 
+        // Prevent native HTML5 drag interference
+        modalBody.addEventListener('dragstart', (e) => e.preventDefault());
+
+        // Touch Drag Handlers
         modalBody.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.drag-handle')) {
-                draggedItem = e.target.closest('.priority-list-editor-item');
-                if (draggedItem) {
-                    isTouching = true;
-                    draggedItem.classList.add('dragging');
+            const handle = e.target.closest('.drag-handle');
+            if (handle) {
+                const item = handle.closest('.priority-list-editor-item');
+                if (item && !item.classList.contains('disabled-dragging')) {
+                    if (e.cancelable) e.preventDefault();
+                    priorityTouchId = e.touches[0].identifier;
+                    startPriorityDrag(item, e.touches[0].clientX, e.touches[0].clientY);
                 }
             }
-        });
+        }, { passive: false });
 
         modalBody.addEventListener('touchmove', (e) => {
-            if (isTouching && draggedItem) {
-                e.preventDefault();
-                const editor = document.getElementById('priority-list-editor');
-                const touch = e.touches[0];
-                const afterElement = getDragAfterElement(editor, touch.clientY);
-
-                const oldIndex = Array.from(editor.children).indexOf(draggedItem);
-                const newIndex = afterElement ? Array.from(editor.children).indexOf(afterElement) : editor.children.length;
-                
-                if (oldIndex !== newIndex && oldIndex !== -1) {
-                    animateShiftingElements(editor, () => {
-                        if (afterElement == null) {
-                            editor.appendChild(draggedItem);
-                        } else {
-                            editor.insertBefore(draggedItem, afterElement);
-                        }
-                    });
+            if (activePriorityDragItem && priorityTouchId !== null) {
+                let touch = null;
+                for (let i = 0; i < e.touches.length; i++) {
+                    if (e.touches[i].identifier === priorityTouchId) {
+                        touch = e.touches[i];
+                        break;
+                    }
                 }
+                if (touch) {
+                    if (e.cancelable) e.preventDefault();
+                    updatePriorityGPUTransforms(touch.clientY);
+                }
+            }
+        }, { passive: false });
+
+        modalBody.addEventListener('touchend', () => {
+            if (activePriorityDragItem) {
+                commitPriorityDrop();
             }
         });
 
-        modalBody.addEventListener('touchend', (e) => {
-            if (isTouching && draggedItem) {
-                draggedItem.classList.remove('dragging');
-
-                const editor = document.getElementById('priority-list-editor');
-                const newOrderedItems = [...editor.querySelectorAll('.priority-list-editor-item')];
-
-                window.__IS_REORDERING__ = true;
-                handleStateUpdate(() => {
-                    newOrderedItems.forEach((domItem, index) => {
-                        const { heroName, equipName, step } = domItem.dataset;
-                        if (heroName && equipName && step) {
-                            const plan = state.heroes[heroName]?.equipment[equipName]?.upgradePlan[step];
-                            if (plan) {
-                                plan.priorityIndex = index + 1;
-                            }
-                        }
-                    });
-                });
-                window.__IS_REORDERING__ = false;
-
-                updateDraggableListValues();
+        modalBody.addEventListener('touchcancel', () => {
+            if (activePriorityDragItem) {
+                commitPriorityDrop();
             }
-            isTouching = false;
-            draggedItem = null;
+        });
+
+        // Mouse Drag Handlers
+        modalBody.addEventListener('mousedown', (e) => {
+            const handle = e.target.closest('.drag-handle');
+            if (handle && e.button === 0) {
+                const item = handle.closest('.priority-list-editor-item');
+                if (item && !item.classList.contains('disabled-dragging')) {
+                    e.preventDefault();
+                    startPriorityDrag(item, e.clientX, e.clientY);
+
+                    const onMouseMove = (moveEv) => {
+                        updatePriorityGPUTransforms(moveEv.clientY);
+                    };
+
+                    const onMouseUp = () => {
+                        window.removeEventListener('mousemove', onMouseMove);
+                        window.removeEventListener('mouseup', onMouseUp);
+                        commitPriorityDrop();
+                    };
+
+                    window.addEventListener('mousemove', onMouseMove);
+                    window.addEventListener('mouseup', onMouseUp);
+                }
+            }
         });
     }
 }
