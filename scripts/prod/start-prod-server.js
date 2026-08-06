@@ -49,24 +49,15 @@ app.use(express.static(distPath, {
     setHeaders: (res, filePath) => {
         const relativePath = path.relative(distPath, filePath);
         
-        // Don't aggressively cache HTML documents, app entry points, manifests, metadata, or JSON dictionaries
-        const isNonCacheable = filePath.endsWith('.html') || 
-                               filePath.endsWith('.json') ||
-                               filePath.endsWith('sitemap.xml') ||
-                               filePath.endsWith('robots.txt') ||
-                               filePath.endsWith('llms.txt') ||
-                               relativePath === 'service-worker.js' ||
-                               relativePath.endsWith('app.js') ||
-                               relativePath.endsWith('workbox-window.js') ||
-                               relativePath.endsWith('qr-code-styling.js');
-
-        if (isNonCacheable) {
+        // Only cache static image assets and fonts immutably for 1 year
+        const isImmutableAsset = /\.(png|jpg|jpeg|gif|ico|svg|avif|webp|woff2?)$/i.test(filePath);
+        if (isImmutableAsset) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        } else {
+            // All JS, CSS, HTML, JSON, and metadata files revalidate fresh
             res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             res.setHeader('Pragma', 'no-cache');
             res.setHeader('Expires', '0');
-        } else {
-            // Cache static assets (CSS, JS, images, fonts) for 1 year (immutable)
-            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         }
     }
 }));

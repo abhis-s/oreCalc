@@ -256,11 +256,25 @@
                             i--; // Adjust index as key removal shifts array
                         }
                     }
+
+                    // Purge CacheStorage caches
+                    if ('caches' in window) {
+                        caches.keys().then(function (names) {
+                            names.forEach(function (name) { caches.delete(name); });
+                        });
+                    }
+
+                    // Unregister all Service Workers
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                            registrations.forEach(function (reg) { reg.unregister(); });
+                        });
+                    }
                 } catch (e) {
                     console.error('Reset failed:', e);
                 }
                 setTimeout(function () {
-                    window.location.reload();
+                    window.location.reload(true);
                 }, 500);
             };
 
