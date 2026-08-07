@@ -186,8 +186,47 @@
                 } catch (e) {}
             }
 
+            function triggerSelfHealingChunkReload() {
+                var lastChunkReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+                var now = Date.now();
+                if (!lastChunkReload || (now - parseInt(lastChunkReload, 10) > 15000)) {
+                    sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+
+                    // Purge browser CacheStorage (clears cached 404 responses & stale JS chunks)
+                    if (window.caches) {
+                        try {
+                            caches.keys().then(function (names) {
+                                names.forEach(function (name) { caches.delete(name); });
+                            });
+                        } catch (e) {}
+                    }
+
+                    // Unregister active Service Workers to clear stale network proxies
+                    if ('serviceWorker' in navigator) {
+                        try {
+                            navigator.serviceWorker.getRegistrations().then(function (regs) {
+                                regs.forEach(function (r) { r.unregister(); });
+                            });
+                        } catch (e) {}
+                    }
+
+                    // Hard cache-busting reload
+                    setTimeout(function () {
+                        var url = new URL(window.location.href);
+                        url.searchParams.set('reload', now.toString());
+                        window.location.href = url.toString();
+                    }, 150);
+                    return true;
+                }
+                return false;
+            }
+
             window.addEventListener('error', function (event) {
                 if (event && event.message) {
+                    var isModuleError = /Load failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(event.message);
+                    if (isModuleError && triggerSelfHealingChunkReload()) {
+                        return;
+                    }
                     reportClientError(event.message, event.filename, event.lineno, event.colno, event.error ? event.error.stack : '');
                 }
             });
@@ -196,6 +235,10 @@
                 if (event && event.reason) {
                     var reason = event.reason;
                     var msg = reason.message || String(reason);
+                    var isModuleError = /Load failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(msg);
+                    if (isModuleError && triggerSelfHealingChunkReload()) {
+                        return;
+                    }
                     var stack = reason.stack || '';
                     reportClientError('Unhandled Promise Rejection: ' + msg, '', 0, 0, stack);
                 }
@@ -209,6 +252,11 @@
                     var msg = args.map(function (a) {
                         return (a && typeof a === 'object') ? (a.message || String(a)) : String(a);
                     }).join(' ');
+
+                    var isModuleError = /Load failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(msg);
+                    if (isModuleError && triggerSelfHealingChunkReload()) {
+                        return;
+                    }
 
                     var errObj = args.find(function (a) { return a && a.stack; });
                     var stack = errObj ? errObj.stack : (new Error()).stack;
