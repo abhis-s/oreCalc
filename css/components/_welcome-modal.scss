@@ -15,6 +15,9 @@
 }
 
 .welcome-modal-content {
+    animation: none !important;
+    transform: none !important;
+    transition: opacity 0.2s ease, visibility 0.2s ease !important;
     max-width: min(540px, 100vw) !important;
     width: 100%;
     height: calc(100vh - 80px);

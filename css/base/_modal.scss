@@ -64,13 +64,10 @@ body:has(.modal.show) {
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
 
-        .modal-content,
+        .modal-content:not(.welcome-modal-content),
         .eq-details-modal-content,
-        .welcome-modal-content,
         .accent-picker-modal-content,
-        .data-erasure-modal-content,
-        [class*="modal-content"],
-        [class*="-modal-content"] {
+        .data-erasure-modal-content {
             animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
         }
     }
@@ -78,13 +75,10 @@ body:has(.modal.show) {
     &.closing {
         animation: backdropFadeOut 0.25s ease-out forwards !important;
 
-        .modal-content,
+        .modal-content:not(.welcome-modal-content),
         .eq-details-modal-content,
-        .welcome-modal-content,
         .accent-picker-modal-content,
-        .data-erasure-modal-content,
-        [class*="modal-content"],
-        [class*="-modal-content"] {
+        .data-erasure-modal-content {
             animation: modalSlideDown 0.25s ease-out forwards !important;
         }
     }

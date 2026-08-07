@@ -9,6 +9,19 @@ let isPoppingForClose = false;
 
 export function closeModalAnimated(modal, callback) {
     if (!modal) return;
+    if (modal.id === 'welcome-modal' || modal.classList.contains('welcome-modal-content')) {
+        modal.classList.remove('show', 'active', 'open', 'closing');
+        const visibleModals = document.querySelectorAll('.modal.show');
+        if (visibleModals.length === 0) {
+            const overlays = document.querySelectorAll('#overlay, #nav-drawer-overlay, .modal-overlay, .dialog-overlay');
+            overlays.forEach(o => {
+                o.classList.remove('show', 'active', 'closing');
+                o.style.opacity = '';
+            });
+        }
+        if (callback) callback();
+        return;
+    }
     if (modal.classList.contains('closing')) return;
 
     modal.classList.add('closing');
@@ -63,7 +76,7 @@ export function initializeModalHistoryManager() {
         if (!closeBtn) return;
 
         const modal = closeBtn.closest('.modal, .dialog-overlay');
-        if (modal && modal.classList.contains('show') && !modal.classList.contains('closing')) {
+        if (modal && modal.id !== 'welcome-modal' && modal.classList.contains('show') && !modal.classList.contains('closing')) {
             closeModalAnimated(modal);
         }
     });
