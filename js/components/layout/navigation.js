@@ -21,13 +21,84 @@ function toggleNavigationDrawer() {
     }
 }
 
-function closeNavigationDrawer() {
+export function closeNavigationDrawer() {
     dom.drawer.drawer.classList.remove('open');
     dom.drawer.overlay.classList.remove('show');
     document.body.classList.remove('open-drawer');
     if (dom.drawer.button) {
         dom.drawer.button.setAttribute('aria-expanded', 'false');
     }
+}
+
+let swipeStartX = 0;
+let swipeStartY = 0;
+let currentDeltaX = 0;
+let isSwipingDrawer = false;
+
+function initDrawerSwipeGesture() {
+    const drawer = dom.drawer.drawer;
+    const overlay = dom.drawer.overlay;
+    if (!drawer) return;
+
+    const onTouchStart = (e) => {
+        if (!drawer.classList.contains('open')) return;
+        const touch = e.touches[0];
+        swipeStartX = touch.clientX;
+        swipeStartY = touch.clientY;
+        currentDeltaX = 0;
+        isSwipingDrawer = false;
+    };
+
+    const onTouchMove = (e) => {
+        if (!drawer.classList.contains('open')) return;
+        const touch = e.touches[0];
+        const diffX = touch.clientX - swipeStartX;
+        const diffY = touch.clientY - swipeStartY;
+
+        if (!isSwipingDrawer) {
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8 && diffX < 0) {
+                isSwipingDrawer = true;
+                drawer.style.transition = 'none';
+                if (overlay) overlay.style.transition = 'none';
+            }
+        }
+
+        if (isSwipingDrawer) {
+            if (e.cancelable) e.preventDefault();
+            currentDeltaX = Math.min(0, Math.max(-300, diffX));
+            drawer.style.transform = `translateX(${currentDeltaX}px)`;
+
+            if (overlay) {
+                const opacityProgress = Math.max(0, 1 - (Math.abs(currentDeltaX) / 300));
+                overlay.style.opacity = opacityProgress.toFixed(2);
+            }
+        }
+    };
+
+    const onTouchEnd = () => {
+        if (!isSwipingDrawer) return;
+        isSwipingDrawer = false;
+
+        drawer.style.transition = '';
+        if (overlay) overlay.style.transition = '';
+
+        if (currentDeltaX < -60) {
+            drawer.style.transform = '';
+            if (overlay) overlay.style.opacity = '';
+            closeNavigationDrawer();
+        } else {
+            drawer.style.transform = '';
+            if (overlay) overlay.style.opacity = '';
+        }
+    };
+
+    [drawer, overlay].forEach(el => {
+        if (!el) return;
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchmove', onTouchMove, { passive: false });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
+        el.addEventListener('touchcancel', onTouchEnd, { passive: true });
+    });
 }
 
 export function initializeNavigation() {
@@ -46,13 +117,19 @@ export function initializeNavigation() {
 
     if (dom.drawer.overlay) {
         dom.drawer.overlay.addEventListener('click', closeNavigationDrawer);
+        dom.drawer.overlay.addEventListener('touchmove', (e) => {
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false });
+        dom.drawer.overlay.addEventListener('wheel', (e) => {
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false });
     }
 
     if (dom.drawer.close) {
         dom.drawer.close.addEventListener('click', closeNavigationDrawer);
     }
 
-
+    initDrawerSwipeGesture();
 
     if (dom.drawer.drawer) {
         dom.drawer.drawer.addEventListener('click', (event) => {

@@ -251,6 +251,11 @@ export function initializePlayerModal() {
             }
         });
 
+        playerTagInput?.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+            updateLoadButtonState(playerTagInput, loadButton);
+        });
+
         tokenInput?.addEventListener('input', (e) => {
             // Only allow alphanumeric characters
             e.target.value = e.target.value.replace(/[^a-z0-9]/gi, '');

@@ -1073,17 +1073,61 @@ function initCardDragReordering(layout) {
         
         dragHandle.addEventListener('contextmenu', (e) => e.preventDefault());
 
+        const HOLD_DELAY = 220;
+        const MOVE_THRESHOLD = 8;
+
         const handleStart = (e) => {
             if (currentMode === 'compact1') return;
             const containerCard = e.target.closest(layout.config.containerSelector);
             if (!containerCard) return;
 
+            const touchOrPointer = (e.type === 'touchstart') ? e.touches[0] : e;
+            const touchId = (e.type === 'touchstart') ? e.touches[0].identifier : null;
+            const startX = touchOrPointer.clientX;
+            const startY = touchOrPointer.clientY;
+            let holdTimer = null;
+
+            const cancelHold = () => {
+                if (holdTimer) {
+                    clearTimeout(holdTimer);
+                    holdTimer = null;
+                }
+                window.removeEventListener('touchmove', onPointerMove, { passive: false });
+                window.removeEventListener('mousemove', onPointerMove);
+                window.removeEventListener('touchend', onPointerUp, { passive: false });
+                window.removeEventListener('mouseup', onPointerUp);
+                window.removeEventListener('touchcancel', onPointerUp, { passive: false });
+            };
+
+            const onPointerMove = (moveEv) => {
+                const pt = (moveEv.type === 'touchmove')
+                    ? Array.from(moveEv.touches).find(t => t.identifier === touchId) || moveEv.touches[0]
+                    : moveEv;
+                if (pt) {
+                    const dist = Math.hypot(pt.clientX - startX, pt.clientY - startY);
+                    if (dist > MOVE_THRESHOLD) {
+                        cancelHold();
+                    }
+                }
+            };
+
+            const onPointerUp = () => {
+                cancelHold();
+            };
+
+            holdTimer = setTimeout(() => {
+                cancelHold();
+                startCardDrag(layout, containerCard, touchOrPointer, touchId);
+            }, HOLD_DELAY);
+
             if (e.type === 'touchstart') {
                 if (e.cancelable) e.preventDefault();
-                startCardDrag(layout, containerCard, e.touches[0], e.touches[0].identifier);
-            } else if (e.type === 'mousedown') {
-                e.preventDefault();
-                startCardDrag(layout, containerCard, e, null);
+                window.addEventListener('touchmove', onPointerMove, { passive: false });
+                window.addEventListener('touchend', onPointerUp, { passive: false });
+                window.addEventListener('touchcancel', onPointerUp, { passive: false });
+            } else {
+                window.addEventListener('mousemove', onPointerMove);
+                window.addEventListener('mouseup', onPointerUp);
             }
         };
 

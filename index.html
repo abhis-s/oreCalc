@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <base href="/">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <title data-i18n="app.title">Ore Calculator</title>
     <meta name="description"
         content="The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.">
@@ -298,11 +298,15 @@
             };
 
             window.__APP_LOADED__ = function () {
-                if (initializationError) {
-                    return;
-                }
                 appLoaded = true;
                 window.__APP_LOADED_STATUS__ = true;
+
+                // Self-healing recovery: If load failure screen was shown due to network latency, hide it when app finishes loading
+                var screen = document.getElementById('load-failure-screen');
+                if (screen && screen.style.display !== 'none') {
+                    screen.style.display = 'none';
+                    console.info('Watchdog: Application successfully recovered and initialized in background.');
+                }
             };
 
             function handleCatastrophicError(error, stack) {
@@ -337,6 +341,24 @@
                     }
                 }, 100);
             }
+
+            // Continuous Background Watchdog Health Poller: Check every 500ms if app initialized in background
+            var backgroundPoller = setInterval(function () {
+                if (appLoaded || window.__APP_LOADED_STATUS__) {
+                    var screen = document.getElementById('load-failure-screen');
+                    if (screen && screen.style.display !== 'none') {
+                        screen.style.display = 'none';
+                    }
+                    clearInterval(backgroundPoller);
+                }
+            }, 500);
+
+            // Watchdog Hard Timeout: 15 seconds for slow network connections
+            setTimeout(function () {
+                if (!appLoaded && !window.__APP_LOADED_STATUS__ && !initializationError) {
+                    handleCatastrophicError('Timeout: Application initialization took too long.', 'Watchdog triggered after 15000ms on slow network connection.');
+                }
+            }, 15000);
 
             window.addEventListener('error', function (event) {
                 var target = event.target;
@@ -478,7 +500,7 @@
                     <label for="load-failure-email" class="input-label"
                         data-i18n="settings.options.contactEmail">Contact Email (Optional)</label>
                     <input type="email" id="load-failure-email" class="input-style"
-                        placeholder="your-email@example.com">
+                        autocomplete="email" placeholder="your-email@example.com">
                 </div>
                 <div class="form-group">
                     <label for="load-failure-desc" class="input-label"

@@ -3,11 +3,19 @@
 
 .overlay {
     @extend %full-screen-overlay;
-    background-color: $bg-overlay;
+    background-color: var(--bg-overlay);
     z-index: $z-index-overlay;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                visibility 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                backdrop-filter 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                -webkit-backdrop-filter 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 
     &.show {
         opacity: 1;
         visibility: visible;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
     }
 }

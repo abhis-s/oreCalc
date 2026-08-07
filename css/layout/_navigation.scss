@@ -1,6 +1,12 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
+body.open-drawer {
+    overflow: hidden !important;
+    touch-action: none;
+    overscroll-behavior: contain;
+}
+
 .tab-button {
     background-color: $bg-surface-tertiary;
     border: none;
@@ -32,6 +38,17 @@
 
     &:focus-visible {
         outline-offset: -3px !important;
+    }
+
+    &.nav-glide-active {
+        background: color-mix(in srgb, var(--accent-primary) 35%, transparent) !important;
+        color: var(--accent-primary) !important;
+        border: 1px solid color-mix(in srgb, var(--accent-primary) 50%, transparent) !important;
+        box-shadow: 0 4px 16px color-mix(in srgb, var(--accent-primary) 40%, transparent), 0 0 24px color-mix(in srgb, var(--accent-primary) 25%, transparent) !important;
+        transform: scale(1.06) translateY(-2px) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s, box-shadow 0.15s !important;
     }
 }
 
@@ -216,14 +233,19 @@
     flex-direction: column;
     justify-content: space-between;
 
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+
     &.open {
         transform: translateX(0);
         visibility: visible;
     }
 
     &__overlay {
+        touch-action: none;
+        overscroll-behavior: contain;
         @extend %full-screen-overlay;
-        background-color: $bg-overlay;
+        background-color: var(--bg-overlay);
         z-index: #{$z-index-drawer - 1};
         backdrop-filter: blur(0px);
         -webkit-backdrop-filter: blur(0px);
@@ -232,8 +254,8 @@
         &.show {
             opacity: 1;
             visibility: visible;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
     }
 
@@ -465,6 +487,7 @@
 
 // --- Tab Slide Transitions ---
 [data-transition-type="tab-switch"] {
+    .header-container { view-transition-name: header; }
     .bottom-nav-bar { view-transition-name: bottom-nav; }
     .fab-container { view-transition-name: fab; }
     .floating-save-btn { view-transition-name: floating-save; }
@@ -475,8 +498,11 @@
     }
 }
 
+::view-transition-group(header) {
+    z-index: 10;
+    animation-duration: 0s !important;
+}
 ::view-transition-group(bottom-nav),
-::view-transition-group(header),
 ::view-transition-group(fab),
 ::view-transition-group(floating-save) {
     z-index: 10;

@@ -8,7 +8,6 @@ import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { closeFabMenu } from '../fab/fab.js';
 import { openStoredOresModal } from '../planner/priorityListModal.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
-import { showUpdateModal } from '../modals/updateModal.js';
 
 function checkPlannerTabStoredOres() {
     const storedOres = state.storedOres || {};
@@ -27,6 +26,16 @@ function checkPlannerTabStoredOres() {
         openStoredOresModal();
     }
 }
+
+let activeTransition = null;
+
+const tabScrollPositions = {
+    'home-tab': 0,
+    'equipment-tab': 0,
+    'income-tab': 0,
+    'planner-tab': 0,
+    'settings-tab': 0
+};
 
 export function initializeTabs() {
     const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
@@ -55,6 +64,11 @@ export function initializeTabs() {
             tabId = 'home-tab';
         }
 
+        // Save scroll position of current tab
+        if (state.activeTab) {
+            tabScrollPositions[state.activeTab] = window.scrollY;
+        }
+
         const currentIndex = tabOrder.indexOf(state.activeTab);
         const nextIndex = tabOrder.indexOf(tabId);
         const direction = nextIndex > currentIndex ? 'forward' : 'backward';
@@ -68,16 +82,18 @@ export function initializeTabs() {
             }
             state.activeTab = tabId;
             renderApp(state);
+            window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
         };
 
-        if (document.startViewTransition) {
+        if (document.startViewTransition && !activeTransition) {
             document.documentElement.dataset.transitionType = 'tab-switch';
             document.documentElement.dataset.transitionDirection = direction;
-            const transition = document.startViewTransition(updateTab);
+            activeTransition = document.startViewTransition(updateTab);
             
-            transition.ready.catch(() => {});
-            transition.finished.catch(() => {}).finally(() => {
+            activeTransition.ready.catch(() => {});
+            activeTransition.finished.catch(() => {}).finally(() => {
                 delete document.documentElement.dataset.transitionType;
+                activeTransition = null;
             });
         } else {
             document.documentElement.dataset.transitionDirection = direction;
@@ -97,7 +113,17 @@ export function initializeTabs() {
         }
 
         const tabId = `${button.dataset.tab}-tab`;
-        if (tabId === state.activeTab) return;
+        if (tabId === state.activeTab) {
+            // Re-tapping active tab smoothly scrolls to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            tabScrollPositions[tabId] = 0;
+            return;
+        }
+
+        // Save scroll position of current tab before switching
+        if (state.activeTab) {
+            tabScrollPositions[state.activeTab] = window.scrollY;
+        }
 
         const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
         const currentIndex = tabOrder.indexOf(state.activeTab);
@@ -118,17 +144,18 @@ export function initializeTabs() {
             history.pushState(null, '', targetUrl);
             state.activeTab = tabId;
             renderApp(state);
+            window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
         };
 
-        if (document.startViewTransition) {
+        if (document.startViewTransition && !activeTransition) {
             document.documentElement.dataset.transitionType = 'tab-switch';
             document.documentElement.dataset.transitionDirection = direction;
-            const transition = document.startViewTransition(updateTab);
+            activeTransition = document.startViewTransition(updateTab);
             
-            transition.ready.catch(() => {});
-            transition.finished.catch(() => {}).finally(() => {
+            activeTransition.ready.catch(() => {});
+            activeTransition.finished.catch(() => {}).finally(() => {
                 delete document.documentElement.dataset.transitionType;
-                
+                activeTransition = null;
             });
         } else {
             document.documentElement.dataset.transitionDirection = direction;

@@ -80,6 +80,7 @@ function renderSupercellEvents() {
         
         let rowClasses = [];
         if (isDimmed) rowClasses.push('dimmed');
+        if (isLive) rowClasses.push('is-live');
         if (isCurrentMonth) {
             rowClasses.push('highlighted');
             if (event.name === 'World Finals') {
@@ -93,7 +94,7 @@ function renderSupercellEvents() {
         if (isLive) {
             const currentLang = state.uiSettings?.language || 'en';
             const url = getSupercellEventUrl(currentLang);
-            watchLiveHtml = `<a href="${url}" target="_blank" class="watch-live-btn">${translate('income.supercellEvents.live')}</a>`;
+            watchLiveHtml = `<a href="${url}" target="_blank" class="watch-live-btn"><span class="live-beacon-dot" aria-hidden="true"></span>${translate('income.supercellEvents.live')}</a>`;
         }
 
         let translatedEventName = (() => { 

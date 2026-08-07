@@ -17,6 +17,7 @@ function toggleFabMenu() {
     const isActive = main.classList.toggle('active');
     menu.classList.toggle('show', isActive);
     overlay.classList.toggle('show', isActive);
+    document.body.classList.toggle('open-fab', isActive);
 }
 
 export function closeFabMenu() {
@@ -28,6 +29,7 @@ export function closeFabMenu() {
         main.classList.remove('active');
         menu.classList.remove('show');
         overlay.classList.remove('show');
+        document.body.classList.remove('open-fab');
     }
 }
 
@@ -38,7 +40,23 @@ export function initializeFab() {
     if (!main) return;
 
     main.addEventListener('click', toggleFabMenu);
-    overlay.addEventListener('click', toggleFabMenu);
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            if (main.classList.contains('active')) {
+                closeFabMenu();
+            }
+        });
+        overlay.addEventListener('touchmove', (e) => {
+            if (main.classList.contains('active')) {
+                if (e.cancelable) e.preventDefault();
+            }
+        }, { passive: false });
+        overlay.addEventListener('wheel', (e) => {
+            if (main.classList.contains('active')) {
+                if (e.cancelable) e.preventDefault();
+            }
+        }, { passive: false });
+    }
 
     pills.refresh?.addEventListener('click', async () => {
         const activeTag = state.savedPlayerTags[0];

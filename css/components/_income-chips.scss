@@ -48,6 +48,10 @@
     font-size: 0.85em;
     font-weight: 500;
     cursor: grab;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,6 +65,14 @@
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+
+    &.dragging-clone {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        transform: scale(1.08);
+        pointer-events: none;
+        z-index: 99999;
+        will-change: transform, opacity;
+    }
 
     .chip-icon {
         width: 16px; // Standard for sidebar pills

@@ -518,12 +518,22 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         if (incomeChipsContainer) {
             incomeChipsContainer.classList.remove('valid-drop-target');
         }
+
+        // Failsafe: Purge any orphaned drag clones from document.body
+        document.querySelectorAll('.dragging-clone').forEach(el => el.remove());
     };
     
-    let dragImage = null;
+    let nativeDragImage = null;
+    let touchDragImage = null;
+    let touchId = null;
+    let isDragging = false;
+    let chipHoldTimer = null;
+    let pickupStartX = 0;
+    let pickupStartY = 0;
 
     chip.addEventListener('dragstart', (e) => {
-        if (chip.draggable === false) {
+        // If custom touch drag or hold-timer is active, prevent native browser DnD ghosting
+        if (chip.draggable === false || isDragging || chipHoldTimer) {
             e.preventDefault();
             return;
         }
@@ -534,64 +544,107 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         e.dataTransfer.effectAllowed = 'move';
         highlightDropTargets();
 
-        dragImage = chip.cloneNode(true);
-        const tooltip = dragImage.querySelector('.chip-tooltip');
+        nativeDragImage = chip.cloneNode(true);
+        const tooltip = nativeDragImage.querySelector('.chip-tooltip');
         if (tooltip) {
             tooltip.remove();
         }
-        dragImage.style.position = 'absolute';
-        dragImage.style.top = '-1000px';
-        dragImage.style.left = '-1000px';
-        document.body.appendChild(dragImage);
-        e.dataTransfer.setDragImage(dragImage, e.offsetX, e.offsetY);
+        nativeDragImage.style.position = 'absolute';
+        nativeDragImage.style.top = '-1000px';
+        nativeDragImage.style.left = '-1000px';
+        document.body.appendChild(nativeDragImage);
+        e.dataTransfer.setDragImage(nativeDragImage, e.offsetX, e.offsetY);
     });
 
     chip.addEventListener('dragend', () => {
         clearDropTargetHighlights();
-        if (dragImage && document.body.contains(dragImage)) {
-            document.body.removeChild(dragImage);
+        if (nativeDragImage && document.body.contains(nativeDragImage)) {
+            document.body.removeChild(nativeDragImage);
         }
-        dragImage = null;
+        nativeDragImage = null;
     });
 
-    let touchId = null;
-    let isDragging = false;
+    const HOLD_DELAY = 220;
+    const MOVE_THRESHOLD = 8;
 
     chip.addEventListener('contextmenu', (e) => e.preventDefault());
 
     chip.addEventListener('touchstart', (e) => {
         if (!chip.draggable || chip.draggable === false) return;
-        if (e.cancelable) e.preventDefault();
-
-        touchId = e.touches[0].identifier;
-        isDragging = true;
-
-        const originalDate = chip.closest('.day-cell')?.dataset.date;
-        draggedChipData = { ...data, className: className, id: chip.id, originalDate };
-
-        highlightDropTargets();
-
-        dragImage = chip.cloneNode(true);
-        const tooltip = dragImage.querySelector('.chip-tooltip');
-        if (tooltip) {
-            tooltip.remove();
-        }
-        dragImage.classList.add('dragging-clone');
-        dragImage.style.position = 'fixed';
-        dragImage.style.pointerEvents = 'none';
-        dragImage.style.zIndex = '99999';
-        document.body.appendChild(dragImage);
 
         const touch = e.touches[0];
-        dragImage.style.left = `${touch.clientX - dragImage.offsetWidth / 2}px`;
-        dragImage.style.top = `${touch.clientY - dragImage.offsetHeight / 2}px`;
+        const tId = touch.identifier;
+        pickupStartX = touch.clientX;
+        pickupStartY = touch.clientY;
+        const startX = pickupStartX;
+        const startY = pickupStartY;
 
-        chip.classList.add('dragging');
-        state.isChipDragging = true;
-    }, { passive: true });
+        const cancelChipHold = () => {
+            if (chipHoldTimer) {
+                clearTimeout(chipHoldTimer);
+                chipHoldTimer = null;
+            }
+            window.removeEventListener('touchmove', onChipTouchMove, { passive: false });
+            window.removeEventListener('touchend', onChipTouchEnd, { passive: false });
+            window.removeEventListener('touchcancel', onChipTouchEnd, { passive: false });
+        };
+
+        const onChipTouchMove = (moveEv) => {
+            const pt = Array.from(moveEv.touches).find(t => t.identifier === tId) || moveEv.touches[0];
+            if (pt) {
+                const dist = Math.hypot(pt.clientX - startX, pt.clientY - startY);
+                if (dist > MOVE_THRESHOLD) {
+                    cancelChipHold();
+                }
+            }
+        };
+
+        const onChipTouchEnd = () => {
+            cancelChipHold();
+        };
+
+        chipHoldTimer = setTimeout(() => {
+            cancelChipHold();
+            if (navigator.vibrate) {
+                try { navigator.vibrate(20); } catch (_) {}
+            }
+
+            touchId = tId;
+            isDragging = true;
+
+            const originalDate = chip.closest('.day-cell')?.dataset.date;
+            draggedChipData = { ...data, className: className, id: chip.id, originalDate };
+
+            highlightDropTargets();
+
+            // Purge any existing clones before creating a new touch drag image
+            document.querySelectorAll('.dragging-clone').forEach(el => el.remove());
+
+            touchDragImage = chip.cloneNode(true);
+            const tooltip = touchDragImage.querySelector('.chip-tooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+            touchDragImage.classList.add('dragging-clone');
+            touchDragImage.style.position = 'fixed';
+            touchDragImage.style.pointerEvents = 'none';
+            touchDragImage.style.zIndex = '99999';
+            document.body.appendChild(touchDragImage);
+
+            touchDragImage.style.left = `${startX - touchDragImage.offsetWidth / 2}px`;
+            touchDragImage.style.top = `${startY - touchDragImage.offsetHeight / 2}px`;
+
+            chip.classList.add('dragging');
+            state.isChipDragging = true;
+        }, HOLD_DELAY);
+
+        window.addEventListener('touchmove', onChipTouchMove, { passive: false });
+        window.addEventListener('touchend', onChipTouchEnd, { passive: false });
+        window.addEventListener('touchcancel', onChipTouchEnd, { passive: false });
+    }, { passive: false });
 
     chip.addEventListener('touchmove', (e) => {
-        if (!isDragging || !dragImage) return;
+        if (!isDragging || !touchDragImage) return;
 
         let touch = null;
         for (let i = 0; i < e.touches.length; i++) {
@@ -603,8 +656,8 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         if (!touch) return;
         if (e.cancelable) e.preventDefault();
 
-        dragImage.style.left = `${touch.clientX - dragImage.offsetWidth / 2}px`;
-        dragImage.style.top = `${touch.clientY - dragImage.offsetHeight / 2}px`;
+        touchDragImage.style.left = `${touch.clientX - touchDragImage.offsetWidth / 2}px`;
+        touchDragImage.style.top = `${touch.clientY - touchDragImage.offsetHeight / 2}px`;
 
         // Bounded viewport auto-scrolling (restricted strictly within #planner-calendar-card bounds)
         const scrollZoneHeight = 100;
@@ -652,6 +705,46 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         }
     }, { passive: false });
 
+    function animateChipDropTransition(clone, dropTarget, pickupStartX, pickupStartY, onComplete) {
+        if (!clone || !document.body.contains(clone)) {
+            if (onComplete) onComplete();
+            return;
+        }
+
+        const cloneRect = clone.getBoundingClientRect();
+        clone.style.transition = 'transform 0.22s cubic-bezier(0.2, 1, 0.2, 1), opacity 0.2s ease-out';
+
+        if (dropTarget) {
+            const targetRect = dropTarget.getBoundingClientRect();
+            const targetCenterX = targetRect.left + (targetRect.width / 2);
+            const targetCenterY = targetRect.top + (targetRect.height / 2);
+            const currentCenterX = cloneRect.left + (cloneRect.width / 2);
+            const currentCenterY = cloneRect.top + (cloneRect.height / 2);
+
+            const deltaX = targetCenterX - currentCenterX;
+            const deltaY = targetCenterY - currentCenterY;
+
+            clone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.75)`;
+            clone.style.opacity = '0';
+        } else {
+            const currentCenterX = cloneRect.left + (cloneRect.width / 2);
+            const currentCenterY = cloneRect.top + (cloneRect.height / 2);
+
+            const deltaX = pickupStartX - currentCenterX;
+            const deltaY = pickupStartY - currentCenterY;
+
+            clone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.85)`;
+            clone.style.opacity = '0';
+        }
+
+        setTimeout(() => {
+            if (clone && document.body.contains(clone)) {
+                document.body.removeChild(clone);
+            }
+            if (onComplete) onComplete();
+        }, 220);
+    }
+
     chip.addEventListener('touchend', (e) => {
         if (!isDragging) return;
 
@@ -665,50 +758,50 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
             }
         }
 
+        let resolvedDropTarget = null;
         if (touch) {
             const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
-            let dropTarget = null;
             for (let i = 0; i < elements.length; i++) {
                 const el = elements[i];
                 if (el.closest) {
                     const cell = el.closest('.chip-container') || el.closest('#income-chips-container') || el.closest('#income-chip-trash-drop-zone');
                     if (cell) {
-                        dropTarget = cell;
+                        resolvedDropTarget = cell;
                         break;
                     }
                 }
             }
 
-            if (dropTarget) {
-                if (dropTarget.classList.contains('chip-container')) {
-                    handleChipDropOnCalendar(draggedChipData, dropTarget);
-                } else if (dropTarget.id === 'income-chips-container' || dropTarget.id === 'income-chip-trash-drop-zone') {
+            if (resolvedDropTarget) {
+                if (resolvedDropTarget.classList.contains('chip-container')) {
+                    handleChipDropOnCalendar(draggedChipData, resolvedDropTarget);
+                } else if (resolvedDropTarget.id === 'income-chips-container' || resolvedDropTarget.id === 'income-chip-trash-drop-zone') {
                     handleChipDropOnContainer(draggedChipData);
                 }
             }
         }
 
-        if (dragImage && document.body.contains(dragImage)) {
-            document.body.removeChild(dragImage);
-        }
+        const cloneToAnimate = touchDragImage;
+        touchDragImage = null;
         isDragging = false;
         state.isChipDragging = false;
-        dragImage = null;
         touchId = null;
         chip.classList.remove('dragging');
         clearDropTargetHighlights();
+
+        animateChipDropTransition(cloneToAnimate, resolvedDropTarget, pickupStartX, pickupStartY);
     });
 
     chip.addEventListener('touchcancel', () => {
-        if (dragImage && document.body.contains(dragImage)) {
-            document.body.removeChild(dragImage);
-        }
+        const cloneToAnimate = touchDragImage;
+        touchDragImage = null;
         isDragging = false;
         state.isChipDragging = false;
-        dragImage = null;
         touchId = null;
         chip.classList.remove('dragging');
         clearDropTargetHighlights();
+
+        animateChipDropTransition(cloneToAnimate, null, pickupStartX, pickupStartY);
     });
 
     return chip;

@@ -11,12 +11,12 @@
         </div>
         <div class="player-name-input-container" id="delete-tag-container">
             <label for="delete-player-tag-input" data-i18n="player.tag">Player Tag</label>
-            <input type="text" id="delete-player-tag-input" placeholder="Enter player tag" maxlength="12" data-i18n-placeholder="player.placeholderTag">
+            <input type="text" id="delete-player-tag-input" placeholder="Enter player tag" maxlength="12" data-i18n-placeholder="player.placeholderTag" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false">
             <div id="delete-player-tag-error" class="error-message"></div>
         </div>
         <div class="player-name-input-container hidden" id="delete-token-container" style="margin-top: 15px;">
             <label for="delete-player-token-input" data-i18n="player.apiToken">In-Game API Token</label>
-            <input type="text" id="delete-player-token-input" placeholder="e.g. a9378kca" maxlength="8" data-i18n-placeholder="player.placeholderToken">
+            <input type="text" id="delete-player-token-input" placeholder="e.g. a9378kca" maxlength="8" data-i18n-placeholder="player.placeholderToken" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
             <small style="color: var(--color-grey-400); font-size: 0.85em; margin-top: 5px; display: block;" data-i18n="player.apiTokenHint">Hint: You can find your API Token in game under Settings > More Settings > API Token.</small>
             <div id="delete-player-token-error" class="error-message"></div>
         </div>

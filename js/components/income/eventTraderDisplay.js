@@ -27,7 +27,7 @@ export function renderEventTraderRow(offer, packs) {
         <div class="offer-ore-display"><span>${oreAmount}</span> <orecalc-assets-image src="assets/${oreType}_ore.png" alt="${oreType.charAt(0).toUpperCase() + oreType.slice(1)} Ore" class="ore-image"></orecalc-assets-image></div>
         <div class="offer-input-instance">
             <div class="popover-wrapper">
-                <input type="number" class="updatable offer-input-number" id="event-trader-${offer.id}-input" value="${packs}" min="0" max="${offer.maxPacks}" maxlength="2" data-offer-id="${offer.id}" aria-label="${ariaLabel}">
+                <input type="number" class="updatable offer-input-number" id="event-trader-${offer.id}-input" value="${packs}" min="0" max="${offer.maxPacks}" maxlength="2" data-offer-id="${offer.id}" aria-label="${ariaLabel}" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
             </div>
         </div>
     `;

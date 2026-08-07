@@ -95,7 +95,8 @@ export const SVGs = {
     'forward': {},
     'backward': {},
     'routine': {},
-    'colors': {}
+    'colors': {},
+    'undo': {}
 };
 
 /**

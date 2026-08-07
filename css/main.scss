@@ -18,6 +18,7 @@
 @use 'components/player-dropdown';
 @use 'components/player-modal';
 @use "components/preloader";
+@use 'components/pull-to-refresh';
 @use 'components/load-failure';
 @use 'components/switch';
 @use 'components/income-chips';
@@ -35,6 +36,7 @@
 @use 'components/consent-banner';
 @use 'components/welcome-modal';
 @use 'components/tour';
+@use 'components/top-progress-bar';
 
 @use 'layout/grid';
 @use 'layout/header';

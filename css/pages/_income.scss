@@ -358,21 +358,75 @@
             pointer-events: none;
         }
 
+        tr.is-live {
+            td {
+                animation: live-row-pulse 2.5s infinite ease-in-out;
+                color: $text-primary;
+
+                &:first-child {
+                    border-radius: 8px 0 0 8px;
+                    box-shadow: inset 3px 0 0 #ff3b30;
+                }
+                &:last-child {
+                    border-radius: 0 8px 8px 0;
+                }
+            }
+        }
+
+        @keyframes live-row-pulse {
+            0%, 100% {
+                background-color: color-mix(in srgb, var(--color-event-red) 22%, transparent);
+            }
+            50% {
+                background-color: color-mix(in srgb, var(--color-event-red) 8%, transparent);
+            }
+        }
+
         .watch-live-btn {
-            background-color: var(--color-event-red);
+            background-color: rgba(255, 59, 48, 0.22);
+            border: 1px solid rgba(255, 59, 48, 0.65);
             color: $color-white-const !important;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 12px;
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             text-decoration: none !important;
             font-weight: var(--font-weight-bold);
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             margin-left: 10px;
             text-transform: uppercase;
-            transition: background-color 0.2s;
+            box-shadow: 0 0 10px rgba(255, 59, 48, 0.35);
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
 
             &:hover {
-                background-color: var(--color-event-red-hover);
+                background-color: rgba(255, 59, 48, 0.45);
+                border-color: #ff3b30;
+                box-shadow: 0 0 14px rgba(255, 59, 48, 0.65);
+            }
+
+            .live-beacon-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #ff3b30;
+                box-shadow: 0 0 8px rgba(255, 59, 48, 0.9), 0 0 14px rgba(255, 59, 48, 0.6);
+                display: inline-block;
+                flex-shrink: 0;
+                animation: live-beacon-pulse 2.5s infinite ease-in-out;
+            }
+        }
+
+        @keyframes live-beacon-pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+                box-shadow: 0 0 8px rgba(255, 59, 48, 0.9), 0 0 14px rgba(255, 59, 48, 0.6);
+            }
+            50% {
+                opacity: 0.35;
+                transform: scale(0.7);
+                box-shadow: 0 0 2px rgba(255, 59, 48, 0.3);
             }
         }
 

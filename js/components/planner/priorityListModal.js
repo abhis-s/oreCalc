@@ -217,6 +217,9 @@ export function getStepOrderErrors(globalPriorityList) {
 }
 
 let suggestionsHidden = false;
+let previousValidPriorityOrder = null;
+let wasErrorBeforeDrag = false;
+let dragStartSnapshot = null;
 
 function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
     const errorContainer = document.getElementById('priority-list-message-container');
@@ -233,7 +236,13 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
 
     const { hasError, errorItems } = getStepOrderErrors(globalPriorityList);
 
-    if (hasError) {
+    if (!hasError) {
+        previousValidPriorityOrder = null;
+    } else {
+        const canUndo = previousValidPriorityOrder !== null && previousValidPriorityOrder.length > 0;
+        const iconName = canUndo ? 'undo' : 'check';
+        const buttonTextKey = canUndo ? 'actions.undo' : 'actions.fix';
+
         errorContainer.classList.add('error');
         errorContainer.innerHTML += `
             <div class="error-messages-wrapper">
@@ -243,43 +252,55 @@ function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
                 </p>
             </div>
             <button id="fix-order-btn" class="fix-order-btn success-btn">
-                ${getSVG('check', '', 18, 18, 'currentColor')}
-                <span>${translate('actions.fix')}</span>
+                ${getSVG(iconName, '', 18, 18, 'currentColor')}
+                <span>${translate(buttonTextKey)}</span>
             </button>
         `;
 
         const fixBtn = document.getElementById('fix-order-btn');
         if (fixBtn) {
             fixBtn.addEventListener('click', () => {
-                handleStateUpdate(() => {
-                    const equipmentGroups = {};
-                    globalPriorityList.forEach(item => {
-                        if (!equipmentGroups[item.name]) {
-                            equipmentGroups[item.name] = [];
-                        }
-                        equipmentGroups[item.name].push(item);
+                if (canUndo) {
+                    handleStateUpdate(() => {
+                        previousValidPriorityOrder.forEach((savedItem) => {
+                            const plan = state.heroes[savedItem.heroName]?.equipment[savedItem.equipName]?.upgradePlan[savedItem.step];
+                            if (plan) {
+                                plan.priorityIndex = savedItem.priorityIndex;
+                            }
+                        });
                     });
+                    previousValidPriorityOrder = null;
+                } else {
+                    handleStateUpdate(() => {
+                        const equipmentGroups = {};
+                        globalPriorityList.forEach(item => {
+                            if (!equipmentGroups[item.name]) {
+                                equipmentGroups[item.name] = [];
+                            }
+                            equipmentGroups[item.name].push(item);
+                        });
 
-                    for (const equipName in equipmentGroups) {
-                        const items = equipmentGroups[equipName];
-                        for (let i = 0; i < items.length - 1; i++) {
-                            if (items[i].step > items[i + 1].step) {
-                                // Swap priority indices of the two items
-                                const itemA = items[i];
-                                const itemB = items[i + 1];
-                                
-                                const planA = state.heroes[itemA.heroName].equipment[itemA.name].upgradePlan[itemA.step];
-                                const planB = state.heroes[itemB.heroName].equipment[itemB.name].upgradePlan[itemB.step];
-                                
-                                const tempIndex = planA.priorityIndex;
-                                planA.priorityIndex = planB.priorityIndex;
-                                planB.priorityIndex = tempIndex;
-                                
-                                return; // Fix one pair per click
+                        for (const equipName in equipmentGroups) {
+                            const items = equipmentGroups[equipName];
+                            for (let i = 0; i < items.length - 1; i++) {
+                                if (items[i].step > items[i + 1].step) {
+                                    const itemA = items[i];
+                                    const itemB = items[i + 1];
+                                    
+                                    const planA = state.heroes[itemA.heroName].equipment[itemA.name].upgradePlan[itemA.step];
+                                    const planB = state.heroes[itemB.heroName].equipment[itemB.name].upgradePlan[itemB.step];
+                                    
+                                    const tempIndex = planA.priorityIndex;
+                                    planA.priorityIndex = planB.priorityIndex;
+                                    planB.priorityIndex = tempIndex;
+                                    
+                                    return;
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                    previousValidPriorityOrder = null;
+                }
                 renderDraggableList();
             });
         }
@@ -916,6 +937,27 @@ export function initializePriorityListModal() {
         });
     }
 
+    if (modal) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class' && !modal.classList.contains('show')) {
+                    if (previousValidPriorityOrder !== null && previousValidPriorityOrder.length > 0) {
+                        handleStateUpdate(() => {
+                            previousValidPriorityOrder.forEach((savedItem) => {
+                                const plan = state.heroes[savedItem.heroName]?.equipment[savedItem.equipName]?.upgradePlan[savedItem.step];
+                                if (plan) {
+                                    plan.priorityIndex = savedItem.priorityIndex;
+                                }
+                            });
+                        });
+                        previousValidPriorityOrder = null;
+                    }
+                }
+            });
+        });
+        observer.observe(modal, { attributes: true });
+    }
+
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             modal.classList.remove('show');
@@ -957,11 +999,91 @@ export function initializePriorityListModal() {
         let priorityDragImage = null;
         let priorityTouchId = null;
         let priorityDragPointerOffsetY = 0;
+        let autoScrollFrame = null;
+        let lastPointerClientY = 0;
+        let initialScrollTop = 0;
+
+        function stopAutoScroll() {
+            if (autoScrollFrame) {
+                cancelAnimationFrame(autoScrollFrame);
+                autoScrollFrame = null;
+            }
+        }
+
+        function checkAndAutoScroll(clientY) {
+            lastPointerClientY = clientY;
+            const editor = document.getElementById('priority-list-editor');
+            if (!editor || !activePriorityDragItem) {
+                stopAutoScroll();
+                return;
+            }
+
+            const editorRect = editor.getBoundingClientRect();
+            const threshold = 65;
+            const topEdge = editorRect.top;
+            const bottomEdge = editorRect.bottom;
+
+            let speed = 0;
+            if (clientY < topEdge + threshold) {
+                const diff = (topEdge + threshold) - clientY;
+                speed = -Math.min(22, Math.max(3, diff * 0.4));
+            } else if (clientY > bottomEdge - threshold) {
+                const diff = clientY - (bottomEdge - threshold);
+                speed = Math.min(22, Math.max(3, diff * 0.4));
+            }
+
+            if (speed !== 0) {
+                if (!autoScrollFrame) {
+                    const scrollLoop = () => {
+                        if (!activePriorityDragItem) {
+                            stopAutoScroll();
+                            return;
+                        }
+                        const curEditor = document.getElementById('priority-list-editor');
+                        if (!curEditor) {
+                            stopAutoScroll();
+                            return;
+                        }
+
+                        const curRect = curEditor.getBoundingClientRect();
+                        let curSpeed = 0;
+                        if (lastPointerClientY < curRect.top + threshold) {
+                            const diff = (curRect.top + threshold) - lastPointerClientY;
+                            curSpeed = -Math.min(22, Math.max(3, diff * 0.4));
+                        } else if (lastPointerClientY > curRect.bottom - threshold) {
+                            const diff = lastPointerClientY - (curRect.bottom - threshold);
+                            curSpeed = Math.min(22, Math.max(3, diff * 0.4));
+                        }
+
+                        if (curSpeed !== 0) {
+                            curEditor.scrollTop += curSpeed;
+                            updatePriorityGPUTransforms(lastPointerClientY);
+                            autoScrollFrame = requestAnimationFrame(scrollLoop);
+                        } else {
+                            stopAutoScroll();
+                        }
+                    };
+                    autoScrollFrame = requestAnimationFrame(scrollLoop);
+                }
+            } else {
+                stopAutoScroll();
+            }
+        }
 
         function startPriorityDrag(item, clientX, clientY) {
             const editor = document.getElementById('priority-list-editor');
             if (!editor) return;
 
+            const { globalPriorityList: currentList } = getGlobalPriorityList();
+            wasErrorBeforeDrag = getStepOrderErrors(currentList).hasError;
+            dragStartSnapshot = currentList.map(i => ({
+                heroName: i.heroName,
+                equipName: i.name,
+                step: i.step,
+                priorityIndex: i.priorityIndex
+            }));
+
+            initialScrollTop = editor.scrollTop;
             priorityOriginalList = Array.from(editor.querySelectorAll('.priority-list-editor-item'));
             activePriorityDragIndex = priorityOriginalList.indexOf(item);
             if (activePriorityDragIndex === -1) return;
@@ -991,59 +1113,129 @@ export function initializePriorityListModal() {
             priorityDragImage.style.top = `${clientY - priorityDragPointerOffsetY}px`;
             document.body.appendChild(priorityDragImage);
 
+            // Render horizontal dotted line at static editor scope (positioned at exact seam midpoint)
+            const sourceLine = document.createElement('div');
+            sourceLine.className = 'drag-source-line';
+            sourceLine.style.opacity = '0';
+            editor.appendChild(sourceLine);
+
             item.classList.add('dragging');
         }
 
         function updatePriorityGPUTransforms(clientY) {
             if (!activePriorityDragItem || activePriorityDragIndex === -1 || priorityOriginalList.length === 0) return;
 
+            checkAndAutoScroll(clientY);
+
             if (priorityDragImage) {
                 priorityDragImage.style.top = `${clientY - priorityDragPointerOffsetY}px`;
             }
 
-            // Calculate target slot index based on snapshot midpoints
+            const editor = document.getElementById('priority-list-editor');
+            if (!editor) return;
+
+            const scrollDelta = editor.scrollTop - initialScrollTop;
+
+            // Calculate real-time target slot index using scrollDelta-adjusted midpoints
             let targetIndex = 0;
             for (let i = 0; i < priorityOriginalList.length; i++) {
                 const rect = priorityInitialRects[i];
-                const midY = rect.top + rect.height / 2;
-                if (clientY > midY) {
+                const realtimeMidY = (rect.top - scrollDelta) + (rect.height / 2);
+                if (clientY > realtimeMidY) {
                     targetIndex = i;
                 }
             }
 
             currentPriorityDropIndex = targetIndex;
 
-            const dragItemHeight = priorityInitialRects[activePriorityDragIndex].height;
+            const src = activePriorityDragIndex;
+            const dst = currentPriorityDropIndex;
 
-            priorityOriginalList.forEach((el, index) => {
-                el.style.transition = 'transform 0.2s cubic-bezier(0.2, 1, 0.2, 1)';
-
-                if (index === activePriorityDragIndex) {
-                    const targetRect = priorityInitialRects[currentPriorityDropIndex];
-                    const placeholderOffsetY = targetRect.top - priorityInitialRects[activePriorityDragIndex].top;
-                    el.style.transform = `translate3d(0, ${placeholderOffsetY}px, 0)`;
-                } else if (activePriorityDragIndex < currentPriorityDropIndex) {
-                    if (index > activePriorityDragIndex && index <= currentPriorityDropIndex) {
-                        el.style.transform = `translate3d(0, ${-dragItemHeight}px, 0)`;
-                    } else {
-                        el.style.transform = `translate3d(0, 0, 0)`;
-                    }
-                } else if (activePriorityDragIndex > currentPriorityDropIndex) {
-                    if (index >= currentPriorityDropIndex && index < activePriorityDragIndex) {
-                        el.style.transform = `translate3d(0, ${dragItemHeight}px, 0)`;
-                    } else {
-                        el.style.transform = `translate3d(0, 0, 0)`;
-                    }
-                } else {
-                    el.style.transform = `translate3d(0, 0, 0)`;
-                }
+            // Measure outer height (bounding height + margins) for each original item
+            const itemOuterHeights = priorityOriginalList.map((el, i) => {
+                const rect = priorityInitialRects[i];
+                const style = window.getComputedStyle(el);
+                const marginTop = parseFloat(style.marginTop) || 5;
+                const marginBottom = parseFloat(style.marginBottom) || 5;
+                return rect.height + marginTop + marginBottom;
             });
+
+            // Construct the virtual sequence of item indices [0...N-1] with src moved to dst
+            const virtualOrder = priorityOriginalList.map((_, i) => i);
+            virtualOrder.splice(src, 1);
+            virtualOrder.splice(dst, 0, src);
+
+            // Compute exact target Y positions for every item in the virtual layout sequence
+            let currentY = priorityInitialRects[0].top;
+            const desiredTopMap = new Map();
+            for (let k = 0; k < virtualOrder.length; k++) {
+                const itemIndex = virtualOrder[k];
+                desiredTopMap.set(itemIndex, currentY);
+                currentY += itemOuterHeights[itemIndex];
+            }
+
+            // Apply precise shift to each item so slot openings match dragged item height 100%
+            const shiftMap = new Map();
+            priorityOriginalList.forEach((el, index) => {
+                const initialTop = priorityInitialRects[index].top;
+                const desiredTop = desiredTopMap.get(index);
+                const shiftY = desiredTop - initialTop;
+                shiftMap.set(index, shiftY);
+
+                el.style.transition = 'transform 0.2s cubic-bezier(0.2, 1, 0.2, 1)';
+                el.style.transform = `translate3d(0, ${shiftY}px, 0)`;
+            });
+
+            // Calculate exact geometric midpoint between surrounding cards at the vacated origin slot
+            const sourceLine = editor.querySelector('.drag-source-line');
+            const editorRect = editor.getBoundingClientRect();
+            if (sourceLine) {
+                if (dst === src) {
+                    sourceLine.style.opacity = '0';
+                } else {
+                    sourceLine.style.opacity = '0.85';
+
+                    let seamContentTop = 0;
+                    const cardAboveIndex = src > 0 ? src - 1 : null;
+                    const cardBelowIndex = src < priorityOriginalList.length - 1 ? src + 1 : null;
+
+                    if (cardAboveIndex !== null && cardBelowIndex !== null) {
+                        const rectAbove = priorityInitialRects[cardAboveIndex];
+                        const shiftAbove = shiftMap.get(cardAboveIndex) || 0;
+                        const contentBottomAbove = (rectAbove.bottom - editorRect.top + initialScrollTop) + shiftAbove;
+
+                        const rectBelow = priorityInitialRects[cardBelowIndex];
+                        const shiftBelow = shiftMap.get(cardBelowIndex) || 0;
+                        const contentTopBelow = (rectBelow.top - editorRect.top + initialScrollTop) + shiftBelow;
+
+                        seamContentTop = (contentBottomAbove + contentTopBelow) / 2;
+                    } else if (cardBelowIndex !== null) {
+                        const rectBelow = priorityInitialRects[cardBelowIndex];
+                        const shiftBelow = shiftMap.get(cardBelowIndex) || 0;
+                        const contentTopBelow = (rectBelow.top - editorRect.top + initialScrollTop) + shiftBelow;
+                        seamContentTop = contentTopBelow - 5;
+                    } else if (cardAboveIndex !== null) {
+                        const rectAbove = priorityInitialRects[cardAboveIndex];
+                        const shiftAbove = shiftMap.get(cardAboveIndex) || 0;
+                        const contentBottomAbove = (rectAbove.bottom - editorRect.top + initialScrollTop) + shiftAbove;
+                        seamContentTop = contentBottomAbove + 5;
+                    }
+
+                    sourceLine.style.top = `${seamContentTop}px`;
+                }
+            }
         }
 
         function commitPriorityDrop() {
+            stopAutoScroll();
             if (!activePriorityDragItem || activePriorityDragIndex === -1) return;
 
             const editor = document.getElementById('priority-list-editor');
+
+            if (editor) {
+                const sourceLines = editor.querySelectorAll('.drag-source-line');
+                sourceLines.forEach(line => line.remove());
+            }
 
             if (priorityDragImage && document.body.contains(priorityDragImage)) {
                 document.body.removeChild(priorityDragImage);
@@ -1079,6 +1271,15 @@ export function initializePriorityListModal() {
                 });
                 window.__IS_REORDERING__ = false;
 
+                const { globalPriorityList: updatedList } = getGlobalPriorityList();
+                const hasErrorAfter = getStepOrderErrors(updatedList).hasError;
+
+                if (!wasErrorBeforeDrag && hasErrorAfter) {
+                    previousValidPriorityOrder = dragStartSnapshot;
+                } else {
+                    previousValidPriorityOrder = null;
+                }
+
                 updateDraggableListValues();
             }
 
@@ -1093,15 +1294,71 @@ export function initializePriorityListModal() {
         // Prevent native HTML5 drag interference
         modalBody.addEventListener('dragstart', (e) => e.preventDefault());
 
+        const HOLD_DELAY = 220;
+        const MOVE_THRESHOLD = 8;
+
+        function setupPriorityHoldToDrag(e, item) {
+            const touchOrPointer = (e.type === 'touchstart') ? e.touches[0] : e;
+            const touchId = (e.type === 'touchstart') ? e.touches[0].identifier : null;
+            const startX = touchOrPointer.clientX;
+            const startY = touchOrPointer.clientY;
+            let priorityHoldTimer = null;
+
+            const cancelHold = () => {
+                if (priorityHoldTimer) {
+                    clearTimeout(priorityHoldTimer);
+                    priorityHoldTimer = null;
+                }
+                window.removeEventListener('touchmove', onPointerMove, { passive: false });
+                window.removeEventListener('mousemove', onPointerMove);
+                window.removeEventListener('touchend', onPointerUp, { passive: false });
+                window.removeEventListener('mouseup', onPointerUp);
+                window.removeEventListener('touchcancel', onPointerUp, { passive: false });
+            };
+
+            const onPointerMove = (moveEv) => {
+                const pt = (moveEv.type === 'touchmove')
+                    ? Array.from(moveEv.touches).find(t => t.identifier === touchId) || moveEv.touches[0]
+                    : moveEv;
+                if (pt) {
+                    const dist = Math.hypot(pt.clientX - startX, pt.clientY - startY);
+                    if (dist > MOVE_THRESHOLD) {
+                        cancelHold();
+                    }
+                }
+            };
+
+            const onPointerUp = () => {
+                cancelHold();
+            };
+
+            priorityHoldTimer = setTimeout(() => {
+                cancelHold();
+                if (navigator.vibrate) {
+                    try { navigator.vibrate(20); } catch (_) {}
+                }
+                priorityTouchId = touchId;
+                startPriorityDrag(item, touchOrPointer.clientX, touchOrPointer.clientY);
+            }, HOLD_DELAY);
+
+            if (e.type === 'touchstart') {
+                if (e.cancelable) e.preventDefault();
+                window.addEventListener('touchmove', onPointerMove, { passive: false });
+                window.addEventListener('touchend', onPointerUp, { passive: false });
+                window.addEventListener('touchcancel', onPointerUp, { passive: false });
+            } else {
+                window.addEventListener('mousemove', onPointerMove);
+                window.addEventListener('mouseup', onPointerUp);
+            }
+        }
+
         // Touch Drag Handlers
         modalBody.addEventListener('touchstart', (e) => {
             const handle = e.target.closest('.drag-handle');
             if (handle) {
                 const item = handle.closest('.priority-list-editor-item');
                 if (item && !item.classList.contains('disabled-dragging')) {
-                    if (e.cancelable) e.preventDefault();
-                    priorityTouchId = e.touches[0].identifier;
-                    startPriorityDrag(item, e.touches[0].clientX, e.touches[0].clientY);
+                    setupPriorityHoldToDrag(e, item);
                 }
             }
         }, { passive: false });
@@ -1140,8 +1397,7 @@ export function initializePriorityListModal() {
             if (handle && e.button === 0) {
                 const item = handle.closest('.priority-list-editor-item');
                 if (item && !item.classList.contains('disabled-dragging')) {
-                    e.preventDefault();
-                    startPriorityDrag(item, e.clientX, e.clientY);
+                    setupPriorityHoldToDrag(e, item);
 
                     const onMouseMove = (moveEv) => {
                         updatePriorityGPUTransforms(moveEv.clientY);

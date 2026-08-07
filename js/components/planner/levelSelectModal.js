@@ -245,7 +245,7 @@ function renderTableRows() {
                 <td>#${i}</td>
                 <td class="level-input-cell">
                     <div class="popover-wrapper">
-                        <input type="number" id="level-input-${i}" class="level-input" placeholder="${translate('planner.placeholderLevel')}" maxlength="2" data-allow-empty="true">
+                        <input type="number" id="level-input-${i}" class="level-input" placeholder="${translate('planner.placeholderLevel')}" maxlength="2" data-allow-empty="true" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                     </div>
                 </td>
                 <td class="trash-cell">

@@ -1,6 +1,12 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
+body.open-fab {
+    overflow: hidden !important;
+    touch-action: none;
+    overscroll-behavior: contain;
+}
+
 .fab-container {
     align-items: flex-end;
     bottom: 90px;
@@ -23,6 +29,7 @@
 
 .fab-button {
     @extend %flex-center;
+    pointer-events: auto;
     background-color: $accent-primary;
     border: none;
     border-radius: 16px;

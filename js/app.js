@@ -12,7 +12,13 @@ import { getFanContentPolicyUrl } from './data/languagesData.js';
 
 import { initializeHeader } from './components/layout/header.js';
 import { initializeTabs } from './components/layout/tabs.js';
+import { initializeNavGlideController } from './components/layout/navGlideController.js';
+import { initializePullToRefresh } from './components/layout/pullToRefresh.js';
+import { initializeGlobalHaptics } from './services/hapticService.js';
+import { initializeViewportHandler } from './utils/viewportHandler.js';
 import { initializeNavigation } from './components/layout/navigation.js';
+import { initializeModalHistoryManager, closeModalAnimated } from './utils/modalHistoryManager.js';
+import { startTopProgressBar, finishTopProgressBar } from './utils/topProgressBar.js';
 import { initializeStorageInputs } from './components/equipment/storageInputs.js';
 import { initializeHeroCards } from './components/equipment/heroCard.js';
 import { initializePlayerDropdown } from './components/player/playerDropdown.js';
@@ -800,8 +806,13 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         checkAndGenerateRecurringChips();
 
         initializeHeader();
+        initializePullToRefresh();
+        initializeGlobalHaptics();
+        initializeViewportHandler();
         initializeTabs();
+        initializeNavGlideController();
         initializeNavigation();
+        initializeModalHistoryManager();
         initializeStorageInputs();
         initializeHeroCards(state.heroes, state.uiSettings, state.planner);
         initializePlayerDropdown();
@@ -850,11 +861,13 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 const activeTag = state.savedPlayerTags[0];
                 if (activeTag && activeTag !== 'DEFAULT0') {
                     try {
+                        startTopProgressBar();
                         refreshButton.classList.add('saving');
                         const { loadAndProcessPlayerData } = await import('./services/serverResponseHandler.js');
                         const result = await loadAndProcessPlayerData(activeTag, { updateOrder: false });
 
                         refreshButton.classList.remove('saving');
+                        finishTopProgressBar();
                         if (result.success) {
                             refreshButton.classList.add('success');
                             setTimeout(() => refreshButton.classList.remove('success'), 2000);
@@ -866,6 +879,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                             }
                         }
                     } catch (error) {
+                        finishTopProgressBar();
                         if (window.handleChunkError && window.handleChunkError(error)) return;
                         logger.error("Refresh failed:", error);
                         refreshButton.classList.remove('saving');
@@ -1124,11 +1138,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             }
 
             if (e.target.classList.contains('modal')) {
-                e.target.classList.remove('show');
-                if (dom.overlay) dom.overlay.classList.remove('show');
+                closeModalAnimated(e.target);
             } else if (e.target.id === 'overlay') {
-                openModals.forEach(m => m.classList.remove('show'));
-                e.target.classList.remove('show');
+                openModals.forEach(m => closeModalAnimated(m));
             }
 
             if (closingConsentModal) {
@@ -1154,22 +1166,8 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         if (event.key === 'Escape') {
             // 1. Prioritize closing open modals
             const activeModal = document.querySelector('.modal.show');
-            if (activeModal) {
-                const rejectBtn = activeModal.querySelector('.reject-button');
-                const closeBtn = activeModal.querySelector('.close-button');
-                const acceptBtn = activeModal.querySelector('.accept-button');
-
-                if (rejectBtn && window.getComputedStyle(rejectBtn).display !== 'none') {
-                    rejectBtn.click();
-                } else if (closeBtn && window.getComputedStyle(closeBtn).display !== 'none') {
-                    closeBtn.click();
-                } else if (acceptBtn && window.getComputedStyle(acceptBtn).display !== 'none') {
-                    acceptBtn.click();
-                } else {
-                    activeModal.classList.remove('show');
-                    const overlay = document.getElementById('overlay');
-                    if (overlay) overlay.classList.remove('show');
-                }
+            if (activeModal && !activeModal.classList.contains('closing')) {
+                closeModalAnimated(activeModal);
                 return;
             }
 

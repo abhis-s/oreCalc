@@ -855,6 +855,7 @@ export function initializeWelcomeModal() {
     // Reset preview if player tag changes
     if (input) {
         input.addEventListener('input', () => {
+            input.value = input.value.toUpperCase();
             if (previewContainer) previewContainer.style.display = 'none';
             isProfileLoaded = false;
             

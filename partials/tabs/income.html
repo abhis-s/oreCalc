@@ -77,7 +77,7 @@
                                 <label class="summary-label" data-i18n="income.earned" for="inc-raid-medals-total-input">Earned:</label>
                                 <div class="summary-value-with-image">
                                     <div class="popover-wrapper">
-                                        <input type="number" class="updatable" id="inc-raid-medals-total-input" value="0" min="0" max="1970" maxlength="4">
+                                        <input type="number" class="updatable" id="inc-raid-medals-total-input" value="0" min="0" max="1970" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <orecalc-assets-image src="assets/resources/raidMedal.png" alt="Raid Medals" data-i18n-alt="ores.raidMedal" class="raid-medal-image ore-image"></orecalc-assets-image>
                                 </div>
@@ -137,13 +137,13 @@
                                     </button>
                                 </label>
                                 <div class="popover-wrapper">
-                                    <input type="number" id="inc-bonus-track-medals-input" class="updatable" value="0" min="0" max="2000" maxlength="4">
+                                    <input type="number" id="inc-bonus-track-medals-input" class="updatable" value="0" min="0" max="2000" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="input-group-flex">
                                 <label for="inc-event-purchased-medals-input" data-i18n="income.eventPass.purchasedMedals">Purchased Medals:</label>
                                 <div class="popover-wrapper">
-                                    <input type="number" id="inc-event-purchased-medals-input" class="updatable" value="0" min="0" max="30000" maxlength="5">
+                                    <input type="number" id="inc-event-purchased-medals-input" class="updatable" value="0" min="0" max="30000" maxlength="5" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                         </div>
@@ -192,7 +192,7 @@
                             <div class="input-group-flex">
                                 <label for="inc-clan-war-wars-per-month-input" data-i18n="income.clanWar.warsPerMonth">Wars per month:</label>
                                 <div class="popover-wrapper">
-                                    <input type="number" class="updatable" id="inc-clan-war-wars-per-month-input" value="0" min="0" max="15" maxlength="2">
+                                    <input type="number" class="updatable" id="inc-clan-war-wars-per-month-input" value="0" min="0" max="15" maxlength="2" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="input-group-flex">
@@ -200,15 +200,15 @@
                                 <div class="ores-inputs-container" aria-labelledby="clan-war-per-attack-label">
                                     <div class="ore-input-item">
                                         <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-clan-war-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10" aria-label="Clan War Shiny Ore per attack bonus" data-i18n-aria-label="income.clanWar.shinyBonusAriaLabel">
+                                        <input type="number" class="updatable" id="inc-clan-war-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10" aria-label="Clan War Shiny Ore per attack bonus" data-i18n-aria-label="income.clanWar.shinyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <div class="ore-input-item">
                                         <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-clan-war-glowy-bonus-input" value="0" min="0" max="39" maxlength="2" aria-label="Clan War Glowy Ore per attack bonus" data-i18n-aria-label="income.clanWar.glowyBonusAriaLabel">
+                                        <input type="number" class="updatable" id="inc-clan-war-glowy-bonus-input" value="0" min="0" max="39" maxlength="2" aria-label="Clan War Glowy Ore per attack bonus" data-i18n-aria-label="income.clanWar.glowyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <div class="ore-input-item">
                                         <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-clan-war-starry-bonus-input" value="0" min="0" max="6" maxlength="1" aria-label="Clan War Starry Ore per attack bonus" data-i18n-aria-label="income.clanWar.starryBonusAriaLabel">
+                                        <input type="number" class="updatable" id="inc-clan-war-starry-bonus-input" value="0" min="0" max="6" maxlength="1" aria-label="Clan War Starry Ore per attack bonus" data-i18n-aria-label="income.clanWar.starryBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                 </div>
                             </div>
@@ -217,13 +217,13 @@
                             <div class="rate-column">
                                 <label for="inc-clan-war-win-rate-input" data-i18n="income.winRatePct">Win Rate (%):</label>
                                 <div class="popover-wrapper">
-                                    <input type="number" class="updatable" id="inc-clan-war-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3">
+                                    <input type="number" class="updatable" id="inc-clan-war-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="rate-column">
                                 <label for="inc-clan-war-draw-rate-input" data-i18n="income.drawRatePct">Draw Rate (%):</label>
                                 <div class="popover-wrapper">
-                                    <input type="number" class="updatable" id="inc-clan-war-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3">
+                                    <input type="number" class="updatable" id="inc-clan-war-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="rate-column">
@@ -246,7 +246,7 @@
                             <div class="input-group-flex">
                                 <label for="inc-cwl-hits-per-season-input" data-i18n="income.cwl.hitsPerSeason">Hits per season:</label>
                                 <div class="popover-wrapper">
-                                    <input type="number" class="updatable" id="inc-cwl-hits-per-season-input" value="0" min="0" max="7" maxlength="1">
+                                    <input type="number" class="updatable" id="inc-cwl-hits-per-season-input" value="0" min="0" max="7" maxlength="1" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="input-group-flex">
@@ -254,15 +254,15 @@
                                 <div class="ores-inputs-container" aria-labelledby="cwl-per-attack-label">
                                     <div class="ore-input-item">
                                         <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-cwl-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10" aria-label="CWL Shiny Ore per attack bonus" data-i18n-aria-label="income.cwl.shinyBonusAriaLabel">
+                                        <input type="number" class="updatable" id="inc-cwl-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10" aria-label="CWL Shiny Ore per attack bonus" data-i18n-aria-label="income.cwl.shinyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <div class="ore-input-item">
                                         <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-cwl-glowy-bonus-input" value="0" min="0" max="39" maxlength="2" aria-label="CWL Glowy Ore per attack bonus" data-i18n-aria-label="income.cwl.glowyBonusAriaLabel">
+                                        <input type="number" class="updatable" id="inc-cwl-glowy-bonus-input" value="0" min="0" max="39" maxlength="2" aria-label="CWL Glowy Ore per attack bonus" data-i18n-aria-label="income.cwl.glowyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <div class="ore-input-item">
                                         <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-cwl-starry-bonus-input" value="0" min="0" max="6" maxlength="1" aria-label="CWL Starry Ore per attack bonus" data-i18n-aria-label="income.cwl.starryBonusAriaLabel">
+                                        <input type="number" class="updatable" id="inc-cwl-starry-bonus-input" value="0" min="0" max="6" maxlength="1" aria-label="CWL Starry Ore per attack bonus" data-i18n-aria-label="income.cwl.starryBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                 </div>
                             </div>
@@ -271,13 +271,13 @@
                             <div class="rate-column">
                                 <label for="inc-cwl-win-rate-input" data-i18n="income.winRatePct">Win Rate (%):</label>
                                 <div class="popover-wrapper">
-                                    <input type="number" class="updatable" id="inc-cwl-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3">
+                                    <input type="number" class="updatable" id="inc-cwl-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="rate-column">
                                 <label for="inc-cwl-draw-rate-input" data-i18n="income.drawRatePct">Draw Rate (%):</label>
                                 <div class="popover-wrapper">
-                                    <input type="number" class="updatable" id="inc-cwl-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3">
+                                    <input type="number" class="updatable" id="inc-cwl-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="rate-column">
@@ -356,7 +356,7 @@
                                         <div class="dropdown-options"></div>
                                     </div>
                                     <div class="popover-wrapper">
-                                        <input type="number" id="inc-prospector-from-amount" class="updatable" value="0" min="0" max="2000" maxlength="6">
+                                        <input type="number" id="inc-prospector-from-amount" class="updatable" value="0" min="0" max="2000" maxlength="6" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <input type="range" id="inc-prospector-slider" class="updatable" min="0" max="2000" value="0" aria-label="Prospector exchange amount slider" data-i18n-aria-label="income.prospector.sliderAriaLabel">
                                     <input type="number" id="inc-prospector-to-amount" class="calculated" value="0" disabled>

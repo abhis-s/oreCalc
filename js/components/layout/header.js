@@ -4,22 +4,15 @@ export function initializeHeader() {
     const headerContainer = dom.header?.container;
     if (!headerContainer) return;
 
-    const handleScroll = () => {
-        const isScrolled = window.scrollY > 5;
-        headerContainer.classList.toggle('is-scrolled', isScrolled);
-        headerContainer.classList.toggle('sticky', isScrolled);
-    };
+    // Create an invisible 1px sentinel at top: 5px to trigger scrolled state off-main-thread
+    const sentinel = document.createElement('div');
+    sentinel.className = 'header-scroll-sentinel';
+    sentinel.style.cssText = 'position: absolute; top: 5px; left: 0; width: 1px; height: 1px; pointer-events: none; opacity: 0; z-index: -1;';
+    document.body.prepend(sentinel);
 
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            window.requestAnimationFrame(() => {
-                handleScroll();
-                ticking = false;
-            });
-            ticking = true;
-        }
-    }, { passive: true });
+    const observer = new IntersectionObserver(([entry]) => {
+        headerContainer.classList.toggle('is-scrolled', !entry.isIntersecting);
+    });
 
-    handleScroll();
+    observer.observe(sentinel);
 }

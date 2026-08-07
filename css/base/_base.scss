@@ -383,10 +383,13 @@ input[type="checkbox"] {
     }
 }
 
+html {
+    overscroll-behavior-y: contain;
+}
+
 html,
 body {
     background-color: var(--bg-app);
-    overscroll-behavior-x: none;
 }
 
 body {
@@ -428,7 +431,6 @@ textarea,
 .inner-card,
 .income-card,
 .hero-card,
-.modal-content,
 .navigation-drawer,
 .income-summary-title,
 .total-income-header,
@@ -444,10 +446,20 @@ textarea,
 }
 
 input,
-textarea {
+select,
+textarea,
+.updatable {
     -webkit-user-select: auto;
     -ms-user-select: auto;
     user-select: auto;
+    scroll-margin-top: 90px;
+}
+
+#player-tag-input-modal,
+#welcome-player-tag-input,
+#delete-player-tag-input,
+.player-tag-input {
+    text-transform: uppercase;
 }
 
 code {
