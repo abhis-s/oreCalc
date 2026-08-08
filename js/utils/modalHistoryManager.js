@@ -99,8 +99,8 @@ export function initializeModalHistoryManager() {
         mutations.forEach((mutation) => {
             const target = mutation.target;
 
-            // Target check: modals, dialog overlays, side drawer, FAB menu
-            const isModal = target.classList.contains('modal') ||
+            // Target check: modals, dialog overlays, side drawer, FAB menu (excluding welcome-modal to prevent mobile back-gesture dismissal)
+            const isModal = (target.classList.contains('modal') && target.id !== 'welcome-modal') ||
                             target.classList.contains('dialog-overlay') ||
                             target.classList.contains('nav-drawer') ||
                             target.id === 'nav-drawer' ||
@@ -108,7 +108,6 @@ export function initializeModalHistoryManager() {
                             target.id === 'equipment-details-modal' ||
                             target.id === 'changelog-modal' ||
                             target.id === 'commits-modal' ||
-                            target.id === 'welcome-modal' ||
                             target.id === 'app-settings-modal' ||
                             target.id === 'star-bonus-multiplier-modal';
 

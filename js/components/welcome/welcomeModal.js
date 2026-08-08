@@ -545,7 +545,8 @@ export function initializeWelcomeModal() {
         if (carousel) {
             const width = carousel.clientWidth;
             if (width <= 0) return;
-            const visualIndex = getVisualIndexFromPage(currentPage);
+            const activePage = scrollTargetPage !== null ? scrollTargetPage : currentPage;
+            const visualIndex = getVisualIndexFromPage(activePage);
             carousel.style.scrollBehavior = 'auto';
             carousel.scrollLeft = visualIndex * (width + 32);
             carousel.style.scrollBehavior = '';
@@ -556,6 +557,9 @@ export function initializeWelcomeModal() {
     // Button actions: Continue & Back
     if (continueBtn && carousel) {
         continueBtn.addEventListener('click', async (e) => {
+            if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                document.activeElement.blur();
+            }
             const width = carousel.clientWidth;
             if (currentPage === 2) {
                 if (state.savedPlayerTags.length === 1) {
@@ -1023,6 +1027,9 @@ export function initializeWelcomeModal() {
 
     if (guestBtn) {
         guestBtn.addEventListener('click', () => {
+            if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                document.activeElement.blur();
+            }
             // Generate Guest profile
             if (!state.savedPlayerTags.includes('DEFAULT0')) {
                 const guestPlayerData = generateGuestPlayerData(selectedTH, selectedLeague);
@@ -1479,17 +1486,11 @@ export function initializeWelcomeModal() {
         });
     }
 
-    // Setup Wizard Swipe Gesture Navigation
+    // Setup Wizard Touch Gesture Isolation
     const wizardView = document.getElementById('welcome-profile-setup-wizard-view');
     if (wizardView) {
-        let touchStartX = 0;
-        let touchStartY = 0;
-
         wizardView.addEventListener('touchstart', (e) => {
             e.stopPropagation();
-            if (e.touches.length > 1) return;
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
         }, { passive: true });
 
         wizardView.addEventListener('touchmove', (e) => {
@@ -1498,21 +1499,6 @@ export function initializeWelcomeModal() {
 
         wizardView.addEventListener('touchend', (e) => {
             e.stopPropagation();
-            if (e.changedTouches.length === 0) return;
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-
-            const diffX = touchEndX - touchStartX;
-            const diffY = touchEndY - touchStartY;
-
-            // Trigger step transitions on horizontal swipe if swipe threshold (50px) is met
-            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-                if (diffX < 0) {
-                    goToNextWizardStep();
-                } else {
-                    goToPrevWizardStep();
-                }
-            }
         }, { passive: true });
 
         wizardView.addEventListener('wheel', (e) => {
