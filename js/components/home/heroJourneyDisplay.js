@@ -895,6 +895,7 @@ function showNodeTooltip(chip) {
         });
     } else if (node.type === 'skin') {
         const skinKey = node.skinKey;
+        const skinNameText = translate(`heroJourney.skins.${skinKey}`) || skinKey;
         const skinWords = skinNameText.split(' ');
         const popoverTitle = skinWords.length > 1
             ? `<span class="accent-text">${skinWords[0]}</span> ${skinWords.slice(1).join(' ')}`
