@@ -377,7 +377,7 @@ export function renderHomeProfile(state) {
                 <div class="unconnected-icon-wrapper">
                     <orecalc-assets-svg name="user" height="32" width="32" class="unconnected-icon"></orecalc-assets-svg>
                 </div>
-                <h3 data-i18n="homeProfile.noProfileTitle">${translate('homeProfile.noProfileTitle') || 'No Profile Connected'}</h3>
+                <h2 data-i18n="homeProfile.noProfileTitle">${translate('homeProfile.noProfileTitle') || 'No Profile Connected'}</h2>
                 <p data-i18n="homeProfile.noProfileDesc">${translate('homeProfile.noProfileDesc') || 'Connect your player tag to see your Town Hall, active heroes, and equipment progress directly on the homepage.'}</p>
                 <button id="home-profile-connect-btn" class="accept-button">
                     <orecalc-assets-svg name="plus" height="16" width="16"></orecalc-assets-svg>
@@ -522,7 +522,7 @@ export function renderHomeProfile(state) {
                     <span class="th-badge-level-overlay">${thLevel}</span>
                 </div>
                 <div class="player-identity">
-                    <h3 class="player-name">${profile.name}</h3>
+                    <h2 class="player-name">${profile.name}</h2>
                     ${tagHtml}
                     ${clanHtml}
                 </div>

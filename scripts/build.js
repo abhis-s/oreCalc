@@ -269,7 +269,7 @@ async function build() {
         const baseUrl = process.env.VITE_API_BASE_URL || 'https://api.orecalc.tech';
         const buildTime = process.env.BUILD_TIME || new Date().toISOString();
 
-        indexHtml = indexHtml.replace('<head>', `<head>\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
+        indexHtml = indexHtml.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${commitsSinceTag.length} };</script>`);
         
         // Cache-bust app.js script and modulepreload tags to force instant self-healing on all mobile and desktop browsers
         indexHtml = indexHtml.replace(/src="js\/app\.js(\?v=[^"]+)?"/g, `src="js/app.js?v=${encodeURIComponent(appVersion)}"`);
