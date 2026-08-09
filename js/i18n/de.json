@@ -812,10 +812,10 @@
         "comingSoon": "Demnächst",
         "lvlShort": "St.",
         "requiredOres": {
-            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen in den Einstellungen angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
+            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands und bevorstehender Heldenreise-Belohnungen) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen im Planer angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
         },
         "storedOres": {
-            "help": "Die aktuelle Menge an Erzen, die du in deinem In-Game-Lager (Schmiede) angespart hast."
+            "help": "<p>Die aktuelle Menge an Erzen, die du in deinem In-Game-Lager (Schmiede) angespart hast.</p><p>Die grünen Badges zeigen bevorstehende und noch nicht beanspruchte Erze aus dem Meilenstein-Pfad der Heldenreise.</p>"
         },
         "stats": {
             "abilityDamage": "Fähigkeitsschaden",
@@ -1150,6 +1150,8 @@
         "profileDesc": "Wechsle zwischen verschiedenen gespeicherten Profilen, klicke auf die Aktualisieren-Schaltfläche, um die Spielerdaten zu aktualisieren, oder klicke auf '+ Spieler hinzufügen', um weitere Konten hinzuzufügen.",
         "profileCardTitle": "Spielerübersicht & Fortschritt",
         "profileCardDesc": "Diese Karte bietet eine allgemeine Übersicht deines aktiven Profils. Sie zeigt dein Profil, die Anzahl der maximierten Ausrüstungsgegenstände sowie detaillierte prozentuale Fortschritte für jedes Erz-Upgrade.",
+        "heroJourneyTitle": "Heldenreise-Pfad",
+        "heroJourneyDesc": "Verfolge deinen Fortschritt auf der Heldenreise, während du deine Helden levelst und Meilenstein-Belohnungen wie Erz-Truhen, Ausrüstung und Helden-Skins freischaltest.",
         "fabTitle": "Aktionsmenü",
         "fabDesc": "Rufe Schnellaktionen auf, wie das Aktualisieren deiner aktiven Profildaten oder das manuelle Synchronisieren/Speichern deiner Daten in der Cloud.",
         "saveTitle": "Cloud-Synchronisierung & Speichern",
@@ -1189,17 +1191,18 @@
     },
     "home": {
         "requiredOres": {
-            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen in den Einstellungen angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
+            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands und bevorstehender Heldenreise-Belohnungen) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen im Planer angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
         },
         "remainingTime": {
             "help": "Die Zeit, die benötigt wird, um die erforderlichen Erze basierend auf deinem monatlichen Einkommen zu sammeln. Setzt eine gleichbleibende Aktivität voraus; eine Änderung deiner Einkommenskonfiguration beeinflusst diesen Zeitplan."
         }
     },
     "heroJourney": {
-        "betaNotice": "Hinweis: Der Fortschritt der Heldenreise, nicht abgeholte Belohnungen und freigeschaltete Ausrüstung sind derzeit nicht in den Erzberechnungen enthalten. Eine vollständige Berechnungsintegration wird in Kürze verfügbar sein.",
+        "noProfileNotice": "Hinweis: Verbinde ein Spieler-Kürzel, um deinen Fortschritt auf der Heldenreise zu verfolgen und Meilenstein-Belohnungen einzusehen.",
         "heroEmblems": "Helden-Embleme",
         "title": "Heldenreise",
         "acceleratedRewards": "Beschleunigte Belohnungen",
+        "acceleratedInfoHelp": "Aktiviere diese Option, wenn deine Meilenstein-Belohnungen im Spiel höher sind als hier angezeigt. Supercell beschleunigt Meilenstein-Belohnungen automatisch für Spieler, die hinter den erwarteten Helden- oder Ausrüstungsstufen ihres Rathauses zurückliegen.",
         "rewardMode": "Truhen-Belohnungen:",
         "normalMode": "Normal",
         "acceleratedMode": "Beschleunigt (Aufholjagd)",
@@ -1242,6 +1245,11 @@
         "trueMaxDesc": "Alle Meilensteine der Heldenreise freigeschaltet",
         "thLimitLockedText": "Rathaus auf Level {th} verbessern, um Meilensteine ab Lvl {lvl}+ freizuschalten",
         "thLimitUnlockedText": "Zeige Meilensteine ab Rathaus-Level{th}+",
+        "collapsedNote": "Meilensteine der Heldenreise sind ausgeblendet.",
+        "preview": "Vorschau",
+        "closePreview": "Vorschau schließen",
+        "hideTrack": "Pfad ausblenden",
+        "showTrack": "Pfad anzeigen",
         "explore": "Erkunden",
         "magicItemBadge": "Magischer Gegenstand",
         "legendaryHeroSkinBadge": "<span class=\"purple-text\">Legendär</span> Heldenskin",
@@ -1251,10 +1259,13 @@
         "equipmentPopoverBodyNormal": "Schaltet <strong>{title}</strong> auf Level {level} frei. Falls du diese Ausrüstung bereits besitzt, erhältst du beim Abholen dieses Meilensteins <strong>{starry} Sternenerz</strong> als Ersatzentschädigung.",
         "heroQuestBadge": "Heldenquest",
         "heroFallback": "Held",
-        "questPopoverBody": "Schließe diese Quest ab, indem du <strong>15 Sterne in 14 Tagen</strong> in Mehrspielerkämpfen mit <strong>{target}</strong> verdienst, um <strong>3 Erz-Truhen</strong> zu erhalten (Glanz-, Glüh- & Sternenerz skaliert nach Rathaus-Level).",
+        "questPopoverBody": "Schließe diese Quest ab, indem du <strong>15 Sterne in 14 Tagen</strong> in Mehrspielerkämpfen mit <strong>{target}</strong> verdienst, um <strong>3 Erz-Truhen</strong> zu erhalten (Belohnungen skaliert nach Rathaus-Level):",
+        "chestRewardRangeLabel": "Erz-Spanne:",
+        "chestRewardRangeLabelAccelerated": "Beschleunigte Erz-Spanne:",
+        "chestRewardRangeLabelThScaled": "RH-skalierte Erz-Spanne:",
         "questTitleFormat": "Quest - {name}",
         "questBadgeAlt": "Abzeichen",
-        "upcomingOresTooltip": "Künftige/Offene Erze der Heldenreise",
+        "upcomingOresTooltip": "Bevorstehende Erze aus der Heldenreise",
         "magicItemDescriptions": {
             "heroPotion": "Bringt alle Helden und Begleiter eine Stunde lang auf das mit deinem Rathaus maximal mögliche Level.",
             "mightyMorsel": "Erhöht für die nächsten 3 Angriffe vorübergehend alle Helden, Begleiter und Ausrüstungen auf das durch deine Rathaus-Stufe maximal erlaubte Level.",

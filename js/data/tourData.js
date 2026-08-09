@@ -8,6 +8,11 @@ export const tourSets = [
         id: 'v2.0-equipment-details',
         releasedAt: 1786060800000, // August 7, 2026 00:00 UTC
         label: 'Equipment Details Modal'
+    },
+    {
+        id: 'v2.0-hero-journey',
+        releasedAt: 1786492800000, // August 12, 2026 00:00 UTC
+        label: "Hero's Journey Track"
     }
 ];
 
@@ -38,6 +43,16 @@ export const tourSteps = [
         tab: 'home',
         titleKey: 'tour.profileCardTitle',
         descKey: 'tour.profileCardDesc',
+        placement: 'bottom'
+    },
+    {
+        id: 'hero-journey-card',
+        setId: 'v2.0-hero-journey',
+        order: '01.03',
+        target: '#home-hj-card',
+        tab: 'home',
+        titleKey: 'tour.heroJourneyTitle',
+        descKey: 'tour.heroJourneyDesc',
         placement: 'bottom'
     },
     {

@@ -27,10 +27,19 @@
                         </div>
                         <span id="home-hj-title-right" class="hero-journey-title-part title-right"></span>
                         <h2 id="home-hj-title" class="hero-journey-title">
-                            <span data-i18n="heroJourney.title">Hero's Journey</span>
-                            <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
+                            <span class="hero-journey-title-wrapper">
+                                <span class="hero-journey-title-text" data-i18n="heroJourney.title">Hero's Journey</span>
+                                <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
+                            </span>
                         </h2>
                         <span id="home-hj-cumulative-badge" class="badge hero-journey-level-badge">0/0</span>
+                    </div>
+                </div>
+
+                <div id="home-hj-collapsed-note" class="hero-journey-collapsed-note" style="display: none;">
+                    <div class="hero-journey-collapsed-content">
+                        <span class="hero-journey-collapsed-text" data-i18n="heroJourney.collapsedNote">Hero's Journey milestones are hidden.</span>
+                        <button type="button" id="home-hj-explore-btn" class="th-limit-reveal-btn" data-i18n="heroJourney.showTrack">Show Track</button>
                     </div>
                 </div>
 
@@ -39,8 +48,16 @@
                         <span id="home-hj-progress-text" data-i18n="heroJourney.progressToNextMilestone">Progress to Next Milestone</span>
                         <span id="home-hj-progress-percent">0%</span>
                     </div>
+                    <div class="hero-journey-no-profile-info">
+                        <span class="hero-journey-no-profile-text" data-i18n="homeProfile.noProfileTitle">No Profile Connected</span>
+                    </div>
                     <div class="hero-journey-accelerated-switch-container">
-                        <label for="home-hj-accelerated-switch" class="hero-journey-accelerated-label" data-i18n="heroJourney.acceleratedRewards">Accelerated Rewards</label>
+                        <div class="hero-journey-accelerated-label-group">
+                            <label for="home-hj-accelerated-switch" class="hero-journey-accelerated-label" data-i18n="heroJourney.acceleratedRewards">Accelerated Rewards</label>
+                            <button type="button" class="info-btn hj-accelerated-info-btn" data-info="heroJourney.acceleratedInfoHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                <orecalc-assets-svg name="info" class="info-icon" height="14" width="14"></orecalc-assets-svg>
+                            </button>
+                        </div>
                         <label class="switch hero-journey-accelerated-switch">
                             <input type="checkbox" id="home-hj-accelerated-switch">
                             <span class="slider round"></span>
@@ -55,8 +72,8 @@
                     <div class="hero-journey-filters-row">
                         <div class="hj-segmented-switch" id="home-hj-claim-switch">
                             <div class="hj-switch-pill" id="home-hj-claim-pill"></div>
-                            <button class="hj-switch-btn active" data-claim-filter="all" data-i18n="heroJourney.filterAll">All</button>
-                            <button class="hj-switch-btn" data-claim-filter="unclaimed" data-i18n="heroJourney.filterUnclaimed">Unclaimed</button>
+                            <button class="hj-switch-btn active" data-unclaimed-only="false" data-i18n="heroJourney.filterAll">All</button>
+                            <button class="hj-switch-btn" data-unclaimed-only="true" data-i18n="heroJourney.filterUnclaimed">Unclaimed</button>
                         </div>
                         <div class="hj-type-filters" id="home-hj-type-filters">
                             <select id="home-hj-type-select" class="hj-type-select" aria-label="Filter by type" data-i18n-aria-label="heroJourney.filterByType">
@@ -101,12 +118,13 @@
                     </div>
                 </div>
                 <div id="home-hj-custom-scrollbar" class="hero-journey-custom-scrollbar" aria-hidden="true">
+                    <div id="home-hj-scrollbar-progress" class="hero-journey-scrollbar-progress"></div>
                     <div id="home-hj-scrollbar-thumb" class="hero-journey-scrollbar-thumb"></div>
                 </div>
 
-                <div class="hero-journey-notice">
-                    <orecalc-assets-svg name="experiment" class="sync-notice-icon" height="14" width="14"></orecalc-assets-svg>
-                    <span data-i18n="heroJourney.betaNotice">Note: Track progress, unclaimed rewards, and unlocked equipment are not currently factored into ore calculations. Full calculation integration will be available shortly.</span>
+                <div id="home-hj-no-profile-notice" class="hero-journey-no-profile-notice">
+                    <orecalc-assets-svg name="sync-problem" class="sync-notice-icon" height="14" width="14"></orecalc-assets-svg>
+                    <span data-i18n="heroJourney.noProfileNotice">Note: Connect a player tag to track your Hero's Journey progress and view milestone rewards.</span>
                 </div>
             </div>
 

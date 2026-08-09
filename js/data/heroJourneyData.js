@@ -1,10 +1,5 @@
-/**
- * Hero's Journey Data & Rules
- * Official Clash of Clans Hero's Journey rewards track (TH7+)
- */
-
 export const heroMaxLevelsPerTH = {
-    barbarianKing: { 7: 10, 8: 20, 9: 30, 10: 40, 11: 50, 12: 65, 13: 75, 14: 85, 15: 90, 16: 95, 17: 100, 18: 110 },
+    barbarianKing:  { 7: 10, 8: 20, 9: 30, 10: 40, 11: 50, 12: 65, 13: 75, 14: 85, 15: 90, 16: 95, 17: 100, 18: 110 },
     archerQueen:    { 8: 10, 9: 30, 10: 40, 11: 50, 12: 65, 13: 75, 14: 85, 15: 90, 16: 95, 17: 100, 18: 110 },
     minionPrince:   { 9: 10, 10: 20, 11: 30, 12: 40, 13: 50, 14: 60, 15: 70, 16: 80, 17: 90, 18: 95 },
     grandWarden:    { 11: 20, 12: 40, 13: 50, 14: 60, 15: 65, 16: 70, 17: 75, 18: 85 },
@@ -37,7 +32,7 @@ export const oreChestRewardsAccelerated = {
     9:  { shiny: { min: 650, max: 750, avg: 700 }, glowy: { min: 29, max: 39, avg: 34 }, starry: { min: 1, max: 3, avg: 2 } },
     10: { shiny: { min: 750, max: 850, avg: 800 }, glowy: { min: 35, max: 45, avg: 40 }, starry: { min: 4, max: 8, avg: 6 } },
     11: { shiny: { min: 1100, max: 1300, avg: 1200 }, glowy: { min: 50, max: 70, avg: 60 }, starry: { min: 6, max: 10, avg: 8 } },
-    12: { shiny: { min: 1500, max: 1700, avg: 1600 }, glowy: { min: 70, max: 90, avg: 80 }, starry: { min: 10, max: 15, avg: 12.5 } },
+    12: { shiny: { min: 1500, max: 1700, avg: 1600 }, glowy: { min: 70, max: 90, avg: 80 }, starry: { min: 10, max: 15, avg: 13 } },
     13: { shiny: { min: 1900, max: 2100, avg: 2000 }, glowy: { min: 90, max: 110, avg: 100 }, starry: { min: 20, max: 30, avg: 25 } },
     14: { shiny: { min: 2300, max: 2500, avg: 2400 }, glowy: { min: 110, max: 130, avg: 120 }, starry: { min: 30, max: 40, avg: 35 } },
     15: { shiny: { min: 2750, max: 2950, avg: 2850 }, glowy: { min: 130, max: 150, avg: 140 }, starry: { min: 70, max: 80, avg: 75 } },

@@ -5,6 +5,7 @@ import { heroData } from '../../data/heroData.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 import { translate } from '../../i18n/translator.js';
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel } from '../../incomeCalculations/heroJourneyIncome.js';
 
 const temporarilyVisibleMaxed = new Set();
 const activeTimeouts = new Map();
@@ -142,7 +143,15 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
 
             equipmentImage.classList.toggle('grayscale', equipState.checked === false);
 
-            const currentLevel = equipState.level || 1;
+            let currentLevel = equipState.level;
+            if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, state)) {
+                const autoLevel = getDefaultEquipmentUnlockLevel(heroName, equipName);
+                currentLevel = autoLevel;
+                equipState.level = autoLevel;
+            } else if (!currentLevel) {
+                currentLevel = 1;
+            }
+
             if (levelDisplay) levelDisplay.textContent = currentLevel;
             if (levelInput && levelInput.value !== String(currentLevel)) levelInput.value = currentLevel;
 

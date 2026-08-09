@@ -10,7 +10,7 @@ import { LAB_SCALING_TROOP_KEYS } from '../data/labTroopsData.js';
 import { translate } from '../i18n/translator.js';
 
 import { fetchPlayerData } from './apiService.js';
-import { cleanupHeroJourneyOverrides } from '../incomeCalculations/heroJourneyIncome.js';
+import { cleanupHeroJourneyOverrides, getDefaultEquipmentUnlockLevel, isHeroJourneyFutureOrUnclaimedEquipment } from '../incomeCalculations/heroJourneyIncome.js';
 
 export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, timeoutMs = null, updateOrder = true } = {}) {
     if (!playerTag || playerTag.trim() === '') {
@@ -165,10 +165,14 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                     equipState.checked = basePlayerState.heroes[heroName]?.equipment[equipKey]?.checked ?? true;
                 }
             } else {
-                if (isInitialLoadForBase) {
-                    equipState.checked = false;
+                const wasChecked = basePlayerState.heroes[heroName]?.equipment[equipKey]?.checked;
+                equipState.checked = isInitialLoadForBase ? false : (wasChecked ?? false);
+
+                const isFutureOrUnclaimed = isHeroJourneyFutureOrUnclaimedEquipment(heroKey, equipKey, state);
+                if (isFutureOrUnclaimed && !equipState.checked) {
+                    equipState.level = getDefaultEquipmentUnlockLevel(heroKey, equipKey);
                 } else {
-                    equipState.checked = basePlayerState.heroes[heroName]?.equipment[equipKey]?.checked ?? false;
+                    equipState.level = basePlayerState.heroes[heroName]?.equipment[equipKey]?.level ?? 1;
                 }
             }
         }

@@ -812,10 +812,10 @@
         "comingSoon": "Coming Soon",
         "lvlShort": "Lvl",
         "requiredOres": {
-            "help": "Shows net ores required (total cost minus stored quantity) for your planned upgrades. Numbers can differ from true maxes if target caps are customized in settings, or if you change the desired max levels or disable equipment in the planner tab."
+            "help": "Shows net ores required (total cost minus stored quantity and upcoming Hero's Journey rewards) for your planned upgrades. Numbers can differ from true maxes if target caps are customized in planner, or if you change the desired max levels or disable equipment in the planner tab."
         },
         "storedOres": {
-            "help": "The current amount of ores you have saved in your in-game storage (blacksmith)."
+            "help": "<p>The current amount of ores you have saved in your in-game storage (blacksmith).</p><p>The green badges show upcoming and unclaimed ores from the Hero's Journey milestone track.</p>"
         },
         "stats": {
             "abilityDamage": "Ability Damage",
@@ -1152,6 +1152,8 @@
         "profileDesc": "Switch between different saved profiles, press the refresh button to update player data, or click '+ Add Player' to add more accounts.",
         "profileCardTitle": "Player Overview & Progress",
         "profileCardDesc": "This card provides a high-level overview of your active profile. It displays your profile, the number of maxed equipment, and detailed completion percentages for each ore upgrade.",
+        "heroJourneyTitle": "Hero's Journey Track",
+        "heroJourneyDesc": "Track your progress through the hero's journey as you level up your heroes and unlock milestone rewards, including ore chests, equipment, and hero skins.",
         "fabTitle": "Action Menu",
         "fabDesc": "Access quick actions like refreshing your active profile data or manually syncing/saving your data to the cloud.",
         "saveTitle": "Cloud Sync & Save",
@@ -1191,17 +1193,18 @@
     },
     "home": {
         "requiredOres": {
-            "help": "Shows net ores required (total cost minus stored quantity) for your planned upgrades. Numbers can differ from true maxes if target caps are customized in settings, or if you change the desired max levels or disable equipment in the planner tab."
+            "help": "Shows net ores required (total cost minus stored quantity and upcoming Hero's Journey rewards) for your planned upgrades. Numbers can differ from true maxes if target caps are customized in planner, or if you change the desired max levels or disable equipment in the planner tab."
         },
         "remainingTime": {
             "help": "Time needed to gather the required ores based on your monthly income. Assumes consistent activity; changing your income configuration alters this timeline."
         }
     },
     "heroJourney": {
-        "betaNotice": "Note: Track progress, unclaimed rewards, and unlocked equipment are not currently factored into ore calculations. Full calculation integration will be available shortly.",
+        "noProfileNotice": "Note: Connect a player tag to track your Hero's Journey progress and view milestone rewards.",
         "heroEmblems": "Hero Emblems",
         "title": "Hero's Journey",
         "acceleratedRewards": "Accelerated Rewards",
+        "acceleratedInfoHelp": "Enable this option if your in-game milestone rewards are higher than what is displayed here. Supercell automatically accelerates milestone reward values for players who fall behind expected Town Hall hero or equipment level thresholds.",
         "rewardMode": "Chest Rewards:",
         "normalMode": "Normal",
         "acceleratedMode": "Accelerated (Catch-up)",
@@ -1244,6 +1247,11 @@
         "trueMaxDesc": "All Hero's Journey milestones unlocked",
         "thLimitLockedText": "Upgrade to Town Hall {th} to unlock Level {lvl}+ milestones",
         "thLimitUnlockedText": "Showing Town Hall {th}+ milestones",
+        "collapsedNote": "Hero's Journey milestones are hidden.",
+        "preview": "Preview",
+        "closePreview": "Close Preview",
+        "hideTrack": "Hide Track",
+        "showTrack": "Show Track",
         "explore": "Explore",
         "magicItemBadge": "Magic Item",
         "legendaryHeroSkinBadge": "<span class=\"purple-text\">Legendary</span> Hero Skin",
@@ -1253,10 +1261,13 @@
         "equipmentPopoverBodyNormal": "Unlocks <strong>{title}</strong> at Level {level}. If you already own this equipment, claiming this milestone awards <strong>{starry} Starry Ore</strong> as fallback compensation.",
         "heroQuestBadge": "Hero Quest",
         "heroFallback": "Hero",
-        "questPopoverBody": "Complete this quest by earning <strong>15 stars in 14 days</strong> in Multiplayer Battles using <strong>{target}</strong> to claim <strong>3 Ore Chests</strong> (Shiny, Glowy, & Starry Ores scaled by Town Hall level).",
+        "questPopoverBody": "Complete this quest by earning <strong>15 stars in 14 days</strong> in Multiplayer Battles using <strong>{target}</strong> to claim <strong>3 Ore Chests</strong> (rewards scaled by Town Hall level):",
+        "chestRewardRangeLabel": "Ore Range:",
+        "chestRewardRangeLabelAccelerated": "Accelerated Ore Range:",
+        "chestRewardRangeLabelThScaled": "TH-Scaled Ore Range:",
         "questTitleFormat": "Quest - {name}",
         "questBadgeAlt": "Badge",
-        "upcomingOresTooltip": "Upcoming/Unclaimed Hero's Journey Ores",
+        "upcomingOresTooltip": "Upcoming Ores from Hero's Journey",
         "magicItemDescriptions": {
             "heroPotion": "Temporarily boosts all Heroes and Pets to the maximum level allowed by your Town Hall level for 1 hour.",
             "mightyMorsel": "Temporarily boosts all Heroes, Pets, and Hero Equipment to the max level allowed by your Town Hall level for next 3 attacks.",

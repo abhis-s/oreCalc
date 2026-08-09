@@ -1,5 +1,5 @@
 import { renderHeroJourneyDisplay, autoScrollToCompletedNode, saveCurrentFilterScrollPosition, getActiveFilterKey, isAutoScrolling, updateCustomScrollbar } from './heroJourneyDisplay.js';
-import { getCumulativeHeroLevel, getMaxCumulativeLevelsByTH } from '../../incomeCalculations/heroJourneyIncome.js';
+import { getCumulativeHeroLevel, getMaxCumulativeLevelsByTH, isDefaultOrGuestPlayer } from '../../incomeCalculations/heroJourneyIncome.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 import { triggerHaptic } from '../../services/hapticService.js';
@@ -32,13 +32,11 @@ export function setupHeroJourneyInputs(state) {
     if (claimSwitch) {
         claimSwitch.addEventListener('click', (e) => {
             const btn = e.target.closest('.hj-switch-btn');
-            if (!btn) return;
+            if (!btn || btn.dataset.unclaimedOnly === undefined) return;
 
-            const claimFilter = btn.dataset.claimFilter;
-            if (!claimFilter) return;
-
+            const isUnclaimed = btn.dataset.unclaimedOnly === 'true';
             if (!state.heroJourney) state.heroJourney = {};
-            state.heroJourney.claimFilter = claimFilter;
+            state.heroJourney.unclaimedOnly = isUnclaimed;
             renderHeroJourneyDisplay(state);
         });
     }
@@ -247,9 +245,17 @@ export function setupHeroJourneyInputs(state) {
         });
     }
 
-    // Event delegation for Node Claim and Reveal buttons
+    // Event delegation for Node Claim, Hide, and Reveal buttons
     if (track) {
         track.addEventListener('click', (e) => {
+            const hideBtn = e.target.closest('#home-hj-hide-btn');
+            if (hideBtn) {
+                if (!state.heroJourney) state.heroJourney = {};
+                state.heroJourney.hidden = true;
+                renderHeroJourneyDisplay(state, { skipAutoScroll: true });
+                return;
+            }
+
             const revealBtn = e.target.closest('#home-hj-reveal-btn');
             if (revealBtn) {
                 if (!state.heroJourney) state.heroJourney = {};
@@ -265,6 +271,18 @@ export function setupHeroJourneyInputs(state) {
             if (isNaN(level)) return;
 
             toggleNodeClaimStatus(state, level);
+        });
+    }
+
+    const card = document.getElementById('home-hero-journey-card') || document.querySelector('.hero-journey-card');
+    if (card) {
+        card.addEventListener('click', (e) => {
+            const exploreBtn = e.target.closest('#home-hj-explore-btn');
+            if (exploreBtn) {
+                if (!state.heroJourney) state.heroJourney = {};
+                state.heroJourney.hidden = false;
+                renderHeroJourneyDisplay(state);
+            }
         });
     }
 
@@ -350,14 +368,15 @@ function toggleNodeClaimStatus(state, level) {
     if (!state.heroJourney) state.heroJourney = {};
     if (!state.heroJourney.overrideUnclaimed) state.heroJourney.overrideUnclaimed = [];
 
+    const isGuest = isDefaultOrGuestPlayer(state);
     const cumulativeLevel = getCumulativeHeroLevel(state);
     const maxLevelsByTH = getMaxCumulativeLevelsByTH();
     const allMaxValues = Object.values(maxLevelsByTH);
     const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
     const isTrueMaxPlayer = cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
 
-    // Do not allow true max players to toggle claim status or unclaim anything
-    if (isTrueMaxPlayer) {
+    // Do not allow true max players or guest/DEFAULT0 profiles to toggle claim status or unclaim anything
+    if (isTrueMaxPlayer || isGuest) {
         return;
     }
 

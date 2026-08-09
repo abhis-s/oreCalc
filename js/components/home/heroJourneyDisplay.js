@@ -1,5 +1,5 @@
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
-import { getCumulativeHeroLevel, getTownHallLevel, getQuestChestReward, calculateHeroJourneyUpcomingOres, getResolvedEquipmentReward, getMaxCumulativeLevelsByTH, cleanupHeroJourneyOverrides } from '../../incomeCalculations/heroJourneyIncome.js';
+import { getCumulativeHeroLevel, getTownHallLevel, getNodeTownHallLevel, getEffectiveQuestNodeTH, getQuestChestReward, calculateHeroJourneyUpcomingOres, getResolvedEquipmentReward, getMaxCumulativeLevelsByTH, cleanupHeroJourneyOverrides, isDefaultOrGuestPlayer, hasSyncedHeroInfo } from '../../incomeCalculations/heroJourneyIncome.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { getSVG } from '../../utils/svgManager.js';
 import { showCardHelpPopover, hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
@@ -43,12 +43,12 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false } = {})
         state.heroJourney = {
             overrideUnclaimed: [],
             acceleratedRewards: false,
-            claimFilter: 'all',
+            unclaimedOnly: false,
             typeFilter: null
         };
     }
     cleanupHeroJourneyOverrides(state);
-    if (!state.heroJourney.claimFilter) state.heroJourney.claimFilter = 'all';
+    if (state.heroJourney.unclaimedOnly === undefined) state.heroJourney.unclaimedOnly = false;
     if (state.heroJourney.typeFilter === undefined) state.heroJourney.typeFilter = null;
 
     const isAccelerated = Boolean(state?.heroJourney?.acceleratedRewards ?? state?.heroJourney?.accelerated ?? (state?.heroJourney?.rewardMode === 'accelerated'));
@@ -61,27 +61,64 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false } = {})
     const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
 
     const isTrueMaxPlayer = cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
+    const isGuest = isDefaultOrGuestPlayer(state);
+    const isEligibleToHide = isTrueMaxPlayer || isGuest;
+    const hasSyncedHeroes = hasSyncedHeroInfo(state);
+
+    // When players have no synced info about heroes available at all or are true max, default to "all" in state
+    if (!hasSyncedHeroes || isTrueMaxPlayer) {
+        state.heroJourney.unclaimedOnly = false;
+    }
+
+    // Overridable if fact changes (player is no longer true max, or when default user changes/switches to synced player tag)
+    if (!isEligibleToHide && state.heroJourney?.hidden) {
+        state.heroJourney.hidden = false;
+    }
+
+    const isHidden = Boolean(state?.heroJourney?.hidden);
+    const card = document.getElementById('home-hero-journey-card') || document.querySelector('.hero-journey-card');
+    const collapsedNote = document.getElementById('home-hj-collapsed-note');
+
+    if (card) {
+        card.classList.toggle('is-collapsed', isHidden);
+        card.classList.toggle('no-synced-heroes', !hasSyncedHeroes);
+        card.classList.toggle('is-true-max', isTrueMaxPlayer);
+    }
+    if (collapsedNote) {
+        collapsedNote.style.display = isHidden ? 'flex' : 'none';
+    }
 
     // Update cumulative level badge (n/overall true max level)
     const cumulativeBadge = document.getElementById('home-hj-cumulative-badge');
     if (cumulativeBadge) {
-        cumulativeBadge.textContent = overallTrueMaxLevel > 0 ? `${cumulativeLevel}/${overallTrueMaxLevel}` : `${cumulativeLevel}`;
-        cumulativeBadge.classList.toggle('badge-true-max', isTrueMaxPlayer);
+        if (!hasSyncedHeroes) {
+            cumulativeBadge.style.display = 'none';
+        } else {
+            cumulativeBadge.style.display = '';
+            cumulativeBadge.textContent = overallTrueMaxLevel > 0 ? `${cumulativeLevel}/${overallTrueMaxLevel}` : `${cumulativeLevel}`;
+            cumulativeBadge.classList.toggle('badge-true-max', isTrueMaxPlayer);
+        }
     }
 
-    // Update Split Title Elements (< 780px)
+    if (isHidden) {
+        updateHeroJourneyUpcomingBadges(state);
+        return;
+    }
+
+    // Update Split Title Elements (< 780px) and Standard Title (>= 780px / <= 600px)
     const titleEl = document.getElementById('home-hj-title');
     const titleLeftEl = document.getElementById('home-hj-title-left');
     const titleRightEl = document.getElementById('home-hj-title-right');
 
     const translatedTitle = translate('heroJourney.title') || "Hero's Journey";
+    const betaLabel = translate('settings.badges.beta') || 'BETA';
+
     if (titleEl) {
-        titleEl.textContent = translatedTitle;
+        titleEl.innerHTML = `<span class="hero-journey-title-wrapper"><span class="hero-journey-title-text" data-i18n="heroJourney.title">${translatedTitle}</span> <span class="beta-badge" data-i18n="settings.badges.beta">${betaLabel}</span></span>`;
     }
 
     if (titleLeftEl && titleRightEl) {
         const { left, right } = formatSplitTitle(translatedTitle);
-        const betaLabel = translate('settings.badges.beta') || 'BETA';
         titleLeftEl.textContent = left;
         const rightTextHtml = right ? `${right} ` : '';
         titleRightEl.innerHTML = `${rightTextHtml}<span class="beta-badge" data-i18n="settings.badges.beta">${betaLabel}</span>`;
@@ -95,11 +132,16 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false } = {})
     }
 
     // Update Claim Filter Switch UI (All vs Unclaimed)
-    const claimFilter = state.heroJourney.claimFilter || 'all';
+    const claimSwitch = document.getElementById('home-hj-claim-switch');
+    if (claimSwitch) {
+        claimSwitch.style.display = (!hasSyncedHeroes || isTrueMaxPlayer) ? 'none' : '';
+    }
+    const unclaimedOnly = Boolean(state.heroJourney.unclaimedOnly);
     const claimSwitchPill = document.getElementById('home-hj-claim-pill');
     const claimSwitchBtns = document.querySelectorAll('#home-hj-claim-switch .hj-switch-btn');
     claimSwitchBtns.forEach(btn => {
-        const isMatch = btn.dataset.claimFilter === claimFilter;
+        const btnValue = btn.dataset.unclaimedOnly === 'true';
+        const isMatch = btnValue === unclaimedOnly;
         btn.classList.toggle('active', isMatch);
         if (isMatch && claimSwitchPill) {
             requestAnimationFrame(() => {
@@ -156,8 +198,8 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false } = {})
                 trackWrapper.scrollLeft = savedPos;
             });
         } else {
-            const claimFilter = state?.heroJourney?.claimFilter || 'all';
-            if (claimFilter === 'unclaimed') {
+            const unclaimedOnly = Boolean(state?.heroJourney?.unclaimedOnly);
+            if (unclaimedOnly) {
                 requestAnimationFrame(() => {
                     trackWrapper.scrollLeft = 0;
                 });
@@ -183,9 +225,9 @@ export function resetHeroJourneyScrollPositions() {
  * Returns a composite key representing the active claim and type filters.
  */
 export function getActiveFilterKey(state) {
-    const claimFilter = state?.heroJourney?.claimFilter || 'all';
+    const claimKey = state?.heroJourney?.unclaimedOnly ? 'unclaimed' : 'all';
     const typeFilter = state?.heroJourney?.typeFilter || 'all';
-    return `${claimFilter}:${typeFilter}`;
+    return `${claimKey}:${typeFilter}`;
 }
 
 /**
@@ -267,17 +309,24 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
     if (!track) return;
 
     track.innerHTML = '';
-    const claimFilter = state.heroJourney.claimFilter || 'all';
+    const unclaimedOnly = Boolean(state.heroJourney.unclaimedOnly);
     const typeFilter = state.heroJourney.typeFilter || null;
     const overrideUnclaimedSet = new Set(state.heroJourney.overrideUnclaimed || []);
     const isAccelerated = Boolean(state?.heroJourney?.acceleratedRewards ?? state?.heroJourney?.accelerated ?? (state?.heroJourney?.rewardMode === 'accelerated'));
     const mode = isAccelerated ? 'accelerated' : 'normal';
+    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
+    const allMaxValues = Object.values(maxLevelsByTH);
+    const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
+    const isGuest = isDefaultOrGuestPlayer(state);
+    const hasSyncedHeroes = hasSyncedHeroInfo(state);
+    const isUserSynced = hasSyncedHeroes && !isGuest;
+    const isTrueMaxPlayer = isUserSynced && cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
 
     const filteredNodes = heroJourneyNodes.filter(node => {
-        const isReached = cumulativeLevel >= node.level;
-        const isClaimed = (isReached && !overrideUnclaimedSet.has(node.level));
+        const isReached = isUserSynced && (cumulativeLevel >= node.level);
+        const isClaimed = isUserSynced && (isTrueMaxPlayer || (isReached && !overrideUnclaimedSet.has(node.level)));
 
-        if (claimFilter === 'unclaimed' && isClaimed) return false;
+        if (unclaimedOnly && isClaimed) return false;
 
         if (typeFilter) {
             if (typeFilter === 'ores' && !(node.type === 'quest' || node.type === 'ore')) return false;
@@ -288,11 +337,6 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
 
         return true;
     });
-
-    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
-    const allMaxValues = Object.values(maxLevelsByTH);
-    const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
-    const isTrueMaxPlayer = cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
 
     const nodeTHBoundaries = new Map();
     const thKeys = Object.keys(maxLevelsByTH).map(n => parseInt(n, 10)).sort((a, b) => a - b);
@@ -371,8 +415,8 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
             track.appendChild(startDivider);
         }
 
-        const isReached = cumulativeLevel >= node.level;
-        const isClaimed = isTrueMaxPlayer || (isReached && !overrideUnclaimedSet.has(node.level));
+        const isReached = isUserSynced && (cumulativeLevel >= node.level);
+        const isClaimed = isUserSynced && (isTrueMaxPlayer || (isReached && !overrideUnclaimedSet.has(node.level)));
         const isBeyondTHLimit = node.level > playerMaxLevel;
 
         // Resolve dynamic equipment piece (e.g. Giant Gauntlet Lvl 1 vs 50 Starry Ore fallback)
@@ -443,7 +487,7 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
 
         // Bottom-Left Equipment Level Pill
         if (node.type === 'equipment') {
-            const isOwnedEq = resolvedNode.isOwned || resolvedNode.isFallbackStarry;
+            const isOwnedEq = isUserSynced && Boolean(resolvedNode.isOwned || resolvedNode.isFallbackStarry);
             const showOwnedPill = isOwnedEq && !isClaimed;
 
             if (showOwnedPill) {
@@ -476,11 +520,20 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
         let hasSub = false;
 
         if (node.type === 'quest') {
-            const chest = getQuestChestReward(thLevel, mode);
+            const nodeTH = getNodeTownHallLevel(node.level);
+            const effectiveTH = getEffectiveQuestNodeTH(node, globalState);
+            const chest = getQuestChestReward(effectiveTH, mode);
+
+            let boostIcon = '';
+            if (mode === 'accelerated') {
+                boostIcon = getSVG('chevron-double-up', 'ore-accel-arrow-icon', 13, 13);
+            } else if (effectiveTH > nodeTH) {
+                boostIcon = getSVG('chevron-up', 'ore-th-boost-icon', 13, 13);
+            }
+
             const shinyImg = `<orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('ores.shiny')}" class="sub-ore-icon"></orecalc-assets-image>`;
             const glowyImg = `<orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('ores.glowy')}" class="sub-ore-icon"></orecalc-assets-image>`;
             const starryImg = `<orecalc-assets-image src="assets/starry_ore.png" alt="${translate('ores.starry')}" class="sub-ore-icon"></orecalc-assets-image>`;
-            const accelArrow = mode === 'accelerated' ? getSVG('arrow-up', 'ore-accel-arrow-icon', 13, 13, 'var(--accent-primary)') : '';
 
             const questTargetName = node.equipmentKey
                 ? translate(`equipment.${node.equipmentKey}`)
@@ -490,9 +543,9 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
             titleElem.innerHTML = `<strong>${questTitleText}</strong>`;
             subElem.className = 'node-sub node-sub-ores';
             subElem.innerHTML =
-                `<span class="node-sub-ore-item">${accelArrow}${formatNumber(chest.shiny)}${shinyImg}</span>` +
-                `<span class="node-sub-ore-item">${accelArrow}${formatNumber(chest.glowy)}${glowyImg}</span>` +
-                `<span class="node-sub-ore-item">${accelArrow}${formatNumber(chest.starry)}${starryImg}</span>`;
+                `<span class="node-sub-ore-item">${boostIcon}${formatNumber(chest.shiny)}${shinyImg}</span>` +
+                `<span class="node-sub-ore-item">${boostIcon}${formatNumber(chest.glowy)}${glowyImg}</span>` +
+                `<span class="node-sub-ore-item">${boostIcon}${formatNumber(chest.starry)}${starryImg}</span>`;
             hasSub = true;
         } else if (node.type === 'equipment') {
             const translatedEqTitle = getTranslatedEquipmentName(resolvedNode.resolvedName);
@@ -567,7 +620,7 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
             chip.classList.add('has-sub');
             chip.appendChild(subElem);
         }
-        if (!isTrueMaxPlayer) {
+        if (!isTrueMaxPlayer && !isGuest) {
             chip.appendChild(actionBtn);
         }
 
@@ -604,13 +657,13 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
     });
 
     // Append TH limit or True Max block card at end of track
-    if (isTrueMaxPlayer) {
+    if (isTrueMaxPlayer || (isGuest && thLevel >= 18)) {
         const blockCard = document.createElement('div');
         blockCard.className = 'th-limit-block-card true-max-card';
         blockCard.innerHTML = `
             <orecalc-assets-image src="assets/th/th18.png" alt="TH18" class="th-limit-img"></orecalc-assets-image>
             <div class="th-limit-text">${translate('heroJourney.trueMaxTitle')}<br>${translate('heroJourney.trueMaxDesc')}</div>
-            <span class="th-limit-reveal-btn btn-active" style="cursor: default;">${translate('homeProfile.maxed')}</span>
+            <button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn">${translate('heroJourney.hideTrack')}</button>
         `;
         track.appendChild(blockCard);
     } else {
@@ -621,17 +674,25 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
             const blockCard = document.createElement('div');
             blockCard.className = 'th-limit-block-card';
 
-            if (!revealBeyondTH) {
+            const previewBtnText = !revealBeyondTH ? translate('heroJourney.preview') : translate('heroJourney.closePreview');
+            const previewBtnClass = !revealBeyondTH ? 'th-limit-reveal-btn' : 'th-limit-reveal-btn btn-active';
+            const previewBtnHtml = `<button class="${previewBtnClass}" id="home-hj-reveal-btn">${previewBtnText}</button>`;
+
+            if (isGuest) {
+                const hideBtnHtml = `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn">${translate('heroJourney.hideTrack')}</button>`;
                 blockCard.innerHTML = `
                     <orecalc-assets-image src="assets/th/th${nextTH}.png" alt="TH${nextTH}" class="th-limit-img"></orecalc-assets-image>
-                    <div class="th-limit-text">${translate('heroJourney.thLimitLockedText', { th: nextTH, lvl: nextTHStartLvl })}</div>
-                    <button class="th-limit-reveal-btn" id="home-hj-reveal-btn">${translate('heroJourney.explore')}</button>
+                    <div class="th-limit-text">${!revealBeyondTH ? translate('heroJourney.thLimitLockedText', { th: nextTH, lvl: nextTHStartLvl }) : translate('heroJourney.thLimitUnlockedText', { th: nextTH })}</div>
+                    <div class="th-limit-buttons-group">
+                        ${previewBtnHtml}
+                        ${hideBtnHtml}
+                    </div>
                 `;
             } else {
                 blockCard.innerHTML = `
                     <orecalc-assets-image src="assets/th/th${nextTH}.png" alt="TH${nextTH}" class="th-limit-img"></orecalc-assets-image>
-                    <div class="th-limit-text">${translate('heroJourney.thLimitUnlockedText', { th: nextTH })}</div>
-                    <button class="th-limit-reveal-btn btn-active" id="home-hj-reveal-btn">${translate('actions.hide')}</button>
+                    <div class="th-limit-text">${!revealBeyondTH ? translate('heroJourney.thLimitLockedText', { th: nextTH, lvl: nextTHStartLvl }) : translate('heroJourney.thLimitUnlockedText', { th: nextTH })}</div>
+                    ${previewBtnHtml}
                 `;
             }
             track.appendChild(blockCard);
@@ -642,6 +703,7 @@ function renderNodesTrack(state, cumulativeLevel, thLevel) {
     requestAnimationFrame(() => {
         updateCustomScrollbar();
         updateFilterRowLayout();
+        updateProgressBarContainerLayout();
     });
     initFilterRowResizeObserver();
     initClaimSwitchResizeObserver();
@@ -668,7 +730,9 @@ export function updateFilterRowLayout() {
     typeButtons.style.display = 'flex';
     typeSelect.style.display = 'none';
 
-    const claimWidth = claimSwitch.offsetWidth || 160;
+    const isClaimSwitchHidden = claimSwitch.offsetParent === null || window.getComputedStyle(claimSwitch).display === 'none';
+    filterContainer.classList.toggle('no-claim-switch', isClaimSwitchHidden);
+    const claimWidth = isClaimSwitchHidden ? 0 : (claimSwitch.offsetWidth || 160);
 
     let buttonsWidth = 0;
     const btns = typeButtons.querySelectorAll('.hj-type-btn');
@@ -784,6 +848,35 @@ export function updateClaimSwitchPillPosition() {
     }
 }
 
+export function updateProgressBarContainerLayout() {
+    const card = document.getElementById('home-hero-journey-card') || document.querySelector('.hero-journey-card');
+    const container = document.querySelector('.hero-journey-progress-bar-container');
+    const noProfileInfo = document.querySelector('.hero-journey-no-profile-info');
+    const switchContainer = document.querySelector('.hero-journey-accelerated-switch-container');
+
+    if (!card || !container || !noProfileInfo || !switchContainer) return;
+
+    if (!card.classList.contains('no-synced-heroes')) {
+        container.classList.remove('no-profile-stacked');
+        return;
+    }
+
+    container.classList.remove('no-profile-stacked');
+
+    const containerWidth = container.clientWidth;
+    const noProfileWidth = noProfileInfo.offsetWidth || 0;
+    const switchWidth = switchContainer.offsetWidth || 0;
+    const gapBuffer = 20;
+
+    const isOverflowing = containerWidth < (noProfileWidth + switchWidth + gapBuffer);
+
+    if (isOverflowing) {
+        container.classList.add('no-profile-stacked');
+    } else {
+        container.classList.remove('no-profile-stacked');
+    }
+}
+
 export function initFilterRowResizeObserver() {
     const card = document.getElementById('home-hj-card');
     if (!card) return;
@@ -798,6 +891,7 @@ export function initFilterRowResizeObserver() {
         }
         filterResizeFrame = requestAnimationFrame(() => {
             updateFilterRowLayout();
+            updateProgressBarContainerLayout();
         });
     });
 
@@ -808,6 +902,7 @@ export function updateCustomScrollbar(isDraggingThumb = false) {
     const trackWrapper = document.querySelector('.hero-journey-track-wrapper');
     const customBar = document.getElementById('home-hj-custom-scrollbar');
     const thumb = document.getElementById('home-hj-scrollbar-thumb');
+    const progress = document.getElementById('home-hj-scrollbar-progress');
 
     if (!trackWrapper || !customBar || !thumb) return;
 
@@ -823,6 +918,46 @@ export function updateCustomScrollbar(isDraggingThumb = false) {
 
     const customBarWidth = customBar.clientWidth;
     if (customBarWidth === 0) return;
+
+    // Update completion progress bar fill
+    if (progress) {
+        const hasSyncedHeroes = hasSyncedHeroInfo(globalState);
+        const isGuest = isDefaultOrGuestPlayer(globalState);
+        const isUserSynced = hasSyncedHeroes && !isGuest;
+
+        if (!isUserSynced) {
+            progress.style.width = '0%';
+        } else {
+            const cumulativeLevel = getCumulativeHeroLevel(globalState);
+            const maxLevelsByTH = getMaxCumulativeLevelsByTH();
+            const allMaxValues = Object.values(maxLevelsByTH);
+            const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
+            const isTrueMaxPlayer = cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
+
+            if (isTrueMaxPlayer) {
+                progress.style.width = '100%';
+            } else {
+                const chips = Array.from(trackWrapper.querySelectorAll('.hero-journey-node-chip'));
+                let lastReachedChip = null;
+                for (const chip of chips) {
+                    const chipLevel = parseInt(chip.dataset.nodeLevel || chip.dataset.level, 10);
+                    if (chipLevel <= cumulativeLevel) {
+                        lastReachedChip = chip;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (lastReachedChip) {
+                    const completionTrackPos = lastReachedChip.offsetLeft + lastReachedChip.offsetWidth;
+                    const completionRatio = Math.min(1, Math.max(0, completionTrackPos / scrollWidth));
+                    progress.style.width = `${(completionRatio * 100).toFixed(2)}%`;
+                } else {
+                    progress.style.width = '0%';
+                }
+            }
+        }
+    }
 
     const ratio = clientWidth / scrollWidth;
     const thumbWidth = Math.max(36, Math.round(customBarWidth * ratio));
@@ -942,7 +1077,44 @@ function showNodeTooltip(chip) {
             ? translate(`equipment.${node.equipmentKey}`)
             : (node.hero ? translate(`heroes.${node.hero}`) : translate('heroJourney.heroFallback'));
         const questTitleText = translate('heroJourney.questTitleFormat', { name: targetName });
-        const bodyText = translate('heroJourney.questPopoverBody', { target: targetName });
+        const bodyIntroText = translate('heroJourney.questPopoverBody', { target: targetName });
+
+        const nodeTH = getNodeTownHallLevel(node.level);
+        const effectiveTH = getEffectiveQuestNodeTH(node, globalState);
+        const rewardMode = globalState?.heroJourney?.acceleratedRewards ? 'accelerated' : 'normal';
+        const chestRewards = getQuestChestReward(effectiveTH, rewardMode);
+
+        let rangeLabelKey = 'heroJourney.chestRewardRangeLabel';
+        if (rewardMode === 'accelerated') {
+            rangeLabelKey = 'heroJourney.chestRewardRangeLabelAccelerated';
+        } else if (effectiveTH > nodeTH) {
+            rangeLabelKey = 'heroJourney.chestRewardRangeLabelThScaled';
+        }
+
+        const shinyRangeStr = `${formatNumber(chestRewards.minShiny)} - ${formatNumber(chestRewards.maxShiny)}`;
+        const glowyRangeStr = `${formatNumber(chestRewards.minGlowy)} - ${formatNumber(chestRewards.maxGlowy)}`;
+        const starryRangeStr = `${formatNumber(chestRewards.minStarry)} - ${formatNumber(chestRewards.maxStarry)}`;
+
+        const breakdownHtml = `
+            <p>${bodyIntroText}</p>
+            <div class="popover-chest-breakdown">
+                <div class="popover-range-label">${translate(rangeLabelKey)}</div>
+                <div class="popover-chest-ranges-row">
+                    <div class="chest-ore-inline-chip">
+                        <span><strong>${shinyRangeStr}</strong></span>
+                        <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('ores.shiny')}" class="ore-mini-icon"></orecalc-assets-image>
+                    </div>
+                    <div class="chest-ore-inline-chip">
+                        <span><strong>${glowyRangeStr}</strong></span>
+                        <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('ores.glowy')}" class="ore-mini-icon"></orecalc-assets-image>
+                    </div>
+                    <div class="chest-ore-inline-chip">
+                        <span><strong>${starryRangeStr}</strong></span>
+                        <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('ores.starry')}" class="ore-mini-icon"></orecalc-assets-image>
+                    </div>
+                </div>
+            </div>
+        `;
 
         showCardHelpPopover(chip, {
             header: `
@@ -952,7 +1124,7 @@ function showNodeTooltip(chip) {
                     <span class="popover-badge">${translate('heroJourney.heroQuestBadge')}</span>
                 </div>
             `,
-            body: `<p>${bodyText}</p>`
+            body: breakdownHtml
         });
     }
 }
@@ -1020,11 +1192,18 @@ export function initHeroJourneyTooltips() {
  * Updates green badges (+n) on the Equipment tab's Stored Ores card.
  */
 export function updateHeroJourneyUpcomingBadges(state) {
-    const upcoming = calculateHeroJourneyUpcomingOres(state);
-
     const shinyBadge = document.getElementById('eq-shiny-hero-journey-badge');
     const glowyBadge = document.getElementById('eq-glowy-hero-journey-badge');
     const starryBadge = document.getElementById('eq-starry-hero-journey-badge');
+
+    if (!hasSyncedHeroInfo(state)) {
+        if (shinyBadge) shinyBadge.style.display = 'none';
+        if (glowyBadge) glowyBadge.style.display = 'none';
+        if (starryBadge) starryBadge.style.display = 'none';
+        return;
+    }
+
+    const upcoming = calculateHeroJourneyUpcomingOres(state);
 
     if (shinyBadge) {
         if (upcoming.shiny > 0) {

@@ -148,7 +148,7 @@ export function initializeIncomeCardHandler() {
             return;
         }
 
-        const btn = e.target.closest('.info-btn, .eq-badge[data-info]');
+        const btn = e.target.closest('.info-btn, .eq-badge[data-info], .hero-journey-upcoming-badge[data-info]');
         if (btn) {
             e.stopPropagation();
             const text = getPopoverContent(btn);
@@ -159,7 +159,7 @@ export function initializeIncomeCardHandler() {
     });
 
     document.addEventListener('mouseover', (e) => {
-        const badge = e.target.closest('.eq-badge[data-info]');
+        const badge = e.target.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info]');
         if (badge && activeHelpBtn !== badge) {
             const text = getPopoverContent(badge);
             showHelpPopover(badge, text);
@@ -167,7 +167,7 @@ export function initializeIncomeCardHandler() {
     });
 
     document.addEventListener('mouseout', (e) => {
-        const badge = e.target.closest('.eq-badge[data-info]');
+        const badge = e.target.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info]');
         if (badge && activeHelpBtn === badge) {
             const related = e.relatedTarget;
             if (!related || !badge.contains(related)) {

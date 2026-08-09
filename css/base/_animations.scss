@@ -39,6 +39,30 @@
     }
 }
 
+@keyframes badge-pulse {
+    0% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, $accent-primary 45%, transparent);
+    }
+    70% {
+        box-shadow: 0 0 0 6px color-mix(in srgb, $accent-primary 0%, transparent);
+    }
+    100% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, $accent-primary 0%, transparent);
+    }
+}
+
+@keyframes badge-pulse-success {
+    0% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, $color-success 45%, transparent);
+    }
+    70% {
+        box-shadow: 0 0 0 6px color-mix(in srgb, $color-success 0%, transparent);
+    }
+    100% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, $color-success 0%, transparent);
+    }
+}
+
 // --- View Transitions (Circular Theme Reveal) ---
 [data-transition-type="theme-switch"] {
   #welcome-modal {

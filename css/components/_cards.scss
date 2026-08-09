@@ -117,6 +117,56 @@
                 margin-top: 8px;
             }
         }
+
+        .popover-chest-breakdown {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed color-mix(in srgb, $border-primary 50%, transparent);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .popover-range-label {
+                font-size: 0.68rem;
+                font-weight: 700;
+                color: $text-secondary;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                margin: 0;
+            }
+
+            .popover-chest-ranges-row {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 6px 10px;
+
+                .chest-ore-inline-chip {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                    background: color-mix(in srgb, $bg-surface-primary 70%, transparent);
+                    border: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
+                    padding: 2px 7px;
+                    border-radius: 6px;
+                    font-size: 0.72rem;
+
+                    .ore-mini-icon {
+                        width: 15px;
+                        height: 15px;
+                        object-fit: contain;
+                        flex-shrink: 0;
+                        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+                    }
+
+                    strong {
+                        color: $text-primary;
+                        font-weight: 700;
+                        letter-spacing: 0.2px;
+                    }
+                }
+            }
+        }
     }
 
     .popover-footer {
@@ -451,8 +501,34 @@
 
     .ore-input-wrapper {
         position: relative;
-        display: inline-block;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         margin-top: 15px;
+        gap: 6px;
+    }
+
+    .hero-journey-upcoming-badge {
+        background-color: var(--color-success-soft);
+        color: var(--color-success);
+        border: 1px solid color-mix(in srgb, var(--color-success) 35%, transparent);
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 6px;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        cursor: help;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--color-success) 20%, transparent);
+            border-color: var(--color-success);
+        }
     }
 
     .ore-value[type="number"] {
