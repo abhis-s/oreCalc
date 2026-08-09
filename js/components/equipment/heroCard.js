@@ -22,13 +22,24 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
     const container = dom.equipment.heroesContainer;
     if (!container) return;
 
+    const heroNameMap = {
+        barbarianKing: 'Barbarian King',
+        archerQueen: 'Archer Queen',
+        minionPrince: 'Minion Prince',
+        grandWarden: 'Grand Warden',
+        royalChampion: 'Royal Champion',
+        dragonDuke: 'Dragon Duke'
+    };
+
     container.innerHTML = '';
     let heroKeys = Object.keys(heroData);
     if (uiSettings?.heroOrder) {
         const savedOrder = uiSettings.heroOrder;
         heroKeys.sort((a, b) => {
-            const idxA = savedOrder.indexOf(heroData[a].name);
-            const idxB = savedOrder.indexOf(heroData[b].name);
+            const nameA = heroNameMap[a] || a;
+            const nameB = heroNameMap[b] || b;
+            const idxA = savedOrder.indexOf(nameA);
+            const idxB = savedOrder.indexOf(nameB);
             if (idxA === -1 && idxB === -1) return 0;
             if (idxA === -1) return 1;
             if (idxB === -1) return -1;
@@ -38,7 +49,8 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
 
     for (const heroKey of heroKeys) {
         const hero = heroData[heroKey];
-        const heroState = heroesState[hero.name] || { equipment: {} };
+        const heroDisplayName = heroNameMap[heroKey] || heroKey;
+        const heroState = heroesState[heroDisplayName] || heroesState[heroKey] || { equipment: {} };
 
         const card = createHeroCard({
             hero,

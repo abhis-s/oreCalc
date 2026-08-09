@@ -53,8 +53,10 @@ export function getUpgradeRequirements(items, isSingle = false) {
             continue;
         }
 
-        const heroDataEntry = heroData[Object.keys(heroData).find(k => heroData[k].name === item.heroName)];
-        const equipmentType = heroDataEntry?.equipment.find(eq => eq.name === item.name)?.type;
+        const heroKeyFound = item.heroKey || Object.keys(heroData).find(k => k.toLowerCase() === (item.heroName || '').replace(/\s+/g, '').toLowerCase());
+        const heroDataEntry = heroData[heroKeyFound];
+        const eqKeyFound = item.key || item.equipmentKey;
+        const equipmentType = heroDataEntry?.equipment.find(eq => eq.key === eqKeyFound || (eq.key && eq.key.toLowerCase() === (item.name || '').replace(/\s+/g, '').toLowerCase()))?.type;
 
         for (let level = fromLevel + 1; level <= item.targetLevel; level++) {
             const cost = upgradeCosts[level];

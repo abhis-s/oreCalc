@@ -42,7 +42,20 @@ export function getGlobalPriorityList() {
     }
 
     const globalPriorityList = [];
-    const heroNameMap = Object.fromEntries(Object.entries(heroData).map(([key, val]) => [val.name, key]));
+    const heroNameMap = {
+        'Barbarian King': 'barbarianKing',
+        'Archer Queen': 'archerQueen',
+        'Minion Prince': 'minionPrince',
+        'Grand Warden': 'grandWarden',
+        'Royal Champion': 'royalChampion',
+        'Dragon Duke': 'dragonDuke',
+        barbarianKing: 'barbarianKing',
+        archerQueen: 'archerQueen',
+        minionPrince: 'minionPrince',
+        grandWarden: 'grandWarden',
+        royalChampion: 'royalChampion',
+        dragonDuke: 'dragonDuke'
+    };
 
     for (const heroKey in state.heroes) {
         const hero = state.heroes[heroKey];
@@ -53,12 +66,15 @@ export function getGlobalPriorityList() {
                     const stepData = equipment.upgradePlan[stepNum];
                     const currentLevel = state.heroes[heroKey]?.equipment[equipName]?.level || 1;
                     if (stepData.enabled && stepData.targetLevel > currentLevel) {
-                        const heroDataKey = heroNameMap[heroKey];
-                        if (!heroDataKey) continue;
+                        const heroDataKey = heroNameMap[heroKey] || heroKey;
+                        const heroEntry = heroData[heroDataKey];
+                        if (!heroEntry) continue;
+
+                        const equipMatch = heroEntry.equipment.find(e => e.key === equipName || e.key === toCamelCase(equipName));
 
                         globalPriorityList.push({
                             name: equipName,
-                            image: heroData[heroDataKey].equipment.find(e => e.name === equipName)?.image,
+                            image: equipMatch?.image,
                             targetLevel: stepData.targetLevel,
                             step: parseInt(stepNum, 10),
                             priorityIndex: stepData.priorityIndex,
@@ -126,9 +142,11 @@ function renderPriorityEditor() {
         heroColumn.classList.add('hero-chip-column');
         const heroChip = document.createElement('div');
         heroChip.classList.add('hero-chip');
+        const heroKeyStr = hero.key || heroKey;
+        const heroDisplayName = translate(`heroes.${heroKeyStr}`);
         heroChip.innerHTML = `
-            <orecalc-assets-image src="${hero.image}" alt="${translate('heroes.' + toCamelCase(hero.name))}" class="hero-chip-icon" size="thumbnail"></orecalc-assets-image>
-            <span>${translate('heroes.' + toCamelCase(hero.name))}</span>
+            <orecalc-assets-image src="${hero.image}" alt="${heroDisplayName}" class="hero-chip-icon" size="thumbnail"></orecalc-assets-image>
+            <span>${heroDisplayName}</span>
         `;
         heroColumn.appendChild(heroChip);
 
@@ -136,7 +154,19 @@ function renderPriorityEditor() {
         equipmentColumn.classList.add('equipment-chips-column');
 
         hero.equipment.forEach(equip => {
-            const currentLevel = state.heroes[hero.name]?.equipment[equip.name]?.level || 1;
+            const eqKeyStr = equip.key || toCamelCase(equip.name || '');
+            const eqDisplayName = translate(`equipment.${eqKeyStr}`);
+            const heroStateName = {
+                barbarianKing: 'Barbarian King',
+                archerQueen: 'Archer Queen',
+                minionPrince: 'Minion Prince',
+                grandWarden: 'Grand Warden',
+                royalChampion: 'Royal Champion',
+                dragonDuke: 'Dragon Duke'
+            }[heroKeyStr] || heroKeyStr;
+
+            const userHeroState = state.heroes[heroStateName] || state.heroes[heroKeyStr];
+            const currentLevel = userHeroState?.equipment?.[eqKeyStr]?.level || userHeroState?.equipment?.[equip.name]?.level || 1;
             const maxLevel = getEquipmentMaxLevel(equip.type);
 
             if (currentLevel < maxLevel) {
@@ -144,10 +174,10 @@ function renderPriorityEditor() {
                 chip.classList.add('equipment-chip');
                 chip.setAttribute('tabindex', '0');
                 chip.setAttribute('role', 'button');
-                chip.dataset.equipName = equip.name;
+                chip.dataset.equipName = equip.name || eqKeyStr;
                 chip.innerHTML = `
-                    <orecalc-assets-image src="${equip.image}" alt="${translate('equipment.' + toCamelCase(equip.name))}" class="chip-icon" size="thumbnail"></orecalc-assets-image>
-                    <span>${translate('equipment.' + toCamelCase(equip.name))}</span>
+                    <orecalc-assets-image src="${equip.image}" alt="${eqDisplayName}" class="chip-icon" size="thumbnail"></orecalc-assets-image>
+                    <span>${eqDisplayName}</span>
                 `;
                 chip.addEventListener('click', () => openLevelSelectModal(hero, equip));
                 chip.addEventListener('keydown', (e) => {

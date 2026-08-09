@@ -341,8 +341,9 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     let heroInfo = null;
     let equipInfo = null;
 
+    const targetEqKey = toCamelCase(equipmentName);
     for (const hKey in heroData) {
-        const equip = heroData[hKey].equipment.find(e => e.name.toLowerCase() === equipmentName.toLowerCase());
+        const equip = heroData[hKey].equipment.find(e => e.key === targetEqKey || (e.key && e.key.toLowerCase() === targetEqKey.toLowerCase()));
         if (equip) {
             heroKey = hKey;
             heroInfo = heroData[hKey];
@@ -2240,12 +2241,13 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
 export function getFlatEquipmentsList() {
     const list = [];
     for (const hKey in heroData) {
-        const heroName = heroData[hKey].name || hKey;
+        const heroName = translate(`heroes.${hKey}`) || hKey;
         const equips = heroData[hKey].equipment || heroData[hKey].equipments || [];
         equips.forEach(eq => {
             list.push({
-                name: eq.name,
-                id: eq.id || toCamelCase(eq.name),
+                key: eq.key,
+                name: translate(`equipment.${eq.key}`),
+                id: eq.key || eq.id,
                 heroKey: hKey,
                 heroName: heroName
             });
