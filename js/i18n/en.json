@@ -1267,6 +1267,10 @@
         "chestRewardRangeLabelThScaled": "TH-Scaled Ore Range:",
         "questTitleFormat": "Quest - {name}",
         "questBadgeAlt": "Badge",
+        "oreRewardBadge": "Ore Reward",
+        "resourceRewardBadge": "Resource Reward",
+        "orePopoverBody": "Claiming this milestone awards <strong>{amount} {ore}</strong>.",
+        "resourcePopoverBody": "Claiming this milestone awards <strong>{amount} {resource}</strong>.",
         "upcomingOresTooltip": "Upcoming Ores from Hero's Journey",
         "magicItemDescriptions": {
             "heroPotion": "Temporarily boosts all Heroes and Pets to the maximum level allowed by your Town Hall level for 1 hour.",

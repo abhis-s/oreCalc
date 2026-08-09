@@ -15,7 +15,11 @@ function bindOutsideDismissListener() {
         if (!helpPopover || !helpPopover.classList.contains('show')) return;
         const target = e.target;
         if (helpPopover.contains(target)) return;
-        if (activeTargetElem && (activeTargetElem === target || activeTargetElem.contains(target))) return;
+        if (activeTargetElem) {
+            if (activeTargetElem === target || activeTargetElem.contains(target)) return;
+            const closestTarget = target.closest('.hero-journey-node-chip, .info-btn, .eq-badge, .hero-journey-upcoming-badge');
+            if (closestTarget && (closestTarget === activeTargetElem || activeTargetElem.contains(closestTarget))) return;
+        }
         hideCardHelpPopover();
     };
 
@@ -80,23 +84,25 @@ export function showCardHelpPopover(targetElem, content, { isToggle = false } = 
         const viewportHeight = window.innerHeight;
         const viewportWidth = window.innerWidth;
 
+        const popoverHeight = popoverRect.height || 140;
+        const popoverWidth = popoverRect.width || 230;
+
         const spaceAbove = elemRect.top;
-        const placeBelow = spaceAbove < popoverRect.height + 10;
+        const spaceBelow = viewportHeight - elemRect.bottom;
 
         let top = 0;
-        if (placeBelow) {
-            top = elemRect.bottom + 6;
+        // Prefer placing ABOVE if space above is sufficient or greater than space below
+        if (spaceAbove >= popoverHeight + 10 || spaceAbove >= spaceBelow) {
+            top = elemRect.top - popoverHeight - 6;
         } else {
-            top = elemRect.top - popoverRect.height - 6;
+            top = elemRect.bottom + 6;
         }
 
-        let left = elemRect.left + (elemRect.width / 2) - (popoverRect.width / 2);
+        // Clamp top so popover is always 100% inside viewport vertical bounds
+        top = Math.max(12, Math.min(top, viewportHeight - popoverHeight - 12));
 
-        if (left < 12) {
-            left = 12;
-        } else if (left + popoverRect.width > viewportWidth - 12) {
-            left = viewportWidth - popoverRect.width - 12;
-        }
+        let left = elemRect.left + (elemRect.width / 2) - (popoverWidth / 2);
+        left = Math.max(12, Math.min(left, viewportWidth - popoverWidth - 12));
 
         popover.style.top = `${top}px`;
         popover.style.left = `${left}px`;

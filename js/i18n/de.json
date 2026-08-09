@@ -1265,6 +1265,10 @@
         "chestRewardRangeLabelThScaled": "RH-skalierte Erz-Spanne:",
         "questTitleFormat": "Quest - {name}",
         "questBadgeAlt": "Abzeichen",
+        "oreRewardBadge": "Erzbelohnung",
+        "resourceRewardBadge": "Ressourcenbelohnung",
+        "orePopoverBody": "Beim Abholen dieses Meilensteins erhältst du <strong>{amount} {ore}</strong>.",
+        "resourcePopoverBody": "Beim Abholen dieses Meilensteins erhältst du <strong>{amount} {resource}</strong>.",
         "upcomingOresTooltip": "Bevorstehende Erze aus der Heldenreise",
         "magicItemDescriptions": {
             "heroPotion": "Bringt alle Helden und Begleiter eine Stunde lang auf das mit deinem Rathaus maximal mögliche Level.",

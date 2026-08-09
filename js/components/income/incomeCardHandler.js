@@ -6,23 +6,13 @@ import { getSupercellEventUrl } from '../../data/languagesData.js';
 
 import { currencyData } from '../../data/appData.js';
 import { formatNumber, formatCurrency, updateCalculatedValue } from '../../utils/numberFormatter.js';
+import { showCardHelpPopover, hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
 
 export function initializeIncomeCardHandler() {
-    // 1. Card Help Popover Setup
-    let helpPopover = document.getElementById('card-help-popover');
-    if (!helpPopover) {
-        helpPopover = document.createElement('div');
-        helpPopover.id = 'card-help-popover';
-        helpPopover.className = 'card-help-popover';
-        document.body.appendChild(helpPopover);
-    }
-
     let activeHelpBtn = null;
 
     const hideHelpPopover = () => {
-        if (helpPopover) {
-            helpPopover.classList.remove('show');
-        }
+        hideCardHelpPopover();
         activeHelpBtn = null;
     };
 
@@ -33,50 +23,7 @@ export function initializeIncomeCardHandler() {
         }
 
         activeHelpBtn = btn;
-
-        let bodyHtml = typeof content === 'string' ? content : (content?.body || '');
-        let footerHtml = typeof content === 'object' ? (content?.footer || null) : null;
-
-        let innerHTML = `<div class="popover-body">${bodyHtml}</div>`;
-        if (footerHtml) {
-            innerHTML += `<div class="popover-footer">${footerHtml}</div>`;
-        }
-
-        helpPopover.innerHTML = innerHTML;
-        helpPopover.classList.add('show');
-
-        const positionPopover = () => {
-            if (activeHelpBtn !== btn) return;
-            const popoverRect = helpPopover.getBoundingClientRect();
-            const btnRect = btn.getBoundingClientRect();
-
-            const viewportHeight = window.innerHeight;
-            const viewportWidth = window.innerWidth;
-
-            const spaceAbove = btnRect.top;
-            const placeBelow = spaceAbove < popoverRect.height + 10;
-
-            let top = 0;
-            if (placeBelow) {
-                top = btnRect.bottom + 6;
-            } else {
-                top = btnRect.top - popoverRect.height - 6;
-            }
-
-            let left = btnRect.left + (btnRect.width / 2) - (popoverRect.width / 2);
-
-            if (left < 12) {
-                left = 12;
-            } else if (left + popoverRect.width > viewportWidth - 12) {
-                left = viewportWidth - popoverRect.width - 12;
-            }
-
-            helpPopover.style.top = `${top}px`;
-            helpPopover.style.left = `${left}px`;
-        };
-
-        positionPopover();
-        setTimeout(positionPopover, 0);
+        showCardHelpPopover(btn, content, { isToggle: true });
     };
 
     function formatRegionalDate(isoDateStr) {
@@ -135,6 +82,9 @@ export function initializeIncomeCardHandler() {
     };
 
     document.addEventListener('click', (e) => {
+        const isNodeChipOrPopover = e.target.closest('.hero-journey-node-chip, .card-help-popover');
+        if (isNodeChipOrPopover) return;
+
         const bugReportLink = e.target.closest('.open-inaccuracies-link, .open-bug-report-link');
         if (bugReportLink) {
             e.preventDefault();
@@ -159,6 +109,7 @@ export function initializeIncomeCardHandler() {
     });
 
     document.addEventListener('mouseover', (e) => {
+        if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
         const badge = e.target.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info]');
         if (badge && activeHelpBtn !== badge) {
             const text = getPopoverContent(badge);
@@ -167,6 +118,7 @@ export function initializeIncomeCardHandler() {
     });
 
     document.addEventListener('mouseout', (e) => {
+        if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
         const badge = e.target.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info]');
         if (badge && activeHelpBtn === badge) {
             const related = e.relatedTarget;

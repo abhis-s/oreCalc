@@ -1126,6 +1126,36 @@ function showNodeTooltip(chip) {
             `,
             body: breakdownHtml
         });
+    } else if (node.type === 'ore') {
+        const oreKey = node.resourceType;
+        const oreNameText = translate(`ores.${oreKey}`) || oreKey;
+        const formattedAmount = formatNumber(node.amount);
+
+        showCardHelpPopover(chip, {
+            header: `
+                <orecalc-assets-image src="${node.icon}" alt="${oreNameText}" class="popover-img"></orecalc-assets-image>
+                <div class="popover-title-group">
+                    <span class="popover-title">${formattedAmount}x ${oreNameText}</span>
+                    <span class="popover-badge">${translate('heroJourney.oreRewardBadge')}</span>
+                </div>
+            `,
+            body: `<p>${translate('heroJourney.orePopoverBody', { amount: formattedAmount, ore: oreNameText })}</p>`
+        });
+    } else if (node.type === 'resource') {
+        const resKey = getResourceKey(node.resourceType);
+        const resNameText = translate(`heroJourney.resources.${resKey}`) || node.resourceType;
+        const formattedAmount = formatNumber(node.amount);
+
+        showCardHelpPopover(chip, {
+            header: `
+                <orecalc-assets-image src="${node.icon}" alt="${resNameText}" class="popover-img"></orecalc-assets-image>
+                <div class="popover-title-group">
+                    <span class="popover-title">${formattedAmount}x ${resNameText}</span>
+                    <span class="popover-badge">${translate('heroJourney.resourceRewardBadge')}</span>
+                </div>
+            `,
+            body: `<p>${translate('heroJourney.resourcePopoverBody', { amount: formattedAmount, resource: resNameText })}</p>`
+        });
     }
 }
 
@@ -1139,6 +1169,7 @@ export function initHeroJourneyTooltips() {
         trackWrapper.dataset.tooltipBound = 'true';
 
         let activeChip = null;
+        let lastScrollLeft = trackWrapper.scrollLeft;
 
         trackWrapper.addEventListener('click', (e) => {
             const claimBtn = e.target.closest('.node-claim-btn');
@@ -1146,7 +1177,11 @@ export function initHeroJourneyTooltips() {
 
             const chip = e.target.closest('.hero-journey-node-chip');
             if (chip) {
-                if (activeChip === chip) {
+                e.stopPropagation();
+                const popover = document.getElementById('card-help-popover');
+                const isShowingCurrent = popover && popover.classList.contains('show') && (activeChip === chip || activeChip?.dataset?.nodeLevel === chip.dataset.nodeLevel);
+
+                if (isShowingCurrent) {
                     activeChip = null;
                     hideNodeTooltip();
                 } else {
@@ -1157,7 +1192,7 @@ export function initHeroJourneyTooltips() {
         });
 
         trackWrapper.addEventListener('mouseover', (e) => {
-            if (window.matchMedia('(pointer: coarse)').matches) return;
+            if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
             const chip = e.target.closest('.hero-journey-node-chip');
             if (chip && chip !== activeChip) {
@@ -1167,7 +1202,7 @@ export function initHeroJourneyTooltips() {
         });
 
         trackWrapper.addEventListener('mouseout', (e) => {
-            if (window.matchMedia('(pointer: coarse)').matches) return;
+            if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
             const chip = e.target.closest('.hero-journey-node-chip');
             if (chip) {
@@ -1182,8 +1217,12 @@ export function initHeroJourneyTooltips() {
         });
 
         trackWrapper.addEventListener('scroll', () => {
-            activeChip = null;
-            hideNodeTooltip();
+            const currentScrollLeft = trackWrapper.scrollLeft;
+            if (Math.abs(currentScrollLeft - lastScrollLeft) > 10) {
+                lastScrollLeft = currentScrollLeft;
+                activeChip = null;
+                hideNodeTooltip();
+            }
         }, { passive: true });
     }
 }
