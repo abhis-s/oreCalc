@@ -525,10 +525,13 @@ export function registerInputPopover(inputElement, options = {}) {
     window.addEventListener('resize', handleScrollResize, { passive: true });
 
     // 8. Actionable Event Listeners using Delegation
-    popover.addEventListener('mousedown', (e) => {
+    const preventInputBlur = (e) => {
         // Prevent loss of focus on the input field so popover stays open
         e.preventDefault();
-    });
+    };
+    popover.addEventListener('mousedown', preventInputBlur);
+    popover.addEventListener('pointerdown', preventInputBlur);
+    popover.addEventListener('touchstart', preventInputBlur);
 
     popover.addEventListener('click', (e) => {
         e.stopPropagation();

@@ -42,6 +42,9 @@ export function getImage(src, className = '', size = 'standard', alt = '') {
     const isSubfolderAsset = base.includes('assets/equipment/') || 
                              base.includes('assets/heroes/') || 
                              base.includes('assets/resources/') ||
+                             base.includes('assets/skins/') ||
+                             base.includes('assets/magicItems/') ||
+                             base.includes('assets/heroJourney/') ||
                              base.includes('assets/th/');
                              
     const suffix = isSubfolderAsset ? (size === 'thumbnail' ? '-100' : '-200') : '';

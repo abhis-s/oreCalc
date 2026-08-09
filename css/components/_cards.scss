@@ -60,6 +60,53 @@
         transform: translateY(0);
     }
 
+    .popover-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
+
+        .popover-img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .popover-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .popover-title {
+            font-size: 0.74rem;
+            font-weight: 800;
+            color: $text-primary;
+            line-height: 1.2;
+
+            .accent-text {
+                color: $accent-primary;
+                font-weight: 800;
+            }
+        }
+
+        .popover-badge {
+            font-size: 0.54rem;
+            font-weight: 700;
+            color: $accent-primary;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+
+            .purple-text {
+                color: $color-rarity-epic;
+            }
+        }
+    }
+
     .popover-body {
         font-size: 0.72rem;
         line-height: 1.35;

@@ -10,6 +10,7 @@ import { LAB_SCALING_TROOP_KEYS } from '../data/labTroopsData.js';
 import { translate } from '../i18n/translator.js';
 
 import { fetchPlayerData } from './apiService.js';
+import { cleanupHeroJourneyOverrides } from '../incomeCalculations/heroJourneyIncome.js';
 
 export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, timeoutMs = null, updateOrder = true } = {}) {
     if (!playerTag || playerTag.trim() === '') {
@@ -129,6 +130,8 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         const heroState = newPlayerState.heroes[heroName];
 
         if (serverHero) {
+            heroState.level = serverHero.level;
+            heroState.maxLevel = serverHero.maxLevel;
             if (isInitialLoadForBase || !wasHeroPreviouslySynced) {
                 heroState.enabled = true;
             } else {
@@ -255,7 +258,9 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         state.income = newPlayerState.income;
         state.planner = newPlayerState.planner;
         state.playerProfile = newPlayerState.playerProfile;
+        cleanupHeroJourneyOverrides(state);
         reindexGlobalPriority();
     }
+    cleanupHeroJourneyOverrides(newPlayerState);
     updateAllPlayersData(cleanedTag, newPlayerState);
 }

@@ -142,6 +142,10 @@ function getDefaultPlayerStateProperties() {
                 }
             },
         },
+        heroJourney: {
+            overrideUnclaimed: [],
+            acceleratedRewards: false
+        },
     };
 }
 

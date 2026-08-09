@@ -32,6 +32,8 @@ import { renderStorageInputs } from '../components/equipment/storageInputs.js';
 import { renderSupercellEventsDisplay } from '../components/income/supercellEventsDisplay.js';
 import { renderSupercellEventsInputs } from '../components/income/supercellEventsInputs.js';
 import { renderTabs } from '../components/layout/tabs.js';
+import { renderHeroJourneyDisplay, updateHeroJourneyUpcomingBadges } from '../components/home/heroJourneyDisplay.js';
+import { setupHeroJourneyInputs } from '../components/home/heroJourneyInputs.js';
 
 
 export function renderApp(state) {
@@ -45,17 +47,21 @@ export function renderApp(state) {
 
     renderRequiredOres(state.derived.requiredOres);
     renderRemainingTime(state.derived.remainingTime);
+    updateHeroJourneyUpcomingBadges(state);
 
     if (state.activeTab === 'home-tab') {
         renderHomeIncomeTable(state);
         renderHomeResourcesFooter(state);
         renderHomeProfile(state);
+        renderHeroJourneyDisplay(state);
+        setupHeroJourneyInputs(state);
     } else if (state.activeTab === 'planner-tab') {
         renderPlanner(state.planner);
         renderPriorityListModal(state);
     } else if (state.activeTab === 'equipment-tab') {
         renderHeroCards(state.heroes, state.uiSettings, state.planner);
         renderStorageInputs(state.storedOres);
+        updateHeroJourneyUpcomingBadges(state);
     } else if (state.activeTab === 'income-tab') {
         renderStarBonusControls(state.income);
         renderClanWarInputs(state.income.clanWar);
