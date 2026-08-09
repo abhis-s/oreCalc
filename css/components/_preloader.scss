@@ -20,7 +20,7 @@
     // Support light mode system preference before JS loads if needed
     @media (prefers-color-scheme: light) {
         &:not(.dark-mode-override) {
-            background-color: #ffffff;
+            background-color: $color-white-const;
         }
     }
 

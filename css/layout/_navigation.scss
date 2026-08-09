@@ -20,8 +20,8 @@ body.open-drawer {
                 box-shadow 0.2s cubic-bezier(0.2, 1, 0.2, 1);
 
     &:hover:not(.active) {
-        background-color: var(--accent-primary-soft);
-        color: var(--accent-primary);
+        background-color: $accent-primary-soft;
+        color: $accent-primary;
         transform: translateY(-1px);
     }
 
@@ -30,9 +30,9 @@ body.open-drawer {
     }
 
     &.active {
-        background-color: var(--accent-primary);
+        background-color: $accent-primary;
         color: $text-on-accent;
-        box-shadow: 0 4px 12px var(--accent-primary-soft);
+        box-shadow: 0 4px 12px $accent-primary-soft;
         transform: translateY(0) scale(1);
     }
 
@@ -41,10 +41,10 @@ body.open-drawer {
     }
 
     &.nav-glide-active {
-        background: color-mix(in srgb, var(--accent-primary) 35%, transparent) !important;
-        color: var(--accent-primary) !important;
-        border: 1px solid color-mix(in srgb, var(--accent-primary) 50%, transparent) !important;
-        box-shadow: 0 4px 16px color-mix(in srgb, var(--accent-primary) 40%, transparent), 0 0 24px color-mix(in srgb, var(--accent-primary) 25%, transparent) !important;
+        background: color-mix(in srgb, $accent-primary 35%, transparent) !important;
+        color: $accent-primary !important;
+        border: 1px solid color-mix(in srgb, $accent-primary 50%, transparent) !important;
+        box-shadow: 0 4px 16px color-mix(in srgb, $accent-primary 40%, transparent), 0 0 24px color-mix(in srgb, $accent-primary 25%, transparent) !important;
         transform: scale(1.06) translateY(-2px) !important;
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
@@ -168,12 +168,12 @@ body.open-drawer {
             background-color: var(--accent-soft);
 
             svg {
-                fill: var(--accent-primary);
+                fill: $accent-primary;
             }
         }
 
         span {
-            color: var(--accent-primary);
+            color: $accent-primary;
             font-weight: 500;
         }
 
@@ -220,7 +220,7 @@ body.open-drawer {
     background-color: color-mix(in srgb, $bg-surface-primary 80%, transparent);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-right: 1px solid var(--border-secondary);
+    border-right: 1px solid $border-secondary;
     box-shadow: $elevation-3;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s ease-in-out;
@@ -245,7 +245,7 @@ body.open-drawer {
         touch-action: none;
         overscroll-behavior: contain;
         @extend %full-screen-overlay;
-        background-color: var(--bg-overlay);
+        background-color: $bg-overlay;
         z-index: #{$z-index-drawer - 1};
         backdrop-filter: blur(0px);
         -webkit-backdrop-filter: blur(0px);
@@ -280,10 +280,10 @@ body.open-drawer {
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--bg-surface-secondary);
-        border: 1px solid var(--border-primary);
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
         border-radius: 12px;
-        color: var(--text-secondary);
+        color: $text-secondary;
         cursor: pointer;
         height: 36px;
         width: 36px;
@@ -300,9 +300,9 @@ body.open-drawer {
 
         &:hover,
         &:focus {
-            background-color: var(--bg-surface-tertiary);
-            border-color: var(--accent-primary);
-            color: var(--text-primary);
+            background-color: $bg-surface-tertiary;
+            border-color: $accent-primary;
+            color: $text-primary;
         }
 
         &:active {
@@ -314,7 +314,7 @@ body.open-drawer {
         font-size: 24px;
         font-weight: 800;
         margin: 30px 0 4px 10px;
-        background: linear-gradient(135deg, var(--accent-primary) 30%, #a8c0ff 100%);
+        background: linear-gradient(135deg, $accent-primary 30%, #a8c0ff 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         letter-spacing: -0.5px;
@@ -324,7 +324,7 @@ body.open-drawer {
         font-size: 13px;
         font-weight: 600;
         margin: 0 0 0 10px;
-        color: var(--text-secondary);
+        color: $text-secondary;
         opacity: 0.6;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -342,7 +342,7 @@ body.open-drawer {
 
     &__footer {
         padding: 20px;
-        border-top: 1px solid var(--border-secondary);
+        border-top: 1px solid $border-secondary;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -357,31 +357,31 @@ body.open-drawer {
     }
 
     &__footer-link {
-        color: var(--text-secondary);
+        color: $text-secondary;
         opacity: 0.7;
         text-decoration: none;
         transition: color 0.2s ease, opacity 0.2s ease;
 
         &:hover {
-            color: var(--accent-primary);
+            color: $accent-primary;
             opacity: 1;
         }
     }
 
     &__footer-sep {
-        color: var(--text-secondary);
+        color: $text-secondary;
         opacity: 0.3;
     }
 
     &__app-version {
-        color: var(--text-secondary);
+        color: $text-secondary;
         opacity: 0.4;
         font-size: 11px;
         font-family: monospace;
     }
 
     &__copyright {
-        color: var(--text-secondary);
+        color: $text-secondary;
         opacity: 0.35;
         font-size: 10px;
         margin-top: 2px;
@@ -416,7 +416,7 @@ body.open-drawer {
         &.secondary-tab {
             font-size: 13.5px;
             padding: 8px 16px;
-            color: var(--text-secondary);
+            color: $text-secondary;
             opacity: 0.8;
             width: 100%;
             box-sizing: border-box;
@@ -437,23 +437,23 @@ body.open-drawer {
                 width: 16px;
                 height: 16px;
                 opacity: 0.8;
-                fill: var(--text-secondary);
+                fill: $text-secondary;
             }
 
             &:hover {
                 opacity: 1;
-                color: var(--accent-primary);
+                color: $accent-primary;
                 background-color: var(--accent-soft);
                 border-radius: $shape-corner-medium;
                 
                 svg {
-                    fill: var(--accent-primary);
+                    fill: $accent-primary;
                     opacity: 1;
                 }
 
                 .open-in-icon {
                     opacity: 1;
-                    fill: var(--accent-primary);
+                    fill: $accent-primary;
                 }
             }
         }

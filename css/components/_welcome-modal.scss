@@ -2002,9 +2002,9 @@
             letter-spacing: 0.5px;
             padding: 3px 8px;
             border-radius: 6px;
-            background-color: var(--color-success-soft);
-            color: var(--color-success);
-            border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent);
+            background-color: $color-success-soft;
+            color: $color-success;
+            border: 1px solid color-mix(in srgb, $color-success 30%, transparent);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -2097,7 +2097,7 @@
     }
 
     .welcome-sync-details {
-        border: 1px solid var(--border-primary);
+        border: 1px solid $border-primary;
         border-radius: 8px;
         background-color: color-mix(in srgb, $bg-surface-primary 20%, transparent);
         overflow: hidden;
@@ -2128,19 +2128,19 @@
             transition: transform 0.2s ease;
 
             svg {
-                color: var(--text-secondary);
+                color: $text-secondary;
                 display: block;
             }
         }
 
         &:hover {
-            background-color: color-mix(in srgb, var(--border-primary) 20%, transparent);
+            background-color: color-mix(in srgb, $border-primary 20%, transparent);
         }
     }
 
     .welcome-sync-details-content {
         padding: 0 12px 8px 12px;
-        border-top: 1px dashed color-mix(in srgb, var(--border-primary) 50%, transparent);
+        border-top: 1px dashed color-mix(in srgb, $border-primary 50%, transparent);
     }
 
     .welcome-device-sync-section {

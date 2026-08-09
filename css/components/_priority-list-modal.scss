@@ -263,7 +263,7 @@
 }
 .equipment-chip.maxed-in-plan {
     border-color: var(--color-gold) !important;
-    box-shadow: 0 0 4px var(--color-gold-glow-shadow), 0 0 8px var(--color-gold-glow-shadow) !important;
+    box-shadow: 0 0 4px $color-gold-glow-shadow, 0 0 8px $color-gold-glow-shadow !important;
 }
 .priority-list-editor {
     flex-grow: 1;
@@ -276,7 +276,7 @@
     left: 1rem;
     right: 1rem;
     height: 0;
-    border-top: 2px dashed var(--accent-primary, #8ab4f8);
+    border-top: 2px dashed $accent-primary;
     opacity: 0.85;
     pointer-events: none;
     z-index: 10;
@@ -289,7 +289,7 @@
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background-color: var(--accent-primary, #8ab4f8);
+        background-color: $accent-primary;
         top: -4px;
     }
 
@@ -346,8 +346,8 @@
 }
 
 .priority-list-editor-item.dragging {
-    background-color: var(--accent-primary-soft, rgba(138, 180, 248, 0.08)) !important;
-    border: 1.5px dashed var(--accent-primary, #8ab4f8) !important;
+    background-color: $accent-primary-soft;
+    border: 1.5px dashed $accent-primary;
     box-shadow: none !important;
 
     > * {

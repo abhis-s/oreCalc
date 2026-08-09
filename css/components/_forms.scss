@@ -20,10 +20,10 @@ textarea,
 
 @keyframes input-glow-pulse {
         0%, 100% {
-            box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.2);
+            box-shadow: 0 0 0 3px rgba($accent-primary, 0.2);
         }
         50% {
-            box-shadow: 0 0 0 5px rgba(138, 180, 248, 0.4);
+            box-shadow: 0 0 0 5px rgba($accent-primary, 0.4);
         }
     }
 
@@ -270,17 +270,17 @@ input[type="number"] {
 
 .input-status-warning {
     border-color: $color-warning !important;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-warning) 25%, transparent) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, $color-warning 25%, transparent) !important;
 }
 
 .input-status-error {
     border-color: $color-danger !important;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 25%, transparent) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, $color-danger 25%, transparent) !important;
 }
 
 .input-status-success {
     border-color: $color-success !important;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-success) 25%, transparent) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, $color-success 25%, transparent) !important;
 }
 
 

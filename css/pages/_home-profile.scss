@@ -59,13 +59,13 @@
             position: absolute;
             bottom: -3px;
             right: -3px;
-            background-color: var(--accent-primary);
-            color: var(--bg-surface-primary);
+            background-color: $accent-primary;
+            color: $bg-surface-primary;
             font-size: clamp(10px, 1.3vw, 12px);
             font-weight: 800;
             padding: 2px 6px;
             border-radius: 6px;
-            border: 1.5px solid var(--bg-surface-secondary);
+            border: 1.5px solid $bg-surface-secondary;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
         }
     }
@@ -75,14 +75,14 @@
             margin: 0;
             font-size: clamp(18px, 2.5vw, 24px);
             font-weight: 700;
-            color: var(--text-primary);
+            color: $text-primary;
             line-height: 1.2;
         }
 
         .player-tag {
             margin: 4px 0 0 0;
             font-size: clamp(12px, 1.6vw, 14px);
-            color: var(--text-secondary);
+            color: $text-secondary;
             opacity: 0.65;
             font-family: monospace;
             letter-spacing: 0.3px;
@@ -94,9 +94,9 @@
             padding: 2px 6px;
             font-size: clamp(10px, 1.3vw, 11px);
             font-weight: 700;
-            color: var(--accent-primary);
-            background-color: color-mix(in srgb, var(--accent-primary) 8%, transparent);
-            border: 1px solid color-mix(in srgb, var(--accent-primary) 20%, transparent);
+            color: $accent-primary;
+            background-color: color-mix(in srgb, $accent-primary 8%, transparent);
+            border: 1px solid color-mix(in srgb, $accent-primary 20%, transparent);
             border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -108,7 +108,7 @@
             gap: 6px;
             margin-top: 6px;
             font-size: clamp(12px, 1.6vw, 14px);
-            color: var(--text-secondary);
+            color: $text-secondary;
 
             .clan-badge-img-mini {
                 width: clamp(16px, 2.2vw, 20px);
@@ -199,7 +199,7 @@
                 .league-name-mini {
                     font-size: clamp(12px, 1.6vw, 14px);
                     font-weight: 700;
-                    color: var(--text-primary);
+                    color: $text-primary;
                 }
 
                 .player-trophies-mini {
@@ -207,7 +207,7 @@
                     align-items: center;
                     gap: 3px;
                     font-size: clamp(11px, 1.5vw, 13px);
-                    color: var(--accent-primary);
+                    color: $accent-primary;
                     font-weight: 700;
                 }
             }
@@ -218,12 +218,12 @@
             align-items: center;
             gap: 4px;
             font-size: clamp(12px, 1.6vw, 14px);
-            color: var(--text-secondary);
+            color: $text-secondary;
             opacity: 0.8;
             white-space: nowrap;
 
             .maxed-equip-icon-mini {
-                color: var(--accent-primary);
+                color: $accent-primary;
             }
         }
 
@@ -273,7 +273,7 @@
     display: flex;
     flex-direction: column;
     padding: 16px 20px;
-    background-color: var(--bg-surface-primary);
+    background-color: $bg-surface-primary;
     border: none;
     border-radius: 8px 8px 0 0;
     box-sizing: border-box;
@@ -307,7 +307,7 @@
         .overall-progress-label {
             font-size: clamp(11px, 1.5vw, 13px);
             font-weight: 700;
-            color: var(--text-secondary);
+            color: $text-secondary;
             text-transform: uppercase;
             letter-spacing: 0.6px;
             opacity: 0.7;
@@ -316,13 +316,13 @@
         .overall-progress-value {
             font-size: clamp(20px, 2.5vw, 26px);
             font-weight: 800;
-            color: var(--accent-primary);
+            color: $accent-primary;
         }
     }
 
     .progress-bar-overall {
         height: 8px;
-        background-color: var(--bg-surface-tertiary);
+        background-color: $bg-surface-tertiary;
         border-radius: 4px;
         overflow: hidden;
         width: 100%;
@@ -363,7 +363,7 @@
         background-color: var(--bg-surface-primary, $bg-surface-primary);
         border: none;
         border-radius: 0 0 8px 8px;
-        border-top: 1px solid var(--bg-surface-secondary);
+        border-top: 1px solid $bg-surface-secondary;
         text-align: center;
         box-sizing: border-box;
 
@@ -403,7 +403,7 @@
         .stat-box-label {
             font-size: clamp(9px, 1.2vw, 11px);
             font-weight: 700;
-            color: var(--text-secondary);
+            color: $text-secondary;
             text-transform: uppercase;
             letter-spacing: 0.4px;
             opacity: 0.7;
@@ -412,11 +412,11 @@
         .stat-box-value {
             font-size: clamp(13px, 1.6vw, 16px);
             font-weight: 700;
-            color: var(--text-primary);
+            color: $text-primary;
             margin: 4px 0;
 
             &.highlight {
-                color: var(--accent-primary);
+                color: $accent-primary;
             }
         }
 
@@ -426,14 +426,14 @@
             align-items: center;
             gap: 2px;
             font-size: clamp(10px, 1.4vw, 12px);
-            color: var(--text-secondary);
+            color: $text-secondary;
             opacity: 0.65;
             margin-top: 6px;
         }
 
         .progress-bar-mini {
             height: 5px;
-            background-color: var(--bg-surface-tertiary);
+            background-color: $bg-surface-tertiary;
             border-radius: 2.5px;
             overflow: hidden;
             width: 100%;
@@ -446,7 +446,7 @@
                 right: 0;
                 height: 100%;
                 width: 0;
-                background-color: var(--text-disabled);
+                background-color: $text-disabled;
                 opacity: 0.3;
                 border-radius: inherit;
                 pointer-events: none;
@@ -456,7 +456,7 @@
             .progress-bar-fill {
                 height: 100%;
                 width: 0;
-                background: linear-gradient(90deg, var(--accent-primary) 0%, color-mix(in srgb, var(--accent-primary) 70%, #fff) 100%);
+                background: linear-gradient(90deg, $accent-primary 0%, color-mix(in srgb, $accent-primary 70%, $color-white-const) 100%);
                 border-radius: 2.5px;
                 transition: width 1.8s cubic-bezier(0.25, 1, 0.5, 1);
 
@@ -495,14 +495,14 @@
     gap: 8px;
     margin-top: 16px;
     font-size: clamp(10px, 1.3vw, 11px);
-    color: var(--text-muted);
+    color: $text-muted;
     line-height: 1.4;
     text-align: left;
     opacity: 0.8;
     padding: 8px 12px;
-    background-color: var(--bg-surface-tertiary);
+    background-color: $bg-surface-tertiary;
     border-radius: 6px;
-    border: 1px solid var(--border-secondary);
+    border: 1px solid $border-secondary;
 
     @media (max-width: 600px) {
         margin-top: 12px;
@@ -513,7 +513,7 @@
         flex-shrink: 0;
         width: 14px;
         height: 14px;
-        fill: var(--text-muted);
+        fill: $text-muted;
         position: relative;
         top: 1px;
     }
@@ -530,13 +530,13 @@
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
     &.delta-positive {
-        background: color-mix(in srgb, var(--color-success) 85%, transparent);
-        box-shadow: 0 0 4px color-mix(in srgb, var(--color-success) 50%, transparent);
+        background: color-mix(in srgb, $color-success 85%, transparent);
+        box-shadow: 0 0 4px color-mix(in srgb, $color-success 50%, transparent);
     }
 
     &.delta-negative {
-        background: color-mix(in srgb, var(--color-danger) 80%, transparent);
-        box-shadow: 0 0 4px color-mix(in srgb, var(--color-danger) 40%, transparent);
+        background: color-mix(in srgb, $color-danger 80%, transparent);
+        box-shadow: 0 0 4px color-mix(in srgb, $color-danger 40%, transparent);
     }
 }
 
@@ -556,12 +556,12 @@
         width: 56px;
         height: 56px;
         border-radius: 50%;
-        background: var(--bg-surface-secondary);
+        background: $bg-surface-secondary;
         margin-bottom: 16px;
         border: 1.5px dashed $border-primary;
 
         .unconnected-icon {
-            color: var(--text-secondary);
+            color: $text-secondary;
             opacity: 0.6;
         }
     }
@@ -570,13 +570,13 @@
         margin: 0;
         font-size: clamp(16px, 2.2vw, 20px);
         font-weight: 700;
-        color: var(--text-primary);
+        color: $text-primary;
     }
 
     p {
         margin: 8px 0 20px 0;
         font-size: clamp(12px, 1.6vw, 14px);
-        color: var(--text-secondary);
+        color: $text-secondary;
         max-width: 320px;
         line-height: 1.45;
         opacity: 0.75;

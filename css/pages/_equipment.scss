@@ -34,11 +34,11 @@
 
 .hero-card {
     background-color: $bg-surface-secondary;
-    border: 1px solid transparent;
+    border: 1px solid color-mix(in srgb, $border-primary 70%, transparent);
     border-radius: 10px;
     padding: 30px;
     box-shadow: $elevation-1;
-    transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out, transform 0.25s cubic-bezier(0.2, 1, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out, transform 0.25s cubic-bezier(0.2, 1, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     width: 100%;
     max-width: 480px;
@@ -47,8 +47,8 @@
 
     &:hover:not(.dragging) {
         transform: translateY(-2px);
-        border-color: rgba(138, 180, 248, 0.15);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        border-color: color-mix(in srgb, $accent-primary 35%, $border-primary);
+        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.22), 0 0 12px rgba($accent-primary, 0.08);
     }
 
     &.hero-hidden {
@@ -175,7 +175,7 @@
         }
 
         &.gold-glow {
-            filter: drop-shadow(0 0 4px var(--color-gold-glow-shadow)) drop-shadow(0 0 8px var(--color-gold-glow-shadow));
+            filter: drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
         }
         &.over-leveled-glow {
             filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);

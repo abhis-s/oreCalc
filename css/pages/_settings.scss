@@ -123,25 +123,25 @@
 
 @keyframes badge-pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(138, 180, 248, 0.4);
+        box-shadow: 0 0 0 0 rgba($accent-primary, 0.4);
     }
     70% {
-        box-shadow: 0 0 0 6px rgba(138, 180, 248, 0);
+        box-shadow: 0 0 0 6px rgba($accent-primary, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(138, 180, 248, 0);
+        box-shadow: 0 0 0 0 rgba($accent-primary, 0);
     }
 }
 
 @keyframes badge-pulse-success {
     0% {
-        box-shadow: 0 0 0 0 rgba(129, 199, 132, 0.4);
+        box-shadow: 0 0 0 0 rgba($color-success, 0.4);
     }
     70% {
-        box-shadow: 0 0 0 6px rgba(129, 199, 132, 0);
+        box-shadow: 0 0 0 6px rgba($color-success, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(129, 199, 132, 0);
+        box-shadow: 0 0 0 0 rgba($color-success, 0);
     }
 }
 
@@ -155,8 +155,8 @@
 
 .new-badge {
     @extend .badge;
-    background-color: var(--color-success-soft);
-    color: var(--color-success);
+    background-color: $color-success-soft;
+    color: $color-success;
     border-color: $color-success-soft;
     animation: badge-pulse-success 2s infinite;
 }
@@ -179,7 +179,7 @@
 }
 
 .qr-success-msg {
-    color: var(--color-success);
+    color: $color-success;
     font-weight: 500;
     margin-bottom: 10px;
 }
@@ -503,7 +503,7 @@
 .data-erasure-explanations {
     padding: 0 24px 10px;
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: $text-secondary;
     display: flex;
     flex-direction: column;
     gap: 12px;

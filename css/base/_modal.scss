@@ -43,7 +43,7 @@ body:has(.modal.show) {
 
 .modal {
     @extend %full-screen-overlay;
-    background-color: var(--bg-overlay);
+    background-color: $bg-overlay;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -358,7 +358,7 @@ body:has(.modal.show) {
         padding: 2px 6px;
         border-radius: 4px;
         font-size: 0.9em;
-        color: var(--color-danger);
+        color: $color-danger;
         display: inline-block;
         white-space: nowrap;
         max-width: 100%;
@@ -392,7 +392,7 @@ body:has(.modal.show) {
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.9em;
-    color: var(--color-danger);
+    color: $color-danger;
     display: inline-block;
     white-space: nowrap;
     max-width: 100%;

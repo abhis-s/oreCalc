@@ -3,7 +3,7 @@
 
 .overlay {
     @extend %full-screen-overlay;
-    background-color: var(--bg-overlay);
+    background-color: $bg-overlay;
     z-index: $z-index-overlay;
     backdrop-filter: blur(0px);
     -webkit-backdrop-filter: blur(0px);

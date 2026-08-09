@@ -27,7 +27,7 @@
 
     &:hover {
         background-color: $bg-surface-tertiary;
-        border-color: var(--border-secondary);
+        border-color: $border-secondary;
         box-shadow: $elevation-2;
     }
 
@@ -174,7 +174,7 @@
     margin-top: 8px;
     background-color: transparent;
     color: $accent-primary;
-    border: 1px dashed var(--accent-primary-soft);
+    border: 1px dashed $accent-primary-soft;
     border-radius: 10px;
     cursor: pointer;
     font-size: 13px;

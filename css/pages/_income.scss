@@ -257,7 +257,7 @@
         .prospector-priority-link {
             all: unset;
             display: inline;
-            color: var(--color-primary, #bb86fc);
+            color: var(--color-primary, $accent-tertiary);
             font-weight: 600;
             cursor: pointer;
             text-decoration: underline;
@@ -267,7 +267,7 @@
 
             &:hover,
             &:focus-visible {
-                color: var(--color-primary-light, #e0b4ff);
+                color: var(--color-primary-light, $accent-tertiary);
                 text-decoration-style: solid;
             }
         }
@@ -365,7 +365,7 @@
 
                 &:first-child {
                     border-radius: 8px 0 0 8px;
-                    box-shadow: inset 3px 0 0 #ff3b30;
+                    box-shadow: inset 3px 0 0 $color-danger;
                 }
                 &:last-child {
                     border-radius: 0 8px 8px 0;
@@ -383,8 +383,8 @@
         }
 
         .watch-live-btn {
-            background-color: rgba(255, 59, 48, 0.22);
-            border: 1px solid rgba(255, 59, 48, 0.65);
+            background-color: rgba($color-danger, 0.22);
+            border: 1px solid rgba($color-danger, 0.65);
             color: $color-white-const !important;
             padding: 4px 10px;
             border-radius: 12px;
@@ -396,21 +396,21 @@
             gap: 6px;
             margin-left: 10px;
             text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(255, 59, 48, 0.35);
+            box-shadow: 0 0 10px rgba($color-danger, 0.35);
             transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
 
             &:hover {
-                background-color: rgba(255, 59, 48, 0.45);
-                border-color: #ff3b30;
-                box-shadow: 0 0 14px rgba(255, 59, 48, 0.65);
+                background-color: rgba($color-danger, 0.45);
+                border-color: $color-danger;
+                box-shadow: 0 0 14px rgba($color-danger, 0.65);
             }
 
             .live-beacon-dot {
                 width: 8px;
                 height: 8px;
                 border-radius: 50%;
-                background-color: #ff3b30;
-                box-shadow: 0 0 8px rgba(255, 59, 48, 0.9), 0 0 14px rgba(255, 59, 48, 0.6);
+                background-color: $color-danger;
+                box-shadow: 0 0 8px rgba($color-danger, 0.9), 0 0 14px rgba($color-danger, 0.6);
                 display: inline-block;
                 flex-shrink: 0;
                 animation: live-beacon-pulse 2.5s infinite ease-in-out;
@@ -421,12 +421,12 @@
             0%, 100% {
                 opacity: 1;
                 transform: scale(1);
-                box-shadow: 0 0 8px rgba(255, 59, 48, 0.9), 0 0 14px rgba(255, 59, 48, 0.6);
+                box-shadow: 0 0 8px rgba($color-danger, 0.9), 0 0 14px rgba($color-danger, 0.6);
             }
             50% {
                 opacity: 0.35;
                 transform: scale(0.7);
-                box-shadow: 0 0 2px rgba(255, 59, 48, 0.3);
+                box-shadow: 0 0 2px rgba($color-danger, 0.3);
             }
         }
 

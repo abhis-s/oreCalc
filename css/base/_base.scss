@@ -16,7 +16,7 @@
     --accent-primary-hover: #{$palette-blue-200};
     --accent-primary-active: #{$palette-blue-400};
     --accent-primary-soft: rgba(138, 180, 248, 0.1);
-    --accent-soft: var(--accent-primary-soft);
+    --accent-soft: $accent-primary-soft;
 
     --accent-secondary: #{$palette-lavender-200};
     --accent-secondary-hover: #{$palette-lavender-100};
@@ -90,12 +90,12 @@
     --color-on-income: #{$palette-grey-900};
 
     // --- LEGACY COMPATIBILITY MAPPINGS ---
-    --bg-primary: var(--bg-app);
-    --bg-secondary: var(--bg-surface-primary);
-    --surface-card: var(--bg-surface-secondary);
-    --border-color: var(--border-primary);
-    --color-success-400: var(--color-success);
-    --color-danger-300: var(--color-danger);
+    --bg-primary: $bg-app;
+    --bg-secondary: $bg-surface-primary;
+    --surface-card: $bg-surface-secondary;
+    --border-color: $border-primary;
+    --color-success-400: $color-success;
+    --color-danger-300: $color-danger;
 
 	// --- FONT SYSTEM ---
 	--font-size-xl: 24px;
@@ -110,8 +110,8 @@
 
     // --- MATERIAL TRACK/THUMB ---
     --material-track-inactive: #{$palette-grey-700};
-    --material-track-active: var(--accent-primary);
-    --material-track-focus-outline: var(--accent-primary-soft);
+    --material-track-active: $accent-primary;
+    --material-track-focus-outline: $accent-primary-soft;
     --material-thumb-inactive: #{$palette-grey-200};
     --material-thumb-active: #{$palette-white};
 
@@ -195,7 +195,7 @@
     --accent-primary-hover: #{$palette-blue-700};
     --accent-primary-active: #{$palette-blue-800};
     --accent-primary-soft: rgba(26, 115, 232, 0.12);
-    --accent-soft: var(--accent-primary-soft);
+    --accent-soft: $accent-primary-soft;
 
     --accent-secondary: #{$palette-lavender-700};
     --accent-secondary-hover: #{$palette-lavender-900};
@@ -325,8 +325,8 @@
     --btn-bg-pink-hover: rgba(173, 20, 87, 0.15);
     --btn-border-pink-hover: rgba(173, 20, 87, 0.4);
 
-    background-color: var(--bg-app);
-    color: var(--text-primary);
+    background-color: $bg-app;
+    color: $text-primary;
 }
 
 html {
@@ -389,7 +389,7 @@ html {
 
 html,
 body {
-    background-color: var(--bg-app);
+    background-color: $bg-app;
 }
 
 body {
@@ -397,7 +397,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
-    color: var(--text-primary);
+    color: $text-primary;
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
@@ -416,7 +416,7 @@ textarea,
 }
 
 *:focus-visible:not(input):not(select):not(textarea):not(.dropdown-style):not(.custom-dropdown) {
-    outline: 2px solid var(--outline-focus) !important;
+    outline: 2px solid $outline-focus !important;
     outline-offset: 2px;
 }
 
@@ -464,12 +464,12 @@ textarea,
 
 code {
     font-family: 'Roboto Mono', monospace;
-    background-color: color-mix(in srgb, var(--color-danger) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-danger) 24%, transparent);
+    background-color: color-mix(in srgb, $color-danger 12%, transparent);
+    border: 1px solid color-mix(in srgb, $color-danger 24%, transparent);
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.9em;
-    color: var(--color-danger);
+    color: $color-danger;
     display: inline-block;
     white-space: nowrap;
     max-width: 100%;
@@ -485,7 +485,7 @@ code {
 }
 
 .container {
-	background-color: var(--bg-surface-primary);
+	background-color: $bg-surface-primary;
 	border-radius: $shape-corner-large;
 	box-shadow: $elevation-2;
 	margin: 0 auto;
@@ -498,11 +498,11 @@ code {
 }
 
 .negative-value {
-    color: var(--color-danger);
+    color: $color-danger;
 }
 
 .success-text {
-    color: var(--color-success);
+    color: $color-success;
 }
 
 @keyframes glow-success {
@@ -510,7 +510,7 @@ code {
         box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
     }
     50% {
-        box-shadow: 0 0 20px var(--color-success);
+        box-shadow: 0 0 20px $color-success;
     }
     100% {
         box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
@@ -527,7 +527,7 @@ code {
 
 .separator {
     height: 1px;
-    background: var(--border-primary);
+    background: $border-primary;
     margin: 10px 0;
     opacity: 0.5;
 }
@@ -589,12 +589,12 @@ orecalc-assets-image {
 }
 
 .theme-link {
-    color: var(--accent-primary);
+    color: $accent-primary;
     text-decoration: underline;
     transition: color 0.2s ease-in-out;
 
     &:hover {
-        color: var(--accent-primary-hover);
+        color: $accent-primary-hover;
     }
 }
 
@@ -610,5 +610,5 @@ orecalc-assets-image {
 }
 
 .text-muted {
-    color: var(--text-muted);
+    color: $text-muted;
 }

@@ -21,7 +21,7 @@
     padding: 12px 20px;
     height: 50px; /* fixed height for desktop toast */
     box-sizing: border-box;
-    background-color: color-mix(in srgb, var(--bg-surface-tertiary) 85%, transparent);
+    background-color: color-mix(in srgb, $bg-surface-tertiary 85%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid $border-secondary;
@@ -35,18 +35,18 @@
     transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease, border-color 0.3s ease;
 
     &.toast-error {
-        border-color: color-mix(in srgb, var(--color-danger) 40%, transparent);
-        background: linear-gradient(135deg, color-mix(in srgb, var(--bg-surface-tertiary) 90%, transparent), color-mix(in srgb, var(--color-danger) 5%, transparent));
+        border-color: color-mix(in srgb, $color-danger 40%, transparent);
+        background: linear-gradient(135deg, color-mix(in srgb, $bg-surface-tertiary 90%, transparent), color-mix(in srgb, $color-danger 5%, transparent));
     }
 
     &.toast-warning {
-        border-color: color-mix(in srgb, var(--color-warning) 40%, transparent);
-        background: linear-gradient(135deg, color-mix(in srgb, var(--bg-surface-tertiary) 90%, transparent), color-mix(in srgb, var(--color-warning) 5%, transparent));
+        border-color: color-mix(in srgb, $color-warning 40%, transparent);
+        background: linear-gradient(135deg, color-mix(in srgb, $bg-surface-tertiary 90%, transparent), color-mix(in srgb, $color-warning 5%, transparent));
     }
 
     &.toast-success {
-        border-color: color-mix(in srgb, var(--color-success) 40%, transparent);
-        background: linear-gradient(135deg, color-mix(in srgb, var(--bg-surface-tertiary) 90%, transparent), color-mix(in srgb, var(--color-success) 5%, transparent));
+        border-color: color-mix(in srgb, $color-success 40%, transparent);
+        background: linear-gradient(135deg, color-mix(in srgb, $bg-surface-tertiary 90%, transparent), color-mix(in srgb, $color-success 5%, transparent));
     }
 
     .toast-icon {

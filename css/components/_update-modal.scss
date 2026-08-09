@@ -30,8 +30,8 @@
 // Settings page update available card layout and responsiveness
 #settings-update-card {
     .settings-card {
-        border: 1px solid var(--accent-primary);
-        background: var(--accent-primary-soft);
+        border: 1px solid $accent-primary;
+        background: $accent-primary-soft;
         padding: 16px 20px;
         border-radius: 12px;
         transition: border-color 0.3s, background-color 0.3s;
@@ -56,7 +56,7 @@
         .update-card-message {
             font-size: 0.95rem;
             font-weight: 500;
-            color: var(--text-primary);
+            color: $text-primary;
         }
 
         .info-btn {
@@ -85,7 +85,7 @@
         .update-card-timer {
             font-size: 0.78rem;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: $text-secondary;
             margin: 0;
             white-space: nowrap;
         }

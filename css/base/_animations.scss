@@ -1,3 +1,4 @@
+@use '../abstracts/variables' as *;
 @property --ripple-x {
   syntax: '<length>';
   inherits: true;
@@ -106,15 +107,15 @@
 
 @keyframes success-glow-pulse {
 	0% {
-		box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-success) 60%, transparent);
-		border-color: color-mix(in srgb, var(--color-success) 80%, transparent);
+		box-shadow: 0 0 0 0 color-mix(in srgb, $color-success 60%, transparent);
+		border-color: color-mix(in srgb, $color-success 80%, transparent);
 	}
 	50% {
-		box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-success) 25%, transparent);
-		border-color: color-mix(in srgb, var(--color-success) 80%, transparent);
+		box-shadow: 0 0 0 6px color-mix(in srgb, $color-success 25%, transparent);
+		border-color: color-mix(in srgb, $color-success 80%, transparent);
 	}
 	100% {
-		box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-success) 0%, transparent);
+		box-shadow: 0 0 0 0 color-mix(in srgb, $color-success 0%, transparent);
 	}
 }
 

@@ -387,7 +387,7 @@
         border-radius: 10px;
         object-fit: cover;
         box-shadow: none;
-        filter: drop-shadow(0 0 4px var(--color-gold-glow-shadow)) drop-shadow(0 0 8px var(--color-gold-glow-shadow));
+        filter: drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
     }
 
     .avatar-sep {
@@ -685,7 +685,7 @@
         color: $text-primary;
 
         strong {
-            color: var(--accent-primary);
+            color: $accent-primary;
         }
     }
 }
@@ -910,7 +910,7 @@
             }
 
             .progress-bar-fill {
-                background: linear-gradient(90deg, var(--accent-primary), color-mix(in srgb, var(--accent-primary) 80%, white));
+                background: linear-gradient(90deg, $accent-primary, color-mix(in srgb, $accent-primary 80%, white));
                 z-index: 3;
 
                 &.is-initial-animating {
@@ -955,7 +955,7 @@
         height: 36px;
         object-fit: contain;
         box-shadow: none;
-        filter: drop-shadow(0 0 4px var(--color-gold-glow-shadow)) drop-shadow(0 0 8px var(--color-gold-glow-shadow));
+        filter: drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
     }
 
     .eq-details-item-img {
@@ -1241,7 +1241,7 @@
         }
 
         &:hover {
-            background-color: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+            background-color: color-mix(in srgb, $accent-primary 15%, transparent);
         }
 
         &.past-level-row {

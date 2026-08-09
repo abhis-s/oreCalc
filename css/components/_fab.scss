@@ -161,7 +161,7 @@ body.open-fab {
 
     &:hover:not(:disabled) {
         background-color: $bg-surface-tertiary;
-        border-color: var(--border-secondary);
+        border-color: $border-secondary;
     }
 
     &:active:not(:disabled) {

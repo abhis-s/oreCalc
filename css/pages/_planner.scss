@@ -152,7 +152,7 @@
 
         img {
             &.gold-glow {
-                filter: drop-shadow(0 0 4px var(--color-gold-glow-shadow)) drop-shadow(0 0 8px var(--color-gold-glow-shadow));
+                filter: drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
             }
             &.over-leveled-glow {
                 filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);

@@ -79,7 +79,7 @@ orecalc-assets-image.ore-image {
     input:focus ~ orecalc-assets-image,
     input:focus ~ .ore-image {
         transform: scale(1.15);
-        filter: drop-shadow(0 0 6px rgba(138, 180, 248, 0.4));
+        filter: drop-shadow(0 0 6px rgba($accent-primary, 0.4));
     }
 }
 
