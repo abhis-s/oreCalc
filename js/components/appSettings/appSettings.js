@@ -177,7 +177,7 @@ function renderLabeledActions(containerSelector, data) {
         const btnText = document.createElement('span');
         btnText.className = 'animated-btn-text';
         if (item.id === 'version') {
-            const versionText = window.__ENV__?.APP_VERSION || state.appVersion || '2.0.0';
+            const versionText = window.__ENV__?.APP_VERSION || state.appVersion || '2.1.0';
             btnText.textContent = versionText;
         } else {
             btnText.dataset.i18n = item.i18nAction;
@@ -2547,7 +2547,7 @@ export function initializeAppSettings() {
     document.dispatchEvent(new CustomEvent('app:translate'));
 
     if (appVersionDisplay) {
-        appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.0.0').replace(/^v/, '');
+        appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.1.0').replace(/^v/, '');
     }
 
     if (openDataErasureBtn && dataErasureModal) {

@@ -1,5 +1,23 @@
 export const changelogData = [
-
+    {
+        version: "v2.1.0",
+        date: "2026-08-10",
+        changes: [
+            { type: "feature", text: "<strong>Hero's Journey Track & Ore Deductions</strong>: Introduced the Hero's Journey milestone progression track, featuring automatic calculation engine deductions from net upgrade costs." },
+            { type: "feature", text: "<strong>Interactive Equipment Details Modal</strong>: Built a comprehensive equipment details modal displaying complete stat scaling, rarity indicators, recommendation badges (Must-Have, Recommended, Niche)." },
+            { type: "feature", text: "<strong>Per-Profile Split Cloud Sync</strong>: Implemented granular per-profile cloud synchronization, enabling player accounts to be synced, restored, and updated independently in cloud storage." },
+            { type: "feature", text: "<strong>Language Routing & Simplified Chinese Localization</strong>: Added localized URL-based routing (e.g., <code>/de/</code>, <code>/zh/</code>, <code>/tr/</code>), static pre-rendering (SSG), and complete Simplified Chinese (<code>zh-CN</code>) language support." },
+            { type: "feature", text: "<strong>Stored Ores Badges & Tooltips</strong>: Added green indicator badges to stored ore fields with custom popover breakdowns for pending upcoming ores." },
+            { type: "feature", text: "<strong>Gem Trader Input Fields</strong>: Replaced Gem Trader offer checkboxes with validated numeric input fields supporting up to 10 packs per type." },
+            { type: "feature", text: "<strong>Security & Privacy Hardening</strong>: Enforced strict origin security headers, Content Security Policy (CSP), anti-clickjacking protection, automated client error telemetry, and updated privacy policy." },
+            { type: "feature", text: "<strong>UI Physics & Gesture Animations</strong>: Upgraded tab navigation swipe gestures, layout physics, modal transition animations, and converted design tokens to unified Sass variables." },
+            { type: "feature", text: "<strong>Data Model & Key-Based Lookups</strong>: Refactored hero and equipment lookups to a key-based data architecture for seamless internationalization and future content expansion." },
+            { type: "feature", text: "<strong>Sync Version Compatibility & Auto-Update</strong>: Enforced version compatibility checks during cloud sync with automated client update flows on version mismatch." },
+            { type: "feature", text: "<strong>New Content & Equipment Data</strong>: Added Dragon Duke epic equipment placeholders, updated Gem Trader ore costs, and updated default Supercell Event reward tables." },
+            { type: "fix", text: "<strong>Mobile Popovers & Touch Optimization</strong>: Resolved touch event collisions, unified popover state handling, and optimized popover placement with screen boundary clamping." },
+            { type: "fix", text: "<strong>Performance & Asset Optimization</strong>: Implemented conditional tab rendering, memoized priority list calculations, normalized asset canvases to 1:1 square aspect ratios, and added WebKit auto-healing for dynamic import failures." }
+        ]
+    },
     {
         version: "v2.0.0",
         date: "2026-07-02",

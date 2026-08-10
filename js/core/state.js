@@ -12,7 +12,7 @@ export const EFFECTIVE_DATE_WELCOME = 1780617600000; // June 5, 2026 (00:00 UTC)
 
 export function getDefaultState() {
     return {
-        appVersion: window.__ENV__?.APP_VERSION || '2.0.0',
+        appVersion: window.__ENV__?.APP_VERSION || '2.1.0',
         timestamp: new Date().toISOString(),
         activeTab: 'home-tab',
         savedPlayerTags: [],

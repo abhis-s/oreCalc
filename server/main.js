@@ -1419,9 +1419,9 @@ app.post('/api/support/client-error', sensitiveLimiter, async (req, res) => {
 
 app.get('/api/version', (req, res) => {
     if (req.query.v === '2') {
-        res.json({ currentAppVersion: '2.0.0' });
+        res.json({ currentAppVersion: '2.1.0' });
     } else {
-        res.json({ currentAppVersion: '1.3.0' });
+        res.json({ currentAppVersion: '2.1.0' });
     }
 });
 

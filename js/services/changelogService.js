@@ -32,9 +32,15 @@ export function getChangelogHtml() {
                 changeClass = 'change-chore';
             }
 
+            const typeKey = `changelog.type.${change.type}`;
+            const translatedBadge = translate(typeKey);
+            const badgeLabel = (translatedBadge && translatedBadge !== typeKey)
+                ? translatedBadge
+                : (change.type.charAt(0).toUpperCase() + change.type.slice(1));
+
             html += `
                 <li class="changelog-item ${changeClass}">
-                    <span class="change-badge">${translate('changelog.type.' + change.type) || change.type}</span>
+                    <span class="change-badge">${badgeLabel}</span>
                     <span class="change-text">${change.text}</span>
                 </li>
             `;

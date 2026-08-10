@@ -1077,7 +1077,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 }
                 const appVersionDisplay = document.getElementById('app-version-display');
                 if (appVersionDisplay) {
-                    appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.0.0').replace(/^v/, '');
+                    appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.1.0').replace(/^v/, '');
                 }
                 recalculateAll(state);
                 renderApp(state);
