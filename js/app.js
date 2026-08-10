@@ -24,7 +24,7 @@ import { initializeHeroCards } from './components/equipment/heroCard.js';
 import { initializePlayerDropdown } from './components/player/playerDropdown.js';
 import { initializePlayerModal, showAddPlayerModal } from './components/player/playerModal.js';
 import { initializeFab } from './components/fab/fab.js';
-import { initializeAppSettings, openTermsOfUseModal, openPrivacyModal } from './components/appSettings/appSettings.js';
+import { initializeAppSettings, openTermsOfUseModal, openPrivacyModal, getAppLastUpdatedDateFormatted } from './components/appSettings/appSettings.js';
 import { initializePlanner } from './components/planner/planner.js';
 import { initializePriorityListModal } from './components/planner/priorityListModal.js';
 import { initializeChangelogModal, showChangelogModal } from './components/changelog/changelogModal.js';
@@ -253,6 +253,12 @@ export function updateUIWithTranslations(isInitialLoad = false) {
             } catch (e) {
                 console.error('Failed to parse i18n args:', argsAttr, e);
             }
+        }
+
+        if (key === 'settings.bugReportDesc') {
+            const formattedDate = getAppLastUpdatedDateFormatted();
+            args.date = formattedDate;
+            element.setAttribute('data-i18n-args', JSON.stringify(args));
         }
 
         if (key === 'settings.bugReportInfo') {

@@ -61,7 +61,7 @@ function populateDropdowns() {
     }
 }
 
-function getAppLastUpdatedDateFormatted() {
+export function getAppLastUpdatedDateFormatted() {
     let dateObj;
     const swUpdateTime = localStorage.getItem('oreCalcSWUpdatedTime');
     if (swUpdateTime) {
