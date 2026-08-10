@@ -163,12 +163,14 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
     background-color: $bg-surface-primary;
 }
 .equipment-chip-container {
     padding: 1rem;
     border-bottom: 1px solid $border-primary;
     max-height: 40%;
+    flex-shrink: 0;
     overflow-y: auto;
     background-color: $bg-surface-primary; // Contrasts with $bg-app body
 }
@@ -266,7 +268,8 @@
     box-shadow: 0 0 4px $color-gold-glow-shadow, 0 0 8px $color-gold-glow-shadow !important;
 }
 .priority-list-editor {
-    flex-grow: 1;
+    flex: 1 1 0%;
+    min-height: 0;
     padding: 1rem;
     overflow-y: auto;
     position: relative;

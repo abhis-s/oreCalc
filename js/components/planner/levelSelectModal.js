@@ -518,7 +518,10 @@ export function openLevelSelectModal(hero, equipment) {
     }
 
     modal.classList.add('show');
-    rows[0].querySelector('.level-input').focus();
+    setTimeout(() => {
+        const firstInput = rows[0]?.querySelector('.level-input');
+        if (firstInput) firstInput.focus();
+    }, 100);
 }
 
 export function closeLevelSelectModal() {

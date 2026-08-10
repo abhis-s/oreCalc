@@ -429,10 +429,41 @@ export function registerInputPopover(inputElement, options = {}) {
     };
 
     // 7. Handle standard show/hide triggers
+    let animationFrameId = null;
+
+    const stopTrackingPosition = () => {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+    };
+
+    const trackPositionLoop = () => {
+        if (!popover.classList.contains('show') || document.activeElement !== inputElement) {
+            stopTrackingPosition();
+            return;
+        }
+        positionPopover();
+        animationFrameId = requestAnimationFrame(trackPositionLoop);
+    };
+
     const showPopover = () => {
         // Clear previous toggle value when popover is shown
         inputElement._previousPopoverValue = undefined;
         updatePopover();
+
+        // Dynamically attach animation/transition listeners to parent modal if not already attached
+        const parentModal = inputElement.closest('.modal, .modal-content, [role="dialog"]');
+        if (parentModal && !parentModal._popoverAnimListenerAttached) {
+            parentModal._popoverAnimListenerAttached = true;
+            const handleModalAnimationEvent = () => {
+                if (popover.classList.contains('show') && document.activeElement === inputElement) {
+                    positionPopover();
+                }
+            };
+            parentModal.addEventListener('animationend', handleModalAnimationEvent);
+            parentModal.addEventListener('transitionend', handleModalAnimationEvent);
+        }
 
         // Temporarily display to measure height/width
         popover.style.position = 'absolute';
@@ -450,9 +481,14 @@ export function registerInputPopover(inputElement, options = {}) {
         popover.style.visibility = '';
         popover.style.opacity = '1';
         popover.style.pointerEvents = 'auto';
+
+        // Continuously update position while focused to track modal animations, transitions, and layout shifts
+        stopTrackingPosition();
+        trackPositionLoop();
     };
 
     const hidePopover = () => {
+        stopTrackingPosition();
         popover.classList.remove('show');
         popover.style.opacity = '0';
         popover.style.pointerEvents = 'none';
@@ -464,10 +500,11 @@ export function registerInputPopover(inputElement, options = {}) {
     
     const handleBlur = () => {
         setTimeout(() => {
-            if (!document.activeElement || document.activeElement !== inputElement) {
+            const active = document.activeElement;
+            if (!active || (active !== inputElement && !popover.contains(active))) {
                 hidePopover();
             }
-        }, 60);
+        }, 120);
     };
 
     inputElement.addEventListener('blur', handleBlur);
@@ -478,7 +515,7 @@ export function registerInputPopover(inputElement, options = {}) {
         if (!popover.classList.contains('show')) return;
 
         if (document.activeElement === inputElement) {
-            positionPopoverThrottled();
+            positionPopover();
             return;
         }
 
