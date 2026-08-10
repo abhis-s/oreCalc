@@ -980,6 +980,7 @@
         "400": "Incorrect parameters provided.",
         "403": "Access denied. Missing or incorrect API token.",
         "404": "Player not found. Please check the player tag.",
+        "413": "Data payload is too large to save.",
         "429": "Too many requests. Please try again later.",
         "500": "Unknown error occurred on the Clash of Clans servers.",
         "503": "Clash of Clans servers are temporarily unavailable due to maintenance.",

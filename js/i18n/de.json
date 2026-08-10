@@ -979,6 +979,7 @@
         "400": "Falsche Parameter angegeben.",
         "403": "Zugriff verweigert. Fehlendes oder falsches API-Token.",
         "404": "Spieler nicht gefunden. Bitte überprüfe das Spielerkürzel.",
+        "413": "Die Datenmenge ist zu groß zum Speichern.",
         "429": "Zu viele Anfragen. Bitte versuche es später noch einmal.",
         "500": "Unbekannter Fehler auf den Clash of Clans-Servern aufgetreten.",
         "503": "Die Clash of Clans-Server sind aufgrund von Wartungsarbeiten vorübergehend nicht erreichbar.",

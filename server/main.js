@@ -182,7 +182,8 @@ function isValidTag(tag) {
     return cocTagRegex.test(cleaned);
 }
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.get('/proxy/players/:playerTag', proxyLimiter, async (req, res) => {
     const fetch = (await import('node-fetch')).default;
@@ -945,6 +946,12 @@ app.post('/api/user-data/save', async (req, res) => {
     }
 
     try {
+        // Check size against Firestore's 1MB (1,048,576 bytes) document limit
+        const dataSize = Buffer.byteLength(JSON.stringify(data), 'utf8');
+        if (dataSize > 1040000) {
+            return res.status(413).json({ message: 'User state data exceeds the maximum 1MB storage limit.' });
+        }
+
         if (await isUserDeleted(userId)) {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
         }
