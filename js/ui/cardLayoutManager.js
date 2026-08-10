@@ -963,7 +963,7 @@ function commitCardDrop() {
     saveCustomCardOrder(layout);
 
     if (layout.config.hasCompactMode && isCompact) {
-        repackLayout(layout);
+        repackCards();
     }
 
     cleanupActiveCardDrag();
