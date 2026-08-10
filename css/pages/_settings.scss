@@ -102,65 +102,6 @@
     cursor: pointer;
 }
 
-.badge {
-    font-size: 0.7em;
-    padding: 3px 8px;
-    border-radius: 8px;
-    text-transform: uppercase;
-    font-weight: var(--font-weight-bold);
-    letter-spacing: 0.8px;
-    display: inline-block;
-    border: 1px solid transparent;
-    flex-shrink: 0;
-}
-
-.coming-soon-badge {
-    @extend .badge;
-    background-color: $bg-surface-secondary;
-    color: $text-secondary;
-    border-color: $border-secondary;
-}
-
-@keyframes badge-pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba($accent-primary, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 6px rgba($accent-primary, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba($accent-primary, 0);
-    }
-}
-
-@keyframes badge-pulse-success {
-    0% {
-        box-shadow: 0 0 0 0 rgba($color-success, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 6px rgba($color-success, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba($color-success, 0);
-    }
-}
-
-.beta-badge {
-    @extend .badge;
-    background-color: $accent-primary-soft;
-    color: $accent-primary;
-    border-color: rgba($accent-primary, 0.2);
-    animation: badge-pulse 2s infinite;
-}
-
-.new-badge {
-    @extend .badge;
-    background-color: $color-success-soft;
-    color: $color-success;
-    border-color: $color-success-soft;
-    animation: badge-pulse-success 2s infinite;
-}
-
 .label-with-badge {
     position: relative;
     display: inline-block;

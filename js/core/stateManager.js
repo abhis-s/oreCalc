@@ -1,5 +1,6 @@
 import { state } from './state.js';
 import { saveState, getResettingState } from './localStorageManager.js';
+import { resetHeroJourneyScrollPositions } from '../components/home/heroJourneyDisplay.js';
 
 let stateUpdateCallback = null;
 let cloudSaveTimeout = null;
@@ -58,6 +59,7 @@ export function handleStateUpdate(updateFn, silent = false) {
  * @param {string} newTag - The player tag to switch to.
  */
 export function switchActivePlayer(newTag) {
+    resetHeroJourneyScrollPositions();
     handleStateUpdate(() => {
         const oldTag = state.savedPlayerTags[0];
         
@@ -69,7 +71,8 @@ export function switchActivePlayer(newTag) {
                 storedOres: JSON.parse(JSON.stringify(state.storedOres)),
                 income: JSON.parse(JSON.stringify(state.income)),
                 planner: JSON.parse(JSON.stringify(state.planner)),
-                playerProfile: state.playerProfile ? JSON.parse(JSON.stringify(state.playerProfile)) : null
+                playerProfile: state.playerProfile ? JSON.parse(JSON.stringify(state.playerProfile)) : null,
+                heroJourney: state.heroJourney ? JSON.parse(JSON.stringify(state.heroJourney)) : null
             };
             state.allPlayersData[oldTag] = oldPlayerData;
             localStorage.setItem(`oreCalc_player_${oldTag}`, JSON.stringify(oldPlayerData));
@@ -112,6 +115,7 @@ export function switchActivePlayer(newTag) {
         state.income = safeClone(newPlayerData.income);
         state.planner = safeClone(newPlayerData.planner);
         state.playerProfile = safeClone(newPlayerData.playerProfile, null);
+        state.heroJourney = safeClone(newPlayerData.heroJourney, { overrideUnclaimed: [], acceleratedRewards: false });
 
         if (newPlayerData.currency && typeof newPlayerData.currency === 'object') {
             state.uiSettings.currency = {

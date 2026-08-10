@@ -1,7 +1,7 @@
 import { upgradeCosts, heroData } from '../data/appData.js';
 import { getEquipmentMaxLevel } from '../data/equipmentCommonData.js';
 
-export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels) {
+export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels, heroJourneyUpcomingOres = {}) {
     let totalRequired = { shiny: 0, glowy: 0, starry: 0 };
 
     for (const heroName in heroesState) {
@@ -28,10 +28,18 @@ export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels)
         }
     }
 
+    const storedShiny = storedOres?.shiny || 0;
+    const storedGlowy = storedOres?.glowy || 0;
+    const storedStarry = storedOres?.starry || 0;
+
+    const upcomingShiny = heroJourneyUpcomingOres?.shiny || 0;
+    const upcomingGlowy = heroJourneyUpcomingOres?.glowy || 0;
+    const upcomingStarry = heroJourneyUpcomingOres?.starry || 0;
+
     return {
-        shiny: Math.max(0, totalRequired.shiny - (storedOres.shiny || 0)),
-        glowy: Math.max(0, totalRequired.glowy - (storedOres.glowy || 0)),
-        starry: Math.max(0, totalRequired.starry - (storedOres.starry || 0)),
+        shiny: Math.max(0, totalRequired.shiny - storedShiny - upcomingShiny),
+        glowy: Math.max(0, totalRequired.glowy - storedGlowy - upcomingGlowy),
+        starry: Math.max(0, totalRequired.starry - storedStarry - upcomingStarry),
     };
 }
 

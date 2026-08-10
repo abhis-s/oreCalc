@@ -9,6 +9,7 @@ import { calculateRaidMedalTraderIncome } from '../incomeCalculations/raidMedalT
 import { calculateShopOfferIncome } from '../incomeCalculations/shopOffersIncome.js';
 import { calculateStarBonusIncome } from '../incomeCalculations/starBonusIncome.js';
 import { calculateSupercellEventsIncome } from '../incomeCalculations/supercellEventsIncome.js';
+import { calculateHeroJourneyUpcomingOres } from '../incomeCalculations/heroJourneyIncome.js';
 
 import { currencyData } from '../data/appData.js';
 
@@ -16,7 +17,9 @@ import { calculateRemainingTime } from './timeCalculator.js';
 import { calculateRequiredOres } from './oreCalculator.js';
 
 export function recalculateAll(state) {
-    state.derived.requiredOres = calculateRequiredOres(state.heroes, state.storedOres, state.planner);
+    const heroJourneyUpcomingOres = calculateHeroJourneyUpcomingOres(state);
+    state.derived.heroJourneyUpcomingOres = heroJourneyUpcomingOres;
+    state.derived.requiredOres = calculateRequiredOres(state.heroes, state.storedOres, state.planner, heroJourneyUpcomingOres);
 
     const eventPassIncome = calculateEventPassIncome(state.income.eventPass);
     const eventTraderIncome = calculateEventTraderIncome(state.income.eventTrader, eventPassIncome?.availableMedals);

@@ -1,5 +1,133 @@
         <div class="tab-content" id="home-tab">
             <div id="home-player-profile-card" class="card home-profile-card" style="display: none;"></div>
+            
+            <div id="home-hj-card" class="card full-width-card hero-journey-card">
+                <div class="hero-journey-header">
+                    <div class="hero-journey-title-container">
+                        <span id="home-hj-title-left" class="hero-journey-title-part title-left"></span>
+                        <div class="hero-mountain-cluster" aria-label="Hero Emblems" data-i18n-aria-label="heroJourney.heroEmblems">
+                            <div class="mountain-badge-slot pos-1">
+                                <orecalc-assets-image src="assets/heroes/emblemRoyalChampion.png" alt="Royal Champion" data-i18n-alt="heroes.royalChampion" class="mountain-badge"></orecalc-assets-image>
+                            </div>
+                            <div class="mountain-badge-slot pos-2">
+                                <orecalc-assets-image src="assets/heroes/emblemMinionPrince.png" alt="Minion Prince" data-i18n-alt="heroes.minionPrince" class="mountain-badge"></orecalc-assets-image>
+                            </div>
+                            <div class="mountain-badge-slot pos-3">
+                                <orecalc-assets-image src="assets/heroes/emblemBarbarianKing.png" alt="Barbarian King" data-i18n-alt="heroes.barbarianKing" class="mountain-badge"></orecalc-assets-image>
+                            </div>
+                            <div class="mountain-badge-slot pos-4">
+                                <orecalc-assets-image src="assets/heroes/emblemArcherQueen.png" alt="Archer Queen" data-i18n-alt="heroes.archerQueen" class="mountain-badge"></orecalc-assets-image>
+                            </div>
+                            <div class="mountain-badge-slot pos-5">
+                                <orecalc-assets-image src="assets/heroes/emblemGrandWarden.png" alt="Grand Warden" data-i18n-alt="heroes.grandWarden" class="mountain-badge"></orecalc-assets-image>
+                            </div>
+                            <div class="mountain-badge-slot pos-6">
+                                <orecalc-assets-image src="assets/heroes/emblemDragonDuke.png" alt="Dragon Duke" data-i18n-alt="heroes.dragonDuke" class="mountain-badge"></orecalc-assets-image>
+                            </div>
+                        </div>
+                        <span id="home-hj-title-right" class="hero-journey-title-part title-right"></span>
+                        <h2 id="home-hj-title" class="hero-journey-title">
+                            <span class="hero-journey-title-wrapper">
+                                <span class="hero-journey-title-text" data-i18n="heroJourney.title">Hero's Journey</span>
+                                <span class="beta-badge" data-i18n="settings.badges.beta">BETA</span>
+                            </span>
+                        </h2>
+                        <span id="home-hj-cumulative-badge" class="badge hero-journey-level-badge">0/0</span>
+                    </div>
+                </div>
+
+                <div id="home-hj-collapsed-note" class="hero-journey-collapsed-note" style="display: none;">
+                    <div class="hero-journey-collapsed-content">
+                        <span class="hero-journey-collapsed-text" data-i18n="heroJourney.collapsedNote">Hero's Journey milestones are hidden.</span>
+                        <button type="button" id="home-hj-explore-btn" class="th-limit-reveal-btn" data-i18n="heroJourney.showTrack">Show Track</button>
+                    </div>
+                </div>
+
+                <div class="hero-journey-progress-bar-container">
+                    <div class="hero-journey-progress-info">
+                        <span id="home-hj-progress-text" data-i18n="heroJourney.progressToNextMilestone">Progress to Next Milestone</span>
+                        <span id="home-hj-progress-percent">0%</span>
+                    </div>
+                    <div class="hero-journey-no-profile-info">
+                        <span class="hero-journey-no-profile-text" data-i18n="homeProfile.noProfileTitle">No Profile Connected</span>
+                    </div>
+                    <div class="hero-journey-accelerated-switch-container">
+                        <div class="hero-journey-accelerated-label-group">
+                            <label for="home-hj-accelerated-switch" class="hero-journey-accelerated-label" data-i18n="heroJourney.acceleratedRewards">Accelerated Rewards</label>
+                            <button type="button" class="info-btn hj-accelerated-info-btn" data-info="heroJourney.acceleratedInfoHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                <orecalc-assets-svg name="info" class="info-icon" height="14" width="14"></orecalc-assets-svg>
+                            </button>
+                        </div>
+                        <label class="switch hero-journey-accelerated-switch">
+                            <input type="checkbox" id="home-hj-accelerated-switch">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="hero-journey-progress-track">
+                        <div id="home-hj-progress-fill" class="hero-journey-progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="hero-journey-filter-container">
+                    <div class="hero-journey-filters-row">
+                        <div class="hj-segmented-switch" id="home-hj-claim-switch">
+                            <div class="hj-switch-pill" id="home-hj-claim-pill"></div>
+                            <button class="hj-switch-btn active" data-unclaimed-only="false" data-i18n="heroJourney.filterAll">All</button>
+                            <button class="hj-switch-btn" data-unclaimed-only="true" data-i18n="heroJourney.filterUnclaimed">Unclaimed</button>
+                        </div>
+                        <div class="hj-type-filters" id="home-hj-type-filters">
+                            <select id="home-hj-type-select" class="hj-type-select" aria-label="Filter by type" data-i18n-aria-label="heroJourney.filterByType">
+                                <option value="all" data-i18n="heroJourney.filterAllTypes">All Types</option>
+                                <option value="ores" data-i18n="heroJourney.filterOres">Ores / Quests</option>
+                                <option value="equipment" data-i18n="nav.equipment">Equipment</option>
+                                <option value="skins" data-i18n="heroJourney.filterSkins">Skins</option>
+                                <option value="items" data-i18n="heroJourney.filterItems">Items & Resources</option>
+                            </select>
+                            <div class="hj-type-buttons">
+                                <button class="hj-type-btn" data-type-filter="ores">
+                                    <span data-i18n="heroJourney.filterOres">Ores / Quests</span>
+                                    <span class="type-close-icon" aria-label="Clear filter" data-i18n-aria-label="heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                </button>
+                                <button class="hj-type-btn" data-type-filter="equipment">
+                                    <span data-i18n="nav.equipment">Equipment</span>
+                                    <span class="type-close-icon" aria-label="Clear filter" data-i18n-aria-label="heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                </button>
+                                <button class="hj-type-btn" data-type-filter="skins">
+                                    <span data-i18n="heroJourney.filterSkins">Skins</span>
+                                    <span class="type-close-icon" aria-label="Clear filter" data-i18n-aria-label="heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                </button>
+                                <button class="hj-type-btn" data-type-filter="items">
+                                    <span data-i18n="heroJourney.filterItems">Items & Resources</span>
+                                    <span class="type-close-icon" aria-label="Clear filter" data-i18n-aria-label="heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-journey-scroll-controls">
+                        <button id="home-hj-scroll-first" class="scroll-btn" aria-label="Scroll to first milestone" title="Scroll to first milestone" data-i18n-aria-label="heroJourney.scrollFirst" data-i18n-title="heroJourney.scrollFirst"><orecalc-assets-svg name="first-item" height="14" width="14"></orecalc-assets-svg></button>
+                        <button id="home-hj-scroll-left" class="scroll-btn" aria-label="Scroll left" data-i18n-aria-label="heroJourney.scrollLeft"><orecalc-assets-svg name="backward" height="14" width="14"></orecalc-assets-svg></button>
+                        <button id="home-hj-scroll-current" class="scroll-btn" aria-label="Scroll to current progress" title="Scroll to current progress" data-i18n-aria-label="heroJourney.scrollToCurrentProgress" data-i18n-title="heroJourney.scrollToCurrentProgress"><orecalc-assets-svg name="trophy" height="14" width="14"></orecalc-assets-svg></button>
+                        <button id="home-hj-scroll-right" class="scroll-btn" aria-label="Scroll right" data-i18n-aria-label="heroJourney.scrollRight"><orecalc-assets-svg name="forward" height="14" width="14"></orecalc-assets-svg></button>
+                        <button id="home-hj-scroll-last" class="scroll-btn" aria-label="Scroll to last milestone" title="Scroll to last milestone" data-i18n-aria-label="heroJourney.scrollLast" data-i18n-title="heroJourney.scrollLast"><orecalc-assets-svg name="last-item" height="14" width="14"></orecalc-assets-svg></button>
+                    </div>
+                </div>
+
+                <div class="hero-journey-track-wrapper">
+                    <div id="home-hj-nodes-track" class="hero-journey-nodes-track">
+                        <!-- Dynamic node chips rendered here -->
+                    </div>
+                </div>
+                <div id="home-hj-custom-scrollbar" class="hero-journey-custom-scrollbar" aria-hidden="true">
+                    <div id="home-hj-scrollbar-progress" class="hero-journey-scrollbar-progress"></div>
+                    <div id="home-hj-scrollbar-thumb" class="hero-journey-scrollbar-thumb"></div>
+                </div>
+
+                <div id="home-hj-no-profile-notice" class="hero-journey-no-profile-notice">
+                    <orecalc-assets-svg name="sync-problem" class="sync-notice-icon" height="14" width="14"></orecalc-assets-svg>
+                    <span data-i18n="heroJourney.noProfileNotice">Note: Connect a player tag to track your Hero's Journey progress and view milestone rewards.</span>
+                </div>
+            </div>
+
             <div class="main-content">
                 <div id="home-left-panel" class="left-panel">
                     <div id="home-result-quantity-card" class="card small-width-card">

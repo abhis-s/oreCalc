@@ -751,6 +751,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
 
     // 1. PERFORM MINIMAL BACKGROUND INIT IMMEDIATELY
+    if (!state.uiSettings) state.uiSettings = {};
     const initialLang = detectLanguage();
     state.uiSettings.language = initialLang;
     syncLanguageUrl(initialLang, true);

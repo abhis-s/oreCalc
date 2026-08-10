@@ -6,6 +6,7 @@
 
 const DEFAULT_VIEWBOX = '0 0 24 24';
 
+// Default viewBox is '0 0 24 24', which must be used for '0 -960 960 960' SVGs as well (SVG <use> handles inner symbol viewBox scaling). Use {} for these.
 export const SVGs = {
     'menu': {},
     'close': {},
@@ -34,7 +35,6 @@ export const SVGs = {
     'crowdin': { viewBox: '0 0 24 24' },
     'bmc': { viewBox: '0 0 884 1279' },
     'sync': {},
-    'sync-disabled': {},
     'plus': {},
     'cloud-check': {},
     'check': {},
@@ -77,6 +77,7 @@ export const SVGs = {
     'volunteer-support': {},
     'chevron-down': {},
     'chevron-up': {},
+    'chevron-double-up': {},
     'bolt-planner': {},
     'sparkles': {},
     'sliders': {},
@@ -94,9 +95,12 @@ export const SVGs = {
     'star-shine': {},
     'forward': {},
     'backward': {},
+    'first-item': {},
+    'last-item': {},
     'routine': {},
     'colors': {},
-    'undo': {}
+    'undo': {},
+    'experiment': {}
 };
 
 /**

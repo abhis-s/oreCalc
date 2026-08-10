@@ -1,5 +1,6 @@
 import { currencyData, heroData, shopOfferData, eventPassData, leagueTiers } from '../data/appData.js';
 import { getISOWeekNumber } from '../utils/dateUtils.js';
+import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel } from '../incomeCalculations/heroJourneyIncome.js';
 
 import { purgeLegacyStateData, normalizeEquipmentState, migrateFullState, migratePlayerState, compareVersions } from './stateCleanup.js';
 
@@ -62,8 +63,9 @@ function getDefaultHeroesState() {
         };
         if (hero.equipment && Array.isArray(hero.equipment)) {
             hero.equipment.forEach(eq => {
+                const defaultLevel = getDefaultEquipmentUnlockLevel(heroKey, eq.name);
                 heroes[heroName].equipment[eq.name] = {
-                    level: 1,
+                    level: defaultLevel,
                     checked: true
                 };
             });
@@ -141,6 +143,15 @@ function getDefaultPlayerStateProperties() {
                     prospector: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0 }
                 }
             },
+        },
+        heroJourney: {
+            hidden: false,
+            unclaimedOnly: false,
+            typeFilter: null,
+            scrollPosition: 0,
+            rewardMode: 'normal',
+            acceleratedRewards: false,
+            overrideUnclaimed: []
         },
     };
 }
@@ -302,8 +313,14 @@ function ensureStateDefaults(s) {
                     if (hero.equipment && Array.isArray(hero.equipment)) {
                         hero.equipment.forEach(eq => {
                             const equipName = eq.name;
+                            const defaultLevel = getDefaultEquipmentUnlockLevel(heroKey, equipName);
                             if (!ps.heroes[heroName].equipment[equipName]) {
-                                ps.heroes[heroName].equipment[equipName] = { level: 1, checked: true };
+                                ps.heroes[heroName].equipment[equipName] = { level: defaultLevel, checked: true };
+                            } else {
+                                const eqState = ps.heroes[heroName].equipment[equipName];
+                                if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, ps) && eqState.level === 1 && defaultLevel > 1) {
+                                    eqState.level = defaultLevel;
+                                }
                             }
                         });
                     }
@@ -406,6 +423,25 @@ function ensureStateDefaults(s) {
                     if (!ps.planner.calendar.customChipSettings[key]) {
                         ps.planner.calendar.customChipSettings[key] = { ...defaultSettings[key] };
                     }
+                }
+            }
+
+            if (!ps.heroJourney) {
+                ps.heroJourney = {
+                    hidden: false,
+                    unclaimedOnly: false,
+                    typeFilter: null,
+                    scrollPosition: 0,
+                    rewardMode: 'normal',
+                    acceleratedRewards: false,
+                    overrideUnclaimed: []
+                };
+            } else {
+                if (ps.heroJourney.hidden === undefined) {
+                    ps.heroJourney.hidden = false;
+                }
+                if (ps.heroJourney.unclaimedOnly === undefined) {
+                    ps.heroJourney.unclaimedOnly = false;
                 }
             }
         }
