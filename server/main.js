@@ -178,7 +178,7 @@ function tripCircuitBreaker(statusCode = 503) {
 function isValidTag(tag) {
     if (!tag) return false;
     const cleaned = tag.startsWith('#') ? tag.substring(1) : tag;
-    const cocTagRegex = /^[0289CGJLPQRUVY]{3,14}$/i;
+    const cocTagRegex = /^[0289CGJLOPQRUVY]{3,14}$/i;
     return cocTagRegex.test(cleaned);
 }
 
