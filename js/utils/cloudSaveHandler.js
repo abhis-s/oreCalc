@@ -4,7 +4,7 @@ import { state } from '../core/state.js';
 
 import { closeFabMenu } from '../components/fab/fab.js';
 
-import { loadUserData, saveUserData } from '../services/apiService.js';
+import { loadUserData, saveUserData, saveSinglePlayerData } from '../services/apiService.js';
 import { translate } from '../i18n/translator.js';
 
 import { checkAppVersion } from './versioning.js';
@@ -206,7 +206,7 @@ export async function importUserData(importId) {
 
 
 export async function triggerCloudSave(options = {}) {
-    const { silent = false } = options;
+    const { silent = false, targetTag = null } = options;
 
     if (state.uiSettings.cloudSync === false) {
         logger.log("Cloud sync is disabled in settings. Skipping save.");
@@ -232,14 +232,6 @@ export async function triggerCloudSave(options = {}) {
                 };
             }
 
-            const stateToSave = {
-                appVersion: state.appVersion,
-                savedPlayerTags: state.savedPlayerTags,
-                uiSettings: state.uiSettings,
-                allPlayersData: state.allPlayersData,
-                timestamp: state.timestamp,
-            };
-
             if (state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0') {
                 if (!silent) {
                     showSaveErrorIndicator();
@@ -249,7 +241,19 @@ export async function triggerCloudSave(options = {}) {
                 return false;
             }
 
-            await saveUserData(currentUserId, stateToSave);
+            if (targetTag && state.allPlayersData[targetTag]) {
+                await saveSinglePlayerData(currentUserId, targetTag, state.allPlayersData[targetTag]);
+            } else {
+                const stateToSave = {
+                    appVersion: state.appVersion,
+                    savedPlayerTags: state.savedPlayerTags,
+                    uiSettings: state.uiSettings,
+                    allPlayersData: state.allPlayersData,
+                    timestamp: state.timestamp,
+                };
+                await saveUserData(currentUserId, stateToSave);
+            }
+
             if (!silent) showSaveSuccessIndicator();
             return true;
         } catch (error) {

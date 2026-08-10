@@ -956,8 +956,10 @@ app.post('/api/user-data/save', async (req, res) => {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
         }
 
+        const userRef = db.collection('userStates').doc(userId);
+
         // Prevent older clients from overwriting newer version data in Firestore
-        const doc = await db.collection('userStates').doc(userId).get();
+        const doc = await userRef.get();
         if (doc.exists) {
             const existingData = doc.data();
             const existingVersion = existingData.appVersion || '1.0.0';
@@ -972,10 +974,65 @@ app.post('/api/user-data/save', async (req, res) => {
             }
         }
 
-        await db.collection('userStates').doc(userId).set(data);
+        const { FieldValue } = await import('firebase-admin/firestore');
+        const batch = db.batch();
+
+        const allPlayers = data.allPlayersData || {};
+        const globalData = {
+            appVersion: data.appVersion || '2.0.0',
+            savedPlayerTags: data.savedPlayerTags || [],
+            uiSettings: data.uiSettings || {},
+            timestamp: data.timestamp || new Date().toISOString(),
+            isMigrated: true,
+            allPlayersData: FieldValue.delete()
+        };
+
+        // 1. Write global settings to main user document
+        batch.set(userRef, globalData, { merge: true });
+
+        // 2. Batch write each player profile to sub-collection (/userStates/{userId}/players/{tag})
+        const playersCollection = userRef.collection('players');
+        for (const [tag, playerData] of Object.entries(allPlayers)) {
+            if (tag && playerData) {
+                const playerDocRef = playersCollection.doc(tag);
+                batch.set(playerDocRef, playerData, { merge: true });
+            }
+        }
+
+        await batch.commit();
         res.status(200).json({ message: 'Data saved successfully.' });
     } catch (error) {
         console.error('Error saving user data:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+});
+
+app.post('/api/user-data/save-player', async (req, res) => {
+    const { userId, tag, playerData } = req.body;
+
+    if (!userId || !tag || !playerData) {
+        return res.status(400).json({ message: 'userId, tag, and playerData are required.' });
+    }
+
+    try {
+        if (await isUserDeleted(userId)) {
+            return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
+
+        const userRef = db.collection('userStates').doc(userId);
+        const playerDocRef = userRef.collection('players').doc(tag);
+
+        const batch = db.batch();
+        batch.set(playerDocRef, playerData, { merge: true });
+        batch.set(userRef, { 
+            timestamp: new Date().toISOString(),
+            isMigrated: true 
+        }, { merge: true });
+
+        await batch.commit();
+        res.status(200).json({ message: 'Player data saved successfully.' });
+    } catch (error) {
+        console.error('Error saving single player data:', error);
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 });
@@ -991,22 +1048,40 @@ app.get('/api/user-data/load/:userId', async (req, res) => {
         if (await isUserDeleted(userId)) {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
         }
-        const doc = await db.collection('userStates').doc(userId).get();
+
+        const userRef = db.collection('userStates').doc(userId);
+        const doc = await userRef.get();
         if (!doc.exists) {
             return res.status(404).json({ message: 'User data not found.' });
         }
 
-        const data = doc.data();
+        const mainData = doc.data();
+
+        // Assemble sub-collection player profiles into unified allPlayersData
+        const playersSnapshot = await userRef.collection('players').get();
+        const allPlayersData = mainData.allPlayersData || {};
+
+        if (!playersSnapshot.empty) {
+            playersSnapshot.forEach(playerDoc => {
+                allPlayersData[playerDoc.id] = playerDoc.data();
+            });
+        }
+
+        const assembledData = {
+            ...mainData,
+            allPlayersData
+        };
+
         const clientVersion = req.headers['x-app-version'] || '';
 
         // Backward compatibility shim: if client is older than v2, convert currency object to string to prevent crashes on startup
         if (!clientVersion.startsWith('2')) {
-            if (data.uiSettings && typeof data.uiSettings.currency === 'object' && data.uiSettings.currency !== null) {
-                data.uiSettings.currency = data.uiSettings.currency.code || 'USD';
+            if (assembledData.uiSettings && typeof assembledData.uiSettings.currency === 'object' && assembledData.uiSettings.currency !== null) {
+                assembledData.uiSettings.currency = assembledData.uiSettings.currency.code || 'USD';
             }
         }
 
-        res.status(200).json(data);
+        res.status(200).json(assembledData);
     } catch (error) {
         console.error('Error loading user data:', error);
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
@@ -1022,8 +1097,13 @@ app.delete('/api/user-data/delete/:userId', sensitiveLimiter, async (req, res) =
     }
 
     try {
-        // 1. Delete user data
-        await db.collection('userStates').doc(userId).delete();
+        // 1. Delete user main data & sub-collections
+        const userRef = db.collection('userStates').doc(userId);
+        const playersSnapshot = await userRef.collection('players').get();
+        const deleteBatch = db.batch();
+        playersSnapshot.forEach(pDoc => deleteBatch.delete(pDoc.ref));
+        deleteBatch.delete(userRef);
+        await deleteBatch.commit();
 
         // 2. Lock user ID in deletedUuids collection
         await db.collection('deletedUuids').doc(userId).set({

@@ -217,6 +217,39 @@ export async function saveUserData(userId, data) {
 }
 
 /**
+ * Saves/persists a single player profile data payload to the server.
+ *
+ * @param {string} userId - The unique identifier of the user.
+ * @param {string} tag - The player tag being saved.
+ * @param {Object} playerData - The single player data object.
+ * @returns {Promise<Object|undefined>} The API response payload on success.
+ */
+export async function saveSinglePlayerData(userId, tag, playerData) {
+    checkApiBlock();
+
+    const url = `${BASE_URL}/api/user-data/save-player`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+            },
+            body: JSON.stringify({ userId, tag, playerData })
+        });
+
+        if (!response.ok) {
+            throw new Error(await handleResponseError(response));
+        }
+
+        return await response.json();
+    } catch (error) {
+        logger.error(`Error saving single player data for ${tag}:`, error);
+        throw error;
+    }
+}
+
+/**
  * Loads/retrieves the user's previously saved progress or data from the server.
  * Gracefully handles 404 (user doesn't exist/no saved data yet) by returning null.
  *
