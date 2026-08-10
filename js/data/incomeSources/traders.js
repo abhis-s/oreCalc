@@ -6,9 +6,9 @@ export const raidMedalTraderData = [
 
 // Note: Temporary fix as we are looking into frequent changes Supercell keeps making; customizable cost options planned for the future.
 export const gemTraderData = [
-    { id: "gem_starry_15", shiny: 0, glowy: 0, starry: 15, cost: 115, currency: "gems", maxPacks: 1 },
-    { id: "gem_glowy_60", shiny: 0, glowy: 60, starry: 0, cost: 90, currency: "gems", maxPacks: 2 },
-    { id: "gem_shiny_300", shiny: 300, glowy: 0, starry: 0, cost: 75, currency: "gems", maxPacks: 5 },
+    { id: "gem_starry_15", shiny: 0, glowy: 0, starry: 15, cost: 115, currency: "gems", maxPacks: 10 },
+    { id: "gem_glowy_60", shiny: 0, glowy: 60, starry: 0, cost: 90, currency: "gems", maxPacks: 10 },
+    { id: "gem_shiny_300", shiny: 300, glowy: 0, starry: 0, cost: 75, currency: "gems", maxPacks: 10 },
 ];
 
 export const eventTraderData = [

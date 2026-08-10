@@ -511,7 +511,7 @@
     }
 
     &#inc-gem-trader-offers {
-        grid-template-columns: auto 2fr repeat(5, 1fr);
+        grid-template-columns: auto 1fr 1fr;
     }
 
     &#inc-event-trader-offers {
@@ -785,7 +785,7 @@
         --font-size-xs: 11px;
 
         #inc-gem-trader-offers {
-            grid-template-columns: auto 2fr repeat(2, 1fr);
+            grid-template-columns: auto 1fr 1fr;
         }
 
 

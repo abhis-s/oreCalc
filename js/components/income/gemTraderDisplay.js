@@ -8,6 +8,9 @@ import { updateGemTraderState } from './gemTraderInputs.js';
 
 import { renderOfferGrid } from '../common/offerGrid.js';
 
+import { addValidation } from '../../utils/inputValidator.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+
 export function renderGemTraderRow(offer, offerState) {
     const row = document.createElement('div');
     row.className = 'offer-grid-row';
@@ -23,62 +26,22 @@ export function renderGemTraderRow(offer, offerState) {
     oreDisplay.className = 'offer-ore-display';
     oreDisplay.innerHTML = `<span>${formatNumber(oreValue)}</span><orecalc-assets-image src="${oreImage}" alt="${translate('ores.' + oreType)}" class="ore-image" size="thumbnail"></orecalc-assets-image>`;
 
+    const oreName = translate('ores.' + oreType);
+    const offerName = `${formatNumber(oreValue)} ${oreName}`;
+    const ariaLabel = translate('income.supercellEvents.packInput', { name: offerName });
+
+    const inputDiv = document.createElement('div');
+    inputDiv.className = 'offer-input-instance';
+    inputDiv.innerHTML = `
+        <div class="popover-wrapper">
+            <input type="number" class="updatable offer-input-number" id="gem-trader-${offer.id}-input" value="${offerState || 0}" min="0" max="${offer.maxPacks || 10}" maxlength="2" data-offer-id="${offer.id}" aria-label="${ariaLabel}" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+    `;
+
     row.appendChild(costDisplay);
     row.appendChild(oreDisplay);
+    row.appendChild(inputDiv);
 
-    if (oreType === 'shiny') {
-        // Render BOTH dropdown and checkboxes for Shiny
-        const dropdownDiv = document.createElement('div');
-        dropdownDiv.className = 'offer-dropdown-instance';
-        const select = document.createElement('select');
-        select.className = 'offer-input-dropdown dropdown-style';
-        select.id = `gem-trader-${offer.id}-dropdown`;
-        select.name = `gem-trader-${offer.id}-dropdown`;
-        select.dataset.offerId = offer.id;
-        
-        const oreName = translate('ores.' + oreType);
-        const offerName = `${formatNumber(oreValue)} ${oreName}`;
-        select.setAttribute('aria-label', translate('income.supercellEvents.packInput', { name: offerName }));
-
-        for (let i = 0; i <= offer.maxPacks; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = i;
-            select.appendChild(option);
-        }
-        select.value = offerState;
-        select.addEventListener('change', (e) => {
-            const selectedValue = parseInt(e.target.value, 10);
-            updateGemTraderState(offer.id, oreType, selectedValue);
-        });
-        dropdownDiv.appendChild(select);
-        row.appendChild(dropdownDiv);
-    }
-
-    // Render checkboxes (up to 5)
-    for (let i = 1; i <= 5; i++) {
-        const checkboxDiv = document.createElement('div');
-        checkboxDiv.className = 'offer-checkbox-instance';
-        if (i <= offer.maxPacks) {
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.dataset.offerId = offer.id;
-            checkbox.dataset.instance = i;
-            checkbox.id = `${offer.id}_${i}`;
-            checkbox.name = `${offer.id}_${i}`;
-            checkbox.checked = i <= offerState;
-            
-            const oreName = translate('ores.' + oreType);
-            const offerName = `${formatNumber(oreValue)} ${oreName}`;
-            checkbox.setAttribute('aria-label', translate('income.shopOffers.packCheckbox', {
-                num: i,
-                name: offerName
-            }));
-            
-            checkboxDiv.appendChild(checkbox);
-        }
-        row.appendChild(checkboxDiv);
-    }
     return row;
 }
 
@@ -97,27 +60,31 @@ export function renderGemTraderGrid(gemState) {
                 const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
                 return safeState.packs?.[oreType] || 0;
             },
-            renderRow: renderGemTraderRow
+            renderRow: renderGemTraderRow,
+            onRowAppended: (rowElement, offer) => {
+                const input = rowElement.querySelector('input[type="number"]');
+                if (input) {
+                    const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
+                    const maxPacks = offer.maxPacks || 10;
+                    addValidation(input, { inputName: translate('ores.' + oreType) });
+                    registerInputPopover(input, {
+                        title: () => translate('ores.' + oreType),
+                        min: 0,
+                        max: maxPacks,
+                        step: 1,
+                        clickToFill: { max: true }
+                    });
+                }
+            }
         });
     } else {
         gemTraderData.forEach(offer => {
             const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
-            const offerState = safeState.packs?.[oreType] || 0;
-
-            if (oreType === 'shiny') {
-                const select = container.querySelector(`select[data-offer-id="${offer.id}"]`);
-                if (select && parseInt(select.value, 10) !== offerState) {
-                    select.value = offerState;
-                }
-            }
-
-            for (let i = 1; i <= 5; i++) {
-                const checkbox = container.querySelector(`input[type="checkbox"][data-offer-id="${offer.id}"][data-instance="${i}"]`);
-                if (checkbox) {
-                    const expectedChecked = i <= offerState;
-                    if (checkbox.checked !== expectedChecked) {
-                        checkbox.checked = expectedChecked;
-                    }
+            const input = container.querySelector(`input[data-offer-id="${offer.id}"]`);
+            if (input && document.activeElement !== input) {
+                const expectedValue = safeState.packs?.[oreType] || 0;
+                if (parseInt(input.value, 10) !== expectedValue) {
+                    input.value = expectedValue;
                 }
             }
         });
