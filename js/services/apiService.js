@@ -403,7 +403,7 @@ export async function fetchClanWarLog(clanTag) {
         }
         return await response.json();
     } catch (error) {
-        logger.error("Error fetching clan war log:", error);
+        logger.debug("Error fetching clan war log:", error);
         throw error;
     }
 }
