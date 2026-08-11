@@ -851,6 +851,7 @@
             "healingPerSecondHeroes": "Healing per Second (Heroes)",
             "healthRecovery": "Health Recovery",
             "counterDamage": "Counter Damage",
+            "counterRange": "Counter Range",
             "healPerCounter": "Heal per Counter",
             "hitpointIncrease": "Hitpoint Increase",
             "hitpoints": "Hitpoints",

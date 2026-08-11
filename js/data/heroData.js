@@ -86,7 +86,7 @@ export const heroData = {
             { key: "stunBlaster", name: "Stun Blaster", type: "common", image: "assets/equipment/dragon_duke/DD_stun_blaster.png" },
             { key: "electroFangs", name: "Electro Fangs", type: "common", image: "assets/equipment/dragon_duke/DD_electro_fangs.png" },
             { key: "rocketBackpack", name: "Rocket Backpack", type: "epic", image: "assets/equipment/dragon_duke/DD_rocket_backpack.png", heroJourneyNode: 373 },
-            { key: "comingSoon", name: "Coming Soon", type: "epic", image: "assets/equipment/equip_placeholder.png" },
+            { key: "revengeDeck", name: "Revenge Deck", type: "epic", image: "assets/equipment/dragon_duke/DD_revenge_deck.png" },
         ],
     },
 };
