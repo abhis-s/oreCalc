@@ -812,7 +812,7 @@
         "comingSoon": "Demnächst",
         "lvlShort": "St.",
         "requiredOres": {
-            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands und bevorstehender Heldenreise-Belohnungen) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen im Planer angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
+            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen in den Einstellungen angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
         },
         "storedOres": {
             "help": "<p>Die aktuelle Menge an Erzen, die du in deinem In-Game-Lager (Schmiede) angespart hast.</p><p>Die grünen Badges zeigen bevorstehende und noch nicht beanspruchte Erze aus dem Meilenstein-Pfad der Heldenreise.</p>"
@@ -850,6 +850,7 @@
             "healingPerSecond": "Heilung/Sek.",
             "healingPerSecondHeroes": "Heldenheilung/Sek.",
             "healthRecovery": "Trefferpunkte auffüllen",
+            "counterDamage": "Counter Damage",
             "hitpointIncrease": "TP-Erh.",
             "hitpoints": "Trefferpunkte",
             "incomingDamageReduction": "Senkung erlitt. Schaden",
@@ -1191,7 +1192,7 @@
     },
     "home": {
         "requiredOres": {
-            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands und bevorstehender Heldenreise-Belohnungen) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen im Planer angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
+            "help": "Zeigt die benötigten Netto-Erze (Gesamtkosten abzüglich des gelagerten Bestands) für deine geplanten Upgrades. Die Zahlen können von den echten Maxima im Spiel abweichen, wenn die Zielstufengrenzen in den Einstellungen angepasst wurden oder wenn du die gewünschten Zielstufen änderst oder Ausrüstung im Planer-Reiter deaktivierst."
         },
         "remainingTime": {
             "help": "Die Zeit, die benötigt wird, um die erforderlichen Erze basierend auf deinem monatlichen Einkommen zu sammeln. Setzt eine gleichbleibende Aktivität voraus; eine Änderung deiner Einkommenskonfiguration beeinflusst diesen Zeitplan."
