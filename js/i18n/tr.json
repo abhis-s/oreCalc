@@ -851,6 +851,7 @@
             "healingPerSecondHeroes": "Saniye Başına İyileşme (Kahramanlar)",
             "healthRecovery": "Sağlık Yenileme",
             "counterDamage": "Karşı Hasar",
+            "counterRange": "Karşı Saldırı Menzili",
             "healPerCounter": "Karşı Saldırı Başına İyileştirme",
             "hitpointIncrease": "İsabet Puanı Artışı",
             "hitpoints": "İsabet Puanı",
