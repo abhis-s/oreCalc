@@ -43,6 +43,7 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
 
     if (carousel) {
         carousel.addEventListener('touchstart', (e) => {
+            welcomeState.scrollTargetPage = null;
             if (e.target.closest('#welcome-profile-setup-wizard-view')) return;
             if (e.target.closest('#welcome-guest-th-list')) return;
 
@@ -95,8 +96,10 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
             const minPage = (welcomeState.entrySource === 'playerModal' || welcomeState.entrySource === 'inApp') ? 2 : 1;
             if (Math.abs(diffX) > 50) {
                 if (diffX > 0 && welcomeState.currentPage < 4) {
-                    welcomeState.scrollTargetPage = welcomeState.currentPage + 1;
-                    const visualIndex = getVisualIndexFromPage(welcomeState.scrollTargetPage);
+                    const targetPage = welcomeState.currentPage + 1;
+                    welcomeState.scrollTargetPage = targetPage;
+                    const visualIndex = getVisualIndexFromPage(targetPage);
+                    updatePagination(targetPage);
                     carousel.scrollTo({ left: visualIndex * width, behavior: 'smooth' });
                 } else if (diffX < 0 && welcomeState.currentPage > minPage) {
                     let targetPage = welcomeState.currentPage - 1;
@@ -106,6 +109,7 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
                     }
                     welcomeState.scrollTargetPage = targetPage;
                     const visualIndex = getVisualIndexFromPage(targetPage);
+                    updatePagination(targetPage);
                     carousel.scrollTo({ left: visualIndex * width, behavior: 'smooth' });
                 }
             }
@@ -116,6 +120,7 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
         let mouseStartX = 0;
 
         carousel.addEventListener('mousedown', (e) => {
+            welcomeState.scrollTargetPage = null;
             if (e.target.closest('button, input, select, a, .accent-swatch, .welcome-profile-card-compact, .info-btn, .th-badge-item, .welcome-shop-offer-item, #welcome-profile-setup-wizard-view')) return;
             isMouseDown = true;
             mouseStartX = e.clientX;
@@ -137,8 +142,10 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
             const minPage = (welcomeState.entrySource === 'playerModal' || welcomeState.entrySource === 'inApp') ? 2 : 1;
             if (Math.abs(diffX) > 50) {
                 if (diffX > 0 && welcomeState.currentPage < 4) {
-                    welcomeState.scrollTargetPage = welcomeState.currentPage + 1;
-                    const visualIndex = getVisualIndexFromPage(welcomeState.scrollTargetPage);
+                    const targetPage = welcomeState.currentPage + 1;
+                    welcomeState.scrollTargetPage = targetPage;
+                    const visualIndex = getVisualIndexFromPage(targetPage);
+                    updatePagination(targetPage);
                     carousel.scrollTo({ left: visualIndex * width, behavior: 'smooth' });
                 } else if (diffX < 0 && welcomeState.currentPage > minPage) {
                     let targetPage = welcomeState.currentPage - 1;
@@ -148,6 +155,7 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
                     }
                     welcomeState.scrollTargetPage = targetPage;
                     const visualIndex = getVisualIndexFromPage(targetPage);
+                    updatePagination(targetPage);
                     carousel.scrollTo({ left: visualIndex * width, behavior: 'smooth' });
                 }
             }
@@ -168,8 +176,10 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
                     const isAnyProfileUpdating = Object.values(welcomeState.updatingProfiles).some(Boolean);
                     if (isAnyProfileUpdating || welcomeState.isInputProfileLoading) return;
                 }
-                welcomeState.scrollTargetPage = welcomeState.currentPage + 1;
-                const visualIndex = getVisualIndexFromPage(welcomeState.scrollTargetPage);
+                const targetPage = welcomeState.currentPage + 1;
+                welcomeState.scrollTargetPage = targetPage;
+                const visualIndex = getVisualIndexFromPage(targetPage);
+                updatePagination(targetPage);
                 carousel.scrollTo({ left: visualIndex * width, behavior: 'smooth' });
             } else if (e.key === 'ArrowLeft' && welcomeState.currentPage > minPage) {
                 let targetPage = welcomeState.currentPage - 1;
@@ -179,6 +189,7 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
                 }
                 welcomeState.scrollTargetPage = targetPage;
                 const visualIndex = getVisualIndexFromPage(targetPage);
+                updatePagination(targetPage);
                 carousel.scrollTo({ left: visualIndex * width, behavior: 'smooth' });
             }
         });
@@ -212,6 +223,8 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
                 const targetLeft = getVisualIndexFromPage(welcomeState.scrollTargetPage) * width;
                 if (Math.abs(scrollLeft - targetLeft) <= 4) {
                     welcomeState.scrollTargetPage = null;
+                } else {
+                    return;
                 }
             }
 
@@ -422,6 +435,7 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
 
             welcomeState.scrollTargetPage = 4;
             const visualIndex = getVisualIndexFromPage(4);
+            updatePagination(4);
             carousel.scrollTo({ left: visualIndex * carousel.clientWidth, behavior: 'smooth' });
         });
     }
@@ -447,6 +461,7 @@ export function initializeWelcomeCarouselInputs(modal, carousel, onClose = null)
 
             welcomeState.scrollTargetPage = page;
             const visualIndex = getVisualIndexFromPage(page);
+            updatePagination(page);
             if (carousel) {
                 carousel.scrollTo({ left: visualIndex * carousel.clientWidth, behavior: 'smooth' });
             }

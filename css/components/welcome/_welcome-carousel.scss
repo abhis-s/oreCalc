@@ -374,7 +374,9 @@
         box-sizing: border-box;
 
         .reject-button,
-        .accept-button {
+        .accept-button,
+        .btn-secondary,
+        .btn-primary {
             min-height: 44px;
             line-height: 1.25;
             padding: 10px 18px;
@@ -391,11 +393,13 @@
             box-sizing: border-box;
         }
 
-        .reject-button {
+        .reject-button,
+        .btn-secondary {
             order: 1;
         }
 
-        .accept-button {
+        .accept-button,
+        .btn-primary {
             order: 2;
         }
 
@@ -403,12 +407,14 @@
             flex-direction: column;
             gap: 8px;
 
-            .accept-button {
+            .accept-button,
+            .btn-primary {
                 order: 1;
                 width: 100%;
             }
 
-            .reject-button {
+            .reject-button,
+            .btn-secondary {
                 order: 2;
                 width: 100%;
             }

@@ -11,6 +11,7 @@ import {
     getVisualIndexFromPage,
     updateContinueButtonDisabledState,
     updateHeaderSkipButtonVisibility,
+    updatePagination,
     updateWelcomeContinueButtonText,
     updateWelcomePage2Buttons
 } from './welcomeCarouselDisplay.js';
@@ -250,6 +251,7 @@ export function initializeWelcomeProfilesInputs(modal, carousel) {
 
             if (carousel) {
                 welcomeState.scrollTargetPage = 3;
+                updatePagination(3);
                 const visualIndex = getVisualIndexFromPage(3);
                 carousel.scrollTo({ left: visualIndex * carousel.clientWidth, behavior: 'smooth' });
             }

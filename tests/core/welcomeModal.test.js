@@ -317,12 +317,12 @@ describe('Welcome Modal Comprehensive Feature Suite', () => {
 
         // SCSS flex layout, min-height token, and flex order assertions
         assert.match(carouselScss, /\.welcome-actions\s*\{[\s\S]*?flex-direction:\s*row;/, 'Must use flex-direction: row for non-mobile');
-        assert.match(carouselScss, /\.reject-button,\s*\.accept-button\s*\{[\s\S]*?min-height:\s*44px;/, 'Must standardize min-height to 44px');
-        assert.match(carouselScss, /\.reject-button\s*\{[\s\S]*?order:\s*1;/, 'Reject button must have order: 1 (left)');
-        assert.match(carouselScss, /\.accept-button\s*\{[\s\S]*?order:\s*2;/, 'Accept button must have order: 2 (right)');
+        assert.match(carouselScss, /(\.reject-button|\.btn-secondary)[\s\S]*?min-height:\s*44px;/, 'Must standardize min-height to 44px');
+        assert.match(carouselScss, /(\.reject-button|\.btn-secondary)\s*\{[\s\S]*?order:\s*1;/, 'Reject/secondary button must have order: 1 (left)');
+        assert.match(carouselScss, /(\.accept-button|\.btn-primary)\s*\{[\s\S]*?order:\s*2;/, 'Accept/primary button must have order: 2 (right)');
 
         // Viewport media query layout inversion
-        assert.match(carouselScss, /@media\s*\(max-width:\s*\$breakpoint-modal\)\s*\{[\s\S]*?flex-direction:\s*column;[\s\S]*?\.accept-button\s*\{[\s\S]*?order:\s*1;[\s\S]*?\.reject-button\s*\{[\s\S]*?order:\s*2;/, 'On narrow devices, accept button must be above reject button');
+        assert.match(carouselScss, /@media\s*\(max-width:\s*\$breakpoint-modal\)\s*\{[\s\S]*?flex-direction:\s*column;[\s\S]*?(\.accept-button|\.btn-primary)[\s\S]*?order:\s*1;[\s\S]*?(\.reject-button|\.btn-secondary)[\s\S]*?order:\s*2;/, 'On narrow devices, accept button must be above reject button');
     });
 
     test('Welcome carousel scroll navigation uses exact clientWidth multiples without false offsets', () => {

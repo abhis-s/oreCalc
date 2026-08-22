@@ -5,7 +5,7 @@ import { state } from '../../core/state.js';
 import { logger } from '../../utils/logger.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
 
-import { getVisualIndexFromPage } from './welcomeCarouselDisplay.js';
+import { getVisualIndexFromPage, updatePagination } from './welcomeCarouselDisplay.js';
 import { welcomeState } from './welcomeModalState.js';
 import { renderWelcomeSyncQr, updateWelcomeSyncState } from './welcomeSyncDisplay.js';
 import { showAlert } from '../../ui/noticeModal.js';
@@ -148,6 +148,7 @@ export function initializeWelcomeSyncInputs(modal, carousel) {
             e.preventDefault();
             welcomeState.cameFromSyncStartBtn = true;
             welcomeState.scrollTargetPage = 4;
+            updatePagination(4);
             renderWelcomeSyncQr();
             const visualIndex = getVisualIndexFromPage(4);
             if (carousel) {
