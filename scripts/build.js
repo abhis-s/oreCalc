@@ -207,7 +207,6 @@ async function build() {
             { src: 'robots.txt', dest: 'robots.txt' },
             { src: 'llms.txt', dest: 'llms.txt' },
             { src: '404.html', dest: '404.html' },
-            { src: 'legal/legal.css', dest: 'legal/legal.css' },
             { src: 'legal/legal.js', dest: 'legal/legal.js' },
             { src: 'legal/licenses', dest: 'licenses' },
             { src: '.well-known', dest: '.well-known' }

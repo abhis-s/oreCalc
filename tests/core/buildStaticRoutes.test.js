@@ -57,4 +57,12 @@ describe('Static Build Routes Verification Suite', () => {
         assert.equal(content.includes('<loc>https://orecalc.tech/en/</loc>'), false);
         assert.equal(content.includes('<loc>https://orecalc.tech/en</loc>'), false);
     });
+
+    test('verifies legal routes and static legal stylesheet/script assets exist in dist', () => {
+        assert.equal(fs.existsSync(path.join(distDir, 'legal', 'legal.css')), true);
+        assert.equal(fs.existsSync(path.join(distDir, 'legal', 'legal.js')), true);
+        assert.equal(fs.existsSync(path.join(distDir, 'privacy', 'index.html')), true);
+        assert.equal(fs.existsSync(path.join(distDir, 'terms', 'index.html')), true);
+        assert.equal(fs.existsSync(path.join(distDir, 'licenses', 'index.html')), true);
+    });
 });

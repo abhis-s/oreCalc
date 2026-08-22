@@ -361,9 +361,19 @@ const params = {
                 }
             } else if (pathname === '/legal/legal.css') {
                 const cssPath = path.join(process.cwd(), 'legal/legal.css');
+                const scssPath = path.join(process.cwd(), 'legal/legal.scss');
                 if (fs.existsSync(cssPath)) {
                     res.setHeader('Content-Type', 'text/css');
                     return res.end(fs.readFileSync(cssPath, 'utf8'));
+                } else if (fs.existsSync(scssPath)) {
+                    try {
+                        const sass = require('sass');
+                        const result = sass.compile(scssPath);
+                        res.setHeader('Content-Type', 'text/css');
+                        return res.end(result.css);
+                    } catch (e) {
+                        return next();
+                    }
                 } else {
                     return next();
                 }

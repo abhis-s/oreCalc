@@ -40,7 +40,7 @@
     "build": "VITE_API_BASE_URL=https://api.orecalc.tech pnpm run build:assets",
     "build:dev": "VITE_API_BASE_URL=http://localhost:3000 pnpm run build:assets",
     "build:assets": "node scripts/fetch-billing-costs.js && node scripts/validate-i18n.js && node scripts/build.js && pnpm run build:css && pnpm run build:sw",
-    "build:css": "sass css/main.scss dist/css/main.min.css --style compressed",
+    "build:css": "sass css/main.scss dist/css/main.min.css --style compressed && sass legal/legal.scss dist/legal/legal.css --style compressed",
     "build:sw": "workbox injectManifest workbox-config.js",
     "bump": "node scripts/bump.js",
     "start": "node scripts/prod/start-prod-server.js"

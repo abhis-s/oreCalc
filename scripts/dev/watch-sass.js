@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 
-const command = 'sass --watch css/main.scss css/main.css';
+const command = 'sass --watch css/main.scss:css/main.css legal/legal.scss:legal/legal.css';
 
 const child = exec(command);
 
