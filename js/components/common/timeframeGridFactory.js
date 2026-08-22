@@ -1,6 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 
-export function createTimeframeGrid(timeframes, idPrefix) {
+function createTimeframeGrid(timeframes, idPrefix) {
     const container = document.createElement('div');
     container.className = 'four-col-grid generated';
 
@@ -31,7 +31,7 @@ export function createTimeframeGrid(timeframes, idPrefix) {
             img.setAttribute('src', `assets/${ore}_ore.png`);
             const capitalizedOre = ore.charAt(0).toUpperCase() + ore.slice(1);
             img.setAttribute('alt', `${capitalizedOre} Ore`);
-            img.dataset.i18nAlt = `ores.${ore}`;
+            img.dataset.i18nAlt = `entities.ores.${ore}`;
             img.setAttribute('class', 'ore-image');
             valDisplay.appendChild(img);
 
@@ -44,10 +44,16 @@ export function createTimeframeGrid(timeframes, idPrefix) {
     return container;
 }
 
+/**
+ * Injects a generated 4-column timeframe grid into an income card wrapper element.
+ * @param {string} containerId - Target DOM element ID.
+ * @param {Array<string>} timeframes - List of timeframe keys (e.g. ['daily', 'monthly']).
+ * @param {string} idPrefix - ID prefix for child value elements.
+ */
 export function populateTimeframeGrid(containerId, timeframes, idPrefix) {
     const containerEl = document.getElementById(containerId);
     if (!containerEl) return;
-    
+
     let wrapper = containerEl.querySelector('.timeframe-income');
     if (!wrapper) {
         wrapper = document.createElement('div');
@@ -55,7 +61,6 @@ export function populateTimeframeGrid(containerId, timeframes, idPrefix) {
         containerEl.appendChild(wrapper);
     }
 
-    // Clear out any previously generated grids within this wrapper
     const existing = wrapper.querySelectorAll('.four-col-grid.generated');
     existing.forEach(el => el.remove());
 

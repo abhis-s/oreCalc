@@ -1,0 +1,359 @@
+<div id="welcome-profile-setup-loading-view" class="welcome-profile-setup-loading-view" style="display: none;">
+    <div class="welcome-wizard-loading-spinner"></div>
+    <span class="wizard-loading-text" data-i18n="status.loading"></span>
+</div>
+
+<div id="welcome-profile-setup-wizard-view" class="welcome-profile-setup-wizard-view show-recommendations" style="display: none;">
+    <div class="welcome-wizard-header">
+        <div class="wizard-profile-info-wrapper">
+            <orecalc-assets-image id="welcome-wizard-th-img" class="wizard-th-img" src="assets/th/th16.png" alt="TH" size="standard"></orecalc-assets-image>
+            <div>
+                <span class="wizard-title-label" data-i18n="views.welcome.setupProfileTitle"></span>
+                <div class="wizard-profile-meta">
+                    <h3 id="welcome-wizard-profile-name" class="wizard-profile-name">Guest</h3>
+                    <span id="welcome-wizard-profile-tag" class="wizard-profile-tag">Guest
+                        Profile</span>
+                </div>
+            </div>
+        </div>
+        <div id="welcome-wizard-step-indicator" class="wizard-step-indicator">Step 1 of 5</div>
+    </div>
+
+    <div id="welcome-wizard-steps-container" class="welcome-wizard-steps-container">
+
+        <div class="wizard-step" data-step="1" style="display: none;">
+            <p class="wizard-step-subtitle" data-i18n="views.welcome.guestDesc"></p>
+
+            <div class="guest-setup-item th-selector-container">
+                <span class="guest-setup-label" data-i18n="views.welcome.selectTH"></span>
+                <div class="th-badges-scroll" id="welcome-guest-th-list">
+                    <!-- DYNAMIC INSERTION: Town Hall badge list items -->
+                </div>
+            </div>
+
+            <div class="guest-setup-item league-selector-container">
+                <label for="welcome-guest-league-select" class="guest-setup-label" data-i18n="views.welcome.selectLeague"></label>
+                <div class="league-select-wrapper">
+                    <span class="guest-league-icon-container">
+                        <img id="welcome-guest-league-icon"
+                            src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png"
+                            alt="League Icon">
+                    </span>
+                    <select id="welcome-guest-league-select" class="welcome-select-input">
+                        <!-- DYNAMIC INSERTION: League select options -->
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="wizard-step" data-step="2" style="display: none;">
+            <h4 data-i18n="views.welcome.wizard.oresTitle" class="wizard-step-title"></h4>
+            <p class="wizard-step-subtitle" data-i18n="views.welcome.wizard.oresDesc"></p>
+            <div class="welcome-ores-vertical-group">
+                <div class="welcome-ore-input-row">
+                    <div class="ore-icon-wrapper">
+                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></orecalc-assets-image>
+                    </div>
+                    <div class="popover-wrapper">
+                        <input type="number" id="welcome-stored-shiny" value="0" min="0" max="50000" step="100" maxlength="5">
+                    </div>
+                </div>
+                <div class="welcome-ore-input-row">
+                    <div class="ore-icon-wrapper">
+                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></orecalc-assets-image>
+                    </div>
+                    <div class="popover-wrapper">
+                        <input type="number" id="welcome-stored-glowy" value="0" min="0" max="5000" step="10" maxlength="4">
+                    </div>
+                </div>
+                <div class="welcome-ore-input-row">
+                    <div class="ore-icon-wrapper">
+                        <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></orecalc-assets-image>
+                    </div>
+                    <div class="popover-wrapper">
+                        <input type="number" id="welcome-stored-starry" value="0" min="0" max="1000" step="1" maxlength="4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details align-start">
+                        <orecalc-assets-svg name="thumbs-up" height="24" width="24" class="quick-setting-icon"></orecalc-assets-svg>
+                        <div class="quick-setting-text">
+                            <span class="quick-setting-title" data-i18n="views.welcome.wizard.enableRecommendations"></span>
+                            <span class="quick-setting-desc" data-i18n="views.welcome.wizard.enableRecommendationsDesc"></span>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-recommendations" checked
+                            data-i18n-aria-label="views.welcome.wizard.enableRecommendations">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="wizard-step" data-step="3" style="display: none;">
+            <div class="wizard-title-badge-row">
+                <h4 data-i18n="views.welcome.wizard.warsTitle" class="wizard-step-title wizard-step-title--inline"></h4>
+                <span class="recommended-badge">
+                    <orecalc-assets-svg name="thumbs-up" height="12" width="12" fill="currentColor"></orecalc-assets-svg>
+                    <span data-i18n="views.welcome.wizard.recommended"></span>
+                </span>
+            </div>
+            <p class="wizard-step-subtitle" data-i18n="views.welcome.wizard.warsDesc"></p>
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details">
+                        <orecalc-assets-image src="assets/resources/clanWar.png" alt="Clan Wars" class="quick-setting-icon"></orecalc-assets-image>
+                        <span class="quick-setting-title" data-i18n="views.welcome.quickSettings.clanWars"></span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-clan-wars-buy"
+                            data-i18n-aria-label="views.welcome.quickSettings.clanWars">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="welcome-quick-setting-subpanel" id="welcome-pref-clan-wars-panel" style="display: none;">
+                    <div class="subpanel-row">
+                        <div class="subpanel-label-group">
+                            <orecalc-assets-svg name="swords" height="20" width="20"></orecalc-assets-svg>
+                            <span class="subpanel-label" data-i18n="views.welcome.quickSettings.warsPerMonth"></span>
+                        </div>
+                        <div class="popover-wrapper">
+                            <input type="number" id="welcome-pref-clan-wars-count" value="8" min="0" max="15" maxlength="2" class="subpanel-input">
+                        </div>
+                    </div>
+                    <div class="subpanel-row">
+                        <div class="subpanel-label-group">
+                            <orecalc-assets-svg name="trophy" height="20" width="20"></orecalc-assets-svg>
+                            <span class="subpanel-label" data-i18n="views.welcome.quickSettings.winRate"></span>
+                        </div>
+                        <div class="popover-wrapper">
+                            <input type="number" id="welcome-pref-clan-wars-winrate" value="70" min="0" max="100" step="10" maxlength="3" class="subpanel-input">
+                        </div>
+                    </div>
+                    <div class="subpanel-row">
+                        <div class="subpanel-label-group">
+                            <orecalc-assets-svg name="dnd" height="20" width="20"></orecalc-assets-svg>
+                            <span class="subpanel-label" data-i18n="views.welcome.quickSettings.drawRate"></span>
+                        </div>
+                        <div class="popover-wrapper">
+                            <input type="number" id="welcome-pref-clan-wars-drawrate" value="0" min="0" max="100" step="10" maxlength="3" class="subpanel-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details">
+                        <orecalc-assets-image src="assets/resources/cwl.png" alt="CWL" class="quick-setting-icon"></orecalc-assets-image>
+                        <span class="quick-setting-title" data-i18n="views.welcome.quickSettings.cwl"></span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-cwl-buy"
+                            data-i18n-aria-label="views.welcome.quickSettings.cwl">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="welcome-quick-setting-subpanel" id="welcome-pref-cwl-panel" style="display: none;">
+                    <div class="subpanel-row">
+                        <div class="subpanel-label-group">
+                            <orecalc-assets-svg name="swords" height="20" width="20"></orecalc-assets-svg>
+                            <span class="subpanel-label" data-i18n="views.welcome.quickSettings.cwlHits"></span>
+                        </div>
+                        <div class="popover-wrapper">
+                            <input type="number" id="welcome-pref-cwl-hits" value="7" min="0" max="7" maxlength="1" class="subpanel-input">
+                        </div>
+                    </div>
+                    <div class="subpanel-row">
+                        <div class="subpanel-label-group">
+                            <orecalc-assets-svg name="trophy" height="20" width="20"></orecalc-assets-svg>
+                            <span class="subpanel-label" data-i18n="views.welcome.quickSettings.winRate"></span>
+                        </div>
+                        <div class="popover-wrapper">
+                            <input type="number" id="welcome-pref-cwl-winrate" value="50" min="0" max="100" step="10" maxlength="3" class="subpanel-input">
+                        </div>
+                    </div>
+                    <div class="subpanel-row">
+                        <div class="subpanel-label-group">
+                            <orecalc-assets-svg name="dnd" height="20" width="20"></orecalc-assets-svg>
+                            <span class="subpanel-label" data-i18n="views.welcome.quickSettings.drawRate"></span>
+                        </div>
+                        <div class="popover-wrapper">
+                            <input type="number" id="welcome-pref-cwl-drawrate" value="0" min="0" max="100" step="10" maxlength="3" class="subpanel-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wizard-step" data-step="4" style="display: none;">
+            <div class="wizard-title-badge-row">
+                <h4 data-i18n="views.welcome.wizard.tradersTitle" class="wizard-step-title wizard-step-title--inline"></h4>
+                <span class="recommended-badge">
+                    <orecalc-assets-svg name="thumbs-up" height="12" width="12" fill="currentColor"></orecalc-assets-svg>
+                    <span data-i18n="views.welcome.wizard.recommended"></span>
+                </span>
+            </div>
+            <p class="wizard-step-subtitle" data-i18n="views.welcome.wizard.tradersDesc"></p>
+
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details">
+                        <orecalc-assets-image src="assets/resources/raidMedal.png" alt="Raid Medals" class="quick-setting-icon"></orecalc-assets-image>
+                        <span class="quick-setting-title" data-i18n="views.welcome.quickSettings.raidMedalsBuy"></span>
+                        <span class="recommended-badge">
+                            <orecalc-assets-svg name="thumbs-double" height="12" width="12" fill="currentColor"></orecalc-assets-svg>
+                        </span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-raid-medals-buy"
+                            data-i18n-aria-label="views.welcome.quickSettings.raidMedalsBuy">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="welcome-quick-setting-subpanel" id="welcome-pref-raid-medals-panel" data-section="raid-medals" style="display: none;">
+                    <div class="subpanel-vertical-group">
+                        <div class="subpanel-header" data-i18n="views.welcome.quickSettings.raidMedalsPacks"></div>
+                        <div id="welcome-raid-trader-rows-container" class="subpanel-vertical-group"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details">
+                        <orecalc-assets-image src="assets/resources/gem.png" alt="Gems" class="quick-setting-icon"></orecalc-assets-image>
+                        <span class="quick-setting-title" data-i18n="views.welcome.quickSettings.gemsBuy"></span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-gems-buy"
+                            data-i18n-aria-label="views.welcome.quickSettings.gemsBuy">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="welcome-quick-setting-subpanel" id="welcome-pref-gems-panel" data-section="gems" style="display: none;">
+                    <div class="subpanel-vertical-group">
+                        <div class="subpanel-header" data-i18n="views.welcome.quickSettings.raidMedalsPacks"></div>
+                        <div id="welcome-gem-trader-rows-container" class="subpanel-vertical-group"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wizard-step" data-step="5" style="display: none;">
+            <div class="wizard-title-badge-row">
+                <h4 data-i18n="views.welcome.wizard.eventTitle" class="wizard-step-title"></h4>
+            </div>
+            <p class="wizard-step-subtitle" data-i18n="views.welcome.wizard.eventDesc"></p>
+
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details">
+                        <orecalc-assets-image src="assets/resources/eventPass.png" alt="Event Pass" class="quick-setting-icon"></orecalc-assets-image>
+                        <span class="quick-setting-title" data-i18n="views.welcome.quickSettings.eventPass"></span>
+                        <span class="recommended-badge">
+                            <orecalc-assets-svg name="thumbs-up" height="12" width="12" fill="currentColor"></orecalc-assets-svg>
+                        </span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-event-pass-buy"
+                            data-i18n-aria-label="views.welcome.quickSettings.eventPass">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <hr>
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details">
+                        <orecalc-assets-image src="assets/equipment/equip_placeholder.png" alt="Event Trader Equipment" class="quick-setting-icon"></orecalc-assets-image>
+                        <span class="quick-setting-title" data-i18n="views.welcome.quickSettings.eventIncludeEquipment"></span>
+                        <span class="recommended-badge">
+                            <orecalc-assets-svg name="thumbs-up" height="12" width="12" fill="currentColor"></orecalc-assets-svg>
+                        </span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-event-include-equipment"
+                            data-i18n-aria-label="views.welcome.quickSettings.eventIncludeEquipment">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details">
+                        <orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Trader" class="quick-setting-icon"></orecalc-assets-image>
+                        <span class="quick-setting-title" data-i18n="views.welcome.quickSettings.eventTraderBuy"></span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-event-trader-buy"
+                            data-i18n-aria-label="views.welcome.quickSettings.eventTraderBuy">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="welcome-quick-setting-subpanel" id="welcome-pref-event-trader-panel" data-section="event-trader" style="display: none;">
+                    <div class="subpanel-vertical-group">
+                        <div class="subpanel-header" data-i18n="views.welcome.quickSettings.eventTraderPacks"></div>
+                        <div id="welcome-event-trader-rows-container" class="subpanel-vertical-group"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wizard-step" data-step="6" style="display: none;">
+            <h4 data-i18n="views.welcome.wizard.progressionTitle" class="wizard-step-title"></h4>
+            <p class="wizard-step-subtitle" data-i18n="views.welcome.wizard.progressionDesc"></p>
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details">
+                        <orecalc-assets-svg name="global-pricing" height="24" width="24" class="quick-setting-icon"></orecalc-assets-svg>
+                        <span class="quick-setting-title" data-i18n="views.settings.options.currency"></span>
+                    </div>
+                    <select id="welcome-pref-currency" class="welcome-select-input">
+                        <!-- DYNAMIC INSERTION: Currency select options -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details align-start">
+                        <orecalc-assets-image src="assets/resources/goldPass.png" alt="Gold Pass" class="quick-setting-icon quick-setting-icon--push"></orecalc-assets-image>
+                        <div class="quick-setting-text">
+                            <span class="quick-setting-title" data-i18n="views.welcome.quickSettings.goldPass"></span>
+                            <span class="quick-setting-desc" data-i18n="views.welcome.quickSettings.goldPassDesc"></span>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-gold-pass"
+                            data-i18n-aria-label="views.welcome.quickSettings.goldPass">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="group-content">
+                <div class="welcome-quick-setting-item">
+                    <div class="quick-setting-details">
+                        <orecalc-assets-image src="assets/resources/shopOffers.png" alt="Shop Offers" class="quick-setting-icon"></orecalc-assets-image>
+                        <span class="quick-setting-title" data-i18n="views.welcome.quickSettings.shopOffersBuy"></span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-pref-shop-offers-buy"
+                            data-i18n-aria-label="views.welcome.quickSettings.shopOffersBuy">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="welcome-quick-setting-subpanel" id="welcome-pref-shop-offers-panel" style="display: none;">
+                    <div id="welcome-shop-offers-inputs-container" class="subpanel-vertical-group">
+                        <!-- DYNAMIC INSERTION: Town Hall shop offer inputs -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

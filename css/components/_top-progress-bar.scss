@@ -10,7 +10,7 @@
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.25s ease-out, visibility 0.25s ease-out;
+    transition: opacity $duration-base $ease-decelerate, visibility $duration-base $ease-decelerate;
 
     &.active {
         opacity: 1;
@@ -33,7 +33,7 @@
     height: 100%;
     background: linear-gradient(90deg, $accent-primary 0%, color-mix(in srgb, $accent-primary 70%, white) 100%);
     transform: translate3d(-100%, 0, 0);
-    transition: transform 0.2s cubic-bezier(0.1, 0.7, 0.1, 1);
+    transition: transform $duration-fast $ease-enter;
     box-shadow: 0 0 10px $accent-primary, 0 0 5px $accent-primary;
 }
 

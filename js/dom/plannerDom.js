@@ -1,3 +1,6 @@
+/**
+ * Queries and caches DOM element references for the Planner tab, calendar, and income chips.
+ */
 export function getPlannerDOMElements() {
     return {
         customMaxLevel: {

@@ -1,0 +1,175 @@
+@use '../../abstracts/variables' as *;
+
+.calendar-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+#calendar-track {
+    display: flex;
+    align-items: flex-start;
+    width: 300%;
+    position: relative;
+}
+
+.calendar-grid {
+    width: calc(100% / 3);
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: auto;
+    grid-auto-rows: minmax(80px, auto);
+    text-align: center;
+    flex-shrink: 0;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    overflow: hidden;
+    background-color: var(--border-primary);
+    gap: 1px;
+
+    .day-name {
+        font-weight: var(--font-weight-bold);
+        color: $text-secondary;
+        padding: 12px 5px;
+        background-color: $bg-surface-primary;
+        font-size: 0.8em;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .day-cell {
+        padding: 12px 5px 8px 5px;
+        cursor: pointer;
+        transition: background-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+        background-color: $bg-surface-primary;
+        min-height: 80px;
+
+        &:hover {
+            background-color: $bg-surface-tertiary;
+            z-index: 5;
+            box-shadow: inset 0 0 0 1px $accent-primary;
+        }
+
+        &.other-month {
+            background-color: $bg-app;
+            color: $text-muted;
+
+            .income-chip {
+                opacity: 0.4;
+                filter: grayscale(0.5);
+            }
+        }
+
+        .chip-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(#{$chip-size-calendar}, calc(50% - 2px)), 1fr));
+            gap: $chip-gap-subgrid;
+            justify-items: center;
+            align-items: center;
+            align-content: flex-start;
+            width: 100%;
+            box-sizing: border-box;
+
+            &.subgrid-1 {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+
+            &.subgrid-2 {
+                grid-template-columns: repeat(2, 1fr);
+                gap: $chip-gap-subgrid;
+            }
+
+            &.subgrid-compact-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: $chip-gap-subgrid;
+            }
+        }
+    }
+}
+
+@keyframes dropPulse {
+    0% {
+        background-color: transparent;
+        box-shadow: inset 0 0 0 0 rgba($accent-primary, 0);
+    }
+    30% {
+        background-color: rgba($accent-primary, 0.2);
+        box-shadow: inset 0 0 0 4px rgba($accent-primary, 0.4);
+    }
+    100% {
+        background-color: transparent;
+        box-shadow: inset 0 0 0 0 rgba($accent-primary, 0);
+    }
+}
+
+.day-cell {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: visible;
+    position: relative;
+
+    &.drop-pulse {
+        animation: dropPulse 0.6s ease-out;
+    }
+
+    &.drag-source-cell {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+        box-shadow: 0 0 8px color-mix(in srgb, $accent-primary 25%, transparent);
+    }
+
+    &.drag-source-day {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+        box-shadow: 0 0 8px color-mix(in srgb, $accent-primary 25%, transparent);
+    }
+
+    &.today {
+        .date-display {
+            background-color: $accent-primary;
+            color: $text-on-accent;
+            font-weight: var(--font-weight-bold);
+            box-shadow: $elevation-2;
+        }
+    }
+
+    .date-display {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        border-radius: 50%;
+        font-size: 0.95em;
+        transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+        flex-shrink: 0;
+    }
+
+    .chip-container {
+        flex-grow: 1;
+        min-height: 30px;
+        border-radius: $shape-corner-small;
+        transition: background-color $duration-fast $ease-smooth, outline-color $duration-fast $ease-smooth;
+
+        &.valid-drop-range {
+            outline: 1.5px dashed $border-accent;
+            outline-offset: -1.5px;
+            background-color: color-mix(in srgb, $accent-primary-soft 30%, transparent);
+        }
+
+        &.valid-drop-target {
+            outline: 2px dashed $color-success;
+            outline-offset: -2px;
+            background-color: $color-success-soft;
+        }
+
+        &.invalid-drop-target {
+            outline: 2px dashed $color-danger;
+            outline-offset: -2px;
+            background-color: $color-danger-soft;
+        }
+    }
+}

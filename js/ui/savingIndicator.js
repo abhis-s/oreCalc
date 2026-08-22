@@ -1,8 +1,12 @@
-import { dom } from '../dom/domElements.js';
-import { state } from '../core/state.js';
-
 import { translate } from '../i18n/translator.js';
 
+import { state } from '../core/state.js';
+
+import { dom } from '../dom/domElements.js';
+
+/**
+ * Displays active saving spinners and updates text across floating save buttons and FAB pills.
+ */
 export function showSavingIndicator() {
     if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;
@@ -30,6 +34,9 @@ export function showSavingIndicator() {
     }
 }
 
+/**
+ * Hides saving spinner indicators and resets button labels back to default.
+ */
 export function hideSavingIndicator() {
     if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;
@@ -57,6 +64,9 @@ export function hideSavingIndicator() {
     }
 }
 
+/**
+ * Displays transient success checkmark animation across floating save buttons and FAB pills.
+ */
 export function showSaveSuccessIndicator() {
     if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;
@@ -99,6 +109,9 @@ function hideSaveSuccessIndicator() {
     });
 }
 
+/**
+ * Displays transient error warning animation across floating save buttons and FAB pills.
+ */
 export function showSaveErrorIndicator() {
     if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
     const floatingSaveBtn = dom.controls.saveButton;

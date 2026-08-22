@@ -1,0 +1,318 @@
+@use '../../abstracts/variables' as *;
+
+#equipment-details-modal {
+    .eq-details-modal-content {
+        max-width: $modal-width-workspace !important;
+        width: 95%;
+        height: min(88dvh, 880px);
+        max-height: calc(100dvh - 48px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-radius: $modal-radius-workspace;
+        background: color-mix(in srgb, $bg-surface-primary 95%, black);
+        border: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+
+        .modal-body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            .modal-header-actions,
+            .header-actions {
+                .modal-header-btn,
+                .close-button,
+                .unhide-note-btn {
+                    &:disabled,
+                    &.disabled {
+                        opacity: 0.35 !important;
+                        cursor: not-allowed !important;
+                        pointer-events: none !important;
+                        background-color: color-mix(in srgb, $bg-surface-secondary 40%, transparent) !important;
+                        border-color: color-mix(in srgb, $border-primary 20%, transparent) !important;
+                        color: color-mix(in srgb, $text-secondary 40%, transparent) !important;
+                        transform: none !important;
+
+                        orecalc-assets-svg,
+                        svg {
+                            transform: none !important;
+                        }
+                    }
+
+                    &.prev-eq-btn:hover,
+                    &.prev-eq-btn:focus-visible {
+                        orecalc-assets-svg,
+                        svg {
+                            transform: translateX(-3px);
+                        }
+                    }
+
+                    &.next-eq-btn:hover,
+                    &.next-eq-btn:focus-visible {
+                        orecalc-assets-svg,
+                        svg {
+                            transform: translateX(3px);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @media (max-width: #{$breakpoint-desktop - 1px}) {
+        padding: 0 !important;
+
+        .eq-details-modal-content {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            border: none !important;
+        }
+
+        .modal-header {
+            padding: 12px 16px;
+
+            h2 {
+                font-size: 1.15rem;
+                flex: 1;
+                min-width: 0;
+            }
+        }
+
+        .modal-body {
+            padding: 12px 16px 16px;
+        }
+
+        .eq-details-fallback-desc {
+            font-size: 0.82rem;
+        }
+
+        .eq-details-avatars {
+            padding: 5px 10px;
+            gap: 8px;
+            border-radius: 12px;
+
+            .eq-details-hero-emblem {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+            }
+
+            .avatar-sep {
+                height: 22px;
+            }
+
+            .eq-details-item-img {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        .eq-badge {
+            font-size: 0.68rem;
+            padding: 3px 8px;
+        }
+
+        .mod-tab-btn {
+            font-size: 0.68rem;
+            padding: 4px 8px;
+        }
+
+        .eq-details-props-grid {
+            gap: 10px;
+            padding: 12px;
+
+            .prop-card-header {
+                font-size: 0.72rem;
+            }
+
+            .prop-card-value {
+                font-size: 0.88rem;
+            }
+
+            .prop-card-label {
+                font-size: 0.72rem;
+            }
+        }
+
+        .eq-details-static-stats-box,
+        .eq-details-current-level-box {
+            padding: 10px 14px;
+
+            .unit-title,
+            .eq-details-level-header {
+                font-size: 0.82rem;
+            }
+
+            .eq-details-stats-progress-list {
+                .stat-label-line {
+                    font-size: 0.74rem;
+                }
+            }
+        }
+
+        .eq-details-table {
+            font-size: 0.8rem;
+
+            th, td {
+                padding: 8px 8px;
+            }
+
+            thead tr.super-header-row th.category-header {
+                font-size: 0.68rem;
+            }
+
+            thead tr.sub-header-row th {
+                font-size: 0.72rem;
+                top: 23px !important;
+            }
+
+            .delta-tag {
+                font-size: 0.7rem;
+            }
+
+            .total-cost-label {
+                font-size: 0.8rem;
+            }
+        }
+
+        .eq-details-footer-meta {
+            font-size: 0.72rem;
+
+            .eq-details-attribution-row {
+                font-size: 0.68rem;
+            }
+        }
+    }
+
+    @media (max-width: $breakpoint-modal) {
+        .modal-header {
+            padding: 10px 12px;
+
+            h2 {
+                font-size: 1.05rem;
+            }
+        }
+
+        .eq-details-header-row {
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .eq-details-fallback-desc {
+            font-size: 0.78rem;
+        }
+
+        .eq-details-avatars {
+            padding: 4px 8px;
+            gap: 6px;
+            border-radius: 10px;
+
+            .eq-details-hero-emblem {
+                width: 24px;
+                height: 24px;
+                border-radius: 6px;
+            }
+
+            .avatar-sep {
+                height: 18px;
+            }
+
+            .eq-details-item-img {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        .eq-badge {
+            font-size: 0.64rem;
+            padding: 2px 7px;
+        }
+
+        .mod-tab-btn {
+            font-size: 0.64rem;
+            padding: 4px 7px;
+        }
+
+        .eq-details-props-grid {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+            padding: 10px;
+
+            .prop-card-header {
+                font-size: 0.68rem;
+            }
+
+            .prop-card-value {
+                font-size: 0.82rem;
+            }
+
+            .prop-card-label {
+                font-size: 0.68rem;
+            }
+        }
+
+        .eq-details-static-stats-box,
+        .eq-details-current-level-box {
+            padding: 8px 12px;
+
+            .unit-title,
+            .eq-details-level-header {
+                font-size: 0.76rem;
+            }
+
+            .eq-details-stats-progress-list {
+                .stat-label-line {
+                    font-size: 0.7rem;
+                }
+            }
+        }
+
+        .rec-banner-card {
+            font-size: 0.75rem;
+            padding: 8px 10px;
+        }
+
+        .eq-details-table {
+            font-size: 0.75rem;
+
+            th, td {
+                padding: 6px 4px;
+            }
+
+            thead tr.super-header-row th.category-header {
+                font-size: 0.64rem;
+            }
+
+            thead tr.sub-header-row th {
+                font-size: 0.66rem;
+                top: 20px !important;
+            }
+
+            .delta-tag {
+                font-size: 0.65rem;
+            }
+
+            .total-cost-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        .eq-details-footer-meta {
+            font-size: 0.68rem;
+            gap: 6px;
+
+            .eq-details-attribution-row {
+                font-size: 0.64rem;
+            }
+        }
+    }
+}

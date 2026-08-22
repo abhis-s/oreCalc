@@ -1,3 +1,6 @@
+/**
+ * Queries and caches DOM element references for the App Settings tab and related modals.
+ */
 export function getAppSettingsDOMElements() {
     return {
         currencySelect: document.getElementById('currency-select'),

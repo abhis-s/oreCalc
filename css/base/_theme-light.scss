@@ -1,0 +1,150 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/palette' as *;
+
+.light-mode {
+    color-scheme: light;
+
+    --bg-app: #{$palette-grey-50};
+    --bg-surface-primary: #{$palette-white};
+    --bg-surface-secondary: #{$palette-grey-100};
+    --bg-surface-tertiary: #{$palette-grey-200};
+    --bg-surface-popover: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
+    --bg-overlay: #{$palette-overlay-dark-30};
+
+    --accent-primary: #{$palette-blue-600};
+    --accent-primary-hover: #{$palette-blue-700};
+    --accent-primary-active: #{$palette-blue-800};
+    --accent-primary-soft: rgba(26, 115, 232, 0.12);
+    --accent-soft: $accent-primary-soft;
+
+    --accent-secondary: #{$palette-lavender-700};
+    --accent-secondary-hover: #{$palette-lavender-900};
+    --accent-secondary-soft: rgba(73, 69, 79, 0.12);
+
+    --accent-tertiary: #{$palette-purple-600};
+    --accent-tertiary-hover: #{$palette-purple-700};
+    --accent-tertiary-soft: rgba(156, 39, 176, 0.12);
+
+    --color-success: #{$palette-green-700};
+    --color-success-soft: rgba(30, 142, 62, 0.12);
+    --color-warning: #{$palette-yellow-900};
+    --color-warning-soft: rgba(227, 116, 0, 0.12);
+    --color-danger: #{$palette-red-700};
+    --color-danger-soft: rgba(217, 48, 37, 0.12);
+    --color-danger-soft-hover: rgba(217, 48, 37, 0.24);
+    --color-info: #{$palette-blue-600};
+    --color-info-soft: rgba(26, 115, 232, 0.12);
+
+    --text-primary: #{$palette-grey-850};
+    --text-secondary: #{$palette-grey-750};
+    --text-muted: #{$palette-grey-650};
+    --text-disabled: #{$palette-grey-400};
+    --text-on-accent: #{$palette-white};
+    --text-inverse: #{$palette-white};
+
+    --border-primary: #{$palette-grey-400};
+    --border-secondary: #{$palette-grey-300};
+    --border-accent: #{$palette-blue-600};
+    --border-danger: #{$palette-red-700};
+    --border-inverse: #{$palette-grey-800};
+    --outline-focus: #{$palette-blue-600};
+
+    --color-rarity-common: #{$palette-blue-700};
+    --color-rarity-rare: #{$palette-green-700};
+    --color-rarity-epic: #{$palette-purple-700};
+    --color-rarity-legendary: #{$palette-yellow-900};
+
+    --color-gold-glow: #{$palette-amber-900};
+    --color-gold-glow-shadow: color-mix(in srgb, var(--color-gold-glow) 40%, transparent);
+
+    --shiny-ore: #0088cc;
+    --glowy-ore: #c020db;
+    --starry-ore: #d97706;
+
+    --color-income-star-bonus: #{$palette-cyan-200};
+    --color-income-clan-war: #{$palette-blue-200};
+    --color-income-cwl: #{$palette-indigo-200};
+    --color-income-raid-medals: #{$palette-grey-300};
+    --color-income-gems: #{$palette-emerald-200};
+    --color-income-event-pass: #{$palette-purple-200};
+    --color-income-event-trader: #{$palette-deep-orange-200};
+    --color-income-shop-offer: #{$palette-amber-200};
+    --color-income-prospector: #{$palette-brown-200};
+    --color-income-supercell-events: #{$palette-teal-200};
+    --color-income-custom: #{$palette-pink-200};
+    --color-on-income: #{$palette-grey-900};
+
+    --chip-border: #{$palette-overlay-dark-10};
+    --input-hover-bg-color: #{$palette-overlay-dark-10};
+
+    --material-track-inactive: #{$palette-grey-200};
+    --material-track-border-inactive: #{$palette-grey-400};
+    --material-thumb-inactive: #{$palette-grey-700};
+    --material-track-active: color-mix(in srgb, var(--accent-primary) 28%, #ffffff);
+    --material-track-border-active: color-mix(in srgb, var(--accent-primary) 60%, transparent);
+    --material-thumb-active: var(--accent-primary);
+
+    --color-gold: #{$palette-yellow-800};
+    --color-gold-soft: rgba(227, 116, 0, 0.15);
+    --color-event-red: #{$palette-red-600};
+    --color-event-red-hover: #{$palette-red-800};
+
+    --font-weight-bold: 600;
+
+    --btn-color-teal: #{$palette-teal-800};
+    --btn-bg-teal: color-mix(in srgb, var(--btn-color-teal) 10%, transparent);
+    --btn-border-teal: color-mix(in srgb, var(--btn-color-teal) 30%, transparent);
+    --btn-bg-teal-hover: color-mix(in srgb, var(--btn-color-teal) 18%, transparent);
+    --btn-border-teal-hover: color-mix(in srgb, var(--btn-color-teal) 45%, transparent);
+
+    --btn-color-red: #{$palette-red-800};
+    --btn-bg-red: color-mix(in srgb, var(--btn-color-red) 10%, transparent);
+    --btn-border-red: color-mix(in srgb, var(--btn-color-red) 30%, transparent);
+    --btn-bg-red-hover: color-mix(in srgb, var(--btn-color-red) 18%, transparent);
+    --btn-border-red-hover: color-mix(in srgb, var(--btn-color-red) 45%, transparent);
+
+    --btn-color-deep-orange: #{$palette-deep-orange-800};
+    --btn-bg-deep-orange: color-mix(in srgb, var(--btn-color-deep-orange) 10%, transparent);
+    --btn-border-deep-orange: color-mix(in srgb, var(--btn-color-deep-orange) 30%, transparent);
+    --btn-bg-deep-orange-hover: color-mix(in srgb, var(--btn-color-deep-orange) 18%, transparent);
+    --btn-border-deep-orange-hover: color-mix(in srgb, var(--btn-color-deep-orange) 45%, transparent);
+
+    --btn-color-emerald: #{$palette-emerald-800};
+    --btn-bg-emerald: color-mix(in srgb, var(--btn-color-emerald) 10%, transparent);
+    --btn-border-emerald: color-mix(in srgb, var(--btn-color-emerald) 30%, transparent);
+    --btn-bg-emerald-hover: color-mix(in srgb, var(--btn-color-emerald) 18%, transparent);
+    --btn-border-emerald-hover: color-mix(in srgb, var(--btn-color-emerald) 45%, transparent);
+
+    --btn-color-green: #{$palette-green-800};
+    --btn-bg-green: color-mix(in srgb, var(--btn-color-green) 10%, transparent);
+    --btn-border-green: color-mix(in srgb, var(--btn-color-green) 30%, transparent);
+    --btn-bg-green-hover: color-mix(in srgb, var(--btn-color-green) 18%, transparent);
+    --btn-border-green-hover: color-mix(in srgb, var(--btn-color-green) 45%, transparent);
+
+    --btn-color-amber: #{$palette-amber-900};
+    --btn-bg-amber: color-mix(in srgb, var(--btn-color-amber) 12%, transparent);
+    --btn-border-amber: color-mix(in srgb, var(--btn-color-amber) 35%, transparent);
+    --btn-bg-amber-hover: color-mix(in srgb, var(--btn-color-amber) 20%, transparent);
+    --btn-border-amber-hover: color-mix(in srgb, var(--btn-color-amber) 50%, transparent);
+
+    --btn-color-cyan: #{$palette-cyan-900};
+    --btn-bg-cyan: color-mix(in srgb, var(--btn-color-cyan) 10%, transparent);
+    --btn-border-cyan: color-mix(in srgb, var(--btn-color-cyan) 30%, transparent);
+    --btn-bg-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 18%, transparent);
+    --btn-border-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 45%, transparent);
+
+    --btn-color-purple: #{$palette-purple-800};
+    --btn-bg-purple: color-mix(in srgb, var(--btn-color-purple) 10%, transparent);
+    --btn-border-purple: color-mix(in srgb, var(--btn-color-purple) 30%, transparent);
+    --btn-bg-purple-hover: color-mix(in srgb, var(--btn-color-purple) 18%, transparent);
+    --btn-border-purple-hover: color-mix(in srgb, var(--btn-color-purple) 45%, transparent);
+
+    --btn-color-pink: #{$palette-pink-800};
+    --btn-bg-pink: color-mix(in srgb, var(--btn-color-pink) 10%, transparent);
+    --btn-border-pink: color-mix(in srgb, var(--btn-color-pink) 30%, transparent);
+    --btn-bg-pink-hover: color-mix(in srgb, var(--btn-color-pink) 18%, transparent);
+    --btn-border-pink-hover: color-mix(in srgb, var(--btn-color-pink) 45%, transparent);
+
+    background-color: $bg-app;
+    color: $text-primary;
+}

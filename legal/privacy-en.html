@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Privacy Policy for OreCalc, the privacy-first Clash of Clans hero equipment and upgrade planner.">
+    <meta name="effective-date-timestamp" content="1786060800000">
+    <title>Privacy Policy - OreCalc</title>
+    <link rel="canonical" href="https://orecalc.tech/privacy/">
+    <link rel="alternate" hreflang="en" href="https://orecalc.tech/privacy/" />
+    <link rel="alternate" hreflang="de" href="https://orecalc.tech/de/privacy/" />
+    <link rel="alternate" hreflang="x-default" href="https://orecalc.tech/privacy/" />
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://orecalc.tech/privacy/">
+    <meta property="og:title" content="Privacy Policy - OreCalc">
+    <meta property="og:description" content="Privacy Policy for OreCalc, the privacy-first Clash of Clans hero equipment and upgrade planner.">
+
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:url" content="https://orecalc.tech/privacy/">
+    <meta property="twitter:title" content="Privacy Policy - OreCalc">
+    <meta property="twitter:description" content="Privacy Policy for OreCalc, the privacy-first Clash of Clans hero equipment and upgrade planner.">
+    <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/legal/legal.css">
+    <script>
+        (function() {
+            const p = new URLSearchParams(window.location.search);
+            const t = p.get('theme') || ((window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-theme', t);
+            if (window.self !== window.top) document.documentElement.classList.add('is-embedded');
+        })();
+    </script>
+    <script src="/legal/legal.js" defer></script>
+</head>
+<body>
+    <main class="container">
+        <div class="header-row">
+            <a href="/" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to App
+            </a>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">🌙</button>
+        </div>
+
+        <h1>Privacy Policy</h1>
+        <p><strong>Effective Date:</strong> August 7, 2026 (Originally Published: June 5, 2026)</p>
+
+        <div style="background: var(--code-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 18px; margin: 15px 0 20px 0;">
+            <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 1.05em; color: var(--accent-color);">Summary of Recent Updates (August 7, 2026)</h3>
+            <ul style="margin: 0; padding-left: 20px; font-size: 0.95em; line-height: 1.5;">
+                <li><strong>Automated Error Diagnostics:</strong> Disclosed self-hosted, anonymized error logging used to identify software crashes and stack traces.</li>
+                <li><strong>Bug Report Clarification:</strong> Clarified that attaching planner state to voluntary bug reports is strictly optional.</li>
+                <li><strong>Performance Analytics:</strong> Disclosed cookie-free, privacy-first analytics used to measure aggregate site performance.</li>
+            </ul>
+        </div>
+
+        <p>
+            This Privacy Policy explains how <strong>OreCalc</strong> ("we", "our", or "the Service"), currently accessible at <code>orecalc.tech</code> (and in the future migrating to <code>clashcalc.com</code>), handles your information.
+        </p>
+        <p>
+            Our Service is designed to be privacy-first. By default, <strong>we do not collect, store, or process any of your personal data on our servers.</strong>
+        </p>
+
+        <h2>1. Client-Side Processing (Offline by Design)</h2>
+        <p>
+            OreCalc is a Progressive Web App (PWA) that executes calculations and runs upgrade planning <strong>entirely on your local machine.</strong>
+        </p>
+        <ul>
+            <li>No calculations, upgrade costs, or resource estimates are computed on our servers.</li>
+            <li>Aside from fetching game statistics and optional cloud synchronization, the Service does not require an internet connection to function.</li>
+            <li>Your preferences (language, currency, theme, and planner configurations) are stored on your own device using browser <code>localStorage</code>. We cannot access or view this data.</li>
+        </ul>
+
+        <h2>2. Data Handled by the Service</h2>
+        <p>Under specific interactions, the Service handles the following data:</p>
+        <ul>
+            <li>
+                <strong>Clash of Clans Player Tags:</strong> When you enter a Player Tag, the app queries the official public Clash of Clans API to fetch player tag data, including hero equipment and upgrade levels. Player tags and game statistics are public. Your tag is stored locally on your device unless Cloud Sync is explicitly enabled.
+            </li>
+            <li>
+                <strong>Cloud Sync (Optional & Opt-In):</strong> If you choose to enable Cloud Synchronization, your settings and local calculator configuration are securely backed up to our servers to allow cross-device sync. Note that you must first fetch your data from the Clash of Clans API to enable Cloud Sync; synchronization is not permitted without a valid player tag.
+            </li>
+            <li>
+                <strong>Automated Error Diagnostics (Self-Hosted):</strong> When an unexpected runtime software error or JavaScript exception occurs, technical diagnostic details (error message, stack trace, browser version, page URL, and your application User ID) are sent to our secure backend servers to help us resolve bugs. This diagnostic data is processed on our own servers, contains no tracking cookies, and is never shared with third-party tracking services.
+            </li>
+            <li>
+                <strong>Bug Reports (Voluntary):</strong> If you choose to submit a bug report, your message, optional contact email address, and an optional snapshot of your local planner state (only if you keep the "Attach User Data" checkbox enabled) are sent to our support mail handler at <code>clashcalc.com</code> to help us diagnose the issue.
+            </li>
+        </ul>
+
+        <h2>3. Use of Information</h2>
+        <p> Any public game statistics, diagnostic logs, or local planner configurations handled by the Service are used strictly to: </p>
+        <ul>
+            <li>Render your personal calculator configuration and upgrade logs.</li>
+            <li>Synchronize your data across devices (only if you explicitly enable Cloud Sync).</li>
+            <li>Diagnose software errors and resolve voluntary bug reports.</li>
+        </ul>
+        <p>We do not use tracking cookies, we do not run advertising scripts, and we never share or sell any user information. We use privacy-first, cookie-free analytics strictly to measure aggregate site performance and pageviews.</p>
+
+        <h2>4. Third-Party Integrations & Analytics</h2>
+        <p>
+            To populate your planner profile and monitor infrastructure health, we integrate with the following services:
+        </p>
+        <ul>
+            <li>
+                <strong>Clash of Clans API:</strong> Player tag requests are subject to Supercell's <a href="https://supercell.com/en/fan-content-policy/" target="_blank">Fan Content Policy</a> and Supercell's <a href="https://supercell.com/en/terms-of-service/" target="_blank">Terms of Service</a>.
+            </li>
+            <li>
+                <strong>API Proxies:</strong> To facilitate API request delivery and optimize operational costs, player tag queries may be routed through third-party proxy servers (such as <code>coproxy.royaleapi.com</code>). Connection data is subject to the respective proxy provider's <a href="https://royaleapi.com/tos" target="_blank">Terms of Service</a> and <a href="https://royaleapi.com/privacy" target="_blank">Privacy Policy</a>.
+            </li>
+            <li>
+                <strong>Cloudflare Web Analytics:</strong> We use Cloudflare Web Analytics to measure aggregate, non-personally identifiable pageviews and Core Web Vitals performance metrics. Cloudflare Web Analytics operates without tracking cookies, does not log or store personal IP addresses, and does not track users across third-party websites.
+            </li>
+            <li>
+                <strong>Identity Privacy:</strong> We do not collect or link personal real-world identities to Clash of Clans player profiles.
+            </li>
+        </ul>
+
+        <h2>5. Your Data Rights & Deletion Tools</h2>
+        <p>
+            We align with EU GDPR, CCPA, and global privacy standards by providing self-service data management directly inside the Settings tab:
+        </p>
+        <ul>
+            <li>
+                <strong>Download User Data:</strong> Export and download your entire application state as a JSON file at any time.
+            </li>
+            <li>
+                <strong>Data Erasure Options:</strong> We provide three distinct levels of self-service data removal:
+                <ul>
+                    <li><strong>Local Reset:</strong> Permanently deletes all local configurations, hero equipment levels, user preferences, and offline planner data stored in your browser's <code>localStorage</code>.</li>
+                    <li><strong>Delete All Data (Local &amp; Cloud):</strong> Wipes all local browser data and permanently deletes your synced backup profile and settings from our cloud servers.</li>
+                    <li><strong>Request Exclusion (Complete Delete):</strong> Verifies ownership of your player tag using the official Clash of Clans API. Once verified, a request is submitted to permanently remove your player tag from all OreCalc user profiles across our database; this request will be processed within 30 days. Additionally, a database lock is placed on the player tag on our servers. This lock prevents other users from fetching or linking your player tag within the Service without first verifying ownership. Please note that this restriction is only effective within the Service itself, as all underlying Clash of Clans game data remains public through Supercell's official API.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>6. Contact Us</h2>
+        <p>
+            If you have questions about this policy or wish to discuss your privacy settings, contact us at <a href="mailto:legal@clashcalc.com">legal@clashcalc.com</a>.
+        </p>
+
+        <div class="footer">
+            <p style="margin: 0 0 8px;">This page is available at <a href="https://orecalc.tech/privacy/" target="_blank">orecalc.tech/privacy/</a></p>
+            &copy; 2025-2026 OreCalc. All rights reserved.
+        </div>
+    </main>
+</body>
+</html>

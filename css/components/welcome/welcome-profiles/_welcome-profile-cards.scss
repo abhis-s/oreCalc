@@ -1,0 +1,259 @@
+@use '../../../abstracts/variables' as *;
+
+#welcome-modal {
+    .welcome-profiles-list-container {
+        margin-top: 16px;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .welcome-profiles-list {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-padding: 8px 12px;
+        padding: 4px 4px 8px 4px;
+        -webkit-overflow-scrolling: touch;
+
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, $accent-primary 40%, transparent) transparent;
+
+        &::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: color-mix(in srgb, $accent-primary 40%, transparent);
+            border-radius: 2px;
+        }
+    }
+
+    .welcome-profile-card-compact {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid $border-primary;
+        background-color: color-mix(in srgb, $bg-surface-primary 40%, transparent);
+        cursor: pointer;
+        transition: border-color $duration-fast $ease-standard, background-color $duration-fast $ease-standard, transform $duration-fast $ease-standard, box-shadow $duration-fast $ease-standard;
+        position: relative;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        flex-shrink: 0;
+        width: 170px;
+        box-sizing: border-box;
+
+        &:hover {
+            border-color: color-mix(in srgb, $accent-primary 50%, transparent);
+            background-color: color-mix(in srgb, $accent-primary 8%, transparent);
+            transform: translateY(-1px);
+        }
+
+        &:focus-visible {
+            outline: none;
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 2px $accent-primary, 0 0 0 5px $accent-primary-soft;
+        }
+
+        &.active {
+            border-color: $accent-primary;
+            background-color: color-mix(in srgb, $accent-primary 15%, transparent);
+            box-shadow: 0 4px 12px color-mix(in srgb, $accent-primary 15%, transparent);
+
+            .welcome-profile-card-name {
+                color: $accent-primary;
+                font-weight: 700;
+            }
+        }
+
+        .welcome-profile-card-th-img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        }
+
+        .welcome-profile-card-details {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+
+            .welcome-profile-card-name {
+                font-size: 13.5px;
+                font-weight: 600;
+                color: $text-primary;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .welcome-profile-card-tag {
+                font-size: 11px;
+                color: $text-secondary;
+                opacity: 0.8;
+            }
+        }
+
+        .welcome-profile-card-status {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            min-width: 20px;
+
+            .status-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                &.loading-spinner {
+                    width: 14px;
+                    height: 14px;
+                    flex-shrink: 0;
+                    border: 2px solid color-mix(in srgb, $accent-primary 20%, transparent);
+                    border-top-color: $accent-primary;
+                    border-radius: 50%;
+                    animation: spin 0.8s linear infinite;
+                }
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                    display: block;
+                }
+            }
+
+            .loading-countdown {
+                font-size: 10px;
+                font-weight: 600;
+                color: color-mix(in srgb, var(--color-text-secondary) 70%, transparent);
+                min-width: 18px;
+                text-align: right;
+                font-variant-numeric: tabular-nums;
+                letter-spacing: 0.02em;
+            }
+        }
+    }
+
+    .welcome-profile-card-vertical {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 18px;
+        border-radius: 14px;
+        border: 1px solid $border-primary;
+        background-color: color-mix(in srgb, $bg-surface-primary 40%, transparent);
+        cursor: pointer;
+        transition: border-color $duration-fast $ease-standard, background-color $duration-fast $ease-standard, transform $duration-fast $ease-standard, box-shadow $duration-fast $ease-standard;
+        position: relative;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 12px;
+
+        &:hover {
+            border-color: color-mix(in srgb, $accent-primary 50%, transparent);
+            background-color: color-mix(in srgb, $accent-primary 8%, transparent);
+            transform: translateY(-1px);
+        }
+
+        &.active {
+            border-color: $accent-primary;
+            background-color: color-mix(in srgb, $accent-primary 15%, transparent);
+            box-shadow: 0 4px 12px color-mix(in srgb, $accent-primary 15%, transparent);
+        }
+
+        .welcome-profile-card-th-img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        }
+
+        .welcome-profile-card-details {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+
+            .welcome-profile-card-name {
+                font-size: 15px;
+                font-weight: 600;
+                color: $text-primary;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .welcome-profile-card-tag {
+                font-size: 12px;
+                color: $text-secondary;
+                opacity: 0.8;
+            }
+        }
+
+        .welcome-profile-card-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .status-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                &.loading-spinner {
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid color-mix(in srgb, $accent-primary 20%, transparent);
+                    border-top-color: $accent-primary;
+                    border-radius: 50%;
+                    animation: spin 0.8s linear infinite;
+                }
+
+                svg {
+                    width: 20px;
+                    height: 20px;
+                    display: block;
+                }
+            }
+        }
+    }
+
+    .loaded-profiles-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: $text-secondary;
+        margin-bottom: 8px;
+    }
+
+    .welcome-profiles-selection-view {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+
+        .welcome-vertical-profiles-list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex: 1;
+            padding: 4px 4px 8px 4px;
+            margin-bottom: 12px;
+        }
+    }
+}

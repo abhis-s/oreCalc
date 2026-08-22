@@ -3,6 +3,61 @@
  * Manages input focus scrolling, pins header to VisualViewport on iOS, and shifts toasts above virtual keyboard on all devices.
  */
 
+/**
+ * Detects if the current device is a touch/mobile device capable of showing a software virtual keyboard.
+ * @returns {boolean}
+ */
+export function isTouchDevice() {
+    if (typeof window === 'undefined') return false;
+    return 'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
+}
+
+/**
+ * Calculates the required virtual keyboard bottom offset (in px) for toast positioning.
+ * Returns 0 if device is not touch-enabled, if no input is focused, or if keyboard height <= 50px.
+ *
+ * @param {Object} options
+ * @param {boolean} options.isInputFocused
+ * @param {boolean} options.isTouch
+ * @param {number} options.layoutHeight
+ * @param {number} options.vvHeight
+ * @param {number} options.vvTop
+ * @param {number} [options.screenHeight]
+ * @returns {number}
+ */
+export function calculateToastKeyboardOffset({
+    isInputFocused,
+    isTouch,
+    layoutHeight,
+    vvHeight,
+    vvTop,
+    screenHeight = 0
+}) {
+    if (!isTouch || !isInputFocused) {
+        return 0;
+    }
+
+    // Primary keyboard height formula: layout height minus visual viewport visible bottom
+    let keyboardHeight = layoutHeight - (vvHeight + vvTop);
+
+    // iPadOS / touch Safari fallback: when layoutHeight (window.innerHeight) shrinks alongside visualViewport
+    if (keyboardHeight < 50 && screenHeight > 0) {
+        const screenDiff = screenHeight - vvHeight;
+        if (screenDiff > 150) {
+            keyboardHeight = Math.min(screenDiff, 400);
+        }
+    }
+
+    if (keyboardHeight > 50) {
+        return Math.round(keyboardHeight + 10);
+    }
+
+    return 0;
+}
+
+/**
+ * Initializes virtual keyboard compensation listeners and visualViewport resize handlers for mobile inputs.
+ */
 export function initializeViewportHandler() {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
@@ -12,12 +67,10 @@ export function initializeViewportHandler() {
         initialHeader.style.transform = '';
     }
 
-    // 1. Smoothly scroll focused inputs into view within modal-body
     document.addEventListener('focusin', (event) => {
         const target = event.target;
         if (!target || !target.matches('input, select, textarea')) return;
 
-        // If input is inside a modal, scroll the modal-body container smoothly
         const modalBody = target.closest('.modal-body');
         if (modalBody) {
             setTimeout(() => {
@@ -26,7 +79,6 @@ export function initializeViewportHandler() {
         }
     }, { passive: true });
 
-    // 2. Lock fixed header to visual viewport on iOS WebKit when keyboard shifts layout viewport
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     if (isIOS && window.visualViewport) {
@@ -40,7 +92,6 @@ export function initializeViewportHandler() {
                 headerFrame = null;
 
                 const activeEl = document.activeElement;
-                // If active input is inside a modal, ignore header sync
                 if (activeEl && activeEl.closest('.modal, .modal-content, .modal-backdrop')) {
                     return;
                 }
@@ -65,7 +116,6 @@ export function initializeViewportHandler() {
         window.addEventListener('scroll', syncHeaderVisualViewport, { passive: true });
         window.addEventListener('pageshow', syncHeaderVisualViewport, { passive: true });
 
-        // Fluid 0.3s cubic-bezier transition back to 0 on focusout for non-modal inputs
         document.addEventListener('focusout', (event) => {
             const target = event.target;
             if (!target || !target.matches('input, select, textarea')) return;
@@ -86,7 +136,6 @@ export function initializeViewportHandler() {
         }, { passive: true });
     }
 
-    // 3. Dynamic Toast Container positioning above virtual keyboard on iPadOS, iOS, Android, and Desktop
     if (window.visualViewport) {
         let toastFrame = null;
 
@@ -101,31 +150,30 @@ export function initializeViewportHandler() {
 
                 const activeEl = document.activeElement;
                 const isInputFocused = Boolean(activeEl && activeEl.matches('input, select, textarea'));
+                const isTouch = isTouchDevice();
+
+                if (!isTouch || !isInputFocused) {
+                    toastContainer.style.removeProperty('--toast-keyboard-offset');
+                    return;
+                }
 
                 const vv = window.visualViewport;
                 if (!vv) return;
 
                 const layoutHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-                const vvHeight = vv.height;
-                const vvTop = vv.offsetTop;
+                const offset = calculateToastKeyboardOffset({
+                    isInputFocused,
+                    isTouch,
+                    layoutHeight,
+                    vvHeight: vv.height,
+                    vvTop: vv.offsetTop,
+                    screenHeight: window.screen ? window.screen.height : 0
+                });
 
-                // Primary keyboard height formula
-                let keyboardHeight = layoutHeight - (vvHeight + vvTop);
-
-                // iPadOS Safari fallback: window.innerHeight shrinks alongside visualViewport
-                if (isInputFocused && keyboardHeight < 50 && window.screen) {
-                    const screenDiff = window.screen.height - vvHeight;
-                    if (screenDiff > 150) {
-                        keyboardHeight = Math.min(screenDiff, 400);
-                    }
-                }
-
-                if (isInputFocused && keyboardHeight > 50) {
-                    toastContainer.style.transition = 'transform 0.2s cubic-bezier(0.25, 1, 0.5, 1)';
-                    toastContainer.style.transform = `translate3d(0, -${Math.round(keyboardHeight + 10)}px, 0)`;
+                if (offset > 0) {
+                    toastContainer.style.setProperty('--toast-keyboard-offset', `${offset}px`);
                 } else {
-                    toastContainer.style.transition = 'transform 0.3s ease';
-                    toastContainer.style.transform = '';
+                    toastContainer.style.removeProperty('--toast-keyboard-offset');
                 }
             });
         };

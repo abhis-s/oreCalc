@@ -1,0 +1,234 @@
+@use '../../abstracts/variables' as *;
+
+#welcome-modal {
+    .welcome-quick-settings-container {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        margin-top: 16px;
+        margin-bottom: 20px;
+        text-align: left;
+        background: color-mix(in srgb, $bg-surface-primary 40%, transparent);
+        padding: 16px;
+        border-radius: 14px;
+        border: 1px solid $border-primary;
+        position: relative;
+        box-sizing: border-box;
+
+        h4 {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: $text-primary;
+            margin: 0 0 12px 0;
+            flex-shrink: 0;
+        }
+    }
+
+    .welcome-quick-settings-groups {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding-right: 4px;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, $accent-primary 40%, transparent) transparent;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: color-mix(in srgb, $accent-primary 40%, transparent);
+            border-radius: 2px;
+        }
+    }
+
+    .welcome-quick-settings-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .welcome-quick-setting-subpanel {
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        padding-left: 12px;
+        margin-top: 8px;
+        position: relative;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        animation: welcomeFadeIn 0.2s ease-out;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 3px;
+            bottom: 0;
+            width: 2px;
+            background-color: $accent-primary;
+        }
+
+        .subpanel-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+
+            label {
+                font-size: 12px;
+                font-weight: 500;
+                color: $text-secondary;
+            }
+
+            .welcome-select-input {
+                width: 80px;
+                padding: 4px 8px;
+                border-radius: 8px;
+                border: 1px solid $border-primary;
+                background-color: $bg-surface-primary;
+                color: $text-primary;
+                font-size: 12px;
+                outline: none;
+                cursor: pointer;
+                transition: border-color $duration-fast $ease-smooth;
+
+                &:focus {
+                    border-color: $accent-primary;
+                }
+            }
+
+            input[type="number"] {
+                width: 50px;
+                padding: 4px 6px;
+                border-radius: 8px;
+                border: 1px solid $border-primary;
+                background-color: $bg-surface-primary;
+                color: $text-primary;
+                font-size: 12px;
+                outline: none;
+                text-align: center;
+                transition: border-color $duration-fast $ease-smooth;
+
+                &:focus {
+                    border-color: $accent-primary;
+                }
+            }
+        }
+    }
+
+    .subpanel-label-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .subpanel-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: $text-secondary;
+        white-space: nowrap;
+    }
+
+    .welcome-select-input {
+        text-align: center;
+        text-align-last: center;
+        border: 1px solid $border-primary;
+        background-color: $bg-surface-primary;
+        color: $text-primary;
+        outline: none;
+        cursor: pointer;
+        transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+
+        &:focus {
+            border-color: $accent-primary !important;
+            box-shadow: 0 0 0 3px color-mix(in srgb, $accent-primary 25%, transparent) !important;
+        }
+    }
+
+    .group-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: color-mix(in srgb, $bg-surface-primary 30%, transparent);
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid $border-primary;
+
+        hr {
+            align-self: stretch;
+            width: 100%;
+            border: none;
+            border-top: 1px solid $border-primary;
+            margin: 4px 0;
+        }
+    }
+
+    .welcome-quick-setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+
+        .quick-setting-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+
+            &.align-start {
+                align-items: flex-start;
+            }
+
+            .quick-setting-icon {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+                flex-shrink: 0;
+
+                &--push {
+                    margin-top: 2px;
+                }
+            }
+
+            .quick-setting-text {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .quick-setting-title {
+                font-size: 13px;
+                font-weight: 600;
+                color: $text-primary;
+            }
+
+            .quick-setting-desc {
+                font-size: 11px;
+                color: $text-secondary;
+                line-height: 1.35;
+            }
+        }
+    }
+
+    .subpanel-vertical-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .subpanel-header {
+        font-size: 11px;
+        font-weight: 600;
+        color: $text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+    }
+}

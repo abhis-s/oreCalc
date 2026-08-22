@@ -1,0 +1,195 @@
+@use '../../abstracts/variables' as *;
+
+.day-cell.equipment-accumulating {
+    background-color: color-mix(in srgb, var(--equip-color) 4%, #{$bg-surface-primary}) !important;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: var(--equip-color);
+        opacity: 0.7;
+        z-index: 2;
+        transition: all $duration-fast $ease-smooth;
+    }
+
+    &.range-start::after {
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+        left: 4px;
+    }
+
+    &.range-end::after {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        right: 4px;
+    }
+}
+
+.calendar-equipment-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 6px;
+    box-sizing: border-box;
+    z-index: 3;
+}
+
+.calendar-equipment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(45, 52, 54, 0.4);
+    border: 1.5px solid color-mix(in srgb, var(--equip-color) 40%, #{$border-primary});
+    border-radius: 6px;
+    padding: 3px 6px;
+    cursor: help;
+    transition: transform $duration-fast $ease-spring, background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(4px);
+
+    &:hover {
+        transform: translateY(-2px) scale(1.05);
+        background: rgba(45, 52, 54, 0.7);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25), 0 0 10px color-mix(in srgb, var(--equip-color) 50%, transparent);
+        border-color: var(--equip-color);
+        z-index: 10;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+.calendar-equipment-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+.calendar-equipment-fallback {
+    width: 14px;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+}
+
+.calendar-equipment-level {
+    font-size: 0.72em;
+    font-weight: var(--font-weight-bold);
+    color: $color-white-const;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+#calendar-track > .weekly-view-grid {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    gap: 12px;
+    width: calc(100% / 3);
+    flex-shrink: 0;
+    box-sizing: border-box;
+
+    .day-cell {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 12px 15px;
+        border: 1px solid $border-primary;
+        border-radius: 16px;
+        background-color: $bg-surface-primary;
+        min-height: auto;
+        gap: 15px;
+        overflow: hidden;
+
+        &:hover {
+            border-color: $accent-primary;
+            background-color: $bg-surface-secondary;
+            transform: translateX(4px);
+        }
+
+        .date-display {
+            margin: 0;
+        }
+
+        &.equipment-accumulating {
+            &::after {
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: auto;
+                width: 4px;
+                height: 100%;
+                border-top-left-radius: inherit;
+                border-bottom-left-radius: inherit;
+            }
+
+            &.range-start::after {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+                top: 4px;
+                height: calc(100% - 4px);
+            }
+
+            &.range-end::after {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: inherit;
+                bottom: 4px;
+                height: calc(100% - 4px);
+            }
+        }
+
+        .day-meta-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            flex-shrink: 0;
+            min-width: 60px;
+
+            .calendar-equipment-container {
+                margin-top: 2px;
+                margin-left: 0;
+                width: auto;
+                padding-top: 0;
+                justify-content: flex-start;
+            }
+        }
+    }
+
+    .day-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+
+        .day-name-short {
+            font-weight: 600;
+            color: $text-secondary;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+    }
+
+    .chip-container {
+        display: flex;
+        flex-wrap: wrap;
+        flex: 1 1 0px;
+        gap: 4px;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-content: center;
+        min-height: auto;
+    }
+}

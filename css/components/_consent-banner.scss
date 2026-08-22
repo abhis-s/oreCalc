@@ -14,7 +14,7 @@
     z-index: $z-index-consent-banner;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity $duration-moderate $ease-smooth, visibility $duration-moderate $ease-smooth, transform $duration-moderate $ease-enter;
     pointer-events: auto;
 
     &.show {
@@ -58,7 +58,7 @@
             align-items: center;
             justify-content: center;
             color: $text-secondary;
-            transition: color 0.2s ease;
+            transition: color $duration-fast $ease-smooth;
 
             &:hover {
                 color: $text-primary;
@@ -71,7 +71,7 @@
         }
     }
 
-    @media (max-width: 580px) {
+    @media (max-width: $breakpoint-modal) {
         bottom: 0;
         left: 0;
         right: 0;
@@ -85,8 +85,6 @@
         }
     }
 }
-
-// Styles for the main detailed consent modal are inherited from standard modals (.modal).
 
 body.tour-active .consent-banner {
     display: none !important;

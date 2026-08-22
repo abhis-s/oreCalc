@@ -1,8 +1,9 @@
 @use '../abstracts/variables' as *;
+@use '../base/base';
 
 #licenses-modal {
     .modal-content {
-        max-width: 680px;
+        max-width: $modal-width-large;
     }
 
     #licenses-container {
@@ -18,9 +19,9 @@
         border: 1px solid $border-primary;
         border-radius: 12px;
         overflow: hidden;
-        transition: border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                    background-color 0.25s ease;
+        transition: border-color $duration-base $ease-enter,
+                    box-shadow $duration-base $ease-enter,
+                    background-color $duration-base $ease-smooth;
 
         &[open] {
             border-color: $accent-primary;
@@ -44,17 +45,18 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 8px;
         padding: 14px 20px;
         font-weight: 600;
         color: $text-primary;
         cursor: pointer;
         user-select: none;
-        list-style: none; /* Hide standard list-marker */
+        list-style: none;
         outline: none;
-        transition: background-color 0.2s ease, border-bottom 0.2s ease;
+        transition: background-color $duration-fast $ease-smooth, border-bottom $duration-fast $ease-smooth;
 
         &::-webkit-details-marker {
-            display: none; /* Hide standard list-marker in Safari */
+            display: none;
         }
 
         &::after {
@@ -62,11 +64,12 @@
             display: inline-block;
             width: 20px;
             height: 20px;
+            flex-shrink: 0;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s ease;
+            transition: transform $duration-base $ease-enter, color $duration-base $ease-smooth;
         }
 
         &:focus-visible {
@@ -80,14 +83,18 @@
         font-size: 1rem;
         font-weight: 600;
         color: $text-primary;
+        min-width: 0;
+        overflow-wrap: break-word;
     }
 
     .license-version {
         font-size: 0.85rem;
         color: $text-secondary;
-        background-color: rgba($text-secondary, 0.1);
+        background-color: $bg-surface-secondary;
         padding: 2px 6px;
         border-radius: 4px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .license-badge {
@@ -102,6 +109,8 @@
         letter-spacing: 0.5px;
         margin-left: auto;
         margin-right: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .details-body {
@@ -131,14 +140,14 @@
             text-decoration: none;
             font-weight: 500;
             font-size: 0.9rem;
-            transition: opacity 0.2s ease;
+            transition: opacity $duration-fast $ease-smooth;
 
             svg {
                 width: 14px;
                 height: 14px;
                 fill: currentColor;
                 display: inline-block;
-                transition: transform 0.2s ease;
+                transition: transform $duration-fast $ease-smooth;
             }
 
             &:hover {
@@ -167,25 +176,10 @@
         border-radius: 8px;
         margin-top: 12px;
         box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
-
-        /* Custom scrollbar styling */
-        &::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        &::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        &::-webkit-scrollbar-thumb {
-            background-color: $border-primary;
-            border-radius: 3px;
-        }
-        &::-webkit-scrollbar-thumb:hover {
-            background-color: $accent-primary;
-        }
+        @extend %hide-scrollbar;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: $breakpoint-modal) {
         #licenses-container {
             padding: 1rem;
         }

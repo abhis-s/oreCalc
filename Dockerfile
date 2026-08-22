@@ -7,6 +7,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 # Copy server's package.json since pnpm workspace requires it to build dependency graph
 COPY server/package.json ./server/
+COPY scripts/ensure-pnpm.js ./scripts/
 
 RUN pnpm install --frozen-lockfile
 

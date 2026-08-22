@@ -1,12 +1,7 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
+// --- 1. BASE BUTTONS & ACTION VARIANTS ---
 .animated-btn {
     @extend %flex-center;
     border: 1px solid transparent;
@@ -20,28 +15,22 @@
     padding: 10px 20px;
     position: relative;
     text-decoration: none;
-    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    transition: transform $duration-fast $ease-decelerate, opacity $duration-fast $ease-decelerate;
 
     .animated-btn-text,
     .animated-btn-icon-wrapper,
     .animated-btn-icon-disabled {
-        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        pointer-events: none;
     }
 
-    .animated-btn-icon-wrapper {
-        @extend %flex-center;
-        height: 100%;
-        left: 0;
-        position: absolute;
-        top: 0;
-        width: 100%;
-        transform: translateY(-100%);
-
-        svg {
-            fill: currentColor;
-        }
+    .animated-btn-text {
+        font-weight: var(--font-weight-bold);
+        position: relative;
+        transform: translateY(0);
+        transition: transform $duration-fast $ease-decelerate;
     }
 
+    .animated-btn-icon-wrapper,
     .animated-btn-icon-disabled {
         @extend %flex-center;
         height: 100%;
@@ -49,39 +38,51 @@
         position: absolute;
         top: 0;
         width: 100%;
-        opacity: 0;
-        pointer-events: none;
 
         svg {
+            color: currentColor;
             fill: currentColor;
+            height: 20px;
+            width: 20px;
         }
     }
 
-    &:hover:not(:disabled):not(.saving):not(.success):not(.error) {
+    .animated-btn-icon-wrapper {
+        opacity: 0;
+        transform: translateY(100%);
+        transition: transform $duration-fast $ease-decelerate, opacity $duration-fast $ease-decelerate;
+    }
+
+    .animated-btn-icon-disabled {
+        opacity: 0;
+    }
+
+    &:hover:not(:disabled) {
         .animated-btn-text {
             opacity: 0;
-            transform: translateY(100%);
+            transform: translateY(-100%);
         }
 
         .animated-btn-icon-wrapper {
+            opacity: 1;
             transform: translateY(0);
         }
     }
 
-    &:active:not(:disabled):not(.saving):not(.success):not(.error) {
-        transform: scale(0.97);
-        filter: brightness(0.9);
+    &:active:not(:disabled) {
+        transform: scale(0.96);
     }
 
     &:disabled {
-        background-color: $bg-surface-tertiary;
-        color: $text-muted;
         cursor: not-allowed;
         opacity: 0.6;
-        border-color: $border-primary;
 
         .animated-btn-text {
-            opacity: 0;
+            display: none;
+        }
+
+        .animated-btn-icon-wrapper {
+            display: none;
         }
 
         .animated-btn-icon-disabled {
@@ -90,7 +91,6 @@
     }
 }
 
-// --- Task Buttons (Feedback Enabled) ---
 .task-btn {
     position: relative;
     overflow: hidden;
@@ -99,9 +99,7 @@
     &.error,
     &.success {
         cursor: not-allowed;
-        
-        // Hide ALL immediate children except the feedback indicators
-        // We use visibility: hidden to ensure the button maintains its original footprint
+
         > *:not(.button-loader):not(.button-error-icon):not(.button-success-icon) {
             opacity: 0 !important;
             visibility: hidden !important;
@@ -151,14 +149,14 @@
     transform: translate(-50%, -50%);
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: opacity $duration-moderate $ease-smooth, transform $duration-moderate $ease-bounce;
     pointer-events: none;
 }
 
 .button-loader {
     display: flex;
     gap: 4px;
-    
+
     span {
         width: 6px;
         height: 6px;
@@ -174,7 +172,7 @@
 .button-error-icon,
 .button-success-icon {
     transform: translate(-50%, -50%) scale(0.5);
-    
+
     svg {
         fill: currentColor;
         width: 24px;
@@ -182,7 +180,6 @@
         display: block;
     }
 }
-
 
 .btn-accent {
     @include btn-accent-style;
@@ -200,10 +197,10 @@
     pointer-events: auto;
     transform: scale(1);
     transform-origin: bottom right;
-    transition: opacity 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                bottom 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                right 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+    transition: opacity $duration-moderate $ease-standard,
+                transform $duration-moderate $ease-standard,
+                bottom $duration-moderate $ease-standard,
+                right $duration-moderate $ease-standard;
 
     .save-button-tooltip {
         background-color: $bg-surface-tertiary;
@@ -215,7 +212,7 @@
         padding: 5px 10px;
         position: absolute;
         text-align: center;
-        transition: opacity 0.3s;
+        transition: opacity $duration-moderate $ease-smooth;
         visibility: hidden;
         pointer-events: none;
         white-space: nowrap;
@@ -234,10 +231,6 @@
     box-shadow: none;
     outline: none;
     -webkit-tap-highlight-color: transparent;
-
-    &::-moz-focus-inner {
-        border: 0;
-    }
 }
 
 #import-user-data-btn {
@@ -245,10 +238,6 @@
     box-shadow: none;
     outline: none;
     -webkit-tap-highlight-color: transparent;
-
-    &::-moz-focus-inner {
-        border: 0;
-    }
 }
 
 .reset-data-button {
@@ -258,10 +247,6 @@
     box-shadow: none;
     outline: none;
     -webkit-tap-highlight-color: transparent;
-
-    &::-moz-focus-inner {
-        border: 0;
-    }
 
     &:hover {
         background-color: $btn-bg-red-soft-hover;
@@ -276,7 +261,7 @@
     display: none;
     margin-right: 5px;
     padding: 0 5px 0 0;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 500ms $ease-smooth;
 
     &:hover {
         transform: rotate(-360deg);
@@ -303,7 +288,7 @@
         width: 16px;
         fill: currentColor;
     }
-    
+
     &:hover {
         background-color: $btn-hover-blue-bg;
         border-color: $btn-border-blue-hover;
@@ -319,7 +304,7 @@
     cursor: pointer;
     height: 36px;
     padding: 0;
-    transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
     width: 36px;
 
     &:hover {
@@ -339,7 +324,9 @@
     }
 }
 
-.reject-button {
+.reject-button,
+.secondary-button,
+.btn-secondary {
     padding: 10px 18px;
     font-size: 14px;
     font-weight: 500;
@@ -352,7 +339,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.15s ease-in-out, color 0.15s, transform 0.1s;
+    transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
 
     &:hover {
         background-color: $btn-bg-grey-soft-hover;
@@ -364,10 +351,14 @@
     }
 }
 
-.accept-button {
+.accept-button,
+.confirm-button,
+.primary-button,
+.btn-primary {
     padding: 10px 18px;
     font-size: 14px;
     font-weight: 500;
+
     color: $accent-primary;
     background-color: $accent-primary-soft;
     border: 1px solid $btn-border-blue;
@@ -377,7 +368,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.15s ease-in-out, border-color 0.15s, transform 0.1s;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
 
     &:hover {
         background-color: $btn-hover-blue-bg;
@@ -397,8 +388,7 @@
     }
 }
 
-// Support & Community Button Colors (Soft-Solid Pattern)
-
+// --- 2. COMMUNITY & SUPPORT BUTTONS ---
 .btn-changelog {
     background-color: var(--btn-bg-teal);
     color: var(--btn-color-teal);
@@ -546,4 +536,3 @@
         border-color: var(--btn-border-emerald-hover);
     }
 }
-

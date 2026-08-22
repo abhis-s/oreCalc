@@ -21,10 +21,10 @@ body.open-fab {
     pointer-events: none;
     transform: scale(0.5);
     transform-origin: bottom right;
-    transition: opacity 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                bottom 0.3s cubic-bezier(0.2, 1, 0.2, 1),
-                right 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+    transition: opacity $duration-moderate $ease-standard,
+                transform $duration-moderate $ease-standard,
+                bottom $duration-moderate $ease-standard,
+                right $duration-moderate $ease-standard;
 }
 
 .fab-button {
@@ -40,13 +40,9 @@ body.open-fab {
     outline: none;
     overflow: hidden;
     position: relative;
-    transition: all 0.3s ease-in-out;
+    transition: all $duration-moderate $ease-smooth;
     width: 56px;
     -webkit-tap-highlight-color: transparent;
-
-    &::-moz-focus-inner {
-        border: 0;
-    }
 
     &:disabled {
         background-color: $bg-surface-tertiary;
@@ -75,9 +71,6 @@ body.open-fab {
     }
 }
 
-
-
-
 .fab-icon {
     position: absolute;
     top: calc(50% - 12px);
@@ -87,7 +80,7 @@ body.open-fab {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transition: opacity $duration-moderate $ease-smooth, transform $duration-moderate $ease-smooth;
 
     svg {
         width: 24px;
@@ -112,7 +105,7 @@ body.open-fab {
     margin-bottom: 10px;
     pointer-events: none;
     visibility: hidden;
-    transition: visibility 0.4s;
+    transition: visibility $duration-slow;
 
     &.show {
         visibility: visible;
@@ -133,29 +126,24 @@ body.open-fab {
     margin-bottom: 8px;
     padding: 10px 16px;
     white-space: nowrap;
-    min-height: auto; 
+    min-height: auto;
     min-width: auto;
     font-weight: 500;
 
-    // Collapse/Exit state (collapses back into the main FAB button)
     opacity: 0;
     pointer-events: none;
 
-    &:nth-child(1) { // #fab-refresh-pill
+    &:nth-child(1) {
         transform: translateY(100px) scale(0);
-        transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1), 
-                    opacity 0.2s ease-in,
-                    background-color 0.2s ease-in-out,
-                    border-color 0.2s ease-in-out;
+        transition: transform $duration-base $ease-accelerate,
+                    opacity $duration-fast $ease-accelerate;
         transition-delay: 0s;
     }
 
-    &:nth-child(2) { // #fab-save-data-pill
+    &:nth-child(2) {
         transform: translateY(50px) scale(0);
-        transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1), 
-                    opacity 0.2s ease-in,
-                    background-color 0.2s ease-in-out,
-                    border-color 0.2s ease-in-out;
+        transition: transform $duration-base $ease-accelerate,
+                    opacity $duration-fast $ease-accelerate;
         transition-delay: 0.05s;
     }
 
@@ -186,26 +174,21 @@ body.open-fab {
     }
 }
 
-// Open/Enter state (spring bounce and stagger delay)
 .fab-menu.show {
     .fab-menu-pill {
         opacity: 1;
         pointer-events: auto;
         transform: translateY(0) scale(1);
 
-        &:nth-child(1) { // #fab-refresh-pill
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                        opacity 0.25s ease-out,
-                        background-color 0.2s ease-in-out,
-                        border-color 0.2s ease-in-out;
+        &:nth-child(1) {
+            transition: transform $duration-moderate $ease-spring,
+                        opacity $duration-base $ease-decelerate;
             transition-delay: 0.05s;
         }
 
-        &:nth-child(2) { // #fab-save-data-pill
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                        opacity 0.25s ease-out,
-                        background-color 0.2s ease-in-out,
-                        border-color 0.2s ease-in-out;
+        &:nth-child(2) {
+            transition: transform $duration-moderate $ease-spring,
+                        opacity $duration-base $ease-decelerate;
             transition-delay: 0s;
         }
     }

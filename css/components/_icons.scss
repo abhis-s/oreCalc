@@ -2,12 +2,31 @@
 @use '../base/placeholder';
 
 .currency-symbol {
+    display: inline-block;
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
     margin-left: 2.5px;
+    min-width: 16px;
+    padding: 0 1px;
     text-align: center;
-    width: 18px;
-    transition: transform 0.2s cubic-bezier(0.2, 1, 0.2, 1), filter 0.2s ease;
+    transition: transform $duration-fast $ease-standard, filter $duration-fast $ease-smooth;
+    width: auto;
+}
+
+orecalc-assets-svg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    vertical-align: middle;
+    flex-shrink: 0;
+
+    svg {
+        display: block;
+        flex-shrink: 0;
+        height: 100%;
+        width: 100%;
+    }
 }
 
 orecalc-assets-image {
@@ -34,7 +53,7 @@ orecalc-assets-image.ore-image {
     width: 30px;
     object-fit: contain;
     vertical-align: middle;
-    transition: transform 0.2s cubic-bezier(0.2, 1, 0.2, 1), filter 0.2s ease;
+    transition: transform $duration-fast $ease-standard, filter $duration-fast $ease-smooth;
 
     &[src*="shiny_ore"],
     img[src*="shiny_ore"] {
@@ -70,7 +89,6 @@ orecalc-assets-image.ore-image {
     }
 }
 
-/* Hover/focus triggers for resource icons next to input fields */
 .input-group,
 .rate-column,
 .input-group-flex,

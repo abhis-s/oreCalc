@@ -1,0 +1,188 @@
+@use '../../../abstracts/variables' as *;
+
+.hero-journey-nodes-track {
+    display: flex;
+    gap: 14px;
+    min-width: max-content;
+    padding: 10px 4px 10px 4px;
+}
+
+.th-max-divider {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    margin: 0 2px;
+    padding: 0 4px;
+    user-select: none;
+    z-index: 2;
+
+    .th-max-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 2px dashed color-mix(in srgb, $accent-primary 70%, transparent);
+        z-index: 1;
+    }
+
+    .th-max-pill {
+        position: relative;
+        z-index: 2;
+        background: $bg-surface-primary;
+        border: 1.5px solid $accent-primary;
+        color: $text-primary;
+        padding: 6px 10px;
+        border-radius: 12px;
+        white-space: nowrap;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+
+        .th-max-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+        }
+
+        .th-max-pill-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .th-max-tag {
+            background: $accent-primary;
+            color: $text-on-accent;
+            font-size: 0.6rem;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            line-height: 1;
+        }
+
+        .th-max-lvl {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: $text-primary;
+            letter-spacing: 0.2px;
+            line-height: 1.1;
+        }
+    }
+
+    &.current-th-divider {
+        .th-max-line {
+            border-left-color: $accent-primary;
+            border-left-style: solid;
+            border-left-width: 2px;
+            box-shadow: 0 0 8px color-mix(in srgb, $accent-primary 80%, transparent);
+        }
+
+        .th-max-pill {
+            border-color: $accent-primary;
+            box-shadow: 0 0 16px color-mix(in srgb, $accent-primary 55%, transparent), 0 4px 14px rgba(0, 0, 0, 0.6);
+        }
+    }
+}
+
+.th-limit-block-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 220px;
+    padding: 18px 14px;
+    background: linear-gradient(135deg, color-mix(in srgb, $bg-surface-primary 85%, $color-black-const) 0%, $bg-surface-primary 100%);
+    border: 1.5px dashed color-mix(in srgb, $accent-primary 65%, $border-primary);
+    border-radius: 8px;
+    text-align: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    margin-left: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    user-select: none;
+
+    .th-limit-img {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
+        margin-bottom: 12px;
+        filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+    }
+
+    .th-limit-text {
+        font-size: clamp(0.72rem, 0.4vw + 0.65rem, 0.78rem);
+        font-weight: 700;
+        color: $text-primary;
+        line-height: 1.35;
+        margin-bottom: 14px;
+    }
+
+    .th-limit-buttons-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+
+        .th-limit-reveal-btn {
+            width: 100%;
+            max-width: 155px;
+        }
+    }
+}
+
+.hero-journey-empty-filter-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 320px;
+    min-height: 160px;
+    padding: 24px 16px;
+    background: $bg-surface-primary;
+    border: 1.5px dashed color-mix(in srgb, $accent-primary 45%, $border-primary);
+    border-radius: 8px;
+    text-align: center;
+    box-sizing: border-box;
+    user-select: none;
+    margin: 8px auto;
+
+    .empty-filter-icon {
+        width: 32px;
+        height: 32px;
+        color: $text-muted;
+        margin-bottom: 10px;
+    }
+
+    .empty-filter-title {
+        font-size: clamp(0.85rem, 0.5vw + 0.75rem, 0.95rem);
+        font-weight: 700;
+        color: $text-primary;
+        line-height: 1.35;
+        margin-bottom: 6px;
+    }
+
+    .empty-filter-desc {
+        font-size: clamp(0.75rem, 0.4vw + 0.68rem, 0.82rem);
+        color: $text-secondary;
+        line-height: 1.4;
+        max-width: 280px;
+        margin-bottom: 14px;
+    }
+
+    .hero-journey-empty-filter-btn {
+        margin: 0;
+    }
+}

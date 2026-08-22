@@ -1,0 +1,144 @@
+@use '../../abstracts/variables' as *;
+
+.equipment-chip-container {
+    padding: 1rem;
+    border-bottom: 1px solid $border-primary;
+    max-height: 40%;
+    flex-shrink: 0;
+    overflow-y: auto;
+    background-color: $bg-surface-primary;
+
+    h3 {
+        margin: 0 0 1rem 0;
+        font-size: 1.2rem;
+        color: $text-secondary;
+    }
+}
+
+.hero-equipment-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.hero-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.hero-chip-column {
+    flex: 0 0 180px;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+}
+
+.equipment-chips-column {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex: 1;
+}
+
+.hero-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+    font-weight: var(--font-weight-bold);
+    color: $text-primary;
+    overflow: hidden;
+    width: 100%;
+
+    span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        max-width: 116px;
+        flex: 1;
+    }
+
+    .hero-chip-icon {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+.equipment-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: $bg-surface-tertiary;
+    padding: 6px 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+    border: 1px solid $border-primary;
+
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 3px $accent-primary-soft;
+        outline: none;
+    }
+
+    &:hover {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+    }
+
+    .chip-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    span {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    &.custom-maxed-in-plan {
+        border-color: $accent-primary;
+        box-shadow: 0 0 4px $accent-primary-soft, 0 0 8px $accent-primary-soft;
+    }
+
+    &.maxed-in-plan {
+        border-color: var(--color-gold) !important;
+        box-shadow: 0 0 4px $color-gold-glow-shadow, 0 0 8px $color-gold-glow-shadow !important;
+    }
+}
+
+@media (max-width: #{$breakpoint-desktop - 1px}) {
+    .hero-chip span,
+    .equipment-chip span {
+        display: none;
+    }
+
+    .hero-chip,
+    .equipment-chip {
+        padding: 6px;
+    }
+
+    .hero-chip-column {
+        flex: 0 0 auto;
+        width: auto;
+    }
+
+    .hero-chip-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .chip-icon {
+        width: 28px;
+        height: 28px;
+    }
+}

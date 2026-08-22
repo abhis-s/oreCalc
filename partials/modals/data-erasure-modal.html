@@ -1,48 +1,50 @@
-<div id="data-erasure-modal" class="modal">
+<dialog id="data-erasure-modal" class="modal" aria-labelledby="data-erasure-modal-title">
     <div class="modal-content data-erasure-modal-content">
         <div class="modal-header">
-            <h2 data-i18n="settings.cards.dataErasure">Data Erasure</h2>
-            <button id="close-data-erasure-header-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+            <h2 id="data-erasure-modal-title" data-i18n="views.settings.cards.dataErasure"></h2>
+            <button id="close-data-erasure-header-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
-        <div class="modal-info-text data-erasure-info-text">
-            <p data-i18n="settings.dataErasureInfo">Reset or delete your data.</p>
-        </div>
-        <div class="data-erasure-explanations">
-            <div class="data-erasure-explanation-item">
-                <strong data-i18n="actions.localReset">Clear On-Device Data</strong>:
-                <span data-i18n="settings.dataErasureExplanations.local">Wipes all app progress and settings on this device only. Your cloud backup remains untouched.</span>
+        <div class="modal-body">
+            <div class="modal-info-text data-erasure-info-text">
+                <p data-i18n="views.settings.dataErasureInfo"></p>
             </div>
-            <div class="data-erasure-explanation-item">
-                <strong data-i18n="actions.localCloudReset">Delete Cloud AND On-Device Data</strong>:
-                <span data-i18n="settings.dataErasureExplanations.cloud">Permanently deletes both your local app progress and your synced cloud backup simultaneously.</span>
+            <div class="data-erasure-explanations">
+                <div class="data-erasure-explanation-item">
+                    <strong data-i18n="actions.localReset"></strong>:
+                    <span data-i18n="views.settings.dataErasureExplanations.local"></span>
+                </div>
+                <div class="data-erasure-explanation-item">
+                    <strong data-i18n="actions.localCloudReset"></strong>:
+                    <span data-i18n="views.settings.dataErasureExplanations.cloud"></span>
+                </div>
             </div>
-        </div>
-        <div class="data-manage-options data-erasure-options">
-            <button id="reset-local-btn" class="animated-btn btn-danger-action full-width">
-                <span class="animated-btn-icon-wrapper">
-                    <orecalc-assets-svg name="trash"></orecalc-assets-svg>
-                </span>
-                <span class="animated-btn-text" data-i18n="actions.localReset">Local Reset</span>
-            </button>
+            <div class="data-manage-options data-erasure-options">
+                <button id="reset-local-btn" class="animated-btn btn-danger-action full-width">
+                    <span class="animated-btn-icon-wrapper">
+                        <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                    </span>
+                    <span class="animated-btn-text" data-i18n="actions.localReset"></span>
+                </button>
 
-            <button id="reset-cloud-btn" class="animated-btn btn-danger-action full-width">
-                <span class="animated-btn-icon-wrapper">
-                    <orecalc-assets-svg name="trash"></orecalc-assets-svg>
-                </span>
-                <span class="animated-btn-text" data-i18n="actions.localCloudReset">Delete Cloud AND On-Device Data</span>
-            </button>
+                <button id="reset-cloud-btn" class="animated-btn btn-danger-action full-width">
+                    <span class="animated-btn-icon-wrapper">
+                        <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                    </span>
+                    <span class="animated-btn-text" data-i18n="actions.localCloudReset"></span>
+                </button>
 
-            <button id="complete-delete-btn" class="animated-btn btn-danger-action full-width btn-extreme-danger" style="display: none;">
-                <span class="animated-btn-icon-wrapper">
-                    <orecalc-assets-svg name="trash"></orecalc-assets-svg>
-                </span>
-                <span class="animated-btn-text" data-i18n="actions.completeDelete">Request exclusion from service</span>
-            </button>
+                <button id="complete-delete-btn" class="animated-btn btn-danger-action full-width btn-extreme-danger" style="display: none;">
+                    <span class="animated-btn-icon-wrapper">
+                        <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                    </span>
+                    <span class="animated-btn-text" data-i18n="actions.completeDelete"></span>
+                </button>
+            </div>
         </div>
         <div class="modal-actions">
-            <button id="close-data-erasure-modal-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
+            <button id="close-data-erasure-modal-btn" class="reject-button" data-i18n="actions.cancel" data-modal-autofocus></button>
         </div>
     </div>
-</div>
+</dialog>

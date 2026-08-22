@@ -1,54 +1,52 @@
-<div id="stored-ores-modal" class="modal modal-top">
+<dialog id="stored-ores-modal" class="modal modal-top" aria-labelledby="stored-ores-modal-title">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 data-i18n="ores.storedTitle">Stored Ores</h2>
-            <button id="close-stored-ores-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+            <h2 id="stored-ores-modal-title" data-i18n="views.income.ores.storedTitle"></h2>
+            <button id="close-stored-ores-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
         <div class="modal-body flex-column-gap-15">
-            <p data-i18n="ores.modalStoredOresPrompt" style="margin: 0; color: var(--text-secondary); text-align: center;">Please enter the amount of ores you have in your blacksmith</p>
+            <p class="stored-ores-prompt" data-i18n="views.income.ores.modalStoredOresPrompt"></p>
             <div class="custom-chip-ores-row">
                 <div class="custom-chip-ore-input-group">
                     <div class="popover-wrapper">
-                        <input type="number" id="modal-stored-ore-shiny" min="0" max="50000" maxlength="5" value="0">
+                        <input type="number" id="modal-stored-ore-shiny" min="0" max="50000" step="100" maxlength="5" value="0" data-modal-autofocus>
                     </div>
                     <label for="modal-stored-ore-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></orecalc-assets-image></label>
                 </div>
                 <div class="custom-chip-ore-input-group">
                     <div class="popover-wrapper">
-                        <input type="number" id="modal-stored-ore-glowy" min="0" max="5000" maxlength="4" value="0">
+                        <input type="number" id="modal-stored-ore-glowy" min="0" max="5000" step="10" maxlength="4" value="0">
                     </div>
                     <label for="modal-stored-ore-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></orecalc-assets-image></label>
                 </div>
                 <div class="custom-chip-ore-input-group">
                     <div class="popover-wrapper">
-                        <input type="number" id="modal-stored-ore-starry" min="0" max="1000" maxlength="4" value="0">
+                        <input type="number" id="modal-stored-ore-starry" min="0" max="1000" step="1" maxlength="4" value="0">
                     </div>
                     <label for="modal-stored-ore-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></orecalc-assets-image></label>
                 </div>
             </div>
 
-            <!-- Auto Predict Row -->
-            <div class="input-group-flex" style="margin-top: 10px;">
+            <div class="input-group-flex push-top-10">
                 <div class="field-descriptor-group">
                     <div class="flex-center-gap-8">
-                        <label for="modal-stored-ore-auto-predict" data-i18n="ores.autoPredictTitle">Auto Predict</label>
-                        <span class="coming-soon-badge" data-i18n="settings.badges.comingSoon">Soon</span>
+                        <label for="modal-stored-ore-auto-predict" data-i18n="views.income.ores.autoPredictTitle"></label>
+                        <span class="coming-soon-badge" data-i18n="views.settings.badges.comingSoon"></span>
                     </div>
-                    <p class="form-setting-text" data-i18n="ores.autoPredictDesc">Predict stored ores using in-game upgrades activity.</p>
+                    <p class="form-setting-text" data-i18n="views.income.ores.autoPredictDesc"></p>
                 </div>
-                <div class="switch" style="opacity: 0.6; pointer-events: none;">
+                <div class="switch is-disabled">
                     <input type="checkbox" id="modal-stored-ore-auto-predict" disabled>
                     <span class="slider round"></span>
                 </div>
             </div>
 
-            <!-- Don't ask again switch -->
-            <div class="input-group-flex" style="margin-top: 5px;">
+            <div class="input-group-flex push-top-5">
                 <div class="field-descriptor-group">
-                    <label for="modal-stored-ore-dont-ask" data-i18n="ores.dontAskTwoMonths">Don't show again for 2 months</label>
-                    <p class="form-setting-text" data-i18n="ores.dontAskTwoMonthsDesc">Mute this stored ores reminder modal for the next two months.</p>
+                    <label for="modal-stored-ore-dont-ask" data-i18n="views.income.ores.dontAskTwoMonths"></label>
+                    <p class="form-setting-text" data-i18n="views.income.ores.dontAskTwoMonthsDesc"></p>
                 </div>
                 <div class="switch">
                     <input type="checkbox" id="modal-stored-ore-dont-ask">
@@ -57,8 +55,8 @@
             </div>
         </div>
         <div class="modal-actions">
-            <button id="cancel-stored-ores-modal-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
-            <button id="save-stored-ores-modal-btn" class="accept-button" data-i18n="actions.save">Save</button>
+            <button id="cancel-stored-ores-modal-btn" class="reject-button" data-i18n="actions.cancel"></button>
+            <button id="save-stored-ores-modal-btn" class="accept-button" data-i18n="actions.save"></button>
         </div>
     </div>
-</div>
+</dialog>

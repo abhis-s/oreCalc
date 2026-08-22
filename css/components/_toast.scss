@@ -2,12 +2,13 @@
 
 #toast-container {
     position: fixed;
-    bottom: 24px;
+    bottom: calc(24px + var(--toast-keyboard-offset, 0px));
     right: 24px;
     width: 320px;
     height: 0;
     z-index: $z-index-toast;
     pointer-events: none;
+    transition: bottom $duration-fast $ease-smooth;
 }
 
 .toast-notification {
@@ -19,7 +20,7 @@
     align-items: center;
     gap: 12px;
     padding: 12px 20px;
-    height: 50px; /* fixed height for desktop toast */
+    height: 50px;
     box-sizing: border-box;
     background-color: color-mix(in srgb, $bg-surface-tertiary 85%, transparent);
     backdrop-filter: blur(12px);
@@ -32,7 +33,10 @@
     font-weight: 500;
     pointer-events: auto;
     opacity: 0;
-    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease, border-color 0.3s ease;
+    isolation: isolate;
+    transform: translateZ(0);
+    will-change: transform, opacity;
+    transition: transform 450ms $ease-spring, opacity $duration-base $ease-smooth, border-color $duration-moderate $ease-smooth;
 
     &.toast-error {
         border-color: color-mix(in srgb, $color-danger 40%, transparent);
@@ -70,30 +74,29 @@
     }
 }
 
-/* Mobile responsive styles (Bottom nav bar view) */
-@media (max-width: 779px) {
+@media (max-width: #{$breakpoint-desktop - 1px}) {
     #toast-container {
         left: 50%;
         right: auto;
         transform: translateX(-50%);
         width: calc(100% - 32px);
         max-width: 340px;
-        bottom: 74px; /* sit cleanly above bottom nav bar */
+        bottom: calc(74px + var(--toast-keyboard-offset, 0px));
+        transition: bottom $duration-fast $ease-smooth;
     }
 
     .toast-notification {
         left: 0;
         right: 0;
         padding: 8px 16px;
-        height: 40px; /* shorter height */
+        height: 40px;
         border-radius: 8px;
         font-size: var(--font-size-xs);
         gap: 8px;
 
         .toast-icon-svg {
-            width: 16px; /* smaller icon */
+            width: 16px;
             height: 16px;
         }
     }
 }
-

@@ -1,0 +1,137 @@
+@use '../../abstracts/variables' as *;
+
+.offer-grid {
+    align-items: center;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: auto 2fr 1fr 1fr;
+    margin-top: 15px;
+    padding: 0 20px;
+
+    &:empty {
+        display: none !important;
+    }
+
+    &#raid-medal-trader-offers {
+        grid-template-columns: auto 2fr 1fr 1fr;
+    }
+
+    &#inc-gem-trader-offers {
+        grid-template-columns: auto 1fr 1fr;
+    }
+
+    &#inc-event-trader-offers {
+        grid-template-columns: auto 1fr 1fr;
+    }
+
+    &#inc-shop-offers-checkboxes {
+        margin-top: 0px;
+    }
+
+    .offer-grid-row {
+        display: contents;
+    }
+
+    .offer-ore-display {
+        align-items: center;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+        justify-content: flex-end;
+        padding-right: 10px;
+
+        .ore-image {
+            height: 18px;
+            width: auto;
+        }
+
+        span {
+            font-size: var(--font-size-md);
+        }
+    }
+
+    .offer-checkbox-instance,
+    .offer-input-instance {
+        align-items: center;
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        position: relative;
+
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            border: 2px solid $border-primary;
+            border-radius: 4px;
+            cursor: pointer;
+            height: 20px;
+            outline: none;
+            position: relative;
+            top: 2px;
+            transition: all $duration-moderate $ease-spring;
+            width: 20px;
+
+            &:checked {
+                background-color: $accent-primary;
+                border-color: $accent-primary;
+                transform: scale(1.1);
+
+                &::after {
+                    content: '\2713';
+                    color: $text-on-accent;
+                    display: block;
+                    font-size: var(--font-size-sm);
+                    line-height: 18px;
+                    text-align: center;
+                    animation: checkmark-pop $duration-moderate $ease-spring both;
+                }
+            }
+
+            &:focus {
+                outline: none;
+            }
+
+            &:focus-visible {
+                border-color: $accent-primary;
+                box-shadow: 0 0 0 3px $accent-primary-soft;
+            }
+
+            &:active {
+                transform: scale(0.9);
+            }
+        }
+
+        label {
+            color: $text-secondary;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            margin-left: 8px;
+        }
+    }
+
+    .offer-dropdown-instance {
+        display: none;
+    }
+
+    .offer-cost-display {
+        align-items: center;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+
+        picture.gem-icon,
+        picture.event-medal-icon {
+            padding: 5px;
+        }
+
+        picture.gem-icon {
+            transform: scale(0.9);
+        }
+
+        img.gem-icon,
+        img.event-medal-icon {
+            padding: 0;
+            transform: none;
+        }
+    }
+}

@@ -1,3 +1,5 @@
+import { announce } from '../utils/a11yAnnouncer.js';
+
 const activeToasts = [];
 
 function updateToastPositions() {
@@ -16,7 +18,14 @@ function updateToastPositions() {
     });
 }
 
+/**
+ * Displays a non-blocking toast notification banner with stacked positioning and screen reader announcements.
+ * @param {string} message - Notification text message.
+ * @param {'info'|'success'|'warning'|'error'} [type='info'] - Semantic toast theme type.
+ */
 export function showToast(message, type = 'info') {
+    announce(message, type === 'error' ? 'assertive' : 'polite');
+
     let container = document.getElementById('toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -26,7 +35,7 @@ export function showToast(message, type = 'info') {
 
     const toast = document.createElement('div');
     toast.className = `toast-notification toast-${type}`;
-    
+
     let iconId = 'icon-notification';
     if (type === 'error') {
         iconId = 'icon-error';
@@ -37,7 +46,7 @@ export function showToast(message, type = 'info') {
     }
 
     toast.innerHTML = `
-        <span class="toast-icon" style="display: flex; align-items: center; justify-content: center;">
+        <span class="toast-icon">
             <svg class="toast-icon-svg" aria-hidden="true">
                 <use href="#${iconId}"></use>
             </svg>
@@ -53,7 +62,7 @@ export function showToast(message, type = 'info') {
     toast.style.transform = `translateY(20px) scale(0.95)`;
 
     container.appendChild(toast);
-    
+
     // Add to active queue (unshift to keep index 0 as newest at the bottom)
     activeToasts.unshift(toast);
 

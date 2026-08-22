@@ -1,12 +1,18 @@
 import { translate } from '../i18n/translator.js';
 
-const tagValidChars = "CGJLOPQRUVY0289"; 
+const tagValidChars = "CGJLOPQRUVY0289";
 const MAX_TAG_LENGTH = 12;
 let validationErrorTimeout;
 
+/**
+ * Validates Clash of Clans player tag syntax, sanitizes disallowed characters, and renders error feedback.
+ * @param {HTMLInputElement|any} inputElement - Input field element containing tag text.
+ * @param {HTMLElement|any} errorElement - Container element to display validation messages.
+ * @returns {{ cleanedTag: string, isValid: boolean }} Validation result and cleaned tag.
+ */
 export function validatePlayerTagInput(inputElement, errorElement) {
     const rawValue = inputElement.value.trim().toUpperCase();
-    
+
     let isValid = true;
     let errorMessage = '';
 
@@ -15,10 +21,9 @@ export function validatePlayerTagInput(inputElement, errorElement) {
         validationErrorTimeout = null;
     }
 
-    // 1. Detect invalid characters
     const invalidCharRegex = new RegExp(`[^${tagValidChars}#]`, 'i');
     const match = rawValue.match(invalidCharRegex);
-    
+
     if (match) {
         errorMessage = translate('errors.invalidChar', { char: match[0], validChars: tagValidChars });
         isValid = false;
@@ -27,10 +32,8 @@ export function validatePlayerTagInput(inputElement, errorElement) {
         isValid = false;
     }
 
-    // 2. Clean the tag for state/API use (remove # and invalid chars)
     let cleanedTag = rawValue.replace(/#/g, '').replace(new RegExp(`[^${tagValidChars}]`, 'gi'), "");
-    
-    // 3. Length check
+
     if (isValid && cleanedTag.length > MAX_TAG_LENGTH) {
         errorMessage = translate('errors.playerTagLength', { max: MAX_TAG_LENGTH });
         isValid = false;

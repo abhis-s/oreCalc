@@ -1,11 +1,22 @@
-import { state } from '../core/state.js';
-
 import { translate } from '../i18n/translator.js';
 
 import { formatCurrency } from './numberFormatter.js';
 
 import { showToast } from '../ui/toast.js';
 
+function getNumericBounds(inputElement) {
+    const minRaw = parseInt(inputElement.min, 10);
+    const maxRaw = parseInt(inputElement.max, 10);
+    return {
+        min: isNaN(minRaw) ? 0 : minRaw,
+        max: isNaN(maxRaw) ? Number.MAX_SAFE_INTEGER : maxRaw
+    };
+}
+
+/**
+ * Attaches real-time currency sanitization, decimal parsing, and formatted blur events to an input.
+ * @param {HTMLInputElement} inputElement - Target input element.
+ */
 export function addCurrencyValidation(inputElement) {
     if (!inputElement) return;
 
@@ -20,11 +31,11 @@ export function addCurrencyValidation(inputElement) {
         if (value === '') return;
 
         let normalized = value;
-        
+
         if (value.includes(',') && value.includes('.')) {
             const commaIndex = value.lastIndexOf(',');
             const dotIndex = value.lastIndexOf('.');
-            
+
             if (commaIndex > dotIndex) {
                 normalized = value.replace(/\./g, '').replace(',', '.');
             } else {
@@ -33,7 +44,7 @@ export function addCurrencyValidation(inputElement) {
         } else if (value.includes(',')) {
             normalized = value.replace(',', '.');
         }
-        
+
         const floatValue = parseFloat(normalized);
         if (!isNaN(floatValue)) {
             event.target.value = formatCurrency(floatValue);
@@ -42,7 +53,7 @@ export function addCurrencyValidation(inputElement) {
             inputElement.classList.remove('soft-shake');
             void inputElement.offsetWidth; // Force reflow
             inputElement.classList.add('input-status-error', 'soft-shake');
-            showToast(translate('validation.invalidCurrency') || "Invalid currency format", 'error');
+            showToast(translate('validation.invalidCurrency'), 'error');
         }
     });
 
@@ -53,15 +64,16 @@ export function addCurrencyValidation(inputElement) {
     });
 }
 
-export function addValidation(inputElement, { inputName = 'value' }) {
+/**
+ * Attaches numeric validation and event listeners to an input element.
+ * @param {HTMLInputElement | any} inputElement - Target input element.
+ * @param {Record<string, any>} [options={}] - Optional configuration options.
+ */
+export function addValidation(inputElement, options = {}) {
     if (!inputElement) return;
 
     const maxLength = parseInt(inputElement.maxLength, 10) || Infinity;
-
-    const minRaw = parseInt(inputElement.min, 10);
-    const maxRaw = parseInt(inputElement.max, 10);
-    const min = isNaN(minRaw) ? 0 : minRaw;
-    const max = isNaN(maxRaw) ? Number.MAX_SAFE_INTEGER : maxRaw;
+    const { min, max } = getNumericBounds(inputElement);
 
     inputElement.dataset.lastValidValue = inputElement.value.trim() === '' ? (inputElement.dataset.allowEmpty === 'true' ? '' : min.toString()) : inputElement.value;
 
@@ -81,10 +93,10 @@ export function addValidation(inputElement, { inputName = 'value' }) {
             }, duration);
         } else if (status === 'error') {
             inputElement.classList.remove('input-status-warning', 'input-status-success', 'success-glow-pulse', 'soft-shake');
-            
+
             // Force reflow for shake animation
             void inputElement.offsetWidth;
-            
+
             inputElement.classList.add('input-status-error', 'soft-shake');
             if (errorTimeout) clearTimeout(errorTimeout);
             errorTimeout = setTimeout(() => {
@@ -92,10 +104,10 @@ export function addValidation(inputElement, { inputName = 'value' }) {
             }, duration);
         } else if (status === 'success') {
             inputElement.classList.remove('input-status-warning', 'input-status-error', 'input-status-success', 'success-glow-pulse', 'soft-shake');
-            
+
             // Force reflow for success pulse
             void inputElement.offsetWidth;
-            
+
             inputElement.classList.add('input-status-success', 'success-glow-pulse');
             setTimeout(() => {
                 inputElement.classList.remove('input-status-success', 'success-glow-pulse');
@@ -104,7 +116,6 @@ export function addValidation(inputElement, { inputName = 'value' }) {
     };
 
     inputElement.addEventListener('keydown', (event) => {
-        // 1. Block non-numeric characters (allow control keys and shortcut combos)
         const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
         const isShortcut = (event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase());
 
@@ -113,14 +124,10 @@ export function addValidation(inputElement, { inputName = 'value' }) {
             return;
         }
 
-        // 2. Bounds validation for ArrowUp and ArrowDown
-        const minRaw = parseInt(inputElement.min, 10);
-        const maxRaw = parseInt(inputElement.max, 10);
-        const min = isNaN(minRaw) ? 0 : minRaw;
-        const max = isNaN(maxRaw) ? Number.MAX_SAFE_INTEGER : maxRaw;
+        const { min, max } = getNumericBounds(inputElement);
         const rawValue = parseInt(event.target.value, 10);
         const currentValue = isNaN(rawValue) ? min : rawValue;
-        
+
         if (event.key === 'ArrowUp') {
             if (currentValue >= max) {
                 event.preventDefault();
@@ -135,15 +142,6 @@ export function addValidation(inputElement, { inputName = 'value' }) {
             }
         } else {
             inputElement.classList.remove('input-status-warning', 'input-status-error');
-        }
-    });
-
-    inputElement.addEventListener('paste', (event) => {
-        const pasteData = (event.clipboardData || window.clipboardData).getData('text');
-        if (!/^\d+$/.test(pasteData)) {
-            event.preventDefault();
-            setInputStatus('error');
-            showToast(translate('validation.invalidNumber') || "Only numbers are allowed", 'error');
         }
     });
 
@@ -166,10 +164,7 @@ export function addValidation(inputElement, { inputName = 'value' }) {
     });
 
     inputElement.addEventListener('change', (event) => {
-        const minRaw = parseInt(inputElement.min, 10);
-        const maxRaw = parseInt(inputElement.max, 10);
-        const min = isNaN(minRaw) ? 0 : minRaw;
-        const max = isNaN(maxRaw) ? Number.MAX_SAFE_INTEGER : maxRaw;
+        const { min, max } = getNumericBounds(inputElement);
         let value = event.target.value.trim();
         if (value === '') {
             if (inputElement.dataset.allowEmpty === 'true') {
@@ -190,7 +185,7 @@ export function addValidation(inputElement, { inputName = 'value' }) {
         if (isNaN(currentValue) || currentValue < min || currentValue > max) {
             setInputStatus('error');
             showToast(translate('validation.invalidRevert'), 'error');
-            let lastValid = parseInt(inputElement.dataset.lastValidValue, 10);
+            let lastValid = Number(inputElement.dataset.lastValidValue);
             if (isNaN(lastValid) || lastValid < min) {
                 currentValue = min;
             } else if (lastValid > max) {
@@ -217,18 +212,24 @@ export function addValidation(inputElement, { inputName = 'value' }) {
             event.target.blur();
         }
     });
+
+    inputElement.addEventListener('wheel', () => {
+        if (document.activeElement === inputElement && typeof inputElement.blur === 'function') {
+            inputElement.blur();
+        }
+    }, { passive: true });
 }
 
-
+/**
+ * Validates and clamps all numeric input fields to their declared min/max boundaries.
+ * @param {NodeListOf<HTMLInputElement>|Array<HTMLInputElement>} [inputFields] - Optional elements to validate.
+ */
 export function validateAllInputs(inputFields) {
     const inputs = inputFields || document.querySelectorAll('input.updatable');
     inputs.forEach(inputElement => {
         if (!inputElement) return;
 
-        const minRaw = parseInt(inputElement.min, 10);
-        const maxRaw = parseInt(inputElement.max, 10);
-        const min = isNaN(minRaw) ? 0 : minRaw;
-        const max = isNaN(maxRaw) ? Number.MAX_SAFE_INTEGER : maxRaw;
+        const { min, max } = getNumericBounds(inputElement);
         let value = inputElement.value.trim();
 
         if (value === '') {
@@ -248,6 +249,10 @@ export function validateAllInputs(inputFields) {
     });
 }
 
+/**
+ * Validates that all select dropdown elements have a valid active option value.
+ * @param {NodeListOf<HTMLSelectElement>|Array<HTMLSelectElement>} [selectFields] - Optional selects to validate.
+ */
 export function validateAllSelects(selectFields) {
     const selects = selectFields || document.querySelectorAll('select.updatable');
     selects.forEach(selectElement => {

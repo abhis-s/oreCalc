@@ -1,0 +1,400 @@
+@use '../../abstracts/variables' as *;
+@use '../../base/base';
+
+.ore-tooltip,
+[role="tooltip"].ore-tooltip {
+    @extend %app-tooltip;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    font-size: clamp(11px, 2.5vw, 13px) !important;
+    padding: clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 14px) !important;
+    gap: clamp(4px, 1vw, 6px) !important;
+    max-width: 90vw;
+    box-sizing: border-box;
+
+    .tooltip-header {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: $accent-primary;
+        width: 100%;
+        text-align: center;
+        font-size: clamp(12px, 2.8vw, 14px) !important;
+        white-space: normal;
+    }
+
+    .tooltip-message {
+        font-size: clamp(9px, 2vw, 11px) !important;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .tooltip-bottleneck {
+        font-size: clamp(10px, 2.2vw, 12px) !important;
+        font-weight: 600;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .ore-count-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        font-size: 0.85em;
+        font-weight: 500;
+
+        span {
+            flex: 1;
+            text-align: right;
+            font-family: 'Roboto Mono', monospace;
+        }
+    }
+
+    .ore-icon-small {
+        width: 16px;
+        height: 16px;
+    }
+
+    .tooltip-req-ores {
+        display: flex;
+        gap: clamp(4px, 1vw, 8px);
+        margin-top: 3px;
+        align-items: center;
+
+        span {
+            display: inline-flex;
+            align-items: center;
+            gap: clamp(2px, 0.5vw, 4px);
+            font-size: clamp(10px, 2.2vw, 12px) !important;
+        }
+
+        orecalc-assets-image, img {
+            width: clamp(10px, 2.2vw, 13px) !important;
+            height: clamp(10px, 2.2vw, 13px) !important;
+        }
+    }
+
+    .tooltip-in-progress {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        margin-top: 8px;
+        width: 100%;
+        border-top: 1px dashed $border-primary;
+        padding-top: 8px;
+        box-sizing: border-box;
+
+        .in-progress-title {
+            font-size: clamp(9px, 2vw, 11px);
+            opacity: 0.8;
+            font-weight: 500;
+            text-align: center;
+            width: 100%;
+        }
+
+        .in-progress-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(45, 52, 54, 0.4);
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--equip-color, #2d3436);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            margin-top: 2px;
+        }
+
+        .in-progress-icon {
+            width: clamp(12px, 2.5vw, 16px) !important;
+            height: clamp(12px, 2.5vw, 16px) !important;
+            object-fit: contain;
+        }
+
+        .in-progress-fallback {
+            font-size: 0.7em;
+            font-weight: var(--font-weight-bold);
+            color: #dfe6e9;
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2d3436;
+            border-radius: 4px;
+        }
+
+        .in-progress-level {
+            font-size: clamp(9px, 2.2vw, 11px);
+            font-weight: var(--font-weight-bold);
+            color: $color-white-const;
+            white-space: nowrap;
+        }
+    }
+}
+
+.day-overview-popover {
+    position: fixed;
+    z-index: $z-index-popover;
+    width: 90vw;
+    max-width: $popover-width-day-overview;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-primary;
+    border-radius: $popover-radius-day-overview;
+    box-shadow: $elevation-4;
+    padding: 14px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    box-sizing: border-box;
+
+    &.show,
+    &:popover-open {
+        display: flex;
+    }
+
+    .day-overview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 8px;
+        border-bottom: 1px solid $border-secondary;
+
+        .day-overview-date {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: $accent-primary;
+        }
+
+        .day-overview-close-btn {
+            background: none;
+            border: none;
+            color: $text-secondary;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: $shape-corner-small;
+            transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
+
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            &:hover {
+                background-color: $bg-surface-tertiary;
+                color: $text-primary;
+            }
+        }
+    }
+
+    .day-overview-summary-card {
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-secondary;
+        border-radius: $shape-corner-small;
+        padding: 10px;
+
+        .day-overview-summary-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: $text-secondary;
+            margin-bottom: 6px;
+        }
+
+        .day-overview-ores-grid {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 8px;
+
+            .day-ore-stat {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+
+                .day-ore-val {
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    color: $text-primary;
+                    font-family: 'Roboto Mono', monospace;
+                }
+
+                .ore-icon-small {
+                    width: 16px;
+                    height: 16px;
+                }
+            }
+        }
+    }
+
+    .day-overview-milestones {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .day-overview-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: $text-secondary;
+        }
+
+        .day-overview-milestones-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .day-overview-milestone-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background-color: $bg-surface-secondary;
+                border: 1.5px solid var(--equip-color, $border-primary);
+                border-radius: $shape-corner-small;
+                padding: 6px 10px;
+
+                .milestone-icon {
+                    width: 24px;
+                    height: 24px;
+                    object-fit: contain;
+                }
+
+                .milestone-fallback {
+                    width: 24px;
+                    height: 24px;
+                    background-color: $bg-surface-tertiary;
+                    color: $text-primary;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                }
+
+                .milestone-text-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+
+                    .milestone-title {
+                        font-size: 0.85rem;
+                        font-weight: 600;
+                        color: $text-primary;
+                    }
+
+                    .milestone-bottleneck {
+                        font-size: 0.75rem;
+                        color: $color-danger;
+                    }
+                }
+            }
+        }
+    }
+
+    .day-overview-chips-section {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 200px;
+        overflow-y: auto;
+
+        .day-overview-empty {
+            font-size: 0.8rem;
+            color: $text-muted;
+            text-align: center;
+            padding: 8px 0;
+            font-style: italic;
+        }
+
+        .day-overview-chips-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .day-overview-chip-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background-color: $bg-surface-secondary;
+                border: 1px solid $border-secondary;
+                border-radius: $shape-corner-small;
+                padding: 6px 10px;
+                gap: 8px;
+
+                .chip-row-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                    flex-grow: 1;
+
+                    .chip-row-title {
+                        font-size: 0.82rem;
+                        font-weight: 600;
+                        color: $text-primary;
+                    }
+
+                    .chip-row-ores {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        font-size: 0.75rem;
+                        color: $text-secondary;
+                        font-family: 'Roboto Mono', monospace;
+
+                        .ore-icon-tiny {
+                            width: 12px;
+                            height: 12px;
+                            vertical-align: middle;
+                        }
+                    }
+                }
+
+                .chip-row-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+
+                    .chip-action-btn {
+                        background: none;
+                        border: 1px solid $border-primary;
+                        border-radius: 6px;
+                        color: $text-secondary;
+                        cursor: pointer;
+                        padding: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
+
+                        svg {
+                            width: 12px;
+                            height: 12px;
+                        }
+
+                        &.btn-remove:hover {
+                            background-color: $color-danger-soft;
+                            border-color: $color-danger;
+                            color: $color-danger;
+                        }
+
+                        &.btn-edit:hover {
+                            background-color: $accent-primary-soft;
+                            border-color: $accent-primary;
+                            color: $accent-primary;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

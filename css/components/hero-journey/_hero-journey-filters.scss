@@ -1,0 +1,417 @@
+@use '../../abstracts/variables' as *;
+
+.hero-journey-filter-container.filter-stage-1 {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 18px !important;
+
+    .hero-journey-filters-row {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 10px !important;
+        flex: 1 !important;
+    }
+
+    .hj-type-filters {
+        margin-left: 0 !important;
+
+        .hj-type-buttons {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+        }
+
+        .hj-type-select {
+            display: none !important;
+        }
+    }
+
+    .hero-journey-scroll-controls {
+        margin-left: auto !important;
+        order: initial !important;
+        width: auto !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+.hero-journey-filter-container.filter-stage-2 {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 18px !important;
+
+    .hero-journey-filters-row {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 14px !important;
+        flex: 0 1 auto !important;
+    }
+
+    .hj-type-filters {
+        margin-left: 0 !important;
+
+        .hj-type-buttons {
+            display: none !important;
+        }
+
+        .hj-type-select {
+            display: block !important;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            border: 1px solid $border-primary;
+            border-radius: 18px;
+            padding: 6px 12px;
+            font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            transition: border-color $duration-fast $ease-smooth;
+
+            &:focus, &:hover {
+                border-color: $accent-primary;
+            }
+
+            option {
+                background-color: $bg-surface-secondary;
+                color: $text-primary;
+            }
+        }
+    }
+
+    .hero-journey-scroll-controls {
+        margin-left: auto !important;
+        order: initial !important;
+        width: auto !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+.hero-journey-filter-container.filter-stage-3 {
+    display: contents !important;
+
+    .hero-journey-filters-row {
+        order: 3;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .hj-type-filters {
+        margin-left: auto !important;
+
+        .hj-type-buttons {
+            display: none !important;
+        }
+
+        .hj-type-select {
+            display: block !important;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            border: 1px solid $border-primary;
+            border-radius: 18px;
+            padding: 6px 12px;
+            font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            transition: border-color $duration-fast $ease-smooth;
+
+            &:focus, &:hover {
+                border-color: $accent-primary;
+            }
+
+            option {
+                background-color: $bg-surface-secondary;
+                color: $text-primary;
+            }
+        }
+    }
+
+    &.no-claim-switch,
+    &:has(#home-hj-claim-switch[style*="display: none"]),
+    &:has(#home-hj-claim-switch:not(:visible)) {
+        .hero-journey-filters-row {
+            justify-content: center !important;
+            width: 100% !important;
+        }
+
+        .hj-type-filters {
+            width: 100% !important;
+            margin-left: 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+
+            .hj-type-select {
+                width: 100% !important;
+                box-sizing: border-box !important;
+                text-align: center !important;
+                text-align-last: center !important;
+                padding: 8px 12px !important;
+            }
+
+            .hj-type-buttons {
+                justify-content: center !important;
+                width: 100% !important;
+            }
+        }
+    }
+
+    .hero-journey-track-wrapper {
+        order: 4;
+        scrollbar-width: none !important;
+
+        &::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+    }
+
+    .hero-journey-custom-scrollbar {
+        order: 5;
+        margin: 10px 0 0 0;
+    }
+
+    .hero-journey-scroll-controls {
+        order: 6;
+        margin: 14px auto 0 auto !important;
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+.hero-journey-filter-container.filter-stage-4 {
+    display: contents !important;
+
+    .hero-journey-filters-row {
+        order: 3;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .hj-segmented-switch {
+        width: 100% !important;
+        display: flex !important;
+        box-sizing: border-box !important;
+
+        .hj-switch-btn {
+            flex: 1 !important;
+            text-align: center !important;
+        }
+    }
+
+    .hj-type-filters {
+        width: 100% !important;
+        margin-left: 0 !important;
+
+        .hj-type-buttons {
+            display: none !important;
+        }
+
+        .hj-type-select {
+            display: block !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            text-align: center !important;
+            text-align-last: center !important;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            border: 1px solid $border-primary;
+            border-radius: 18px;
+            padding: 8px 12px;
+            font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            transition: border-color $duration-fast $ease-smooth;
+
+            &:focus, &:hover {
+                border-color: $accent-primary;
+            }
+
+            option {
+                background-color: $bg-surface-secondary;
+                color: $text-primary;
+            }
+        }
+    }
+
+    .hero-journey-track-wrapper {
+        order: 4;
+        scrollbar-width: none !important;
+
+        &::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+    }
+
+    .hero-journey-custom-scrollbar {
+        order: 5;
+        margin: 10px 0 0 0;
+    }
+
+    .hero-journey-scroll-controls {
+        order: 6;
+        margin: 14px auto 0 auto !important;
+        justify-content: center !important;
+        width: 100% !important;
+        display: flex !important;
+    }
+}
+
+@media (min-width: $breakpoint-desktop) {
+    .hero-journey-header {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .hero-journey-title-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        position: relative;
+
+        .hero-journey-title {
+            order: 1;
+            text-align: left;
+            display: inline-flex !important;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-mountain-cluster {
+            order: 2;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+        }
+
+        #home-hj-cumulative-badge,
+        .hero-journey-level-badge {
+            order: 3;
+            margin-left: auto !important;
+            display: inline-flex !important;
+        }
+    }
+}
+
+@media (max-width: #{$breakpoint-desktop - 1px}) {
+    #home-hj-cumulative-badge,
+    .hero-journey-level-badge {
+        display: none !important;
+    }
+
+    .hero-journey-header {
+        order: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+    .hero-journey-title-container {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        gap: 6px;
+
+        .hero-mountain-cluster {
+            order: 1;
+            margin-left: 0;
+            margin-bottom: 4px;
+            align-self: center;
+            position: static !important;
+            transform: none !important;
+        }
+
+        .hero-journey-title {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            order: 2;
+            text-align: center;
+            width: 100%;
+
+            .hero-journey-title-wrapper {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0;
+            }
+
+            .hero-journey-title-text {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .beta-badge {
+                position: absolute;
+                left: calc(100% + 8px);
+                top: 50%;
+                transform: translateY(-50%);
+                white-space: nowrap;
+                margin: 0;
+            }
+        }
+    }
+
+    .hero-journey-progress-bar-container {
+        order: 2;
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: $breakpoint-modal) {
+    .hero-journey-card {
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .hero-journey-node-chip {
+        width: clamp(120px, 28vw, 135px);
+        padding: 10px 8px;
+    }
+
+    .node-icon-wrapper {
+        width: clamp(1.95rem, 5.5vw + 0.65rem, 2.4rem);
+        height: clamp(1.95rem, 5.5vw + 0.65rem, 2.4rem);
+        margin-bottom: 6px;
+
+        .node-quest-badge {
+            width: 1.25rem;
+            height: 1.25rem;
+            top: -3px;
+            right: -3px;
+        }
+    }
+}

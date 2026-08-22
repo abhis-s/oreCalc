@@ -17,7 +17,7 @@ function bindOutsideDismissListener() {
         if (helpPopover.contains(target)) return;
         if (activeTargetElem) {
             if (activeTargetElem === target || activeTargetElem.contains(target)) return;
-            const closestTarget = target.closest('.hero-journey-node-chip, .info-btn, .eq-badge, .hero-journey-upcoming-badge');
+            const closestTarget = target.closest('.hero-journey-node-chip, [data-info], .info-btn, .info-button, .eq-badge, .hero-journey-upcoming-badge, .priority-item-ores');
             if (closestTarget && (closestTarget === activeTargetElem || activeTargetElem.contains(closestTarget))) return;
         }
         hideCardHelpPopover();
@@ -25,6 +25,20 @@ function bindOutsideDismissListener() {
 
     document.addEventListener('pointerdown', handleOutsideTap, { capture: true, passive: true });
     document.addEventListener('touchstart', handleOutsideTap, { capture: true, passive: true });
+
+    if (helpPopover && typeof helpPopover.addEventListener === 'function') {
+        helpPopover.addEventListener('toggle', (event) => {
+            if (event.newState === 'closed') {
+                if (activeTargetElem && typeof activeTargetElem.removeAttribute === 'function') {
+                    activeTargetElem.removeAttribute('aria-describedby');
+                }
+                if (helpPopover.classList && typeof helpPopover.classList.remove === 'function') {
+                    helpPopover.classList.remove('show');
+                }
+                activeTargetElem = null;
+            }
+        });
+    }
 }
 
 function getOrCreateHelpPopover() {
@@ -35,22 +49,59 @@ function getOrCreateHelpPopover() {
         helpPopover = document.createElement('div');
         helpPopover.id = 'card-help-popover';
         helpPopover.className = 'card-help-popover';
+        if (typeof helpPopover.setAttribute === 'function') {
+            helpPopover.setAttribute('popover', 'auto');
+            helpPopover.setAttribute('role', 'tooltip');
+        }
         document.body.appendChild(helpPopover);
+    } else {
+        if (typeof helpPopover.setAttribute === 'function') {
+            if (!helpPopover.hasAttribute || !helpPopover.hasAttribute('popover')) {
+                helpPopover.setAttribute('popover', 'auto');
+            }
+            if (!helpPopover.hasAttribute || !helpPopover.hasAttribute('role')) {
+                helpPopover.setAttribute('role', 'tooltip');
+            }
+        }
     }
     bindOutsideDismissListener();
     return helpPopover;
 }
 
+/**
+ * Hides and dismisses the active card help tooltip popover element.
+ */
 export function hideCardHelpPopover() {
+    if (activeTargetElem) {
+        activeTargetElem.removeAttribute('aria-describedby');
+    }
     if (helpPopover) {
         helpPopover.classList.remove('show');
+        if (typeof helpPopover.hidePopover === 'function') {
+            try {
+                let isOpen = false;
+                try {
+                    isOpen = typeof helpPopover.matches === 'function' ? helpPopover.matches(':popover-open') : false;
+                } catch (_) {}
+                if (isOpen) {
+                    helpPopover.hidePopover();
+                }
+            } catch (_) {}
+        }
     }
     activeTargetElem = null;
 }
 
+/**
+ * Displays contextual help popover tooltip positioned relative to a target button element.
+ * @param {HTMLElement} targetElem - Anchor trigger element.
+ * @param {string|Record<string, any>} content - Localized help tooltip text content or structured parts.
+ * @param {object} [options={}] - Configuration options.
+ * @param {boolean} [options.isToggle=false] - True if clicking target again toggles visibility off.
+ */
 export function showCardHelpPopover(targetElem, content, { isToggle = false } = {}) {
     const popover = getOrCreateHelpPopover();
-    
+
     if (activeTargetElem === targetElem && popover.classList.contains('show')) {
         if (isToggle) {
             hideCardHelpPopover();
@@ -58,7 +109,14 @@ export function showCardHelpPopover(targetElem, content, { isToggle = false } = 
         return;
     }
 
+    if (activeTargetElem && activeTargetElem !== targetElem) {
+        activeTargetElem.removeAttribute('aria-describedby');
+    }
+
     activeTargetElem = targetElem;
+    if (targetElem && typeof targetElem.setAttribute === 'function') {
+        targetElem.setAttribute('aria-describedby', 'card-help-popover');
+    }
 
     let headerHtml = typeof content === 'object' ? (content?.header || null) : null;
     let bodyHtml = typeof content === 'string' ? content : (content?.body || '');
@@ -75,6 +133,18 @@ export function showCardHelpPopover(targetElem, content, { isToggle = false } = 
 
     popover.innerHTML = innerHTML;
     popover.classList.add('show');
+
+    if (typeof popover.showPopover === 'function') {
+        try {
+            let isOpen = false;
+            try {
+                isOpen = typeof popover.matches === 'function' ? popover.matches(':popover-open') : false;
+            } catch (_) {}
+            if (!isOpen) {
+                popover.showPopover();
+            }
+        } catch (_) {}
+    }
 
     const positionPopover = () => {
         if (activeTargetElem !== targetElem) return;

@@ -68,7 +68,6 @@ self.addEventListener('install', event => {
         } catch (err) {
             console.warn('[ServiceWorker] Precache install warning (stale chunk or asset missing):', err);
         }
-        self.skipWaiting();
     })());
 });
 
@@ -89,9 +88,9 @@ self.addEventListener('activate', event => {
     })());
 });
 
-// Allows Workbox Window to trigger SW updates from the UI.
+// Allows Workbox Window or PWA Service to trigger SW updates cleanly from the UI or on visibilitychange.
 self.addEventListener('message', event => {
-    if (event.data?.type === 'SKIP_WAITING') {
+    if (event.data?.type === 'SKIP_WAITING' || event.data === 'SKIP_WAITING') {
         self.skipWaiting();
     }
 });
@@ -142,7 +141,7 @@ registerRoute(
             lang = segments[0].toLowerCase();
         }
 
-        const localizedKey = precacheController.getCacheKeyForURL(`/${lang}/index.html`) 
+        const localizedKey = (lang !== 'en' ? precacheController.getCacheKeyForURL(`/${lang}/index.html`) : null)
                           || precacheController.getCacheKeyForURL('/index.html');
 
         if (localizedKey) {

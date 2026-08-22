@@ -4,7 +4,7 @@
     z-index: $z-index-welcome-modal + 1;
 
     .modal-content {
-        max-width: 480px;
+        max-width: $modal-width-expanded;
     }
 
     .bug-report-form {
@@ -40,7 +40,7 @@
         background-color: $bg-surface-primary;
         color: $text-primary;
         box-sizing: border-box;
-        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        transition: border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
 
         &:focus {
             outline: none;
@@ -66,7 +66,7 @@
     .textarea-footer {
         display: flex;
         justify-content: space-between;
-        align-center: center;
+        align-items: center;
         width: 100%;
         margin-top: 4px;
     }
@@ -104,7 +104,7 @@
         border: 1px solid rgba($color-success, 0.2);
         padding: 8px 16px;
         border-radius: 12px;
-        transition: opacity 0.2s ease-in-out;
+        transition: opacity $duration-fast $ease-smooth;
 
         &.hidden {
             display: none !important;
@@ -139,7 +139,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.2s ease;
+        transition: background-color $duration-fast $ease-smooth;
 
         &:hover {
             background-color: rgba($color-danger, 0.1);
@@ -166,7 +166,7 @@
             outline: none;
             position: relative;
             background-color: $bg-surface-primary;
-            transition: all 0.2s ease-in-out;
+            transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
             flex-shrink: 0;
             margin: 0;
 
@@ -203,6 +203,43 @@
         }
     }
 
+    .form-setting-text {
+        margin-top: 4px;
+    }
+
+    .sw-troubleshoot-box {
+        background: color-mix(in srgb, $bg-surface-primary 50%, transparent);
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid $border-primary;
+
+        .sw-troubleshoot-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .sw-troubleshoot-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .sw-troubleshoot-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: $text-primary;
+        }
+
+        .sw-troubleshoot-desc {
+            font-size: 11px;
+            color: $text-secondary;
+            line-height: 1.35;
+        }
+    }
+
     .bug-report-sw-btn {
         display: inline-flex;
         align-items: center;
@@ -216,7 +253,7 @@
         font-weight: 600;
         color: $text-on-accent;
         cursor: pointer;
-        transition: all 0.2s ease-in-out;
+        transition: background-color $duration-fast $ease-smooth, opacity $duration-fast $ease-smooth;
         white-space: nowrap;
         flex-shrink: 0;
 
@@ -230,7 +267,7 @@
         }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: $breakpoint-modal) {
         .bug-report-form {
             padding: 12px 20px 20px;
             gap: 12px;

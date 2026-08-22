@@ -1,0 +1,336 @@
+@use '../../abstracts/variables' as *;
+@use '../../base/placeholder';
+
+dialog.navigation-drawer,
+.navigation-drawer {
+    border: none;
+    padding: 0;
+    margin: 0;
+    position: fixed;
+    inset: 0 auto 0 0;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100%;
+    max-height: none;
+    max-width: none;
+    color: inherit;
+    box-sizing: border-box;
+
+    background-color: color-mix(in srgb, $bg-surface-primary 80%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid $border-secondary;
+    box-shadow: $elevation-3;
+    z-index: $z-index-drawer;
+    border-radius: 0 $shape-corner-extra-large $shape-corner-extra-large 0;
+    isolation: isolate;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+
+    transform: translateX(-100%);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform $duration-moderate $ease-enter,
+                visibility $duration-moderate $ease-enter,
+                display $duration-moderate allow-discrete,
+                overlay $duration-moderate allow-discrete;
+
+    &[open],
+    &.open {
+        transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
+
+        @starting-style {
+            transform: translateX(-100%);
+        }
+    }
+
+    &::backdrop {
+        background-color: $bg-overlay;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+        opacity: 0;
+        transition: opacity $duration-moderate $ease-smooth,
+                    backdrop-filter $duration-moderate $ease-smooth,
+                    -webkit-backdrop-filter $duration-moderate $ease-smooth,
+                    display $duration-moderate allow-discrete,
+                    overlay $duration-moderate allow-discrete;
+    }
+
+    &[open]::backdrop {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+
+        @starting-style {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none !important;
+
+        &::backdrop {
+            transition: none !important;
+        }
+    }
+
+    &__overlay {
+        touch-action: none;
+        overscroll-behavior: contain;
+        @extend %full-screen-overlay;
+        background-color: $bg-overlay;
+        z-index: #{$z-index-drawer - 1};
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+        isolation: isolate;
+        transform: translateZ(0);
+        transition: opacity $duration-moderate $ease-smooth, visibility $duration-moderate $ease-smooth, backdrop-filter $duration-moderate $ease-smooth, -webkit-backdrop-filter $duration-moderate $ease-smooth;
+
+        &.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        &.closing {
+            pointer-events: none;
+        }
+    }
+
+    &__content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 15px;
+        border-top-right-radius: $shape-corner-extra-large;
+    }
+
+    &__close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: 12px;
+        color: $text-secondary;
+        cursor: pointer;
+        height: 36px;
+        width: 36px;
+        padding: 0;
+        transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+        margin-top: 30px;
+        margin-right: 15px;
+
+        svg {
+            fill: currentColor;
+            width: 24px;
+            height: 24px;
+        }
+
+        &:hover,
+        &:focus {
+            background-color: $bg-surface-tertiary;
+            border-color: $accent-primary;
+            color: $text-primary;
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
+    &__app-title {
+        font-size: 24px;
+        font-weight: 800;
+        margin: 30px 0 4px 10px;
+        background: linear-gradient(135deg, $accent-primary 30%, #a8c0ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+    }
+
+    &__subtitle {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 0 10px;
+        color: $text-secondary;
+        opacity: 0.6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    &__secondary-actions {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 4px;
+        padding: 0 15px;
+        box-sizing: border-box;
+        margin-bottom: 8px;
+    }
+
+    &__footer {
+        padding: 20px;
+        border-top: 1px solid $border-secondary;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+    }
+
+    &__footer-links {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__footer-link {
+        color: $text-secondary;
+        opacity: 0.7;
+        text-decoration: none;
+        transition: color $duration-fast $ease-smooth, opacity $duration-fast $ease-smooth;
+
+        &:hover {
+            color: $accent-primary;
+            opacity: 1;
+        }
+    }
+
+    &__footer-sep {
+        color: $text-secondary;
+        opacity: 0.3;
+    }
+
+    &__app-version {
+        color: $text-secondary;
+        opacity: 0.4;
+        font-size: 11px;
+        font-family: monospace;
+    }
+
+    &__copyright {
+        color: $text-secondary;
+        opacity: 0.35;
+        font-size: 10px;
+        margin-top: 2px;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    &__tabs {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        position: relative;
+        z-index: #{$z-index-drawer + 1};
+    }
+
+    &__tab {
+        background: none;
+        border: none;
+        color: $text-primary;
+        padding: 12px 24px;
+        text-align: left;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color $duration-moderate $ease-smooth, color $duration-moderate $ease-smooth, opacity $duration-moderate $ease-smooth;
+        border-radius: $shape-corner-small;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+
+        &.secondary-tab {
+            font-size: 13.5px;
+            padding: 8px 16px;
+            color: $text-secondary;
+            opacity: 0.8;
+            width: 100%;
+            box-sizing: border-box;
+
+            .tab-label {
+                flex-grow: 1;
+            }
+
+            .open-in-icon {
+                width: 12px;
+                height: 12px;
+                opacity: 0.5;
+                margin-left: auto;
+                transition: opacity $duration-fast $ease-smooth, fill $duration-fast $ease-smooth;
+            }
+
+            svg {
+                width: 16px;
+                height: 16px;
+                opacity: 0.8;
+                fill: $text-secondary;
+            }
+
+            &:hover {
+                opacity: 1;
+                color: $accent-primary;
+                background-color: var(--accent-soft);
+                border-radius: $shape-corner-medium;
+
+                svg {
+                    fill: $accent-primary;
+                    opacity: 1;
+                }
+
+                .open-in-icon {
+                    opacity: 1;
+                    fill: $accent-primary;
+                }
+            }
+        }
+
+        &:hover {
+            background-color: var(--accent-soft);
+            border-radius: $shape-corner-extra-large;
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            background-color: var(--accent-soft);
+            border-radius: $shape-corner-extra-large;
+            outline-offset: -3px !important;
+        }
+
+        &.active {
+            background-color: var(--accent-soft);
+            color: $accent-primary;
+            border-radius: $shape-corner-extra-large;
+
+            svg {
+                fill: $accent-primary;
+            }
+        }
+    }
+}

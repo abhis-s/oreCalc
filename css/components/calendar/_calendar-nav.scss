@@ -1,0 +1,188 @@
+@use '../../abstracts/variables' as *;
+@use '../../base/base';
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    color: $text-primary;
+    padding: 10px 15px;
+
+    .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .current-month-year {
+            display: inline-block;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-width: 150px;
+
+            &.header-fade-in {
+                animation: headerFadeIn 0.3s ease-out forwards;
+            }
+        }
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-align: left;
+        flex-grow: 1;
+        color: $accent-primary;
+    }
+
+    .calendar-action-buttons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .planner-action-button {
+        background-color: $bg-surface-tertiary;
+        border-color: $border-primary;
+        color: $text-secondary;
+
+        &:hover {
+            background-color: $accent-primary-soft;
+            border-color: $accent-primary;
+            color: $accent-primary;
+        }
+
+        &.btn-danger-action:hover {
+            background-color: $color-danger-soft;
+            border-color: $color-danger;
+            color: $color-danger;
+        }
+    }
+}
+
+.month-chip-container {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 8px;
+    @extend %hide-scrollbar;
+}
+
+.year-label {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-weight: var(--font-weight-bold);
+    color: $text-secondary;
+}
+
+.month-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
+    cursor: pointer;
+    transition: background-color $duration-moderate $ease-smooth, border-color $duration-moderate $ease-smooth;
+    white-space: nowrap;
+    flex-grow: 1;
+    flex-shrink: 0;
+    border: 1px solid $border-primary;
+
+    &:hover {
+        background-color: $bg-surface-primary;
+        border-color: $accent-primary;
+    }
+
+    &.active {
+        font-weight: var(--font-weight-bold);
+        border-color: $accent-primary;
+
+        .month-name {
+            color: $accent-primary;
+        }
+    }
+}
+
+.week-numbers-container {
+    display: none;
+    flex-wrap: nowrap;
+    gap: 5px;
+    margin-left: 10px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.month-chip.active .week-numbers-container {
+    display: flex;
+}
+
+.week-chip {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background-color $duration-moderate $ease-smooth, color $duration-moderate $ease-smooth;
+
+    &:hover {
+        background-color: $accent-primary-soft;
+    }
+
+    &.active {
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        font-weight: var(--font-weight-bold);
+    }
+}
+
+@keyframes headerFadeIn {
+    from {
+        opacity: 0.3;
+        transform: translateY(-2px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: #{$breakpoint-desktop - 1px}) {
+    .calendar-header {
+        h2 {
+            font-size: 1.1rem;
+        }
+    }
+}
+
+@media (max-width: $breakpoint-compact) {
+    .calendar-header {
+        padding: 8px 10px;
+
+        h2 {
+            font-size: 0.95rem;
+        }
+
+        .calendar-action-buttons {
+            gap: 4px;
+        }
+
+        .planner-action-button {
+            width: 32px;
+            height: 32px;
+
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    }
+}

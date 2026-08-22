@@ -1,11 +1,17 @@
-import { dom } from '../../dom/domElements.js';
-
-import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
-import { raidMedalTraderData } from '../../data/appData.js';
+import { raidMedalTraderData } from '../../data/incomeSources/traders.js';
 import { translate } from '../../i18n/translator.js';
 
-import { renderOfferGrid } from '../common/offerGrid.js';
+import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 
+import { renderOfferGrid } from '../common/offerGrid.js';
+import { dom } from '../../dom/domElements.js';
+
+/**
+ * Renders a single Raid Medal Trader offer row element with purchase checkboxes.
+ * @param {any} offer - Raid Medal Trader offer configuration.
+ * @param {number} offerState - Number of purchased packs for this offer.
+ * @returns {HTMLDivElement} Rendered offer grid row DOM element.
+ */
 export function renderRaidMedalTraderRow(offer, offerState) {
     const row = document.createElement('div');
     row.className = 'offer-grid-row';
@@ -14,12 +20,12 @@ export function renderRaidMedalTraderRow(offer, offerState) {
 
     const costDisplay = document.createElement('div');
     costDisplay.className = 'offer-cost-display';
-    costDisplay.innerHTML = `<orecalc-assets-image src="assets/resources/raidMedal.png" alt="${translate('ores.raidMedal')}" class="ore-image raid-medal-icon" size="thumbnail"></orecalc-assets-image> ${formatNumber(offer.cost)}`;
+    costDisplay.innerHTML = `<orecalc-assets-image src="assets/resources/raidMedal.png" alt="${translate('views.income.ores.raidMedal')}" class="ore-image raid-medal-icon" size="thumbnail"></orecalc-assets-image> ${formatNumber(offer.cost)}`;
     row.appendChild(costDisplay);
 
     const oreDisplay = document.createElement('div');
     oreDisplay.className = 'offer-ore-display';
-    oreDisplay.innerHTML = `<span>${formatNumber(oreValue)}</span><orecalc-assets-image src="assets/${oreType}_ore.png" alt="${translate('ores.' + oreType)}" class="ore-image"></orecalc-assets-image>`;
+    oreDisplay.innerHTML = `<span>${formatNumber(oreValue)}</span><orecalc-assets-image src="assets/${oreType}_ore.png" alt="${translate('entities.ores.' + oreType)}" class="ore-image"></orecalc-assets-image>`;
     row.appendChild(oreDisplay);
 
     // Only checkboxes for Raid Medal Trader
@@ -30,18 +36,18 @@ export function renderRaidMedalTraderRow(offer, offerState) {
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.dataset.offerId = offer.id;
-            checkbox.dataset.instance = i;
+            checkbox.dataset.instance = String(i);
             checkbox.id = `${offer.id}_${i}`;
             checkbox.name = `${offer.id}_${i}`;
             checkbox.checked = i <= offerState;
-            
-            const oreName = translate('ores.' + oreType);
+
+            const oreName = translate('entities.ores.' + oreType);
             const offerName = `${formatNumber(oreValue)} ${oreName}`;
-            checkbox.setAttribute('aria-label', translate('income.shopOffers.packCheckbox', {
+            checkbox.setAttribute('aria-label', translate('views.income.shopOffers.packCheckbox', {
                 num: i,
                 name: offerName
             }));
-            
+
             checkboxDiv.appendChild(checkbox);
         }
         row.appendChild(checkboxDiv);
@@ -50,6 +56,10 @@ export function renderRaidMedalTraderRow(offer, offerState) {
     return row;
 }
 
+/**
+ * Renders or updates the Raid Medal Trader offers grid and earned input field.
+ * @param {import('../../core/types.js').RaidMedalTraderIncomeState} [raidMedalState] - Active Raid Medal Trader state object.
+ */
 export function renderRaidMedalTraderGrid(raidMedalState) {
     const container = dom.income?.raids?.offersContainer;
     const earnedInput = dom.income?.raids?.earned;
@@ -87,6 +97,11 @@ export function renderRaidMedalTraderGrid(raidMedalState) {
     }
 }
 
+/**
+ * Renders calculated Raid Medal Trader ore income and medal summaries.
+ * @param {import('../../core/types.js').IncomeResult} raidMedalIncome - Calculated Raid Medal Trader income and remaining medal object.
+ * @param {string} [timeframe] - Active timeframe context string.
+ */
 export function renderRaidMedalTraderDisplay(raidMedalIncome, timeframe) {
     const incomeTabDisplayElements = dom.income?.raids;
     if (!incomeTabDisplayElements) return;

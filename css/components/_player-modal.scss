@@ -1,48 +1,51 @@
 @use '../abstracts/variables' as *;
 
-#add-player-modal, #delete-player-modal {
-    .player-name-input-container {
-        padding: 0 24px;
-        margin: 20px 0;
-        position: relative;
+#add-player-modal {
+    .modal-content {
+        max-width: $modal-width-expanded;
+    }
 
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: $text-secondary;
-            margin-bottom: 8px;
+    .modal-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .modal-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid $border-primary;
-            border-radius: 12px;
-            font-size: 16px;
-            background-color: $bg-surface-primary;
-            color: $text-primary;
-            transition: border-color 0.3s ease-in-out;
+        @media (max-width: $breakpoint-modal) {
+            flex-wrap: wrap;
+            gap: 10px;
 
-            &:focus {
-                outline: none;
+            #add-player-guided-setup-btn {
+                order: 2;
+                width: 100%;
             }
 
-            &:focus-visible {
-                border-color: $accent-primary;
-                box-shadow: 0 0 0 3px $accent-primary-soft;
-                outline: none;
-            }
+            .modal-actions-right {
+                order: 1;
+                width: 100%;
+                justify-content: flex-end;
 
-            &.input-error {
-                border-color: $color-danger;
-                box-shadow: 0 0 0 4px rgba($color-danger, 0.1);
+                > button {
+                    flex: 1;
+                }
             }
         }
     }
 }
 
-#import-data-modal {
+#delete-player-modal, #import-data-modal {
+    .modal-content {
+        max-width: $modal-width-compact;
+    }
+}
+
+#add-player-modal, #delete-player-modal, #import-data-modal {
+    .player-name-input-container,
     .import-data-input-container {
         padding: 0 24px;
         margin: 20px 0;
@@ -64,7 +67,7 @@
             font-size: 16px;
             background-color: $bg-surface-primary;
             color: $text-primary;
-            transition: border-color 0.3s ease-in-out;
+            transition: border-color $duration-moderate $ease-smooth;
 
             &:focus {
                 outline: none;
@@ -98,11 +101,11 @@
         }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: $breakpoint-modal) {
         .player-name-input-container, .import-data-input-container {
             padding: 0 20px;
             margin: 15px 0;
-            
+
             label {
                 font-size: 13px;
                 margin-bottom: 6px;
@@ -114,4 +117,16 @@
             }
         }
     }
+}
+
+#add-player-token-container,
+#delete-token-container {
+    margin-top: 15px;
+}
+
+.api-token-hint {
+    color: var(--color-grey-400);
+    font-size: 0.85em;
+    margin-top: 5px;
+    display: block;
 }

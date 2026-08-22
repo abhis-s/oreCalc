@@ -1,14 +1,12 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
+import { translate } from '../../i18n/translator.js';
+
 import { state } from '../../core/state.js';
 
-import { calculateEventPassIncome } from '../../incomeCalculations/eventPassIncome.js';
-import { calculateEventTraderIncome } from '../../incomeCalculations/eventTraderIncome.js';
+import { calculateEventPassIncome } from '../../domain/income/eventPassIncome.js';
+import { calculateEventTraderIncome } from '../../domain/income/eventTraderIncome.js';
 
-import { addValidation } from '../../utils/inputValidator.js';
-import { eventTraderData } from '../../data/appData.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
-import { translate } from '../../i18n/translator.js';
+import { bindNumericInput, bindToggleInput } from '../common/formBindingUtils.js';
+import { dom } from '../../dom/domElements.js';
 
 function getRemainingEventMedals() {
     const eventPassIncome = calculateEventPassIncome(state.income.eventPass);
@@ -16,96 +14,84 @@ function getRemainingEventMedals() {
     return eventTraderIncome.remaining || 0;
 }
 
+function ensureEventPassState() {
+    if (!state.income.eventPass) state.income.eventPass = {};
+    return state.income.eventPass;
+}
+
+/**
+ * Initializes Event Pass input event listeners, popovers, and state bindings.
+ */
 export function initializeEventPassInputs() {
     const passToggle = dom.income?.eventPass?.passToggle;
     const includeEquipmentSelect = dom.income?.eventPass?.includeEquipment;
     const bonusTrackMedalsInput = dom.income?.eventPass?.bonusTrackMedals;
     const purchasedMedalsInput = dom.income?.eventPass?.purchasedMedals;
 
-    if (bonusTrackMedalsInput) {
-        addValidation(bonusTrackMedalsInput, { inputName: translate('income.eventPass.bonusTrackMedals') });
-        registerInputPopover(bonusTrackMedalsInput, {
-            title: () => translate('income.eventPass.bonusTrackMedals'),
+    bindToggleInput(passToggle, {
+        onUpdate: (checked) => {
+            ensureEventPassState().eventPass = checked;
+        }
+    });
+
+    bindToggleInput(includeEquipmentSelect, {
+        onUpdate: (checked) => {
+            ensureEventPassState().includeEquipment = checked;
+        }
+    });
+
+    bindNumericInput(bonusTrackMedalsInput, {
+        inputName: translate('views.income.eventPass.bonusTrackMedals'),
+        popover: {
+            title: () => translate('views.income.eventPass.bonusTrackMedals'),
             min: 0,
             max: 2000,
             showRecommended: true,
             recommended: 200,
-            recommendedLabel: () => translate('income.eventPass.previous') || 'Previous',
+            recommendedLabel: () => translate('views.income.eventPass.previous'),
             clickToFill: {
                 min: true,
                 max: true,
                 recommended: true
             }
-        });
-    }
-    if (purchasedMedalsInput) {
-        addValidation(purchasedMedalsInput, { inputName: translate('income.eventPass.purchasedMedals') });
-        
-        const getRecommendedPurchased = () => {
-            const remaining = getRemainingEventMedals();
-            if (remaining >= 0) return 0;
-            const currentPurchased = state.income.eventPass?.purchasedMedals || 0;
-            return currentPurchased - remaining;
-        };
+        },
+        onUpdate: (value) => {
+            ensureEventPassState().bonusTrackMedals = value;
+        }
+    });
 
-        registerInputPopover(purchasedMedalsInput, {
-            title: () => translate('income.eventPass.purchasedMedals'),
+    const getRecommendedPurchased = () => {
+        const remaining = getRemainingEventMedals();
+        if (remaining >= 0) return 0;
+        const currentPurchased = state.income.eventPass?.purchasedMedals || 0;
+        return currentPurchased - remaining;
+    };
+
+    bindNumericInput(purchasedMedalsInput, {
+        inputName: translate('views.income.eventPass.purchasedMedals'),
+        popover: {
+            title: () => translate('views.income.eventPass.purchasedMedals'),
             min: 0,
             max: 30000,
             showRecommended: () => getRecommendedPurchased() > 0,
             recommended: getRecommendedPurchased,
-            recommendedLabel: () => translate('actions.recommendPurchase') || 'Recommend Purchase',
+            recommendedLabel: () => translate('actions.recommendPurchase'),
             clickToFill: {
                 min: true,
                 max: true,
                 recommended: true
             }
-        });
-    }
-
-    passToggle?.addEventListener('change', (e) => {
-        handleStateUpdate(() => {
-            if (!state.income.eventPass) state.income.eventPass = {};
-            state.income.eventPass.eventPass = e.target.checked;
-        });
-    });
-
-    bonusTrackMedalsInput?.addEventListener('change', (e) => {
-        handleStateUpdate(() => {
-            if (!state.income.eventPass) state.income.eventPass = {};
-            state.income.eventPass.bonusTrackMedals = parseInt(e.target.value, 10) || 0;
-        });
-    });
-
-    bonusTrackMedalsInput?.addEventListener('validated-input', (e) => {
-        handleStateUpdate(() => {
-            if (!state.income.eventPass) state.income.eventPass = {};
-            state.income.eventPass.bonusTrackMedals = e.detail.value;
-        });
-    });
-
-    purchasedMedalsInput?.addEventListener('change', (e) => {
-        handleStateUpdate(() => {
-            if (!state.income.eventPass) state.income.eventPass = {};
-            state.income.eventPass.purchasedMedals = parseInt(e.target.value, 10) || 0;
-        });
-    });
-
-    purchasedMedalsInput?.addEventListener('validated-input', (e) => {
-        handleStateUpdate(() => {
-            if (!state.income.eventPass) state.income.eventPass = {};
-            state.income.eventPass.purchasedMedals = e.detail.value;
-        });
-    });
-
-    includeEquipmentSelect?.addEventListener('change', (e) => {
-        handleStateUpdate(() => {
-            if (!state.income.eventPass) state.income.eventPass = {};
-            state.income.eventPass.includeEquipment = e.target.checked;
-        });
+        },
+        onUpdate: (value) => {
+            ensureEventPassState().purchasedMedals = value;
+        }
     });
 }
 
+/**
+ * Populates Event Pass input values and checked states.
+ * @param {import('../../core/types.js').EventPassIncomeState} [eventPassState] - Active Event Pass state object.
+ */
 export function renderEventPassInputs(eventPassState) {
     const passToggle = dom.income?.eventPass?.passToggle;
     const includeEquipmentSelect = dom.income?.eventPass?.includeEquipment;

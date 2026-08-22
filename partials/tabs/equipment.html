@@ -6,7 +6,7 @@
                 <div class="right-panel">
                     <div id="eq-settings-container-card" class="equipment-card card">
                         <div class="input-group-flex">
-                            <label for="eq-enable-level-input-toggle" data-i18n="planner.enableLevelInput">Enable level input</label>
+                            <label for="eq-enable-level-input-toggle" data-i18n="views.planner.enableLevelInput"></label>
                             <div class="switch">
                                 <input type="checkbox" id="eq-enable-level-input-toggle">
                                 <span class="slider round"></span>
@@ -14,7 +14,7 @@
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="eq-hide-maxed-toggle" data-i18n="planner.hideMaxedEquipment">Hide maxed equipment</label>
+                                <label for="eq-hide-maxed-toggle" data-i18n="views.planner.hideMaxedEquipment"></label>
                                 <p id="eq-hidden-count" class="form-setting-text" style="display: none;"></p>
                             </div>
                             <div class="switch">
@@ -24,7 +24,7 @@
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="eq-hide-locked-toggle" data-i18n="planner.hideLockedEquipment">Hide locked equipment</label>
+                                <label for="eq-hide-locked-toggle" data-i18n="views.planner.hideLockedEquipment"></label>
                                 <p id="eq-locked-hidden-count" class="form-setting-text" style="display: none;"></p>
                             </div>
                             <div class="switch">
@@ -35,55 +35,55 @@
                     </div>
                     <div id="eq-results-container-card" class="equipment-card card calculated">
                         <h2 class="results-title">
-                            <orecalc-assets-image src="assets/ore_icon.png" alt="Ores Icon" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image>
-                            <span id="results-title-text" data-i18n="ores.requiredTitle">Required Ores</span>
-                            <button class="info-btn" data-info="equipment.requiredOres.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image>
+                            <span id="results-title-text" data-i18n="views.income.ores.requiredTitle"></span>
+                            <button class="info-btn" data-info="views.equipment.requiredOres.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="ores">
                             <div class="ore">
-                                <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
+                                <orecalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></orecalc-assets-image>
                                 <span id="eq-shiny-ore-result" class="ore-value calculated">0</span>
                             </div>
                             <div class="ore">
-                                <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
+                                <orecalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></orecalc-assets-image>
                                 <span id="eq-glowy-ore-result" class="ore-value calculated">0</span>
                             </div>
                             <div class="ore">
-                                <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
+                                <orecalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></orecalc-assets-image>
                                 <span id="eq-starry-ore-result" class="ore-value calculated">0</span>
                             </div>
                         </div>
                     </div>
                     <div id="eq-storage-container-card" class="equipment-card card calculated">
                         <h2 class="storage-title">
-                            <orecalc-assets-image src="assets/ore_icon.png" alt="Ores Icon" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image>
-                            <span id="storage-title-text" data-i18n="ores.storedTitle">Stored Ores</span>
-                            <button class="info-btn" data-info="equipment.storedOres.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image>
+                            <span id="storage-title-text" data-i18n="views.income.ores.storedTitle"></span>
+                            <button class="info-btn" data-info="views.equipment.storedOres.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="ores">
                             <div class="ore">
-                                <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
+                                <orecalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></orecalc-assets-image>
                                 <div class="ore-input-wrapper">
-                                    <input type="number" id="eq-shiny-ore-storage" name="eq-shiny-ore-storage" class="ore-value updatable" value="0" min="0" max="50000" maxlength="5" aria-label="Stored Ores - Shiny Ore" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
-                                    <span id="eq-shiny-hero-journey-badge" class="badge hero-journey-upcoming-badge" style="display: none;" data-info="heroJourney.upcomingOresTooltip">+0</span>
+                                    <input type="number" id="eq-shiny-ore-storage" name="eq-shiny-ore-storage" class="ore-value updatable" value="0" min="0" max="50000" step="100" maxlength="5" aria-label="Stored Ores - Shiny Ore" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                    <span id="eq-shiny-hero-journey-badge" class="badge hero-journey-upcoming-badge" style="display: none;" data-info="views.home.heroJourney.upcomingOresTooltip">+0</span>
                                 </div>
                             </div>
                             <div class="ore">
-                                <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
+                                <orecalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></orecalc-assets-image>
                                 <div class="ore-input-wrapper">
-                                    <input type="number" id="eq-glowy-ore-storage" name="eq-glowy-ore-storage" class="ore-value updatable" value="0" min="0" max="5000" maxlength="4" aria-label="Stored Ores - Glowy Ore" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
-                                    <span id="eq-glowy-hero-journey-badge" class="badge hero-journey-upcoming-badge" style="display: none;" data-info="heroJourney.upcomingOresTooltip">+0</span>
+                                    <input type="number" id="eq-glowy-ore-storage" name="eq-glowy-ore-storage" class="ore-value updatable" value="0" min="0" max="5000" step="10" maxlength="4" aria-label="Stored Ores - Glowy Ore" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                    <span id="eq-glowy-hero-journey-badge" class="badge hero-journey-upcoming-badge" style="display: none;" data-info="views.home.heroJourney.upcomingOresTooltip">+0</span>
                                 </div>
                             </div>
                             <div class="ore">
-                                <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
+                                <orecalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></orecalc-assets-image>
                                 <div class="ore-input-wrapper">
-                                    <input type="number" id="eq-starry-ore-storage" name="eq-starry-ore-storage" class="ore-value updatable" value="0" min="0" max="1000" maxlength="4" aria-label="Stored Ores - Starry Ore" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
-                                    <span id="eq-starry-hero-journey-badge" class="badge hero-journey-upcoming-badge" style="display: none;" data-info="heroJourney.upcomingOresTooltip">+0</span>
+                                    <input type="number" id="eq-starry-ore-storage" name="eq-starry-ore-storage" class="ore-value updatable" value="0" min="0" max="1000" step="1" maxlength="4" aria-label="Stored Ores - Starry Ore" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                    <span id="eq-starry-hero-journey-badge" class="badge hero-journey-upcoming-badge" style="display: none;" data-info="views.home.heroJourney.upcomingOresTooltip">+0</span>
                                 </div>
                             </div>
                         </div>

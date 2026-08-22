@@ -1,26 +1,37 @@
-import { getSVG } from '../../utils/svgManager.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
-import { translate } from '../../i18n/translator.js';
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import { translate } from '../../i18n/translator.js';
 
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { getSVG } from '../../utils/svgManager.js';
+
+/**
+ * Creates and returns a localized `<orecalc-assets-image>` hero avatar icon element.
+ * @param {any} hero - Hero data model object.
+ * @param {{ sizeClass?: string, action?: string }} [options={}] - Render options.
+ * @returns {HTMLElement} Created hero icon element.
+ */
 export function createHeroIcon(hero, { sizeClass = '', action = '' } = {}) {
     const img = document.createElement('orecalc-assets-image');
     const heroKey = toCamelCase(hero.name);
     img.setAttribute('src', hero.image);
-    img.setAttribute('alt', translate('heroes.' + heroKey));
-    img.dataset.i18nAlt = 'heroes.' + heroKey;
+    img.setAttribute('alt', translate('entities.heroes.' + heroKey));
+    img.dataset.i18nAlt = 'entities.heroes.' + heroKey;
     img.setAttribute('class', sizeClass || 'hero-icon');
     img.setAttribute('size', 'thumbnail');
     if (action) img.dataset.action = action;
     return img;
 }
 
+/**
+ * Creates and returns a single equipment row element with toggle switch or level increment controls.
+ * @param {any} params - Equipment configuration parameters.
+ * @returns {HTMLElement} Created equipment item element.
+ */
 export function createEquipmentItem({ equip, equipState, plannerState, idPrefix = 'planner', mode = 'planner', uiSettings = {} }) {
     const container = document.createElement('div');
     container.className = mode === 'planner' ? 'equipment-item-planner' : 'equipment-item';
     container.dataset.equipName = equip.name;
     container.dataset.equipType = equip.type;
-
 
     const isChecked = equipState?.checked ?? true;
     const currentLevel = equipState?.level ?? 1;
@@ -43,20 +54,23 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
     const img = document.createElement('orecalc-assets-image');
     const equipKey = toCamelCase(equip.name);
     img.setAttribute('src', equip.image);
-    img.setAttribute('alt', translate('equipment.' + equipKey));
-    img.dataset.i18nAlt = 'equipment.' + equipKey;
+    img.setAttribute('alt', translate('entities.equipment.' + equipKey));
+    img.dataset.i18nAlt = 'entities.equipment.' + equipKey;
     img.setAttribute('class', `equipment-image ${goldGlowClass} ${overLeveledGlowClass} ${grayscaleClass}`);
     img.setAttribute('size', 'standard');
+    img.setAttribute('role', 'button');
+    img.setAttribute('tabindex', '0');
+    img.setAttribute('aria-label', translate('entities.equipment.' + equipKey));
     if (mode === 'interactive') img.dataset.action = 'toggle-equip';
 
     const nameLabel = mode === 'planner' ? document.createElement('span') : document.createElement('label');
     nameLabel.className = `${goldGlowClass} ${overLeveledGlowClass} ${equipTypeClass}`;
-    nameLabel.textContent = translate('equipment.' + equipKey);
-    nameLabel.dataset.i18n = 'equipment.' + equipKey;
-    
+    nameLabel.textContent = translate('entities.equipment.' + equipKey);
+    nameLabel.dataset.i18n = 'entities.equipment.' + equipKey;
+
     const literalEquipName = equip.name.replace(/\s/g, '');
     const inputId = `${idPrefix}-${literalEquipName}-level`;
-    
+
     if (mode === 'interactive') {
         nameLabel.setAttribute('for', inputId);
     }
@@ -76,8 +90,8 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         checkbox.id = `${idPrefix}-${toCamelCase(equip.name)}-toggle`;
         checkbox.name = `${idPrefix}-${toCamelCase(equip.name)}-toggle`;
         checkbox.checked = isChecked;
-        checkbox.setAttribute('aria-label', translate('planner.toggleEquipment', {
-            name: translate('equipment.' + equipKey) || equip.name
+        checkbox.setAttribute('aria-label', translate('views.planner.toggleEquipment', {
+            name: translate('entities.equipment.' + equipKey) || equip.name
         }));
         switchLabel.appendChild(checkbox);
 
@@ -91,7 +105,7 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         container.appendChild(img);
         container.appendChild(nameLabel);
 
-        const isLevelInputEnabled = uiSettings.enableLevelInput === true;
+        const isLevelInputEnabled = (/** @type {any} */ (uiSettings)).enableLevelInput === true;
         const levelDisplayId = `${inputId}-display`;
 
         const displayContainer = document.createElement('div');
@@ -108,10 +122,10 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         const upgradeBtn = document.createElement('button');
         upgradeBtn.className = 'upgrade-btn';
         upgradeBtn.dataset.action = 'increment-level';
-        upgradeBtn.dataset.maxLevel = maxLevel;
+        upgradeBtn.dataset.maxLevel = String(maxLevel);
         upgradeBtn.style.visibility = isMaxLevel ? 'hidden' : 'visible';
         upgradeBtn.setAttribute('aria-label', translate('actions.upgradeToLevel', {
-            name: translate('equipment.' + equipKey) || equip.name,
+            name: translate('entities.equipment.' + equipKey) || equip.name,
             level: currentLevel + 1
         }));
         upgradeBtn.innerHTML = getSVG('arrow-up');
@@ -131,7 +145,7 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         levelInput.maxLength = 2;
         levelInput.setAttribute('maxlength', '2');
         levelInput.min = '1';
-        levelInput.max = maxLevel;
+        levelInput.max = String(maxLevel);
         levelInput.value = currentLevel;
         inputContainer.appendChild(levelInput);
         container.appendChild(inputContainer);
@@ -140,17 +154,21 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
     return container;
 }
 
+/**
+ * Creates and returns a hero card container with title header, equipment items, and action bindings.
+ * @param {any} params - Hero card configuration parameters.
+ * @returns {HTMLElement} Created hero card element.
+ */
 export function createHeroCard({ hero, heroState, heroKey, mode = 'interactive', plannerState, uiSettings = {} }) {
     const card = document.createElement('div');
     const heroDisabledClass = (heroState.enabled === false) ? 'hero-disabled' : '';
     card.className = `hero-card card ${heroDisabledClass}`;
     card.dataset.heroName = hero.name;
 
-
     const titleDiv = document.createElement('div');
     titleDiv.className = 'hero-title';
 
-    const icon = createHeroIcon(hero, { 
+    const icon = createHeroIcon(hero, {
         action: mode === 'interactive' ? 'toggle-hero' : '',
         sizeClass: mode === 'planner' ? 'hero-icon-planner' : 'hero-icon'
     });
@@ -158,8 +176,8 @@ export function createHeroCard({ hero, heroState, heroKey, mode = 'interactive',
 
     const h3 = document.createElement('h3');
     const heroKeyInternal = toCamelCase(hero.name);
-    h3.textContent = translate('heroes.' + heroKeyInternal);
-    h3.dataset.i18n = 'heroes.' + heroKeyInternal;
+    h3.textContent = translate('entities.heroes.' + heroKeyInternal);
+    h3.dataset.i18n = 'entities.heroes.' + heroKeyInternal;
     titleDiv.appendChild(h3);
     card.appendChild(titleDiv);
 
@@ -186,4 +204,3 @@ export function createHeroCard({ hero, heroState, heroKey, mode = 'interactive',
 
     return card;
 }
-

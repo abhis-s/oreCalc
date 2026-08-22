@@ -39,7 +39,6 @@ function checkClashApiBlock() {
 
 /**
  * Sets a block on general API requests for a specified duration.
- *
  * @param {number} seconds - The duration in seconds (minimum 60).
  */
 function setApiBlock(seconds) {
@@ -85,7 +84,7 @@ async function handleResponseError(response) {
     }
 
     if (response.status === 426) {
-        localStorage.setItem('oreCalcUpdateDetectedAt', '1');
+        sessionStorage.setItem('oreCalcUpdateDetectedAt', '1');
         document.dispatchEvent(new CustomEvent('app:api-version-force-update'));
         return 'apiErrors.updateRequired';
     }
@@ -114,8 +113,9 @@ async function handleResponseError(response) {
  * The request is proxied through the API server to avoid CORS or auth issues.
  *
  * @param {string} playerTag - The player tag to query (e.g. "#PPYY9988" or "PPYY9988").
- * @param {string} [token] - Optional Clash of Clans API verification token for protected tag access.
- * @returns {Promise<Object>} The parsed player data from the API response.
+ * @param {string | null} [token=null] - Optional Clash of Clans API verification token for protected tag access.
+ * @param {number | null} [timeoutMs=null] - Request timeout duration in milliseconds.
+ * @returns {Promise<any>} The parsed player data from the API response.
  * @throws {Error} Throws if the API request fails or returns a non-OK HTTP status.
  */
 export async function fetchPlayerData(playerTag, token = null, timeoutMs = null) {
@@ -123,12 +123,12 @@ export async function fetchPlayerData(playerTag, token = null, timeoutMs = null)
     checkClashApiBlock();
 
     const cleanedTag = playerTag.startsWith('#') ? playerTag.substring(1) : playerTag;
-    let url = `${BASE_URL}/proxy/players/${cleanedTag}`;
-    if (token) {
-        url += `?token=${encodeURIComponent(token)}`;
-    }
+    const url = `${BASE_URL}/proxy/players/${cleanedTag}`;
 
     const headers = { 'Accept': 'application/json' };
+    if (token) {
+        headers['x-verify-token'] = token;
+    }
     const userId = localStorage.getItem('oreCalc_userId');
     if (userId) {
         headers['x-user-id'] = userId;
@@ -157,30 +157,6 @@ export async function fetchPlayerData(playerTag, token = null, timeoutMs = null)
         throw error;
     } finally {
         if (timeoutId) clearTimeout(timeoutId);
-    }
-}
-
-/**
- * Fetches the minimum required client/app version from the backend.
- * Used for cache busting or checking if the user needs to reload to get update.
- *
- * @returns {Promise<string>} The current application version string.
- * @throws {Error} Throws if the network fails or version cannot be retrieved.
- */
-export async function fetchRequiredClientVersion() {
-    checkApiBlock();
-
-    const url = `${BASE_URL}/api/version?v=2`;
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(await handleResponseError(response));
-        }
-        const data = await response.json();
-        return data.currentAppVersion;
-    } catch (error) {
-        logger.error("Error fetching required client version:", error);
-        throw error;
     }
 }
 

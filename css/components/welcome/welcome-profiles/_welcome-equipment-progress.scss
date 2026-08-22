@@ -1,0 +1,286 @@
+@use '../../../abstracts/variables' as *;
+@use '../../../base/base';
+
+#welcome-modal {
+    .welcome-equip-progress-group {
+        margin-bottom: 16px;
+        background: color-mix(in srgb, $bg-surface-primary 30%, transparent);
+        border: 1px solid color-mix(in srgb, $border-primary 25%, transparent);
+        border-radius: 12px;
+        padding: 12px 14px;
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+
+            .group-title {
+                font-size: 12px;
+                font-weight: 700;
+                color: $text-primary;
+            }
+
+            .group-average {
+                font-size: 12px;
+                font-weight: 700;
+                color: $accent-primary;
+            }
+        }
+
+        .split-progress-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+
+            @media (max-width: $breakpoint-compact) {
+                gap: 6px;
+            }
+
+            .progress-section {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+
+                &.disabled {
+                    opacity: 0.45;
+                }
+
+                .section-header {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 9px;
+                    font-weight: 600;
+                    color: $text-secondary;
+                }
+
+                .progress-track {
+                    height: 6px;
+                    background-color: color-mix(in srgb, $bg-surface-primary 70%, transparent);
+                    border-radius: 3px;
+                    overflow: hidden;
+                    border: 1px solid color-mix(in srgb, $border-primary 15%, transparent);
+                    position: relative;
+
+                    .progress-fill {
+                        height: 100%;
+                        border-radius: 3px;
+                        transition: width $duration-slow $ease-smooth;
+                    }
+                }
+
+                &.shiny {
+                    .section-header span {
+                        color: color-mix(in srgb, $text-secondary 85%, #a5d8ff);
+                    }
+
+                    .progress-track {
+                        background-color: rgba(26, 54, 93, 0.3);
+                        border-color: rgba(66, 153, 225, 0.15);
+                    }
+
+                    .progress-fill {
+                        background: linear-gradient(90deg, #3182ce 0%, #63b3ed 50%, #ebf8ff 100%);
+                        box-shadow: 0 0 4px rgba(66, 153, 225, 0.4);
+                    }
+                }
+
+                &.glowy {
+                    .section-header span {
+                        color: color-mix(in srgb, $text-secondary 85%, #fcc2d7);
+                    }
+
+                    .progress-track {
+                        background-color: rgba(74, 37, 75, 0.3);
+                        border-color: rgba(184, 50, 128, 0.15);
+                    }
+
+                    .progress-fill {
+                        background: linear-gradient(90deg, #b83280 0%, #ec4899 50%, #fbcfe8 100%);
+                        box-shadow: 0 0 4px rgba(236, 72, 153, 0.4);
+                    }
+                }
+
+                &.starry {
+                    .section-header span {
+                        color: color-mix(in srgb, $text-secondary 85%, #ffe066);
+                    }
+
+                    .progress-track {
+                        background-color: rgba(116, 83, 16, 0.3);
+                        border-color: rgba(221, 107, 32, 0.15);
+                    }
+
+                    .progress-fill {
+                        background: linear-gradient(90deg, #dd6b20 0%, #ecc94b 50%, #fefcbf 100%);
+                        box-shadow: 0 0 4px rgba(236, 201, 75, 0.4);
+                    }
+                }
+            }
+        }
+    }
+
+    .welcome-hero-scroll-container {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        padding: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        text-align: left;
+        width: 100%;
+        box-sizing: border-box;
+        -webkit-overflow-scrolling: touch;
+        @extend %hide-scrollbar;
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px $accent-primary, 0 0 0 5px $accent-primary-soft;
+            border-radius: 12px;
+        }
+    }
+
+    .welcome-hero-group {
+        display: flex;
+        align-items: center;
+        position: relative;
+        background: color-mix(in srgb, $bg-surface-primary 35%, transparent);
+        border: 1px solid color-mix(in srgb, $border-primary 20%, transparent);
+        border-radius: 12px;
+        padding: 8px 12px;
+        gap: 16px;
+        flex-shrink: 0;
+        box-sizing: border-box;
+    }
+
+    .welcome-hero-badge {
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        background: color-mix(in srgb, $bg-surface-secondary 95%, transparent);
+        border: 1px solid color-mix(in srgb, $border-primary 80%, transparent);
+        border-radius: 8px;
+        padding: 4px;
+        flex-shrink: 0;
+        box-shadow: 4px 0 8px rgba(0, 0, 0, 0.25);
+        transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth, background $duration-fast $ease-smooth;
+
+        &.max-level {
+            border-color: #d4af37;
+            box-shadow: 4px 0 8px rgba(0, 0, 0, 0.25), 0 0 6px rgba(212, 175, 55, 0.4);
+            background: linear-gradient(135deg, color-mix(in srgb, $bg-surface-secondary 95%, transparent) 0%, rgba(212, 175, 55, 0.08) 100%);
+        }
+    }
+
+    .welcome-hero-img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+    }
+
+    .welcome-hero-name {
+        font-size: 8px;
+        font-weight: 700;
+        color: $text-secondary;
+        margin-top: 4px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 42px;
+    }
+
+    .welcome-hero-level {
+        font-size: 8px;
+        font-weight: 600;
+        color: $text-muted;
+        margin-top: 2px;
+        text-align: center;
+        white-space: nowrap;
+
+        &.max-level-text {
+            color: #ffd700;
+            font-weight: 700;
+            text-shadow: 0 0 2px rgba(212, 175, 55, 0.5);
+        }
+    }
+
+    .welcome-hero-equip-list {
+        display: flex;
+        gap: 12px;
+        padding-left: 4px;
+        flex-grow: 1;
+    }
+
+    .welcome-equip-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 40px;
+        flex-shrink: 0;
+        gap: 4px;
+
+        &.locked {
+            .equipment-image {
+                filter: grayscale(100%);
+                opacity: 0.45;
+            }
+
+            .equipment-level-box {
+                display: none !important;
+            }
+        }
+
+        .equipment-image-container {
+            position: relative;
+            width: 30px;
+            height: 30px;
+            flex-shrink: 0;
+            aspect-ratio: 1 / 1;
+
+            .equipment-image {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                aspect-ratio: 1 / 1;
+            }
+
+            .equipment-level-box {
+                position: absolute;
+                bottom: -2px;
+                right: -2px;
+                background-color: $bg-surface-tertiary;
+                color: $text-primary;
+                padding: 0px 3px;
+                font-size: 8px;
+                border-radius: 3px;
+                z-index: 1;
+                font-weight: 700;
+                border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
+
+                &.max-level {
+                    background: linear-gradient(135deg, #ffd700 0%, #d4af37 60%, #aa7c11 100%);
+                    color: #111111 !important;
+                    border-color: #aa7c11;
+                    box-shadow: 0 0 4px rgba(212, 175, 55, 0.8);
+                }
+            }
+        }
+    }
+
+    .welcome-equip-name {
+        font-size: 8px;
+        color: $text-muted;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        font-weight: 500;
+    }
+}

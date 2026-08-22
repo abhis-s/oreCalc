@@ -28,58 +28,58 @@ function getFiles(dir, files = []) {
 }
 
 async function compressAll() {
-    console.log(`Searching for PNG files in: ${assetsDir}`);
+    console.log('--- PNG Source Image Compressor ---');
     const files = getFiles(assetsDir);
-    console.log(`Found ${files.length} PNG files in assets.`);
+    console.log(`[INFO] Found ${files.length} PNG files in assets directory.\n`);
     let savedTotal = 0;
-    
+    let optimizedCount = 0;
+
     for (const file of files) {
         const stats = fs.statSync(file);
         const originalSize = stats.size;
         const fileName = path.basename(file);
-        
+
         try {
-            // Read metadata
             const image = sharp(file);
             const metadata = await image.metadata();
-            
-            // Determine if we should resize
+
             const shouldResize = !skipResizeList.includes(fileName);
             let pipeline = sharp(file);
-            
+
             if (shouldResize && (metadata.width > 512 || metadata.height > 512)) {
                 pipeline = pipeline.resize(512, 512, {
                     fit: 'inside',
                     withoutEnlargement: true
                 });
             }
-            
-            // Compress PNG using sharp
+
             const tempFile = file + '.tmp';
             await pipeline
                 .png({ compressionLevel: 9, quality: 80, palette: true })
                 .toFile(tempFile);
-                
+
             const compressedStats = fs.statSync(tempFile);
             const compressedSize = compressedStats.size;
-            
+
             if (compressedSize < originalSize) {
                 fs.renameSync(tempFile, file);
                 const saved = originalSize - compressedSize;
                 savedTotal += saved;
-                console.log(`Optimized ${path.relative(assetsDir, file)}: ${(originalSize / 1024 / 1024).toFixed(2)}MB -> ${(compressedSize / 1024).toFixed(2)}KB (saved ${(saved / 1024 / 1024).toFixed(2)}MB)`);
+                optimizedCount++;
+                console.log(`[OK] ${path.relative(assetsDir, file)}: ${(originalSize / 1024 / 1024).toFixed(2)}MB -> ${(compressedSize / 1024).toFixed(2)}KB (saved ${(saved / 1024 / 1024).toFixed(2)}MB)`);
             } else {
                 fs.unlinkSync(tempFile);
-                console.log(`Skipped ${path.relative(assetsDir, file)} (no size reduction)`);
             }
         } catch (err) {
-            console.error(`Error processing ${path.relative(assetsDir, file)}:`, err.message);
+            console.error(`[ERROR] Failed to process ${path.relative(assetsDir, file)}:`, err.message);
         }
     }
-    
-    console.log(`Total saved space: ${(savedTotal / 1024 / 1024).toFixed(2)}MB`);
+
+    console.log(`\n--- Summary ---`);
+    console.log(`Optimized files:   ${optimizedCount}`);
+    console.log(`Total space saved: ${(savedTotal / 1024 / 1024).toFixed(2)}MB\n`);
 }
 
 compressAll().catch(err => {
-    console.error('Compression failed:', err);
+    console.error('[ERROR] Compression pipeline failed:', err);
 });

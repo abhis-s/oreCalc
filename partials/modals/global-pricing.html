@@ -1,36 +1,37 @@
-<div id="global-pricing-modal" class="modal">
+<dialog id="global-pricing-modal" class="modal" aria-labelledby="global-pricing-modal-title">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 data-i18n="settings.globalPricingModal.title">Global Pricing Configuration</h2>
-            <button id="close-global-pricing-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+            <h2 id="global-pricing-modal-title" data-i18n="views.settings.globalPricingModal.title"></h2>
+            <button id="close-global-pricing-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
-        <div class="modal-info-text">
-            <p data-i18n="settings.globalPricingDesc">Configure custom prices for your currency.</p>
-        </div>
         <div class="modal-body">
+            <div class="modal-info-text">
+                <p data-i18n="views.settings.globalPricingDesc"></p>
+            </div>
             <div class="input-group-flex margin-bottom-20">
-                <label for="global-pricing-currency-select" data-i18n="settings.globalPricingModal.selectCurrency">Configure for Currency:</label>
-                <select id="global-pricing-currency-select" class="dropdown-style">
-                    <!-- Options populated from currencyData -->
+                <label for="global-pricing-currency-select" data-i18n="views.settings.globalPricingModal.selectCurrency"></label>
+                <select id="global-pricing-currency-select" class="dropdown-style" data-modal-autofocus>
+                    <!-- DYNAMIC INSERTION: Currency select options -->
                 </select>
             </div>
 
             <div class="global-pricing-grid-container">
                 <div class="global-pricing-grid-header">
-                    <span data-i18n="settings.globalPricingModal.usdHeader">USD Price</span>
-                    <span id="global-pricing-custom-header" data-i18n="settings.globalPricingModal.customHeader">Custom Price</span>
+                    <span data-i18n="views.settings.globalPricingModal.usdHeader"></span>
+                    <span id="global-pricing-custom-header" data-i18n="views.settings.globalPricingModal.customHeader"></span>
                 </div>
                 <div id="global-pricing-grid-body" class="global-pricing-grid-body">
-                    <!-- Grid rows populated dynamically -->
+                    <!-- DYNAMIC INSERTION: Pricing comparison grid rows -->
                 </div>
             </div>
         </div>
         <div class="modal-actions">
-            <button id="reset-global-pricing-btn" class="reject-button" data-i18n="settings.globalPricingModal.reset" style="margin-right: auto; display: none;">Reset to Default</button>
-            <button id="cancel-global-pricing-btn" class="reject-button" data-i18n="settings.globalPricingModal.cancel">Cancel</button>
-            <button id="save-global-pricing-btn" class="accept-button" data-i18n="settings.globalPricingModal.save">Save Changes</button>
+            <button id="reset-global-pricing-btn" class="btn-secondary modal-reset-btn" data-i18n="views.settings.globalPricingModal.reset" style="display: none;"></button>
+            <button id="cancel-global-pricing-btn" class="btn-secondary" data-i18n="views.settings.globalPricingModal.cancel"></button>
+            <button id="save-global-pricing-btn" class="btn-primary" data-i18n="views.settings.globalPricingModal.save"></button>
         </div>
+
     </div>
-</div>
+</dialog>

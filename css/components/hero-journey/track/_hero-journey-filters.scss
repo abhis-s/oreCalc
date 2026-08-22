@@ -1,0 +1,156 @@
+@use '../../../abstracts/variables' as *;
+
+.hero-journey-filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hero-journey-filters-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.hj-segmented-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    background: $bg-surface-primary;
+    border: 1px solid $border-primary;
+    border-radius: 20px;
+    padding: 3px;
+    gap: 2px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    user-select: none;
+
+    .hj-switch-pill {
+        position: absolute;
+        top: 3px;
+        bottom: 3px;
+        left: 3px;
+        background: $accent-primary;
+        border-radius: 16px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        transition: transform $duration-moderate $ease-standard,
+                    width $duration-moderate $ease-standard,
+                    left $duration-moderate $ease-standard,
+                    border-radius $duration-moderate $ease-smooth,
+                    background-color $duration-base $ease-smooth;
+        z-index: 1;
+        will-change: transform, width;
+    }
+
+    .hj-switch-btn {
+        position: relative;
+        z-index: 2;
+        padding: 5px 14px;
+        font-size: clamp(0.7rem, 0.4vw + 0.62rem, 0.75rem);
+        font-weight: 700;
+        border: none;
+        background: transparent;
+        color: $text-secondary;
+        cursor: pointer;
+        border-radius: 16px;
+        transition: color $duration-fast $ease-smooth;
+        line-height: 1.2;
+
+        &.active {
+            color: $text-on-accent;
+        }
+
+        &:hover:not(.active) {
+            color: $text-primary;
+        }
+    }
+}
+
+.hj-type-filters {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+
+    .hj-type-select {
+        display: none;
+    }
+
+    .hj-type-buttons {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .hj-type-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        font-size: clamp(0.7rem, 0.4vw + 0.62rem, 0.75rem);
+        font-weight: 600;
+        border-radius: 18px;
+        background: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        color: $text-secondary;
+        cursor: pointer;
+        transition: all $duration-fast $ease-standard;
+        user-select: none;
+
+        .type-close-icon {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.2);
+            color: currentColor;
+            transition: background $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+            margin-left: 2px;
+
+            orecalc-assets-svg, svg {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 10px;
+                height: 10px;
+
+                svg {
+                    display: block;
+                    width: 10px;
+                    height: 10px;
+                }
+            }
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.35);
+                transform: scale(1.1);
+            }
+        }
+
+        &:hover:not(.active) {
+            border-color: $border-accent;
+            color: $text-primary;
+            background: $accent-primary-soft;
+        }
+
+        &.active {
+            background: $accent-primary;
+            border-color: $accent-primary;
+            color: $text-on-accent;
+            font-weight: 700;
+            padding-right: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+            .type-close-icon {
+                display: inline-flex;
+            }
+        }
+    }
+}

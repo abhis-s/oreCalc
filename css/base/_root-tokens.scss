@@ -1,0 +1,186 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/palette' as *;
+
+:root {
+    color-scheme: dark;
+
+    --bg-app: #{$palette-slate-500};
+    --bg-surface-primary: #{$palette-slate-300};
+    --bg-surface-secondary: #{$palette-slate-100};
+    --bg-surface-tertiary: #{$palette-grey-800};
+    --bg-surface-popover: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
+    --bg-overlay: #{$palette-overlay-dark-70};
+
+    --accent-primary: #{$palette-blue-300};
+    --accent-primary-hover: #{$palette-blue-200};
+    --accent-primary-active: #{$palette-blue-400};
+    --accent-primary-soft: rgba(138, 180, 248, 0.1);
+    --accent-soft: $accent-primary-soft;
+
+    --accent-secondary: #{$palette-lavender-200};
+    --accent-secondary-hover: #{$palette-lavender-100};
+    --accent-secondary-soft: rgba(204, 194, 220, 0.1);
+
+    --accent-tertiary: #{$palette-purple-300};
+    --accent-tertiary-hover: #{$palette-purple-200};
+    --accent-tertiary-soft: rgba(206, 147, 216, 0.1);
+
+    --color-success: #{$palette-green-400};
+    --color-success-soft: rgba(129, 199, 132, 0.1);
+    --color-warning: #{$palette-yellow-400};
+    --color-warning-soft: rgba(253, 214, 99, 0.1);
+    --color-danger: #{$palette-red-400};
+    --color-danger-soft: rgba(246, 148, 142, 0.1);
+    --color-danger-soft-hover: rgba(246, 148, 142, 0.2);
+    --color-info: #{$palette-blue-400};
+    --color-info-soft: rgba(102, 157, 246, 0.1);
+
+    --text-primary: #{$palette-white};
+    --text-secondary: #{$palette-grey-300};
+    --text-muted: #{$palette-grey-400};
+    --text-disabled: #{$palette-grey-500};
+    --text-on-accent: #{$palette-slate-500};
+    --text-inverse: #{$palette-slate-500};
+
+    --border-primary: #{$palette-grey-700};
+    --border-secondary: #{$palette-grey-800};
+    --border-accent: #{$palette-blue-300};
+    --border-danger: #{$palette-red-400};
+    --border-inverse: #{$palette-white};
+    --outline-focus: #{$palette-blue-300};
+
+    --color-rarity-common: #{$palette-blue-300};
+    --color-rarity-rare: #{$palette-green-300};
+    --color-rarity-epic: #{$palette-purple-300};
+    --color-rarity-legendary: #{$palette-yellow-300};
+
+    --color-gold-glow: #{$palette-yellow-300};
+    --color-gold-glow-shadow: color-mix(in srgb, var(--color-gold-glow) 30%, transparent);
+
+    --shiny-ore: #{$palette-ore-shiny};
+    --glowy-ore: #{$palette-ore-glowy};
+    --starry-ore: #{$palette-ore-starry};
+
+    --hero-bk: #{$palette-hero-bk};
+    --hero-aq: #{$palette-hero-aq};
+    --hero-mp: #{$palette-hero-mp};
+    --hero-gw: #{$palette-hero-gw};
+    --hero-rc: #{$palette-hero-rc};
+    --hero-dd: #{$palette-hero-dd};
+
+    --color-income-star-bonus: #{$palette-cyan-200};
+    --color-income-clan-war: #{$palette-blue-200};
+    --color-income-cwl: #{$palette-indigo-200};
+    --color-income-raid-medals: #{$palette-grey-300};
+    --color-income-gems: #{$palette-emerald-200};
+    --color-income-event-pass: #{$palette-purple-200};
+    --color-income-event-trader: #{$palette-deep-orange-200};
+    --color-income-shop-offer: #{$palette-amber-200};
+    --color-income-prospector: #{$palette-brown-200};
+    --color-income-supercell-events: #{$palette-teal-200};
+    --color-income-custom: #{$palette-pink-200};
+    --color-on-income: #{$palette-grey-900};
+
+    --bg-primary: $bg-app;
+    --bg-secondary: $bg-surface-primary;
+    --surface-card: $bg-surface-secondary;
+    --border-color: $border-primary;
+    --color-success-400: $color-success;
+    --color-danger-300: $color-danger;
+
+    --font-family-base: #{$font-family-sans};
+    --font-size-2xs: 0.6875rem;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.8125rem;
+    --font-size-base: 0.875rem;
+    --font-size-md: 0.9375rem;
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.125rem;
+    --font-size-2xl: 1.25rem;
+    --font-size-3xl: 1.5rem;
+
+    --material-track-inactive: #{$palette-grey-800};
+    --material-track-border-inactive: rgba(255, 255, 255, 0.18);
+    --material-thumb-inactive: #{$palette-grey-300};
+    --material-track-active: color-mix(in srgb, var(--accent-primary) 32%, #141720);
+    --material-track-border-active: color-mix(in srgb, var(--accent-primary) 65%, transparent);
+    --material-thumb-active: var(--accent-primary);
+
+    --color-gold: #{$palette-gold};
+    --color-gold-soft: rgba(255, 215, 0, 0.15);
+    --color-event-red: #{$palette-red-500};
+    --color-event-red-hover: #{$palette-red-700};
+
+    --chip-border: #{$palette-overlay-light-10};
+    --input-hover-bg-color: #{$palette-overlay-light-10};
+
+    --btn-color-teal: #{$palette-teal-300};
+    --btn-bg-teal: color-mix(in srgb, var(--btn-color-teal) 12%, transparent);
+    --btn-border-teal: color-mix(in srgb, var(--btn-color-teal) 30%, transparent);
+    --btn-bg-teal-hover: color-mix(in srgb, var(--btn-color-teal) 22%, transparent);
+    --btn-border-teal-hover: color-mix(in srgb, var(--btn-color-teal) 45%, transparent);
+
+    --btn-color-red: #{$palette-red-400};
+    --btn-bg-red: color-mix(in srgb, var(--btn-color-red) 12%, transparent);
+    --btn-border-red: color-mix(in srgb, var(--btn-color-red) 30%, transparent);
+    --btn-bg-red-hover: color-mix(in srgb, var(--btn-color-red) 22%, transparent);
+    --btn-border-red-hover: color-mix(in srgb, var(--btn-color-red) 45%, transparent);
+
+    --btn-color-deep-orange: #{$palette-deep-orange-300};
+    --btn-bg-deep-orange: color-mix(in srgb, var(--btn-color-deep-orange) 12%, transparent);
+    --btn-border-deep-orange: color-mix(in srgb, var(--btn-color-deep-orange) 30%, transparent);
+    --btn-bg-deep-orange-hover: color-mix(in srgb, var(--btn-color-deep-orange) 22%, transparent);
+    --btn-border-deep-orange-hover: color-mix(in srgb, var(--btn-color-deep-orange) 45%, transparent);
+
+    --btn-color-emerald: #{$palette-emerald-400};
+    --btn-bg-emerald: color-mix(in srgb, var(--btn-color-emerald) 12%, transparent);
+    --btn-border-emerald: color-mix(in srgb, var(--btn-color-emerald) 30%, transparent);
+    --btn-bg-emerald-hover: color-mix(in srgb, var(--btn-color-emerald) 22%, transparent);
+    --btn-border-emerald-hover: color-mix(in srgb, var(--btn-color-emerald) 45%, transparent);
+
+    --btn-color-green: #{$palette-green-400};
+    --btn-bg-green: color-mix(in srgb, var(--btn-color-green) 12%, transparent);
+    --btn-border-green: color-mix(in srgb, var(--btn-color-green) 30%, transparent);
+    --btn-bg-green-hover: color-mix(in srgb, var(--btn-color-green) 22%, transparent);
+    --btn-border-green-hover: color-mix(in srgb, var(--btn-color-green) 45%, transparent);
+
+    --btn-color-amber: #{$palette-amber-400};
+    --btn-bg-amber: color-mix(in srgb, var(--btn-color-amber) 12%, transparent);
+    --btn-border-amber: color-mix(in srgb, var(--btn-color-amber) 30%, transparent);
+    --btn-bg-amber-hover: color-mix(in srgb, var(--btn-color-amber) 22%, transparent);
+    --btn-border-amber-hover: color-mix(in srgb, var(--btn-color-amber) 45%, transparent);
+
+    --btn-color-cyan: #{$palette-cyan-300};
+    --btn-bg-cyan: color-mix(in srgb, var(--btn-color-cyan) 12%, transparent);
+    --btn-border-cyan: color-mix(in srgb, var(--btn-color-cyan) 30%, transparent);
+    --btn-bg-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 22%, transparent);
+    --btn-border-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 45%, transparent);
+
+    --btn-color-purple: #{$palette-purple-400};
+    --btn-bg-purple: color-mix(in srgb, var(--btn-color-purple) 12%, transparent);
+    --btn-border-purple: color-mix(in srgb, var(--btn-color-purple) 30%, transparent);
+    --btn-bg-purple-hover: color-mix(in srgb, var(--btn-color-purple) 22%, transparent);
+    --btn-border-purple-hover: color-mix(in srgb, var(--btn-color-purple) 45%, transparent);
+
+    --btn-color-pink: #{$palette-pink-400};
+    --btn-bg-pink: color-mix(in srgb, var(--btn-color-pink) 12%, transparent);
+    --btn-border-pink: color-mix(in srgb, var(--btn-color-pink) 30%, transparent);
+    --btn-bg-pink-hover: color-mix(in srgb, var(--btn-color-pink) 22%, transparent);
+    --btn-border-pink-hover: color-mix(in srgb, var(--btn-color-pink) 45%, transparent);
+
+    --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+    --ease-exit: cubic-bezier(0.4, 0, 0.8, 0.2);
+    --ease-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    --duration-instant: 100ms;
+    --duration-fast: 150ms;
+    --duration-exit: 180ms;
+    --duration-base: 250ms;
+    --duration-moderate: 300ms;
+    --duration-slow: 400ms;
+}

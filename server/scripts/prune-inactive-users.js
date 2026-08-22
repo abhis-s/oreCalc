@@ -1,19 +1,18 @@
 const path = require('path');
 const admin = require('firebase-admin');
+const { safeJsonParse } = require('../utils/jsonUtils.js');
+const { SERVER_CONSTANTS } = require('../constants.js');
 
-// Load environment variables from server/.env or root .env
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 if (!process.env.FIRESTORE_SA_KEY) {
-    console.error("Error: FIRESTORE_SA_KEY environment variable is not set.");
+    console.error("[ERROR] FIRESTORE_SA_KEY environment variable is not set.");
     process.exit(1);
 }
 
-let serviceAccount;
-try {
-    serviceAccount = JSON.parse(process.env.FIRESTORE_SA_KEY);
-} catch (parseError) {
-    console.error("Error parsing FIRESTORE_SA_KEY JSON:", parseError.message);
+const serviceAccount = safeJsonParse(process.env.FIRESTORE_SA_KEY);
+if (!serviceAccount) {
+    console.error("[ERROR] Failed to parse FIRESTORE_SA_KEY JSON. Please ensure the secret content is valid JSON.");
     process.exit(1);
 }
 
@@ -30,16 +29,16 @@ if (admin.apps.length === 0) {
 async function pruneInactiveUsers() {
     try {
         const thresholdDate = new Date();
-        thresholdDate.setDate(thresholdDate.getDate() - 90);
+        thresholdDate.setDate(thresholdDate.getDate() - SERVER_CONSTANTS.INACTIVE_USER_DAYS_THRESHOLD);
         const thresholdIsoString = thresholdDate.toISOString();
 
-        console.log(`[PRUNE] Scanning for userStates documents inactive since (90 days): ${thresholdIsoString}`);
+        console.log(`[PRUNE] Scanning for userStates documents inactive since (${SERVER_CONSTANTS.INACTIVE_USER_DAYS_THRESHOLD} days): ${thresholdIsoString}`);
 
         // ISO string comparison works natively in Firestore query sorting/filtering.
-        // Limit to 25 documents per run to avoid large transactions and prune progressively.
+        // Limit to configured document limit per run to avoid large transactions.
         const querySnapshot = await db.collection('userStates')
             .where('timestamp', '<', thresholdIsoString)
-            .limit(25)
+            .limit(SERVER_CONSTANTS.PRUNE_BATCH_LIMIT)
             .get();
 
         console.log(`[PRUNE] Found ${querySnapshot.size} inactive userStates documents to prune.`);

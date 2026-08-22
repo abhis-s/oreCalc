@@ -18,7 +18,7 @@
     background-color: $bg-surface-secondary;
     cursor: pointer;
     box-shadow: $elevation-1;
-    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
     font-size: 14px;
     color: $text-primary;
     font-weight: 500;
@@ -60,7 +60,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.2s cubic-bezier(0.2, 1, 0.2, 1);
+        transition: transform $duration-fast $ease-standard;
 
         svg {
             fill: $text-primary;
@@ -77,7 +77,6 @@
     }
 }
 
-// Custom spring transition for opening the list dropdown
 .player-dropdown-list {
     position: absolute;
     top: calc(100% + 6px);
@@ -93,7 +92,7 @@
     overflow: hidden;
     opacity: 0;
     transform: translateY(-8px) scale(0.96);
-    transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: opacity $duration-base $ease-spring, transform $duration-base $ease-spring;
     pointer-events: none;
 }
 
@@ -112,7 +111,7 @@
     border-radius: 10px;
     border-left: 3px solid transparent;
     cursor: pointer;
-    transition: background-color 0.15s ease-in-out, transform 0.15s cubic-bezier(0.2, 1, 0.2, 1), border-left-color 0.15s, padding-left 0.15s;
+    transition: background-color $duration-fast $ease-smooth, transform $duration-fast $ease-standard, border-left-color $duration-fast $ease-smooth, padding-left $duration-fast $ease-smooth;
     font-size: 15px;
     color: $text-primary;
 
@@ -174,12 +173,12 @@
     margin-top: 8px;
     background-color: transparent;
     color: $accent-primary;
-    border: 1px dashed $accent-primary-soft;
+    border: 1.5px dashed color-mix(in srgb, $accent-primary 60%, transparent);
     border-radius: 10px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
-    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
 
     &:hover {
         background-color: var(--accent-soft);
@@ -201,7 +200,7 @@
     margin-left: auto;
     padding: 6px;
     border-radius: 50%;
-    transition: background-color 0.2s ease-in-out, transform 0.1s;
+    transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
     color: $color-danger;
 
     &:hover {
@@ -223,21 +222,6 @@
         opacity: 0.5;
         cursor: not-allowed;
     }
-}
-
-.cache-status-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-    fill: $text-secondary;
-}
-
-.cache-status-icon.cached {
-    fill: $color-success;
-}
-
-.cache-status-icon.not-cached {
-    fill: $color-danger;
 }
 
 #selected-player-name {

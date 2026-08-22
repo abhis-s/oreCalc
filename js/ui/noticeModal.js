@@ -2,7 +2,7 @@ import { translate } from '../i18n/translator.js';
 
 let modal, titleElem, messageElem, cancelBtn, okBtn, overlay;
 
-export function initializeNoticeModal() {
+function initializeNoticeModal() {
     modal = document.getElementById('notice-modal');
     titleElem = document.getElementById('notice-modal-title');
     messageElem = document.getElementById('notice-modal-message');
@@ -14,7 +14,7 @@ export function initializeNoticeModal() {
 /**
  * Sanitizes HTML input to allow only safe formatting elements and classes.
  * Discards any dangerous elements such as script, iframe, objects, images, etc.
- * 
+ *
  * @param {string} html - The raw HTML string to sanitize.
  * @returns {string} The sanitized HTML safe for innerHTML insertion.
  */
@@ -45,15 +45,15 @@ export function sanitizeHTML(html) {
                         }
                     }
                     if (tagName === 'a') {
-                        if (node.hasAttribute('href')) {
-                            cleanedElement.setAttribute('href', node.getAttribute('href'));
+                        const rawHref = (node.getAttribute('href') || '').trim();
+                        const isSafe = /^(https?:\/\/|mailto:|\/|#)/i.test(rawHref) && !/^javascript:/i.test(rawHref) && !/^data:/i.test(rawHref);
+                        if (isSafe) {
+                            cleanedElement.setAttribute('href', rawHref);
                         }
-                        if (node.hasAttribute('target')) {
-                            cleanedElement.setAttribute('target', node.getAttribute('target'));
+                        if (node.getAttribute('target') === '_blank') {
+                            cleanedElement.setAttribute('target', '_blank');
                         }
-                        if (node.hasAttribute('rel')) {
-                            cleanedElement.setAttribute('rel', node.getAttribute('rel'));
-                        }
+                        cleanedElement.setAttribute('rel', 'noopener noreferrer');
                     }
                     for (const child of Array.from(node.childNodes)) {
                         cleanedElement.appendChild(cleanNode(child));
@@ -98,9 +98,9 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
         titleElem.textContent = translate(titleKey);
         titleElem.setAttribute('data-i18n', titleKey);
         messageElem.innerHTML = sanitizeHTML(message);
-        
+
         cancelBtn.style.display = showCancel ? 'block' : 'none';
-        
+
         const defaultOkKey = showCancel ? 'actions.confirm' : 'actions.ok';
         const okKey = okBtnKey || defaultOkKey;
         okBtn.textContent = translate(okKey);
@@ -123,12 +123,22 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
             okBtn.removeEventListener('click', handleOk);
             cancelBtn.removeEventListener('click', handleCancel);
             modal.classList.remove('show');
+            if (typeof modal.close === 'function' && modal.open) {
+                try {
+                    modal.close();
+                } catch (e) {}
+            }
             overlay?.classList.remove('show');
         };
 
         okBtn.addEventListener('click', handleOk);
         cancelBtn.addEventListener('click', handleCancel);
 
+        if (typeof modal.showModal === 'function' && !modal.open) {
+            try {
+                modal.showModal();
+            } catch (e) {}
+        }
         modal.classList.add('show');
         overlay?.classList.add('show');
     });

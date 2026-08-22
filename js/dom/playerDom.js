@@ -1,3 +1,6 @@
+/**
+ * Queries and caches DOM element references for the player dropdown and profile management modals.
+ */
 export function getPlayerDOMElements() {
     return {
         dropdownButton: document.getElementById('player-dropdown-button'),
@@ -13,6 +16,7 @@ export function getPlayerDOMElements() {
         addPlayerTokenContainer: document.getElementById('add-player-token-container'),
         addPlayerTokenInput: document.getElementById('add-player-token-input'),
         verifyPlayerModalButton: document.getElementById('verify-player-modal-btn'),
+        guidedSetupButton: document.getElementById('add-player-guided-setup-btn'),
         closeAddPlayerModalBtn: document.getElementById('close-add-player-modal-btn'),
     };
 }

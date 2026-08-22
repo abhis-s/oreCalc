@@ -1,31 +1,12 @@
-
 import { getEquipmentMaxLevel } from '../data/equipmentCommonData.js';
-
-/**
- * Normalizes a hero's equipment state.
- */
-export function normalizeEquipmentState(heroName, heroState) {
-    return heroState || { equipment: {} };
-}
-
-/**
- * Migrates UI settings from legacy structures.
- */
-export function migrateUISettings(uiSettings, legacyStateTimestamp) {
-    return migrateAppSettings(uiSettings, legacyStateTimestamp);
-}
-
-/**
- * Minimalizes player data by removing redundant/default values before persistence.
- */
-export function sanitizePlayerState(playerData) {
-    return playerData;
-}
+import { safeJsonParse } from '../utils/jsonUtils.js';
 
 /**
  * Copies the level of each equipment item from old player data to new player data.
+ * @param {Record<string, any>} oldHeroData - Legacy hero state.
+ * @param {Record<string, any>} newHeroData - Target hero state to populate.
  */
-export function migrateEquipmentLevels(oldHeroData, newHeroData) {
+function migrateEquipmentLevels(oldHeroData, newHeroData) {
     if (!oldHeroData || !newHeroData) return;
     for (const heroName in oldHeroData) {
         const oldHero = oldHeroData[heroName];
@@ -44,8 +25,11 @@ export function migrateEquipmentLevels(oldHeroData, newHeroData) {
 
 /**
  * Sequential priority list step migrator from step 1 to 100.
+ *
+ * @param {Record<string, any>} oldEquipPlan - Legacy equipment upgrade plan.
+ * @returns {Record<string, import('./types.js').UpgradePlanStep> | undefined} Cleaned upgrade plan.
  */
-export function migrateUpgradePlan(oldEquipPlan) {
+function migrateUpgradePlan(oldEquipPlan) {
     if (!oldEquipPlan) return undefined;
     const cleanPlan = {};
     for (let step = 1; step <= 100; step++) {
@@ -53,7 +37,7 @@ export function migrateUpgradePlan(oldEquipPlan) {
         const stepData = oldEquipPlan[stepStr];
         // If we do not find a specific step number or if it is disabled, we end there
         if (!stepData || !stepData.enabled) {
-            break; 
+            break;
         }
         cleanPlan[stepStr] = {
             targetLevel: parseInt(stepData.target, 10) || 18,
@@ -66,9 +50,13 @@ export function migrateUpgradePlan(oldEquipPlan) {
 
 /**
  * Application Settings Migration helper.
+ *
+ * @param {Record<string, any>} oldUI - Legacy UI settings.
+ * @returns {Record<string, any>} Migrated app settings.
  */
-export function migrateAppSettings(oldUI, legacyStateTimestamp) {
+export function migrateAppSettings(oldUI) {
     if (!oldUI) return {};
+    const rawTimestamps = oldUI.timestamp || oldUI.uiTimestamps || {};
     return {
         currency: {
             code: typeof oldUI.currency === 'string' ? oldUI.currency : 'USD'
@@ -76,19 +64,22 @@ export function migrateAppSettings(oldUI, legacyStateTimestamp) {
         language: oldUI.language || 'auto',
         enableLevelInput: !!oldUI.enableLevelInput,
         summaryTimeframe: oldUI.incomeTimeframe || 'monthly',
-        uiTimestamps: oldUI.timestamp || oldUI.uiTimestamps || {
-            privacy: null,
-            tos: null,
-            welcome: null,
-            tour: null
+        uiTimestamps: {
+            privacy: rawTimestamps.privacy ?? null,
+            tos: rawTimestamps.tos ?? rawTimestamps.terms ?? null,
+            welcome: rawTimestamps.welcome ?? null,
+            tour: rawTimestamps.tour ?? null
         }
     };
 }
 
 /**
  * Migrates a player state instance (individual player data).
+ *
+ * @param {Record<string, any>} playerState - Raw player state slice.
+ * @returns {import('./types.js').PlayerData | null} Migrated player data.
  */
-export function migratePlayerState(playerState, tag) {
+function migratePlayerState(playerState) {
     if (!playerState) return null;
 
     const heroes = {};
@@ -128,7 +119,6 @@ export function migratePlayerState(playerState, tag) {
     }
 
     try {
-        // copy equipment levels using helper
         migrateEquipmentLevels(playerState.heroes, heroes);
     } catch (err) {
         console.error('Error migrating equipment levels:', err);
@@ -290,6 +280,8 @@ export function migratePlayerState(playerState, tag) {
         // playerProfile is intentionally NOT migrated (deleted/reset during migration)
         // because it is supposed to load fresh from the Clash of Clans API.
         playerProfile: null,
+        onboardingTimestamp: typeof playerState.onboardingTimestamp === 'number' ? playerState.onboardingTimestamp : null,
+        heroJourney: playerState.heroJourney || { overrideUnclaimed: [], acceleratedRewards: false },
         currency: {
             code: typeof playerState.currency === 'string' ? playerState.currency : 'USD',
             globalPricing: {}
@@ -298,39 +290,14 @@ export function migratePlayerState(playerState, tag) {
 }
 
 /**
- * Migrates global pricing keys from USD prices to standardized tier keys.
- */
-function migrateGlobalPricing(playerData) {
-    return playerData;
-}
-
-/**
- * Purges legacy and past data from the player's state.
- */
-export function purgeLegacyStateData(playerData) {
-    return playerData;
-}
-
-/**
- * Cleans UI settings before persistence.
- */
-export function sanitizeUISettings(uiSettings) {
-    return uiSettings;
-}
-
-/**
  * Migrates the full monolithic state into partitioned keys.
+ * @param {Record<string, any>} legacyState - Legacy monolithic state payload.
  */
 export function migrateFullState(legacyState) {
     if (!legacyState || !legacyState.allPlayersData) {
         // Safeguard: Ensure appVersion is written so the lock is released
         const appSettingsStr = localStorage.getItem('oreCalc_appSettings');
-        let cleanAppSettings = {};
-        if (appSettingsStr) {
-            try {
-                cleanAppSettings = JSON.parse(appSettingsStr) || {};
-            } catch (e) {}
-        }
+        const cleanAppSettings = (appSettingsStr ? safeJsonParse(appSettingsStr, {}) : {}) || {};
         cleanAppSettings.appVersion = '2.0.0';
         localStorage.setItem('oreCalc_appSettings', JSON.stringify(cleanAppSettings));
         localStorage.removeItem('oreCalculatorState');
@@ -347,7 +314,6 @@ export function migrateFullState(legacyState) {
     }
 
     try {
-        // Migrate user ID key
         const legacyUserId = localStorage.getItem('oreCalcUserId');
         if (legacyUserId) {
             localStorage.setItem('oreCalc_userId', legacyUserId);
@@ -358,9 +324,8 @@ export function migrateFullState(legacyState) {
     }
 
     try {
-        // 1. Migrate global UI settings
         const oldUI = legacyState.uiSettings || {};
-        const cleanAppSettings = migrateAppSettings(oldUI, legacyState.timestamp);
+        const cleanAppSettings = migrateAppSettings(oldUI);
         cleanAppSettings.appVersion = '2.0.0';
         cleanAppSettings.timestamp = legacyState.timestamp || new Date().toISOString();
         localStorage.setItem('oreCalc_appSettings', JSON.stringify(cleanAppSettings));
@@ -368,7 +333,6 @@ export function migrateFullState(legacyState) {
         console.error('Error migrating global UI settings:', e);
     }
 
-    // 2. Iterate players and migrate each
     let savedPlayerTags = [];
     try {
         savedPlayerTags = legacyState.savedPlayerTags && legacyState.savedPlayerTags.length > 0
@@ -385,13 +349,13 @@ export function migrateFullState(legacyState) {
         try {
             const upperTag = tag.toUpperCase();
             if (upperTag.includes('DEFAULT') || upperTag.includes('GUEST')) continue;
-            
+
             const cleanTag = upperTag.startsWith('#') ? upperTag.substring(1) : upperTag;
-            
+
             const oldPlayer = legacyState.allPlayersData[tag] || legacyState.allPlayersData[upperTag] || legacyState.allPlayersData[cleanTag];
-            
+
             if (oldPlayer) {
-                const cleanPlayer = migratePlayerState(oldPlayer, cleanTag);
+                const cleanPlayer = migratePlayerState(oldPlayer);
                 if (cleanPlayer) {
                     localStorage.setItem(`oreCalc_player_${cleanTag}`, JSON.stringify(cleanPlayer));
                     migratedPlayerTags.push(cleanTag);
@@ -403,14 +367,12 @@ export function migrateFullState(legacyState) {
     }
 
     try {
-        // 3. Write index metadata key
         localStorage.setItem('oreCalc_playerTags', JSON.stringify(migratedPlayerTags));
     } catch (e) {
         console.error('Error writing player tags list:', e);
     }
 
     try {
-        // 4. Remove monolithic legacy state keys
         localStorage.removeItem('oreCalculatorState');
         localStorage.removeItem('OreCalculatorState');
     } catch (e) {
@@ -419,7 +381,12 @@ export function migrateFullState(legacyState) {
 }
 
 /**
- * Version comparison utility.
+ * Semver version comparison utility.
+ * Returns 1 if v1 > v2, -1 if v1 < v2, and 0 if equal.
+ *
+ * @param {string} v1 - First version string.
+ * @param {string} v2 - Second version string.
+ * @returns {number} Comparison result (1, -1, or 0).
  */
 export function compareVersions(v1, v2) {
     if (typeof v1 !== 'string') v1 = String(v1 || '0.0.0');

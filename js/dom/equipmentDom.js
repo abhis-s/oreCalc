@@ -1,3 +1,6 @@
+/**
+ * Queries and caches DOM element references for the Equipment overview tab and stats cards.
+ */
 export function getEquipmentDOMElements() {
     return {
         heroesContainer: document.getElementById('heroes-container'),

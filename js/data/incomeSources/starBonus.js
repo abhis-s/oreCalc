@@ -1,11 +1,12 @@
 import { leagueTiers } from '../leagueTiers.js';
+import { deepFreeze } from '../../utils/objectUtils.js';
 
 const leagueNameToId = leagueTiers.items.reduce((acc, league) => {
     acc[league.name] = league.id;
     return acc;
 }, {});
 
-export const starBonusData = [
+export const starBonusData = deepFreeze([
     { league: leagueNameToId["Unranked"], shiny: 0, glowy: 0, starry: 0 },
     { league: leagueNameToId["Skeleton 1"], shiny: 790, glowy: 39, starry: 1 }, { league: leagueNameToId["Skeleton 2"], shiny: 795, glowy: 39, starry: 1 }, { league: leagueNameToId["Skeleton 3"], shiny: 800, glowy: 39, starry: 1 },
     { league: leagueNameToId["Barbarian 4"], shiny: 850, glowy: 44, starry: 1 }, { league: leagueNameToId["Barbarian 5"], shiny: 855, glowy: 44, starry: 1 }, { league: leagueNameToId["Barbarian 6"], shiny: 860, glowy: 44, starry: 1 },
@@ -19,9 +20,9 @@ export const starBonusData = [
     { league: leagueNameToId["Dragon 28"], shiny: 1210, glowy: 70, starry: 1 }, { league: leagueNameToId["Dragon 29"], shiny: 1215, glowy: 70, starry: 1 }, { league: leagueNameToId["Dragon 30"], shiny: 1220, glowy: 70, starry: 1 },
     { league: leagueNameToId["Electro 31"], shiny: 1230, glowy: 71, starry: 2 }, { league: leagueNameToId["Electro 32"], shiny: 1235, glowy: 71, starry: 2 }, { league: leagueNameToId["Electro 33"], shiny: 1240, glowy: 71, starry: 2 },
     { league: leagueNameToId["Legend III"], shiny: 1250, glowy: 72, starry: 2 }, { league: leagueNameToId["Legend II"], shiny: 1250, glowy: 72, starry: 2 }, { league: leagueNameToId["Legend I"], shiny: 1250, glowy: 72, starry: 2 },
-];
+]);
 
-export const townHallLeagueFloors = {
+export const townHallLeagueFloors = deepFreeze({
     1: 0,
     2: 0,
     3: 0,
@@ -40,4 +41,4 @@ export const townHallLeagueFloors = {
     16: 105000020,
     17: 105000023,
     18: 105000026,
-};
+});

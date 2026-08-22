@@ -3,19 +3,26 @@
  * Leverages short (4-12ms) LRA motor pulses for crisp, native-feeling tactile feedback.
  */
 
+/**
+ * Triggers an LRA micro-haptic vibration pulse tailored to interaction type.
+ * @param {'click' | 'tap' | 'toggle' | 'select' | 'selection' | 'success' | 'warning' | 'error' | 'bump' | 'light' | 'medium'} [type='click'] - Haptic pattern type.
+ */
 export function triggerHaptic(type = 'click') {
     if (typeof navigator === 'undefined' || !('vibrate' in navigator)) return;
-    
+
     try {
         switch (type) {
             case 'click':
             case 'tap':
+            case 'light':
                 // 6ms ultra-short micro-tick (crisp mechanical button feel)
                 navigator.vibrate(6);
                 break;
 
             case 'toggle':
             case 'select':
+            case 'selection':
+            case 'medium':
                 // 10ms crisp pop for switches, tabs, and checkboxes
                 navigator.vibrate(10);
                 break;
@@ -41,6 +48,9 @@ export function triggerHaptic(type = 'click') {
     }
 }
 
+/**
+ * Attaches delegated pointer event listeners to trigger tactile micro-haptics across UI elements.
+ */
 export function initializeGlobalHaptics() {
     if (typeof window === 'undefined') return;
 

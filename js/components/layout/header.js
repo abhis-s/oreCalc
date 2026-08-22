@@ -1,5 +1,8 @@
 import { dom } from '../../dom/domElements.js';
 
+/**
+ * Sets up an IntersectionObserver scroll sentinel to toggle the sticky header background elevation.
+ */
 export function initializeHeader() {
     const headerContainer = dom.header?.container;
     if (!headerContainer) return;

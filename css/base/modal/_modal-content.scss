@@ -1,0 +1,89 @@
+@use '../../abstracts/variables' as *;
+
+dialog.modal,
+.modal {
+    -webkit-user-select: none;
+    user-select: none;
+
+    .modal-content,
+
+    .eq-details-modal-content,
+    .welcome-modal-content,
+    .accent-picker-modal-content,
+    .data-erasure-modal-content,
+    [class*="modal-content"],
+    [class*="-modal-content"] {
+        background-color: $bg-surface-secondary;
+        border-radius: $modal-radius-standard;
+        box-shadow: 0 6px 10px $palette-overlay-dark-10, 0 20px 30px $palette-overlay-dark-10;
+        width: 100%;
+        max-width: $modal-width-standard;
+        max-height: calc(100vh - 48px);
+        max-height: calc(100dvh - 48px);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+
+        &.modal-compact {
+            max-width: $modal-width-compact;
+        }
+
+        &.modal-standard {
+            max-width: $modal-width-standard;
+        }
+
+        &.modal-expanded {
+            max-width: $modal-width-expanded;
+        }
+
+        &.modal-large {
+            max-width: $modal-width-large;
+            height: min(82dvh, 760px);
+            max-height: calc(100dvh - 48px);
+        }
+
+        &.modal-workspace {
+            max-width: $modal-width-workspace;
+            width: 95%;
+            height: min(88dvh, 880px);
+            max-height: calc(100dvh - 48px);
+            border-radius: $modal-radius-workspace;
+        }
+
+        > .privacy-notice {
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+    }
+
+    &.modal-compact .modal-content,
+    &.modal-compact [class*="modal-content"] {
+        max-width: $modal-width-compact;
+    }
+
+    &.modal-standard .modal-content,
+    &.modal-standard [class*="modal-content"] {
+        max-width: $modal-width-standard;
+    }
+
+    &.modal-expanded .modal-content,
+    &.modal-expanded [class*="modal-content"] {
+        max-width: $modal-width-expanded;
+    }
+
+    &.modal-large .modal-content,
+    &.modal-large [class*="modal-content"] {
+        max-width: $modal-width-large;
+        height: min(82dvh, 760px);
+        max-height: calc(100dvh - 48px);
+    }
+
+    &.modal-workspace .modal-content,
+    &.modal-workspace [class*="modal-content"] {
+        max-width: $modal-width-workspace;
+        width: 95%;
+        height: min(88dvh, 880px);
+        max-height: calc(100dvh - 48px);
+        border-radius: $modal-radius-workspace;
+    }
+}

@@ -29,6 +29,9 @@ function ensureElements() {
     }
 }
 
+/**
+ * Starts the YouTube/GitHub-style top progress bar with trickle animation during async requests.
+ */
 export function startTopProgressBar() {
     ensureElements();
     if (trickleTimer) clearInterval(trickleTimer);
@@ -48,16 +51,9 @@ export function startTopProgressBar() {
     }, 200);
 }
 
-export function setTopProgressBar(percent) {
-    ensureElements();
-    currentProgress = Math.min(100, Math.max(0, percent));
-    fillEl.style.transition = 'transform 0.2s cubic-bezier(0.1, 0.7, 0.1, 1)';
-    fillEl.style.transform = `translate3d(-${100 - currentProgress}%, 0, 0)`;
-    if (!containerEl.classList.contains('active')) {
-        containerEl.classList.add('active');
-    }
-}
-
+/**
+ * Completes the top progress bar to 100% and smoothly fades it out.
+ */
 export function finishTopProgressBar() {
     ensureElements();
     if (trickleTimer) {

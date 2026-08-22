@@ -7,12 +7,6 @@ export const heroMaxLevelsPerTH = {
     dragonDuke:     { 15: 10, 16: 15, 17: 20, 18: 25 }
 };
 
-export const heroHallMaxLevelPerTH = {
-    7: 1, 8: 2, 9: 3, 10: 4, 11: 5, 12: 6, 13: 7, 14: 8, 15: 9, 16: 10, 17: 11, 18: 12
-};
-
-export { getHeroEpicEquipmentPool } from './heroData.js';
-
 export const oreChestRewardsNormal = {
     8:  { shiny: { min: 250, max: 350, avg: 300 }, glowy: { min: 9, max: 19, avg: 14 }, starry: { min: 1, max: 3, avg: 2 } },
     9:  { shiny: { min: 300, max: 400, avg: 350 }, glowy: { min: 12, max: 22, avg: 17 }, starry: { min: 1, max: 3, avg: 2 } },

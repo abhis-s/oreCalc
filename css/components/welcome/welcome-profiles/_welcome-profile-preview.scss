@@ -1,0 +1,281 @@
+@use '../../../abstracts/variables' as *;
+
+#welcome-modal {
+    .welcome-profile-preview {
+        position: relative;
+        background: color-mix(in srgb, $bg-surface-primary 70%, transparent);
+        border: 1px solid $border-primary;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: left;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        animation: welcomeFadeIn 0.3s ease-out;
+
+        @media (max-width: $breakpoint-phone) {
+            padding: 14px;
+        }
+
+        .profile-card-tabs {
+            display: flex;
+            border-bottom: 1px solid $border-primary;
+            margin-bottom: 16px;
+            gap: 16px;
+
+            .profile-tab-btn {
+                background: transparent;
+                border: none;
+                color: $text-secondary;
+                font-size: 14px;
+                font-weight: 600;
+                padding: 8px 4px;
+                cursor: pointer;
+                position: relative;
+                transition: color $duration-fast $ease-smooth;
+                margin: 0;
+
+                &:hover {
+                    color: $text-primary;
+                }
+
+                &.active {
+                    color: $accent-primary;
+
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        bottom: -1px;
+                        left: 0;
+                        right: 0;
+                        height: 2px;
+                        background-color: $accent-primary;
+                        border-radius: 1px;
+                    }
+                }
+            }
+        }
+
+        .profile-card-body {
+            .profile-tab-content {
+                display: none;
+
+                &.active {
+                    display: block;
+                }
+            }
+
+            .profile-header-main {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                margin-bottom: 16px;
+
+                .th-image-wrapper {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 48px;
+                    height: 48px;
+
+                    orecalc-assets-image {
+                        width: 48px;
+                        height: 48px;
+                        display: block;
+
+                        img,
+                        picture {
+                            width: 48px;
+                            height: 48px;
+                            display: block;
+                            object-fit: contain;
+                            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+                        }
+                    }
+
+                    .th-level-badge {
+                        position: absolute;
+                        bottom: -4px;
+                        right: -4px;
+                        background-color: $accent-primary;
+                        color: $text-on-accent;
+                        font-size: 10px;
+                        font-weight: 700;
+                        padding: 2px 6px;
+                        border-radius: 8px;
+                        border: 1.5px solid var(--bg-surface-secondary);
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                    }
+                }
+
+                .player-title-details {
+                    h3 {
+                        font-size: 18px;
+                        font-weight: 700;
+                        color: $text-primary;
+                        margin: 0 0 2px 0;
+                    }
+
+                    p {
+                        font-size: 12px;
+                        color: $text-muted;
+                        margin: 0;
+                        font-family: monospace;
+                        opacity: 0.8;
+                    }
+                }
+
+                .welcome-profile-delete-btn {
+                    margin-left: auto;
+                    background: transparent;
+                    border: none;
+                    color: $text-secondary;
+                    width: 32px;
+                    height: 32px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: color $duration-fast $ease-smooth, background-color $duration-fast $ease-smooth;
+                    padding: 0;
+
+                    svg {
+                        display: block;
+                        transition: transform $duration-fast $ease-smooth;
+                    }
+
+                    &:hover {
+                        color: $color-danger;
+                        background-color: color-mix(in srgb, $color-danger 12%, transparent);
+
+                        svg {
+                            transform: scale(1.1);
+                        }
+                    }
+
+                    &:active {
+                        background-color: color-mix(in srgb, $color-danger 20%, transparent);
+
+                        svg {
+                            transform: scale(0.95);
+                        }
+                    }
+                }
+            }
+
+            .profile-clan-details {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background-color: color-mix(in srgb, $bg-surface-primary 30%, transparent);
+                padding: 10px 12px;
+                border-radius: 10px;
+                margin-bottom: 16px;
+                border: 1px solid color-mix(in srgb, $border-primary 30%, transparent);
+
+                .clan-badge-img {
+                    width: 24px;
+                    height: 24px;
+                    object-fit: contain;
+                }
+
+                .clan-text-details {
+                    display: flex;
+                    flex-direction: column;
+
+                    .clan-label {
+                        font-size: 9px;
+                        color: $text-muted;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        font-weight: 600;
+                    }
+
+                    .clan-name {
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: $text-primary;
+                    }
+                }
+            }
+
+            .profile-stats-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+
+                .stat-box {
+                    background-color: color-mix(in srgb, $bg-surface-primary 30%, transparent);
+                    border: 1px solid color-mix(in srgb, $border-primary 30%, transparent);
+                    border-radius: 12px;
+                    padding: 12px 8px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+
+                    .stat-icon {
+                        color: $accent-primary;
+                        margin-bottom: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    .stat-value {
+                        font-size: 14px;
+                        font-weight: 700;
+                        color: $text-primary;
+                    }
+
+                    .stat-label {
+                        font-size: 9px;
+                        color: $text-muted;
+                        margin-top: 2px;
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+    }
+
+    .clan-name-wrapper {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        flex-wrap: wrap;
+
+        .clan-role {
+            font-size: 10px;
+            font-weight: 500;
+            color: $text-secondary;
+            opacity: 0.85;
+        }
+    }
+
+    #welcome-profile-league-icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 18px;
+
+        .league-icon-img,
+        #welcome-profile-league-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+        }
+    }
+
+    .league-name-value,
+    #welcome-profile-league-name {
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+}

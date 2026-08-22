@@ -1,14 +1,19 @@
 import { changelogData } from '../data/changelogData.js';
-import { formatDate } from '../utils/dateFormatter.js';
 import { translate } from '../i18n/translator.js';
+import { formatDate } from '../utils/dateUtils.js';
 
+/**
+ * Builds the localized HTML markup for the modal changelog history.
+ *
+ * @returns {string} Formatted changelog HTML snippet.
+ */
 export function getChangelogHtml() {
     let html = '<div class="changelog-container">';
 
     changelogData.forEach((release, index) => {
         const isLatest = index === 0;
         const releaseClass = isLatest ? 'changelog-release latest' : 'changelog-release';
-        
+
         const dateObj = new Date(release.date);
         const formattedDate = formatDate(dateObj, { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -17,7 +22,7 @@ export function getChangelogHtml() {
                 <div class="changelog-header">
                     <h3 class="changelog-version">${release.version}</h3>
                     <span class="changelog-date">${formattedDate}</span>
-                    ${isLatest ? `<span class="changelog-badge-latest">${translate('app.latest') || 'Latest'}</span>` : ''}
+                    ${isLatest ? `<span class="changelog-badge-latest">${translate('app.latest')}</span>` : ''}
                 </div>
                 <ul class="changelog-list">
         `;
@@ -32,7 +37,7 @@ export function getChangelogHtml() {
                 changeClass = 'change-chore';
             }
 
-            const typeKey = `changelog.type.${change.type}`;
+            const typeKey = `views.changelog.type.${change.type}`;
             const translatedBadge = translate(typeKey);
             const badgeLabel = (translatedBadge && translatedBadge !== typeKey)
                 ? translatedBadge

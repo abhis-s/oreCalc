@@ -1,0 +1,417 @@
+@use '../../abstracts/variables' as *;
+@use '../../base/base';
+
+#welcome-modal {
+    background-color: $bg-surface-primary !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: $z-index-welcome-modal !important;
+    max-width: 100vw;
+
+    @media (max-width: $breakpoint-modal) {
+        background-color: $bg-surface-secondary !important;
+    }
+}
+
+.welcome-modal-content {
+    animation: none !important;
+    transform: none !important;
+    transition: opacity $duration-fast $ease-smooth, visibility $duration-fast $ease-smooth !important;
+    max-width: min($modal-width-expanded, 100vw) !important;
+    width: 100%;
+    height: calc(100vh - 80px);
+    height: calc(100dvh - 80px);
+    max-height: calc(100vh - 48px);
+    max-height: calc(100dvh - 48px);
+    margin: auto;
+    padding: 0 32px 40px 32px !important;
+    text-align: center;
+    background-color: $bg-surface-secondary;
+    border: 1px solid color-mix(in srgb, $accent-primary 15%, transparent) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 50px color-mix(in srgb, $accent-primary 5%, transparent) !important;
+    border-radius: $modal-radius-standard !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+    position: relative;
+
+    @media (max-width: $breakpoint-modal) {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        height: 100vh;
+        height: 100dvh;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 20px 24px 20px !important;
+        background-color: $bg-surface-secondary;
+        justify-content: flex-start;
+    }
+
+    .welcome-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        padding: 40px 32px 16px 32px;
+        margin: 0;
+        text-align: center;
+        pointer-events: none;
+        transition: padding 800ms $ease-enter;
+
+        .welcome-header-skip-btn {
+            position: absolute;
+            top: 40px;
+            right: 32px;
+            background-color: color-mix(in srgb, $bg-surface-secondary 75%, transparent);
+            border: 1px solid $border-primary;
+            color: $text-secondary;
+            padding: 6px 14px;
+            font-size: 0.85em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all $duration-moderate $ease-enter;
+            display: none;
+            pointer-events: auto;
+            z-index: 110;
+
+            &:hover {
+                background-color: $bg-surface-secondary;
+                color: $text-primary;
+                border-color: color-mix(in srgb, $accent-primary 50%, transparent);
+            }
+
+            @media (max-width: $breakpoint-modal) {
+                top: 24px;
+                right: 20px;
+                padding: 4px 10px;
+                font-size: 0.8em;
+            }
+        }
+
+        * {
+            pointer-events: auto;
+        }
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background-color: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            opacity: 1;
+            transition: opacity 800ms $ease-smooth, backdrop-filter 800ms $ease-smooth;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: $text-primary;
+            margin: 0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            transition: font-size 800ms $ease-enter;
+
+            .welcome-prefix {
+                display: inline-block;
+                opacity: 1;
+                max-width: 300px;
+                margin-right: 0.25em;
+                white-space: nowrap;
+                color: $accent-primary;
+                -webkit-text-fill-color: currentColor;
+                background: none;
+                overflow: hidden;
+                visibility: visible;
+                transition: opacity 800ms $ease-enter, max-width 800ms $ease-enter, transform 800ms $ease-enter, margin-right 800ms $ease-enter, visibility 800ms $ease-enter;
+            }
+
+            .brand-name {
+                display: inline-block;
+
+                .brand-ore {
+                    background: linear-gradient(135deg, $palette-yellow-300 0%, $palette-yellow-600 100%);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+
+                .brand-calc {
+                    background: linear-gradient(135deg, $palette-pink-300 0%, $palette-purple-600 100%);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+            }
+
+            @media (max-width: $breakpoint-phone) {
+                font-size: 24px;
+            }
+        }
+
+        .welcome-subtitle {
+            font-size: 15px;
+            color: $text-secondary;
+            line-height: 1.4;
+            max-width: 90%;
+            margin: 8px auto 0 auto;
+            opacity: 1;
+            max-height: 80px;
+            transition: opacity 500ms $ease-smooth, max-height 800ms $ease-enter, transform 500ms $ease-smooth, margin-top 800ms $ease-smooth;
+
+            @media (max-width: $breakpoint-phone) {
+                font-size: 13.5px;
+                max-width: 100%;
+            }
+        }
+
+        &.translating-header {
+            h1 {
+                opacity: 0;
+                transform: translateY(-12px) scale(0.96);
+                transition: opacity $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+            }
+
+            .welcome-subtitle {
+                opacity: 0;
+                transform: translateY(12px);
+                transition: opacity $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+                transition-delay: 0ms;
+            }
+        }
+
+        @media (max-width: $breakpoint-modal) {
+            padding: 24px 20px 12px 20px;
+        }
+    }
+
+    &.has-minimized-header {
+        .welcome-header {
+            padding: 14px 32px 12px 32px;
+
+            .welcome-header-skip-btn {
+                top: 14px;
+
+                @media (max-width: $breakpoint-modal) {
+                    top: 10px;
+                }
+            }
+
+            &::before {
+                background-color: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                opacity: 1;
+            }
+
+            h1 {
+                font-size: 20px;
+                justify-content: flex-start;
+                text-align: left;
+
+                .welcome-prefix {
+                    opacity: 0;
+                    max-width: 0;
+                    margin-right: 0;
+                    transform: translateX(-20px);
+                    pointer-events: none;
+                    overflow: hidden;
+                    visibility: hidden;
+                }
+            }
+
+            .welcome-subtitle {
+                opacity: 0;
+                max-height: 0;
+                transform: translateY(-10px);
+                margin-top: 0;
+                pointer-events: none;
+            }
+
+            @media (max-width: $breakpoint-modal) {
+                padding: 10px 20px 8px 20px;
+
+                &::before {
+                    background-color: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
+                }
+
+                h1 {
+                    font-size: 18px;
+                }
+            }
+        }
+
+        .welcome-page {
+            padding-top: 60px;
+
+            @media (max-width: $breakpoint-modal) {
+                padding-top: 48px;
+            }
+        }
+
+        #welcome-profile-setup-wizard-view {
+            padding-top: 60px;
+
+            @media (max-width: $breakpoint-modal) {
+                padding-top: 48px;
+            }
+        }
+    }
+
+    .welcome-carousel {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        flex: 1;
+        width: 100%;
+        margin-top: 0;
+        margin-bottom: 8px;
+        box-sizing: border-box;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &.no-scroll {
+            overflow: hidden !important;
+            touch-action: none !important;
+            pointer-events: none;
+        }
+    }
+
+    .welcome-page {
+        flex: 0 0 100%;
+        width: 100%;
+        height: 100%;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-top: var(--welcome-header-height, 140px);
+        padding-bottom: 24px;
+        padding-left: 6px;
+        padding-right: 6px;
+        box-sizing: border-box;
+        scrollbar-width: thin;
+        scroll-behavior: smooth;
+        scroll-padding-top: 16px;
+        scroll-padding-bottom: 60px;
+        padding-bottom: 60px;
+
+        @media (max-width: $breakpoint-modal) {
+            padding-top: var(--welcome-header-height, 100px);
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-bottom: 70px;
+            scroll-padding-bottom: 70px;
+        }
+    }
+
+    .welcome-dots {
+        position: relative;
+        z-index: 11;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin: 8px 0 24px 0;
+        min-height: 12px;
+        padding: 4px 12px;
+        border-radius: 12px;
+        background-color: $bg-surface-secondary;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+
+        .welcome-dot,
+        .welcome-wizard-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: $bg-surface-secondary;
+            border: 1px solid $border-primary;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: background-color $duration-moderate $ease-standard, width $duration-moderate $ease-standard, border-radius $duration-moderate $ease-standard, border-color $duration-moderate $ease-standard;
+
+            &.active {
+                background-color: $accent-primary;
+                border-color: $accent-primary;
+                width: 24px;
+                border-radius: 4px;
+            }
+        }
+    }
+
+    .welcome-actions {
+        position: relative;
+        z-index: 11;
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        margin-top: auto;
+        width: 100%;
+        padding: 0;
+        background-color: transparent;
+        justify-content: space-between;
+        align-items: stretch;
+        box-sizing: border-box;
+
+        .reject-button,
+        .accept-button {
+            min-height: 44px;
+            line-height: 1.25;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1 1 0%;
+            min-width: 0;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .reject-button {
+            order: 1;
+        }
+
+        .accept-button {
+            order: 2;
+        }
+
+        @media (max-width: $breakpoint-modal) {
+            flex-direction: column;
+            gap: 8px;
+
+            .accept-button {
+                order: 1;
+                width: 100%;
+            }
+
+            .reject-button {
+                order: 2;
+                width: 100%;
+            }
+        }
+    }
+}

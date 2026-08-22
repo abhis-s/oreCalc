@@ -1,29 +1,47 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
-import { state } from '../../core/state.js';
-
-import { addValidation } from '../../utils/inputValidator.js';
-import { raidMedalTraderData } from '../../data/appData.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { raidMedalTraderData } from '../../data/incomeSources/traders.js';
 import { translate } from '../../i18n/translator.js';
 
+import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
+
+import { bindNumericInput } from '../common/formBindingUtils.js';
+import { initializeOfferGrid } from '../common/offerGrid.js';
+import { dom } from '../../dom/domElements.js';
 import { renderRaidMedalTraderRow } from './raidMedalTraderDisplay.js';
 
-import { initializeOfferGrid } from '../common/offerGrid.js';
-
 function updateRaidMedalTraderState(offerId, oreType, count) {
-    handleStateUpdate(() => { 
+    handleStateUpdate(() => {
         if (!state.income.raidMedals) state.income.raidMedals = { packs: {} };
         if (!state.income.raidMedals.packs) state.income.raidMedals.packs = {};
 
         if (count > 0) {
-            state.income.raidMedals.packs[oreType] = count; 
+            state.income.raidMedals.packs[oreType] = count;
         } else {
             delete state.income.raidMedals.packs[oreType];
         }
     });
 }
 
+function calculateRequiredRaidMedalsCost() {
+    let totalCost = 0;
+    const packs = state.income.raidMedals?.packs || {};
+    raidMedalTraderData.forEach(offer => {
+        if (offer.shiny > 0 && packs.shiny) {
+            totalCost += offer.cost * packs.shiny;
+        }
+        if (offer.glowy > 0 && packs.glowy) {
+            totalCost += offer.cost * packs.glowy;
+        }
+        if (offer.starry > 0 && packs.starry) {
+            totalCost += offer.cost * packs.starry;
+        }
+    });
+    return totalCost;
+}
+
+/**
+ * Initializes Raid Medal Trader offer checkboxes and earned medals input validation.
+ */
 export function initializeRaidMedalTrader() {
     const container = dom.income?.raids?.offersContainer;
     const earnedInput = dom.income?.raids?.earned;
@@ -35,55 +53,26 @@ export function initializeRaidMedalTrader() {
         onStateChange: updateRaidMedalTraderState,
         renderRow: renderRaidMedalTraderRow
     });
-    addValidation(earnedInput, { inputName: translate('ores.raidMedal') });
-    registerInputPopover(earnedInput, {
-        title: () => translate('ores.raidMedal'),
-        min: 0,
-        max: 1970,
-        showRecommended: () => {
-            let totalCost = 0;
-            const packs = state.income.raidMedals?.packs || {};
-            raidMedalTraderData.forEach(offer => {
-                if (offer.shiny > 0 && packs.shiny) {
-                    totalCost += offer.cost * packs.shiny;
-                }
-                if (offer.glowy > 0 && packs.glowy) {
-                    totalCost += offer.cost * packs.glowy;
-                }
-                if (offer.starry > 0 && packs.starry) {
-                    totalCost += offer.cost * packs.starry;
-                }
-            });
-            return totalCost > 0;
+
+    bindNumericInput(earnedInput, {
+        inputName: translate('views.income.ores.raidMedal'),
+        popover: {
+            title: () => translate('views.income.ores.raidMedal'),
+            min: 0,
+            max: 1970,
+            showRecommended: () => calculateRequiredRaidMedalsCost() > 0,
+            recommended: () => calculateRequiredRaidMedalsCost(),
+            recommendedLabel: () => translate('views.income.ores.requiredShort'),
+            hideRecommendedIfHigher: true,
+            clickToFill: {
+                min: true,
+                max: true,
+                recommended: true
+            }
         },
-        recommended: () => {
-            let totalCost = 0;
-            const packs = state.income.raidMedals?.packs || {};
-            raidMedalTraderData.forEach(offer => {
-                if (offer.shiny > 0 && packs.shiny) {
-                    totalCost += offer.cost * packs.shiny;
-                }
-                if (offer.glowy > 0 && packs.glowy) {
-                    totalCost += offer.cost * packs.glowy;
-                }
-                if (offer.starry > 0 && packs.starry) {
-                    totalCost += offer.cost * packs.starry;
-                }
-            });
-            return totalCost;
-        },
-        recommendedLabel: () => translate('ores.requiredShort') || 'Required',
-        hideRecommendedIfHigher: true,
-        clickToFill: {
-            min: true,
-            max: true,
-            recommended: true
-        }
-    });
-    earnedInput.addEventListener('validated-input', (e) => {
-        handleStateUpdate(() => { 
+        onUpdate: (value) => {
             if (!state.income.raidMedals) state.income.raidMedals = { packs: {} };
-            state.income.raidMedals.earned = e.detail.value; 
-        });
+            state.income.raidMedals.earned = value;
+        }
     });
 }

@@ -6,120 +6,23 @@
 
 const DEFAULT_VIEWBOX = '0 0 24 24';
 
-// Default viewBox is '0 0 24 24', which must be used for '0 -960 960 960' SVGs as well (SVG <use> handles inner symbol viewBox scaling). Use {} for these.
-export const SVGs = {
-    'menu': {},
-    'close': {},
-    'dropdown': {},
-    'refresh': {},
-    'home-outline': {},
-    'home-filled': {},
-    'equipment-outline': {},
-    'equipment-filled': {},
-    'income-outline': {},
-    'income-filled': {},
-    'planner-outline': {},
-    'planner-filled': {},
-    'settings-outline': {},
-    'settings-filled': {},
-    'collapse': {},
-    'compress': {},
-    'expand': {},
-    'trash': {},
-    'trash-sweep': {},
-    'copy': {},
-    'qr': {},
-    'paste': {},
-    'camera': {},
-    'github': { viewBox: '0 0 496 512' },
-    'crowdin': { viewBox: '0 0 24 24' },
-    'bmc': { viewBox: '0 0 884 1279' },
-    'sync': {},
-    'plus': {},
-    'cloud-check': {},
-    'check': {},
-    'check-simple': {},
-    'sync-problem': {},
-    'cloud-error': {},
-    'error': {},
-    'cloud-upload': {},
-    'cloud-off': {},
-    'import': {},
-    'sync-cloud': {},
-    'arrow-up': {},
-    'edit': {},
-    'drag-handle': {},
-    'drag-indicator': {},
-    'warning': {},
-    'suggestion': {},
-    'changelog': {},
-    'shield': {},
-    'article': {},
-    'extension': {},
-    'attribution': {},
-    'group': {},
-    'gavel': {},
-    'info': {},
-    'library': {},
-    'download': {},
-    'policy': {},
-    'bug': {},
-    'mail': {},
-    'costs': {},
-    'swords': {},
-    'dnd': {},
-    'global-pricing': {},
-    'light-mode': {},
-    'dark-mode': {},
-    'palette': {},
-    'open-in-new': {},
-    'translate': {},
-    'volunteer-support': {},
-    'chevron-down': {},
-    'chevron-up': {},
-    'chevron-double-up': {},
-    'bolt-planner': {},
-    'sparkles': {},
-    'sliders': {},
-    'star-badge': {},
-    'trophy': {},
-    'star': {},
-    'thumbs-up': {},
-    'thumbs-double': {},
-    'thumbs-down': {},
-    'view-cozy': {},
-    'view-quilt': {},
-    'cloud-lock': {},
-    'user': {},
-    'update': {},
-    'star-shine': {},
-    'forward': {},
-    'backward': {},
-    'first-item': {},
-    'last-item': {},
-    'routine': {},
-    'colors': {},
-    'undo': {},
-    'experiment': {}
+const SVG_VIEWBOXES = {
+    'github': '0 0 496 512',
+    'bmc': '0 0 884 1279'
 };
 
 /**
  * Returns the SVG markup for a given icon ID.
- * @param {string} id - The icon ID from SVGs.
- * @param {string} className - Optional CSS class name.
- * @param {number} height - Optional height (default 24).
- * @param {number} width - Optional width (default 24).
- * @param {string} fill - Optional fill color (default currentColor).
+ * @param {string} id - The icon ID.
+ * @param {string} [className=''] - Optional CSS class name.
+ * @param {number|string} [height=24] - Optional height (default 24).
+ * @param {number|string} [width=24] - Optional width (default 24).
+ * @param {string} [fill='currentColor'] - Optional fill color (default currentColor).
  * @returns {string} The SVG string.
  */
 export function getSVG(id, className = '', height = 24, width = 24, fill = 'currentColor') {
-    const icon = SVGs[id];
-    if (!icon) {
-        console.warn(`Icon ${id} not found in registry.`);
-        return '';
-    }
-
-    const viewBox = icon.viewBox || DEFAULT_VIEWBOX;
+    if (!id) return '';
+    const viewBox = SVG_VIEWBOXES[id] || DEFAULT_VIEWBOX;
 
     // Use <use> tag to reference the sprite sheet defined in index.html
     return `<svg class="${className}" height="${height}" width="${width}" viewBox="${viewBox}" fill="${fill}">
@@ -142,13 +45,12 @@ class OrecalcAssetsSvg extends HTMLElement {
 
     render() {
         const name = this.getAttribute('name');
-        const className = this.getAttribute('class') || '';
         const height = this.getAttribute('height') || '24';
         const width = this.getAttribute('width') || '24';
         const fill = this.getAttribute('fill') || 'currentColor';
 
         if (name) {
-            this.innerHTML = getSVG(name, className, height, width, fill);
+            this.innerHTML = getSVG(name, '', height, width, fill);
         }
     }
 }
@@ -156,5 +58,3 @@ class OrecalcAssetsSvg extends HTMLElement {
 if (!customElements.get('orecalc-assets-svg')) {
     customElements.define('orecalc-assets-svg', OrecalcAssetsSvg);
 }
-
-

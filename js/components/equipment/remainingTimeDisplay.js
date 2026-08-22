@@ -1,7 +1,16 @@
+import { translate } from '../../i18n/translator.js';
+
+import { state } from '../../core/state.js';
+
+import { formatDate } from '../../utils/dateUtils.js';
+
 import { dom } from '../../dom/domElements.js';
 
-import { formatDate } from '../../utils/dateFormatter.js';
-
+/**
+ * Renders estimated completion time and target dates across ore types in Home tab results.
+ *
+ * @param {Record<string, any>} remainingTime
+ */
 export function renderRemainingTime(remainingTime) {
     const timeElements = dom.income?.home?.results?.time;
     const dateElements = dom.income?.home?.results?.date;
@@ -12,16 +21,23 @@ export function renderRemainingTime(remainingTime) {
     const updatePartVisibility = (elements, val, shouldShow, isSpecial = false, specialText = '') => {
         if (!elements) return;
 
-        if (isSpecial) {
-            elements.textContent = specialText;
-            elements.style.display = 'inline';
-        } else {
-            elements.textContent = val;
-            elements.style.display = shouldShow ? 'inline' : 'none';
+        const targetText = isSpecial ? specialText : String(val);
+        const targetDisplay = (isSpecial || shouldShow) ? 'inline' : 'none';
+
+        if (elements.textContent !== targetText) {
+            elements.textContent = targetText;
+        }
+        if (elements.style.display !== targetDisplay) {
+            elements.style.display = targetDisplay;
         }
 
-        const suffix = elements.nextElementSibling;
-        if (suffix) suffix.style.display = (shouldShow && !isSpecial) ? 'inline' : 'none';
+        const suffix = /** @type {HTMLElement | null} */ (elements.nextElementSibling);
+        if (suffix) {
+            const suffixDisplay = (shouldShow && !isSpecial) ? 'inline' : 'none';
+            if (suffix.style.display !== suffixDisplay) {
+                suffix.style.display = suffixDisplay;
+            }
+        }
     };
 
     if (timeElements && dateElements) {
@@ -35,14 +51,14 @@ export function renderRemainingTime(remainingTime) {
             if (isDone) {
                 updatePartVisibility(el.years, 0, false);
                 updatePartVisibility(el.months, 0, false);
-                updatePartVisibility(el.days, 0, true, true, 'Done');
-                if (dateElements[oreType]) dateElements[oreType].textContent = '';
+                updatePartVisibility(el.days, 0, true, true, translate('time.done'));
+                if (dateElements[oreType] && dateElements[oreType].textContent !== '') dateElements[oreType].textContent = '';
             } else if (isNA) {
                 updatePartVisibility(el.years, 0, false);
                 updatePartVisibility(el.months, 0, false);
-                updatePartVisibility(el.days, 0, true, true, 'N/A');
-                if (dateElements[oreType]) dateElements[oreType].textContent = '';
-            } else {
+                updatePartVisibility(el.days, 0, true, true, translate('time.notAvailable'));
+                if (dateElements[oreType] && dateElements[oreType].textContent !== '') dateElements[oreType].textContent = '';
+            } else if (data) {
                 const years = data.years;
                 const months = data.months;
                 const days = data.days;
@@ -56,12 +72,17 @@ export function renderRemainingTime(remainingTime) {
 
                 if (dateElements[oreType] && data.date instanceof Date) {
                     const isCurrentYear = data.date.getFullYear() === currentYear;
-                    const options = { 
-                        day: '2-digit', 
+                    /** @type {Intl.DateTimeFormatOptions} */
+                    const options = {
+                        day: '2-digit',
                         month: 'short',
                         year: isCurrentYear ? undefined : '2-digit'
                     };
-                    dateElements[oreType].textContent = formatDate(data.date, options);
+                    const locale = state.uiSettings?.language || 'en';
+                    const formatted = formatDate(data.date, options, locale);
+                    if (dateElements[oreType].textContent !== formatted) {
+                        dateElements[oreType].textContent = formatted;
+                    }
                 }
             }
         });

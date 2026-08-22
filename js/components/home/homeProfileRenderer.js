@@ -1,359 +1,27 @@
-import { heroData, upgradeCosts } from '../../data/heroData.js';
-import { leagueTiers } from '../../data/appData.js';
-import { translate } from '../../i18n/translator.js';
-import { showAddPlayerModal } from '../player/playerModal.js';
-import { formatNumber, animateValue } from '../../utils/numberFormatter.js';
-import { calculateRemainingTime } from '../../core/timeCalculator.js';
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import { heroData } from '../../data/heroData.js';
+import { leagueTiers } from '../../data/leagueTiers.js';
+import { translate } from '../../i18n/translator.js';
 
-/**
- * Calculates overall ore-cost-based progress percentage for common and epic equipment.
- */
-function calculateEquipmentProgress(ownedEquipment, ownedHeroes) {
-    let commonSpent = { shiny: 0, glowy: 0 };
-    let commonTotal = { shiny: 0, glowy: 0 };
-    let epicSpent = { shiny: 0, glowy: 0, starry: 0 };
-    let epicTotal = { shiny: 0, glowy: 0, starry: 0 };
+import { formatNumber } from '../../utils/numberFormatter.js';
+import { escapeHTML } from '../../utils/stringUtils.js';
 
-    for (const heroKey in heroData) {
-        const heroInfo = heroData[heroKey];
-        if (ownedHeroes && ownedHeroes[heroInfo.name]) {
-            for (const equip of heroInfo.equipment) {
-                const isEpic = equip.type === 'epic';
-                const currentLevel = ownedEquipment[equip.name] !== undefined ? ownedEquipment[equip.name] : 1;
-                const maxLevel = getEquipmentMaxLevel(equip.type);
-
-                if (ownedEquipment[equip.name] !== undefined) {
-                    for (let lvl = 2; lvl <= currentLevel; lvl++) {
-                        if (upgradeCosts[lvl]) {
-                            if (isEpic) {
-                                epicSpent.shiny += upgradeCosts[lvl].shiny || 0;
-                                epicSpent.glowy += upgradeCosts[lvl].glowy || 0;
-                                epicSpent.starry += upgradeCosts[lvl].starry || 0;
-                            } else {
-                                commonSpent.shiny += upgradeCosts[lvl].shiny || 0;
-                                commonSpent.glowy += upgradeCosts[lvl].glowy || 0;
-                            }
-                        }
-                    }
-                }
-
-                for (let lvl = 2; lvl <= maxLevel; lvl++) {
-                    if (upgradeCosts[lvl]) {
-                        if (isEpic) {
-                            epicTotal.shiny += upgradeCosts[lvl].shiny || 0;
-                            epicTotal.glowy += upgradeCosts[lvl].glowy || 0;
-                            epicTotal.starry += upgradeCosts[lvl].starry || 0;
-                        } else {
-                            commonTotal.shiny += upgradeCosts[lvl].shiny || 0;
-                            commonTotal.glowy += upgradeCosts[lvl].glowy || 0;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    const commonTotalSpent = commonSpent.shiny + commonSpent.glowy;
-    const commonTotalRequired = commonTotal.shiny + commonTotal.glowy;
-    const epicTotalSpent = epicSpent.shiny + epicSpent.glowy + epicSpent.starry;
-    const epicTotalRequired = epicTotal.shiny + epicTotal.glowy + epicTotal.starry;
-
-    const totalSpent = commonTotalSpent + epicTotalSpent;
-    const totalRequired = commonTotalRequired + epicTotalRequired;
-    const overall = totalRequired > 0 ? Math.round((totalSpent / totalRequired) * 100) : 0;
-
-    const shinySpent = commonSpent.shiny + epicSpent.shiny;
-    const shinyTotal = commonTotal.shiny + epicTotal.shiny;
-    const shiny = shinyTotal > 0 ? Math.round((shinySpent / shinyTotal) * 100) : 0;
-
-    const glowySpent = commonSpent.glowy + epicSpent.glowy;
-    const glowyTotal = commonTotal.glowy + epicTotal.glowy;
-    const glowy = glowyTotal > 0 ? Math.round((glowySpent / glowyTotal) * 100) : 0;
-
-    const starrySpent = epicSpent.starry;
-    const starryTotal = epicTotal.starry;
-    const starry = starryTotal > 0 ? Math.round((starrySpent / starryTotal) * 100) : 0;
-
-    return {
-        overall, shiny, glowy, starry,
-        shinySpent, shinyTotal,
-        glowySpent, glowyTotal,
-        starrySpent, starryTotal,
-    };
-}
-
-/**
- * Generates the mathematical gradient background for the overall progress bar.
- */
-function getOverallGradient(progress) {
-    if (progress.overall >= 100) {
-        return ''; // Handled by .maxed-fill class styles
-    }
-    const total = progress.shiny + progress.glowy + progress.starry;
-    if (total === 0) {
-        return 'linear-gradient(90deg, #00b0ff 0%, #aa00ff 50%, #ffd700 100%)';
-    }
-    const stopVal = Math.round((progress.shiny / total) * 100);
-    const stop = Math.min(85, Math.max(15, stopVal));
-    return `linear-gradient(90deg, #00b0ff 0%, #aa00ff ${stop}%, #ffd700 100%)`;
-}
-
-/**
- * Formats the clan role for localization.
- */
-function formatClanRole(role) {
-    if (!role) return '';
-    const key = `roles.${role.toLowerCase()}`;
-    const translated = translate(key);
-    return translated !== key ? translated : role;
-}
-
-/**
- * Formats remaining time object into shorthand string (e.g. 1y 2m 3d).
- */
-function formatRemainingTime(timeObj) {
-    if (!timeObj) return '';
-    if (timeObj.status === 'DONE' || (timeObj.years === 0 && timeObj.months === 0 && timeObj.days === 0)) {
-        return translate('welcome.done') || 'Done';
-    }
-    if (timeObj.date === 'N/A' || timeObj.years === null) {
-        return 'N/A';
-    }
-    const y = translate('time.yearsSuffix') || 'y';
-    const mo = translate('time.monthsSuffix') || 'm';
-    const d = translate('time.daysSuffix') || 'd';
-    const parts = [];
-    if (timeObj.years > 0) parts.push(`${timeObj.years}${y}`);
-    if (timeObj.months > 0) parts.push(`${timeObj.months}${mo}`);
-    if (timeObj.days > 0 || parts.length === 0) parts.push(`${timeObj.days}${d}`);
-    return parts.join(' ');
-}
-
-// ---------------------------------------------------------------------------
-// Incremental render state
-// Persists across calls so we can update bars without rebuilding the DOM.
-// ---------------------------------------------------------------------------
-const renderState = {
-    renderedTag: null,      // player tag of the last full rebuild
-    renderedLang: null,     // language of the last full rebuild
-    renderedTH: null,       // Town Hall level of the last full rebuild
-    renderedClan: null,     // Clan name of the last full rebuild
-    renderedLeague: null,   // League tier ID of the last full rebuild
-    lastProgress: null,     // progress snapshot after the last completed animation
-    isAnimating: false,     // true while the fill-in transition is running
-    pendingSnapshot: null,  // { progress, subData } queued to apply after animation
-};
-
-/**
- * Builds the sub-row data (remaining counts + times) for all three ore types.
- */
-function buildSubData(progress, state) {
-    const monthlyIncome = state.derived?.totalMonthlyIncome || {};
-    const shinyRemaining = progress.shinyTotal - progress.shinySpent;
-    const glowyRemaining = progress.glowyTotal - progress.glowySpent;
-    const starryRemaining = progress.starryTotal - progress.starrySpent;
-
-    const rawTime = calculateRemainingTime(
-        { shiny: shinyRemaining, glowy: glowyRemaining, starry: starryRemaining },
-        monthlyIncome
-    );
-
-    const col = translate('homeProfile.remainingColon') || 'Remaining:';
-
-    return {
-        shiny:  { spent: progress.shinySpent,  total: progress.shinyTotal,  remaining: shinyRemaining,  time: formatRemainingTime(rawTime?.shiny),  col },
-        glowy:  { spent: progress.glowySpent,  total: progress.glowyTotal,  remaining: glowyRemaining,  time: formatRemainingTime(rawTime?.glowy),  col },
-        starry: { spent: progress.starrySpent, total: progress.starryTotal, remaining: starryRemaining, time: formatRemainingTime(rawTime?.starry), col },
-    };
-}
-
-/**
- * Renders the bottom sub-row HTML for one ore type (either maxed label or two-line remaining).
- */
-function subtextHTML(key, pct, subData) {
-    if (pct >= 100) {
-        return `<div class="stat-box-maxed" data-i18n="homeProfile.maxed">✓ ${translate('homeProfile.maxed') || 'Maxed'}</div>`;
-    }
-    const { spent, total, remaining, time, col } = subData[key];
-    return `<div class="stat-box-sub">
-        <div>${formatNumber(spent)} / ${formatNumber(total)}</div>
-        <div><span data-i18n="homeProfile.remainingColon">${col}</span> ${formatNumber(remaining)} | ${time}</div>
-    </div>`;
-}
-
-
-/**
- * Applies a delta update to already-rendered bars without rebuilding innerHTML.
- * Shows a green overlay for gains and a red overlay for losses.
- * Returns false if a full rebuild is needed (e.g. overall maxed state toggled).
- */
-function applyProgressDelta(container, prevProg, currProg, subData, state, maxedCount, totalCount, profile) {
-    // If the row visibility needs to change (overall crossed 100%), do a full rebuild.
-    if ((prevProg.overall >= 100) !== (currProg.overall >= 100)) return false;
-
-    // Update header stats (maxed count, trophies)
-    if (maxedCount !== undefined && totalCount !== undefined) {
-        const maxedCountEl = container.querySelector('.maxed-count');
-        if (maxedCountEl) {
-            maxedCountEl.textContent = `${maxedCount}/${totalCount}`;
-        }
-    }
-    if (profile && profile.trophies !== undefined) {
-        const trophiesEl = container.querySelector('.player-trophies-mini span');
-        if (trophiesEl) {
-            trophiesEl.textContent = formatNumber(profile.trophies);
-        }
-    }
-
-    const oreKeys = ['overall', 'shiny', 'glowy', 'starry'];
-
-    for (const key of oreKeys) {
-        const prev = prevProg[key] || 0;
-        const curr = currProg[key] || 0;
-        const delta = curr - prev;
-
-        const barWrap = container.querySelector(`[data-ore="${key}"]`);
-        if (!barWrap) continue;
-
-        const fill = barWrap.querySelector('.progress-bar-fill');
-        if (fill) {
-            // Remove stale overlays from a previous delta pass.
-            barWrap.querySelectorAll('.bar-delta-overlay').forEach(el => el.remove());
-
-            // Update the gold-glow class.
-            fill.classList.toggle('maxed-fill', curr >= 100);
-
-            if (key === 'overall') {
-                if (curr >= 100) {
-                    fill.style.background = '';
-                } else {
-                    fill.style.background = getOverallGradient(currProg);
-                }
-            }
-
-            if (Math.abs(delta) >= 0.5) {
-                const overlay = document.createElement('div');
-                overlay.className = `bar-delta-overlay ${delta > 0 ? 'delta-positive' : 'delta-negative'}`;
-
-                if (delta > 0) {
-                    // Green strip animates from prev → curr
-                    overlay.style.cssText = `left:${Math.min(prev, 100)}%; width:0;`;
-                    barWrap.appendChild(overlay);
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            overlay.style.width = `${Math.min(delta, 100 - prev)}%`;
-                            fill.style.width = `${Math.min(curr, 100)}%`;
-                        });
-                    });
-                } else {
-                    // Red strip shows the lost portion then fades.
-                    overlay.style.cssText = `left:${Math.max(curr, 0)}%; width:${Math.abs(delta)}%;`;
-                    barWrap.appendChild(overlay);
-                    fill.style.width = `${Math.max(curr, 0)}%`;
-                    setTimeout(() => {
-                        overlay.style.transition = 'opacity 0.5s ease';
-                        overlay.style.opacity = '0';
-                        setTimeout(() => overlay.remove(), 500);
-                    }, 2500);
-                }
-            } else {
-                fill.style.width = `${Math.min(curr, 100)}%`;
-            }
-        }
-
-        // Update the % label.
-        const valEl = container.querySelector(`[data-ore-value="${key}"]`);
-        if (valEl) {
-            animateValue(valEl, prev, curr, key === 'overall' ? 2000 : 1800, val => `${Math.round(val)}%`);
-        }
-
-        // Update the storage progress bar indicator.
-        if (key !== 'overall' && state) {
-            const storageBar = barWrap.querySelector('.progress-bar-storage');
-            if (storageBar) {
-                const storedVal = state.storedOres?.[key] || 0;
-                const totalVal = currProg[`${key}Total`] || 0;
-                const storagePct = totalVal > 0 ? (storedVal / totalVal) * 100 : 0;
-                storageBar.style.width = `${storagePct}%`;
-            }
-        }
-
-        // Update the subtext for individual ore boxes.
-        if (key !== 'overall' && subData && subData[key]) {
-            const statBox = barWrap.closest('.profile-stat-box');
-            if (statBox) {
-                const existing = statBox.querySelector('.stat-box-sub, .stat-box-maxed');
-                if (existing) {
-                    const wasMaxed = existing.classList.contains('stat-box-maxed');
-                    const isMaxed  = curr >= 100;
-
-                    if (isMaxed && !wasMaxed) {
-                        const el = document.createElement('div');
-                        el.className = 'stat-box-maxed';
-                        el.setAttribute('data-i18n', 'homeProfile.maxed');
-                        el.textContent = `✓ ${translate('homeProfile.maxed') || 'Maxed'}`;
-                        existing.replaceWith(el);
-                    } else if (!isMaxed && wasMaxed) {
-                        const { spent, total, remaining, time, col } = subData[key];
-                        const el = document.createElement('div');
-                        el.className = 'stat-box-sub';
-                        el.innerHTML = `<div>${formatNumber(spent)} / ${formatNumber(total)}</div>
-                            <div><span data-i18n="homeProfile.remainingColon">${col}</span> ${formatNumber(remaining)} | ${time}</div>`;
-                        existing.replaceWith(el);
-                    } else if (!isMaxed) {
-                        const { spent, total, remaining, time, col } = subData[key];
-                        existing.innerHTML = `<div>${formatNumber(spent)} / ${formatNumber(total)}</div>
-                            <div><span data-i18n="homeProfile.remainingColon">${col}</span> ${formatNumber(remaining)} | ${time}</div>`;
-                    }
-                }
-            }
-        }
-    }
-
-    // Update overall section corner radius.
-    container.querySelector('.home-profile-overall-progress')
-        ?.classList.toggle('fully-maxed', currProg.overall >= 100);
-
-    return true;
-}
-
-/**
- * Triggers the CSS width transition on all bar fills and calls onComplete when done.
- */
-function triggerFillAnimation(container, progressObj, onComplete) {
-    let fired = false;
-    const done = () => { if (!fired) { fired = true; onComplete(); } };
-
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            container.querySelectorAll('.progress-bar-fill[data-bar-width]').forEach(bar => {
-                bar.style.width = bar.dataset.barWidth;
-            });
-
-            // Trigger count-up animation for labels from 0 to target
-            const oreKeys = ['overall', 'shiny', 'glowy', 'starry'];
-            for (const key of oreKeys) {
-                const valEl = container.querySelector(`[data-ore-value="${key}"]`);
-                if (valEl) {
-                    const targetVal = progressObj[key] || 0;
-                    animateValue(valEl, 0, targetVal, key === 'overall' ? 2000 : 1800, val => `${Math.round(val)}%`);
-                }
-            }
-
-            const firstFill = container.querySelector('.progress-bar-fill[data-bar-width]');
-            if (firstFill) {
-                firstFill.addEventListener('transitionend', done, { once: true });
-                setTimeout(done, 2400); // Safety fallback if transitionend never fires.
-            } else {
-                done();
-            }
-        });
-    });
-}
+import {
+    applyProgressDelta,
+    renderState,
+    triggerFillAnimation
+} from './homeProfileAnimations.js';
+import {
+    buildSubData,
+    calculateEquipmentProgress,
+    formatClanRole,
+    getOverallGradient,
+    subtextHTML
+} from './homeProfileCalculations.js';
 
 /**
  * Main function to render the Home tab profile card.
+ * @param {import('../../core/types.js').AppState} state - Current global application state.
  */
 export function renderHomeProfile(state) {
     const cardContainer = document.getElementById('home-player-profile-card');
@@ -361,15 +29,15 @@ export function renderHomeProfile(state) {
 
     const profile = state.playerProfile;
 
-    // ── No profile connected ────────────────────────────────────────────────
+    // No profile connected
     if (!profile || !profile.tag || profile.tag === 'DEFAULT0') {
-        renderState.renderedTag    = null;
-        renderState.renderedLang   = null;
-        renderState.renderedTH     = null;
-        renderState.renderedClan   = null;
+        renderState.renderedTag = null;
+        renderState.renderedLang = null;
+        renderState.renderedTH = null;
+        renderState.renderedClan = null;
         renderState.renderedLeague = null;
-        renderState.lastProgress   = null;
-        renderState.isAnimating    = false;
+        renderState.lastProgress = null;
+        renderState.isAnimating = false;
         renderState.pendingSnapshot = null;
 
         cardContainer.innerHTML = `
@@ -377,23 +45,19 @@ export function renderHomeProfile(state) {
                 <div class="unconnected-icon-wrapper">
                     <orecalc-assets-svg name="user" height="32" width="32" class="unconnected-icon"></orecalc-assets-svg>
                 </div>
-                <h2 data-i18n="homeProfile.noProfileTitle">${translate('homeProfile.noProfileTitle') || 'No Profile Connected'}</h2>
-                <p data-i18n="homeProfile.noProfileDesc">${translate('homeProfile.noProfileDesc') || 'Connect your player tag to see your Town Hall, active heroes, and equipment progress directly on the homepage.'}</p>
+                <h2 data-i18n="views.home.profile.noProfileTitle">${translate('views.home.profile.noProfileTitle')}</h2>
+                <p data-i18n="views.home.profile.noProfileDesc">${translate('views.home.profile.noProfileDesc')}</p>
                 <button id="home-profile-connect-btn" class="accept-button">
                     <orecalc-assets-svg name="plus" height="16" width="16"></orecalc-assets-svg>
-                    <span data-i18n="homeProfile.connectBtn">${translate('homeProfile.connectBtn') || 'Connect Profile'}</span>
+                    <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
                 </button>
             </div>
         `;
         cardContainer.style.display = 'block';
-
-        document.getElementById('home-profile-connect-btn')
-            ?.addEventListener('click', () => showAddPlayerModal());
         return;
     }
 
-    // ── Calculate progress ──────────────────────────────────────────────────
-    let ownedHeroes    = profile.ownedHeroes    || {};
+    let ownedHeroes = profile.ownedHeroes || {};
     let ownedEquipment = profile.ownedEquipment || {};
 
     const isGuest = profile.tag === 'DEFAULT0';
@@ -426,7 +90,6 @@ export function renderHomeProfile(state) {
     for (const heroKey in heroData) {
         for (const equip of heroData[heroKey].equipment) {
             totalCount++;
-            const isEpic = equip.type === 'epic';
             const maxLevel = getEquipmentMaxLevel(equip.type);
             const currentLevel = ownedEquipment[equip.name];
             if (currentLevel !== undefined && currentLevel >= maxLevel) {
@@ -434,25 +97,25 @@ export function renderHomeProfile(state) {
             }
         }
     }
-    const subData  = buildSubData(progress, state);
+    const subData = buildSubData(progress, state);
 
-    const stored = state.storedOres || {};
+    const stored = state.storedOres || { shiny: 0, glowy: 0, starry: 0 };
     const shinyStoragePct = progress.shinyTotal > 0 ? ((stored.shiny || 0) / progress.shinyTotal) * 100 : 0;
     const glowyStoragePct = progress.glowyTotal > 0 ? ((stored.glowy || 0) / progress.glowyTotal) * 100 : 0;
     const starryStoragePct = progress.starryTotal > 0 ? ((stored.starry || 0) / progress.starryTotal) * 100 : 0;
 
-    const currentLang  = state.uiSettings?.language || 'en';
-    const thLevel      = profile.townHallLevel || 1;
-    const clanName     = profile.clan?.name || '';
-    const leagueId     = parseInt(profile.leagueTier?.id || 105000000, 10);
+    const currentLang = state.uiSettings?.language || 'en';
+    const thLevel = profile.townHallLevel || 1;
+    const clanName = profile.clan?.name || '';
+    const leagueId = Number(profile.leagueTier?.id) || 105000000;
 
     const isSamePlayer = profile.tag === renderState.renderedTag;
-    const isSameLang   = currentLang === renderState.renderedLang;
-    const isSameTH     = thLevel === renderState.renderedTH;
-    const isSameClan   = clanName === renderState.renderedClan;
+    const isSameLang = currentLang === renderState.renderedLang;
+    const isSameTH = thLevel === renderState.renderedTH;
+    const isSameClan = clanName === renderState.renderedClan;
     const isSameLeague = leagueId === renderState.renderedLeague;
 
-    // ── Incremental update path (same player, same lang, same th, clan, league) ──────
+    // Incremental update path (same player, same lang, same th, clan, league)
     if (isSamePlayer && isSameLang && isSameTH && isSameClan && isSameLeague &&
         (renderState.lastProgress !== null || renderState.isAnimating)) {
 
@@ -470,49 +133,52 @@ export function renderHomeProfile(state) {
             renderState.lastProgress = progress;
             return;
         }
-        // Fall through to full rebuild if overall maxed state toggled.
     }
 
-    // ── Full rebuild ───────────────────────────────────────────────────
-    renderState.renderedTag    = profile.tag;
-    renderState.renderedLang   = currentLang;
-    renderState.renderedTH     = thLevel;
-    renderState.renderedClan   = clanName;
+    // Full rebuild
+    renderState.renderedTag = profile.tag;
+    renderState.renderedLang = currentLang;
+    renderState.renderedTH = thLevel;
+    renderState.renderedClan = clanName;
     renderState.renderedLeague = leagueId;
-    renderState.lastProgress   = null;
+    renderState.lastProgress = null;
     renderState.pendingSnapshot = null;
-    renderState.isAnimating    = true;
+    renderState.isAnimating = true;
 
     // Header: TH badge, name, clan, league
     const thImgUrl = `assets/th/th${thLevel}.png`;
 
     let clanHtml = '';
     if (profile.clan?.name) {
-        const badgeUrl  = profile.clan.badgeUrls?.small || '';
-        const badgeImg  = badgeUrl ? `<img class="clan-badge-img-mini" src="${badgeUrl}" alt="Clan Badge">` : '';
-        const roleText  = profile.role ? `<span class="clan-role-mini">${formatClanRole(profile.role)}</span>` : '';
-        clanHtml = `<div class="player-clan-mini">${badgeImg}<div class="clan-info-col"><span class="clan-name-mini">${profile.clan.name}</span>${roleText}</div></div>`;
+        const badgeUrl = profile.clan.badgeUrls?.small || '';
+        const safeBadgeUrl = escapeHTML(badgeUrl);
+        const badgeImg = badgeUrl ? `<img class="clan-badge-img-mini" src="${safeBadgeUrl}" alt="Clan Badge">` : '';
+        const roleText = profile.role ? `<span class="clan-role-mini">${formatClanRole(profile.role)}</span>` : '';
+        clanHtml = `<div class="player-clan-mini">${badgeImg}<div class="clan-info-col"><span class="clan-name-mini">${escapeHTML(profile.clan.name)}</span>${roleText}</div></div>`;
     } else {
-        clanHtml = `<div class="player-clan-mini"><span class="clan-name-mini text-muted" data-i18n="welcome.noClan">${translate('welcome.noClan') || 'No Clan'}</span></div>`;
+        clanHtml = `<div class="player-clan-mini"><span class="clan-name-mini text-muted" data-i18n="views.welcome.noClan">${translate('views.welcome.noClan')}</span></div>`;
     }
 
     const leagueData = leagueTiers.items.find(l => l.id === leagueId);
-    let leagueIconHtml  = `<orecalc-assets-svg name="star-badge" height="24" width="24" class="league-default-icon"></orecalc-assets-svg>`;
-    let leagueNameText  = translate('leagues.unranked') || 'Unranked';
+    let leagueIconHtml = `<orecalc-assets-svg name="star-badge" height="24" width="24" class="league-default-icon"></orecalc-assets-svg>`;
+    let leagueNameText = translate('entities.leagues.unranked');
 
     if (leagueData) {
-        const leagueKey = 'leagues.' + leagueData.name.toLowerCase()
+        const leagueKey = 'entities.leagues.' + leagueData.name.toLowerCase()
             .replace(/\./g, '')
             .replace(/\s(i+)$/i, (_, p1) => p1.toUpperCase())
             .replace(/\s/g, '_');
         leagueNameText = translate(leagueKey);
         const imgUrl = leagueData.iconUrls?.small || '';
-        if (imgUrl) leagueIconHtml = `<img class="league-badge-img-mini" src="${imgUrl}" alt="${leagueNameText}">`;
+        if (imgUrl) leagueIconHtml = `<img class="league-badge-img-mini" src="${escapeHTML(imgUrl)}" alt="${escapeHTML(leagueNameText)}">`;
     }
 
+    const safeTag = escapeHTML(profile.tag);
+    const safePlayerName = escapeHTML(profile.name);
+
     const tagHtml = isGuest
-        ? `<span class="player-tag-guest-badge" data-i18n="welcome.guestProfileTag">${translate('welcome.guestProfileTag') || 'Guest Profile'}</span>`
-        : `<span class="player-tag">${profile.tag}</span>`;
+        ? `<span class="player-tag-guest-badge" data-i18n="views.welcome.guestProfileTag">${translate('views.welcome.guestProfileTag')}</span>`
+        : `<span class="player-tag">${safeTag}</span>`;
 
     cardContainer.innerHTML = `
         <div class="home-profile-header${isGuest ? ' is-guest' : ''}">
@@ -522,7 +188,7 @@ export function renderHomeProfile(state) {
                     <span class="th-badge-level-overlay">${thLevel}</span>
                 </div>
                 <div class="player-identity">
-                    <h2 class="player-name">${profile.name}</h2>
+                    <h2 class="player-name">${safePlayerName}</h2>
                     ${tagHtml}
                     ${clanHtml}
                 </div>
@@ -535,13 +201,13 @@ export function renderHomeProfile(state) {
                         <span class="league-name-mini">${leagueNameText}</span>
                         <div class="player-trophies-mini">
                             <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
-                            <span>${formatNumber(profile.trophies)}</span>
+                            <span>${formatNumber(profile.trophies || 0)}</span>
                         </div>
                     </div>
                 </div>
-                <div class="player-maxed-equip-mini" title="${translate('homeProfile.maxedEquipment') || 'Maxed Equipment'}">
+                <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
                     <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
-                    <span><span class="maxed-count">${maxedCount}/${totalCount}</span> <span data-i18n="homeProfile.maxedEquipment">${translate('homeProfile.maxedEquipment') || 'Maxed Equipment'}</span></span>
+                    <span><span class="maxed-count">${maxedCount}/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
                 </div>
             </div>
         </div>
@@ -551,7 +217,7 @@ export function renderHomeProfile(state) {
                 <div class="overall-progress-header">
                     <span class="overall-progress-label-wrapper">
                         <orecalc-assets-image class="ore-icon-overall" src="assets/ore_icon.png" alt="Ore"></orecalc-assets-image>
-                        <span class="overall-progress-label" data-i18n="homeProfile.overallProgress">${translate('homeProfile.overallProgress') || 'Overall Ore Progress'}</span>
+                        <span class="overall-progress-label" data-i18n="views.home.profile.overallProgress">${translate('views.home.profile.overallProgress')}</span>
                     </span>
                     <span class="overall-progress-value" data-ore-value="overall">0%</span>
                 </div>
@@ -565,7 +231,7 @@ export function renderHomeProfile(state) {
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
                             <orecalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></orecalc-assets-image>
-                            <span class="stat-box-label" data-i18n="ores.shiny">${translate('ores.shiny') || 'Shiny Ore'}</span>
+                            <span class="stat-box-label" data-i18n="entities.ores.shiny">${translate('entities.ores.shiny')}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="shiny">0%</span>
                     </div>
@@ -579,7 +245,7 @@ export function renderHomeProfile(state) {
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
                             <orecalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></orecalc-assets-image>
-                            <span class="stat-box-label" data-i18n="ores.glowy">${translate('ores.glowy') || 'Glowy Ore'}</span>
+                            <span class="stat-box-label" data-i18n="entities.ores.glowy">${translate('entities.ores.glowy')}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="glowy">0%</span>
                     </div>
@@ -593,7 +259,7 @@ export function renderHomeProfile(state) {
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
                             <orecalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></orecalc-assets-image>
-                            <span class="stat-box-label" data-i18n="ores.starry">${translate('ores.starry') || 'Starry Ore'}</span>
+                            <span class="stat-box-label" data-i18n="entities.ores.starry">${translate('entities.ores.starry')}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="starry">0%</span>
                     </div>
@@ -606,7 +272,7 @@ export function renderHomeProfile(state) {
             </div>` : ''}
             <div class="home-profile-sync-notice${isGuest ? ' guest-notice' : ''}">
                 <orecalc-assets-svg name="${isGuest ? 'info' : 'cloud-lock'}" class="sync-notice-icon" height="14" width="14"></orecalc-assets-svg>
-                <span data-i18n="${isGuest ? 'homeProfile.guestNotice' : 'homeProfile.syncNotice'}">${isGuest ? (translate('homeProfile.guestNotice') || 'Guest Profile: Connect a player tag to enable automatic progress syncing.') : (translate('homeProfile.syncNotice') || 'Note: Progress metrics are based strictly on synced game data. Manual planner selections, manual level changes, and stored ores are excluded from these totals and will only update upon the next API sync.')}</span>
+                <span data-i18n="${isGuest ? 'views.home.profile.guestNotice' : 'views.home.profile.syncNotice'}">${isGuest ? translate('views.home.profile.guestNotice') : translate('views.home.profile.syncNotice')}</span>
             </div>
         </div>
     `;
@@ -614,10 +280,10 @@ export function renderHomeProfile(state) {
     cardContainer.style.display = 'block';
 
     triggerFillAnimation(cardContainer, progress, () => {
-        renderState.isAnimating  = false;
+        renderState.isAnimating = false;
         renderState.lastProgress = progress;
 
-        // Apply any update that arrived while the animation was running.
+        // Apply any update that arrived while the animation was running
         if (renderState.pendingSnapshot) {
             const { progress: pProg, subData: pSub } = renderState.pendingSnapshot;
             renderState.pendingSnapshot = null;

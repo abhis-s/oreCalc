@@ -1,1243 +1,386 @@
-import { showAlert, showConfirm } from './ui/noticeModal.js';
+import { updateUIWithTranslations } from './i18n/uiTranslator.js';
 
-import { dom, initializeDOMElements } from './dom/domElements.js';
-import { state, initializeState, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_WELCOME } from './core/state.js';
-import { compareVersions, migrateFullState } from './core/stateCleanup.js';
-import { saveState, loadState, resetState, setResettingState } from './core/localStorageManager.js';
-import { renderApp } from './core/renderer.js';
+import { bootstrapUIComponents, handlePreloaderTeardown } from './core/appBootstrapper.js';
+import {
+    initializeGlobalInterceptors,
+    isInterruptionRestricted,
+    registerGlobalErrorBoundaries,
+    triggerPendingModals
+} from './core/appEventInterceptors.js';
 import { recalculateAll } from './core/calculator.js';
-import { registerStateUpdateCallback, handleStateUpdate } from './core/stateManager.js';
-import { detectLanguage, syncLanguageUrl, getLanguageFromPath, isValidRoute } from './core/languageRouter.js';
-import { getFanContentPolicyUrl } from './data/languagesData.js';
+import { detectLanguage, getLanguageFromPath, isValidRoute, syncLanguageUrl } from './core/languageRouter.js';
+import { loadState, resetState, saveState, setResettingState } from './core/localStorageManager.js';
+import { renderApp } from './core/renderer.js';
+import { EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_TERMS, initializeState, state } from './core/state.js';
+import { compareVersions, migrateFullState } from './core/stateCleanup.js';
+import { registerStateUpdateCallback } from './core/stateManager.js';
+import {
+    THEME_PALETTE,
+    animatePreloaderBackground,
+    applyTheme,
+    applyThemeSettings,
+    availableAccents
+} from './core/themeManager.js';
 
-import { initializeHeader } from './components/layout/header.js';
-import { initializeTabs } from './components/layout/tabs.js';
-import { initializeNavGlideController } from './components/layout/navGlideController.js';
-import { initializePullToRefresh } from './components/layout/pullToRefresh.js';
-import { initializeGlobalHaptics } from './services/hapticService.js';
-import { initializeViewportHandler } from './utils/viewportHandler.js';
-import { initializeNavigation } from './components/layout/navigation.js';
-import { initializeModalHistoryManager, closeModalAnimated } from './utils/modalHistoryManager.js';
-import { startTopProgressBar, finishTopProgressBar } from './utils/topProgressBar.js';
-import { initializeStorageInputs } from './components/equipment/storageInputs.js';
-import { initializeHeroCards } from './components/equipment/heroCard.js';
-import { initializePlayerDropdown } from './components/player/playerDropdown.js';
-import { initializePlayerModal, showAddPlayerModal } from './components/player/playerModal.js';
-import { initializeFab } from './components/fab/fab.js';
-import { initializeAppSettings, openTermsOfUseModal, openPrivacyModal, getAppLastUpdatedDateFormatted } from './components/appSettings/appSettings.js';
-import { initializePlanner } from './components/planner/planner.js';
-import { initializePriorityListModal } from './components/planner/priorityListModal.js';
-import { initializeChangelogModal, showChangelogModal } from './components/changelog/changelogModal.js';
-import { initializeCommitsModal, showCommitsModal } from './components/changelog/commitsModal.js';
-
-import { initializeStarBonusSelector } from './components/income/starBonusInputs.js';
-import { initializeClanWarInputs } from './components/income/clanWarInputs.js';
-import { initializeCwlInputs } from './components/income/cwlInputs.js';
-import { initializeEventPassInputs } from './components/income/eventPassInputs.js';
-import { initializeRaidMedalTrader } from './components/income/raidMedalTraderInputs.js';
-import { initializeGemTrader } from './components/income/gemTraderInputs.js';
-import { initializeEventTrader } from './components/income/eventTraderInputs.js';
-import { initializeShopOffers } from './components/income/shopOffersInputs.js';
-import { initializeSupercellEventsInputs } from './components/income/supercellEventsInputs.js';
-import { initializeProspector } from './components/income/prospectorInputs.js';
-import { initializeWelcomeModal, showWelcomeModal } from './components/welcome/welcomeModal.js';
-
-import { initializeIncomeCardHandler } from './components/income/incomeCardHandler.js';
-import { initCardLayoutManager, applyCardLayout } from './ui/cardLayoutManager.js';
-import { updateResponsiveText } from './utils/responsiveTextHandler.js';
-import { validateAllInputs, validateAllSelects } from './utils/inputValidator.js';
-
-import { loadTranslations, translate } from './i18n/translator.js';
-import { getChangelogHtml } from './services/changelogService.js';
-import { currencyData } from './data/appData.js';
-import { checkAndGenerateRecurringChips } from './utils/chipManager.js';
-import { getMinDate, getMaxDate } from './utils/dateUtils.js';
-import { autoPlaceIncomeChipsForRange } from './utils/autoPlaceChips.js';
-
-import './console.js';
-import './utils/svgManager.js';
+import { safeJsonParse } from './utils/jsonUtils.js';
 import { logger } from './utils/logger.js';
-
-function handleDynamicImportError(err) {
-    const errorMsg = String(err?.message || err?.reason?.message || err?.reason || err || '');
-    if (errorMsg.includes('dynamically imported module') || errorMsg.includes('Importing a module script failed')) {
-        logger.warn('Dynamic import chunk missing due to app update. Triggering self-healing reload...');
-        if (!sessionStorage.getItem('orecalc_module_reload_triggered')) {
-            sessionStorage.setItem('orecalc_module_reload_triggered', 'true');
-            window.location.reload();
-            return true;
-        }
-    }
-    return false;
-}
-
-// Register global error boundaries immediately
-if (!window.__APP_INITIALIZED__) {
-    window.__APP_INITIALIZED__ = true;
-    window.isAppStartingUp = true;
-
-    try {
-        sessionStorage.removeItem('orecalc_module_reload_triggered');
-    } catch (e) {}
-
-    window.addEventListener('error', (event) => {
-        logger.error('Uncaught error:', event.error || event.message);
-        if (handleDynamicImportError(event.error || event.message)) return;
-        if (!window.__APP_LOADED_STATUS__) return;
-        showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
-    });
-
-    window.addEventListener('unhandledrejection', (event) => {
-        logger.error('Unhandled promise rejection:', event.reason);
-        if (handleDynamicImportError(event.reason)) return;
-        if (!window.__APP_LOADED_STATUS__) return;
-        showAlert(translate('errors.unexpectedError') || 'An unexpected error occurred. Please reload the page.', 'errors.errorTitle');
-    });
-}
-
-// Global modal focus manager for accessibility & usability
-function setupModalFocusManager() {
-    const activeListeners = new Map();
-
-    const observer = new MutationObserver((mutationsList) => {
-        for (const mutation of mutationsList) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                const target = mutation.target;
-                if (target.classList.contains('modal')) {
-                    if (target.classList.contains('show')) {
-                        // Save the element that currently has focus
-                        if (document.activeElement && document.activeElement !== document.body && document.activeElement !== target) {
-                            target._previouslyFocusedElement = document.activeElement;
-                        }
-
-                        // Ensure the modal container itself can be focused
-                        if (!target.hasAttribute('tabindex')) {
-                            target.setAttribute('tabindex', '-1');
-                        }
-
-                        setTimeout(() => {
-                            const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-                            const focusableElements = Array.from(target.querySelectorAll(focusableSelector))
-                                .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
-
-                            let firstFocusable = focusableElements.find(el => !el.closest('.modal-header')) || focusableElements[0];
-
-                            if (firstFocusable) {
-                                firstFocusable.focus();
-                            } else {
-                                target.focus();
-                            }
-
-                            // Trap focus inside the modal
-                            const handleKeyDown = (e) => {
-                                if (e.key !== 'Tab') return;
-
-                                const currentFocusables = Array.from(target.querySelectorAll(focusableSelector))
-                                    .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
-
-                                if (currentFocusables.length === 0) {
-                                    e.preventDefault();
-                                    target.focus();
-                                    return;
-                                }
-
-                                const first = currentFocusables[0];
-                                const last = currentFocusables[currentFocusables.length - 1];
-
-                                if (e.shiftKey) {
-                                    // Shift + Tab: wrap from first to last
-                                    if (document.activeElement === first || document.activeElement === target) {
-                                        e.preventDefault();
-                                        last.focus();
-                                    }
-                                } else {
-                                    // Tab: wrap from last to first
-                                    if (document.activeElement === last) {
-                                        e.preventDefault();
-                                        first.focus();
-                                    }
-                                }
-                            };
-
-                            target.addEventListener('keydown', handleKeyDown);
-                            activeListeners.set(target, handleKeyDown);
-                        }, 50);
-                    } else {
-                        // Remove keydown listener
-                        const listener = activeListeners.get(target);
-                        if (listener) {
-                            target.removeEventListener('keydown', listener);
-                            activeListeners.delete(target);
-                        }
-
-                        // Restore focus to the previously focused element
-                        setTimeout(() => {
-                            if (target._previouslyFocusedElement && typeof target._previouslyFocusedElement.focus === 'function') {
-                                target._previouslyFocusedElement.focus();
-                            }
-                            delete target._previouslyFocusedElement;
-                        }, 50);
-                    }
-                }
-            }
-        }
-    });
-
-    observer.observe(document.body, {
-        attributes: true,
-        subtree: true,
-        attributeFilter: ['class']
-    });
-}
-
 import './utils/imageManager.js';
+import './utils/svgManager.js';
 
-let userId = localStorage.getItem('oreCalc_userId');
+import { showChangelogModal } from './components/changelog/changelogModal.js';
+import { showCommitsModal } from './components/changelog/commitsModal.js';
+import { dom, initializeDOMElements } from './dom/domElements.js';
+import { getChangelogHtml } from './services/changelogService.js';
+import { checkLegalConsent, refreshConsentModalStatus } from './services/consentManager.js';
+import { initializePwaService } from './services/pwaService.js';
+import './console.js';
 
-let sessionRandomAccent = window.sessionRandomAccent || null;
-const availableAccents = ['blue', 'gold', 'purple', 'green', 'red'];
-let isTransitioning = false;
-let lastAppliedAccentColor = null;
-
-function isInterruptionRestricted() {
-    if (window.isAppStartingUp) {
-        return true;
-    }
-    const welcomeModal = document.getElementById('welcome-modal');
-    if (welcomeModal && welcomeModal.classList.contains('show')) {
-        return true;
-    }
-    const consentBanner = document.getElementById('consent-banner');
-    if (consentBanner && consentBanner.classList.contains('show')) {
-        return true;
-    }
-    const consentModal = document.getElementById('consent-modal');
-    if (consentModal && consentModal.classList.contains('show')) {
-        return true;
-    }
-    const tourTooltip = document.querySelector('.tour-tooltip');
-    if (tourTooltip && tourTooltip.style.display !== 'none' && tourTooltip.style.opacity !== '0') {
-        return true;
-    }
-    if (window.isTourPending || window.isTourRunning) {
-        return true;
-    }
-    return false;
-}
-
-function triggerPendingModals() {
-    if (isInterruptionRestricted()) {
-        return;
-    }
-    if (window.pendingChangelogContent) {
-        const content = window.pendingChangelogContent;
-        window.pendingChangelogContent = null;
-        showChangelogModal(content);
-        sessionStorage.removeItem('oreCalc_showChangelog');
-        sessionStorage.removeItem('oreCalc_showChangelogFromVersion');
-    } else if (window.pendingCommits) {
-        const commits = window.pendingCommits;
-        window.pendingCommits = null;
-        showCommitsModal(commits);
-    }
-}
-
-export function updateUIWithTranslations(isInitialLoad = false) {
-    document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        const argsAttr = element.getAttribute('data-i18n-args');
-        let args = {};
-        if (argsAttr) {
-            try {
-                args = JSON.parse(argsAttr);
-            } catch (e) {
-                console.error('Failed to parse i18n args:', argsAttr, e);
-            }
-        }
-
-        if (key === 'settings.bugReportDesc') {
-            const formattedDate = getAppLastUpdatedDateFormatted();
-            args.date = formattedDate;
-            element.setAttribute('data-i18n-args', JSON.stringify(args));
-        }
-
-        if (key === 'settings.bugReportInfo') {
-            args.link = '<a href="https://github.com/abhis-s/oreCalc/issues" target="_blank" rel="noopener noreferrer" class="theme-link">GitHub Issues</a>';
-        }
-
-        if (key === 'settings.bugReportPrivacyInfo') {
-            const privacyText = translate('settings.privacyPolicyText') || 'Privacy Policy';
-            args.link = `<a href="#" id="bug-report-privacy-link" class="theme-link">${privacyText}</a>`;
-        }
-
-        if (key === 'app.supercellDisclaimer') {
-            const currentLang = state.uiSettings?.language || 'en';
-            const policyUrl = getFanContentPolicyUrl(currentLang);
-            args.url = policyUrl;
-            args.displayUrl = policyUrl.replace(/^https?:\/\//, '');
-        }
-
-        let translatedName = translate(key, args);
-        if (key === 'settings.options.userId') {
-            const currentUserId = localStorage.getItem('oreCalc_userId');
-            const maskedId = currentUserId ? (currentUserId.length > 8 ? currentUserId.substring(0, 8) + '...' : currentUserId) : '********';
-            translatedName = `${translatedName}: ${maskedId}`;
-            if (currentUserId) {
-                element.dataset.fullId = currentUserId;
-            }
-        }
-
-        // 1. If translation contains HTML tags (like <a>, <b>, etc.)
-        // we must use innerHTML to render it correctly.
-        if (translatedName.includes('<') && translatedName.includes('>')) {
-            element.innerHTML = translatedName;
-            return;
-        }
-
-        // 2. Surgical update: If the element has children (like icons), 
-        // find the first text node and update only that.
-        let updated = false;
-        for (const child of element.childNodes) {
-            if (child.nodeType === Node.TEXT_NODE) {
-                child.textContent = translatedName;
-                updated = true;
-                break;
-            }
-        }
-
-        // 3. Fallback: If no text node found, or a simple text container
-        if (!updated) {
-            element.textContent = translatedName;
-        }
-    });
-
-    document.querySelectorAll('[data-i18n-alt]').forEach(element => {
-        const key = element.getAttribute('data-i18n-alt');
-        element.setAttribute('alt', translate(key));
-    });
-
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-        const key = element.getAttribute('data-i18n-placeholder');
-        element.setAttribute('placeholder', translate(key));
-    });
-
-    document.querySelectorAll('[data-i18n-title]').forEach(element => {
-        const key = element.getAttribute('data-i18n-title');
-        element.setAttribute('title', translate(key));
-    });
-
-    document.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
-        const key = element.getAttribute('data-i18n-aria-label');
-        element.setAttribute('aria-label', translate(key));
-    });
-
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) metaDescription.setAttribute('content', translate('app.description'));
-
-    const ogDescription = document.querySelector('meta[property="og:description"]');
-    if (ogDescription) ogDescription.setAttribute('content', translate('app.description'));
-
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) ogTitle.setAttribute('content', translate('app.title'));
-
-    // Skip applyThemeSettings during initial load as it's already handled by DOMContentLoaded
-    if (!isInitialLoad) {
-        applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');
-    }
-
-    document.documentElement.lang = state.uiSettings.language || 'auto';
-    document.dispatchEvent(new CustomEvent('languageChanged'));
-}
-
-export function applyThemeSettings(theme, accentColor, origin = null) {
-    let effectiveAccentColor = accentColor;
-    if (accentColor === 'random') {
-        if (!sessionRandomAccent || (origin && origin.isSwatchClick)) {
-            const remainingAccents = lastAppliedAccentColor
-                ? availableAccents.filter(color => color !== lastAppliedAccentColor)
-                : availableAccents;
-            sessionRandomAccent = remainingAccents[Math.floor(Math.random() * remainingAccents.length)];
-        }
-        effectiveAccentColor = sessionRandomAccent;
-    }
-
-    const updateThemeProperties = () => {
-        if (theme === 'light') {
-            document.body.classList.add('light-mode');
-            document.body.classList.remove('dark-mode');
-            document.documentElement.classList.add('light-mode');
-            document.documentElement.classList.remove('dark-mode');
-            document.documentElement.style.setProperty('color-scheme', 'light');
-            document.body.style.setProperty('color-scheme', 'light');
-        } else {
-            document.body.classList.add('dark-mode');
-            document.body.classList.remove('light-mode');
-            document.documentElement.classList.add('dark-mode');
-            document.documentElement.classList.remove('light-mode');
-            document.documentElement.style.setProperty('color-scheme', 'dark');
-            document.body.style.setProperty('color-scheme', 'dark');
-        }
-
-        const palette = {
-            blue: {
-                dark: {
-                    primary: '#8ab4f8', hover: '#aecbfa', soft: 'rgba(138, 180, 248, 0.1)',
-                    bgApp: '#0f131a', bgPrimary: '#1a1f2b', bgSecondary: '#252c3d', bgTertiary: '#2e374d'
-                },
-                light: {
-                    primary: '#1a73e8', hover: '#1967d2', soft: 'rgba(26, 115, 232, 0.12)',
-                    bgApp: '#f4f8ff', bgPrimary: '#ffffff', bgSecondary: '#e9f2ff', bgTertiary: '#d9e8ff'
-                }
-            },
-            gold: {
-                dark: {
-                    primary: '#fde293', hover: '#feefc3', soft: 'rgba(253, 226, 147, 0.1)',
-                    bgApp: '#1a180f', bgPrimary: '#262215', bgSecondary: '#362f1d', bgTertiary: '#423b1f'
-                },
-                light: {
-                    primary: '#f9ab00', hover: '#f29900', soft: 'rgba(249, 171, 0, 0.12)',
-                    bgApp: '#fffbf0', bgPrimary: '#ffffff', bgSecondary: '#fff4e1', bgTertiary: '#ffecd1'
-                }
-            },
-            purple: {
-                dark: {
-                    primary: '#ce93d8', hover: '#e1bee7', soft: 'rgba(206, 147, 216, 0.1)',
-                    bgApp: '#16111a', bgPrimary: '#211a26', bgSecondary: '#2d2236', bgTertiary: '#3b2a47'
-                },
-                light: {
-                    primary: '#9c27b0', hover: '#8e24aa', soft: 'rgba(156, 39, 176, 0.12)',
-                    bgApp: '#fbf5ff', bgPrimary: '#ffffff', bgSecondary: '#f3e8ff', bgTertiary: '#ebd9ff'
-                }
-            },
-            green: {
-                dark: {
-                    primary: '#a8dab5', hover: '#ceead6', soft: 'rgba(168, 218, 181, 0.1)',
-                    bgApp: '#0f1a14', bgPrimary: '#16261d', bgSecondary: '#1d3627', bgTertiary: '#264230'
-                },
-                light: {
-                    primary: '#34a853', hover: '#1e8e3e', soft: 'rgba(52, 168, 83, 0.12)',
-                    bgApp: '#f0fff4', bgPrimary: '#ffffff', bgSecondary: '#e2fbe9', bgTertiary: '#cff9de'
-                }
-            },
-            red: {
-                dark: {
-                    primary: '#f8b4ae', hover: '#fad2cf', soft: 'rgba(248, 180, 174, 0.1)',
-                    bgApp: '#1a0f0f', bgPrimary: '#261515', bgSecondary: '#361d1d', bgTertiary: '#421f1f'
-                },
-                light: {
-                    primary: '#ee675c', hover: '#ea4335', soft: 'rgba(238, 103, 92, 0.12)',
-                    bgApp: '#fff5f5', bgPrimary: '#ffffff', bgSecondary: '#ffe3e3', bgTertiary: '#ffd1d1'
-                }
-            }
-        };
-
-        const themePalette = palette[effectiveAccentColor] || palette.blue;
-        const colors = theme === 'light' ? themePalette.light : themePalette.dark;
-
-        const target = document.body;
-        target.style.setProperty('--accent-primary', colors.primary);
-        target.style.setProperty('--accent-primary-hover', colors.hover);
-        target.style.setProperty('--accent-primary-active', colors.primary);
-        target.style.setProperty('--accent-primary-soft', colors.soft);
-        target.style.setProperty('--accent-hover', colors.hover);
-        target.style.setProperty('--accent-soft', colors.soft);
-
-        // Apply accented backgrounds for both modes
-        target.style.setProperty('--bg-app', colors.bgApp);
-        target.style.setProperty('--bg-surface-primary', colors.bgPrimary);
-        target.style.setProperty('--bg-surface-secondary', colors.bgSecondary);
-        target.style.setProperty('--bg-surface-tertiary', colors.bgTertiary);
-
-        // Dynamically sync Android/PWA system status bar & navigation bar theme color
-        let metaThemeColor = document.querySelector('meta[name="theme-color"]');
-        if (!metaThemeColor) {
-            metaThemeColor = document.createElement('meta');
-            metaThemeColor.name = 'theme-color';
-            document.head.appendChild(metaThemeColor);
-        }
-        metaThemeColor.setAttribute('content', colors.bgApp);
-
-        lastAppliedAccentColor = effectiveAccentColor;
-    };
-
-    if (origin && document.startViewTransition && !isTransitioning) {
-        isTransitioning = true;
-        document.documentElement.style.setProperty('--ripple-x', `${origin.x}px`);
-        document.documentElement.style.setProperty('--ripple-y', `${origin.y}px`);
-
-        document.documentElement.dataset.transitionType = 'theme-switch';
-        document.body.classList.add('no-transition');
-
-        const transition = document.startViewTransition(() => {
-            updateThemeProperties();
-            renderApp(state);
-
-            // Sync welcome modal accent swatches active class
-            const welcomeModal = document.getElementById('welcome-modal');
-            if (welcomeModal && welcomeModal.classList.contains('show')) {
-                const currentAccent = state.uiSettings.accentColor || 'random';
-                welcomeModal.querySelectorAll('#welcome-accent-picker .accent-swatch').forEach(s => {
-                    s.classList.toggle('active', s.dataset.color === currentAccent);
-                });
-            }
-
-            document.body.offsetHeight;
-        });
-
-        transition.ready.then(() => {
-            // Transition is ready and animating
-        }).catch((err) => {
-            console.error("[ViewTransition] Transition ready failed/rejected:", err);
-        });
-
-        transition.finished.then(() => {
-            // Transition completed successfully
-        }).catch((err) => {
-            console.error("[ViewTransition] Transition finished failed/rejected:", err);
-        }).finally(() => {
-            isTransitioning = false;
-            document.body.classList.remove('no-transition');
-            delete document.documentElement.dataset.transitionType;
-        });
-    } else {
-        updateThemeProperties();
-
-        // Sync welcome modal accent swatches active class
-        const welcomeModal = document.getElementById('welcome-modal');
-        if (welcomeModal && welcomeModal.classList.contains('show')) {
-            const currentAccent = state.uiSettings.accentColor || 'random';
-            welcomeModal.querySelectorAll('#welcome-accent-picker .accent-swatch').forEach(s => {
-                s.classList.toggle('active', s.dataset.color === currentAccent);
-            });
-        }
-
-        // Render the app if origin is passed (meaning we are not during initial load where renderApp is called afterwards)
-        if (origin) {
-            renderApp(state);
-        }
-    }
-}
-
-export function applyTheme(theme, origin = null) {
-    applyThemeSettings(theme, state.uiSettings.accentColor || 'random', origin || 'manual-toggle');
-}
+registerGlobalErrorBoundaries();
 
 if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     window.__DOM_CONTENT_LOADED_REGISTERED__ = true;
     document.addEventListener('DOMContentLoaded', async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    let userIdFromUrl = urlParams.get('userId');
+        const urlParams = new URLSearchParams(window.location.search);
+        let userIdFromUrl = urlParams.get('userId');
 
-    if (userIdFromUrl) {
-        const playerTagsStr = localStorage.getItem('oreCalc_playerTags');
-        const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
-        const currentUserId = localStorage.getItem('oreCalc_userId');
-        
-        let hasRealLocalData = false;
-        if (playerTagsStr) {
-            try {
-                const tags = JSON.parse(playerTagsStr);
+        if (userIdFromUrl) {
+            const playerTagsStr = localStorage.getItem('oreCalc_playerTags');
+            const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
+            const currentUserId = localStorage.getItem('oreCalc_userId');
+
+            let hasRealLocalData = false;
+            if (playerTagsStr) {
+                const tags = safeJsonParse(playerTagsStr, []);
                 if (Array.isArray(tags) && tags.length > 0) {
                     hasRealLocalData = true;
                 }
-            } catch (e) {}
-        } else if (legacyStateStr) {
-            try {
-                const legacy = JSON.parse(legacyStateStr);
-                if (legacy.savedPlayerTags && legacy.savedPlayerTags.length > 0 && legacy.savedPlayerTags[0] !== 'DEFAULT0') {
+            } else if (legacyStateStr) {
+                const legacy = safeJsonParse(legacyStateStr, null);
+                if (legacy && legacy.savedPlayerTags && legacy.savedPlayerTags.length > 0 && legacy.savedPlayerTags[0] !== 'DEFAULT0') {
                     hasRealLocalData = true;
                 }
-            } catch (e) {}
+            }
+
+            const isDifferentUser = currentUserId && currentUserId !== userIdFromUrl;
+
+            if (hasRealLocalData && isDifferentUser) {
+                sessionStorage.setItem('oreCalc_pendingQrUserId', userIdFromUrl);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                localStorage.setItem('oreCalc_userId', userIdFromUrl);
+                sessionStorage.setItem('oreCalc_justSyncedFromQr', 'true');
+                window.history.replaceState({}, document.title, window.location.pathname);
+                location.reload();
+                return;
+            }
         }
 
-        const isDifferentUser = currentUserId && currentUserId !== userIdFromUrl;
+        const checkMigrationLock = () => {
+            const appSettingsStr = localStorage.getItem('oreCalc_appSettings');
+            const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
 
-        if (hasRealLocalData && isDifferentUser) {
-            localStorage.setItem('oreCalc_pendingQrUserId', userIdFromUrl);
-            window.history.replaceState({}, document.title, window.location.pathname);
-        } else {
-            localStorage.setItem('oreCalc_userId', userIdFromUrl);
-            sessionStorage.setItem('oreCalc_justSyncedFromQr', 'true');
-            window.history.replaceState({}, document.title, window.location.pathname);
-            location.reload();
-            return;
-        }
-    }
-
-    const checkMigrationLock = () => {
-        const appSettingsStr = localStorage.getItem('oreCalc_appSettings');
-        const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
-
-        let needsMigration = false;
-        if (!appSettingsStr && legacyStateStr) {
-            needsMigration = true;
-        } else if (appSettingsStr) {
-            try {
-                const settings = JSON.parse(appSettingsStr) || {};
+            let needsMigration = false;
+            if (!appSettingsStr && legacyStateStr) {
+                needsMigration = true;
+            } else if (appSettingsStr) {
+                const settings = safeJsonParse(appSettingsStr, {}) || {};
                 const version = settings.appVersion || '1.0.0';
                 if (version.startsWith('1.') || compareVersions(version, '2.0.0') < 0) {
                     needsMigration = true;
                 }
-            } catch (e) {
-                if (legacyStateStr) needsMigration = true;
             }
-        }
 
-        if (needsMigration) {
-            console.log('Migration Lock Active: Running monolithic state migration to 2.0.0...');
-            let legacyState = null;
-            if (legacyStateStr) {
+            if (needsMigration) {
+                console.log('Migration Lock Active: Running monolithic state migration to 2.0.0...');
+                let legacyState = null;
+                if (legacyStateStr) {
+                    legacyState = safeJsonParse(legacyStateStr, null);
+                }
                 try {
-                    legacyState = JSON.parse(legacyStateStr);
-                } catch (e) {
-                    console.error('Failed to parse legacy state:', e);
+                    migrateFullState(legacyState);
+                    console.log('Migration completed successfully. Reloading page...');
+                    window.location.reload();
+                } catch (err) {
+                    console.error('CRITICAL ERROR DURING MIGRATION:', err);
+                    const appSettingsStr = localStorage.getItem('oreCalc_appSettings');
+                    const cleanAppSettings = (appSettingsStr ? safeJsonParse(appSettingsStr, {}) : {}) || {};
+                    cleanAppSettings.appVersion = '2.0.0';
+                    localStorage.setItem('oreCalc_appSettings', JSON.stringify(cleanAppSettings));
+                    localStorage.removeItem('oreCalculatorState');
+                    localStorage.removeItem('OreCalculatorState');
+                    window.location.reload();
                 }
+                return true;
             }
-            try {
-                migrateFullState(legacyState);
-                console.log('Migration completed successfully. Reloading page...');
-                window.location.reload();
-            } catch (err) {
-                console.error('CRITICAL ERROR DURING MIGRATION:', err);
-                // Safe recovery: ensure appVersion is written and monolithic keys removed to prevent reload loops
-                const appSettingsStr = localStorage.getItem('oreCalc_appSettings');
-                let cleanAppSettings = {};
-                if (appSettingsStr) {
-                    try {
-                        cleanAppSettings = JSON.parse(appSettingsStr) || {};
-                    } catch (e) {}
-                }
-                cleanAppSettings.appVersion = '2.0.0';
-                localStorage.setItem('oreCalc_appSettings', JSON.stringify(cleanAppSettings));
-                localStorage.removeItem('oreCalculatorState');
-                localStorage.removeItem('OreCalculatorState');
-                window.location.reload();
-            }
-            return true;
+            return false;
+        };
+
+        if (checkMigrationLock()) {
+            return;
         }
-        return false;
-    };
 
-    if (checkMigrationLock()) {
-        return;
-    }
+        let savedState = null;
+        try {
+            savedState = loadState();
+        } catch (e) {
+            console.error('Failed to load partitioned state:', e);
+            savedState = null;
+        }
+        let originalVersion = savedState?.appVersion || '1.0.0';
 
-    const savedState = loadState();
-    let originalVersion = savedState?.appVersion || '1.0.0';
+        const showChangelogFlag = sessionStorage.getItem('oreCalc_showChangelog') === 'true';
+        const migratedFrom = sessionStorage.getItem('oreCalc_showChangelogFromVersion');
+        if (showChangelogFlag && migratedFrom) {
+            originalVersion = migratedFrom;
+        }
 
-    const showChangelogFlag = sessionStorage.getItem('oreCalc_showChangelog') === 'true';
-    const migratedFrom = sessionStorage.getItem('oreCalc_showChangelogFromVersion');
-    if (showChangelogFlag && migratedFrom) {
-        originalVersion = migratedFrom;
-    }
-
-    initializeState(savedState);
-    if (savedState && (state.appVersion !== originalVersion || showChangelogFlag)) {
-        logger.log(`Upgraded localStorage state version from ${originalVersion} to ${state.appVersion}`);
-        saveState(state, true); // Save immediately to persist version bump
-        if (compareVersions(originalVersion, state.appVersion) < 0 || showChangelogFlag) {
-            setTimeout(() => {
-                const content = getChangelogHtml();
-                if (isInterruptionRestricted()) {
-                    window.pendingChangelogContent = content;
-                } else {
-                    showChangelogModal(content);
-                    sessionStorage.removeItem('oreCalc_showChangelog');
-                    sessionStorage.removeItem('oreCalc_showChangelogFromVersion');
-                }
-            }, 1200);
-        } else {
-            const commits = window.__ENV__?.COMMITS_SINCE_TAG || [];
-            if (commits.length > 0) {
+        initializeState(savedState);
+        if (savedState && (state.appVersion !== originalVersion || showChangelogFlag)) {
+            logger.log(`Upgraded localStorage state version from ${originalVersion} to ${state.appVersion}`);
+            saveState(state, true);
+            if (compareVersions(originalVersion, state.appVersion) < 0 || showChangelogFlag) {
                 setTimeout(() => {
+                    const content = getChangelogHtml();
                     if (isInterruptionRestricted()) {
-                        window.pendingCommits = commits;
+                        window.pendingChangelogContent = content;
                     } else {
-                        showCommitsModal(commits);
+                        showChangelogModal(content);
+                        sessionStorage.removeItem('oreCalc_showChangelog');
+                        sessionStorage.removeItem('oreCalc_showChangelogFromVersion');
                     }
                 }, 1200);
+            } else {
+                const commits = window.__ENV__?.COMMITS_SINCE_TAG || [];
+                if (commits.length > 0) {
+                    setTimeout(() => {
+                        if (isInterruptionRestricted()) {
+                            window.pendingCommits = commits;
+                        } else {
+                            showCommitsModal(commits);
+                        }
+                    }, 1200);
+                }
             }
         }
-    }
 
-    // Redirect invalid pathnames (404 fallback routing)
-    const pathName = window.location.pathname;
-    if (!isValidRoute(pathName)) {
-        const currentLang = getLanguageFromPath() || 'en';
-        window.location.href = `/${currentLang}/404`;
-        return;
-    }
-
-    // Sync active tab with location hash on startup to prevent routing mismatch
-    if (window.location.hash) {
-        const initialTab = `${window.location.hash.substring(1)}-tab`;
-        const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
-        if (validTabs.includes(initialTab)) {
-            state.activeTab = initialTab;
-        } else {
-            history.replaceState(null, '', window.location.pathname);
-            state.activeTab = 'home-tab';
+        const pathName = window.location.pathname;
+        if (!isValidRoute(pathName)) {
+            const currentLang = getLanguageFromPath() || 'en';
+            window.location.href = `/${currentLang}/404`;
+            return;
         }
-    }
 
-    let renderFrameId = null;
-
-    registerStateUpdateCallback((state, silent) => {
-        if (state.planner?.calendar && !state.planner.calendar.isHydrated) {
-            const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
-            const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
-            autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
-            state.planner.calendar.isHydrated = true;
-        }
-        if (!silent) {
-            if (window.__FORCE_SYNC_RENDER__) {
-                if (renderFrameId) {
-                    cancelAnimationFrame(renderFrameId);
-                    renderFrameId = null;
-                }
-                recalculateAll(state);
-                renderApp(state);
+        if (window.location.hash) {
+            const initialTab = `${window.location.hash.substring(1)}-tab`;
+            const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
+            if (validTabs.includes(initialTab)) {
+                state.activeTab = initialTab;
             } else {
-                if (renderFrameId) {
-                    cancelAnimationFrame(renderFrameId);
-                }
-                renderFrameId = requestAnimationFrame(() => {
+                history.replaceState(null, '', window.location.pathname);
+                state.activeTab = 'home-tab';
+            }
+        }
+
+        let renderFrameId = null;
+
+        registerStateUpdateCallback(async (state, silent) => {
+            if (state.planner?.calendar && !state.planner.calendar.isHydrated) {
+                const { getMinDate, getMaxDate } = await import('./utils/dateUtils.js');
+                const { autoPlaceIncomeChipsForRange } = await import('./utils/autoPlaceChips.js');
+                const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+                const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
+                autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
+                state.planner.calendar.isHydrated = true;
+            }
+            if (!silent) {
+                const doRender = () => {
+                    const activeEl = /** @type {HTMLInputElement|HTMLTextAreaElement|null} */ (document.activeElement);
+                    const activeId = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') ? activeEl.id : null;
+                    const selStart = activeId ? activeEl.selectionStart : null;
+                    const selEnd = activeId ? activeEl.selectionEnd : null;
+
                     recalculateAll(state);
                     renderApp(state);
-                    renderFrameId = null;
-                });
-            }
-        }
-    });
 
-    // Custom event listeners to decouple components from app.js imports
-    document.addEventListener('app:theme-change', (e) => {
-        applyTheme(e.detail.theme, e.detail.origin);
-    });
-
-    document.addEventListener('app:translate', () => {
-        updateUIWithTranslations();
-    });
-
-    document.addEventListener('welcome:close', () => {
-        // Wait a brief moment to see if the tour begins, otherwise trigger
-        setTimeout(() => {
-            triggerPendingModals();
-        }, 150);
-    });
-
-    document.addEventListener('tour:close', () => {
-        triggerPendingModals();
-    });
-
-    initializeDOMElements();
-    setupModalFocusManager();
-
-    const preloader = dom.preloader;
-    if (preloader) {
-        let effectivePreloaderAccent = preloader.getAttribute('data-accent');
-        if (!effectivePreloaderAccent) {
-            effectivePreloaderAccent = state.uiSettings.accentColor || 'random';
-            if (effectivePreloaderAccent === 'random') {
-                if (!sessionRandomAccent) {
-                    sessionRandomAccent = availableAccents[Math.floor(Math.random() * availableAccents.length)];
-                }
-                effectivePreloaderAccent = sessionRandomAccent;
-            }
-            preloader.dataset.accent = effectivePreloaderAccent;
-        }
-    }
-
-
-
-    // 1. PERFORM MINIMAL BACKGROUND INIT IMMEDIATELY
-    if (!state.uiSettings) state.uiSettings = {};
-    const initialLang = detectLanguage();
-    state.uiSettings.language = initialLang;
-    syncLanguageUrl(initialLang, true);
-
-    setTimeout(async () => {
-        try {
-            await loadTranslations('en');
-            if (initialLang !== 'en') {
-                await loadTranslations(initialLang);
-            }
-        } catch (e) {
-            console.error('Failed loading initial translations:', e);
-        }
-        state.uiSettings.language = initialLang;
-
-        if (!state.uiSettings.currency || !state.uiSettings.currency.code) {
-            const userLangs = navigator.languages || [navigator.language];
-            let detectedCurrency = 'USD';
-            const enabledCurrencies = ['USD', 'EUR', 'GBP', 'INR', 'CAD', 'AUD', 'JPY', 'CHF', 'NZD', 'TRY', 'CNY'];
-
-            for (const l of userLangs) {
-                if (l.startsWith('de') || l.startsWith('fr') || l.startsWith('it') || l.startsWith('es') || l.startsWith('nl')) {
-                    detectedCurrency = 'EUR';
-                    break;
-                }
-                if (l.startsWith('tr')) {
-                    detectedCurrency = 'TRY';
-                    break;
-                }
-                if (l.startsWith('zh')) {
-                    detectedCurrency = 'CNY';
-                    break;
-                }
-            }
-
-            if (!enabledCurrencies.includes(detectedCurrency)) {
-                detectedCurrency = 'USD';
-            }
-
-            if (currencyData[detectedCurrency]) {
-                state.uiSettings.currency = {
-                    code: detectedCurrency
-                };
-            }
-        }
-
-        // Apply theme and translate everything in one batch
-        applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');
-        updateUIWithTranslations(true);
-        updateResponsiveText();
-
-        if (state.planner?.calendar) {
-            const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
-            const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
-            autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
-            state.planner.calendar.isHydrated = true;
-        }
-        recalculateAll(state);
-        checkAndGenerateRecurringChips();
-
-        initializeHeader();
-        initializePullToRefresh();
-        initializeGlobalHaptics();
-        initializeViewportHandler();
-        initializeTabs();
-        initializeNavGlideController();
-        initializeNavigation();
-        initializeModalHistoryManager();
-        initializeStorageInputs();
-        initializeHeroCards(state.heroes, state.uiSettings, state.planner);
-        initializePlayerDropdown();
-        initializePlayerModal();
-        initializeWelcomeModal();
-        initializeFab();
-        initializeAppSettings();
-        initializePlanner();
-        initializePriorityListModal();
-        initializeChangelogModal();
-        initializeCommitsModal();
-        initializeStarBonusSelector();
-        initializeClanWarInputs();
-        initializeCwlInputs();
-        initializeEventPassInputs();
-        initializeRaidMedalTrader();
-        initializeGemTrader();
-        initializeEventTrader();
-        initializeShopOffers();
-        initializeSupercellEventsInputs();
-        initializeProspector();
-        initializeIncomeCardHandler();
-        initCardLayoutManager();
-        let layoutMode = state.uiSettings.cardLayout;
-        if (layoutMode === 'quilt') {
-            layoutMode = 'compact0';
-            state.uiSettings.cardLayout = 'compact0';
-        }
-        applyCardLayout(layoutMode || 'cozy', false, false);
-        import('./utils/cloudSaveHandler.js').then(module => {
-            module.initializeCloudSaveButtons();
-        });
-
-        validateAllInputs();
-        validateAllSelects();
-
-        renderApp(state);
-
-        // Make footer notices visible after initial tab rendering to prevent layout shifts
-        const notices = document.querySelectorAll('.supercell-notice, .app-copyright');
-        notices.forEach(notice => notice.classList.add('show'));
-
-        const refreshButton = dom.controls.refreshButton;
-        if (refreshButton) {
-            refreshButton.addEventListener('click', async () => {
-                const activeTag = state.savedPlayerTags[0];
-                if (activeTag && activeTag !== 'DEFAULT0') {
-                    try {
-                        startTopProgressBar();
-                        refreshButton.classList.add('saving');
-                        const { loadAndProcessPlayerData } = await import('./services/serverResponseHandler.js');
-                        const result = await loadAndProcessPlayerData(activeTag, { updateOrder: false });
-
-                        refreshButton.classList.remove('saving');
-                        finishTopProgressBar();
-                        if (result.success) {
-                            refreshButton.classList.add('success');
-                            setTimeout(() => refreshButton.classList.remove('success'), 2000);
-                        } else {
-                            refreshButton.classList.add('error');
-                            setTimeout(() => refreshButton.classList.remove('error'), 3000);
-                            if (result.errorType === 'apiErrors.protectedTag') {
-                                showAddPlayerModal(activeTag, true);
+                    if (activeId && document.activeElement?.id !== activeId) {
+                        const restoredEl = /** @type {HTMLInputElement|HTMLTextAreaElement|null} */ (document.getElementById(activeId));
+                        if (restoredEl) {
+                            restoredEl.focus();
+                            if (selStart !== null && selEnd !== null && typeof restoredEl.setSelectionRange === 'function') {
+                                restoredEl.setSelectionRange(selStart, selEnd);
                             }
                         }
-                    } catch (error) {
-                        finishTopProgressBar();
-                        if (window.handleChunkError && window.handleChunkError(error)) return;
-                        logger.error("Refresh failed:", error);
-                        refreshButton.classList.remove('saving');
-                        refreshButton.classList.add('error');
-                        setTimeout(() => refreshButton.classList.remove('error'), 3000);
                     }
-                }
-            });
+                };
 
-            const activeTag = state.savedPlayerTags[0];
-            if (activeTag && activeTag !== 'DEFAULT0') {
-                refreshButton.click();
-            }
-        }
-        checkLegalConsent();
-    }, 1900);
-
-    // 3. SYNCHRONIZE PRELOADER REMOVAL
-    if (preloader) {
-        setTimeout(() => {
-            preloader.classList.add('hidden');
-            setTimeout(() => {
-                preloader.style.display = 'none';
-                if (typeof window.__APP_LOADED__ === 'function') {
-                    window.__APP_LOADED__();
-                }
-
-                // Trigger guided tour if onboarding is complete but tour is not yet run
-                const welcomeTimestamp = state.uiSettings?.uiTimestamps?.welcome;
-                const tourTimestamp = state.uiSettings?.uiTimestamps?.tour;
-                const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
-                const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
-
-                const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
-                const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
-                const hasPendingConsent = needsPrivacy || needsTerms;
-
-                if (welcomeTimestamp && !hasPendingConsent) {
-                    window.isTourPending = true;
-                    setTimeout(() => {
-                        import('./components/tour/appTour.js').then(module => {
-                            module.startTour().then(started => {
-                                window.isAppStartingUp = false;
-                                if (!started) {
-                                    window.isTourPending = false;
-                                    triggerPendingModals();
-                                }
-                            });
-                        });
-                    }, 800);
+                if (window.__FORCE_SYNC_RENDER__) {
+                    if (renderFrameId) {
+                        cancelAnimationFrame(renderFrameId);
+                        renderFrameId = null;
+                    }
+                    doRender();
                 } else {
-                    window.isAppStartingUp = false;
-                    triggerPendingModals();
-                }
-            }, 600);
-
-            if (state.activeTab === 'planner-tab') {
-                import('./components/planner/calendar.js').then(module => {
-                    module.setAnimateNextRender('all', 0.6); // 0.6s delay to wait for preloader fade out
-                    renderApp(state);
-                });
-            }
-        }, 2100); // 2.1s for scaled animation
-    } else {
-        if (typeof window.__APP_LOADED__ === 'function') {
-            window.__APP_LOADED__();
-        }
-    }
-
-    if ('serviceWorker' in navigator && 'workbox' in window) {
-        const wb = new workbox.Workbox('/service-worker.js');
-        window.__WB__ = wb;
-
-        const markSWUpdated = () => {
-            try {
-                localStorage.setItem('oreCalcSWUpdatedTime', new Date().toISOString());
-            } catch (_) {}
-        };
-
-        const forceSWUpdate = () => {
-            const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
-            const now = Date.now();
-            if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
-                logger.warn('Forced update reload loop detected. Aborting automatic reload.');
-                return;
-            }
-            sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
-            localStorage.removeItem('oreCalcUpdateDetectedAt');
-            markSWUpdated();
-
-            wb.addEventListener('controlling', () => {
-                markSWUpdated();
-                window.location.reload();
-            });
-            wb.messageSkipWaiting();
-        };
-
-        // Listen for server-forced update events (e.g., on 426 responses)
-        document.addEventListener('app:api-version-force-update', () => {
-            const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
-            const now = Date.now();
-            if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
-                logger.warn('Forced update reload loop detected. Aborting automatic reload.');
-                return;
-            }
-            sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
-            localStorage.removeItem('oreCalcUpdateDetectedAt');
-            markSWUpdated();
-
-            wb.register().then(reg => {
-                if (reg && reg.waiting) {
-                    wb.addEventListener('controlling', () => {
-                        markSWUpdated();
-                        window.location.reload();
+                    if (renderFrameId) {
+                        cancelAnimationFrame(renderFrameId);
+                    }
+                    renderFrameId = requestAnimationFrame(() => {
+                        doRender();
+                        renderFrameId = null;
                     });
-                    wb.messageSkipWaiting();
-                } else {
-                    window.location.reload(true); // Force reload from network to fetch updates
                 }
-            });
+            }
         });
 
-        wb.addEventListener('waiting', (event) => {
-            logger.log('A new version is available. Forcing update and reloading...');
-            markSWUpdated();
-            forceSWUpdate();
+        document.addEventListener('app:theme-change', (e) => {
+            const customEvent = /** @type {CustomEvent} */ (e);
+            applyTheme(customEvent.detail.theme, customEvent.detail.origin);
         });
 
-        wb.addEventListener('controlling', () => {
-            markSWUpdated();
+        document.addEventListener('app:translate', () => {
+            updateUIWithTranslations();
         });
 
-        wb.register().then(reg => {
-            if (reg) {
-                if (!localStorage.getItem('oreCalcSWUpdatedTime')) {
-                    markSWUpdated();
-                }
-                if (reg.waiting) {
-                    logger.log('Pending update found. Forcing update...');
-                    forceSWUpdate();
-                } else {
-                    // Update finished or no update pending, clear the key
-                    localStorage.removeItem('oreCalcUpdateDetectedAt');
-                }
+        document.addEventListener('welcome:close', () => {
+            const tourTimestamp = state.uiSettings?.uiTimestamps?.tour;
+            const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
+            const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
 
-                reg.addEventListener('updatefound', () => {
-                    markSWUpdated();
-                });
+            const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
+            const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
+            const hasPendingConsent = needsPrivacy || needsTerms;
 
-                // Check for updates every 6 hours
-                setInterval(() => {
-                    wb.update().catch(err => logger.error('SW manual update check failed:', err));
-                }, 6 * 60 * 60 * 1000);
+            if (!tourTimestamp && !hasPendingConsent) {
+                window.isTourPending = true;
+                setTimeout(() => {
+                    import('./components/tour/appTour.js').then(module => {
+                        module.startTour().then(started => {
+                            window.isAppStartingUp = false;
+                            if (!started) {
+                                window.isTourPending = false;
+                                triggerPendingModals();
+                            }
+                        });
+                    });
+                }, 300);
+            } else {
+                setTimeout(() => {
+                    triggerPendingModals();
+                }, 150);
             }
-        }).catch(err => logger.error('SW registration failed:', err));
-    }
+        });
 
-    // Start background cloud sync initialization after initial render is complete
-    setTimeout(async () => {
-        try {
-            // Check for pending QR user ID import first
-            const pendingQrUserId = localStorage.getItem('oreCalc_pendingQrUserId');
-            if (pendingQrUserId) {
-                localStorage.removeItem('oreCalc_pendingQrUserId');
-                const { importUserData } = await import('./utils/cloudSaveHandler.js');
-                await importUserData(pendingQrUserId);
-                return;
-            }
+        document.addEventListener('tour:close', () => {
+            triggerPendingModals();
+        });
 
-            const { initializeAppData } = await import('./utils/cloudSaveHandler.js');
-            const syncedState = await initializeAppData();
-            if (syncedState) {
-                const originalVersion = syncedState.appVersion || '1.0.0';
-                initializeState(syncedState);
-                if (state.planner?.calendar) {
-                    const { getMinDate, getMaxDate } = await import('./utils/dateUtils.js');
-                    const { autoPlaceIncomeChipsForRange } = await import('./utils/autoPlaceChips.js');
-                    const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
-                    const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
-                    autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
-                    state.planner.calendar.isHydrated = true;
-                }
-                if (state.appVersion !== originalVersion) {
-                    logger.log(`Upgraded synced state version from ${originalVersion} to ${state.appVersion}`);
-                    saveState(state, true); // Save immediately to persist version bump
-                } else {
-                    saveState(state);
-                }
-                const appVersionDisplay = document.getElementById('app-version-display');
-                if (appVersionDisplay) {
-                    appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.1.0').replace(/^v/, '');
-                }
-                recalculateAll(state);
-                renderApp(state);
-            }
-            if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
-                if (!state.uiSettings) state.uiSettings = {};
-                if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
-                const now = Date.now();
-                state.uiSettings.uiTimestamps.welcome = now;
-                state.uiSettings.uiTimestamps.privacy = now;
-                state.uiSettings.uiTimestamps.tos = now;
-                saveState(state);
+        initializeDOMElements();
 
-                sessionStorage.removeItem('oreCalc_justSyncedFromQr');
-                checkLegalConsent();
-            }
-        } catch (error) {
-            if (window.handleChunkError && window.handleChunkError(error)) return;
-            console.error("Error initializing app data:", error);
-            if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
-                if (!state.uiSettings) state.uiSettings = {};
-                if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
-                const now = Date.now();
-                state.uiSettings.uiTimestamps.welcome = now;
-                state.uiSettings.uiTimestamps.privacy = now;
-                state.uiSettings.uiTimestamps.tos = now;
-                saveState(state);
-
-                sessionStorage.removeItem('oreCalc_justSyncedFromQr');
-                checkLegalConsent();
-            }
-        }
-    }, 2000);
-
-
-    // Generic handler for modals (close buttons and clicking outside)
-    document.addEventListener('click', (e) => {
-        // Handle Update Modal close button
-        if (e.target.closest('#close-update-modal-btn')) {
-            const modal = document.getElementById('update-available-modal');
-            if (modal) {
-                modal.classList.remove('show');
-                if (dom.overlay) dom.overlay.classList.remove('show');
-            }
-            return;
-        }
-
-        // Close any modal when clicking its dark background/overlay
-        if (e.target.classList.contains('modal') || e.target.id === 'overlay') {
-            const openModals = Array.from(document.querySelectorAll('.modal.show'));
-            
-            if (e.target.id === 'welcome-modal') {
-                return;
-            }
-            if (e.target.id === 'overlay' && openModals.some(m => m.id === 'welcome-modal')) {
-                return;
-            }
-
-            let closingConsentModal = false;
-
-            if (e.target.id === 'consent-modal') {
-                closingConsentModal = true;
-            } else if (e.target.id === 'overlay') {
-                closingConsentModal = openModals.some(m => m.id === 'consent-modal');
-            }
-
-            if (e.target.classList.contains('modal')) {
-                closeModalAnimated(e.target);
-            } else if (e.target.id === 'overlay') {
-                openModals.forEach(m => closeModalAnimated(m));
-            }
-
-            if (closingConsentModal) {
-                const consentBanner = document.getElementById('consent-banner');
-                if (consentBanner) {
-                    const privacyTimestamp = state.uiSettings.uiTimestamps?.privacy;
-                    const tosTimestamp = state.uiSettings.uiTimestamps?.tos;
-                    const needsConsent = !privacyTimestamp ||
-                        privacyTimestamp < EFFECTIVE_DATE_PRIVACY ||
-                        !tosTimestamp ||
-                        tosTimestamp < EFFECTIVE_DATE_TERMS;
-                    if (needsConsent) {
-                        consentBanner.classList.add('show');
+        const preloader = dom.preloader;
+        if (preloader) {
+            let effectivePreloaderAccent = preloader.getAttribute('data-accent');
+            if (!effectivePreloaderAccent) {
+                effectivePreloaderAccent = state.uiSettings.accentColor || 'random';
+                if (effectivePreloaderAccent === 'random') {
+                    if (!window.sessionRandomAccent) {
+                        window.sessionRandomAccent = availableAccents[Math.floor(Math.random() * availableAccents.length)];
                     }
+                    effectivePreloaderAccent = window.sessionRandomAccent;
+                }
+                preloader.dataset.accent = effectivePreloaderAccent;
+            }
+
+            const theme = state.uiSettings?.theme || preloader.getAttribute('data-theme') || 'dark';
+            const themePalette = THEME_PALETTE[effectivePreloaderAccent] || THEME_PALETTE.blue;
+            const targetColors = theme === 'light' ? themePalette.light : themePalette.dark;
+
+            setTimeout(() => {
+                animatePreloaderBackground(targetColors.bgApp, 1100);
+            }, 650);
+        }
+
+        if (!state.uiSettings) state.uiSettings = {};
+        const initialLang = detectLanguage();
+        state.uiSettings.language = initialLang;
+        syncLanguageUrl(initialLang, true);
+
+        setTimeout(async () => {
+            await bootstrapUIComponents(initialLang);
+        }, 1900);
+
+        handlePreloaderTeardown(preloader);
+        initializePwaService();
+
+        setTimeout(async () => {
+            try {
+                const pendingQrUserId = sessionStorage.getItem('oreCalc_pendingQrUserId') || localStorage.getItem('oreCalc_pendingQrUserId');
+                if (pendingQrUserId) {
+                    sessionStorage.removeItem('oreCalc_pendingQrUserId');
+                    try { localStorage.removeItem('oreCalc_pendingQrUserId'); } catch (e) {}
+                    const { importUserData } = await import('./utils/cloudSaveHandler.js');
+                    await importUserData(pendingQrUserId);
+                    return;
+                }
+
+                const { initializeAppData } = await import('./utils/cloudSaveHandler.js');
+                const syncedState = await initializeAppData();
+                if (syncedState) {
+                    const originalVersion = syncedState.appVersion || '1.0.0';
+                    initializeState(syncedState);
+                    if (state.planner?.calendar) {
+                        const { getMinDate, getMaxDate } = await import('./utils/dateUtils.js');
+                        const { autoPlaceIncomeChipsForRange } = await import('./utils/autoPlaceChips.js');
+                        const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+                        const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
+                        autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
+                        state.planner.calendar.isHydrated = true;
+                    }
+                    if (state.appVersion !== originalVersion) {
+                        logger.log(`Upgraded synced state version from ${originalVersion} to ${state.appVersion}`);
+                        saveState(state, true);
+                    } else {
+                        saveState(state);
+                    }
+                    const appVersionDisplay = document.getElementById('app-version-display');
+                    if (appVersionDisplay) {
+                        appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.1.0').replace(/^v/, '');
+                    }
+                    recalculateAll(state);
+                    renderApp(state);
+                }
+                if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
+                    if (!state.uiSettings) state.uiSettings = {};
+                    if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
+                    const now = Date.now();
+                    state.uiSettings.uiTimestamps.welcome = now;
+                    state.uiSettings.uiTimestamps.privacy = now;
+                    state.uiSettings.uiTimestamps.tos = now;
+                    saveState(state);
+
+                    sessionStorage.removeItem('oreCalc_justSyncedFromQr');
+                    checkLegalConsent();
+                }
+            } catch (error) {
+                if (window.handleChunkError && window.handleChunkError(error)) return;
+                console.error('Error initializing app data:', error);
+                if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
+                    if (!state.uiSettings) state.uiSettings = {};
+                    if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
+                    const now = Date.now();
+                    state.uiSettings.uiTimestamps.welcome = now;
+                    state.uiSettings.uiTimestamps.privacy = now;
+                    state.uiSettings.uiTimestamps.tos = now;
+                    saveState(state);
+
+                    sessionStorage.removeItem('oreCalc_justSyncedFromQr');
+                    checkLegalConsent();
                 }
             }
-        }
-    });
+        }, 2000);
 
-
-    // Handle Escape key to close active modal, navigation drawer, or FAB menu
-    document.addEventListener('keydown', async (event) => {
-        if (event.key === 'Escape') {
-            // 1. Prioritize closing open modals
-            const activeModal = document.querySelector('.modal.show');
-            if (activeModal && !activeModal.classList.contains('closing')) {
-                closeModalAnimated(activeModal);
-                return;
-            }
-
-            // 2. Close navigation drawer if open
-            const drawer = document.querySelector('.navigation-drawer');
-            if (drawer && drawer.classList.contains('open')) {
-                const hamburger = document.querySelector('.hamburger');
-                if (hamburger) {
-                    hamburger.click();
-                    hamburger.focus();
-                }
-                return;
-            }
-
-            // 3. Close FAB menu if active
-            const mainFab = document.getElementById('main-fab');
-            if (mainFab && mainFab.classList.contains('active')) {
-                const { closeFabMenu } = await import('./components/fab/fab.js');
-                closeFabMenu();
-                mainFab.focus();
-            }
-        }
-    });
-
-    // Global link interceptor for all external links
-    document.body.addEventListener('click', async (e) => {
-        const link = e.target.closest('a');
-        if (!link) return;
-
-        const href = link.getAttribute('href');
-        if (!href) return;
-
-        // Skip internal/anchor links
-        if (href.startsWith('#') || href.startsWith('javascript:')) return;
-
-        const isMailto = href.startsWith('mailto:');
-        if (isMailto) {
-            e.preventDefault();
-            const confirmed = await showConfirm(translate('confirms.mailtoLink'));
-            if (confirmed) {
-                window.location.href = href;
-            }
-            return;
-        }
-
-        const isHttpExternal = (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(window.location.host);
-
-        if (isHttpExternal) {
-            e.preventDefault();
-            const confirmed = await showConfirm(
-                `${translate('confirms.externalLink')}<br><code class="external-link-display">${href}</code><br><br>${translate('confirms.externalLinkConfirm')}`
-            );
-            if (confirmed) {
-                window.open(href, '_blank', 'noopener,noreferrer');
-            }
-        }
-    });
-
-
+        initializeGlobalInterceptors();
     });
 }
 
-export { handleStateUpdate, switchActivePlayer } from './core/stateManager.js';
 window.resetApplication = () => {
     setResettingState(true);
     resetState();
@@ -1247,262 +390,4 @@ window.resetApplication = () => {
     window.location.href = window.location.origin + window.location.pathname;
 };
 
-window.refreshConsentModalStatus = () => {
-    const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
-    const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
-
-    const privacyAccepted = privacyTimestamp && privacyTimestamp >= EFFECTIVE_DATE_PRIVACY;
-    const tosAccepted = tosTimestamp && tosTimestamp >= EFFECTIVE_DATE_TERMS;
-
-    const consentBanner = document.getElementById('consent-banner');
-    const consentModal = document.getElementById('consent-modal');
-
-    if (privacyAccepted && tosAccepted) {
-        if (consentBanner) consentBanner.classList.remove('show');
-        if (consentModal) consentModal.classList.remove('show');
-        if (dom.overlay) {
-            const visibleModals = document.querySelectorAll('.modal.show');
-            if (visibleModals.length === 0) {
-                dom.overlay.classList.remove('show');
-            }
-        }
-        return;
-    }
-
-    const needsPrivacy = !privacyAccepted;
-    const needsTerms = !tosAccepted;
-
-    const termsRow = document.getElementById('consent-terms-row');
-    const privacyRow = document.getElementById('consent-privacy-row');
-    if (termsRow) termsRow.style.display = needsTerms ? 'flex' : 'none';
-    if (privacyRow) privacyRow.style.display = needsPrivacy ? 'flex' : 'none';
-
-    const bannerTextElem = document.getElementById('consent-banner-text');
-    if (bannerTextElem) {
-        let key = 'legal.bannerTextBoth';
-        if (needsTerms && !needsPrivacy) {
-            key = 'legal.bannerTextTerms';
-        } else if (needsPrivacy && !needsTerms) {
-            key = 'legal.bannerTextPrivacy';
-        }
-        bannerTextElem.setAttribute('data-i18n', key);
-        bannerTextElem.textContent = translate(key);
-    }
-};
-function checkLegalConsent() {
-    if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
-        return;
-    }
-
-    const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
-    const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
-    const welcomeTimestamp = state.uiSettings?.uiTimestamps?.welcome;
-
-    const isNewUser = !privacyTimestamp && !tosTimestamp;
-    const needsWelcome = !welcomeTimestamp || welcomeTimestamp < EFFECTIVE_DATE_WELCOME;
-
-    if (isNewUser || needsWelcome) {
-        showWelcomeModal(true);
-        return;
-    }
-
-    const consentBanner = document.getElementById('consent-banner');
-    const consentModal = document.getElementById('consent-modal');
-    if (!consentBanner || !consentModal) return;
-
-    const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
-    const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
-
-    if (!needsPrivacy && !needsTerms) {
-        consentBanner.classList.remove('show');
-        consentModal.classList.remove('show');
-        return;
-    }
-
-    const termsRow = document.getElementById('consent-terms-row');
-    const privacyRow = document.getElementById('consent-privacy-row');
-    if (termsRow) termsRow.style.display = needsTerms ? 'flex' : 'none';
-    if (privacyRow) privacyRow.style.display = needsPrivacy ? 'flex' : 'none';
-
-    function formatVersionBadge(timestamp) {
-        if (!timestamp) return '';
-        const d = new Date(timestamp);
-        const yyyy = d.getUTCFullYear();
-        const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
-        const dd = String(d.getUTCDate()).padStart(2, '0');
-        return `(v${yyyy}-${mm}-${dd})`;
-    }
-
-    const termsBadge = document.getElementById('consent-terms-version-badge');
-    if (termsBadge) termsBadge.textContent = formatVersionBadge(EFFECTIVE_DATE_TERMS);
-
-    const privacyBadge = document.getElementById('consent-privacy-version-badge');
-    if (privacyBadge) privacyBadge.textContent = formatVersionBadge(EFFECTIVE_DATE_PRIVACY);
-
-    // Set modular banner text based on what was updated
-    const bannerTextElem = document.getElementById('consent-banner-text');
-    if (bannerTextElem) {
-        let key = 'legal.bannerTextBoth';
-        if (needsTerms && !needsPrivacy) {
-            key = 'legal.bannerTextTerms';
-        } else if (needsPrivacy && !needsTerms) {
-            key = 'legal.bannerTextPrivacy';
-        }
-        bannerTextElem.setAttribute('data-i18n', key);
-        bannerTextElem.textContent = translate(key);
-    }
-
-    const viewTermsBtn = document.getElementById('consent-view-terms-btn');
-    const viewPrivacyBtn = document.getElementById('consent-view-privacy-btn');
-    const acceptBtn = document.getElementById('confirm-consent-btn');
-    const closeConsentModalBtn = document.getElementById('close-consent-modal-btn');
-
-    window.refreshConsentModalStatus();
-
-    // Banner Buttons
-    const bannerViewBtn = document.getElementById('consent-banner-view-btn');
-    const bannerCloseBtn = document.getElementById('consent-banner-close-btn');
-
-    if (bannerViewBtn) {
-        bannerViewBtn.onclick = (e) => {
-            e.preventDefault();
-            consentBanner.classList.remove('show');
-            consentModal.classList.add('show');
-            if (dom.overlay) dom.overlay.classList.add('show');
-        };
-    }
-
-    if (bannerCloseBtn) {
-        bannerCloseBtn.onclick = (e) => {
-            e.preventDefault();
-            handleStateUpdate(() => {
-                const now = Date.now();
-                if (!state.uiSettings.uiTimestamps) {
-                    state.uiSettings.uiTimestamps = {};
-                }
-                state.uiSettings.uiTimestamps.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
-                state.uiSettings.uiTimestamps.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
-            });
-
-            consentBanner.classList.remove('show');
-            consentModal.classList.remove('show');
-            if (dom.overlay) {
-                const visibleModals = document.querySelectorAll('.modal.show');
-                if (visibleModals.length === 0) {
-                    dom.overlay.classList.remove('show');
-                }
-            }
-        };
-    }
-
-    // Modal Buttons
-    if (viewTermsBtn) {
-        viewTermsBtn.onclick = (e) => {
-            e.preventDefault();
-            const termsModal = document.getElementById('terms-modal');
-            if (termsModal) termsModal.classList.add('modal-top');
-            // Hide consent modal to prevent overlapping
-            consentModal.classList.remove('show');
-            openTermsOfUseModal();
-        };
-    }
-
-    if (viewPrivacyBtn) {
-        viewPrivacyBtn.onclick = (e) => {
-            e.preventDefault();
-            const privacyModal = document.getElementById('privacy-modal');
-            if (privacyModal) privacyModal.classList.add('modal-top');
-            // Hide consent modal to prevent overlapping
-            consentModal.classList.remove('show');
-            openPrivacyModal();
-        };
-    }
-
-    if (acceptBtn) {
-        acceptBtn.onclick = (e) => {
-            e.preventDefault();
-            handleStateUpdate(() => {
-                const now = Date.now();
-                if (!state.uiSettings.uiTimestamps) {
-                    state.uiSettings.uiTimestamps = {};
-                }
-                state.uiSettings.uiTimestamps.privacy = Math.max(now, EFFECTIVE_DATE_PRIVACY + 1);
-                state.uiSettings.uiTimestamps.tos = Math.max(now, EFFECTIVE_DATE_TERMS + 1);
-            });
-
-            consentModal.classList.remove('show');
-            consentBanner.classList.remove('show');
-            if (dom.overlay) {
-                const visibleModals = document.querySelectorAll('.modal.show');
-                if (visibleModals.length === 0) {
-                    dom.overlay.classList.remove('show');
-                }
-            }
-        };
-    }
-
-    if (closeConsentModalBtn) {
-        closeConsentModalBtn.onclick = (e) => {
-            e.preventDefault();
-            consentModal.classList.remove('show');
-            if (dom.overlay) {
-                const visibleModals = document.querySelectorAll('.modal.show');
-                if (visibleModals.length === 0) {
-                    dom.overlay.classList.remove('show');
-                }
-            }
-            // Re-show banner if they dismiss the modal without accepting
-            consentBanner.classList.add('show');
-        };
-    }
-
-    // Listen to close/accept events on terms and privacy modals to re-show consent modal
-    const termsHeaderClose = document.getElementById('close-terms-header-btn');
-    const termsFooterClose = document.getElementById('close-terms-modal-btn');
-    const termsAcceptBtn = document.getElementById('accept-terms-modal-btn');
-    const privacyHeaderClose = document.getElementById('close-privacy-header-btn');
-    const privacyFooterClose = document.getElementById('close-privacy-modal-btn');
-    const privacyAcceptBtn = document.getElementById('accept-privacy-modal-btn');
-
-    const reShowConsentModal = () => {
-        setTimeout(() => {
-            const currentPrivacy = state.uiSettings?.uiTimestamps?.privacy;
-            const currentTos = state.uiSettings?.uiTimestamps?.tos;
-            const currentWelcome = state.uiSettings?.uiTimestamps?.welcome;
-            const needsReConsent = !currentPrivacy ||
-                currentPrivacy < EFFECTIVE_DATE_PRIVACY ||
-                !currentTos ||
-                currentTos < EFFECTIVE_DATE_TERMS;
-
-            if (needsReConsent) {
-                const isNewUser = !currentPrivacy && !currentTos && !currentWelcome;
-                if (isNewUser) {
-                    showWelcomeModal(true);
-                } else {
-                    consentModal.classList.add('show');
-                }
-            } else {
-                if (consentBanner) consentBanner.classList.remove('show');
-                if (consentModal) consentModal.classList.remove('show');
-                if (dom.overlay) {
-                    const visibleModals = document.querySelectorAll('.modal.show');
-                    if (visibleModals.length === 0) {
-                        dom.overlay.classList.remove('show');
-                    }
-                }
-            }
-        }, 50);
-    };
-
-    if (termsHeaderClose) termsHeaderClose.addEventListener('click', reShowConsentModal);
-    if (termsFooterClose) termsFooterClose.addEventListener('click', reShowConsentModal);
-    if (termsAcceptBtn) termsAcceptBtn.addEventListener('click', reShowConsentModal);
-    if (privacyHeaderClose) privacyHeaderClose.addEventListener('click', reShowConsentModal);
-    if (privacyFooterClose) privacyFooterClose.addEventListener('click', reShowConsentModal);
-    if (privacyAcceptBtn) privacyAcceptBtn.addEventListener('click', reShowConsentModal);
-
-    // Initially show only the consent banner (not the modal)
-    consentBanner.classList.add('show');
-}
-
-
+window.refreshConsentModalStatus = refreshConsentModalStatus;

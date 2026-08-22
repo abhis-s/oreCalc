@@ -1,0 +1,164 @@
+@use '../../abstracts/variables' as *;
+
+.eq-details-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.eq-details-avatars {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    background: color-mix(in srgb, $bg-surface-secondary 80%, transparent);
+    border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
+    padding: 6px 12px;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+
+    .eq-details-hero-emblem {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        object-fit: cover;
+        box-shadow: none;
+        filter: drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
+    }
+
+    .avatar-sep {
+        width: 1px;
+        height: 26px;
+        background: color-mix(in srgb, $bg-surface-tertiary 40%, transparent);
+    }
+
+    .eq-details-item-img {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+        transition: filter $duration-base $ease-smooth;
+
+        &.is-data-unavailable {
+            filter: grayscale(100%) opacity(0.65) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+    }
+}
+
+.eq-details-title-group {
+    h2 {
+        margin: 0 0 4px;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: $text-primary;
+    }
+
+    .eq-details-desc {
+        margin: 0 0 10px;
+        font-size: 0.9rem;
+        color: $text-secondary;
+    }
+}
+
+.stat-val-modified {
+    color: $color-warning !important;
+    font-weight: 700 !important;
+}
+
+.eq-details-badges {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    gap: 4px 6px;
+    flex: 1;
+    min-width: 0;
+
+    .eq-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        transition: transform $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+        cursor: default;
+
+        &:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 4px 10px color-mix(in srgb, currentColor 20%, transparent);
+        }
+
+        &.badge-active {
+            background-color: color-mix(in srgb, $color-success 15%, transparent);
+            color: $color-success;
+            border: 1px solid color-mix(in srgb, $color-success 35%, transparent);
+        }
+
+        &.badge-passive {
+            background-color: $bg-surface-secondary;
+            color: $text-secondary;
+            border: 1px solid $border-primary;
+        }
+
+        &.badge-common {
+            background-color: color-mix(in srgb, $color-rarity-common 15%, transparent);
+            color: $color-rarity-common;
+            border: 1px solid color-mix(in srgb, $color-rarity-common 35%, transparent);
+        }
+
+        &.badge-epic {
+            background-color: color-mix(in srgb, $color-rarity-epic 15%, transparent);
+            color: $color-rarity-epic;
+            border: 1px solid color-mix(in srgb, $color-rarity-epic 35%, transparent);
+            text-shadow: 0 0 8px color-mix(in srgb, $color-rarity-epic 40%, transparent);
+        }
+
+        &.badge-not-recommended {
+            background-color: color-mix(in srgb, $color-danger 15%, transparent);
+            color: $color-danger;
+            border: 1px solid color-mix(in srgb, $color-danger 35%, transparent);
+        }
+
+        &.badge-niche {
+            background-color: color-mix(in srgb, $color-warning 15%, transparent);
+            color: $color-warning;
+            border: 1px solid color-mix(in srgb, $color-warning 35%, transparent);
+        }
+
+        &.badge-unreleased {
+            background-color: color-mix(in srgb, $color-rarity-epic 15%, transparent);
+            color: $color-rarity-epic;
+            border: 1px solid color-mix(in srgb, $color-rarity-epic 35%, transparent);
+            text-shadow: 0 0 8px color-mix(in srgb, $color-rarity-epic 40%, transparent);
+        }
+
+        &.badge-must-have {
+            background-color: color-mix(in srgb, $color-gold-glow 15%, transparent);
+            color: $color-gold-glow;
+            border: 1px solid color-mix(in srgb, $color-gold-glow 40%, transparent);
+            text-shadow: 0 0 8px color-mix(in srgb, $color-gold-glow 40%, transparent);
+        }
+
+        &.badge-recommended {
+            background-color: color-mix(in srgb, $color-success 15%, transparent);
+            color: $color-success;
+            border: 1px solid color-mix(in srgb, $color-success 35%, transparent);
+        }
+
+        .badge-icon {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+    }
+}

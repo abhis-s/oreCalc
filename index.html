@@ -7,15 +7,14 @@
     <meta name="description"
         content="The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.">
     <meta name="color-scheme" content="light dark">
-    <meta name="theme-color" content="#0f131a">
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f8ff">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f131a">
+    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f9fa">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="OreCalc">
 
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://orecalc.tech/">
     <meta property="og:title" content="OreCalc - Clash of Clans Hero Equipment &amp; Ore Planner">
@@ -25,7 +24,6 @@
     <meta property="og:image" content="https://orecalc.tech/assets/app_icon_large.png">
     <meta property="og:logo" content="https://orecalc.tech/assets/app_icon_large.png">
 
-    <!-- Twitter -->
     <meta property="twitter:card" content="summary">
     <meta property="twitter:url" content="https://orecalc.tech/">
     <meta property="twitter:title" content="OreCalc - Clash of Clans Hero Equipment &amp; Ore Planner">
@@ -33,13 +31,14 @@
         content="The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.">
 
     <base href="/">
-    <title data-i18n="app.title">Ore Calculator</title>
+    <title data-i18n="app.title"></title>
     <link rel="icon" href="assets/favicon.png" type="image/x-icon">
     <link rel="manifest" href="manifest.json">
     <link rel="canonical" href="https://orecalc.tech/">
     <link rel="alternate" hreflang="en" href="https://orecalc.tech/" />
     <link rel="alternate" hreflang="de" href="https://orecalc.tech/de/" />
     <link rel="alternate" hreflang="tr" href="https://orecalc.tech/tr/" />
+    <link rel="alternate" hreflang="zh" href="https://orecalc.tech/zh/" />
     <link rel="alternate" hreflang="x-default" href="https://orecalc.tech/" />
 
     <link rel="stylesheet" href="css/main.css">
@@ -100,7 +99,7 @@
             try {
                 var s = JSON.parse(localStorage.getItem('oreCalc_appSettings') || '{}');
                 var isLight = (s.theme === 'light');
-                var bg = isLight ? '#f4f8ff' : '#0f131a';
+                var bg = isLight ? '#f8f9fa' : '#121212';
                 var m = document.querySelector('meta[name="theme-color"]:not([media])');
                 if (m) m.setAttribute('content', bg);
                 document.documentElement.style.backgroundColor = bg;
@@ -129,7 +128,6 @@
     }
     </script>
 
-    <!-- Preload critical ES modules to eliminate sequential waterfall requests -->
     <link rel="modulepreload" href="js/app.js">
     <link rel="modulepreload" href="js/core/state.js">
     <link rel="modulepreload" href="js/core/stateManager.js">
@@ -146,8 +144,8 @@
     <link rel="modulepreload" href="js/utils/chipManager.js">
 </head>
 
-<body class="dark-mode"
-    style="color-scheme: dark; --accent-primary: #8ab4f8; --accent-primary-hover: #aecbfa; --accent-primary-active: #8ab4f8; --accent-primary-soft: rgba(138, 180, 248, 0.1); --bg-app: #0f131a; --bg-surface-primary: #1a1f2b; --bg-surface-secondary: #252c3d; --bg-surface-tertiary: #2e374d;">
+<body class="dark-mode">
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     <script>
         (function () {
             // Client Console Error & Exception Monitoring
@@ -292,7 +290,9 @@
                     localStorage.removeItem('oreCalc_players');
                     localStorage.removeItem('oreCalc_playerTags');
                     localStorage.removeItem('oreCalc_userId');
-                    
+                    localStorage.removeItem('oreCalc_SWUpdatedTime');
+                    localStorage.removeItem('oreCalcSWUpdatedTime');
+
                     // Remove all player profile keys
                     for (var i = 0; i < localStorage.length; i++) {
                         var key = localStorage.key(i);
@@ -326,7 +326,7 @@
             window.handleChunkError = function (error) {
                 if (!error) return false;
                 var msg = error.message || error.toString() || '';
-                var isChunk = msg.indexOf('Failed to fetch dynamically imported module') !== -1 || 
+                var isChunk = msg.indexOf('Failed to fetch dynamically imported module') !== -1 ||
                              msg.indexOf('Importing a module script failed') !== -1 ||
                              msg.indexOf('error loading dynamically imported module') !== -1;
                 if (isChunk) {
@@ -422,10 +422,10 @@
                 }
 
                 var errorMsg = event.error ? event.error.message : event.message;
-                
+
                 // If a dynamic import fails (chunk mismatch due to new deployment), reload the page to load fresh assets
                 if (typeof errorMsg === 'string' && (
-                    errorMsg.indexOf('Failed to fetch dynamically imported module') !== -1 || 
+                    errorMsg.indexOf('Failed to fetch dynamically imported module') !== -1 ||
                     errorMsg.indexOf('Importing a module script failed') !== -1 ||
                     errorMsg.indexOf('error loading dynamically imported module') !== -1
                 )) {
@@ -448,10 +448,10 @@
 
             window.addEventListener('unhandledrejection', function (event) {
                 var errorMsg = event.reason ? (event.reason.message || event.reason || '') : '';
-                
+
                 // If a dynamic import fails (chunk mismatch due to new deployment), reload the page to load fresh assets
                 if (typeof errorMsg === 'string' && (
-                    errorMsg.indexOf('Failed to fetch dynamically imported module') !== -1 || 
+                    errorMsg.indexOf('Failed to fetch dynamically imported module') !== -1 ||
                     errorMsg.indexOf('Importing a module script failed') !== -1 ||
                     errorMsg.indexOf('error loading dynamically imported module') !== -1
                 )) {
@@ -487,12 +487,14 @@
         <script>
             (function () {
                 var accent = 'blue';
+                var isLight = false;
                 try {
                     var settingsStr = localStorage.getItem('oreCalc_appSettings');
                     if (settingsStr) {
                         var parsed = JSON.parse(settingsStr);
-                        if (parsed && parsed.accentColor) {
-                            accent = parsed.accentColor;
+                        if (parsed) {
+                            if (parsed.accentColor) accent = parsed.accentColor;
+                            if (parsed.theme === 'light') isLight = true;
                         }
                     }
                 } catch (e) {}
@@ -501,7 +503,9 @@
                     accent = accents[Math.floor(Math.random() * accents.length)];
                     window.sessionRandomAccent = accent;
                 }
-                document.getElementById('preloader').setAttribute('data-accent', accent);
+                var preloader = document.getElementById('preloader');
+                preloader.setAttribute('data-accent', accent);
+                preloader.setAttribute('data-theme', isLight ? 'light' : 'dark');
             })();
         </script>
         <div class="preloader-loader">
@@ -521,14 +525,13 @@
                         <use href="#icon-warning"></use>
                     </svg>
                 </div>
-                <h1 data-i18n="errors.loadFailureTitle">Initialization Failed</h1>
-                <p data-i18n="errors.loadFailureMessage">OreCalc could not start because of a critical error during
-                    initialization.</p>
+                <h1 data-i18n="errors.loadFailureTitle"></h1>
+                <p data-i18n="errors.loadFailureMessage"></p>
             </div>
 
             <div class="load-failure-details-section">
                 <button id="load-failure-details-toggle" class="details-toggle-btn">
-                    <span data-i18n="errors.showDetails">Show Error Details</span>
+                    <span data-i18n="errors.showDetails"></span>
                     <span class="chevron-icon">▼</span>
                 </button>
                 <div id="load-failure-details" class="load-failure-details" style="display: none;">
@@ -540,16 +543,16 @@
             </div>
 
             <div id="load-failure-report-form" class="load-failure-report-form" style="display: none;">
-                <h3 data-i18n="settings.bugReport">Bug Report</h3>
+                <h2 data-i18n="views.settings.bugReport"></h2>
                 <div class="form-group">
                     <label for="load-failure-email" class="input-label"
-                        data-i18n="settings.options.contactEmail">Contact Email (Optional)</label>
+                        data-i18n="views.settings.options.contactEmail"></label>
                     <input type="email" id="load-failure-email" class="input-style"
                         autocomplete="email" placeholder="your-email@example.com">
                 </div>
                 <div class="form-group">
                     <label for="load-failure-desc" class="input-label"
-                        data-i18n="settings.options.bugDescriptionOptional">Description (Optional)</label>
+                        data-i18n="views.settings.options.bugDescriptionOptional"></label>
                     <textarea id="load-failure-desc" class="input-style" rows="3"
                         placeholder="Please describe what you did before the crash..."></textarea>
                     <div class="textarea-footer">
@@ -559,8 +562,7 @@
                 <div class="form-group">
                     <label class="checkbox-group">
                         <input type="checkbox" id="load-failure-attach-checkbox" checked>
-                        <span class="checkbox-label" data-i18n="settings.options.userDataAttachment">Attach Diagnostics
-                            & User Data</span>
+                        <span class="checkbox-label" data-i18n="views.settings.options.userDataAttachment"></span>
                     </label>
                 </div>
             </div>
@@ -598,15 +600,12 @@
     <!-- include: partials/bottom-nav.html -->
 
     <div class="supercell-notice notice">
-        <p data-i18n="app.supercellDisclaimer">This material is unofficial and is not endorsed by Supercell. For more
-            information see Supercell's Fan Content Policy: <a href="https://www.supercell.com/fan-content-policy"
-                target="_blank">www.supercell.com/fan-content-policy</a>.</p>
+        <p data-i18n="app.supercellDisclaimer"></p>
     </div>
-    <div class="app-copyright notice" style="margin-top: 5px; margin-bottom: 20px;">
+    <div class="app-copyright notice">
         <p>&copy; 2025-2026 OreCalc. All rights reserved.</p>
     </div>
 
-    <!-- Modals -->
     <!-- include: partials/modals/add-player.html -->
     <!-- include: partials/modals/bug-report.html -->
     <!-- include: partials/modals/contact.html -->

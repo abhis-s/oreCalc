@@ -1,14 +1,82 @@
-import { formatCurrency } from '../utils/numberFormatter.js';
-import { getSupercellEventsForYear, isStarBonusEventMonth, getStarBonus2xWindow } from '../utils/dateUtils.js';
+import { supercellEventsData } from './incomeSources/supercellEvents.js';
+import { leagueTiers } from './leagueTiers.js';
+import { currencyData } from './pricingData.js';
 import { translate } from '../i18n/translator.js';
-import { getProspectorIncomeForDate } from '../incomeCalculations/prospectorManager.js';
 
-import { leagueTiers, supercellEventsData, currencyData } from './appData.js';
+import { selectDerivedSourceIncome, ZERO_ORES } from '../core/selectors.js';
+
+import { getProspectorIncomeForDate } from '../domain/income/prospectorManager.js';
+import { getStarBonus2xWindow, getSupercellEventsForYear, isStarBonusEventMonth } from '../utils/dateUtils.js';
+import { formatCurrency } from '../utils/numberFormatter.js';
+
+export const CANONICAL_CHIP_PRIORITY_ORDER = [
+    'starBonus2x',
+    'starBonus3x',
+    'starBonus4x',
+    'starBonus5x',
+    'starBonus6x',
+    'starBonus7x',
+    'starBonus',
+    'prospector',
+    'cwl',
+    'clanWar',
+    'raidMedalTrader',
+    'gemTrader',
+    'eventPass',
+    'eventTrader',
+    'shopOffers',
+    'supercellEvents',
+    'custom',
+    'extras'
+];
+
+const SUPERCELL_EVENT_REWARD_MAP = {
+    'Monthly Finals': 'monthlyQualifiers',
+    'Last Chance Qualifier': 'lastChanceQualifiers',
+    'World Finals': 'worldChampionships'
+};
+
+/**
+ * Multiplies an ore quantity by a constant factor.
+ * @param {import('../core/types.js').OreQuantity} ores
+ * @param {number} factor
+ * @returns {import('../core/types.js').OreQuantity}
+ */
+const multiplyOres = (ores, factor) => ({
+    shiny: (ores.shiny || 0) * factor,
+    glowy: (ores.glowy || 0) * factor,
+    starry: (ores.starry || 0) * factor
+});
+
+/**
+ * Formats the localized cost for a given income source based on active currency settings.
+ * @param {import('../core/types.js').AppState} state
+ * @param {string} sourceId
+ * @returns {string}
+ */
+function getCostString(state, sourceId) {
+    const code = state.uiSettings?.currency?.code || 'USD';
+    const cost = state.derived?.incomeSources?.[sourceId]?.monthly?.[code.toUpperCase()] || state.derived?.incomeSources?.[sourceId]?.monthly?.USD || 0;
+    return (currencyData[code]?.symbol || '') + formatCurrency(cost);
+}
+
+/**
+ * Formats resource string for attack-based war events.
+ * @param {number} count
+ * @param {number | undefined} winRate
+ * @param {string} i18nKey
+ * @returns {string}
+ */
+const formatWarResource = (count, winRate, i18nKey) => (
+    count > 0
+        ? translate(i18nKey, { count, winRate: winRate ?? 50 })
+        : translate(i18nKey.replace('.resource', '.none'))
+);
 
 export const incomeData = {
     starBonus: {
         id: 'starBonus',
-        nameI18nKey: 'income.starBonus.title',
+        nameI18nKey: 'views.income.starBonus.title',
         showInHomeTable: true,
         autoGenerateInCalendar: true,
         allowManualCreation: true,
@@ -20,15 +88,14 @@ export const incomeData = {
             dateStart: 1,
             availableTillEndOfMonth: true,
         },
-        getIncome: (state) => state.derived.incomeSources.starBonus?.daily || { shiny: 0, glowy: 0, starry: 0 },
-        // Added specialized base income getter for Planner to avoid double-counting with event chips
-        getBaseIncome: (state) => state.derived.incomeSources.starBonus?.baseDaily || { shiny: 0, glowy: 0, starry: 0 },
+        getIncome: (state) => selectDerivedSourceIncome(state, 'starBonus', 'daily'),
+        getBaseIncome: (state) => selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'),
         getSVGUrl: (state) => state.derived.incomeSources.starBonus?.iconUrl || '',
         getResourceString: (state) => {
             const leagueId = parseInt(state.income.starBonus?.league || 105000000, 10);
             const leagueData = leagueTiers.items.find(l => l.id === leagueId);
             const leagueName = leagueData ? leagueData.name : 'Unranked';
-            const leagueKey = 'leagues.' + leagueName.toLowerCase()
+            const leagueKey = 'entities.leagues.' + leagueName.toLowerCase()
                 .replace(/\./g, '')
                 .replace(/\s(i+)$/i, (match, p1) => p1.toUpperCase())
                 .replace(/\s/g, '_');
@@ -37,7 +104,7 @@ export const incomeData = {
         subCategories: [
             {
                 id: 'starBonus2x',
-                nameI18nKey: 'income.starBonus.event2x',
+                nameI18nKey: 'views.income.starBonus.event2x',
                 type: 'starBonus2x',
                 className: 'star-bonus-2x',
                 schedule: { type: 'custom' },
@@ -53,20 +120,9 @@ export const incomeData = {
                     }
                     const frequency = state.income.starBonus?.["2x"]?.frequency || 2;
                     const duration = state.income.starBonus?.["2x"]?.duration || 0;
-                    const isEventMonth = isStarBonusEventMonth(
-                        month, 
-                        year, 
-                        frequency,
-                        lastMonth,
-                        lastYear
-                    );
-                    return isEventMonth ? duration : 0;
+                    return isStarBonusEventMonth(month, year, frequency, lastMonth, lastYear) ? duration : 0;
                 },
-                getIncome: (state) => {
-                    const base = state.derived.incomeSources.starBonus?.baseDaily || { shiny: 0, glowy: 0, starry: 0 };
-                    // Full income for 2x
-                    return { shiny: base.shiny * 2, glowy: base.glowy * 2, starry: base.starry * 2 };
-                },
+                getIncome: (state) => multiplyOres(selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'), 2),
                 isValidDate: (day, month, year) => {
                     const window = getStarBonus2xWindow(month, year);
                     const targetDate = new Date(Date.UTC(year, month, day));
@@ -75,7 +131,7 @@ export const incomeData = {
             },
             {
                 id: 'starBonus4x',
-                nameI18nKey: 'income.starBonus.event4x',
+                nameI18nKey: 'views.income.starBonus.event4x',
                 type: 'starBonus4x',
                 className: 'star-bonus-4x',
                 schedule: { type: 'custom' },
@@ -84,21 +140,16 @@ export const incomeData = {
                     if (month === undefined || year === undefined) return 0;
                     const upgrades = state.income.starBonus?.thUpgrades || {};
                     const targetStr = `${year}-${String(month + 1).padStart(2, '0')}`;
-                    const isUpgradeMonth = Object.values(upgrades).some(u => u === targetStr);
-                    return isUpgradeMonth ? 6 : 0;
+                    return Object.values(upgrades).some(u => u === targetStr) ? 6 : 0;
                 },
-                getIncome: (state) => {
-                    const base = state.derived.incomeSources.starBonus?.baseDaily || { shiny: 0, glowy: 0, starry: 0 };
-                    // Full income for 4x
-                    return { shiny: base.shiny * 4, glowy: base.glowy * 4, starry: base.starry * 4 };
-                },
-                isValidDate: (day, month, year) => true // Whole month is valid
+                getIncome: (state) => multiplyOres(selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'), 4),
+                isValidDate: () => true
             }
         ]
     },
     shopOffers: {
         id: 'shopOffers',
-        nameI18nKey: 'income.shopOffers.title',
+        nameI18nKey: 'views.income.shopOffers.title',
         showInHomeTable: true,
         allowManualCreation: true,
         name: 'Shop Offers',
@@ -111,20 +162,18 @@ export const incomeData = {
             dateStart: 26,
             dateEnd: 28,
         },
-        getIncome: (state) => state.derived.incomeSources.shopOffers?.monthly || { shiny: 0, glowy: 0, starry: 0 },
+        getIncome: (state) => selectDerivedSourceIncome(state, 'shopOffers', 'monthly'),
         getResourceString: (state) => {
             const selected = state.income.shopOffers?.selectedSet;
-            if (selected === undefined || selected === null || selected === 0) return '';
-            
-            const selectedCurrencyKey = state.uiSettings.currency.code.toUpperCase();
-            const cost = state.derived.incomeSources.shopOffers?.monthly?.[selectedCurrencyKey] || state.derived.incomeSources.shopOffers?.monthly?.USD || 0;
+            if (!selected) return '';
             const symbol = currencyData[state.uiSettings.currency.code]?.symbol || '';
+            const cost = state.derived.incomeSources.shopOffers?.monthly?.[state.uiSettings.currency.code.toUpperCase()] || state.derived.incomeSources.shopOffers?.monthly?.USD || 0;
             return `${symbol} ${formatCurrency(cost)}`;
         }
     },
     raidMedalTrader: {
         id: 'raidMedalTrader',
-        nameI18nKey: 'income.raidMedalTrader.title',
+        nameI18nKey: 'views.income.raidMedalTrader.title',
         showInHomeTable: true,
         name: 'Raid Medal Trader',
         type: 'raidMedalTrader',
@@ -132,15 +181,15 @@ export const incomeData = {
         iconUrl: 'assets/resources/raidMedal.png',
         schedule: {
             type: 'weekly',
-            dateStart: 2, 
-            dateEnd: 1, 
+            dateStart: 2,
+            dateEnd: 1,
         },
-        getIncome: (state) => state.derived.incomeSources.raidMedalTrader?.weekly || { shiny: 0, glowy: 0, starry: 0 },
-        getResourceString: (state) => translate('income.raidMedalTrader.perWeek', { count: state.derived.incomeSources.raidMedalTrader?.cost || 0 })
+        getIncome: (state) => selectDerivedSourceIncome(state, 'raidMedalTrader', 'weekly'),
+        getResourceString: (state) => translate('views.income.raidMedalTrader.perWeek', { count: state.derived.incomeSources.raidMedalTrader?.cost || 0 })
     },
     gemTrader: {
         id: 'gemTrader',
-        nameI18nKey: 'income.gemTrader.title',
+        nameI18nKey: 'views.income.gemTrader.title',
         showInHomeTable: true,
         allowManualCreation: true,
         name: 'Gem Trader',
@@ -149,15 +198,15 @@ export const incomeData = {
         iconUrl: 'assets/resources/gem.png',
         schedule: {
             type: 'weekly',
-            dateStart: 2, 
-            dateEnd: 1, 
+            dateStart: 2,
+            dateEnd: 1,
         },
-        getIncome: (state) => state.derived.incomeSources.gemTrader?.weekly || { shiny: 0, glowy: 0, starry: 0 },
-        getResourceString: (state) => translate('income.gemTrader.perWeek', { count: state.derived.incomeSources.gemTrader?.cost || 0 })
+        getIncome: (state) => selectDerivedSourceIncome(state, 'gemTrader', 'weekly'),
+        getResourceString: (state) => translate('views.income.gemTrader.perWeek', { count: state.derived.incomeSources.gemTrader?.cost || 0 })
     },
     eventPass: {
         id: 'eventPass',
-        nameI18nKey: 'income.eventPass.title',
+        nameI18nKey: 'views.income.eventPass.title',
         showInHomeTable: true,
         name: 'Event Pass',
         type: 'eventPass',
@@ -172,21 +221,16 @@ export const incomeData = {
                 2026: [4, 6, 8, 10, 12],
             },
         },
-        getIncome: (state) => state.derived.incomeSources.eventPass?.bimonthly || { shiny: 0, glowy: 0, starry: 0 },
-        getResourceString: (state) => {
-            const hasPass = state.income.eventPass?.eventPass || false;
-            if (hasPass) {
-                const selectedCurrencyKey = state.uiSettings.currency.code.toUpperCase();
-                const cost = state.derived.incomeSources.eventPass?.monthly?.[selectedCurrencyKey] || state.derived.incomeSources.eventPass?.monthly?.USD || 0;
-                const symbol = currencyData[state.uiSettings.currency.code]?.symbol || '';
-                return `${translate('income.eventPass.title')} (${symbol}${formatCurrency(cost)})`;
-            }
-            return translate('income.eventPass.free');
-        }
+        getIncome: (state) => selectDerivedSourceIncome(state, 'eventPass', 'bimonthly'),
+        getResourceString: (state) => (
+            state.income.eventPass?.eventPass
+                ? `${translate('views.income.eventPass.title')} (${getCostString(state, 'eventPass')})`
+                : translate('views.income.eventPass.free')
+        )
     },
     eventTrader: {
         id: 'eventTrader',
-        nameI18nKey: 'income.eventTrader.title',
+        nameI18nKey: 'views.income.eventTrader.title',
         showInHomeTable: true,
         allowManualCreation: true,
         name: 'Event Trader',
@@ -202,12 +246,12 @@ export const incomeData = {
                 2026: [4, 6, 8, 10, 12],
             },
         },
-        getIncome: (state) => state.derived.incomeSources.eventTrader?.bimonthly || { shiny: 0, glowy: 0, starry: 0 },
-        getResourceString: (state) => translate('income.eventPass.medalsResource', { count: state.derived.incomeSources.eventTrader?.cost || 0 })
+        getIncome: (state) => selectDerivedSourceIncome(state, 'eventTrader', 'bimonthly'),
+        getResourceString: (state) => translate('views.income.eventPass.medalsResource', { count: state.derived.incomeSources.eventTrader?.cost || 0 })
     },
     clanWar: {
         id: 'clanWar',
-        nameI18nKey: 'income.clanWar.title',
+        nameI18nKey: 'views.income.clanWar.title',
         showInHomeTable: true,
         allowManualCreation: true,
         name: 'Clan War',
@@ -219,18 +263,14 @@ export const incomeData = {
             dateStart: 4,
             availableTillEndOfMonth: true,
         },
-        getIncome: (state) => state.derived.incomeSources.clanWar?.perEvent || { shiny: 0, glowy: 0, starry: 0 },
+        getIncome: (state) => selectDerivedSourceIncome(state, 'clanWar', 'perEvent'),
         getCount: (state) => state.income.clanWar?.warsPerMonth || 0,
         minReoccurrenceDays: 2,
-        getResourceString: (state) => {
-            const wars = state.income.clanWar?.warsPerMonth || 0;
-            const winRate = state.income.clanWar?.winRate ?? 50;
-            return wars > 0 ? translate('income.clanWar.resource', { count: wars, winRate: winRate }) : translate('income.clanWar.none');
-        }
+        getResourceString: (state) => formatWarResource(state.income.clanWar?.warsPerMonth || 0, state.income.clanWar?.winRate, 'views.income.clanWar.resource')
     },
     cwl: {
         id: 'cwl',
-        nameI18nKey: 'income.cwl.title',
+        nameI18nKey: 'views.income.cwl.title',
         showInHomeTable: true,
         allowManualCreation: true,
         name: 'CWL',
@@ -242,17 +282,13 @@ export const incomeData = {
             dateStart: 3,
             dateEnd: 11,
         },
-        getIncome: (state) => state.derived.incomeSources.cwl?.perEvent || { shiny: 0, glowy: 0, starry: 0 },
+        getIncome: (state) => selectDerivedSourceIncome(state, 'cwl', 'perEvent'),
         getCount: (state) => state.income.cwl?.hitsPerSeason || 0,
-        getResourceString: (state) => {
-            const hits = state.income.cwl?.hitsPerSeason || 0;
-            const winRate = state.income.cwl?.winRate ?? 50;
-            return hits > 0 ? translate('income.cwl.resource', { count: hits, winRate: winRate }) : translate('income.cwl.none');
-        }
+        getResourceString: (state) => formatWarResource(state.income.cwl?.hitsPerSeason || 0, state.income.cwl?.winRate, 'views.income.cwl.resource')
     },
     supercellEvents: {
         id: 'supercellEvents',
-        nameI18nKey: 'income.supercellEvents.title',
+        nameI18nKey: 'views.income.supercellEvents.title',
         showInHomeTable: true,
         autoGenerateInCalendar: true,
         allowManualCreation: true,
@@ -262,52 +298,35 @@ export const incomeData = {
         iconUrl: 'assets/resources/supercellEvents.png',
         getResourceString: () => 'event.supercell.com',
         getAutomaticSchedule: (date, state) => {
-            if (!state.income.supercellEvents || !state.income.supercellEvents.worldChampionship) return null;
-            
+            if (!state.income.supercellEvents?.worldChampionship) return null;
+
             const displayYear = date.getUTCFullYear();
             const supercellEvents = getSupercellEventsForYear(displayYear, supercellEventsData);
-            
-            let foundEvent = null;
-            supercellEvents.forEach((event, index) => {
-                const startDate = new Date(event.start);
-                const endDate = new Date(event.end);
-                
-                const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
-                const endUTC = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+            const targetUtc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 
-                const diffDays = Math.round((endUTC - startUTC) / (1000 * 60 * 60 * 24));
-                const middleDayOffset = Math.floor(diffDays / 2);
-                const middleDateUTC = new Date(startUTC);
-                middleDateUTC.setUTCDate(startUTC.getUTCDate() + middleDayOffset);
+            for (let i = 0; i < supercellEvents.length; i++) {
+                const event = supercellEvents[i];
+                const s = new Date(event.start);
+                const e = new Date(event.end);
+                const startUtc = Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate());
+                const endUtc = Date.UTC(e.getUTCFullYear(), e.getUTCMonth(), e.getUTCDate());
+                const middleUtc = startUtc + Math.floor(Math.round((endUtc - startUtc) / 86400000) / 2) * 86400000;
 
-                const dateUTC = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+                if (targetUtc === middleUtc) {
+                    const rewardType = SUPERCELL_EVENT_REWARD_MAP[event.name] || 'otherEvents';
+                    const availableYears = Object.keys(supercellEventsData.rewards).map(Number).sort((a, b) => b - a);
+                    const rewardsYear = supercellEventsData.rewards[displayYear] ? displayYear : (supercellEventsData.rewards[displayYear - 1] ? displayYear - 1 : (availableYears[0] || 2025));
+                    const income = supercellEventsData.rewards[rewardsYear]?.[rewardType] || ZERO_ORES;
 
-                if (dateUTC.getTime() === middleDateUTC.getTime()) {
-                    let rewardType = 'otherEvents';
-                    if (event.name === 'Monthly Finals') rewardType = 'monthlyQualifiers';
-                    else if (event.name === 'Last Chance Qualifier') rewardType = 'lastChanceQualifiers';
-                    else if (event.name === 'World Finals') rewardType = 'worldChampionships';
-
-                    let rewardsYear = displayYear;
-                    if (!supercellEventsData.rewards[rewardsYear]) rewardsYear = displayYear - 1;
-                    if (!supercellEventsData.rewards[rewardsYear]) {
-                        const availableYears = Object.keys(supercellEventsData.rewards).map(Number).sort((a, b) => b - a);
-                        rewardsYear = availableYears[0] || 2025;
-                    }
-                    const rewards = (supercellEventsData.rewards[rewardsYear] && supercellEventsData.rewards[rewardsYear][rewardType]) || { shiny: 0, glowy: 0, starry: 0 };
-                    
-                    foundEvent = {
-                        instance: index + 1,
-                        income: rewards
-                    };
+                    return { instance: i + 1, income };
                 }
-            });
-            return foundEvent;
+            }
+            return null;
         }
     },
     prospector: {
         id: 'prospector',
-        nameI18nKey: 'income.prospector.title',
+        nameI18nKey: 'views.income.prospector.title',
         showInHomeTable: true,
         autoGenerateInCalendar: true,
         allowManualCreation: true,
@@ -320,35 +339,23 @@ export const incomeData = {
             dateStart: 1,
             availableTillEndOfMonth: true,
         },
-        getIncome: (state) => state.derived.incomeSources.prospector?.daily || { shiny: 0, glowy: 0, starry: 0 },
-        getResourceString: (state) => {
-            if (state.income.prospector?.goldPass) {
-                const selectedCurrencyKey = state.uiSettings.currency.code.toUpperCase();
-                const cost = state.derived.incomeSources.prospector?.monthly?.[selectedCurrencyKey] || state.derived.incomeSources.prospector?.monthly?.USD || 0;
-                const symbol = currencyData[state.uiSettings.currency.code]?.symbol || '';
-                return `${translate('income.prospector.goldPass')} (${symbol}${formatCurrency(cost)})`;
-            }
-            return translate('income.prospector.silverPass');
-        },
+        getIncome: (state) => selectDerivedSourceIncome(state, 'prospector', 'daily'),
+        getResourceString: (state) => (
+            state.income.prospector?.goldPass
+                ? `${translate('views.income.prospector.goldPass')} (${getCostString(state, 'prospector')})`
+                : translate('views.income.prospector.silverPass')
+        ),
         getAutomaticSchedule: (date, state) => {
-            if (state.income.prospector?.goldPass) {
-                const income = getProspectorIncomeForDate(date, state);
-                if (income.shiny === 0 && income.glowy === 0 && income.starry === 0) {
-                    return null;
-                }
-                return {
-                    instance: date.getUTCDate(),
-                    income: income
-                };
-            }
-            return null;
+            if (!state.income.prospector?.goldPass) return null;
+            const income = getProspectorIncomeForDate(date, state);
+            return (!income.shiny && !income.glowy && !income.starry) ? null : { instance: date.getUTCDate(), income };
         }
     },
 };
 
 /**
  * Finds an income source (or subcategory) by its ID.
- * @param {string} id 
+ * @param {string} id
  * @returns {Object|null}
  */
 export function getSourceById(id) {
@@ -362,21 +369,18 @@ export function getSourceById(id) {
     }
 
     if (id && id.startsWith('starBonus') && id.length > 9) {
-        const multiplierStr = id.substring(9); // e.g. "3x"
+        const multiplierStr = id.substring(9);
         const mult = parseInt(multiplierStr.replace('x', ''), 10);
         if (!isNaN(mult)) {
             return {
                 id: id,
-                nameI18nKey: `income.starBonus.event${multiplierStr}`,
+                nameI18nKey: `views.income.starBonus.event${multiplierStr}`,
                 type: id,
                 className: `star-bonus-${multiplierStr}`,
                 schedule: { type: 'custom' },
                 getSVGUrl: (state) => incomeData.starBonus.getSVGUrl(state),
-                getIncome: (state) => {
-                    const base = state.derived?.incomeSources?.starBonus?.baseDaily || { shiny: 0, glowy: 0, starry: 0 };
-                    return { shiny: base.shiny * mult, glowy: base.glowy * mult, starry: base.starry * mult };
-                },
-                isValidDate: (day, month, year) => true
+                getIncome: (state) => multiplyOres(selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'), mult),
+                isValidDate: () => true
             };
         }
     }

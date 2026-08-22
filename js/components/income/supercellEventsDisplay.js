@@ -1,13 +1,20 @@
-import { dom } from '../../dom/domElements.js';
+import { supercellEventsData } from '../../data/incomeSources/supercellEvents.js';
+import { getSupercellEventUrl } from '../../data/languagesData.js';
+import { translate } from '../../i18n/translator.js';
+
 import { state } from '../../core/state.js';
 
-import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { getSupercellEventsForYear } from '../../utils/dateUtils.js';
-import { supercellEventsData } from '../../data/appData.js';
+import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
-import { translate } from '../../i18n/translator.js';
-import { getSupercellEventUrl } from '../../data/languagesData.js';
 
+import { dom } from '../../dom/domElements.js';
+
+/**
+ * Renders calculated Supercell Events ore income display and scheduled tournament list.
+ * @param {import('../../core/types.js').IncomeResult} supercellEventsIncome - Calculated Supercell Events income results.
+ * @param {string} [timeframe] - Active timeframe context.
+ */
 export function renderSupercellEventsDisplay(supercellEventsIncome, timeframe) {
     const supercellEventsElements = dom.income.supercellEvents.display;
 
@@ -35,17 +42,15 @@ function renderSupercellEvents() {
     const events = getSupercellEventsForYear(currentYear, supercellEventsData);
     const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
-    // 1. Check if schedule is empty
     if (events.length === 0) {
         container.innerHTML = `
             <div class="notice">
-                <p>${translate('income.supercellEvents.noSchedule')}</p>
+                <p>${translate('views.income.supercellEvents.noSchedule')}</p>
             </div>
         `;
         return;
     }
 
-    // 2. Check if all events for the year have ended
     const latestEndDate = events.reduce((max, event) => {
         const end = new Date(event.end);
         return end > max ? end : max;
@@ -54,7 +59,7 @@ function renderSupercellEvents() {
     if (latestEndDate < now) {
         container.innerHTML = `
             <div class="notice">
-                <p>${translate('income.supercellEvents.concluded')}</p>
+                <p>${translate('views.income.supercellEvents.concluded')}</p>
             </div>
         `;
         return;
@@ -64,8 +69,8 @@ function renderSupercellEvents() {
         <table class="supercell-events-table">
             <thead>
                 <tr>
-                    <th>${translate('income.supercellEvents.tableEvent')}</th>
-                    <th>${translate('income.supercellEvents.tableDates')}</th>
+                    <th>${translate('views.income.supercellEvents.tableEvent')}</th>
+                    <th>${translate('views.income.supercellEvents.tableDates')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -77,7 +82,7 @@ function renderSupercellEvents() {
         const isDimmed = endDate < now;
         const isCurrentMonth = startDate.getUTCMonth() === now.getUTCMonth() && startDate.getUTCFullYear() === now.getUTCFullYear();
         const isLive = now >= startDate && now <= endDate;
-        
+
         let rowClasses = [];
         if (isDimmed) rowClasses.push('dimmed');
         if (isLive) rowClasses.push('is-live');
@@ -94,12 +99,12 @@ function renderSupercellEvents() {
         if (isLive) {
             const currentLang = state.uiSettings?.language || 'en';
             const url = getSupercellEventUrl(currentLang);
-            watchLiveHtml = `<a href="${url}" target="_blank" class="watch-live-btn"><span class="live-beacon-dot" aria-hidden="true"></span>${translate('income.supercellEvents.live')}</a>`;
+            watchLiveHtml = `<a href="${url}" target="_blank" class="watch-live-btn"><span class="live-beacon-dot" aria-hidden="true"></span>${translate('views.income.supercellEvents.live')}</a>`;
         }
 
-        let translatedEventName = (() => { 
+        let translatedEventName = (() => {
             const key = toCamelCase(event.name);
-            return translate('income.supercellEvents.' + (key === 'lastChanceQualifier' ? 'lcq' : key)); 
+            return translate('views.income.supercellEvents.' + (key === 'lastChanceQualifier' ? 'lcq' : key));
         })();
         let eventNameHtml = translatedEventName;
         if (event.name === 'World Finals') {
@@ -107,11 +112,11 @@ function renderSupercellEvents() {
         }
 
         let labelHtml = event.label;
-        const diffTime = startDate - now;
+        const diffTime = startDate.getTime() - now.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays > 0 && diffDays <= 7) {
-            labelHtml = `<span class="countdown-text">${translate('income.supercellEvents.inDays', { days: diffDays })}</span> ${event.label}`;
+            labelHtml = `<span class="countdown-text">${translate('views.income.supercellEvents.inDays', { days: diffDays })}</span> ${event.label}`;
         }
 
         html += `
@@ -130,29 +135,10 @@ function renderSupercellEvents() {
         </table>
         <!--
         <div class="notice">
-            <p>${translate('income.supercellEvents.bonusesUnknown')}</p>
+            <p>${translate('views.income.supercellEvents.bonusesUnknown')}</p>
         </div>
         -->
     `;
 
     container.innerHTML = html;
-}
-
-export function renderSupercellEventsHomeDisplay(supercellEventsIncome, timeframe) {
-    const homeElements = dom.income.home.incomeCard.table.supercellEvents;
-
-    if (!homeElements) return;
-
-    const timeframeIncome = supercellEventsIncome[timeframe] || {};
-
-    if (homeElements.shiny) {
-        homeElements.shiny.textContent = formatNumber(Math.round(timeframeIncome.shiny || 0));
-    }
-    if (homeElements.glowy) {
-        homeElements.glowy.textContent = formatNumber(Math.round(timeframeIncome.glowy || 0));
-    }
-    if (homeElements.starry) {
-        homeElements.starry.textContent = formatNumber(Math.round(timeframeIncome.starry || 0));
-    }
-
 }

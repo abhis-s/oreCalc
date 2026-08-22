@@ -1,28 +1,35 @@
-import { renderHeroJourneyDisplay, autoScrollToCompletedNode, saveCurrentFilterScrollPosition, getActiveFilterKey, isAutoScrolling, updateCustomScrollbar } from './heroJourneyDisplay.js';
-import { getCumulativeHeroLevel, getMaxCumulativeLevelsByTH, isDefaultOrGuestPlayer } from '../../incomeCalculations/heroJourneyIncome.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
+import { translate } from '../../i18n/translator.js';
+
 import { handleStateUpdate } from '../../core/stateManager.js';
+
+import { getCumulativeHeroLevel, getMaxCumulativeLevelsByTH, isDefaultOrGuestPlayer } from '../../domain/income/heroJourneyLevels.js';
+
+import { renderHeroJourneyDisplay } from './heroJourneyDisplay.js';
+import { autoScrollToCompletedNode, getActiveFilterKey, isAutoScrolling, saveCurrentFilterScrollPosition, updateCustomScrollbar } from './heroJourneyScrollManager.js';
 import { triggerHaptic } from '../../services/hapticService.js';
 
 let isBound = false;
 
 /**
  * Initializes and binds all event listeners for the Hero's Journey component.
+ * @param {import('../../core/types.js').AppState} state - Current global application state.
  */
 export function setupHeroJourneyInputs(state) {
     if (isBound) return;
     isBound = true;
 
     // Accelerated Rewards Switch (Normal vs Accelerated)
-    const acceleratedSwitch = document.getElementById('home-hj-accelerated-switch');
+    const acceleratedSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('home-hj-accelerated-switch'));
     if (acceleratedSwitch) {
         const isAccelerated = Boolean(state?.heroJourney?.acceleratedRewards ?? state?.heroJourney?.accelerated ?? (state?.heroJourney?.rewardMode === 'accelerated'));
         acceleratedSwitch.checked = isAccelerated;
 
         acceleratedSwitch.addEventListener('change', (e) => {
+            const target = /** @type {HTMLInputElement} */ (e.target);
             handleStateUpdate(() => {
                 if (!state.heroJourney) state.heroJourney = {};
-                state.heroJourney.acceleratedRewards = e.target.checked;
+                state.heroJourney.acceleratedRewards = target.checked;
             });
         });
     }
@@ -31,12 +38,15 @@ export function setupHeroJourneyInputs(state) {
     const claimSwitch = document.getElementById('home-hj-claim-switch');
     if (claimSwitch) {
         claimSwitch.addEventListener('click', (e) => {
-            const btn = e.target.closest('.hj-switch-btn');
-            if (!btn || btn.dataset.unclaimedOnly === undefined) return;
+            const target = /** @type {HTMLElement} */ (e.target);
+            const btn = target.closest('.hj-switch-btn');
+            if (!btn || /** @type {HTMLElement} */ (btn).dataset.unclaimedOnly === undefined) return;
 
-            const isUnclaimed = btn.dataset.unclaimedOnly === 'true';
-            if (!state.heroJourney) state.heroJourney = {};
-            state.heroJourney.unclaimedOnly = isUnclaimed;
+            const isUnclaimed = /** @type {HTMLElement} */ (btn).dataset.unclaimedOnly === 'true';
+            handleStateUpdate(() => {
+                if (!state.heroJourney) state.heroJourney = {};
+                state.heroJourney.unclaimedOnly = isUnclaimed;
+            }, true);
             renderHeroJourneyDisplay(state);
         });
     }
@@ -45,27 +55,32 @@ export function setupHeroJourneyInputs(state) {
     const typeFilterContainer = document.getElementById('home-hj-type-filters');
     if (typeFilterContainer) {
         typeFilterContainer.addEventListener('click', (e) => {
-            const btn = e.target.closest('.hj-type-btn');
+            const target = /** @type {HTMLElement} */ (e.target);
+            const btn = target.closest('.hj-type-btn');
             if (!btn) return;
 
-            if (!state.heroJourney) state.heroJourney = {};
-            const clickedType = btn.dataset.typeFilter;
-            if (state.heroJourney.typeFilter === clickedType) {
-                state.heroJourney.typeFilter = null;
-            } else {
-                state.heroJourney.typeFilter = clickedType;
-            }
+            const clickedType = /** @type {HTMLElement} */ (btn).dataset.typeFilter || null;
+            handleStateUpdate(() => {
+                if (!state.heroJourney) state.heroJourney = {};
+                if (state.heroJourney.typeFilter === clickedType) {
+                    state.heroJourney.typeFilter = null;
+                } else {
+                    state.heroJourney.typeFilter = clickedType;
+                }
+            }, true);
 
             renderHeroJourneyDisplay(state);
         });
     }
 
-    const typeSelect = document.getElementById('home-hj-type-select');
+    const typeSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('home-hj-type-select'));
     if (typeSelect) {
         typeSelect.addEventListener('change', (e) => {
-            if (!state.heroJourney) state.heroJourney = {};
-            const val = e.target.value;
-            state.heroJourney.typeFilter = val === 'all' ? null : val;
+            const val = /** @type {HTMLSelectElement} */ (e.target).value;
+            handleStateUpdate(() => {
+                if (!state.heroJourney) state.heroJourney = {};
+                state.heroJourney.typeFilter = val === 'all' ? null : val;
+            }, true);
             renderHeroJourneyDisplay(state);
         });
     }
@@ -76,29 +91,73 @@ export function setupHeroJourneyInputs(state) {
     const scrollCurrentBtn = document.getElementById('home-hj-scroll-current');
     const scrollRightBtn = document.getElementById('home-hj-scroll-right');
     const scrollLastBtn = document.getElementById('home-hj-scroll-last');
-    const trackWrapper = document.querySelector('.hero-journey-track-wrapper');
+    const trackWrapper = /** @type {HTMLElement | null} */ (document.querySelector('.hero-journey-track-wrapper'));
     const track = document.getElementById('home-hj-nodes-track');
-    const customBar = document.getElementById('home-hj-custom-scrollbar');
-    const thumb = document.getElementById('home-hj-scrollbar-thumb');
+    const customBar = /** @type {HTMLElement | null} */ (document.getElementById('home-hj-custom-scrollbar'));
+    const thumb = /** @type {HTMLElement | null} */ (document.getElementById('home-hj-scrollbar-thumb'));
 
     let isDraggingBar = false;
+    let isScrollTickPending = false;
 
     if (trackWrapper) {
         trackWrapper.addEventListener('scroll', () => {
-            updateCustomScrollbar(isDraggingBar);
-            if (isAutoScrolling()) return;
-            const currentKey = getActiveFilterKey(state);
-            saveCurrentFilterScrollPosition(currentKey);
+            if (!isScrollTickPending) {
+                isScrollTickPending = true;
+                requestAnimationFrame(() => {
+                    isScrollTickPending = false;
+                    updateCustomScrollbar(isDraggingBar);
+                    if (!isAutoScrolling()) {
+                        const currentKey = getActiveFilterKey(state);
+                        saveCurrentFilterScrollPosition(currentKey);
+                    }
+                });
+            }
         }, { passive: true });
     }
 
     // Custom Scrollbar Dragging & Track Click Handling
     if (customBar && thumb && trackWrapper) {
+        const scrubTooltip = /** @type {HTMLElement | null} */ (document.getElementById('home-hj-scrub-tooltip'));
+        let lastScrubLevel = null;
         let isActivated = false;
+        let isScrubFramePending = false;
         let grabTimer = null;
         let startX = 0;
         let startY = 0;
         let startThumbLeft = 0;
+        let cachedBarWidth = 0;
+        let cachedThumbWidth = 0;
+        let cachedViewportWidth = 0;
+        let cachedMaxScrollLeft = 0;
+        let cachedChipCenters = [];
+
+        const updateScrubTooltip = (currentScrollLeft) => {
+            if (!scrubTooltip || cachedChipCenters.length === 0) return;
+
+            const viewportCenter = currentScrollLeft + (cachedViewportWidth / 2);
+            let closestLevel = '';
+            let minDistance = Infinity;
+
+            for (let i = 0; i < cachedChipCenters.length; i++) {
+                const item = cachedChipCenters[i];
+                const dist = Math.abs(item.center - viewportCenter);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    closestLevel = item.level;
+                } else if (dist > minDistance) {
+                    break;
+                }
+            }
+
+            if (closestLevel) {
+                const levelLabel = translate('validation.level');
+                scrubTooltip.textContent = `${levelLabel} ${closestLevel}`;
+                if (lastScrubLevel !== null && lastScrubLevel !== closestLevel) {
+                    triggerHaptic('light');
+                }
+                lastScrubLevel = closestLevel;
+            }
+        };
 
         const activateGrab = () => {
             if (isActivated) return;
@@ -109,7 +168,25 @@ export function setupHeroJourneyInputs(state) {
             document.body.style.userSelect = 'none';
             document.body.style.webkitUserSelect = 'none';
 
-            // Haptic feedback on grab!
+            // Cache dimensions and chip center geometries on grab start
+            cachedBarWidth = customBar.clientWidth;
+            cachedThumbWidth = thumb.offsetWidth;
+            cachedViewportWidth = trackWrapper.clientWidth;
+            cachedMaxScrollLeft = trackWrapper.scrollWidth - cachedViewportWidth;
+
+            const chips = Array.from(trackWrapper.querySelectorAll('.hero-journey-node-chip'));
+            cachedChipCenters = chips.map(chip => {
+                const el = /** @type {HTMLElement} */ (chip);
+                return {
+                    level: el.dataset.nodeLevel || el.dataset.level || '',
+                    center: el.offsetLeft + (el.offsetWidth / 2)
+                };
+            });
+
+            lastScrubLevel = null;
+            updateScrubTooltip(trackWrapper.scrollLeft);
+
+            // Haptic feedback on grab
             triggerHaptic('select');
         };
 
@@ -120,7 +197,7 @@ export function setupHeroJourneyInputs(state) {
             const deltaY = clientY - startY;
 
             if (!isActivated) {
-                // If moved more than 4px horizontally, activate grab immediately!
+                // If moved more than 4px horizontally, activate grab immediately
                 if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
                     clearTimeout(grabTimer);
                     activateGrab();
@@ -129,18 +206,19 @@ export function setupHeroJourneyInputs(state) {
                 }
             }
 
-            const customBarWidth = customBar.clientWidth;
-            const thumbWidth = thumb.offsetWidth;
-            const maxThumbLeft = customBarWidth - thumbWidth;
+            const maxThumbLeft = cachedBarWidth - cachedThumbWidth;
             const newThumbLeft = Math.min(maxThumbLeft, Math.max(0, startThumbLeft + deltaX));
+            const scrollRatio = maxThumbLeft > 0 ? (newThumbLeft / maxThumbLeft) : 0;
+            const targetScrollLeft = scrollRatio * cachedMaxScrollLeft;
 
-            // Instant visual thumb position on drag frame
-            thumb.style.left = `${newThumbLeft}px`;
-
-            // Instant track scroll position (no smooth animation lag while dragging)
-            const maxScrollLeft = trackWrapper.scrollWidth - trackWrapper.clientWidth;
-            if (maxThumbLeft > 0) {
-                trackWrapper.scrollLeft = (newThumbLeft / maxThumbLeft) * maxScrollLeft;
+            if (!isScrubFramePending) {
+                isScrubFramePending = true;
+                requestAnimationFrame(() => {
+                    isScrubFramePending = false;
+                    thumb.style.left = `${newThumbLeft}px`;
+                    trackWrapper.scrollLeft = targetScrollLeft;
+                    updateScrubTooltip(targetScrollLeft);
+                });
             }
 
             if (e.cancelable) e.preventDefault();
@@ -156,6 +234,10 @@ export function setupHeroJourneyInputs(state) {
                 document.body.style.userSelect = '';
                 document.body.style.webkitUserSelect = '';
             }
+
+            lastScrubLevel = null;
+            cachedChipCenters = [];
+            isScrubFramePending = false;
 
             window.removeEventListener('pointermove', onDragMove);
             window.removeEventListener('pointerup', onDragEnd);
@@ -194,7 +276,7 @@ export function setupHeroJourneyInputs(state) {
         thumb.addEventListener('touchstart', onDragStart, { passive: false });
 
         customBar.addEventListener('click', (e) => {
-            if (e.target === thumb || thumb.contains(e.target)) return;
+            if (e.target === thumb || (e.target instanceof Node && thumb.contains(e.target))) return;
             const rect = customBar.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const thumbWidth = thumb.offsetWidth;
@@ -248,43 +330,66 @@ export function setupHeroJourneyInputs(state) {
     // Event delegation for Node Claim, Hide, and Reveal buttons
     if (track) {
         track.addEventListener('click', (e) => {
-            const hideBtn = e.target.closest('#home-hj-hide-btn');
+            const target = /** @type {HTMLElement} */ (e.target);
+            const resetBtn = target.closest('#home-hj-reset-filters-btn, .hero-journey-empty-filter-btn');
+            if (resetBtn) {
+                handleStateUpdate(() => {
+                    if (!state.heroJourney) state.heroJourney = {};
+                    state.heroJourney.unclaimedOnly = false;
+                    state.heroJourney.typeFilter = null;
+                }, true);
+                renderHeroJourneyDisplay(state);
+                return;
+            }
+
+            const hideBtn = target.closest('#home-hj-hide-btn');
             if (hideBtn) {
-                if (!state.heroJourney) state.heroJourney = {};
-                state.heroJourney.hidden = true;
+                handleStateUpdate(() => {
+                    if (!state.heroJourney) state.heroJourney = {};
+                    state.heroJourney.hidden = true;
+                }, true);
                 renderHeroJourneyDisplay(state, { skipAutoScroll: true });
                 return;
             }
 
-            const revealBtn = e.target.closest('#home-hj-reveal-btn');
+            const revealBtn = target.closest('#home-hj-reveal-btn');
             if (revealBtn) {
-                if (!state.heroJourney) state.heroJourney = {};
-                state.heroJourney.revealBeyondTH = !state.heroJourney.revealBeyondTH;
+                handleStateUpdate(() => {
+                    if (!state.heroJourney) state.heroJourney = {};
+                    state.heroJourney.revealBeyondTH = !state.heroJourney.revealBeyondTH;
+                }, true);
                 renderHeroJourneyDisplay(state, { skipAutoScroll: true });
                 return;
             }
 
-            const claimBtn = e.target.closest('.node-claim-btn');
+            const claimBtn = target.closest('.node-claim-btn');
             if (!claimBtn) return;
 
-            const level = parseInt(claimBtn.dataset.nodeLevel, 10);
+            const level = parseInt(/** @type {HTMLElement} */ (claimBtn).dataset.nodeLevel || '', 10);
             if (isNaN(level)) return;
 
             toggleNodeClaimStatus(state, level);
         });
     }
 
-    const card = document.getElementById('home-hero-journey-card') || document.querySelector('.hero-journey-card');
+    const card = document.getElementById('home-hj-card') || document.querySelector('.hero-journey-card');
     if (card) {
         card.addEventListener('click', (e) => {
-            const exploreBtn = e.target.closest('#home-hj-explore-btn');
+            const target = /** @type {HTMLElement} */ (e.target);
+            const exploreBtn = target.closest('#home-hj-explore-btn');
             if (exploreBtn) {
-                if (!state.heroJourney) state.heroJourney = {};
-                state.heroJourney.hidden = false;
+                handleStateUpdate(() => {
+                    if (!state.heroJourney) state.heroJourney = {};
+                    state.heroJourney.hidden = false;
+                }, true);
                 renderHeroJourneyDisplay(state);
             }
         });
     }
+
+    document.addEventListener('languageChanged', () => {
+        renderHeroJourneyDisplay(state, { skipAutoScroll: true });
+    });
 
     setupMountainClusterTouchInteractions();
 }
@@ -293,7 +398,7 @@ export function setupHeroJourneyInputs(state) {
  * Enables smooth touch and cursor drag popping across hero mountain emblems.
  */
 function setupMountainClusterTouchInteractions() {
-    const cluster = document.querySelector('.hero-mountain-cluster');
+    const cluster = /** @type {HTMLElement | null} */ (document.querySelector('.hero-mountain-cluster'));
     if (!cluster || cluster.dataset.touchBound) return;
     cluster.dataset.touchBound = 'true';
 
@@ -331,8 +436,8 @@ function setupMountainClusterTouchInteractions() {
                 if (typeof slot.blur === 'function') slot.blur();
             });
         }
-        if (document.activeElement && typeof document.activeElement.blur === 'function') {
-            document.activeElement.blur();
+        if (document.activeElement && typeof /** @type {HTMLElement} */ (document.activeElement).blur === 'function') {
+            /** @type {HTMLElement} */ (document.activeElement).blur();
         }
         activeSlot = null;
 
@@ -363,6 +468,8 @@ function setupMountainClusterTouchInteractions() {
 
 /**
  * Toggles explicit claim or unclaim override for a given milestone node level.
+ * @param {import('../../core/types.js').AppState} state - Current global application state.
+ * @param {number} level - Target milestone level to toggle.
  */
 function toggleNodeClaimStatus(state, level) {
     if (!state.heroJourney) state.heroJourney = {};

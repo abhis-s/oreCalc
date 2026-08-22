@@ -1,4 +1,6 @@
-export const leagueTiers = {
+import { deepFreeze } from '../utils/objectUtils.js';
+
+export const leagueTiers = deepFreeze({
     items: [
         {
             id: 105000000,
@@ -300,4 +302,4 @@ export const leagueTiers = {
     paging: {
         cursors: {},
     },
-};
+});

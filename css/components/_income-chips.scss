@@ -1,6 +1,6 @@
 @use '../abstracts/variables' as *;
+@use '../base/base';
 
-// Shared Income Source Colors
 .shop-offer { background-color: $color-income-shop-offer; --chip-color: #{$color-income-shop-offer}; }
 .star-bonus,
 .star-bonus-2x,
@@ -8,9 +8,9 @@
 .star-bonus-4x,
 .star-bonus-5x,
 .star-bonus-6x,
-.star-bonus-7x { 
-    background-color: $color-income-star-bonus; 
-    --chip-color: #{$color-income-star-bonus}; 
+.star-bonus-7x {
+    background-color: $color-income-star-bonus;
+    --chip-color: #{$color-income-star-bonus};
 }
 .raid-medal-trader { background-color: $color-income-raid-medals; --chip-color: #{$color-income-raid-medals}; }
 .gem-trader { background-color: $color-income-gems; --chip-color: #{$color-income-gems}; }
@@ -58,24 +58,23 @@
     gap: 5px;
     position: relative;
     border: 1px solid var(--chip-border);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
     min-width: 32px;
     min-height: 28px;
     flex-shrink: 0;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
 
     &.dragging-clone {
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-        transform: scale(1.08);
+        position: fixed;
+        box-shadow: $elevation-4;
+        transform: scale($drag-ghost-scale);
+        opacity: $drag-ghost-opacity;
         pointer-events: none;
         z-index: 99999;
         will-change: transform, opacity;
     }
 
     .chip-icon {
-        width: 16px; // Standard for sidebar pills
+        width: 16px;
         height: 16px;
         object-fit: contain;
         display: block;
@@ -154,12 +153,19 @@
 
     &.legend-highlight,
     &.persistent-glow {
-        transform: scale(1.1) !important;
-        box-shadow: 0 0 10px var(--chip-color) !important;
-        z-index: 20;
+        transform: scale(1.15) !important;
+        box-shadow: 0 0 0 2px var(--chip-color), 0 0 14px 2px var(--chip-color), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+        z-index: 20 !important;
+
+        :root[data-theme="light"] &,
+        body.light-mode & {
+            box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--chip-color) 60%, black 40%),
+                        0 0 12px 3px color-mix(in srgb, var(--chip-color) 70%, black 30%),
+                        0 3px 8px rgba(0, 0, 0, 0.25) !important;
+        }
     }
 
-    @media (max-width: 425px) {
+    @media (max-width: $breakpoint-compact) {
         font-size: 10px;
         padding: 4px 8px;
     }
@@ -167,8 +173,6 @@
     &.dragging {
         opacity: 0.5;
     }
-
-
 
     &.custom-chip-ring {
         &::after {
@@ -214,7 +218,7 @@
     .chip-text {
         position: relative;
         z-index: 1;
-        transition: opacity 0.2s;
+        transition: opacity $duration-fast $ease-smooth;
         pointer-events: none;
     }
 
@@ -247,19 +251,18 @@
         }
     }
 
-    &[draggable="false"] {
+    &[draggable="false"]:not(.legend-highlight):not(.persistent-glow) {
         cursor: default;
         box-shadow: none;
         user-select: none;
-        
-        &:hover { 
+
+        &:hover {
             transform: none;
             box-shadow: none;
         }
     }
 }
 
-// Weekly View Overrides for Compact Chips
 #calendar-track.weekly-view-grid {
     .income-chip.calendar-chip {
         width: 22px;
@@ -295,33 +298,9 @@
     }
 }
 
-.dragging-clone {
-    position: absolute;
-    z-index: #{$z-index-layout + 1};
-    pointer-events: none;
-    opacity: 0.8;
-}
-
-.income-event-display {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    margin: 2px;
-    position: relative;
-    cursor: pointer;
-    border: 1px solid var(--chip-border);
-}
-
-.chip-tooltip {
-    background-color: $bg-surface-tertiary;
-    color: $text-primary;
-    padding: 8px 12px;
-    border-radius: 8px;
-    white-space: nowrap;
-    z-index: $z-index-tooltip;
-    pointer-events: none;
-    box-shadow: $elevation-3;
-    border: 1px solid $border-primary;
+.chip-tooltip,
+[role="tooltip"].chip-tooltip {
+    @extend %app-tooltip;
 
     &.visible {
         opacity: 1;
@@ -399,7 +378,7 @@
     background-color: $bg-surface-primary;
     border: 1px solid $border-secondary;
 
-    @media (max-width: 425px) {
+    @media (max-width: $breakpoint-compact) {
         gap: 2px;
     }
 }
@@ -415,9 +394,9 @@
     padding: 4px 8px;
     border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
 
-    @media (max-width: 425px) {
+    @media (max-width: $breakpoint-compact) {
         padding: 2px 4px;
     }
 
@@ -453,7 +432,7 @@ h3.income-chips-title {
         display: none;
     }
 
-    @media (max-width: 425px) {
+    @media (max-width: $breakpoint-compact) {
         .full-title {
             display: none;
         }
@@ -480,7 +459,7 @@ h3.income-chips-title {
     font-size: 0.85em;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform $duration-fast $ease-smooth, background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
 
     &:hover {
         transform: translateY(-1px);
@@ -506,12 +485,6 @@ h3.income-chips-title {
     align-items: center;
     justify-content: center;
     gap: 8px;
-
-    .chip-icon-inline {
-        width: 18px;
-        height: 18px;
-        object-fit: contain;
-    }
 }
 
 .income-chip-group {
@@ -521,3 +494,8 @@ h3.income-chips-title {
     flex-shrink: 0;
 }
 
+#create-custom-chips-modal {
+    .modal-content {
+        max-width: $modal-width-standard;
+    }
+}

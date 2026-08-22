@@ -1,0 +1,40 @@
+@use 'variables' as *;
+
+@mixin transition($properties...) {
+    @if length($properties) == 0 {
+        transition: all $duration-base $ease-standard;
+    } @else {
+        transition: $properties;
+    }
+}
+
+@mixin motion-enter($properties: transform, $duration: $duration-base, $ease: $ease-enter) {
+    transition: $properties $duration $ease;
+}
+
+@mixin motion-exit($properties: transform, $duration: $duration-exit, $ease: $ease-exit) {
+    transition: $properties $duration $ease;
+}
+
+@mixin motion-fade($duration: $duration-base, $ease: $ease-smooth) {
+    transition: opacity $duration $ease;
+}
+
+@mixin motion-spring($properties: transform, $duration: $duration-moderate) {
+    transition: $properties $duration $ease-spring;
+}
+
+@mixin motion-interactive($duration: $duration-fast, $ease: $ease-smooth) {
+    transition: background-color $duration $ease, border-color $duration $ease, color $duration $ease, transform $duration $ease, box-shadow $duration $ease;
+}
+
+@mixin btn-accent-style {
+    background-color: $accent-primary-soft;
+    color: $accent-primary;
+    border: 1px solid $btn-border-blue;
+
+    &:hover:not(:disabled) {
+        background-color: $btn-hover-blue-bg;
+        border-color: $btn-border-blue-hover;
+    }
+}

@@ -1,16 +1,13 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
-/* ==========================================
-   Header Container (Parent Panel)
-   ========================================== */
+// --- 1. DESKTOP HEADER & APP BAR ---
 .header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: nowrap;
-    
-    // Cozy panel layout
+
     height: 64px;
     box-sizing: border-box;
     padding: 0 24px;
@@ -22,22 +19,20 @@
     max-width: 1170px;
     position: fixed;
     top: 15px;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    width: calc(100% - 30px);
+    left: 15px;
+    right: 15px;
+    margin-inline: auto;
+    width: auto;
     z-index: $z-index-layout;
-
+    isolation: isolate;
     transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+    will-change: transform;
 
-    transition: background-color 0.3s ease, 
-                box-shadow 0.3s ease, 
-                border-color 0.3s ease,
-                backdrop-filter 0.3s ease;
+    transition: background-color $duration-moderate $ease-smooth,
+                box-shadow $duration-moderate $ease-smooth,
+                border-color $duration-moderate $ease-smooth,
+                backdrop-filter $duration-moderate $ease-smooth;
 
-    /* Scrolled Mode Enhancement */
     &.is-scrolled {
         background-color: color-mix(in srgb, $bg-surface-secondary 65%, transparent);
         backdrop-filter: blur(28px);
@@ -47,17 +42,13 @@
     }
 }
 
-/* Header Placeholder (keeps space for fixed header) */
 .header-placeholder {
     display: block;
     height: 84px;
 }
 
-/* ==========================================
-   Hamburger Button (Mobile Only)
-   ========================================== */
 .hamburger {
-    display: none; // Hidden by default on desktop
+    display: none;
     align-items: center;
     justify-content: center;
     cursor: pointer;
@@ -67,7 +58,7 @@
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    transition: background-color 0.2s ease, transform 0.1s;
+    transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
 
     @media (hover: hover) {
         &:hover {
@@ -91,9 +82,6 @@
     }
 }
 
-/* ==========================================
-   Brand Section (Title)
-   ========================================== */
 .header-brand {
     display: flex;
     align-items: center;
@@ -110,13 +98,10 @@
         -webkit-text-fill-color: transparent;
         letter-spacing: -0.5px;
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        transition: opacity 0.25s ease;
+        transition: opacity $duration-base $ease-smooth;
     }
 }
 
-/* ==========================================
-   Tab Bar Navigation Container (Desktop)
-   ========================================== */
 .tab-bar-container {
     display: flex;
     align-items: center;
@@ -125,15 +110,13 @@
     border-radius: 99px;
     padding: 4px;
     gap: 2px;
-    margin: 0 auto; // Centers the tab bar in the header panel
+    margin: 0 auto;
     overflow: hidden;
     flex-grow: 0;
     flex-shrink: 0;
-    
-    // Hide scrollbar just in case it wraps
+
     overflow-x: auto;
     scrollbar-width: none;
-    -ms-overflow-style: none;
     &::-webkit-scrollbar {
         display: none;
     }
@@ -149,9 +132,9 @@
         padding: 6px 16px;
         cursor: pointer;
         box-shadow: none;
-        transition: background-color 0.2s ease,
-                    color 0.2s ease,
-                    transform 0.15s ease;
+        transition: background-color $duration-fast $ease-smooth,
+                    color $duration-fast $ease-smooth,
+                    transform $duration-fast $ease-smooth;
 
         &:hover:not(.active) {
             background-color: $accent-primary-soft;
@@ -171,9 +154,6 @@
     }
 }
 
-/* ==========================================
-   Right Side Controls (Player Dropdown & Refresh)
-   ========================================== */
 .player-dropdown-container {
     margin-left: 12px;
     flex-shrink: 0;
@@ -200,21 +180,16 @@
     }
 }
 
-
-/* ==========================================
-   Responsive Adaptations (Predictable Media Queries)
-   ========================================== */
-
-/* 1. Desktop Width Adjustments (>= 780px) */
-@media (min-width: 780px) {
-    /* Narrow Desktop: Viewports between 780px and 1200px */
+// --- 2. RESPONSIVE & MOBILE HEADER ---
+@media (min-width: $breakpoint-desktop) {
     @media (max-width: 1200px) {
         .data-buttons-container #refresh-button {
             padding: 6px 10px;
             .animated-btn-text {
-                display: none; // Icon-only refresh to save space
+                display: none;
             }
             .animated-btn-icon-wrapper {
+                opacity: 1;
                 transform: translateY(0);
                 position: relative;
                 width: 100%;
@@ -223,14 +198,13 @@
         }
     }
 
-    /* Extra Narrow Desktop: Viewports between 780px and 960px */
     @media (max-width: 960px) {
         .header-container {
             padding: 0 16px;
         }
-        
+
         .header-brand .brand-title {
-            display: none; // Hide title to keep layout clean
+            display: none;
         }
 
         .tab-bar-container {
@@ -252,14 +226,15 @@
     }
 }
 
-/* 2. Mobile Mode (< 780px) */
-@media (max-width: 779px) {
+@media (max-width: #{$breakpoint-desktop - 1px}) {
     .header-container {
-        height: 56px; // Slightly shorter header panel on mobile
+        height: 56px;
         top: 10px;
+        left: 10px;
+        right: 10px;
         padding: 0 12px;
         border-radius: 14px;
-        width: calc(100% - 20px);
+        width: auto;
     }
 
     .header-placeholder {
@@ -267,28 +242,28 @@
     }
 
     .hamburger {
-        display: flex; // Show hamburger toggle
+        display: flex;
         margin-right: 8px;
     }
 
     .header-brand {
-        margin-right: auto; // Pushes dropdown & refresh to the right
-        
+        margin-right: auto;
+
         .brand-title {
-            display: block; // Always show title on mobile since tabs are hidden
+            display: block;
             font-size: 18px;
         }
     }
 
     .tab-bar-container {
-        display: none !important; // Hide desktop tab buttons completely
+        display: none !important;
     }
 
     .player-dropdown-container {
         margin-left: 8px;
-        width: 130px; // Cozy mobile dropdown size
+        width: 130px;
     }
-    
+
     #selected-player-name {
         max-width: 65px;
     }
@@ -302,18 +277,19 @@
             height: 36px;
             min-height: 36px;
             padding: 0;
-            border-radius: 50%; // Circular refresh button on mobile
+            border-radius: 50%;
 
             .animated-btn-text {
                 display: none;
             }
 
             .animated-btn-icon-wrapper {
+                opacity: 1;
                 transform: translateY(0);
                 position: relative;
                 width: 100%;
                 height: 100%;
-                
+
                 svg {
                     width: 15px;
                     height: 15px;
@@ -322,11 +298,9 @@
         }
     }
 
-    /* Extremely narrow mobile viewports (< 380px) */
-    @media (max-width: 380px) {
+    @media (max-width: $breakpoint-compact) {
         .header-brand .brand-title {
-            display: none; // Hide title on tiny screens to fit dropdown safely
+            display: none;
         }
     }
-
 }

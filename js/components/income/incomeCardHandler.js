@@ -1,13 +1,19 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
-import { state } from '../../core/state.js';
-import { translate } from '../../i18n/translator.js';
 import { getSupercellEventUrl } from '../../data/languagesData.js';
+import { currencyData } from '../../data/pricingData.js';
+import { translate } from '../../i18n/translator.js';
 
-import { currencyData } from '../../data/appData.js';
-import { formatNumber, formatCurrency, updateCalculatedValue } from '../../utils/numberFormatter.js';
-import { showCardHelpPopover, hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 
+import { hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import { formatCurrency, formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
+
+import { bindSelectInput } from '../common/formBindingUtils.js';
+import { dom } from '../../dom/domElements.js';
+
+/**
+ * Initializes global income card event listeners, help popovers, and timeframe selector.
+ */
 export function initializeIncomeCardHandler() {
     let activeHelpBtn = null;
 
@@ -50,12 +56,12 @@ export function initializeIncomeCardHandler() {
         let body = '';
         let footer = null;
 
-        if (infoKey === 'income.supercellEvents.help') {
+        if (infoKey === 'views.income.supercellEvents.help') {
             const currentLang = state.uiSettings?.language || 'en';
             body = translate(infoKey, { url: getSupercellEventUrl(currentLang) });
-        } else if (infoKey === 'equipment.badgeRarityHelp' && typeof btnOrKey === 'object' && btnOrKey) {
+        } else if (infoKey === 'views.equipment.badgeRarityHelp' && typeof btnOrKey === 'object' && btnOrKey) {
             const rarity = btnOrKey.getAttribute('data-info-rarity') || btnOrKey.textContent.trim();
-            body = translate('equipment.badgeRarityHelp', { rarity });
+            body = translate('views.equipment.badgeRarityHelp', { rarity });
         } else {
             body = translate(infoKey);
         }
@@ -72,10 +78,10 @@ export function initializeIncomeCardHandler() {
         }
 
         // Automatic recommendation last updated date footer for rec badges
-        if (!footer && infoKey && infoKey.startsWith('equipment.rec')) {
+        if (!footer && infoKey && infoKey.startsWith('views.equipment.rec')) {
             const recDate = '2026-08-01';
             const formattedDate = formatRegionalDate(recDate);
-            footer = translate('equipment.recommendationsLastUpdated', { date: formattedDate });
+            footer = translate('views.equipment.recommendationsLastUpdated', { date: formattedDate });
         }
 
         return { body, footer };
@@ -90,7 +96,7 @@ export function initializeIncomeCardHandler() {
             e.preventDefault();
             e.stopPropagation();
             hideHelpPopover();
-            import('../appSettings/appSettings.js').then(module => {
+            import('../appSettings/settingsModals.js').then(module => {
                 if (module.openBugReportModal) {
                     module.openBugReportModal();
                 }
@@ -98,7 +104,7 @@ export function initializeIncomeCardHandler() {
             return;
         }
 
-        const btn = e.target.closest('.info-btn, .eq-badge[data-info], .hero-journey-upcoming-badge[data-info]');
+        const btn = e.target.closest('[data-info], .info-btn, .info-button');
         if (btn) {
             e.stopPropagation();
             const text = getPopoverContent(btn);
@@ -131,40 +137,45 @@ export function initializeIncomeCardHandler() {
     window.addEventListener('scroll', hideHelpPopover, { capture: true, passive: true });
     window.addEventListener('resize', hideHelpPopover, { passive: true });
 
-    // 2. Timeframe Selection Setup
     const timeframeSelect = dom.income?.home?.incomeCard?.timeframe;
-
-    if (!timeframeSelect) return;
-
-    timeframeSelect.addEventListener('change', (e) => {
-        handleStateUpdate(() => {
-            state.uiSettings.summaryTimeframe = e.target.value;
-        });
+    bindSelectInput(timeframeSelect, {
+        onUpdate: (value) => {
+            state.uiSettings.summaryTimeframe = value;
+        }
     });
 }
 
-export function renderIncomeCard(totalIncome, uiSettings, totalMoneyCost) {
+/**
+ * Renders summary ore totals and currency costs in the Home income card.
+ * @param {Partial<import('../../core/types.js').IncomeTimeframeRates>} [totalIncome] - Aggregated ore income totals across all sources.
+ * @param {Partial<import('../../core/types.js').UISettingsState>} [uiSettings] - Active UI settings object.
+ * @param {Record<string, number>} [totalMoneyCost] - Aggregated monetary and resource costs.
+ */
+export function renderIncomeCard(totalIncome = {}, uiSettings = {}, totalMoneyCost = {}) {
     const timeframeSelect = dom.income?.home?.incomeCard?.timeframe;
 
     if (!timeframeSelect) return;
 
-    const timeframe = uiSettings.summaryTimeframe || 'monthly';
+    const timeframe = uiSettings?.summaryTimeframe || 'monthly';
     timeframeSelect.value = timeframe;
 
     const footerShiny = dom.income?.home?.incomeCard?.table?.totalRow?.shiny;
     const footerGlowy = dom.income?.home?.incomeCard?.table?.totalRow?.glowy;
     const footerStarry = dom.income?.home?.incomeCard?.table?.totalRow?.starry;
 
-    updateCalculatedValue(footerShiny, totalIncome.shiny || 0);
-    updateCalculatedValue(footerGlowy, totalIncome.glowy || 0);
-    updateCalculatedValue(footerStarry, totalIncome.starry || 0);
+    updateCalculatedValue(footerShiny, totalIncome?.shiny || 0);
+    updateCalculatedValue(footerGlowy, totalIncome?.glowy || 0);
+    updateCalculatedValue(footerStarry, totalIncome?.starry || 0);
 
-    const homeResourceElements = dom.income.home.incomeCard.resources;
-    if (homeResourceElements.moneyValue) {
-        const selectedCurrencyKey = uiSettings.currency.code.toUpperCase();
-        const moneyValue = totalMoneyCost?.[selectedCurrencyKey] || totalMoneyCost?.USD || 0;
-        const symbol = currencyData[uiSettings.currency.code]?.symbol || '';
-        homeResourceElements.moneyValue.textContent = formatCurrency(moneyValue);
-        homeResourceElements.moneySymbol.textContent = symbol;
+    const homeResourceElements = dom.income?.home?.incomeCard?.resources;
+    if (homeResourceElements?.moneyValue) {
+        const currencyCode = uiSettings?.currency?.code || 'USD';
+        const selectedCurrencyKey = currencyCode.toUpperCase();
+        const moneyValue = totalMoneyCost?.[selectedCurrencyKey] ?? totalMoneyCost?.USD ?? 0;
+        const symbol = currencyData[currencyCode]?.symbol || '$';
+        updateCalculatedValue(homeResourceElements.moneyValue, moneyValue, 2);
+        if (homeResourceElements.moneySymbol && homeResourceElements.moneySymbol.textContent !== symbol) {
+            homeResourceElements.moneySymbol.textContent = symbol;
+        }
     }
 }

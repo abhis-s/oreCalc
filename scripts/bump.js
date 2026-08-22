@@ -3,7 +3,6 @@ const path = require('path');
 
 const projectRoot = path.join(__dirname, '..');
 
-// 1. Parse arguments and flags
 const args = process.argv.slice(2);
 const force = args.includes('--force') || args.includes('-f');
 const cleanArgs = args.filter(arg => arg !== '--force' && arg !== '-f');
@@ -21,7 +20,6 @@ if (!semverRegex.test(newVersion)) {
     process.exit(1);
 }
 
-// 2. Read package.json to get current version
 const packageJsonPath = path.join(projectRoot, 'package.json');
 let packageJson;
 try {
@@ -33,7 +31,6 @@ try {
 
 const currentVersion = packageJson.version;
 
-// 3. Compare versions
 function compareSemver(v1, v2) {
     const cleanV1 = v1.split(/[+-]/)[0];
     const cleanV2 = v2.split(/[+-]/)[0];
@@ -54,48 +51,41 @@ if (!force && compareSemver(newVersion, currentVersion) <= 0) {
 
 console.log(`Bumping version: ${currentVersion} -> ${newVersion}`);
 
-// 4. Update package.json
 packageJson.version = newVersion;
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8');
-console.log('✔ Updated package.json');
+console.log('[OK] Updated package.json');
 
-// 5. Update server/main.js
 const serverMainJsPath = path.join(projectRoot, 'server', 'main.js');
 if (fs.existsSync(serverMainJsPath)) {
     let content = fs.readFileSync(serverMainJsPath, 'utf8');
     content = content.replace(/(currentAppVersion:\s*['"])[^'"]+(['"])/g, `$1${newVersion}$2`);
     fs.writeFileSync(serverMainJsPath, content, 'utf8');
-    console.log('✔ Updated server/main.js');
+    console.log('[OK] Updated server/main.js');
 }
 
-// 6. Update js/core/state.js
 const stateJsPath = path.join(projectRoot, 'js', 'core', 'state.js');
 if (fs.existsSync(stateJsPath)) {
     let content = fs.readFileSync(stateJsPath, 'utf8');
     content = content.replace(/(window\.__ENV__\?\.APP_VERSION\s*\|\|\s*['"])[^'"]+(['"])/g, `$1${newVersion}$2`);
     fs.writeFileSync(stateJsPath, content, 'utf8');
-    console.log('✔ Updated js/core/state.js');
+    console.log('[OK] Updated js/core/state.js');
 }
 
-// 7. Update js/app.js
 const appJsPath = path.join(projectRoot, 'js', 'app.js');
 if (fs.existsSync(appJsPath)) {
     let content = fs.readFileSync(appJsPath, 'utf8');
     content = content.replace(/(window\.__ENV__\?\.APP_VERSION\s*\|\|\s*state\.appVersion\s*\|\|\s*['"])[^'"]+(['"])/g, `$1${newVersion}$2`);
     fs.writeFileSync(appJsPath, content, 'utf8');
-    console.log('✔ Updated js/app.js');
+    console.log('[OK] Updated js/app.js');
 }
 
-// 8. Update js/components/appSettings/appSettings.js
 const appSettingsJsPath = path.join(projectRoot, 'js', 'components', 'appSettings', 'appSettings.js');
 if (fs.existsSync(appSettingsJsPath)) {
     let content = fs.readFileSync(appSettingsJsPath, 'utf8');
-    // Replace standard 'x.x.x' fallbacks
     content = content.replace(/(window\.__ENV__\?\.APP_VERSION\s*\|\|\s*state\.appVersion\s*\|\|\s*['"])[^'"]+(['"])/g, `$1${newVersion}$2`);
-    // Replace 'vx.x.x' fallback
     content = content.replace(/(window\.__ENV__\?\.APP_VERSION\s*\|\|\s*state\.appVersion\s*\|\|\s*['"]v)[^'"]+(['"])/g, `$1${newVersion}$2`);
     fs.writeFileSync(appSettingsJsPath, content, 'utf8');
-    console.log('✔ Updated js/components/appSettings/appSettings.js');
+    console.log('[OK] Updated js/components/appSettings/appSettings.js');
 }
 
 console.log(`\nSuccessfully bumped all files to version ${newVersion}!`);

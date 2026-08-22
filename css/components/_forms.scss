@@ -1,14 +1,13 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
-// Global form control focus and transition styling
 input[type="text"],
 input[type="number"],
 input[type="email"],
 select,
 textarea,
 .dropdown-style {
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s cubic-bezier(0.2, 1, 0.2, 1);
+    transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth, transform $duration-fast $ease-standard;
 
     &:hover {
         transform: translateY(-1px);
@@ -35,14 +34,18 @@ textarea,
     }
 }
 
-input[type="number"].offer-input-number {
+input[type="number"].offer-input-number,
+.input-group-flex input[type="number"],
+.input-group-flex select,
+.ore-input-item input[type="number"],
+.custom-chip-prospector-row input[type="number"] {
     background-color: $bg-app;
     border: 1px solid $border-primary;
     border-radius: 5px;
     color: $text-primary;
     padding: 8px;
     text-align: center;
-    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
     width: 80px;
 
     &:focus {
@@ -54,95 +57,6 @@ input[type="number"].offer-input-number {
         box-shadow: 0 0 0 3px $accent-primary-soft;
         outline: none;
     }
-}
-
-.shop-offers-checkbox-instance {
-    label {
-        color: $text-secondary;
-        cursor: pointer;
-        font-size: var(--font-size-sm);
-    }
-}
-
-.mode-switch-container {
-    align-items: center;
-    display: flex;
-    gap: 10px;
-    justify-content: space-between;
-}
-
-.mode-toggle-switch {
-    background-color: $bg-surface-secondary;
-    border-radius: 20px;
-    box-shadow: none;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    height: 40px;
-    justify-content: center;
-    outline: none;
-    padding: 5px;
-    position: relative;
-    transition: background-color 0.3s ease;
-    width: 160px;
-    -webkit-tap-highlight-color: transparent;
-
-    &::-moz-focus-inner {
-        border: 0;
-    }
-
-    &.active .switch-toggle-ball {
-        transform: translateX(100%);
-    }
-
-    &:not(.active) .switch-toggle-ball {
-        transform: translateX(0);
-    }
-}
-
-.mode-labels-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 4% 0 7%;
-    width: 100%;
-    z-index: $z-index-base;
-
-    .switch-label {
-        align-items: center;
-        color: $text-secondary;
-        display: flex;
-        font-size: var(--font-size-sm);
-        font-weight: var(--font-weight-bold);
-        user-select: none;
-
-        &:first-child {
-            justify-content: flex-start;
-            padding-left: 10px;
-            text-align: left;
-        }
-
-        &:last-child {
-            justify-content: flex-end;
-            padding-right: 10px;
-            text-align: right;
-        }
-
-        &.active-mode-label {
-            color: $accent-primary;
-        }
-    }
-}
-
-.switch-toggle-ball {
-    background-color: $bg-app;
-    border-radius: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    height: calc(100% - 10px);
-    left: 5px;
-    position: absolute;
-    transition: transform 0.3s ease;
-    width: calc(50% - 5px);
-    z-index: #{$z-index-base - 1};
 }
 
 .dropdown-style {
@@ -191,31 +105,16 @@ input[type="number"].offer-input-number {
         flex-shrink: 0;
     }
 
-    input[type="number"],
-    select {
-        background-color: $bg-app;
-        border: 1px solid $border-primary;
-        border-radius: 5px;
-        color: $text-primary;
-        padding: 8px;
-        text-align: center;
-        width: 80px;
-        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-
-        &:focus {
-            outline: none;
-        }
-
-        &:focus-visible {
-            border-color: $accent-primary;
-            box-shadow: 0 0 0 3px $accent-primary-soft;
-            outline: none;
-        }
-    }
-
     select {
         width: auto;
     }
+}
+
+.form-label-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
 }
 
 .ores-inputs-container {
@@ -234,27 +133,6 @@ input[type="number"].offer-input-number {
         height: 24px;
         margin-left: 5px;
         width: auto;
-    }
-
-    input[type="number"] {
-        background-color: $bg-app;
-        border: 1px solid $border-primary;
-        border-radius: 5px;
-        color: $text-primary;
-        padding: 8px;
-        text-align: center;
-        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        width: 80px;
-
-        &:focus {
-            outline: none;
-        }
-
-        &:focus-visible {
-            border-color: $accent-primary;
-            box-shadow: 0 0 0 3px $accent-primary-soft;
-            outline: none;
-        }
     }
 }
 
@@ -283,16 +161,6 @@ input[type="number"] {
     box-shadow: 0 0 0 3px color-mix(in srgb, $color-success 25%, transparent) !important;
 }
 
-
-.zero-size-dropdown {
-    border: none;
-    height: 0;
-    margin: 0;
-    opacity: 0;
-    padding: 0;
-    width: 0;
-}
-
 .custom-dropdown {
     position: relative;
     width: 50px;
@@ -300,7 +168,7 @@ input[type="number"] {
     border-radius: 4px;
     cursor: pointer;
     background-color: $bg-app;
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
 
     &:focus {
         outline: none;
@@ -368,7 +236,7 @@ input[type="number"] {
 
     .flex-center-gap-8 {
         margin-bottom: 2px;
-        
+
         label {
             margin-bottom: 0;
         }
@@ -376,7 +244,7 @@ input[type="number"] {
 
     label {
         margin-bottom: 2px;
-        flex: none; // Override input-group-flex label flex: 1
+        flex: none; // Override parent input-group-flex label expansion
     }
 }
 
@@ -387,18 +255,27 @@ input[type="number"] {
 }
 
 .custom-chip-ores-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
     margin: 10px 0;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .custom-chip-ore-input-group {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    width: 100%;
+
+    .popover-wrapper {
+        flex: 1;
+        min-width: 0;
+        width: 100%;
+    }
 
     label {
         cursor: pointer;
@@ -421,10 +298,12 @@ input[type="number"] {
         border: 1px solid $border-primary;
         border-radius: 5px;
         color: $text-primary;
-        padding: 8px;
+        padding: 8px 4px;
         text-align: center;
-        width: 80px;
-        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        transition: border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
 
         &:focus {
             outline: none;
@@ -447,28 +326,7 @@ input[type="number"] {
     margin: 10px 0;
     width: 100%;
 
-    input[type="number"] {
-        background-color: $bg-app;
-        border: 1px solid $border-primary;
-        border-radius: 5px;
-        color: $text-primary;
-        padding: 8px;
-        text-align: center;
-        width: 80px;
-        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-
-        &:focus {
-            outline: none;
-        }
-
-        &:focus-visible {
-            border-color: $accent-primary;
-            box-shadow: 0 0 0 3px $accent-primary-soft;
-            outline: none;
-        }
-    }
-
-    @media (max-width: 480px) {
+    @media (max-width: $breakpoint-phone) {
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto;
@@ -477,30 +335,30 @@ input[type="number"] {
             "from-in to-in";
         gap: 0.5rem;
 
-        .custom-dropdown:first-of-type { 
-            grid-area: from-dd; 
-            justify-self: start; 
-        }
-        
-        .custom-dropdown:last-of-type { 
-            grid-area: to-dd; 
-            justify-self: end; 
+        .custom-dropdown:first-of-type {
+            grid-area: from-dd;
+            justify-self: start;
         }
 
-        .popover-wrapper:first-of-type { 
-            grid-area: from-in; 
-            justify-self: stretch;
-            width: 100%;
+        .custom-dropdown:last-of-type {
+            grid-area: to-dd;
+            justify-self: end;
         }
-        
-        .popover-wrapper:last-of-type { 
-            grid-area: to-in; 
+
+        .popover-wrapper:first-of-type {
+            grid-area: from-in;
             justify-self: stretch;
             width: 100%;
         }
 
-        .prospector-arrow { 
-            display: none; 
+        .popover-wrapper:last-of-type {
+            grid-area: to-in;
+            justify-self: stretch;
+            width: 100%;
+        }
+
+        .prospector-arrow {
+            display: none;
         }
 
         input[type="number"] {
@@ -511,54 +369,9 @@ input[type="number"] {
         .custom-dropdown {
             width: calc(100% - 20px);
             max-width: none;
-            
+
             .dropdown-options {
                 width: calc(100% + 2px);
-            }
-        }
-    }
-}
-
-.prospector-col-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    
-    .prospector-col-label {
-        color: $text-secondary;
-        font-size: var(--font-size-sm);
-        font-weight: var(--font-weight-medium);
-        margin-bottom: 2px;
-        text-align: center;
-    }
-    
-    .prospector-col-controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        select {
-            width: auto;
-        }
-        
-        input[type="number"] {
-            background-color: $bg-app;
-            border: 1px solid $border-primary;
-            border-radius: 5px;
-            color: $text-primary;
-            padding: 8px;
-            text-align: center;
-            width: 80px;
-            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-
-            &:focus {
-                outline: none;
-            }
-
-            &:focus-visible {
-                border-color: $accent-primary;
-                box-shadow: 0 0 0 3px $accent-primary-soft;
-                outline: none;
             }
         }
     }
@@ -611,5 +424,3 @@ input[type="number"] {
     position: relative;
     display: inline-block;
 }
-
-

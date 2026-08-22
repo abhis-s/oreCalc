@@ -1,7 +1,7 @@
 /**
  * Converts a string with spaces or underscores into camelCase.
  * Example: "Giant Gauntlet" -> "giantGauntlet", "barbarian_puppet" -> "barbarianPuppet"
- * @param {string} str 
+ * @param {string} str
  * @returns {string}
  */
 export function toCamelCase(str) {
@@ -13,7 +13,7 @@ export function toCamelCase(str) {
 
 /**
  * Escapes HTML special characters in a string.
- * @param {string} str 
+ * @param {string} str
  * @returns {string}
  */
 export function escapeHTML(str) {

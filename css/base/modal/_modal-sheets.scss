@@ -1,0 +1,122 @@
+@use '../../abstracts/variables' as *;
+
+dialog.modal,
+.modal {
+    @media (max-width: $breakpoint-modal) {
+        .modal-content,
+        .eq-details-modal-content,
+        .welcome-modal-content,
+        .accent-picker-modal-content,
+        .data-erasure-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            max-width: calc(100vw - 24px);
+            border-radius: $modal-radius-card;
+        }
+
+        .modal-header {
+            padding: 16px 20px 12px;
+            gap: 8px;
+
+            h2 {
+                font-size: clamp(1.05rem, 3.5vw, 1.15rem);
+            }
+
+            .modal-header-actions,
+            .header-actions,
+            .button-group {
+                gap: 6px;
+            }
+
+            .close-button,
+            .modal-header-actions > *,
+            .header-actions > *,
+            .button-group > * {
+                width: 32px;
+                min-width: 32px;
+                max-width: 32px;
+                height: 32px;
+                min-height: 32px;
+                max-height: 32px;
+                aspect-ratio: 1 / 1;
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+                flex-shrink: 0;
+                border-radius: 10px;
+
+                orecalc-assets-svg,
+                svg,
+                orecalc-assets-image,
+                img {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+        }
+
+        .modal-body {
+            padding: 12px 20px 20px;
+            font-size: 0.9375rem;
+        }
+
+        .modal-actions {
+            padding: 12px 20px;
+            gap: 8px;
+        }
+
+        &.modal-sheet-mobile {
+            padding: 0 !important;
+
+            .modal-content,
+            .eq-details-modal-content,
+            .welcome-modal-content,
+            .accent-picker-modal-content,
+            .data-erasure-modal-content,
+            [class*="modal-content"],
+            [class*="-modal-content"] {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                border-radius: 0 !important;
+                border: none !important;
+                margin: 0 !important;
+            }
+        }
+    }
+}
+
+#privacy-modal,
+#terms-modal,
+#star-bonus-multiplier-modal,
+#bug-report-modal,
+#licenses-modal,
+#running-costs-modal,
+#create-custom-chips-modal,
+#changelog-modal,
+#commits-modal,
+#device-sync-modal,
+#global-pricing-modal {
+    @media (max-width: $breakpoint-modal) {
+        padding: 0 !important;
+
+        .modal-content,
+        .eq-details-modal-content,
+        .welcome-modal-content,
+        .accent-picker-modal-content,
+        .data-erasure-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            margin: 0 !important;
+        }
+    }
+}

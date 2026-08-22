@@ -1,13 +1,15 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
-import { state } from '../../core/state.js';
-
-import { addValidation } from '../../utils/inputValidator.js';
-import { adjustWarRates } from '../../utils/incomeUtils.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { getWarOreValue } from '../../data/incomeSources/warOres.js';
 import { translate } from '../../i18n/translator.js';
-import { warOreTownHallValues } from '../../data/incomeSources/warOres.js';
+
+import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
+
+import { CLAN_WAR_DEFAULTS } from '../../domain/income/clanWarIncome.js';
+import { adjustWarRates } from '../../utils/incomeUtils.js';
 import { logger } from '../../utils/logger.js';
+
+import { bindNumericInput } from '../common/formBindingUtils.js';
+import { dom } from '../../dom/domElements.js';
 
 let calculatedStats = {
     clanTag: null,
@@ -28,7 +30,7 @@ function parseCoCDateTime(str) {
     return new Date(Date.UTC(year, month, day, hour, minute, second));
 }
 
-export async function triggerWarLogFetch(clanTag) {
+async function triggerWarLogFetch(clanTag) {
     if (calculatedStats.isFetching) return;
 
     // Cooldown check: 1 hour (3600000 ms)
@@ -43,11 +45,11 @@ export async function triggerWarLogFetch(clanTag) {
     try {
         const { fetchClanWarLog } = await import('../../services/apiService.js');
         const data = await fetchClanWarLog(clanTag);
-        
+
         sessionStorage.setItem(`oreCalc_cooldown_warlog_${clanTag}`, now.toString());
-        
+
         const wars = data.items || [];
-        
+
         if (wars.length < 5) {
             calculatedStats.winRate = 70;
             calculatedStats.drawRate = 0;
@@ -55,7 +57,7 @@ export async function triggerWarLogFetch(clanTag) {
         } else {
             const now = new Date();
             const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
-            
+
             const warsInLast60Days = wars.filter(w => {
                 try {
                     const parsedDate = parseCoCDateTime(w.endTime);
@@ -64,14 +66,14 @@ export async function triggerWarLogFetch(clanTag) {
                     return false;
                 }
             });
-            
+
             let warsToUse = [];
             if (warsInLast60Days.length >= 10) {
                 warsToUse = warsInLast60Days;
             } else {
                 warsToUse = wars.slice(0, 10);
             }
-            
+
             let wins = 0;
             let ties = 0;
             if (warsToUse.length < 5) {
@@ -81,7 +83,7 @@ export async function triggerWarLogFetch(clanTag) {
             } else {
                 wins = warsToUse.filter(w => w.result === 'win').length;
                 ties = warsToUse.filter(w => w.result === 'tie').length;
-                
+
                 calculatedStats.winRate = Math.round((wins / warsToUse.length) * 100);
                 calculatedStats.drawRate = Math.round((ties / warsToUse.length) * 100);
                 calculatedStats.warsCount = warsToUse.length;
@@ -100,9 +102,9 @@ export async function triggerWarLogFetch(clanTag) {
         }
     } catch (error) {
         logger.error("Failed to fetch clan war log for recommended values:", error);
-        
+
         sessionStorage.setItem(`oreCalc_cooldown_warlog_${clanTag}`, Date.now().toString()); // Set cooldown on failure so we don't spam
-        
+
         calculatedStats.winRate = 70;
         calculatedStats.drawRate = 0;
         calculatedStats.warsCount = 0;
@@ -121,129 +123,134 @@ export async function triggerWarLogFetch(clanTag) {
     }
 }
 
-function setupWarInputPopover(oreType, input) {
-    registerInputPopover(input, {
+function getWarOrePopoverConfig(oreType) {
+    return {
         title: () => translate('validation.amount'),
         min: 0,
         showRecommended: true,
         recommended: () => {
-            const playerTH = parseInt(state.playerProfile?.townHallLevel || 16, 10);
-            let checkTH = playerTH;
-            if (checkTH < 8) checkTH = 8;
-            else if (checkTH > 16) checkTH = 16;
-            return warOreTownHallValues[oreType][checkTH] !== undefined ? warOreTownHallValues[oreType][checkTH] : 0;
+            const playerTH = Number(state.playerProfile?.townHallLevel) || 16;
+            return getWarOreValue(oreType, playerTH);
         },
         recommendedLabel: () => {
-            const playerTH = parseInt(state.playerProfile?.townHallLevel || 16, 10);
-            return translate('equipment.thShort', { level: playerTH });
+            const playerTH = Number(state.playerProfile?.townHallLevel) || 16;
+            return translate('views.equipment.thShort', { level: playerTH });
         },
         hideRecommendedIfHigher: false,
         clickToFill: {
             max: true,
             recommended: true
         }
-    });
+    };
 }
 
-function handleInputChange(e, key, oreType = null) {
-    const value = e.detail.value;
-
-    handleStateUpdate(() => {
-        if (!state.income.clanWar) state.income.clanWar = { oresPerAttack: {} };
-        if (!state.income.clanWar.oresPerAttack) state.income.clanWar.oresPerAttack = {};
-
-        if (oreType) {
-            state.income.clanWar.oresPerAttack[oreType] = value;
-        } else if (key === 'winRate' || key === 'drawRate') {
-            const newWinRate = key === 'winRate' ? value : (state.income.clanWar.winRate ?? 50);
-            const newDrawRate = key === 'drawRate' ? value : (state.income.clanWar.drawRate || 0);
-            const changedRate = key === 'winRate' ? 'win' : 'draw';
-            const adjusted = adjustWarRates(newWinRate, newDrawRate, changedRate);
-            state.income.clanWar.winRate = adjusted.winRate;
-            state.income.clanWar.drawRate = adjusted.drawRate;
-        } else {
-            state.income.clanWar[key] = value;
-        }
-    });
+function ensureClanWarState() {
+    if (!state.income.clanWar) state.income.clanWar = { oresPerAttack: {} };
+    if (!state.income.clanWar.oresPerAttack) state.income.clanWar.oresPerAttack = {};
 }
 
+function updateWarRateState(key, value) {
+    ensureClanWarState();
+    const newWinRate = key === 'winRate' ? value : (state.income.clanWar.winRate ?? 50);
+    const newDrawRate = key === 'drawRate' ? value : (state.income.clanWar.drawRate || 0);
+    const changedRate = key === 'winRate' ? 'win' : 'draw';
+    const adjusted = adjustWarRates(newWinRate, newDrawRate, changedRate);
+    state.income.clanWar.winRate = adjusted.winRate;
+    state.income.clanWar.drawRate = adjusted.drawRate;
+}
+
+/**
+ * Initializes Clan War input event bindings, popovers, and validation.
+ */
 export function initializeClanWarInputs() {
     const inputs = dom.income?.clanWar;
     if (!inputs) return;
 
-    addValidation(inputs.warsPerMonthInput, { inputName: translate('income.clanWar.warsPerMonth') });
-    registerInputPopover(inputs.warsPerMonthInput, {
-        title: () => translate('income.clanWar.warsPerMonth'),
-        min: 0,
-        max: 15,
-        showRecommended: true,
-        recommended: 10,
-        hideRecommendedIfHigher: true,
-        clickToFill: {
-            min: true,
-            max: true,
-            recommended: true
-        }
-    });
-    inputs.warsPerMonthInput?.addEventListener('validated-input', (e) => handleInputChange(e, 'warsPerMonth'));
-
-    addValidation(inputs.warResults.winRateInput, { inputName: translate('income.winRate') });
-    registerInputPopover(inputs.warResults.winRateInput, {
-        title: () => translate('income.winRate'),
-        min: 0,
-        max: 100,
-        showRange: true,
-        showRecommended: true,
-        recommended: () => calculatedStats.winRate,
-        recommendedLabel: () => {
-            if (calculatedStats.warsCount >= 5) {
-                return translate('income.clanWar.last60DaysNWars', { count: calculatedStats.warsCount });
+    bindNumericInput(inputs.warsPerMonthInput, {
+        inputName: translate('views.income.clanWar.warsPerMonth'),
+        popover: {
+            title: () => translate('views.income.clanWar.warsPerMonth'),
+            min: CLAN_WAR_DEFAULTS.MIN_WARS,
+            max: CLAN_WAR_DEFAULTS.MAX_WARS,
+            showRecommended: true,
+            recommended: CLAN_WAR_DEFAULTS.WARS_PER_MONTH,
+            hideRecommendedIfHigher: true,
+            clickToFill: {
+                min: true,
+                max: true,
+                recommended: true
             }
-            return translate('planner.recommended');
         },
-        clickToFill: {
-            min: true,
-            max: true,
-            recommended: true
+        onUpdate: (value) => {
+            ensureClanWarState();
+            state.income.clanWar.warsPerMonth = value;
         }
     });
-    inputs.warResults.winRateInput?.addEventListener('validated-input', (e) => handleInputChange(e, 'winRate'));
 
-    addValidation(inputs.warResults.drawRateInput, { inputName: translate('income.drawRate') });
-    registerInputPopover(inputs.warResults.drawRateInput, {
-        title: () => translate('income.drawRate'),
-        min: 0,
-        max: 100,
-        showRange: true,
-        showRecommended: true,
-        recommended: () => calculatedStats.drawRate,
-        recommendedLabel: () => {
-            if (calculatedStats.warsCount >= 5) {
-                return translate('income.clanWar.last60DaysNWars', { count: calculatedStats.warsCount });
+    bindNumericInput(inputs.warResults.winRateInput, {
+        inputName: translate('views.income.winRate'),
+        popover: {
+            title: () => translate('views.income.winRate'),
+            min: 0,
+            max: 100,
+            showRange: true,
+            showRecommended: true,
+            recommended: () => calculatedStats.winRate,
+            recommendedLabel: () => {
+                if (calculatedStats.warsCount >= 5) {
+                    return translate('views.income.clanWar.last60DaysNWars', { count: calculatedStats.warsCount });
+                }
+                return translate('views.planner.recommended');
+            },
+            clickToFill: {
+                min: true,
+                max: true,
+                recommended: true
             }
-            return translate('planner.recommended');
         },
-        clickToFill: {
-            min: true,
-            max: true,
-            recommended: true
-        }
+        onUpdate: (value) => updateWarRateState('winRate', value)
     });
-    inputs.warResults.drawRateInput?.addEventListener('validated-input', (e) => handleInputChange(e, 'drawRate'));
 
-    addValidation(inputs.oresPerAttack.shinyInput, { inputName: translate('ores.shiny') });
-    setupWarInputPopover('shiny', inputs.oresPerAttack.shinyInput);
-    inputs.oresPerAttack.shinyInput?.addEventListener('validated-input', (e) => handleInputChange(e, null, 'shiny'));
+    bindNumericInput(inputs.warResults.drawRateInput, {
+        inputName: translate('views.income.drawRate'),
+        popover: {
+            title: () => translate('views.income.drawRate'),
+            min: 0,
+            max: 100,
+            showRange: true,
+            showRecommended: true,
+            recommended: () => calculatedStats.drawRate,
+            recommendedLabel: () => {
+                if (calculatedStats.warsCount >= 5) {
+                    return translate('views.income.clanWar.last60DaysNWars', { count: calculatedStats.warsCount });
+                }
+                return translate('views.planner.recommended');
+            },
+            clickToFill: {
+                min: true,
+                max: true,
+                recommended: true
+            }
+        },
+        onUpdate: (value) => updateWarRateState('drawRate', value)
+    });
 
-    addValidation(inputs.oresPerAttack.glowyInput, { inputName: translate('ores.glowy') });
-    setupWarInputPopover('glowy', inputs.oresPerAttack.glowyInput);
-    inputs.oresPerAttack.glowyInput?.addEventListener('validated-input', (e) => handleInputChange(e, null, 'glowy'));
-
-    addValidation(inputs.oresPerAttack.starryInput, { inputName: translate('ores.starry') });
-    setupWarInputPopover('starry', inputs.oresPerAttack.starryInput);
-    inputs.oresPerAttack.starryInput?.addEventListener('validated-input', (e) => handleInputChange(e, null, 'starry'));
+    ['shiny', 'glowy', 'starry'].forEach((oreType) => {
+        bindNumericInput(inputs.oresPerAttack[`${oreType}Input`], {
+            inputName: translate(`entities.ores.${oreType}`),
+            popover: getWarOrePopoverConfig(oreType),
+            onUpdate: (value) => {
+                ensureClanWarState();
+                state.income.clanWar.oresPerAttack[oreType] = value;
+            }
+        });
+    });
 }
 
+/**
+ * Populates and synchronizes Clan War input fields with active state.
+ * @param {import('../../core/types.js').ClanWarIncomeState} [clanWarState] - Active clan war state object.
+ */
 export function renderClanWarInputs(clanWarState) {
     const inputs = dom.income?.clanWar;
     if (!inputs) return;
@@ -258,7 +265,7 @@ export function renderClanWarInputs(clanWarState) {
     if (inputs.oresPerAttack.starryInput) inputs.oresPerAttack.starryInput.value = safeState.oresPerAttack?.starry || 0;
 
     const currentClanTag = state.playerProfile?.clan?.tag || (state.playerProfile?.clanWarStats?.winsCount !== undefined || state.playerProfile?.clanWarStats?.winRate !== undefined ? "unknown-clan" : undefined);
-    
+
     if (!currentClanTag) {
         if (calculatedStats.clanTag !== null) {
             calculatedStats.clanTag = null;
@@ -269,7 +276,7 @@ export function renderClanWarInputs(clanWarState) {
         }
     } else {
         const profileStats = state.playerProfile?.clanWarStats;
-        
+
         if (currentClanTag !== calculatedStats.clanTag || !profileStats) {
             calculatedStats.clanTag = currentClanTag;
             if (profileStats) {
@@ -301,4 +308,3 @@ export function renderClanWarInputs(clanWarState) {
         }
     }
 }
-

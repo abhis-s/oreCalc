@@ -1,36 +1,27 @@
-# Node.js dependencies
+# Dependencies & Package Managers
 node_modules/
 .pnpm-store/
 package-lock.json
+server/node_modules/
+server/package-lock.json
 
-# Build output
+# Build Outputs & Generated Artifacts
 dist/
 *.css
 *.map
 *.min.js
-
-# Generated billing costs data
 js/data/runningCostsData.js
 
-# Environment variables and sensitive files
+# Environment Variables & Sensitive Secrets
 .env
 .ngrok.yml
 .vscode/
 orecalc-firestore-sa-key.json
-
-# Automation files
-.automate/
-.n8n/
-.*cli/
-
-# macOS specific files
-.DS_Store
-
-# Server specific ignores
 server/.env
 server/orecalc-firestore-sa-key.json
-server/node_modules/
-server/package-lock.json
 
-# Temporary generation workspace & markdowns
+# Workspace & System Files
+.DS_Store
+.agents/
 scratch/
+tests/temp/

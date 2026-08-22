@@ -1,19 +1,19 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
+import { shopOfferData } from '../../data/incomeSources/shopOffers.js';
+
 import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 
-import { shopOfferData } from '../../data/appData.js';
-
-import { renderShopOfferSelectorContent, renderShopOfferRow, renderShopOfferGrid } from './shopOffersDisplay.js';
-
+import { bindSelectInput } from '../common/formBindingUtils.js';
 import { initializeOfferGrid } from '../common/offerGrid.js';
+import { dom } from '../../dom/domElements.js';
+import { renderShopOfferGrid, renderShopOfferRow, renderShopOfferSelectorContent } from './shopOffersDisplay.js';
 
-export function updateShopOfferState(offerId, oreType, count) {
+function updateShopOfferState(offerId, oreType, count) {
     const selector = dom.income?.shopOffers?.dropdown;
     const thLevel = selector ? parseInt(selector.value, 10) : 0;
     if (thLevel === 0) return;
 
-    handleStateUpdate(() => { 
+    handleStateUpdate(() => {
         if (!state.income.shopOffers) {
             state.income.shopOffers = { selectedSet: thLevel };
         }
@@ -23,13 +23,16 @@ export function updateShopOfferState(offerId, oreType, count) {
         }
 
         if (count > 0) {
-            state.income.shopOffers[thLevel][offerId] = count; 
+            state.income.shopOffers[thLevel][offerId] = count;
         } else {
             delete state.income.shopOffers[thLevel][offerId];
         }
     });
 }
 
+/**
+ * Initializes Shop Offers dropdown bindings, offer grid interactions, and state updates.
+ */
 export function initializeShopOffers() {
     const selector = dom.income?.shopOffers?.dropdown;
     const container = dom.income?.shopOffers?.checkboxes;
@@ -37,16 +40,18 @@ export function initializeShopOffers() {
 
     renderShopOfferSelectorContent();
 
-    selector.addEventListener('change', (e) => {
-        const newTh = parseInt(e.target.value, 10);
-        handleStateUpdate(() => { 
+    bindSelectInput(selector, {
+        numeric: true,
+        onUpdate: (newTh) => {
             if (!state.income.shopOffers) state.income.shopOffers = {};
             state.income.shopOffers.selectedSet = newTh;
             if (!state.income.shopOffers[newTh]) {
                 state.income.shopOffers[newTh] = {};
             }
-        });
-        renderShopOfferGrid(state.income.shopOffers);
+        },
+        afterUpdate: () => {
+            renderShopOfferGrid(state.income.shopOffers);
+        }
     });
 
     document.addEventListener('languageChanged', renderShopOfferSelectorContent);
@@ -63,7 +68,7 @@ export function initializeShopOffers() {
 
     initializeOfferGrid({
         container,
-        offers: [], 
+        offers: [],
         onStateChange: updateShopOfferState,
         renderRow: renderShopOfferRow,
         getDynamicOffers

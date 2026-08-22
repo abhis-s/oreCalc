@@ -31,9 +31,9 @@ function main() {
 export const runningCostsData = ${JSON.stringify(defaultData, null, 4)};
 `;
         fs.writeFileSync(outputFile, content, 'utf8');
-        console.log('Successfully wrote default fallback running costs data.');
+        console.log('[OK] Generated default running costs fallback data.');
     } catch (err) {
-        console.error('Error writing default running costs data:', err);
+        console.error('[ERROR] Failed to write default running costs data:', err);
     }
 }
 

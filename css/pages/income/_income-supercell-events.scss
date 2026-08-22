@@ -1,0 +1,166 @@
+@use '../../abstracts/variables' as *;
+
+.supercell-events-container {
+    padding: 0 20px;
+    margin-bottom: 20px;
+
+    .supercell-events-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--font-size-sm);
+        color: $text-secondary;
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid $border-primary;
+        }
+
+        th {
+            color: $accent-primary;
+            font-weight: var(--font-weight-bold);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        td:last-child {
+            text-align: right;
+        }
+
+        th:last-child {
+            text-align: right;
+        }
+
+        tr.dimmed {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+
+        tr.highlighted {
+            font-weight: var(--font-weight-bold);
+            td {
+                background-color: $accent-primary-soft;
+                color: $text-primary;
+                border-bottom: none;
+
+                &:first-child {
+                    border-radius: 8px 0 0 8px;
+                }
+                &:last-child {
+                    border-radius: 0 8px 8px 0;
+                }
+            }
+        }
+
+        tr.highlighted.golden {
+            td {
+                background-color: var(--color-gold-soft);
+                color: var(--color-gold);
+            }
+        }
+
+        .world-finals-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .world-finals-crown {
+            position: absolute;
+            width: 24px;
+            height: 18px;
+            top: -10px;
+            left: -6px;
+            transform: rotate(-15deg);
+            filter: drop-shadow(0 0 2px var(--color-gold));
+            pointer-events: none;
+        }
+
+        tr.is-live {
+            td {
+                animation: live-row-pulse 2.5s infinite ease-in-out;
+                color: $text-primary;
+
+                &:first-child {
+                    border-radius: 8px 0 0 8px;
+                    box-shadow: inset 3px 0 0 $color-danger;
+                }
+                &:last-child {
+                    border-radius: 0 8px 8px 0;
+                }
+            }
+        }
+
+        @keyframes live-row-pulse {
+            0%, 100% {
+                background-color: color-mix(in srgb, var(--color-event-red) 22%, transparent);
+            }
+            50% {
+                background-color: color-mix(in srgb, var(--color-event-red) 8%, transparent);
+            }
+        }
+
+        .watch-live-btn {
+            background-color: rgba($color-danger, 0.22);
+            border: 1px solid rgba($color-danger, 0.65);
+            color: $color-white-const !important;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            text-decoration: none !important;
+            font-weight: var(--font-weight-bold);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 10px;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba($color-danger, 0.35);
+            transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+
+            &:hover {
+                background-color: rgba($color-danger, 0.45);
+                border-color: $color-danger;
+                box-shadow: 0 0 14px rgba($color-danger, 0.65);
+            }
+
+            .live-beacon-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: $color-danger;
+                box-shadow: 0 0 8px rgba($color-danger, 0.9), 0 0 14px rgba($color-danger, 0.6);
+                display: inline-block;
+                flex-shrink: 0;
+                animation: live-beacon-pulse 2.5s infinite ease-in-out;
+            }
+        }
+
+        @keyframes live-beacon-pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+                box-shadow: 0 0 8px rgba($color-danger, 0.9), 0 0 14px rgba($color-danger, 0.6);
+            }
+            50% {
+                opacity: 0.35;
+                transform: scale(0.7);
+                box-shadow: 0 0 2px rgba($color-danger, 0.3);
+            }
+        }
+
+        .countdown-text {
+            color: $accent-primary;
+            margin-right: 5px;
+        }
+    }
+
+    .notice {
+        margin-top: 10px;
+        padding: 0;
+        font-style: italic;
+    }
+}

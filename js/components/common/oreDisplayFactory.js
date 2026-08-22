@@ -1,6 +1,7 @@
 import { translate } from '../../i18n/translator.js';
+import { STORAGE_LIMITS } from '../../core/constants.js';
 
-export function createOreDisplay(config, oreType) {
+function createOreDisplay(config, oreType) {
     const container = document.createElement('div');
     container.className = 'ore';
 
@@ -8,7 +9,7 @@ export function createOreDisplay(config, oreType) {
     img.setAttribute('src', `assets/${oreType}_ore.png`);
     const capitalizedOre = oreType.charAt(0).toUpperCase() + oreType.slice(1);
     img.setAttribute('alt', `${capitalizedOre} Ore`);
-    img.dataset.i18nAlt = `ores.${oreType}`;
+    img.dataset.i18nAlt = `entities.ores.${oreType}`;
     img.setAttribute('class', 'ore-image');
     container.appendChild(img);
 
@@ -28,22 +29,15 @@ export function createOreDisplay(config, oreType) {
         input.className = 'ore-value updatable';
         input.value = '0';
         input.min = '0';
-        
+
         // Add aria-label for accessibility
-        const labelText = `${translate('ores.storedTitle') || 'Stored Ores'} - ${translate(`ores.${oreType}`) || (oreType.charAt(0).toUpperCase() + oreType.slice(1) + ' Ore')}`;
+        const labelText = `${translate('views.income.ores.storedTitle')} - ${translate(`entities.ores.${oreType}`)}`;
         input.setAttribute('aria-label', labelText);
-        
-        if (oreType === 'shiny') {
-            input.max = '50000';
-            input.maxLength = 5;
-        } else if (oreType === 'glowy') {
-            input.max = '5000';
-            input.maxLength = 4;
-        } else {
-            input.max = '1000';
-            input.maxLength = 4;
-        }
-        
+
+        const limit = STORAGE_LIMITS[oreType] || 1000;
+        input.max = String(limit);
+        input.maxLength = String(limit).length;
+
         wrapper.appendChild(input);
         container.appendChild(wrapper);
     } else if (config.type === 'time') {
@@ -76,10 +70,15 @@ export function createOreDisplay(config, oreType) {
     return container;
 }
 
+/**
+ * Populates an existing container with standard 3-ore (Shiny, Glowy, Starry) display items.
+ * @param {string} containerId - DOM ID of the container element.
+ * @param {any} config - Configuration options for ore display types and ID formatting.
+ */
 export function populateOreContainer(containerId, config) {
     const containerEl = document.getElementById(containerId);
     if (!containerEl) return;
-    
+
     let oresContainer = containerEl.querySelector('.ores');
     if (oresContainer && oresContainer.children.length > 0) {
         return;

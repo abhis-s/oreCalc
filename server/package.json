@@ -2,9 +2,15 @@
   "name": "orecalc-server",
   "version": "1.0.0",
   "description": "",
+  "packageManager": "pnpm@11.3.0",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "preinstall": "node ../scripts/ensure-pnpm.js",
+    "prestart": "node ../scripts/ensure-pnpm.js",
+    "pretest": "node ../scripts/ensure-pnpm.js",
+    "pretypecheck": "node ../scripts/ensure-pnpm.js",
+    "test": "node --test tests/**/*.test.js",
+    "typecheck": "tsc --project jsconfig.json --noEmit",
     "start": "node main.js",
     "prune": "node scripts/prune-inactive-users.js"
   },

@@ -1,12 +1,6 @@
 @use '../abstracts/variables' as *;
 @use '../base/placeholder';
 
-.results-and-calculate-container {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 20px;
-}
-
 #heroes-container {
     display: grid;
     gap: 20px;
@@ -38,7 +32,7 @@
     border-radius: 10px;
     padding: 30px;
     box-shadow: $elevation-1;
-    transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out, transform 0.25s cubic-bezier(0.2, 1, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: opacity $duration-moderate $ease-smooth, background-color $duration-moderate $ease-smooth, transform $duration-base $ease-standard, border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
     position: relative;
     width: 100%;
     max-width: 480px;
@@ -46,7 +40,6 @@
     box-sizing: border-box;
 
     &:hover:not(.dragging) {
-        transform: translateY(-2px);
         border-color: color-mix(in srgb, $accent-primary 35%, $border-primary);
         box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.22), 0 0 12px rgba($accent-primary, 0.08);
     }
@@ -80,10 +73,6 @@
             opacity: 0.7;
         }
     }
-
-    &.flash-red {
-        background-color: $color-danger-soft;
-    }
 }
 
 .hero-title {
@@ -98,13 +87,13 @@
     }
 
     .hero-icon {
-        border-radius: 50%;
         cursor: pointer;
-        flex-shrink: 0; /* Prevent icon from shrinking */
+        flex-shrink: 0;
         height: 50px;
         margin-right: 15px;
+        object-fit: contain;
         width: 50px;
-        transition: transform 0.2s cubic-bezier(0.2, 1, 0.2, 1), filter 0.3s ease;
+        transition: transform $duration-fast $ease-standard, filter $duration-moderate $ease-smooth;
 
         &:hover {
             transform: scale(1.08);
@@ -148,7 +137,7 @@
         flex-shrink: 0;
         padding: 5px;
         text-align: center;
-        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        transition: border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
         width: 60px;
     }
 
@@ -156,7 +145,7 @@
         cursor: pointer;
         height: 40px;
         margin-right: 10px;
-        transition: filter 0.3s ease-in-out, transform 0.2s cubic-bezier(0.2, 1, 0.2, 1);
+        transition: filter $duration-moderate $ease-smooth, transform $duration-fast $ease-standard;
         width: 40px;
         aspect-ratio: 1 / 1;
         flex-shrink: 0;
@@ -176,9 +165,17 @@
 
         &.gold-glow {
             filter: drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
+
+            &.grayscale {
+                filter: grayscale(100%) drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
+            }
         }
         &.over-leveled-glow {
             filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
+
+            &.grayscale {
+                filter: grayscale(100%) drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
+            }
         }
     }
 }
@@ -201,11 +198,6 @@
 
 .gold-glow {
     color: $color-gold-glow;
-}
-
-.calculate-container {
-    margin-top: 20px;
-    text-align: center;
 }
 
 .level-display-container {

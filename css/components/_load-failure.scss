@@ -29,7 +29,7 @@
         text-align: center;
         backdrop-filter: blur(10px);
 
-        @media (max-width: 600px) {
+        @media (max-width: $breakpoint-modal) {
             padding: 20px;
         }
     }
@@ -94,7 +94,7 @@
             }
 
             .chevron-icon {
-                transition: transform 0.2s ease;
+                transition: transform $duration-fast $ease-smooth;
                 font-size: 10px;
             }
 
@@ -137,6 +137,7 @@
         flex-direction: column;
         gap: 12px;
 
+        h2,
         h3 {
             font-size: 16px;
             font-weight: 600;
@@ -214,7 +215,7 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
             box-sizing: border-box;
 
             &:active {
@@ -228,7 +229,7 @@
             color: $text-primary;
 
             &:hover {
-                background-color: rgba($text-primary, 0.05);
+                background-color: $bg-surface-secondary;
             }
         }
 

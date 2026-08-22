@@ -1,12 +1,13 @@
-import { getChangelogHtml } from './services/changelogService.js';
-import { handleStateUpdate } from './app.js';
-import { renderApp } from './core/renderer.js';
 import { saveState } from './core/localStorageManager.js';
-import { showChangelogModal } from './components/changelog/changelogModal.js';
-import { showSaveErrorIndicator } from './ui/savingIndicator.js';
+import { renderApp } from './core/renderer.js';
 import { state } from './core/state.js';
+import { handleStateUpdate } from './core/stateManager.js';
+
+import { showChangelogModal } from './components/changelog/changelogModal.js';
 import { showWelcomeModal } from './components/welcome/welcomeModal.js';
+import { getChangelogHtml } from './services/changelogService.js';
 import { applyCardLayout } from './ui/cardLayoutManager.js';
+import { showSaveErrorIndicator } from './ui/savingIndicator.js';
 
 window.enableLevelInput = () => {
     const newEnableLevelInput = !state.uiSettings.enableLevelInput;
@@ -35,7 +36,7 @@ window.switchLayout = (layout) => {
         state.uiSettings.cardLayout = targetLayout;
     }, true);
     applyCardLayout(targetLayout);
-    
+
     const cozyQuiltToggle = document.getElementById('settings-cozy-quilt-toggle');
     if (cozyQuiltToggle) {
         const isCompact = targetLayout === 'compact0' || targetLayout === 'compact1';
@@ -113,10 +114,13 @@ window.triggerWelcomeModal = () => {
         if (state.uiSettings?.uiTimestamps) {
             delete state.uiSettings.uiTimestamps.welcome;
         }
+        for (const tag of state.savedPlayerTags) {
+            const player = state.allPlayersData?.[tag];
+            if (player) {
+                player.onboardingTimestamp = null;
+            }
+        }
     });
-    for (const tag of state.savedPlayerTags) {
-        sessionStorage.removeItem(`oreCalc_onboardingComplete_${tag}`);
-    }
     showWelcomeModal(true);
     return "Welcome modal triggered. Welcome timestamp has been reset.";
 };
@@ -124,14 +128,18 @@ window.triggerWelcomeModal = () => {
 window.disableWelcomeModal = () => {
     showWelcomeModal(false);
     handleStateUpdate(() => {
+        const now = Date.now();
         if (!state.uiSettings.uiTimestamps) {
             state.uiSettings.uiTimestamps = {};
         }
-        state.uiSettings.uiTimestamps.welcome = Date.now();
+        state.uiSettings.uiTimestamps.welcome = now;
+        for (const tag of state.savedPlayerTags) {
+            const player = state.allPlayersData?.[tag];
+            if (player) {
+                player.onboardingTimestamp = now;
+            }
+        }
     });
-    for (const tag of state.savedPlayerTags) {
-        sessionStorage.setItem(`oreCalc_onboardingComplete_${tag}`, 'true');
-    }
     return "Welcome modal closed and marked as completed.";
 };
 

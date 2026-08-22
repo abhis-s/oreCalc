@@ -1,14 +1,18 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
-import { state } from '../../core/state.js';
-
-import { convertOres, getStepValue } from '../../incomeCalculations/prospectorManager.js';
-import { getRecommendedProspectorAmounts } from './prospectorDisplay.js';
-
-import { addValidation } from '../../utils/inputValidator.js';
 import { oreMaxValues } from '../../data/oreConversionData.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { translate } from '../../i18n/translator.js';
+
+import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
+
+import { convertOres, getStepValue } from '../../domain/income/prospectorManager.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { addValidation } from '../../utils/inputValidator.js';
+
+import { bindToggleInput } from '../common/formBindingUtils.js';
+import { dom } from '../../dom/domElements.js';
+import { navigateToTab } from '../layout/tabs.js';
+import { openPriorityListModal } from '../planner/priorityListModal.js';
+import { getRecommendedProspectorAmounts } from './prospectorDisplay.js';
 
 const oreTypes = {
     shiny: 'assets/shiny_ore.png',
@@ -24,7 +28,7 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
     dropdownElement.setAttribute('role', 'combobox');
     dropdownElement.setAttribute('aria-haspopup', 'listbox');
     dropdownElement.setAttribute('aria-expanded', 'false');
-    const labelKey = whichOre === 'from' ? 'income.prospector.fromOre' : 'income.prospector.toOre';
+    const labelKey = whichOre === 'from' ? 'views.income.prospector.fromOre' : 'views.income.prospector.toOre';
     dropdownElement.setAttribute('aria-label', translate(labelKey));
 
     selected.addEventListener('click', () => {
@@ -47,7 +51,7 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
             }
             const value = option.dataset.value;
             const imgSrc = oreTypes[value];
-            selected.innerHTML = `<orecalc-assets-image src="${imgSrc}" alt="${translate('ores.' + value)}" size="thumbnail"></orecalc-assets-image>`;
+            selected.innerHTML = `<orecalc-assets-image src="${imgSrc}" alt="${translate('entities.ores.' + value)}" size="thumbnail"></orecalc-assets-image>`;
             dropdownElement.dataset.value = value;
             if (whichOre === 'from') {
                 state.income.prospector.fromOre = value;
@@ -117,42 +121,49 @@ function updateProspectorDropdowns() {
     // Auto-update "toOre" if it conflicts with the new "fromOre"
     if (fromOreValue === toOreValue) {
         const newToOre = Object.keys(oreTypes).find(ore => ore !== fromOreValue);
-        if (newToOre) {
+        if (newToOre && dom.income?.prospector?.toOre) {
             toOreValue = newToOre;
             dom.income.prospector.toOre.dataset.value = toOreValue;
-            dom.income.prospector.toOre.querySelector('.dropdown-selected').innerHTML = `<orecalc-assets-image src="${oreTypes[toOreValue]}" alt="${toOreValue}" size="thumbnail"></orecalc-assets-image>`;
+            const selectedEl = dom.income.prospector.toOre.querySelector('.dropdown-selected');
+            if (selectedEl) {
+                selectedEl.innerHTML = `<orecalc-assets-image src="${oreTypes[toOreValue]}" alt="${toOreValue}" size="thumbnail"></orecalc-assets-image>`;
+            }
         }
     }
 
     // Populate "fromOre" dropdown options (exclude its own current value)
-    const fromOreOptions = dom.income.prospector.fromOre.querySelector('.dropdown-options');
-    fromOreOptions.innerHTML = '';
-    Object.keys(oreTypes).forEach(ore => {
-        if (ore !== fromOreValue) {
-            const option = document.createElement('div');
-            option.classList.add('dropdown-option');
-            option.setAttribute('tabindex', '0');
-            option.setAttribute('role', 'option');
-            option.dataset.value = ore;
-            option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
-            fromOreOptions.appendChild(option);
-        }
-    });
+    const fromOreOptions = dom.income?.prospector?.fromOre?.querySelector('.dropdown-options');
+    if (fromOreOptions) {
+        fromOreOptions.innerHTML = '';
+        Object.keys(oreTypes).forEach(ore => {
+            if (ore !== fromOreValue) {
+                const option = document.createElement('div');
+                option.classList.add('dropdown-option');
+                option.setAttribute('tabindex', '0');
+                option.setAttribute('role', 'option');
+                option.dataset.value = ore;
+                option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
+                fromOreOptions.appendChild(option);
+            }
+        });
+    }
 
     // Populate "toOre" dropdown options (exclude fromOre value and its own current value)
-    const toOreOptions = dom.income.prospector.toOre.querySelector('.dropdown-options');
-    toOreOptions.innerHTML = '';
-    Object.keys(oreTypes).forEach(ore => {
-        if (ore !== fromOreValue && ore !== toOreValue) {
-            const option = document.createElement('div');
-            option.classList.add('dropdown-option');
-            option.setAttribute('tabindex', '0');
-            option.setAttribute('role', 'option');
-            option.dataset.value = ore;
-            option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
-            toOreOptions.appendChild(option);
-        }
-    });
+    const toOreOptions = dom.income?.prospector?.toOre?.querySelector('.dropdown-options');
+    if (toOreOptions) {
+        toOreOptions.innerHTML = '';
+        Object.keys(oreTypes).forEach(ore => {
+            if (ore !== fromOreValue && ore !== toOreValue) {
+                const option = document.createElement('div');
+                option.classList.add('dropdown-option');
+                option.setAttribute('tabindex', '0');
+                option.setAttribute('role', 'option');
+                option.dataset.value = ore;
+                option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
+                toOreOptions.appendChild(option);
+            }
+        });
+    }
 }
 
 function updateConversionUI() {
@@ -177,7 +188,7 @@ function updateConversionUI() {
         fromAmount = newMax;
         dom.income.prospector.fromAmount.value = fromAmount;
     }
-    
+
     // Ensure the validation dataset is kept in sync when we programmatically change the value
     dom.income.prospector.fromAmount.dataset.lastValidValue = fromAmount;
 
@@ -193,7 +204,7 @@ function updateConversionUI() {
     }
 }
 
-export function updateConversion(isSilent = false) {
+function updateConversion(isSilent = false) {
     if (!dom.income?.prospector?.fromOre || !dom.income?.prospector?.toOre || !dom.income?.prospector?.fromAmount) return;
 
     if (isSilent) {
@@ -217,9 +228,9 @@ export function updateConversion(isSilent = false) {
         if (!state.income.prospector) {
             state.income.prospector = {};
         }
-    
+
         updateConversionUI();
-    
+
         const fromOre = dom.income.prospector.fromOre.dataset.value;
         const toOre = dom.income.prospector.toOre.dataset.value;
         let fromAmount = parseInt(dom.income.prospector.fromAmount.value, 10) || 0;
@@ -231,7 +242,7 @@ export function updateConversion(isSilent = false) {
         }
         dom.income.prospector.fromOre.dataset.previousOre = fromOre;
         dom.income.prospector.toOre.dataset.previousOre = toOre;
-    
+
         state.income.prospector.fromOre = fromOre;
         state.income.prospector.toOre = toOre;
 
@@ -258,6 +269,10 @@ function updateAssistedOverlay(isAssisted) {
     wrapper.classList.toggle('is-assisted', isAssisted);
 }
 
+/**
+ * Populates and synchronizes Prospector controls, ore selection dropdowns, and conversion state.
+ * @param {import('../../core/types.js').ProspectorState} [prospectorState] - Active Prospector state object.
+ */
 export function renderProspector(prospectorState) {
     if (!prospectorState) return;
 
@@ -279,7 +294,7 @@ export function renderProspector(prospectorState) {
         dom.income.prospector.fromOre.dataset.value = fromOre;
         const selected = dom.income.prospector.fromOre.querySelector('.dropdown-selected');
         if (selected) {
-            selected.innerHTML = `<orecalc-assets-image src="${oreTypes[fromOre]}" alt="${translate('ores.' + fromOre)}" size="thumbnail"></orecalc-assets-image>`;
+            selected.innerHTML = `<orecalc-assets-image src="${oreTypes[fromOre]}" alt="${translate('entities.ores.' + fromOre)}" size="thumbnail"></orecalc-assets-image>`;
         }
     }
 
@@ -287,7 +302,7 @@ export function renderProspector(prospectorState) {
         dom.income.prospector.toOre.dataset.value = toOre;
         const selected = dom.income.prospector.toOre.querySelector('.dropdown-selected');
         if (selected) {
-            selected.innerHTML = `<orecalc-assets-image src="${oreTypes[toOre]}" alt="${translate('ores.' + toOre)}" size="thumbnail"></orecalc-assets-image>`;
+            selected.innerHTML = `<orecalc-assets-image src="${oreTypes[toOre]}" alt="${translate('entities.ores.' + toOre)}" size="thumbnail"></orecalc-assets-image>`;
         }
     }
 
@@ -299,6 +314,9 @@ export function renderProspector(prospectorState) {
     updateAssistedOverlay(assistedConversion);
 }
 
+/**
+ * Initializes Prospector form inputs, popovers, custom dropdown events, and strategy listeners.
+ */
 export function initializeProspector() {
     if (!dom.income?.prospector?.fromAmount) return;
 
@@ -308,7 +326,7 @@ export function initializeProspector() {
     // --- Add Validation ---
     addValidation(dom.income.prospector.fromAmount, { inputName: translate('validation.amount') });
     registerInputPopover(dom.income.prospector.fromAmount, {
-        title: () => translate('income.prospector.fromOre') || 'From Ore',
+        title: () => translate('views.income.prospector.fromOre'),
         min: 0,
         max: () => {
             const fromOre = dom.income.prospector.fromOre?.dataset.value || 'shiny';
@@ -327,13 +345,13 @@ export function initializeProspector() {
             if (exceeds) {
                 return [
                     {
-                        label: () => `${translate('planner.recommended')} (${translate('income.prospector.tips.preferred')} ⚠️)`,
+                        label: () => `${translate('views.planner.recommended')} (${translate('views.income.prospector.tips.preferred')} <orecalc-assets-svg name="warning" width="14" height="14" style="vertical-align: middle; margin-left: 2px;"></orecalc-assets-svg>)`,
                         value: preferred,
                         className: 'exceeded-color',
                         clickToFill: true
                     },
                     {
-                        label: () => `${translate('planner.recommended')} (${translate('income.prospector.tips.fallback')})`,
+                        label: () => `${translate('views.planner.recommended')} (${translate('views.income.prospector.tips.fallback')})`,
                         value: fallback,
                         className: 'match-color',
                         clickToFill: true
@@ -342,7 +360,7 @@ export function initializeProspector() {
             } else {
                 return [
                     {
-                        label: () => translate('planner.recommended'),
+                        label: () => translate('views.planner.recommended'),
                         value: preferred,
                         clickToFill: true
                     }
@@ -377,20 +395,34 @@ export function initializeProspector() {
     });
     dom.income.prospector.slider.addEventListener('input', () => updateSlider());
 
-    dom.income.prospector.goldPass.addEventListener('change', (e) => {
-        handleStateUpdate(() => {
+    bindToggleInput(dom.income.prospector.goldPass, {
+        onUpdate: (checked) => {
             if (!state.income.prospector) state.income.prospector = { fromOre: 'shiny', toOre: 'glowy' };
-            state.income.prospector.goldPass = e.target.checked;
-        });
+            state.income.prospector.goldPass = checked;
+        }
     });
 
-    dom.income.prospector.assistedConversion.addEventListener('change', (e) => {
-        handleStateUpdate(() => {
+    bindToggleInput(dom.income.prospector.assistedConversion, {
+        onUpdate: (checked) => {
             if (!state.income.prospector) state.income.prospector = { fromOre: 'shiny', toOre: 'glowy' };
-            state.income.prospector.assistedConversion = e.target.checked;
-        });
-        updateAssistedOverlay(e.target.checked);
+            state.income.prospector.assistedConversion = checked;
+        },
+        afterUpdate: (checked) => {
+            updateAssistedOverlay(checked);
+        }
     });
+
+    const card = document.getElementById('prospector-card');
+    if (card) {
+        card.addEventListener('click', (e) => {
+            const link = /** @type {HTMLElement} */ (e.target)?.closest?.('.prospector-priority-link');
+            if (link) {
+                e.preventDefault();
+                navigateToTab('planner');
+                setTimeout(() => openPriorityListModal(), 50);
+            }
+        });
+    }
 
     updateConversion(true); // Initial call to sync UI
 }

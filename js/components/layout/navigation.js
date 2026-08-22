@@ -1,18 +1,29 @@
-import { dom } from '../../dom/domElements.js';
+import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { renderApp } from '../../core/renderer.js';
 import { state } from '../../core/state.js';
-import { getLanguageFromPath } from '../../core/languageRouter.js';
+
 import { showUpdateModal } from '../modals/updateModal.js';
+import { dom } from '../../dom/domElements.js';
 
 function toggleNavigationDrawer() {
-    const isOpen = dom.drawer.drawer.classList.toggle('open');
-    dom.drawer.overlay.classList.toggle('show');
+    const drawer = dom.drawer.drawer;
+    const overlay = dom.drawer.overlay;
+    if (!drawer) return;
+    const isOpen = drawer.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('show');
     document.body.classList.toggle('open-drawer');
+    if (typeof drawer.showModal === 'function' && typeof drawer.close === 'function') {
+        if (isOpen && !drawer.open) {
+            try { drawer.showModal(); } catch (e) {}
+        } else if (!isOpen && drawer.open) {
+            try { drawer.close(); } catch (e) {}
+        }
+    }
     if (dom.drawer.button) {
         dom.drawer.button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
     if (isOpen) {
-        const firstTab = dom.drawer.drawer.querySelector('.navigation-drawer__tab');
+        const firstTab = drawer.querySelector('.navigation-drawer__tab');
         if (firstTab) {
             setTimeout(() => {
                 firstTab.focus();
@@ -21,10 +32,19 @@ function toggleNavigationDrawer() {
     }
 }
 
+/**
+ * Closes the mobile navigation drawer dialog, resets body scroll locks, and updates ARIA state.
+ */
 export function closeNavigationDrawer() {
-    dom.drawer.drawer.classList.remove('open');
-    dom.drawer.overlay.classList.remove('show');
+    const drawer = dom.drawer.drawer;
+    const overlay = dom.drawer.overlay;
+    if (!drawer) return;
+    drawer.classList.remove('open');
+    if (overlay) overlay.classList.remove('show');
     document.body.classList.remove('open-drawer');
+    if (typeof drawer.close === 'function' && drawer.open) {
+        try { drawer.close(); } catch (e) {}
+    }
     if (dom.drawer.button) {
         dom.drawer.button.setAttribute('aria-expanded', 'false');
     }
@@ -101,6 +121,9 @@ function initDrawerSwipeGesture() {
     });
 }
 
+/**
+ * Initializes navigation drawer event listeners, mobile swipe drawer interactions, and overlay bindings.
+ */
 export function initializeNavigation() {
 
     if (dom.drawer.button) {
@@ -144,7 +167,8 @@ export function initializeNavigation() {
                 const tabId = `${tab.dataset.tab}-tab`;
                 const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
                 const hash = tab.dataset.tab === 'home' ? '' : `#${tab.dataset.tab}`;
-                history.pushState(null, '', `/${currentLang}/${hash}`);
+                const pathPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
+                history.pushState(null, '', `${pathPrefix}/${hash}`);
                 state.activeTab = tabId;
                 renderApp(state);
                 closeNavigationDrawer();
@@ -157,7 +181,7 @@ export function initializeNavigation() {
                 if (tabElements.length === 0) return;
 
                 const firstTab = tabElements[0];
-                const lastTab = tabElements[tabElements.length - 1];
+                const lastTab = tabElements.at(-1);
 
                 if (event.target === lastTab && !event.shiftKey) {
                     event.preventDefault();

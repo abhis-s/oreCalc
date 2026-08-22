@@ -1,0 +1,376 @@
+@use '../../abstracts/variables' as *;
+
+.card-help-popover {
+    position: fixed;
+    inset: unset;
+    margin: 0;
+    z-index: $z-index-popover + 10;
+    isolation: isolate;
+    background-color: var(--bg-surface-popover);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    padding: 8px 12px;
+    box-shadow: $elevation-4;
+    max-width: 240px;
+    font-size: 0.72rem;
+    color: $text-secondary;
+    line-height: 1.35;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px) translateZ(0);
+    transition: opacity $duration-fast $ease-smooth,
+                transform $duration-fast $ease-smooth,
+                display $duration-fast allow-discrete,
+                overlay $duration-fast allow-discrete;
+
+    &:popover-open,
+    &.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) translateZ(0);
+
+        @starting-style {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+    }
+
+    .popover-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
+
+        .popover-img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .popover-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .popover-title {
+            font-size: 0.74rem;
+            font-weight: 800;
+            color: $text-primary;
+            line-height: 1.2;
+
+            .accent-text {
+                color: $accent-primary;
+                font-weight: 800;
+            }
+        }
+
+        .popover-badge {
+            font-size: 0.54rem;
+            font-weight: 700;
+            color: $accent-primary;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+
+            .purple-text {
+                color: $color-rarity-epic;
+            }
+
+            .ore-text-shiny,
+            &.ore-badge-shiny {
+                color: $shiny-ore;
+            }
+
+            .ore-text-glowy,
+            &.ore-badge-glowy {
+                color: $glowy-ore;
+            }
+
+            .ore-text-starry,
+            &.ore-badge-starry {
+                color: $starry-ore;
+            }
+        }
+    }
+
+    .popover-body {
+        font-size: 0.72rem;
+        line-height: 1.35;
+        p {
+            margin: 0;
+
+            & + p {
+                margin-top: 8px;
+            }
+        }
+
+        .popover-chest-breakdown,
+        .popover-ores-breakdown {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed color-mix(in srgb, $border-primary 50%, transparent);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .popover-range-label {
+                font-size: 0.68rem;
+                font-weight: 700;
+                color: $text-secondary;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                margin: 0;
+            }
+
+            .popover-chest-ranges-row,
+            .popover-ores-ranges-row {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 6px 10px;
+
+                .chest-ore-inline-chip,
+                .popover-ore-inline-chip {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                    background: color-mix(in srgb, $bg-surface-primary 70%, transparent);
+                    border: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
+                    padding: 2px 7px;
+                    border-radius: 6px;
+                    font-size: 0.72rem;
+
+                    .ore-mini-icon {
+                        width: 15px;
+                        height: 15px;
+                        object-fit: contain;
+                        flex-shrink: 0;
+                        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+                    }
+
+                    strong {
+                        color: $text-primary;
+                        font-weight: 700;
+                        letter-spacing: 0.2px;
+                    }
+                }
+            }
+        }
+    }
+
+    .popover-footer {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
+        font-size: 0.74rem;
+        color: var(--text-tertiary);
+        line-height: 1.35;
+    }
+}
+
+.input-feature-popover {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: auto;
+    right: auto;
+    inset: unset;
+    margin: 0;
+    isolation: isolate;
+    transform: translateZ(0);
+    background-color: var(--bg-surface-popover);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    box-shadow: $elevation-4;
+    z-index: $z-index-popover;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity $duration-fast $ease-smooth,
+                display $duration-fast allow-discrete,
+                overlay $duration-fast allow-discrete;
+    white-space: nowrap;
+    min-width: 140px;
+
+    &:popover-open,
+    &.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: none;
+
+        @starting-style {
+            opacity: 0;
+        }
+    }
+
+    &.position-below {
+        bottom: auto;
+        transform: none;
+
+        &:popover-open,
+        &.show {
+            transform: none;
+        }
+    }
+
+    .popover-title {
+        font-size: 10px;
+        color: $text-muted;
+        font-weight: var(--font-weight-bold);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-align: center;
+        border-bottom: 1px solid $border-secondary;
+        padding-bottom: 4px;
+        margin-bottom: 2px;
+    }
+
+    .popover-options {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .popover-opt-btn {
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        color: $text-primary;
+        padding: 5px 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        font-size: var(--font-size-xs);
+        width: 100%;
+        box-sizing: border-box;
+
+        span {
+            color: $text-secondary;
+            font-weight: 500;
+        }
+
+        strong {
+            color: $accent-primary;
+            font-weight: var(--font-weight-bold);
+        }
+
+        &.clickable {
+            cursor: pointer;
+            transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+
+            &:hover {
+                background-color: $accent-primary-soft;
+                border-color: rgba($accent-primary, 0.3);
+                transform: translateY(-1px);
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+        }
+
+        &.readonly {
+            cursor: default;
+
+            strong {
+                color: $text-primary;
+            }
+        }
+
+        &.exceeded-color {
+            border-color: $border-danger;
+            background-color: $color-danger-soft;
+
+            span {
+                color: $color-danger;
+            }
+
+            strong {
+                color: $color-danger;
+            }
+        }
+
+        &.match-color {
+            border-color: rgba($color-success, 0.4);
+            background-color: $color-success-soft;
+
+            span {
+                color: $color-success;
+            }
+
+            strong {
+                color: $color-success;
+            }
+        }
+
+        &.popover-btn-disable {
+            border-color: rgba($color-danger, 0.3);
+            justify-content: center;
+
+            span {
+                color: $color-danger;
+                font-weight: var(--font-weight-bold);
+            }
+
+            &:hover {
+                background-color: $color-danger-soft !important;
+                border-color: $color-danger !important;
+            }
+        }
+
+        &.popover-btn-enable {
+            border-color: rgba($color-success, 0.3);
+            justify-content: center;
+
+            span {
+                color: $color-success;
+                font-weight: var(--font-weight-bold);
+            }
+
+            &:hover {
+                background-color: $color-success-soft !important;
+                border-color: $color-success !important;
+            }
+        }
+
+        kbd.popover-key-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            border: 1px solid $border-secondary;
+            border-bottom: 2px solid $border-primary;
+            border-radius: 4px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 8px;
+            font-weight: 700;
+            padding: 0 4px;
+            margin-left: 6px;
+            height: 14px;
+            min-width: 14px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+
+            @media (pointer: coarse), (max-width: #{$breakpoint-desktop - 1px}) {
+                display: none !important;
+            }
+
+            line-height: 12px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+    }
+}

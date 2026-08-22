@@ -1,3 +1,5 @@
+@use '../abstracts/variables' as *;
+
 %flex-center {
     display: flex;
     align-items: center;
@@ -11,5 +13,14 @@
     height: 100%;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    pointer-events: none;
+    transition: opacity $duration-moderate $ease-smooth;
+}
+
+%hide-scrollbar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }

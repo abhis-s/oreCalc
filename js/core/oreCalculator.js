@@ -1,6 +1,16 @@
-import { upgradeCosts, heroData } from '../data/appData.js';
-import { getEquipmentMaxLevel } from '../data/equipmentCommonData.js';
+import { getEquipmentMaxLevel, upgradeCosts } from '../data/equipmentCommonData.js';
+import { heroData } from '../data/heroData.js';
 
+/**
+ * Calculates remaining ores needed across all selected equipment upgrades,
+ * deducting currently stored inventory and upcoming Hero Journey rewards.
+ *
+ * @param {Record<string, import('./types.js').HeroItem>} heroesState - Hero and equipment level states.
+ * @param {import('./types.js').OreQuantity} [storedOres] - Currently stored inventory ores.
+ * @param {import('./types.js').PlannerState} [plannerMaxLevels] - Planner configuration containing custom max caps.
+ * @param {Partial<import('./types.js').OreQuantity>} [heroJourneyUpcomingOres={}] - Upcoming rewards from Hero Journey.
+ * @returns {import('./types.js').OreQuantity} Remaining required shiny, glowy, and starry ores.
+ */
 export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels, heroJourneyUpcomingOres = {}) {
     let totalRequired = { shiny: 0, glowy: 0, starry: 0 };
 
@@ -43,10 +53,18 @@ export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels,
     };
 }
 
-function getEquipmentData(heroName, equipName, plannerMaxLevels) {
-    const { customMaxLevel } = plannerMaxLevels;
-    const hero = Object.values(heroData).find(h => h.name === heroName);
-    const equipment = hero?.equipment.find(e => e.name === equipName);
+/**
+ * Resolves equipment metadata and active max level cap.
+ *
+ * @param {string} heroName - Canonical or localized hero name.
+ * @param {string} equipName - Equipment name.
+ * @param {import('./types.js').PlannerState} [plannerMaxLevels={}] - Planner configuration.
+ * @returns {{ type: string, maxLevel: number } | null} Equipment data or null.
+ */
+function getEquipmentData(heroName, equipName, plannerMaxLevels = {}) {
+    const customMaxLevel = plannerMaxLevels?.customMaxLevel;
+    const hero = Object.values(heroData).find(h => h.name === heroName || h.key === heroName);
+    const equipment = hero?.equipment?.find(e => e.name === equipName || e.key === equipName);
     if (!equipment) return null;
 
     const maxLevel = customMaxLevel?.[equipment.type] || getEquipmentMaxLevel(equipment.type);

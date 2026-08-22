@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Open Source Licenses and attributions for third-party libraries used in OreCalc, the Clash of Clans upgrade planner.">
+    <title>Open Source Licenses - OreCalc</title>
+    <link rel="canonical" href="https://orecalc.tech/licenses/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://orecalc.tech/licenses/">
+    <meta property="og:title" content="Open Source Licenses - OreCalc">
+    <meta property="og:description" content="Open Source Licenses and attributions for third-party libraries used in OreCalc, the Clash of Clans upgrade planner.">
+
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:url" content="https://orecalc.tech/licenses/">
+    <meta property="twitter:title" content="Open Source Licenses - OreCalc">
+    <meta property="twitter:description" content="Open Source Licenses and attributions for third-party libraries used in OreCalc, the Clash of Clans upgrade planner.">
+    <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/legal/legal.css">
+    <script>
+        (function() {
+            const p = new URLSearchParams(window.location.search);
+            const t = p.get('theme') || ((window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-theme', t);
+            if (window.self !== window.top) document.documentElement.classList.add('is-embedded');
+        })();
+    </script>
+    <script src="/legal/legal.js" defer></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-row">
+            <a href="/" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to App
+            </a>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">🌙</button>
+        </div>
+
+        <h1>Open Source Licenses</h1>
+        <p class="intro">
+            OreCalc is built using open source software and third-party libraries. Below you will find licensing information and attributions for each project included in our codebase.
+        </p>
+        <p class="trademark-notice" style="margin-top: -10px; margin-bottom: 30px; font-size: 0.9rem; color: var(--text-secondary); opacity: 0.85; line-height: 1.5;">
+            All trademarks, logos, and brand assets (including GitHub, Crowdin, and Buy Me a Coffee) are the property of their respective owners. Their appearance on this page does not imply endorsement or affiliation.
+        </p>
+
+        <div id="licenses-list-container" class="licenses-list">
+            <!-- DYNAMIC INSERTION: Dependency license entries -->
+        </div>
+
+        <div class="footer">
+            <p style="margin: 0 0 8px;">This page is available at <a href="https://orecalc.tech/licenses/"
+                    target="_blank">orecalc.tech/licenses/</a></p>
+            &copy; 2025-2026 OreCalc. All rights reserved.
+        </div>
+    </div>
+
+    <script type="module">
+        import { licensesData } from '/js/data/licensesData.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('licenses-list-container');
+            if (!container) return;
+
+            licensesData.forEach(item => {
+                const details = document.createElement('details');
+                const summary = document.createElement('summary');
+
+                const title = document.createElement('span');
+                title.className = 'license-name';
+                title.textContent = item.name;
+                summary.appendChild(title);
+
+                const badge = document.createElement('span');
+                badge.className = 'license-badge';
+                badge.textContent = item.license;
+                summary.appendChild(badge);
+
+                details.appendChild(summary);
+
+                const body = document.createElement('div');
+                body.className = 'details-body';
+
+                const meta = document.createElement('div');
+                meta.className = 'meta-row';
+
+                const copyright = document.createElement('span');
+                copyright.innerHTML = `<strong>Copyright:</strong> ${item.copyright}`;
+                meta.appendChild(copyright);
+
+                const link = document.createElement('a');
+                link.href = item.url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = 'Source →';
+                link.onclick = (e) => e.stopPropagation();
+                meta.appendChild(link);
+
+                body.appendChild(meta);
+
+                const pre = document.createElement('pre');
+                pre.className = 'license-text';
+                pre.textContent = 'Loading license text...';
+                body.appendChild(pre);
+
+                details.appendChild(body);
+                container.appendChild(details);
+
+                let isLoaded = false;
+                details.addEventListener('toggle', () => {
+                    if (details.open) {
+                        const allDetails = container.querySelectorAll('details');
+                        allDetails.forEach(d => {
+                            if (d !== details && d.open) {
+                                d.open = false;
+                            }
+                        });
+
+                        if (!isLoaded) {
+                            fetch(item.file)
+                                .then(res => {
+                                    if (!res.ok) throw new Error();
+                                    return res.text();
+                                })
+                                .then(text => {
+                                    pre.textContent = text;
+                                    isLoaded = true;
+                                })
+                                .catch(() => {
+                                    pre.textContent = 'Error loading license text. Please view it here: ' + item.licenseUrl;
+                                });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

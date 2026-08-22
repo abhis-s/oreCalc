@@ -1,27 +1,27 @@
-<div id="consent-modal" class="modal">
+<dialog id="consent-modal" class="modal" aria-labelledby="consent-modal-title">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 data-i18n="legal.title">Terms & Privacy Update</h2>
-            <button id="close-consent-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+            <h2 id="consent-modal-title" data-i18n="legal.title"></h2>
+            <button id="close-consent-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
         <div class="modal-body text-left">
-            <p data-i18n="legal.description">Please review and accept our updated Terms of Use and Privacy Policy to continue using OreCalc.</p>
-            <div class="legal-links" style="display: flex; flex-direction: column; gap: 12px; margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid var(--border-color);">
-                <div id="consent-terms-row" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                    <span><strong data-i18n="settings.termsOfUse">Terms of Use</strong> <span id="consent-terms-version-badge" style="font-size: 0.85em; color: var(--text-secondary);"></span></span>
-                    <button id="consent-view-terms-btn" class="accept-button" style="padding: 6px 12px; font-size: 0.85em; margin: 0; min-height: 0;" data-i18n="actions.view">View</button>
+            <p data-i18n="legal.description"></p>
+            <div class="legal-links">
+                <div id="consent-terms-row" class="consent-row">
+                    <span><strong data-i18n="views.settings.termsOfUse"></strong> <span id="consent-terms-version-badge" class="consent-version-badge"></span></span>
+                    <button id="consent-view-terms-btn" class="accept-button consent-view-btn" data-i18n="actions.view"></button>
                 </div>
-                <div id="consent-privacy-row" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                    <span><strong data-i18n="settings.privacyPolicy">Privacy Policy</strong> <span id="consent-privacy-version-badge" style="font-size: 0.85em; color: var(--text-secondary);"></span></span>
-                    <button id="consent-view-privacy-btn" class="accept-button" style="padding: 6px 12px; font-size: 0.85em; margin: 0; min-height: 0;" data-i18n="actions.view">View</button>
+                <div id="consent-privacy-row" class="consent-row">
+                    <span><strong data-i18n="views.settings.privacyPolicy"></strong> <span id="consent-privacy-version-badge" class="consent-version-badge"></span></span>
+                    <button id="consent-view-privacy-btn" class="accept-button consent-view-btn" data-i18n="actions.view"></button>
                 </div>
             </div>
-            <p style="font-size: 0.9em; color: var(--text-secondary);" data-i18n="legal.consentStatement">By clicking "Accept & Continue", you agree to our Terms of Use and acknowledge that you have read and agreed to our Privacy Policy.</p>
+            <p class="consent-statement" data-i18n="legal.consentStatement"></p>
         </div>
         <div class="modal-actions">
-            <button id="confirm-consent-btn" class="accept-button" style="width: 100%; margin: 0;" data-i18n="actions.acceptAndContinue">Accept & Continue</button>
+            <button id="confirm-consent-btn" class="accept-button consent-confirm-btn" data-i18n="actions.acceptAndContinue" data-modal-autofocus></button>
         </div>
     </div>
-</div>
+</dialog>

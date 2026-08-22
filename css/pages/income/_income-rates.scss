@@ -1,0 +1,164 @@
+@use '../../abstracts/variables' as *;
+
+#inc-clan-war-shiny-bonus-input,
+#inc-cwl-shiny-bonus-input {
+    width: 60px;
+}
+
+#inc-clan-war-glowy-bonus-input,
+#inc-cwl-glowy-bonus-input {
+    width: 45px;
+}
+
+#inc-clan-war-starry-bonus-input,
+#inc-cwl-starry-bonus-input {
+    width: 30px;
+}
+
+.rates-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-bottom: 15px;
+
+    .rate-column {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+
+        label {
+            color: $text-secondary;
+            margin-bottom: 5px;
+            text-align: center;
+            overflow-wrap: break-word;
+        }
+
+        input[type="number"] {
+            background-color: $bg-surface-primary;
+            border: 1px solid $border-primary;
+            border-radius: 5px;
+            color: $text-secondary;
+            padding: 8px;
+            text-align: center;
+            transition: border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
+            width: 80px;
+
+            &:focus {
+                outline: none;
+            }
+
+            &:focus-visible {
+                border-color: $accent-primary;
+                box-shadow: 0 0 0 3px $accent-primary-soft;
+                outline: none;
+            }
+        }
+    }
+}
+
+.summary-grid {
+    align-items: center;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 20px;
+
+    .summary-item-container {
+        align-items: center;
+        display: flex;
+        gap: 5px;
+
+        &:first-child {
+            justify-content: flex-start;
+        }
+
+        &:last-child {
+            justify-content: flex-end;
+        }
+
+        .summary-label {
+            flex: 0 0 50%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .summary-value-with-image {
+            flex: 0 0 50%;
+            align-items: center;
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+
+            .ore-image {
+                height: 24px;
+                width: auto;
+            }
+
+            picture.raid-medal-image {
+                transform: scale(1.25);
+            }
+            img.raid-medal-image {
+                transform: none;
+            }
+        }
+    }
+}
+
+#inc-raid-medals-total-input {
+    width: 60px;
+}
+
+.four-col-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(4, minmax(min-content, 1fr));
+    margin-bottom: 10px;
+    min-width: 0;
+
+    .grid-row {
+        display: contents;
+
+        > div {
+            text-align: right;
+        }
+    }
+}
+
+.grid-row {
+    display: contents;
+}
+
+.grid-label {
+    color: $text-secondary;
+    font-size: var(--font-size-lg);
+    font-weight: normal;
+    text-align: right;
+}
+
+.grid-value-display {
+    align-items: center;
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    transition: transform $duration-fast $ease-standard;
+
+    &:hover {
+        transform: scale(1.08);
+    }
+
+    .ore-image {
+        height: 18px;
+        margin-left: 2.5px;
+        width: auto;
+    }
+}
+
+.timeframe-income {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid $border-primary;
+}
+
+.negative-medals {
+    color: $color-danger;
+}

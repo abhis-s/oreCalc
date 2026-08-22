@@ -1,6 +1,5 @@
 @use '../abstracts/variables' as *;
 
-
 .home-profile-card {
     display: flex;
     flex-direction: column;
@@ -9,14 +8,13 @@
     overflow: hidden;
     padding: 24px;
 
-    @media (max-width: 600px) {
+    @media (max-width: $breakpoint-modal) {
         padding: 16px;
         gap: 16px;
         margin-bottom: 20px;
     }
 }
 
-/* Header styling with improved spacing and layout */
 .home-profile-header {
     display: flex;
     justify-content: space-between;
@@ -60,12 +58,12 @@
             bottom: -3px;
             right: -3px;
             background-color: $accent-primary;
-            color: $bg-surface-primary;
+            color: $text-on-accent;
             font-size: clamp(10px, 1.3vw, 12px);
             font-weight: 800;
             padding: 2px 6px;
             border-radius: 6px;
-            border: 1.5px solid $bg-surface-secondary;
+            border: 1.5px solid var(--bg-surface-secondary);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
         }
     }
@@ -143,7 +141,7 @@
                 }
             }
 
-            @media (max-width: 600px) {
+            @media (max-width: $breakpoint-modal) {
                 display: grid;
                 grid-template-columns: auto 1fr;
                 column-gap: 6px;
@@ -227,7 +225,7 @@
             }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: $breakpoint-modal) {
             align-items: flex-start;
             text-align: left;
             width: 100%;
@@ -261,14 +259,12 @@
     }
 }
 
-/* Stats container grouping overall and specific */
 .home-profile-stats-container {
     display: flex;
     flex-direction: column;
     gap: 0;
 }
 
-/* Overall Progress Bar styling */
 .home-profile-overall-progress {
     display: flex;
     flex-direction: column;
@@ -282,7 +278,7 @@
         border-radius: 8px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: $breakpoint-modal) {
         padding: 12px;
     }
 
@@ -331,25 +327,24 @@
         .progress-bar-fill.overall-fill {
             height: 100%;
             width: 0;
-            background: linear-gradient(90deg, #00b0ff 0%, #aa00ff 50%, #ffd700 100%);
+            background: linear-gradient(90deg, $palette-ore-shiny 0%, #aa00ff 50%, $palette-gold 100%);
             border-radius: 4px;
-            transition: width 2.0s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: width 2000ms $ease-smooth;
 
             &.maxed-fill {
-                background: linear-gradient(90deg, #ffd700 0%, #fff176 50%, #ffd700 100%);
+                background: linear-gradient(90deg, $palette-gold 0%, #fff176 50%, $palette-gold 100%);
                 box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.5);
             }
         }
     }
 }
 
-/* Stats Row styling with wider gaps and padding */
 .home-profile-stats-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
 
-    @media (max-width: 600px) {
+    @media (max-width: $breakpoint-modal) {
         grid-template-columns: 1fr;
         gap: 0;
     }
@@ -367,7 +362,7 @@
         text-align: center;
         box-sizing: border-box;
 
-        @media (max-width: 600px) {
+        @media (max-width: $breakpoint-modal) {
             padding: 12px;
             border-radius: 0;
 
@@ -446,11 +441,11 @@
                 right: 0;
                 height: 100%;
                 width: 0;
-                background-color: $text-disabled;
-                opacity: 0.3;
+                background-color: $bg-surface-tertiary;
+                opacity: 0.8;
                 border-radius: inherit;
                 pointer-events: none;
-                transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: width 600ms $ease-standard;
             }
 
             .progress-bar-fill {
@@ -458,22 +453,22 @@
                 width: 0;
                 background: linear-gradient(90deg, $accent-primary 0%, color-mix(in srgb, $accent-primary 70%, $color-white-const) 100%);
                 border-radius: 2.5px;
-                transition: width 1.8s cubic-bezier(0.25, 1, 0.5, 1);
+                transition: width 1800ms $ease-smooth;
 
                 &.shiny-fill {
-                    background: linear-gradient(90deg, #00b0ff 0%, #80d8ff 100%);
+                    background: linear-gradient(90deg, $palette-ore-shiny 0%, #80d8ff 100%);
                 }
 
                 &.glowy-fill {
-                    background: linear-gradient(90deg, #aa00ff 0%, #e040fb 100%);
+                    background: linear-gradient(90deg, #aa00ff 0%, $palette-ore-glowy 100%);
                 }
 
                 &.starry-fill {
-                    background: linear-gradient(90deg, #ffab00 0%, #ffd700 100%);
+                    background: linear-gradient(90deg, $palette-ore-starry 0%, $palette-gold 100%);
                 }
 
                 &.maxed-fill {
-                    background: linear-gradient(90deg, #ffd700 0%, #fff176 50%, #ffd700 100%);
+                    background: linear-gradient(90deg, $palette-gold 0%, #fff176 50%, $palette-gold 100%);
                     box-shadow: 0 0 6px 1px rgba(255, 215, 0, 0.55);
                 }
             }
@@ -483,7 +478,7 @@
             margin-top: 6px;
             font-size: clamp(10px, 1.4vw, 12px);
             font-weight: 700;
-            color: #ffd700;
+            color: $palette-gold;
             letter-spacing: 0.4px;
         }
     }
@@ -504,7 +499,7 @@
     border-radius: 6px;
     border: 1px solid $border-secondary;
 
-    @media (max-width: 600px) {
+    @media (max-width: $breakpoint-modal) {
         margin-top: 12px;
         padding: 6px 10px;
     }
@@ -519,15 +514,14 @@
     }
 }
 
-// Delta overlay — absolutely positioned within the bar wrapper.
-// Rendered via JS after the initial fill animation completes.
+// JS-rendered delta overlay with delayed mount to prevent keyframe conflict
 .bar-delta-overlay {
     position: absolute;
     top: 0;
     height: 100%;
     border-radius: 2.5px;
     pointer-events: none;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 600ms $ease-standard;
 
     &.delta-positive {
         background: color-mix(in srgb, $color-success 85%, transparent);
@@ -540,7 +534,6 @@
     }
 }
 
-/* Unconnected UI styling with extra breathing room */
 .home-profile-unconnected {
     display: flex;
     flex-direction: column;

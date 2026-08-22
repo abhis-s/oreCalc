@@ -1,15 +1,16 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../core/stateManager.js';
-import { state } from '../../core/state.js';
-
-import { addValidation } from '../../utils/inputValidator.js';
-import { getMaxTownHall } from '../../utils/dateUtils.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
-import { translate } from '../../i18n/translator.js';
 import { getEquipmentMaxLevel, getTownHallCaps } from '../../data/equipmentCommonData.js';
+import { translate } from '../../i18n/translator.js';
+
+import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
+
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { addValidation } from '../../utils/inputValidator.js';
+
+import { dom } from '../../dom/domElements.js';
 
 function getTownHallMaxLevel(type, townHallLevel) {
-    const th = parseInt(townHallLevel, 10);
+    const th = Number(townHallLevel);
     if (isNaN(th) || th <= 0) {
         return getEquipmentMaxLevel(type);
     }
@@ -17,14 +18,17 @@ function getTownHallMaxLevel(type, townHallLevel) {
     return type === 'epic' ? capInfo.epicMax : capInfo.commonMax;
 }
 
+/**
+ * Initializes Common and Epic custom max level input controls, validation bounds, and popover providers.
+ */
 export function initializePlannerCustomLevels() {
     const container = document.querySelector('.max-level-card-header');
     if (!container) return;
 
     container.innerHTML = `
         <h3 class="custom-max-level-title" style="display: flex; align-items: center; gap: 6px; margin: 0;">
-            <span data-i18n="planner.customMaxLevel">${translate('planner.customMaxLevel')}</span>
-            <button class="info-btn" data-info="planner.customMaxLevelHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+            <span data-i18n="views.planner.customMaxLevel">${translate('views.planner.customMaxLevel')}</span>
+            <button class="info-btn" data-info="views.planner.customMaxLevelHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
             </button>
         </h3>`;
@@ -33,8 +37,8 @@ export function initializePlannerCustomLevels() {
     settingsContainer.className = 'level-settings-container';
 
     const levels = [
-        { id: 'planner-common-max-level', key: 'common', i18n: 'planner.common', max: getEquipmentMaxLevel('common') },
-        { id: 'planner-epic-max-level', key: 'epic', i18n: 'planner.epic', max: getEquipmentMaxLevel('epic') }
+        { id: 'planner-common-max-level', key: 'common', i18n: 'views.planner.common', max: getEquipmentMaxLevel('common') },
+        { id: 'planner-epic-max-level', key: 'epic', i18n: 'views.planner.epic', max: getEquipmentMaxLevel('epic') }
     ];
 
     levels.forEach(level => {
@@ -57,7 +61,7 @@ export function initializePlannerCustomLevels() {
         input.className = 'updatable';
         input.value = state.planner.customMaxLevel?.[level.key] || level.max;
         input.min = '1';
-        input.max = level.max;
+        input.max = String(level.max);
         input.maxLength = 2;
 
         wrapper.appendChild(input);
@@ -65,8 +69,9 @@ export function initializePlannerCustomLevels() {
 
         addValidation(input, { inputName: `${level.key}MaxLevel` });
         input.addEventListener('validated-input', (event) => {
+            const customEv = /** @type {CustomEvent} */ (event);
             handleStateUpdate(() => {
-                state.planner.customMaxLevel[level.key] = event.detail.value;
+                state.planner.customMaxLevel[level.key] = customEv.detail.value;
             });
         });
 
@@ -82,7 +87,7 @@ export function initializePlannerCustomLevels() {
                 return getTownHallMaxLevel(level.key, playerTH);
             },
             recommendedLabel: () => {
-                return translate('planner.recommended') || 'Recommended';
+                return translate('views.planner.recommended');
             },
             clickToFill: {
                 max: true,
@@ -91,14 +96,17 @@ export function initializePlannerCustomLevels() {
         });
 
         settingsContainer.appendChild(group);
-        
-        // Update DOM reference
+
         dom.planner.customMaxLevel[level.key] = input;
     });
 
     container.appendChild(settingsContainer);
 }
 
+/**
+ * Synchronizes custom max level input element values with the active planner state.
+ * @param {import('../../core/types.js').PlannerState} plannerState - Planner state object.
+ */
 export function renderPlannerCustomLevels(plannerState) {
     if (!plannerState) {
         console.error('Planner state is not available. Cannot update DOM.');

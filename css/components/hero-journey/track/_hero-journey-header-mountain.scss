@@ -1,0 +1,167 @@
+@use '../../../abstracts/variables' as *;
+
+.hero-journey-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.hero-journey-title-container {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.hero-mountain-cluster {
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+    height: 3.4rem;
+    padding: 0 4px;
+
+    .mountain-badge-slot {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: -9px;
+        transition: opacity $duration-base $ease-smooth;
+
+        &:first-child {
+            margin-left: 0;
+        }
+
+        .mountain-badge {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45));
+            transition: transform $duration-base $ease-standard, filter $duration-base $ease-smooth;
+        }
+
+        @media (hover: hover) {
+            &:hover {
+                z-index: 20 !important;
+                opacity: 1 !important;
+
+                .mountain-badge {
+                    transform: scale(1.45) translateY(-16px);
+                    filter: drop-shadow(0 8px 18px rgba(245, 158, 11, 0.75));
+                }
+            }
+        }
+
+        &.active-pop {
+            z-index: 20 !important;
+            opacity: 1 !important;
+
+            .mountain-badge {
+                transform: scale(1.45) translateY(-16px);
+                filter: drop-shadow(0 8px 18px rgba(245, 158, 11, 0.75));
+            }
+        }
+
+        &.pos-1 {
+            width: 1.8rem;
+            height: 1.8rem;
+            transform: translateY(2px);
+            z-index: 1;
+            opacity: 0.85;
+        }
+
+        &.pos-2 {
+            width: 2.2rem;
+            height: 2.2rem;
+            transform: translateY(-4px);
+            z-index: 2;
+            opacity: 0.95;
+        }
+
+        &.pos-3 {
+            width: 2.6rem;
+            height: 2.6rem;
+            transform: translateY(-10px);
+            z-index: 4;
+
+            .mountain-badge {
+                filter: drop-shadow(0 4px 8px rgba(245, 158, 11, 0.35));
+            }
+        }
+
+        &.pos-4 {
+            width: 2.6rem;
+            height: 2.6rem;
+            transform: translateY(-10px);
+            z-index: 3;
+
+            .mountain-badge {
+                filter: drop-shadow(0 4px 8px rgba(245, 158, 11, 0.35));
+            }
+        }
+
+        &.pos-5 {
+            width: 2.2rem;
+            height: 2.2rem;
+            transform: translateY(-4px);
+            z-index: 2;
+            opacity: 0.95;
+        }
+
+        &.pos-6 {
+            width: 1.8rem;
+            height: 1.8rem;
+            transform: translateY(2px);
+            z-index: 1;
+            opacity: 0.85;
+        }
+    }
+}
+
+.hero-journey-title {
+    font-size: clamp(1.08rem, 1.8vw + 0.65rem, 1.35rem);
+    font-weight: 700;
+    margin: 0;
+    color: $text-primary;
+    display: inline-flex;
+    align-items: center;
+
+    .hero-journey-title-wrapper {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .hero-journey-title-text {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .beta-badge {
+        position: static;
+    }
+}
+
+.hero-journey-level-badge {
+    background-color: $accent-primary;
+    color: $text-on-accent;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: clamp(0.7rem, 0.5vw + 0.65rem, 0.8rem);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: background $duration-moderate $ease-smooth, color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
+
+    &.badge-true-max {
+        background-color: $color-warning;
+        color: $text-inverse;
+        font-weight: 900;
+        border: 1px solid $border-accent;
+        box-shadow: 0 0 10px $color-warning-soft, 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+}

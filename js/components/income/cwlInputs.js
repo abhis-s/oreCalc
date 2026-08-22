@@ -1,13 +1,15 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
-import { state } from '../../core/state.js';
-
-import { addValidation } from '../../utils/inputValidator.js';
-import { adjustWarRates } from '../../utils/incomeUtils.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { getWarOreValue } from '../../data/incomeSources/warOres.js';
 import { translate } from '../../i18n/translator.js';
-import { warOreTownHallValues } from '../../data/incomeSources/warOres.js';
+
+import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
+
+import { CWL_DEFAULTS } from '../../domain/income/cwlIncome.js';
+import { adjustWarRates } from '../../utils/incomeUtils.js';
 import { logger } from '../../utils/logger.js';
+
+import { bindNumericInput } from '../common/formBindingUtils.js';
+import { dom } from '../../dom/domElements.js';
 
 let calculatedCwlStats = {
     clanTag: null,
@@ -20,7 +22,7 @@ let calculatedCwlStats = {
 
 function updateCalculatedStatsFromCache() {
     const cachedSeasons = state.playerProfile?.cwlSeasons || [];
-    
+
     if (cachedSeasons.length === 0) {
         calculatedCwlStats.winRate = 50;
         calculatedCwlStats.drawRate = 0;
@@ -28,23 +30,23 @@ function updateCalculatedStatsFromCache() {
         calculatedCwlStats.hasCalculated = false;
         return;
     }
-    
+
     let totalWins = 0;
     let totalDraws = 0;
     let totalWars = 0;
     let sumHits = 0;
-    
+
     for (const season of cachedSeasons) {
         const wars = season.warsCount || 0;
         const wins = season.winsCount !== undefined ? season.winsCount : Math.round(((season.winRate ?? 50) * (wars || 7)) / 100);
         const draws = season.drawsCount !== undefined ? season.drawsCount : Math.round(((season.drawRate ?? 0) * (wars || 7)) / 100);
-        
+
         totalWins += wins;
         totalDraws += draws;
         totalWars += wars;
         sumHits += (season.hitsCount ?? 7);
     }
-    
+
     if (totalWars === 0) {
         calculatedCwlStats.winRate = 50;
         calculatedCwlStats.drawRate = 0;
@@ -59,21 +61,21 @@ function updateCalculatedStatsFromCache() {
 
 function getRecommendedLabel() {
     const cachedSeasons = state.playerProfile?.cwlSeasons || [];
-    
+
     if (!calculatedCwlStats.hasCalculated || cachedSeasons.length === 0) {
-        return translate('planner.recommended');
+        return translate('views.planner.recommended');
     }
-    
+
     const currentSeason = cachedSeasons[0];
     if (currentSeason && currentSeason.inProgress && cachedSeasons.length === 1) {
-        return translate('income.cwl.currentCwlHits', { count: calculatedCwlStats.hitsCount });
+        return translate('views.income.cwl.currentCwlHits', { count: calculatedCwlStats.hitsCount });
     }
-    
+
     if (cachedSeasons.length === 1) {
-        return translate('income.cwl.cwl1SeasonHits', { count: calculatedCwlStats.hitsCount });
+        return translate('views.income.cwl.cwl1SeasonHits', { count: calculatedCwlStats.hitsCount });
     }
-    
-    return translate('income.cwl.cwl2SeasonsHits', { count: calculatedCwlStats.hitsCount });
+
+    return translate('views.income.cwl.cwl2SeasonsHits', { count: calculatedCwlStats.hitsCount });
 }
 
 function compileCwlSeasonsFromWars(warsList, activePlayerTag, cleanClanTag) {
@@ -177,7 +179,7 @@ function compileCwlSeasonsFromWars(warsList, activePlayerTag, cleanClanTag) {
     return compiledSeasons.slice(0, 2);
 }
 
-export async function triggerCwlLogFetch(clanTag) {
+async function triggerCwlLogFetch(clanTag) {
     if (calculatedCwlStats.isFetching) return;
 
     // Cooldown check!
@@ -223,7 +225,6 @@ export async function triggerCwlLogFetch(clanTag) {
             })
         ]);
 
-        // Update last fetch time
         sessionStorage.setItem(`oreCalc_cooldown_cwl_${clanTag}`, now.toString());
         if (state.playerProfile) {
             state.playerProfile.lastCwlFetchTime = new Date(now).toISOString();
@@ -232,7 +233,6 @@ export async function triggerCwlLogFetch(clanTag) {
         const warsMap = new Map();
         const cachedWarTags = new Set();
 
-        // Load server wars into map
         for (const cachedWar of serverWars) {
             if (cachedWar.warTag && cachedWar.warData) {
                 warsMap.set(cachedWar.warTag, {
@@ -244,13 +244,11 @@ export async function triggerCwlLogFetch(clanTag) {
             }
         }
 
-        // If live groupData is available, determine which wars to fetch
         if (groupData && groupData.rounds) {
             const rounds = groupData.rounds || [];
             const warTagsToFetch = [];
 
-            // Map cached war tags to their round index
-            const roundIndexMap = new Map(); // warTag -> roundIndex
+            const roundIndexMap = new Map();
             rounds.forEach((round, roundIdx) => {
                 const tags = round.warTags || [];
                 tags.forEach(tag => {
@@ -258,7 +256,6 @@ export async function triggerCwlLogFetch(clanTag) {
                 });
             });
 
-            // Find which rounds already have a cached ended war
             const roundsWithEndedWar = new Set();
             for (const cachedWar of serverWars) {
                 if (cachedWar.warTag && cachedWar.warData) {
@@ -269,14 +266,11 @@ export async function triggerCwlLogFetch(clanTag) {
                 }
             }
 
-            // Decide which war tags we need to fetch live
             rounds.forEach((round, roundIdx) => {
-                // If we already have an ended war cached for this round, we don't fetch anything for this round
                 if (roundsWithEndedWar.has(roundIdx)) {
                     return;
                 }
 
-                // Otherwise, check if we have a cached in-progress/preparation war for this round
                 const tags = round.warTags || [];
                 let hasInProgressCached = false;
                 let inProgressTag = null;
@@ -371,119 +365,124 @@ export async function triggerCwlLogFetch(clanTag) {
     }
 }
 
-function setupWarInputPopover(oreType, input) {
-    registerInputPopover(input, {
+function getWarOrePopoverConfig(oreType) {
+    return {
         title: () => translate('validation.amount'),
         min: 0,
         showRecommended: true,
         recommended: () => {
-            const playerTH = parseInt(state.playerProfile?.townHallLevel || 16, 10);
-            let checkTH = playerTH;
-            if (checkTH < 8) checkTH = 8;
-            else if (checkTH > 16) checkTH = 16;
-            return warOreTownHallValues[oreType][checkTH] !== undefined ? warOreTownHallValues[oreType][checkTH] : 0;
+            const playerTH = Number(state.playerProfile?.townHallLevel) || 16;
+            return getWarOreValue(oreType, playerTH);
         },
         recommendedLabel: () => {
-            const playerTH = parseInt(state.playerProfile?.townHallLevel || 16, 10);
-            return translate('equipment.thShort', { level: playerTH });
+            const playerTH = Number(state.playerProfile?.townHallLevel) || 16;
+            return translate('views.equipment.thShort', { level: playerTH });
         },
         hideRecommendedIfHigher: false,
         clickToFill: {
             max: true,
             recommended: true
         }
-    });
+    };
 }
 
-function handleInputChange(e, key, oreType = null) {
-    const value = e.detail.value;
-
-    handleStateUpdate(() => {
-        if (!state.income.cwl) state.income.cwl = { oresPerAttack: {} };
-        if (!state.income.cwl.oresPerAttack) state.income.cwl.oresPerAttack = {};
-
-        if (oreType) {
-            state.income.cwl.oresPerAttack[oreType] = value;
-        } else if (key === 'winRate' || key === 'drawRate') {
-            const newWinRate = key === 'winRate' ? value : (state.income.cwl.winRate ?? 50);
-            const newDrawRate = key === 'drawRate' ? value : (state.income.cwl.drawRate || 0);
-            const changedRate = key === 'winRate' ? 'win' : 'draw';
-            const adjusted = adjustWarRates(newWinRate, newDrawRate, changedRate);
-            state.income.cwl.winRate = adjusted.winRate;
-            state.income.cwl.drawRate = adjusted.drawRate;
-        } else {
-            state.income.cwl[key] = value;
-        }
-    });
+function ensureCwlState() {
+    if (!state.income.cwl) state.income.cwl = { oresPerAttack: {} };
+    if (!state.income.cwl.oresPerAttack) state.income.cwl.oresPerAttack = {};
 }
 
+function updateCwlRateState(key, value) {
+    ensureCwlState();
+    const newWinRate = key === 'winRate' ? value : (state.income.cwl.winRate ?? 50);
+    const newDrawRate = key === 'drawRate' ? value : (state.income.cwl.drawRate || 0);
+    const changedRate = key === 'winRate' ? 'win' : 'draw';
+    const adjusted = adjustWarRates(newWinRate, newDrawRate, changedRate);
+    state.income.cwl.winRate = adjusted.winRate;
+    state.income.cwl.drawRate = adjusted.drawRate;
+}
+
+/**
+ * Initializes CWL input event bindings, popovers, and validation.
+ */
 export function initializeCwlInputs() {
     const inputs = dom.income?.cwl;
     if (!inputs) return;
 
-    addValidation(inputs.hitsPerSeasonInput, { inputName: translate('income.cwl.hitsPerSeason') });
-    registerInputPopover(inputs.hitsPerSeasonInput, {
-        title: () => translate('income.cwl.hitsPerSeason'),
-        min: 0,
-        max: 7,
-        showRecommended: true,
-        recommended: () => calculatedCwlStats.hitsCount,
-        recommendedLabel: () => getRecommendedLabel(),
-        clickToFill: {
-            min: true,
-            max: true,
-            recommended: true
+    bindNumericInput(inputs.hitsPerSeasonInput, {
+        inputName: translate('views.income.cwl.hitsPerSeason'),
+        popover: {
+            title: () => translate('views.income.cwl.hitsPerSeason'),
+            min: CWL_DEFAULTS.MIN_HITS,
+            max: CWL_DEFAULTS.MAX_HITS,
+            showRecommended: true,
+            recommended: () => calculatedCwlStats.hitsCount,
+            recommendedLabel: () => getRecommendedLabel(),
+            clickToFill: {
+                min: true,
+                max: true,
+                recommended: true
+            }
+        },
+        onUpdate: (value) => {
+            ensureCwlState();
+            state.income.cwl.hitsPerSeason = value;
         }
     });
-    inputs.hitsPerSeasonInput?.addEventListener('validated-input', (e) => handleInputChange(e, 'hitsPerSeason'));
 
-    addValidation(inputs.warResults.winRateInput, { inputName: translate('income.winRate') });
-    registerInputPopover(inputs.warResults.winRateInput, {
-        title: () => translate('income.winRate'),
-        min: 0,
-        max: 100,
-        showRange: true,
-        showRecommended: true,
-        recommended: () => calculatedCwlStats.winRate,
-        recommendedLabel: () => getRecommendedLabel(),
-        clickToFill: {
-            min: true,
-            max: true,
-            recommended: true
-        }
+    bindNumericInput(inputs.warResults.winRateInput, {
+        inputName: translate('views.income.winRate'),
+        popover: {
+            title: () => translate('views.income.winRate'),
+            min: 0,
+            max: 100,
+            showRange: true,
+            showRecommended: true,
+            recommended: () => calculatedCwlStats.winRate,
+            recommendedLabel: () => getRecommendedLabel(),
+            clickToFill: {
+                min: true,
+                max: true,
+                recommended: true
+            }
+        },
+        onUpdate: (value) => updateCwlRateState('winRate', value)
     });
-    inputs.warResults.winRateInput?.addEventListener('validated-input', (e) => handleInputChange(e, 'winRate'));
 
-    addValidation(inputs.warResults.drawRateInput, { inputName: translate('income.drawRate') });
-    registerInputPopover(inputs.warResults.drawRateInput, {
-        title: () => translate('income.drawRate'),
-        min: 0,
-        max: 100,
-        showRange: true,
-        showRecommended: true,
-        recommended: () => calculatedCwlStats.drawRate,
-        recommendedLabel: () => getRecommendedLabel(),
-        clickToFill: {
-            min: true,
-            max: true,
-            recommended: true
-        }
+    bindNumericInput(inputs.warResults.drawRateInput, {
+        inputName: translate('views.income.drawRate'),
+        popover: {
+            title: () => translate('views.income.drawRate'),
+            min: 0,
+            max: 100,
+            showRange: true,
+            showRecommended: true,
+            recommended: () => calculatedCwlStats.drawRate,
+            recommendedLabel: () => getRecommendedLabel(),
+            clickToFill: {
+                min: true,
+                max: true,
+                recommended: true
+            }
+        },
+        onUpdate: (value) => updateCwlRateState('drawRate', value)
     });
-    inputs.warResults.drawRateInput?.addEventListener('validated-input', (e) => handleInputChange(e, 'drawRate'));
 
-    addValidation(inputs.oresPerAttack.shinyInput, { inputName: translate('ores.shiny') });
-    setupWarInputPopover('shiny', inputs.oresPerAttack.shinyInput);
-    inputs.oresPerAttack.shinyInput?.addEventListener('validated-input', (e) => handleInputChange(e, null, 'shiny'));
-
-    addValidation(inputs.oresPerAttack.glowyInput, { inputName: translate('ores.glowy') });
-    setupWarInputPopover('glowy', inputs.oresPerAttack.glowyInput);
-    inputs.oresPerAttack.glowyInput?.addEventListener('validated-input', (e) => handleInputChange(e, null, 'glowy'));
-
-    addValidation(inputs.oresPerAttack.starryInput, { inputName: translate('ores.starry') });
-    setupWarInputPopover('starry', inputs.oresPerAttack.starryInput);
-    inputs.oresPerAttack.starryInput?.addEventListener('validated-input', (e) => handleInputChange(e, null, 'starry'));
+    ['shiny', 'glowy', 'starry'].forEach((oreType) => {
+        bindNumericInput(inputs.oresPerAttack[`${oreType}Input`], {
+            inputName: translate(`entities.ores.${oreType}`),
+            popover: getWarOrePopoverConfig(oreType),
+            onUpdate: (value) => {
+                ensureCwlState();
+                state.income.cwl.oresPerAttack[oreType] = value;
+            }
+        });
+    });
 }
 
+/**
+ * Populates and synchronizes CWL input fields with active state.
+ * @param {import('../../core/types.js').CwlIncomeState} [cwlState] - Active CWL state object.
+ */
 export function renderCwlInputs(cwlState) {
     const inputs = dom.income?.cwl;
     if (!inputs) return;
@@ -498,7 +497,7 @@ export function renderCwlInputs(cwlState) {
     if (inputs.oresPerAttack.starryInput) inputs.oresPerAttack.starryInput.value = safeState.oresPerAttack?.starry || 0;
 
     const currentClanTag = state.playerProfile?.clan?.tag || (state.playerProfile?.cwlSeasons?.length > 0 ? "unknown-clan" : undefined);
-    
+
     if (!currentClanTag) {
         if (calculatedCwlStats.clanTag !== null) {
             calculatedCwlStats.clanTag = null;
@@ -509,7 +508,7 @@ export function renderCwlInputs(cwlState) {
         }
     } else {
         const cachedSeasons = state.playerProfile?.cwlSeasons || [];
-        
+
         if (currentClanTag !== calculatedCwlStats.clanTag || cachedSeasons.length === 0) {
             calculatedCwlStats.clanTag = currentClanTag;
             if (cachedSeasons.length > 0) {

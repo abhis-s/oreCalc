@@ -1,10 +1,8 @@
 steps:
-# Install frontend dependencies
 - name: 'node:22-slim'
   entrypoint: 'npx'
   args: ['pnpm', 'install', '--frozen-lockfile']
 
-# Build the frontend application
 - name: 'node:22-slim'
   entrypoint: 'npx'
   args: ['pnpm', 'run', 'build']
@@ -12,15 +10,12 @@ steps:
   - 'VERBOSE=true'
   - 'TAG_NAME=$TAG_NAME'
 
-# Build the Docker image for the frontend
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '--build-arg', 'TAG_NAME=$TAG_NAME', '-t', 'gcr.io/$PROJECT_ID/orecalc-webapp:$COMMIT_SHA', '.']
 
-# Push the Docker image to Container Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/orecalc-webapp:$COMMIT_SHA']
 
-# Deploy the frontend to Cloud Run
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['run', 'deploy', 'orecalc-webapp',
          '--image', 'gcr.io/$PROJECT_ID/orecalc-webapp:$COMMIT_SHA',
@@ -32,4 +27,3 @@ steps:
 
 images:
 - 'gcr.io/$PROJECT_ID/orecalc-webapp:$COMMIT_SHA'
-

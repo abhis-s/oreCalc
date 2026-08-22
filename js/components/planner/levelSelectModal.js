@@ -1,12 +1,14 @@
-import { handleStateUpdate } from '../../core/stateManager.js';
-import { state } from '../../core/state.js';
-
-import { addValidation } from '../../utils/inputValidator.js';
-import { getSVG } from '../../utils/svgManager.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
-import { translate } from '../../i18n/translator.js';
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import { translate } from '../../i18n/translator.js';
+
+import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
+
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { addValidation } from '../../utils/inputValidator.js';
+import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
+import { getSVG } from '../../utils/svgManager.js';
 
 let currentEquipment = null;
 let currentHero = null;
@@ -17,28 +19,28 @@ function getDefaultLevels(currentLevel, minLevel, maxLevel, type) {
         defaultLevel1 = maxLevel;
     }
     defaultLevel1 = Math.max(defaultLevel1, 9);
-    defaultLevel1 = Math.max(defaultLevel1, minLevel); 
+    defaultLevel1 = Math.max(defaultLevel1, minLevel);
 
     let defaultLevel2 = defaultLevel1 + 3;
     if (defaultLevel2 > maxLevel) {
         defaultLevel2 = maxLevel;
     }
     defaultLevel2 = Math.max(defaultLevel2, type === 'epic' ? 18 : 12);
-    defaultLevel2 = Math.max(defaultLevel2, minLevel); 
+    defaultLevel2 = Math.max(defaultLevel2, minLevel);
 
     let defaultLevel3 = maxLevel;
-    defaultLevel3 = Math.max(defaultLevel3, minLevel); 
+    defaultLevel3 = Math.max(defaultLevel3, minLevel);
 
     return { defaultLevel1, defaultLevel2, defaultLevel3 };
 }
 
 function getEquipmentRecommendedLevel(stepIndex) {
     if (!currentEquipment || !currentHero) return 0;
-    
+
     const maxLevel = getEquipmentMaxLevel(currentEquipment.type);
     const currentLevel = state.heroes[currentHero.name]?.equipment[currentEquipment.name]?.level || 1;
     const minLevel = currentLevel + 1;
-    
+
     const { defaultLevel1, defaultLevel2, defaultLevel3 } = getDefaultLevels(
         currentLevel,
         minLevel,
@@ -64,7 +66,7 @@ function savePrioritySteps() {
 
     let heroNameForCurrentEquipment = null;
     for (const heroKey in state.heroes) {
-        if (state.heroes[heroKey].equipment && state.heroes[heroKey].equipment.hasOwnProperty(currentEquipment.name)) {
+        if (state.heroes[heroKey].equipment && Object.hasOwn(state.heroes[heroKey].equipment, currentEquipment.name)) {
             heroNameForCurrentEquipment = heroKey;
             break;
         }
@@ -123,7 +125,7 @@ function savePrioritySteps() {
             uiSteps.forEach(step => {
                 if (!step.enabled) return;
                 if (uniqueLevels.has(step.level)) {
-                    step.enabled = false; 
+                    step.enabled = false;
                 }
                 uniqueLevels.add(step.level);
             });
@@ -187,13 +189,13 @@ function savePrioritySteps() {
 
                 enabledSteps.forEach((step, index) => {
                     const stepKey = (index + 1).toString();
-                    
+
                     const plan = {
                         targetLevel: step.level,
                         enabled: true,
                         priorityIndex: step.priorityIndex
                     };
-                    
+
                     equipmentInState.upgradePlan[stepKey] = plan;
                 });
             }
@@ -228,10 +230,9 @@ function savePrioritySteps() {
     closeLevelSelectModal();
 }
 
-
 function renderTableRows() {
     const tbody = document.querySelector('#level-select-table tbody');
-    tbody.innerHTML = ''; 
+    tbody.innerHTML = '';
 
     for (let i = 1; i <= 3; i++) {
         const row = `
@@ -245,7 +246,7 @@ function renderTableRows() {
                 <td>#${i}</td>
                 <td class="level-input-cell">
                     <div class="popover-wrapper">
-                        <input type="number" id="level-input-${i}" class="level-input" placeholder="${translate('planner.placeholderLevel')}" maxlength="2" data-allow-empty="true" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                        <input type="number" id="level-input-${i}" class="level-input" placeholder="${translate('views.planner.placeholderLevel')}" maxlength="2" data-allow-empty="true" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                     </div>
                 </td>
                 <td class="trash-cell">
@@ -257,7 +258,7 @@ function renderTableRows() {
 
         const input = tbody.querySelector(`#level-input-${i}`);
         registerInputPopover(input, {
-            title: () => translate('planner.level'),
+            title: () => translate('views.planner.level'),
             min: () => parseInt(input.getAttribute('min')) || 1,
             max: () => parseInt(input.getAttribute('max')) || 18,
             showRange: true,
@@ -272,7 +273,7 @@ function renderTableRows() {
                 return getEquipmentRecommendedLevel(i);
             },
             recommendedLabel: () => {
-                return translate('planner.recommended') || 'Recommended';
+                return translate('views.planner.recommended');
             },
             clickToFill: {
                 max: true,
@@ -350,29 +351,29 @@ function trashStep(stepId) {
     lastEnableSwitch.checked = false;
 }
 
-export function createLevelSelectModal() {
+function createLevelSelectModal() {
     if (document.getElementById('level-select-modal')) return;
 
     const modalHtml = `
-        <div id="level-select-modal" class="modal">
+        <dialog id="level-select-modal" class="modal" aria-labelledby="level-select-modal-title" aria-label="${translate('views.planner.setTargetFor')}">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2><span class="set-target-text">${translate('planner.setTargetFor')}</span> <span id="level-select-modal-equip-name"></span></h2>
+                    <h2 id="level-select-modal-title"><span class="set-target-text">${translate('views.planner.setTargetFor')}</span> <span id="level-select-modal-equip-name"></span></h2>
                     <div class="modal-header-actions">
-                        <button id="level-select-modal-info-btn" class="info-button info-btn" data-info="planner.levelSelectModalHelp" data-i18n-aria-label="actions.showInfo" aria-label="Show Information">
-                            ${getSVG('info', 'info-icon', 24, 24, 'currentColor')}
+                        <button id="level-select-modal-info-btn" class="info-button" data-info="views.planner.levelSelectModalHelp" data-i18n-aria-label="actions.showInfo" aria-label="Show Information">
+                            <orecalc-assets-svg name="info" height="22" width="22"></orecalc-assets-svg>
                         </button>
-                        <button id="close-level-select-modal-btn" class="close-button">${getSVG('close', '', 24, 24, 'currentColor')}</button>
+                        <button id="close-level-select-modal-btn" class="close-button" aria-label="${translate('actions.close')}"><orecalc-assets-svg name="close"></orecalc-assets-svg></button>
                     </div>
                 </div>
                 <div class="modal-body">
-                    <p>${translate('planner.currentLevel')} <span id="current-equipment-level"></span></p>
+                    <p>${translate('views.planner.currentLevel')} <span id="current-equipment-level"></span></p>
                     <table id="level-select-table">
                         <thead>
                             <tr>
                                 <th>${translate('actions.enable')}</th>
-                                <th>${translate('planner.step')}</th>
-                                <th>${translate('planner.level')}</th>
+                                <th>${translate('views.planner.step')}</th>
+                                <th>${translate('views.planner.level')}</th>
                                 <th>${translate('actions.trash')}</th>
                             </tr>
                         </thead>
@@ -385,7 +386,7 @@ export function createLevelSelectModal() {
                     <button id="level-select-modal-save-btn" class="accept-button">${translate('actions.save')}</button>
                 </div>
             </div>
-        </div>
+        </dialog>
     `;
 
     document.body.insertAdjacentHTML('beforeend', modalHtml);
@@ -406,15 +407,20 @@ export function createLevelSelectModal() {
     addTableEventListeners();
 }
 
+/**
+ * Opens the Level Selection modal for fine-tuning intermediate hero equipment upgrade target steps.
+ * @param {any} hero - Hero definition object.
+ * @param {any} equipment - Equipment definition object.
+ */
 export function openLevelSelectModal(hero, equipment) {
     currentEquipment = equipment;
     currentHero = hero;
-    createLevelSelectModal(); 
+    createLevelSelectModal();
 
     const modal = document.getElementById('level-select-modal');
     const equipNameSpan = document.getElementById('level-select-modal-equip-name');
 
-    equipNameSpan.textContent = translate('equipment.' + toCamelCase(equipment.name));
+    equipNameSpan.textContent = translate('entities.equipment.' + toCamelCase(equipment.name));
     const currentLevelSpan = document.getElementById('current-equipment-level');
 
     const rows = document.querySelectorAll('#level-select-table tbody tr');
@@ -438,22 +444,22 @@ export function openLevelSelectModal(hero, equipment) {
         const levelInput = row.querySelector('.level-input');
         const enableSwitch = row.querySelector('.enable-switch');
 
-        levelInput.setAttribute('min', minLevel); 
-        levelInput.setAttribute('max', maxLevel); 
+        levelInput.setAttribute('min', String(minLevel));
+        levelInput.setAttribute('max', String(maxLevel));
 
         const stepNum = index + 1;
         const recVal = getEquipmentRecommendedLevel(stepNum);
         const defaultMaxPlaceholder = getEquipmentMaxLevel(equipment.type);
         const displayVal = (recVal && recVal >= minLevel) ? recVal : defaultMaxPlaceholder;
 
-        const basePlaceholderText = translate('planner.placeholderLevel') || 'e.g., 18';
+        const basePlaceholderText = translate('views.planner.placeholderLevel');
         const prefix = basePlaceholderText.includes('18') ? basePlaceholderText.split('18')[0] : 'e.g., ';
         levelInput.setAttribute('placeholder', `${prefix}${displayVal}`);
 
         const savedStep = stepsToFill[index];
 
-        if (savedStep) { 
-            levelInput.value = savedStep.targetLevel; 
+        if (savedStep) {
+            levelInput.value = savedStep.targetLevel;
             enableSwitch.checked = true;
             levelInput.disabled = false;
         } else {
@@ -461,7 +467,7 @@ export function openLevelSelectModal(hero, equipment) {
             enableSwitch.checked = false;
             levelInput.disabled = false;
         }
-        addValidation(levelInput, { inputName: translate('validation.level'), rules: { max: maxLevel, min: minLevel } });
+        addValidation(levelInput, { inputName: translate('validation.level') });
     });
 
     if (currentLevel < maxLevel && stepsToFill.length === 0) {
@@ -470,24 +476,24 @@ export function openLevelSelectModal(hero, equipment) {
             minLevel,
             maxLevel,
             equipment.type
-        ); 
-        
+        );
+
         let maxAssignedLevel = currentLevel;
 
         rows.forEach((row, index) => {
             const levelInput = row.querySelector('.level-input');
             const enableSwitch = row.querySelector('.enable-switch');
 
-            levelInput.value = ''; 
-            enableSwitch.checked = true; 
+            levelInput.value = '';
+            enableSwitch.checked = true;
 
             let currentDefaultLevel = 0;
 
-            if (index === 0) { 
+            if (index === 0) {
                 currentDefaultLevel = defaultLevel1;
-            } else if (index === 1) { 
+            } else if (index === 1) {
                 currentDefaultLevel = defaultLevel2;
-            } else if (index === 2) { 
+            } else if (index === 2) {
                 currentDefaultLevel = defaultLevel3;
             }
 
@@ -502,9 +508,10 @@ export function openLevelSelectModal(hero, equipment) {
 
             // If a previous step reached max level or was disabled, disable subsequent ones
             if (index > 0) {
-                const prevValStr = rows[index-1].querySelector('.level-input').value;
+                const prevInput = /** @type {HTMLInputElement | null} */ (rows[index - 1]?.querySelector('.level-input'));
+                const prevValStr = prevInput?.value;
                 if (prevValStr) {
-                    const prevLevel = parseInt(prevValStr, 10);
+                    const prevLevel = Number(prevValStr) || 0;
                     if (prevLevel >= maxLevel) {
                         levelInput.value = '';
                         enableSwitch.checked = false;
@@ -517,6 +524,11 @@ export function openLevelSelectModal(hero, equipment) {
         });
     }
 
+    if (typeof modal.showModal === 'function' && !modal.open) {
+        try {
+            modal.showModal();
+        } catch (e) {}
+    }
     modal.classList.add('show');
     setTimeout(() => {
         const firstInput = rows[0]?.querySelector('.level-input');
@@ -524,9 +536,11 @@ export function openLevelSelectModal(hero, equipment) {
     }, 100);
 }
 
-export function closeLevelSelectModal() {
+function closeLevelSelectModal() {
     const modal = document.getElementById('level-select-modal');
-    modal.classList.remove('show');
-    currentEquipment = null;
-    currentHero = null;
+    if (!modal) return;
+    closeModalAnimated(modal, () => {
+        currentEquipment = null;
+        currentHero = null;
+    });
 }

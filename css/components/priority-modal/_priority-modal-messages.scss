@@ -1,0 +1,191 @@
+@use '../../abstracts/variables' as *;
+
+.priority-list-message-box {
+    background-color: $accent-primary-soft;
+    border: 1px solid $accent-primary;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 1rem;
+    text-align: center;
+    display: none;
+
+    & + .equipment-chip-container {
+        transition: border-color $duration-fast $ease-smooth;
+    }
+
+    &.error {
+        border-color: $color-danger;
+        background-color: $color-danger-soft;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+        gap: 6px;
+
+        .error-messages-wrapper {
+            flex-grow: 1;
+
+            .error-message {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: $breakpoint-modal) {
+            flex-direction: column;
+            text-align: center;
+            padding: 15px;
+
+            .error-messages-wrapper {
+                margin-bottom: 6px;
+
+                .error-message {
+                    justify-content: center;
+                }
+            }
+
+            .fix-order-btn {
+                margin-left: 0;
+            }
+        }
+    }
+
+    p {
+        margin: 0;
+        color: $text-primary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+
+        &:not(:first-child) {
+            margin-top: 6px;
+        }
+    }
+
+    .error-message {
+        color: $color-danger;
+        font-weight: var(--font-weight-bold);
+    }
+
+    .error-icon {
+        flex-shrink: 0;
+    }
+
+    .suggestion-message {
+        color: $accent-primary;
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        text-align: left;
+        gap: 6px;
+        padding: 8px 0;
+        margin: 0;
+
+        &:not(:first-child) {
+            border-top: 1px solid rgba($accent-primary, 0.2);
+            margin-top: 0;
+        }
+
+        .suggestion-icon {
+            flex-shrink: 0;
+            fill: currentColor;
+        }
+
+        span {
+            flex: 1;
+        }
+    }
+
+    &.suggestion-only {
+        background-color: $accent-primary-soft;
+        border: 1px solid $accent-primary;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        @media (max-width: $breakpoint-modal) {
+            flex-direction: column;
+            padding: 15px;
+            text-align: center;
+
+            .suggestion-messages-wrapper {
+                margin-bottom: 12px;
+                width: 100%;
+            }
+
+            .hide-suggestion-btn {
+                margin-left: 0;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    }
+}
+
+.priority-list-message-box:not([style*="display: none"]) + .equipment-chip-container {
+    border-top: 1.5px dotted $border-primary;
+
+    h3 {
+        display: none;
+    }
+}
+
+.fix-order-btn {
+    background-color: $btn-bg-emerald-soft;
+    color: $btn-color-emerald;
+    border: 1px solid $btn-border-emerald;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: var(--font-weight-bold);
+
+    &:hover {
+        background-color: $btn-bg-emerald-soft-hover;
+        border-color: $btn-border-emerald-hover;
+        transform: scale(1.02);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    svg {
+        fill: currentColor;
+    }
+}
+
+.suggestion-bar {
+    height: 3px;
+    background-color: $accent-primary;
+    margin: 2px 0 10px 0;
+}
+
+.suggestion-messages-wrapper {
+    flex-grow: 1;
+}
+
+.hide-suggestion-btn {
+    background-color: transparent;
+    border: 1px solid $accent-primary;
+    color: $accent-primary;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    margin-left: 10px;
+    white-space: nowrap;
+    transition: background-color $duration-fast $ease-smooth;
+
+    &:hover {
+        background-color: $accent-primary-soft;
+    }
+}

@@ -1,6 +1,8 @@
+import { MAX_SAVED_PLAYERS } from './constants.js';
+import { getResettingState, saveState } from './localStorageManager.js';
 import { state } from './state.js';
-import { saveState, getResettingState } from './localStorageManager.js';
-import { resetHeroJourneyScrollPositions } from '../components/home/heroJourneyDisplay.js';
+
+import { resetHeroJourneyScrollPositions } from '../components/home/heroJourneyScrollManager.js';
 
 let stateUpdateCallback = null;
 let cloudSaveTimeout = null;
@@ -8,8 +10,7 @@ let cloudSaveTimeout = null;
 /**
  * Registers the callback for updating UI elements on state change.
  * This decouples the state manager from calculator and renderer modules.
- *
- * @param {Function} callback - Callback function(state, silent).
+ * @param {(state: import('./types.js').AppState, silent: boolean) => void} callback - Callback function.
  */
 export function registerStateUpdateCallback(callback) {
     stateUpdateCallback = callback;
@@ -18,8 +19,7 @@ export function registerStateUpdateCallback(callback) {
 /**
  * Updates application state safely, triggering recalculations, UI renders, local storage persistence,
  * and debounced cloud saves.
- *
- * @param {Function} updateFn - Function that modifies state.
+ * @param {() => void} updateFn - Function that modifies state.
  * @param {boolean} [silent=false] - If true, skips UI rendering.
  */
 export function handleStateUpdate(updateFn, silent = false) {
@@ -52,43 +52,25 @@ export function handleStateUpdate(updateFn, silent = false) {
 }
 
 /**
- * Safely switches the active player by saving the current player's state
- * and loading the new player's state into the global state fields,
- * avoiding data bleeding.
- *
+ * Safely switches the active player by pointing global active state references
+ * directly to the selected player's data partition in O(1) time without JSON cloning.
  * @param {string} newTag - The player tag to switch to.
  */
 export function switchActivePlayer(newTag) {
     resetHeroJourneyScrollPositions();
     handleStateUpdate(() => {
-        const oldTag = state.savedPlayerTags[0];
-        
-        // 1. Save old active player data to their slot in allPlayersData
-        if (oldTag && state.allPlayersData[oldTag]) {
-            const oldPlayerData = {
-                ...state.allPlayersData[oldTag],
-                heroes: JSON.parse(JSON.stringify(state.heroes)),
-                storedOres: JSON.parse(JSON.stringify(state.storedOres)),
-                income: JSON.parse(JSON.stringify(state.income)),
-                planner: JSON.parse(JSON.stringify(state.planner)),
-                playerProfile: state.playerProfile ? JSON.parse(JSON.stringify(state.playerProfile)) : null,
-                heroJourney: state.heroJourney ? JSON.parse(JSON.stringify(state.heroJourney)) : null
-            };
-            state.allPlayersData[oldTag] = oldPlayerData;
-            localStorage.setItem(`oreCalc_player_${oldTag}`, JSON.stringify(oldPlayerData));
-        }
-
-        // 2. Load the new player's data from allPlayersData
         const newPlayerData = state.allPlayersData[newTag];
         if (!newPlayerData) {
             console.error(`switchActivePlayer: Player data not found for tag: ${newTag}`);
             return;
         }
 
-        // 3. Update savedPlayerTags order
         if (newTag !== 'DEFAULT0' && state.savedPlayerTags.includes('DEFAULT0')) {
             state.savedPlayerTags = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0');
             delete state.allPlayersData['DEFAULT0'];
+            try {
+                localStorage.removeItem('oreCalc_player_DEFAULT0');
+            } catch (e) {}
         }
 
         const existingIndex = state.savedPlayerTags.indexOf(newTag);
@@ -96,26 +78,21 @@ export function switchActivePlayer(newTag) {
             state.savedPlayerTags.splice(existingIndex, 1);
         }
         state.savedPlayerTags.unshift(newTag);
-        if (state.savedPlayerTags.length > 12) {
+        if (state.savedPlayerTags.length > MAX_SAVED_PLAYERS) {
             state.savedPlayerTags.pop();
         }
 
-        // 4. Update the global state active fields
-        const safeClone = (obj, fallback = {}) => {
-            try {
-                return obj ? JSON.parse(JSON.stringify(obj)) : fallback;
-            } catch (e) {
-                console.warn('Failed to clone state object, using fallback', e);
-                return fallback;
-            }
-        };
-
-        state.heroes = safeClone(newPlayerData.heroes);
-        state.storedOres = safeClone(newPlayerData.storedOres);
-        state.income = safeClone(newPlayerData.income);
-        state.planner = safeClone(newPlayerData.planner);
-        state.playerProfile = safeClone(newPlayerData.playerProfile, null);
-        state.heroJourney = safeClone(newPlayerData.heroJourney, { overrideUnclaimed: [], acceleratedRewards: false });
+        // ponytail: direct reference binding over JSON clone. Active player references point to partition.
+        state.heroes = newPlayerData.heroes;
+        state.storedOres = newPlayerData.storedOres;
+        state.income = newPlayerData.income;
+        state.planner = newPlayerData.planner;
+        if (state.planner?.calendar) {
+            state.planner.calendar.isHydrated = false;
+        }
+        state.playerProfile = newPlayerData.playerProfile || null;
+        state.heroJourney = newPlayerData.heroJourney || { overrideUnclaimed: [], acceleratedRewards: false };
+        state.onboardingTimestamp = newPlayerData.onboardingTimestamp ?? null;
 
         if (newPlayerData.currency && typeof newPlayerData.currency === 'object') {
             state.uiSettings.currency = {
@@ -125,54 +102,56 @@ export function switchActivePlayer(newTag) {
     });
 }
 
-// Flush pending changes on page unload
-window.addEventListener('beforeunload', () => {
-    // Abort if state is being reset or if storage was cleared
-    if (getResettingState() || localStorage.getItem('oreCalc_playerTags') === null) {
-        return;
-    }
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', () => {
+        if (getResettingState() || localStorage.getItem('oreCalc_playerTags') === null) {
+            return;
+        }
 
-    // 1. Force immediate local storage save
-    saveState(state, true);
+        saveState(state, true);
 
-    // 2. Force immediate cloud save via sendBeacon if cloudSync is enabled
-    if (cloudSaveTimeout && state.uiSettings?.cloudSync !== false) {
-        clearTimeout(cloudSaveTimeout);
-        cloudSaveTimeout = null;
+        if (cloudSaveTimeout && state.uiSettings?.cloudSync !== false) {
+            clearTimeout(cloudSaveTimeout);
+            cloudSaveTimeout = null;
 
-        const currentUserId = localStorage.getItem('oreCalc_userId');
-        if (currentUserId) {
-            const currentPlayerTag = state.savedPlayerTags[0];
-            if (currentPlayerTag) {
-                state.allPlayersData[currentPlayerTag] = {
-                    heroes: state.heroes,
-                    storedOres: state.storedOres,
-                    income: state.income,
-                    planner: state.planner,
-                    playerProfile: state.playerProfile,
-                    currency: {
-                        code: state.uiSettings.currency?.code || 'USD',
-                        globalPricing: state.allPlayersData[currentPlayerTag]?.currency?.globalPricing || {}
-                    }
+            const currentUserId = localStorage.getItem('oreCalc_userId');
+            if (currentUserId) {
+                const currentPlayerTag = state.savedPlayerTags[0];
+                if (currentPlayerTag) {
+                    const existing = state.allPlayersData[currentPlayerTag] || {};
+                    state.allPlayersData[currentPlayerTag] = {
+                        ...existing,
+                        heroes: state.heroes,
+                        storedOres: state.storedOres,
+                        income: state.income,
+                        planner: state.planner,
+                        playerProfile: state.playerProfile,
+                        onboardingTimestamp: existing.onboardingTimestamp !== undefined
+                            ? existing.onboardingTimestamp
+                            : (state.onboardingTimestamp ?? null),
+                        currency: {
+                            code: state.uiSettings.currency?.code || 'USD',
+                            globalPricing: existing?.currency?.globalPricing || {}
+                        }
+                    };
+                }
+
+                const stateToSave = {
+                    appVersion: state.appVersion,
+                    savedPlayerTags: state.savedPlayerTags,
+                    uiSettings: state.uiSettings,
+                    allPlayersData: state.allPlayersData,
+                    timestamp: state.timestamp,
                 };
-            }
 
-            const stateToSave = {
-                appVersion: state.appVersion,
-                savedPlayerTags: state.savedPlayerTags,
-                uiSettings: state.uiSettings,
-                allPlayersData: state.allPlayersData,
-                timestamp: state.timestamp,
-            };
-
-            const isOnlyDefault = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
-            if (!isOnlyDefault) {
-                const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
-                const url = `${BASE_URL}/api/user-data/save`;
-                const blob = new Blob([JSON.stringify({ userId: currentUserId, data: stateToSave })], { type: 'application/json' });
-                navigator.sendBeacon(url, blob);
+                const isOnlyDefault = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
+                if (!isOnlyDefault) {
+                    const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                    const url = `${BASE_URL}/api/user-data/save`;
+                    const blob = new Blob([JSON.stringify({ userId: currentUserId, data: stateToSave })], { type: 'application/json' });
+                    navigator.sendBeacon(url, blob);
+                }
             }
         }
-    }
-});
-
+    });
+}

@@ -1,18 +1,39 @@
-import { currencyData, heroData, shopOfferData, eventPassData, leagueTiers } from '../data/appData.js';
+import { heroData } from '../data/heroData.js';
+
+import { compareVersions } from './stateCleanup.js';
+
+import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel } from '../domain/income/heroJourneyIncome.js';
 import { getISOWeekNumber } from '../utils/dateUtils.js';
-import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel } from '../incomeCalculations/heroJourneyIncome.js';
 
-import { purgeLegacyStateData, normalizeEquipmentState, migrateFullState, migratePlayerState, compareVersions } from './stateCleanup.js';
-
+/** @type {import('./types.js').AppState | any} */
 export let state = {};
 
 export const EFFECTIVE_DATE_TERMS = 1780617600000; // June 5, 2026 (00:00 UTC)
 export const EFFECTIVE_DATE_PRIVACY = 1786060800000; // August 7, 2026 (00:00 UTC)
 export const EFFECTIVE_DATE_WELCOME = 1780617600000; // June 5, 2026 (00:00 UTC)
+export const EFFECTIVE_DATE_PROFILE_ONBOARDING = 1780617600000; // June 5, 2026 (00:00 UTC)
 
+export const DEFAULT_CUSTOM_CHIP_SETTINGS = Object.freeze({
+    custom: Object.freeze({}),
+    starBonus: Object.freeze({ monthly: false, count: 0, multiplier: '2x' }),
+    shopOffers: Object.freeze({ monthly: false, shiny: 0, glowy: 0, starry: 0 }),
+    gemTrader: Object.freeze({ weekly: false, shiny: 0, glowy: 0, starry: 0 }),
+    raidMedalTrader: Object.freeze({ weekly: false, shiny: 0, glowy: 0, starry: 0 }),
+    eventTrader: Object.freeze({ monthly: false, shiny: 0, glowy: 0, starry: 0 }),
+    eventPass: Object.freeze({ monthly: false, shiny: 0, glowy: 0, starry: 0 }),
+    clanWar: Object.freeze({ monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' }),
+    cwl: Object.freeze({ monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' }),
+    supercellEvents: Object.freeze({ globalOverride: false, shiny: 0, glowy: 0, starry: 0 }),
+    prospector: Object.freeze({ monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0 })
+});
+
+/**
+ * Creates and returns a fresh top-level application root state object with schema defaults.
+ * @returns {import('./types.js').AppState | any} Default global state object.
+ */
 export function getDefaultState() {
     return {
-        appVersion: window.__ENV__?.APP_VERSION || '2.1.0',
+        appVersion: (typeof window !== 'undefined' ? window.__ENV__?.APP_VERSION : null) || '2.1.0',
         timestamp: new Date().toISOString(),
         activeTab: 'home-tab',
         savedPlayerTags: [],
@@ -80,20 +101,38 @@ function getDefaultPlayerStateProperties() {
 
     return {
         heroes: getDefaultHeroesState(),
-        storedOres: {},
+        storedOres: { shiny: 0, glowy: 0, starry: 0 },
+        onboardingTimestamp: null,
         income: {
-            shopOffers: { selectedSet: null, '0': {} },
-            raidMedals: { packs: {} },
-            gems: { packs: {} },
-            eventPass: {},
-            eventTrader: { packs: {} },
+            shopOffers: { enabled: false, selectedSet: null, purchases: {}, '0': {} },
+            raidMedals: { enabled: false, earned: 1200, packs: { shiny: 0, glowy: 0, starry: 0 } },
+            gems: { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } },
+            eventPass: {
+                enabled: false,
+                eventPass: false,
+                includeEquipment: false,
+                bonusTrackMedals: 0,
+                purchasedMedals: 0,
+                trader: { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } }
+            },
+            eventTrader: { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } },
             clanWar: {
-                oresPerAttack: {},
+                enabled: false,
+                warsPerMonth: 8,
+                winRate: 70,
+                drawRate: 0,
+                oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
+                warPerformance: { thLevel: 16 }
             },
             cwl: {
-                oresPerAttack: {},
+                enabled: false,
+                hitsPerSeason: 7,
+                attacksPerEvent: 7,
+                winRate: 50,
+                drawRate: 0,
+                oresPerAttack: { shiny: 0, glowy: 0, starry: 0 }
             },
-            supercellEvents: {},
+            supercellEvents: { enabled: false, worldChampionship: false },
             prospector: {
                 fromOre: 'shiny',
                 toOre: 'glowy',
@@ -112,6 +151,7 @@ function getDefaultPlayerStateProperties() {
         planner: {
             customMaxLevel: {},
             calendar: {
+                isHydrated: false,
                 settings: {
                     firstDayOfWeek: 'auto', // 'auto', 'monday', 'sunday'
                     showChipIcons: true,
@@ -129,19 +169,9 @@ function getDefaultPlayerStateProperties() {
                 customChips: [], // Chips waiting to be placed
                 customChipData: {}, // Data for chips already on the calendar
                 lastRecurringProcessed: '', // Last month-year recurring chips were generated
-                customChipSettings: {
-                    custom: {},
-                    starBonus: { monthly: false, count: 0, multiplier: '2x' },
-                    shopOffers: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
-                    gemTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
-                    raidMedalTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
-                    eventTrader: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
-                    eventPass: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
-                    clanWar: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
-                    cwl: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
-                    supercellEvents: { globalOverride: false, shiny: 0, glowy: 0, starry: 0 },
-                    prospector: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0 }
-                }
+                customChipSettings: Object.fromEntries(
+                    Object.entries(DEFAULT_CUSTOM_CHIP_SETTINGS).map(([k, v]) => [k, { ...v }])
+                )
             },
         },
         heroJourney: {
@@ -167,10 +197,18 @@ function initializeDefaultPlayerState() {
     };
 }
 
+/**
+ * Creates and returns a fresh player profile state object with initial hero equipment and income settings.
+ * @returns {import('./types.js').PlayerData | any} Default player profile state object.
+ */
 export function getDefaultPlayerState() {
     return initializeDefaultPlayerState();
 }
 
+/**
+ * Initializes and reconciles global application state with optional persisted storage data.
+ * @param {import('./types.js').AppState | any} [savedState] - Deserialized persisted state object.
+ */
 export function initializeState(savedState) {
     const currentActiveTab = state.activeTab;
     const defaultState = getDefaultState();
@@ -190,7 +228,12 @@ export function initializeState(savedState) {
         }
 
         if (savedState.savedPlayerTags) {
-            state.savedPlayerTags = savedState.savedPlayerTags;
+            const hasRealTags = savedState.savedPlayerTags.some(t => t && t !== 'DEFAULT0');
+            if (hasRealTags) {
+                state.savedPlayerTags = savedState.savedPlayerTags.filter(t => t && t !== 'DEFAULT0');
+            } else {
+                state.savedPlayerTags = savedState.savedPlayerTags.length > 0 ? savedState.savedPlayerTags : ['DEFAULT0'];
+            }
         }
 
         if (state.savedPlayerTags.length === 0) {
@@ -198,12 +241,14 @@ export function initializeState(savedState) {
         }
 
         const activePlayerTag = state.savedPlayerTags[0];
+        const hasRealPlayer = state.savedPlayerTags.some(t => t !== 'DEFAULT0');
 
         if (savedState.allPlayersData) {
             for (const playerTag in savedState.allPlayersData) {
                 if (playerTag === 'GUEST') continue;
+                if (hasRealPlayer && playerTag === 'DEFAULT0') continue;
                 let savedPlayerState = savedState.allPlayersData[playerTag];
-                
+
                 // Migrate legacy flat guest profile structure (DEFAULT0) to nested structure
                 if (playerTag === 'DEFAULT0' && savedPlayerState && savedPlayerState.townHallLevel !== undefined && !savedPlayerState.playerProfile) {
                     savedPlayerState = {
@@ -237,7 +282,7 @@ export function initializeState(savedState) {
                 Object.assign(playerState.storedOres, savedPlayerState.storedOres || {});
                 Object.assign(playerState.income, savedPlayerState.income || {});
                 Object.assign(playerState.planner, savedPlayerState.planner || {});
-                
+
                 if (savedPlayerState.currency) {
                     if (typeof savedPlayerState.currency === 'string') {
                         playerState.currency = {
@@ -253,17 +298,20 @@ export function initializeState(savedState) {
                 }
 
                 playerState.playerProfile = savedPlayerState.playerProfile || playerState.playerProfile || null;
+                playerState.heroJourney = savedPlayerState.heroJourney || playerState.heroJourney || { overrideUnclaimed: [], acceleratedRewards: false };
+                playerState.onboardingTimestamp = typeof savedPlayerState.onboardingTimestamp === 'number'
+                    ? savedPlayerState.onboardingTimestamp
+                    : (savedPlayerState.onboardingTimestamp ?? null);
             }
         }
 
-
         state.uiSettings = { ...defaultState.uiSettings, ...(savedState.uiSettings || {}) };
-        
+
         // Ensure currency is always an object, not a string (legacy/migration fix)
         if (typeof state.uiSettings.currency === 'string') {
             state.uiSettings.currency = { code: state.uiSettings.currency };
         }
-        
+
         state.uiSettings.saveError = false;
 
         ensureStateDefaults(state);
@@ -276,6 +324,7 @@ export function initializeState(savedState) {
             state.income = activePlayerState.income;
             state.planner = activePlayerState.planner;
             state.playerProfile = activePlayerState.playerProfile;
+            state.onboardingTimestamp = activePlayerState.onboardingTimestamp ?? null;
 
             // Ensure player-specific currency is also an object and sync it to UI settings
             if (activePlayerState.currency) {
@@ -297,7 +346,7 @@ function ensureStateDefaults(s) {
     if (s.allPlayersData) {
         for (const tag in s.allPlayersData) {
             const ps = s.allPlayersData[tag];
-            
+
             if (!ps.heroes || Object.keys(ps.heroes).length === 0) {
                 ps.heroes = getDefaultHeroesState();
             } else {
@@ -327,12 +376,94 @@ function ensureStateDefaults(s) {
                 }
             }
 
-            if (ps.income && ps.income.eventPass) {
-                const ep = ps.income.eventPass;
-                delete ep.claimableMedals;
-                delete ep.passMedals;
+            if (!ps.storedOres) {
+                ps.storedOres = { shiny: 0, glowy: 0, starry: 0 };
+            } else {
+                ps.storedOres.shiny = ps.storedOres.shiny || 0;
+                ps.storedOres.glowy = ps.storedOres.glowy || 0;
+                ps.storedOres.starry = ps.storedOres.starry || 0;
             }
-            
+
+            if (!ps.income) {
+                ps.income = getDefaultPlayerStateProperties().income;
+            } else {
+                if (!ps.income.shopOffers) ps.income.shopOffers = { enabled: false, selectedSet: null, purchases: {}, '0': {} };
+                if (!ps.income.shopOffers.purchases) ps.income.shopOffers.purchases = {};
+
+                if (!ps.income.raidMedals) ps.income.raidMedals = { enabled: false, earned: 1200, packs: { shiny: 0, glowy: 0, starry: 0 } };
+                if (!ps.income.raidMedals.packs) ps.income.raidMedals.packs = { shiny: 0, glowy: 0, starry: 0 };
+
+                if (!ps.income.gems) ps.income.gems = { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } };
+                if (!ps.income.gems.packs) ps.income.gems.packs = { shiny: 0, glowy: 0, starry: 0 };
+
+                if (!ps.income.eventPass) {
+                    ps.income.eventPass = {
+                        enabled: false,
+                        eventPass: false,
+                        includeEquipment: false,
+                        bonusTrackMedals: 0,
+                        purchasedMedals: 0,
+                        trader: { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } }
+                    };
+                } else {
+                    const ep = ps.income.eventPass;
+                    if (!ep.trader) {
+                        ep.trader = { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } };
+                    } else if (!ep.trader.packs) {
+                        ep.trader.packs = { shiny: 0, glowy: 0, starry: 0 };
+                    }
+                }
+
+                if (!ps.income.eventTrader) ps.income.eventTrader = { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } };
+                if (!ps.income.eventTrader.packs) ps.income.eventTrader.packs = { shiny: 0, glowy: 0, starry: 0 };
+
+                if (!ps.income.clanWar) {
+                    ps.income.clanWar = {
+                        enabled: false,
+                        warsPerMonth: 8,
+                        winRate: 70,
+                        drawRate: 0,
+                        oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
+                        warPerformance: { thLevel: 16 }
+                    };
+                } else {
+                    if (!ps.income.clanWar.oresPerAttack) ps.income.clanWar.oresPerAttack = { shiny: 0, glowy: 0, starry: 0 };
+                }
+
+                if (!ps.income.cwl) {
+                    ps.income.cwl = {
+                        enabled: false,
+                        hitsPerSeason: 7,
+                        attacksPerEvent: 7,
+                        winRate: 50,
+                        drawRate: 0,
+                        oresPerAttack: { shiny: 0, glowy: 0, starry: 0 }
+                    };
+                } else {
+                    if (!ps.income.cwl.oresPerAttack) ps.income.cwl.oresPerAttack = { shiny: 0, glowy: 0, starry: 0 };
+                }
+
+                if (!ps.income.supercellEvents) {
+                    ps.income.supercellEvents = { enabled: false, worldChampionship: false };
+                }
+
+                if (!ps.income.starBonus) {
+                    ps.income.starBonus = {
+                        league: 105000000,
+                        "2x": { frequency: 2, duration: 0, lastEvent: '2026-05' },
+                        thUpgrades: {}
+                    };
+                }
+
+                if (!ps.income.prospector) {
+                    ps.income.prospector = {
+                        fromOre: 'shiny',
+                        toOre: 'glowy',
+                        assistedConversion: true
+                    };
+                }
+            }
+
             if (!ps.currency) {
                 ps.currency = {
                     code: s.uiSettings?.currency?.code || 'USD',
@@ -360,7 +491,7 @@ function ensureStateDefaults(s) {
                 };
             }
             if (!ps.planner.calendar.view) ps.planner.calendar.view = {};
-            
+
             if (!ps.planner.calendar.view.month) {
                 ps.planner.calendar.view.month = defaultMonth;
             } else {
@@ -388,40 +519,18 @@ function ensureStateDefaults(s) {
             if (!ps.planner.calendar.dates) ps.planner.calendar.dates = {};
             if (!ps.planner.calendar.customChips) ps.planner.calendar.customChips = [];
             if (!ps.planner.calendar.customChipData) ps.planner.calendar.customChipData = {};
+            ps.planner.calendar.isHydrated = false;
             if (ps.planner.calendar.isDirty === undefined) {
                 ps.planner.calendar.isDirty = true;
             }
             if (!ps.planner.calendar.customChipSettings) {
-                ps.planner.calendar.customChipSettings = {
-                    custom: {},
-                    starBonus: { monthly: false, count: 0, multiplier: '2x' },
-                    shopOffers: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
-                    gemTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
-                    raidMedalTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
-                    eventTrader: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
-                    eventPass: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
-                    clanWar: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
-                    cwl: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
-                    supercellEvents: { globalOverride: false, shiny: 0, glowy: 0, starry: 0 },
-                    prospector: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0 }
-                };
+                ps.planner.calendar.customChipSettings = Object.fromEntries(
+                    Object.entries(DEFAULT_CUSTOM_CHIP_SETTINGS).map(([k, v]) => [k, { ...v }])
+                );
             } else {
-                const defaultSettings = {
-                    custom: {},
-                    starBonus: { monthly: false, count: 0, multiplier: '2x' },
-                    shopOffers: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
-                    gemTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
-                    raidMedalTrader: { weekly: false, shiny: 0, glowy: 0, starry: 0 },
-                    eventTrader: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
-                    eventPass: { monthly: false, shiny: 0, glowy: 0, starry: 0 },
-                    clanWar: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
-                    cwl: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' },
-                    supercellEvents: { globalOverride: false, shiny: 0, glowy: 0, starry: 0 },
-                    prospector: { monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0 }
-                };
-                for (const key in defaultSettings) {
+                for (const key in DEFAULT_CUSTOM_CHIP_SETTINGS) {
                     if (!ps.planner.calendar.customChipSettings[key]) {
-                        ps.planner.calendar.customChipSettings[key] = { ...defaultSettings[key] };
+                        ps.planner.calendar.customChipSettings[key] = { ...DEFAULT_CUSTOM_CHIP_SETTINGS[key] };
                     }
                 }
             }
@@ -444,6 +553,23 @@ function ensureStateDefaults(s) {
                     ps.heroJourney.unclaimedOnly = false;
                 }
             }
+
+            if (ps.onboardingTimestamp === undefined) {
+                ps.onboardingTimestamp = null;
+            }
         }
     }
+}
+
+/**
+ * Evaluates whether a player's profile has completed the onboarding setup wizard.
+ *
+ * @param {Record<string, any> | null | undefined} playerData - Target player data object.
+ * @returns {boolean} Whether the profile is onboarded.
+ */
+export function isProfileOnboarded(playerData) {
+    if (!playerData || typeof playerData.onboardingTimestamp !== 'number') {
+        return false;
+    }
+    return playerData.onboardingTimestamp >= EFFECTIVE_DATE_PROFILE_ONBOARDING;
 }

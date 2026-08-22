@@ -20,22 +20,27 @@ app.use((req, res, next) => {
 
 const distPath = path.join(__dirname, '../../dist');
 
-// Redirect direct requests for legal/extra HTML files to extensionless clean URLs
+// Redirect direct requests for legal/extra HTML files to trailing slash canonical URLs
 app.use((req, res, next) => {
     if (req.path.endsWith('.html') && req.path !== '/index.html') {
         const cleanPath = req.path.substring(0, req.path.length - 5);
         const query = req.url.substring(req.path.length);
-        return res.redirect(301, cleanPath + query);
+        return res.redirect(301, cleanPath + '/' + query);
     }
-    
-    // Explicitly serve root-level HTML files for clean paths that share directory names (e.g. /privacy, /terms, /licenses)
-    if (!req.path.includes('.')) {
-        const htmlFile = path.join(distPath, `${req.path.substring(1)}.html`);
-        const fs = require('fs');
-        if (fs.existsSync(htmlFile)) {
-            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-            return res.sendFile(htmlFile);
-        }
+
+    // Explicit 301 redirects for legacy non-trailing-slash routes
+    if (req.path === '/privacy' || req.path === '/terms' || req.path === '/licenses' || req.path === '/de/privacy' || req.path === '/de/terms') {
+        const query = req.url.substring(req.path.length);
+        return res.redirect(301, req.path + '/' + query);
+    }
+    if (req.path === '/de/licenses' || req.path === '/de/licenses/') {
+        return res.redirect(301, '/licenses/');
+    }
+    if (req.path === '/en' || req.path === '/en/') {
+        return res.redirect(301, '/');
+    }
+    if (req.path.startsWith('/en/')) {
+        return res.redirect(301, req.path.replace(/^\/en/, '') || '/');
     }
     next();
 });
@@ -46,7 +51,7 @@ app.use(express.static(distPath, {
     maxAge: '1d',
     setHeaders: (res, filePath) => {
         const relativePath = path.relative(distPath, filePath);
-        
+
         // Only cache static image assets and fonts immutably for 1 year
         const isImmutableAsset = /\.(png|jpg|jpeg|gif|ico|svg|avif|webp|woff2?)$/i.test(filePath);
         if (isImmutableAsset) {
@@ -66,5 +71,5 @@ app.get('/*splat', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Production server running at http://localhost:${PORT}`);
+    console.log(`[Production Server] Listening at http://0.0.0.0:${PORT}`);
 });

@@ -24,14 +24,20 @@
         }
     }
 
+    &.app-copyright {
+        margin-top: 5px;
+        margin-bottom: 20px;
+
+        @media (max-width: #{$breakpoint-desktop - 1px}) {
+            margin-bottom: calc(75px + env(safe-area-inset-bottom, 0px));
+        }
+    }
+
     &.make-notice {
         margin-top: 20px;
     }
 }
 
-/* ==========================================================================
-   Generic Reusable Message / Banner Box Component
-   ========================================================================== */
 .app-message-box {
     display: flex;
     justify-content: space-between;
@@ -88,7 +94,7 @@
         font-size: var(--font-size-xs);
         font-weight: 600;
         white-space: nowrap;
-        transition: background-color 0.2s, transform 0.1s;
+        transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
         flex-shrink: 0;
         display: inline-flex;
         align-items: center;
@@ -102,7 +108,6 @@
         }
     }
 
-    /* Variant Themes */
     &--suggestion,
     &.suggestion-only {
         background-color: $accent-primary-soft;
@@ -167,8 +172,7 @@
         }
     }
 
-    /* Responsive Stacking (< 600px) */
-    @media (max-width: 599px) {
+    @media (max-width: $breakpoint-modal) {
         flex-direction: column;
         padding: 14px;
         text-align: center;

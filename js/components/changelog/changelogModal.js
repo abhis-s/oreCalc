@@ -1,16 +1,19 @@
-import { dom } from '../../dom/domElements.js';
-import { showCommitsModal } from './commitsModal.js';
+import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
 
+import { showCommitsModal } from './commitsModal.js';
+import { dom } from '../../dom/domElements.js';
+
+/**
+ * Initializes close button event listeners and commits modal toggle triggers for the Changelog modal.
+ */
 export function initializeChangelogModal() {
     const modal = document.getElementById('changelog-modal');
     const closeButton = document.getElementById('close-changelog-modal-btn');
     const footerCloseButton = document.getElementById('changelog-close-btn');
     const commitsButton = document.getElementById('changelog-commits-btn');
-    const overlay = dom.overlay;
 
     const closeModal = () => {
-        if (modal) modal.classList.remove('show');
-        if (overlay) overlay.classList.remove('show');
+        if (modal) closeModalAnimated(modal);
     };
 
     if (closeButton) {
@@ -25,10 +28,9 @@ export function initializeChangelogModal() {
         commitsButton.addEventListener('click', () => {
             const commits = window.__ENV__?.COMMITS_SINCE_TAG || [];
             if (commits.length > 0) {
-                // Hide changelog modal first
-                modal.classList.remove('show');
-                // Show commits modal
-                showCommitsModal(commits);
+                closeModalAnimated(modal, () => {
+                    showCommitsModal(commits);
+                });
             }
         });
     }
@@ -60,6 +62,10 @@ function isInterruptionRestricted() {
     return false;
 }
 
+/**
+ * Displays the Changelog modal dialog with parsed release notes HTML markup.
+ * @param {string} content - HTML string of release changelog notes.
+ */
 export function showChangelogModal(content) {
     if (isInterruptionRestricted()) {
         return;
@@ -72,8 +78,7 @@ export function showChangelogModal(content) {
 
     if (modal && modalBody && overlay) {
         modalBody.innerHTML = content;
-        
-        // Hide commits button if there are no commits since the tag, OR if the changelog modal content is empty
+
         if (commitsButton) {
             const commits = window.__ENV__?.COMMITS_SINCE_TAG || [];
             const isChangelogEmpty = !content || content.trim() === '' || content === '<div class="changelog-container"></div>';

@@ -2,17 +2,77 @@
 
 #device-sync-modal {
     .modal-content {
-        max-width: 440px;
+        max-width: $modal-width-compact;
+    }
+
+    .modal-body {
+        padding: 15px 24px;
+    }
+
+    .sync-instruction {
+        margin-bottom: 15px;
+        margin-top: 0;
+    }
+
+    .sync-code-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 15px;
+
+        .qr-user-id {
+            flex: 1;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        #device-sync-copy-btn {
+            margin: 0;
+            min-height: 0;
+            height: 38px;
+        }
+    }
+
+    .sync-qr-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .no-margin {
+        margin: 0 !important;
+    }
+
+    .modal-actions.compact {
+        margin-top: 10px;
+    }
+
+    @media (max-width: $breakpoint-modal) {
+        padding: 0 !important;
+
+        .modal-content {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            margin: 0 !important;
+        }
     }
 
     #device-sync-qr-container {
         background-color: $bg-surface-primary;
         border: 1px solid $border-primary;
         padding: 15px;
-        border-radius: 12px;
+        border-radius: $shape-corner-medium;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        display: inline-block;
-        margin: 10px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 10px auto;
+        width: fit-content;
 
         canvas {
             display: block;
@@ -30,7 +90,7 @@
         font-size: 0.9em;
         word-break: break-all;
         cursor: pointer;
-        transition: background-color 0.2s, border-color 0.2s;
+        transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
         border: 1px solid transparent;
 
         &:hover {
@@ -45,7 +105,7 @@
         border-radius: 12px;
         background-color: $bg-surface-secondary;
         overflow: hidden;
-        transition: background-color 0.2s, box-shadow 0.2s;
+        transition: background-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
 
         &.is-open {
             background-color: $bg-surface-primary;
@@ -62,10 +122,10 @@
         font-size: 1.05rem;
         color: $text-primary;
         cursor: pointer;
-        list-style: none; /* Hide default triangle */
+        list-style: none;
 
         &::-webkit-details-marker {
-            display: none; /* Hide default Safari triangle */
+            display: none;
         }
 
         .chevron svg {
@@ -86,6 +146,7 @@
         background-color: $bg-surface-primary;
     }
 
+    .player-name-input-container,
     .import-data-input-container {
         position: relative;
 
@@ -105,7 +166,7 @@
             font-size: 16px;
             background-color: $bg-surface-primary;
             color: $text-primary;
-            transition: border-color 0.3s ease-in-out;
+            transition: border-color $duration-moderate $ease-smooth;
 
             &:focus {
                 outline: none;
@@ -145,7 +206,7 @@
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: $breakpoint-phone) {
     #device-sync-modal {
         #device-sync-copy-btn {
             min-width: 40px;
@@ -157,6 +218,7 @@
             }
 
             .animated-btn-icon-wrapper {
+                opacity: 1;
                 transform: translateY(0);
                 transition: none;
             }

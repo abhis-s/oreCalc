@@ -1,11 +1,32 @@
 import { translate } from '../i18n/translator.js';
 
-import { formatNumber } from './numberFormatter.js';
+import { hideNativePopover, positionPopover, showNativePopover } from './inputPopoverPositioner.js';
+import { getButtonHotkey, renderPopoverContent } from './inputPopoverRenderer.js';
+
+let activePopoverInstance = null;
+let isGlobalScrollResizeBound = false;
+
+function ensureGlobalScrollResizeListeners() {
+    if (isGlobalScrollResizeBound || typeof window === 'undefined') return;
+    isGlobalScrollResizeBound = true;
+
+    const handleGlobalScrollResize = () => {
+        if (!activePopoverInstance) return;
+        if (document.activeElement === activePopoverInstance.inputElement) {
+            activePopoverInstance.positionThrottled();
+        } else {
+            activePopoverInstance.hide();
+        }
+    };
+
+    window.addEventListener('scroll', handleGlobalScrollResize, { capture: true, passive: true });
+    window.addEventListener('resize', handleGlobalScrollResize, { passive: true });
+}
 
 /**
  * Registers a customizable premium input popover feature provider on an input element.
- * 
- * @param {HTMLInputElement} inputElement - The input field to attach the popover to.
+ *
+ * @param {HTMLInputElement|HTMLElement|Element|any} inputElement - The input field to attach the popover to.
  * @param {Object} options - Configuration options for the popover features.
  */
 export function registerInputPopover(inputElement, options = {}) {
@@ -13,7 +34,8 @@ export function registerInputPopover(inputElement, options = {}) {
     const parent = inputElement.parentNode;
     if (!parent) return;
 
-    // Suppress mobile keyboard QuickType word suggestions
+    ensureGlobalScrollResizeListeners();
+
     if (inputElement.type === 'number' || inputElement.classList.contains('updatable') || inputElement.classList.contains('level-input')) {
         if (!inputElement.hasAttribute('inputmode')) inputElement.setAttribute('inputmode', 'numeric');
         inputElement.setAttribute('autocomplete', 'off');
@@ -21,26 +43,21 @@ export function registerInputPopover(inputElement, options = {}) {
         inputElement.setAttribute('spellcheck', 'false');
     }
 
-    // 1. Core value extraction & defaults
     const getMin = () => {
-        if (typeof options.min === 'function') {
-            return options.min();
-        }
+        if (typeof options.min === 'function') return options.min();
         const minValRaw = options.min !== undefined ? options.min : parseFloat(inputElement.min);
         return isNaN(minValRaw) ? 0 : minValRaw;
     };
 
     const getMax = () => {
-        if (typeof options.max === 'function') {
-            return options.max();
-        }
+        if (typeof options.max === 'function') return options.max();
         const maxValRaw = options.max !== undefined ? options.max : parseFloat(inputElement.max);
         return isNaN(maxValRaw) ? Infinity : maxValRaw;
     };
 
-    const showTitle = !!options.showTitle; // defaults to false!
+    const showTitle = !!options.showTitle;
     const showRange = !!options.showRange;
-    
+
     const getShowMin = (currMin) => {
         if (showRange) return false;
         return options.showMin !== undefined ? !!options.showMin : (currMin !== 0);
@@ -52,16 +69,12 @@ export function registerInputPopover(inputElement, options = {}) {
     };
 
     const isRecommendedEnabled = () => {
-        if (typeof options.showRecommended === 'function') {
-            return options.showRecommended();
-        }
+        if (typeof options.showRecommended === 'function') return options.showRecommended();
         return !!options.showRecommended;
     };
-    
+
     const getTitleText = () => {
-        if (typeof options.title === 'function') {
-            return options.title();
-        }
+        if (typeof options.title === 'function') return options.title();
         return options.title !== undefined ? options.title : '';
     };
     const enableValidationColoring = options.enableValidationColoring !== false;
@@ -73,157 +86,52 @@ export function registerInputPopover(inputElement, options = {}) {
         ...(options.clickToFill || {})
     };
 
-    // 2. Create popover DOM element
+    const getTargetContainer = () => inputElement.closest('dialog.modal, .modal, [role="dialog"]') || document.body;
+
+    if (inputElement._popoverElement && inputElement._popoverElement.parentElement) {
+        inputElement._popoverElement.parentElement.removeChild(inputElement._popoverElement);
+    }
+
     const popover = document.createElement('div');
     popover.className = 'input-feature-popover';
+    popover.setAttribute('popover', 'manual');
     popover.style.position = 'fixed';
     popover.style.margin = '0';
     popover.style.transform = 'none';
-    popover.style.bottom = 'auto'; // Prevent CSS bottom constraint from collapsing height
-    document.body.appendChild(popover);
+    popover.style.bottom = 'auto';
+    getTargetContainer().appendChild(popover);
+    inputElement._popoverElement = popover;
 
-    // 3. Helper to determine current dynamic values
     const getRecommendedValue = () => {
-        if (typeof options.recommended === 'function') {
-            return options.recommended();
-        }
+        if (typeof options.recommended === 'function') return options.recommended();
         return options.recommended !== undefined ? options.recommended : 0;
     };
 
     const getRecommendedLabel = () => {
-        if (typeof options.recommendedLabel === 'function') {
-            return options.recommendedLabel();
-        }
-        return options.recommendedLabel !== undefined ? options.recommendedLabel : (translate('validation.recommended') || 'Recommended');
+        if (typeof options.recommendedLabel === 'function') return options.recommendedLabel();
+        return options.recommendedLabel !== undefined ? options.recommendedLabel : translate('validation.recommended');
     };
 
     const getCustomButtons = () => {
-        if (typeof options.customButtons === 'function') {
-            return options.customButtons();
-        }
+        if (typeof options.customButtons === 'function') return options.customButtons();
         return Array.isArray(options.customButtons) ? options.customButtons : [];
-    };
-
-    // 5. Shared layout calculation for fixed positioning
-    const positionPopover = () => {
-        if (!popover.classList.contains('show')) return;
-
-        const popoverRect = popover.getBoundingClientRect();
-        const inputRect = inputElement.getBoundingClientRect();
-
-        const vv = window.visualViewport;
-        const viewportHeight = vv ? vv.height : window.innerHeight;
-        const viewportWidth = vv ? vv.width : window.innerWidth;
-        const vvTop = vv ? vv.offsetTop : 0;
-        const vvLeft = vv ? vv.offsetLeft : 0;
-
-        const HEADER_OFFSET = 80;
-        const spaceAbove = inputRect.top - HEADER_OFFSET;
-        const spaceBelow = viewportHeight - inputRect.bottom;
-        const spaceRight = viewportWidth - inputRect.right;
-        const spaceLeft = inputRect.left;
-
-        const popoverHeight = popoverRect.height;
-        const popoverWidth = popoverRect.width;
-
-        const placement = options.placement || 'auto';
-        let finalPlacement = 'above';
-
-        if (placement === 'force-below') {
-            finalPlacement = 'below';
-        } else if (placement === 'force-above') {
-            finalPlacement = 'above';
-        } else if (placement === 'force-right') {
-            finalPlacement = 'right';
-        } else if (placement === 'force-left') {
-            finalPlacement = 'left';
-        } else {
-            // Adaptive 4-way evaluation: Above -> Below -> Right -> Left
-            if (spaceAbove >= popoverHeight + 8) {
-                finalPlacement = 'above';
-            } else if (spaceBelow >= popoverHeight + 8) {
-                finalPlacement = 'below';
-            } else if (spaceRight >= popoverWidth + 12) {
-                finalPlacement = 'right';
-            } else if (spaceLeft >= popoverWidth + 12) {
-                finalPlacement = 'left';
-            } else {
-                // Pick direction with max available space
-                const spaces = [
-                    { dir: 'above', size: spaceAbove },
-                    { dir: 'below', size: spaceBelow },
-                    { dir: 'right', size: spaceRight },
-                    { dir: 'left', size: spaceLeft }
-                ];
-                spaces.sort((a, b) => b.size - a.size);
-                finalPlacement = spaces[0].dir;
-            }
-        }
-
-        popover.style.position = 'absolute';
-        popover.style.bottom = 'auto';
-        popover.style.right = 'auto';
-
-        const pageScrollY = window.scrollY || window.pageYOffset || 0;
-        const pageScrollX = window.scrollX || window.pageXOffset || 0;
-
-        const inputAbsTop = inputRect.top + pageScrollY;
-        const inputAbsBottom = inputRect.bottom + pageScrollY;
-        const inputAbsLeft = inputRect.left + pageScrollX;
-        const inputAbsRight = inputRect.right + pageScrollX;
-
-        let top = 0;
-        let left = 0;
-
-        popover.classList.remove('position-below', 'position-above', 'position-right', 'position-left');
-        popover.classList.add(`position-${finalPlacement}`);
-
-        if (finalPlacement === 'above') {
-            top = inputAbsTop - popoverHeight - 6;
-            left = inputAbsLeft + (inputRect.width / 2) - (popoverWidth / 2);
-        } else if (finalPlacement === 'below') {
-            top = inputAbsBottom + 6;
-            left = inputAbsLeft + (inputRect.width / 2) - (popoverWidth / 2);
-        } else if (finalPlacement === 'right') {
-            top = inputAbsTop + (inputRect.height / 2) - (popoverHeight / 2);
-            left = inputAbsRight + 8;
-        } else if (finalPlacement === 'left') {
-            top = inputAbsTop + (inputRect.height / 2) - (popoverHeight / 2);
-            left = inputAbsLeft - popoverWidth - 8;
-        }
-
-        popover.style.top = `${top}px`;
-        popover.style.left = `${left}px`;
     };
 
     let positioningFrame = null;
     const positionPopoverThrottled = () => {
         if (positioningFrame) return;
         positioningFrame = requestAnimationFrame(() => {
-            positionPopover();
+            positionPopover(popover, inputElement, options);
             positioningFrame = null;
         });
     };
 
-    const getButtonHotkey = (btn, btnLabel) => {
-        if (btn.hotkey) return btn.hotkey;
-        const lowerLabel = (btnLabel || '').toLowerCase();
-        const disableText = (translate('equipment.disable') || 'disable').toLowerCase();
-        const enableText = (translate('equipment.enable') || 'enable').toLowerCase();
-        if (lowerLabel.includes('disable') || lowerLabel.includes('enable') ||
-            lowerLabel.includes(disableText) || lowerLabel.includes(enableText)) {
-            return 'd';
-        }
-        return null;
-    };
-
-    // 4. Update popover contents & visual states dynamically
     const updatePopover = () => {
         const val = parseFloat(inputElement.value) || 0;
         const recVal = getRecommendedValue();
         const currMin = getMin();
         const currMax = getMax();
-        
+
         let showRecNow = isRecommendedEnabled() && (recVal !== undefined && recVal !== null);
         if (showRecNow) {
             if (val === recVal) {
@@ -235,117 +143,31 @@ export function registerInputPopover(inputElement, options = {}) {
             }
         }
 
-        const isMinViolated = enableValidationColoring && (val < currMin);
-        const isMaxViolated = enableValidationColoring && (val > currMax);
-
-        let html = '';
-
-        // Render Title
-        const titleText = getTitleText();
-        if (showTitle && titleText) {
-            html += `<div class="popover-title">${titleText}</div>`;
-        }
-
-        html += `<div class="popover-options">`;
-
-        // Render Custom Buttons (at the top)
-        const customButtons = getCustomButtons();
-        customButtons.forEach((btn, index) => {
-            const btnVal = typeof btn.value === 'function' ? btn.value() : btn.value;
-            const btnLabel = typeof btn.label === 'function' ? btn.label() : btn.label;
-            const isClickable = btn.clickToFill !== false ? (val !== btnVal) : true;
-            const clickableClass = isClickable ? 'clickable' : 'readonly';
-            const extraClass = typeof btn.className === 'function' ? btn.className() : (btn.className || '');
-            const hotkey = getButtonHotkey(btn, btnLabel);
-            const hotkeyLabel = (isClickable && hotkey) ? ` <kbd class="popover-key-badge">${hotkey.toUpperCase()}</kbd>` : '';
-            
-            html += `
-                <div class="popover-opt-btn ${clickableClass} ${extraClass}" data-action="custom" data-index="${index}" role="${isClickable ? 'button' : 'document'}">
-                     <span>${btnLabel}${hotkeyLabel}</span>
-                    ${btnVal !== undefined ? `<strong>${formatNumber(btnVal)}</strong>` : ''}
-                </div>
-            `;
+        popover.innerHTML = renderPopoverContent({
+            val,
+            recVal,
+            currMin,
+            currMax,
+            showTitle,
+            titleText: getTitleText(),
+            showRange,
+            showMin: getShowMin(currMin),
+            showMax: getShowMax(),
+            showRecNow,
+            enableValidationColoring,
+            clickToFill,
+            allowHotkeys: options.showHotkeys !== undefined ? options.showHotkeys : true,
+            customButtons: getCustomButtons(),
+            recommendedLabel: getRecommendedLabel()
         });
 
-        // Render Range
-        if (showRange) {
-            html += `
-                <div class="popover-opt-btn readonly" data-action="range" role="document">
-                     <span>${translate('validation.range') || 'Range'}</span>
-                    <strong>${formatNumber(currMin)} - ${formatNumber(currMax)}</strong>
-                </div>
-            `;
-        }
-
-        const allowHotkeys = options.showHotkeys !== undefined ? options.showHotkeys : true;
-
-        // Render Min
-        if (getShowMin(currMin)) {
-            const isClickable = clickToFill.min && (val !== currMin);
-            const clickableClass = isClickable ? 'clickable' : 'readonly';
-            let statusClass = '';
-            if (enableValidationColoring) {
-                if (val < currMin) statusClass = 'exceeded-color';
-                else if (val === currMin) statusClass = 'match-color';
-            }
-            const hotkeyLabel = (isClickable && allowHotkeys) ? ' <kbd class="popover-key-badge">N</kbd>' : '';
-            html += `
-                <div class="popover-opt-btn ${clickableClass} ${statusClass}" data-action="min" role="${isClickable ? 'button' : 'document'}">
-                     <span>${translate('validation.min') || 'Min'}${hotkeyLabel}</span>
-                    <strong>${formatNumber(currMin)}</strong>
-                </div>
-            `;
-        }
-
-        // Render Recommended
-        if (showRecNow) {
-            const isOutOfBounds = recVal < currMin || recVal > currMax;
-            const isClickable = clickToFill.recommended && (val !== recVal) && !isOutOfBounds;
-            const clickableClass = isClickable ? 'clickable' : 'readonly';
-            let statusClass = '';
-            if (enableValidationColoring && isOutOfBounds) {
-                statusClass = 'exceeded-color';
-            }
-            const hotkeyLabel = (isClickable && allowHotkeys) ? ' <kbd class="popover-key-badge">R</kbd>' : '';
-            html += `
-                <div class="popover-opt-btn ${clickableClass} ${statusClass}" data-action="recommended" role="${isClickable ? 'button' : 'document'}">
-                     <span>${getRecommendedLabel()}${hotkeyLabel}</span>
-                    <strong>${formatNumber(recVal)}</strong>
-                </div>
-            `;
-        }
-
-        // Render Max
-        if (getShowMax()) {
-            const isClickable = clickToFill.max && (val !== currMax);
-            const clickableClass = isClickable ? 'clickable' : 'readonly';
-            let statusClass = '';
-            if (enableValidationColoring) {
-                if (val > currMax) statusClass = 'exceeded-color';
-                else if (val === currMax) statusClass = 'match-color';
-            }
-            const hotkeyLabel = (isClickable && allowHotkeys) ? ' <kbd class="popover-key-badge">X</kbd>' : '';
-            html += `
-                <div class="popover-opt-btn ${clickableClass} ${statusClass}" data-action="max" role="${isClickable ? 'button' : 'document'}">
-                     <span>${translate('validation.max') || 'Max'}${hotkeyLabel}</span>
-                    <strong>${formatNumber(currMax)}</strong>
-                </div>
-            `;
-        }
-
-        html += `</div>`;
-        popover.innerHTML = html;
-
         if (popover.classList.contains('show')) {
-            positionPopover();
+            positionPopoverThrottled();
         }
     };
 
-    // 6. Keyboard Hotkeys Listener
     const handleKeyDown = (e) => {
         if (!popover.classList.contains('show')) return;
-        
-        // Ignore modifier keys like Ctrl, Cmd, Alt, Shift
         if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
 
         const key = e.key.toLowerCase();
@@ -388,10 +210,11 @@ export function registerInputPopover(inputElement, options = {}) {
             }
         } else if (key === 'escape') {
             hidePopover();
-            inputElement.blur();
+            if (typeof inputElement.blur === 'function') {
+                inputElement.blur();
+            }
             actionTriggered = true;
         } else {
-            // Check custom buttons
             const customButtons = getCustomButtons();
             for (let i = 0; i < customButtons.length; i++) {
                 const btn = customButtons[i];
@@ -428,7 +251,6 @@ export function registerInputPopover(inputElement, options = {}) {
         }
     };
 
-    // 7. Handle standard show/hide triggers
     let animationFrameId = null;
 
     const stopTrackingPosition = () => {
@@ -443,30 +265,34 @@ export function registerInputPopover(inputElement, options = {}) {
             stopTrackingPosition();
             return;
         }
-        positionPopover();
+        positionPopover(popover, inputElement, options);
         animationFrameId = requestAnimationFrame(trackPositionLoop);
     };
 
     const showPopover = () => {
-        // Clear previous toggle value when popover is shown
         inputElement._previousPopoverValue = undefined;
         updatePopover();
 
-        // Dynamically attach animation/transition listeners to parent modal if not already attached
         const parentModal = inputElement.closest('.modal, .modal-content, [role="dialog"]');
-        if (parentModal && !parentModal._popoverAnimListenerAttached) {
-            parentModal._popoverAnimListenerAttached = true;
-            const handleModalAnimationEvent = () => {
-                if (popover.classList.contains('show') && document.activeElement === inputElement) {
-                    positionPopover();
-                }
-            };
-            parentModal.addEventListener('animationend', handleModalAnimationEvent);
-            parentModal.addEventListener('transitionend', handleModalAnimationEvent);
+        if (parentModal) {
+            if (!parentModal._popoverAnimListenerAttached) {
+                parentModal._popoverAnimListenerAttached = true;
+                const handleModalAnimationEvent = () => {
+                    if (activePopoverInstance) {
+                        activePopoverInstance.positionThrottled();
+                    }
+                };
+                parentModal.addEventListener('animationend', handleModalAnimationEvent);
+                parentModal.addEventListener('transitionend', handleModalAnimationEvent);
+            }
         }
 
-        // Temporarily display to measure height/width
-        popover.style.position = 'absolute';
+        const container = getTargetContainer();
+        if (popover.parentNode !== container) {
+            container.appendChild(popover);
+        }
+
+        popover.style.position = 'fixed';
         popover.style.bottom = 'auto';
         popover.style.right = 'auto';
         popover.style.visibility = 'hidden';
@@ -476,67 +302,88 @@ export function registerInputPopover(inputElement, options = {}) {
         popover.style.transition = 'opacity 0.15s ease';
         popover.classList.add('show');
 
-        positionPopover();
+        showNativePopover(popover);
+        positionPopover(popover, inputElement, options);
 
         popover.style.visibility = '';
         popover.style.opacity = '1';
         popover.style.pointerEvents = 'auto';
 
-        // Continuously update position while focused to track modal animations, transitions, and layout shifts
+        activePopoverInstance = {
+            inputElement,
+            positionThrottled: positionPopoverThrottled,
+            hide: hidePopover
+        };
+
         stopTrackingPosition();
         trackPositionLoop();
     };
 
     const hidePopover = () => {
+        if (activePopoverInstance?.inputElement === inputElement) {
+            activePopoverInstance = null;
+        }
+
         stopTrackingPosition();
         popover.classList.remove('show');
         popover.style.opacity = '0';
         popover.style.pointerEvents = 'none';
+        popover.style.zIndex = '';
+
+        hideNativePopover(popover);
+    };
+
+    popover.addEventListener('toggle', (event) => {
+        if (event.newState === 'closed') {
+            if (activePopoverInstance?.inputElement === inputElement) {
+                activePopoverInstance = null;
+            }
+            stopTrackingPosition();
+            popover.classList.remove('show');
+            popover.style.opacity = '0';
+            popover.style.pointerEvents = 'none';
+            popover.style.zIndex = '';
+        }
+    });
+
+    let isInteractingWithPopover = false;
+
+    const handleBlur = () => {
+        setTimeout(() => {
+            if (isInteractingWithPopover) {
+                isInteractingWithPopover = false;
+                return;
+            }
+            const active = document.activeElement;
+            if (!active || (active !== inputElement && !popover.contains(active))) {
+                hidePopover();
+            }
+        }, 150);
     };
 
     inputElement.addEventListener('focus', showPopover);
     inputElement.addEventListener('input', updatePopover);
     inputElement.addEventListener('keydown', handleKeyDown);
-    
-    const handleBlur = () => {
-        setTimeout(() => {
-            const active = document.activeElement;
-            if (!active || (active !== inputElement && !popover.contains(active))) {
-                hidePopover();
-            }
-        }, 120);
-    };
-
     inputElement.addEventListener('blur', handleBlur);
     inputElement.addEventListener('focusout', handleBlur);
 
-    // Re-position continuously when window resizes or scrolls
-    const handleScrollResize = () => {
-        if (!popover.classList.contains('show')) return;
-
-        if (document.activeElement === inputElement) {
-            positionPopover();
+    const preventInputBlur = (e) => {
+        isInteractingWithPopover = true;
+        e.stopPropagation();
+        if (e.target && typeof e.target.closest === 'function' && e.target.closest('.popover-opt-btn')) {
             return;
         }
-
-        hidePopover();
-    };
-    window.addEventListener('scroll', handleScrollResize, { capture: true, passive: true });
-    window.addEventListener('resize', handleScrollResize, { passive: true });
-
-    // 8. Actionable Event Listeners using Delegation
-    const preventInputBlur = (e) => {
-        // Prevent loss of focus on the input field so popover stays open
         e.preventDefault();
     };
     popover.addEventListener('mousedown', preventInputBlur);
     popover.addEventListener('pointerdown', preventInputBlur);
-    popover.addEventListener('touchstart', preventInputBlur);
 
-    popover.addEventListener('click', (e) => {
+    const handleOptionSelect = (e) => {
         e.stopPropagation();
-        const item = e.target.closest('.popover-opt-btn');
+        const item = e.target && typeof e.target.closest === 'function' ? e.target.closest('.popover-opt-btn') : null;
         if (!item || !item.classList.contains('clickable')) return;
+
+        e.preventDefault();
 
         const action = item.dataset.action;
         let targetVal;
@@ -551,7 +398,7 @@ export function registerInputPopover(inputElement, options = {}) {
                 options.onRecommendedFill(inputElement, targetVal);
             }
         } else if (action === 'custom') {
-            const index = parseInt(item.dataset.index, 10);
+            const index = Number(item.dataset.index) || 0;
             const customButtons = getCustomButtons();
             const btn = customButtons[index];
             if (btn) {
@@ -567,14 +414,15 @@ export function registerInputPopover(inputElement, options = {}) {
 
         if (targetVal !== undefined) {
             inputElement.value = targetVal;
-            // Dispatch standard events so that app-wide input validation triggers
             inputElement.dispatchEvent(new Event('input', { bubbles: true }));
             inputElement.dispatchEvent(new Event('change', { bubbles: true }));
-            hidePopover();
+            queueMicrotask(() => {
+                hidePopover();
+            });
         } else {
-            // Action button clicked - update popover contents in case state changed
             updatePopover();
         }
-    });
-}
+    };
 
+    popover.addEventListener('click', handleOptionSelect);
+}

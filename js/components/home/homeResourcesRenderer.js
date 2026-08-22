@@ -1,56 +1,74 @@
-import { dom } from '../../dom/domElements.js';
-
-import { leagueTiers } from '../../data/appData.js';
+import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
 
+import { updateCalculatedValue } from '../../utils/numberFormatter.js';
+
+import { dom } from '../../dom/domElements.js';
+
+/**
+ * Renders resource requirements and participation counts in the Home tab income summary footer.
+ * @param {import('../../core/types.js').AppState} state - Current global application state.
+ */
 export function renderHomeResourcesFooter(state) {
+    if (!state) return;
     const homeResourceElements = dom.income?.home?.incomeCard?.resources;
     if (!homeResourceElements) return;
 
     // League Requirement
-    const leagueId = parseInt(state.income.starBonus?.league || 105000000, 10);
+    const leagueId = Number(state.income?.starBonus?.league) || 105000000;
     const leagueData = leagueTiers.items.find(l => l.id === leagueId);
     const unrankedLeague = leagueTiers.items.find(l => l.id === 105000000);
     const unrankedIcon = unrankedLeague?.iconUrls?.small || '';
-    
-    if (homeResourceElements.leagueIcon) {
-        homeResourceElements.leagueIcon.src = leagueData?.iconUrls?.small || unrankedIcon;
+    const targetIconSrc = leagueData?.iconUrls?.small || unrankedIcon;
+
+    if (homeResourceElements.leagueIcon && homeResourceElements.leagueIcon.src !== targetIconSrc) {
+        homeResourceElements.leagueIcon.src = targetIconSrc;
     }
+
     if (homeResourceElements.leagueRequirement) {
         const leagueName = leagueData ? leagueData.name : 'Unranked';
-        const leagueKey = 'leagues.' + leagueName.toLowerCase()
+        const leagueKey = 'entities.leagues.' + leagueName.toLowerCase()
             .replace(/\./g, '')
-            .replace(/\s(i+)$/i, (match, p1) => p1.toUpperCase())
+            .replace(/\s(i+)$/i, (_, p1) => p1.toUpperCase())
             .replace(/\s/g, '_');
-        homeResourceElements.leagueRequirement.textContent = translate(leagueKey);
-        homeResourceElements.leagueRequirement.dataset.i18n = leagueKey;
+        const translatedName = translate(leagueKey);
+
+        if (homeResourceElements.leagueRequirement.textContent !== translatedName) {
+            homeResourceElements.leagueRequirement.textContent = translatedName;
+        }
+        if (homeResourceElements.leagueRequirement.dataset.i18n !== leagueKey) {
+            homeResourceElements.leagueRequirement.dataset.i18n = leagueKey;
+        }
     }
 
     // CWL Participations
     if (homeResourceElements.cwlParticipations) {
-        homeResourceElements.cwlParticipations.textContent = state.income.cwl.hitsPerSeason || 0;
+        updateCalculatedValue(homeResourceElements.cwlParticipations, Number(state.income?.cwl?.hitsPerSeason ?? 0));
     }
 
     // Clan War Participations
     if (homeResourceElements.clanWarParticipations) {
-        homeResourceElements.clanWarParticipations.textContent = state.income.clanWar.warsPerMonth || 0;
+        updateCalculatedValue(homeResourceElements.clanWarParticipations, Number(state.income?.clanWar?.warsPerMonth ?? 0));
     }
     if (homeResourceElements.clanWarIcon) {
-        homeResourceElements.clanWarIcon.src = state.playerProfile?.clanBadgeUrl || 'assets/resources/clanWar.png';
+        const clanIconSrc = state.playerProfile?.clanBadgeUrl || 'assets/resources/clanWar.png';
+        if (homeResourceElements.clanWarIcon.src !== clanIconSrc) {
+            homeResourceElements.clanWarIcon.src = clanIconSrc;
+        }
     }
 
     // Raid Medals
     if (homeResourceElements.raidMedals) {
-        homeResourceElements.raidMedals.textContent = state.derived.incomeSources.raidMedalTrader?.cost || 0;
+        updateCalculatedValue(homeResourceElements.raidMedals, Number(state.derived?.incomeSources?.raidMedalTrader?.cost ?? 0));
     }
 
     // Event Medals
     if (homeResourceElements.eventMedals) {
-        homeResourceElements.eventMedals.textContent = state.derived.incomeSources.eventTrader?.cost || 0;
+        updateCalculatedValue(homeResourceElements.eventMedals, Number(state.derived?.incomeSources?.eventTrader?.cost ?? 0));
     }
 
     // Gems
     if (homeResourceElements.gems) {
-        homeResourceElements.gems.textContent = state.derived.incomeSources.gemTrader?.cost || 0;
+        updateCalculatedValue(homeResourceElements.gems, Number(state.derived?.incomeSources?.gemTrader?.cost ?? 0));
     }
 }

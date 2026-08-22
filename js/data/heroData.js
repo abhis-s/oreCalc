@@ -1,4 +1,6 @@
-export const heroData = {
+import { deepFreeze } from '../utils/objectUtils.js';
+
+export const heroData = deepFreeze({
     barbarianKing: {
         key: "barbarianKing",
         name: "Barbarian King",
@@ -89,7 +91,7 @@ export const heroData = {
             { key: "revengeDeck", name: "Revenge Deck", type: "epic", image: "assets/equipment/dragon_duke/DD_revenge_deck.png" },
         ],
     },
-};
+});
 
 /**
  * Returns the pool of epic equipment (name and image icon) for a given hero key derived directly from heroData.
@@ -107,5 +109,3 @@ export function getHeroEpicEquipmentPool(heroKey) {
             heroJourneyNode: eq.heroJourneyNode || null
         }));
 }
-
-export { upgradeCosts } from './equipmentCommonData.js';

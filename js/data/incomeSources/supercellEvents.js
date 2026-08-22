@@ -1,4 +1,6 @@
-export const supercellEventsData = {
+import { deepFreeze } from '../../utils/objectUtils.js';
+
+export const supercellEventsData = deepFreeze({
     rewards: {
         2025: {
             monthlyQualifiers: { shiny: 1000, glowy: 50, starry: 10 },
@@ -17,4 +19,4 @@ export const supercellEventsData = {
             { name: 'World Finals', start: '2026-11-01T00:00:00Z', end: '2026-11-30T23:59:59Z', label: 'November' },
         ]
     }
-};
+});

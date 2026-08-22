@@ -95,6 +95,9 @@ function handlePointerCancel(e) {
     clearGlideHighlights();
 }
 
+/**
+ * Initializes pointer capture swipe glide interactions for tab navigation bars.
+ */
 export function initializeNavGlideController() {
     const navContainers = document.querySelectorAll('.tab-bar-container');
 

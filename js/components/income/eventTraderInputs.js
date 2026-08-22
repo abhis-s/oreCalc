@@ -1,13 +1,15 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
-import { state } from '../../core/state.js';
+import { eventTraderData } from '../../data/incomeSources/traders.js';
 
-import { eventTraderData } from '../../data/appData.js';
+import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { renderEventTraderRow } from './eventTraderDisplay.js';
-
 import { initializeOfferGrid } from '../common/offerGrid.js';
+import { dom } from '../../dom/domElements.js';
 
+/**
+ * Initializes Event Trader offer grid input bindings and state change handlers.
+ */
 export function initializeEventTrader() {
     const offersContainer = dom.income?.eventTrader?.offersContainer;
     if (!offersContainer) return;

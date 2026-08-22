@@ -1,10 +1,8 @@
 @use 'abstracts/variables' as *;
 @use 'base/placeholder';
 
-/* ==========================================
-   Mobile/Tablet Breakpoint (< 780px)
-   ========================================== */
-@media (max-width: 779px) {
+// --- 1. MOBILE & TABLET LAYOUT (< 780px) ---
+@media (max-width: #{$breakpoint-desktop - 1px}) {
     :root {
         --font-size-em-lg: 1.1em;
         --font-size-em-md: 0.9em;
@@ -16,12 +14,13 @@
     }
 
     .bottom-nav-bar {
+        display: flex !important;
         opacity: 1;
         transform: translateY(0);
         pointer-events: auto;
+        contain: paint layout;
+        will-change: transform;
     }
-
-
 
     .fab-container {
         opacity: 1;
@@ -59,7 +58,7 @@
     }
 
     .income-header {
-        padding: 0; 
+        padding: 0;
     }
 
     .main-content {
@@ -111,13 +110,12 @@
     }
 }
 
-/* ==========================================
-   Extremely Narrow Viewports (< 400px)
-   ========================================== */
-@media (max-width: 399px) {
+@media (max-width: $breakpoint-compact) {
     .header-container {
         top: 0;
-        width: 100%;
+        left: 0;
+        right: 0;
+        width: auto;
         border-radius: 0;
 
         h1 {
@@ -130,11 +128,10 @@
     }
 }
 
-/* ==========================================
-   Desktop Breakpoint (>= 780px)
-   ========================================== */
-@media (min-width: 780px) {
+// --- 2. DESKTOP LAYOUT (>= 780px) ---
+@media (min-width: $breakpoint-desktop) {
     .bottom-nav-bar {
+        display: none !important;
         opacity: 0;
         transform: translateY(120%);
         pointer-events: none;
@@ -194,10 +191,6 @@
 
     .main-content {
         flex-direction: row;
-    }
-
-    .results-and-calculate-container {
-        flex-direction: column;
     }
 
     .right-panel {

@@ -1,11 +1,11 @@
-    <div id="commits-modal" class="modal">
+    <dialog id="commits-modal" class="modal" aria-labelledby="commits-modal-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 data-i18n="commits.title">Minor Updates</h2>
-                <button id="close-commits-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close"><orecalc-assets-svg name="close"></orecalc-assets-svg></button>
+                <h2 id="commits-modal-title" data-i18n="views.commits.title"></h2>
+                <button id="close-commits-modal-btn" class="close-button" data-i18n-aria-label="actions.close" data-modal-autofocus><orecalc-assets-svg name="close"></orecalc-assets-svg></button>
             </div>
             <div id="commits-modal-body" class="modal-body">
-                <!-- Commits list will be dynamically inserted here -->
+                <!-- DYNAMIC INSERTION: Commit history entries -->
             </div>
         </div>
-    </div>
+    </dialog>

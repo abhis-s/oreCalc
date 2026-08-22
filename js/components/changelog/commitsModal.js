@@ -1,15 +1,20 @@
-import { dom } from '../../dom/domElements.js';
 import { translate } from '../../i18n/translator.js';
 
+import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { escapeHTML } from '../../utils/stringUtils.js';
+
+import { dom } from '../../dom/domElements.js';
+
+/**
+ * Initializes close button event listeners for the Git Commits / Release History modal.
+ */
 export function initializeCommitsModal() {
     const modal = document.getElementById('commits-modal');
     const closeButton = document.getElementById('close-commits-modal-btn');
-    const overlay = dom.overlay;
 
-    if (modal && closeButton && overlay) {
+    if (modal && closeButton) {
         closeButton.addEventListener('click', () => {
-            modal.classList.remove('show');
-            overlay.classList.remove('show');
+            closeModalAnimated(modal);
         });
     }
 }
@@ -40,6 +45,10 @@ function isInterruptionRestricted() {
     return false;
 }
 
+/**
+ * Parses and displays conventional commit logs and highlighted milestones in the Commits modal.
+ * @param {Array<any>} commits - List of commit objects with hash, subject, and author.
+ */
 export function showCommitsModal(commits) {
     if (isInterruptionRestricted()) {
         return;
@@ -58,7 +67,7 @@ export function showCommitsModal(commits) {
         commits.forEach(commit => {
             const milestoneMatch = commit.subject.match(milestoneRegex);
             const convMatch = commit.subject.match(conventionalCommitRegex);
-            
+
             if (milestoneMatch) {
                 milestones.push({
                     hash: commit.hash,
@@ -78,45 +87,43 @@ export function showCommitsModal(commits) {
         const modalTitle = modal.querySelector('.modal-header h2');
         if (modalTitle) {
             if (milestones.length > 0) {
-                modalTitle.textContent = translate('commits.milestoneTitle') || 'New Feature Released!';
+                modalTitle.textContent = translate('views.commits.milestoneTitle');
             } else {
-                modalTitle.textContent = translate('commits.title') || 'Minor Updates';
+                modalTitle.textContent = translate('views.commits.title');
             }
         }
 
         let html = '<div class="commits-container">';
 
-        // 1. Render Milestones if present
         if (milestones.length > 0) {
             html += `
                 <div class="milestones-section">
                     <div class="milestones-title-group">
                         <orecalc-assets-svg name="star-shine" class="milestones-icon" height="20" width="20"></orecalc-assets-svg>
-                        <span>${translate('commits.highlightsTitle') || 'Key Highlights'}</span>
+                        <span>${translate('views.commits.highlightsTitle')}</span>
                     </div>
                     <ul class="milestones-list">
             `;
             milestones.forEach(m => {
-                const scopeHtml = m.scope ? `<span class="commit-scope">${m.scope.toUpperCase()}:</span> ` : '';
-                html += `<li class="milestone-item">${scopeHtml}${m.text}</li>`;
+                const scopeHtml = m.scope ? `<span class="commit-scope">${escapeHTML(m.scope.toUpperCase())}:</span> ` : '';
+                html += `<li class="milestone-item">${scopeHtml}${escapeHTML(m.text)}</li>`;
             });
             html += '</ul></div>';
         }
 
-        // 2. Render all commits (milestones and others)
         if (commits.length > 0) {
             const hasMilestones = milestones.length > 0;
             if (hasMilestones) {
                 html += `
                     <details class="other-updates-details">
                         <summary class="other-updates-summary">
-                            <span>${translate('commits.otherUpdatesTitle') || 'Other Updates'}</span>
+                            <span>${translate('views.commits.otherUpdatesTitle')}</span>
                             <orecalc-assets-svg name="dropdown" class="summary-toggle-icon"></orecalc-assets-svg>
                         </summary>
                         <div class="other-updates-content">
                 `;
             } else {
-                html += `<h4 class="other-updates-heading">${translate('commits.otherUpdatesTitle') || 'Other Updates'}</h4>`;
+                html += `<h3 class="other-updates-heading">${translate('views.commits.otherUpdatesTitle')}</h3>`;
             }
 
             html += '<ul class="commits-list">';
@@ -125,30 +132,30 @@ export function showCommitsModal(commits) {
                 const milestoneMatch = commit.subject.match(milestoneRegex);
                 let subjectHtml = '';
                 let typeHtml = '';
-                
+
                 if (milestoneMatch) {
-                    const scope = milestoneMatch[1] ? `<span class="commit-scope">${milestoneMatch[1]}:</span> ` : '';
+                    const scope = milestoneMatch[1] ? `<span class="commit-scope">${escapeHTML(milestoneMatch[1])}:</span> ` : '';
                     typeHtml = `<span class="commit-type type-feat" style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8); border: 1px solid rgba(234, 179, 8, 0.3);">milestone</span>`;
-                    subjectHtml = `${scope}<span class="commit-msg-text">${milestoneMatch[2]}</span>`;
+                    subjectHtml = `${scope}<span class="commit-msg-text">${escapeHTML(milestoneMatch[2])}</span>`;
                 } else if (match) {
                     const type = match[1].toLowerCase();
-                    const scope = match[2] ? `<span class="commit-scope">${match[2]}:</span> ` : '';
+                    const scope = match[2] ? `<span class="commit-scope">${escapeHTML(match[2])}:</span> ` : '';
                     const message = match[3];
                     if (type === 'milestone' || type === 'announcement') {
                         typeHtml = `<span class="commit-type type-feat" style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8); border: 1px solid rgba(234, 179, 8, 0.3);">milestone</span>`;
                     } else {
-                        typeHtml = `<span class="commit-type type-${type}">${type}</span>`;
+                        typeHtml = `<span class="commit-type type-${escapeHTML(type)}">${escapeHTML(type)}</span>`;
                     }
-                    subjectHtml = `${scope}<span class="commit-msg-text">${message}</span>`;
+                    subjectHtml = `${scope}<span class="commit-msg-text">${escapeHTML(message)}</span>`;
                 } else {
-                    subjectHtml = `<span class="commit-msg-text">${commit.subject}</span>`;
+                    subjectHtml = `<span class="commit-msg-text">${escapeHTML(commit.subject)}</span>`;
                 }
 
                 html += `
                     <li class="commit-item">
                         <div class="commit-meta">
                             ${typeHtml}
-                            <code class="commit-hash">${commit.hash}</code>
+                            <code class="commit-hash">${escapeHTML(commit.hash)}</code>
                         </div>
                         <span class="commit-subject">${subjectHtml}</span>
                     </li>
@@ -162,7 +169,7 @@ export function showCommitsModal(commits) {
         }
 
         html += '</div>';
-        
+
         modalBody.innerHTML = html;
         modal.classList.add('show');
         overlay.classList.add('show');

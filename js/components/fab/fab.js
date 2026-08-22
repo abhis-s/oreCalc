@@ -1,12 +1,12 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../app.js';
+import { translate } from '../../i18n/translator.js';
+
 import { saveState } from '../../core/localStorageManager.js';
 import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { escapeHTML } from '../../utils/stringUtils.js';
 
-import { translate } from '../../i18n/translator.js';
-
+import { dom } from '../../dom/domElements.js';
 import { showAlert } from '../../ui/noticeModal.js';
 
 function toggleFabMenu() {
@@ -20,6 +20,9 @@ function toggleFabMenu() {
     document.body.classList.toggle('open-fab', isActive);
 }
 
+/**
+ * Closes the Floating Action Button (FAB) menu and dismisses backdrop overlays.
+ */
 export function closeFabMenu() {
     const { main, menu } = dom.fab;
     const overlay = dom.overlay;
@@ -33,6 +36,9 @@ export function closeFabMenu() {
     }
 }
 
+/**
+ * Initializes FAB menu click, swipe backdrop, and quick refresh pill actions.
+ */
 export function initializeFab() {
     const { main, pills } = dom.fab;
     const overlay = dom.overlay;
@@ -61,12 +67,12 @@ export function initializeFab() {
     pills.refresh?.addEventListener('click', async () => {
         const activeTag = state.savedPlayerTags[0];
         if (!activeTag) return;
-        
+
         try {
             pills.refresh.classList.add('saving');
             const { loadAndProcessPlayerData } = await import('../../services/serverResponseHandler.js');
             const result = await loadAndProcessPlayerData(activeTag, { updateOrder: false });
-            
+
             pills.refresh.classList.remove('saving');
             if (result.success) {
                 pills.refresh.classList.add('success');
@@ -89,6 +95,10 @@ export function initializeFab() {
 
 }
 
+/**
+ * Updates disabled states and cloud sync button visibility for FAB controls.
+ * @param {string} playerTag - Active player tag.
+ */
 export function renderFab(playerTag) {
     const isDisabled = !playerTag || (state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0') || (!state.savedPlayerTags.includes(playerTag) && state.savedPlayerTags.length > 1);
 

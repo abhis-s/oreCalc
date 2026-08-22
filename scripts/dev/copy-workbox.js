@@ -18,4 +18,4 @@ fs.copyFileSync(sourcePath, destPath);
 if (fs.existsSync(mapSourcePath)) {
     fs.copyFileSync(mapSourcePath, mapDestPath);
 }
-console.log(`Copied Workbox and its source map for dev environment to: ${destDir}`);
+console.log(`[OK] Copied Workbox runtime and source maps to ${destDir}`);

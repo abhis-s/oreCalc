@@ -1,25 +1,23 @@
-<div id="bug-report-modal" class="modal">
+<dialog id="bug-report-modal" class="modal" aria-labelledby="bug-report-modal-title">
     <div class="modal-content bug-report-modal-content">
         <div class="modal-header">
-            <h2 data-i18n="settings.bugReport">Bug Report</h2>
-            <button id="close-bug-report-header-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+            <h2 id="bug-report-modal-title" data-i18n="views.settings.bugReport"></h2>
+            <button id="close-bug-report-header-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
         <div class="modal-info-text text-left">
-            <p data-i18n="settings.bugReportInfo">
-                Alternatively, you can report the issue directly on our <a href="https://github.com/abhis-s/oreCalc/issues" target="_blank" rel="noopener noreferrer" class="theme-link">GitHub Issues</a> page.
-            </p>
+            <p data-i18n="views.settings.bugReportInfo"></p>
         </div>
         <div class="bug-report-form flex-column-gap-15 text-left push-top-10">
             <div class="form-group flex-column-gap-5">
-                <label for="bug-report-email" class="input-label" data-i18n="settings.options.contactEmail">Contact Email (Optional)</label>
-                <input type="email" id="bug-report-email" class="input-style width-100" data-i18n-placeholder="settings.options.emailPlaceholder" placeholder="your-email@example.com" autocomplete="email">
+                <label for="bug-report-email" class="input-label" data-i18n="views.settings.options.contactEmail"></label>
+                <input type="email" id="bug-report-email" class="input-style width-100" data-i18n-placeholder="views.settings.options.emailPlaceholder" autocomplete="email" data-modal-autofocus>
                 <div id="bug-report-email-error" class="input-error-msg"></div>
             </div>
             <div class="form-group flex-column-gap-5">
-                <label for="bug-report-desc" class="input-label" data-i18n="settings.options.bugDescription">Description *</label>
-                <textarea id="bug-report-desc" class="input-style width-100" maxlength="1000" rows="5" data-i18n-placeholder="settings.options.bugDescPlaceholder" placeholder="Please describe the issue in detail..."></textarea>
+                <label for="bug-report-desc" class="input-label" data-i18n="views.settings.options.bugDescription"></label>
+                <textarea id="bug-report-desc" class="input-style width-100" maxlength="1000" rows="5" data-i18n-placeholder="views.settings.options.bugDescPlaceholder"></textarea>
                 <div class="textarea-footer justify-between align-center">
                     <span id="bug-report-desc-error" class="input-error-msg"></span>
                     <span id="bug-report-char-count" class="char-count">0/1000</span>
@@ -28,33 +26,29 @@
             <div class="form-group push-top-5">
                 <label class="checkbox-group">
                     <input type="checkbox" id="bug-report-attach-checkbox" checked>
-                    <span class="checkbox-label" data-i18n="settings.options.userDataAttachment">Attach User Data (Optional)</span>
+                    <span class="checkbox-label" data-i18n="views.settings.options.userDataAttachment"></span>
                 </label>
-                <p class="form-setting-text" data-i18n="settings.options.uuidAttachmentInfo" style="margin-top: 4px;">
-                    Your unique User ID (UUID) is always attached to help us identify your session.
-                </p>
+                <p class="form-setting-text" data-i18n="views.settings.options.uuidAttachmentInfo"></p>
             </div>
-            <div class="sw-troubleshoot-box push-top-5" style="background: color-mix(in srgb, var(--bg-surface-primary) 50%, transparent); padding: 12px; border-radius: 10px; border: 1px solid var(--border-primary);">
-                <div class="sw-troubleshoot-content" style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                    <div class="sw-troubleshoot-text" style="display: flex; flex-direction: column; gap: 2px; flex: 1;">
-                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);" data-i18n="settings.bugReportSWTitle">App Not Updating?</span>
-                        <span style="font-size: 11px; color: var(--text-secondary); line-height: 1.35;" data-i18n="settings.bugReportSWDesc">Clear local app caches to force fetch the latest version and fixes.</span>
+            <div class="sw-troubleshoot-box push-top-5">
+                <div class="sw-troubleshoot-content">
+                    <div class="sw-troubleshoot-text">
+                        <span class="sw-troubleshoot-title" data-i18n="views.settings.bugReportSWTitle"></span>
+                        <span class="sw-troubleshoot-desc" data-i18n="views.settings.bugReportSWDesc"></span>
                     </div>
                     <button id="bug-report-reset-sw-btn" type="button" class="bug-report-sw-btn">
                         <orecalc-assets-svg name="sync" height="14" width="14"></orecalc-assets-svg>
-                        <span data-i18n="settings.bugReportResetSWLabel">Force Update</span>
+                        <span data-i18n="views.settings.bugReportResetSWLabel"></span>
                     </button>
                 </div>
             </div>
             <div class="privacy-notice push-top-5">
-                <p data-i18n="settings.bugReportPrivacyInfo">
-                    By submitting this report, you agree that your user data and the provided email address will be processed in accordance with our <a href="#" id="bug-report-privacy-link" class="theme-link">Privacy Policy</a>.
-                </p>
+                <p data-i18n="views.settings.bugReportPrivacyInfo"></p>
             </div>
         </div>
         <div class="modal-actions push-top-15">
-            <button id="close-bug-report-modal-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
-            <button id="submit-bug-report-btn" class="accept-button" data-i18n="actions.submit">Submit</button>
+            <button id="close-bug-report-modal-btn" class="reject-button" data-i18n="actions.cancel"></button>
+            <button id="submit-bug-report-btn" class="accept-button" data-i18n="actions.submit"></button>
         </div>
     </div>
-</div>
+</dialog>

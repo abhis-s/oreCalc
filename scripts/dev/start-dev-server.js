@@ -75,7 +75,10 @@ if (fs.existsSync(partialsDir)) {
     fs.watch(partialsDir, { recursive: true }, watchCallback);
 }
 
-const openBrowser = process.env.OPEN_BROWSER !== 'false' && !process.argv.includes('--no-open');
+const openBrowser = !process.argv.includes('--no-open') &&
+                    !process.argv.includes('--no-browser') &&
+                    process.env.npm_config_browser !== 'false' &&
+                    process.env.npm_config_no_browser !== 'true';
 
 let supportedLanguages = ['en', 'de', 'tr', 'zh'];
 try {
@@ -88,10 +91,44 @@ try {
     console.warn('[Dev Server] Could not parse languagesData.js dynamically');
 }
 
+let getDynamicTranslationArgs = () => ({});
+import('../../js/i18n/i18nParams.js').then(mod => {
+    getDynamicTranslationArgs = mod.getDynamicTranslationArgs;
+}).catch(err => {
+    console.warn('[Dev Server] Failed to load i18nParams.js:', err);
+});
+
 const localesMap = { en: 'en_US', de: 'de_DE', tr: 'tr_TR', zh: 'zh_CN', 'zh-TW': 'zh_TW' };
+
 function getNestedValue(obj, keyPath) {
     return keyPath.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
 }
+
+function resolveTranslation(translations, key, lang) {
+    let val = getNestedValue(translations, key);
+    if (typeof val !== 'string') return null;
+
+    const dynamicArgs = getDynamicTranslationArgs(key, lang, (k) => getNestedValue(translations, k) || '');
+    if (dynamicArgs && Object.keys(dynamicArgs).length > 0) {
+        for (const [paramKey, paramVal] of Object.entries(dynamicArgs)) {
+            val = val.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), paramVal);
+        }
+    }
+    return val;
+}
+
+function injectOrReplaceAttribute(tagHtml, attrName, attrValue) {
+    const escapedValue = attrValue.replace(/"/g, '&quot;');
+    const attrRegex = new RegExp(`(?<!-)\\b${attrName}="[^"]*"`, 'i');
+    if (attrRegex.test(tagHtml)) {
+        return tagHtml.replace(attrRegex, `${attrName}="${escapedValue}"`);
+    }
+    if (tagHtml.endsWith('/>')) {
+        return tagHtml.slice(0, -2) + ` ${attrName}="${escapedValue}"/>`;
+    }
+    return tagHtml.slice(0, -1) + ` ${attrName}="${escapedValue}">`;
+}
+
 function generateLocalizedHtml(baseHtml, lang) {
     const i18nFilePath = path.join(process.cwd(), `js/i18n/${lang}.json`);
     if (!fs.existsSync(i18nFilePath)) {
@@ -122,17 +159,42 @@ function generateLocalizedHtml(baseHtml, lang) {
     html = html.replace(/"description": "[^"]*"/, `"description": "${description.replace(/"/g, '\\"')}"`);
     html = html.replace(/"url": "[^"]*"/, `"url": "${url}"`);
 
-    // Pre-render static body elements marked with data-i18n
-    html = html.replace(/<([a-z1-6]+)([^>]*?)\s+data-i18n="([^"]+)"([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tagName, attrsBefore, key, attrsAfter, innerContent) => {
-        let val = getNestedValue(translations, key);
-        if (typeof val === 'string' && val.trim()) {
-            if (key === 'settings.bugReportInfo') {
-                val = val.replace('{link}', '<a href="https://github.com/abhis-s/oreCalc/issues" target="_blank" rel="noopener noreferrer" class="theme-link">GitHub Issues</a>');
-            } else if (key === 'settings.bugReportPrivacyInfo') {
-                const privacyText = getNestedValue(translations, 'settings.privacyPolicyText') || 'Privacy Policy';
-                val = val.replace('{link}', `<a href="#" id="bug-report-privacy-link" class="theme-link">${privacyText}</a>`);
-            }
+    html = html.replace(/<([a-z1-6]+)([^>]*?)\s+data-i18n="([^"]+)"([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tagName, attrsBefore, key, attrsAfter) => {
+        const val = resolveTranslation(translations, key, lang);
+        if (val !== null && val.trim()) {
             return `<${tagName}${attrsBefore} data-i18n="${key}"${attrsAfter}>${val}</${tagName}>`;
+        }
+        return match;
+    });
+
+    html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-placeholder="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
+        const val = resolveTranslation(translations, key, lang);
+        if (val !== null) {
+            return injectOrReplaceAttribute(match, 'placeholder', val);
+        }
+        return match;
+    });
+
+    html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-title="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
+        const val = resolveTranslation(translations, key, lang);
+        if (val !== null) {
+            return injectOrReplaceAttribute(match, 'title', val);
+        }
+        return match;
+    });
+
+    html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-aria-label="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
+        const val = resolveTranslation(translations, key, lang);
+        if (val !== null) {
+            return injectOrReplaceAttribute(match, 'aria-label', val);
+        }
+        return match;
+    });
+
+    html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-alt="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
+        const val = resolveTranslation(translations, key, lang);
+        if (val !== null) {
+            return injectOrReplaceAttribute(match, 'alt', val);
         }
         return match;
     });
@@ -145,7 +207,7 @@ function getCompiledIndexHtml(lang = 'en') {
         const indexPath = path.join(process.cwd(), 'index.html');
         let content = fs.readFileSync(indexPath, 'utf8');
         content = processHtmlIncludes(content, process.cwd());
-        
+
         const packageJson = require(path.join(process.cwd(), 'package.json'));
         let gitHash = 'dev';
         try {
@@ -167,8 +229,8 @@ function getCompiledIndexHtml(lang = 'en') {
             }
 
             const range = lastTag ? `${lastTag}..HEAD` : '';
-            const logCmd = range 
-                ? `git log ${range} --pretty=format:"%h|%at|%s"` 
+            const logCmd = range
+                ? `git log ${range} --pretty=format:"%h|%at|%s"`
                 : `git log -n 50 --pretty=format:"%h|%at|%s"`;
             const logOutput = execSync(logCmd).toString().trim();
 
@@ -184,7 +246,7 @@ function getCompiledIndexHtml(lang = 'en') {
 
                 const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
                 const commitsInLastWeek = commits.filter(c => c.timestamp >= oneWeekAgo);
-                
+
                 let selectedCommits = [];
                 if (commitsInLastWeek.length >= 3) {
                     selectedCommits = commitsInLastWeek;
@@ -206,7 +268,7 @@ function getCompiledIndexHtml(lang = 'en') {
 }
 
 const params = {
-    port: 8080,
+    port: process.env.PORT ? parseInt(process.env.PORT, 10) : 8080,
     host: "0.0.0.0",
     root: ".",
     open: openBrowser,
@@ -241,32 +303,90 @@ const params = {
             const isExactLangNoSlash = exactLangNoSlash.includes(pathname);
             const langMatch = pathname.match(langMatchRegex);
 
-            if (isExactLangNoSlash) {
+            // 1. Direct .html redirects to trailing slash canonical URLs
+            if (pathname.endsWith('.html') && pathname !== '/index.html') {
+                const cleanPath = pathname.substring(0, pathname.length - 5);
+                res.writeHead(301, { Location: `${cleanPath}/${query}` });
+                return res.end();
+            }
+
+            // 2. Explicit 301 redirects for legacy non-trailing-slash legal routes
+            if (['/privacy', '/terms', '/licenses', '/de/privacy', '/de/terms'].includes(pathname)) {
+                res.writeHead(301, { Location: `${pathname}/${query}` });
+                return res.end();
+            }
+
+            // 3. Explicit 301 redirect for /de/licenses to /licenses/
+            if (pathname === '/de/licenses' || pathname === '/de/licenses/') {
+                res.writeHead(301, { Location: `/licenses/${query}` });
+                return res.end();
+            }
+
+            // 4. Explicit 301 redirects for /en routes
+            if (pathname === '/en' || pathname === '/en/') {
+                res.writeHead(301, { Location: `/${query}` });
+                return res.end();
+            } else if (pathname.startsWith('/en/')) {
+                res.writeHead(301, { Location: (pathname.replace(/^\/en/, '') || '/') + query });
+                return res.end();
+            }
+
+            // 5. Legal pages & 404 page serving
+            if (['/privacy/', '/terms/', '/licenses/', '/404', '/404/'].includes(pathname) ||
+                ['/de/privacy/', '/de/terms/'].includes(pathname)) {
+                let file = '';
+                if (pathname.includes('privacy')) {
+                    file = pathname.startsWith('/de') ? 'legal/privacy-de.html' : 'legal/privacy-en.html';
+                } else if (pathname.includes('terms')) {
+                    file = pathname.startsWith('/de') ? 'legal/terms-de.html' : 'legal/terms-en.html';
+                } else if (pathname.includes('licenses')) {
+                    file = 'legal/licenses.html';
+                } else if (pathname.includes('404')) {
+                    file = '404.html';
+                }
+                const filePath = path.join(process.cwd(), file);
+                if (fs.existsSync(filePath)) {
+                    res.setHeader('Content-Type', 'text/html');
+                    return res.end(fs.readFileSync(filePath, 'utf8'));
+                } else {
+                    return next();
+                }
+            } else if (pathname.startsWith('/licenses/') && pathname.endsWith('.txt')) {
+                const textPath = path.join(process.cwd(), 'legal', pathname);
+                if (fs.existsSync(textPath)) {
+                    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                    return res.end(fs.readFileSync(textPath, 'utf8'));
+                } else {
+                    return next();
+                }
+            } else if (pathname === '/legal/legal.css') {
+                const cssPath = path.join(process.cwd(), 'legal/legal.css');
+                if (fs.existsSync(cssPath)) {
+                    res.setHeader('Content-Type', 'text/css');
+                    return res.end(fs.readFileSync(cssPath, 'utf8'));
+                } else {
+                    return next();
+                }
+            } else if (pathname === '/legal/legal.js') {
+                const jsPath = path.join(process.cwd(), 'legal/legal.js');
+                if (fs.existsSync(jsPath)) {
+                    res.setHeader('Content-Type', 'text/javascript');
+                    return res.end(fs.readFileSync(jsPath, 'utf8'));
+                } else {
+                    return next();
+                }
+            } else if (isExactLangNoSlash) {
                 res.writeHead(301, { Location: `${pathname}/${query}` });
                 return res.end();
             } else if (isRoot) {
                 const html = getCompiledIndexHtml('en');
                 res.setHeader('Content-Type', 'text/html');
-                res.end(html);
+                return res.end(html);
             } else if (langMatch) {
                 const lang = langMatch[1];
                 const html = getCompiledIndexHtml(lang);
                 res.setHeader('Content-Type', 'text/html');
-                res.end(html);
-            } else if (['/privacy', '/terms', '/licenses', '/404'].includes(pathname)) {
-                // Serve the corresponding static html file cleanly
-                const filePath = path.join(process.cwd(), `${pathname.substring(1)}.html`);
-                if (fs.existsSync(filePath)) {
-                    res.setHeader('Content-Type', 'text/html');
-                    res.end(fs.readFileSync(filePath, 'utf8'));
-                } else {
-                    next();
-                }
-            } else if (pathname.endsWith('.html') && pathname !== '/index.html') {
-                // Redirect direct requests for .html files to their clean versions
-                const cleanPath = pathname.substring(0, pathname.length - 5);
-                res.writeHead(301, { Location: cleanPath + query });
-                res.end();
+                return res.end(html);
             } else {
                 next();
             }

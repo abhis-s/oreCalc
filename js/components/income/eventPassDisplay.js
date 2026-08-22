@@ -1,8 +1,11 @@
+import { translate } from '../../i18n/translator.js';
+import { formatCurrency, formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { dom } from '../../dom/domElements.js';
 
-import { formatCurrency, formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
-import { translate } from '../../i18n/translator.js';
-
+/**
+ * Renders Event Pass income tab display elements and updates calculated ore values.
+ * @param {import('../../core/types.js').IncomeResult} eventPassIncome - Calculated Event Pass income results.
+ */
 export function renderEventPassIncomeTabDisplay(eventPassIncome) {
     const incomeTabDisplayElements = dom.income.eventPass.display;
     if (!incomeTabDisplayElements) return;

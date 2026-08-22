@@ -1,0 +1,244 @@
+@use '../../abstracts/variables' as *;
+
+.priority-list-editor {
+    flex: 1 1 0%;
+    min-height: 0;
+    padding: 1rem;
+    overflow-y: auto;
+    position: relative;
+
+    .placeholder-text {
+        text-align: center;
+        color: $text-secondary;
+        margin-top: 2rem;
+    }
+}
+
+.drag-source-line {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    height: 0;
+    border-top: 2px dashed $accent-primary;
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 10;
+    transition: opacity $duration-fast $ease-smooth, top $duration-fast $ease-standard;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: $accent-primary;
+        top: -4px;
+    }
+
+    &::before {
+        left: -3px;
+    }
+
+    &::after {
+        right: -3px;
+    }
+}
+
+.priority-list-editor-item {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    background-color: $bg-surface-primary;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 5px 0;
+    box-shadow: $elevation-2;
+    border: 1.5px solid $border-primary;
+
+    transition: transform $duration-base $ease-standard,
+                box-shadow $duration-base $ease-standard,
+                background-color $duration-base $ease-standard,
+                border-color $duration-base $ease-standard;
+
+    &:not(.dragging):not(.disabled-dragging):hover {
+        background-color: $bg-surface-secondary;
+        border-color: $border-secondary;
+        box-shadow: $elevation-4;
+
+        .drag-handle {
+            color: $text-primary;
+        }
+    }
+
+    &:not(.dragging):not(.disabled-dragging):active {
+        box-shadow: $elevation-2;
+    }
+
+    &.disabled-dragging {
+        opacity: 0.6;
+
+        .drag-handle {
+            cursor: default;
+            opacity: 0.3;
+        }
+    }
+
+    &.dragging {
+        background-color: $accent-primary-soft;
+        border: 1.5px dashed $accent-primary;
+        box-shadow: none !important;
+
+        > * {
+            visibility: hidden !important;
+        }
+    }
+
+    &.dragging-clone {
+        position: fixed;
+        pointer-events: none;
+        z-index: 99999;
+        box-shadow: $elevation-4;
+        border-color: $accent-primary;
+        background-color: $bg-surface-secondary;
+        opacity: 0.95;
+
+        .priority-item-ores,
+        .priority-item-date,
+        .delete-item-btn {
+            display: none !important;
+        }
+    }
+
+    .drag-handle {
+        cursor: grab;
+        margin-right: 10px;
+        color: $text-secondary;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+    }
+
+    .item-image {
+        width: 30px;
+        height: 30px;
+        margin-right: 15px;
+    }
+
+    .item-details {
+        flex-grow: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-right: 15px;
+    }
+
+    .item-name {
+        font-size: 14px;
+        color: $text-primary;
+    }
+
+    .priority-item-ores {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 11px;
+        color: $text-secondary;
+        cursor: pointer;
+        padding: 3px 8px;
+        border-radius: 12px;
+        background-color: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
+        border: 1px solid color-mix(in srgb, $border-primary 70%, transparent);
+        transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth, box-shadow $duration-fast $ease-smooth;
+
+        &:hover {
+            background-color: $bg-surface-tertiary;
+            border-color: $accent-primary;
+            color: $text-primary;
+            transform: scale(1.02);
+        }
+
+        &:active {
+            transform: scale(0.98);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 2px $accent-primary-soft;
+            outline: none;
+        }
+
+        span {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .ore-icon-small {
+            width: 12px;
+            height: 12px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+    }
+
+    .priority-item-date {
+        font-size: 12px;
+        color: $text-secondary;
+        white-space: nowrap;
+    }
+
+    .delete-item-btn {
+        background-color: transparent;
+        border: none;
+        color: $text-secondary;
+        cursor: pointer;
+        transition: color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+
+        &:hover {
+            color: $color-danger;
+            transform: scale(1.1);
+        }
+
+        &:active {
+            transform: scale(0.9);
+        }
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    &.error {
+        background-color: $accent-primary-soft;
+        border: 1px solid $color-danger;
+    }
+
+    &.suggestion {
+        background-color: $accent-primary-soft;
+        border-left: 3px solid $accent-primary;
+    }
+}
+
+@media (max-width: $breakpoint-modal) {
+    .priority-list-editor-item .item-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        margin-right: 0;
+    }
+
+    .priority-list-editor-item .priority-item-date {
+        margin-top: 0;
+    }
+}

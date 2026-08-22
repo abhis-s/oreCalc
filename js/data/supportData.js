@@ -1,55 +1,55 @@
 export const developmentSupportData = [
-    { 
+    {
         id: 'changelog',
         icon: 'changelog',
-        i18nLabel: 'settings.changelog',
+        i18nLabel: 'views.settings.changelog',
         i18nAction: 'actions.view',
-        i18nHelp: 'settings.changelogHelp',
+        i18nHelp: 'views.settings.changelogHelp',
         colorClass: 'btn-changelog',
         actionType: 'modal'
     },
-    { 
+    {
         id: 'github',
-        url: 'https://github.com/abhis-s/oreCalc', 
+        url: 'https://github.com/abhis-s/oreCalc',
         icon: 'github',
-        i18nLabel: 'settings.github',
+        i18nLabel: 'views.settings.github',
         i18nAction: 'actions.visit',
         colorClass: 'btn-github',
         actionType: 'link'
     },
-    { 
+    {
         id: 'crowdin',
-        url: 'https://crowdin.com/project/orecalc', 
+        url: 'https://crowdin.com/project/orecalc',
         icon: 'crowdin',
-        i18nLabel: 'settings.crowdin',
+        i18nLabel: 'views.settings.crowdin',
         i18nAction: 'actions.visit',
-        i18nHelp: 'settings.crowdinHelp',
+        i18nHelp: 'views.settings.crowdinHelp',
         colorClass: 'btn-crowdin',
         actionType: 'link'
     },
-    { 
+    {
         id: 'buyMeACoffee',
-        url: 'https://buymeacoffee.com/orecalc', 
+        url: 'https://buymeacoffee.com/orecalc',
         icon: 'bmc',
-        i18nLabel: 'settings.buyMeACoffee',
+        i18nLabel: 'views.settings.buyMeACoffee',
         i18nAction: 'actions.support',
-        i18nDesc: 'settings.buyMeACoffeeDesc',
+        i18nDesc: 'views.settings.buyMeACoffeeDesc',
         colorClass: 'btn-bmc',
         actionType: 'link'
     },
     {
         id: 'bugReport',
         icon: 'bug',
-        i18nLabel: 'settings.bugReport',
+        i18nLabel: 'views.settings.bugReport',
         i18nAction: 'actions.report',
-        i18nDesc: 'settings.bugReportDesc',
+        i18nDesc: 'views.settings.bugReportDesc',
         colorClass: 'btn-bug',
         actionType: 'modal'
     },
     {
         id: 'contact',
         icon: 'mail',
-        i18nLabel: 'settings.contact',
+        i18nLabel: 'views.settings.contact',
         i18nAction: 'actions.view',
         colorClass: 'btn-contact',
         actionType: 'modal'
@@ -60,7 +60,7 @@ export const transparencyData = [
     {
         id: 'privacy',
         icon: 'shield',
-        i18nLabel: 'settings.privacyPolicy',
+        i18nLabel: 'views.settings.privacyPolicy',
         i18nAction: 'actions.view',
         colorClass: 'btn-privacy',
         actionType: 'modal'
@@ -68,7 +68,7 @@ export const transparencyData = [
     {
         id: 'termsOfUse',
         icon: 'article',
-        i18nLabel: 'settings.termsOfUse',
+        i18nLabel: 'views.settings.termsOfUse',
         i18nAction: 'actions.view',
         colorClass: 'btn-terms-of-use',
         actionType: 'modal'
@@ -76,7 +76,7 @@ export const transparencyData = [
     {
         id: 'licenses',
         icon: 'library',
-        i18nLabel: 'settings.licenses',
+        i18nLabel: 'views.settings.licenses',
         i18nAction: 'actions.view',
         colorClass: 'btn-licenses',
         actionType: 'modal'
@@ -84,9 +84,9 @@ export const transparencyData = [
     {
         id: 'runningCosts',
         icon: 'costs',
-        i18nLabel: 'settings.runningCosts',
+        i18nLabel: 'views.settings.runningCosts',
         i18nAction: 'actions.view',
-        i18nHelp: 'settings.runningCostsHelp',
+        i18nHelp: 'views.settings.runningCostsHelp',
         colorClass: 'btn-costs',
         actionType: 'modal'
     }

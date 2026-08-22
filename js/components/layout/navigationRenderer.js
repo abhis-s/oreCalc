@@ -1,7 +1,8 @@
-import { dom } from '../../dom/domElements.js';
-
 import { navigationRegistry } from '../../data/navigationRegistry.js';
 import { translate } from '../../i18n/translator.js';
+
+import { updateNavigationBadges } from '../modals/updateModal.js';
+import { dom } from '../../dom/domElements.js';
 
 /**
  * Checks if an SVG symbol with the given ID exists in the DOM.
@@ -14,8 +15,20 @@ function symbolExists(id) {
     return !!document.getElementById(symbolId);
 }
 
-import { updateNavigationBadges } from '../modals/updateModal.js';
+function closeDrawerIfOpen() {
+    const drawer = document.querySelector('.navigation-drawer');
+    if (drawer?.classList.contains('open')) {
+        const overlay = document.querySelector('.navigation-drawer__overlay');
+        drawer.classList.remove('open');
+        overlay?.classList.remove('show');
+        document.body.classList.remove('open-drawer');
+    }
+}
 
+/**
+ * Renders and synchronizes active states across bottom navigation bar, drawer list, and update badges.
+ * @param {string} activeTabId - ID of currently active tab (e.g. 'home-tab', 'income').
+ */
 export function renderNavigation(activeTabId) {
     renderBottomNav(activeTabId);
     renderNavigationDrawer(activeTabId);
@@ -96,12 +109,12 @@ function renderNavigationDrawer(activeTabId) {
     const secondaryContainer = document.querySelector('.navigation-drawer__secondary-actions');
     if (secondaryContainer) {
         secondaryContainer.innerHTML = '';
-        
+
         const secondaryItems = [
             {
                 id: 'changelog',
                 icon: 'changelog',
-                i18nKey: 'settings.changelog',
+                i18nKey: 'views.settings.changelog',
                 action: () => {
                     Promise.all([
                         import('../changelog/changelogModal.js'),
@@ -115,13 +128,13 @@ function renderNavigationDrawer(activeTabId) {
             {
                 id: 'github',
                 icon: 'github',
-                i18nKey: 'settings.github',
+                i18nKey: 'views.settings.github',
                 url: 'https://github.com/abhis-s/oreCalc'
             },
             {
                 id: 'support',
                 icon: 'bmc',
-                i18nKey: 'settings.buyMeACoffee',
+                i18nKey: 'views.settings.buyMeACoffee',
                 url: 'https://buymeacoffee.com/orecalc'
             }
         ];
@@ -134,38 +147,21 @@ function renderNavigationDrawer(activeTabId) {
                 el.target = '_blank';
                 el.rel = 'noopener noreferrer';
                 el.addEventListener('click', () => {
-                    // Close navigation drawer so that the confirmation notice modal is not covered
-                    import('./navigation.js').then(module => {
-                        const isOpen = document.querySelector('.navigation-drawer').classList.contains('open');
-                        if (isOpen) {
-                            const overlay = document.querySelector('.navigation-drawer__overlay');
-                            document.querySelector('.navigation-drawer').classList.remove('open');
-                            if (overlay) overlay.classList.remove('show');
-                            document.body.classList.remove('open-drawer');
-                        }
-                    });
+                    closeDrawerIfOpen();
                 });
             } else {
                 el = document.createElement('button');
                 if (item.action) {
                     el.addEventListener('click', () => {
-                        import('./navigation.js').then(module => {
-                            const isOpen = document.querySelector('.navigation-drawer').classList.contains('open');
-                            if (isOpen) {
-                                const overlay = document.querySelector('.navigation-drawer__overlay');
-                                document.querySelector('.navigation-drawer').classList.remove('open');
-                                if (overlay) overlay.classList.remove('show');
-                                document.body.classList.remove('open-drawer');
-                            }
-                        });
+                        closeDrawerIfOpen();
                         item.action();
                     });
                 }
             }
             el.className = 'navigation-drawer__tab secondary-tab';
             el.dataset.actionId = item.id;
-            
-            const openInIconHtml = item.url 
+
+            const openInIconHtml = item.url
                 ? `<orecalc-assets-svg name="open-in-new" class="open-in-icon" fill="var(--text-secondary)"></orecalc-assets-svg>`
                 : '';
 
@@ -178,7 +174,6 @@ function renderNavigationDrawer(activeTabId) {
         });
     }
 
-    // Update dynamic footer version
     const versionEl = document.querySelector('.navigation-drawer__app-version');
     if (versionEl) {
         const appVersion = (window.__ENV__?.APP_VERSION || '2.0.0').replace(/^v/, '');
@@ -186,42 +181,25 @@ function renderNavigationDrawer(activeTabId) {
     }
 
     // Setup modal listeners for privacy policy and terms of use links
-    const privacyLink = document.querySelector('.navigation-drawer__footer-links a[href="privacy.html"]');
+    const privacyLink = document.querySelector('.navigation-drawer__footer-links a[href="/privacy/"]') || document.querySelector('.navigation-drawer__footer-links a[href="privacy.html"]');
     if (privacyLink) {
         privacyLink.addEventListener('click', (e) => {
             e.preventDefault();
-            import('./navigation.js').then(module => {
-                const isOpen = document.querySelector('.navigation-drawer').classList.contains('open');
-                if (isOpen) {
-                    const overlay = document.querySelector('.navigation-drawer__overlay');
-                    document.querySelector('.navigation-drawer').classList.remove('open');
-                    if (overlay) overlay.classList.remove('show');
-                    document.body.classList.remove('open-drawer');
-                }
-            });
-            import('../appSettings/appSettings.js').then(module => {
+            closeDrawerIfOpen();
+            import('../appSettings/settingsModals.js').then(module => {
                 module.openPrivacyModal();
             }).catch(err => console.error(err));
         });
     }
 
-    const termsLink = document.querySelector('.navigation-drawer__footer-links a[href="terms.html"]');
+    const termsLink = document.querySelector('.navigation-drawer__footer-links a[href="/terms/"]') || document.querySelector('.navigation-drawer__footer-links a[href="terms.html"]');
     if (termsLink) {
         termsLink.addEventListener('click', (e) => {
             e.preventDefault();
-            import('./navigation.js').then(module => {
-                const isOpen = document.querySelector('.navigation-drawer').classList.contains('open');
-                if (isOpen) {
-                    const overlay = document.querySelector('.navigation-drawer__overlay');
-                    document.querySelector('.navigation-drawer').classList.remove('open');
-                    if (overlay) overlay.classList.remove('show');
-                    document.body.classList.remove('open-drawer');
-                }
-            });
-            import('../appSettings/appSettings.js').then(module => {
+            closeDrawerIfOpen();
+            import('../appSettings/settingsModals.js').then(module => {
                 module.openTermsOfUseModal();
             }).catch(err => console.error(err));
         });
     }
 }
-

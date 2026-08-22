@@ -16,7 +16,7 @@ export const upgradeCosts = {
     26: { shiny: 3500, glowy: 0, starry: 0 }, 27: { shiny: 3600, glowy: 600, starry: 150 },
 };
 
-export const heroUnlockTownHallMap = {
+const heroUnlockTownHallMap = {
     barbarianKing: 4,
     archerQueen: 8,
     minionPrince: 9,
@@ -25,7 +25,7 @@ export const heroUnlockTownHallMap = {
     dragonDuke: 15
 };
 
-export const townHallCapsMap = {
+const townHallCapsMap = {
     8: { commonMax: 9, epicMax: 12, unlocks: ['Earthquake Boots'] },
     9: { commonMax: 9, epicMax: 12, unlocks: ['Giant Arrow'] },
     10: { commonMax: 12, epicMax: 15, unlocks: ['Vampstache', 'Metal Pants'] },
@@ -39,16 +39,18 @@ export const townHallCapsMap = {
     18: { commonMax: 18, epicMax: 27, unlocks: [] },
 };
 
-export const MAX_COMMON_LEVEL = 18;
-export const MAX_EPIC_LEVEL = 27;
+export const EQUIPMENT_MAX_LEVELS = Object.freeze({
+    common: 18,
+    epic: 27
+});
 
 /**
  * Returns the maximum level cap based on equipment rarity (Common = 18, Epic = 27).
  */
 export function getEquipmentMaxLevel(rarity = 'Common') {
-    if (!rarity) return MAX_COMMON_LEVEL;
+    if (!rarity) return EQUIPMENT_MAX_LEVELS.common;
     const r = rarity.toLowerCase();
-    return r === 'epic' ? MAX_EPIC_LEVEL : MAX_COMMON_LEVEL;
+    return r === 'epic' ? EQUIPMENT_MAX_LEVELS.epic : EQUIPMENT_MAX_LEVELS.common;
 }
 
 /**
@@ -89,8 +91,8 @@ export function getRequiredTownHall(level, rarity = 'Common', heroKey = null) {
  * Falls back to TH 8 caps for TH < 8, and the highest available TH caps for TH > 18.
  */
 export function getTownHallCaps(townHallLevel = 8) {
-    const th = parseInt(townHallLevel, 10);
-    if (isNaN(th) || th < 8) {
+    const th = Math.floor(Number(townHallLevel)) || 8;
+    if (th < 8) {
         return townHallCapsMap[8];
     }
     return townHallCapsMap[th] || townHallCapsMap[18] || townHallCapsMap[8];

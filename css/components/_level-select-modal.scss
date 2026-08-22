@@ -1,10 +1,10 @@
 @use '../abstracts/variables' as *;
 
 #level-select-modal {
-    z-index: #{$z-index-modal + 1}; // Keep it above other modals if necessary
+    z-index: #{$z-index-modal + 1};
 
     .modal-content {
-        max-width: 500px;
+        max-width: $modal-width-standard;
     }
 
     .modal-header {
@@ -70,7 +70,7 @@
                 border-radius: 8px;
                 color: $text-primary;
                 text-align: center;
-                transition: border-color 0.2s, box-shadow 0.2s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+                transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth, transform $duration-base $ease-spring;
 
                 &:hover {
                     transform: scale(1.04);
@@ -110,7 +110,7 @@
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                transition: background-color 0.2s ease, transform 0.1s;
+                transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
 
                 @keyframes trash-shake {
                     0%, 100% { transform: scale(1.1) rotate(0deg); }
@@ -120,7 +120,7 @@
 
                 &:hover {
                     background-color: $color-danger-soft-hover;
-                    animation: trash-shake 0.3s ease-in-out infinite;
+                    animation: trash-shake $duration-moderate $ease-smooth infinite;
                 }
 
                 &:active {
@@ -141,7 +141,7 @@
         background-color: $bg-surface-tertiary;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: $breakpoint-modal) {
         .modal-header {
             h2 {
                 display: flex;

@@ -2,6 +2,11 @@ import { state } from '../core/state.js';
 
 const translations = {};
 
+/**
+ * Loads a JSON translation dictionary for a specified locale and caches it.
+ * @param {string} language - 2-letter language code (e.g. 'en', 'de').
+ * @returns {Promise<void>}
+ */
 export async function loadTranslations(language) {
     if (state.uiSettings?.language === 'auto') {
         state.uiSettings.language = 'en';
@@ -22,6 +27,10 @@ export async function loadTranslations(language) {
 }
 
 function getNestedTranslation(language, key) {
+    if (!translations[language] || typeof translations[language] !== 'object' || typeof key !== 'string') {
+        return undefined;
+    }
+
     const keyParts = key.split('.');
     let current = translations[language];
     for (const part of keyParts) {
@@ -30,9 +39,16 @@ function getNestedTranslation(language, key) {
         }
         current = current[part];
     }
+
     return current;
 }
 
+/**
+ * Translates an i18n dot-notated key into localized copy with variable interpolations and fallbacks.
+ * @param {string} key - Dot-notated translation path.
+ * @param {...*} args - Optional key-value object of interpolation replacements.
+ * @returns {string} Localized text string.
+ */
 export function translate(key, ...args) {
     if (state.uiSettings?.language === 'auto') {
         state.uiSettings.language = 'en';
@@ -74,10 +90,10 @@ export function translate(key, ...args) {
         translation = typeof key === 'string' ? key : '';
     }
 
-    if (args.length > 0 && typeof args[0] === 'object') {
+    if (args.length > 0 && typeof args[0] === 'object' && args[0] !== null) {
         const replacements = args[0];
         translation = translation.replace(/\{(\w+)\}/g, (placeholderWithBraces, placeholderKey) => {
-            return replacements.hasOwnProperty(placeholderKey) ? replacements[placeholderKey] : placeholderWithBraces;
+            return Object.hasOwn(replacements, placeholderKey) ? replacements[placeholderKey] : placeholderWithBraces;
         });
     }
 
@@ -88,6 +104,10 @@ export function translate(key, ...args) {
     return translation;
 }
 
+/**
+ * Returns the currently active language translation dictionary object.
+ * @returns {object} Dictionary mapping translation keys to strings.
+ */
 export function getTranslations() {
     const language = state.uiSettings?.language || 'en';
     return translations[language] || {};

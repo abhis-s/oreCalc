@@ -1,16 +1,22 @@
-import { dom } from '../../dom/domElements.js';
-import { state } from '../../core/state.js';
-
-import { calculateEventPassIncome } from '../../incomeCalculations/eventPassIncome.js';
-
-import { addValidation } from '../../utils/inputValidator.js';
-import { eventTraderData } from '../../data/appData.js';
-import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
-import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { eventTraderData } from '../../data/incomeSources/traders.js';
 import { translate } from '../../i18n/translator.js';
 
-import { renderOfferGrid } from '../common/offerGrid.js';
+import { state } from '../../core/state.js';
 
+import { calculateEventPassIncome } from '../../domain/income/eventPassIncome.js';
+import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { addValidation } from '../../utils/inputValidator.js';
+import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
+
+import { renderOfferGrid } from '../common/offerGrid.js';
+import { dom } from '../../dom/domElements.js';
+
+/**
+ * Renders a single Event Trader offer row element.
+ * @param {any} offer - Offer definition object with costs and limits.
+ * @param {number} packs - Number of selected packs.
+ * @returns {HTMLDivElement} Rendered offer grid row DOM element.
+ */
 export function renderEventTraderRow(offer, packs) {
     const row = document.createElement('div');
     row.className = 'offer-grid-row';
@@ -18,9 +24,9 @@ export function renderEventTraderRow(offer, packs) {
     const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
     const oreAmount = offer[oreType];
 
-    const oreName = translate('ores.' + oreType);
+    const oreName = translate('entities.ores.' + oreType);
     const offerName = `${oreAmount} ${oreName}`;
-    const ariaLabel = translate('income.supercellEvents.packInput', { name: offerName });
+    const ariaLabel = translate('views.income.supercellEvents.packInput', { name: offerName });
 
     row.innerHTML = `
         <div class="offer-cost-display"><orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" class="ore-image event-medal-icon" size="thumbnail"></orecalc-assets-image> ${offer.cost}</div>
@@ -35,6 +41,10 @@ export function renderEventTraderRow(offer, packs) {
     return row;
 }
 
+/**
+ * Renders or updates the Event Trader offers grid based on state.
+ * @param {import('../../core/types.js').EventTraderIncomeState} [eventTraderState] - Active Event Trader state object.
+ */
 export function renderEventTraderGrid(eventTraderState) {
     const offersContainer = dom.income?.eventTrader?.offersContainer;
     if (!offersContainer) return;
@@ -55,11 +65,11 @@ export function renderEventTraderGrid(eventTraderState) {
                 const input = rowElement.querySelector('input[type="number"]');
                 if (input) {
                     const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
-                    addValidation(input, { inputName: translate('ores.' + oreType) });
-                    
+                    addValidation(input, { inputName: translate('entities.ores.' + oreType) });
+
                     if (oreType === 'shiny') {
                         registerInputPopover(input, {
-                            title: () => translate('ores.shiny'),
+                            title: () => translate('entities.ores.shiny'),
                             min: 0,
                             max: offer.maxPacks,
                             showRecommended: false,
@@ -69,7 +79,7 @@ export function renderEventTraderGrid(eventTraderState) {
                         const getRecommendedVal = () => {
                             const eventPassIncome = calculateEventPassIncome(state.income.eventPass);
                             const availableMedals = eventPassIncome?.availableMedals || 0;
-                            
+
                             let otherPacksCost = 0;
                             eventTraderData.forEach(o => {
                                 const oType = o.shiny ? 'shiny' : o.glowy ? 'glowy' : 'starry';
@@ -78,13 +88,13 @@ export function renderEventTraderGrid(eventTraderState) {
                                     otherPacksCost += count * o.cost;
                                 }
                             });
-                            
+
                             const remainingMedalsForThis = availableMedals - otherPacksCost;
                             return Math.max(0, Math.min(offer.maxPacks, Math.floor(remainingMedalsForThis / offer.cost)));
                         };
 
                         registerInputPopover(input, {
-                            title: () => translate('ores.' + oreType),
+                            title: () => translate('entities.ores.' + oreType),
                             min: 0,
                             max: offer.maxPacks,
                             showRecommended: () => getRecommendedVal() > 0,
@@ -109,6 +119,10 @@ export function renderEventTraderGrid(eventTraderState) {
     }
 }
 
+/**
+ * Renders calculated Event Trader ore income and medal summaries.
+ * @param {import('../../core/types.js').IncomeResult} eventTraderIncome - Calculated Event Trader income and medal summary object.
+ */
 export function renderEventTraderIncomeTabDisplay(eventTraderIncome) {
     const incomeTabDisplayElements = dom.income?.eventTrader?.display;
     const incomeTabSummaryElements = dom.income?.eventTrader;

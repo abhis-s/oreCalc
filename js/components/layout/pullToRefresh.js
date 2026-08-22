@@ -1,11 +1,16 @@
-import { dom } from '../../dom/domElements.js';
 import { translate } from '../../i18n/translator.js';
+
 import { state } from '../../core/state.js';
-import { showToast } from '../../ui/toast.js';
+
+import { dom } from '../../dom/domElements.js';
 import { triggerHaptic } from '../../services/hapticService.js';
+import { showToast } from '../../ui/toast.js';
 
 let isRefreshing = false;
 
+/**
+ * Initializes mobile pull-to-refresh swipe gesture listeners with multi-stage reload triggers.
+ */
 export function initializePullToRefresh() {
     if (document.getElementById('pull-to-refresh-container')) return;
 
@@ -118,7 +123,7 @@ export function initializePullToRefresh() {
         const rotation = (pullDistance / STAGE1_THRESHOLD) * 180;
 
         ptrContainer.style.transform = `translate3d(-50%, ${pullDistance}px, 0)`;
-        ptrContainer.style.opacity = opacity;
+        ptrContainer.style.opacity = String(opacity);
 
         if (mainContainer) {
             mainContainer.style.transition = 'none';

@@ -1,21 +1,25 @@
-import { calculateClanWarIncome } from '../incomeCalculations/clanWarIncome.js';
-import { calculateCwlIncome } from '../incomeCalculations/cwlIncome.js';
-import { calculateEventPassIncome } from '../incomeCalculations/eventPassIncome.js';
-import { calculateEventTraderIncome } from '../incomeCalculations/eventTraderIncome.js';
-import { calculateGemTraderIncome } from '../incomeCalculations/gemTraderIncome.js';
-import { calculateProspectorIncome } from '../incomeCalculations/prospectorManager.js';
-import { heroData, upgradeCosts } from '../data/heroData.js';
-import { calculateRaidMedalTraderIncome } from '../incomeCalculations/raidMedalTraderIncome.js';
-import { calculateShopOfferIncome } from '../incomeCalculations/shopOffersIncome.js';
-import { calculateStarBonusIncome } from '../incomeCalculations/starBonusIncome.js';
-import { calculateSupercellEventsIncome } from '../incomeCalculations/supercellEventsIncome.js';
-import { calculateHeroJourneyUpcomingOres } from '../incomeCalculations/heroJourneyIncome.js';
+import { currencyData } from '../data/pricingData.js';
 
-import { currencyData } from '../data/appData.js';
-
-import { calculateRemainingTime } from './timeCalculator.js';
+import { UNRANKED_LEAGUE_ID } from './constants.js';
 import { calculateRequiredOres } from './oreCalculator.js';
+import { calculateRemainingTime } from './timeCalculator.js';
 
+import { calculateClanWarIncome } from '../domain/income/clanWarIncome.js';
+import { calculateCwlIncome } from '../domain/income/cwlIncome.js';
+import { calculateEventPassIncome } from '../domain/income/eventPassIncome.js';
+import { calculateEventTraderIncome } from '../domain/income/eventTraderIncome.js';
+import { calculateGemTraderIncome } from '../domain/income/gemTraderIncome.js';
+import { calculateHeroJourneyUpcomingOres } from '../domain/income/heroJourneyIncome.js';
+import { calculateProspectorIncome } from '../domain/income/prospectorManager.js';
+import { calculateRaidMedalTraderIncome } from '../domain/income/raidMedalTraderIncome.js';
+import { calculateShopOfferIncome } from '../domain/income/shopOffersIncome.js';
+import { calculateStarBonusIncome } from '../domain/income/starBonusIncome.js';
+import { calculateSupercellEventsIncome } from '../domain/income/supercellEventsIncome.js';
+
+/**
+ * Recalculates all derived state slices (required ores, income sources, total income, ETAs, real money costs).
+ * @param {import('./types.js').AppState} state - Global application state.
+ */
 export function recalculateAll(state) {
     const heroJourneyUpcomingOres = calculateHeroJourneyUpcomingOres(state);
     state.derived.heroJourneyUpcomingOres = heroJourneyUpcomingOres;
@@ -30,10 +34,13 @@ export function recalculateAll(state) {
     // for the assisted-conversion context when calculating prospector income.
     const baseIncomeSources = {
         starBonus: calculateStarBonusIncome(
-            state.income.starBonus?.league || 105000000,
+            state.income.starBonus?.league || UNRANKED_LEAGUE_ID,
             state.income.starBonus || {}
         ),
-        supercellEvents: calculateSupercellEventsIncome(supercellEventsState.worldChampionship),
+        supercellEvents: calculateSupercellEventsIncome(
+            supercellEventsState.worldChampionship,
+            state.planner?.calendar?.customChipSettings?.supercellEvents
+        ),
         clanWar: calculateClanWarIncome(state.income.clanWar),
         cwl: calculateCwlIncome(state.income.cwl),
         raidMedalTrader: calculateRaidMedalTraderIncome(state.income.raidMedals),
@@ -105,18 +112,8 @@ export function recalculateAll(state) {
     const prospectorMonthly = incomeSources.prospector?.monthly || {};
 
     const totalMoneyCost = {};
-    let factor = 1;
-    if (timeframe === 'daily') {
-        factor = 1 / 30;
-    } else if (timeframe === 'weekly') {
-        factor = 7 / 30;
-    } else if (timeframe === 'bimonthly') {
-        factor = 2;
-    }
-
     for (const currencyCode of Object.keys(currencyData)) {
-        const monthlyCost = (shopOfferMonthly[currencyCode] || 0) + (eventPassMonthly[currencyCode] || 0) + (prospectorMonthly[currencyCode] || 0);
-        totalMoneyCost[currencyCode] = monthlyCost * factor;
+        totalMoneyCost[currencyCode] = (shopOfferMonthly[currencyCode] || 0) + (eventPassMonthly[currencyCode] || 0) + (prospectorMonthly[currencyCode] || 0);
     }
     state.derived.totalMoneyCost = totalMoneyCost;
 }

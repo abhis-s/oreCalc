@@ -3,56 +3,56 @@
                 <div class="card-container">
                     <div id="inc-star-bonus-card" class="income-card card">
                         <h2 class="card-title daily">
-                            <span data-i18n="income.starBonus.title">Star Bonus</span>
-                            <button class="info-btn" data-info="income.starBonus.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.starBonus.title"></span>
+                            <button class="info-btn" data-info="views.income.starBonus.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
-                                <label for="inc-star-bonus-league-select" data-i18n="income.starBonus.league">League</label>
+                                <label for="inc-star-bonus-league-select" data-i18n="views.income.starBonus.league"></label>
                                 <select id="inc-star-bonus-league-select" class="dropdown-style updatable">
                                 </select>
                             </div>
                             <div class="input-group-flex">
-                                <label for="open-star-bonus-multiplier-btn" data-i18n="income.starBonus.eventManage">2x/4x Star Bonus</label>
+                                <label for="open-star-bonus-multiplier-btn" data-i18n="views.income.starBonus.eventManage"></label>
                                 <button id="open-star-bonus-multiplier-btn" class="animated-btn btn-accent">
                                     <span class="animated-btn-icon-wrapper fill-dark">
                                         <orecalc-assets-svg name="settings-filled"></orecalc-assets-svg>
                                     </span>
-                                    <span class="animated-btn-text" data-i18n="actions.manage">Manage</span>
+                                    <span class="animated-btn-text" data-i18n="actions.manage"></span>
                                 </button>
                             </div>                        </div>
-                        
+
                     </div>
                 </div>
                 <div class="card-container">
                     <div id="inc-shop-offers-card" class="income-card card">
                         <h2 class="card-title">
-                            <span data-i18n="income.shopOffers.title">Shop Offers</span>
-                            <button class="info-btn" data-info="income.shopOffers.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.shopOffers.title"></span>
+                            <button class="info-btn" data-info="views.income.shopOffers.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
-                                <label for="inc-shop-offers-select" data-i18n="income.shopOffers.monthEndLabel">Month-End Shop Offer:</label>
+                                <label for="inc-shop-offers-select" data-i18n="views.income.shopOffers.monthEndLabel"></label>
                                 <select id="inc-shop-offers-select" class="updatable">
-                                    <option value="16" data-i18n="income.shopOffers.th16Set">TH16 Set</option>
-                                    <option value="14" data-i18n="income.shopOffers.th14Set">TH14 Set</option>
-                                    <option value="11" data-i18n="income.shopOffers.th11Set">TH11 Set</option>
-                                    <option value="8" data-i18n="income.shopOffers.th8Set">TH8 Set</option>
-                                    <option value="0" data-i18n="app.none">None</option>
+                                    <option value="16" data-i18n="views.income.shopOffers.th16Set"></option>
+                                    <option value="14" data-i18n="views.income.shopOffers.th14Set"></option>
+                                    <option value="11" data-i18n="views.income.shopOffers.th11Set"></option>
+                                    <option value="8" data-i18n="views.income.shopOffers.th8Set"></option>
+                                    <option value="0" data-i18n="app.none"></option>
                                 </select>
                             </div>
                         </div>
                         <div id="inc-shop-offers-checkboxes" class="offer-grid">
-                            <!-- Checkboxes will be dynamically inserted here -->
+                            <!-- DYNAMIC INSERTION: Shop offer checkboxes -->
                         </div>
                         <div class="timeframe-income">
                             <div class="four-col-grid">
                                 <div class="grid-row">
-                                    <div class="grid-label" data-i18n="income.shopOffers.cost">Cost:</div>
+                                    <div class="grid-label" data-i18n="views.income.shopOffers.cost"></div>
                                     <div class="grid-value-display"><span id="inc-shop-offers-eur-monthly-value" class="calculated"></span> <span class="currency-symbol">€</span></div>
                                     <div class="grid-value-display"><span id="inc-shop-offers-usd-monthly-value" class="calculated"></span> <span class="currency-symbol">$</span></div>
                                     <div class="grid-value-display"><span id="inc-shop-offers-dynamic-monthly-value" class="calculated"></span> <span id="inc-shop-offers-dynamic-currency-symbol" class="currency-symbol"></span></div>
@@ -64,29 +64,29 @@
                 <div class="card-container">
                     <div id="inc-raid-medal-trader-card" class="income-card card">
                         <h2 class="card-title">
-                            <span data-i18n="income.raidMedalTrader.title">Raid Medal Trader</span>
-                            <button class="info-btn" data-info="income.raidMedalTrader.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.raidMedalTrader.title"></span>
+                            <button class="info-btn" data-info="views.income.raidMedalTrader.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div id="inc-raid-medal-trader-offers" class="offer-grid">
-                            <!-- Raid Medal Offers will be dynamically inserted here -->
+                            <!-- DYNAMIC INSERTION: Raid Medal trader offer cards -->
                         </div>
                         <div class="summary-grid">
                             <div class="summary-item-container input-group-flex">
-                                <label class="summary-label" data-i18n="income.earned" for="inc-raid-medals-total-input">Earned:</label>
+                                <label class="summary-label" data-i18n="views.income.earned" for="inc-raid-medals-total-input"></label>
                                 <div class="summary-value-with-image">
                                     <div class="popover-wrapper">
-                                        <input type="number" class="updatable" id="inc-raid-medals-total-input" value="0" min="0" max="1970" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                        <input type="number" class="updatable" id="inc-raid-medals-total-input" value="0" min="0" max="1970" step="50" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
-                                    <orecalc-assets-image src="assets/resources/raidMedal.png" alt="Raid Medals" data-i18n-alt="ores.raidMedal" class="raid-medal-image ore-image"></orecalc-assets-image>
+                                    <orecalc-assets-image src="assets/resources/raidMedal.png" data-i18n-alt="views.income.ores.raidMedal" class="raid-medal-image ore-image"></orecalc-assets-image>
                                 </div>
                             </div>
                             <div class="summary-item-container">
-                                <div class="summary-label" data-i18n="income.remaining">Remaining:</div>
+                                <div class="summary-label" data-i18n="views.income.remaining"></div>
                                 <div class="summary-value-with-image">
                                     <span id="inc-raid-medals-remaining" class="calculated"></span>
-                                    <orecalc-assets-image src="assets/resources/raidMedal.png" alt="Raid Medals" data-i18n-alt="ores.raidMedal" class="raid-medal-image ore-image"></orecalc-assets-image>
+                                    <orecalc-assets-image src="assets/resources/raidMedal.png" data-i18n-alt="views.income.ores.raidMedal" class="raid-medal-image ore-image"></orecalc-assets-image>
                                 </div>
                             </div>
                         </div>
@@ -95,244 +95,243 @@
                 <div class="card-container">
                     <div id="inc-gem-trader-card" class="income-card card">
                         <h2 class="card-title">
-                            <span data-i18n="income.gemTrader.title">Gem Trader</span>
-                            <button class="info-btn" data-info="income.gemTrader.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.gemTrader.title"></span>
+                            <button class="info-btn" data-info="views.income.gemTrader.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div id="inc-gem-trader-offers" class="offer-grid">
-                            <!-- Gem Offers will be dynamically inserted here -->
+                            <!-- DYNAMIC INSERTION: Gem trader offer cards -->
                         </div>
-                        
+
                     </div>
                 </div>
                 <div class="card-container">
                     <div id="inc-event-pass-card" class="income-card card">
                         <h2 class="card-title">
-                            <span data-i18n="income.eventPass.title">Event Pass</span>
-                            <button class="info-btn" data-info="income.eventPass.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.eventPass.title"></span>
+                            <button class="info-btn" data-info="views.income.eventPass.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
-                                <label for="inc-event-pass-toggle" data-i18n="income.eventPass.title">Event Pass</label>
+                                <label for="inc-event-pass-toggle" data-i18n="views.income.eventPass.title"></label>
                                 <div class="switch">
                                     <input type="checkbox" id="inc-event-pass-toggle" class="updatable">
                                     <span class="slider round"></span>
                                 </div>
                             </div>
                             <div class="input-group-flex">
-                                <label for="inc-event-include-equipment-toggle" data-i18n="income.eventPass.includeEquipment">Include Equipment</label>
+                                <label for="inc-event-include-equipment-toggle" data-i18n="views.income.eventPass.includeEquipment"></label>
                                 <div class="switch">
                                     <input type="checkbox" id="inc-event-include-equipment-toggle" class="updatable">
                                     <span class="slider round"></span>
                                 </div>
                             </div>
                             <div class="input-group-flex">
-                                <label for="inc-bonus-track-medals-input" style="display: flex; align-items: center; gap: 6px; margin: 0;">
-                                    <span data-i18n="income.eventPass.bonusTrackMedals">Claimable & Bonus Medals:</span>
-                                    <button class="info-btn" data-info="income.eventPass.bonusTrackMedalsHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                <label for="inc-bonus-track-medals-input" class="form-label-inline">
+                                    <span data-i18n="views.income.eventPass.bonusTrackMedals"></span>
+                                    <button class="info-btn" data-info="views.income.eventPass.bonusTrackMedalsHelp" data-i18n-aria-label="actions.showInfo">
                                         <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                                     </button>
                                 </label>
                                 <div class="popover-wrapper">
-                                    <input type="number" id="inc-bonus-track-medals-input" class="updatable" value="0" min="0" max="2000" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                    <input type="number" id="inc-bonus-track-medals-input" class="updatable" value="0" min="0" max="2000" step="40" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="input-group-flex">
-                                <label for="inc-event-purchased-medals-input" data-i18n="income.eventPass.purchasedMedals">Purchased Medals:</label>
+                                <label for="inc-event-purchased-medals-input" data-i18n="views.income.eventPass.purchasedMedals"></label>
                                 <div class="popover-wrapper">
-                                    <input type="number" id="inc-event-purchased-medals-input" class="updatable" value="0" min="0" max="30000" maxlength="5" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                    <input type="number" id="inc-event-purchased-medals-input" class="updatable" value="0" min="0" max="30000" step="50" maxlength="5" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
                 <div class="card-container">
                     <div id="inc-event-trader-card" class="income-card card">
                         <h2 class="card-title">
-                            <span data-i18n="income.eventTrader.title">Event Trader</span>
-                            <button class="info-btn" data-info="income.eventTrader.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.eventTrader.title"></span>
+                            <button class="info-btn" data-info="views.income.eventTrader.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div id="inc-event-trader-offers" class="offer-grid event-trader-grid">
-                            <!-- Event Trader offers will be dynamically inserted here -->
+                            <!-- DYNAMIC INSERTION: Event trader offer cards -->
                         </div>
                         <div class="summary-grid">
                             <div class="summary-item-container">
-                                <div class="summary-label" data-i18n="income.totalLabel">Total:</div>
+                                <div class="summary-label" data-i18n="views.income.totalLabel"></div>
                                 <div class="summary-value-with-image">
                                     <span id="inc-event-medals-total-value" class="calculated"></span>
-                                    <orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" data-i18n-alt="income.eventPass.medalsResource" class="ore-image"></orecalc-assets-image>
+                                    <orecalc-assets-image src="assets/resources/eventMedal.png" data-i18n-alt="views.income.eventPass.medalsResource" class="ore-image"></orecalc-assets-image>
                                 </div>
                             </div>
                             <div class="summary-item-container">
-                                <div class="summary-label" data-i18n="income.remaining">Remaining:</div>
+                                <div class="summary-label" data-i18n="views.income.remaining"></div>
                                 <div class="summary-value-with-image">
                                     <span id="inc-event-medals-remaining-value" class="calculated"></span>
-                                    <orecalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" data-i18n-alt="income.eventPass.medalsResource" class="ore-image"></orecalc-assets-image>
+                                    <orecalc-assets-image src="assets/resources/eventMedal.png" data-i18n-alt="views.income.eventPass.medalsResource" class="ore-image"></orecalc-assets-image>
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
                 <div class="card-container">
                     <div id="inc-clan-war-card" class="income-card card">
                         <h2 class="card-title">
-                            <span data-i18n="income.clanWar.title">Clan War</span>
-                            <button class="info-btn" data-info="income.clanWar.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.clanWar.title"></span>
+                            <button class="info-btn" data-info="views.income.clanWar.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
-                                <label for="inc-clan-war-wars-per-month-input" data-i18n="income.clanWar.warsPerMonth">Wars per month:</label>
+                                <label for="inc-clan-war-wars-per-month-input" data-i18n="views.income.clanWar.warsPerMonth"></label>
                                 <div class="popover-wrapper">
                                     <input type="number" class="updatable" id="inc-clan-war-wars-per-month-input" value="0" min="0" max="15" maxlength="2" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="input-group-flex">
-                                <span id="clan-war-per-attack-label" role="heading" aria-level="3" data-i18n="income.perAttack">Per Attack:</span>
+                                <span id="clan-war-per-attack-label" role="heading" aria-level="3" data-i18n="views.income.perAttack"></span>
                                 <div class="ores-inputs-container" aria-labelledby="clan-war-per-attack-label">
                                     <div class="ore-input-item">
-                                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-clan-war-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10" aria-label="Clan War Shiny Ore per attack bonus" data-i18n-aria-label="income.clanWar.shinyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                        <orecalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-clan-war-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10" data-i18n-aria-label="views.income.clanWar.shinyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <div class="ore-input-item">
-                                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-clan-war-glowy-bonus-input" value="0" min="0" max="39" maxlength="2" aria-label="Clan War Glowy Ore per attack bonus" data-i18n-aria-label="income.clanWar.glowyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                        <orecalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-clan-war-glowy-bonus-input" value="0" min="0" max="39" maxlength="2" data-i18n-aria-label="views.income.clanWar.glowyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <div class="ore-input-item">
-                                        <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-clan-war-starry-bonus-input" value="0" min="0" max="6" maxlength="1" aria-label="Clan War Starry Ore per attack bonus" data-i18n-aria-label="income.clanWar.starryBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                        <orecalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-clan-war-starry-bonus-input" value="0" min="0" max="6" maxlength="1" data-i18n-aria-label="views.income.clanWar.starryBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="rates-grid">
                             <div class="rate-column">
-                                <label for="inc-clan-war-win-rate-input" data-i18n="income.winRatePct">Win Rate (%):</label>
+                                <label for="inc-clan-war-win-rate-input" data-i18n="views.income.winRatePct"></label>
                                 <div class="popover-wrapper">
                                     <input type="number" class="updatable" id="inc-clan-war-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="rate-column">
-                                <label for="inc-clan-war-draw-rate-input" data-i18n="income.drawRatePct">Draw Rate (%):</label>
+                                <label for="inc-clan-war-draw-rate-input" data-i18n="views.income.drawRatePct"></label>
                                 <div class="popover-wrapper">
                                     <input type="number" class="updatable" id="inc-clan-war-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="rate-column">
-                                <label for="inc-clan-war-loss-rate-value" data-i18n="income.lossRatePct">Loss Rate (%):</label>
+                                <label for="inc-clan-war-loss-rate-value" data-i18n="views.income.lossRatePct"></label>
                                 <input type="number" class="calculated" id="inc-clan-war-loss-rate-value" value="0" min="0" max="100" disabled>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
                 <div class="card-container">
                     <div id="inc-cwl-card" class="income-card card">
                         <h2 class="card-title">
-                            <span data-i18n="income.cwl.title">CWL</span>
-                            <button class="info-btn" data-info="income.cwl.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.cwl.title"></span>
+                            <button class="info-btn" data-info="views.income.cwl.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
-                                <label for="inc-cwl-hits-per-season-input" data-i18n="income.cwl.hitsPerSeason">Hits per season:</label>
+                                <label for="inc-cwl-hits-per-season-input" data-i18n="views.income.cwl.hitsPerSeason"></label>
                                 <div class="popover-wrapper">
                                     <input type="number" class="updatable" id="inc-cwl-hits-per-season-input" value="0" min="0" max="7" maxlength="1" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="input-group-flex">
-                                <span id="cwl-per-attack-label" role="heading" aria-level="3" data-i18n="income.perAttack">Per Attack:</span>
+                                <span id="cwl-per-attack-label" role="heading" aria-level="3" data-i18n="views.income.perAttack"></span>
                                 <div class="ores-inputs-container" aria-labelledby="cwl-per-attack-label">
                                     <div class="ore-input-item">
-                                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-cwl-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10" aria-label="CWL Shiny Ore per attack bonus" data-i18n-aria-label="income.cwl.shinyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                        <orecalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-cwl-shiny-bonus-input" value="0" min="0" max="1110" maxlength="4" step="10" data-i18n-aria-label="views.income.cwl.shinyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <div class="ore-input-item">
-                                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-cwl-glowy-bonus-input" value="0" min="0" max="39" maxlength="2" aria-label="CWL Glowy Ore per attack bonus" data-i18n-aria-label="income.cwl.glowyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                        <orecalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-cwl-glowy-bonus-input" value="0" min="0" max="39" maxlength="2" data-i18n-aria-label="views.income.cwl.glowyBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                     <div class="ore-input-item">
-                                        <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="ores.starry" class="ore-image"></orecalc-assets-image>
-                                        <input type="number" class="updatable" id="inc-cwl-starry-bonus-input" value="0" min="0" max="6" maxlength="1" aria-label="CWL Starry Ore per attack bonus" data-i18n-aria-label="income.cwl.starryBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                        <orecalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></orecalc-assets-image>
+                                        <input type="number" class="updatable" id="inc-cwl-starry-bonus-input" value="0" min="0" max="6" maxlength="1" data-i18n-aria-label="views.income.cwl.starryBonusAriaLabel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="rates-grid">
                             <div class="rate-column">
-                                <label for="inc-cwl-win-rate-input" data-i18n="income.winRatePct">Win Rate (%):</label>
+                                <label for="inc-cwl-win-rate-input" data-i18n="views.income.winRatePct"></label>
                                 <div class="popover-wrapper">
                                     <input type="number" class="updatable" id="inc-cwl-win-rate-input" value="50" min="0" max="100" step="10" maxlength="3" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="rate-column">
-                                <label for="inc-cwl-draw-rate-input" data-i18n="income.drawRatePct">Draw Rate (%):</label>
+                                <label for="inc-cwl-draw-rate-input" data-i18n="views.income.drawRatePct"></label>
                                 <div class="popover-wrapper">
                                     <input type="number" class="updatable" id="inc-cwl-draw-rate-input" value="0" min="0" max="100" step="10" maxlength="3" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                 </div>
                             </div>
                             <div class="rate-column">
-                                <label for="inc-cwl-loss-rate-value" data-i18n="income.lossRatePct">Loss Rate (%):</label>
+                                <label for="inc-cwl-loss-rate-value" data-i18n="views.income.lossRatePct"></label>
                                 <input type="number" class="calculated" id="inc-cwl-loss-rate-value" value="0" min="0" max="100" disabled>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
                 <div class="card-container">
                     <div id="inc-supercell-events-card" class="income-card card">
                         <h2 class="card-title">
-                            <span data-i18n="income.supercellEvents.title">Supercell Events</span>
-                            <button class="info-btn" data-info="income.supercellEvents.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.supercellEvents.title"></span>
+                            <button class="info-btn" data-info="views.income.supercellEvents.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
-                                <label for="inc-supercell-events-world-championship-select" data-i18n="income.supercellEvents.worldChampionship">World Championship:</label>
+                                <label for="inc-supercell-events-world-championship-select" data-i18n="views.income.supercellEvents.worldChampionship"></label>
                                 <div class="switch">
                                     <input type="checkbox" id="inc-supercell-events-world-championship-select" class="updatable">
                                     <span class="slider round"></span>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div id="supercell-events-container" class="supercell-events-container">
-                            <!-- Rendered dynamically in supercellEventsDisplay.js -->
+                            <!-- DYNAMIC INSERTION: Supercell event offer cards -->
                         </div>
 
-                        
                     </div>
                 </div>
                 <div class="card-container">
                     <div id="inc-prospector-card" class="income-card card">
                         <h2 class="card-title">
-                            <span data-i18n="income.prospector.title">Prospector</span>
-                            <button class="info-btn" data-info="income.prospector.help" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                            <span data-i18n="views.income.prospector.title"></span>
+                            <button class="info-btn" data-info="views.income.prospector.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
-                                <label for="inc-prospector-gold-pass" data-i18n="income.prospector.goldPass">Gold Pass</label>
+                                <label for="inc-prospector-gold-pass" data-i18n="views.income.prospector.goldPass"></label>
                                 <div class="switch">
                                     <input type="checkbox" id="inc-prospector-gold-pass" class="updatable">
                                     <span class="slider round"></span>
                                 </div>
                             </div>
                             <div class="input-group-flex">
-                                <label for="inc-prospector-assisted-conversion" style="display: flex; align-items: center; gap: 6px; margin: 0;">
-                                    <span data-i18n="income.prospector.assistedConversion">Assisted Conversion</span>
-                                    <button class="info-btn" data-info="income.prospector.assistedConversionHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                <label for="inc-prospector-assisted-conversion" class="form-label-inline">
+                                    <span data-i18n="views.income.prospector.assistedConversion"></span>
+                                    <button class="info-btn" data-info="views.income.prospector.assistedConversionHelp" data-i18n-aria-label="actions.showInfo">
                                         <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                                     </button>
                                 </label>
@@ -345,35 +344,35 @@
                         <div class="prospector-grid-wrapper">
                             <div class="prospector-grid">
                                 <div class="prospector-labels">
-                                    <label for="inc-prospector-from-amount" data-i18n="income.prospector.from">From</label>
-                                    <label for="inc-prospector-to-amount" data-i18n="income.prospector.to">To</label>
+                                    <label for="inc-prospector-from-amount" data-i18n="views.income.prospector.from"></label>
+                                    <label for="inc-prospector-to-amount" data-i18n="views.income.prospector.to"></label>
                                 </div>
                                 <div class="prospector-controls">
                                     <div class="custom-dropdown" id="inc-prospector-from-ore">
                                         <div class="dropdown-selected">
-                                            <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="ores.shiny"></orecalc-assets-image>
+                                            <orecalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny"></orecalc-assets-image>
                                         </div>
                                         <div class="dropdown-options"></div>
                                     </div>
                                     <div class="popover-wrapper">
                                         <input type="number" id="inc-prospector-from-amount" class="updatable" value="0" min="0" max="2000" maxlength="6" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     </div>
-                                    <input type="range" id="inc-prospector-slider" class="updatable" min="0" max="2000" value="0" aria-label="Prospector exchange amount slider" data-i18n-aria-label="income.prospector.sliderAriaLabel">
+                                    <input type="range" id="inc-prospector-slider" class="updatable" min="0" max="2000" value="0" data-i18n-aria-label="views.income.prospector.sliderAriaLabel">
                                     <input type="number" id="inc-prospector-to-amount" class="calculated" value="0" disabled>
                                     <div class="custom-dropdown" id="inc-prospector-to-ore">
                                         <div class="dropdown-selected">
-                                            <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="ores.glowy"></orecalc-assets-image>
+                                            <orecalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy"></orecalc-assets-image>
                                         </div>
                                         <div class="dropdown-options"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="prospector-assisted-overlay" id="inc-prospector-assisted-overlay" style="display:none;">
-                                <span data-i18n="income.prospector.assistedConversionActive">Assisted Conversion active — using global strategy</span>
+                                <span data-i18n="views.income.prospector.assistedConversionActive"></span>
                             </div>
                         </div>
                         <div class="prospector-tip" id="inc-prospector-tip-container"></div>
-                        
+
                     </div>
                 </div>
             </div>

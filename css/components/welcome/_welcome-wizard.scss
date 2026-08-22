@@ -1,0 +1,349 @@
+@use '../../abstracts/variables' as *;
+
+#welcome-modal {
+    #welcome-profile-setup-wizard-view {
+        &:not(.show-recommendations) {
+            .recommended-badge {
+                display: none !important;
+            }
+        }
+    }
+
+    .welcome-wizard-header {
+        border-bottom: 1px solid $border-primary;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        .wizard-profile-info-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wizard-th-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        }
+
+        .wizard-profile-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .wizard-title-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: $accent-primary;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .wizard-profile-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: $text-primary;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .wizard-profile-tag {
+            font-size: 11px;
+            color: $text-secondary;
+            line-height: 1.2;
+        }
+
+        .wizard-step-indicator {
+            font-size: 13px;
+            font-weight: 600;
+            color: $text-secondary;
+            white-space: nowrap;
+        }
+    }
+
+    .welcome-ores-vertical-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: $bg-surface-secondary;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid $border-primary;
+
+        .welcome-ore-input-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            background: $bg-surface-tertiary;
+            border: 1px solid $border-primary;
+            border-radius: 10px;
+            padding: 8px 12px;
+            transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+
+            &:focus-within {
+                border-color: $accent-primary;
+                box-shadow: 0 0 0 3px $accent-primary-soft;
+            }
+
+            .ore-icon-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                flex-shrink: 0;
+
+                orecalc-assets-image.ore-image,
+                .ore-image {
+                    width: 28px !important;
+                    height: 28px !important;
+                    object-fit: contain;
+                    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+                }
+            }
+
+            input[type="number"] {
+                flex: 1;
+                text-align: right;
+                border: none;
+                background: transparent;
+                color: $text-primary;
+                font-size: 16px;
+                font-weight: 600;
+                padding: 4px 8px;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+
+                &::-webkit-outer-spin-button,
+                &::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+            }
+        }
+    }
+
+    .wizard-step {
+        display: none;
+        flex-direction: column;
+        gap: 16px;
+        animation: welcomeFadeIn 0.25s ease-out;
+
+        .wizard-step-subtitle {
+            font-size: 13px;
+            color: $text-secondary;
+            line-height: 1.4;
+            margin: 0 0 8px 0;
+        }
+
+        .recommended-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            background-color: $color-success-soft;
+            color: $color-success;
+            border: 1px solid color-mix(in srgb, $color-success 30%, transparent);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1.2;
+            height: fit-content;
+        }
+
+        .quick-setting-details .recommended-badge {
+            margin-left: auto !important;
+        }
+
+        .ore-row-badge {
+            display: none !important;
+            padding: 2px 4px;
+            position: absolute;
+            right: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        [data-ore-type]>div:first-child {
+            position: relative;
+        }
+
+        #welcome-shop-offers-inputs-container {
+            .subpanel-row>div:first-child {
+                position: relative;
+            }
+        }
+
+        [data-section="raid-medals"] {
+            [data-ore-type="starry"],
+            [data-ore-type="glowy"] {
+                .ore-row-badge {
+                    display: inline-flex !important;
+                }
+            }
+        }
+
+        [data-section="gems"].has-gold-pass {
+            [data-ore-type="starry"] {
+                .ore-row-badge {
+                    display: inline-flex !important;
+                }
+            }
+        }
+
+        [data-section="event-trader"] {
+            &.has-event-pass {
+                [data-ore-type="starry"],
+                [data-ore-type="glowy"] {
+                    .ore-row-badge {
+                        display: inline-flex !important;
+                    }
+                }
+            }
+
+            &:not(.has-event-pass):not(.include-equipment) {
+                [data-ore-type="starry"] {
+                    .ore-row-badge {
+                        display: inline-flex !important;
+                    }
+                }
+            }
+        }
+
+        #welcome-shop-offers-inputs-container {
+            .ore-row-badge {
+                display: inline-flex !important;
+            }
+        }
+
+        #welcome-pref-currency {
+            width: 100px;
+            height: 32px;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+    }
+
+    .welcome-profile-setup-loading-view {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        position: absolute;
+        inset: 0;
+        padding: var(--welcome-header-height, 130px) 32px 124px 32px;
+        border-radius: inherit;
+        background-color: color-mix(in srgb, $bg-surface-secondary 90%, transparent);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 10;
+
+        @media (max-width: $breakpoint-modal) {
+            padding: var(--welcome-header-height, 96px) 20px 160px 20px;
+            border-radius: 0;
+        }
+
+        .welcome-wizard-loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid color-mix(in srgb, $accent-primary 20%, transparent);
+            border-top-color: $accent-primary;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        .wizard-loading-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: $text-secondary;
+        }
+    }
+
+    .welcome-profile-setup-wizard-view {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        inset: 0;
+        padding: var(--welcome-header-height, 130px) 32px 124px 32px;
+        text-align: left;
+        background-color: $bg-surface-secondary;
+        z-index: 10;
+        box-sizing: border-box;
+        border-radius: inherit;
+
+        @media (max-width: $breakpoint-modal) {
+            padding: var(--welcome-header-height, 96px) 20px 160px 20px;
+            border-radius: 0;
+        }
+    }
+
+    .welcome-wizard-steps-container {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-height: 0;
+        padding-left: 2px;
+        padding-right: 4px;
+        padding-bottom: 60px;
+        scrollbar-width: thin;
+        scroll-behavior: smooth;
+        scroll-padding-top: 16px;
+        scroll-padding-bottom: 60px;
+    }
+
+    .guest-setup-item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .guest-setup-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: $text-secondary;
+        }
+    }
+
+    .wizard-step-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: $text-primary;
+        margin: 0 0 4px 0;
+
+        &--inline {
+            margin: 0;
+            display: inline;
+            vertical-align: middle;
+        }
+    }
+
+    .wizard-title-badge-row {
+        margin-bottom: 4px;
+        line-height: 1.6;
+
+        .recommended-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+    }
+}

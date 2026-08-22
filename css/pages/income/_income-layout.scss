@@ -1,0 +1,256 @@
+@use '../../abstracts/variables' as *;
+
+.income-cards-grid {
+    align-items: stretch;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.income-cards-grid.layout-compact,
+.settings-cards-grid.layout-compact {
+    align-items: start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    .layout-grid-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        min-height: 1px;
+    }
+
+    .card-container {
+        height: auto;
+        width: 100%;
+
+        .income-card,
+        .settings-card {
+            height: auto;
+            width: 100%;
+            margin-bottom: 0;
+        }
+    }
+}
+
+@container (max-width: 445px) {
+    .income-card {
+        --font-size-em-lg: 1.1em;
+        --font-size-em-md: 0.9em;
+        --font-size-lg: 16px;
+        --font-size-md: 14px;
+        --font-size-sm: 12px;
+        --font-size-xl: 20px;
+        --font-size-xs: 11px;
+
+        #inc-gem-trader-offers {
+            grid-template-columns: auto 1fr 1fr;
+        }
+
+        > .offer-grid:not(:first-child):not(:last-child) {
+            padding: 20px 0;
+        }
+
+        .inner-card {
+            padding: 10px;
+        }
+
+        .currency-symbol {
+            margin-left: 0;
+        }
+
+        .input-group-flex {
+            flex-wrap: wrap;
+            justify-content: center !important;
+            row-gap: 10px;
+
+            &:has(.switch) {
+                flex-wrap: nowrap;
+                justify-content: space-between !important;
+
+                label:not(.switch) {
+                    width: auto !important;
+                    text-align: left !important;
+                }
+            }
+
+            label,
+            span:not(.slider):not(.currency-symbol):not(.calculated) {
+                margin-right: 5px !important;
+                white-space: normal;
+                width: 100% !important;
+
+                &.switch {
+                    width: 52px !important;
+                    margin-right: 0 !important;
+                    flex-shrink: 0;
+                }
+            }
+
+            label[for="inc-star-bonus-league-select"],
+            label[for="inc-shop-offers-select"],
+            #cwl-per-attack-label,
+            #clan-war-per-attack-label {
+                text-align: center !important;
+            }
+
+            > select,
+            > input[type="number"] {
+                text-align: center !important;
+                width: 100% !important;
+            }
+        }
+
+        .ores-inputs-container {
+            flex-wrap: wrap;
+            justify-content: center !important;
+            padding-left: 5px;
+            row-gap: 10px;
+        }
+
+        input[type="number"].offer-input-number {
+            width: 50px;
+        }
+
+        #inc-raid-medals-total-input {
+            width: 60px !important;
+        }
+
+        #inc-raid-medals-remaining {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .offer-grid {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .offer-grid-row {
+            display: contents;
+        }
+
+        .offer-grid-row .offer-dropdown-instance {
+            grid-column: 3 / -1;
+        }
+
+        .offer-grid-row > :nth-child(n+5) {
+            display: none;
+        }
+
+        .rates-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 0 !important;
+        }
+
+        .rate-column {
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+
+            label {
+                text-align: left;
+                width: calc(100% - 100px);
+            }
+        }
+
+        .four-col-grid {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .grid-row {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+
+                &:nth-child(odd) {
+                    align-items: flex-start;
+
+                    .grid-value-display {
+                        flex-direction: row-reverse;
+
+                        .ore-image {
+                            margin-left: 0;
+                        }
+                    }
+                }
+
+                &:nth-child(even) {
+                    align-items: flex-end;
+
+                    .grid-value-display {
+                        justify-content: flex-end;
+                    }
+                }
+            }
+
+            .grid-label {
+                font-weight: normal;
+                text-align: left;
+            }
+
+            .grid-value-display {
+                justify-content: flex-start;
+            }
+        }
+
+        .offer-dropdown-instance {
+            display: grid;
+            justify-self: center;
+            max-width: 100px;
+            width: 100%;
+        }
+
+        .offer-grid-row:has(.offer-dropdown-instance) .offer-checkbox-instance {
+            display: none;
+        }
+
+        .offer-input-dropdown {
+            text-align: center;
+        }
+
+        .summary-grid {
+            gap: 15px;
+            grid-template-columns: 1fr;
+
+            .summary-item-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                justify-content: space-between;
+
+                .summary-label {
+                    text-align: right;
+                }
+
+                .summary-value-with-image {
+                    justify-content: flex-start;
+                }
+            }
+        }
+
+        .supercell-events-container {
+            padding: 0 !important;
+
+            .supercell-events-table {
+                .countdown-text {
+                    display: none;
+                }
+            }
+        }
+
+        &:has(#inc-shop-offers-checkboxes) {
+            .timeframe-income:has(> .four-col-grid) {
+                align-items: flex-start;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+    }
+}

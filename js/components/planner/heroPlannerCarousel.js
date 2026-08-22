@@ -1,13 +1,11 @@
-import { dom } from '../../dom/domElements.js';
-
-import { heroData } from '../../data/appData.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
+import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 
-import { updatePageDots, getCurrentHeroIndex } from './heroPlannerCarouselDisplay.js'; 
+import { toCamelCase } from '../../utils/stringUtils.js';
 
-import { createHeroIcon, createEquipmentItem } from '../common/heroDisplayFactory.js';
-
+import { createEquipmentItem, createHeroIcon } from '../common/heroDisplayFactory.js';
+import { getCurrentHeroIndex, updatePageDots } from './heroPlannerCarouselDisplay.js';
+import { dom } from '../../dom/domElements.js';
 import { refreshLayout } from '../../ui/cardLayoutManager.js';
 
 /**
@@ -23,19 +21,16 @@ function updateExistingHeroSwitches(heroesState) {
         const heroState = heroesState[heroName] || { equipment: {} };
         const heroKey = toCamelCase(heroName);
 
-        // Update Hero Toggle
         const heroToggle = heroPage.querySelector(`#planner-${heroKey}-toggle`);
         if (heroToggle) {
             heroToggle.checked = heroState.enabled !== false;
         }
 
-        // Update Hero Name (for language changes)
         const nameText = heroPage.querySelector('.hero-name-text');
         if (nameText) {
-            nameText.textContent = translate(`heroes.${heroKey}`);
+            nameText.textContent = translate(`entities.heroes.${heroKey}`);
         }
 
-        // Update Equipment Toggles
         const equipmentItems = heroPage.querySelectorAll('.equipment-item-planner');
         equipmentItems.forEach(item => {
             const equipName = item.dataset.equipName;
@@ -44,16 +39,20 @@ function updateExistingHeroSwitches(heroesState) {
             if (equipToggle) {
                 equipToggle.checked = equipState.checked !== false;
             }
-            
-            // Update Equipment Name
+
             const equipLabel = item.querySelector('span');
             if (equipLabel) {
-                equipLabel.textContent = translate(`equipment.${toCamelCase(equipName)}`);
+                equipLabel.textContent = translate(`entities.equipment.${toCamelCase(equipName)}`);
             }
         });
     });
 }
 
+/**
+ * Initializes and populates the Hero Equipment Planner carousel slides, swipe gestures, and pagination dots.
+ * @param {Record<string, import('../../core/types.js').HeroItem>} heroesState - Player's hero equipment state data.
+ * @param {import('../../core/types.js').PlannerState} plannerState - Planner state object with custom max level limits.
+ */
 export function initializeHeroPlannerCarousel(heroesState, plannerState) {
     const carouselContent = dom.planner?.heroCarouselContent;
     const plannerPageDots = dom.planner?.plannerPageDots;
@@ -71,7 +70,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
 
     heroKeys.forEach(heroKey => {
         const hero = heroData[heroKey];
-        const heroState = heroesState[hero.name] || { equipment: {} };
+        const heroState = heroesState[hero.name] || { level: 1, enabled: true, equipment: {} };
 
         const heroPage = document.createElement('div');
         heroPage.className = 'hero-page';
@@ -86,14 +85,14 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
 
         const heroNameSpan = document.createElement('span');
         heroNameSpan.className = 'hero-name-text';
-        heroNameSpan.textContent = translate(`heroes.${heroKey}`);
-        heroNameSpan.dataset.i18n = `heroes.${heroKey}`;
+        heroNameSpan.textContent = translate(`entities.heroes.${heroKey}`);
+        heroNameSpan.dataset.i18n = `entities.heroes.${heroKey}`;
         infoAndName.appendChild(heroNameSpan);
 
         const infoBtn = document.createElement('button');
         infoBtn.className = 'info-btn';
-        infoBtn.dataset.info = 'planner.heroCarouselHelp';
-        infoBtn.setAttribute('aria-label', translate('actions.showInfo') || 'Show Information');
+        infoBtn.dataset.info = 'views.planner.heroCarouselHelp';
+        infoBtn.setAttribute('aria-label', translate('actions.showInfo'));
         infoBtn.dataset.i18nAriaLabel = 'actions.showInfo';
         infoBtn.innerHTML = '<orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>';
         infoAndName.appendChild(infoBtn);
@@ -102,24 +101,24 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
 
         const toggleSwitch = document.createElement('div');
         toggleSwitch.className = 'hero-toggle-switch';
-        
+
         const switchLabel = document.createElement('label');
         switchLabel.className = 'switch large-switch';
-        
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `planner-${heroKey}-toggle`;
         checkbox.name = `planner-${heroKey}-toggle`;
         checkbox.checked = heroState.enabled !== false;
-        checkbox.setAttribute('aria-label', translate('planner.toggleHero', {
-            name: translate(`heroes.${heroKey}`) || hero.name
+        checkbox.setAttribute('aria-label', translate('views.planner.toggleHero', {
+            name: translate(`entities.heroes.${heroKey}`) || hero.name
         }));
         switchLabel.appendChild(checkbox);
 
         const slider = document.createElement('span');
         slider.className = 'slider round';
         switchLabel.appendChild(slider);
-        
+
         toggleSwitch.appendChild(switchLabel);
         headerSection.appendChild(toggleSwitch);
         heroPage.appendChild(headerSection);
@@ -149,7 +148,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
     plannerPageDots.innerHTML = dotsHtml;
 
     updatePageDots(getCurrentHeroIndex());
-    
+
     // Refresh planner layout to add handles to new carousel children if needed
     refreshLayout('planner');
 }

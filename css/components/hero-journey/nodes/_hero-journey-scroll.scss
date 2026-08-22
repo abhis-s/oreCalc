@@ -1,0 +1,215 @@
+@use '../../../abstracts/variables' as *;
+
+.hero-journey-scroll-controls {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+
+    .scroll-btn {
+        background: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        color: $text-primary;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+        user-select: none;
+
+        svg, orecalc-assets-svg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            pointer-events: none;
+
+            svg {
+                display: block;
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        &:hover {
+            background: $accent-primary-soft;
+            border-color: $accent-primary;
+            color: $accent-primary;
+            transform: scale(1.08);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+}
+
+.hero-journey-track-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px 8px 8px 8px;
+    margin: -14px -8px -4px -8px;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+}
+
+.hero-journey-custom-scrollbar {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    margin: 14px 0 6px 0;
+    background: color-mix(in srgb, $bg-surface-tertiary 80%, $bg-surface-primary);
+    border-radius: 2px;
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+    box-sizing: border-box;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        bottom: -10px;
+        left: 0;
+        right: 0;
+        z-index: 1;
+    }
+
+    &:hover {
+        background: color-mix(in srgb, $accent-primary 40%, $bg-surface-tertiary);
+    }
+}
+
+.hero-journey-scrollbar-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, $accent-primary 0%, color-mix(in srgb, $accent-primary 80%, white) 100%);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 1;
+    transition: width $duration-base $ease-standard;
+    box-shadow: 0 0 6px color-mix(in srgb, $accent-primary 40%, transparent);
+}
+
+.hero-journey-scrollbar-thumb {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 38px;
+    height: 14px;
+    transform: translateY(-50%);
+    background: linear-gradient(180deg, color-mix(in srgb, $accent-primary 85%, white) 0%, $accent-primary 100%);
+    border: 1px solid color-mix(in srgb, $accent-primary 80%, white);
+    border-radius: 7px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    cursor: grab;
+    z-index: 2;
+    transition: background $duration-fast $ease-smooth, transform $duration-fast $ease-standard, box-shadow $duration-fast $ease-smooth;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        bottom: -10px;
+        left: -10px;
+        right: -10px;
+    }
+
+    &:hover {
+        background: linear-gradient(180deg, color-mix(in srgb, $accent-primary 75%, white) 0%, $accent-primary-hover 100%);
+        transform: translateY(-50%) scale(1.08);
+        box-shadow: 0 0 8px rgba($accent-primary, 0.4);
+    }
+
+    .hero-journey-scrub-tooltip {
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%) translateY(4px) scale(0.9);
+        opacity: 0;
+        pointer-events: none;
+        background: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        border-radius: 9999px;
+        padding: 3px 9px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+        color: $text-primary;
+        font-size: 0.75rem;
+        font-weight: 700;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.2;
+        z-index: 10;
+        transition: opacity $duration-fast $ease-smooth, transform $duration-fast $ease-spring;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            width: 7px;
+            height: 7px;
+            background: $bg-surface-primary;
+            border-bottom: 1px solid $border-primary;
+            border-right: 1px solid $border-primary;
+            transform: translateX(-50%) translateY(-3.5px) rotate(45deg);
+        }
+    }
+
+    &.is-dragging {
+        cursor: grabbing;
+        background: linear-gradient(180deg, color-mix(in srgb, $accent-primary 65%, white) 0%, $accent-primary-hover 100%);
+        transform: translateY(-50%) scale(1.22);
+        box-shadow: 0 0 12px rgba($accent-primary, 0.65), 0 3px 8px rgba(0, 0, 0, 0.5);
+
+        .hero-journey-scrub-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+    }
+}
+
+.hero-journey-no-profile-notice {
+    display: none;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: clamp(10px, 1.3vw, 11px);
+    color: $text-muted;
+    line-height: 1.4;
+    text-align: left;
+    opacity: 0.8;
+    padding: 8px 12px;
+    background-color: $bg-surface-tertiary;
+    border-radius: 6px;
+    border: 1px solid $border-secondary;
+
+    @media (max-width: $breakpoint-modal) {
+        margin-top: 12px;
+        padding: 6px 10px;
+    }
+
+    .sync-notice-icon {
+        flex-shrink: 0;
+        width: 14px;
+        height: 14px;
+        fill: $text-muted;
+        color: $text-muted;
+        position: relative;
+        top: 1px;
+    }
+}

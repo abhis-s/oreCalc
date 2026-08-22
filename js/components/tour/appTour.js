@@ -1,9 +1,14 @@
+import { tourSets, tourSteps } from '../../data/tourData.js';
+import { translate } from '../../i18n/translator.js';
+
+import { MOTION_DURATION_FAST_MS, MOTION_DURATION_MODERATE_MS } from '../../core/constants.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
-import { translate } from '../../i18n/translator.js';
-import { closeStoredOresModal } from '../planner/priorityListModal.js';
-import { tourSets, tourSteps } from '../../data/tourData.js';
+
+import { closeAllModals } from '../../utils/modalHistoryManager.js';
+
 import { showConfirm } from '../../ui/noticeModal.js';
+import { closeStoredOresModal } from '../planner/priorityListModal.js';
 
 let activeSteps = [];
 let currentStepIndex = 0;
@@ -17,10 +22,10 @@ let snakeAnim = null;
 function parseOrderParts(order) {
     if (order === undefined || order === null) return [0];
     if (typeof order === 'number') return [order];
-    return String(order).split('.').map(n => parseInt(n, 10) || 0);
+    return String(order).split('.').map(n => Number(n) || 0);
 }
 
-export function compareOrders(aOrder, bOrder) {
+function compareOrders(aOrder, bOrder) {
     const aParts = parseOrderParts(aOrder);
     const bParts = parseOrderParts(bOrder);
     const maxLen = Math.max(aParts.length, bParts.length);
@@ -33,7 +38,7 @@ export function compareOrders(aOrder, bOrder) {
     return 0;
 }
 
-export function resolveSteps(lastTourTimestamp) {
+function resolveSteps(lastTourTimestamp) {
     const setRelease = Object.fromEntries(
         tourSets.map(s => [s.id, s.releasedAt])
     );
@@ -162,7 +167,12 @@ function updatePositions() {
 }
 
 function positionTooltip(highlightRect, tooltip, placement) {
-    const tooltipRect = tooltip.getBoundingClientRect();
+    const prevTransform = tooltip.style.transform;
+    tooltip.style.transform = 'none';
+    const tooltipWidth = tooltip.offsetWidth || tooltip.getBoundingClientRect().width;
+    const tooltipHeight = tooltip.offsetHeight || tooltip.getBoundingClientRect().height;
+    tooltip.style.transform = prevTransform;
+
     const margin = 12;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -173,21 +183,21 @@ function positionTooltip(highlightRect, tooltip, placement) {
             case 'bottom':
                 return {
                     top: highlightRect.bottom + margin,
-                    left: highlightRect.left + (highlightRect.width - tooltipRect.width) / 2
+                    left: highlightRect.left + (highlightRect.width - tooltipWidth) / 2
                 };
             case 'top':
                 return {
-                    top: highlightRect.top - tooltipRect.height - margin,
-                    left: highlightRect.left + (highlightRect.width - tooltipRect.width) / 2
+                    top: highlightRect.top - tooltipHeight - margin,
+                    left: highlightRect.left + (highlightRect.width - tooltipWidth) / 2
                 };
             case 'left':
                 return {
-                    top: highlightRect.top + (highlightRect.height - tooltipRect.height) / 2,
-                    left: highlightRect.left - tooltipRect.width - margin
+                    top: highlightRect.top + (highlightRect.height - tooltipHeight) / 2,
+                    left: highlightRect.left - tooltipWidth - margin
                 };
             case 'right':
                 return {
-                    top: highlightRect.top + (highlightRect.height - tooltipRect.height) / 2,
+                    top: highlightRect.top + (highlightRect.height - tooltipHeight) / 2,
                     left: highlightRect.right + margin
                 };
             default:
@@ -200,8 +210,8 @@ function positionTooltip(highlightRect, tooltip, placement) {
         return (
             top >= margin &&
             left >= margin &&
-            top + tooltipRect.height <= vh - margin &&
-            left + tooltipRect.width <= vw - margin
+            top + tooltipHeight <= vh - margin &&
+            left + tooltipWidth <= vw - margin
         );
     }
 
@@ -229,13 +239,14 @@ function positionTooltip(highlightRect, tooltip, placement) {
     }
 
     // Always clamp both axes so the tooltip is never partially off-screen
-    finalPos.left = Math.max(margin, Math.min(vw - tooltipRect.width - margin, finalPos.left));
-    finalPos.top  = Math.max(margin, Math.min(vh - tooltipRect.height - margin, finalPos.top));
+    const maxLeft = Math.max(margin, vw - tooltipWidth - margin);
+    const maxTop = Math.max(margin, vh - tooltipHeight - margin);
+    finalPos.left = Math.max(margin, Math.min(maxLeft, finalPos.left));
+    finalPos.top  = Math.max(margin, Math.min(maxTop, finalPos.top));
 
     tooltip.style.left = `${finalPos.left}px`;
     tooltip.style.top  = `${finalPos.top}px`;
 }
-
 
 async function showStep() {
     if (currentStepIndex < 0 || currentStepIndex >= activeSteps.length) {
@@ -245,34 +256,27 @@ async function showStep() {
 
     const step = activeSteps[currentStepIndex];
 
-    // 1. Programmatically navigate to the tab if needed
     if (state.activeTab !== `${step.tab}-tab`) {
         const tabButton = document.querySelector(`[data-tab="${step.tab}"]`);
         if (tabButton) {
             tabButton.click();
-            // Wait for transitions/rendering
-            await new Promise(resolve => setTimeout(resolve, 350));
+            await new Promise(resolve => setTimeout(resolve, MOTION_DURATION_MODERATE_MS));
         }
     }
 
-    // Call onLeave of the previous step if any
     if (lastStepIndex >= 0 && lastStepIndex < activeSteps.length) {
         const lastStep = activeSteps[lastStepIndex];
         if (typeof lastStep.onLeave === 'function') {
             await lastStep.onLeave();
         }
     }
-    // Update lastStepIndex
     lastStepIndex = currentStepIndex;
 
-    // Call onEnter of the current step if any
     if (typeof step.onEnter === 'function') {
         await step.onEnter();
-        // Wait a bit for transitions (like dropdown open) to complete
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, MOTION_DURATION_FAST_MS));
     }
 
-    // 2. Find target element
     const target = resolveTargetElement(step.target);
     if (!target) {
         console.warn(`Tour target element not found for step: ${step.id}`);
@@ -281,29 +285,33 @@ async function showStep() {
         return;
     }
 
-    // Manage active target class for glow and pop-out effects
     if (window.lastTourTarget && window.lastTourTarget !== target) {
         window.lastTourTarget.classList.remove('tour-active-target');
     }
     target.classList.add('tour-active-target');
     window.lastTourTarget = target;
 
-    // 3. Scroll target element into view smoothly
     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, MOTION_DURATION_MODERATE_MS));
 
-    // 4. Lazy initialize elements if they don't exist
+    const parentDialog = target.closest('dialog.modal, dialog, .modal');
+    const mountTarget = (parentDialog && (parentDialog.open || parentDialog.classList.contains('show'))) ? parentDialog : document.body;
+
     if (!highlightBox) {
         highlightBox = document.createElement('div');
         highlightBox.className = 'tour-highlight-box';
-        document.body.appendChild(highlightBox);
+        mountTarget.appendChild(highlightBox);
         snakeSVG = null;
+    } else if (highlightBox.parentElement !== mountTarget) {
+        mountTarget.appendChild(highlightBox);
     }
 
     if (!tooltipEl) {
         tooltipEl = document.createElement('div');
         tooltipEl.className = 'tour-tooltip';
-        document.body.appendChild(tooltipEl);
+        mountTarget.appendChild(tooltipEl);
+    } else if (tooltipEl.parentElement !== mountTarget) {
+        mountTarget.appendChild(tooltipEl);
     }
 
     tooltipEl.style.opacity = '0';
@@ -323,12 +331,12 @@ async function showStep() {
             ${translate(descKey)}
         </div>
         <div class="tour-tooltip-footer">
-            <div class="tour-progress">${translate('tour.step', { current: currentStepIndex + 1, total: activeSteps.length })}</div>
             <div class="tour-actions">
-                <button class="tour-btn tour-btn-skip">${translate('tour.skip')}</button>
-                ${currentStepIndex > 0 ? `<button class="tour-btn tour-btn-prev">${translate('tour.prev')}</button>` : ''}
-                <button class="tour-btn tour-btn-next">${currentStepIndex === activeSteps.length - 1 ? translate('tour.finish') : translate('tour.next')}</button>
+                <button class="tour-btn tour-btn-skip">${translate('views.tour.skip')}</button>
+                ${currentStepIndex > 0 ? `<button class="tour-btn tour-btn-prev">${translate('views.tour.prev')}</button>` : ''}
+                <button class="tour-btn tour-btn-next">${currentStepIndex === activeSteps.length - 1 ? translate('views.tour.finish') : translate('views.tour.next')}</button>
             </div>
+            <div class="tour-progress">${translate('views.tour.step', { current: currentStepIndex + 1, total: activeSteps.length })}</div>
         </div>
     `;
 
@@ -340,9 +348,9 @@ async function showStep() {
         }
     };
 
-    tooltipEl.querySelector('.tour-close-btn').addEventListener('click', handleCloseOrSkip);
-    tooltipEl.querySelector('.tour-btn-skip').addEventListener('click', handleCloseOrSkip);
-    
+    tooltipEl.querySelector('.tour-close-btn')?.addEventListener('click', handleCloseOrSkip);
+    tooltipEl.querySelector('.tour-btn-skip')?.addEventListener('click', handleCloseOrSkip);
+
     const prevBtn = tooltipEl.querySelector('.tour-btn-prev');
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
@@ -351,7 +359,7 @@ async function showStep() {
         });
     }
 
-    tooltipEl.querySelector('.tour-btn-next').addEventListener('click', () => {
+    tooltipEl.querySelector('.tour-btn-next')?.addEventListener('click', () => {
         if (currentStepIndex === activeSteps.length - 1) {
             finishTour();
         } else {
@@ -361,7 +369,7 @@ async function showStep() {
     });
 
     updatePositions();
-    
+
     requestAnimationFrame(() => {
         if (tooltipEl) {
             tooltipEl.style.opacity = '1';
@@ -370,6 +378,11 @@ async function showStep() {
     });
 }
 
+/**
+ * Initiates an interactive guided tour sequence for an optional set ID or dynamic timestamp.
+ * @param {string} [setId] - Specific tour set identifier to run.
+ * @returns {Promise<boolean>} True if tour started, false if no pending steps.
+ */
 export async function startTour(setId) {
     currentStepIndex = 0;
     lastStepIndex = -1;
@@ -399,10 +412,11 @@ export async function startTour(setId) {
     if (tabButton && state.activeTab !== 'home-tab') {
         tabButton.click();
         // Wait for transitions/rendering
-        await new Promise(resolve => setTimeout(resolve, 350));
+        await new Promise(resolve => setTimeout(resolve, MOTION_DURATION_MODERATE_MS));
     }
 
-    // Dismiss stored ores modal if open — the tour overlay would obscure it
+    // Dismiss all open modals and overlays to prevent collisions with the tour overlay
+    closeAllModals();
     closeStoredOresModal();
 
     // Stamp storedOres.lastUpdated for every player so the stored ores reminder
@@ -435,8 +449,8 @@ export async function startTour(setId) {
     }
 
     // Set up repositioning listeners
-    window.addEventListener('resize', updatePositions);
-    window.addEventListener('scroll', updatePositions, true);
+    window.addEventListener('resize', updatePositions, { passive: true });
+    window.addEventListener('scroll', updatePositions, { capture: true, passive: true });
 
     document.body.classList.add('tour-active');
 
@@ -444,13 +458,13 @@ export async function startTour(setId) {
     return true;
 }
 
-export function closeTour() {
+function closeTour() {
     window.isTourRunning = false;
     window.isTourPending = false;
     document.body.classList.remove('tour-active');
 
     window.removeEventListener('resize', updatePositions);
-    window.removeEventListener('scroll', updatePositions, true);
+    window.removeEventListener('scroll', updatePositions, { capture: true });
 
     // Call onLeave of the last active step if any
     if (lastStepIndex >= 0 && lastStepIndex < activeSteps.length) {
@@ -482,7 +496,7 @@ export function closeTour() {
     document.dispatchEvent(new CustomEvent('tour:close'));
 }
 
-export function finishTour() {
+function finishTour() {
     const maxReleaseTime = Math.max(0, ...tourSets.map(s => s.releasedAt || 0));
     handleStateUpdate(() => {
         if (!state.uiSettings.uiTimestamps) {

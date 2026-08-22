@@ -18,8 +18,11 @@ function applyTimerColor(element, timeLeft) {
     }
 }
 
+/**
+ * Synchronizes update-pending badge indicator classes across all Settings navigation buttons.
+ */
 export function updateNavigationBadges() {
-    const hasPending = !!localStorage.getItem('oreCalcUpdateDetectedAt');
+    const hasPending = !!(sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt'));
     const headerSettingsBtn = document.querySelector('.tab-button[data-tab="settings"]');
     const drawerSettingsBtn = document.querySelector('.navigation-drawer__tab[data-tab="settings"]');
     const bottomSettingsBtn = document.querySelector('.nav-button[data-tab="settings"]');
@@ -47,14 +50,14 @@ export function updateNavigationBadges() {
     }
 }
 
-export function initSettingsUpdateCard(wb) {
+function initSettingsUpdateCard(wb) {
     const card = document.getElementById('settings-update-card');
     const countdownText = document.getElementById('settings-update-countdown');
     const reloadBtn = document.getElementById('settings-update-now-btn');
 
     if (!card) return;
 
-    const detectedAtStr = localStorage.getItem('oreCalcUpdateDetectedAt');
+    const detectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt');
 
     if (!detectedAtStr) {
         card.style.display = 'none';
@@ -80,7 +83,8 @@ export function initSettingsUpdateCard(wb) {
         }
 
         sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
-        localStorage.removeItem('oreCalcUpdateDetectedAt');
+        sessionStorage.removeItem('oreCalcUpdateDetectedAt');
+        try { localStorage.removeItem('oreCalcUpdateDetectedAt'); } catch (e) {}
         updateNavigationBadges();
 
         card.style.display = 'none';
@@ -92,7 +96,7 @@ export function initSettingsUpdateCard(wb) {
     };
 
     const updateCardCountdown = () => {
-        const currentDetectedAtStr = localStorage.getItem('oreCalcUpdateDetectedAt');
+        const currentDetectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt');
 
         // Check if update is no longer active before running logic
         if (!currentDetectedAtStr) {
@@ -105,11 +109,11 @@ export function initSettingsUpdateCard(wb) {
         }
 
         let currentDetectedAt = parseInt(currentDetectedAtStr, 10);
-        
+
         // Handle negative, NaN, or future offsets
         if (isNaN(currentDetectedAt) || currentDetectedAt <= 0 || currentDetectedAt > Date.now()) {
             currentDetectedAt = Date.now();
-            localStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
+            sessionStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
         }
 
         const elapsed = Date.now() - currentDetectedAt;
@@ -131,7 +135,7 @@ export function initSettingsUpdateCard(wb) {
                     newDetectedAt = Date.now() - limitMs + oneHourMs; // Cap at 1 hour max
                 }
                 currentDetectedAt = newDetectedAt;
-                localStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
+                sessionStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
                 sessionStorage.setItem('oreCalcGraceAdded', 'true');
 
                 timeLeft = limitMs - (Date.now() - currentDetectedAt);
@@ -153,8 +157,7 @@ export function initSettingsUpdateCard(wb) {
             }
             timeStr += `${hours}h ${minutes}m`;
 
-            const rawText = translate('status.updateForcedShort') || 'Auto-update in: {time}';
-            countdownText.textContent = rawText.replace('{time}', timeStr);
+            countdownText.textContent = translate('status.updateForcedShort', { time: timeStr });
             applyTimerColor(countdownText, timeLeft);
         }
     };
@@ -172,6 +175,10 @@ export function initSettingsUpdateCard(wb) {
     settingsInterval = setInterval(updateCardCountdown, 60000); // Update card every 1 minute
 }
 
+/**
+ * Displays the Service Worker update available dialog with dynamic countdown timer.
+ * @param {any} [wb] - Workbox PWA service worker instance.
+ */
 export function showUpdateModal(wb) {
     const modal = document.getElementById('update-available-modal');
     const laterBtn = document.getElementById('update-later-button');
@@ -183,10 +190,10 @@ export function showUpdateModal(wb) {
     if (!modal) return;
 
     // Check or set the update detected timestamp
-    let detectedAtStr = localStorage.getItem('oreCalcUpdateDetectedAt');
+    let detectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt');
     if (!detectedAtStr) {
         detectedAtStr = Date.now().toString();
-        localStorage.setItem('oreCalcUpdateDetectedAt', detectedAtStr);
+        sessionStorage.setItem('oreCalcUpdateDetectedAt', detectedAtStr);
     }
 
     // Apply badge and settings card immediate update
@@ -206,7 +213,8 @@ export function showUpdateModal(wb) {
         }
 
         sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
-        localStorage.removeItem('oreCalcUpdateDetectedAt');
+        sessionStorage.removeItem('oreCalcUpdateDetectedAt');
+        try { localStorage.removeItem('oreCalcUpdateDetectedAt'); } catch (e) {}
         updateNavigationBadges();
 
         wb.addEventListener('controlling', () => {
@@ -216,7 +224,7 @@ export function showUpdateModal(wb) {
     };
 
     const updateCountdown = () => {
-        const currentDetectedAtStr = localStorage.getItem('oreCalcUpdateDetectedAt');
+        const currentDetectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt');
 
         // Check if update is no longer active before running logic
         if (!currentDetectedAtStr) {
@@ -235,7 +243,7 @@ export function showUpdateModal(wb) {
         // Handle negative, NaN, or future offsets
         if (isNaN(currentDetectedAt) || currentDetectedAt <= 0 || currentDetectedAt > Date.now()) {
             currentDetectedAt = Date.now();
-            localStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
+            sessionStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
         }
 
         const elapsed = Date.now() - currentDetectedAt;
@@ -257,7 +265,7 @@ export function showUpdateModal(wb) {
                     newDetectedAt = Date.now() - limitMs + oneHourMs; // Cap at 1 hour max
                 }
                 currentDetectedAt = newDetectedAt;
-                localStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
+                sessionStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
                 sessionStorage.setItem('oreCalcGraceAdded', 'true');
 
                 timeLeft = limitMs - (Date.now() - currentDetectedAt);
@@ -279,8 +287,7 @@ export function showUpdateModal(wb) {
             }
             timeStr += `${hours}h ${minutes}m`;
 
-            const rawText = translate('status.updateForcedIn') || 'This update will be forced in {time}.';
-            countdownText.textContent = rawText.replace('{time}', timeStr);
+            countdownText.textContent = translate('status.updateForcedIn', { time: timeStr });
             applyTimerColor(countdownText, timeLeft);
         }
     };
@@ -306,6 +313,9 @@ export function showUpdateModal(wb) {
     if (laterBtn) {
         laterBtn.onclick = () => {
             modal.classList.remove('show');
+            if (typeof modal.close === 'function' && modal.open) {
+                try { modal.close(); } catch (e) {}
+            }
             if (overlay) overlay.classList.remove('show');
         };
     }
@@ -313,6 +323,9 @@ export function showUpdateModal(wb) {
     if (closeBtn) {
         closeBtn.onclick = () => {
             modal.classList.remove('show');
+            if (typeof modal.close === 'function' && modal.open) {
+                try { modal.close(); } catch (e) {}
+            }
             if (overlay) overlay.classList.remove('show');
         };
     }
@@ -323,6 +336,9 @@ export function showUpdateModal(wb) {
         };
     }
 
+    if (typeof modal.showModal === 'function' && !modal.open) {
+        try { modal.showModal(); } catch (e) {}
+    }
     modal.classList.add('show');
     if (overlay) overlay.classList.add('show');
 }

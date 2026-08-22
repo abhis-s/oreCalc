@@ -62,12 +62,11 @@ function fetchLanguagesAndDownload() {
                     }))
                     .filter(item => item.progress >= MIN_THRESHOLD && item.code !== 'en');
 
-                console.log('Crowdin Translation Progress:');
-                console.table(json.data.map(item => ({
-                    code: item.data.languageId,
-                    progress: `${item.data.translationProgress}%`,
-                    status: item.data.translationProgress >= MIN_THRESHOLD ? 'ELIGIBLE' : 'SKIPPED'
-                })));
+                console.log(`[crowdin] Translation Progress (${json.data.length} languages checked, threshold: ${MIN_THRESHOLD}%):`);
+                json.data.forEach(item => {
+                    const status = item.data.translationProgress >= MIN_THRESHOLD ? 'ELIGIBLE' : 'SKIPPED';
+                    console.log(`[crowdin]   ${item.data.languageId}: ${item.data.translationProgress}% -> ${status}`);
+                });
 
                 const langCodes = eligibleLangs.map(l => l.code);
                 if (langCodes.length === 0) {
@@ -99,7 +98,7 @@ function downloadLanguages(langCodes) {
     console.log(`\n[OK] Downloading translations for eligible languages: ${langCodes.join(', ')} (Crowdin codes: ${crowdinCodes.join(', ')})`);
     const langFlags = crowdinCodes.map(c => `-l ${c}`).join(' ');
     const cmd = `npx @crowdin/cli download ${langFlags}`;
-    
+
     try {
         execSync(cmd, { cwd: projectRoot, stdio: 'inherit' });
         sanitizeDownloadedTranslations();
@@ -146,8 +145,8 @@ function sanitizeDownloadedTranslations() {
         }
     }
 
-    // Strip untranslated English fallback strings from downloaded locale JSON files
-    const localeFiles = fs.readdirSync(i18nDir).filter(f => f.endsWith('.json') && f !== 'en.json');
+    // Strip untranslated English fallback strings from downloaded community locale JSON files (excluding developer-maintained en and de)
+    const localeFiles = fs.readdirSync(i18nDir).filter(f => f.endsWith('.json') && f !== 'en.json' && f !== 'de.json');
     for (const file of localeFiles) {
         const filePath = path.join(i18nDir, file);
         let data;
@@ -172,12 +171,12 @@ function sanitizeDownloadedTranslations() {
                     const enVal = enFlat[fullKey];
                     // Exclude genuine proper nouns, brand names, and short strings (< 15 chars) that are legitimately identical across languages
                     const allowedIdenticalKeys = [
-                        'settings.github',
-                        'settings.buyMeACoffee',
-                        'settings.options.emailPlaceholder'
+                        'views.settings.github',
+                        'views.settings.buyMeACoffee',
+                        'views.settings.options.emailPlaceholder'
                     ];
 
-                    const isLanguageName = fullKey.startsWith('settings.languages.');
+                    const isLanguageName = fullKey.startsWith('views.settings.languages.');
                     const isLongString = val.length >= 15;
                     const isAllowedBrand = allowedIdenticalKeys.some(k => fullKey.includes(k));
                     // Strings with only placeholders and symbols/punctuation (e.g. "{equipmentName} (#{step})") are structural templates, not English words

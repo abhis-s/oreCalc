@@ -1,19 +1,12 @@
-import { state } from '../core/state.js';
-
-import { handleChipDropOnCalendar } from '../components/planner/calendar.js';
-import { handleChipDropOnContainer } from '../components/planner/incomeChips.js';
-
-import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
+import { CANONICAL_CHIP_PRIORITY_ORDER, getSourceById, incomeData } from '../data/incomeSourceRegistry.js';
 import { translate } from '../i18n/translator.js';
 
-import { formatNumber } from './numberFormatter.js';
-import { formatDate } from './dateFormatter.js';
-import { getScheduleDates } from './dateUtils.js';
-import { getSVG } from './svgManager.js';
-import { toCamelCase } from './stringUtils.js';
-import { getProspectorIncomeForDate } from '../incomeCalculations/prospectorManager.js';
+import { state } from '../core/state.js';
 
-let draggedChipData = null;
+import { attachChipPointerListeners } from './chipPointerManager.js';
+import { formatDate, getScheduleDates } from './dateUtils.js';
+import { formatNumber } from './numberFormatter.js';
+import { getSVG } from './svgManager.js';
 
 function getChipValidRangeString(chip, data, incomeSource) {
     const [calYear, calMonth] = (state.planner?.calendar?.view?.month || '2026-08').split('-').map(Number);
@@ -50,7 +43,7 @@ function getChipValidRangeString(chip, data, incomeSource) {
         const scheduled = getScheduleDates(calYear, calMonth - 1, incomeSource.schedule);
         if (scheduled && scheduled.length > 0) {
             if (incomeSource.schedule.type === 'daily') {
-                return translate('planner.anyDate');
+                return translate('views.planner.anyDate');
             }
             const firstItem = scheduled[0];
             const lastItem = scheduled[scheduled.length - 1];
@@ -67,16 +60,29 @@ function getChipValidRangeString(chip, data, incomeSource) {
         }
     }
 
-    return translate('planner.anyDate');
+    return translate('views.planner.anyDate');
 }
 
+/**
+ * Creates an interactive income chip DOM element with icons, badges, tooltips, and pointer event physics.
+ * @param {string} text
+ * @param {string} className
+ * @param {Object} data
+ * @param {number} month
+ * @param {number} year
+ * @param {string|null} [id=null]
+ * @returns {HTMLDivElement}
+ */
 export function createIncomeChip(text, className, data, month, year, id = null) {
     const chip = document.createElement('div');
     const monthStr = String(month + 1).padStart(2, '0');
     const instanceStr = String(data.instance || 'monthly').padStart(2, '0');
-    chip.id = id || `${data.type}-${instanceStr}-${monthStr}-${year}`;
+    chip.id = id || `${data.type}-${instanceStr}-${year}-${monthStr}`;
     chip.classList.add('income-chip', className);
-    
+
+    chip.setAttribute('tabindex', '0');
+    chip.setAttribute('role', 'button');
+
     const chipText = document.createElement('span');
     chipText.classList.add('chip-text');
     chipText.textContent = text;
@@ -117,14 +123,14 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
 
         if (!iconRendered) {
             chip.classList.add('calendar-chip', 'no-icon');
-            const rawCustom = data.customType || translate('planner.createCustomChipsModal.typeExtras');
+            const rawCustom = data.customType || translate('views.planner.createCustomChipsModal.typeExtras');
             const capitalizedCustom = rawCustom.toLowerCase() === 'custom' || rawCustom.toLowerCase() === 'extras' ? 'EXTRA' : rawCustom;
-            const fullName = isCustomType ? capitalizedCustom : translate(incomeSource?.nameI18nKey || `income.${data.type}.title`);
+            const fullName = isCustomType ? capitalizedCustom : translate(incomeSource?.nameI18nKey || `views.income.${data.type}.title`);
             chipText.textContent = getShortName(data.type, fullName);
         }
     }
 
-    // Special badge for multiplier events or results
+    // Special badge for multiplier events or war results
     if (data.type && data.type.startsWith('starBonus') && data.type.endsWith('x')) {
         const badge = document.createElement('span');
         badge.classList.add('chip-badge');
@@ -136,15 +142,16 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         badge.textContent = data.result === 'win' ? 'W' : (data.result === 'loss' ? 'L' : 'D');
         chip.appendChild(badge);
     }
-    
-    // Auto-generated chips (Daily Star Bonus, Prospector) are NOT draggable, unless they are custom-created
+
+    // Auto-generated chips (Daily Star Bonus, Prospector) are NOT draggable unless custom
     const isCustom = data.isCustom === true || data.isCustom === 'true' || String(data.isCustom) === 'true' || (id && id.startsWith('custom-'));
     let isDraggable = isCustom ? true : (incomeSource ? !incomeSource.autoGenerateInCalendar : true);
     if (data.type === 'prospector' && state.income?.prospector?.assistedConversion) {
         isDraggable = true;
     }
-    chip.draggable = isDraggable;
-    chip.setAttribute('draggable', isDraggable ? 'true' : 'false');
+    chip.dataset.draggable = isDraggable ? 'true' : 'false';
+    chip.draggable = false;
+    chip.setAttribute('draggable', 'false');
 
     const chipData = { ...data, className: className, id: chip.id };
 
@@ -156,16 +163,15 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
             pencilIcon.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`;
             chip.appendChild(pencilIcon);
         } else {
-            // Ring for custom chips in container
+            // Ring for custom chips in unplaced container
             chip.classList.add('custom-chip-ring');
         }
     }
 
     if (incomeSource && incomeSource.schedule) {
-        const isCustom = data.isCustom === true || data.isCustom === 'true' || String(data.isCustom) === 'true' || (id && id.startsWith('custom-'));
         const isRecurring = data.isRecurring === true || data.isRecurring === 'true' || String(data.isRecurring) === 'true';
         if (!isCustom || isRecurring) {
-            const scheduledDates = getScheduleDates(year, month, incomeSource.schedule, data.instance);
+            const scheduledDates = getScheduleDates(year, month, incomeSource.schedule);
             if (scheduledDates.length > 0) {
                 if (incomeSource.schedule.type === 'weekly') {
                     const weekData = scheduledDates[data.instance - 1];
@@ -185,9 +191,11 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         chip.dataset[key] = chipData[key];
     }
 
+    // Accessible Tooltip Configuration
     const tooltip = document.createElement('div');
     tooltip.classList.add('chip-tooltip');
     tooltip.classList.add('active-chip-tooltip-element');
+    tooltip.setAttribute('role', 'tooltip');
     tooltip.draggable = false;
     const tooltipContent = document.createElement('div');
     tooltipContent.classList.add('tooltip-content');
@@ -196,10 +204,10 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
     chipName.classList.add('tooltip-header');
     const isCustomType = data.type === 'custom' || data.type === 'extras' || data.type.startsWith('custom-') || data.type.startsWith('custom') || data.type.startsWith('extras');
     if (isCustomType) {
-        const rawCustom = data.customType || translate('planner.createCustomChipsModal.typeExtras');
+        const rawCustom = data.customType || translate('views.planner.createCustomChipsModal.typeExtras');
         chipName.textContent = rawCustom.toLowerCase() === 'custom' || rawCustom.toLowerCase() === 'extras' ? 'Extras' : rawCustom;
     } else {
-        const nameKey = incomeSource?.nameI18nKey || `income.${data.type}.title`;
+        const nameKey = incomeSource?.nameI18nKey || `views.income.${data.type}.title`;
         chipName.textContent = translate(nameKey);
         chipName.dataset.i18n = nameKey;
     }
@@ -210,7 +218,7 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         shinyOre.classList.add('ore-count-item');
         const shinyVal = parseFloat(data.shiny);
         const isNegative = shinyVal < 0;
-        shinyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(shinyVal)}</span> <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('ores.shiny')}" data-i18n-alt="ores.shiny" class="ore-icon-small"></orecalc-assets-image>`;
+        shinyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(shinyVal)}</span> <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" data-i18n-alt="entities.ores.shiny" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(shinyOre);
     }
     if (data.glowy !== undefined) {
@@ -218,7 +226,7 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         glowyOre.classList.add('ore-count-item');
         const glowyVal = parseFloat(data.glowy);
         const isNegative = glowyVal < 0;
-        glowyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(glowyVal)}</span> <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('ores.glowy')}" data-i18n-alt="ores.glowy" class="ore-icon-small"></orecalc-assets-image>`;
+        glowyOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(glowyVal)}</span> <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" data-i18n-alt="entities.ores.glowy" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(glowyOre);
     }
     if (data.starry !== undefined) {
@@ -226,7 +234,7 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         starryOre.classList.add('ore-count-item');
         const starryVal = parseFloat(data.starry);
         const isNegative = starryVal < 0;
-        starryOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(starryVal)}</span> <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('ores.starry')}" data-i18n-alt="ores.starry" class="ore-icon-small"></orecalc-assets-image>`;
+        starryOre.innerHTML = `<span class="${isNegative ? 'negative-value' : ''}">${formatNumber(starryVal)}</span> <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" data-i18n-alt="entities.ores.starry" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(starryOre);
     }
 
@@ -234,17 +242,22 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
     if (validRangeText) {
         const validRangeEl = document.createElement('div');
         validRangeEl.classList.add('tooltip-valid-range');
-        validRangeEl.innerHTML = `<span class="valid-range-label">${translate('planner.validDates')}:</span> <span class="valid-range-value">${validRangeText}</span>`;
+        validRangeEl.innerHTML = `<span class="valid-range-label">${translate('views.planner.validDates')}:</span> <span class="valid-range-value">${validRangeText}</span>`;
         tooltipContent.appendChild(validRangeEl);
     }
 
     tooltip.appendChild(tooltipContent);
-    
-    const showTooltip = (e) => {
-        // Ensure only one chip tooltip exists
+
+    const showTooltip = () => {
+        if (state.isChipDragging) return;
+
         document.querySelectorAll('.active-chip-tooltip-element').forEach(el => {
             if (el.parentNode === document.body) el.parentNode.removeChild(el);
         });
+
+        const tooltipId = 'active-chip-tooltip';
+        tooltip.id = tooltipId;
+        chip.setAttribute('aria-describedby', tooltipId);
 
         document.body.appendChild(tooltip);
         tooltip.classList.add('visible');
@@ -254,14 +267,13 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
         const scrollY = window.scrollY || window.pageYOffset;
 
         let left = rect.left + rect.width / 2 + scrollX;
-        let top = rect.bottom + scrollY + 10; // Position below
+        let top = rect.bottom + scrollY + 10;
 
         tooltip.style.position = 'absolute';
         tooltip.style.left = `${left}px`;
         tooltip.style.top = `${top}px`;
         tooltip.style.transform = 'translateX(-50%)';
 
-        // Boundary check
         const tooltipRect = tooltip.getBoundingClientRect();
         if (tooltipRect.left < 10) {
             tooltip.style.left = `${10 + tooltipRect.width / 2 + scrollX}px`;
@@ -271,6 +283,7 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
     };
 
     const hideTooltip = () => {
+        chip.removeAttribute('aria-describedby');
         tooltip.classList.remove('visible');
         if (tooltip.parentNode === document.body) {
             document.body.removeChild(tooltip);
@@ -279,545 +292,40 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
 
     chip.addEventListener('mouseenter', showTooltip);
     chip.addEventListener('mouseleave', hideTooltip);
-    chip.addEventListener('dragstart', hideTooltip); 
-    chip.addEventListener('touchstart', hideTooltip);
+    chip.addEventListener('focus', showTooltip);
+    chip.addEventListener('blur', hideTooltip);
 
-    const highlightDropTargets = () => {
-        const getProspectorDetails = (data, chipId, cellDate) => {
-            const cleanId = chipId ? chipId.split('-cal')[0] : '';
-            const custom = state.planner.calendar.customChipData?.[chipId] || 
-                           state.planner.calendar.customChipData?.[`${cleanId}-cal`] || 
-                           state.planner.calendar.customChips?.find(c => c.id === cleanId);
-            
-            let shiny = 0, glowy = 0, starry = 0;
-            if (custom) {
-                shiny = custom.shiny || 0;
-                glowy = custom.glowy || 0;
-                starry = custom.starry || 0;
-            } else if (data.shiny !== undefined || data.glowy !== undefined || data.starry !== undefined) {
-                shiny = data.shiny || 0;
-                glowy = data.glowy || 0;
-                starry = data.starry || 0;
-            } else if (cellDate) {
-                const autoIncome = getProspectorIncomeForDate(new Date(cellDate + 'T00:00:00Z'), state);
-                shiny = autoIncome.shiny || 0;
-                glowy = autoIncome.glowy || 0;
-                starry = autoIncome.starry || 0;
-            }
-            
-            let fromOre = '';
-            let toOre = '';
-            let amount = 0;
-            
-            if (shiny < 0) { fromOre = 'shiny'; amount = Math.abs(shiny); }
-            else if (glowy < 0) { fromOre = 'glowy'; amount = Math.abs(glowy); }
-            else if (starry < 0) { fromOre = 'starry'; amount = Math.abs(starry); }
-            
-            if (shiny > 0) toOre = 'shiny';
-            else if (glowy > 0) toOre = 'glowy';
-            else if (starry > 0) toOre = 'starry';
-            
-            return {
-                oreMark: `${fromOre}->${toOre}`,
-                amount: amount
-            };
-        };
-
-        const formatDate = (date) => {
-            if (!date) return null;
-            const d = new Date(date);
-            const day = String(d.getUTCDate()).padStart(2, '0');
-            const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-            const year = d.getUTCFullYear();
-            return `${year}-${month}-${day}`;
-        };
-
-        const [calYear, calMonth] = state.planner.calendar.view.month.split('-').map(Number);
-        
-        const chipStartDate = chip.dataset.startDate;
-        const chipEndDate = chip.dataset.endDate;
-        const incomeSource = getSourceById(chipData.type);
-
-        let validDates = [];
-        if (chipStartDate && chipEndDate) {
-            let currentDate = new Date(chipStartDate + 'T00:00:00Z');
-            const endDate = new Date(chipEndDate + 'T00:00:00Z');
-            while (currentDate <= endDate) {
-                validDates.push(formatDate(currentDate));
-                currentDate.setUTCDate(currentDate.getUTCDate() + 1);
-            }
-        } else if (incomeSource?.schedule) {
-            const scheduledDates = getScheduleDates(calYear, calMonth - 1, incomeSource.schedule);
-            validDates = scheduledDates.map(date => formatDate(date));
-        }
-
-        const calendarCells = document.querySelectorAll('.day-cell');
-        const maxChips = incomeSource?.getCount ? incomeSource.getCount(state, calMonth - 1, calYear) : 0;
-
-        // Find existing chips of this type to enforce consecutive logic
-        const monthYearKeyForCalc = `${String(calMonth).padStart(2, '0')}-${calYear}`;
-        let existingDays = [];
-        if (state.planner.calendar.dates[monthYearKeyForCalc]) {
-            for (const d in state.planner.calendar.dates[monthYearKeyForCalc]) {
-                if (state.planner.calendar.dates[monthYearKeyForCalc][d].some(id => id.startsWith(chipData.type))) {
-                    existingDays.push(parseInt(d, 10));
-                }
-            }
-        }
-
-        // If the chip being dragged is already on the calendar, exclude its current day
-        // so we can "shift" the block by dragging the first or last chip.
-        const currentDayOnCalendar = chip.closest('.day-cell')?.dataset.date?.split('-')[2];
-        if (currentDayOnCalendar) {
-            const dayInt = parseInt(currentDayOnCalendar, 10);
-            existingDays = existingDays.filter(d => d !== dayInt);
-        }
-
-        existingDays.sort((a, b) => a - b);
-
-        calendarCells.forEach(cell => {
-            const chipContainer = cell.querySelector('.chip-container');
-            if (!chipContainer) return;
-
-            const cellDate = cell.dataset.date;
-            const [year, month, day] = cellDate.split('-').map(Number);
-            const monthYearKey = `${String(month).padStart(2, '0')}-${year}`;
-            const dayKey = String(day).padStart(2, '0');
-
-            let isValidRange = false;
-            const isCustom = chipData.isCustom === true || chipData.isCustom === 'true' || String(chipData.isCustom) === 'true';
-            const isRecurring = chipData.isRecurring === true || chipData.isRecurring === 'true' || String(chipData.isRecurring) === 'true';
-            const isGenericCustom = chipData.type === 'custom' || chipData.type === 'extras' || chipData.type.startsWith('custom-') || chipData.type.startsWith('custom') || chipData.type.startsWith('extras');
-            
-            if (isCustom && !isRecurring) {
-                isValidRange = true;
-            } else if (isGenericCustom) {
-                isValidRange = true;
-            } else if (incomeSource?.isValidDate) {
-                isValidRange = incomeSource.isValidDate(day, month - 1, year);
-            } else if (validDates.length > 0) {
-                const formattedCellDate = formatDate(cellDate);
-                isValidRange = validDates.includes(formattedCellDate);
-            } else {
-                isValidRange = true;
-            }
-
-            // Consecutive Constraint: The new span must not exceed maxChips
-            const isMultiplierStarBonus = chipData.type && chipData.type.startsWith('starBonus') && chipData.type.endsWith('x');
-            if (isValidRange && isMultiplierStarBonus && maxChips > 0) {
-                if (existingDays.length > 0) {
-                    const minEx = existingDays[0];
-                    const maxEx = existingDays[existingDays.length - 1];
-                    const newMin = Math.min(day, minEx);
-                    const newMax = Math.max(day, maxEx);
-                    if ((newMax - newMin + 1) > maxChips) {
-                        isValidRange = false;
-                    }
-                }
-            }
-            const chipsOnThisDate = state.planner.calendar.dates[monthYearKey]?.[dayKey] || [];
-
-            if (chipData.type === 'prospector') {
-                let targetProspectorId = chipsOnThisDate.find(id => id.replace(/^custom-/, '').startsWith('prospector'));
-                let hasTargetProspector = !!targetProspectorId;
-                if (!hasTargetProspector && state.income.prospector && state.income.prospector.goldPass) {
-                    hasTargetProspector = true;
-                }
-                if (hasTargetProspector) {
-                    const dragDetails = getProspectorDetails(chipData, chip.id, chip.closest('.day-cell')?.dataset.date);
-                    const targetDetails = getProspectorDetails({ type: 'prospector' }, targetProspectorId, cellDate);
-                    if (dragDetails.oreMark === targetDetails.oreMark && dragDetails.amount === targetDetails.amount) {
-                        isValidRange = false;
-                    }
-                }
-            }
-
-            let hasDuplicateType = false;
-            let hasConflictingBonus = false;
-
-            const draggedOriginalId = chipData.id.split('-cal')[0];
-            const baseDraggedType = chipData.type.replace(/^custom-/, '');
-
-            for (const existingChipId of chipsOnThisDate) {
-                const existingOriginalId = existingChipId.split('-cal')[0];
-                const cleanExistingId = existingChipId.replace(/^custom-/, '');
-                const baseExistingType = cleanExistingId.split('-')[0];
-
-                // Star bonus conflicts
-                if (baseDraggedType.startsWith('starBonus') && baseExistingType.startsWith('starBonus')) {
-                    // manually created multiplier chips cannot be placed on an already auto placed multiplier chip
-                    if (chipData.isCustom && existingChipId.endsWith('-auto')) {
-                        hasConflictingBonus = true;
-                    }
-                }
-
-                // Shop offers, Event Trader, Event Pass, Supercell Events:
-                // "if the auto made chip is on a date, another cannot be placed on it."
-                if ((baseDraggedType === 'shopOffers' || baseDraggedType === 'eventTrader' || baseDraggedType === 'eventPass' || baseDraggedType === 'supercellEvents') &&
-                    (baseExistingType === baseDraggedType)) {
-                    if (existingChipId.endsWith('-auto')) {
-                        hasDuplicateType = true; // Block placement on auto-made
-                    }
-                }
-
-                // Generic custom chip
-                if (chipData.type === 'custom' || chipData.type === 'extras' || chipData.type.startsWith('custom-') || chipData.type.startsWith('custom') || chipData.type.startsWith('extras')) {
-                    // If it has the same custom type name, it should prevent duplicate
-                    const draggedCustomType = chipData.customType || '';
-                    const existingCustomType = state.planner.calendar.customChipData?.[existingChipId]?.customType || '';
-                    if (draggedCustomType && existingCustomType === draggedCustomType && existingOriginalId !== draggedOriginalId) {
-                        hasDuplicateType = true;
-                    }
-                }
-
-                // Default check for other chips that don't have coexistence/replace rules
-                if (existingOriginalId !== draggedOriginalId && baseExistingType === baseDraggedType) {
-                    if (baseDraggedType !== 'gemTrader' && 
-                        baseDraggedType !== 'raidMedalTrader' && 
-                        baseDraggedType !== 'clanWar' && 
-                        baseDraggedType !== 'cwl' && 
-                        baseDraggedType !== 'prospector' && 
-                        baseDraggedType !== 'custom' && 
-                        !baseDraggedType.startsWith('starBonus') && 
-                        baseDraggedType !== 'shopOffers' && 
-                        baseDraggedType !== 'eventTrader' && 
-                        baseDraggedType !== 'eventPass' && 
-                        baseDraggedType !== 'supercellEvents') {
-                        hasDuplicateType = true;
-                    }
-                }
-            }
-
-            if (isValidRange && !hasDuplicateType && !hasConflictingBonus) {
-                chipContainer.classList.add('valid-drop-range');
-                chipContainer.classList.remove('duplicate-chip-type');
-            } else if (isValidRange && hasDuplicateType) {
-                chipContainer.classList.add('duplicate-chip-type');
-                chipContainer.classList.remove('valid-drop-range');
-            } else {
-                chipContainer.classList.remove('valid-drop-range', 'duplicate-chip-type');
-            }
-        });
-
-        const incomeChipsContainer = document.getElementById('income-chips-container');
-        if (incomeChipsContainer) {
-            incomeChipsContainer.classList.add('valid-drop-target');
-        }
-    };
-
-    const clearDropTargetHighlights = () => {
-        const calendarCells = document.querySelectorAll('.day-cell');
-        calendarCells.forEach(cell => {
-            const chipContainer = cell.querySelector('.chip-container');
-            if (chipContainer) {
-                chipContainer.classList.remove('valid-drop-range', 'valid-drop-target', 'invalid-drop-target', 'duplicate-chip-type');
-            }
-        });
-
-        const incomeChipsContainer = document.getElementById('income-chips-container');
-        if (incomeChipsContainer) {
-            incomeChipsContainer.classList.remove('valid-drop-target');
-        }
-
-        // Failsafe: Purge any orphaned drag clones from document.body
-        document.querySelectorAll('.dragging-clone').forEach(el => el.remove());
-    };
-    
-    let nativeDragImage = null;
-    let touchDragImage = null;
-    let touchId = null;
-    let isDragging = false;
-    let chipHoldTimer = null;
-    let pickupStartX = 0;
-    let pickupStartY = 0;
-
-    chip.addEventListener('dragstart', (e) => {
-        // If custom touch drag or hold-timer is active, prevent native browser DnD ghosting
-        if (chip.draggable === false || isDragging || chipHoldTimer) {
-            e.preventDefault();
-            return;
-        }
-        const originalDate = chip.closest('.day-cell')?.dataset.date;
-        const chipData = { ...data, className: className, id: chip.id, originalDate };
-        draggedChipData = chipData;
-        e.dataTransfer.setData('text/plain', JSON.stringify(chipData));
-        e.dataTransfer.effectAllowed = 'move';
-        highlightDropTargets();
-
-        nativeDragImage = chip.cloneNode(true);
-        const tooltip = nativeDragImage.querySelector('.chip-tooltip');
-        if (tooltip) {
-            tooltip.remove();
-        }
-        nativeDragImage.style.position = 'absolute';
-        nativeDragImage.style.top = '-1000px';
-        nativeDragImage.style.left = '-1000px';
-        document.body.appendChild(nativeDragImage);
-        e.dataTransfer.setDragImage(nativeDragImage, e.offsetX, e.offsetY);
-    });
-
-    chip.addEventListener('dragend', () => {
-        clearDropTargetHighlights();
-        if (nativeDragImage && document.body.contains(nativeDragImage)) {
-            document.body.removeChild(nativeDragImage);
-        }
-        nativeDragImage = null;
-    });
-
-    const HOLD_DELAY = 220;
-    const MOVE_THRESHOLD = 8;
-
-    chip.addEventListener('contextmenu', (e) => e.preventDefault());
-
-    chip.addEventListener('touchstart', (e) => {
-        if (!chip.draggable || chip.draggable === false) return;
-
-        const touch = e.touches[0];
-        const tId = touch.identifier;
-        pickupStartX = touch.clientX;
-        pickupStartY = touch.clientY;
-        const startX = pickupStartX;
-        const startY = pickupStartY;
-
-        const cancelChipHold = () => {
-            if (chipHoldTimer) {
-                clearTimeout(chipHoldTimer);
-                chipHoldTimer = null;
-            }
-            window.removeEventListener('touchmove', onChipTouchMove, { passive: false });
-            window.removeEventListener('touchend', onChipTouchEnd, { passive: false });
-            window.removeEventListener('touchcancel', onChipTouchEnd, { passive: false });
-        };
-
-        const onChipTouchMove = (moveEv) => {
-            const pt = Array.from(moveEv.touches).find(t => t.identifier === tId) || moveEv.touches[0];
-            if (pt) {
-                const dist = Math.hypot(pt.clientX - startX, pt.clientY - startY);
-                if (dist > MOVE_THRESHOLD) {
-                    cancelChipHold();
-                }
-            }
-        };
-
-        const onChipTouchEnd = () => {
-            cancelChipHold();
-        };
-
-        chipHoldTimer = setTimeout(() => {
-            cancelChipHold();
-            if (navigator.vibrate) {
-                try { navigator.vibrate(20); } catch (_) {}
-            }
-
-            touchId = tId;
-            isDragging = true;
-
-            const originalDate = chip.closest('.day-cell')?.dataset.date;
-            draggedChipData = { ...data, className: className, id: chip.id, originalDate };
-
-            highlightDropTargets();
-
-            // Purge any existing clones before creating a new touch drag image
-            document.querySelectorAll('.dragging-clone').forEach(el => el.remove());
-
-            touchDragImage = chip.cloneNode(true);
-            const tooltip = touchDragImage.querySelector('.chip-tooltip');
-            if (tooltip) {
-                tooltip.remove();
-            }
-            touchDragImage.classList.add('dragging-clone');
-            touchDragImage.style.position = 'fixed';
-            touchDragImage.style.pointerEvents = 'none';
-            touchDragImage.style.zIndex = '99999';
-            document.body.appendChild(touchDragImage);
-
-            touchDragImage.style.left = `${startX - touchDragImage.offsetWidth / 2}px`;
-            touchDragImage.style.top = `${startY - touchDragImage.offsetHeight / 2}px`;
-
-            chip.classList.add('dragging');
-            state.isChipDragging = true;
-        }, HOLD_DELAY);
-
-        window.addEventListener('touchmove', onChipTouchMove, { passive: false });
-        window.addEventListener('touchend', onChipTouchEnd, { passive: false });
-        window.addEventListener('touchcancel', onChipTouchEnd, { passive: false });
-    }, { passive: false });
-
-    chip.addEventListener('touchmove', (e) => {
-        if (!isDragging || !touchDragImage) return;
-
-        let touch = null;
-        for (let i = 0; i < e.touches.length; i++) {
-            if (e.touches[i].identifier === touchId) {
-                touch = e.touches[i];
-                break;
-            }
-        }
-        if (!touch) return;
-        if (e.cancelable) e.preventDefault();
-
-        touchDragImage.style.left = `${touch.clientX - touchDragImage.offsetWidth / 2}px`;
-        touchDragImage.style.top = `${touch.clientY - touchDragImage.offsetHeight / 2}px`;
-
-        // Bounded viewport auto-scrolling (restricted strictly within #planner-calendar-card bounds)
-        const scrollZoneHeight = 100;
-        const maxSpeed = 12;
-        const calendarCard = document.getElementById('planner-calendar-card');
-        if (calendarCard) {
-            const cardRect = calendarCard.getBoundingClientRect();
-            const currentScrollY = window.scrollY;
-            const minScrollY = Math.max(0, cardRect.top + currentScrollY - 20);
-            const maxScrollY = Math.max(minScrollY, cardRect.bottom + currentScrollY - window.innerHeight + 20);
-
-            if (touch.clientY < scrollZoneHeight && currentScrollY > minScrollY) {
-                const ratio = (scrollZoneHeight - touch.clientY) / scrollZoneHeight;
-                const speed = Math.round(ratio * maxSpeed);
-                window.scrollTo({ top: Math.max(minScrollY, currentScrollY - speed), behavior: 'instant' });
-            } else if (window.innerHeight - touch.clientY < scrollZoneHeight && currentScrollY < maxScrollY) {
-                const ratio = (scrollZoneHeight - (window.innerHeight - touch.clientY)) / scrollZoneHeight;
-                const speed = Math.round(ratio * maxSpeed);
-                window.scrollTo({ top: Math.min(maxScrollY, currentScrollY + speed), behavior: 'instant' });
-            }
-        }
-
-        // Update hover target highlights in real time
-        const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
-        let targetCell = null;
-        for (let i = 0; i < elements.length; i++) {
-            const el = elements[i];
-            if (el.classList && el.classList.contains('chip-container')) {
-                targetCell = el;
-                break;
-            }
-        }
-
-        // Highlight valid vs invalid hover targets
-        document.querySelectorAll('.chip-container').forEach(container => {
-            container.classList.remove('valid-drop-target', 'invalid-drop-target');
-        });
-
-        if (targetCell) {
-            if (targetCell.classList.contains('valid-drop-range')) {
-                targetCell.classList.add('valid-drop-target');
-            } else {
-                targetCell.classList.add('invalid-drop-target');
-            }
-        }
-    }, { passive: false });
-
-    function animateChipDropTransition(clone, dropTarget, pickupStartX, pickupStartY, onComplete) {
-        if (!clone || !document.body.contains(clone)) {
-            if (onComplete) onComplete();
-            return;
-        }
-
-        const cloneRect = clone.getBoundingClientRect();
-        clone.style.transition = 'transform 0.22s cubic-bezier(0.2, 1, 0.2, 1), opacity 0.2s ease-out';
-
-        if (dropTarget) {
-            const targetRect = dropTarget.getBoundingClientRect();
-            const targetCenterX = targetRect.left + (targetRect.width / 2);
-            const targetCenterY = targetRect.top + (targetRect.height / 2);
-            const currentCenterX = cloneRect.left + (cloneRect.width / 2);
-            const currentCenterY = cloneRect.top + (cloneRect.height / 2);
-
-            const deltaX = targetCenterX - currentCenterX;
-            const deltaY = targetCenterY - currentCenterY;
-
-            clone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.75)`;
-            clone.style.opacity = '0';
-        } else {
-            const currentCenterX = cloneRect.left + (cloneRect.width / 2);
-            const currentCenterY = cloneRect.top + (cloneRect.height / 2);
-
-            const deltaX = pickupStartX - currentCenterX;
-            const deltaY = pickupStartY - currentCenterY;
-
-            clone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.85)`;
-            clone.style.opacity = '0';
-        }
-
-        setTimeout(() => {
-            if (clone && document.body.contains(clone)) {
-                document.body.removeChild(clone);
-            }
-            if (onComplete) onComplete();
-        }, 220);
+    // Attach Unified Pointer Events Drag Physics
+    if (isDraggable) {
+        attachChipPointerListeners(chip, chipData);
     }
-
-    chip.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
-
-        let touch = null;
-        if (e.changedTouches) {
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                if (e.changedTouches[i].identifier === touchId) {
-                    touch = e.changedTouches[i];
-                    break;
-                }
-            }
-        }
-
-        let resolvedDropTarget = null;
-        if (touch) {
-            const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
-            for (let i = 0; i < elements.length; i++) {
-                const el = elements[i];
-                if (el.closest) {
-                    const cell = el.closest('.chip-container') || el.closest('#income-chips-container') || el.closest('#income-chip-trash-drop-zone');
-                    if (cell) {
-                        resolvedDropTarget = cell;
-                        break;
-                    }
-                }
-            }
-
-            if (resolvedDropTarget) {
-                if (resolvedDropTarget.classList.contains('chip-container')) {
-                    handleChipDropOnCalendar(draggedChipData, resolvedDropTarget);
-                } else if (resolvedDropTarget.id === 'income-chips-container' || resolvedDropTarget.id === 'income-chip-trash-drop-zone') {
-                    handleChipDropOnContainer(draggedChipData);
-                }
-            }
-        }
-
-        const cloneToAnimate = touchDragImage;
-        touchDragImage = null;
-        isDragging = false;
-        state.isChipDragging = false;
-        touchId = null;
-        chip.classList.remove('dragging');
-        clearDropTargetHighlights();
-
-        animateChipDropTransition(cloneToAnimate, resolvedDropTarget, pickupStartX, pickupStartY);
-    });
-
-    chip.addEventListener('touchcancel', () => {
-        const cloneToAnimate = touchDragImage;
-        touchDragImage = null;
-        isDragging = false;
-        state.isChipDragging = false;
-        touchId = null;
-        chip.classList.remove('dragging');
-        clearDropTargetHighlights();
-
-        animateChipDropTransition(cloneToAnimate, null, pickupStartX, pickupStartY);
-    });
 
     return chip;
 }
 
+/**
+ * Creates an overflow indicator chip displaying aggregated income counts.
+ * @param {number} count
+ * @param {Object} aggregatedData
+ * @param {string} type
+ * @param {string} className
+ * @returns {HTMLDivElement}
+ */
 export function createOverflowChip(count, aggregatedData, type, className) {
     const chip = document.createElement('div');
     chip.classList.add('income-chip', 'overflow-chip', className);
-    
+    chip.setAttribute('tabindex', '0');
+    chip.setAttribute('role', 'button');
+
     const chipText = document.createElement('span');
     chipText.classList.add('chip-text');
     chipText.textContent = `+${count}`;
     chip.appendChild(chipText);
-    
-    chip.draggable = false; 
-    
+
+    chip.draggable = false;
+    chip.setAttribute('draggable', 'false');
+    chip.dataset.draggable = 'false';
+
     for (const key in aggregatedData) {
         chip.dataset[key] = aggregatedData[key];
     }
@@ -826,6 +334,7 @@ export function createOverflowChip(count, aggregatedData, type, className) {
     const tooltip = document.createElement('div');
     tooltip.classList.add('chip-tooltip');
     tooltip.classList.add('active-chip-tooltip-element');
+    tooltip.setAttribute('role', 'tooltip');
     tooltip.draggable = false;
     const tooltipContent = document.createElement('div');
     tooltipContent.classList.add('tooltip-content');
@@ -835,40 +344,43 @@ export function createOverflowChip(count, aggregatedData, type, className) {
     const isCustomType = type === 'custom' || type === 'extras' || type.startsWith('custom-') || type.startsWith('custom') || type.startsWith('extras');
     let displayName;
     if (isCustomType) {
-        displayName = translate('planner.createCustomChipsModal.typeExtras');
+        displayName = translate('views.planner.createCustomChipsModal.typeExtras');
     } else {
         const incomeSource = getSourceById(type);
-        displayName = translate(incomeSource?.nameI18nKey || `income.${type}.title`);
+        displayName = translate(incomeSource?.nameI18nKey || `views.income.${type}.title`);
     }
-    chipName.textContent = translate('ores.moreOf', { count: count, displayName: displayName });
+    chipName.textContent = translate('views.income.ores.moreOf', { count: count, displayName: displayName });
     tooltipContent.appendChild(chipName);
 
     if (aggregatedData.shiny !== undefined) {
         const shinyOre = document.createElement('div');
         shinyOre.classList.add('ore-count-item');
-        shinyOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.shiny))}</span> <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('ores.shiny')}" class="ore-icon-small"></orecalc-assets-image>`;
+        shinyOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.shiny))}</span> <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(shinyOre);
     }
     if (aggregatedData.glowy !== undefined) {
         const glowyOre = document.createElement('div');
         glowyOre.classList.add('ore-count-item');
-        glowyOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.glowy))}</span> <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('ores.glowy')}" class="ore-icon-small"></orecalc-assets-image>`;
+        glowyOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.glowy))}</span> <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(glowyOre);
     }
     if (aggregatedData.starry !== undefined) {
         const starryOre = document.createElement('div');
         starryOre.classList.add('ore-count-item');
-        starryOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.starry))}</span> <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('ores.starry')}" class="ore-icon-small"></orecalc-assets-image>`;
+        starryOre.innerHTML = `<span>${formatNumber(parseFloat(aggregatedData.starry))}</span> <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" class="ore-icon-small"></orecalc-assets-image>`;
         tooltipContent.appendChild(starryOre);
     }
 
     tooltip.appendChild(tooltipContent);
-    
-    const showTooltip = (e) => {
-        // Ensure only one chip tooltip exists
+
+    const showTooltip = () => {
         document.querySelectorAll('.active-chip-tooltip-element').forEach(el => {
             if (el.parentNode === document.body) el.parentNode.removeChild(el);
         });
+
+        const tooltipId = 'active-chip-tooltip';
+        tooltip.id = tooltipId;
+        chip.setAttribute('aria-describedby', tooltipId);
 
         document.body.appendChild(tooltip);
         tooltip.classList.add('visible');
@@ -878,14 +390,13 @@ export function createOverflowChip(count, aggregatedData, type, className) {
         const scrollY = window.scrollY || window.pageYOffset;
 
         let left = rect.left + rect.width / 2 + scrollX;
-        let top = rect.bottom + scrollY + 10; // Position below
+        let top = rect.bottom + scrollY + 10;
 
         tooltip.style.position = 'absolute';
         tooltip.style.left = `${left}px`;
         tooltip.style.top = `${top}px`;
         tooltip.style.transform = 'translateX(-50%)';
 
-        // Boundary check
         const tooltipRect = tooltip.getBoundingClientRect();
         if (tooltipRect.left < 10) {
             tooltip.style.left = `${10 + tooltipRect.width / 2 + scrollX}px`;
@@ -895,6 +406,7 @@ export function createOverflowChip(count, aggregatedData, type, className) {
     };
 
     const hideTooltip = () => {
+        chip.removeAttribute('aria-describedby');
         tooltip.classList.remove('visible');
         if (tooltip.parentNode === document.body) {
             document.body.removeChild(tooltip);
@@ -903,27 +415,27 @@ export function createOverflowChip(count, aggregatedData, type, className) {
 
     chip.addEventListener('mouseenter', showTooltip);
     chip.addEventListener('mouseleave', hideTooltip);
-    chip.addEventListener('dragstart', hideTooltip); 
-    chip.addEventListener('touchstart', hideTooltip);
+    chip.addEventListener('focus', showTooltip);
+    chip.addEventListener('blur', hideTooltip);
 
     return chip;
 }
 
+/**
+ * Renders the income chips legend with hover highlighting and click-to-glow features.
+ * @param {HTMLElement} legendContainer
+ */
 export function renderIncomeChipsLegend(legendContainer) {
-    if (!legendContainer) {
-        console.error('Income chips legend container not found.');
-        return;
-    }
+    if (!legendContainer) return;
 
     legendContainer.innerHTML = '';
-
-    // Use a shared map to keep track of active timeout IDs for each class
-    // This prevents multiple rapid clicks from causing weird flickering behaviors
     const glowTimeouts = new Map();
 
-    const processLegendItem = (item, sourceId) => {
+    const processLegendItem = (item) => {
         const legendItemDiv = document.createElement('div');
         legendItemDiv.classList.add('legend-item');
+        legendItemDiv.setAttribute('tabindex', '0');
+        legendItemDiv.setAttribute('role', 'button');
 
         const colorBoxDiv = document.createElement('div');
         colorBoxDiv.classList.add('color-box', item.className);
@@ -950,23 +462,17 @@ export function renderIncomeChipsLegend(legendContainer) {
             }
         });
 
-        legendItemDiv.addEventListener('click', () => {
+        const triggerGlow = () => {
             const calendarContainer = document.getElementById('calendar-container');
             if (calendarContainer) {
-                // Scroll the calendar into view
                 calendarContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
                 const chips = calendarContainer.querySelectorAll(`.income-chip[class*="${item.className}"]`);
-                
-                // Add the persistent glow class
                 chips.forEach(chip => chip.classList.add('persistent-glow'));
 
-                // Clear any existing timeout for this specific chip class
                 if (glowTimeouts.has(item.className)) {
                     clearTimeout(glowTimeouts.get(item.className));
                 }
 
-                // Set a timeout to remove the persistent glow after 5 seconds
                 const timeoutId = setTimeout(() => {
                     chips.forEach(chip => chip.classList.remove('persistent-glow'));
                     glowTimeouts.delete(item.className);
@@ -974,29 +480,42 @@ export function renderIncomeChipsLegend(legendContainer) {
 
                 glowTimeouts.set(item.className, timeoutId);
             }
+        };
+
+        legendItemDiv.addEventListener('click', triggerGlow);
+        legendItemDiv.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                triggerGlow();
+            }
         });
 
         legendContainer.appendChild(legendItemDiv);
     };
 
-    Object.entries(incomeData).forEach(([key, value]) => {
-        processLegendItem(value, key);
+    const sortedEntries = Object.entries(incomeData).sort(([keyA], [keyB]) => {
+        let indexA = CANONICAL_CHIP_PRIORITY_ORDER.indexOf(keyA);
+        let indexB = CANONICAL_CHIP_PRIORITY_ORDER.indexOf(keyB);
+        if (indexA === -1) indexA = 999;
+        if (indexB === -1) indexB = 999;
+        return indexA - indexB;
     });
 
-    // Add custom legend item at the end
+    sortedEntries.forEach(([, value]) => {
+        processLegendItem(value);
+    });
+
     const customLegendItem = {
-        nameI18nKey: 'planner.createCustomChipsModal.typeExtras',
+        nameI18nKey: 'views.planner.createCustomChipsModal.typeExtras',
         className: 'custom-chip'
     };
-    processLegendItem(customLegendItem, 'custom');
+    processLegendItem(customLegendItem);
 }
 
 function getShortName(type, fullName) {
-    const key = `income.shortcuts.${type}`;
+    const key = `views.income.shortcuts.${type}`;
     const translated = translate(key);
     if (translated && translated !== key) {
-        // Strip [EN] prefix if we fallback to English under a different language,
-        // or just keep it simple. Usually we want the clean text. Let's strip the prefix if it exists.
         return translated.startsWith('[EN] ') ? translated.substring(5) : translated;
     }
     if (type === 'starBonus') return 'SB';

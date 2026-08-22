@@ -59,4 +59,3 @@ jobs:
           branch: 'crowdin-translations'
           base: 'main'
           labels: 'i18n, crowdin'
-

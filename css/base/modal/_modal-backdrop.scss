@@ -1,0 +1,190 @@
+@use '../../abstracts/variables' as *;
+
+html:has(.modal.show),
+body:has(.modal.show),
+html:has(dialog.modal[open]),
+body:has(dialog.modal[open]),
+html:has(dialog.navigation-drawer[open]),
+body:has(dialog.navigation-drawer[open]) {
+    overflow: hidden !important;
+}
+
+@keyframes modalSlideUp {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, 50px, 0) scale(0.94);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@keyframes modalSlideDown {
+    0% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate3d(0, 48px, 0) scale(0.95);
+    }
+}
+
+@keyframes backdropFadeOut {
+    0% {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    100% {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+    }
+}
+
+dialog.modal,
+.modal {
+    border: none;
+    padding: 1rem;
+    background: transparent;
+    color: inherit;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    margin: auto;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    z-index: $z-index-modal;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: opacity $duration-base $ease-enter,
+                visibility $duration-base $ease-enter,
+                backdrop-filter $duration-base $ease-smooth,
+                -webkit-backdrop-filter $duration-base $ease-smooth,
+                display $duration-base allow-discrete,
+                overlay $duration-base allow-discrete;
+
+    .modal-content,
+    .eq-details-modal-content,
+    .welcome-modal-content,
+    .accent-picker-modal-content,
+    .data-erasure-modal-content,
+    [class*="modal-content"],
+    [class*="-modal-content"] {
+        transform: translate3d(0, 30px, 0) scale(0.96);
+        transition: transform $duration-base $ease-enter;
+    }
+
+    &[open],
+    &.show {
+        display: flex;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+
+        .modal-content,
+        .eq-details-modal-content,
+        .welcome-modal-content,
+        .accent-picker-modal-content,
+        .data-erasure-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        @starting-style {
+            opacity: 0;
+
+            .modal-content,
+            .eq-details-modal-content,
+            .welcome-modal-content,
+            .accent-picker-modal-content,
+            .data-erasure-modal-content,
+            [class*="modal-content"],
+            [class*="-modal-content"] {
+                transform: translate3d(0, 30px, 0) scale(0.96);
+            }
+        }
+    }
+
+    &.show:not(dialog) {
+        background-color: $bg-overlay;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    &::backdrop {
+        background-color: $bg-overlay;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+        opacity: 0;
+        transition: opacity $duration-base $ease-smooth,
+                    backdrop-filter $duration-base $ease-smooth,
+                    -webkit-backdrop-filter $duration-base $ease-smooth,
+                    display $duration-base allow-discrete,
+                    overlay $duration-base allow-discrete;
+    }
+
+    &[open]::backdrop {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+
+        @starting-style {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+    }
+
+    &.closing {
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity $duration-exit $ease-exit,
+                    backdrop-filter $duration-exit $ease-exit,
+                    -webkit-backdrop-filter $duration-exit $ease-exit;
+
+        .modal-content,
+        .eq-details-modal-content,
+        .welcome-modal-content,
+        .accent-picker-modal-content,
+        .data-erasure-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            transform: translate3d(0, 48px, 0) scale(0.95);
+            transition: transform $duration-exit $ease-exit;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none !important;
+
+        .modal-content,
+        .eq-details-modal-content,
+        .welcome-modal-content,
+        .accent-picker-modal-content,
+        .data-erasure-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            transition: none !important;
+            transform: none !important;
+        }
+
+        &::backdrop {
+            transition: none !important;
+        }
+    }
+}

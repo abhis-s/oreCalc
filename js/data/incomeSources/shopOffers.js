@@ -1,4 +1,6 @@
-export const shopOfferData = {
+import { deepFreeze } from '../../utils/objectUtils.js';
+
+export const shopOfferData = deepFreeze({
     "0": { shiny: 0, glowy: 0, starry: 0, townHallLevel: 0 },
     "16": {
         townHallLevel: 16,
@@ -117,4 +119,4 @@ export const shopOfferData = {
             maxPacks: 2,
         },
     },
-};
+});

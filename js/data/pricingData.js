@@ -1,4 +1,6 @@
-export const currencyData = {
+import { deepFreeze } from '../utils/objectUtils.js';
+
+export const currencyData = deepFreeze({
     "EUR": { symbol: "€", enabled: true },
     "USD": { symbol: "$", enabled: true },
     "GBP": { symbol: "£", enabled: true },
@@ -10,9 +12,9 @@ export const currencyData = {
     "JPY": { symbol: "¥", enabled: true },
     "NZD": { symbol: "NZ$", enabled: true },
     "TRY": { symbol: "₺", enabled: true }
-};
+});
 
-export const priceTierRegistry = {
+export const priceTierRegistry = deepFreeze({
     "tier1": {
         "i18nKey": "pricing.gems",
         "i18nArgs": { "count": 80 },
@@ -189,4 +191,4 @@ export const priceTierRegistry = {
         "NZD": 339.99,
         "TRY": 8999.99
     }
-};
+});

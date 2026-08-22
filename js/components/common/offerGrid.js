@@ -1,9 +1,12 @@
-export function initializeOfferGrid({ container, offers, onStateChange, getDynamicOffers }) {
+/**
+ * @param {{ container: HTMLElement|Element|any, offers?: any[] | ReadonlyArray<any>, onStateChange?: Function, getDynamicOffers?: Function, renderRow?: Function }} options
+ */
+export function initializeOfferGrid({ container, offers, onStateChange, getDynamicOffers, renderRow }) {
     if (!container) return;
 
     container.addEventListener('change', (event) => {
         const target = event.target;
-        
+
         let offerId = target.dataset.offerId;
         if (!offerId && target.id) {
             const fullId = target.id;
@@ -20,7 +23,7 @@ export function initializeOfferGrid({ container, offers, onStateChange, getDynam
 
         const currentOffers = getDynamicOffers ? getDynamicOffers() : (offers || []);
         const offer = currentOffers.find(o => o.id === offerId);
-        
+
         if (!offer) return;
 
         const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
@@ -30,7 +33,7 @@ export function initializeOfferGrid({ container, offers, onStateChange, getDynam
             if (offerCheckboxes.length === 0) {
                 offerCheckboxes = Array.from(container.querySelectorAll(`input[type="checkbox"][id^="${offerId}_"], input[type="checkbox"][id^="cb_${offerId}_"]`));
             }
-            
+
             offerCheckboxes.sort((a, b) => {
                 const aInst = parseInt(a.dataset.instance || a.id.split('_').pop(), 10);
                 const bInst = parseInt(b.dataset.instance || b.id.split('_').pop(), 10);
@@ -86,6 +89,9 @@ export function initializeOfferGrid({ container, offers, onStateChange, getDynam
     });
 }
 
+/**
+ * @param {{ container: HTMLElement|Element|any, offers: any[] | ReadonlyArray<any>, stateSelector?: Function, renderRow?: Function, onRowAppended?: Function }} options
+ */
 export function renderOfferGrid({ container, offers, stateSelector, renderRow, onRowAppended }) {
     if (!container) return;
 
@@ -94,7 +100,7 @@ export function renderOfferGrid({ container, offers, stateSelector, renderRow, o
             container.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
             container.style.opacity = '0';
             container.style.transform = 'translateY(-10px)';
-            
+
             setTimeout(() => {
                 container.innerHTML = '';
                 container.style.opacity = '';
@@ -111,7 +117,7 @@ export function renderOfferGrid({ container, offers, stateSelector, renderRow, o
     container.style.transition = 'none';
     container.style.opacity = '0';
     container.style.transform = 'translateY(-10px)';
-    
+
     // Force a reflow
     container.offsetHeight;
 

@@ -1,42 +1,42 @@
-<div id="calendar-settings-modal" class="modal">
+<dialog id="calendar-settings-modal" class="modal" aria-labelledby="calendar-settings-modal-title">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 data-i18n="planner.settingsModal.title">Calendar Settings</h2>
-            <button id="close-calendar-settings-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="Close">
+            <h2 id="calendar-settings-modal-title" data-i18n="views.planner.settingsModal.title"></h2>
+            <button id="close-calendar-settings-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
         <div class="modal-body flex-column-gap-15">
             <div class="input-group-flex">
                 <div class="field-descriptor-group">
-                    <label for="calendar-first-day-select" data-i18n="planner.settingsModal.firstDayOfWeek">First Day of Week</label>
-                    <p class="form-setting-text" data-i18n="planner.settingsModal.firstDayOfWeekDesc">Choose when your week starts on the calendar.</p>
+                    <label for="calendar-first-day-select" data-i18n="views.planner.settingsModal.firstDayOfWeek"></label>
+                    <p class="form-setting-text" data-i18n="views.planner.settingsModal.firstDayOfWeekDesc"></p>
                 </div>
-                <select id="calendar-first-day-select" class="dropdown-style">
-                    <option value="auto" data-i18n="planner.settingsModal.auto">Auto</option>
-                    <option value="monday" data-i18n="planner.settingsModal.monday">Monday</option>
-                    <option value="tuesday" data-i18n="planner.settingsModal.tuesday">Tuesday</option>
-                    <option value="friday" data-i18n="planner.settingsModal.friday">Friday</option>
-                    <option value="saturday" data-i18n="planner.settingsModal.saturday">Saturday</option>
-                    <option value="sunday" data-i18n="planner.settingsModal.sunday">Sunday</option>
+                <select id="calendar-first-day-select" class="dropdown-style" data-modal-autofocus>
+                    <option value="auto" data-i18n="views.planner.settingsModal.auto"></option>
+                    <option value="monday" data-i18n="views.planner.settingsModal.monday"></option>
+                    <option value="tuesday" data-i18n="views.planner.settingsModal.tuesday"></option>
+                    <option value="friday" data-i18n="views.planner.settingsModal.friday"></option>
+                    <option value="saturday" data-i18n="views.planner.settingsModal.saturday"></option>
+                    <option value="sunday" data-i18n="views.planner.settingsModal.sunday"></option>
                 </select>
             </div>
 
             <div class="input-group-flex">
                 <div class="field-descriptor-group">
-                    <label for="calendar-auto-place-scope-select" data-i18n="planner.settingsModal.autoPlaceScope">Auto-Placement Scope</label>
-                    <p class="form-setting-text" data-i18n="planner.settingsModal.autoPlaceScopeDesc">Decide if chips are placed for the current month or till the end.</p>
+                    <label for="calendar-auto-place-scope-select" data-i18n="views.planner.settingsModal.autoPlaceScope"></label>
+                    <p class="form-setting-text" data-i18n="views.planner.settingsModal.autoPlaceScopeDesc"></p>
                 </div>
                 <select id="calendar-auto-place-scope-select" class="dropdown-style">
-                    <option value="month" data-i18n="planner.settingsModal.currentMonth">Current Month</option>
-                    <option value="tillEnd" data-i18n="planner.settingsModal.tillEnd">Till the End</option>
+                    <option value="month" data-i18n="views.planner.settingsModal.currentMonth"></option>
+                    <option value="tillEnd" data-i18n="views.planner.settingsModal.tillEnd"></option>
                 </select>
             </div>
 
             <div class="input-group-flex">
                 <div class="field-descriptor-group">
-                    <label for="calendar-show-icons-switch" data-i18n="planner.settingsModal.showChipIcons">Show Resource Icons</label>
-                    <p class="form-setting-text" data-i18n="planner.settingsModal.showChipIconsDesc">Display icons for ores and leagues on chips.</p>
+                    <label for="calendar-show-icons-switch" data-i18n="views.planner.settingsModal.showChipIcons"></label>
+                    <p class="form-setting-text" data-i18n="views.planner.settingsModal.showChipIconsDesc"></p>
                 </div>
                 <div class="switch">
                     <input type="checkbox" id="calendar-show-icons-switch">
@@ -46,8 +46,8 @@
 
             <div class="input-group-flex">
                 <div class="field-descriptor-group">
-                    <label for="calendar-show-equipment-milestones-switch" data-i18n="planner.settingsModal.showEquipmentMilestones">Show Equipment Upgrades</label>
-                    <p class="form-setting-text" data-i18n="planner.settingsModal.showEquipmentMilestonesDesc">Show equipment completion milestones on their target date.</p>
+                    <label for="calendar-show-equipment-milestones-switch" data-i18n="views.planner.settingsModal.showEquipmentMilestones"></label>
+                    <p class="form-setting-text" data-i18n="views.planner.settingsModal.showEquipmentMilestonesDesc"></p>
                 </div>
                 <div class="switch">
                     <input type="checkbox" id="calendar-show-equipment-milestones-switch">
@@ -57,8 +57,8 @@
 
             <div class="input-group-flex">
                 <div class="field-descriptor-group">
-                    <label for="calendar-highlight-upgrade-ranges-switch" data-i18n="planner.settingsModal.highlightUpgradeRanges">Highlight Accumulation Ranges</label>
-                    <p class="form-setting-text" data-i18n="planner.settingsModal.highlightUpgradeRangesDesc">Highlight the date ranges during which ores are accumulated for each upgrade.</p>
+                    <label for="calendar-highlight-upgrade-ranges-switch" data-i18n="views.planner.settingsModal.highlightUpgradeRanges"></label>
+                    <p class="form-setting-text" data-i18n="views.planner.settingsModal.highlightUpgradeRangesDesc"></p>
                 </div>
                 <div class="switch">
                     <input type="checkbox" id="calendar-highlight-upgrade-ranges-switch">
@@ -67,8 +67,8 @@
             </div>
         </div>
         <div class="modal-actions">
-            <button id="cancel-calendar-settings-btn" class="reject-button" data-i18n="actions.cancel">Cancel</button>
-            <button id="save-calendar-settings-btn" class="accept-button" data-i18n="actions.save">Save</button>
+            <button id="cancel-calendar-settings-btn" class="reject-button" data-i18n="actions.cancel"></button>
+            <button id="save-calendar-settings-btn" class="accept-button" data-i18n="actions.save"></button>
         </div>
     </div>
-</div>
+</dialog>

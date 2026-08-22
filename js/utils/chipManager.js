@@ -1,13 +1,19 @@
-import { handleStateUpdate } from '../app.js';
-import { state } from '../core/state.js';
-
-import { incomeData, getSourceById } from '../data/incomeSourceRegistry.js';
-import { supercellEventsData } from '../data/appData.js';
-
-import { getSupercellEventsForYear } from './dateUtils.js';
-import { getProspectorIncomeForDate, getProspectorConversions, convertOres } from '../incomeCalculations/prospectorManager.js';
+import { getSourceById, incomeData } from '../data/incomeSourceRegistry.js';
+import { supercellEventsData } from '../data/incomeSources/supercellEvents.js';
 import { oreMaxValues } from '../data/oreConversionData.js';
 
+import { state } from '../core/state.js';
+import { handleStateUpdate } from '../core/stateManager.js';
+
+import { convertOres, getProspectorConversions, getProspectorIncomeForDate } from '../domain/income/prospectorManager.js';
+import { getSupercellEventsForYear } from './dateUtils.js';
+
+/**
+ * Computes the cumulative accumulated ore amounts from tomorrow up to a specified target date.
+ * @param {Date} targetDate - Target destination Date object in UTC.
+ * @param {{shiny?: number|string, glowy?: number|string, starry?: number|string}|any} initialOres - Starting base stored ore quantities.
+ * @returns {{shiny: number, glowy: number, starry: number}} Calculated cumulative ore amounts.
+ */
 export function calculateCumulativeOres(targetDate, initialOres) {
     let cumulativeOres = {
         shiny: parseFloat(initialOres?.shiny) || 0,
@@ -17,7 +23,7 @@ export function calculateCumulativeOres(targetDate, initialOres) {
     const today = new Date();
     const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 
-    let currentDate = new Date(todayUTC); 
+    let currentDate = new Date(todayUTC);
     currentDate.setUTCDate(currentDate.getUTCDate() + 1); // Start calculations from the next day
 
     while (currentDate.getTime() <= targetDate.getTime()) {
@@ -52,11 +58,11 @@ export function calculateCumulativeOres(targetDate, initialOres) {
             supercellEvents.forEach((event) => {
                 const startDate = new Date(event.start);
                 const endDate = new Date(event.end);
-                
+
             const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
                 const endUTC = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
 
-                const diffDays = Math.round((endUTC - startUTC) / (1000 * 60 * 60 * 24));
+                const diffDays = Math.round((endUTC.getTime() - startUTC.getTime()) / (1000 * 60 * 60 * 24));
                 const middleDayOffset = Math.floor(diffDays / 2);
                 const middleDateUTC = new Date(startUTC);
                 middleDateUTC.setUTCDate(startUTC.getUTCDate() + middleDayOffset);
@@ -74,7 +80,7 @@ export function calculateCumulativeOres(targetDate, initialOres) {
                         rewardsYear = availableYears[0] || 2025;
                     }
                     const rewards = (supercellEventsData.rewards[rewardsYear] && supercellEventsData.rewards[rewardsYear][rewardType]) || { shiny: 0, glowy: 0, starry: 0 };
-                    
+
                     cumulativeOres.shiny += Math.round(rewards.shiny || 0);
                     cumulativeOres.glowy += Math.round(rewards.glowy || 0);
                     cumulativeOres.starry += Math.round(rewards.starry || 0);
@@ -85,7 +91,7 @@ export function calculateCumulativeOres(targetDate, initialOres) {
         chipsForThisDay.forEach(chipId => {
             const parts = chipId.split('-');
             const type = parts[0];
-            
+
             // Check for custom chip data override
             if (chipId.startsWith('custom-') && state.planner.calendar.customChipData?.[chipId]) {
                 const customData = state.planner.calendar.customChipData[chipId];
@@ -114,11 +120,14 @@ export function calculateCumulativeOres(targetDate, initialOres) {
     return cumulativeOres;
 }
 
+/**
+ * Validates and auto-generates recurring custom chips for the current month if not previously processed.
+ */
 export function checkAndGenerateRecurringChips() {
     const now = new Date();
     const currentMonth = now.getUTCMonth();
     const currentYear = now.getUTCFullYear();
-    const currentMonthYear = `${String(currentMonth + 1).padStart(2, '0')}-${currentYear}`;
+    const currentMonthYear = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
     if (state.planner.calendar.lastRecurringProcessed === currentMonthYear) return;
 
@@ -215,11 +224,11 @@ export function checkAndGenerateRecurringChips() {
                     const days = conv.days || 30;
                     const fromRate = conv.amount || oreMaxValues[conv.from];
                     const toRate = convertOres(conv.from, conv.to, fromRate);
-                    
+
                     const chipData = { type: 'prospector', shiny: 0, glowy: 0, starry: 0 };
                     chipData[conv.from] = -fromRate;
                     chipData[conv.to] = toRate;
-                    
+
                     for (let i = 0; i < days; i++) {
                         const shortId = Math.random().toString(36).substring(2, 7);
                         const newId = `custom-prospector-${shortId}-${countIndex}`;
@@ -242,7 +251,89 @@ export function checkAndGenerateRecurringChips() {
     }, true);
 }
 
+/**
+ * Clears calendar income chips for the specified month, returning any placed
+ * custom chips back to the unplaced customChips container.
+ * @param {string} monthYearKey - The month key in YYYY-MM format.
+ */
+export function clearMonthCalendarChips(monthYearKey) {
+    if (!state.planner?.calendar?.dates?.[monthYearKey]) return;
+
+    if (!state.planner.calendar.customChips) {
+        state.planner.calendar.customChips = [];
+    }
+
+    const monthDays = state.planner.calendar.dates[monthYearKey];
+    for (const dayKey in monthDays) {
+        const chipIds = monthDays[dayKey] || [];
+        for (const chipId of chipIds) {
+            const isCustom = chipId.startsWith('custom-') || chipId.startsWith('extras') || Boolean(state.planner.calendar.customChipData?.[chipId]);
+            if (isCustom) {
+                const originalId = chipId.split('-cal')[0];
+                const customData = state.planner.calendar.customChipData?.[chipId] || state.planner.calendar.customChipData?.[originalId] || {};
+
+                let chipType = customData.type;
+                if (!chipType) {
+                    if (originalId.startsWith('custom-')) {
+                        const parts = originalId.split('-');
+                        chipType = parts[1];
+                    } else if (originalId.startsWith('extras')) {
+                        chipType = 'extras';
+                    } else {
+                        chipType = 'custom';
+                    }
+                }
+
+                let instance = customData.instance;
+                if (instance === undefined) {
+                    const parts = originalId.split('-');
+                    const lastPart = parts[parts.length - 1];
+                    if (/^\d+$/.test(lastPart)) {
+                        instance = parseInt(lastPart, 10) + 1;
+                    } else {
+                        instance = 1;
+                    }
+                }
+
+                /** @type {any} */
+                const customChipObj = {
+                    id: originalId,
+                    type: chipType,
+                    isCustom: true,
+                    customType: customData.customType || '',
+                    instance: instance,
+                    shiny: customData.shiny || 0,
+                    glowy: customData.glowy || 0,
+                    starry: customData.starry || 0,
+                    multiplier: customData.multiplier,
+                    result: customData.result
+                };
+                if (customData.isRecurring !== undefined) {
+                    customChipObj.isRecurring = customData.isRecurring;
+                }
+
+                const alreadyExists = state.planner.calendar.customChips.some(c => c.id === originalId);
+                if (!alreadyExists) {
+                    state.planner.calendar.customChips.push(customChipObj);
+                }
+
+                if (state.planner.calendar.customChipData) {
+                    delete state.planner.calendar.customChipData[chipId];
+                    delete state.planner.calendar.customChipData[originalId];
+                }
+            }
+        }
+    }
+
+    delete state.planner.calendar.dates[monthYearKey];
+}
+
+/**
+ * Re-indexes numeric IDs of calendar chips of a specified type across all calendar dates to maintain contiguous sequences.
+ * @param {string} chipType - Income chip category identifier (e.g. 'starBonus', 'cwl').
+ */
 export function reindexCalendarChips(chipType) {
+
     let changed = false;
 
     for (const monthYearKey in state.planner.calendar.dates) {
@@ -257,8 +348,9 @@ export function reindexCalendarChips(chipType) {
                 const parts = chipId.split('-');
                 const type = parts[0];
                 const instance = parseInt(parts[1], 10);
-                const year = parseInt(parts[2], 10);
-                const month = parseInt(parts[3], 10) - 1;
+                const [mYearStr, mMonthStr] = monthYearKey.split('-');
+                const year = parseInt(mYearStr, 10);
+                const month = parseInt(mMonthStr, 10) - 1;
                 const date = new Date(Date.UTC(year, month, parseInt(dayStr, 10)));
 
                 const incomeSource = getSourceById(type);

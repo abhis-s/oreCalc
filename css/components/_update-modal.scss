@@ -2,7 +2,7 @@
 
 #update-available-modal {
     .modal-content {
-        max-width: 400px;
+        max-width: $modal-width-compact;
     }
 
     .modal-notice-footer {
@@ -27,14 +27,18 @@
     }
 }
 
-// Settings page update available card layout and responsiveness
 #settings-update-card {
+    &.full-width-card {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
     .settings-card {
         border: 1px solid $accent-primary;
         background: $accent-primary-soft;
         padding: 16px 20px;
         border-radius: 12px;
-        transition: border-color 0.3s, background-color 0.3s;
+        transition: border-color $duration-moderate $ease-smooth, background-color $duration-moderate $ease-smooth;
     }
 
     .update-card-content {
@@ -67,7 +71,7 @@
             display: flex;
             align-items: center;
             opacity: 0.7;
-            transition: opacity 0.2s;
+            transition: opacity $duration-fast $ease-smooth;
 
             &:hover {
                 opacity: 1;
@@ -76,11 +80,16 @@
     }
 
     .update-card-right {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 6px;
-        flex-shrink: 0;
+        #settings-update-now-btn {
+            background-color: $accent-primary;
+            color: $bg-app;
+            border: none;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color $duration-fast $ease-smooth;
+        }
 
         .update-card-timer {
             font-size: 0.78rem;
@@ -91,7 +100,7 @@
         }
     }
 
-    @media (max-width: 576px) {
+    @media (max-width: $breakpoint-modal) {
         .update-card-content {
             flex-direction: column;
             align-items: stretch;

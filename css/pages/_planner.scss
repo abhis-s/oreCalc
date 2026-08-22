@@ -46,7 +46,6 @@
         display: none;
     }
 
-    -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
@@ -77,7 +76,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        min-width: 0; // Important for ellipsis
+        min-width: 0; // Prevent flex item overflow beyond container width for ellipsis
         flex: 1;
     }
 
@@ -93,8 +92,7 @@
     .hero-icon-planner {
         width: 30px;
         height: 30px;
-        border-radius: 50%;
-        object-fit: cover;
+        object-fit: contain;
     }
 
     .equipment-list {
@@ -115,17 +113,17 @@
 .dot {
     width: 10px;
     height: 10px;
-    background-color: $border-primary;
+    background-color: $bg-surface-tertiary;
     border-radius: 50%;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color $duration-moderate $ease-smooth;
 
     &.active {
         background-color: $accent-primary;
     }
 
     &:hover {
-        background-color: $text-secondary;
+        background-color: $accent-primary-hover;
     }
 }
 
@@ -153,9 +151,17 @@
         img {
             &.gold-glow {
                 filter: drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
+
+                &.grayscale {
+                    filter: grayscale(100%) drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
+                }
             }
             &.over-leveled-glow {
                 filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
+
+                &.grayscale {
+                    filter: grayscale(100%) drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
+                }
             }
             &.grayscale {
                 filter: grayscale(100%);
@@ -195,7 +201,7 @@
     }
 }
 
-@media (max-width: 425px) {
+@media (max-width: $breakpoint-compact) {
     .full-width-planner-section,
     .card .inner-card {
         padding: 10px;
@@ -224,7 +230,7 @@
     width: 100%;
 }
 
-@media (max-width: 779px) {
+@media (max-width: #{$breakpoint-desktop - 1px}) {
     .max-level-card-header {
         flex-direction: column;
         align-items: center;
@@ -257,7 +263,7 @@
     height: 36px;
     justify-content: center;
     padding: 0;
-    transition: background-color 0.2s ease-in-out, border-color 0.2s, transform 0.1s;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
     width: 36px;
 
     svg {
@@ -295,8 +301,22 @@
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: $border-primary;
+        background-color: $bg-surface-tertiary;
         border-radius: 4px;
+    }
+}
+
+.priority-list-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 12px;
+    color: $text-secondary;
+
+    .button-loader span {
+        width: 8px;
+        height: 8px;
+        background-color: $accent-primary;
     }
 }
 
@@ -322,11 +342,7 @@
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
-                transition: filter 0.3s ease-in-out;
-
-                &.custom-max-glow {
-                    filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
-                }
+                transition: filter $duration-moderate $ease-smooth;
             }
 
             .equipment-level-box {
@@ -384,134 +400,16 @@
     justify-content: center;
     gap: 8px;
     padding: 0 1rem;
-    
+
     svg {
         flex-shrink: 0;
     }
 }
 
-.drag-handle {
-   cursor: grab;
-   color: $text-muted;
-}
-
-.priority-separator-line {
-    width: 100%;
-    height: 2px;
-    background-color: $accent-primary;
-    margin: 10px 0;
-}
-
-.favorite-separator {
-    width: 100%;
-    height: 2px;
-    background-color: $accent-primary;
-    margin: 10px 0;
-}
-
 .calendar-planner-title {
     text-align: center;
 
-    @media (max-width: 425px) {
+    @media (max-width: $breakpoint-compact) {
         font-size: 1.2em;
-    }
-}
-
-.priority-list-table-header,
-.priority-list-table-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    background-color: $bg-surface-secondary;
-    border-radius: 8px;
-    gap: 10px;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.priority-list-table-row {
-    background-color: $bg-surface-primary;
-}
-
-.priority-list-table-header {
-    font-weight: var(--font-weight-bold);
-    color: $text-secondary;
-}
-
-.equipment-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    img {
-        width: 36px;
-        height: 36px;
-        cursor: pointer;
-        transition: filter 0.3s ease-in-out;
-
-        &.grayscale {
-            filter: grayscale(100%);
-        }
-
-        &.gold-glow {
-            filter: drop-shadow(0 0 4px $color-gold-glow) drop-shadow(0 0 8px $color-gold-glow-shadow);
-        }
-        &.over-leveled-glow {
-            filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
-        }
-    }
-}
-
-.priority-list-table-cell {
-    input[type="number"] {
-        width: 60px;
-        padding: 5px;
-        background-color: $bg-surface-primary;
-        color: $text-primary;
-        border: 1px solid $border-primary;
-        border-radius: 5px;
-        text-align: center;
-    }
-
-    input[type="checkbox"] {
-        -webkit-appearance: none;
-        appearance: none;
-        border: 2px solid $border-primary;
-        border-radius: 4px;
-        cursor: pointer;
-        height: 20px;
-        outline: none;
-        position: relative;
-        top: 2px;
-        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        width: 20px;
-
-        &:checked {
-            background-color: $accent-primary;
-            border-color: $accent-primary;
-            transform: scale(1.1);
-
-            &::after {
-                content: '\2713';
-                color: $text-on-accent;
-                display: block;
-                font-size: var(--font-size-sm);
-                line-height: 18px;
-                text-align: center;
-                animation: checkmark-pop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
-            }
-        }
-
-        &:focus {
-            outline: none;
-        }
-
-        &:focus-visible {
-            border-color: $accent-primary;
-            box-shadow: 0 0 0 3px $accent-primary-soft;
-        }
-
-        &:active {
-            transform: scale(0.9);
-        }
     }
 }

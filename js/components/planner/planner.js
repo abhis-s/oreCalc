@@ -1,18 +1,24 @@
-import { dom } from '../../dom/domElements.js';
-import { handleStateUpdate } from '../../core/stateManager.js';
 import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 
-import { autoPlaceIncomeChips } from '../../utils/autoPlaceChips.js';
-
+import { renderCalendar } from './calendarDisplay.js';
 import { initializeHeroPlannerCarousel } from './heroPlannerCarousel.js';
+import {
+    getCurrentHeroIndex,
+    renderHeroPlannerCarouselDisplay,
+    scrollToHeroPage,
+    setCurrentHeroIndex,
+    updatePageDots
+} from './heroPlannerCarouselDisplay.js';
+import { renderIncomeChips } from './incomeChipsDisplay.js';
+import { initializeIncomeChipsEventListeners } from './incomeChipsInputs.js';
 import { initializePlannerCustomLevels, renderPlannerCustomLevels } from './plannerCustomLevels.js';
 import { initializePriorityList } from './priorityList.js';
-import { renderCalendar, setAnimateNextRender } from './calendar.js';
-import { renderHeroPlannerCarouselDisplay, updatePageDots, scrollToHeroPage, getCurrentHeroIndex, setCurrentHeroIndex } from './heroPlannerCarouselDisplay.js';
-import { renderIncomeChips, initializeIncomeChipsEventListeners } from './incomeChips.js';
+import { dom } from '../../dom/domElements.js';
 
 let scrollInterval = null;
 let isLayoutInitialized = false;
+let isPlannerInitialized = false;
 
 function renderPlannerUI(plannerState) {
     renderCalendar(plannerState);
@@ -63,20 +69,22 @@ function initializeCarouselEventListeners() {
 
     if (carouselContent) {
         carouselContent.addEventListener('change', (event) => {
-            const target = event.target;
+            const target = /** @type {HTMLElement} */ (event.target);
             if (target.matches('.hero-toggle-switch input[type="checkbox"]')) {
-                const heroName = target.closest('.hero-page').dataset.heroName;
+                const heroName = target.closest('.hero-page')?.dataset.heroName;
+                if (!heroName) return;
                 handleStateUpdate(() => {
                     if (!state.heroes[heroName]) state.heroes[heroName] = { equipment: {} };
-                    state.heroes[heroName].enabled = target.checked;
+                    state.heroes[heroName].enabled = /** @type {HTMLInputElement} */ (target).checked;
                 });
             } else if (target.matches('.equipment-item-planner input[type="checkbox"]')) {
-                const heroName = target.closest('.hero-page').dataset.heroName;
-                const equipName = target.closest('.equipment-item-planner').dataset.equipName;
+                const heroName = target.closest('.hero-page')?.dataset.heroName;
+                const equipName = target.closest('.equipment-item-planner')?.dataset.equipName;
+                if (!heroName || !equipName) return;
                 handleStateUpdate(() => {
                     if (!state.heroes[heroName]) state.heroes[heroName] = { equipment: {} };
                     if (!state.heroes[heroName].equipment[equipName]) state.heroes[heroName].equipment[equipName] = {};
-                    state.heroes[heroName].equipment[equipName].checked = target.checked;
+                    state.heroes[heroName].equipment[equipName].checked = /** @type {HTMLInputElement} */ (target).checked;
                 });
             }
         });
@@ -90,7 +98,7 @@ function initializeCarouselEventListeners() {
 
                 const scrollLeft = carouselContent.scrollLeft;
                 const containerWidth = carouselContent.offsetWidth;
-                const cardWidth = heroPages[0].offsetWidth;
+                const cardWidth = /** @type {HTMLElement} */ (heroPages[0]).offsetWidth;
                 const gap = 20; // 20px gap from CSS
 
                 // Calculate which card is closest to the center of the container
@@ -103,59 +111,59 @@ function initializeCarouselEventListeners() {
                     updatePageDots(newIndex);
                 }
             }, 10);
-        });
+        }, { passive: true });
     }
 
     if (plannerPageDots) {
         plannerPageDots.addEventListener('click', (event) => {
-            const target = event.target;
+            const target = /** @type {HTMLElement} */ (event.target);
             if (target.matches('.dot')) {
-                const dotIndex = parseInt(target.dataset.index, 10);
-                if (!isNaN(dotIndex)) {
-                    setCurrentHeroIndex(dotIndex);
-                    scrollToHeroPage(dotIndex);
-                    updatePageDots(dotIndex);
-                }
+                const dotIndex = Number(target.dataset.index) || 0;
+                setCurrentHeroIndex(dotIndex);
+                scrollToHeroPage(dotIndex);
+                updatePageDots(dotIndex);
             }
         });
     }
 }
 
-function initializePlannerEventListeners() {
-    // Moved autoPlaceChipsBtn listener to calendar.js
-}
+let isSyncPriorityHeightPending = false;
 
 function syncPriorityListHeight() {
+    if (isSyncPriorityHeightPending) return;
+    isSyncPriorityHeightPending = true;
+
     requestAnimationFrame(() => {
+        isSyncPriorityHeightPending = false;
+
         const carousel = document.querySelector('.planner-hero-carousel');
         const priorityCard = document.getElementById('priority-list-card');
         const priorityContent = document.getElementById('priority-list-container');
-        
+
         if (!carousel || !priorityCard || !priorityContent) return;
 
         const parentGrid = carousel.parentElement;
-        const gridComputed = window.getComputedStyle(parentGrid);
-        const isSideBySide = gridComputed.display === 'grid' && window.innerWidth >= 780;
-        
+        const gridComputed = parentGrid ? window.getComputedStyle(parentGrid) : null;
+        const isSideBySide = gridComputed && gridComputed.display === 'grid' && window.innerWidth >= 780;
+
         if (isSideBySide) {
-            // Measure the carousel without the priority list's influence
-            const targetHeight = carousel.offsetHeight;
+            // Read Phase: Batch measure dimensions
+            const targetHeight = /** @type {HTMLElement} */ (carousel).offsetHeight;
             if (targetHeight <= 0) return;
 
+            const header = priorityCard.querySelector('.priority-list-header');
+            const headerHeight = header ? /** @type {HTMLElement} */ (header).offsetHeight : 0;
+            const availableContentHeight = Math.max(0, targetHeight - headerHeight - 50);
+
+            // Write Phase: Apply all inline styles in a single pass
             priorityCard.style.setProperty('height', `${targetHeight}px`, 'important');
             priorityCard.style.setProperty('max-height', `${targetHeight}px`, 'important');
 
-            const header = priorityCard.querySelector('.priority-list-header');
-            const headerHeight = header ? header.offsetHeight : 0;
-
-            // Force the inner content to scroll within the card boundaries
-            // Subtracting header height, its margin (10px), card vertical padding (20px), and an additional 20px buffer
-            const availableContentHeight = targetHeight - headerHeight - 50; 
             priorityContent.style.setProperty('height', `${availableContentHeight}px`, 'important');
             priorityContent.style.setProperty('max-height', `${availableContentHeight}px`, 'important');
             priorityContent.style.setProperty('overflow-y', 'auto', 'important');
         } else {
-            // Reset for mobile/stacked layout
+            // Write Phase: Reset for mobile/stacked layout
             priorityCard.style.removeProperty('height');
             priorityCard.style.removeProperty('max-height');
             priorityContent.style.setProperty('height', '300px', 'important');
@@ -164,16 +172,21 @@ function syncPriorityListHeight() {
     });
 }
 
+/**
+ * Initializes Planner module controllers, custom max levels, drag scroll, and resize observers.
+ */
 export function initializePlanner() {
+    if (isPlannerInitialized) return;
+    isPlannerInitialized = true;
+
     initializePlannerCustomLevels();
     renderPlannerUI(state.planner);
     initializeDragScroll();
     initializeCarouselEventListeners();
-    initializePlannerEventListeners();
     initializeIncomeChipsEventListeners();
 
     const carousel = document.querySelector('.planner-hero-carousel');
-    if (carousel) {
+    if (carousel && carousel.parentElement) {
         const resizeObserver = new ResizeObserver(() => {
             syncPriorityListHeight();
         });
@@ -182,27 +195,31 @@ export function initializePlanner() {
     }
 }
 
+/**
+ * Re-renders all Planner subcomponents: custom levels, carousel, priority list, and calendar cards.
+ * @param {import('../../core/types.js').PlannerState} plannerState - Player's planner state configuration.
+ */
 export function renderPlanner(plannerState) {
     if (!plannerState) {
         console.error('Planner state is not available. Cannot update DOM.');
         return;
     }
     renderPlannerCustomLevels(plannerState);
-    
+
     const activeIndex = getCurrentHeroIndex();
     renderHeroPlannerCarouselDisplay(activeIndex);
     renderPlannerUI(plannerState);
     initializePriorityList();
     initializeHeroPlannerCarousel(state.heroes, state.planner);
-    
+
     // Restore the carousel's scroll alignment if layout updates reset the native scroll position
     setTimeout(() => {
         scrollToHeroPage(activeIndex, 'auto');
     }, 0);
-    
+
     // Ensure height sync happens after the carousel has been populated
     syncPriorityListHeight();
-    
+
     // Refresh planner layout drag handles and restore card order only on initialization
     if (!isLayoutInitialized) {
         import('../../ui/cardLayoutManager.js').then(module => {
