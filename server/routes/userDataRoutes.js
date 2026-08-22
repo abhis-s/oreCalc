@@ -2,7 +2,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const { RATE_LIMIT_DEFAULTS } = require('../constants.js');
 const { isValidUserId, isValidTag } = require('../utils/validation.js');
-const { db, isUserDeleted } = require('../services/firebase.js');
+const { admin, db, isUserDeleted } = require('../services/firebase.js');
 
 const router = express.Router();
 // @ts-ignore
@@ -190,8 +190,11 @@ router.delete('/delete/:userId', sensitiveLimiter, async (req, res) => {
         deleteBatch.delete(userRef);
         await deleteBatch.commit();
 
+        const nowIso = new Date().toISOString();
         await db.collection('deletedUuids').doc(userId).set({
-            deletedAt: new Date().toISOString()
+            deletedAt: nowIso,
+            serverTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+            reason: 'user_requested'
         });
 
         let emailSent = false;

@@ -1,7 +1,7 @@
 const https = require('https');
 const { db } = require('./firebase.js');
 const { getCachedData, setCachedData, getRemainingTTL } = require('./cacheService.js');
-const { checkCircuitBreaker, tripCircuitBreaker } = require('./circuitBreaker.js');
+const { checkCircuitBreaker, tripCircuitBreaker, markClashApiHealthy } = require('./circuitBreaker.js');
 const { isValidTag } = require('../utils/validation.js');
 
 const httpsAgent = /** @type {any} */ (new https.Agent({
@@ -189,6 +189,7 @@ async function getClanWarLogInternal(clanTag, { userId = null, clientETag = null
         }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+            markClashApiHealthy().catch(() => {});
             const data = await response.json();
             setCachedData(cacheKey, data, 600);
             const cachedItem = getCachedData(cacheKey);

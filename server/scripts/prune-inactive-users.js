@@ -26,6 +26,10 @@ if (admin.apps.length === 0) {
     db = admin.firestore();
 }
 
+/**
+ * Scans and prunes userStates documents that have been inactive past the threshold period.
+ * Records execution metadata and pruned user IDs in the pruneAuditLogs collection.
+ */
 async function pruneInactiveUsers() {
     try {
         const thresholdDate = new Date();
@@ -45,7 +49,7 @@ async function pruneInactiveUsers() {
 
         if (querySnapshot.size === 0) {
             console.log("[PRUNE] No documents require pruning at this time.");
-            return;
+            return { prunedCount: 0, prunedUserIds: [] };
         }
 
         // Firestore batch limits operations to 500 writes. We use 25 here
@@ -57,17 +61,31 @@ async function pruneInactiveUsers() {
         }
 
         let prunedCount = 0;
+        const prunedUserIds = [];
+
         for (const chunk of chunks) {
             const batch = db.batch();
             chunk.forEach(doc => {
                 batch.delete(doc.ref);
+                prunedUserIds.push(doc.id);
                 prunedCount++;
             });
             await batch.commit();
             console.log(`[PRUNE] Committed batch deletion of ${chunk.length} documents.`);
         }
 
-        console.log(`[PRUNE] Successfully pruned a total of ${prunedCount} inactive userStates documents.`);
+        // Persist audit record in pruneAuditLogs collection
+        const auditLogRef = await db.collection('pruneAuditLogs').add({
+            executedAt: new Date().toISOString(),
+            serverTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+            inactiveThresholdDate: thresholdIsoString,
+            inactiveDaysThreshold: SERVER_CONSTANTS.INACTIVE_USER_DAYS_THRESHOLD,
+            prunedCount,
+            prunedUserIds
+        });
+
+        console.log(`[PRUNE] Successfully pruned a total of ${prunedCount} inactive userStates documents. Audit log ID: ${auditLogRef.id}`);
+        return { prunedCount, prunedUserIds, auditLogId: auditLogRef.id };
     } catch (error) {
         console.error('[PRUNE] Error during inactive data pruning:', error);
         throw error;

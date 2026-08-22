@@ -200,3 +200,61 @@
         }
     }
 }
+
+.browser-compatibility-notice {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: 680px;
+    z-index: $z-index-toast;
+    background-color: color-mix(in srgb, $color-warning 15%, $bg-surface-secondary);
+    border: 1px solid $color-warning;
+    color: $text-primary;
+    border-radius: 8px;
+    padding: 10px 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: var(--font-size-sm);
+
+    .compatibility-notice-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+    }
+
+    .compatibility-notice-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        fill: $color-warning;
+    }
+
+    .compatibility-notice-close {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $text-secondary;
+        border-radius: 4px;
+        transition: color $duration-fast $ease-smooth;
+
+        &:hover {
+            color: $text-primary;
+        }
+
+        .compatibility-notice-close-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+    }
+}

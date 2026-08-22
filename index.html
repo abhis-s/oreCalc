@@ -148,12 +148,55 @@
     <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     <script>
         (function () {
+            function isClientNoise(msg) {
+                if (!msg || typeof msg !== 'string') return true;
+                if (msg === 'Script error.' || msg.indexOf('Script error') !== -1) return true;
+                if (msg.indexOf('apiErrors.notFound') !== -1 || msg.indexOf('Invalid Clash of Clans tag') !== -1) return true;
+                if (msg.indexOf('CWL') !== -1 || msg.indexOf('clan war log') !== -1 || msg.indexOf('privateWarLog') !== -1) return true;
+                if (msg.indexOf('SW registration failed') !== -1 || msg.indexOf('SW update check failed') !== -1) return true;
+                if (msg.indexOf('ResizeObserver') !== -1) return true;
+                return false;
+            }
+
+            // Browser Compatibility & Storage Accessibility Check
+            try {
+                var isStorageAvailable = false;
+                try {
+                    var testKey = '__orecalc_storage_test__';
+                    localStorage.setItem(testKey, '1');
+                    isStorageAvailable = localStorage.getItem(testKey) === '1';
+                    localStorage.removeItem(testKey);
+                } catch (storageErr) {
+                    isStorageAvailable = false;
+                }
+
+                var isModernBrowser = typeof Array.prototype.at === 'function' && typeof fetch === 'function';
+
+                if (!isStorageAvailable || !isModernBrowser) {
+                    window.addEventListener('DOMContentLoaded', function () {
+                        var banner = document.getElementById('browser-compatibility-notice');
+                        if (banner) {
+                            var textEl = banner.querySelector('.compatibility-notice-text');
+                            if (textEl) {
+                                if (!isStorageAvailable) {
+                                    textEl.textContent = 'Storage access is restricted in your browser settings. Please enable cookies and local storage for OreCalc to function properly.';
+                                } else {
+                                    textEl.textContent = 'Your browser appears to be outdated. Please update your browser for the best experience.';
+                                }
+                            }
+                            banner.style.display = 'flex';
+                        }
+                    });
+                }
+            } catch (compatErr) {}
+
             // Client Console Error & Exception Monitoring
             var reportedErrors = new Set();
             function reportClientError(msg, source, line, col, stack) {
                 try {
                     var hostname = window.location.hostname;
                     if (hostname === 'localhost' || hostname === '127.0.0.1') return; // Disabled on dev server
+                    if (isClientNoise(msg)) return;
 
                     var errorKey = (msg || '') + ':' + (source || '') + ':' + (line || 0);
                     if (reportedErrors.has(errorKey)) return;
@@ -161,8 +204,13 @@
                     setTimeout(function () { reportedErrors.delete(errorKey); }, 10000);
 
                     var baseUrl = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                    var userId = 'unknown';
+                    try {
+                        userId = localStorage.getItem('oreCalc_userId') || localStorage.getItem('oreCalc_guestUserId') || 'unknown';
+                    } catch (storageErr) {}
+
                     var payload = {
-                        userId: localStorage.getItem('oreCalc_userId') || 'unknown',
+                        userId: userId,
                         environment: hostname,
                         message: String(msg || 'Unknown Client Error'),
                         source: String(source || ''),
@@ -481,6 +529,15 @@
     </script>
 
     <!-- include: partials/svg-sprites.html -->
+    <div id="browser-compatibility-notice" class="browser-compatibility-notice" style="display: none;" role="alert">
+        <div class="compatibility-notice-content">
+            <svg class="compatibility-notice-icon" aria-hidden="true"><use href="#icon-warning"></use></svg>
+            <span class="compatibility-notice-text">Storage access is restricted or your browser is outdated. Please enable cookies/local storage or update your browser for OreCalc to function properly.</span>
+        </div>
+        <button type="button" class="compatibility-notice-close" onclick="document.getElementById('browser-compatibility-notice').style.display='none'" aria-label="Dismiss">
+            <svg class="compatibility-notice-close-icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+        </button>
+    </div>
 
     <div id="overlay" class="overlay"></div>
     <div id="preloader">

@@ -99,11 +99,22 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
     }
 });
 
+const { isIgnoredNoise, shouldSendAlertEmail, recordAlertSent, sendMailSafely } = require('../services/alertThrottle.js');
+
 router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
     const { userId, environment, message, source, line, col, stack, url, userAgent } = req.body;
 
     if (!message || typeof message !== 'string') {
         return res.status(400).json({ reason: 'invalidMessage', message: 'Error message is required.' });
+    }
+
+    // 1. Completely discard client noise (extension scripts, 404 tag typos, CWL/war log states)
+    if (isIgnoredNoise(message)) {
+        return res.status(200).json({
+            message: 'Ignored client noise error.',
+            ignored: true,
+            emailSent: false
+        });
     }
 
     try {
@@ -132,20 +143,11 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
         console.error(`[CLIENT ERROR] ${errorData.environment} | User: ${errorData.userId} | ${errorData.message} at ${errorData.source}:${errorData.line}`);
 
         let emailSent = false;
-        const recipientEmail = process.env.RECIPIENT_EMAIL_ALERTS;
-        if (recipientEmail && process.env.SMTP_USER && process.env.SMTP_HOST) {
-            try {
-                const nodemailer = require('nodemailer');
-                const transporter = nodemailer.createTransport({
-                    host: process.env.SMTP_HOST,
-                    port: parseInt(process.env.SMTP_PORT || '587', 10),
-                    secure: process.env.SMTP_SECURE === 'true',
-                    auth: {
-                        user: process.env.SMTP_USER,
-                        pass: process.env.SMTP_PASS
-                    }
-                });
+        const alertDecision = shouldSendAlertEmail(errorData);
 
+        if (alertDecision.shouldSend) {
+            const recipientEmail = process.env.RECIPIENT_EMAIL_ALERTS;
+            if (recipientEmail) {
                 const mailOptions = {
                     from: `"OreCalc Error Alert" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
                     to: recipientEmail,
@@ -153,18 +155,21 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
                     text: `Hello,\n\nAn automated client console error was reported on ${errorData.environment}.\n\nError Details:\n- Record ID: ${docRef.id}\n- User ID: ${errorData.userId}\n- Environment: ${errorData.environment}\n- Page URL: ${errorData.url}\n- Date: ${errorData.reportedAt}\n- Expires At (TTL): ${expireDate.toISOString()}\n- User Agent: ${errorData.userAgent}\n\nMessage:\n${errorData.message}\n\nSource: ${errorData.source}:${errorData.line}:${errorData.col}\n\nStack Trace:\n${errorData.stack || 'None provided'}\n\nRegards,\nOreCalc Error Monitoring`
                 };
 
-                await transporter.sendMail(mailOptions);
-                emailSent = true;
-                console.log(`[CLIENT ERROR] Error email alert sent successfully to ${recipientEmail} for ${docRef.id}`);
-            } catch (mailError) {
-                console.error(`[CLIENT ERROR] Failed to send error email:`, mailError);
+                emailSent = await sendMailSafely(mailOptions);
+                if (emailSent) {
+                    recordAlertSent(alertDecision.signature);
+                    console.log(`[CLIENT ERROR] Error email alert sent successfully to ${recipientEmail} for ${docRef.id}`);
+                }
             }
+        } else {
+            console.log(`[CLIENT ERROR] Alert email suppressed for ${docRef.id} (Reason: ${alertDecision.reason})`);
         }
 
         res.status(200).json({
             message: 'Client error logged successfully.',
             errorId: docRef.id,
-            emailSent
+            emailSent,
+            throttleReason: alertDecision.shouldSend ? undefined : alertDecision.reason
         });
     } catch (error) {
         console.error('Error handling client error submission:', error);
