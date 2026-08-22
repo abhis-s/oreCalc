@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ESLint } from 'eslint';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -158,6 +159,51 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
             multipleNewlines.length,
             0,
             `Found text files ending with multiple trailing empty lines at EOF:\n${multipleNewlines.join('\n')}`
+        );
+    });
+
+    test('all inline script tags inside HTML files have valid JavaScript syntax', async () => {
+        const htmlFiles = candidateFiles.filter(f => f.endsWith('.html'));
+        const syntaxErrors = [];
+        const eslint = new ESLint();
+
+        for (const file of htmlFiles) {
+            const relPath = path.relative(projectRoot, file).replace(/\\/g, '/');
+            const content = fs.readFileSync(file, 'utf8');
+            const scriptRegex = /<script(?:\s+[^>]*?)?>([\s\S]*?)<\/script>/gi;
+            let match;
+            let scriptIndex = 1;
+
+            while ((match = scriptRegex.exec(content)) !== null) {
+                const scriptOpeningTag = match[0].split('>')[0];
+                const scriptBody = match[1];
+
+                if (/src\s*=/i.test(scriptOpeningTag)) continue;
+                if (/type\s*=\s*['"]application\/(?:ld\+)?json['"]/i.test(scriptOpeningTag)) continue;
+                if (!scriptBody.trim()) continue;
+
+                const isModule = /type\s*=\s*['"]module['"]/i.test(scriptOpeningTag);
+                const virtualFileName = isModule ? `${relPath}.inline_${scriptIndex}.mjs` : `${relPath}.inline_${scriptIndex}.js`;
+
+                try {
+                    const lintResults = await eslint.lintText(scriptBody, { filePath: virtualFileName });
+                    if (lintResults && lintResults.length > 0) {
+                        const fatalErrors = lintResults[0].messages.filter(m => m.fatal);
+                        fatalErrors.forEach(m => {
+                            syntaxErrors.push(`${relPath} (inline script #${scriptIndex}, line ${m.line}, col ${m.column}): ${m.message}`);
+                        });
+                    }
+                } catch (err) {
+                    syntaxErrors.push(`${relPath} (inline script #${scriptIndex}): ${err.message}`);
+                }
+                scriptIndex++;
+            }
+        }
+
+        assert.equal(
+            syntaxErrors.length,
+            0,
+            `Found inline script syntax errors in HTML files:\n${syntaxErrors.join('\n')}`
         );
     });
 });

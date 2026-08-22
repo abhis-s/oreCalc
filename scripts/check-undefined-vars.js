@@ -184,6 +184,79 @@ function checkSafeJsonParsing() {
 }
 
 /**
+ * Validates the JavaScript syntax of all inline <script> blocks inside HTML files using ESLint parser.
+ *
+ * @param {ESLint} eslint - Active ESLint instance.
+ * @returns {Promise<number>} Total syntax errors found across HTML inline scripts.
+ */
+async function checkInlineHtmlScriptSyntax(eslint) {
+    function getHtmlFiles(dir) {
+        let results = [];
+        const fullDir = path.isAbsolute(dir) ? dir : path.join(projectRoot, dir);
+        if (!fs.existsSync(fullDir)) return results;
+        const list = fs.readdirSync(fullDir);
+        list.forEach((file) => {
+            const fullPath = path.join(fullDir, file);
+            const stat = fs.statSync(fullPath);
+            if (stat && stat.isDirectory()) {
+                if (file !== 'node_modules' && file !== 'dist' && file !== '.git') {
+                    results = results.concat(getHtmlFiles(fullPath));
+                }
+            } else if (file.endsWith('.html')) {
+                results.push(fullPath);
+            }
+        });
+        return results;
+    }
+
+    const htmlFiles = [
+        path.join(projectRoot, 'index.html'),
+        path.join(projectRoot, '404.html'),
+        ...getHtmlFiles('partials'),
+        ...getHtmlFiles('legal')
+    ].filter(f => fs.existsSync(f));
+
+    let syntaxErrors = 0;
+
+    for (const file of htmlFiles) {
+        const content = fs.readFileSync(file, 'utf8');
+        const relPath = path.relative(projectRoot, file);
+        const scriptRegex = /<script(?:\s+[^>]*?)?>([\s\S]*?)<\/script>/gi;
+        let match;
+        let scriptIndex = 1;
+
+        while ((match = scriptRegex.exec(content)) !== null) {
+            const scriptOpeningTag = match[0].split('>')[0];
+            const scriptBody = match[1];
+
+            if (/src\s*=/i.test(scriptOpeningTag)) continue;
+            if (/type\s*=\s*['"]application\/(?:ld\+)?json['"]/i.test(scriptOpeningTag)) continue;
+            if (!scriptBody.trim()) continue;
+
+            const isModule = /type\s*=\s*['"]module['"]/i.test(scriptOpeningTag);
+            const virtualFileName = isModule ? `${relPath}.inline_${scriptIndex}.mjs` : `${relPath}.inline_${scriptIndex}.js`;
+
+            try {
+                const lintResults = await eslint.lintText(scriptBody, { filePath: virtualFileName });
+                if (lintResults && lintResults.length > 0) {
+                    const fatalErrors = lintResults[0].messages.filter(m => m.fatal);
+                    fatalErrors.forEach(m => {
+                        console.error(`[SYNTAX ERROR] In ${relPath} (inline script #${scriptIndex}, line ${m.line}, col ${m.column}): ${m.message}`);
+                        syntaxErrors++;
+                    });
+                }
+            } catch (err) {
+                console.error(`[SYNTAX ERROR] In ${relPath} inline script #${scriptIndex}:`, err.message);
+                syntaxErrors++;
+            }
+            scriptIndex++;
+        }
+    }
+
+    return syntaxErrors;
+}
+
+/**
  * Main execution runner.
  */
 async function main() {
@@ -195,8 +268,12 @@ async function main() {
     // 2. Check safe JSON parsing enforcement
     const jsonErrors = checkSafeJsonParsing();
 
-    // 2. ESLint scope analysis
     const eslint = new ESLint();
+
+    // 3. Check HTML inline script syntax
+    const inlineScriptErrors = await checkInlineHtmlScriptSyntax(eslint);
+
+    // 4. ESLint scope analysis
     const results = await eslint.lintFiles([
         'js/**/*.js',
         'tests/**/*.js',
@@ -219,10 +296,11 @@ async function main() {
         console.error(resultText);
     }
 
-    const totalErrors = bindingErrors + jsonErrors + eslintErrorCount;
+    const totalErrors = bindingErrors + jsonErrors + inlineScriptErrors + eslintErrorCount;
 
     if (totalErrors === 0) {
         console.log('[OK] All JavaScript modules pass strict static scope & undefined identifier checks.');
+        console.log('[OK] All HTML inline <script> blocks pass strict JavaScript syntax validation.');
         console.log('[OK] All import bindings and named exports resolve cleanly.');
         console.log('[OK] All JSON deserialization routed via safeJsonParse.\n');
         process.exit(0);
