@@ -94,7 +94,7 @@ export function initializeAppSettings() {
     }
 
     if (appVersionDisplay) {
-        appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.1.0').replace(/^v/, '');
+        appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.2.0').replace(/^v/, '');
     }
 
     document.dispatchEvent(new CustomEvent('app:translate'));

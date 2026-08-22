@@ -1,5 +1,27 @@
 export const changelogData = [
     {
+        version: "v2.2.0",
+        date: "2026-08-22",
+        changes: [
+            { type: "feature", text: "<strong>4-Tier Unidirectional Architecture & Pure Domain Engine</strong>: Restructured the entire client into a strict 4-tier dependency architecture (Data &rarr; Domain &rarr; Core &rarr; UI), refactoring all domain calculators into 100% referentially transparent pure functions with zero side effects." },
+            { type: "feature", text: "<strong>Display vs Input Controller Modularization</strong>: Decoupled UI components across all domains into pure DOM renderers (<code>*Display.js</code>) and interactive transactional controllers (<code>*Inputs.js</code>) to prevent layout thrashing and memory leaks." },
+            { type: "feature", text: "<strong>Atomic Transactional State Mutations</strong>: Enforced atomic state updates via centralized <code>handleStateUpdate</code> callbacks with subscriber notifications, backward-compatible schema migrations, and defensive null guards." },
+            { type: "feature", text: "<strong>Profile Onboarding & Setup Wizard</strong>: Introduced an interactive multi-step onboarding wizard for new and returning users, featuring synthetic Guest Mode player profile initialization and tour integration." },
+            { type: "feature", text: "<strong>High-Signal Error Alerting & Throttling</strong>: Implemented an intelligent error telemetry engine with 10-minute cooldown deduplication for network drops, chunk reloads, 413s, and client exceptions, while suppressing noise and anonymous bot traffic." },
+            { type: "feature", text: "<strong>Supercell Outage Lifecycle & Auto-Recovery</strong>: Integrated circuit breaker state tracking to dispatch automated 503 Outage alert emails and automatic RESOLVED recovery notifications when Supercell Clash API proxying resumes." },
+            { type: "feature", text: "<strong>Compliance Tombstones & Inactivity Audit Logs</strong>: Added immutable Firestore server timestamps to account deletion records (<code>deletedUuids</code>) and automated execution audit logs (<code>pruneAuditLogs</code>) for database inactivity pruning." },
+            { type: "feature", text: "<strong>Multi-Currency Pricing Engine</strong>: Added real-time multi-currency pricing calculation with custom tier support and live currency conversion across in-game resource packages." },
+            { type: "feature", text: "<strong>Standalone Legal Pages & Dedicated Stylesheet</strong>: Generated standalone pre-rendered legal routes (<code>/privacy</code>, <code>/terms</code>, <code>/licenses</code>) compiled via a dedicated Sass pipeline with verified routing and German translations." },
+            { type: "feature", text: "<strong>New Epic Equipment & August Content</strong>: Added full data models and icon assets for Dragon Duke's new epic equipment, <em>Revenge Deck</em>, launched in August 2026." },
+            { type: "feature", text: "<strong>Browser Compatibility & Storage Notice</strong>: Built a non-intrusive warning banner alerting users if their browser engine is outdated or local storage permissions are restricted." },
+            { type: "fix", text: "<strong>Overall Equipment Progress Percentage</strong>: Fixed the overall equipment progress bar calculation to compute the balanced arithmetic mean across Shiny, Glowy, and Starry ore tiers instead of being weighted by raw Shiny ore counts." },
+            { type: "fix", text: "<strong>Planner Timeline Exhaustion & Priority List Memoization</strong>: Resolved prediction calculator simulation crashes by decoupling step inversions from timeline exhaustion, and added key-based hydration memoization to priority list scheduling." },
+            { type: "fix", text: "<strong>Card Reordering Layout Repack</strong>: Resolved an undefined reference error during compact card drag-and-drop reordering, ensuring smooth layout packing." },
+            { type: "chore", text: "<strong>Static Inline Script AST Validator</strong>: Integrated ESLint-powered static AST verification into the test and build pipeline to validate all inline <code>&lt;script&gt;</code> blocks across HTML templates." },
+            { type: "chore", text: "<strong>100% Type Safety & Repository Invariant Suite</strong>: Achieved 100% repository-wide JSDoc contract coverage verified compile-time with TypeScript (<code>tsc --noEmit</code>), expanded automated test suite to 563+ tests across 135 suites, and synced latest community translations from Crowdin." }
+        ]
+    },
+    {
         version: "v2.1.0",
         date: "2026-08-10",
         changes: [

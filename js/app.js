@@ -150,7 +150,8 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     }
                 }, 1200);
             } else {
-                const commits = window.__ENV__?.COMMITS_SINCE_TAG || [];
+                const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
+                const commits = Array.isArray(rawCommits) ? rawCommits : [];
                 if (commits.length > 0) {
                     setTimeout(() => {
                         if (isInterruptionRestricted()) {
@@ -342,7 +343,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     }
                     const appVersionDisplay = document.getElementById('app-version-display');
                     if (appVersionDisplay) {
-                        appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.1.0').replace(/^v/, '');
+                        appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.2.0').replace(/^v/, '');
                     }
                     recalculateAll(state);
                     renderApp(state);

@@ -33,7 +33,7 @@ export const DEFAULT_CUSTOM_CHIP_SETTINGS = Object.freeze({
  */
 export function getDefaultState() {
     return {
-        appVersion: (typeof window !== 'undefined' ? window.__ENV__?.APP_VERSION : null) || '2.1.0',
+        appVersion: (typeof window !== 'undefined' ? window.__ENV__?.APP_VERSION : null) || '2.2.0',
         timestamp: new Date().toISOString(),
         activeTab: 'home-tab',
         savedPlayerTags: [],

@@ -172,7 +172,7 @@ export function renderLabeledActions(containerSelector, data) {
         const btnText = document.createElement('span');
         btnText.className = 'animated-btn-text';
         if (item.id === 'version') {
-            const versionText = window.__ENV__?.APP_VERSION || state.appVersion || '2.1.0';
+            const versionText = window.__ENV__?.APP_VERSION || state.appVersion || '2.2.0';
             btnText.textContent = versionText;
         } else {
             btnText.dataset.i18n = item.i18nAction;

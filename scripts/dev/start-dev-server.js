@@ -261,7 +261,7 @@ function getCompiledIndexHtml(lang = 'en') {
 
         // Inject global environment context into index.html head for runtime API endpoint resolving
         const buildTime = process.env.BUILD_TIME || new Date().toISOString();
-        content = content.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${devApiBaseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${commitsSinceTag.length} };</script>`);
+        content = content.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${devApiBaseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
         cachedHtml = content;
     }
     return generateLocalizedHtml(cachedHtml, lang);

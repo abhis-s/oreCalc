@@ -26,7 +26,8 @@ export function initializeChangelogModal() {
 
     if (modal && commitsButton) {
         commitsButton.addEventListener('click', () => {
-            const commits = window.__ENV__?.COMMITS_SINCE_TAG || [];
+            const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
+            const commits = Array.isArray(rawCommits) ? rawCommits : [];
             if (commits.length > 0) {
                 closeModalAnimated(modal, () => {
                     showCommitsModal(commits);
@@ -80,7 +81,8 @@ export function showChangelogModal(content) {
         modalBody.innerHTML = content;
 
         if (commitsButton) {
-            const commits = window.__ENV__?.COMMITS_SINCE_TAG || [];
+            const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
+            const commits = Array.isArray(rawCommits) ? rawCommits : [];
             const isChangelogEmpty = !content || content.trim() === '' || content === '<div class="changelog-container"></div>';
             commitsButton.style.display = (commits.length > 0 && !isChangelogEmpty) ? 'inline-flex' : 'none';
         }
