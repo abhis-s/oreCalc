@@ -58,15 +58,6 @@ export function calculateEquipmentProgress(ownedEquipment, ownedHeroes) {
         }
     }
 
-    const commonTotalSpent = commonSpent.shiny + commonSpent.glowy;
-    const commonTotalRequired = commonTotal.shiny + commonTotal.glowy;
-    const epicTotalSpent = epicSpent.shiny + epicSpent.glowy + epicSpent.starry;
-    const epicTotalRequired = epicTotal.shiny + epicTotal.glowy + epicTotal.starry;
-
-    const totalSpent = commonTotalSpent + epicTotalSpent;
-    const totalRequired = commonTotalRequired + epicTotalRequired;
-    const overall = totalRequired > 0 ? Math.round((totalSpent / totalRequired) * 100) : 0;
-
     const shinySpent = commonSpent.shiny + epicSpent.shiny;
     const shinyTotal = commonTotal.shiny + epicTotal.shiny;
     const shiny = shinyTotal > 0 ? Math.round((shinySpent / shinyTotal) * 100) : 0;
@@ -78,6 +69,15 @@ export function calculateEquipmentProgress(ownedEquipment, ownedHeroes) {
     const starrySpent = epicSpent.starry;
     const starryTotal = epicTotal.starry;
     const starry = starryTotal > 0 ? Math.round((starrySpent / starryTotal) * 100) : 0;
+
+    const orePcts = [];
+    if (shinyTotal > 0) orePcts.push(shiny);
+    if (glowyTotal > 0) orePcts.push(glowy);
+    if (starryTotal > 0) orePcts.push(starry);
+
+    const overall = orePcts.length > 0
+        ? Math.round(orePcts.reduce((sum, val) => sum + val, 0) / orePcts.length)
+        : 0;
 
     return {
         overall,
