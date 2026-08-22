@@ -16,7 +16,7 @@ export const upgradeCosts = {
     26: { shiny: 3500, glowy: 0, starry: 0 }, 27: { shiny: 3600, glowy: 600, starry: 150 },
 };
 
-const heroUnlockTownHallMap = {
+export const heroUnlockTownHallMap = {
     barbarianKing: 4,
     archerQueen: 8,
     minionPrince: 9,

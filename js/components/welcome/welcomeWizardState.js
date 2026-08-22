@@ -1,4 +1,5 @@
 import { shopOfferData } from '../../data/incomeSources/shopOffers.js';
+import { getWarOreValue } from '../../data/incomeSources/warOres.js';
 import { translate } from '../../i18n/translator.js';
 
 import {
@@ -103,9 +104,16 @@ export function applyChecklistToProfile(playerObj) {
     playerObj.income.raidMedals.enabled = welcomeState.tempRaidMedalsBuy;
     playerObj.income.raidMedals.earned = welcomeState.tempRaidMedalsBuy ? welcomeState.tempRaidMedalsEarned : 0;
     if (welcomeState.tempRaidMedalsBuy) {
-        playerObj.income.raidMedals.packs.shiny = welcomeState.tempRaidMedalsShiny;
-        playerObj.income.raidMedals.packs.glowy = welcomeState.tempRaidMedalsGlowy;
-        playerObj.income.raidMedals.packs.starry = welcomeState.tempRaidMedalsStarry;
+        let starry = welcomeState.tempRaidMedalsStarry;
+        let glowy = welcomeState.tempRaidMedalsGlowy;
+        let shiny = welcomeState.tempRaidMedalsShiny;
+        if (starry === 0 && glowy === 0 && shiny === 0) {
+            starry = 2;
+            glowy = 2;
+        }
+        playerObj.income.raidMedals.packs.shiny = shiny;
+        playerObj.income.raidMedals.packs.glowy = glowy;
+        playerObj.income.raidMedals.packs.starry = starry;
     } else {
         playerObj.income.raidMedals.packs.shiny = 0;
         playerObj.income.raidMedals.packs.glowy = 0;
@@ -129,6 +137,8 @@ export function applyChecklistToProfile(playerObj) {
         playerObj.income.gems.packs.starry = 0;
     }
 
+    const thLevel = playerObj?.playerProfile?.townHallLevel || welcomeState.selectedTH || 16;
+
     if (!playerObj.income.shopOffers) {
         playerObj.income.shopOffers = { enabled: false, selectedSet: "0", purchases: {} };
     }
@@ -137,7 +147,6 @@ export function applyChecklistToProfile(playerObj) {
     }
     playerObj.income.shopOffers.enabled = welcomeState.tempShopOffersBuy;
     if (welcomeState.tempShopOffersBuy) {
-        const thLevel = playerObj?.playerProfile?.townHallLevel || 16;
         let bestMatchSet = "0";
         if (shopOfferData[thLevel]) {
             bestMatchSet = String(thLevel);
@@ -164,8 +173,16 @@ export function applyChecklistToProfile(playerObj) {
         playerObj.income.clanWar.warsPerMonth = welcomeState.tempClanWarsCount;
         playerObj.income.clanWar.winRate = welcomeState.tempClanWarsWinrate;
         playerObj.income.clanWar.drawRate = welcomeState.tempClanWarsDrawrate;
-        const thLevel = playerObj?.playerProfile?.townHallLevel || 16;
         playerObj.income.clanWar.warPerformance = { thLevel };
+        if (!playerObj.income.clanWar.oresPerAttack.shiny &&
+            !playerObj.income.clanWar.oresPerAttack.glowy &&
+            !playerObj.income.clanWar.oresPerAttack.starry) {
+            playerObj.income.clanWar.oresPerAttack = {
+                shiny: getWarOreValue('shiny', thLevel),
+                glowy: getWarOreValue('glowy', thLevel),
+                starry: getWarOreValue('starry', thLevel)
+            };
+        }
     }
 
     if (!playerObj.income.cwl) {
@@ -180,6 +197,15 @@ export function applyChecklistToProfile(playerObj) {
         playerObj.income.cwl.attacksPerEvent = welcomeState.tempCwlHits;
         playerObj.income.cwl.winRate = welcomeState.tempCwlWinrate;
         playerObj.income.cwl.drawRate = welcomeState.tempCwlDrawrate;
+        if (!playerObj.income.cwl.oresPerAttack.shiny &&
+            !playerObj.income.cwl.oresPerAttack.glowy &&
+            !playerObj.income.cwl.oresPerAttack.starry) {
+            playerObj.income.cwl.oresPerAttack = {
+                shiny: getWarOreValue('shiny', thLevel),
+                glowy: getWarOreValue('glowy', thLevel),
+                starry: getWarOreValue('starry', thLevel)
+            };
+        }
     }
 
     if (!playerObj.income.eventPass) {

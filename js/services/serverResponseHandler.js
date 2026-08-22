@@ -1,5 +1,6 @@
 import { heroData } from '../data/heroData.js';
 import { shopOfferData } from '../data/incomeSources/shopOffers.js';
+import { getWarOreValue } from '../data/incomeSources/warOres.js';
 import { LAB_SCALING_TROOP_KEYS } from '../data/labTroopsData.js';
 import { leagueTiers } from '../data/leagueTiers.js';
 import { translate } from '../i18n/translator.js';
@@ -346,12 +347,40 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         clanWar: {
             ...defaultIncome.clanWar,
             ...(newPlayerState.income?.clanWar || newPlayerState.income?.clanWars || {}),
-            oresPerAttack: { ...defaultIncome.clanWar.oresPerAttack, ...(newPlayerState.income?.clanWar?.oresPerAttack || newPlayerState.income?.clanWars?.oresPerAttack || {}) }
+            oresPerAttack: (() => {
+                const incoming = newPlayerState.income?.clanWar?.oresPerAttack || newPlayerState.income?.clanWars?.oresPerAttack || {};
+                const shiny = incoming.shiny ?? (defaultIncome.clanWar.oresPerAttack?.shiny || 0);
+                const glowy = incoming.glowy ?? (defaultIncome.clanWar.oresPerAttack?.glowy || 0);
+                const starry = incoming.starry ?? (defaultIncome.clanWar.oresPerAttack?.starry || 0);
+                if (!shiny && !glowy && !starry) {
+                    const th = newPlayerState.playerProfile?.townHallLevel || 16;
+                    return {
+                        shiny: getWarOreValue('shiny', th),
+                        glowy: getWarOreValue('glowy', th),
+                        starry: getWarOreValue('starry', th)
+                    };
+                }
+                return { shiny, glowy, starry };
+            })()
         },
         cwl: {
             ...defaultIncome.cwl,
             ...(newPlayerState.income?.cwl || {}),
-            oresPerAttack: { ...defaultIncome.cwl.oresPerAttack, ...(newPlayerState.income?.cwl?.oresPerAttack || {}) }
+            oresPerAttack: (() => {
+                const incoming = newPlayerState.income?.cwl?.oresPerAttack || {};
+                const shiny = incoming.shiny ?? (defaultIncome.cwl.oresPerAttack?.shiny || 0);
+                const glowy = incoming.glowy ?? (defaultIncome.cwl.oresPerAttack?.glowy || 0);
+                const starry = incoming.starry ?? (defaultIncome.cwl.oresPerAttack?.starry || 0);
+                if (!shiny && !glowy && !starry) {
+                    const th = newPlayerState.playerProfile?.townHallLevel || 16;
+                    return {
+                        shiny: getWarOreValue('shiny', th),
+                        glowy: getWarOreValue('glowy', th),
+                        starry: getWarOreValue('starry', th)
+                    };
+                }
+                return { shiny, glowy, starry };
+            })()
         },
         supercellEvents: {
             ...defaultIncome.supercellEvents,

@@ -595,4 +595,68 @@ describe('Welcome Modal Comprehensive Feature Suite', () => {
         assert.equal(stateModule.state.allPlayersData['#TAGRELOAD1'].onboardingTimestamp, stateModule.EFFECTIVE_DATE_PROFILE_ONBOARDING + 9999);
         assert.equal(stateModule.state.onboardingTimestamp, stateModule.EFFECTIVE_DATE_PROFILE_ONBOARDING + 9999);
     });
+
+    test('applyChecklistToProfile auto-populates Clan War, CWL, and Raid Medal defaults', async () => {
+        const { applyChecklistToProfile, resetWizardState } = await import('../../js/components/welcome/welcomeWizardState.js');
+        const { welcomeState } = await import('../../js/components/welcome/welcomeModalState.js');
+        const { getWarOreValue } = await import('../../js/data/incomeSources/warOres.js');
+
+        resetWizardState();
+
+        const playerObj = {
+            playerProfile: { townHallLevel: 16 },
+            income: {}
+        };
+
+        welcomeState.tempClanWars = true;
+        welcomeState.tempCwl = true;
+        welcomeState.tempRaidMedalsBuy = true;
+        welcomeState.tempRaidMedalsStarry = 0;
+        welcomeState.tempRaidMedalsGlowy = 0;
+        welcomeState.tempRaidMedalsShiny = 0;
+
+        applyChecklistToProfile(playerObj);
+
+        // Clan Wars TH16 auto-ores
+        assert.equal(playerObj.income.clanWar.oresPerAttack.shiny, getWarOreValue('shiny', 16));
+        assert.equal(playerObj.income.clanWar.oresPerAttack.glowy, getWarOreValue('glowy', 16));
+        assert.equal(playerObj.income.clanWar.oresPerAttack.starry, getWarOreValue('starry', 16));
+        assert.equal(playerObj.income.clanWar.oresPerAttack.shiny, 1110);
+        assert.equal(playerObj.income.clanWar.oresPerAttack.glowy, 39);
+        assert.equal(playerObj.income.clanWar.oresPerAttack.starry, 6);
+
+        // CWL TH16 auto-ores
+        assert.equal(playerObj.income.cwl.oresPerAttack.shiny, getWarOreValue('shiny', 16));
+        assert.equal(playerObj.income.cwl.oresPerAttack.glowy, getWarOreValue('glowy', 16));
+        assert.equal(playerObj.income.cwl.oresPerAttack.starry, getWarOreValue('starry', 16));
+
+        // Raid Medals default starry=2 and glowy=2
+        assert.equal(playerObj.income.raidMedals.packs.starry, 2);
+        assert.equal(playerObj.income.raidMedals.packs.glowy, 2);
+        assert.equal(playerObj.income.raidMedals.packs.shiny, 0);
+    });
+
+    test('initializeGuestHeroesState sets default checked: true for heroes and equipment', async () => {
+        const { initializeGuestHeroesState } = await import('../../js/components/welcome/welcomeGuestHeroState.js');
+
+        const guestState = {
+            playerProfile: { townHallLevel: 16 },
+            heroes: {}
+        };
+
+        initializeGuestHeroesState(guestState);
+
+        const heroKeys = Object.keys(guestState.heroes);
+        assert.ok(heroKeys.length > 0);
+
+        heroKeys.forEach(hKey => {
+            const hero = guestState.heroes[hKey];
+            assert.equal(hero.checked, true);
+            const equipKeys = Object.keys(hero.equipment);
+            assert.ok(equipKeys.length > 0);
+            equipKeys.forEach(eqKey => {
+                assert.equal(hero.equipment[eqKey].checked, true);
+            });
+        });
+    });
 });

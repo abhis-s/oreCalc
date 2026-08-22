@@ -94,7 +94,20 @@ export function initializeWelcomeSettingsInputs(modal) {
         welcomeState.tempStoredGlowy = parseInt(storedGlowyInput?.value, 10) || 0;
         welcomeState.tempStoredStarry = parseInt(storedStarryInput?.value, 10) || 0;
 
-        welcomeState.tempRaidMedalsBuy = raidMedalsBuySwitch?.checked || false;
+        const isRaidBuy = raidMedalsBuySwitch?.checked || false;
+        const wasRaidBuy = welcomeState.tempRaidMedalsBuy;
+        if (!wasRaidBuy && isRaidBuy) {
+            const starryEl = /** @type {HTMLSelectElement|null} */ (document.getElementById('welcome-pref-raid-medals-starry'));
+            const glowyEl = /** @type {HTMLSelectElement|null} */ (document.getElementById('welcome-pref-raid-medals-glowy'));
+            const currStarry = parseInt(starryEl?.value || '0', 10);
+            const currGlowy = parseInt(glowyEl?.value || '0', 10);
+            if (currStarry === 0 && currGlowy === 0) {
+                if (starryEl) starryEl.value = '2';
+                if (glowyEl) glowyEl.value = '2';
+            }
+        }
+
+        welcomeState.tempRaidMedalsBuy = isRaidBuy;
         welcomeState.tempRaidMedalsEarned = parseInt(raidMedalsEarnedInput?.value, 10) || 1200;
         welcomeState.tempRaidMedalsStarry = parseInt(document.getElementById('welcome-pref-raid-medals-starry')?.value, 10) || 0;
         welcomeState.tempRaidMedalsGlowy = parseInt(document.getElementById('welcome-pref-raid-medals-glowy')?.value, 10) || 0;

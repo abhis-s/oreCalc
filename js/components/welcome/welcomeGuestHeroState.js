@@ -1,9 +1,7 @@
-import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import { getEquipmentMaxLevel, heroUnlockTownHallMap } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
-
-import { toCamelCase } from '../../utils/stringUtils.js';
 
 /**
  * Generates fallback player profile data for guest mode based on Town Hall and League ID.
@@ -69,7 +67,7 @@ export function generateGuestPlayerData(thLevel, leagueId) {
  */
 export function initializeGuestHeroesState(guestPlayerState) {
     if (!guestPlayerState || !guestPlayerState.playerProfile) return;
-    const thLevel = guestPlayerState.playerProfile.townHallLevel || 16;
+    const thLevel = Number(guestPlayerState.playerProfile.townHallLevel) || 16;
 
     if (!guestPlayerState.heroes) {
         guestPlayerState.heroes = {};
@@ -77,26 +75,26 @@ export function initializeGuestHeroesState(guestPlayerState) {
 
     Object.keys(heroData).forEach(heroKey => {
         const heroInfo = heroData[heroKey];
-        if (heroInfo.thUnlock <= thLevel) {
+        const unlockTH = heroUnlockTownHallMap[heroKey] ?? 1;
+        if (unlockTH <= thLevel) {
             const heroState = {
                 level: 1,
-                checked: false,
+                checked: true,
                 enabled: true,
                 equipment: {}
             };
 
             const availableEquipment = heroInfo.equipment || [];
             availableEquipment.forEach(equip => {
-                const eqKey = equip.key || toCamelCase(equip.name);
                 const maxLevel = getEquipmentMaxLevel(equip.type);
-                heroState.equipment[eqKey] = {
+                heroState.equipment[equip.name] = {
                     level: 1,
-                    checked: false,
+                    checked: true,
                     targetLevel: maxLevel
                 };
             });
 
-            guestPlayerState.heroes[heroKey] = heroState;
+            guestPlayerState.heroes[heroInfo.name] = heroState;
         }
     });
 }
