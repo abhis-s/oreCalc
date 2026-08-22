@@ -3,6 +3,7 @@ import { translate } from '../../i18n/translator.js';
 
 let countdownInterval = null;
 let settingsInterval = null;
+let activeWorkboxInstance = null;
 
 function applyTimerColor(element, timeLeft) {
     if (!element) return;
@@ -51,6 +52,8 @@ export function updateNavigationBadges() {
 }
 
 function initSettingsUpdateCard(wb) {
+    if (wb) activeWorkboxInstance = wb;
+    const currentWb = wb || activeWorkboxInstance;
     const card = document.getElementById('settings-update-card');
     const countdownText = document.getElementById('settings-update-countdown');
     const reloadBtn = document.getElementById('settings-update-now-btn');
@@ -89,10 +92,14 @@ function initSettingsUpdateCard(wb) {
 
         card.style.display = 'none';
 
-        wb.addEventListener('controlling', () => {
+        if (currentWb) {
+            currentWb.addEventListener('controlling', () => {
+                window.location.reload();
+            });
+            currentWb.messageSkipWaiting();
+        } else {
             window.location.reload();
-        });
-        wb.messageSkipWaiting();
+        }
     };
 
     const updateCardCountdown = () => {
@@ -341,4 +348,13 @@ export function showUpdateModal(wb) {
     }
     modal.classList.add('show');
     if (overlay) overlay.classList.add('show');
+}
+
+if (typeof document !== 'undefined') {
+    document.addEventListener('app:translate', () => {
+        const card = document.getElementById('settings-update-card');
+        if (card && card.style.display !== 'none') {
+            initSettingsUpdateCard();
+        }
+    });
 }

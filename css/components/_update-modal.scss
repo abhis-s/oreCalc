@@ -28,10 +28,8 @@
 }
 
 #settings-update-card {
-    &.full-width-card {
-        grid-column: 1 / -1;
-        width: 100%;
-    }
+    width: 100%;
+    margin-bottom: 20px;
 
     .settings-card {
         border: 1px solid $accent-primary;
@@ -80,6 +78,11 @@
     }
 
     .update-card-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+
         #settings-update-now-btn {
             background-color: $accent-primary;
             color: $bg-app;
@@ -97,6 +100,7 @@
             color: $text-secondary;
             margin: 0;
             white-space: nowrap;
+            text-align: right;
         }
     }
 
@@ -118,6 +122,10 @@
 
             #settings-update-now-btn {
                 width: 100%;
+            }
+
+            .update-card-timer {
+                text-align: center;
             }
         }
     }
