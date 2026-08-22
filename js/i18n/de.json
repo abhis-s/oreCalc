@@ -81,7 +81,6 @@
         "bugReportSuccess": "Fehlerbericht erfolgreich übermittelt! Vielen Dank für dein Feedback.",
         "cannotDeleteLastProfile": "<p>Das Löschen deines einzigen aktiven Spielerprofils ist nicht zulässig.</p><p>Um alle Daten zu löschen, gehe zu <strong>Einstellungen &gt; Backup &amp; Synchronisierung &gt; Datenlöschung</strong>.</p>",
         "clipboardPermissionDenied": "Lesen aus Zwischenablage fehlgeschlagen. Bitte stelle sicher, dass die Berechtigung erteilt ist.",
-
         "clipboardUnsupported": "Clipboard-API wird in diesem Browser/Kontext nicht unterstützt oder ist nicht zugänglich.",
         "copiedFailed": "Fehler beim Kopieren der Nutzer-ID.",
         "copyAndSaveSuccess": "Nutzer-ID kopiert & Fortschritt gespeichert!",
@@ -162,7 +161,6 @@
         "cloudSyncOptOut": "Die Abmeldung von der Datensynchronisierung führt dazu, dass dieses Gerät nicht mehr mit anderen synchronisiert wird. Sie können Daten verlieren, wenn sie nicht manuell gesichert werden. Fortfahren?",
         "deleteProfile": "Bist du sicher, dass du dieses Profil löschen möchtest? Dies entfernt alle Daten für diesen Spieler dauerhaft.",
         "externalLink": "Du verlässt nun die Anwendung und besuchst die folgende Website:",
-
         "externalLinkConfirm": "Möchtest du fortfahren?",
         "importOverwrite": "Daten für Nutzer-ID {userId} importieren? Dies überschreibt deine aktuellen Daten.",
         "importSameId": "Die Nutzer-ID {userId} ist auf diesem Gerät bereits aktiv. Um zu synchronisieren, füge sie auf einem anderen Gerät ein. Trotzdem laden?",
@@ -431,7 +429,6 @@
         "tag": "Spielerkürzel",
         "userId": "Nutzer-ID"
     },
-
     "pricing": {
         "gems": "{count} Juwelen",
         "gemsEventPass": "{count} Juwelen / Event-Pass",
@@ -1134,7 +1131,6 @@
             "heroCarouselDesc": "Deaktiviere die Ausrüstung, die du nicht verbessern möchtest. Wische nach links oder rechts, um zwischen den Helden zu wechseln.",
             "heroJourneyDesc": "Verfolge deinen Fortschritt auf der Heldenreise, während du deine Helden levelst und Meilenstein-Belohnungen wie Erz-Truhen, Ausrüstung und Helden-Skins freischaltest.",
             "heroJourneyTitle": "Heldenreise-Pfad",
-
             "incomeChipsDesc": "Diese Chips repräsentieren deine monatlichen Einkommensquellen. Ziehe sie auf Kalendertage, um deine Erzeingänge zu planen, oder erstelle benutzerdefinierte Chips.",
             "incomeChipsTitle": "Einkommens-Chips",
             "navEquipmentDesc": "Wechsle zum Reiter Ausrüstung, um die Stufen deiner Heldenausrüstung zu verwalten und deine aktuellen Erzbestände zu aktualisieren.",

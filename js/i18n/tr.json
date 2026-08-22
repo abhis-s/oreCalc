@@ -25,6 +25,7 @@
         "expandTable": "Tabloyu Genişlet",
         "failed": "Başarısız",
         "fix": "Düzelt",
+        "guidedSetup": "Guided Setup",
         "hide": "Sakla",
         "later": "Daha sonra",
         "link": "Link",
@@ -85,6 +86,7 @@
         "copySuccess": "Kullanıcı kimliği kopyalandı!",
         "copySuccessSaveFailed": "Kullanıcı kimliği kopyalandı! (Bulut senkronizasyonu başarısız oldu)",
         "deleteCloudFailed": "Bulut yedeği silinemedi: <code>{error}</code>. Yerel veriler yine de temizlenecek.",
+        "enableCloudSyncPrompt": "Bulut senkronizasyonu şu anda devre dışı. Verilerinizi cihazlar arasında senkronize etmek için bunu etkinleştirmeniz gerekiyor. Şimdi etkinleştirmek ister misiniz?",
         "enableCloudSyncToCopy": "Bulut senkronizasyonu şu anda devre dışı. Verilerinizi cihazlar arasında senkronize etmek için bunu etkinleştirmeniz gerekiyor. Şimdi etkinleştirmek ister misiniz?",
         "globalErasureSuccess": "Oyuncu doğrulandı! Oyuncu etiketiniz sistemlerimizden hemen kilitlendi ve neredeyse tüm veriler silindi. Gelecekte ekleme girişimleri doğrulama gerektirecektir. Sağlanan oyuncu etiketiyle ilgili olarak herhangi bir yerde kalan tüm veriler önümüzdeki 30 gün içinde silinecektir.",
         "importEmpty": "Lütfen içe aktarmak için bir Kullanıcı Kimliği girin.",
@@ -401,6 +403,7 @@
         "tos": "Kullanım Şartları"
     },
     "player": {
+        "addPlayer": "Add a player",
         "addPlayerHelp": "Oyuncu etiketinizi bulmak için Clash of Clans'ı açın, sol üst köşedeki profil adınıza dokunun ve adınızın hemen altında gösterilen benzersiz kodu (örneğin, #XX88Y22) kopyalayın.",
         "addPlus": "+ Oyuncu Ekle",
         "addTitle": "Yeni Oyuncu Ekle",
@@ -571,8 +574,6 @@
                 "clearFilter": "Filtreyi temizle",
                 "closePreview": "Önizlemeyi Kapat",
                 "collapsedNote": "Kahraman Yolculuğundaki dönüm noktaları gizlidir.",
-                "emptyFilterDesc": "No milestones match your current filter settings. Reset filters to view all milestones.",
-                "emptyFilterTitle": "No Milestones Found",
                 "epicEquipmentBadge": "<span class=\"purple-text\">Destansı</span> Ekipman",
                 "equipmentPopoverBodyFallback": "<strong>{title}</strong> kilidini açar. Bu ekipmana zaten sahip olduğunuz için, bu dönüm noktasını elde etmek size yedek tazminat olarak <strong>{starry} Yıldız Cevher</strong> kazandırır.",
                 "equipmentPopoverBodyNormal": "{level} seviyesinde <strong>{title}</strong> öğesini açar. Eğer bu ekipmana zaten sahipseniz, bu dönüm noktasını elde etmek size yedek tazminat olarak <strong>{starry} Yıldız Cevher</strong> kazandırır.",
@@ -903,6 +904,11 @@
             "currentLevel": "Mevcut seviye",
             "customMaxLevel": "Özel Maksimum Seviye",
             "customMaxLevelHelp": "İstediğiniz hedef seviyeleri ekipman türüne göre ayarlayın. Planlayıcı, bu hedeflere göre maliyetlerinizi hesaplayacaktır.",
+            "dayOverview": {
+                "inProgress": "In Progress",
+                "returnToPool": "Return to Pool",
+                "title": "Day Overview"
+            },
             "editPriorityList": "Öncelik Listesini Düzenle",
             "enableLevelInput": "Seviye girişini etkinleştir",
             "epic": "Destansı",
@@ -1117,7 +1123,6 @@
             "finish": "Anladım!",
             "heroCarouselDesc": "Yükseltmek istemediğiniz ekipmanları devre dışı bırakın. Kahramanlar arasında geçiş yapmak için sola veya sağa kaydırın.",
             "heroJourneyDesc": "Kahramanlarınızın seviyesini yükseltirken ve cevher sandıkları, ekipman ve kahraman görünümleri de dahil olmak üzere dönüm noktası ödüllerinin kilidini açarken, kahramanlık yolculuğunuzdaki ilerlemenizi takip edin.",
-
             "heroJourneyTitle": "Kahraman Yolculuğu Ödül Yolu",
             "incomeChipsDesc": "Bu fişler aylık gelir kaynaklarınızı temsil eder. Cevherlerinizi ne zaman alacağınızı planlamak için bunları takvim günlerine sürükleyin veya özel fişler oluşturun.",
             "incomeChipsTitle": "Gelir Fişleri",
@@ -1151,6 +1156,7 @@
         "welcome": {
             "back": "Geri",
             "cancel": "İptal et",
+            "cancelSetup": "Cancel Setup",
             "chooseAccent": "Vurgu Rengi",
             "chooseLanguage": "Dil",
             "chooseTheme": "Görünüm",
@@ -1207,7 +1213,7 @@
             "reportIssuePrompt": "Bir sorun mu buldunuz veya geri bildiriminiz mi var?",
             "selectLeague": "Lig Seçin:",
             "selectProfileSubtitle": "Ayarları yapılandırmak için yüklü profillerinizden birini veya misafir profilini seçin.",
-            "selectProfileToSetup": "Kurulum için bir profil seçin.",
+            "selectProfileToSetup": "Kurulum için bir profil seçin",
             "selectTH": "Belediye Binasını seçin:",
             "setupProfiles": "Kurulum Profilleri",
             "setupProfileTitle": "Profil Kurulumu",
