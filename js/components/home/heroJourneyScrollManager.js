@@ -39,10 +39,17 @@ export function getActiveFilterKey(state) {
 /**
  * Saves current track scroll position for a specific filter in memory.
  * @param {string} filterKey - Filter composite key.
+ * @param {number} [explicitValue] - Explicit scroll position override.
  */
-export function saveCurrentFilterScrollPosition(filterKey) {
+export function saveCurrentFilterScrollPosition(filterKey, explicitValue) {
+    if (explicitValue !== undefined) {
+        if (filterKey) {
+            filterScrollPositions[filterKey] = explicitValue;
+        }
+        return;
+    }
     const trackWrapper = document.querySelector('.hero-journey-track-wrapper');
-    if (trackWrapper && filterKey) {
+    if (trackWrapper && filterKey && !isAutoScrollingFlag) {
         filterScrollPositions[filterKey] = trackWrapper.scrollLeft;
     }
 }
@@ -54,6 +61,14 @@ export function saveCurrentFilterScrollPosition(filterKey) {
  */
 export function getStoredFilterScrollPosition(filterKey) {
     return filterScrollPositions[filterKey];
+}
+
+/**
+ * Sets the auto-scrolling active state flag.
+ * @param {boolean} flag - True if auto-scrolling or rebuilding DOM.
+ */
+export function setIsAutoScrolling(flag) {
+    isAutoScrollingFlag = flag;
 }
 
 /**

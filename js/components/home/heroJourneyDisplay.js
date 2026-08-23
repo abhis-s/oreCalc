@@ -18,6 +18,8 @@ import {
     getStoredFilterScrollPosition,
     initClaimSwitchResizeObserver,
     initFilterRowResizeObserver,
+    saveCurrentFilterScrollPosition,
+    setIsAutoScrolling,
     updateClaimSwitchPillPosition,
     updateCollapsedNoteLayout,
     updateCustomScrollbar,
@@ -81,11 +83,14 @@ export function updateHeroJourneyUpcomingBadges(state) {
 /**
  * Orchestrates rendering of the Hero's Journey summary card, filters, progress bar, and milestone nodes track.
  * @param {import('../../core/types.js').AppState} state - Global application state.
- * @param {{ skipAutoScroll?: boolean }} [options={}] - Rendering options.
+ * @param {{ skipAutoScroll?: boolean, targetScrollLeft?: number, scrollToTrackEnd?: boolean }} [options={}] - Rendering options.
  */
-export function renderHeroJourneyDisplay(state, { skipAutoScroll = false } = {}) {
+export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, targetScrollLeft, scrollToTrackEnd = false } = {}) {
     const container = document.getElementById('home-hj-card');
     if (!container) return;
+
+    const trackWrapper = document.querySelector('.hero-journey-track-wrapper');
+    const preRenderScrollLeft = trackWrapper ? trackWrapper.scrollLeft : 0;
 
     const isAccelerated = Boolean(state?.heroJourney?.acceleratedRewards ?? state?.heroJourney?.accelerated ?? (state?.heroJourney?.rewardMode === 'accelerated'));
 
@@ -198,6 +203,7 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false } = {})
         if (progressFill) progressFill.style.width = `100%`;
     }
 
+    setIsAutoScrolling(true);
     renderNodesTrack(state, cumulativeLevel, thLevel);
     initHeroJourneyTooltips();
 
@@ -210,24 +216,60 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false } = {})
     initClaimSwitchResizeObserver();
 
     const activeFilterKey = getActiveFilterKey(state);
-    const trackWrapper = document.querySelector('.hero-journey-track-wrapper');
 
     if (trackWrapper) {
-        const savedPos = getStoredFilterScrollPosition(activeFilterKey);
-        if (savedPos !== undefined && savedPos !== null) {
-            requestAnimationFrame(() => {
-                trackWrapper.scrollLeft = savedPos;
-            });
-        } else {
-            const isUnclaimedFilter = Boolean(state?.heroJourney?.unclaimedOnly);
-            if (isUnclaimedFilter) {
-                requestAnimationFrame(() => {
-                    trackWrapper.scrollLeft = 0;
-                });
-            } else if (!skipAutoScroll) {
-                autoScrollToCompletedNode(cumulativeLevel);
+        const restoreScroll = () => {
+            const maxScroll = Math.max(0, trackWrapper.scrollWidth - trackWrapper.clientWidth);
+            let finalPos;
+
+            if (scrollToTrackEnd) {
+                finalPos = maxScroll;
+            } else if (targetScrollLeft !== undefined) {
+                finalPos = Math.min(targetScrollLeft, maxScroll);
+            } else {
+                const storedPos = getStoredFilterScrollPosition(activeFilterKey);
+                if (storedPos !== undefined && storedPos !== null) {
+                    finalPos = Math.min(storedPos, maxScroll);
+                } else if (skipAutoScroll && preRenderScrollLeft > 0) {
+                    finalPos = Math.min(preRenderScrollLeft, maxScroll);
+                }
             }
-        }
+
+            if (finalPos !== undefined) {
+                saveCurrentFilterScrollPosition(activeFilterKey, finalPos);
+                if (typeof trackWrapper.scrollTo === 'function') {
+                    trackWrapper.scrollTo({ left: finalPos, behavior: 'instant' });
+                } else {
+                    trackWrapper.scrollLeft = finalPos;
+                }
+                updateCustomScrollbar();
+                setTimeout(() => {
+                    setIsAutoScrolling(false);
+                }, 100);
+            } else {
+                const isUnclaimedFilter = Boolean(state?.heroJourney?.unclaimedOnly);
+                if (isUnclaimedFilter) {
+                    saveCurrentFilterScrollPosition(activeFilterKey, 0);
+                    if (typeof trackWrapper.scrollTo === 'function') {
+                        trackWrapper.scrollTo({ left: 0, behavior: 'instant' });
+                    } else {
+                        trackWrapper.scrollLeft = 0;
+                    }
+                    updateCustomScrollbar();
+                    setTimeout(() => {
+                        setIsAutoScrolling(false);
+                    }, 100);
+                } else if (!skipAutoScroll) {
+                    autoScrollToCompletedNode(cumulativeLevel);
+                } else {
+                    setIsAutoScrolling(false);
+                }
+            }
+        };
+
+        requestAnimationFrame(() => {
+            restoreScroll();
+        });
     }
 
     updateHeroJourneyUpcomingBadges(state);

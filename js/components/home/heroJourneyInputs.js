@@ -354,11 +354,23 @@ export function setupHeroJourneyInputs(state) {
 
             const revealBtn = target.closest('#home-hj-reveal-btn');
             if (revealBtn) {
+                const liveTrackWrapper = document.querySelector('.hero-journey-track-wrapper');
+                const wasRevealed = Boolean(state.heroJourney?.revealBeyondTH);
+                const currentScrollLeft = liveTrackWrapper ? liveTrackWrapper.scrollLeft : (trackWrapper ? trackWrapper.scrollLeft : 0);
+
                 handleStateUpdate(() => {
                     if (!state.heroJourney) state.heroJourney = {};
-                    state.heroJourney.revealBeyondTH = !state.heroJourney.revealBeyondTH;
+                    state.heroJourney.revealBeyondTH = !wasRevealed;
                 }, true);
-                renderHeroJourneyDisplay(state, { skipAutoScroll: true });
+
+                const currentKey = getActiveFilterKey(state);
+
+                if (wasRevealed) {
+                    renderHeroJourneyDisplay(state, { skipAutoScroll: true, scrollToTrackEnd: true });
+                } else {
+                    saveCurrentFilterScrollPosition(currentKey, currentScrollLeft);
+                    renderHeroJourneyDisplay(state, { skipAutoScroll: true, targetScrollLeft: currentScrollLeft });
+                }
                 return;
             }
 
