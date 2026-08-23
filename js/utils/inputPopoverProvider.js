@@ -21,6 +21,10 @@ function ensureGlobalScrollResizeListeners() {
 
     window.addEventListener('scroll', handleGlobalScrollResize, { capture: true, passive: true });
     window.addEventListener('resize', handleGlobalScrollResize, { passive: true });
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', handleGlobalScrollResize, { passive: true });
+        window.visualViewport.addEventListener('scroll', handleGlobalScrollResize, { passive: true });
+    }
 }
 
 /**

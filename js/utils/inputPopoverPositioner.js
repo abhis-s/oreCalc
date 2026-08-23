@@ -59,6 +59,9 @@ export function positionPopover(popover, inputElement, options = {}) {
     popover.style.bottom = 'auto';
     popover.style.right = 'auto';
 
+    const vvTop = vv ? (vv.offsetTop || 0) : 0;
+    const vvLeft = vv ? (vv.offsetLeft || 0) : 0;
+
     let top = 0;
     let left = 0;
 
@@ -66,21 +69,18 @@ export function positionPopover(popover, inputElement, options = {}) {
     popover.classList.add(`position-${finalPlacement}`);
 
     if (finalPlacement === 'above') {
-        top = inputRect.top - popoverHeight - 6;
-        left = inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
+        top = vvTop + inputRect.top - popoverHeight - 6;
+        left = vvLeft + inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
     } else if (finalPlacement === 'below') {
-        top = inputRect.bottom + 6;
-        left = inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
+        top = vvTop + inputRect.bottom + 6;
+        left = vvLeft + inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
     } else if (finalPlacement === 'right') {
-        top = inputRect.top + (inputRect.height / 2) - (popoverHeight / 2);
-        left = inputRect.right + 8;
+        top = vvTop + inputRect.top + (inputRect.height / 2) - (popoverHeight / 2);
+        left = vvLeft + inputRect.right + 8;
     } else if (finalPlacement === 'left') {
-        top = inputRect.top + (inputRect.height / 2) - (popoverHeight / 2);
-        left = inputRect.left - popoverWidth - 8;
+        top = vvTop + inputRect.top + (inputRect.height / 2) - (popoverHeight / 2);
+        left = vvLeft + inputRect.left - popoverWidth - 8;
     }
-
-    const vvTop = vv ? (vv.offsetTop || 0) : 0;
-    const vvLeft = vv ? (vv.offsetLeft || 0) : 0;
 
     left = Math.max(vvLeft + 8, Math.min(left, vvLeft + viewportWidth - popoverWidth - 8));
     top = Math.max(vvTop + 8, Math.min(top, vvTop + viewportHeight - popoverHeight - 8));

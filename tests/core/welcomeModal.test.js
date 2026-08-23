@@ -274,8 +274,8 @@ describe('Welcome Modal Comprehensive Feature Suite', () => {
         const content = fs.readFileSync(positionerPath, 'utf8');
 
         assert.match(content, /popover\.style\.position\s*=\s*['"]fixed['"];/, 'Must use fixed position for popover');
-        assert.match(content, /top\s*=\s*inputRect\.top\s*-\s*popoverHeight\s*-\s*6;/, 'Above placement must use inputRect.top');
-        assert.match(content, /top\s*=\s*inputRect\.bottom\s*\+\s*6;/, 'Below placement must use inputRect.bottom');
+        assert.match(content, /top\s*=\s*vvTop\s*\+\s*inputRect\.top\s*-\s*popoverHeight\s*-\s*6;/, 'Above placement must use vvTop + inputRect.top');
+        assert.match(content, /top\s*=\s*vvTop\s*\+\s*inputRect\.bottom\s*\+\s*6;/, 'Below placement must use vvTop + inputRect.bottom');
         assert.match(content, /left\s*=\s*Math\.max\(vvLeft\s*\+\s*8,\s*Math\.min\(left,\s*vvLeft\s*\+\s*viewportWidth\s*-\s*popoverWidth\s*-\s*8\)\);/, 'Must clamp left coordinate to viewport boundaries');
         assert.match(content, /top\s*=\s*Math\.max\(vvTop\s*\+\s*8,\s*Math\.min\(top,\s*vvTop\s*\+\s*viewportHeight\s*-\s*popoverHeight\s*-\s*8\)\);/, 'Must clamp top coordinate to viewport boundaries');
     });
