@@ -1,3 +1,4 @@
+import { loadTranslations } from './i18n/translator.js';
 import { updateUIWithTranslations } from './i18n/uiTranslator.js';
 
 import { bootstrapUIComponents, handlePreloaderTeardown } from './core/appBootstrapper.js';
@@ -139,7 +140,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             logger.log(`Upgraded localStorage state version from ${originalVersion} to ${state.appVersion}`);
             saveState(state, true);
             if (compareVersions(originalVersion, state.appVersion) < 0 || showChangelogFlag) {
-                setTimeout(() => {
+                setTimeout(async () => {
+                    const currentLang = state.uiSettings?.language || 'en';
+                    await loadTranslations('en');
+                    if (currentLang !== 'en') {
+                        await loadTranslations(currentLang);
+                    }
                     const content = getChangelogHtml();
                     if (isInterruptionRestricted()) {
                         window.pendingChangelogContent = content;
@@ -153,7 +159,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
                 const commits = Array.isArray(rawCommits) ? rawCommits : [];
                 if (commits.length > 0) {
-                    setTimeout(() => {
+                    setTimeout(async () => {
+                        const currentLang = state.uiSettings?.language || 'en';
+                        await loadTranslations('en');
+                        if (currentLang !== 'en') {
+                            await loadTranslations(currentLang);
+                        }
                         if (isInterruptionRestricted()) {
                             window.pendingCommits = commits;
                         } else {
@@ -303,6 +314,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         const initialLang = detectLanguage();
         state.uiSettings.language = initialLang;
         syncLanguageUrl(initialLang, true);
+
+        loadTranslations('en').then(() => {
+            if (initialLang !== 'en') {
+                return loadTranslations(initialLang);
+            }
+        }).catch(err => logger.warn('Preloading translations failed:', err));
 
         setTimeout(async () => {
             await bootstrapUIComponents(initialLang);

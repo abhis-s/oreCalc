@@ -88,8 +88,10 @@ export function showCommitsModal(commits) {
         if (modalTitle) {
             if (milestones.length > 0) {
                 modalTitle.textContent = translate('views.commits.milestoneTitle');
+                modalTitle.setAttribute('data-i18n', 'views.commits.milestoneTitle');
             } else {
                 modalTitle.textContent = translate('views.commits.title');
+                modalTitle.setAttribute('data-i18n', 'views.commits.title');
             }
         }
 
@@ -100,7 +102,7 @@ export function showCommitsModal(commits) {
                 <div class="milestones-section">
                     <div class="milestones-title-group">
                         <orecalc-assets-svg name="star-shine" class="milestones-icon" height="20" width="20"></orecalc-assets-svg>
-                        <span>${translate('views.commits.highlightsTitle')}</span>
+                        <span data-i18n="views.commits.highlightsTitle">${translate('views.commits.highlightsTitle')}</span>
                     </div>
                     <ul class="milestones-list">
             `;
@@ -117,13 +119,13 @@ export function showCommitsModal(commits) {
                 html += `
                     <details class="other-updates-details">
                         <summary class="other-updates-summary">
-                            <span>${translate('views.commits.otherUpdatesTitle')}</span>
+                            <span data-i18n="views.commits.otherUpdatesTitle">${translate('views.commits.otherUpdatesTitle')}</span>
                             <orecalc-assets-svg name="dropdown" class="summary-toggle-icon"></orecalc-assets-svg>
                         </summary>
                         <div class="other-updates-content">
                 `;
             } else {
-                html += `<h3 class="other-updates-heading">${translate('views.commits.otherUpdatesTitle')}</h3>`;
+                html += `<h3 class="other-updates-heading" data-i18n="views.commits.otherUpdatesTitle">${translate('views.commits.otherUpdatesTitle')}</h3>`;
             }
 
             html += '<ul class="commits-list">';

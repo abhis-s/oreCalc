@@ -22,7 +22,7 @@ export function getChangelogHtml() {
                 <div class="changelog-header">
                     <h3 class="changelog-version">${release.version}</h3>
                     <span class="changelog-date">${formattedDate}</span>
-                    ${isLatest ? `<span class="changelog-badge-latest">${translate('app.latest')}</span>` : ''}
+                    ${isLatest ? `<span class="changelog-badge-latest" data-i18n="app.latest">${translate('app.latest')}</span>` : ''}
                 </div>
                 <ul class="changelog-list">
         `;
@@ -45,7 +45,7 @@ export function getChangelogHtml() {
 
             html += `
                 <li class="changelog-item ${changeClass}">
-                    <span class="change-badge">${badgeLabel}</span>
+                    <span class="change-badge" data-i18n="${typeKey}">${badgeLabel}</span>
                     <span class="change-text">${change.text}</span>
                 </li>
             `;
