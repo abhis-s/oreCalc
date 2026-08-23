@@ -370,7 +370,9 @@
     },
     "errors": {
         "atLeastOneOreRequired": "Mindestens eine Erzmenge muss größer als 0 sein.",
+        "browserOutdated": "Ihr Browser scheint veraltet zu sein. Bitte aktualisieren Sie Ihren Browser für das beste Erlebnis.",
         "bugDescriptionRequired": "Bitte gib eine Beschreibung von mindestens 20 Zeichen ein.",
+        "compatibilityNoticeFallback": "Der Speicherzugriff ist eingeschränkt oder Ihr Browser ist veraltet. Bitte aktivieren Sie Cookies/lokalen Speicher oder aktualisieren Sie Ihren Browser, damit OreCalc ordnungsgemäß funktioniert.",
         "duplicateCustomType": "Ein eigener Chip dieses Typs existiert bereits.",
         "errorTitle": "Fehler",
         "fetchPlayerFailed": "Fehler beim Laden der Spielerdaten: <code>{error}</code>",
@@ -383,6 +385,7 @@
         "playerTagLength": "Das Spielerkürzel darf {max} Zeichen nicht überschreiten.",
         "playerTagRequired": "Bitte gib ein Spielerkürzel ein.",
         "showDetails": "Fehlerdetails anzeigen",
+        "storageRestricted": "Der Speicherzugriff ist in Ihren Browsereinstellungen eingeschränkt. Bitte aktivieren Sie Cookies und den lokalen Speicher, damit OreCalc ordnungsgemäß funktioniert.",
         "tokenRequired": "API-Token ist erforderlich.",
         "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte lade die Seite neu.",
         "verificationFailed": "Verifizierung fehlgeschlagen."

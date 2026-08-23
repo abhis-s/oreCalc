@@ -370,7 +370,9 @@
     },
     "errors": {
         "atLeastOneOreRequired": "At least one ore amount must be greater than 0.",
+        "browserOutdated": "Your browser appears to be outdated. Please update your browser for the best experience.",
         "bugDescriptionRequired": "Please enter a description of at least 20 characters.",
+        "compatibilityNoticeFallback": "Storage access is restricted or your browser is outdated. Please enable cookies/local storage or update your browser for OreCalc to function properly.",
         "duplicateCustomType": "A custom chip of this type already exists.",
         "errorTitle": "Error",
         "fetchPlayerFailed": "Failed to load player data: <code>{error}</code>",
@@ -383,6 +385,7 @@
         "playerTagLength": "Player tag cannot exceed {max} characters.",
         "playerTagRequired": "Please enter a player tag.",
         "showDetails": "Show Error Details",
+        "storageRestricted": "Storage access is restricted in your browser settings. Please enable cookies and local storage for OreCalc to function properly.",
         "tokenRequired": "API Token is required.",
         "unexpectedError": "An unexpected error occurred. Please reload the page.",
         "verificationFailed": "Verification failed."

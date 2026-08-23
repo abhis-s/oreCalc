@@ -170,7 +170,14 @@
                     isStorageAvailable = false;
                 }
 
-                var isModernBrowser = typeof Array.prototype.at === 'function' && typeof fetch === 'function';
+                var isModernBrowser = (
+                    typeof Array.prototype.at === 'function' &&
+                    typeof Object.hasOwn === 'function' &&
+                    typeof window.structuredClone === 'function' &&
+                    typeof window.HTMLDialogElement === 'function' &&
+                    typeof fetch === 'function' &&
+                    Boolean(window.crypto && typeof window.crypto.randomUUID === 'function')
+                );
 
                 if (!isStorageAvailable || !isModernBrowser) {
                     window.addEventListener('DOMContentLoaded', function () {
@@ -532,9 +539,9 @@
     <div id="browser-compatibility-notice" class="browser-compatibility-notice" style="display: none;" role="alert">
         <div class="compatibility-notice-content">
             <svg class="compatibility-notice-icon" aria-hidden="true"><use href="#icon-warning"></use></svg>
-            <span class="compatibility-notice-text">Storage access is restricted or your browser is outdated. Please enable cookies/local storage or update your browser for OreCalc to function properly.</span>
+            <span class="compatibility-notice-text" data-i18n="errors.compatibilityNoticeFallback">Storage access is restricted or your browser is outdated. Please enable cookies/local storage or update your browser for OreCalc to function properly.</span>
         </div>
-        <button type="button" class="compatibility-notice-close" onclick="document.getElementById('browser-compatibility-notice').style.display='none'" aria-label="Dismiss">
+        <button type="button" class="compatibility-notice-close" onclick="document.getElementById('browser-compatibility-notice').style.display='none'" aria-label="Dismiss" data-i18n-aria-label="actions.dismiss">
             <svg class="compatibility-notice-close-icon" aria-hidden="true"><use href="#icon-close"></use></svg>
         </button>
     </div>
