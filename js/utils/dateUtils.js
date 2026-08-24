@@ -321,35 +321,23 @@ function findLastDayOfWeek(year, month, dayOfWeek) {
  * @param {string} [locale='en'] - UI language locale.
  * @returns {string} Formatted range string.
  */
-function formatSupercellEventsDate(startDate, endDate, locale = 'en') {
+export function formatSupercellEventsDate(startDate, endDate, locale = 'en') {
     const effectiveLocale = getLocale(locale);
-    const isDayFirst = locale !== 'en';
 
     // Check if it's a full month event (like World Finals often are in the schedule)
     const isFullMonth = startDate.getUTCDate() === 1 &&
                        (endDate.getUTCDate() >= 28 || (endDate.getUTCMonth() !== startDate.getUTCMonth()));
 
     if (isFullMonth) {
-        return startDate.toLocaleString(locale, { month: 'long', timeZone: 'UTC' });
+        return getCachedDateTimeFormat(effectiveLocale, { month: 'long', timeZone: 'UTC' }).format(startDate);
     }
 
-    const startMonth = startDate.toLocaleString(locale, { month: 'short', timeZone: 'UTC' });
-    const startDay = startDate.getUTCDate();
-    const endDay = endDate.getUTCDate();
-
-    if (startDate.getUTCMonth() === endDate.getUTCMonth()) {
-        if (startDay === endDay) {
-            return isDayFirst ? `${startDay} ${startMonth}` : `${startMonth} ${startDay}`;
-        }
-        // e.g., "Jun 27, 28" or "27-28 Jun"
-        return isDayFirst ? `${startDay}-${endDay} ${startMonth}` : `${startMonth} ${startDay}, ${endDay}`;
-    } else {
-        const endMonth = endDate.toLocaleString(locale, { month: 'short', timeZone: 'UTC' });
-        // e.g., "Oct 31 - Nov 2" or "31. Okt - 2. Nov"
-        return isDayFirst ?
-            `${startDay} ${startMonth} - ${endDay} ${endMonth}` :
-            `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
+    const formatter = getCachedDateTimeFormat(effectiveLocale, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    if (typeof formatter.formatRange === 'function') {
+        return formatter.formatRange(startDate, endDate);
     }
+
+    return getCachedDateTimeFormat(effectiveLocale, { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(startDate);
 }
 
 /**
@@ -357,9 +345,10 @@ function formatSupercellEventsDate(startDate, endDate, locale = 'en') {
  *
  * @param {number} year - Year to evaluate.
  * @param {any} supercellEventsData - Source tournament schedule metadata.
+ * @param {string} [locale='en'] - UI language code.
  * @returns {any[]} List of event objects with dates and localized labels.
  */
-export function getSupercellEventsForYear(year, supercellEventsData) {
+export function getSupercellEventsForYear(year, supercellEventsData, locale = 'en') {
     let events = [];
     if (supercellEventsData.events && supercellEventsData.events[year]) {
         events = supercellEventsData.events[year];
@@ -383,10 +372,11 @@ export function getSupercellEventsForYear(year, supercellEventsData) {
             return acc;
         }, {});
 
+        /** @type {Date | null} */
         let lastMonthlyFinalsDate = null;
 
         if (eventTemplates['Monthly Finals']) {
-            eventTemplates['Monthly Finals'].forEach(month => {
+            for (const month of eventTemplates['Monthly Finals']) {
                 const lastSunday = findLastDayOfWeek(year, month, 0); // 0 = Sunday
                 if (lastSunday) {
                     const lastSaturday = addDays(lastSunday, -1);
@@ -396,7 +386,7 @@ export function getSupercellEventsForYear(year, supercellEventsData) {
                     generatedEvents.push({ name: 'Monthly Finals', start: startStr, end: endStr });
                     lastMonthlyFinalsDate = lastSunday;
                 }
-            });
+            }
         }
 
         if (eventTemplates['Last Chance Qualifier'] && lastMonthlyFinalsDate) {
@@ -426,7 +416,7 @@ export function getSupercellEventsForYear(year, supercellEventsData) {
     // Ensure all labels are translated/localized based on current language
     return events.map(event => ({
         ...event,
-        label: formatSupercellEventsDate(new Date(event.start), new Date(event.end))
+        label: formatSupercellEventsDate(new Date(event.start), new Date(event.end), locale)
     }));
 }
 

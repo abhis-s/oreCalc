@@ -39,7 +39,8 @@ function renderSupercellEvents() {
 
     const now = new Date();
     const currentYear = now.getUTCFullYear();
-    const events = getSupercellEventsForYear(currentYear, supercellEventsData);
+    const currentLang = state.uiSettings?.language || 'en';
+    const events = getSupercellEventsForYear(currentYear, supercellEventsData, currentLang);
     const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
     if (events.length === 0) {
@@ -141,4 +142,8 @@ function renderSupercellEvents() {
     `;
 
     container.innerHTML = html;
+}
+
+if (typeof document !== 'undefined') {
+    document.addEventListener('languageChanged', renderSupercellEvents);
 }

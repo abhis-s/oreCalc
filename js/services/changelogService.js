@@ -1,4 +1,5 @@
 import { changelogData } from '../data/changelogData.js';
+import { state } from '../core/state.js';
 import { translate } from '../i18n/translator.js';
 import { formatDate } from '../utils/dateUtils.js';
 
@@ -9,13 +10,14 @@ import { formatDate } from '../utils/dateUtils.js';
  */
 export function getChangelogHtml() {
     let html = '<div class="changelog-container">';
+    const currentLang = state.uiSettings?.language || 'en';
 
     changelogData.forEach((release, index) => {
         const isLatest = index === 0;
         const releaseClass = isLatest ? 'changelog-release latest' : 'changelog-release';
 
-        const dateObj = new Date(release.date);
-        const formattedDate = formatDate(dateObj, { year: 'numeric', month: 'long', day: 'numeric' });
+        const dateObj = new Date(release.date + 'T00:00:00Z');
+        const formattedDate = formatDate(dateObj, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }, currentLang);
 
         html += `
             <div class="${releaseClass}">

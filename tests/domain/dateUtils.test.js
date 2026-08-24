@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
     formatDate,
+    formatSupercellEventsDate,
     getDaysInMonth,
     getSupercellEventsForYear,
     getISOWeekNumber,
@@ -76,4 +77,36 @@ test('extractScheduleStartDate normalizes Date objects and range objects cleanly
     assert.equal(extractScheduleStartDate(null), null);
     assert.equal(extractScheduleStartDate(undefined), undefined);
     assert.equal(extractScheduleStartDate('invalid'), 'invalid');
+});
+
+test('formatSupercellEventsDate produces standard localized date ranges and full-month formats', () => {
+    const startRange = new Date('2026-06-27T16:00:00Z');
+    const endRange = new Date('2026-06-28T23:00:00Z');
+
+    const enRange = formatSupercellEventsDate(startRange, endRange, 'en');
+    assert.ok(enRange.includes('Jun') && enRange.includes('27') && enRange.includes('28'));
+
+    const deRange = formatSupercellEventsDate(startRange, endRange, 'de');
+    assert.ok(deRange.includes('27') && deRange.includes('28'));
+
+    const zhRange = formatSupercellEventsDate(startRange, endRange, 'zh');
+    assert.ok(zhRange.includes('6') && zhRange.includes('27') && zhRange.includes('28'));
+
+    const startMonth = new Date('2026-11-01T00:00:00Z');
+    const endMonth = new Date('2026-11-30T23:59:59Z');
+
+    assert.equal(formatSupercellEventsDate(startMonth, endMonth, 'en'), 'November');
+    assert.equal(formatSupercellEventsDate(startMonth, endMonth, 'de'), 'November');
+    assert.equal(formatSupercellEventsDate(startMonth, endMonth, 'zh'), '十一月');
+    assert.equal(formatSupercellEventsDate(startMonth, endMonth, 'tr'), 'Kasım');
+});
+
+test('getSupercellEventsForYear formats localized event labels according to passed locale', () => {
+    const eventsEn = getSupercellEventsForYear(2026, supercellEventsData, 'en');
+    const eventsDe = getSupercellEventsForYear(2026, supercellEventsData, 'de');
+    const eventsZh = getSupercellEventsForYear(2026, supercellEventsData, 'zh');
+
+    assert.equal(eventsEn[eventsEn.length - 1].label, 'November');
+    assert.equal(eventsDe[eventsDe.length - 1].label, 'November');
+    assert.equal(eventsZh[eventsZh.length - 1].label, '十一月');
 });
