@@ -209,7 +209,8 @@ async function build() {
             { src: '404.html', dest: '404.html' },
             { src: 'legal/legal.js', dest: 'legal/legal.js' },
             { src: 'legal/licenses', dest: 'licenses' },
-            { src: '.well-known', dest: '.well-known' }
+            { src: '.well-known', dest: '.well-known' },
+            { src: '_redirects', dest: '_redirects' }
         ];
 
         for (const entry of copyEntries) {
@@ -303,7 +304,7 @@ async function build() {
         fs.writeFileSync(path.join(distDir, 'index.html'), defaultHtml, 'utf8');
         console.log(`Compiled and bundled index.html for root and language routes.`);
 
-        const sitemapXml = generateSitemapXml(supportedLanguages, legalPages);
+        const sitemapXml = generateSitemapXml(supportedLanguages);
         fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml, 'utf8');
         console.log('Generated dynamic dist/sitemap.xml for enabled languages.');
 

@@ -133,7 +133,9 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
             col: parsedCol,
             stack: typeof stack === 'string' ? stack.substring(0, 4000) : '',
             url: typeof url === 'string' ? url.substring(0, 500) : '',
-            userAgent: typeof userAgent === 'string' ? userAgent.substring(0, 300) : '',
+            userAgent: typeof userAgent === 'string' && userAgent.trim()
+                ? userAgent.substring(0, 300)
+                : (req.headers['user-agent'] ? String(req.headers['user-agent']).substring(0, 300) : ''),
             reportedAt: now.toISOString(),
             expireAt: admin.firestore.Timestamp.fromDate(expireDate),
             status: 'new'

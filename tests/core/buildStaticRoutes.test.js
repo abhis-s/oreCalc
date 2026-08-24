@@ -45,7 +45,7 @@ describe('Static Build Routes Verification Suite', () => {
         }
     });
 
-    test('verifies dist/sitemap.xml has clean URLs without /en/ entries', () => {
+    test('verifies dist/sitemap.xml has clean URLs without /en/ or legal page entries', () => {
         const sitemapPath = path.join(distDir, 'sitemap.xml');
         assert.equal(fs.existsSync(sitemapPath), true);
 
@@ -56,13 +56,30 @@ describe('Static Build Routes Verification Suite', () => {
         assert.ok(content.includes('<loc>https://orecalc.tech/zh/</loc>'));
         assert.equal(content.includes('<loc>https://orecalc.tech/en/</loc>'), false);
         assert.equal(content.includes('<loc>https://orecalc.tech/en</loc>'), false);
+        assert.equal(content.includes('<loc>https://orecalc.tech/privacy/</loc>'), false);
+        assert.equal(content.includes('<loc>https://orecalc.tech/terms/</loc>'), false);
+        assert.equal(content.includes('<loc>https://orecalc.tech/licenses/</loc>'), false);
     });
 
-    test('verifies legal routes and static legal stylesheet/script assets exist in dist', () => {
+    test('verifies dist/_redirects exists and configures 301 redirects for legacy routes', () => {
+        const redirectsPath = path.join(distDir, '_redirects');
+        assert.equal(fs.existsSync(redirectsPath), true);
+
+        const content = fs.readFileSync(redirectsPath, 'utf8');
+        assert.ok(content.includes('/en/*    /:splat    301') || content.includes('/en/*'));
+        assert.ok(content.includes('/en      /          301') || content.includes('/en /'));
+    });
+
+    test('verifies legal routes and static legal stylesheet/script assets exist with noindex meta in dist', () => {
         assert.equal(fs.existsSync(path.join(distDir, 'legal', 'legal.css')), true);
         assert.equal(fs.existsSync(path.join(distDir, 'legal', 'legal.js')), true);
-        assert.equal(fs.existsSync(path.join(distDir, 'privacy', 'index.html')), true);
-        assert.equal(fs.existsSync(path.join(distDir, 'terms', 'index.html')), true);
-        assert.equal(fs.existsSync(path.join(distDir, 'licenses', 'index.html')), true);
+
+        const privacyHtml = fs.readFileSync(path.join(distDir, 'privacy', 'index.html'), 'utf8');
+        const termsHtml = fs.readFileSync(path.join(distDir, 'terms', 'index.html'), 'utf8');
+        const licensesHtml = fs.readFileSync(path.join(distDir, 'licenses', 'index.html'), 'utf8');
+
+        assert.ok(privacyHtml.includes('<meta name="robots" content="noindex, follow">'));
+        assert.ok(termsHtml.includes('<meta name="robots" content="noindex, follow">'));
+        assert.ok(licensesHtml.includes('<meta name="robots" content="noindex, follow">'));
     });
 });

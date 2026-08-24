@@ -1,11 +1,11 @@
 /**
- * Generates valid XML sitemap string for root, enabled language routes, and legal pages.
+ * Generates valid XML sitemap string for root and enabled language routes.
  *
  * @param {string[]} supportedLanguages - List of enabled language codes.
- * @param {Array<{ name: string, srcEn: string, srcDe: string|null }>} legalPages - Legal pages configuration.
+ * @param {Array<{ name: string, srcEn: string, srcDe: string|null }>} [legalPages=[]] - Optional legal pages configuration.
  * @returns {string} XML sitemap content.
  */
-function generateSitemapXml(supportedLanguages, legalPages) {
+function generateSitemapXml(supportedLanguages, legalPages = []) {
     const sitemapDate = new Date().toISOString().split('T')[0] + 'T00:00:00+00:00';
     let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -26,16 +26,18 @@ function generateSitemapXml(supportedLanguages, legalPages) {
         sitemapXml += `  <url>\n    <loc>https://orecalc.tech/${lang}/</loc>\n${alternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n\n`;
     }
 
-    for (const page of legalPages) {
-        let altLinks = '';
-        if (page.srcDe) {
-            altLinks = `    <xhtml:link rel="alternate" hreflang="en" href="https://orecalc.tech/${page.name}/" />\n` +
-                       `    <xhtml:link rel="alternate" hreflang="de" href="https://orecalc.tech/de/${page.name}/" />\n` +
-                       `    <xhtml:link rel="alternate" hreflang="x-default" href="https://orecalc.tech/${page.name}/" />\n`;
-        }
-        sitemapXml += `  <url>\n    <loc>https://orecalc.tech/${page.name}/</loc>\n${altLinks}    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.5</priority>\n  </url>\n\n`;
-        if (page.srcDe && supportedLanguages.includes('de')) {
-            sitemapXml += `  <url>\n    <loc>https://orecalc.tech/de/${page.name}/</loc>\n${altLinks}    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.5</priority>\n  </url>\n\n`;
+    if (Array.isArray(legalPages) && legalPages.length > 0) {
+        for (const page of legalPages) {
+            let altLinks = '';
+            if (page.srcDe) {
+                altLinks = `    <xhtml:link rel="alternate" hreflang="en" href="https://orecalc.tech/${page.name}/" />\n` +
+                           `    <xhtml:link rel="alternate" hreflang="de" href="https://orecalc.tech/de/${page.name}/" />\n` +
+                           `    <xhtml:link rel="alternate" hreflang="x-default" href="https://orecalc.tech/${page.name}/" />\n`;
+            }
+            sitemapXml += `  <url>\n    <loc>https://orecalc.tech/${page.name}/</loc>\n${altLinks}    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.5</priority>\n  </url>\n\n`;
+            if (page.srcDe && supportedLanguages.includes('de')) {
+                sitemapXml += `  <url>\n    <loc>https://orecalc.tech/de/${page.name}/</loc>\n${altLinks}    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.5</priority>\n  </url>\n\n`;
+            }
         }
     }
 

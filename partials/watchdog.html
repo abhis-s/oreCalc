@@ -1,0 +1,413 @@
+<script>
+    (function () {
+        function isClientNoise(msg) {
+            if (!msg || typeof msg !== 'string') return true;
+            if (msg === 'Script error.' || msg.indexOf('Script error') !== -1) return true;
+            if (msg.indexOf('apiErrors.notFound') !== -1 || msg.indexOf('Invalid Clash of Clans tag') !== -1) return true;
+            if (msg.indexOf('CWL') !== -1 || msg.indexOf('clan war log') !== -1 || msg.indexOf('privateWarLog') !== -1) return true;
+            if (msg.indexOf('SW registration failed') !== -1 || msg.indexOf('SW update check failed') !== -1) return true;
+            if (msg.indexOf('ResizeObserver') !== -1) return true;
+            return false;
+        }
+
+        // Browser Compatibility & Storage Accessibility Check
+        try {
+            var isStorageAvailable = false;
+            try {
+                var testKey = '__orecalc_storage_test__';
+                localStorage.setItem(testKey, '1');
+                isStorageAvailable = localStorage.getItem(testKey) === '1';
+                localStorage.removeItem(testKey);
+            } catch (storageErr) {
+                isStorageAvailable = false;
+            }
+
+            var isModernBrowser = (
+                typeof Array.prototype.at === 'function' &&
+                typeof Object.hasOwn === 'function' &&
+                typeof window.structuredClone === 'function' &&
+                typeof window.HTMLDialogElement === 'function' &&
+                typeof fetch === 'function' &&
+                Boolean(window.crypto && typeof window.crypto.randomUUID === 'function')
+            );
+
+            if (!isStorageAvailable || !isModernBrowser) {
+                window.addEventListener('DOMContentLoaded', function () {
+                    var banner = document.getElementById('browser-compatibility-notice');
+                    if (banner) {
+                        var textEl = banner.querySelector('.compatibility-notice-text');
+                        if (textEl) {
+                            if (!isStorageAvailable) {
+                                textEl.textContent = 'Storage access is restricted in your browser settings. Please enable cookies and local storage for OreCalc to function properly.';
+                            } else {
+                                textEl.textContent = 'Your browser appears to be outdated. Please update your browser for the best experience.';
+                            }
+                        }
+                        banner.style.display = 'flex';
+                    }
+                });
+            }
+        } catch (compatErr) {}
+
+        function isBotUserAgent(ua) {
+            if (!ua || typeof ua !== 'string') return false;
+            var s = ua.toLowerCase();
+            return (
+                s.indexOf('googlebot') !== -1 ||
+                s.indexOf('google-inspectiontool') !== -1 ||
+                s.indexOf('storebot-google') !== -1 ||
+                s.indexOf('googleother') !== -1 ||
+                s.indexOf('bingbot') !== -1 ||
+                s.indexOf('bingpreview') !== -1 ||
+                s.indexOf('slurp') !== -1 ||
+                s.indexOf('duckduckbot') !== -1 ||
+                s.indexOf('baiduspider') !== -1 ||
+                s.indexOf('yandex') !== -1 ||
+                s.indexOf('bot') !== -1 ||
+                s.indexOf('crawler') !== -1 ||
+                s.indexOf('spider') !== -1 ||
+                s.indexOf('lighthouse') !== -1 ||
+                s.indexOf('headlesschrome') !== -1 ||
+                s.indexOf('applebot') !== -1 ||
+                s.indexOf('bytespider') !== -1
+            );
+        }
+
+        // Client Console Error & Exception Monitoring
+        var reportedErrors = new Set();
+        function reportClientError(msg, source, line, col, stack) {
+            try {
+                var hostname = window.location.hostname;
+                if (hostname === 'localhost' || hostname === '127.0.0.1') return; // Disabled on dev server
+                if (isClientNoise(msg)) return;
+                if (isBotUserAgent(navigator.userAgent)) return;
+
+                var errorKey = (msg || '') + ':' + (source || '') + ':' + (line || 0);
+                if (reportedErrors.has(errorKey)) return;
+                reportedErrors.add(errorKey);
+                setTimeout(function () { reportedErrors.delete(errorKey); }, 10000);
+
+                var baseUrl = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                var userId = 'unknown';
+                try {
+                    userId = localStorage.getItem('oreCalc_userId') || localStorage.getItem('oreCalc_guestUserId') || 'unknown';
+                } catch (storageErr) {}
+
+                var payload = {
+                    userId: userId,
+                    environment: hostname,
+                    message: String(msg || 'Unknown Client Error'),
+                    source: String(source || ''),
+                    line: line || 0,
+                    col: col || 0,
+                    stack: String(stack || ''),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent
+                };
+
+                fetch(baseUrl + '/api/support/client-error', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(function () {});
+            } catch (e) {}
+        }
+
+        function triggerSelfHealingChunkReload() {
+            var lastChunkReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+            var now = Date.now();
+            if (!lastChunkReload || (now - parseInt(lastChunkReload, 10) > 15000)) {
+                sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+
+                // Purge browser CacheStorage (clears cached 404 responses & stale JS chunks)
+                if (window.caches) {
+                    try {
+                        caches.keys().then(function (names) {
+                            names.forEach(function (name) { caches.delete(name); });
+                        });
+                    } catch (e) {}
+                }
+
+                // Unregister active Service Workers to clear stale network proxies
+                if ('serviceWorker' in navigator) {
+                    try {
+                        navigator.serviceWorker.getRegistrations().then(function (regs) {
+                            regs.forEach(function (r) { r.unregister(); });
+                        });
+                    } catch (e) {}
+                }
+
+                // Hard cache-busting reload
+                setTimeout(function () {
+                    var url = new URL(window.location.href);
+                    url.searchParams.set('reload', now.toString());
+                    window.location.href = url.toString();
+                }, 150);
+                return true;
+            }
+            return false;
+        }
+
+        window.addEventListener('error', function (event) {
+            if (event && event.message) {
+                var isModuleError = /Load failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(event.message);
+                if (isModuleError && triggerSelfHealingChunkReload()) {
+                    return;
+                }
+                reportClientError(event.message, event.filename, event.lineno, event.colno, event.error ? event.error.stack : '');
+            }
+        });
+
+        window.addEventListener('unhandledrejection', function (event) {
+            if (event && event.reason) {
+                var reason = event.reason;
+                var msg = reason.message || String(reason);
+                var isModuleError = /Load failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(msg);
+                if (isModuleError && triggerSelfHealingChunkReload()) {
+                    return;
+                }
+                var stack = reason.stack || '';
+                reportClientError('Unhandled Promise Rejection: ' + msg, '', 0, 0, stack);
+            }
+        });
+
+        var origConsoleError = console.error;
+        console.error = function () {
+            var args = Array.prototype.slice.call(arguments);
+            origConsoleError.apply(console, args);
+            try {
+                var msg = args.map(function (a) {
+                    return (a && typeof a === 'object') ? (a.message || String(a)) : String(a);
+                }).join(' ');
+
+                var isModuleError = /Load failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(msg);
+                if (isModuleError && triggerSelfHealingChunkReload()) {
+                    return;
+                }
+
+                var errObj = args.find(function (a) { return a && a.stack; });
+                var stack = errObj ? errObj.stack : (new Error()).stack;
+
+                var sourceFile = '';
+                var lineNo = 0;
+                var colNo = 0;
+                if (stack) {
+                    var match = stack.match(/(https?:\/\/[^\s]+):(\d+):(\d+)/);
+                    if (match) {
+                        sourceFile = match[1];
+                        lineNo = parseInt(match[2], 10) || 0;
+                        colNo = parseInt(match[3], 10) || 0;
+                    }
+                }
+
+                reportClientError('Console Error: ' + msg, sourceFile, lineNo, colNo, stack);
+            } catch (e) {}
+        };
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('controllerchange', function () {
+                window.location.reload();
+            });
+        }
+
+        var appLoaded = false;
+        var initializationError = null;
+
+        window.__APP_LOADED_STATUS__ = false;
+
+        window.resetApplication = function () {
+            try {
+                localStorage.removeItem('oreCalculatorState');
+                localStorage.removeItem('oreCalc_appSettings');
+                localStorage.removeItem('oreCalc_players');
+                localStorage.removeItem('oreCalc_playerTags');
+                localStorage.removeItem('oreCalc_userId');
+                localStorage.removeItem('oreCalc_SWUpdatedTime');
+                localStorage.removeItem('oreCalcSWUpdatedTime');
+
+                // Remove all player profile keys
+                for (var i = 0; i < localStorage.length; i++) {
+                    var key = localStorage.key(i);
+                    if (key && key.indexOf('oreCalc_player_') === 0) {
+                        localStorage.removeItem(key);
+                        i--; // Adjust index as key removal shifts array
+                    }
+                }
+
+                // Purge CacheStorage caches
+                if ('caches' in window) {
+                    caches.keys().then(function (names) {
+                        names.forEach(function (name) { caches.delete(name); });
+                    });
+                }
+
+                // Unregister all Service Workers
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                        registrations.forEach(function (reg) { reg.unregister(); });
+                    });
+                }
+            } catch (e) {
+                console.error('Reset failed:', e);
+            }
+            setTimeout(function () {
+                window.location.reload(true);
+            }, 500);
+        };
+
+        window.handleChunkError = function (error) {
+            if (!error) return false;
+            var msg = error.message || error.toString() || '';
+            var isChunk = msg.indexOf('Failed to fetch dynamically imported module') !== -1 ||
+                         msg.indexOf('Importing a module script failed') !== -1 ||
+                         msg.indexOf('error loading dynamically imported module') !== -1;
+            if (isChunk) {
+                var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+                var now = Date.now();
+                if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
+                    sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+                    console.warn('Watchdog: Chunk import error handled. Reloading page...');
+                    window.location.reload();
+                }
+                return true;
+            }
+            return false;
+        };
+
+        window.__APP_LOADED__ = function () {
+            appLoaded = true;
+            window.__APP_LOADED_STATUS__ = true;
+
+            // Self-healing recovery: If load failure screen was shown due to network latency, hide it when app finishes loading
+            var screen = document.getElementById('load-failure-screen');
+            if (screen && screen.style.display !== 'none') {
+                screen.style.display = 'none';
+                console.info('Watchdog: Application successfully recovered and initialized in background.');
+            }
+        };
+
+        function handleCatastrophicError(error, stack) {
+            if (appLoaded) return;
+            initializationError = { error: error, stack: stack };
+
+            // Force service worker update on catastrophic failure so it can self-heal
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then(function (reg) {
+                    if (reg) {
+                        reg.update().catch(function (err) {
+                            console.error('Watchdog: SW update check failed:', err);
+                        });
+                        if (reg.waiting) {
+                            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                    }
+                });
+            }
+
+            setTimeout(function () {
+                var screen = document.getElementById('load-failure-screen');
+                var preloader = document.getElementById('preloader');
+                if (screen) {
+                    var msgEl = document.getElementById('load-failure-error-msg');
+                    var stackEl = document.getElementById('load-failure-error-stack');
+                    if (msgEl) msgEl.textContent = error || 'Unknown Error';
+                    if (stackEl) stackEl.textContent = stack || 'No stack trace available.';
+
+                    if (preloader) preloader.style.display = 'none';
+                    screen.style.display = 'flex';
+                }
+            }, 100);
+        }
+
+        // Continuous Background Watchdog Health Poller: Check every 500ms if app initialized in background
+        var backgroundPoller = setInterval(function () {
+            if (appLoaded || window.__APP_LOADED_STATUS__) {
+                var screen = document.getElementById('load-failure-screen');
+                if (screen && screen.style.display !== 'none') {
+                    screen.style.display = 'none';
+                }
+                clearInterval(backgroundPoller);
+            }
+        }, 500);
+
+        // Watchdog Hard Timeout: 15 seconds for slow network connections
+        setTimeout(function () {
+            if (!appLoaded && !window.__APP_LOADED_STATUS__ && !initializationError) {
+                handleCatastrophicError('Timeout: Application initialization took too long.', 'Watchdog triggered after 15000ms on slow network connection.');
+            }
+        }, 15000);
+
+        window.addEventListener('error', function (event) {
+            var target = event.target;
+            if (target && (target.tagName === 'LINK' || target.tagName === 'SCRIPT')) {
+                var url = target.src || target.href || '';
+                if (url.indexOf('chunk-') !== -1 && url.indexOf('.js') !== -1) {
+                    var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+                    var now = Date.now();
+                    if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
+                        sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+                        console.warn('Watchdog: Chunk resource failed to load. Reloading page...');
+                        window.location.reload();
+                        return;
+                    }
+                }
+            }
+
+            var errorMsg = event.error ? event.error.message : event.message;
+
+            // If a dynamic import fails (chunk mismatch due to new deployment), reload the page to load fresh assets
+            if (typeof errorMsg === 'string' && (
+                errorMsg.indexOf('Failed to fetch dynamically imported module') !== -1 ||
+                errorMsg.indexOf('Importing a module script failed') !== -1 ||
+                errorMsg.indexOf('error loading dynamically imported module') !== -1
+            )) {
+                var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+                var now = Date.now();
+                if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
+                    sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+                    console.warn('Watchdog: Dynamic import failed. Reloading page...');
+                    window.location.reload();
+                    return;
+                }
+            }
+
+            // Only trigger catastrophic failure screen for actual JS execution/runtime errors
+            if (!appLoaded && (event.error || event.message) && (!target || (target.tagName !== 'LINK' && target.tagName !== 'SCRIPT'))) {
+                var errorStack = event.error ? event.error.stack : '';
+                handleCatastrophicError(errorMsg, errorStack);
+            }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function (event) {
+            var errorMsg = event.reason ? (event.reason.message || event.reason || '') : '';
+
+            // If a dynamic import fails (chunk mismatch due to new deployment), reload the page to load fresh assets
+            if (typeof errorMsg === 'string' && (
+                errorMsg.indexOf('Failed to fetch dynamically imported module') !== -1 ||
+                errorMsg.indexOf('Importing a module script failed') !== -1 ||
+                errorMsg.indexOf('error loading dynamically imported module') !== -1
+            )) {
+                var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
+                var now = Date.now();
+                if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
+                    sessionStorage.setItem('oreCalc_lastChunkReload', now.toString());
+                    console.warn('Watchdog: Dynamic import failed. Reloading page...');
+                    window.location.reload();
+                    return;
+                }
+            }
+
+            if (!appLoaded) {
+                var errorStack = event.reason ? event.reason.stack : '';
+                handleCatastrophicError(errorMsg || 'Unhandled promise rejection', errorStack);
+            }
+        });
+
+        // Watchdog: If app is not loaded in 8 seconds, show load failure page
+        setTimeout(function () {
+            if (!appLoaded && !initializationError) {
+                handleCatastrophicError('Timeout: Application initialization took too long.', 'Watchdog triggered after 8000ms.');
+            }
+        }, 8000);
+    })();
+</script>

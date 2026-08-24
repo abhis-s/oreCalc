@@ -61,6 +61,87 @@ function isIgnoredNoise(message) {
 }
 
 /**
+ * Checks whether an incoming request/error originates from a search crawler, bot, or automated renderer.
+ *
+ * @param {string} [userAgent=''] - User-Agent header or client-reported userAgent string.
+ * @param {string} [message=''] - Error message text.
+ * @param {string} [url=''] - URL where the error occurred.
+ * @returns {boolean} True if the traffic comes from a crawler, scraper, or bot.
+ */
+function isBotTraffic(userAgent = '', message = '', url = '') {
+    const ua = String(userAgent || '').toLowerCase();
+    const msg = String(message || '').toLowerCase();
+    const pageUrl = String(url || '').toLowerCase();
+
+    // Known search engine crawlers, preview bots, security scanners, and headless renderers
+    const botPatterns = [
+        'googlebot',
+        'google-inspectiontool',
+        'storebot-google',
+        'googleother',
+        'mediapartners-google',
+        'adsbot-google',
+        'bingbot',
+        'bingpreview',
+        'msnbot',
+        'microsoftpreview',
+        'slurp',
+        'duckduckbot',
+        'duckduckgo-favicons-bot',
+        'baiduspider',
+        'yandex',
+        'sogou',
+        'exabot',
+        'facebot',
+        'facebookexternalhit',
+        'meta-externalagent',
+        'ia_archiver',
+        'twitterbot',
+        'telegrambot',
+        'discordbot',
+        'whatsapp',
+        'petalbot',
+        'semrushbot',
+        'ahrefsbot',
+        'dotbot',
+        'mj12bot',
+        'screaming frog',
+        'headlesschrome',
+        'phantomjs',
+        'lighthouse',
+        'chrome-lighthouse',
+        'pagespeed',
+        'prerender',
+        'bytespider',
+        'tiktokbot',
+        'applebot',
+        'amazonbot',
+        'cohere-ai',
+        'gptbot',
+        'chatgpt-user',
+        'anthropic-ai',
+        'claude-web',
+        'perplexitybot',
+        'ccbot',
+        'crawler',
+        'spider',
+        'scraper',
+        'bot/',
+        'bot;'
+    ];
+
+    if (botPatterns.some(pattern => ua.includes(pattern))) {
+        return true;
+    }
+
+    if (msg.includes('googlebot') || msg.includes('bingbot') || msg.includes('headlesschrome')) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Computes a standardized signature key for throttling duplicate errors.
  *
  * @param {string} message - Error message.
@@ -98,23 +179,28 @@ function computeErrorSignature(message, source = '') {
 /**
  * Evaluates whether an error should trigger an email alert.
  *
- * @param {{ userId?: string, environment?: string, message: string, source?: string }} errorData
+ * @param {{ userId?: string, environment?: string, message: string, source?: string, userAgent?: string, url?: string }} errorData
  * @returns {{ shouldSend: boolean, reason: string, signature: string }}
  */
 function shouldSendAlertEmail(errorData) {
-    const { userId, message, source } = errorData;
+    const { userId, message, source, userAgent, url } = errorData;
 
     // 1. Check if noise
     if (isIgnoredNoise(message)) {
         return { shouldSend: false, reason: 'ignored_noise', signature: '' };
     }
 
-    // 2. Check if anonymous / bot traffic (log in DB only)
+    // 2. Check if search crawler / bot traffic (Googlebot, Bingbot, Lighthouse, etc. - even if holding a guest userId)
+    if (isBotTraffic(userAgent, message, url)) {
+        return { shouldSend: false, reason: 'bot_crawler_traffic', signature: '' };
+    }
+
+    // 3. Check if anonymous / unknown traffic (log in DB only)
     if (!userId || userId === 'unknown' || userId === 'null' || userId === 'undefined') {
         return { shouldSend: false, reason: 'anonymous_user_db_only', signature: '' };
     }
 
-    // 3. Check 503 outage state
+    // 4. Check 503 outage state
     const is503 = message.includes('503') || message.includes('apiErrors.503') || message.includes('inMaintenance');
     const signature = computeErrorSignature(message, source || '');
     const now = Date.now();
@@ -126,7 +212,7 @@ function shouldSendAlertEmail(errorData) {
         return { shouldSend: true, reason: 'supercell_503_alert', signature };
     }
 
-    // 4. Check 10-minute cooldown for critical errors (413, TypeError, etc.)
+    // 5. Check 10-minute cooldown for critical errors (413, TypeError, etc.)
     const lastSent = recentAlertTimestamps.get(signature) || 0;
     if (now - lastSent < ALERT_COOLDOWN_MS) {
         return { shouldSend: false, reason: 'cooldown_active', signature };
@@ -227,6 +313,7 @@ module.exports = {
     ALERT_COOLDOWN_MS,
     outageState,
     isIgnoredNoise,
+    isBotTraffic,
     shouldSendAlertEmail,
     recordAlertSent,
     sendMailSafely,

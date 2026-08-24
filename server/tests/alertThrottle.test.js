@@ -5,6 +5,7 @@ const {
     ALERT_COOLDOWN_MS,
     outageState,
     isIgnoredNoise,
+    isBotTraffic,
     shouldSendAlertEmail,
     recordAlertSent,
     notify503RecoveryIfActive,
@@ -14,6 +15,21 @@ const {
 describe('Server Alert Throttling and Diagnostic Rules Suite', () => {
     beforeEach(() => {
         resetThrottleState();
+    });
+
+    test('isBotTraffic accurately identifies search crawlers, preview bots, and headless renderers', () => {
+        assert.equal(isBotTraffic('Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'), true);
+        assert.equal(isBotTraffic('Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)'), true);
+        assert.equal(isBotTraffic('Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome-Lighthouse'), true);
+        assert.equal(isBotTraffic('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 HeadlessChrome/120.0.0.0'), true);
+        assert.equal(isBotTraffic('Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'), true);
+        assert.equal(isBotTraffic('Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)'), true);
+        assert.equal(isBotTraffic('Applebot/0.1 (+http://www.apple.com/go/applebot)'), true);
+        assert.equal(isBotTraffic('facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'), true);
+
+        // Genuine human user agents must NOT be classified as bots
+        assert.equal(isBotTraffic('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'), false);
+        assert.equal(isBotTraffic('Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1'), false);
     });
 
     test('isIgnoredNoise correctly identifies and discards opaque extension errors and routine states', () => {
@@ -45,6 +61,38 @@ describe('Server Alert Throttling and Diagnostic Rules Suite', () => {
         const decision = shouldSendAlertEmail(anonymousError);
         assert.equal(decision.shouldSend, false);
         assert.equal(decision.reason, 'anonymous_user_db_only');
+    });
+
+    test('shouldSendAlertEmail strictly suppresses emails for bot and crawler traffic even with active userId', () => {
+        const googlebotError = {
+            userId: '12345678-1234-1234-1234-1234567890ab',
+            environment: 'orecalc.tech',
+            userAgent: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+            message: 'Console Error: [ERROR] Failed to save data to cloud: apiErrors.413'
+        };
+        const googleDecision = shouldSendAlertEmail(googlebotError);
+        assert.equal(googleDecision.shouldSend, false);
+        assert.equal(googleDecision.reason, 'bot_crawler_traffic');
+
+        const bingbotError = {
+            userId: '98765432-4321-4321-4321-ba0987654321',
+            environment: 'orecalc.tech',
+            userAgent: 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+            message: 'Unhandled Promise Rejection: TypeError: Cannot read property of null'
+        };
+        const bingDecision = shouldSendAlertEmail(bingbotError);
+        assert.equal(bingDecision.shouldSend, false);
+        assert.equal(bingDecision.reason, 'bot_crawler_traffic');
+
+        const lighthouseError = {
+            userId: 'guest-th16-active-id',
+            environment: 'orecalc.tech',
+            userAgent: 'Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 Chrome/119.0.0.0 Mobile Safari/537.36 Chrome-Lighthouse',
+            message: 'Console Error: [ERROR] Uncaught TypeError: Failed to execute'
+        };
+        const lighthouseDecision = shouldSendAlertEmail(lighthouseError);
+        assert.equal(lighthouseDecision.shouldSend, false);
+        assert.equal(lighthouseDecision.reason, 'bot_crawler_traffic');
     });
 
     test('shouldSendAlertEmail permits valid critical errors and enforces 10-minute cooldown', () => {

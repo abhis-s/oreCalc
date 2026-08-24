@@ -1,0 +1,10 @@
+# Legacy language routes redirect to root canonical
+/en/*    /:splat    301
+/en      /          301
+
+# Legal routes trailing slash normalizations
+/privacy   /privacy/   301
+/terms     /terms/     301
+/licenses  /licenses/  301
+/de/privacy /de/privacy/ 301
+/de/terms   /de/terms/   301
