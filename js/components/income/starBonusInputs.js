@@ -201,6 +201,7 @@ export function initializeStarBonusSelector() {
             min: STAR_BONUS_2X_DEFAULTS.minDuration,
             max: STAR_BONUS_2X_DEFAULTS.maxDuration,
             showMin: true,
+            minLabel: () => translate('actions.disable'),
             showMax: false,
             showRecommended: true,
             recommended: STAR_BONUS_2X_DEFAULTS.duration,

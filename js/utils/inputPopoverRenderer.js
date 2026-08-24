@@ -9,12 +9,17 @@ import { formatNumber } from './numberFormatter.js';
  * @returns {string|null}
  */
 export function getButtonHotkey(btn, btnLabel) {
-    if (btn.hotkey) return btn.hotkey;
+    if (btn?.hotkey) return btn.hotkey;
     const lowerLabel = (btnLabel || '').toLowerCase();
-    const disableText = translate('views.equipment.disable').toLowerCase();
-    const enableText = translate('views.equipment.enable').toLowerCase();
+    const actionsDisable = translate('actions.disable').toLowerCase();
+    const actionsEnable = translate('actions.enable').toLowerCase();
+    const equipDisable = translate('views.equipment.disable').toLowerCase();
+    const equipEnable = translate('views.equipment.enable').toLowerCase();
+
     if (lowerLabel.includes('disable') || lowerLabel.includes('enable') ||
-        lowerLabel.includes(disableText) || lowerLabel.includes(enableText)) {
+        lowerLabel.includes('deaktivieren') || lowerLabel.includes('aktivieren') ||
+        lowerLabel.includes(actionsDisable) || lowerLabel.includes(actionsEnable) ||
+        lowerLabel.includes(equipDisable) || lowerLabel.includes(equipEnable)) {
         return 'd';
     }
     return null;
@@ -42,6 +47,8 @@ export function renderPopoverContent(cfg) {
         clickToFill,
         allowHotkeys,
         customButtons,
+        minLabel,
+        maxLabel,
         recommendedLabel
     } = cfg;
 
@@ -87,10 +94,12 @@ export function renderPopoverContent(cfg) {
             if (val < currMin) statusClass = 'exceeded-color';
             else if (val === currMin) statusClass = 'match-color';
         }
-        const hotkeyLabel = (isClickable && allowHotkeys) ? ' <kbd class="popover-key-badge">N</kbd>' : '';
+        const effectiveMinLabel = minLabel || translate('validation.min');
+        const minHotkey = getButtonHotkey({ hotkey: cfg.minHotkey }, effectiveMinLabel) || 'n';
+        const hotkeyLabel = (isClickable && allowHotkeys) ? ` <kbd class="popover-key-badge">${minHotkey.toUpperCase()}</kbd>` : '';
         html += `
             <div class="popover-opt-btn ${clickableClass} ${statusClass}" data-action="min" role="${isClickable ? 'button' : 'document'}">
-                 <span>${translate('validation.min')}${hotkeyLabel}</span>
+                 <span>${effectiveMinLabel}${hotkeyLabel}</span>
                 <strong>${formatNumber(currMin)}</strong>
             </div>
         `;
@@ -121,10 +130,12 @@ export function renderPopoverContent(cfg) {
             if (val > currMax) statusClass = 'exceeded-color';
             else if (val === currMax) statusClass = 'match-color';
         }
-        const hotkeyLabel = (isClickable && allowHotkeys) ? ' <kbd class="popover-key-badge">X</kbd>' : '';
+        const effectiveMaxLabel = maxLabel || translate('validation.max');
+        const maxHotkey = getButtonHotkey({ hotkey: cfg.maxHotkey }, effectiveMaxLabel) || 'x';
+        const hotkeyLabel = (isClickable && allowHotkeys) ? ` <kbd class="popover-key-badge">${maxHotkey.toUpperCase()}</kbd>` : '';
         html += `
             <div class="popover-opt-btn ${clickableClass} ${statusClass}" data-action="max" role="${isClickable ? 'button' : 'document'}">
-                 <span>${translate('validation.max')}${hotkeyLabel}</span>
+                 <span>${effectiveMaxLabel}${hotkeyLabel}</span>
                 <strong>${formatNumber(currMax)}</strong>
             </div>
         `;

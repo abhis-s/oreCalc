@@ -111,6 +111,16 @@ export function registerInputPopover(inputElement, options = {}) {
         return options.recommended !== undefined ? options.recommended : 0;
     };
 
+    const getMinLabel = () => {
+        if (typeof options.minLabel === 'function') return options.minLabel();
+        return options.minLabel !== undefined ? options.minLabel : translate('validation.min');
+    };
+
+    const getMaxLabel = () => {
+        if (typeof options.maxLabel === 'function') return options.maxLabel();
+        return options.maxLabel !== undefined ? options.maxLabel : translate('validation.max');
+    };
+
     const getRecommendedLabel = () => {
         if (typeof options.recommendedLabel === 'function') return options.recommendedLabel();
         return options.recommendedLabel !== undefined ? options.recommendedLabel : translate('validation.recommended');
@@ -162,6 +172,10 @@ export function registerInputPopover(inputElement, options = {}) {
             clickToFill,
             allowHotkeys: options.showHotkeys !== undefined ? options.showHotkeys : true,
             customButtons: getCustomButtons(),
+            minLabel: getMinLabel(),
+            maxLabel: getMaxLabel(),
+            minHotkey: options.minHotkey,
+            maxHotkey: options.maxHotkey,
             recommendedLabel: getRecommendedLabel()
         });
 
@@ -178,7 +192,12 @@ export function registerInputPopover(inputElement, options = {}) {
         let actionTriggered = false;
         const val = parseFloat(inputElement.value);
 
-        if (key === 'n') {
+        const minLabel = getMinLabel();
+        const minHotkey = getButtonHotkey({ hotkey: options.minHotkey }, minLabel) || 'n';
+        const maxLabel = getMaxLabel();
+        const maxHotkey = getButtonHotkey({ hotkey: options.maxHotkey }, maxLabel) || 'x';
+
+        if (key === 'n' || key === minHotkey) {
             const currMin = getMin();
             if (getShowMin(currMin) && clickToFill.min) {
                 if (val !== currMin) {
@@ -189,7 +208,7 @@ export function registerInputPopover(inputElement, options = {}) {
                 }
                 actionTriggered = true;
             }
-        } else if (key === 'x') {
+        } else if (key === 'x' || key === maxHotkey) {
             const currMax = getMax();
             if (getShowMax() && clickToFill.max) {
                 if (val !== currMax) {
