@@ -107,17 +107,17 @@ describe('Milestone 2 State & Interaction Lifecycle Hardening Suite', () => {
         const { normalizePlayerTag } = await import('../../js/core/localStorageManager.js');
 
         // Case 1: Tag normalization across variations of DEFAULT0
-        const rawTags = ['#DEFAULT0', 'default0', ' #9L0V9G9C9 ', '2PP0J0V89'];
+        const rawTags = ['#DEFAULT0', 'default0', ' #8PJYGUJC ', '2PP0J0V89'];
         const validSavedTags = rawTags
             .map(tag => normalizePlayerTag(tag))
             .filter(tag => tag && tag !== 'DEFAULT0');
 
         assert.strictEqual(validSavedTags.length, 2, 'Must filter out all variations of DEFAULT0');
-        assert.deepStrictEqual(validSavedTags, ['9L0V9G9C9', '2PP0J0V89']);
+        assert.deepStrictEqual(validSavedTags, ['8PJYGUJC', '2PP0J0V89']);
 
         // Case 2: Active profile equality comparison with leading hash and casing mismatches
-        const savedPlayerTags = ['#9L0V9G9C9', '2PP0J0V89'];
-        const tagToDelete = '9l0v9g9c9'; // lowercase, no hash
+        const savedPlayerTags = ['#8PJYGUJC', '2PP0J0V89'];
+        const tagToDelete = '8pjygujc'; // lowercase, no hash
 
         const wasActive = normalizePlayerTag(savedPlayerTags[0]) === normalizePlayerTag(tagToDelete);
         assert.strictEqual(wasActive, true, 'Active profile deletion must match regardless of casing or hash prefix');

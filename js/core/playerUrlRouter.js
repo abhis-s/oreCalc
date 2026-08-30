@@ -2,7 +2,7 @@ import { normalizePlayerTag } from './localStorageManager.js';
 
 /**
  * Extracts and sanitizes player tag from URL query parameters.
- * @returns {string | null} Clean tag (e.g. '9L0V9G9C9') or null if absent.
+ * @returns {string | null} Clean tag (e.g. '8PJYGUJC') or null if absent.
  */
 export function getPlayerTagFromUrl() {
     if (typeof window === 'undefined' || !window.location) return null;
@@ -20,7 +20,7 @@ export function getPlayerTagFromUrl() {
 
 /**
  * Synchronizes the active player tag to the browser URL search parameters without reloading.
- * @param {string | null} tag - Active player tag (e.g. '9L0V9G9C9' or '#9L0V9G9C9') or null.
+ * @param {string | null} tag - Active player tag (e.g. '8PJYGUJC' or '#8PJYGUJC') or null.
  */
 export function syncPlayerTagToUrl(tag) {
     if (typeof window === 'undefined' || !window.location || !window.history?.replaceState) return;

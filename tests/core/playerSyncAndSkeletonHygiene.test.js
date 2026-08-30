@@ -39,7 +39,7 @@ beforeEach(() => {
 
 test('syncPlayerToStorage writes heroJourney partition without synthesizing default heroes', () => {
     const apiPayload = {
-        tag: '#9L0V9G9C9',
+        tag: '#8PJYGUJC',
         name: 'TestPlayer',
         townHallLevel: 14,
         heroes: [
@@ -52,10 +52,10 @@ test('syncPlayerToStorage writes heroJourney partition without synthesizing defa
 
     syncPlayerToStorage(apiPayload, { isAccelerated: false, revealBeyondTH: false, typeFilter: 'all', unclaimedOnly: false, showTable: true });
 
-    const canonicalKey = getPlayerStorageKey('9L0V9G9C9');
+    const canonicalKey = getPlayerStorageKey('8PJYGUJC');
     assert.ok(localStorage.getItem(canonicalKey), 'Should write partition for heroJourney preferences');
 
-    const cached = loadPlayerData('9L0V9G9C9');
+    const cached = loadPlayerData('8PJYGUJC');
     assert.ok(cached, 'loadPlayerData should return profile metadata');
     assert.equal(cached.heroes, undefined, 'loadPlayerData must NOT synthesize default heroes where all equipment is checked');
 });
@@ -75,7 +75,7 @@ test('loadPlayerData returns undefined heroes for partition missing heroes', () 
 
 test('processPlayerDataResponse sets unowned equipment to checked: false on initial sync', () => {
     const apiPayload = {
-        tag: '#9L0V9G9C9',
+        tag: '#8PJYGUJC',
         name: 'TestPlayer',
         townHallLevel: 14,
         heroes: [
@@ -90,7 +90,7 @@ test('processPlayerDataResponse sets unowned equipment to checked: false on init
 
     processPlayerDataResponse(apiPayload, { updateOrder: true });
 
-    const playerState = state.allPlayersData['9L0V9G9C9'];
+    const playerState = state.allPlayersData['8PJYGUJC'];
     assert.ok(playerState, 'Player state should be initialized');
 
     // Owned equipment should be checked: true
@@ -106,7 +106,7 @@ test('processPlayerDataResponse sets unowned equipment to checked: false on init
 
 test('processPlayerDataResponse preserves user manual checks on subsequent refreshes', () => {
     const apiPayload = {
-        tag: '#9L0V9G9C9',
+        tag: '#8PJYGUJC',
         name: 'TestPlayer',
         townHallLevel: 14,
         heroes: [
@@ -119,11 +119,11 @@ test('processPlayerDataResponse preserves user manual checks on subsequent refre
 
     processPlayerDataResponse(apiPayload, { updateOrder: true });
 
-    state.allPlayersData['9L0V9G9C9'].heroes['Barbarian King'].equipment['Giant Gauntlet'].checked = true;
+    state.allPlayersData['8PJYGUJC'].heroes['Barbarian King'].equipment['Giant Gauntlet'].checked = true;
 
     processPlayerDataResponse(apiPayload, { updateOrder: false });
 
-    const playerState = state.allPlayersData['9L0V9G9C9'];
+    const playerState = state.allPlayersData['8PJYGUJC'];
     assert.equal(playerState.heroes['Barbarian King'].equipment['Giant Gauntlet'].checked, true);
     assert.equal(playerState.heroes['Barbarian King'].equipment['Spiky Ball'].checked, false);
 });

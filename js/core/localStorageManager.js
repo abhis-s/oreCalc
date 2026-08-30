@@ -14,7 +14,7 @@ export const PLAYER_PREFIX = 'oreCalc_player_';
  * Normalizes a player tag for storage and state (strips ALL hashes, trims, uppercases).
  * 'DEFAULT0' is preserved as 'DEFAULT0'.
  * @param {any} tag
- * @returns {string} Clean tag (e.g. '9L0V9G9C9' or 'DEFAULT0')
+ * @returns {string} Clean tag (e.g. '8PJYGUJC' or 'DEFAULT0')
  */
 export function normalizePlayerTag(tag) {
     if (!tag) return '';
@@ -24,10 +24,10 @@ export function normalizePlayerTag(tag) {
 }
 
 /**
- * Returns a display-formatted player tag with strictly ONE leading hash (e.g. '#9L0V9G9C9').
+ * Returns a display-formatted player tag with strictly ONE leading hash (e.g. '#8PJYGUJC').
  * Returns empty string for empty tags or 'DEFAULT0'.
  * @param {any} tag
- * @returns {string} Display tag (e.g. '#9L0V9G9C9')
+ * @returns {string} Display tag (e.g. '#8PJYGUJC')
  */
 export function formatDisplayTag(tag) {
     const clean = normalizePlayerTag(tag);
@@ -39,7 +39,7 @@ export function formatDisplayTag(tag) {
  * Returns the canonical localStorage key for a player partition.
  * Guaranteed to have zero leading hashes in the key suffix.
  * @param {any} tag
- * @returns {string} Partition key (e.g. 'oreCalc_player_9L0V9G9C9' or 'oreCalc_player_DEFAULT0')
+ * @returns {string} Partition key (e.g. 'oreCalc_player_8PJYGUJC' or 'oreCalc_player_DEFAULT0')
  */
 export function getPlayerStorageKey(tag) {
     const clean = normalizePlayerTag(tag) || 'DEFAULT0';

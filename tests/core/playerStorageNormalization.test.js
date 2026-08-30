@@ -44,19 +44,19 @@ describe('Player Storage Normalization & Anti-Hashed Keys Suite', () => {
 
     describe('1. normalizePlayerTag & formatDisplayTag', () => {
         it('strips single leading hash and uppercases tag', () => {
-            assert.equal(normalizePlayerTag('#9L0V9G9C9'), '9L0V9G9C9');
-            assert.equal(normalizePlayerTag('#9l0v9g9c9'), '9L0V9G9C9');
+            assert.equal(normalizePlayerTag('#8PJYGUJC'), '8PJYGUJC');
+            assert.equal(normalizePlayerTag('#8pjygujc'), '8PJYGUJC');
         });
 
         it('strips multiple leading and trailing hashes (5+ hashes attack)', () => {
-            assert.equal(normalizePlayerTag('#####9L0V9G9C9'), '9L0V9G9C9');
-            assert.equal(normalizePlayerTag('###9L0V9G9C9###'), '9L0V9G9C9');
-            assert.equal(normalizePlayerTag('   #####R2J0LUYP9   '), 'R2J0LUYP9');
+            assert.equal(normalizePlayerTag('#####8PJYGUJC'), '8PJYGUJC');
+            assert.equal(normalizePlayerTag('###8PJYGUJC###'), '8PJYGUJC');
+            assert.equal(normalizePlayerTag('   #####TESTTAG2   '), 'TESTTAG2');
             assert.equal(normalizePlayerTag('#######'), '');
         });
 
         it('preserves clean tags without hashes and handles DEFAULT0', () => {
-            assert.equal(normalizePlayerTag('YG9P8LQ88'), 'YG9P8LQ88');
+            assert.equal(normalizePlayerTag('TESTTAG3'), 'TESTTAG3');
             assert.equal(normalizePlayerTag('DEFAULT0'), 'DEFAULT0');
         });
 
@@ -67,10 +67,10 @@ describe('Player Storage Normalization & Anti-Hashed Keys Suite', () => {
         });
 
         it('formatDisplayTag guarantees strictly one leading hash', () => {
-            assert.equal(formatDisplayTag('9L0V9G9C9'), '#9L0V9G9C9');
-            assert.equal(formatDisplayTag('#9L0V9G9C9'), '#9L0V9G9C9');
-            assert.equal(formatDisplayTag('#####9L0V9G9C9'), '#9L0V9G9C9');
-            assert.equal(formatDisplayTag('  ###R2J0LUYP9  '), '#R2J0LUYP9');
+            assert.equal(formatDisplayTag('8PJYGUJC'), '#8PJYGUJC');
+            assert.equal(formatDisplayTag('#8PJYGUJC'), '#8PJYGUJC');
+            assert.equal(formatDisplayTag('#####8PJYGUJC'), '#8PJYGUJC');
+            assert.equal(formatDisplayTag('  ###TESTTAG2  '), '#TESTTAG2');
             assert.equal(formatDisplayTag('DEFAULT0'), '');
             assert.equal(formatDisplayTag(''), '');
             assert.equal(formatDisplayTag(null), '');
@@ -79,63 +79,63 @@ describe('Player Storage Normalization & Anti-Hashed Keys Suite', () => {
 
     describe('2. getPlayerStorageKey', () => {
         it('always produces canonical oreCalc_player_CLEANTAG with zero hashes', () => {
-            assert.equal(getPlayerStorageKey('#9L0V9G9C9'), 'oreCalc_player_9L0V9G9C9');
-            assert.equal(getPlayerStorageKey('9L0V9G9C9'), 'oreCalc_player_9L0V9G9C9');
-            assert.equal(getPlayerStorageKey('#####R2J0LUYP9'), 'oreCalc_player_R2J0LUYP9');
+            assert.equal(getPlayerStorageKey('#8PJYGUJC'), 'oreCalc_player_8PJYGUJC');
+            assert.equal(getPlayerStorageKey('8PJYGUJC'), 'oreCalc_player_8PJYGUJC');
+            assert.equal(getPlayerStorageKey('#####TESTTAG2'), 'oreCalc_player_TESTTAG2');
             assert.equal(getPlayerStorageKey('DEFAULT0'), 'oreCalc_player_DEFAULT0');
             assert.equal(getPlayerStorageKey(null), 'oreCalc_player_DEFAULT0');
-            assert.ok(!getPlayerStorageKey('#####9L0V9G9C9').includes('#'));
+            assert.ok(!getPlayerStorageKey('#####8PJYGUJC').includes('#'));
         });
     });
 
     describe('3. saveState partition key normalization & purge', () => {
         it('saves to canonical key without hash when active tag contains 5+ hashes', () => {
-            state.savedPlayerTags = ['#####9L0V9G9C9', '###YG9P8LQ88'];
+            state.savedPlayerTags = ['#####8PJYGUJC', '###TESTTAG3'];
             state.allPlayersData = {
-                '9L0V9G9C9': {
+                '8PJYGUJC': {
                     ...getDefaultPlayerState(),
-                    playerProfile: { name: 'Player One', tag: '9L0V9G9C9', townHallLevel: 17 }
+                    playerProfile: { name: 'Player One', tag: '8PJYGUJC', townHallLevel: 17 }
                 }
             };
-            state.heroes = state.allPlayersData['9L0V9G9C9'].heroes;
-            state.storedOres = state.allPlayersData['9L0V9G9C9'].storedOres;
-            state.income = state.allPlayersData['9L0V9G9C9'].income;
-            state.planner = state.allPlayersData['9L0V9G9C9'].planner;
-            state.playerProfile = state.allPlayersData['9L0V9G9C9'].playerProfile;
+            state.heroes = state.allPlayersData['8PJYGUJC'].heroes;
+            state.storedOres = state.allPlayersData['8PJYGUJC'].storedOres;
+            state.income = state.allPlayersData['8PJYGUJC'].income;
+            state.planner = state.allPlayersData['8PJYGUJC'].planner;
+            state.playerProfile = state.allPlayersData['8PJYGUJC'].playerProfile;
 
             // Seed a legacy hashed key to verify purge
-            localStorage.setItem('oreCalc_player_#9L0V9G9C9', '{"legacy":true}');
+            localStorage.setItem('oreCalc_player_#8PJYGUJC', '{"legacy":true}');
 
             saveState(state, true);
 
             // Canonical key must exist
-            assert.ok(localStorage.getItem('oreCalc_player_9L0V9G9C9') !== null);
+            assert.ok(localStorage.getItem('oreCalc_player_8PJYGUJC') !== null);
             // Legacy hashed key must be purged
-            assert.equal(localStorage.getItem('oreCalc_player_#9L0V9G9C9'), null);
+            assert.equal(localStorage.getItem('oreCalc_player_#8PJYGUJC'), null);
 
             // Stored playerTags array must contain clean tags without '#'
             const savedTags = JSON.parse(localStorage.getItem(PLAYER_TAGS_KEY));
-            assert.deepEqual(savedTags, ['9L0V9G9C9', 'YG9P8LQ88']);
+            assert.deepEqual(savedTags, ['8PJYGUJC', 'TESTTAG3']);
         });
     });
 
     describe('4. loadState automatic legacy migration', () => {
         it('migrates legacy oreCalc_player_#TAG disk keys to canonical format on load', () => {
-            localStorage.setItem(PLAYER_TAGS_KEY, JSON.stringify(['#####9L0V9G9C9']));
-            localStorage.setItem('oreCalc_player_#9L0V9G9C9', JSON.stringify({
+            localStorage.setItem(PLAYER_TAGS_KEY, JSON.stringify(['#####8PJYGUJC']));
+            localStorage.setItem('oreCalc_player_#8PJYGUJC', JSON.stringify({
                 ...getDefaultPlayerState(),
-                playerProfile: { name: 'Legacy Hero', tag: '#9L0V9G9C9', townHallLevel: 16 }
+                playerProfile: { name: 'Legacy Hero', tag: '#8PJYGUJC', townHallLevel: 16 }
             }));
 
             const loaded = loadState();
             assert.ok(loaded);
-            assert.deepEqual(loaded.savedPlayerTags, ['9L0V9G9C9']);
-            assert.ok(loaded.allPlayersData['9L0V9G9C9']);
-            assert.equal(loaded.allPlayersData['9L0V9G9C9'].playerProfile.name, 'Legacy Hero');
+            assert.deepEqual(loaded.savedPlayerTags, ['8PJYGUJC']);
+            assert.ok(loaded.allPlayersData['8PJYGUJC']);
+            assert.equal(loaded.allPlayersData['8PJYGUJC'].playerProfile.name, 'Legacy Hero');
 
             // Assert disk state was migrated
-            assert.ok(localStorage.getItem('oreCalc_player_9L0V9G9C9') !== null);
-            assert.equal(localStorage.getItem('oreCalc_player_#9L0V9G9C9'), null);
+            assert.ok(localStorage.getItem('oreCalc_player_8PJYGUJC') !== null);
+            assert.equal(localStorage.getItem('oreCalc_player_#8PJYGUJC'), null);
         });
     });
 
@@ -177,19 +177,19 @@ describe('Player Storage Normalization & Anti-Hashed Keys Suite', () => {
             state.allPlayersData = {};
 
             processPlayerDataResponse({
-                tag: '#9L0V9G9C9',
+                tag: '#8PJYGUJC',
                 name: 'Server Chief',
                 townHallLevel: 17,
                 heroes: [{ name: 'Barbarian King', level: 95, equipment: [] }],
                 heroEquipment: []
             });
 
-            assert.ok(state.savedPlayerTags.includes('9L0V9G9C9'));
-            assert.ok(!state.savedPlayerTags.includes('#9L0V9G9C9'));
-            assert.ok(state.allPlayersData['9L0V9G9C9']);
-            assert.equal(state.allPlayersData['9L0V9G9C9'].playerProfile.name, 'Server Chief');
-            assert.ok(localStorage.getItem('oreCalc_player_9L0V9G9C9') !== null);
-            assert.equal(localStorage.getItem('oreCalc_player_#9L0V9G9C9'), null);
+            assert.ok(state.savedPlayerTags.includes('8PJYGUJC'));
+            assert.ok(!state.savedPlayerTags.includes('#8PJYGUJC'));
+            assert.ok(state.allPlayersData['8PJYGUJC']);
+            assert.equal(state.allPlayersData['8PJYGUJC'].playerProfile.name, 'Server Chief');
+            assert.ok(localStorage.getItem('oreCalc_player_8PJYGUJC') !== null);
+            assert.equal(localStorage.getItem('oreCalc_player_#8PJYGUJC'), null);
         });
     });
 

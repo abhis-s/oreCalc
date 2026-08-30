@@ -320,29 +320,29 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
 
         describe('Feature 4: Player Dropdown Selection & Tag Partitioning', () => {
             test('4.1: Normalizes player tags with leading hash, whitespace, and uppercase normalization', () => {
-                assert.equal(normalizePlayerTag('  #9l0v9g9c9  '), '9L0V9G9C9');
+                assert.equal(normalizePlayerTag('  #8pjygujc  '), '8PJYGUJC');
                 assert.equal(normalizePlayerTag('2pp0j0v89'), '2PP0J0V89');
             });
 
             test('4.2: formatDisplayTag adds canonical leading hash prefix', () => {
-                assert.equal(formatDisplayTag('9L0V9G9C9'), '#9L0V9G9C9');
-                assert.equal(formatDisplayTag('#9L0V9G9C9'), '#9L0V9G9C9');
+                assert.equal(formatDisplayTag('8PJYGUJC'), '#8PJYGUJC');
+                assert.equal(formatDisplayTag('#8PJYGUJC'), '#8PJYGUJC');
             });
 
             test('4.3: Filters out DEFAULT0 and empty variations from valid tag collections', () => {
-                const tags = ['#DEFAULT0', 'default0', '#9L0V9G9C9', ''];
+                const tags = ['#DEFAULT0', 'default0', '#8PJYGUJC', ''];
                 const valid = tags.map(t => normalizePlayerTag(t)).filter(t => t && t !== 'DEFAULT0');
-                assert.deepEqual(valid, ['9L0V9G9C9']);
+                assert.deepEqual(valid, ['8PJYGUJC']);
             });
 
             test('4.4: Pure dropdown renderer outputs valid role="option" items with data-tag attributes', () => {
                 const html = renderHeroJourneyDropdownMarkup({
-                    savedProfiles: [{ tag: '#9L0V9G9C9', cleanTag: '9L0V9G9C9', name: 'Chief', townHallLevel: 16 }],
+                    savedProfiles: [{ tag: '#8PJYGUJC', cleanTag: '8PJYGUJC', name: 'Chief', townHallLevel: 16 }],
                     recentSearches: [],
-                    activeCleanTag: '9L0V9G9C9'
+                    activeCleanTag: '8PJYGUJC'
                 });
                 assert.ok(html.includes('role="option"'));
-                assert.ok(html.includes('data-tag="9L0V9G9C9"'));
+                assert.ok(html.includes('data-tag="8PJYGUJC"'));
                 assert.ok(html.includes('aria-selected="true"'));
             });
 
@@ -417,8 +417,8 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
             });
 
             test('6.3: safeJsonParse returns parsed object on valid JSON payload', () => {
-                const result = safeJsonParse('{"player":"9L0V9G9C9","th":16}', null);
-                assert.deepEqual(result, { player: '9L0V9G9C9', th: 16 });
+                const result = safeJsonParse('{"player":"8PJYGUJC","th":16}', null);
+                assert.deepEqual(result, { player: '8PJYGUJC', th: 16 });
             });
 
             test('6.4: safeJsonParse safely handles null, undefined, and non-string inputs', () => {
@@ -737,10 +737,10 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
         describe('Feature 3 Boundaries (Typography Multi-Line Wrapping)', () => {
             test('3.1: Empty string player name or clan name renders fallback tag cleanly', () => {
                 const html = renderHeroJourneyDropdownMarkup({
-                    savedProfiles: [{ tag: '#9L0V9G9C9', cleanTag: '9L0V9G9C9', name: '', townHallLevel: 16 }],
+                    savedProfiles: [{ tag: '#8PJYGUJC', cleanTag: '8PJYGUJC', name: '', townHallLevel: 16 }],
                     recentSearches: []
                 });
-                assert.ok(html.includes('#9L0V9G9C9'));
+                assert.ok(html.includes('#8PJYGUJC'));
             });
 
             test('3.2: 256-character contiguous non-whitespace string escapes and formats safely', () => {
@@ -776,14 +776,14 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
             });
 
             test('4.2: Leading and trailing hashes stripped cleanly during normalization', () => {
-                assert.equal(normalizePlayerTag('###9L0V9G9C9###'), '9L0V9G9C9');
+                assert.equal(normalizePlayerTag('###8PJYGUJC###'), '8PJYGUJC');
                 assert.equal(normalizePlayerTag('   #2pp0j0v89#   '), '2PP0J0V89');
             });
 
             test('4.3: Excessively long tag string is sanitized cleanly to uppercase string', () => {
-                const longTag = '#9L0V9G9C9EXTRACHARACTERS';
+                const longTag = '#8PJYGUJCEXTRACHARACTERS';
                 const normalized = normalizePlayerTag(longTag);
-                assert.equal(normalized, '9L0V9G9C9EXTRACHARACTERS');
+                assert.equal(normalized, '8PJYGUJCEXTRACHARACTERS');
             });
 
             test('4.4: Saved player list with empty arrays renders no saved profiles empty state', () => {
@@ -798,14 +798,14 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
             test('4.5: Dropdown query filtering matches partial tags and partial player names case-insensitively', () => {
                 const html = renderHeroJourneyDropdownMarkup({
                     savedProfiles: [
-                        { tag: '#9L0V9G9C9', cleanTag: '9L0V9G9C9', name: 'Champion One', townHallLevel: 16 },
+                        { tag: '#8PJYGUJC', cleanTag: '8PJYGUJC', name: 'Champion One', townHallLevel: 16 },
                         { tag: '#2PP0J0V89', cleanTag: '2PP0J0V89', name: 'Warrior Two', townHallLevel: 15 }
                     ],
                     isFiltering: true,
                     cleanQuery: 'WARRIOR'
                 });
                 assert.ok(html.includes('2PP0J0V89'));
-                assert.equal(html.includes('9L0V9G9C9'), false);
+                assert.equal(html.includes('8PJYGUJC'), false);
             });
         });
 
@@ -1122,28 +1122,28 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
         });
 
         test('3.3: Player Dropdown Selection + URL Sync + Tag Partitioning (Feature 4 + Feature 6 + Feature 8)', () => {
-            const rawTag = '#9L0V9G9C9';
+            const rawTag = '#8PJYGUJC';
             const cleanTag = normalizePlayerTag(rawTag);
-            assert.equal(cleanTag, '9L0V9G9C9');
+            assert.equal(cleanTag, '8PJYGUJC');
 
             // Render dropdown markup with this active player
             const markup = renderHeroJourneyDropdownMarkup({
-                savedProfiles: [{ tag: '#9L0V9G9C9', cleanTag: '9L0V9G9C9', name: 'Chief Player', townHallLevel: 16 }],
+                savedProfiles: [{ tag: '#8PJYGUJC', cleanTag: '8PJYGUJC', name: 'Chief Player', townHallLevel: 16 }],
                 recentSearches: [],
                 activeCleanTag: cleanTag
             });
 
             assert.ok(markup.includes('is-active'));
-            assert.ok(markup.includes('data-tag="9L0V9G9C9"'));
+            assert.ok(markup.includes('data-tag="8PJYGUJC"'));
 
             // State partitioning key format
             const storagePartitionKey = `oreCalc_player_${cleanTag}`;
-            assert.equal(storagePartitionKey, 'oreCalc_player_9L0V9G9C9');
+            assert.equal(storagePartitionKey, 'oreCalc_player_8PJYGUJC');
 
             // Simulated URL synchronization
             const mockUrl = new URL('https://orecalc.tech/hero-journey/');
             mockUrl.searchParams.set('tag', cleanTag);
-            assert.equal(mockUrl.searchParams.get('tag'), '9L0V9G9C9');
+            assert.equal(mockUrl.searchParams.get('tag'), '8PJYGUJC');
         });
 
         test('3.4: Language Switching + Memoization Cache + Invariant Parity (Feature 7 + Feature 8 + Feature 10)', () => {
@@ -1161,7 +1161,7 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
             // Render Hero Journey dropdown in German without any emoji characters
             const emojiRegex = /[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}]/u;
             const markup = renderHeroJourneyDropdownMarkup({
-                savedProfiles: [{ tag: '#9L0V9G9C9', cleanTag: '9L0V9G9C9', name: 'Spieler', townHallLevel: 15 }],
+                savedProfiles: [{ tag: '#8PJYGUJC', cleanTag: '8PJYGUJC', name: 'Spieler', townHallLevel: 15 }],
                 recentSearches: []
             });
             assert.equal(emojiRegex.test(markup), false);

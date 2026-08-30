@@ -74,7 +74,9 @@ export function getTagFromUrl() {
         const params = new URLSearchParams(window.location.search);
         const tagParam = params.get('tag') || params.get('p') || window.location.hash.replace(/^#+/, '');
         if (!tagParam) return '';
-        return tagParam.trim().replace(/^#+/, '').toUpperCase();
+        const cleanTag = normalizePlayerTag(tagParam);
+        if (!cleanTag || cleanTag === 'DEFAULT0') return '';
+        return cleanTag;
     } catch {
         return '';
     }

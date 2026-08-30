@@ -219,22 +219,22 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
             // Test getTagFromUrl stripping leading hashes
             globalThis.window = {
                 location: {
-                    search: '?tag=%239L0V9G9C9',
+                    search: '?tag=%238PJYGUJC',
                     hash: ''
                 }
             };
-            assert.equal(getTagFromUrl(), '9L0V9G9C9');
+            assert.equal(getTagFromUrl(), '8PJYGUJC');
 
-            globalThis.window.location.search = '?tag=##2PP';
-            assert.equal(getTagFromUrl(), '2PP');
+            globalThis.window.location.search = '?tag=##TESTTAG1';
+            assert.equal(getTagFromUrl(), 'TESTTAG1');
 
             // Test updateUrlTag sets clean tag without %23
             let replacedUrl = '';
             globalThis.window = {
                 location: {
-                    href: 'https://orecalc.tech/hero-journey?tag=%239L0V9G9C9',
+                    href: 'https://orecalc.tech/hero-journey?tag=%238PJYGUJC',
                     pathname: '/hero-journey',
-                    search: '?tag=%239L0V9G9C9',
+                    search: '?tag=%238PJYGUJC',
                     hash: ''
                 },
                 history: {
@@ -244,8 +244,8 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
                 }
             };
 
-            updateUrlTag('#9L0V9G9C9');
-            assert.equal(replacedUrl, '/hero-journey/?tag=9L0V9G9C9');
+            updateUrlTag('#8PJYGUJC');
+            assert.equal(replacedUrl, '/hero-journey/?tag=8PJYGUJC');
             assert.ok(!replacedUrl.includes('%23'), 'URL must not contain %23');
         } finally {
             globalThis.window = originalWindow;

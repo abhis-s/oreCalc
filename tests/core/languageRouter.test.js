@@ -227,7 +227,7 @@ describe('Language Router Domain Suite', () => {
             const mockCanonical = { href: '' };
 
             cleanups.push(mockGlobal('window', {
-                location: { pathname: '/hero-journey/', search: '?tag=9L0V9G9C9', hash: '' }
+                location: { pathname: '/hero-journey/', search: '?tag=8PJYGUJC', hash: '' }
             }));
             cleanups.push(mockGlobal('document', {
                 documentElement: { lang: 'en' },
@@ -240,7 +240,7 @@ describe('Language Router Domain Suite', () => {
 
             syncLanguageUrl('de', false);
 
-            assert.equal(pushedUrl, '/de/hero-journey/?tag=9L0V9G9C9');
+            assert.equal(pushedUrl, '/de/hero-journey/?tag=8PJYGUJC');
             assert.equal(globalThis.document.documentElement.lang, 'de');
             assert.equal(mockCanonical.href, 'https://orecalc.tech/de/hero-journey/');
         });
@@ -250,7 +250,7 @@ describe('Language Router Domain Suite', () => {
             const mockCanonical = { href: '' };
 
             cleanups.push(mockGlobal('window', {
-                location: { pathname: '/de/hero-journey', search: '?tag=9L0V9G9C9', hash: '' }
+                location: { pathname: '/de/hero-journey', search: '?tag=8PJYGUJC', hash: '' }
             }));
             cleanups.push(mockGlobal('document', {
                 documentElement: { lang: 'de' },
@@ -263,7 +263,7 @@ describe('Language Router Domain Suite', () => {
 
             syncLanguageUrl('de', true);
 
-            assert.equal(replacedUrl, '/de/hero-journey/?tag=9L0V9G9C9');
+            assert.equal(replacedUrl, '/de/hero-journey/?tag=8PJYGUJC');
             assert.equal(globalThis.document.documentElement.lang, 'de');
             assert.equal(mockCanonical.href, 'https://orecalc.tech/de/hero-journey/');
         });

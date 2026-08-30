@@ -367,24 +367,28 @@ async function init() {
     initControls();
 
     let initialTag = urlTag || getTagFromUrl();
+    const cleanInitialTag = normalizePlayerTag(initialTag);
 
-    if (!initialTag) {
+    if (!cleanInitialTag || cleanInitialTag === 'DEFAULT0') {
         const savedProfiles = getSavedProfiles();
         if (savedProfiles.length > 0) {
             initialTag = savedProfiles[0].cleanTag || savedProfiles[0].tag;
+        } else {
+            initialTag = '';
         }
     }
 
-    if (initialTag) {
-        const cleanInitial = initialTag.replace(/^#+/, '');
+    const finalCleanTag = normalizePlayerTag(initialTag);
+    if (finalCleanTag && finalCleanTag !== 'DEFAULT0') {
         const input = document.getElementById('hj-search-input');
         const clearBtn = document.getElementById('hj-search-clear');
         if (input) {
-            /** @type {HTMLInputElement} */ (input).value = cleanInitial;
-            if (clearBtn) clearBtn.style.display = cleanInitial ? 'inline-flex' : 'none';
+            /** @type {HTMLInputElement} */ (input).value = finalCleanTag;
+            if (clearBtn) clearBtn.style.display = 'inline-flex';
         }
-        await loadPlayer(cleanInitial);
+        await loadPlayer(finalCleanTag);
     } else {
+        updateUrlTag(null);
         renderUI();
     }
 }

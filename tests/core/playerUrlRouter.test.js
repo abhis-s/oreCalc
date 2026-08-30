@@ -18,13 +18,13 @@ describe('Player URL Router Suite', () => {
 
         const originalWindow = globalThis.window;
         try {
-            // Test ?tag=9L0V9G9C9
+            // Test ?tag=8PJYGUJC
             globalThis.window = {
                 location: {
-                    search: '?tag=9L0V9G9C9'
+                    search: '?tag=8PJYGUJC'
                 }
             };
-            assert.equal(getPlayerTagFromUrl(), '9L0V9G9C9');
+            assert.equal(getPlayerTagFromUrl(), '8PJYGUJC');
 
             // Test lowercase and leading hashes ?tag=##2pp
             globalThis.window = {
@@ -90,12 +90,12 @@ describe('Player URL Router Suite', () => {
                 }
             };
 
-            syncPlayerTagToUrl('#9L0V9G9C9');
-            assert.equal(replacedUrl, '/de/?foo=bar&tag=9L0V9G9C9#planner');
+            syncPlayerTagToUrl('#8PJYGUJC');
+            assert.equal(replacedUrl, '/de/?foo=bar&tag=8PJYGUJC#planner');
 
             // Remove tag when passing null or DEFAULT0
-            globalThis.window.location.href = 'https://orecalc.tech/de/?tag=9L0V9G9C9#planner';
-            globalThis.window.location.search = '?tag=9L0V9G9C9';
+            globalThis.window.location.href = 'https://orecalc.tech/de/?tag=8PJYGUJC#planner';
+            globalThis.window.location.search = '?tag=8PJYGUJC';
 
             syncPlayerTagToUrl(null);
             assert.equal(replacedUrl, '/de/#planner');

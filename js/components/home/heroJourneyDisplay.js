@@ -8,6 +8,7 @@ import {
     hasSyncedHeroInfo,
     isDefaultOrGuestPlayer
 } from '../../domain/income/heroJourneyLevels.js';
+import { normalizePlayerTag } from '../../core/localStorageManager.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 
@@ -152,7 +153,8 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
     const translatedTitle = translate('views.home.heroJourney.title');
     const openTooltip = translate('views.home.heroJourney.openInTracker');
     const rawTag = (!isGuest && state.playerProfile?.tag) ? state.playerProfile.tag : (state.savedPlayerTags?.[0] || '');
-    const playerTag = (rawTag && rawTag !== '#DEFAULT') ? rawTag : '';
+    const cleanTag = normalizePlayerTag(rawTag);
+    const playerTag = (!isGuest && cleanTag && cleanTag !== 'DEFAULT0') ? cleanTag : '';
     const openUrl = playerTag ? `/hero-journey/?tag=${encodeURIComponent(playerTag)}` : '/hero-journey/';
 
     if (titleEl) {
