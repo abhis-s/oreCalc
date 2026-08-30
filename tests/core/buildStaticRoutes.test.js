@@ -61,6 +61,32 @@ describe('Static Build Routes Verification Suite', () => {
         assert.equal(content.includes('<loc>https://orecalc.tech/licenses/</loc>'), false);
     });
 
+    test('verifies standalone hero-journey routes exist across all supported locales', () => {
+        const hjRoutes = [
+            { path: path.join(distDir, 'hero-journey', 'index.html'), lang: 'en', canonical: 'https://orecalc.tech/hero-journey/' },
+            { path: path.join(distDir, 'de', 'hero-journey', 'index.html'), lang: 'de', canonical: 'https://orecalc.tech/de/hero-journey/' },
+            { path: path.join(distDir, 'tr', 'hero-journey', 'index.html'), lang: 'tr', canonical: 'https://orecalc.tech/tr/hero-journey/' },
+            { path: path.join(distDir, 'zh', 'hero-journey', 'index.html'), lang: 'zh', canonical: 'https://orecalc.tech/zh/hero-journey/' }
+        ];
+
+        for (const { path: routePath, lang, canonical } of hjRoutes) {
+            assert.equal(fs.existsSync(routePath), true, `${routePath} must exist in dist`);
+            const content = fs.readFileSync(routePath, 'utf8');
+            assert.ok(content.includes(`<html lang="${lang}">`), `Should declare lang="${lang}"`);
+            assert.ok(content.includes(`<link rel="canonical" href="${canonical}">`), `Canonical must be ${canonical}`);
+        }
+    });
+
+    test('verifies dist/sitemap.xml contains all canonical hero-journey tool routes', () => {
+        const sitemapPath = path.join(distDir, 'sitemap.xml');
+        const content = fs.readFileSync(sitemapPath, 'utf8');
+
+        assert.ok(content.includes('<loc>https://orecalc.tech/hero-journey/</loc>'));
+        assert.ok(content.includes('<loc>https://orecalc.tech/de/hero-journey/</loc>'));
+        assert.ok(content.includes('<loc>https://orecalc.tech/tr/hero-journey/</loc>'));
+        assert.ok(content.includes('<loc>https://orecalc.tech/zh/hero-journey/</loc>'));
+    });
+
     test('verifies dist/_redirects exists and configures 301 redirects for legacy routes', () => {
         const redirectsPath = path.join(distDir, '_redirects');
         assert.equal(fs.existsSync(redirectsPath), true);
@@ -81,5 +107,15 @@ describe('Static Build Routes Verification Suite', () => {
         assert.ok(privacyHtml.includes('<meta name="robots" content="noindex, follow">'));
         assert.ok(termsHtml.includes('<meta name="robots" content="noindex, follow">'));
         assert.ok(licensesHtml.includes('<meta name="robots" content="noindex, follow">'));
+    });
+
+    test('verifies dist/404.html exists with noindex meta and standalone error template', () => {
+        const errorHtmlPath = path.join(distDir, '404.html');
+        assert.equal(fs.existsSync(errorHtmlPath), true);
+
+        const errorHtml = fs.readFileSync(errorHtmlPath, 'utf8');
+        assert.ok(errorHtml.includes('<meta name="robots" content="noindex, follow">'));
+        assert.ok(errorHtml.includes('<div class="error-code">404</div>'));
+        assert.ok(errorHtml.includes('Page Not Found'));
     });
 });

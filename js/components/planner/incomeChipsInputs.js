@@ -96,10 +96,10 @@ export function handleChipDropOnContainer(incomeChipData) {
                             type: incomeChipData.type,
                             isCustom: true,
                             customType: customData.customType || incomeChipData.customType || '',
-                            instance: parseInt(index, 10) + 1,
-                            shiny: customData.shiny || parseInt(incomeChipData.shiny, 10) || 0,
-                            glowy: customData.glowy || parseInt(incomeChipData.glowy, 10) || 0,
-                            starry: customData.starry || parseInt(incomeChipData.starry, 10) || 0,
+                            instance: Number(index) + 1,
+                            shiny: customData.shiny || Number(incomeChipData.shiny) || 0,
+                            glowy: customData.glowy || Number(incomeChipData.glowy) || 0,
+                            starry: customData.starry || Number(incomeChipData.starry) || 0,
                             multiplier: customData.multiplier,
                             result: customData.result
                         };
@@ -176,18 +176,22 @@ export function initializeIncomeChipsEventListeners() {
     }
 }
 
-document.addEventListener('chipDropOnContainer', (e) => {
-    const customEv = /** @type {CustomEvent} */ (e);
-    const { incomeChipData } = customEv.detail || {};
-    if (incomeChipData) {
-        handleChipDropOnContainer(incomeChipData);
-    }
-});
+if (typeof document !== 'undefined') {
+    document.addEventListener('chipDropOnContainer', (e) => {
+        const customEv = /** @type {CustomEvent} */ (e);
+        const { incomeChipData } = customEv.detail || {};
+        if (incomeChipData) {
+            handleChipDropOnContainer(incomeChipData);
+        }
+    });
+}
 
-document.addEventListener('calendarChipsPlaced', (e) => {
-    const customEv = /** @type {CustomEvent} */ (e);
-    const { year, month } = customEv.detail || {};
-    if (year !== undefined && month !== undefined) {
-        renderIncomeChips(year, month);
-    }
-});
+if (typeof document !== 'undefined') {
+    document.addEventListener('calendarChipsPlaced', (e) => {
+        const customEv = /** @type {CustomEvent} */ (e);
+        const { year, month } = customEv.detail || {};
+        if (year !== undefined && month !== undefined) {
+            renderIncomeChips(year, month);
+        }
+    });
+}

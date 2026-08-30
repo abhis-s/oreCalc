@@ -5,12 +5,16 @@ import { state as globalState } from '../../core/state.js';
 
 import {
     getEffectiveQuestNodeTH,
-    getQuestChestReward,
-    getResolvedEquipmentReward
+    getQuestChestReward
 } from '../../domain/income/heroJourneyIncome.js';
+import {
+    getResolvedEquipmentReward,
+    resolveHeroJourneyTrack
+} from '../../domain/income/heroJourneyResolution.js';
 import {
     getMaxCumulativeLevelsByTH,
     getNodeTownHallLevel,
+    getTownHallStartLevel,
     hasSyncedHeroInfo,
     isDefaultOrGuestPlayer
 } from '../../domain/income/heroJourneyLevels.js';
@@ -23,6 +27,8 @@ import {
     createTHStartDivider
 } from './heroJourneyDividersRenderer.js';
 import { createNodeChipElement, updateNodeTitleAndSub } from './heroJourneyNodeBuilder.js';
+import { getTranslatedEquipmentName } from './heroJourneyPopovers.js';
+import { updateHeroJourneyRovingTabindex } from './heroJourneyKeyboardNav.js';
 
 /**
  * Renders individual milestone node chips, Town Hall dividers, and limit cards into the track container.
@@ -36,7 +42,6 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
 
     const unclaimedOnly = Boolean(state.heroJourney.unclaimedOnly);
     const typeFilter = state.heroJourney.typeFilter || null;
-    const overrideUnclaimedSet = new Set(state.heroJourney.overrideUnclaimed || []);
     const isAccelerated = Boolean(state?.heroJourney?.acceleratedRewards ?? state?.heroJourney?.accelerated ?? (state?.heroJourney?.rewardMode === 'accelerated'));
     /** @type {'accelerated' | 'normal'} */
     const mode = isAccelerated ? 'accelerated' : 'normal';
@@ -47,10 +52,11 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
     const hasSyncedHeroes = hasSyncedHeroInfo(state);
     const isUserSynced = hasSyncedHeroes && !isGuest;
     const isTrueMaxPlayer = isUserSynced && cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
+    const trackResolution = resolveHeroJourneyTrack(state);
 
     const filteredNodes = heroJourneyNodes.filter(node => {
         const isReached = isUserSynced && (cumulativeLevel >= node.level);
-        const isClaimed = isUserSynced && (isTrueMaxPlayer || (isReached && !overrideUnclaimedSet.has(node.level)));
+        const isClaimed = isUserSynced && (isTrueMaxPlayer || isReached);
 
         if (unclaimedOnly && isClaimed) return false;
 
@@ -64,33 +70,6 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
         return true;
     });
 
-    const nodeTHBoundaries = new Map();
-    const thKeys = Object.keys(maxLevelsByTH).map(Number).sort((a, b) => a - b);
-    const maxTHInKeys = thKeys.length > 0 ? (thKeys.at(-1) ?? 18) : 18;
-
-    for (const th of thKeys) {
-        if (th >= maxTHInKeys) continue;
-        const maxLvl = maxLevelsByTH[th];
-        if (maxLvl <= 0) continue;
-
-        let lastEligibleNode = null;
-        for (const node of filteredNodes) {
-            if (node.level <= maxLvl) {
-                lastEligibleNode = node;
-            } else {
-                break;
-            }
-        }
-        if (lastEligibleNode) {
-            const nextTH = th + 1;
-            const startLvl = maxLvl + 1;
-            if (!nodeTHBoundaries.has(lastEligibleNode.level)) {
-                nodeTHBoundaries.set(lastEligibleNode.level, []);
-            }
-            nodeTHBoundaries.get(lastEligibleNode.level).push({ prevTH: th, nextTH, maxLvl, startLvl });
-        }
-    }
-
     const playerMaxLevel = maxLevelsByTH[thLevel] || Infinity;
     const revealBeyondTH = state?.heroJourney?.revealBeyondTH || false;
 
@@ -101,14 +80,15 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
     const existingChips = Array.from(track.querySelectorAll('.hero-journey-node-chip'));
     const canUpdateInPlace = existingChips.length > 0 &&
         existingChips.length === visibleNodes.length &&
-        existingChips.every((chip, i) => parseInt(chip.dataset.nodeLevel || chip.dataset.level || '', 10) === visibleNodes[i].level);
+        existingChips.every((chip, i) => Number(chip.dataset.nodeLevel || chip.dataset.level || 0) === visibleNodes[i].level);
 
     if (canUpdateInPlace) {
         visibleNodes.forEach((node, index) => {
             const chip = existingChips[index];
             const isReached = isUserSynced && (cumulativeLevel >= node.level);
-            const isClaimed = isUserSynced && (isTrueMaxPlayer || (isReached && !overrideUnclaimedSet.has(node.level)));
+            const isClaimed = isUserSynced && (isTrueMaxPlayer || isReached);
             const isBeyondTHLimit = node.level > playerMaxLevel;
+            const resolvedNode = node.type === 'equipment' ? getResolvedEquipmentReward(node, state, trackResolution) : node;
 
             chip.classList.toggle('reached', isReached);
             chip.classList.toggle('claimed', isClaimed);
@@ -123,7 +103,6 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
             }
 
             const iconWrapper = chip.querySelector('.node-icon-wrapper');
-            const resolvedNode = node.type === 'equipment' ? getResolvedEquipmentReward(node, state) : node;
 
             if (iconWrapper) {
                 let check = iconWrapper.querySelector('.node-claimed-checkmark');
@@ -132,10 +111,10 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
                 if (isClaimed) {
                     if (!check) {
                         check = document.createElement('div');
-                        check.textContent = '✓';
                         iconWrapper.appendChild(check);
                     }
-                    check.className = `node-claimed-checkmark ${isUnownedEquipment ? 'unowned-check' : ''}`;
+                    check.className = `node-claimed-checkmark ${isUnownedEquipment ? 'unowned-cross' : ''}`;
+                    check.innerHTML = isUnownedEquipment ? getSVG('close', '', 12, 12) : getSVG('check-simple', '', 12, 12);
                 } else if (check) {
                     check.remove();
                 }
@@ -168,29 +147,78 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
                 if (glowyValEl) updateCalculatedValue(glowyValEl, chest.glowy);
                 if (starryValEl) updateCalculatedValue(starryValEl, chest.starry);
             } else if (node.type === 'equipment') {
-                const isOwnedEq = isUserSynced && Boolean(resolvedNode.isOwned || resolvedNode.isFallbackStarry);
-                const showOwnedPill = isOwnedEq && !isClaimed;
-                if (iconWrapper) {
-                    let eqPill = iconWrapper.querySelector('.equipment-level-pill');
-                    if (showOwnedPill) {
-                        if (!eqPill) {
-                            eqPill = document.createElement('div');
-                            iconWrapper.appendChild(eqPill);
+                const isFallbackStarry = Boolean(resolvedNode.isFallbackStarry);
+                const isOwnedEq = isUserSynced && Boolean(resolvedNode.isOwned);
+                const showOwnedPill = !isFallbackStarry && isOwnedEq && !isClaimed;
+                const displayIcon = resolvedNode.resolvedIcon || resolvedNode.bestGuess?.icon || '';
+                const eqName = resolvedNode.resolvedName || resolvedNode.bestGuess?.name || '';
+                const primaryImg = iconWrapper.querySelector('.node-icon');
+                if (primaryImg) {
+                    primaryImg.setAttribute('src', displayIcon);
+                    primaryImg.setAttribute('alt', eqName);
+                    primaryImg.className = 'node-icon node-icon-primary';
+                }
+
+                let companionStrip = chip.querySelector('.node-companion-strip');
+                const shouldShowCompanionStrip = Boolean(resolvedNode.poolOptions && resolvedNode.poolOptions.length > 0);
+                if (shouldShowCompanionStrip) {
+                    if (!companionStrip) {
+                        companionStrip = document.createElement('div');
+                        companionStrip.className = 'node-companion-strip';
+                        const subElem = chip.querySelector('.node-sub');
+                        if (subElem && typeof chip.insertBefore === 'function') {
+                            chip.insertBefore(companionStrip, subElem);
+                        } else {
+                            chip.appendChild(companionStrip);
                         }
-                        eqPill.className = 'equipment-level-pill owned-pill';
-                        eqPill.dataset.i18n = 'views.home.heroJourney.owned';
-                        eqPill.textContent = translate('views.home.heroJourney.owned');
-                    } else if (resolvedNode.equipmentLevel) {
-                        if (!eqPill) {
-                            eqPill = document.createElement('div');
-                            iconWrapper.appendChild(eqPill);
-                        }
-                        eqPill.className = 'equipment-level-pill';
-                        delete eqPill.dataset.i18n;
-                        eqPill.textContent = `${resolvedNode.equipmentLevel}`;
-                    } else if (eqPill) {
+                    }
+                    companionStrip.innerHTML = '';
+                    const companions = resolvedNode.poolOptions.filter(opt => opt.status !== 'awardedHere');
+                    for (const comp of companions) {
+                        const compItem = document.createElement('div');
+                        const statusCls = comp.status === 'owned'
+                            ? 'status-owned'
+                            : (comp.status === 'awardedEarlier'
+                                ? 'status-awarded-earlier'
+                                : (comp.status === 'starryFallback' ? 'status-starry-fallback' : 'status-queued'));
+                        const compTitle = getTranslatedEquipmentName(comp.name);
+                        compItem.className = `node-companion-item ${statusCls}`;
+                        compItem.title = compTitle;
+
+                        const compImg = document.createElement('orecalc-assets-image');
+                        compImg.setAttribute('src', comp.icon);
+                        compImg.setAttribute('alt', compTitle);
+                        compImg.className = 'node-companion-icon';
+                        compItem.appendChild(compImg);
+                        companionStrip.appendChild(compItem);
+                    }
+                } else if (companionStrip) {
+                    companionStrip.remove();
+                }
+
+                let eqPill = iconWrapper.querySelector('.equipment-level-pill');
+                if (isFallbackStarry) {
+                    if (eqPill) {
                         eqPill.remove();
                     }
+                } else if (showOwnedPill) {
+                    if (!eqPill) {
+                        eqPill = document.createElement('div');
+                        iconWrapper.appendChild(eqPill);
+                    }
+                    eqPill.className = 'equipment-level-pill owned-pill';
+                    eqPill.dataset.i18n = 'views.home.heroJourney.owned';
+                    eqPill.textContent = translate('views.home.heroJourney.owned');
+                } else if (resolvedNode.equipmentLevel) {
+                    if (!eqPill) {
+                        eqPill = document.createElement('div');
+                        iconWrapper.appendChild(eqPill);
+                    }
+                    eqPill.className = 'equipment-level-pill';
+                    delete eqPill.dataset.i18n;
+                    eqPill.textContent = `${resolvedNode.equipmentLevel}`;
+                } else if (eqPill) {
+                    eqPill.remove();
                 }
             }
 
@@ -198,73 +226,14 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
             const subElem = chip.querySelector('.node-sub');
             const hasSub = updateNodeTitleAndSub(titleElem, subElem, node, resolvedNode, isClaimed, state, mode);
             chip.classList.toggle('has-sub', hasSub);
-
-            const isAllowedTypeToUnclaim = ['quest', 'ore', 'equipment'].includes(node.type);
-            const isMoreThan10Behind = cumulativeLevel - node.level > 10;
-            const isLockedFromUnclaim = isClaimed && (!isAllowedTypeToUnclaim || isMoreThan10Behind);
-            let actionBtn = chip.querySelector('.node-claim-btn');
-
-            if (isTrueMaxPlayer || isGuest) {
-                if (actionBtn) {
-                    actionBtn.remove();
-                }
-            } else {
-                if (!actionBtn) {
-                    actionBtn = document.createElement('button');
-                    actionBtn.dataset.nodeLevel = String(node.level);
-                    chip.appendChild(actionBtn);
-                }
-                actionBtn.className = `node-claim-btn ${isClaimed ? 'btn-claimed' : (isReached ? 'btn-unclaimed' : 'btn-upcoming')} ${isLockedFromUnclaim ? 'disabled-unclaim' : ''}`;
-
-                if (!isReached) {
-                    const levelsNeeded = node.level - cumulativeLevel;
-                    if (levelsNeeded <= 25 && !isBeyondTHLimit) {
-                        actionBtn.textContent = translate('views.home.heroJourney.upcomingWithLevels', { levels: levelsNeeded });
-                    } else {
-                        actionBtn.textContent = translate('views.home.heroJourney.upcoming');
-                    }
-                    actionBtn.disabled = true;
-                    actionBtn.title = levelsNeeded === 1
-                        ? translate('views.home.heroJourney.upcomingTooltipSingle', { level: node.level, levels: levelsNeeded })
-                        : translate('views.home.heroJourney.upcomingTooltipPlural', { level: node.level, levels: levelsNeeded });
-                } else if (isClaimed) {
-                    actionBtn.disabled = false;
-                    if (isLockedFromUnclaim) {
-                        actionBtn.textContent = translate('views.home.heroJourney.claimed');
-                        actionBtn.title = !isAllowedTypeToUnclaim
-                            ? translate('views.home.heroJourney.cannotUndoTypeTooltip')
-                            : translate('views.home.heroJourney.cannotUndoBehindTooltip');
-                    } else {
-                        actionBtn.innerHTML = `<span class="btn-text-default">${translate('views.home.heroJourney.claimed')}</span><span class="btn-text-hover">${translate('views.home.heroJourney.undoClaim')}</span>`;
-                        actionBtn.title = translate('views.home.heroJourney.undoClaimTooltip');
-                    }
-                } else {
-                    actionBtn.disabled = false;
-                    actionBtn.textContent = translate('views.home.heroJourney.claim');
-                    actionBtn.title = translate('views.home.heroJourney.claimTooltip');
-                }
-            }
         });
 
         const startDivider = track.querySelector('.th-start-initial-divider');
-        if (startDivider && thKeys.length > 0 && visibleNodes.length > 0) {
-            let startTH = thKeys[0] || 7;
-            let startLvl = 1;
+        if (startDivider && visibleNodes.length > 0) {
             const firstNode = visibleNodes[0];
-            for (let i = 0; i < thKeys.length; i++) {
-                const th = thKeys[i];
-                const maxLvl = maxLevelsByTH[th];
-                const prevMaxLvl = i > 0 ? maxLevelsByTH[thKeys[i - 1]] : 0;
+            const startTH = getNodeTownHallLevel(firstNode.level);
+            const startLvl = getTownHallStartLevel(startTH);
 
-                if (firstNode.level > prevMaxLvl && firstNode.level <= maxLvl) {
-                    startTH = th;
-                    startLvl = prevMaxLvl + 1;
-                    break;
-                } else if (firstNode.level > maxLvl && i === thKeys.length - 1) {
-                    startTH = th;
-                    startLvl = prevMaxLvl + 1;
-                }
-            }
             startDivider.classList.toggle('current-th-divider', startTH === thLevel);
             startDivider.dataset.th = String(startTH);
             startDivider.dataset.startLvl = String(startLvl);
@@ -286,8 +255,8 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
         boundaryDividers.forEach(div => {
             const tagEl = div.querySelector('.th-max-tag');
             const lvlEl = div.querySelector('.th-max-lvl');
-            const th = div.dataset.th ? parseInt(div.dataset.th, 10) : null;
-            const startLvl = div.dataset.startLvl ? parseInt(div.dataset.startLvl, 10) : null;
+            const th = div.dataset.th ? Number(div.dataset.th) : null;
+            const startLvl = div.dataset.startLvl ? Number(div.dataset.startLvl) : null;
             if (tagEl && th) {
                 tagEl.dataset.i18n = 'views.home.heroJourney.thStartTag';
                 tagEl.dataset.i18nArgs = JSON.stringify({ th });
@@ -339,6 +308,7 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
             }
         }
 
+        updateHeroJourneyRovingTabindex(track, cumulativeLevel);
         return;
     }
 
@@ -364,47 +334,29 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
         isUserSynced,
         isTrueMaxPlayer,
         isGuest,
-        overrideUnclaimedSet,
-        mode
+        mode,
+        trackResolution
     };
 
     visibleNodes.forEach((node, index) => {
-        if (index === 0 && thKeys.length > 0) {
-            let startTH = thKeys[0] || 7;
-            let startLvl = 1;
-
-            for (let i = 0; i < thKeys.length; i++) {
-                const th = thKeys[i];
-                const maxLvl = maxLevelsByTH[th];
-                const prevMaxLvl = i > 0 ? maxLevelsByTH[thKeys[i - 1]] : 0;
-
-                if (node.level > prevMaxLvl && node.level <= maxLvl) {
-                    startTH = th;
-                    startLvl = prevMaxLvl + 1;
-                    break;
-                } else if (node.level > maxLvl && i === thKeys.length - 1) {
-                    startTH = th;
-                    startLvl = prevMaxLvl + 1;
-                }
-            }
-
-            const isCurrentTHDivider = (startTH === thLevel);
-            const startDivider = createTHStartDivider(startTH, startLvl, isCurrentTHDivider);
+        const nodeTH = getNodeTownHallLevel(node.level);
+        if (index === 0) {
+            const startLvl = getTownHallStartLevel(nodeTH);
+            const isCurrentTHDivider = (nodeTH === thLevel);
+            const startDivider = createTHStartDivider(nodeTH, startLvl, isCurrentTHDivider);
             track.appendChild(startDivider);
+        } else {
+            const prevNodeTH = getNodeTownHallLevel(visibleNodes[index - 1].level);
+            if (nodeTH > prevNodeTH) {
+                const startLvl = getTownHallStartLevel(nodeTH);
+                const isCurrentTHDivider = (nodeTH === thLevel);
+                const divider = createTHBoundaryDivider(nodeTH, startLvl, isCurrentTHDivider);
+                track.appendChild(divider);
+            }
         }
 
         const chip = createNodeChipElement(node, nodeContext);
         track.appendChild(chip);
-
-        if (nodeTHBoundaries.has(node.level)) {
-            const thList = nodeTHBoundaries.get(node.level);
-            const isCurrentTHDivider = thList.some(item => item.prevTH === thLevel);
-            const highestNextTHInGroup = thList.at(-1)?.nextTH ?? 16;
-            const startLvlVal = thList.at(-1)?.startLvl ?? 1;
-
-            const divider = createTHBoundaryDivider(highestNextTHInGroup, startLvlVal, isCurrentTHDivider);
-            track.appendChild(divider);
-        }
     });
 
     const isTrueMax = isTrueMaxPlayer || (isGuest && thLevel >= 18);
@@ -424,4 +376,6 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
         });
         track.appendChild(blockCard);
     }
+
+    updateHeroJourneyRovingTabindex(track, cumulativeLevel);
 }

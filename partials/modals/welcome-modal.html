@@ -1,4 +1,4 @@
-<dialog id="welcome-modal" class="modal" aria-labelledby="welcome-modal-title">
+<dialog id="welcome-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
     <div class="modal-content welcome-modal-content">
         <div class="welcome-header">
             <h1 id="welcome-modal-title" data-i18n="views.welcome.title"></h1>
@@ -133,8 +133,8 @@
                                 </button>
                             </div>
                             <div class="profile-clan-details" id="welcome-profile-clan-section">
-                                <img id="welcome-profile-clan-badge" class="clan-badge-img" src="" alt="Clan Badge"
-                                    style="display: none;">
+                                <orecalc-assets-image id="welcome-profile-clan-badge" class="clan-badge-img" src="" alt="Clan Badge"
+                                    style="display: none;"></orecalc-assets-image>
                                 <div class="clan-text-details">
                                     <span class="clan-label" data-i18n="views.welcome.clan"></span>
                                     <div class="clan-name-wrapper">
@@ -146,7 +146,7 @@
                             <div class="profile-stats-grid">
                                 <div class="stat-box" id="welcome-profile-league-box">
                                     <span class="stat-icon" id="welcome-profile-league-icon-container">
-                                        <img id="welcome-profile-league-icon" class="league-icon-img" src="" alt="League Icon" style="display: none;">
+                                        <orecalc-assets-image id="welcome-profile-league-icon" class="league-icon-img" src="" alt="League Icon" style="display: none;"></orecalc-assets-image>
                                         <orecalc-assets-svg id="welcome-profile-league-default-icon" name="star-badge"
                                             height="18" width="18"></orecalc-assets-svg>
                                     </span>
@@ -182,8 +182,7 @@
                                             <span id="welcome-profile-common-shiny-pct">0%</span>
                                         </div>
                                         <div class="progress-track">
-                                            <div class="progress-fill" id="welcome-profile-common-shiny-fill"
-                                                style="width: 0%"></div>
+                                            <div class="progress-fill" id="welcome-profile-common-shiny-fill"></div>
                                         </div>
                                     </div>
                                     <div class="progress-section glowy">
@@ -192,8 +191,7 @@
                                             <span id="welcome-profile-common-glowy-pct">0%</span>
                                         </div>
                                         <div class="progress-track">
-                                            <div class="progress-fill" id="welcome-profile-common-glowy-fill"
-                                                style="width: 0%"></div>
+                                            <div class="progress-fill" id="welcome-profile-common-glowy-fill"></div>
                                         </div>
                                     </div>
                                     <div class="progress-section starry disabled">
@@ -202,7 +200,7 @@
                                             <span>-</span>
                                         </div>
                                         <div class="progress-track">
-                                            <div class="progress-fill" style="width: 0%"></div>
+                                            <div class="progress-fill"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -219,8 +217,7 @@
                                             <span id="welcome-profile-epic-shiny-pct">0%</span>
                                         </div>
                                         <div class="progress-track">
-                                            <div class="progress-fill" id="welcome-profile-epic-shiny-fill"
-                                                style="width: 0%"></div>
+                                            <div class="progress-fill" id="welcome-profile-epic-shiny-fill"></div>
                                         </div>
                                     </div>
                                     <div class="progress-section glowy">
@@ -229,8 +226,7 @@
                                             <span id="welcome-profile-epic-glowy-pct">0%</span>
                                         </div>
                                         <div class="progress-track">
-                                            <div class="progress-fill" id="welcome-profile-epic-glowy-fill"
-                                                style="width: 0%"></div>
+                                            <div class="progress-fill" id="welcome-profile-epic-glowy-fill"></div>
                                         </div>
                                     </div>
                                     <div class="progress-section starry">
@@ -239,8 +235,7 @@
                                             <span id="welcome-profile-epic-starry-pct">0%</span>
                                         </div>
                                         <div class="progress-track">
-                                            <div class="progress-fill" id="welcome-profile-epic-starry-fill"
-                                                style="width: 0%"></div>
+                                            <div class="progress-fill" id="welcome-profile-epic-starry-fill"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -306,7 +301,7 @@
                                     <span class="sync-overlay-text" data-i18n="views.welcome.cloudSyncPlayerTagRequired"></span>
                                 </div>
                                 <details class="welcome-sync-details" id="welcome-your-sync-code-details" open>
-                                    <summary class="welcome-sync-summary" tabindex="-1">
+                                    <summary class="welcome-sync-summary">
                                         <span class="sync-summary-title" data-i18n="views.settings.yourSyncCode"></span>
                                         <span class="chevron"><orecalc-assets-svg name="chevron-down" height="14" width="14"></orecalc-assets-svg></span>
                                     </summary>
@@ -327,7 +322,7 @@
                             </div>
 
                             <details class="welcome-sync-details" id="welcome-link-device-details">
-                                <summary class="welcome-sync-summary" tabindex="-1">
+                                <summary class="welcome-sync-summary">
                                     <span class="sync-summary-title" data-i18n="views.settings.linkDevice"></span>
                                     <span class="chevron"><orecalc-assets-svg name="chevron-down" height="14" width="14"></orecalc-assets-svg></span>
                                 </summary>

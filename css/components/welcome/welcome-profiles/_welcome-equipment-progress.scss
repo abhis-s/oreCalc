@@ -63,6 +63,7 @@
                     position: relative;
 
                     .progress-fill {
+                        width: 0%;
                         height: 100%;
                         border-radius: 3px;
                         transition: width $duration-slow $ease-smooth;

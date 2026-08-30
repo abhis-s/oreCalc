@@ -223,6 +223,19 @@
                     animation: spin 0.8s linear infinite;
                 }
 
+                &.warning-icon {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+
+                .welcome-setup-needed-text {
+                    font-size: 11px;
+                    font-weight: 500;
+                    color: $color-warning;
+                    margin-left: 2px;
+                }
+
                 svg {
                     width: 20px;
                     height: 20px;

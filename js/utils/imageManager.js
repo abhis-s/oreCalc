@@ -22,10 +22,12 @@ function getImage(src, className = '', size = 'standard', alt = '') {
         return `<img src="${src}" alt="${alt}" class="${className}" loading="lazy" decoding="async" draggable="false">`;
     }
 
-    // Normalize path by removing extensions if present
     let base = src;
     if (src.endsWith('.png') || src.endsWith('.webp') || src.endsWith('.avif')) {
         base = src.substring(0, src.lastIndexOf('.'));
+    }
+    if (!base.startsWith('/')) {
+        base = `/${base}`;
     }
 
     // In local dev run (live-server on port 8080 serving the root directory),
@@ -59,39 +61,41 @@ function getImage(src, className = '', size = 'standard', alt = '') {
     </picture>`;
 }
 
-class OrecalcAssetsImage extends HTMLElement {
-    static get observedAttributes() {
-        return ['src', 'class', 'size', 'alt'];
-    }
+if (typeof HTMLElement !== 'undefined') {
+    class OrecalcAssetsImage extends HTMLElement {
+        static get observedAttributes() {
+            return ['src', 'class', 'size', 'alt'];
+        }
 
-    get src() {
-        return this.getAttribute('src');
-    }
+        get src() {
+            return this.getAttribute('src');
+        }
 
-    set src(value) {
-        this.setAttribute('src', value);
-    }
+        set src(value) {
+            this.setAttribute('src', value);
+        }
 
-    connectedCallback() {
-        this.render();
-    }
+        connectedCallback() {
+            this.render();
+        }
 
-    attributeChangedCallback() {
-        this.render();
-    }
+        attributeChangedCallback() {
+            this.render();
+        }
 
-    render() {
-        const src = this.getAttribute('src');
-        const className = this.getAttribute('class') || '';
-        const size = this.getAttribute('size') || 'standard';
-        const alt = this.getAttribute('alt') || '';
+        render() {
+            const src = this.getAttribute('src');
+            const className = this.getAttribute('class') || '';
+            const size = this.getAttribute('size') || 'standard';
+            const alt = this.getAttribute('alt') || '';
 
-        if (src) {
-            this.innerHTML = getImage(src, className, size, alt);
+            if (src) {
+                this.innerHTML = getImage(src, className, size, alt);
+            }
         }
     }
-}
 
-if (!customElements.get('orecalc-assets-image')) {
-    customElements.define('orecalc-assets-image', OrecalcAssetsImage);
+    if (typeof customElements !== 'undefined' && !customElements.get('orecalc-assets-image')) {
+        customElements.define('orecalc-assets-image', OrecalcAssetsImage);
+    }
 }

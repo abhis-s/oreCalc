@@ -11,19 +11,27 @@ export async function loadTranslations(language) {
     if (state.uiSettings?.language === 'auto') {
         state.uiSettings.language = 'en';
     }
-    try {
-        const response = await fetch(`/js/i18n/${language}.json`);
-        if (!response.ok) {
-            throw new Error(`Failed to load translation file for ${language}`);
+
+    const loadLocale = async (lang) => {
+        try {
+            const response = await fetch(`/js/i18n/${lang}.json`);
+            if (!response.ok) {
+                throw new Error(`Failed to load translation file for ${lang}`);
+            }
+            translations[lang] = await response.json();
+        } catch (error) {
+            console.error(error);
+            if (lang !== 'en') {
+                await loadLocale('en');
+            }
         }
-        translations[language] = await response.json();
-    } catch (error) {
-        console.error(error);
-        // Fallback to English if the selected language fails to load
-        if (language !== 'en') {
-            await loadTranslations('en');
-        }
+    };
+
+    const promises = [loadLocale(language)];
+    if (language !== 'en' && !translations['en']) {
+        promises.push(loadLocale('en'));
     }
+    await Promise.all(promises);
 }
 
 function getNestedTranslation(language, key) {

@@ -107,7 +107,7 @@ describe('SessionStorage Migration & Transient State Suite', () => {
         Object.assign(state, getDefaultState());
     });
 
-    test('WP1: QR sync URL parameter uses sessionStorage instead of localStorage', () => {
+    test('QR sync URL parameter uses sessionStorage instead of localStorage', () => {
         globalThis.sessionStorage.setItem('oreCalc_pendingQrUserId', 'test-qr-user-123');
 
         assert.strictEqual(globalThis.sessionStorage.getItem('oreCalc_pendingQrUserId'), 'test-qr-user-123');
@@ -117,7 +117,7 @@ describe('SessionStorage Migration & Transient State Suite', () => {
         assert.strictEqual(globalThis.sessionStorage.getItem('oreCalc_pendingQrUserId'), null);
     });
 
-    test('WP2: PWA update detection timestamp lives in sessionStorage', () => {
+    test('PWA update detection timestamp lives in sessionStorage', () => {
         const detectedAt = Date.now().toString();
         globalThis.sessionStorage.setItem('oreCalcUpdateDetectedAt', detectedAt);
 
@@ -128,14 +128,13 @@ describe('SessionStorage Migration & Transient State Suite', () => {
         assert.strictEqual(globalThis.sessionStorage.getItem('oreCalcUpdateDetectedAt'), null);
     });
 
-    test('WP3: saveState strips transient Hero Journey UI filters and scroll positions from localStorage', () => {
+    test('saveState strips transient Hero Journey UI filters and scroll positions from localStorage', () => {
         state.savedPlayerTags = ['#TEST123'];
         state.heroJourney = {
             scrollPosition: 1250,
             typeFilter: 'king',
             unclaimedOnly: true,
             filterScrollPositions: { 'all:king': 1250 },
-            overrideUnclaimed: [1, 2],
             acceleratedRewards: true,
             hidden: false,
             revealBeyondTH: true
@@ -143,8 +142,9 @@ describe('SessionStorage Migration & Transient State Suite', () => {
 
         saveState(state, true);
 
-        const savedPlayerJson = globalThis.localStorage.getItem('oreCalc_player_#TEST123');
+        const savedPlayerJson = globalThis.localStorage.getItem('oreCalc_player_TEST123');
         assert.ok(savedPlayerJson);
+        assert.strictEqual(globalThis.localStorage.getItem('oreCalc_player_#TEST123'), null);
 
         const savedPlayer = JSON.parse(savedPlayerJson);
         assert.ok(savedPlayer.heroJourney);
@@ -153,11 +153,11 @@ describe('SessionStorage Migration & Transient State Suite', () => {
         assert.strictEqual(savedPlayer.heroJourney.unclaimedOnly, undefined);
         assert.strictEqual(savedPlayer.heroJourney.filterScrollPositions, undefined);
 
-        assert.deepStrictEqual(savedPlayer.heroJourney.overrideUnclaimed, [1, 2]);
         assert.strictEqual(savedPlayer.heroJourney.acceleratedRewards, true);
+        assert.strictEqual(savedPlayer.heroJourney.revealBeyondTH, true);
     });
 
-    test('WP4: Custom chip modal draft saves and clears from sessionStorage', () => {
+    test('Custom chip modal draft saves and clears from sessionStorage', () => {
         const mockModal = new MockElement('div');
         mockModal.id = 'create-custom-chips-modal';
         mockDomElements.set('create-custom-chips-modal', mockModal);

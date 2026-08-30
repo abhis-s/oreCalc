@@ -1,0 +1,400 @@
+@use '../abstracts/variables' as *;
+
+.hero-journey-page {
+    &__search-form {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+        max-width: 440px;
+        min-width: 0;
+    }
+
+    &__search-input-wrapper {
+        position: relative;
+        flex: 1;
+        min-width: 120px;
+        display: flex;
+        align-items: center;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-medium;
+        height: 36px;
+        box-sizing: border-box;
+        transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+
+        &:focus-within {
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 2px $accent-primary-soft;
+        }
+
+        &:hover {
+            border-color: color-mix(in srgb, $accent-primary 40%, $border-primary);
+        }
+    }
+
+    &__tag-hash-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 22px;
+        padding: 0 6px;
+        margin-left: 5px;
+        background-color: color-mix(in srgb, $accent-primary 12%, $bg-surface-secondary);
+        border: 1px solid color-mix(in srgb, $accent-primary 25%, transparent);
+        border-radius: 4px;
+        color: $accent-primary;
+        font-weight: 800;
+        font-size: 0.8rem;
+        font-family: monospace;
+        user-select: none;
+        pointer-events: none;
+        flex-shrink: 0;
+    }
+
+    &__search-input,
+    #hj-search-input {
+        width: 100%;
+        min-width: 0;
+        height: 100%;
+        padding: 6px 8px;
+        padding-right: 32px;
+        background: transparent;
+        border: none;
+        color: $text-primary;
+        font-size: 0.85rem;
+        font-family: monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transform: none;
+        transition: none;
+
+        &:hover,
+        &:focus,
+        &:focus-visible {
+            outline: none;
+            box-shadow: none;
+            transform: none;
+            animation: none;
+        }
+
+        &::placeholder {
+            text-transform: none;
+            font-family: inherit;
+            color: $text-muted;
+            font-size: 0.8rem;
+        }
+    }
+
+    &__active-pill {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        background-color: $bg-surface-tertiary;
+        border: none;
+        border-radius: inherit;
+        cursor: pointer;
+        user-select: none;
+        z-index: 2;
+        transition: background-color $duration-fast $ease-smooth;
+
+        &:hover {
+            background-color: color-mix(in srgb, $accent-primary 8%, $bg-surface-tertiary);
+        }
+
+        .hj-active-pill-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: $text-primary;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+
+        .hj-active-pill-tag {
+            font-family: monospace;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: $text-secondary;
+            flex-shrink: 0;
+        }
+
+        .hj-active-pill-arrow {
+            margin-left: auto;
+            color: $text-muted;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            transition: color $duration-fast $ease-smooth;
+        }
+
+        &:hover .hj-active-pill-arrow {
+            color: $text-primary;
+        }
+    }
+
+    &__search-clear {
+        position: absolute;
+        right: 6px;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        color: $text-secondary;
+        cursor: pointer;
+        width: 22px;
+        height: 22px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+
+        &:hover {
+            background-color: $bg-surface-primary;
+            border-color: $border-secondary;
+            color: $text-primary;
+            transform: scale(1.08);
+        }
+
+        &:active {
+            transform: scale(0.92);
+        }
+    }
+
+    &__search-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        min-width: 200px;
+        max-height: 380px;
+        overflow-y: auto;
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-large;
+        box-shadow: $elevation-3;
+        z-index: $z-index-popover;
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .hj-dropdown-header {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: $text-muted;
+            padding: 4px 8px;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            &--collapsible {
+                cursor: pointer;
+                border-radius: $shape-corner-small;
+                transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
+
+                &:hover,
+                &.is-focused {
+                    background-color: $bg-surface-secondary;
+                    color: $text-primary;
+                }
+
+                &:focus-visible,
+                &.is-focused {
+                    outline: 2px solid $outline-focus !important;
+                    outline-offset: -2px !important;
+                }
+
+                .section-header-chevron {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: transform $duration-base $ease-standard;
+
+                    svg {
+                        fill: currentColor;
+                        width: 12px;
+                        height: 12px;
+                        display: block;
+                    }
+                }
+
+                &[aria-expanded="false"] .section-header-chevron {
+                    transform: rotate(-90deg);
+                }
+
+                &[aria-expanded="true"] .section-header-chevron {
+                    transform: rotate(0deg);
+                }
+            }
+        }
+
+        .hj-dropdown-empty {
+            font-size: 0.82rem;
+            color: $text-secondary;
+            padding: 8px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .hj-dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            border-left: 3px solid transparent;
+            background: transparent;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+            user-select: none;
+            transition: background-color $duration-fast $ease-smooth, transform $duration-fast $ease-standard, border-left-color $duration-fast $ease-smooth, padding-left $duration-fast $ease-smooth;
+
+            &:hover,
+            &.is-focused {
+                background-color: $bg-surface-secondary;
+                transform: translateX(2px);
+            }
+
+            &:focus-visible {
+                outline-offset: -3px !important;
+            }
+
+            &:active {
+                transform: scale(0.98);
+                background-color: $bg-surface-tertiary;
+            }
+
+            &.is-active {
+                background-color: $accent-primary-soft;
+                border-left-color: $accent-primary;
+                color: $accent-primary;
+                font-weight: 600;
+
+                .hj-dropdown-name {
+                    color: $accent-primary;
+                }
+            }
+
+            .hj-dropdown-left {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-width: 0;
+                flex: 1;
+            }
+
+            .hj-dropdown-th-wrapper {
+                position: relative;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                border-radius: $shape-corner-small;
+                background-color: $bg-surface-secondary;
+                border: 1px solid $border-primary;
+                padding: 2px;
+                box-sizing: border-box;
+            }
+
+            .hj-dropdown-th {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;
+            }
+
+            .hj-dropdown-th-badge {
+                position: absolute;
+                bottom: -3px;
+                right: -3px;
+                font-size: 0.6rem;
+                font-weight: 800;
+                line-height: 1;
+                padding: 1px 3px;
+                border-radius: 4px;
+                background-color: $accent-primary;
+                color: $text-on-accent;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            }
+
+            .hj-dropdown-details {
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+                flex: 1;
+                gap: 2px;
+            }
+
+            .hj-dropdown-name {
+                font-size: 0.85rem;
+                font-weight: 700;
+                color: $text-primary;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                line-height: 1.2;
+            }
+
+            .hj-dropdown-tag {
+                font-family: monospace;
+                font-size: 0.72rem;
+                font-weight: 500;
+                color: $text-secondary;
+                line-height: 1;
+            }
+
+            .hj-dropdown-dismiss-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                width: 24px;
+                height: 24px;
+                padding: 0;
+                background-color: $bg-surface-secondary;
+                border: 1px solid $border-primary;
+                color: $text-secondary;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+
+                &:hover {
+                    background-color: $color-danger-soft;
+                    border-color: color-mix(in srgb, $color-danger 40%, transparent);
+                    color: $color-danger;
+                    transform: scale(1.1);
+                }
+
+                &:active {
+                    transform: scale(0.9);
+                }
+
+                svg {
+                    fill: currentColor;
+                    width: 13px;
+                    height: 13px;
+                    display: block;
+                }
+            }
+        }
+
+        .hj-dropdown-header--recent {
+            margin-top: 4px;
+            padding-top: 6px;
+            border-top: 1px solid $border-primary;
+        }
+    }
+}

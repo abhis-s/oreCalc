@@ -156,8 +156,10 @@ export function initializeNavigation() {
 
     if (dom.drawer.drawer) {
         dom.drawer.drawer.addEventListener('click', (event) => {
+            const target = /** @type {HTMLElement | null} */ (event.target);
+            if (!target) return;
 
-            const tab = event.target.closest('.navigation-drawer__tab');
+            const tab = target.closest('.navigation-drawer__tab');
             if (tab && !tab.classList.contains('secondary-tab')) {
                 // If clicking on Settings with update pending, trigger the update modal
                 if (tab.dataset.tab === 'settings' && tab.classList.contains('update-pending') && window.__WB__) {
@@ -172,6 +174,47 @@ export function initializeNavigation() {
                 state.activeTab = tabId;
                 renderApp(state);
                 closeNavigationDrawer();
+                return;
+            }
+
+            const secondaryTab = target.closest('.navigation-drawer__tab.secondary-tab');
+            if (secondaryTab) {
+                const actionId = /** @type {HTMLElement} */ (secondaryTab).dataset.actionId;
+                if (actionId === 'changelog') {
+                    closeNavigationDrawer();
+                    Promise.all([
+                        import('../changelog/changelogModal.js'),
+                        import('../../services/changelogService.js')
+                    ]).then(([modalModule, serviceModule]) => {
+                        const content = serviceModule.getChangelogHtml();
+                        modalModule.showChangelogModal(content);
+                    }).catch(err => console.error(err));
+                    return;
+                }
+                if (secondaryTab.tagName === 'A') {
+                    closeNavigationDrawer();
+                    return;
+                }
+            }
+
+            const privacyLink = target.closest('.navigation-drawer__footer-links a[href*="privacy"]');
+            if (privacyLink) {
+                event.preventDefault();
+                closeNavigationDrawer();
+                import('../appSettings/settingsModals.js').then(module => {
+                    module.openPrivacyModal();
+                }).catch(err => console.error(err));
+                return;
+            }
+
+            const termsLink = target.closest('.navigation-drawer__footer-links a[href*="terms"]');
+            if (termsLink) {
+                event.preventDefault();
+                closeNavigationDrawer();
+                import('../appSettings/settingsModals.js').then(module => {
+                    module.openTermsOfUseModal();
+                }).catch(err => console.error(err));
+                return;
             }
         });
 

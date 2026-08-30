@@ -144,9 +144,8 @@ export function renderLastEventOptions(select, frequency, currentYear, currentMo
 /**
  * Renders Town Hall planning upgrade selector inputs.
  * @param {import('../../core/types.js').AppState} state - Current global application state.
- * @param {Function} [onTHUpgradeChange] - Callback invoked when a TH upgrade month changes.
  */
-export function renderTHPlanningSection(state, onTHUpgradeChange) {
+export function renderTHPlanningSection(state) {
     const container = dom.income?.starBonus?.thPlanningSection;
     if (!container) return;
 
@@ -220,6 +219,7 @@ export function renderTHPlanningSection(state, onTHUpgradeChange) {
         const select = document.createElement('select');
         select.id = `th-upgrade-month-${th}`;
         select.name = `th-upgrade-month-${th}`;
+        select.dataset.th = String(th);
         select.className = 'dropdown-style updatable';
         select.innerHTML = `<option value="0">---</option>`;
 
@@ -256,12 +256,6 @@ export function renderTHPlanningSection(state, onTHUpgradeChange) {
             select.value = String((savedOffset >= startOffset && savedOffset <= endOffset) ? savedOffset : 0);
         } else {
             select.value = '0';
-        }
-
-        if (typeof onTHUpgradeChange === 'function') {
-            select.addEventListener('change', (e) => {
-                onTHUpgradeChange(th, parseInt(/** @type {HTMLSelectElement} */ (e.target).value, 10), currentMonthBase, thLimit);
-            });
         }
 
         row.appendChild(select);

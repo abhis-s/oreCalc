@@ -98,7 +98,7 @@ export function autoScrollToCompletedNode(cumulativeLevel) {
 
         let targetChip = null;
         for (const chip of chips) {
-            const chipLevel = parseInt(chip.dataset.nodeLevel || chip.dataset.level || '', 10);
+            const chipLevel = Number(chip.dataset.nodeLevel || chip.dataset.level || 0);
             if (chipLevel <= cumulativeLevel) {
                 targetChip = chip;
             } else {
@@ -222,17 +222,29 @@ export function updateFilterRowLayout() {
         containerWidth = filterContainer.clientWidth || filterContainer.parentElement?.clientWidth || window.innerWidth;
     }
 
-    const stage1WidthNeeded = claimWidth + buttonsWidth + scrollControlsWidth + 45;
-    const stage2WidthNeeded = claimWidth + selectWidth + scrollControlsWidth + 30;
-    const stage3WidthNeeded = claimWidth + selectWidth + 20;
-
     let targetStage = 'filter-stage-4';
-    if (containerWidth >= stage1WidthNeeded) {
-        targetStage = 'filter-stage-1';
-    } else if (containerWidth >= stage2WidthNeeded) {
-        targetStage = 'filter-stage-2';
-    } else if (isClaimSwitchHidden || containerWidth >= stage3WidthNeeded) {
-        targetStage = 'filter-stage-3';
+    if (isClaimSwitchHidden) {
+        const hiddenStage1Needed = buttonsWidth + scrollControlsWidth + 30;
+        const hiddenStage2Needed = selectWidth + scrollControlsWidth + 20;
+        if (containerWidth >= hiddenStage1Needed) {
+            targetStage = 'filter-stage-1';
+        } else if (containerWidth >= hiddenStage2Needed) {
+            targetStage = 'filter-stage-2';
+        } else {
+            targetStage = 'filter-stage-4';
+        }
+    } else {
+        const stage1WidthNeeded = claimWidth + buttonsWidth + scrollControlsWidth + 45;
+        const stage2WidthNeeded = claimWidth + selectWidth + scrollControlsWidth + 30;
+        const stage3WidthNeeded = claimWidth + selectWidth + 20;
+
+        if (containerWidth >= stage1WidthNeeded) {
+            targetStage = 'filter-stage-1';
+        } else if (containerWidth >= stage2WidthNeeded) {
+            targetStage = 'filter-stage-2';
+        } else if (containerWidth >= stage3WidthNeeded) {
+            targetStage = 'filter-stage-3';
+        }
     }
 
     filterContainer.classList.toggle('no-claim-switch', isClaimSwitchHidden);
@@ -358,11 +370,22 @@ export function initClaimSwitchResizeObserver() {
     claimSwitchResizeObserver.observe(claimSwitch);
 }
 
+let customStateProvider = null;
+
+/**
+ * Registers an external state provider callback for standalone page contexts.
+ * @param {(() => import('../../core/types.js').AppState) | null} provider - State provider function.
+ */
+export function setHeroJourneyStateProvider(provider) {
+    customStateProvider = provider;
+}
+
 /**
  * Updates custom horizontal scrollbar thumb geometry and progress fill.
  * @param {boolean} [isDraggingThumb=false] - True if scrollbar is currently dragged by pointer.
+ * @param {import('../../core/types.js').AppState | null} [stateOverride=null] - Optional state override.
  */
-export function updateCustomScrollbar(isDraggingThumb = false) {
+export function updateCustomScrollbar(isDraggingThumb = false, stateOverride = null) {
     const trackWrapper = document.querySelector('.hero-journey-track-wrapper');
     const customBar = document.getElementById('home-hj-custom-scrollbar');
     const thumb = document.getElementById('home-hj-scrollbar-thumb');
@@ -374,9 +397,25 @@ export function updateCustomScrollbar(isDraggingThumb = false) {
     const clientWidth = trackWrapper.clientWidth;
     const scrollLeft = trackWrapper.scrollLeft;
 
+    const scrollControls = document.querySelector('.hero-journey-scroll-controls');
+    const scrollFirstBtn = document.getElementById('home-hj-scroll-first');
+    const scrollLeftBtn = document.getElementById('home-hj-scroll-left');
+    const scrollCurrentBtn = document.getElementById('home-hj-scroll-current');
+    const scrollRightBtn = document.getElementById('home-hj-scroll-right');
+    const scrollLastBtn = document.getElementById('home-hj-scroll-last');
+
     if (scrollWidth <= clientWidth) {
         customBar.style.display = 'none';
+        if (scrollControls) {
+            scrollControls.style.opacity = '0.4';
+            scrollControls.style.pointerEvents = 'none';
+        }
         return;
+    }
+
+    if (scrollControls) {
+        scrollControls.style.opacity = '';
+        scrollControls.style.pointerEvents = '';
     }
 
     customBar.style.display = 'block';
@@ -384,13 +423,14 @@ export function updateCustomScrollbar(isDraggingThumb = false) {
     if (customBarWidth === 0) return;
 
     let progressRatio = 0;
-    if (progress) {
-        const hasSyncedHeroes = hasSyncedHeroInfo(globalState);
-        const isGuest = isDefaultOrGuestPlayer(globalState);
-        const isUserSynced = hasSyncedHeroes && !isGuest;
+    const appState = stateOverride || (customStateProvider ? customStateProvider() : globalState);
+    const hasSyncedHeroes = hasSyncedHeroInfo(appState);
+    const isGuest = isDefaultOrGuestPlayer(appState);
+    const isUserSynced = hasSyncedHeroes && !isGuest;
 
+    if (progress) {
         if (isUserSynced) {
-            const cumulativeLevel = getCumulativeHeroLevel(globalState);
+            const cumulativeLevel = getCumulativeHeroLevel(appState);
             const maxLevelsByTH = getMaxCumulativeLevelsByTH();
             const allMaxValues = Object.values(maxLevelsByTH);
             const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
@@ -401,18 +441,37 @@ export function updateCustomScrollbar(isDraggingThumb = false) {
             } else {
                 const chips = Array.from(trackWrapper.querySelectorAll('.hero-journey-node-chip'));
                 let lastReachedChip = null;
+                let nextChip = null;
                 for (const chip of chips) {
-                    const chipLevel = parseInt(chip.dataset.nodeLevel || chip.dataset.level || '', 10);
+                    const chipLevel = Number(chip.dataset.nodeLevel || chip.dataset.level || 0);
                     if (chipLevel <= cumulativeLevel) {
                         lastReachedChip = chip;
-                    } else {
+                    } else if (!nextChip) {
+                        nextChip = chip;
                         break;
                     }
                 }
 
                 if (lastReachedChip) {
-                    const completionTrackPos = lastReachedChip.offsetLeft + lastReachedChip.offsetWidth;
-                    progressRatio = Math.min(1, Math.max(0, completionTrackPos / scrollWidth));
+                    const lastPos = lastReachedChip.offsetLeft + lastReachedChip.offsetWidth;
+                    if (nextChip) {
+                        const nextPos = nextChip.offsetLeft;
+                        const lastLvl = Number(lastReachedChip.dataset.nodeLevel || lastReachedChip.dataset.level || 0);
+                        const nextLvl = Number(nextChip.dataset.nodeLevel || nextChip.dataset.level || 0);
+                        const fraction = nextLvl > lastLvl ? Math.max(0, Math.min(1, (cumulativeLevel - lastLvl) / (nextLvl - lastLvl))) : 0;
+                        const completionTrackPos = lastPos + (nextPos - lastPos) * fraction;
+                        progressRatio = Math.min(1, Math.max(0, completionTrackPos / scrollWidth));
+                    } else {
+                        progressRatio = Math.min(1, Math.max(0, lastPos / scrollWidth));
+                    }
+                } else if (chips.length > 0 && cumulativeLevel > 0) {
+                    const firstChip = chips[0];
+                    const firstLvl = Number(firstChip.dataset.nodeLevel || firstChip.dataset.level || 0);
+                    if (firstLvl > 0) {
+                        const fraction = Math.max(0, Math.min(1, cumulativeLevel / firstLvl));
+                        const completionTrackPos = firstChip.offsetLeft * fraction;
+                        progressRatio = Math.min(1, Math.max(0, completionTrackPos / scrollWidth));
+                    }
                 }
             }
         }
@@ -428,7 +487,6 @@ export function updateCustomScrollbar(isDraggingThumb = false) {
         thumbLeft = Math.min(maxThumbLeft, Math.max(0, scrollRatio * maxThumbLeft));
     }
 
-    customBar.style.display = 'block';
     if (progress) {
         progress.style.width = `${(progressRatio * 100).toFixed(2)}%`;
     }
@@ -436,13 +494,43 @@ export function updateCustomScrollbar(isDraggingThumb = false) {
     if (!isDraggingThumb) {
         thumb.style.left = `${thumbLeft}px`;
     }
+
+    const isAtStart = scrollLeft <= 1;
+    const isAtEnd = maxScrollLeft <= 0 || scrollLeft >= maxScrollLeft - 2;
+
+    if (scrollFirstBtn) {
+        scrollFirstBtn.disabled = isAtStart;
+        scrollFirstBtn.classList.toggle('disabled', isAtStart);
+        scrollFirstBtn.setAttribute('aria-disabled', String(isAtStart));
+    }
+    if (scrollLeftBtn) {
+        scrollLeftBtn.disabled = isAtStart;
+        scrollLeftBtn.classList.toggle('disabled', isAtStart);
+        scrollLeftBtn.setAttribute('aria-disabled', String(isAtStart));
+    }
+    if (scrollRightBtn) {
+        scrollRightBtn.disabled = isAtEnd;
+        scrollRightBtn.classList.toggle('disabled', isAtEnd);
+        scrollRightBtn.setAttribute('aria-disabled', String(isAtEnd));
+    }
+    if (scrollLastBtn) {
+        scrollLastBtn.disabled = isAtEnd;
+        scrollLastBtn.classList.toggle('disabled', isAtEnd);
+        scrollLastBtn.setAttribute('aria-disabled', String(isAtEnd));
+    }
+    if (scrollCurrentBtn) {
+        const isCurrentDisabled = !isUserSynced;
+        scrollCurrentBtn.disabled = isCurrentDisabled;
+        scrollCurrentBtn.classList.toggle('disabled', isCurrentDisabled);
+        scrollCurrentBtn.setAttribute('aria-disabled', String(isCurrentDisabled));
+    }
 }
 
 if (typeof window !== 'undefined') {
     let heroJourneyResizeFrame = null;
     window.addEventListener('resize', () => {
         if (heroJourneyResizeFrame !== null) return;
-        heroJourneyResizeFrame = requestAnimationFrame(() => {
+        heroJourneyResizeFrame = window.requestAnimationFrame(() => {
             updateCustomScrollbar();
             updateFilterRowLayout();
             updateClaimSwitchPillPosition();

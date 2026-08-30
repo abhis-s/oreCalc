@@ -74,10 +74,11 @@ const {
 
 const { calculateStarBonusIncome } = await import('../../js/domain/income/starBonusIncome.js');
 const { calculateEventPassIncome } = await import('../../js/domain/income/eventPassIncome.js');
-const { migrateFullState, compareVersions } = await import('../../js/core/stateCleanup.js');
+const { migrateFullState } = await import('../../js/core/stateCleanup.js');
+const { compareVersions } = await import('../../js/utils/versionUtils.js');
 const { recalculateAll } = await import('../../js/core/calculator.js');
 
-describe('Adversarial Challenge: State Engine Modernization (Milestone 1)', () => {
+describe('Adversarial Challenge: State Engine Modernization', () => {
 
     beforeEach(() => {
         localStorage.clear();

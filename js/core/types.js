@@ -135,6 +135,7 @@
  * @property {boolean} [enableLevelInput] - Whether manual numeric level inputs are enabled
  * @property {boolean} [hideMaxedEquipment] - Whether maxed equipment cards are collapsed
  * @property {boolean} [hideLockedEquipment] - Whether unreleased equipment cards are hidden
+ * @property {boolean} [hideProfileStats] - Whether player profile stats section is collapsed
  * @property {boolean} [cloudSync] - Whether cloud synchronization is active
  * @property {UISettingsTimestamps} [uiTimestamps] - Legal consent timestamps
  * @property {'daily' | 'weekly' | 'monthly' | 'bimonthly' | string} [summaryTimeframe] - Summary display timeframe
@@ -264,14 +265,14 @@
 
 /**
  * @typedef {Object} HeroJourneyState
- * @property {number[]} [overrideUnclaimed] - Overridden unclaimed node milestone thresholds
- * @property {boolean} [acceleratedRewards] - Whether accelerated quest chest rewards are active
- * @property {boolean} [accelerated] - Alias for acceleratedRewards
- * @property {'normal' | 'accelerated'} [rewardMode] - Reward mode string
- * @property {boolean} [unclaimedOnly] - Whether only unclaimed milestones are visible
- * @property {string | null} [typeFilter] - Active type filter ('ores' | 'equipment' | 'skins' | 'items' | null)
- * @property {boolean} [hidden] - Whether Hero's Journey milestone track is collapsed/hidden
- * @property {boolean} [revealBeyondTH] - Whether milestones beyond player's Town Hall limit are previewed
+ * @property {boolean} [acceleratedRewards] - Whether accelerated quest chest rewards are active (persistent)
+ * @property {boolean} [accelerated] - Alias for acceleratedRewards (legacy)
+ * @property {'normal' | 'accelerated'} [rewardMode] - Reward mode string (legacy)
+ * @property {boolean} [revealBeyondTH] - Whether milestones beyond player's Town Hall limit are previewed (persistent)
+ * @property {boolean} [hidden] - Whether Hero's Journey milestone track is collapsed/hidden on home page (persistent)
+ * @property {boolean} [unclaimedOnly] - Transient in-memory filter for unclaimed milestones
+ * @property {string | null} [typeFilter] - Transient in-memory type filter ('ores' | 'equipment' | 'skins' | 'items' | null)
+ * @property {number} [scrollPosition] - Transient in-memory track scroll offset
  */
 
 /**

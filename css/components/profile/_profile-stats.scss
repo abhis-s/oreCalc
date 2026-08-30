@@ -1,0 +1,327 @@
+@use '../../abstracts/variables' as *;
+
+.home-profile-stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.home-profile-overall-progress {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px;
+    background-color: $bg-surface-primary;
+    border: none;
+    border-radius: 8px 8px 0 0;
+    box-sizing: border-box;
+
+    &.fully-maxed {
+        border-radius: 8px;
+    }
+
+    @media (max-width: $breakpoint-modal) {
+        padding: 12px;
+    }
+
+    .overall-progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        gap: 8px;
+
+        .overall-progress-label-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 0;
+
+            .ore-icon-overall {
+                width: clamp(20px, 2.5vw, 28px);
+                height: clamp(20px, 2.5vw, 28px);
+                object-fit: contain;
+                flex-shrink: 0;
+            }
+        }
+
+        .overall-progress-label {
+            font-size: clamp(10px, 1.3vw, 13px);
+            font-weight: 700;
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            opacity: 0.7;
+            white-space: nowrap;
+        }
+
+        .overall-progress-value {
+            font-size: clamp(15px, 2vw, 24px);
+            font-weight: 800;
+            color: $accent-primary;
+            white-space: nowrap;
+            letter-spacing: -0.2px;
+            flex-shrink: 0;
+        }
+    }
+
+    .progress-bar-overall {
+        height: 8px;
+        background-color: $bg-surface-tertiary;
+        border-radius: 4px;
+        overflow: hidden;
+        width: 100%;
+        position: relative;
+
+        .progress-bar-fill.overall-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, $palette-ore-shiny 0%, #aa00ff 50%, $palette-gold 100%);
+            border-radius: 4px;
+            transition: width 2000ms $ease-smooth;
+
+            &.maxed-fill {
+                background: linear-gradient(90deg, $palette-gold 0%, #fff176 50%, $palette-gold 100%);
+                box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.5);
+            }
+        }
+    }
+}
+
+.home-profile-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+
+    @media (max-width: $breakpoint-modal) {
+        grid-template-columns: 1fr !important;
+        gap: 0;
+    }
+
+    .profile-stat-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 16px 20px;
+        background-color: var(--bg-surface-primary, $bg-surface-primary);
+        border: none;
+        border-radius: 0 0 8px 8px;
+        border-top: 1px solid $bg-surface-secondary;
+        text-align: center;
+        box-sizing: border-box;
+
+        @media (max-width: $breakpoint-modal) {
+            padding: 12px;
+            border-radius: 0;
+
+            &:last-child {
+                border-radius: 0 0 8px 8px;
+            }
+        }
+
+        &.progress-box {
+            align-items: stretch;
+            justify-content: space-between;
+
+            .stat-box-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 6px;
+            }
+        }
+
+        .stat-box-label-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            .ore-icon-mini {
+                width: clamp(14px, 1.8vw, 18px);
+                height: clamp(14px, 1.8vw, 18px);
+                object-fit: contain;
+            }
+        }
+
+        .stat-box-label {
+            font-size: clamp(9px, 1.2vw, 11px);
+            font-weight: 700;
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            opacity: 0.7;
+        }
+
+        .stat-box-value {
+            font-size: clamp(13px, 1.6vw, 16px);
+            font-weight: 700;
+            color: $text-primary;
+            margin: 4px 0;
+
+            &.highlight {
+                color: $accent-primary;
+            }
+        }
+
+        .stat-box-sub {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: clamp(10px, 1.4vw, 12px);
+            color: $text-secondary;
+            opacity: 0.65;
+            margin-top: 6px;
+        }
+
+        .progress-bar-mini {
+            height: 5px;
+            background-color: $bg-surface-tertiary;
+            border-radius: 2.5px;
+            overflow: hidden;
+            width: 100%;
+            margin-top: 8px;
+            position: relative;
+
+            .progress-bar-storage {
+                position: absolute;
+                top: 0;
+                right: 0;
+                height: 100%;
+                width: 0;
+                background-color: $bg-surface-tertiary;
+                opacity: 0.8;
+                border-radius: inherit;
+                pointer-events: none;
+                transition: width 600ms $ease-standard;
+            }
+
+            .progress-bar-fill {
+                height: 100%;
+                width: 0;
+                background: linear-gradient(90deg, $accent-primary 0%, color-mix(in srgb, $accent-primary 70%, $color-white-const) 100%);
+                border-radius: 2.5px;
+                transition: width 1800ms $ease-smooth;
+
+                &.shiny-fill {
+                    background: linear-gradient(90deg, $palette-ore-shiny 0%, #80d8ff 100%);
+                }
+
+                &.glowy-fill {
+                    background: linear-gradient(90deg, #aa00ff 0%, $palette-ore-glowy 100%);
+                }
+
+                &.starry-fill {
+                    background: linear-gradient(90deg, $palette-ore-starry 0%, $palette-gold 100%);
+                }
+
+                &.maxed-fill {
+                    background: linear-gradient(90deg, $palette-gold 0%, #fff176 50%, $palette-gold 100%);
+                    box-shadow: 0 0 6px 1px rgba(255, 215, 0, 0.55);
+                }
+            }
+        }
+
+        .stat-box-maxed {
+            margin-top: 6px;
+            font-size: clamp(10px, 1.4vw, 12px);
+            font-weight: 700;
+            color: $palette-gold;
+            letter-spacing: 0.4px;
+        }
+    }
+}
+
+.hero-journey-page__player-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.hero-journey-page__stat-box {
+    padding: 14px 16px;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: transform $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
+
+    &:hover {
+        border-color: color-mix(in srgb, $accent-primary 40%, $border-primary);
+    }
+
+    .stat-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .stat-header-icon {
+            color: $accent-primary;
+            flex-shrink: 0;
+        }
+
+        .stat-header-ore-img {
+            width: 15px;
+            height: 15px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .stat-label {
+            font-size: clamp(10px, 1.3vw, 11px);
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 700;
+            opacity: 0.75;
+        }
+    }
+
+    .stat-val-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+
+        .stat-value {
+            font-size: clamp(18px, 2.2vw, 22px);
+            font-weight: 800;
+            color: $text-primary;
+            line-height: 1.2;
+
+            &.text-shiny {
+                color: $shiny-ore;
+            }
+
+            &.text-glowy {
+                color: $glowy-ore;
+            }
+
+            &.text-starry {
+                color: $starry-ore;
+            }
+        }
+    }
+}
+
+// Delayed mount delta overlay to avoid initial keyframe collision
+.bar-delta-overlay {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 2.5px;
+    pointer-events: none;
+    transition: width 600ms $ease-standard;
+
+    &.delta-positive {
+        background: color-mix(in srgb, $color-success 85%, transparent);
+        box-shadow: 0 0 4px color-mix(in srgb, $color-success 50%, transparent);
+    }
+
+    &.delta-negative {
+        background: color-mix(in srgb, $color-danger 80%, transparent);
+        box-shadow: 0 0 4px color-mix(in srgb, $color-danger 40%, transparent);
+    }
+}

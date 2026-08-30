@@ -131,8 +131,6 @@ describe('Unified Chip Pointer Events Manager Suite', () => {
         mockChip.dispatchMockEvent('pointerdown', {
             button: 0,
             pointerType: 'mouse',
-            clientX: 100,
-            clientY: 200,
             pointerId: 1
         });
         assert.equal(isDraggingActive(), false);

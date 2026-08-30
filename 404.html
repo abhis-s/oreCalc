@@ -3,227 +3,69 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f9f9f9" media="(prefers-color-scheme: light)">
     <meta name="description" content="Page not found - OreCalc, the Clash of Clans hero equipment and upgrade planner.">
     <meta name="robots" content="noindex, follow">
     <title>404 - Page Not Found - OreCalc</title>
     <link rel="canonical" href="https://orecalc.tech/404">
-    <link rel="icon" href="assets/favicon.png" type="image/x-icon">
+    <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/legal/legal.css">
     <script>
-        // Inline script to prevent theme flash and detect embed
         (function() {
             const params = new URLSearchParams(window.location.search);
             let theme = params.get('theme');
             if (!theme) {
-                // Set theme based on browser preference
                 theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
             }
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
-    <style>
-        :root {
-            --bg-color: #f9f9f9;
-            --surface-color: #ffffff;
-            --text-primary: #2d3748;
-            --text-secondary: #4a5568;
-            --border-color: #e2e8f0;
-            --accent-color: #3182ce;
-            --accent-hover: #2b6cb0;
-        }
-
-        /* Explicit light theme */
-        html[data-theme="light"] {
-            --bg-color: #f9f9f9;
-            --surface-color: #ffffff;
-            --text-primary: #2d3748;
-            --text-secondary: #4a5568;
-            --border-color: #e2e8f0;
-            --accent-color: #3182ce;
-            --accent-hover: #2b6cb0;
-        }
-
-        /* Explicit dark theme */
-        html[data-theme="dark"] {
-            --bg-color: #121212;
-            --surface-color: #1a1a1a;
-            --text-primary: #e2e8f0;
-            --text-secondary: #a0aec0;
-            --border-color: #2d3748;
-            --accent-color: #63b3ed;
-            --accent-hover: #90cdf4;
-        }
-
-        /* Fallback dark theme */
-        @media (prefers-color-scheme: dark) {
-            html:not([data-theme="light"]) {
-                --bg-color: #121212;
-                --surface-color: #1a1a1a;
-                --text-primary: #e2e8f0;
-                --text-secondary: #a0aec0;
-                --border-color: #2d3748;
-                --accent-color: #63b3ed;
-                --accent-hover: #90cdf4;
-            }
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            line-height: 1.6;
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-            transition: background-color 0.3s ease-in-out, color 0.3s;
-        }
-
-        .container {
-            max-width: 500px;
-            width: 100%;
-            background-color: var(--surface-color);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
-            text-align: center;
-            transition: background-color 0.3s ease-in-out, border-color 0.3s;
-        }
-
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .back-link {
-            font-size: 0.95rem;
-            color: var(--accent-color);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.25rem;
-            padding: 4px;
-            border-radius: 4px;
-            transition: transform 0.2s;
-            user-select: none;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        .theme-toggle:active {
-            transform: scale(0.9);
-        }
-
-        .error-code {
-            font-size: 6.5rem;
-            font-weight: 900;
-            line-height: 1;
-            margin: 20px 0 10px;
-            background: linear-gradient(135deg, var(--accent-color), #48bb78);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -2px;
-        }
-
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-top: 0;
-            margin-bottom: 15px;
-            color: var(--text-primary);
-        }
-
-        p {
-            font-size: 1.05rem;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: var(--accent-color);
-            color: #121212;
-            font-weight: 600;
-            padding: 12px 28px;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: background-color 0.2s, transform 0.15s;
-            border: none;
-            box-shadow: 0 4px 12px rgba(99, 179, 237, 0.2);
-        }
-
-        html[data-theme="light"] .btn {
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.25);
-        }
-
-        .btn:hover {
-            background-color: var(--accent-hover);
-            transform: translateY(-1px);
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .footer {
-            margin-top: 40px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-    </style>
 </head>
 
-<body>
-    <div class="container">
+<body class="page-404">
+    <div class="container container--center">
         <div class="header-row">
             <a href="/" class="back-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12"></line>
                     <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
                 Back to App
             </a>
-            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">🌙</button>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
         </div>
 
         <div class="error-code">404</div>
         <h1>Page Not Found</h1>
         <p>The page you are looking for does not exist or has been moved to another address.</p>
 
-        <a href="/#home" class="btn">Go Back Home</a>
+        <a href="/" class="btn">Go Back Home</a>
 
         <div class="footer">
-            &copy; 2025-2026 OreCalc. All rights reserved.
+            <div class="footer__links">
+                <a href="/" class="footer__link">Home</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <a href="/privacy/" class="footer__link">Privacy Policy</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <a href="/terms/" class="footer__link">Terms of Use</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <a href="/licenses/" class="footer__link">Licenses</a>
+            </div>
+            <p class="footer__copyright">&copy; 2025-2026 OreCalc. All rights reserved.</p>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const themeBtn = document.getElementById('theme-toggle-btn');
+            const MOON_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+            const SUN_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
 
             function getTheme() {
                 return document.documentElement.getAttribute('data-theme') || 'dark';
@@ -232,20 +74,43 @@
             function updateTheme(newTheme) {
                 document.documentElement.setAttribute('data-theme', newTheme);
                 if (themeBtn) {
-                    themeBtn.innerHTML = newTheme === 'light' ? '🌙' : '☀️';
+                    themeBtn.innerHTML = newTheme === 'light' ? MOON_ICON : SUN_ICON;
                     themeBtn.setAttribute('aria-label', newTheme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode');
                 }
             }
 
-            // Preserve language route on 404 links
+            // Preserve language route on 404 links and handle opener navigation
             const segments = window.location.pathname.split('/').filter(Boolean);
             let lang = 'en';
-            if (segments.length > 0 && ['en', 'de', 'tr'].includes(segments[0].toLowerCase())) {
+            if (segments.length > 0 && ['en', 'de', 'tr', 'zh'].includes(segments[0].toLowerCase())) {
                 lang = segments[0].toLowerCase();
             }
+            const homeUrl = `/${lang}/`;
             document.querySelectorAll('.back-link, .btn').forEach(link => {
-                link.href = `/${lang}/`;
+                link.href = homeUrl;
+                link.addEventListener('click', (e) => {
+                    if (window.opener && !window.opener.closed) {
+                        e.preventDefault();
+                        try {
+                            window.opener.focus();
+                        } catch (_) {}
+                        window.close();
+                        setTimeout(() => {
+                            if (!document.hidden) window.location.href = homeUrl;
+                        }, 300);
+                    }
+                });
             });
+
+            // Update footer links with appropriate language prefix if applicable
+            if (lang !== 'en') {
+                const privacyLink = document.querySelector('.footer__links a[href="/privacy/"]');
+                if (privacyLink && ['de'].includes(lang)) privacyLink.href = `/${lang}/privacy/`;
+                const termsLink = document.querySelector('.footer__links a[href="/terms/"]');
+                if (termsLink && ['de'].includes(lang)) termsLink.href = `/${lang}/terms/`;
+                const homeLink = document.querySelector('.footer__links a[href="/"]');
+                if (homeLink) homeLink.href = homeUrl;
+            }
 
             // Sync toggle button initial state
             updateTheme(getTheme());

@@ -54,15 +54,14 @@ export function updateTabIndicator(modifierTabsContainer, activeModifierTab = nu
 }
 
 /**
- * Renders the modifier tab bar and hooks resize observation.
+ * Renders the modifier tab bar and updates the active tab indicator.
  *
  * @param {HTMLElement | null} modifierTabsContainer
  * @param {boolean} hasValidLevels
  * @param {boolean} hasStatsMeta
  * @param {string} activeModifierTab
- * @param {(modKey: string) => void} onTabSelect
  */
-export function renderModifierTabs(modifierTabsContainer, hasValidLevels, hasStatsMeta, activeModifierTab, onTabSelect) {
+export function renderModifierTabs(modifierTabsContainer, hasValidLevels, hasStatsMeta, activeModifierTab) {
     if (!modifierTabsContainer) return;
     if (!hasValidLevels || !hasStatsMeta) {
         modifierTabsContainer.style.display = 'none';
@@ -80,41 +79,12 @@ export function renderModifierTabs(modifierTabsContainer, hasValidLevels, hasSta
     }
     modifierTabsContainer.innerHTML = html;
 
-    if (/** @type {any} */ (modifierTabsContainer).__windowResizeHandler) {
-        window.removeEventListener('resize', /** @type {any} */ (modifierTabsContainer).__windowResizeHandler);
-        /** @type {any} */ (modifierTabsContainer).__windowResizeHandler = null;
-    }
-    if (/** @type {any} */ (modifierTabsContainer).__resizeObserver) {
-        /** @type {any} */ (modifierTabsContainer).__resizeObserver.disconnect();
-        /** @type {any} */ (modifierTabsContainer).__resizeObserver = null;
-    }
-
-    const handleResize = () => {
-        requestAnimationFrame(() => updateTabIndicator(modifierTabsContainer, null, false));
-    };
-
-    if (window.ResizeObserver) {
-        const ro = new ResizeObserver(() => handleResize());
-        ro.observe(modifierTabsContainer);
-        /** @type {any} */ (modifierTabsContainer).__resizeObserver = ro;
-    } else {
-        /** @type {any} */ (modifierTabsContainer).__windowResizeHandler = handleResize;
-        window.addEventListener('resize', handleResize);
-    }
-
     requestAnimationFrame(() => {
         updateTabIndicator(modifierTabsContainer, activeModifierTab, true);
         const activeBtn = modifierTabsContainer.querySelector('.mod-tab-btn.active');
         if (activeBtn) {
             activeBtn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
         }
-    });
-
-    modifierTabsContainer.querySelectorAll('.mod-tab-btn').forEach(btn => {
-        /** @type {HTMLElement} */ (btn).onclick = () => {
-            const newKey = /** @type {HTMLElement} */ (btn).dataset.modKey;
-            if (newKey) onTabSelect(newKey);
-        };
     });
 }
 

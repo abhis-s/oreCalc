@@ -1,0 +1,55 @@
+@use '../../abstracts/variables' as *;
+
+.profile-collapse-toggle-btn {
+    align-items: center;
+    background-color: transparent;
+    border: 1px solid color-mix(in srgb, $border-primary 80%, transparent);
+    border-radius: 6px;
+    color: $text-secondary;
+    cursor: pointer;
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 28px;
+    justify-content: center;
+    padding: 0;
+    width: 28px;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+
+    &:hover {
+        background-color: color-mix(in srgb, $accent-primary 12%, transparent);
+        border-color: $accent-primary;
+        color: $accent-primary;
+    }
+
+    &:active {
+        transform: scale(0.92);
+    }
+
+    .collapse-chevron-icon,
+    orecalc-assets-svg,
+    svg {
+        display: block;
+        transition: transform $duration-base $ease-smooth;
+    }
+}
+
+.home-profile-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    padding: 24px;
+
+    @media (max-width: $breakpoint-modal) {
+        padding: 16px;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    &.is-stats-collapsed {
+        .home-profile-stats-container {
+            display: none !important;
+        }
+    }
+}

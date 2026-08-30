@@ -25,10 +25,8 @@ import { computeStatDelta } from './equipmentDetailsModalData.js';
  * @param {number} userTH
  * @param {string} activeModifierTab
  * @param {Object | null} rec
- * @param {(levelNum: number) => void} onRowHover
- * @param {() => void} onRowLeave
  */
-export function renderLevelTable(tableHead, tableBody, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, heroKey, userTH, activeModifierTab, rec, onRowHover, onRowLeave) {
+export function renderLevelTable(tableHead, tableBody, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, heroKey, userTH, activeModifierTab, rec) {
     if (!tableHead || !tableBody) return;
 
     const isEpic = (data?.rarity || equipmentRarity || '').toLowerCase() === 'epic';
@@ -78,18 +76,20 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
         </tr>
     `;
 
-    requestAnimationFrame(() => {
-        if (window.innerWidth <= 779) return;
-        const categoryCell = tableHead.querySelector('.super-header-row th.category-header') || tableHead.querySelector('.super-header-row th:not([rowspan])');
-        if (categoryCell) {
-            const row1Height = categoryCell.getBoundingClientRect().height;
-            if (row1Height > 0) {
-                tableHead.querySelectorAll('.sub-header-row th').forEach(cell => {
-                    /** @type {HTMLElement} */ (cell).style.top = `${row1Height}px`;
-                });
+    if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(() => {
+            if (typeof window !== 'undefined' && window.innerWidth <= 779) return;
+            const categoryCell = tableHead.querySelector('.super-header-row th.category-header') || tableHead.querySelector('.super-header-row th:not([rowspan])');
+            if (categoryCell) {
+                const row1Height = categoryCell.getBoundingClientRect ? categoryCell.getBoundingClientRect().height : 0;
+                if (row1Height > 0) {
+                    tableHead.querySelectorAll('.sub-header-row th').forEach(cell => {
+                        /** @type {HTMLElement} */ (cell).style.top = `${row1Height}px`;
+                    });
+                }
             }
-        }
-    });
+        });
+    }
 
     const effective = computeEffectiveLevels(currentLevel, calculatedMaxLevel, data?.rarity || equipmentRarity, activeModifierTab);
     const activeCurrentLevel = effective.effectiveLevel;
@@ -201,7 +201,7 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
         const thText = translate('views.equipment.thShort', { level: reqTH });
 
         return `
-            <tr ${rowClassAttr}>
+            <tr ${rowClassAttr} data-level="${levelNumber}">
                 <td><div class="level-cell-content">${recTargetIcon}<span>${levelNumber}</span></div></td>
                 ${statCellsHTML}
                 <td><div class="ore-cost-cell">${shinyDisplay}</div></td>
@@ -270,26 +270,4 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
     }
 
     tableBody.innerHTML = levelRowsHTML + totalCostRowHTML;
-
-    let hoverResetTimer = null;
-
-    tableBody.querySelectorAll('tr:not(.total-cost-row)').forEach((row, idx) => {
-        const levelNum = idx + 1;
-        row.addEventListener('mouseenter', () => {
-            if (hoverResetTimer !== null) {
-                cancelAnimationFrame(hoverResetTimer);
-                hoverResetTimer = null;
-            }
-            onRowHover(levelNum);
-        });
-        row.addEventListener('mouseleave', () => {
-            if (hoverResetTimer !== null) {
-                cancelAnimationFrame(hoverResetTimer);
-            }
-            hoverResetTimer = requestAnimationFrame(() => {
-                hoverResetTimer = null;
-                onRowLeave();
-            });
-        });
-    });
 }

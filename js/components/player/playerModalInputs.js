@@ -34,7 +34,7 @@ async function checkAndPromptCloudSync() {
                 state.uiSettings.cloudSync = true;
             });
             saveState(state, true);
-            const { triggerCloudSave } = await import('../../utils/cloudSaveHandler.js');
+            const { triggerCloudSave } = await import('../../services/cloudSaveService.js');
             triggerCloudSave();
         }
     }
@@ -124,7 +124,6 @@ export function initializePlayerModal() {
                     errorMessageElement.classList.add('show');
                 }
 
-                // Visual Feedback: Shake
                 if (tokenInput) {
                     tokenInput.classList.remove('shake');
                     void tokenInput.offsetWidth; // Force reflow
@@ -142,7 +141,7 @@ export function initializePlayerModal() {
                 const loadResult = await loadAndProcessPlayerData(tag, { verifyToken: token });
 
                 if (loadResult.success) {
-                    setForcedVerification(false); // Reset before closing
+                    setForcedVerification(false);
                     renderPlayerModal(false, '', '', false);
                     navigateToTab('home', { resetScroll: true });
                     await checkAndPromptCloudSync();
@@ -178,11 +177,11 @@ export function initializePlayerModal() {
 
         playerTagInput?.addEventListener('input', (e) => {
             e.target.value = e.target.value.toUpperCase();
+            validatePlayerTagInput(playerTagInput, errorMessageElement);
             updateLoadButtonState(playerTagInput, loadButton);
         });
 
         tokenInput?.addEventListener('input', (e) => {
-            // Only allow alphanumeric characters
             e.target.value = e.target.value.replace(/[^a-z0-9]/gi, '');
             tokenInput.classList.remove('input-error');
             if (errorMessageElement) {
@@ -200,11 +199,6 @@ export function initializePlayerModal() {
                     verifyButton.click();
                 }
             }
-        });
-
-        playerTagInput?.addEventListener('input', () => {
-            validatePlayerTagInput(playerTagInput, errorMessageElement);
-            updateLoadButtonState(playerTagInput, loadButton);
         });
     }
 
@@ -252,10 +246,8 @@ export function initializePlayerModal() {
 export function showAddPlayerModal(tag = '', forced = false) {
     setForcedVerification(forced);
     if (tag) {
-        // Force verification mode for a specific tag
         renderPlayerModal(true, tag, translate('apiErrors.protectedTag'), true, 'apiErrors.protectedTag');
     } else {
-        // Normal add mode
         resetModalState();
         renderPlayerModal(true, '', '', false);
     }

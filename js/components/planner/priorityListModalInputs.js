@@ -1,3 +1,4 @@
+import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
@@ -5,6 +6,7 @@ import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
 
 import {
     renderDraggableList,
@@ -19,6 +21,7 @@ import {
     setSuggestionsHidden
 } from './priorityListSuggestionsRenderer.js';
 import { initializeStoredOresModal, openStoredOresModal } from './storedOresModal.js';
+import { openLevelSelectModal } from './levelSelectModal.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 
 let wasErrorBeforeDrag = false;
@@ -159,6 +162,23 @@ export function initializePriorityListModal() {
     document.addEventListener('priorityListUpdated', () => {
         renderDraggableList();
     });
+
+    /**
+     * @param {HTMLElement} chip
+     */
+    const handleChipSelect = (chip) => {
+        const heroKey = chip.dataset.heroKey;
+        const equipKey = chip.dataset.equipKey;
+        const equipName = chip.dataset.equipName;
+        if (!heroKey) return;
+        const hero = heroData[heroKey];
+        if (hero) {
+            const equip = hero.equipment.find(e => (e.key && e.key === equipKey) || e.name === equipName || toCamelCase(e.name || '') === equipKey);
+            if (equip) {
+                openLevelSelectModal(hero, equip);
+            }
+        }
+    };
 
     const modalBody = document.getElementById('priority-list-modal-body');
     if (modalBody) {
@@ -604,22 +624,101 @@ export function initializePriorityListModal() {
             }
         });
 
-        const editor = document.getElementById('priority-list-editor');
-        if (editor) {
-            editor.addEventListener('click', (e) => {
-                const target = /** @type {HTMLElement} */ (e.target);
-                const deleteBtn = target.closest('.delete-item-btn');
-                if (!deleteBtn) return;
+        modalBody.addEventListener('click', (e) => {
+            const target = /** @type {HTMLElement | null} */ (e.target);
+            if (!target) return;
+
+            const chip = target.closest('.equipment-chip, .hero-equipment-chip');
+            if (chip && modalBody.contains(chip)) {
+                handleChipSelect(/** @type {HTMLElement} */ (chip));
+                return;
+            }
+
+            const deleteBtn = target.closest('.delete-item-btn');
+            if (deleteBtn && modalBody.contains(deleteBtn)) {
                 const item = target.closest('.priority-list-editor-item');
-                if (!item) return;
-                const heroName = /** @type {HTMLElement} */ (item).dataset.heroName;
-                const equipName = /** @type {HTMLElement} */ (item).dataset.equipName;
-                const step = /** @type {HTMLElement} */ (item).dataset.step;
-                if (heroName && equipName && step) {
-                    deletePriorityStep(heroName, equipName, step);
+                if (item) {
+                    const heroName = /** @type {HTMLElement} */ (item).dataset.heroName;
+                    const equipName = /** @type {HTMLElement} */ (item).dataset.equipName;
+                    const step = /** @type {HTMLElement} */ (item).dataset.step;
+                    if (heroName && equipName && step) {
+                        deletePriorityStep(heroName, equipName, step);
+                    }
                 }
-            });
-        }
+                return;
+            }
+
+            const fixBtn = target.closest('#fix-order-btn, .fix-order-btn');
+            if (fixBtn && modalBody.contains(fixBtn)) {
+                const prevOrder = getPreviousValidPriorityOrder();
+                const canUndo = prevOrder !== null && prevOrder.length > 0;
+                if (canUndo) {
+                    handleStateUpdate(() => {
+                        prevOrder.forEach((savedItem) => {
+                            const plan = state.heroes[savedItem.heroName]?.equipment[savedItem.equipName]?.upgradePlan[savedItem.step];
+                            if (plan) {
+                                plan.priorityIndex = savedItem.priorityIndex;
+                            }
+                        });
+                    });
+                    setPreviousValidPriorityOrder(null);
+                } else {
+                    const { globalPriorityList } = getGlobalPriorityList();
+                    handleStateUpdate(() => {
+                        const equipmentGroups = {};
+                        globalPriorityList.forEach(item => {
+                            if (!equipmentGroups[item.name]) {
+                                equipmentGroups[item.name] = [];
+                            }
+                            equipmentGroups[item.name].push(item);
+                        });
+
+                        for (const equipName in equipmentGroups) {
+                            const items = equipmentGroups[equipName];
+                            for (let i = 0; i < items.length - 1; i++) {
+                                if (items[i].step > items[i + 1].step) {
+                                    const itemA = items[i];
+                                    const itemB = items[i + 1];
+
+                                    const planA = state.heroes[itemA.heroName]?.equipment[itemA.name]?.upgradePlan[itemA.step];
+                                    const planB = state.heroes[itemB.heroName]?.equipment[itemB.name]?.upgradePlan[itemB.step];
+
+                                    if (planA && planB) {
+                                        const tempIndex = planA.priorityIndex;
+                                        planA.priorityIndex = planB.priorityIndex;
+                                        planB.priorityIndex = tempIndex;
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                    });
+                    setPreviousValidPriorityOrder(null);
+                }
+                renderDraggableList();
+                document.dispatchEvent(new CustomEvent('priorityListUpdated'));
+                return;
+            }
+
+            const hideBtn = target.closest('#hide-suggestion-btn, .hide-suggestion-btn');
+            if (hideBtn && modalBody.contains(hideBtn)) {
+                setSuggestionsHidden(true);
+                const { globalPriorityList, suggestions } = getGlobalPriorityList();
+                renderSuggestionsAndErrors(globalPriorityList, suggestions);
+                return;
+            }
+        });
+
+        modalBody.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const target = /** @type {HTMLElement | null} */ (e.target);
+                const chip = target?.closest('.equipment-chip, .hero-equipment-chip');
+                if (chip && modalBody.contains(chip)) {
+                    e.preventDefault();
+                    handleChipSelect(/** @type {HTMLElement} */ (chip));
+                }
+            }
+        });
     }
 }
 

@@ -10,6 +10,12 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox
 
 workbox.setConfig({ debug: false });
 
+workbox.core.setCacheNameDetails({
+    prefix: 'orecalc',
+    suffix: 'v2.3.0',
+    precache: 'precache'
+});
+
 const { PrecacheController, cleanupOutdatedCaches } = workbox.precaching;
 const { registerRoute }                              = workbox.routing;
 const { NetworkFirst, StaleWhileRevalidate, CacheFirst } = workbox.strategies;
@@ -19,7 +25,7 @@ const { ExpirationPlugin }                           = workbox.expiration;
 // Clean up old caches from previous versions of Workbox
 cleanupOutdatedCaches();
 
-// ─── AVIF format probe ────────────────────────────────────────────────────────
+// AVIF format probe
 
 /**
  * Probes the browser's capability to parse and decode AVIF images inside the Service Worker thread.
@@ -41,13 +47,13 @@ async function detectAvifSupport() {
     }
 }
 
-// ─── Precache controller ──────────────────────────────────────────────────────
+// Precache controller
 // The manifest below is injected by workbox-cli at build time. It lists both
 // .avif and .webp for every image; we filter in the install event so only the
 // browser-supported format is ever stored in cache.
 const precacheController = new PrecacheController();
 
-// ─── Lifecycle ────────────────────────────────────────────────────────────────
+// Lifecycle
 
 // The 'install' handler checks for AVIF capability. Depending on the capability,
 // it filters either all `.avif` or all `.webp` files from the Workbox precache manifest
@@ -95,10 +101,25 @@ self.addEventListener('message', event => {
     }
 });
 
-// ─── Fetch: precache → runtime routing ───────────────────────────────────────
+// Fetch: precache to runtime routing
 // Precached assets are served cache-first. Requests not in the precache fall
 // through (no respondWith call) so Workbox's router picks them up below.
 self.addEventListener('fetch', event => {
+    const url = new URL(event.request.url);
+
+    // Bypass Service Worker completely for standalone pages (Hero Journey, Legal/Policy, and Error pages)
+    if (
+        url.pathname.includes('/hero-journey') ||
+        url.pathname.includes('heroJourneyApp') ||
+        url.pathname.includes('/privacy') ||
+        url.pathname.includes('/terms') ||
+        url.pathname.includes('/licenses') ||
+        url.pathname.includes('/legal') ||
+        url.pathname.includes('/404')
+    ) {
+        return;
+    }
+
     const cacheKey = precacheController.getCacheKeyForURL(event.request.url);
     if (cacheKey) {
         event.respondWith(
@@ -106,10 +127,10 @@ self.addEventListener('fetch', event => {
         );
         return;
     }
-    // No respondWith → Workbox routing handles this request.
+    // No respondWith: Workbox routing handles this request.
 });
 
-// ─── Runtime routes ───────────────────────────────────────────────────────────
+// Runtime routes
 registerRoute(
     /^https:\/\/api\.orecalc\.tech\//,
     new NetworkFirst({
@@ -125,7 +146,13 @@ const navigationStrategy = new NetworkFirst({
 });
 
 registerRoute(
-    ({ request, url }) => request.mode === 'navigate' && !url.pathname.includes('/api/'),
+    ({ request, url }) => request.mode === 'navigate' &&
+        !url.pathname.includes('/api/') &&
+        !url.pathname.includes('/hero-journey') &&
+        !url.pathname.includes('/privacy') &&
+        !url.pathname.includes('/terms') &&
+        !url.pathname.includes('/licenses') &&
+        !url.pathname.includes('/404'),
     async (options) => {
         try {
             const response = await navigationStrategy.handle(options);

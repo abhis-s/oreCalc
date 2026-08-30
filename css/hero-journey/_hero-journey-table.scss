@@ -1,0 +1,612 @@
+@use '../abstracts/variables' as *;
+
+.hero-journey-page {
+    &.has-expanded-table {
+        height: 100vh;
+        max-height: 100dvh;
+        overflow: hidden;
+
+        #hj-player-card,
+        #home-hj-card,
+        .make-notice,
+        .supercell-notice,
+        .hero-journey-page__footer {
+            display: none !important;
+        }
+
+        .hero-journey-page__main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            height: calc(100vh - 65px);
+            height: calc(100dvh - 65px);
+            padding: 12px 20px 16px;
+            box-sizing: border-box;
+
+            @media (max-width: $breakpoint-phone) {
+                padding: 8px 12px 12px;
+            }
+        }
+
+        .hero-journey-page__view-toggle-bar {
+            flex: 0 0 auto;
+            margin: 0 0 10px 0;
+        }
+
+        .hero-journey-page__table-wrapper {
+            flex: 1 1 0%;
+            min-height: 0;
+            max-height: none;
+            height: 100%;
+            margin-bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-journey-page__table-container {
+            flex: 1 1 0%;
+            min-height: 0;
+            max-height: none;
+            height: 100%;
+            overflow-y: auto;
+        }
+    }
+
+    &.has-hidden-table {
+        .hero-journey-page__view-toggle-bar .hero-journey-filters-row {
+            display: none !important;
+        }
+
+        .hero-journey-page__view-toggle-bar {
+            justify-content: flex-end;
+
+            .hero-journey-page__table-toggle-action {
+                margin-left: auto;
+            }
+        }
+    }
+
+    &__view-toggle-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 20px 0 12px 0;
+        scroll-margin-top: 85px;
+        transition: padding $duration-base $ease-standard, gap $duration-base $ease-standard;
+
+        .hero-journey-filters-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .hj-type-filters {
+            .hj-type-select {
+                display: none;
+            }
+
+            .hj-type-buttons {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+        }
+
+        .hero-journey-page__table-toggle-action {
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        // Responsive filter stage 1: full desktop pill buttons
+        &.table-filter-stage-1 {
+            .hj-type-filters {
+                .hj-type-buttons {
+                    display: inline-flex;
+                }
+
+                .hj-type-select {
+                    display: none;
+                }
+            }
+        }
+
+        // Responsive filter stage 2: compact select dropdown
+        &.table-filter-stage-2 {
+            .hj-type-filters {
+                .hj-type-buttons {
+                    display: none;
+                }
+
+                .hj-type-select {
+                    display: block;
+                    background-color: $bg-surface-primary;
+                    color: $text-primary;
+                    border: 1px solid $border-primary;
+                    border-radius: $shape-corner-full;
+                    padding: 6px 12px;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    outline: none;
+                }
+            }
+        }
+
+        // Responsive filter stage 3: stacked multi-row mobile layout
+        &.table-filter-stage-3 {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+
+            .hero-journey-filters-row {
+                display: contents;
+
+                &:has(.hj-segmented-switch:not([style*="display: none"])) {
+                    &::after {
+                        content: "";
+                        flex-basis: 100%;
+                        width: 100%;
+                        height: 0;
+                        order: 1;
+                    }
+                }
+            }
+
+            .hj-segmented-switch {
+                order: 0;
+                width: 100%;
+                display: flex;
+                box-sizing: border-box;
+                margin-bottom: 4px;
+
+                .hj-switch-btn {
+                    flex: 1;
+                    text-align: center;
+                }
+            }
+
+            .hj-type-filters {
+                order: 2;
+                flex: 1 1 0%;
+                min-width: 0;
+                margin-left: 0;
+
+                .hj-type-buttons {
+                    display: none;
+                }
+
+                .hj-type-select {
+                    display: block;
+                    width: 100%;
+                    min-width: 0;
+                    box-sizing: border-box;
+                    background-color: $bg-surface-primary;
+                    color: $text-primary;
+                    border: 1px solid $border-primary;
+                    border-radius: $shape-corner-full;
+                    padding: 6px 8px;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    outline: none;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+
+            .hero-journey-page__table-toggle-action {
+                order: 3;
+                flex: 0 0 auto;
+                margin-left: auto;
+
+                .btn-secondary {
+                    padding: 6px 10px;
+                    font-size: 0.75rem;
+                    white-space: nowrap;
+                }
+            }
+        }
+    }
+
+    &__table-wrapper {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 200px);
+        min-height: 480px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-large;
+        box-shadow: $elevation-1;
+        margin-top: 0;
+        scroll-margin-top: 85px;
+        &.is-empty {
+            .hero-journey-page__table-container {
+                height: 100%;
+            }
+
+            .hero-journey-page__table {
+                width: 100%;
+                height: 100%;
+
+                tbody {
+                    height: 100%;
+
+                    tr {
+                        height: 100%;
+
+                        td {
+                            height: 100%;
+                            vertical-align: middle;
+                            text-align: center;
+                            border-bottom: none;
+                        }
+                    }
+                }
+            }
+        }
+
+        .expand-table-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 25;
+            background: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
+            border: 1px solid color-mix(in srgb, $border-primary 50%, transparent);
+            color: $text-secondary;
+            border-radius: 6px;
+            padding: 4px 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+
+            &:hover {
+                background: color-mix(in srgb, $bg-surface-secondary 95%, white);
+                color: $text-primary;
+                transform: scale(1.05);
+            }
+
+            orecalc-assets-svg {
+                width: 18px;
+                height: 18px;
+                fill: currentColor;
+            }
+        }
+    }
+
+    &__table-container {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+        max-height: 100%;
+        scrollbar-gutter: stable;
+    }
+
+    &__table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.9rem;
+
+        .level-cell-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .table-claimed-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: $shape-corner-full;
+            background: color-mix(in srgb, $color-success 20%, transparent);
+            color: $color-success;
+            flex-shrink: 0;
+
+            &.table-unowned-badge {
+                background: color-mix(in srgb, $color-danger 20%, transparent);
+                color: $color-danger;
+            }
+
+            orecalc-assets-svg {
+                width: 11px;
+                height: 11px;
+                fill: currentColor;
+            }
+        }
+
+        .details-cell-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+
+            .reward-yield-text {
+                font-size: 0.82rem;
+                line-height: 1.4;
+                color: $text-secondary;
+                display: flex;
+                align-items: center;
+                min-width: 0;
+            }
+
+            .table-ore-yield-group {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .table-ore-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 0.82rem;
+                font-weight: 600;
+                color: $text-primary;
+                white-space: nowrap;
+
+                .ore-boost-icon-slot {
+                    display: inline-flex;
+                    align-items: center;
+
+                    &:empty {
+                        display: none;
+                    }
+                }
+
+                .ore-accel-arrow-icon,
+                .ore-th-boost-icon {
+                    width: 13px;
+                    height: 13px;
+                    fill: $accent-primary;
+                    color: $accent-primary;
+                    flex-shrink: 0;
+                    display: inline-block;
+                    vertical-align: middle;
+                }
+
+                .table-ore-amount {
+                    font-variant-numeric: tabular-nums;
+                }
+
+                .table-ore-icon {
+                    width: 15px;
+                    height: 15px;
+                    object-fit: contain;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: contain;
+                        display: block;
+                    }
+                }
+            }
+
+            .table-fallback-label {
+                font-size: 0.75rem;
+                color: $text-secondary;
+            }
+
+            .hj-table-info-btn {
+                flex-shrink: 0;
+                margin-left: auto;
+            }
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid $border-primary;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 15;
+            background-color: $bg-surface-secondary;
+            font-weight: 600;
+            color: $text-secondary;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: none;
+            box-shadow: inset 0 -1px 0 $border-primary;
+
+            &:nth-child(1) {
+                width: 22%;
+            }
+
+            &:nth-child(2) {
+                width: 44%;
+            }
+
+            &:nth-child(3) {
+                width: 34%;
+                padding-right: 36px;
+            }
+        }
+
+        tbody tr {
+            transition: background-color $duration-fast $ease-smooth;
+
+            &:hover {
+                background-color: $bg-surface-secondary;
+            }
+
+            &.claimed {
+                background-color: $color-success-soft;
+
+                &:hover {
+                    background-color: color-mix(in srgb, $color-success 16%, $bg-surface-secondary);
+                }
+
+                &.unowned {
+                    background-color: $color-danger-soft;
+
+                    &:hover {
+                        background-color: color-mix(in srgb, $color-danger 16%, $bg-surface-secondary);
+                    }
+                }
+            }
+
+            &.th-header-row {
+                background-color: $bg-surface-secondary;
+                font-weight: 700;
+                color: $accent-primary;
+
+                td {
+                    position: sticky;
+                    top: var(--hj-table-thead-height, 51px);
+                    z-index: 12;
+                    background-color: color-mix(in srgb, $bg-surface-secondary 95%, $bg-surface-primary);
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    padding: 8px 16px;
+                    border-bottom: none;
+                    box-shadow: inset 0 -1px 0 $border-primary;
+                }
+
+                .th-header-cell {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .th-header-img {
+                    width: 22px;
+                    height: 22px;
+                    object-fit: contain;
+                    flex-shrink: 0;
+                    display: inline-block;
+                    vertical-align: middle;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: contain;
+                        display: block;
+                    }
+                }
+            }
+
+            .table-empty-cell {
+                text-align: center;
+                vertical-align: middle;
+                padding: 32px 16px;
+                background: transparent;
+                height: 100%;
+                border-bottom: none;
+
+                .hero-journey-empty-filter-card {
+                    margin: 0 auto;
+                }
+            }
+        }
+    }
+
+    &__reward-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .reward-icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;
+            }
+        }
+
+        .reward-name {
+            font-weight: 600;
+            color: $text-primary;
+
+            .accent-text {
+                color: $accent-primary;
+                font-weight: 800;
+            }
+
+            .equipment-text-epic {
+                color: $color-rarity-epic;
+                font-weight: 700;
+            }
+
+            .ore-text-shiny {
+                color: $shiny-ore;
+                font-weight: 700;
+            }
+
+            .ore-text-glowy {
+                color: $glowy-ore;
+                font-weight: 700;
+            }
+
+            .ore-text-starry {
+                color: $starry-ore;
+                font-weight: 700;
+            }
+        }
+    }
+
+    @media (max-width: #{$breakpoint-desktop - 1px}) {
+        &__table {
+            .table-level-prefix {
+                display: none;
+            }
+        }
+    }
+
+    @media (max-width: $breakpoint-modal) {
+        &__table {
+            .th-header-row .th-header-cell {
+                position: sticky;
+                left: 16px;
+            }
+        }
+    }
+
+    @media (max-width: $breakpoint-phone) {
+        &__table {
+            th, td {
+                padding: 10px 8px;
+            }
+
+            th:last-child {
+                padding-right: 32px;
+            }
+        }
+    }
+}

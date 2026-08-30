@@ -250,6 +250,11 @@
         border-radius: 8px;
         border-left: 3px solid $accent-primary;
         margin-bottom: 0;
+
+        &--center {
+            text-align: center;
+            border-left: none;
+        }
     }
 
     .running-costs-actions {

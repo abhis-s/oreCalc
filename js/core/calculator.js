@@ -1,6 +1,7 @@
 import { currencyData } from '../data/pricingData.js';
 
 import { UNRANKED_LEAGUE_ID } from './constants.js';
+import { getDefaultPlayerState, getDefaultState } from './state.js';
 import { calculateRequiredOres } from './oreCalculator.js';
 import { calculateRemainingTime } from './timeCalculator.js';
 
@@ -21,39 +22,49 @@ import { calculateSupercellEventsIncome } from '../domain/income/supercellEvents
  * @param {import('./types.js').AppState} state - Global application state.
  */
 export function recalculateAll(state) {
+    if (!state) return;
+    const defaultState = getDefaultState();
+    const defaultPlayer = getDefaultPlayerState();
+    if (!state.derived) state.derived = defaultState.derived;
+    if (!state.heroes) state.heroes = defaultPlayer.heroes;
+    if (!state.storedOres) state.storedOres = defaultPlayer.storedOres;
+    if (!state.income) state.income = defaultPlayer.income;
+    if (!state.planner) state.planner = defaultPlayer.planner;
+    if (!state.uiSettings) state.uiSettings = defaultState.uiSettings;
+
     const heroJourneyUpcomingOres = calculateHeroJourneyUpcomingOres(state);
     state.derived.heroJourneyUpcomingOres = heroJourneyUpcomingOres;
     state.derived.requiredOres = calculateRequiredOres(state.heroes, state.storedOres, state.planner, heroJourneyUpcomingOres);
 
-    const eventPassIncome = calculateEventPassIncome(state.income.eventPass);
-    const eventTraderIncome = calculateEventTraderIncome(state.income.eventTrader, eventPassIncome?.availableMedals);
+    const eventPassIncome = calculateEventPassIncome(state.income?.eventPass);
+    const eventTraderIncome = calculateEventTraderIncome(state.income?.eventTrader, eventPassIncome?.availableMedals);
 
-    const supercellEventsState = state.income.supercellEvents || { worldChampionship: false };
+    const supercellEventsState = state.income?.supercellEvents || { worldChampionship: false };
 
     // Compute all non-prospector sources first so they are available
     // for the assisted-conversion context when calculating prospector income.
     const baseIncomeSources = {
         starBonus: calculateStarBonusIncome(
-            state.income.starBonus?.league || UNRANKED_LEAGUE_ID,
-            state.income.starBonus || {}
+            state.income?.starBonus?.league || UNRANKED_LEAGUE_ID,
+            state.income?.starBonus || {}
         ),
         supercellEvents: calculateSupercellEventsIncome(
             supercellEventsState.worldChampionship,
             state.planner?.calendar?.customChipSettings?.supercellEvents
         ),
-        clanWar: calculateClanWarIncome(state.income.clanWar),
-        cwl: calculateCwlIncome(state.income.cwl),
-        raidMedalTrader: calculateRaidMedalTraderIncome(state.income.raidMedals),
-        gemTrader: calculateGemTraderIncome(state.income.gems),
+        clanWar: calculateClanWarIncome(state.income?.clanWar),
+        cwl: calculateCwlIncome(state.income?.cwl),
+        raidMedalTrader: calculateRaidMedalTraderIncome(state.income?.raidMedals),
+        gemTrader: calculateGemTraderIncome(state.income?.gems),
         eventPass: eventPassIncome,
         eventTrader: eventTraderIncome,
-        shopOffers: calculateShopOfferIncome(state.income.shopOffers),
+        shopOffers: calculateShopOfferIncome(state.income?.shopOffers),
     };
 
     // Compute prospector income, optionally driven by the assisted-conversion schedule
     let prospectorIncome;
-    if (!state.income.prospector?.assistedConversion) {
-        prospectorIncome = calculateProspectorIncome(state.income.prospector);
+    if (!state.income?.prospector?.assistedConversion) {
+        prospectorIncome = calculateProspectorIncome(state.income?.prospector);
     } else {
         const baseMonthly = { shiny: 0, glowy: 0, starry: 0 };
         for (const src of Object.values(baseIncomeSources)) {

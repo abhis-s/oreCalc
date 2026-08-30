@@ -4,19 +4,30 @@ import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
 
 import { getOverallGradient } from './homeProfileCalculations.js';
 
-// ---------------------------------------------------------------------------
-// Incremental render state
-// Persists across calls so we can update bars without rebuilding the DOM.
-// ---------------------------------------------------------------------------
+/**
+ * Incremental render state tracking cached player and progress snapshots to prevent redundant DOM reconstructions.
+ * @type {{
+ *   renderedTag: string | null,
+ *   renderedLang: string | null,
+ *   renderedTH: number | null,
+ *   renderedClan: string | null,
+ *   renderedLeague: number | string | null,
+ *   lastProgress: any | null,
+ *   isAnimating: boolean,
+ *   pendingSnapshot: any | null,
+ *   initialProgress: any | null
+ * }}
+ */
 export const renderState = {
-    renderedTag: null, // player tag of the last full rebuild
-    renderedLang: null, // language of the last full rebuild
-    renderedTH: null, // Town Hall level of the last full rebuild
-    renderedClan: null, // Clan name of the last full rebuild
-    renderedLeague: null, // League tier ID of the last full rebuild
-    lastProgress: null, // progress snapshot after the last completed animation
-    isAnimating: false, // true while the fill-in transition is running
-    pendingSnapshot: null // { progress, subData } queued to apply after animation
+    renderedTag: null,
+    renderedLang: null,
+    renderedTH: null,
+    renderedClan: null,
+    renderedLeague: null,
+    lastProgress: null,
+    isAnimating: false,
+    pendingSnapshot: null,
+    initialProgress: null
 };
 
 /**
@@ -145,7 +156,7 @@ export function applyProgressDelta(container, prevProg, currProg, subData, state
                         const el = document.createElement('div');
                         el.className = 'stat-box-maxed';
                         el.setAttribute('data-i18n', 'views.home.profile.maxed');
-                        el.textContent = `✓ ${translate('views.home.profile.maxed')}`;
+                        el.innerHTML = `<orecalc-assets-svg name="check-simple" height="14" width="14"></orecalc-assets-svg> ${translate('views.home.profile.maxed')}`;
                         existing.replaceWith(el);
                     } else if (!isMaxed && wasMaxed) {
                         const { spent, total, remaining, time, col } = subData[key];

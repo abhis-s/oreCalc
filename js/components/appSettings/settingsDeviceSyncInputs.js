@@ -310,7 +310,7 @@ export function initializeDeviceSyncInputs() {
 
             let messageKey = '';
             if (state.uiSettings.cloudSync !== false) {
-                const { triggerCloudSave } = await import('../../utils/cloudSaveHandler.js');
+                const { triggerCloudSave } = await import('../../services/cloudSaveService.js');
                 const saveSuccess = await triggerCloudSave({ silent: true });
                 messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
             } else {
@@ -392,7 +392,7 @@ export function initializeDeviceSyncInputs() {
                 confirmDeviceSyncBtn.disabled = true;
                 confirmDeviceSyncBtn.textContent = translate('actions.processing');
 
-                const { importUserData } = await import('../../utils/cloudSaveHandler.js');
+                const { importUserData } = await import('../../services/cloudSaveService.js');
                 await importUserData(val);
             } finally {
                 confirmDeviceSyncBtn.disabled = false;

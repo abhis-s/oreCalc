@@ -15,16 +15,6 @@ function symbolExists(id) {
     return !!document.getElementById(symbolId);
 }
 
-function closeDrawerIfOpen() {
-    const drawer = document.querySelector('.navigation-drawer');
-    if (drawer?.classList.contains('open')) {
-        const overlay = document.querySelector('.navigation-drawer__overlay');
-        drawer.classList.remove('open');
-        overlay?.classList.remove('show');
-        document.body.classList.remove('open-drawer');
-    }
-}
-
 /**
  * Renders and synchronizes active states across bottom navigation bar, drawer list, and update badges.
  * @param {string} activeTabId - ID of currently active tab (e.g. 'home-tab', 'income').
@@ -114,16 +104,7 @@ function renderNavigationDrawer(activeTabId) {
             {
                 id: 'changelog',
                 icon: 'changelog',
-                i18nKey: 'views.settings.changelog',
-                action: () => {
-                    Promise.all([
-                        import('../changelog/changelogModal.js'),
-                        import('../../services/changelogService.js')
-                    ]).then(([modalModule, serviceModule]) => {
-                        const content = serviceModule.getChangelogHtml();
-                        modalModule.showChangelogModal(content);
-                    }).catch(err => console.error(err));
-                }
+                i18nKey: 'views.settings.changelog'
             },
             {
                 id: 'github',
@@ -146,17 +127,9 @@ function renderNavigationDrawer(activeTabId) {
                 el.href = item.url;
                 el.target = '_blank';
                 el.rel = 'noopener noreferrer';
-                el.addEventListener('click', () => {
-                    closeDrawerIfOpen();
-                });
             } else {
                 el = document.createElement('button');
-                if (item.action) {
-                    el.addEventListener('click', () => {
-                        closeDrawerIfOpen();
-                        item.action();
-                    });
-                }
+                el.type = 'button';
             }
             el.className = 'navigation-drawer__tab secondary-tab';
             el.dataset.actionId = item.id;
@@ -178,28 +151,5 @@ function renderNavigationDrawer(activeTabId) {
     if (versionEl) {
         const appVersion = (window.__ENV__?.APP_VERSION || '2.0.0').replace(/^v/, '');
         versionEl.textContent = `v${appVersion}`;
-    }
-
-    // Setup modal listeners for privacy policy and terms of use links
-    const privacyLink = document.querySelector('.navigation-drawer__footer-links a[href="/privacy/"]') || document.querySelector('.navigation-drawer__footer-links a[href="privacy.html"]');
-    if (privacyLink) {
-        privacyLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            closeDrawerIfOpen();
-            import('../appSettings/settingsModals.js').then(module => {
-                module.openPrivacyModal();
-            }).catch(err => console.error(err));
-        });
-    }
-
-    const termsLink = document.querySelector('.navigation-drawer__footer-links a[href="/terms/"]') || document.querySelector('.navigation-drawer__footer-links a[href="terms.html"]');
-    if (termsLink) {
-        termsLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            closeDrawerIfOpen();
-            import('../appSettings/settingsModals.js').then(module => {
-                module.openTermsOfUseModal();
-            }).catch(err => console.error(err));
-        });
     }
 }

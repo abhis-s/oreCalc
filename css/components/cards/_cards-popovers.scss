@@ -13,7 +13,7 @@
     border-radius: $shape-corner-medium;
     padding: 8px 12px;
     box-shadow: $elevation-4;
-    max-width: 240px;
+    max-width: min(240px, calc(100vw - 24px));
     font-size: 0.72rem;
     color: $text-secondary;
     line-height: 1.35;
@@ -120,11 +120,9 @@
             gap: 6px;
 
             .popover-range-label {
-                font-size: 0.68rem;
-                font-weight: 700;
-                color: $text-secondary;
-                text-transform: uppercase;
-                letter-spacing: 0.4px;
+                font-size: 0.72rem;
+                font-weight: 800;
+                color: $text-primary;
                 margin: 0;
             }
 
@@ -162,6 +160,163 @@
                 }
             }
         }
+        .popover-unowned-alert {
+            background: color-mix(in srgb, $color-danger 12%, transparent);
+            border: 1px solid color-mix(in srgb, $color-danger 30%, transparent);
+            border-radius: 6px;
+            padding: 6px 8px;
+            margin-bottom: 8px;
+
+            .unowned-alert-title {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 0.72rem;
+                font-weight: 800;
+                color: $color-danger;
+                margin-bottom: 2px;
+
+                .unowned-alert-icon {
+                    flex-shrink: 0;
+                    color: $color-danger;
+                }
+            }
+
+            .unowned-alert-desc {
+                font-size: 0.65rem;
+                color: $text-secondary;
+                margin: 0;
+                line-height: 1.35;
+            }
+        }
+        .popover-equipment-pool {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed color-mix(in srgb, $border-primary 50%, transparent);
+
+            .popover-pool-header {
+                font-size: 0.72rem;
+                font-weight: 800;
+                color: $text-primary;
+                margin-bottom: 6px;
+            }
+
+            .popover-pool-list {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .pool-item-row {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 4px 7px;
+                border-radius: 6px;
+                background: $bg-surface-secondary;
+                border: 1px solid $border-primary;
+                transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
+
+                &.is-awarded {
+                    border-color: $accent-primary;
+                    background: color-mix(in srgb, $accent-primary 15%, $bg-surface-secondary);
+                }
+
+                &.is-owned {
+                    opacity: 0.6;
+                }
+
+                .pool-item-icon {
+                    width: 22px;
+                    height: 22px;
+                    max-width: 22px;
+                    max-height: 22px;
+                    object-fit: contain;
+                    flex-shrink: 0;
+                    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+                    display: block;
+                }
+
+                .pool-item-info {
+                    flex: 1;
+                    min-width: 0;
+                    display: flex;
+                    align-items: center;
+                }
+
+                .pool-item-name {
+                    font-size: 0.68rem;
+                    font-weight: 600;
+                    color: $text-primary;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    display: block;
+                }
+
+                .pool-status-badge {
+                    font-size: 0.56rem;
+                    font-weight: 700;
+                    padding: 2px 5px;
+                    border-radius: 4px;
+                    white-space: nowrap;
+                    text-transform: uppercase;
+                    flex-shrink: 0;
+                    letter-spacing: 0.3px;
+                    line-height: 1.2;
+
+                    &.badge--owned {
+                        color: $color-success;
+                        background: color-mix(in srgb, $color-success 15%, transparent);
+                        border: 1px solid color-mix(in srgb, $color-success 35%, transparent);
+                    }
+
+                    &.badge--awarded-earlier {
+                        color: $color-info;
+                        background: color-mix(in srgb, $color-info 15%, transparent);
+                        border: 1px solid color-mix(in srgb, $color-info 35%, transparent);
+                    }
+
+                    &.badge--awarded {
+                        color: $text-on-accent;
+                        background: $accent-primary;
+                        border: 1px solid $accent-primary;
+                        font-weight: 800;
+                    }
+
+                    &.badge--queued {
+                        color: $text-muted;
+                        background: $bg-surface-tertiary;
+                        border: 1px solid $border-secondary;
+                    }
+
+                    &.badge--starry {
+                        color: $starry-ore;
+                        background: color-mix(in srgb, $starry-ore 15%, transparent);
+                        border: 1px solid color-mix(in srgb, $starry-ore 35%, transparent);
+                    }
+
+                    &.badge--missed {
+                        color: $text-inverse;
+                        background: $color-danger;
+                        border: 1px solid $color-danger;
+                        font-weight: 800;
+                    }
+
+                    &.badge--now-awarded {
+                        color: $text-inverse;
+                        background: $color-info;
+                        border: 1px solid $color-info;
+                        font-weight: 800;
+                    }
+                }
+            }
+        }
+    }
+
+    &:has(.popover-equipment-pool) {
+        max-width: min(290px, calc(100vw - 24px));
+        width: min(280px, calc(100vw - 24px));
     }
 
     .popover-footer {
@@ -169,7 +324,7 @@
         padding-top: 8px;
         border-top: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
         font-size: 0.74rem;
-        color: var(--text-tertiary);
+        color: $text-muted;
         line-height: 1.35;
     }
 }
@@ -273,7 +428,7 @@
 
             &:hover {
                 background-color: $accent-primary-soft;
-                border-color: rgba($accent-primary, 0.3);
+                border-color: color-mix(in srgb, $accent-primary 30%, transparent);
                 transform: translateY(-1px);
             }
 
@@ -304,7 +459,7 @@
         }
 
         &.match-color {
-            border-color: rgba($color-success, 0.4);
+            border-color: color-mix(in srgb, $color-success 40%, transparent);
             background-color: $color-success-soft;
 
             span {
@@ -317,7 +472,7 @@
         }
 
         &.popover-btn-disable {
-            border-color: rgba($color-danger, 0.3);
+            border-color: color-mix(in srgb, $color-danger 30%, transparent);
             justify-content: center;
 
             span {
@@ -332,7 +487,7 @@
         }
 
         &.popover-btn-enable {
-            border-color: rgba($color-success, 0.3);
+            border-color: color-mix(in srgb, $color-success 30%, transparent);
             justify-content: center;
 
             span {

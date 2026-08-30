@@ -1,8 +1,5 @@
 import { translate } from '../../i18n/translator.js';
 
-import { state } from '../../core/state.js';
-import { handleStateUpdate } from '../../core/stateManager.js';
-
 import { getSVG } from '../../utils/svgManager.js';
 
 import { getStepOrderErrors } from './priorityListScheduler.js';
@@ -46,9 +43,8 @@ export function setPreviousValidPriorityOrder(val) {
  * Renders optimization suggestions and order validation error alerts.
  * @param {Array<any>} globalPriorityList
  * @param {Array<any>|null} suggestions
- * @param {() => void} [onReRenderList]
  */
-export function renderSuggestionsAndErrors(globalPriorityList, suggestions, onReRenderList) {
+export function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
     const errorContainer = document.getElementById('priority-list-message-container');
     const unhideBtn = document.getElementById('unhide-suggestion-btn');
     const listItems = document.querySelectorAll('.priority-list-editor-item');
@@ -85,54 +81,6 @@ export function renderSuggestionsAndErrors(globalPriorityList, suggestions, onRe
                 <span>${translate(buttonTextKey)}</span>
             </button>
         `;
-
-        const fixBtn = document.getElementById('fix-order-btn');
-        if (fixBtn) {
-            fixBtn.addEventListener('click', () => {
-                if (canUndo) {
-                    handleStateUpdate(() => {
-                        previousValidPriorityOrder.forEach((savedItem) => {
-                            const plan = state.heroes[savedItem.heroName]?.equipment[savedItem.equipName]?.upgradePlan[savedItem.step];
-                            if (plan) {
-                                plan.priorityIndex = savedItem.priorityIndex;
-                            }
-                        });
-                    });
-                    previousValidPriorityOrder = null;
-                } else {
-                    handleStateUpdate(() => {
-                        const equipmentGroups = {};
-                        globalPriorityList.forEach(item => {
-                            if (!equipmentGroups[item.name]) {
-                                equipmentGroups[item.name] = [];
-                            }
-                            equipmentGroups[item.name].push(item);
-                        });
-
-                        for (const equipName in equipmentGroups) {
-                            const items = equipmentGroups[equipName];
-                            for (let i = 0; i < items.length - 1; i++) {
-                                if (items[i].step > items[i + 1].step) {
-                                    const itemA = items[i];
-                                    const itemB = items[i + 1];
-
-                                    const planA = state.heroes[itemA.heroName].equipment[itemA.name].upgradePlan[itemA.step];
-                                    const planB = state.heroes[itemB.heroName].equipment[itemB.name].upgradePlan[itemB.step];
-
-                                    const tempIndex = planA.priorityIndex;
-                                    planA.priorityIndex = planB.priorityIndex;
-                                    planB.priorityIndex = tempIndex;
-
-                                    return;
-                                }
-                            }
-                        }
-                    });
-                    previousValidPriorityOrder = null;
-                }
-                if (onReRenderList) onReRenderList();
-            });
-        }
 
         listItems.forEach(item => {
             const htmlItem = /** @type {HTMLElement} */ (item);
@@ -193,16 +141,6 @@ export function renderSuggestionsAndErrors(globalPriorityList, suggestions, onRe
                     }
                 }
             });
-
-            if (!hasError) {
-                const hideBtn = errorContainer.querySelector('#hide-suggestion-btn');
-                if (hideBtn) {
-                    hideBtn.addEventListener('click', () => {
-                        suggestionsHidden = true;
-                        renderSuggestionsAndErrors(globalPriorityList, suggestions, onReRenderList);
-                    });
-                }
-            }
         } else if (!hasError && suggestionsHidden) {
             if (unhideBtn) {
                 unhideBtn.style.display = 'flex';

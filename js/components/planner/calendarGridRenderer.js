@@ -8,12 +8,6 @@ import { getProspectorIncomeForDate } from '../../domain/income/prospectorManage
 import { createIncomeChip } from '../../utils/chipFactory.js';
 import { formatDate, getShortDayNames } from '../../utils/dateUtils.js';
 
-import {
-    handleDayCellMouseEnter,
-    handleDayCellMouseLeave,
-    handleEquipmentBadgeMouseEnter,
-    handleEquipmentBadgeMouseLeave
-} from './calendarMilestonesRenderer.js';
 import { getCurrentView, getHeroColor, getMidnightUTCTime } from './calendarScheduler.js';
 
 const sourceOrder = [...CANONICAL_CHIP_PRIORITY_ORDER];
@@ -72,11 +66,6 @@ export function createDayCell(date, plannerState, activeEquipmentSchedule = { mi
     const chipContainer = document.createElement('div');
     chipContainer.classList.add('chip-container');
     dayCell.appendChild(chipContainer);
-
-    if (date >= today) {
-        dayCell.addEventListener('mouseenter', (e) => handleDayCellMouseEnter(e, activeEquipmentSchedule));
-        dayCell.addEventListener('mouseleave', handleDayCellMouseLeave);
-    }
 
     const monthYearKey = `${displayYear}-${displayMonth}`;
     const chipsOnThisDay = plannerState.calendar.dates[monthYearKey]?.[displayDay] || [];
@@ -303,8 +292,7 @@ export function createDayCell(date, plannerState, activeEquipmentSchedule = { mi
                 levelSpan.textContent = `${lvlPrefix} ${item.targetLevel}`;
                 badge.appendChild(levelSpan);
 
-                badge.addEventListener('mouseenter', (e) => handleEquipmentBadgeMouseEnter(e, item));
-                badge.addEventListener('mouseleave', handleEquipmentBadgeMouseLeave);
+                /** @type {any} */ (badge).__milestoneItem = item;
 
                 equipContainer.appendChild(badge);
             });

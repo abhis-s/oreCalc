@@ -13,13 +13,7 @@ import {
     renderHeroEquipmentGrid
 } from './priorityListGridRenderer.js';
 import { getGlobalPriorityList, getStepOrderErrors } from './priorityListScheduler.js';
-import {
-    getPreviousValidPriorityOrder,
-    getSuggestionsHidden,
-    renderSuggestionsAndErrors,
-    setPreviousValidPriorityOrder,
-    setSuggestionsHidden
-} from './priorityListSuggestionsRenderer.js';
+import { renderSuggestionsAndErrors } from './priorityListSuggestionsRenderer.js';
 
 /**
  * Attaches help and stored ore popovers to a priority list item.
@@ -94,30 +88,6 @@ function attachPriorityOresPopover(oresEl, item, startLevel, heroName, equipName
 }
 
 /**
- * Attaches card details popover to priority item.
- * @param {HTMLElement} itemEl
- * @param {string} heroName
- * @param {string} equipName
- * @param {number} targetLevel
- */
-function attachCardHelpPopover(itemEl, heroName, equipName, targetLevel) {
-    const handlePointerEnter = (e) => {
-        if (e.pointerType === 'touch') return;
-        showCardHelpPopover(itemEl, {
-            heroName,
-            equipName,
-            targetLevel
-        });
-    };
-
-    itemEl.addEventListener('pointerenter', handlePointerEnter);
-    itemEl.addEventListener('pointerleave', (e) => {
-        if (e.pointerType === 'touch') return;
-        hideCardHelpPopover();
-    });
-}
-
-/**
  * Renders draggable priority cards into the editor container.
  * @param {Array<any>} [globalPriorityList]
  * @param {Array<any>|null} [suggestions]
@@ -165,7 +135,7 @@ export function renderDraggableList(globalPriorityList, suggestions) {
 
     if (globalPriorityList.length === 0) {
         editor.innerHTML = `<p class="placeholder-text" data-i18n="views.planner.priorityPlaceholder">${translate('views.planner.priorityPlaceholder')}</p>`;
-        renderSuggestionsAndErrors([], [], renderDraggableList);
+        renderSuggestionsAndErrors([], []);
         return;
     }
 
@@ -225,6 +195,7 @@ export function renderDraggableList(globalPriorityList, suggestions) {
         listItem.dataset.heroName = heroName;
         listItem.dataset.equipName = equipName;
         listItem.dataset.step = item.step;
+        listItem.dataset.startLevel = String(startLevel);
 
         const key = `${heroName}-${equipName}-${item.step}`;
         const prev = prevValues[key];
@@ -276,7 +247,7 @@ export function renderDraggableList(globalPriorityList, suggestions) {
         effectiveLevels[equipName] = item.targetLevel;
     });
 
-    renderSuggestionsAndErrors(globalPriorityList, suggestions, renderDraggableList);
+    renderSuggestionsAndErrors(globalPriorityList, suggestions);
 }
 
 /**
@@ -348,7 +319,7 @@ export function updateDraggableListValues() {
         effectiveLevels[equipName] = item.targetLevel;
     });
 
-    renderSuggestionsAndErrors(globalPriorityList, suggestions, renderDraggableList);
+    renderSuggestionsAndErrors(globalPriorityList, suggestions);
 }
 
 /**

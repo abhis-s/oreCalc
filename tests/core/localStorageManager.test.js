@@ -14,7 +14,7 @@ if (typeof globalThis.localStorage === 'undefined') {
 
 import { state } from '../../js/core/state.js';
 import { MAX_SAVED_PLAYERS } from '../../js/core/constants.js';
-import { updateSavedPlayerTags, updateAllPlayersData } from '../../js/core/localStorageManager.js';
+import { updateSavedPlayerTags, updateAllPlayersData, saveState } from '../../js/core/localStorageManager.js';
 
 test('localStorageManager supports up to MAX_SAVED_PLAYERS (12) without truncating', () => {
     state.uiSettings = { currency: { code: 'USD' } };
@@ -53,4 +53,26 @@ test('localStorageManager purges surplus when exceeding MAX_SAVED_PLAYERS', () =
 
     assert.equal(state.savedPlayerTags.length, MAX_SAVED_PLAYERS);
     assert.equal(Object.keys(state.allPlayersData).length, MAX_SAVED_PLAYERS);
+});
+
+test('saveState handles uninitialized, null, and empty state objects without throwing', () => {
+    assert.doesNotThrow(() => {
+        // @ts-expect-error - Testing defensive boundary
+        saveState(null, true);
+    });
+
+    assert.doesNotThrow(() => {
+        // @ts-expect-error - Testing defensive boundary
+        saveState({}, true);
+    });
+
+    assert.doesNotThrow(() => {
+        // @ts-expect-error - Testing defensive boundary
+        saveState({ savedPlayerTags: undefined }, true);
+    });
+
+    assert.doesNotThrow(() => {
+        // @ts-expect-error - Testing defensive boundary
+        saveState({ savedPlayerTags: [], allPlayersData: null }, true);
+    });
 });

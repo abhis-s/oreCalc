@@ -2,14 +2,12 @@ import { translate } from '../../i18n/translator.js';
 
 import { loadPlayerData } from '../../core/localStorageManager.js';
 import { isProfileOnboarded, state } from '../../core/state.js';
-import { switchActivePlayer } from '../../core/stateManager.js';
 
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { getSVG } from '../../utils/svgManager.js';
 
 import { welcomeState } from './welcomeModalState.js';
 import { renderProfilePreviewCard, updatePreviewArrowPosition } from './welcomeProfileDisplay.js';
-import { syncWelcomeQuickSettings } from './welcomeSettingsDisplay.js';
 
 const safeRaf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (cb) => setTimeout(cb, 0);
 
@@ -39,18 +37,6 @@ export function createCompactProfileCard(tag, activeTag, upd, err, prefix = 'wel
     const isGuest = (tag === 'DEFAULT0');
     const accessibleLabel = `${isGuest ? translate('player.guest') : name} ${isGuest ? '' : `#${tag}`}`.trim();
     card.setAttribute('aria-label', accessibleLabel);
-
-    card.addEventListener('focus', () => {
-        const list = card.parentElement;
-        if (list && (list.classList.contains('welcome-profiles-list') || list.id === 'welcome-profiles-list' || list.id === 'welcome-qs-profiles-list')) {
-            const pad = 24;
-            if (card.offsetLeft < list.scrollLeft + pad) {
-                list.scrollLeft = Math.max(0, card.offsetLeft - pad);
-            } else if (card.offsetLeft + card.offsetWidth > list.scrollLeft + list.clientWidth - pad) {
-                list.scrollLeft = card.offsetLeft + card.offsetWidth - list.clientWidth + pad;
-            }
-        }
-    });
 
     const thImg = document.createElement('orecalc-assets-image');
     thImg.setAttribute('class', 'welcome-profile-card-th-img');
@@ -103,39 +89,6 @@ export function createCompactProfileCard(tag, activeTag, upd, err, prefix = 'wel
     card.appendChild(thImg);
     card.appendChild(details);
     card.appendChild(statusContainer);
-
-    card.addEventListener('click', () => {
-        switchActivePlayer(tag);
-
-        renderWelcomeProfilesList(welcomeState.updatingProfiles, welcomeState.errorProfiles);
-
-        safeRaf(() => {
-            const freshCard = document.querySelector(`.welcome-profile-card-compact[data-tag="${tag}"]`);
-            if (freshCard && freshCard instanceof HTMLElement) {
-                const list = freshCard.parentElement;
-                if (list) {
-                    const pad = 24;
-                    if (freshCard.offsetLeft < list.scrollLeft + pad) {
-                        list.scrollLeft = Math.max(0, freshCard.offsetLeft - pad);
-                    } else if (freshCard.offsetLeft + freshCard.offsetWidth > list.scrollLeft + list.clientWidth - pad) {
-                        list.scrollLeft = freshCard.offsetLeft + freshCard.offsetWidth - list.clientWidth + pad;
-                    }
-                }
-            }
-        });
-
-        const activePlayer = state.allPlayersData[tag];
-        if (activePlayer && (activePlayer.playerProfile || activePlayer.playerData)) {
-            renderProfilePreviewCard(activePlayer.playerProfile || activePlayer.playerData);
-            welcomeState.isProfileLoaded = true;
-        } else {
-            const previewContainer = document.getElementById('welcome-profile-preview-container');
-            if (previewContainer) previewContainer.style.display = 'none';
-            welcomeState.isProfileLoaded = false;
-        }
-
-        syncWelcomeQuickSettings(tag);
-    });
 
     return card;
 }
@@ -241,9 +194,9 @@ export function renderVerticalProfilesList() {
             `;
         } else {
             statusContainer.innerHTML = `
-                <span class="status-icon warning-icon" title="${translate('views.welcome.setupRequired') || 'Setup Needed'}" style="display: flex; align-items: center; gap: 4px;">
+                <span class="status-icon warning-icon" title="${translate('views.welcome.setupRequired') || 'Setup Needed'}">
                     ${getSVG('warning', '', 18, 18, 'var(--color-warning)')}
-                    <span style="font-size: 11px; font-weight: 500; color: var(--color-warning); margin-left: 2px;" data-i18n="views.welcome.setupRequired">${translate('views.welcome.setupRequired') || 'Setup Needed'}</span>
+                    <span class="welcome-setup-needed-text" data-i18n="views.welcome.setupRequired">${translate('views.welcome.setupRequired') || 'Setup Needed'}</span>
                 </span>
             `;
         }

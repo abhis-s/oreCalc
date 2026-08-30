@@ -3,8 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="Terms of Use for OreCalc, the privacy-first Clash of Clans hero equipment and upgrade planner.">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f9">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
     <meta name="robots" content="noindex, follow">
     <meta name="effective-date-timestamp" content="1780617600000">
     <title>Terms of Use - OreCalc</title>
@@ -40,13 +44,15 @@
         <div class="header-row">
             <a href="/" class="back-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12"></line>
                     <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
                 Back to App
             </a>
-            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">🌙</button>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
         </div>
 
         <h1>Terms of Use</h1>
@@ -89,13 +95,13 @@
         </p>
         <ul>
             <li>Your player tag data request is subject to Supercell's <a
-                    href="https://supercell.com/en/fan-content-policy/" target="_blank">Fan Content Policy</a> and
-                Supercell's <a href="https://supercell.com/en/terms-of-service/" target="_blank">Terms of Service</a>.
+                    href="https://supercell.com/en/fan-content-policy/" target="_blank" rel="noopener noreferrer">Fan Content Policy</a> and
+                Supercell's <a href="https://supercell.com/en/terms-of-service/" target="_blank" rel="noopener noreferrer">Terms of Service</a>.
             </li>
             <li>This Service is unofficial and is not affiliated with, endorsed, or sponsored by Supercell.</li>
             <li>Supercell owns all game assets, designs, and statistics. We do not claim any ownership of the fetched
                 data.</li>
-            <li>To facilitate API request delivery and optimize operational costs, player tag queries may be routed through third-party proxy servers (such as <code>coproxy.royaleapi.com</code>). In such instances, connection data may be subject to the respective proxy provider's <a href="https://royaleapi.com/tos" target="_blank">Terms of Service</a> and <a href="https://royaleapi.com/privacy" target="_blank">Privacy Policy</a>.</li>
+            <li>To facilitate API request delivery and optimize operational costs, player tag queries may be routed through third-party proxy servers (such as <code>coproxy.royaleapi.com</code>). In such instances, connection data may be subject to the respective proxy provider's <a href="https://royaleapi.com/tos" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="https://royaleapi.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</li>
         </ul>
         <p>
             All third-party product names, logos, trademarks, and brand assets (including but not limited to: GitHub, Crowdin, and Buy Me a Coffee) referenced or displayed within the Service are the property of their respective owners. Their appearance on the Service is for integration functionality, attribution, or linking purposes, and does not imply affiliation, sponsorship, or endorsement.
@@ -126,9 +132,18 @@
         </p>
 
         <div class="footer">
-            <p style="margin: 0 0 8px;">This page is available at <a href="https://orecalc.tech/terms/"
-                    target="_blank">orecalc.tech/terms/</a></p>
-            &copy; 2025-2026 OreCalc. All rights reserved.
+            <div class="footer__links">
+                <a href="/" class="footer__link">Home</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <a href="/privacy/" class="footer__link">Privacy Policy</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <span class="footer__link is-active" aria-current="page">Terms of Use</span>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <a href="/licenses/" class="footer__link">Licenses</a>
+            </div>
+            <p class="footer__permalink">This page is available at <a href="https://orecalc.tech/terms/"
+                    target="_blank" rel="noopener noreferrer">orecalc.tech/terms/</a></p>
+            <p class="footer__copyright">&copy; 2025-2026 OreCalc. All rights reserved.</p>
         </div>
     </main>
 </body>

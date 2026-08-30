@@ -355,9 +355,9 @@ const { openModal, closeModal, closeModalAnimated, handleModalStateChange, close
 const { registerInputPopover } = await import('../../js/utils/inputPopoverProvider.js');
 const { showCardHelpPopover, hideCardHelpPopover } = await import('../../js/utils/cardHelpPopover.js');
 
-describe('Native HTMLDialogElement Overlay Architecture (Milestone 2 & WP47)', () => {
+describe('Native HTMLDialogElement Overlay Architecture', () => {
 
-    describe('1. HTML Partial Templates Verification', () => {
+    describe('HTML Partial Templates Verification', () => {
 
         test('All 25 modal partial templates in partials/modals/*.html use <dialog> elements', () => {
             const modalsDir = path.join(projectRoot, 'partials/modals');
@@ -434,7 +434,7 @@ describe('Native HTMLDialogElement Overlay Architecture (Milestone 2 & WP47)', (
         });
     });
 
-    describe('2. SCSS Overlay Architecture Verification', () => {
+    describe('SCSS Overlay Architecture Verification', () => {
 
         test('modal backdrop stylesheet declares dialog.modal UA resets, native backdrop, and starting-style', () => {
             const modalScssPath = path.join(projectRoot, 'css/base/modal/_modal-backdrop.scss');
@@ -457,7 +457,7 @@ describe('Native HTMLDialogElement Overlay Architecture (Milestone 2 & WP47)', (
         });
     });
 
-    describe('3. JavaScript Modal Lifecycle & Dialog Operations', () => {
+    describe('JavaScript Modal Lifecycle & Dialog Operations', () => {
         let testModal;
         let testTrigger;
 
@@ -563,7 +563,7 @@ describe('Native HTMLDialogElement Overlay Architecture (Milestone 2 & WP47)', (
         });
     });
 
-    describe('4. Native HTML Popover API Architecture', () => {
+    describe('Native HTML Popover API Architecture', () => {
 
         test('inputPopoverProvider sets manual popover mode and controls visibility', () => {
             const inputPopoverPath = path.join(projectRoot, 'js/utils/inputPopoverProvider.js');
@@ -656,7 +656,7 @@ describe('Native HTMLDialogElement Overlay Architecture (Milestone 2 & WP47)', (
         });
     });
 
-    describe('5. Accessible Tooltip Architecture ([role="tooltip"] & aria-describedby)', () => {
+    describe('Accessible Tooltip Architecture ([role="tooltip"] & aria-describedby)', () => {
 
         test('income chips and calendar popovers define tooltip accessibility styles', () => {
             const incomeChipsScssPath = path.join(projectRoot, 'css/components/_income-chips.scss');
@@ -689,7 +689,7 @@ describe('Native HTMLDialogElement Overlay Architecture (Milestone 2 & WP47)', (
         });
     });
 
-    describe('6. Modal Collision Safety & closeAllModals()', () => {
+    describe('Modal Collision Safety & closeAllModals()', () => {
         test('closeAllModals closes open native dialogs, removes modal classes, and resets overlays', () => {
             const modal1 = new MockDOMElement('dialog', 'settings-modal', 'modal show');
             modal1.open = true;

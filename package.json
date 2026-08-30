@@ -31,7 +31,7 @@
     "i18n:validate": "node scripts/validate-i18n.js",
     "crowdin:sync": "crowdin upload sources && crowdin download",
     "crowdin:upload": "crowdin upload sources",
-    "crowdin:upload:translations": "crowdin upload translations --auto-approve-imported --import-eq-suggestions",
+    "crowdin:upload:translations": "crowdin upload translations --no-auto-approve-imported --import-eq-suggestions",
     "crowdin:download": "node scripts/crowdin-download.js",
     "dev": "node scripts/dev/run-dev.js",
     "watch:sass": "node scripts/dev/watch-sass.js",
@@ -40,7 +40,7 @@
     "build": "VITE_API_BASE_URL=https://api.orecalc.tech pnpm run build:assets",
     "build:dev": "VITE_API_BASE_URL=http://localhost:3000 pnpm run build:assets",
     "build:assets": "node scripts/fetch-billing-costs.js && node scripts/validate-i18n.js && node scripts/build.js && pnpm run build:css && pnpm run build:sw",
-    "build:css": "sass css/main.scss dist/css/main.min.css --style compressed && sass legal/legal.scss dist/legal/legal.css --style compressed",
+    "build:css": "sass css/main.scss dist/css/main.min.css --style compressed && sass css/hero-journey.scss dist/css/hero-journey.min.css --style compressed && sass legal/legal.scss dist/legal/legal.css --style compressed",
     "build:sw": "workbox injectManifest workbox-config.js",
     "bump": "node scripts/bump.js",
     "start": "node scripts/prod/start-prod-server.js"

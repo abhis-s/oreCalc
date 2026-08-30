@@ -67,6 +67,14 @@
                 }
             }
         }
+
+        &[data-card-type="error"] {
+            border-color: $color-danger;
+
+            .prospector-rec-badge {
+                color: $color-danger;
+            }
+        }
     }
 
     .prospector-rec-header {
@@ -172,6 +180,19 @@
                 }
             }
         }
+    }
+
+    .prospector-status-completed {
+        color: $color-success;
+    }
+
+    .prospector-status-success-icon {
+        color: $color-success;
+    }
+
+    .prospector-warning-icon {
+        vertical-align: middle;
+        margin-left: 2px;
     }
 
     .prospector-rec-empty {

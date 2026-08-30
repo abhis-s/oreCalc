@@ -34,6 +34,7 @@ export function reindexNonAutoChips() {
  * @param {string} currentYearStr
  */
 export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
+    if (!state?.planner?.calendar?.dates) return;
     const scope = state.planner?.calendar?.settings?.autoPlaceScope || 'tillEnd';
     const newCalendarDates = { ...state.planner.calendar.dates };
 
@@ -61,8 +62,8 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
     state.planner.calendar.dates = newCalendarDates;
     reindexNonAutoChips();
 
-    const currentMonth = parseInt(currentMonthStr, 10) - 1;
-    const currentYear = parseInt(currentYearStr, 10);
+    const currentMonth = Number(currentMonthStr) - 1;
+    const currentYear = Number(currentYearStr);
 
     handleStateUpdate(() => {}, true);
     document.dispatchEvent(new CustomEvent('calendarChipsPlaced', { detail: { year: currentYear, month: currentMonth } }));
@@ -78,6 +79,7 @@ export function autoPlaceIncomeChips(currentMonthStr, currentYearStr) {
  * @param {boolean} [skipRender=false]
  */
 export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, endYear, skipRender = false) {
+    if (!state?.planner?.calendar?.dates) return;
     const newCalendarDates = { ...state.planner.calendar.dates };
 
     let currentYear = startYear;
@@ -105,8 +107,8 @@ export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, en
 
     if (state.planner?.calendar?.view?.month) {
         const [viewYearStr, viewMonthStr] = state.planner.calendar.view.month.split('-');
-        const viewMonth = parseInt(viewMonthStr, 10) - 1;
-        const viewYear = parseInt(viewYearStr, 10);
+        const viewMonth = Number(viewMonthStr) - 1;
+        const viewYear = Number(viewYearStr);
 
         handleStateUpdate(() => {}, true);
         document.dispatchEvent(new CustomEvent('calendarChipsPlaced', { detail: { year: viewYear, month: viewMonth } }));
@@ -121,6 +123,7 @@ export function autoPlaceIncomeChipsForRange(startMonth, startYear, endMonth, en
  * @param {string} yearStr - Year in YYYY format.
  */
 export function syncAutoPlacedChipsForMonth(monthStr, yearStr) {
+    if (!state?.planner?.calendar?.dates) return;
     const newCalendarDates = { ...state.planner.calendar.dates };
     performAutoPlacementForMonth(monthStr.padStart(2, '0'), yearStr, newCalendarDates);
     state.planner.calendar.dates = newCalendarDates;
@@ -134,8 +137,8 @@ export function syncAutoPlacedChipsForMonth(monthStr, yearStr) {
  */
 export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, newCalendarDates) {
 
-    const currentMonth = parseInt(currentMonthStr, 10) - 1;
-    const currentYear = parseInt(currentYearStr, 10);
+    const currentMonth = Number(currentMonthStr) - 1;
+    const currentYear = Number(currentYearStr);
     const monthYearKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
     if (!newCalendarDates[monthYearKey]) {
@@ -300,7 +303,7 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
                         for (const day in newCalendarDates[monthYearKey]) {
                             const chips = newCalendarDates[monthYearKey][day];
                             if (chips.some(id => idMatchesType(id, 'starBonus2x-') && !id.endsWith('-auto'))) {
-                                manual2xDay = parseInt(day, 10);
+                                manual2xDay = Number(day);
                                 break;
                             }
                         }
@@ -311,9 +314,9 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
                         const manualChipId = newCalendarDates[monthYearKey][String(manual2xDay).padStart(2, '0')].find(id => idMatchesType(id, 'starBonus2x-') && !id.endsWith('-auto'));
                         if (manualChipId) {
                             if (manualChipId.startsWith('custom-')) {
-                                manualInstance = parseInt(manualChipId.split('-')[3], 10) + 1;
+                                manualInstance = Number(manualChipId.split('-')[3]) + 1;
                             } else {
-                                manualInstance = parseInt(manualChipId.split('-')[1], 10);
+                                manualInstance = Number(manualChipId.split('-')[1]);
                             }
                         }
                         targetDay = manual2xDay + (chip.instance - manualInstance);
@@ -325,12 +328,12 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
                             const lbMonth = lookbackDate.getUTCMonth();
                             const lbYear = lookbackDate.getUTCFullYear();
                             const lbKey = `${lbYear}-${String(lbMonth + 1).padStart(2, '0')}`;
-                            const searchDates = newCalendarDates[lbKey] || state.planner.calendar.dates[lbKey];
+                            const searchDates = newCalendarDates[lbKey] || state.planner?.calendar?.dates?.[lbKey];
 
                             if (searchDates) {
                                 for (const day in searchDates) {
                                     if (searchDates[day].some(id => idMatchesType(id, 'starBonus2x-'))) {
-                                        historicalWeekNumber = Math.ceil(parseInt(day, 10) / 7);
+                                        historicalWeekNumber = Math.ceil(Number(day) / 7);
                                         foundHistory = true;
                                         break;
                                     }
@@ -359,14 +362,14 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
                     if (newCalendarDates[monthYearKey]) {
                         for (const day in newCalendarDates[monthYearKey]) {
                             if (newCalendarDates[monthYearKey][day].some(id => idMatchesType(id, 'starBonus2x-'))) {
-                                placed2xDays.push(parseInt(day, 10));
+                                placed2xDays.push(Number(day));
                             }
                         }
                     }
                     placed2xDays.sort((a, b) => a - b);
                     if (placed2xDays.length > 0) {
                         const twoXStart = placed2xDays[0];
-                        const twoXEnd = placed2xDays[placed2xDays.length - 1];
+                        const twoXEnd = placed2xDays.at(-1);
                         if (!(startDay4x + duration4x - 1 < twoXStart || startDay4x > twoXEnd)) {
                             if (twoXEnd + duration4x <= daysInMonth4x) {
                                 startDay4x = twoXEnd + 1;

@@ -74,11 +74,8 @@ export function openLicensesModal() {
             link.rel = 'noopener noreferrer';
             link.className = 'license-link';
 
-            let text = translate('views.settings.sourceLink');
-            text = text.replace(' ->', '').replace(' \u2192', '');
-
             const linkText = document.createElement('span');
-            linkText.textContent = text;
+            linkText.textContent = translate('views.settings.sourceLink');
             link.appendChild(linkText);
 
             const svgIcon = document.createElement('orecalc-assets-svg');

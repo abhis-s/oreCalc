@@ -1,0 +1,50 @@
+# Core application files and HTML revalidate fresh
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/service-worker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/js/*.json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/js/*.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/css/*.css
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 180-day immutable caching for static assets
+/assets/*
+  Cache-Control: public, max-age=15552000, immutable
+
+# Zero-cache for standalone legal and policy pages
+/privacy/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/terms/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/licenses/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/legal/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/de/privacy/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/de/terms/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0

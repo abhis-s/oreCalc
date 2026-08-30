@@ -154,16 +154,6 @@
     }
 }
 
-.hero-journey-progress-track {
-    width: 100%;
-    height: 10px;
-    background: $bg-surface-primary;
-    border: 1px solid $border-primary;
-    border-radius: 6px;
-    overflow: hidden;
-    position: relative;
-}
-
 .hero-journey-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, $accent-primary 0%, $accent-primary-hover 100%);

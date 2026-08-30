@@ -1,8 +1,6 @@
 import { MAX_SAVED_PLAYERS } from './constants.js';
-import { getResettingState, saveState } from './localStorageManager.js';
-import { state } from './state.js';
-
-import { resetHeroJourneyScrollPositions } from '../components/home/heroJourneyScrollManager.js';
+import { getResettingState, saveState, normalizePlayerTag, getPlayerStorageKey } from './localStorageManager.js';
+import { getDefaultPlayerState, state } from './state.js';
 
 let stateUpdateCallback = null;
 let cloudSaveTimeout = null;
@@ -21,8 +19,9 @@ export function registerStateUpdateCallback(callback) {
  * and debounced cloud saves.
  * @param {() => void} updateFn - Function that modifies state.
  * @param {boolean} [silent=false] - If true, skips UI rendering.
+ * @param {{ skipSave?: boolean }} [options={}] - Optional execution flags (e.g. skipSave for cross-tab sync).
  */
-export function handleStateUpdate(updateFn, silent = false) {
+export function handleStateUpdate(updateFn, silent = false, options = {}) {
     if (!silent && state.planner?.calendar) {
         state.planner.calendar.isDirty = true;
     }
@@ -32,18 +31,22 @@ export function handleStateUpdate(updateFn, silent = false) {
     if (stateUpdateCallback) {
         stateUpdateCallback(state, silent);
     }
-    saveState(state);
+    if (!options.skipSave) {
+        saveState(state);
+    }
 
-    if (state.uiSettings.cloudSync !== false) {
+    if (state.uiSettings.cloudSync !== false && !options.skipSave) {
         if (cloudSaveTimeout) {
             clearTimeout(cloudSaveTimeout);
         }
         cloudSaveTimeout = setTimeout(() => {
-            import('../utils/cloudSaveHandler.js').then(module => {
-                module.triggerCloudSave({ silent: true });
-            });
+            import('../services/cloudSaveService.js')
+                .then(module => {
+                    module.triggerCloudSave({ silent: true });
+                })
+                .catch(() => {});
         }, 3000);
-    } else {
+    } else if (!options.skipSave) {
         if (cloudSaveTimeout) {
             clearTimeout(cloudSaveTimeout);
             cloudSaveTimeout = null;
@@ -57,41 +60,39 @@ export function handleStateUpdate(updateFn, silent = false) {
  * @param {string} newTag - The player tag to switch to.
  */
 export function switchActivePlayer(newTag) {
-    resetHeroJourneyScrollPositions();
     handleStateUpdate(() => {
-        const newPlayerData = state.allPlayersData[newTag];
+        const cleanTag = normalizePlayerTag(newTag);
+        const newPlayerData = state.allPlayersData[cleanTag] || state.allPlayersData[newTag];
         if (!newPlayerData) {
             console.error(`switchActivePlayer: Player data not found for tag: ${newTag}`);
             return;
         }
 
-        if (newTag !== 'DEFAULT0' && state.savedPlayerTags.includes('DEFAULT0')) {
-            state.savedPlayerTags = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0');
+        if (cleanTag !== 'DEFAULT0' && state.savedPlayerTags.some(t => normalizePlayerTag(t) === 'DEFAULT0')) {
+            state.savedPlayerTags = state.savedPlayerTags.filter(tag => normalizePlayerTag(tag) !== 'DEFAULT0');
             delete state.allPlayersData['DEFAULT0'];
             try {
-                localStorage.removeItem('oreCalc_player_DEFAULT0');
+                localStorage.removeItem(getPlayerStorageKey('DEFAULT0'));
             } catch (e) {}
         }
 
-        const existingIndex = state.savedPlayerTags.indexOf(newTag);
-        if (existingIndex !== -1) {
-            state.savedPlayerTags.splice(existingIndex, 1);
-        }
-        state.savedPlayerTags.unshift(newTag);
+        state.savedPlayerTags = state.savedPlayerTags.filter(tag => normalizePlayerTag(tag) !== cleanTag);
+        state.savedPlayerTags.unshift(cleanTag);
         if (state.savedPlayerTags.length > MAX_SAVED_PLAYERS) {
             state.savedPlayerTags.pop();
         }
 
         // ponytail: direct reference binding over JSON clone. Active player references point to partition.
-        state.heroes = newPlayerData.heroes;
-        state.storedOres = newPlayerData.storedOres;
-        state.income = newPlayerData.income;
-        state.planner = newPlayerData.planner;
+        const defaultState = getDefaultPlayerState();
+        state.heroes = newPlayerData.heroes || defaultState.heroes;
+        state.storedOres = newPlayerData.storedOres || defaultState.storedOres;
+        state.income = newPlayerData.income || defaultState.income;
+        state.planner = newPlayerData.planner || defaultState.planner;
         if (state.planner?.calendar) {
             state.planner.calendar.isHydrated = false;
         }
         state.playerProfile = newPlayerData.playerProfile || null;
-        state.heroJourney = newPlayerData.heroJourney || { overrideUnclaimed: [], acceleratedRewards: false };
+        state.heroJourney = newPlayerData.heroJourney || defaultState.heroJourney;
         state.onboardingTimestamp = newPlayerData.onboardingTimestamp ?? null;
 
         if (newPlayerData.currency && typeof newPlayerData.currency === 'object') {
@@ -104,7 +105,14 @@ export function switchActivePlayer(newTag) {
 
 if (typeof window !== 'undefined') {
     window.addEventListener('beforeunload', () => {
-        if (getResettingState() || localStorage.getItem('oreCalc_playerTags') === null) {
+        if (
+            getResettingState() ||
+            !state ||
+            !Array.isArray(state.savedPlayerTags) ||
+            state.savedPlayerTags.length === 0 ||
+            !state.allPlayersData ||
+            localStorage.getItem('oreCalc_playerTags') === null
+        ) {
             return;
         }
 
@@ -117,8 +125,8 @@ if (typeof window !== 'undefined') {
             const currentUserId = localStorage.getItem('oreCalc_userId');
             if (currentUserId) {
                 const currentPlayerTag = state.savedPlayerTags[0];
-                if (currentPlayerTag) {
-                    const existing = state.allPlayersData[currentPlayerTag] || {};
+                if (currentPlayerTag && state.allPlayersData[currentPlayerTag]) {
+                    const existing = state.allPlayersData[currentPlayerTag];
                     state.allPlayersData[currentPlayerTag] = {
                         ...existing,
                         heroes: state.heroes,

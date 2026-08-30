@@ -1,12 +1,12 @@
-import { heroJourneyNodes } from '../../data/heroJourneyData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { handleStateUpdate } from '../../core/stateManager.js';
 
-import { getCumulativeHeroLevel, getMaxCumulativeLevelsByTH, isDefaultOrGuestPlayer } from '../../domain/income/heroJourneyLevels.js';
+import { getCumulativeHeroLevel } from '../../domain/income/heroJourneyLevels.js';
 
 import { renderHeroJourneyDisplay } from './heroJourneyDisplay.js';
 import { autoScrollToCompletedNode, getActiveFilterKey, isAutoScrolling, saveCurrentFilterScrollPosition, updateCustomScrollbar } from './heroJourneyScrollManager.js';
+import { initHeroJourneyTrackKeyboardNav } from './heroJourneyKeyboardNav.js';
 import { triggerHaptic } from '../../services/hapticService.js';
 
 let isBound = false;
@@ -19,7 +19,6 @@ export function setupHeroJourneyInputs(state) {
     if (isBound) return;
     isBound = true;
 
-    // Accelerated Rewards Switch (Normal vs Accelerated)
     const acceleratedSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('home-hj-accelerated-switch'));
     if (acceleratedSwitch) {
         const isAccelerated = Boolean(state?.heroJourney?.acceleratedRewards ?? state?.heroJourney?.accelerated ?? (state?.heroJourney?.rewardMode === 'accelerated'));
@@ -34,7 +33,6 @@ export function setupHeroJourneyInputs(state) {
         });
     }
 
-    // Claim Segmented Switch (All vs Unclaimed)
     const claimSwitch = document.getElementById('home-hj-claim-switch');
     if (claimSwitch) {
         claimSwitch.addEventListener('click', (e) => {
@@ -51,7 +49,6 @@ export function setupHeroJourneyInputs(state) {
         });
     }
 
-    // Type Filter Buttons & Select Dropdown
     const typeFilterContainer = document.getElementById('home-hj-type-filters');
     if (typeFilterContainer) {
         typeFilterContainer.addEventListener('click', (e) => {
@@ -59,33 +56,31 @@ export function setupHeroJourneyInputs(state) {
             const btn = target.closest('.hj-type-btn');
             if (!btn) return;
 
-            const clickedType = /** @type {HTMLElement} */ (btn).dataset.typeFilter || null;
+            const filter = btn.getAttribute('data-type-filter') || 'all';
+            const currentFilter = state?.heroJourney?.typeFilter || 'all';
+            const nextFilter = currentFilter === filter ? null : (filter === 'all' ? null : filter);
+
             handleStateUpdate(() => {
                 if (!state.heroJourney) state.heroJourney = {};
-                if (state.heroJourney.typeFilter === clickedType) {
-                    state.heroJourney.typeFilter = null;
-                } else {
-                    state.heroJourney.typeFilter = clickedType;
-                }
-            }, true);
-
-            renderHeroJourneyDisplay(state);
-        });
-    }
-
-    const typeSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('home-hj-type-select'));
-    if (typeSelect) {
-        typeSelect.addEventListener('change', (e) => {
-            const val = /** @type {HTMLSelectElement} */ (e.target).value;
-            handleStateUpdate(() => {
-                if (!state.heroJourney) state.heroJourney = {};
-                state.heroJourney.typeFilter = val === 'all' ? null : val;
+                state.heroJourney.typeFilter = nextFilter;
             }, true);
             renderHeroJourneyDisplay(state);
         });
+
+        const typeSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('home-hj-type-select'));
+        if (typeSelect) {
+            typeSelect.value = state?.heroJourney?.typeFilter || 'all';
+            typeSelect.addEventListener('change', (e) => {
+                const val = /** @type {HTMLSelectElement} */ (e.target).value;
+                handleStateUpdate(() => {
+                    if (!state.heroJourney) state.heroJourney = {};
+                    state.heroJourney.typeFilter = val === 'all' ? null : val;
+                }, true);
+                renderHeroJourneyDisplay(state);
+            });
+        }
     }
 
-    // Horizontal Track Scroll Controls
     const scrollFirstBtn = document.getElementById('home-hj-scroll-first');
     const scrollLeftBtn = document.getElementById('home-hj-scroll-left');
     const scrollCurrentBtn = document.getElementById('home-hj-scroll-current');
@@ -100,6 +95,8 @@ export function setupHeroJourneyInputs(state) {
     let isScrollTickPending = false;
 
     if (trackWrapper) {
+        initHeroJourneyTrackKeyboardNav(trackWrapper);
+
         trackWrapper.addEventListener('scroll', () => {
             if (!isScrollTickPending) {
                 isScrollTickPending = true;
@@ -115,7 +112,6 @@ export function setupHeroJourneyInputs(state) {
         }, { passive: true });
     }
 
-    // Custom Scrollbar Dragging & Track Click Handling
     if (customBar && thumb && trackWrapper) {
         const scrubTooltip = /** @type {HTMLElement | null} */ (document.getElementById('home-hj-scrub-tooltip'));
         let lastScrubLevel = null;
@@ -186,7 +182,6 @@ export function setupHeroJourneyInputs(state) {
             lastScrubLevel = null;
             updateScrubTooltip(trackWrapper.scrollLeft);
 
-            // Haptic feedback on grab
             triggerHaptic('select');
         };
 
@@ -327,7 +322,6 @@ export function setupHeroJourneyInputs(state) {
         });
     }
 
-    // Event delegation for Node Claim, Hide, and Reveal buttons
     if (track) {
         track.addEventListener('click', (e) => {
             const target = /** @type {HTMLElement} */ (e.target);
@@ -373,14 +367,6 @@ export function setupHeroJourneyInputs(state) {
                 }
                 return;
             }
-
-            const claimBtn = target.closest('.node-claim-btn');
-            if (!claimBtn) return;
-
-            const level = parseInt(/** @type {HTMLElement} */ (claimBtn).dataset.nodeLevel || '', 10);
-            if (isNaN(level)) return;
-
-            toggleNodeClaimStatus(state, level);
         });
     }
 
@@ -409,7 +395,7 @@ export function setupHeroJourneyInputs(state) {
 /**
  * Enables smooth touch and cursor drag popping across hero mountain emblems.
  */
-function setupMountainClusterTouchInteractions() {
+export function setupMountainClusterTouchInteractions() {
     const cluster = /** @type {HTMLElement | null} */ (document.querySelector('.hero-mountain-cluster'));
     if (!cluster || cluster.dataset.touchBound) return;
     cluster.dataset.touchBound = 'true';
@@ -476,58 +462,4 @@ function setupMountainClusterTouchInteractions() {
 
     cluster.addEventListener('pointerdown', handlePointerStart);
     cluster.addEventListener('touchstart', handlePointerStart, { passive: false });
-}
-
-/**
- * Toggles explicit claim or unclaim override for a given milestone node level.
- * @param {import('../../core/types.js').AppState} state - Current global application state.
- * @param {number} level - Target milestone level to toggle.
- */
-function toggleNodeClaimStatus(state, level) {
-    if (!state.heroJourney) state.heroJourney = {};
-    if (!state.heroJourney.overrideUnclaimed) state.heroJourney.overrideUnclaimed = [];
-
-    const isGuest = isDefaultOrGuestPlayer(state);
-    const cumulativeLevel = getCumulativeHeroLevel(state);
-    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
-    const allMaxValues = Object.values(maxLevelsByTH);
-    const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
-    const isTrueMaxPlayer = cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
-
-    // Do not allow true max players or guest/DEFAULT0 profiles to toggle claim status or unclaim anything
-    if (isTrueMaxPlayer || isGuest) {
-        return;
-    }
-
-    const isReached = cumulativeLevel >= level;
-
-    // Do not allow claiming unreached future nodes
-    if (!isReached) {
-        return;
-    }
-
-    const node = heroJourneyNodes.find(n => n.level === level);
-
-    let overrideUnclaimedSet = new Set(state.heroJourney.overrideUnclaimed);
-    const currentlyClaimed = !overrideUnclaimedSet.has(level);
-
-    if (currentlyClaimed) {
-        // Do not allow unclaiming nodes that are not ores, quests, or equipment
-        const isAllowedTypeToUnclaim = node && ['quest', 'ore', 'equipment'].includes(node.type);
-        if (!isAllowedTypeToUnclaim) {
-            return;
-        }
-
-        // Do not allow undoing a claim that is more than 10 levels behind
-        if (cumulativeLevel - level > 10) {
-            return;
-        }
-        overrideUnclaimedSet.add(level);
-    } else {
-        overrideUnclaimedSet.delete(level);
-    }
-
-    handleStateUpdate(() => {
-        state.heroJourney.overrideUnclaimed = Array.from(overrideUnclaimedSet);
-    });
 }

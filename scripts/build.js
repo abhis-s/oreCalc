@@ -210,7 +210,8 @@ async function build() {
             { src: 'legal/legal.js', dest: 'legal/legal.js' },
             { src: 'legal/licenses', dest: 'licenses' },
             { src: '.well-known', dest: '.well-known' },
-            { src: '_redirects', dest: '_redirects' }
+            { src: '_redirects', dest: '_redirects' },
+            { src: '_headers', dest: '_headers' }
         ];
 
         for (const entry of copyEntries) {
@@ -230,8 +231,8 @@ async function build() {
         }
 
         console.log('--- Bundling JS with esbuild ---');
-        const esbuildAppCmd = `npx esbuild "${path.join(projectRoot, 'js/app.js')}" --bundle --outdir="${jsDestDir}" --format=esm --splitting --minify`;
-        execSync(esbuildAppCmd, { stdio: verbose ? 'inherit' : 'ignore' });
+        const esbuildBundleCmd = `npx esbuild "${path.join(projectRoot, 'js/app.js')}" "${path.join(projectRoot, 'js/heroJourneyApp.js')}" --bundle --outdir="${jsDestDir}" --format=esm --splitting --minify`;
+        execSync(esbuildBundleCmd, { stdio: verbose ? 'inherit' : 'ignore' });
 
         const esbuildQrCmd = `npx esbuild "${path.join(projectRoot, 'js/qr-code-styling.js')}" --minify --outfile="${path.join(jsDestDir, 'qr-code-styling.js')}"`;
         execSync(esbuildQrCmd, { stdio: verbose ? 'inherit' : 'ignore' });
@@ -258,6 +259,30 @@ async function build() {
             const localizedHtml = generateLocalizedHtml(indexHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot);
             fs.writeFileSync(path.join(langDir, 'index.html'), localizedHtml, 'utf8');
             console.log(`Generated localized route: dist/${lang}/index.html`);
+        }
+
+        const hjSrcPath = path.join(projectRoot, 'hero-journey.html');
+        if (fs.existsSync(hjSrcPath)) {
+            let hjHtml = fs.readFileSync(hjSrcPath, 'utf8');
+            hjHtml = processHtmlIncludes(hjHtml);
+            hjHtml = hjHtml.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
+            hjHtml = hjHtml.replace(/src="\/?js\/heroJourneyApp\.js(\?v=[^"]+)?"/g, `src="/js/heroJourneyApp.js?v=${encodeURIComponent(appVersion)}"`);
+            hjHtml = hjHtml.replace(/href="\/?css\/hero-journey(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/hero-journey.min.css?v=${encodeURIComponent(appVersion)}"`);
+            hjHtml = hjHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+
+            const hjDestDir = path.join(distDir, 'hero-journey');
+            fs.mkdirSync(hjDestDir, { recursive: true });
+            fs.writeFileSync(path.join(hjDestDir, 'index.html'), hjHtml, 'utf8');
+            console.log('Generated root tool route: dist/hero-journey/index.html');
+
+            for (const lang of supportedLanguages) {
+                if (lang === 'en') continue;
+                const langHjDir = path.join(distDir, lang, 'hero-journey');
+                fs.mkdirSync(langHjDir, { recursive: true });
+                const localizedHjHtml = generateLocalizedHtml(hjHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'hero-journey');
+                fs.writeFileSync(path.join(langHjDir, 'index.html'), localizedHjHtml, 'utf8');
+                console.log(`Generated localized tool route: dist/${lang}/hero-journey/index.html`);
+            }
         }
 
         const legalPages = [

@@ -19,13 +19,6 @@
     width: 100%;
     text-align: center;
 
-    .equipment-name-strikethrough {
-        text-decoration: line-through;
-        text-decoration-color: color-mix(in srgb, $accent-primary 85%, white);
-        text-decoration-thickness: 1.5px;
-        opacity: 0.8;
-    }
-
     .accent-text {
         color: $accent-primary;
         font-weight: 800;
@@ -45,22 +38,6 @@
     align-items: center;
     justify-content: center;
     gap: 2px;
-
-    .fallback-label-accent {
-        color: $accent-primary;
-        font-weight: 700;
-    }
-
-    .fallback-highlight {
-        color: $accent-primary;
-        font-weight: 800;
-        background: color-mix(in srgb, $accent-primary 20%, transparent);
-        padding: 1px 4px;
-        border-radius: 4px;
-        display: inline-flex;
-        align-items: center;
-        gap: 2px;
-    }
 
     &.node-sub-ores {
         display: flex;
@@ -109,93 +86,6 @@
             flex-shrink: 0;
             display: inline-block;
             vertical-align: middle;
-        }
-    }
-}
-
-.node-claim-btn {
-    width: 100%;
-    padding: 6px 0;
-    font-size: clamp(0.7rem, 0.4vw + 0.62rem, 0.75rem);
-    font-weight: 700;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    margin-top: auto;
-    flex-shrink: 0;
-    transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
-
-    .btn-text-default {
-        display: inline;
-    }
-
-    .btn-text-hover {
-        display: none;
-    }
-
-    &.btn-claimed {
-        background: color-mix(in srgb, $color-success 15%, $bg-surface-secondary);
-        color: $color-success;
-        border: 1px solid color-mix(in srgb, $color-success 35%, transparent);
-
-        &:hover {
-            background: $color-danger-soft;
-            color: $color-danger;
-            border-color: color-mix(in srgb, $color-danger 30%, transparent);
-
-            .btn-text-default {
-                display: none;
-            }
-
-            .btn-text-hover {
-                display: inline;
-            }
-        }
-
-        &.disabled-unclaim {
-            cursor: not-allowed;
-            opacity: 0.85;
-            background: color-mix(in srgb, $color-success 12%, $bg-surface-secondary);
-            color: $color-success;
-            border-color: color-mix(in srgb, $color-success 25%, transparent);
-
-            &:hover {
-                background: color-mix(in srgb, $color-success 12%, $bg-surface-secondary);
-                color: $color-success;
-                border-color: color-mix(in srgb, $color-success 25%, transparent);
-
-                .btn-text-default {
-                    display: inline;
-                }
-
-                .btn-text-hover {
-                    display: none;
-                }
-            }
-        }
-    }
-
-    &.btn-unclaimed {
-        background: $accent-primary;
-        color: $text-on-accent;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-
-        &:hover {
-            transform: translateY(-1px);
-            background: $accent-primary-hover;
-        }
-    }
-
-    &.btn-upcoming, &:disabled {
-        background: $bg-surface-tertiary;
-        color: $text-muted;
-        border: 1px solid $border-secondary;
-        cursor: not-allowed !important;
-        opacity: 0.75;
-
-        &:hover {
-            transform: none;
-            background: $bg-surface-tertiary;
         }
     }
 }

@@ -1,0 +1,374 @@
+@use '../abstracts/variables' as *;
+
+.hero-journey-page {
+    &__header {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        margin-inline: auto;
+        max-width: 1170px;
+        width: auto;
+        height: auto;
+        min-height: 52px;
+        box-sizing: border-box;
+        padding: 8px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: color-mix(in srgb, $bg-surface-secondary 45%, transparent);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid color-mix(in srgb, $border-primary 35%, transparent);
+        border-radius: $modal-radius-workspace;
+        z-index: $z-index-layout;
+        isolation: isolate;
+        transform: translateZ(0);
+        will-change: transform;
+
+        transition: background-color $duration-moderate $ease-smooth,
+                    box-shadow $duration-moderate $ease-smooth,
+                    border-color $duration-moderate $ease-smooth,
+                    backdrop-filter $duration-moderate $ease-smooth,
+                    padding $duration-moderate $ease-smooth,
+                    min-height $duration-moderate $ease-smooth;
+
+        &.is-scrolled {
+            background-color: color-mix(in srgb, $bg-surface-secondary 65%, transparent);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border-color: color-mix(in srgb, $border-primary 60%, transparent);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+            &:has(.is-stacked) {
+                padding-top: 6px;
+                padding-bottom: 6px;
+                min-height: 48px;
+            }
+
+            .hero-journey-page__header-inner.is-stacked {
+                row-gap: 0;
+
+                .hero-journey-page__brand,
+                .hero-journey-page__header-actions {
+                    max-height: 0;
+                    opacity: 0;
+                    transform: translateY(-6px);
+                    pointer-events: none;
+                    overflow: hidden;
+                    margin: 0;
+                    transition: max-height $duration-moderate $ease-smooth,
+                                opacity $duration-fast $ease-smooth,
+                                transform $duration-moderate $ease-smooth;
+                }
+            }
+        }
+
+        &:has(.is-stacked) {
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+    }
+
+    &__header-inner {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: nowrap;
+        box-sizing: border-box;
+
+        &.is-stacked {
+            flex-wrap: wrap;
+            row-gap: 8px;
+            column-gap: 0;
+            transition: row-gap $duration-moderate $ease-smooth;
+
+            .hero-journey-page__brand {
+                order: 1;
+                flex: 1 1 auto;
+                min-width: 0;
+                max-height: 36px;
+                display: flex;
+                align-items: center;
+                overflow: hidden;
+                will-change: max-height, opacity, transform;
+                transition: max-height $duration-moderate $ease-smooth,
+                            opacity $duration-moderate $ease-smooth,
+                            transform $duration-moderate $ease-smooth;
+            }
+
+            .hero-journey-page__header-actions {
+                order: 2;
+                flex: 0 0 auto;
+                margin-left: auto;
+                max-height: 36px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                position: relative;
+                z-index: 10;
+                will-change: max-height, opacity, transform;
+                transition: max-height $duration-moderate $ease-smooth,
+                            opacity $duration-moderate $ease-smooth,
+                            transform $duration-moderate $ease-smooth;
+
+                &:has(.is-open),
+                &:focus-within {
+                    z-index: 30;
+                }
+            }
+
+            .hero-journey-page__search-form {
+                order: 3;
+                flex: 0 0 100%;
+                width: 100%;
+                max-width: 100%;
+                position: relative;
+                z-index: 1;
+
+                &:focus-within,
+                &:has(.hero-journey-page__search-dropdown:not([style*="display: none"])) {
+                    z-index: 20;
+                }
+            }
+        }
+    }
+
+    &__brand {
+        display: flex;
+        align-items: center;
+        user-select: none;
+        flex-shrink: 0;
+
+        &.is-compact {
+            .brand-separator,
+            .brand-page-pill {
+                display: none;
+            }
+        }
+
+        .brand-title-link {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+
+            &:hover .brand-title {
+                opacity: 0.85;
+            }
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(135deg, $accent-primary 30%, #a8c0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: opacity $duration-base $ease-smooth;
+        }
+
+        .brand-separator {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: $text-muted;
+            margin: 0 8px;
+            line-height: 1;
+            user-select: none;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .brand-page-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            border-radius: 9999px;
+            background: color-mix(in srgb, $accent-primary 15%, $bg-surface-secondary);
+            color: $accent-primary;
+            border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
+            cursor: default;
+            user-select: none;
+            pointer-events: none;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+    }
+
+    &__header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+
+        &:has(.is-open),
+        &:focus-within {
+            z-index: 30;
+        }
+
+        .hj-header-planner-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 36px;
+            padding: 0 14px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: $shape-corner-full;
+            color: $text-primary;
+            background-color: $bg-surface-secondary;
+            border: 1px solid $border-primary;
+            box-shadow: $elevation-1;
+            text-decoration: none;
+            white-space: nowrap;
+            box-sizing: border-box;
+            transition: background-color $duration-fast $ease-smooth,
+                        border-color $duration-fast $ease-smooth,
+                        box-shadow $duration-fast $ease-smooth,
+                        color $duration-fast $ease-smooth;
+
+            &:hover {
+                background-color: $bg-surface-tertiary;
+                border-color: $border-secondary;
+                box-shadow: $elevation-2;
+                color: $text-primary;
+            }
+
+            &:focus-visible {
+                outline-offset: -3px !important;
+            }
+
+            @media (max-width: 1200px) {
+                width: 36px;
+                height: 36px;
+                padding: 0;
+                border-radius: 50%;
+                justify-content: center;
+
+                .hj-header-planner-btn-text {
+                    display: none;
+                }
+            }
+
+            .hj-planner-btn-icon {
+                fill: $text-primary;
+                color: $text-primary;
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                svg {
+                    fill: currentColor;
+                    display: block;
+                }
+            }
+        }
+    }
+
+    .hj-track-btn,
+    .hero-journey-page__load-btn {
+        padding: 0 14px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border-radius: $shape-corner-medium;
+        white-space: nowrap;
+        height: 36px;
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity $duration-fast $ease-smooth, filter $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+
+        &:disabled,
+        &.is-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            box-shadow: none;
+            transform: none;
+            filter: grayscale(30%);
+        }
+
+        &.has-th-badge {
+            width: 36px;
+            min-width: 36px;
+            padding: 0;
+            background-color: $bg-surface-secondary;
+            border: 1px solid $border-primary;
+            opacity: 1;
+            filter: none;
+            cursor: pointer;
+            user-select: none;
+            pointer-events: auto;
+            transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+
+            &:hover {
+                background-color: color-mix(in srgb, $accent-primary 8%, $bg-surface-secondary);
+                border-color: color-mix(in srgb, $accent-primary 30%, transparent);
+            }
+
+            .hj-track-btn-th-img,
+            orecalc-assets-image {
+                width: 26px;
+                height: 26px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                user-select: none;
+                pointer-events: none;
+
+                img,
+                picture {
+                    width: 26px;
+                    height: 26px;
+                    object-fit: contain;
+                    display: block;
+                }
+            }
+        }
+    }
+
+    @media (max-width: 960px) {
+        &__header {
+            padding: 7px 16px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        &__header {
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            border-radius: 16px;
+            min-height: 48px;
+            padding: 6px 12px;
+        }
+
+        .brand-title {
+            font-size: 18px;
+        }
+    }
+}
+
+.header-placeholder {
+    display: block;
+    height: 78px;
+
+    @media (max-width: 640px) {
+        height: 72px;
+    }
+
+    body:has(.is-stacked) & {
+        height: 124px;
+    }
+}

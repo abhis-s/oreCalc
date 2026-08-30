@@ -5,7 +5,6 @@ import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { calculateRequiredOres } from '../../core/oreCalculator.js';
 import { selectDerivedSourceIncome } from '../../core/selectors.js';
 import { state } from '../../core/state.js';
-import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { convertOres, findOptimalConversionSchedule, getBaseIncome, getStepValue, getUpgradeRequirements } from '../../domain/income/prospectorManager.js';
 import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
@@ -19,6 +18,13 @@ import { dom } from '../../dom/domElements.js';
 // Session-only toggle for when the planner list is empty. Never persisted to state,
 // so it always resets to false (= show global) on page reload.
 let _emptyPlannerSessionToggle = false;
+
+/**
+ * Toggles the session-only strategy mode when planner list is empty.
+ */
+export function toggleEmptyPlannerSessionMode() {
+    _emptyPlannerSessionToggle = !_emptyPlannerSessionToggle;
+}
 
 /**
  * Renders Prospector daily and monthly calculated ore income and recommendation tips.
@@ -64,10 +70,10 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
                         ${subTitleInfo ? `<span class="prospector-upgrade-subtitle">${subTitleInfo}</span>` : `<span>${title}</span>`}
                         ${infoBtnHtml}
                     </span>
-                    <span class="prospector-rec-time"><span style="color:var(--color-success);">${translate('views.planner.completed')}</span></span>
+                    <span class="prospector-rec-time"><span class="prospector-status-completed">${translate('views.planner.completed')}</span></span>
                 </div>
                 <div class="prospector-rec-empty">
-                    <span>✓ ${translate('views.income.prospector.tips.optimal')}</span>
+                    <span><orecalc-assets-svg name="check-simple" height="14" width="14"></orecalc-assets-svg> ${translate('views.income.prospector.tips.optimal')}</span>
                 </div>
             </div>
         `;
@@ -91,7 +97,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
 
         if (roundedNatural > roundedOptimal) {
             const naturalText = roundedNatural === Infinity ? '∞' : `${roundedNatural}${daysLabel}`;
-            const displayVal = `${naturalText} ➔ ${roundedOptimal}`;
+            const displayVal = `<span class="prospector-days-compare">${naturalText} <orecalc-assets-svg name="forward" width="12" height="12"></orecalc-assets-svg> ${roundedOptimal}</span>`;
             timeText = `${translate('views.income.prospector.tips.readyIn', { days: displayVal })}`.replace('~', '');
         } else {
             timeText = `${translate('views.income.prospector.tips.readyIn', { days: roundedOptimal })}`.replace('~', '');
@@ -102,7 +108,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
     if (opt.conversions.length === 0) {
         listHtml = `
             <div class="prospector-rec-empty">
-                <span style="color:var(--color-success);">✓</span> <span>${translate('views.income.prospector.tips.noConversionNeeded')}</span>
+                <span class="prospector-status-success-icon"><orecalc-assets-svg name="check-simple" height="14" width="14"></orecalc-assets-svg></span> <span>${translate('views.income.prospector.tips.noConversionNeeded')}</span>
             </div>
         `;
     } else {
@@ -116,7 +122,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
             const fromImg = `assets/${conv.from}_ore.png`;
             const toImg = `assets/${conv.to}_ore.png`;
 
-            const flowText = `<span>${formatNumber(fromRate)} <orecalc-assets-image src="${fromImg}" alt="${fromName}" size="thumbnail"></orecalc-assets-image></span> ➔ <span>${formatNumber(toRate)} <orecalc-assets-image src="${toImg}" alt="${toName}" size="thumbnail"></orecalc-assets-image></span>`;
+            const flowText = `<span>${formatNumber(fromRate)} <orecalc-assets-image src="${fromImg}" alt="${fromName}" size="thumbnail"></orecalc-assets-image></span> <orecalc-assets-svg name="forward" width="14" height="14" class="prospector-flow-arrow"></orecalc-assets-svg> <span>${formatNumber(toRate)} <orecalc-assets-image src="${toImg}" alt="${toName}" size="thumbnail"></orecalc-assets-image></span>`;
             const daysLabel = translate('time.daysSuffix');
 
             let displayDays = conv.days;
@@ -151,7 +157,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
     `;
 }
 
-function updateProspectorTip() {
+export function updateProspectorTip() {
     const tipContainer = dom.income.prospector.tip?.container;
     if (!tipContainer) return;
 
@@ -186,9 +192,9 @@ function updateProspectorTip() {
             const errName = translate('entities.equipment.' + toCamelCase(firstItem.name));
             tipContainer.innerHTML = `
                 <div class="prospector-rec-container">
-                    <div class="prospector-rec-section" style="border-color: var(--color-error);" data-card-type="error">
+                    <div class="prospector-rec-section" data-card-type="error">
                         <div class="prospector-rec-header">
-                            <span class="prospector-rec-badge" style="color: var(--color-error);">
+                            <span class="prospector-rec-badge">
                                 ${getSVG('error', 'prospector-rec-icon', 20, 20, 'currentColor')}
                                 <span><b>${errName}</b>: ${translate('views.planner.orderError')}</span>
                             </span>
@@ -199,33 +205,6 @@ function updateProspectorTip() {
             tipContainer.classList.add('show');
             return;
         }
-    }
-
-    // Bind strategy mode toggling click listener once
-    if (!tipContainer.dataset.listenerAttached) {
-        tipContainer.addEventListener('click', (e) => {
-            if (e.target.closest('.info-btn, .info-button, [data-info]')) return;
-            const badge = e.target.closest('.prospector-rec-badge');
-            if (badge) {
-                const section = badge.closest('.prospector-rec-section');
-                if (section && section.dataset.cardType === 'overall') {
-                    const listObj = getGlobalPriorityList();
-                    const listEmpty = !listObj.globalPriorityList || listObj.globalPriorityList.length === 0;
-                    if (listEmpty) {
-                        // Session-only toggle — never saved to state so reload always resets to global
-                        _emptyPlannerSessionToggle = !_emptyPlannerSessionToggle;
-                        updateProspectorTip();
-                    } else {
-                        const currentMode = state.income.prospector?.strategyMode !== undefined ? state.income.prospector.strategyMode : 1;
-                        const nextMode = currentMode === 0 ? 1 : 0;
-                        handleStateUpdate(() => {
-                            state.income.prospector.strategyMode = nextMode;
-                        });
-                    }
-                }
-            }
-        });
-        tipContainer.dataset.listenerAttached = 'true';
     }
 
     // When list is empty: use session-only toggle (defaults to global on every reload).
@@ -265,7 +244,7 @@ function updateProspectorTip() {
         const nextReq = getUpgradeRequirements(globalPriorityList, true, state);
         const itemName = translate('entities.equipment.' + toCamelCase(firstItem.name));
         const currentLevel = state.heroes[firstItem.heroName]?.equipment[firstItem.name]?.level || 1;
-        const subTitleNext = `<span class="upgrade-levels">${currentLevel} ➔ ${firstItem.targetLevel}</span>`;
+        const subTitleNext = `<span class="upgrade-levels">${currentLevel} <orecalc-assets-svg name="forward" width="12" height="12"></orecalc-assets-svg> ${firstItem.targetLevel}</span>`;
 
         nextHtml = generateRecommendationHtml(
             translate('views.income.prospector.tips.nextTitle'),

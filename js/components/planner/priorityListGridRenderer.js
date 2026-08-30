@@ -6,8 +6,6 @@ import { state } from '../../core/state.js';
 
 import { toCamelCase } from '../../utils/stringUtils.js';
 
-import { openLevelSelectModal } from './levelSelectModal.js';
-
 /**
  * Renders the hero equipment selection chips grid inside the priority list modal.
  * @param {HTMLElement} gridContainer
@@ -56,18 +54,13 @@ export function renderHeroEquipmentGrid(gridContainer, globalPriorityList) {
                 chip.classList.add('equipment-chip');
                 chip.setAttribute('tabindex', '0');
                 chip.setAttribute('role', 'button');
+                chip.dataset.heroKey = heroKeyStr;
                 chip.dataset.equipName = equip.name || eqKeyStr;
+                chip.dataset.equipKey = eqKeyStr;
                 chip.innerHTML = `
                     <orecalc-assets-image src="${equip.image}" alt="${eqDisplayName}" class="chip-icon" size="thumbnail"></orecalc-assets-image>
                     <span>${eqDisplayName}</span>
                 `;
-                chip.addEventListener('click', () => openLevelSelectModal(hero, equip));
-                chip.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        chip.click();
-                    }
-                });
 
                 const isMaxedInPlan = globalPriorityList.some(item =>
                     item.heroName === hero.name &&

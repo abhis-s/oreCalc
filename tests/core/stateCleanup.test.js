@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compareVersions, migrateAppSettings } from '../../js/core/stateCleanup.js';
+import { migrateAppSettings } from '../../js/core/stateCleanup.js';
+import { compareVersions } from '../../js/utils/versionUtils.js';
 
 test('compareVersions accurately compares semantic versions', () => {
     assert.equal(compareVersions('1.0.0', '1.0.0'), 0);

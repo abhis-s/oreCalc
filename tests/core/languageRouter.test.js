@@ -90,8 +90,9 @@ describe('Language Router Domain Suite', () => {
 
         test('falls back to saved state or localStorage when path has no language prefix', () => {
             cleanups.push(mockGlobal('window', { location: { pathname: '/' } }));
-            cleanups.push(mockGlobal('localStorage', { getItem: () => 'tr' }));
+            cleanups.push(mockGlobal('localStorage', { getItem: (key) => key === 'oreCalc_appSettings' ? JSON.stringify({ language: 'tr' }) : null }));
             cleanups.push(mockGlobal('navigator', { languages: ['zh-CN', 'en'] }));
+            state.uiSettings = {};
 
             assert.equal(detectLanguage(), 'tr');
         });
@@ -100,6 +101,7 @@ describe('Language Router Domain Suite', () => {
             cleanups.push(mockGlobal('window', { location: { pathname: '/' } }));
             cleanups.push(mockGlobal('localStorage', { getItem: () => null }));
             cleanups.push(mockGlobal('navigator', { languages: ['zh-CN', 'en'] }));
+            state.uiSettings = {};
 
             assert.equal(detectLanguage(), 'zh');
         });
@@ -108,6 +110,7 @@ describe('Language Router Domain Suite', () => {
             cleanups.push(mockGlobal('window', { location: { pathname: '/' } }));
             cleanups.push(mockGlobal('localStorage', { getItem: () => null }));
             cleanups.push(mockGlobal('navigator', { languages: ['fr-FR', 'es-ES'] }));
+            state.uiSettings = {};
 
             assert.equal(detectLanguage(), 'en');
         });
@@ -218,6 +221,52 @@ describe('Language Router Domain Suite', () => {
             syncLanguageUrl('unsupported');
             assert.equal(pushedUrl, null);
         });
+
+        test('switches language on standalone tool sub-routes retaining trailing slash and query params', () => {
+            let pushedUrl = null;
+            const mockCanonical = { href: '' };
+
+            cleanups.push(mockGlobal('window', {
+                location: { pathname: '/hero-journey/', search: '?tag=9L0V9G9C9', hash: '' }
+            }));
+            cleanups.push(mockGlobal('document', {
+                documentElement: { lang: 'en' },
+                querySelector: (sel) => sel === 'link[rel="canonical"]' ? mockCanonical : null
+            }));
+            cleanups.push(mockGlobal('history', {
+                replaceState: () => {},
+                pushState: (_state, _title, url) => { pushedUrl = url; }
+            }));
+
+            syncLanguageUrl('de', false);
+
+            assert.equal(pushedUrl, '/de/hero-journey/?tag=9L0V9G9C9');
+            assert.equal(globalThis.document.documentElement.lang, 'de');
+            assert.equal(mockCanonical.href, 'https://orecalc.tech/de/hero-journey/');
+        });
+
+        test('normalizes sub-route without trailing slash to include trailing slash', () => {
+            let replacedUrl = null;
+            const mockCanonical = { href: '' };
+
+            cleanups.push(mockGlobal('window', {
+                location: { pathname: '/de/hero-journey', search: '?tag=9L0V9G9C9', hash: '' }
+            }));
+            cleanups.push(mockGlobal('document', {
+                documentElement: { lang: 'de' },
+                querySelector: (sel) => sel === 'link[rel="canonical"]' ? mockCanonical : null
+            }));
+            cleanups.push(mockGlobal('history', {
+                replaceState: (_state, _title, url) => { replacedUrl = url; },
+                pushState: () => {}
+            }));
+
+            syncLanguageUrl('de', true);
+
+            assert.equal(replacedUrl, '/de/hero-journey/?tag=9L0V9G9C9');
+            assert.equal(globalThis.document.documentElement.lang, 'de');
+            assert.equal(mockCanonical.href, 'https://orecalc.tech/de/hero-journey/');
+        });
     });
 
     describe('isValidRoute', () => {
@@ -226,6 +275,7 @@ describe('Language Router Domain Suite', () => {
             assert.equal(isValidRoute('/index.html'), true);
             assert.equal(isValidRoute('/404'), true);
             assert.equal(isValidRoute('/404.html'), true);
+            assert.equal(isValidRoute('/hero-journey'), true);
             assert.equal(isValidRoute('/privacy'), true);
             assert.equal(isValidRoute('/terms'), true);
             assert.equal(isValidRoute('/licenses'), true);
@@ -234,19 +284,25 @@ describe('Language Router Domain Suite', () => {
         test('recognizes valid localized routes and subroutes', () => {
             assert.equal(isValidRoute('/en'), true);
             assert.equal(isValidRoute('/en/'), true);
-            assert.equal(isValidRoute('/en/planner'), true);
+            assert.equal(isValidRoute('/en/hero-journey'), true);
             assert.equal(isValidRoute('/de'), true);
             assert.equal(isValidRoute('/de/'), true);
-            assert.equal(isValidRoute('/de/settings'), true);
-            assert.equal(isValidRoute('/tr/income'), true);
-            assert.equal(isValidRoute('/zh/equipment'), true);
+            assert.equal(isValidRoute('/de/hero-journey'), true);
             assert.equal(isValidRoute('/de/privacy'), true);
+            assert.equal(isValidRoute('/de/terms'), true);
+            assert.equal(isValidRoute('/tr/hero-journey'), true);
+            assert.equal(isValidRoute('/zh/hero-journey'), true);
         });
 
-        test('rejects unrecognized routes', () => {
+        test('rejects unrecognized routes and fake path subroutes', () => {
             assert.equal(isValidRoute('/unknown-page'), false);
             assert.equal(isValidRoute('/de/unknown-subroute'), false);
+            assert.equal(isValidRoute('/de/planner'), false);
+            assert.equal(isValidRoute('/de/settings'), false);
+            assert.equal(isValidRoute('/tr/income'), false);
+            assert.equal(isValidRoute('/zh/equipment'), false);
             assert.equal(isValidRoute('/fr/planner'), false);
+            assert.equal(isValidRoute('/hero-journey/random'), false);
         });
     });
 });

@@ -12,7 +12,8 @@ import { bindToggleInput } from '../common/formBindingUtils.js';
 import { dom } from '../../dom/domElements.js';
 import { navigateToTab } from '../layout/tabs.js';
 import { openPriorityListModal } from '../planner/priorityListModal.js';
-import { getRecommendedProspectorAmounts } from './prospectorDisplay.js';
+import { getGlobalPriorityList } from '../planner/priorityListScheduler.js';
+import { getRecommendedProspectorAmounts, toggleEmptyPlannerSessionMode, updateProspectorTip } from './prospectorDisplay.js';
 
 const oreTypes = {
     shiny: 'assets/shiny_ore.png',
@@ -345,7 +346,7 @@ export function initializeProspector() {
             if (exceeds) {
                 return [
                     {
-                        label: () => `${translate('views.planner.recommended')} (${translate('views.income.prospector.tips.preferred')} <orecalc-assets-svg name="warning" width="14" height="14" style="vertical-align: middle; margin-left: 2px;"></orecalc-assets-svg>)`,
+                        label: () => `${translate('views.planner.recommended')} (${translate('views.income.prospector.tips.preferred')} <orecalc-assets-svg name="warning" width="14" height="14" class="prospector-warning-icon"></orecalc-assets-svg>)`,
                         value: preferred,
                         className: 'exceeded-color',
                         clickToFill: true
@@ -420,6 +421,33 @@ export function initializeProspector() {
                 e.preventDefault();
                 navigateToTab('planner');
                 setTimeout(() => openPriorityListModal(), 50);
+            }
+        });
+    }
+
+    const tipContainer = document.getElementById('prospector-tip-container');
+    if (tipContainer) {
+        tipContainer.addEventListener('click', (e) => {
+            const target = /** @type {HTMLElement | null} */ (e.target);
+            if (!target || target.closest('.info-btn, .info-button, [data-info]')) return;
+            const badge = target.closest('.prospector-rec-badge');
+            if (badge) {
+                const section = badge.closest('.prospector-rec-section');
+                if (section && section.dataset.cardType === 'overall') {
+                    const listObj = getGlobalPriorityList();
+                    const listEmpty = !listObj.globalPriorityList || listObj.globalPriorityList.length === 0;
+                    if (listEmpty) {
+                        toggleEmptyPlannerSessionMode();
+                        updateProspectorTip();
+                    } else {
+                        const currentMode = state.income.prospector?.strategyMode !== undefined ? state.income.prospector.strategyMode : 1;
+                        const nextMode = currentMode === 0 ? 1 : 0;
+                        handleStateUpdate(() => {
+                            if (!state.income.prospector) state.income.prospector = { fromOre: 'shiny', toOre: 'glowy' };
+                            state.income.prospector.strategyMode = nextMode;
+                        });
+                    }
+                }
             }
         });
     }

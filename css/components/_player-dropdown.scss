@@ -81,19 +81,31 @@
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
-    width: 175px;
-    min-width: 175px;
+    width: 240px;
+    min-width: 240px;
+    max-height: 380px;
     border-radius: 16px;
-    padding: 8px;
+    padding: 6px;
     background-color: $bg-surface-primary;
     border: 1px solid $border-primary;
     z-index: $z-index-component;
     box-shadow: $elevation-3;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
+    box-sizing: border-box;
     opacity: 0;
     transform: translateY(-8px) scale(0.96);
     transition: opacity $duration-base $ease-spring, transform $duration-base $ease-spring;
     pointer-events: none;
+}
+
+#player-items-container {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+    margin-right: -4px;
+    padding-right: 4px;
 }
 
 .player-dropdown-list.show {
@@ -102,22 +114,74 @@
     pointer-events: auto;
 }
 
+.player-dropdown-section-header {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $text-secondary;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &:not(:first-child) {
+        margin-top: 4px;
+        padding-top: 6px;
+        border-top: 1px solid $border-primary;
+    }
+
+    &--collapsible {
+        cursor: pointer;
+        border-radius: 6px;
+        transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
+
+        &:hover {
+            background-color: $bg-surface-secondary;
+            color: $text-primary;
+        }
+
+        &:focus-visible {
+            outline-offset: -2px !important;
+        }
+
+        .section-header-chevron {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform $duration-base $ease-standard;
+
+            svg {
+                fill: currentColor;
+                width: 12px;
+                height: 12px;
+                display: block;
+            }
+        }
+
+        &[aria-expanded="false"] .section-header-chevron {
+            transform: rotate(-90deg);
+        }
+
+        &[aria-expanded="true"] .section-header-chevron {
+            transform: rotate(0deg);
+        }
+    }
+}
+
 .player-dropdown-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px 8px 9px;
+    padding: 6px 10px;
     margin-bottom: 4px;
     border-radius: 10px;
     border-left: 3px solid transparent;
     cursor: pointer;
     transition: background-color $duration-fast $ease-smooth, transform $duration-fast $ease-standard, border-left-color $duration-fast $ease-smooth, padding-left $duration-fast $ease-smooth;
-    font-size: 15px;
+    font-size: 14px;
     color: $text-primary;
-
-    &:first-child {
-        margin-top: 0;
-    }
 
     &:hover {
         background-color: $bg-surface-secondary;
@@ -134,7 +198,6 @@
         color: $accent-primary;
         font-weight: 600;
         border-left-color: $accent-primary;
-        padding-left: 12px;
     }
 
     &:focus-visible {
@@ -146,22 +209,70 @@
     }
 }
 
+.player-dropdown-th-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: 8px;
+
+    .player-dropdown-th {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+    }
+
+    .player-dropdown-th-badge {
+        position: absolute;
+        bottom: -3px;
+        right: -3px;
+        font-size: 0.6rem;
+        font-weight: 800;
+        line-height: 1;
+        padding: 1px 3px;
+        border-radius: 4px;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+}
+
 .player-info-text {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     flex-grow: 1;
-    width: 100%;
+    min-width: 0;
+    gap: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 14px;
-    max-width: 90px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+
+    > span:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+        line-height: 1.2;
+    }
 }
 
 .player-tag-text {
-    font-size: 12px;
+    font-family: monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
     color: $text-secondary;
+    line-height: 1;
 }
 
 .add-player-button {
@@ -170,14 +281,18 @@
     justify-content: center;
     width: 100%;
     padding: 10px 16px;
-    margin-top: 8px;
-    background-color: transparent;
+    margin-top: 6px;
+    background-color: $bg-surface-primary;
     color: $accent-primary;
     border: 1.5px dashed color-mix(in srgb, $accent-primary 60%, transparent);
     border-radius: 10px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
     transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
 
     &:hover {
@@ -192,19 +307,26 @@
     }
 }
 
-.delete-player-button {
+.remove-player-button,
+.delete-player-button,
+.dismiss-recent-button {
     @extend %flex-center;
-    background-color: $color-danger-soft;
-    border: none;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
     cursor: pointer;
-    margin-left: auto;
-    padding: 6px;
+    margin-left: 6px;
+    padding: 0;
     border-radius: 50%;
-    transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
-    color: $color-danger;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+    color: $text-secondary;
 
     &:hover {
-        background-color: $color-danger-soft-hover;
+        background-color: $color-danger-soft;
+        border-color: color-mix(in srgb, $color-danger 40%, transparent);
+        color: $color-danger;
         transform: scale(1.1);
     }
 
@@ -214,12 +336,13 @@
 
     svg {
         fill: currentColor;
-        width: 18px;
-        height: 18px;
+        width: 13px;
+        height: 13px;
+        display: block;
     }
 
     &:disabled {
-        opacity: 0.5;
+        opacity: 0.3;
         cursor: not-allowed;
     }
 }

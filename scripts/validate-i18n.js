@@ -6,11 +6,10 @@ const i18nDir = path.join(projectRoot, 'js/i18n');
 const enFilePath = path.join(i18nDir, 'en.json');
 const languagesDataPath = path.join(projectRoot, 'js/data/languagesData.js');
 
-// 1. Flatten key dictionary
 function getAllKeys(obj, prefix = '') {
     let keys = {};
     for (const key in obj) {
-        if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+        if (!Object.hasOwn(obj, key)) continue;
         const fullKey = prefix ? `${prefix}.${key}` : key;
         if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
             Object.assign(keys, getAllKeys(obj[key], fullKey));
@@ -91,20 +90,20 @@ function validateTemplateLiteral(pattern, filePath, lineNum, enKeysMap) {
 
     const prefix = prefixMatch[1];
 
-    // 1. Check if prefix root exists in enKeysMap
+    // Verify prefix root exists in enKeysMap
     const hasKeysWithPrefix = Object.keys(enKeysMap).some(k => k.startsWith(prefix));
     if (!hasKeysWithPrefix) {
         errors.push(`[ERROR] Non-existent namespace prefix "${prefix}" in template literal \`${pattern}\` at ${relPath}:${lineNum}`);
     }
 
-    // 2. Semantic misuse check: equipment rarities/types/categories used under entities.equipment.* instead of views.equipment.*
+    // Semantic misuse check: equipment rarities/types/categories used under entities.equipment.* instead of views.equipment.*
     if (prefix === 'entities.equipment.') {
         if (/\b(rarity|effectiveRarity|type|effectiveType|category|group\.category)\b/i.test(pattern)) {
             errors.push(`[ERROR] Namespace misuse: Equipment rarity, type, or category queried under "entities.equipment.*" instead of "views.equipment.*" in \`${pattern}\` at ${relPath}:${lineNum}`);
         }
     }
 
-    // 3. Semantic misuse check: equipment item names queried under views.equipment.* instead of entities.equipment.*
+    // Semantic misuse check: equipment item names queried under views.equipment.* instead of entities.equipment.*
     if (prefix === 'views.equipment.' && !prefix.startsWith('views.equipment.modifiers.')) {
         if (/\b(toCamelCase|equipName|equipmentName|node\.equipmentKey|eqKeyStr|data\?\.id)\b/i.test(pattern)) {
             errors.push(`[ERROR] Namespace misuse: Equipment item name queried under "views.equipment.*" instead of "entities.equipment.*" in \`${pattern}\` at ${relPath}:${lineNum}`);
@@ -444,12 +443,25 @@ function validateDictionaries(i18nDir, enKeysMap, totalEnKeys, enabledLangCodes 
         const filePath = path.join(i18nDir, file);
 
         let data;
+        const rawContent = fs.readFileSync(filePath, 'utf8');
         try {
-            data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            data = JSON.parse(rawContent);
         } catch (err) {
             errors.push(`[ERROR] ${file}: Invalid JSON syntax - ${err.message}`);
             hasErrors = true;
             continue;
+        }
+
+        const lines = rawContent.split('\n');
+        const middleBlankLines = [];
+        for (let i = 0; i < lines.length - 1; i++) {
+            if (lines[i].trim() === '') {
+                middleBlankLines.push(i + 1);
+            }
+        }
+        if (middleBlankLines.length > 0) {
+            errors.push(`[ERROR] [${lang}] Found blank line(s) in middle of ${file} at line(s): ${middleBlankLines.join(', ')}`);
+            hasErrors = true;
         }
 
         const sortErrors = checkAlphabeticalSort(data);

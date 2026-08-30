@@ -1,49 +1,6 @@
 import { describe, test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 
-if (typeof globalThis.HTMLElement === 'undefined') {
-    globalThis.HTMLElement = class {};
-}
-if (typeof globalThis.customElements === 'undefined') {
-    globalThis.customElements = { define: () => {}, get: () => {} };
-}
-if (typeof globalThis.localStorage === 'undefined') {
-    globalThis.localStorage = {
-        getItem: () => null,
-        setItem: () => {},
-        removeItem: () => {},
-        clear: () => {}
-    };
-}
-if (typeof globalThis.window === 'undefined') {
-    globalThis.window = {
-        __ENV__: { APP_VERSION: '2.1.0' },
-        localStorage: globalThis.localStorage,
-        location: { hostname: 'localhost', href: 'http://localhost/' },
-        matchMedia: () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }),
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        scrollTo: () => {},
-        getComputedStyle: () => ({ display: 'block' }),
-        requestAnimationFrame: (cb) => { cb(); return 1; },
-        cancelAnimationFrame: () => {}
-    };
-} else {
-    if (!globalThis.window.location) globalThis.window.location = { hostname: 'localhost', href: 'http://localhost/' };
-    if (!globalThis.window.localStorage) globalThis.window.localStorage = globalThis.localStorage;
-    if (!globalThis.window.addEventListener) globalThis.window.addEventListener = () => {};
-    if (!globalThis.window.removeEventListener) globalThis.window.removeEventListener = () => {};
-    if (!globalThis.window.matchMedia) globalThis.window.matchMedia = () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} });
-}
-
-if (typeof globalThis.document === 'undefined') {
-    globalThis.document = {
-        dispatchEvent: () => {},
-        addEventListener: () => {},
-        removeEventListener: () => {}
-    };
-}
-
 const { state, getDefaultState } = await import('../../js/core/state.js');
 const { checkAndGenerateRecurringChips, reindexCalendarChips, calculateCumulativeOres } = await import('../../js/utils/chipManager.js');
 
