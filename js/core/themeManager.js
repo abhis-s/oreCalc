@@ -1,4 +1,3 @@
-import { renderApp } from './renderer.js';
 import { state } from './state.js';
 
 import { easeInOutCubic, interpolateColor } from '../utils/colorUtils.js';
@@ -7,7 +6,17 @@ import { dom } from '../dom/domElements.js';
 
 export const availableAccents = ['blue', 'gold', 'purple', 'green', 'red'];
 
-let sessionRandomAccent = window.sessionRandomAccent || null;
+let themeRenderCallback = null;
+
+/**
+ * Registers application render callback for theme animations.
+ * @param {(stateObj: any) => void} cb
+ */
+export function setThemeRenderCallback(cb) {
+    themeRenderCallback = cb;
+}
+
+let sessionRandomAccent = (typeof window !== 'undefined' && window.sessionRandomAccent) || null;
 let lastAppliedAccentColor = null;
 let currentAppliedColors = null;
 let activeColorAnimationId = null;
@@ -248,7 +257,7 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
 
     const welcomeModal = document.getElementById('welcome-modal');
     if (welcomeModal && welcomeModal.classList.contains('show')) {
-        const currentAccent = state.uiSettings.accentColor || 'random';
+        const currentAccent = state?.uiSettings?.accentColor || 'random';
         welcomeModal.querySelectorAll('#welcome-accent-picker .accent-swatch').forEach(s => {
             s.classList.toggle('active', /** @type {HTMLElement} */ (s).dataset.color === currentAccent);
         });
@@ -258,7 +267,9 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
 
     if (origin) {
         animateThemeColors(colors, 2000, () => {
-            renderApp(state);
+            if (themeRenderCallback) {
+                themeRenderCallback(state);
+            }
         }, startColors);
     } else {
         applyTargetColorsImmediately(colors);

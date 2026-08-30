@@ -75,10 +75,8 @@ export function renderRecommendationBadge(recBadge, data, equipmentName, rec, ac
  * @param {number} userTH
  * @param {number} calculatedMaxLevel
  * @param {boolean} isNoteHidden
- * @param {() => void} onDismiss
- * @param {() => void} onUnhide
  */
-export function renderStrategyBanner(recBannerContainer, unhideNoteBtn, equipId, isUnreleased, isEquipmentMaxed, rec, activeModifierTab, userTH, calculatedMaxLevel, isNoteHidden, onDismiss, onUnhide) {
+export function renderStrategyBanner(recBannerContainer, unhideNoteBtn, equipId, isUnreleased, isEquipmentMaxed, rec, activeModifierTab, userTH, calculatedMaxLevel, isNoteHidden) {
     const { recStatus } = resolveModifierRecommendation(rec, activeModifierTab, userTH, calculatedMaxLevel, isUnreleased);
     const isNotRecommended = recStatus === 'not_recommended';
     const isNiche = recStatus === 'niche';
@@ -88,7 +86,9 @@ export function renderStrategyBanner(recBannerContainer, unhideNoteBtn, equipId,
     if (isUnreleased) {
         bannerType = 'unreleased';
         noteText = translate('views.equipment.recUnreleasedHelp');
-    } else if (!isEquipmentMaxed && rec) {
+    } else if (isEquipmentMaxed) {
+        noteText = null;
+    } else {
         if (isNotRecommended) {
             bannerType = 'not_recommended';
             noteText = translate('views.equipment.recNotRecommendedHelp');
@@ -105,7 +105,6 @@ export function renderStrategyBanner(recBannerContainer, unhideNoteBtn, equipId,
         if (recBannerContainer) recBannerContainer.innerHTML = '';
         if (unhideNoteBtn) {
             unhideNoteBtn.style.display = 'inline-flex';
-            unhideNoteBtn.onclick = onUnhide;
         }
     } else {
         if (unhideNoteBtn) unhideNoteBtn.style.display = 'none';
@@ -137,10 +136,6 @@ export function renderStrategyBanner(recBannerContainer, unhideNoteBtn, equipId,
                     <button type="button" class="hide-suggestion-btn dismiss-banner-btn app-message-box-btn">${hideLabel}</button>
                 </div>
             `;
-            const dismissBtn = recBannerContainer.querySelector('.dismiss-banner-btn');
-            if (dismissBtn) {
-                /** @type {HTMLElement} */ (dismissBtn).onclick = onDismiss;
-            }
         }
     }
 }
@@ -198,7 +193,7 @@ export function renderStaticStats(staticStatsContent, data) {
         }).join('');
 
         staticStatsContent.innerHTML = `
-            <div class="eq-details-stats-progress-list" style="margin-top: 12px;">
+            <div class="eq-details-stats-progress-list">
                 ${rowsHTML}
             </div>
         `;

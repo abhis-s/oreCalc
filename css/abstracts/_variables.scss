@@ -43,6 +43,7 @@ $border-secondary: var(--border-secondary);
 $border-accent: var(--border-accent);
 $border-danger: var(--border-danger);
 $border-inverse: var(--border-inverse);
+$border-on-accent: var(--border-on-accent);
 $outline-focus: var(--outline-focus);
 
 $chip-size-calendar: 32px;
@@ -174,7 +175,7 @@ $shadow-overlay-dark: var(--bg-overlay, $palette-overlay-dark-30);
 
 $accent-option-blue: $palette-blue-300;
 $accent-option-gold: $palette-yellow-400;
-$accent-option-purple: $palette-purple-400;
+$accent-option-purple: $palette-purple-300;
 $accent-option-green: $palette-green-400;
 $accent-option-red: $palette-red-400;
 

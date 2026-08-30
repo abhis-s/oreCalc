@@ -44,7 +44,7 @@
 
 .header-placeholder {
     display: block;
-    height: 84px;
+    height: 91px;
 }
 
 .hamburger {
@@ -201,10 +201,10 @@
     @media (max-width: 960px) {
         .header-container {
             padding: 0 16px;
-        }
 
-        .header-brand .brand-title {
-            display: none;
+            .header-brand .brand-title {
+                display: none;
+            }
         }
 
         .tab-bar-container {
@@ -238,7 +238,7 @@
     }
 
     .header-placeholder {
-        height: 71px;
+        height: 78px;
     }
 
     .hamburger {
@@ -299,7 +299,7 @@
     }
 
     @media (max-width: $breakpoint-compact) {
-        .header-brand .brand-title {
+        .header-container .header-brand .brand-title {
             display: none;
         }
     }

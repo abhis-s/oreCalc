@@ -427,7 +427,7 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
                     valEl.innerHTML = `
                         <span class="stat-val-compare">
                             <span class="stat-val-base ${modClass}">${formattedBase}</span>
-                            <span class="stat-val-arrow">→</span>
+                            <span class="stat-val-arrow"><orecalc-assets-svg name="forward" width="12" height="12"></orecalc-assets-svg></span>
                             <span class="stat-val-hover ${deltaTextClass}">${formattedHover} (${diffSign})</span>
                         </span>
                     `;

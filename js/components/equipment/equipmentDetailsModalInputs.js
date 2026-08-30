@@ -16,6 +16,10 @@ import { renderLevelTable } from './equipmentDetailsTableDisplay.js';
 import { getCurrentUnitStatsStateMap, renderUnitStatsView, updateUnitStatsHover } from './equipmentDetailsUnitStatsDisplay.js';
 
 let isEquipmentDetailsInitialized = false;
+let activeUpdateViewsCallback = null;
+let activeTabSelectCallback = null;
+let activeRowHoverCallback = null;
+let activeRowLeaveCallback = null;
 
 /**
  * Initializes global event handlers and keyboard listeners for equipment details modal.
@@ -37,8 +41,92 @@ export function initializeEquipmentDetailsModal() {
 
     if (modal) {
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
+            const target = /** @type {HTMLElement | null} */ (e.target);
+            if (!target) return;
+
+            if (target === modal) {
                 closeModalAnimated(modal, () => resetModalSessionState());
+                return;
+            }
+
+            const dismissBtn = target.closest('.dismiss-banner-btn');
+            if (dismissBtn) {
+                const session = getModalSessionState();
+                if (session.activeEquipmentName) {
+                    dismissNote(session.activeEquipmentName);
+                    setModalSessionState({ recommendationHidden: true });
+                    activeUpdateViewsCallback?.();
+                }
+                return;
+            }
+
+            const unhideBtn = target.closest('#unhide-eq-note-btn');
+            if (unhideBtn) {
+                const session = getModalSessionState();
+                if (session.activeEquipmentName) {
+                    undismissNote(session.activeEquipmentName);
+                    setModalSessionState({ recommendationHidden: false, tableExpanded: false });
+                    const tableWrapper = /** @type {HTMLElement | null} */ (modal.querySelector('.eq-details-table-wrapper'));
+                    const expandBtn = /** @type {HTMLButtonElement | null} */ (modal.querySelector('#expand-eq-table-btn'));
+                    if (tableWrapper) tableWrapper.classList.remove('table-expanded');
+                    modal.classList.remove('has-expanded-table');
+                    if (expandBtn) {
+                        const iconSvg = expandBtn.querySelector('orecalc-assets-svg');
+                        if (iconSvg) iconSvg.setAttribute('name', 'expand');
+                        expandBtn.setAttribute('title', translate('actions.expandTable'));
+                    }
+                    activeUpdateViewsCallback?.();
+                }
+                return;
+            }
+        });
+    }
+
+    const modifierTabsContainer = document.getElementById('eq-details-modifier-tabs');
+    if (modifierTabsContainer) {
+        modifierTabsContainer.addEventListener('click', (e) => {
+            const btn = /** @type {HTMLElement | null} */ (e.target)?.closest('.mod-tab-btn');
+            if (btn && btn.dataset.modKey) {
+                activeTabSelectCallback?.(btn.dataset.modKey);
+            }
+        });
+
+        const handleResize = () => {
+            requestAnimationFrame(() => updateTabIndicator(modifierTabsContainer, null, false));
+        };
+
+        if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => handleResize());
+            ro.observe(modifierTabsContainer);
+        } else {
+            window.addEventListener('resize', handleResize);
+        }
+    }
+
+    const tableBody = document.getElementById('eq-details-table-body');
+    if (tableBody) {
+        let hoverResetTimer = null;
+        tableBody.addEventListener('mouseover', (e) => {
+            const row = /** @type {HTMLElement | null} */ (e.target)?.closest('tr:not(.total-cost-row)');
+            if (row && row.dataset.level) {
+                if (hoverResetTimer !== null) {
+                    cancelAnimationFrame(hoverResetTimer);
+                    hoverResetTimer = null;
+                }
+                activeRowHoverCallback?.(Number(row.dataset.level));
+            }
+        });
+        tableBody.addEventListener('mouseout', (e) => {
+            const related = /** @type {Node | null} */ (e.relatedTarget);
+            const row = /** @type {HTMLElement | null} */ (e.target)?.closest('tr:not(.total-cost-row)');
+            if (row && (!related || !row.contains(related))) {
+                if (hoverResetTimer !== null) {
+                    cancelAnimationFrame(hoverResetTimer);
+                }
+                hoverResetTimer = requestAnimationFrame(() => {
+                    hoverResetTimer = null;
+                    activeRowLeaveCallback?.();
+                });
             }
         });
     }
@@ -301,24 +389,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             activeModifierTab,
             userTH,
             calculatedMaxLevel,
-            isNoteHidden,
-            () => {
-                dismissNote(equipId);
-                setModalSessionState({ recommendationHidden: true });
-                updateAllViewsForModifier();
-            },
-            () => {
-                undismissNote(equipId);
-                setModalSessionState({ recommendationHidden: false, tableExpanded: false });
-                if (tableWrapper) tableWrapper.classList.remove('table-expanded');
-                if (modal) modal.classList.remove('has-expanded-table');
-                if (expandBtn) {
-                    const iconSvg = expandBtn.querySelector('orecalc-assets-svg');
-                    if (iconSvg) iconSvg.setAttribute('name', 'expand');
-                    expandBtn.setAttribute('title', translate('actions.expandTable'));
-                }
-                updateAllViewsForModifier();
-            }
+            isNoteHidden
         );
 
         if (hasUnitStatsView && unitStatsContent) {
@@ -338,20 +409,22 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             heroKey,
             userTH,
             activeModifierTab,
-            rec,
-            (hoverLvl) => {
-                updateStatsProgressHover(statsProgressList, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, hoverLvl);
-                if (hasUnitStatsView) {
-                    updateUnitStatsHover(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, hoverLvl);
-                }
-            },
-            () => {
-                updateStatsProgressHover(statsProgressList, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, null);
-                if (hasUnitStatsView) {
-                    updateUnitStatsHover(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, null);
-                }
-            }
+            rec
         );
+
+        activeRowHoverCallback = (hoverLvl) => {
+            updateStatsProgressHover(statsProgressList, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, hoverLvl);
+            if (hasUnitStatsView) {
+                updateUnitStatsHover(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, hoverLvl);
+            }
+        };
+
+        activeRowLeaveCallback = () => {
+            updateStatsProgressHover(statsProgressList, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, null);
+            if (hasUnitStatsView) {
+                updateUnitStatsHover(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, null);
+            }
+        };
 
         requestAnimationFrame(() => {
             const activeRow = /** @type {HTMLElement | null} */ (modal.querySelector('.active-level-row, .active-max-level-row'));
@@ -365,7 +438,11 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
         });
     };
 
-    renderModifierTabs(modifierTabsContainer, hasValidLevels, Boolean(data.statsMeta), activeModifierTab, (newKey) => {
+    activeUpdateViewsCallback = updateAllViewsForModifier;
+
+    renderModifierTabs(modifierTabsContainer, hasValidLevels, Boolean(data.statsMeta), activeModifierTab);
+
+    activeTabSelectCallback = (newKey) => {
         if (newKey !== activeModifierTab) {
             const prevModeMap = getCurrentStatsStateMap(data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab);
             const prevUnitMap = getCurrentUnitStatsStateMap(data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab);
@@ -379,7 +456,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             }
             updateAllViewsForModifier(prevModeMap, prevUnitMap);
         }
-    });
+    };
 
     renderPropertiesGrid(propsGrid, data);
     renderStaticStats(staticStatsContent, data);

@@ -22,6 +22,9 @@
     position: relative;
     height: 3.4rem;
     padding: 0 4px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
 
     .mountain-badge-slot {
         position: relative;
@@ -132,7 +135,7 @@
     .hero-journey-title-wrapper {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
 
     .hero-journey-title-text {
@@ -140,8 +143,44 @@
         align-items: center;
     }
 
-    .beta-badge {
-        position: static;
+    .hj-open-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: $text-muted;
+        padding: 4px;
+        border-radius: $shape-corner-small;
+        border: 1px solid transparent;
+        background: transparent;
+        text-decoration: none;
+        transition: color $duration-fast $ease-smooth, background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+        cursor: pointer;
+        user-select: none;
+        line-height: 1;
+
+        @media (hover: hover) {
+            &:hover {
+                color: $accent-primary;
+                background-color: $accent-primary-soft;
+                border-color: color-mix(in srgb, $accent-primary 30%, transparent);
+                transform: translateY(-1px);
+            }
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+
+        &:focus-visible {
+            outline: 2px solid $accent-primary;
+            outline-offset: 2px;
+        }
+
+        orecalc-assets-svg, svg {
+            display: block;
+            width: 14px;
+            height: 14px;
+        }
     }
 }
 

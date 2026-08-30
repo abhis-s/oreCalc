@@ -3,7 +3,7 @@
         <div class="modal-header">
             <h2 id="privacy-modal-title" data-i18n="views.settings.privacyPolicy"></h2>
             <div class="modal-header-actions">
-                <a href="/privacy/" target="_blank" id="privacy-open-external-btn" class="modal-header-btn policy-header-btn" aria-label="Open in new tab" title="Open in new tab">
+                <a href="/privacy/" target="_blank" rel="noopener noreferrer" id="privacy-open-external-btn" class="modal-header-btn policy-header-btn" aria-label="Open in new tab" title="Open in new tab">
                     <orecalc-assets-svg name="open-in-new"></orecalc-assets-svg>
                 </a>
                 <button id="privacy-translate-btn" class="modal-header-btn policy-header-btn" aria-label="Translate" title="Translate" style="display: none;">
@@ -19,7 +19,7 @@
 
         </div>
         <div class="modal-body text-left policy-modal-body">
-            <iframe id="privacy-policy-iframe" class="policy-iframe" src="/privacy/" title="Privacy Policy"></iframe>
+            <iframe id="privacy-policy-iframe" class="policy-iframe" src="about:blank" loading="lazy" title="Privacy Policy"></iframe>
         </div>
         <div class="modal-actions">
             <button id="close-privacy-modal-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>

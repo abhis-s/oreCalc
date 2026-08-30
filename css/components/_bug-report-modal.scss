@@ -175,13 +175,16 @@
                 border-color: $accent-primary;
 
                 &::after {
-                    content: '\2713';
-                    color: $text-on-accent;
+                    content: '';
                     display: block;
-                    font-size: 14px;
-                    line-height: 18px;
-                    text-align: center;
-                    font-weight: bold;
+                    width: 4px;
+                    height: 9px;
+                    border: solid $border-on-accent;
+                    border-width: 0 2px 2px 0;
+                    transform: rotate(45deg);
+                    position: absolute;
+                    left: 7px;
+                    top: 3px;
                 }
             }
 

@@ -186,7 +186,7 @@ export function buildSubData(progress, state) {
  */
 export function subtextHTML(key, pct, subData) {
     if (pct >= 100) {
-        return `<div class="stat-box-maxed" data-i18n="views.home.profile.maxed">✓ ${translate('views.home.profile.maxed')}</div>`;
+        return `<div class="stat-box-maxed" data-i18n="views.home.profile.maxed"><orecalc-assets-svg name="check-simple" height="14" width="14"></orecalc-assets-svg> ${translate('views.home.profile.maxed')}</div>`;
     }
     const { spent, total, remaining, time, col } = subData[key];
     return `<div class="stat-box-sub">

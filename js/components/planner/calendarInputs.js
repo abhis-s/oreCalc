@@ -18,6 +18,12 @@ import {
     handleTouchStart,
     handleWheel
 } from './calendarGestures.js';
+import {
+    handleDayCellMouseEnter,
+    handleDayCellMouseLeave,
+    handleEquipmentBadgeMouseEnter,
+    handleEquipmentBadgeMouseLeave
+} from './calendarMilestonesRenderer.js';
 import { renderMonthChips } from './calendarMonthChipsRenderer.js';
 import { getCurrentView, getEquipmentSchedule } from './calendarScheduler.js';
 import { showDayOverviewPopover } from './dayOverviewPopover.js';
@@ -102,6 +108,48 @@ export function initializeCalendarEventListeners() {
         calendarContainer.addEventListener('dragover', handleDragOver);
         calendarContainer.addEventListener('dragleave', handleDragLeave);
         calendarContainer.addEventListener('drop', handleDrop);
+        calendarContainer.addEventListener('mouseover', (e) => {
+            const target = /** @type {HTMLElement | null} */ (e.target);
+            if (!target) return;
+
+            const badge = /** @type {HTMLElement | null} */ (target.closest('.calendar-equipment-badge'));
+            if (badge) {
+                const item = /** @type {any} */ (badge).__milestoneItem;
+                if (item) {
+                    handleEquipmentBadgeMouseEnter(/** @type {any} */ ({ currentTarget: badge, stopPropagation: () => {} }), item);
+                    return;
+                }
+            }
+
+            const dayCell = /** @type {HTMLElement | null} */ (target.closest('.day-cell'));
+            if (dayCell && !dayCell.classList.contains('other-month')) {
+                const activeEquipmentSchedule = getEquipmentSchedule();
+                handleDayCellMouseEnter(/** @type {any} */ ({ currentTarget: dayCell }), activeEquipmentSchedule);
+            }
+        });
+
+        calendarContainer.addEventListener('mouseout', (e) => {
+            const target = /** @type {HTMLElement | null} */ (e.target);
+            if (!target) return;
+
+            const badge = /** @type {HTMLElement | null} */ (target.closest('.calendar-equipment-badge'));
+            if (badge) {
+                const related = /** @type {Node | null} */ (e.relatedTarget);
+                if (!related || !badge.contains(related)) {
+                    handleEquipmentBadgeMouseLeave(/** @type {any} */ ({ currentTarget: badge }));
+                }
+                return;
+            }
+
+            const dayCell = /** @type {HTMLElement | null} */ (target.closest('.day-cell'));
+            if (dayCell) {
+                const related = /** @type {Node | null} */ (e.relatedTarget);
+                if (!related || !dayCell.contains(related)) {
+                    handleDayCellMouseLeave();
+                }
+            }
+        });
+
         calendarContainer.addEventListener('click', (e) => {
             if (state.isChipDragging) return;
             const target = /** @type {HTMLElement} */ (e.target);

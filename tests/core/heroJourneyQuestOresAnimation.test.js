@@ -421,7 +421,7 @@ const { renderNodesTrack } = await import('../../js/components/home/heroJourneyN
 const { loadTranslations } = await import('../../js/i18n/translator.js');
 await loadTranslations('en');
 
-describe("Hero's Journey Quest Chest Ore Reward Number Animation & Track Node DOM Retention (WP 39)", () => {
+describe("Hero's Journey Quest Chest Ore Reward Number Animation & Track Node DOM Retention", () => {
     let mockTrack;
 
     beforeEach(() => {
@@ -435,8 +435,7 @@ describe("Hero's Journey Quest Chest Ore Reward Number Animation & Track Node DO
                 acceleratedRewards: false,
                 unclaimedOnly: false,
                 typeFilter: null,
-                revealBeyondTH: false,
-                overrideUnclaimed: []
+                revealBeyondTH: false
             },
             playerProfile: { townHallLevel: 16 },
             heroes: {
@@ -478,8 +477,7 @@ describe("Hero's Journey Quest Chest Ore Reward Number Animation & Track Node DO
                 acceleratedRewards: false,
                 unclaimedOnly: false,
                 typeFilter: null,
-                revealBeyondTH: false,
-                overrideUnclaimed: []
+                revealBeyondTH: false
             },
             playerProfile: { townHallLevel: 16 },
             heroes: {
@@ -516,8 +514,7 @@ describe("Hero's Journey Quest Chest Ore Reward Number Animation & Track Node DO
                 acceleratedRewards: false,
                 unclaimedOnly: false,
                 typeFilter: null,
-                revealBeyondTH: false,
-                overrideUnclaimed: []
+                revealBeyondTH: false
             },
             playerProfile: { townHallLevel: 16 },
             heroes: {
@@ -571,8 +568,7 @@ describe("Hero's Journey Quest Chest Ore Reward Number Animation & Track Node DO
                 acceleratedRewards: false,
                 unclaimedOnly: false,
                 typeFilter: null,
-                revealBeyondTH: false,
-                overrideUnclaimed: []
+                revealBeyondTH: false
             },
             playerProfile: {
                 tag: '#P12345',
@@ -619,62 +615,57 @@ describe("Hero's Journey Quest Chest Ore Reward Number Animation & Track Node DO
         assert.ok(revealedChips.length >= initialChips.length);
     });
 
-    test('updates claim button and checkmark status correctly during in-place pass', () => {
+    test('updates reached and checkmark status correctly during in-place pass', () => {
         const state = {
             heroJourney: {
                 acceleratedRewards: false,
                 unclaimedOnly: false,
                 typeFilter: null,
-                revealBeyondTH: false,
-                overrideUnclaimed: [13]
+                revealBeyondTH: false
             },
             playerProfile: {
                 tag: '#P12345',
                 townHallLevel: 16,
                 ownedHeroes: {
-                    barbarianKing: { level: 15 }
+                    barbarianKing: { level: 10 }
                 }
             },
             heroes: {
-                barbarianKing: { level: 15 }
+                barbarianKing: { level: 10 }
             }
         };
 
-        renderNodesTrack(state, 15, 16);
+        renderNodesTrack(state, 10, 16);
         const chip13 = mockTrack.querySelectorAll('.hero-journey-node-chip')
             .find(c => c.dataset.nodeLevel === '13');
         assert.ok(chip13);
         assert.equal(chip13.classList.contains('claimed'), false);
+        assert.equal(chip13.querySelector('.node-claimed-checkmark'), null);
 
-        const btn = chip13.querySelector('.node-claim-btn');
-        assert.ok(btn);
-        assert.equal(btn.classList.contains('btn-unclaimed'), true);
-
-        state.heroJourney.overrideUnclaimed = [];
+        state.playerProfile.ownedHeroes.barbarianKing.level = 15;
+        state.heroes.barbarianKing.level = 15;
         renderNodesTrack(state, 15, 16);
 
         assert.equal(chip13.classList.contains('claimed'), true);
-        assert.equal(btn.classList.contains('btn-claimed'), true);
         const checkmark = chip13.querySelector('.node-claimed-checkmark');
         assert.ok(checkmark);
     });
 
-    test('handles guest and true max players without claim buttons', () => {
+    test('renders milestone track with zero claim buttons', () => {
         const guestState = {
             heroJourney: {
                 acceleratedRewards: false,
                 unclaimedOnly: false,
                 typeFilter: null,
-                revealBeyondTH: false,
-                overrideUnclaimed: []
+                revealBeyondTH: false
             },
             playerProfile: { tag: 'DEFAULT0', townHallLevel: 16 },
             heroes: {}
         };
 
         renderNodesTrack(guestState, 0, 16);
-        const guestButtons = mockTrack.querySelectorAll('.node-claim-btn');
-        assert.equal(guestButtons.length, 0);
+        const buttons = mockTrack.querySelectorAll('.node-claim-btn');
+        assert.equal(buttons.length, 0);
     });
 
     test('handles unreleased and zero ore fallback conditions gracefully', () => {
@@ -683,8 +674,7 @@ describe("Hero's Journey Quest Chest Ore Reward Number Animation & Track Node DO
                 acceleratedRewards: false,
                 unclaimedOnly: false,
                 typeFilter: null,
-                revealBeyondTH: false,
-                overrideUnclaimed: []
+                revealBeyondTH: false
             },
             playerProfile: { townHallLevel: 0 },
             heroes: {}

@@ -17,18 +17,6 @@ export function renderHeroEquipmentList(playerData, equipmentListContainer) {
     scrollContainer.setAttribute('role', 'region');
     scrollContainer.setAttribute('aria-label', translate('views.welcome.equipmentTab'));
 
-    scrollContainer.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            e.stopPropagation();
-            scrollContainer.scrollBy({ left: -140, behavior: 'smooth' });
-        } else if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            e.stopPropagation();
-            scrollContainer.scrollBy({ left: 140, behavior: 'smooth' });
-        }
-    });
-
     const ownedEquip = playerData.ownedEquipment || {};
     const ownedHeroes = playerData.ownedHeroes || {};
 

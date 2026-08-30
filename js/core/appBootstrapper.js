@@ -19,6 +19,7 @@ import { finishTopProgressBar, startTopProgressBar } from '../utils/topProgressB
 import { initializeViewportHandler } from '../utils/viewportHandler.js';
 
 import { initializeAppSettings } from '../components/appSettings/appSettings.js';
+import { renderState, triggerFillAnimation } from '../components/home/homeProfileAnimations.js';
 import { initializeChangelogModal } from '../components/changelog/changelogModal.js';
 import { initializeCommitsModal } from '../components/changelog/commitsModal.js';
 import { initializeHeroCards } from '../components/equipment/heroCard.js';
@@ -167,7 +168,7 @@ export async function bootstrapUIComponents(initialLang) {
     }
     applyCardLayout(layoutMode || 'cozy', false, false);
 
-    import('../utils/cloudSaveHandler.js').then(module => {
+    import('../services/cloudSaveService.js').then(module => {
         module.initializeCloudSaveButtons();
     });
 
@@ -229,6 +230,17 @@ export function handlePreloaderTeardown(preloader) {
     if (preloader) {
         setTimeout(() => {
             preloader.classList.add('hidden');
+
+            const cardContainer = document.getElementById('home-player-profile-card');
+            if (cardContainer && renderState.initialProgress) {
+                const initialProg = renderState.initialProgress;
+                renderState.initialProgress = null;
+                triggerFillAnimation(cardContainer, initialProg, () => {
+                    renderState.isAnimating = false;
+                    renderState.lastProgress = initialProg;
+                });
+            }
+
             setTimeout(() => {
                 preloader.style.display = 'none';
                 if (typeof window.__APP_LOADED__ === 'function') {

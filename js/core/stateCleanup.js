@@ -1,5 +1,19 @@
 import { getEquipmentMaxLevel } from '../data/equipmentCommonData.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
+import { compareVersions } from '../utils/versionUtils.js';
+
+const PLAYER_PREFIX = 'oreCalc_player_';
+const PLAYER_TAGS_KEY = 'oreCalc_playerTags';
+const RECENT_SEARCHES_KEY = 'oreCalc_recentSearches';
+
+const normalizePlayerTag = (tag) => {
+    if (!tag) return '';
+    const trimmed = String(tag).trim().toUpperCase();
+    if (trimmed === 'DEFAULT0') return 'DEFAULT0';
+    return trimmed.replace(/#/g, '');
+};
+
+const getPlayerStorageKey = (tag) => `${PLAYER_PREFIX}${normalizePlayerTag(tag)}`;
 
 /**
  * Copies the level of each equipment item from old player data to new player data.
@@ -16,7 +30,7 @@ function migrateEquipmentLevels(oldHeroData, newHeroData) {
                 const oldEquip = oldHero.equipment[equipName];
                 const newEquip = newHero.equipment[equipName];
                 if (oldEquip && newEquip) {
-                    newEquip.level = parseInt(oldEquip.level, 10) || 1;
+                    newEquip.level = Number(oldEquip.level) || 1;
                 }
             }
         }
@@ -40,9 +54,9 @@ function migrateUpgradePlan(oldEquipPlan) {
             break;
         }
         cleanPlan[stepStr] = {
-            targetLevel: parseInt(stepData.target, 10) || 18,
+            targetLevel: Number(stepData.target) || 18,
             enabled: true,
-            priorityIndex: parseInt(stepData.priorityIndex, 10) || 0
+            priorityIndex: Number(stepData.priorityIndex) || 0
         };
     }
     return Object.keys(cleanPlan).length > 0 ? cleanPlan : undefined;
@@ -139,7 +153,7 @@ function migratePlayerState(playerState) {
             const result = {};
             if (oldSet && typeof oldSet === 'object') {
                 for (const key in oldSet) {
-                    const count = parseInt(oldSet[key], 10) || 0;
+                    const count = Number(oldSet[key]) || 0;
                     if (count > 0) {
                         result[key] = count;
                     }
@@ -163,10 +177,10 @@ function migratePlayerState(playerState) {
                 selectedSetNum = 0;
             } else {
                 const match = oldShop.selectedSet.match(/\d+/);
-                selectedSetNum = match ? parseInt(match[0], 10) : 0;
+                selectedSetNum = match ? (Number(match[0]) || 0) : 0;
             }
         } else if (oldShop.selectedSet !== undefined && oldShop.selectedSet !== null) {
-            selectedSetNum = parseInt(oldShop.selectedSet, 10) || 0;
+            selectedSetNum = Number(oldShop.selectedSet) || 0;
         }
         shopOffersObj.selectedSet = selectedSetNum;
 
@@ -281,7 +295,7 @@ function migratePlayerState(playerState) {
         // because it is supposed to load fresh from the Clash of Clans API.
         playerProfile: null,
         onboardingTimestamp: typeof playerState.onboardingTimestamp === 'number' ? playerState.onboardingTimestamp : null,
-        heroJourney: playerState.heroJourney || { overrideUnclaimed: [], acceleratedRewards: false },
+        heroJourney: playerState.heroJourney || { acceleratedRewards: false },
         currency: {
             code: typeof playerState.currency === 'string' ? playerState.currency : 'USD',
             globalPricing: {}
@@ -381,25 +395,99 @@ export function migrateFullState(legacyState) {
 }
 
 /**
- * Semver version comparison utility.
- * Returns 1 if v1 > v2, -1 if v1 < v2, and 0 if equal.
- *
- * @param {string} v1 - First version string.
- * @param {string} v2 - Second version string.
- * @returns {number} Comparison result (1, -1, or 0).
+ * Scans localStorage for orphaned or legacy player partition keys and deletes or migrates them.
+ * Also sanitizes the heroJourney schema on valid retained partitions.
+ * @param {any} [stateObj=null] - Optional application state object to prune in-memory.
+ * @returns {string[]} Array of deleted orphaned player partition keys.
  */
-export function compareVersions(v1, v2) {
-    if (typeof v1 !== 'string') v1 = String(v1 || '0.0.0');
-    if (typeof v2 !== 'string') v2 = String(v2 || '0.0.0');
-    const cleanV1 = v1.replace(/^v/i, '').split(/[+-]/)[0];
-    const cleanV2 = v2.replace(/^v/i, '').split(/[+-]/)[0];
-    const parts1 = cleanV1.split('.').map(Number);
-    const parts2 = cleanV2.split('.').map(Number);
-    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-        const p1 = parts1[i] || 0;
-        const p2 = parts2[i] || 0;
-        if (p1 > p2) return 1;
-        if (p1 < p2) return -1;
+export function cleanupOrphanedPlayerPartitions(stateObj = null) {
+    /** @type {string[]} */
+    const deletedKeys = [];
+    if (typeof localStorage === 'undefined') return deletedKeys;
+
+    try {
+        const savedTagsStr = localStorage.getItem(PLAYER_TAGS_KEY);
+        const savedTagsList = safeJsonParse(savedTagsStr, []);
+        const allowedTags = new Set();
+
+        if (Array.isArray(savedTagsList)) {
+            savedTagsList.forEach(t => {
+                const clean = normalizePlayerTag(t);
+                if (clean) allowedTags.add(clean);
+            });
+        }
+
+        const recentSearchesStr = localStorage.getItem(RECENT_SEARCHES_KEY);
+        const recentSearchesList = safeJsonParse(recentSearchesStr, []);
+        if (Array.isArray(recentSearchesList)) {
+            recentSearchesList.forEach(item => {
+                const clean = item?.cleanTag || normalizePlayerTag(item?.tag);
+                if (clean) allowedTags.add(clean);
+            });
+        }
+
+        const isGuestAllowed = allowedTags.has('DEFAULT0') || allowedTags.size === 0;
+
+        const allKeys = typeof localStorage.key === 'function'
+            ? Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).filter(Boolean)
+            : Object.keys(localStorage);
+
+        for (const key of allKeys) {
+            if (key && key.startsWith(PLAYER_PREFIX)) {
+                const rawSuffix = key.slice(PLAYER_PREFIX.length);
+                const cleanTag = normalizePlayerTag(rawSuffix);
+                const canonicalKey = getPlayerStorageKey(cleanTag);
+
+                const isAllowed = cleanTag && (
+                    allowedTags.has(cleanTag) ||
+                    (cleanTag === 'DEFAULT0' && isGuestAllowed)
+                );
+
+                if (!isAllowed) {
+                    localStorage.removeItem(key);
+                    deletedKeys.push(key);
+                    if (stateObj?.allPlayersData && cleanTag && stateObj.allPlayersData[cleanTag]) {
+                        delete stateObj.allPlayersData[cleanTag];
+                    }
+                } else if (key !== canonicalKey) {
+                    const canonicalExists = localStorage.getItem(canonicalKey) !== null;
+                    if (canonicalExists) {
+                        localStorage.removeItem(key);
+                        deletedKeys.push(key);
+                    } else {
+                        const raw = localStorage.getItem(key);
+                        if (raw) {
+                            const parsed = safeJsonParse(raw, null);
+                            if (parsed && typeof parsed === 'object' && parsed.heroJourney && typeof parsed.heroJourney === 'object') {
+                                parsed.heroJourney = {
+                                    acceleratedRewards: Boolean(parsed.heroJourney.acceleratedRewards ?? parsed.heroJourney.accelerated ?? (parsed.heroJourney.rewardMode === 'accelerated')),
+                                    revealBeyondTH: Boolean(parsed.heroJourney.revealBeyondTH),
+                                    hidden: Boolean(parsed.heroJourney.hidden)
+                                };
+                                localStorage.setItem(canonicalKey, JSON.stringify(parsed));
+                            } else {
+                                localStorage.setItem(canonicalKey, raw);
+                            }
+                        }
+                        localStorage.removeItem(key);
+                        deletedKeys.push(key);
+                    }
+                } else {
+                    const raw = localStorage.getItem(canonicalKey);
+                    const parsed = safeJsonParse(raw, null);
+                    if (parsed && typeof parsed === 'object' && parsed.heroJourney && typeof parsed.heroJourney === 'object') {
+                        parsed.heroJourney = {
+                            acceleratedRewards: Boolean(parsed.heroJourney.acceleratedRewards ?? parsed.heroJourney.accelerated ?? (parsed.heroJourney.rewardMode === 'accelerated')),
+                            revealBeyondTH: Boolean(parsed.heroJourney.revealBeyondTH),
+                            hidden: Boolean(parsed.heroJourney.hidden)
+                        };
+                        localStorage.setItem(canonicalKey, JSON.stringify(parsed));
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error during orphaned player partitions cleanup:", error);
     }
-    return 0;
+    return deletedKeys;
 }

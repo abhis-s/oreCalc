@@ -181,7 +181,7 @@ const jsFiles = scanDir(path.join(projectRoot, 'js'), f => f.endsWith('.js'));
 
 describe('JavaScript Architecture Quality & Platform Modernization Suite', () => {
 
-    describe('1. Build Pipeline Modernization & cpx Pruning (Milestone 3)', () => {
+    describe('Build Pipeline Modernization & cpx Pruning', () => {
 
         test('package.json does not declare cpx dependency in dependencies or devDependencies', () => {
             const packageJsonPath = path.join(projectRoot, 'package.json');
@@ -208,7 +208,7 @@ describe('JavaScript Architecture Quality & Platform Modernization Suite', () =>
         });
     });
 
-    describe('2. Native Platform APIs & Zero Deprecations (Milestones 1 & 2)', () => {
+    describe('Native Platform APIs & Zero Deprecations', () => {
 
         test('js/utils/uuidGenerator.js uses native crypto.randomUUID() without custom loops', async () => {
             const uuidFilePath = path.join(projectRoot, 'js/utils/uuidGenerator.js');
@@ -291,7 +291,7 @@ describe('JavaScript Architecture Quality & Platform Modernization Suite', () =>
         });
     });
 
-    describe('3. Module Pruning & Deduplication (Milestones 3 & 4)', () => {
+    describe('Module Pruning & Deduplication', () => {
 
         test('js/services/consentManager.js exports getConsentBannerTextKey and handles all 4 boolean combinations', async () => {
             const consentPath = path.join(projectRoot, 'js/services/consentManager.js');
@@ -340,7 +340,7 @@ describe('JavaScript Architecture Quality & Platform Modernization Suite', () =>
         });
     });
 
-    describe('4. State Architecture, Selectors & Constant Freezing (Milestones 1 & 3)', () => {
+    describe('State Architecture, Selectors & Constant Freezing', () => {
 
         test('DEFAULT_CUSTOM_CHIP_SETTINGS is deeply frozen and contains valid chip defaults', async () => {
             const { DEFAULT_CUSTOM_CHIP_SETTINGS } = await import('../../js/core/state.js');
@@ -435,7 +435,7 @@ describe('JavaScript Architecture Quality & Platform Modernization Suite', () =>
         });
     });
 
-    describe('5. Utility Functions & Dead Code Elimination (Milestone 2)', () => {
+    describe('Utility Functions & Dead Code Elimination', () => {
 
         test('js/utils/dateUtils.js has pruned dead isLeapYear function', () => {
             const dateUtilsContent = fs.readFileSync(path.join(projectRoot, 'js/utils/dateUtils.js'), 'utf8');

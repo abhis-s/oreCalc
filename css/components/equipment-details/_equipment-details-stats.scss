@@ -60,6 +60,10 @@
     background: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
     border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
 
+    .eq-details-stats-progress-list {
+        margin-top: 12px;
+    }
+
     .eq-details-level-header {
         display: flex;
         align-items: center;

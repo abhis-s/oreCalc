@@ -3,38 +3,12 @@ import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
-import { handleStateUpdate } from '../../core/stateManager.js';
 
-import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel } from '../../domain/income/heroJourneyIncome.js';
+import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
 import { dom } from '../../dom/domElements.js';
-
-const temporarilyVisibleMaxed = new Set();
-const activeTimeouts = new Map();
-
-/**
- * Marks an equipment item as manually maxed to preserve visibility for a 5-second grace period.
- *
- * @param {string} heroName
- * @param {string} equipName
- */
-export function markEquipmentManuallyMaxed(heroName, equipName) {
-    const key = `${heroName}|${equipName}`;
-    temporarilyVisibleMaxed.add(key);
-
-    if (activeTimeouts.has(key)) {
-        clearTimeout(activeTimeouts.get(key));
-    }
-
-    const timeoutId = setTimeout(() => {
-        temporarilyVisibleMaxed.delete(key);
-        activeTimeouts.delete(key);
-        handleStateUpdate(() => {});
-    }, 5000);
-
-    activeTimeouts.set(key, timeoutId);
-}
+import { isEquipmentTemporarilyVisible, clearEquipmentTemporarilyVisible } from './heroCard.js';
 
 /**
  * Renders Hero Cards display updates, hide maxed / locked filters, level badges, and glow classes.
@@ -112,6 +86,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
 
     let hiddenCount = 0;
     let lockedHiddenCount = 0;
+    const trackResolution = resolveHeroJourneyTrack(state);
 
     for (const heroKey in heroData) {
         const currentHeroData = heroData[heroKey];
@@ -152,8 +127,8 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             }
 
             let currentLevel = equipState.level;
-            if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, state)) {
-                currentLevel = getDefaultEquipmentUnlockLevel(heroName, equipName);
+            if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, state, trackResolution)) {
+                currentLevel = getDefaultEquipmentUnlockLevel(heroName, equipName, state, trackResolution);
             } else if (!currentLevel) {
                 currentLevel = 1;
             }
@@ -165,17 +140,12 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
                 levelInput.value = String(currentLevel);
             }
 
-            const maxLevel = parseInt(levelInput?.max || upgradeButton?.dataset.maxLevel || '18', 10);
+            const maxLevel = Number(levelInput?.max || upgradeButton?.dataset.maxLevel || 18);
             const isMaxLevel = currentLevel >= maxLevel;
 
-            const key = `${heroName}|${equipName}`;
             // Clean up temporary visibility if no longer max level
-            if (!isMaxLevel && temporarilyVisibleMaxed.has(key)) {
-                temporarilyVisibleMaxed.delete(key);
-                if (activeTimeouts.has(key)) {
-                    clearTimeout(activeTimeouts.get(key));
-                    activeTimeouts.delete(key);
-                }
+            if (!isMaxLevel && isEquipmentTemporarilyVisible(heroName, equipName)) {
+                clearEquipmentTemporarilyVisible(heroName, equipName);
             }
 
             if (label) label.classList.toggle('gold-glow', isMaxLevel);
@@ -214,7 +184,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             let shouldHide = false;
             if (isHideMaxedEnabled && isMaxLevel) {
                 // Do not hide if it was manually maxed and is still within the 5-second grace period
-                if (!temporarilyVisibleMaxed.has(key)) {
+                if (!isEquipmentTemporarilyVisible(heroName, equipName)) {
                     shouldHide = true;
                     hiddenCount++;
                 }

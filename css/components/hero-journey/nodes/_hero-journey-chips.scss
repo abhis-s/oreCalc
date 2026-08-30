@@ -12,12 +12,19 @@
     border-radius: 8px;
     text-align: center;
     box-sizing: border-box;
+    align-self: stretch;
     transition: transform $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth, opacity $duration-fast $ease-smooth, filter $duration-fast $ease-smooth;
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
         transform: translateY(-3px);
         border-color: $accent-primary;
         box-shadow: 0 0 18px color-mix(in srgb, $accent-primary 45%, transparent), 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    &:focus-visible {
+        outline: 2px solid $outline-focus !important;
+        outline-offset: -2px !important;
     }
 
     &.beyond-th-limit {
@@ -25,7 +32,8 @@
         filter: brightness(0.65) grayscale(35%);
         background: color-mix(in srgb, $bg-surface-primary 80%, $color-black-const);
 
-        &:hover {
+        &:hover,
+        &:focus-visible {
             opacity: 0.75;
             filter: brightness(0.85) grayscale(15%);
         }
@@ -34,7 +42,8 @@
     &.reached {
         border-color: color-mix(in srgb, $color-success 35%, $border-primary);
 
-        &:hover {
+        &:hover,
+        &:focus-visible {
             border-color: $color-success;
             box-shadow: 0 0 18px color-mix(in srgb, $color-success 45%, transparent), 0 6px 16px rgba(0, 0, 0, 0.35);
         }
@@ -55,7 +64,7 @@
     background: $bg-surface-secondary;
     color: $text-primary;
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 6px;
     margin-bottom: 8px;
     border: 1px solid $border-primary;
     flex-shrink: 0;
@@ -76,6 +85,10 @@
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
+
+        &.node-icon-primary {
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.45));
+        }
     }
 
     .node-quest-badge {
@@ -110,9 +123,9 @@
         font-size: 0.62rem;
         font-weight: 800;
         padding: 2px;
-        border-radius: 3px;
+        border-radius: 4px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-        border: 1.5px solid var(--bg-surface-secondary);
+        border: 1.5px solid $border-primary;
         z-index: 2;
         line-height: 1.2;
         letter-spacing: 0.2px;
@@ -142,12 +155,77 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-        border: 2px solid var(--bg-surface-primary);
+        border: 2px solid $border-primary;
 
-        &.unowned-check {
-            background: color-mix(in srgb, $bg-surface-tertiary 75%, #4a5568);
-            color: $text-primary;
+        &.unowned-cross {
+            background: $color-danger;
+            color: $text-inverse;
+            font-size: 0.7rem;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+        }
+    }
+}
+
+.node-companion-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 2px 0 6px;
+    width: 100%;
+    min-height: 20px;
+    flex-wrap: wrap;
+
+    .node-companion-item {
+        position: relative;
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        background: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        transition: transform $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
+
+        &:hover {
+            transform: scale(1.2);
+            z-index: 2;
+        }
+
+        .node-companion-icon {
+            width: 14px;
+            height: 14px;
+            max-width: 14px;
+            max-height: 14px;
+            object-fit: contain;
+            display: block;
+        }
+
+        &.status-owned {
+            opacity: 0.5;
+            filter: grayscale(25%);
+            border-color: color-mix(in srgb, $color-success 35%, $border-primary);
+        }
+
+        &.status-awarded-earlier {
+            opacity: 0.7;
+            border-color: color-mix(in srgb, $color-info 40%, $border-primary);
+        }
+
+        &.status-missed {
+            opacity: 0.6;
+            filter: grayscale(40%);
+            border-color: color-mix(in srgb, $color-danger 50%, $border-primary);
+        }
+
+        &.status-queued {
+            border-color: color-mix(in srgb, $accent-primary 30%, $border-primary);
+        }
+
+        &.status-starry-fallback {
+            border-color: color-mix(in srgb, $starry-ore 50%, $border-primary);
         }
     }
 }

@@ -63,7 +63,7 @@
             background-color: $bg-surface-primary;
             color: $text-primary;
             border: 1px solid $border-primary;
-            border-radius: 18px;
+            border-radius: $shape-corner-full;
             padding: 6px 12px;
             font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
             font-weight: 600;
@@ -116,7 +116,7 @@
             background-color: $bg-surface-primary;
             color: $text-primary;
             border: 1px solid $border-primary;
-            border-radius: 18px;
+            border-radius: $shape-corner-full;
             padding: 6px 12px;
             font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
             font-weight: 600;
@@ -230,7 +230,7 @@
             background-color: $bg-surface-primary;
             color: $text-primary;
             border: 1px solid $border-primary;
-            border-radius: 18px;
+            border-radius: $shape-corner-full;
             padding: 8px 12px;
             font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
             font-weight: 600;
@@ -372,15 +372,6 @@
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-            }
-
-            .beta-badge {
-                position: absolute;
-                left: calc(100% + 8px);
-                top: 50%;
-                transform: translateY(-50%);
-                white-space: nowrap;
-                margin: 0;
             }
         }
     }

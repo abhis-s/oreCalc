@@ -444,7 +444,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
     });
 
     describe('Equipment, Skin, and Quest Popover Formatting', () => {
-        test('formats equipment node popover with Epic Equipment badge', () => {
+        test('formats equipment node popover with Epic Equipment badge and Equipment Pool', () => {
             const chip = new MockDOMElement('div', '', 'hero-journey-node-chip');
             chip.dataset.nodeLevel = '20';
 
@@ -452,6 +452,19 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
 
             assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.epicEquipmentBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes('Giant Gauntlet'));
+            assert.ok(popoverElem.innerHTML.includes('popover-equipment-pool'));
+            assert.ok(popoverElem.innerHTML.includes('Barbarian King Equipment Pool'));
+        });
+
+        test('formats future equipment node popover with Awarded at Lvl X badges for earlier items', () => {
+            const chip = new MockDOMElement('div', '', 'hero-journey-node-chip');
+            chip.dataset.nodeLevel = '180';
+
+            showNodeTooltip(chip);
+
+            assert.ok(popoverElem.innerHTML.includes('Spiky Ball'));
+            assert.ok(popoverElem.innerHTML.includes('badge--awarded-earlier'));
+            assert.ok(popoverElem.innerHTML.includes('Awarded at Lvl 20'));
         });
 
         test('formats skin node popover with accent-text and Legendary Hero Skin badge', () => {
@@ -475,6 +488,88 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
             assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.heroQuestBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes('popover-chest-breakdown'));
             assert.ok(popoverElem.innerHTML.includes('chest-ore-inline-chip'));
+        });
+
+        test('renders popover-unowned-alert when equipment milestone is claimed but unowned on server', () => {
+            state.playerProfile = {
+                tag: '#UNOWNED_CLAIMED',
+                townHallLevel: 14,
+                ownedHeroes: {
+                    'Archer Queen': { level: 55 }
+                },
+                ownedEquipment: {
+                    // Frozen Arrow not owned
+                }
+            };
+
+            const chip = new MockDOMElement('div', '', 'hero-journey-node-chip claimed reached');
+            chip.dataset.nodeLevel = '50';
+            chip.dataset.isClaimed = 'true';
+
+            showNodeTooltip(chip, state);
+
+            assert.ok(popoverElem.innerHTML.includes('popover-unowned-alert'), 'Popover must contain unowned alert');
+            assert.ok(popoverElem.innerHTML.includes('name="close"'), 'Alert must use close icon');
+            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.unownedClaimedTitle')));
+            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.poolIntroText')), 'Unowned popover must show pool intro and full pool');
+            assert.ok(popoverElem.innerHTML.includes('popover-equipment-pool'), 'Unowned popover must show equipment pool section');
+        });
+
+        test('renders popover-unowned-alert with unownedClaimedDescWithLevel when equipment is awarded later', () => {
+            state.playerProfile = {
+                tag: '#MISSED_GAUNTLET_OWNED_SPIKY',
+                townHallLevel: 14,
+                ownedHeroes: {
+                    'Barbarian King': { level: 25 }
+                },
+                ownedEquipment: {
+                    'Spiky Ball': 18
+                }
+            };
+
+            const chip = new MockDOMElement('div', '', 'hero-journey-node-chip claimed reached');
+            chip.dataset.nodeLevel = '20';
+            chip.dataset.isClaimed = 'true';
+
+            showNodeTooltip(chip, state);
+
+            assert.ok(popoverElem.innerHTML.includes('popover-unowned-alert'), 'Popover must contain unowned alert');
+            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.unownedClaimedDescWithLevel', { level: 180 })));
+            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.poolNowAwardedAtLevel', { level: 180 })));
+        });
+
+        test('renders popover-unowned-alert when triggered from table info button on missed equipment row', () => {
+            state.playerProfile = {
+                tag: '#MISSED_TABLE',
+                townHallLevel: 14,
+                ownedHeroes: {
+                    'Archer Queen': { level: 55 }
+                },
+                ownedEquipment: {}
+            };
+
+            const infoBtn = new MockDOMElement('button', '', 'info-btn hj-table-info-btn');
+            infoBtn.dataset.level = '50';
+            infoBtn.dataset.isClaimed = 'true';
+
+            showNodeTooltip(infoBtn, state);
+
+            assert.ok(popoverElem.innerHTML.includes('popover-unowned-alert'), 'Table info button popover must contain unowned alert');
+            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.unownedClaimedTitle')));
+            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.unownedClaimedDesc')));
+        });
+
+        test('renders At Lvl X badge for equipment scheduled on another node, and In Queue for equipment not on any node', () => {
+            state.playerProfile = null; // guest profile baseline
+
+            const chip = new MockDOMElement('div', '', 'hero-journey-node-chip');
+            chip.dataset.nodeLevel = '20';
+
+            showNodeTooltip(chip, state);
+
+            // BK Node 20 awards Giant Gauntlet. Spiky Ball is scheduled at Node 180.
+            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.poolAtLevel', { level: 180 })), 'Spiky Ball should show At Lvl 180 badge');
+            assert.ok(popoverElem.innerHTML.includes('badge--queued'), 'At Lvl badge should retain badge--queued class');
         });
     });
 

@@ -30,31 +30,33 @@ export function getSVG(id, className = '', height = 24, width = 24, fill = 'curr
     </svg>`;
 }
 
-class OrecalcAssetsSvg extends HTMLElement {
-    static get observedAttributes() {
-        return ['name', 'class', 'height', 'width', 'fill'];
-    }
+if (typeof HTMLElement !== 'undefined') {
+    class OrecalcAssetsSvg extends HTMLElement {
+        static get observedAttributes() {
+            return ['name', 'class', 'height', 'width', 'fill'];
+        }
 
-    connectedCallback() {
-        this.render();
-    }
+        connectedCallback() {
+            this.render();
+        }
 
-    attributeChangedCallback() {
-        this.render();
-    }
+        attributeChangedCallback() {
+            this.render();
+        }
 
-    render() {
-        const name = this.getAttribute('name');
-        const height = this.getAttribute('height') || '24';
-        const width = this.getAttribute('width') || '24';
-        const fill = this.getAttribute('fill') || 'currentColor';
+        render() {
+            const name = this.getAttribute('name');
+            const height = this.getAttribute('height') || '24';
+            const width = this.getAttribute('width') || '24';
+            const fill = this.getAttribute('fill') || 'currentColor';
 
-        if (name) {
-            this.innerHTML = getSVG(name, '', height, width, fill);
+            if (name) {
+                this.innerHTML = getSVG(name, '', height, width, fill);
+            }
         }
     }
-}
 
-if (!customElements.get('orecalc-assets-svg')) {
-    customElements.define('orecalc-assets-svg', OrecalcAssetsSvg);
+    if (typeof customElements !== 'undefined' && !customElements.get('orecalc-assets-svg')) {
+        customElements.define('orecalc-assets-svg', OrecalcAssetsSvg);
+    }
 }

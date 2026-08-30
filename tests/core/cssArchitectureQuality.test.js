@@ -26,7 +26,7 @@ function scanDir(dir, filter) {
 
 describe('CSS Architecture Quality & Style Invariants', () => {
 
-    describe('Milestone 1: Dead SCSS Rules & Obsolete Keyframes', () => {
+    describe('Dead SCSS Rules & Obsolete Keyframes', () => {
         const scssFiles = scanDir(path.join(projectRoot, 'css'), f => f.endsWith('.scss'));
 
         test('ensures obsolete legacy selectors are completely removed', () => {
@@ -67,7 +67,10 @@ describe('CSS Architecture Quality & Style Invariants', () => {
             const obsoleteKeyframes = [
                 /@keyframes\s+pulse-once\b/,
                 /@keyframes\s+glow-pulse\b/,
-                /@keyframes\s+subpanelSlideDown\b/
+                /@keyframes\s+subpanelSlideDown\b/,
+                /@keyframes\s+badge-pulse\b/,
+                /@keyframes\s+badge-pulse-success\b/,
+                /@keyframes\s+badge-scale-pulse\b/
             ];
 
             const violations = [];
@@ -88,9 +91,28 @@ describe('CSS Architecture Quality & Style Invariants', () => {
                 `Found obsolete @keyframes definitions:\n${violations.join('\n')}`
             );
         });
+
+        test('ensures obsolete badge pulse animation properties are removed', () => {
+            const badgePulseRegex = /animation:\s*badge-(?:pulse|scale-pulse|pulse-success)/;
+            const violations = [];
+
+            for (const file of scssFiles) {
+                const content = fs.readFileSync(file, 'utf8');
+                const relPath = path.relative(projectRoot, file);
+                if (badgePulseRegex.test(content)) {
+                    violations.push(`${relPath} matches ${badgePulseRegex}`);
+                }
+            }
+
+            assert.equal(
+                violations.length,
+                0,
+                `Found obsolete badge pulse animation declarations:\n${violations.join('\n')}`
+            );
+        });
     });
 
-    describe('Milestone 2: Component SCSS Deduplication & Sheet Centralization', () => {
+    describe('Component SCSS Deduplication & Sheet Centralization', () => {
         test('ensures deleted fragmented modal files do not exist', () => {
             const fragmentedFiles = [
                 path.join(projectRoot, 'css/components/_stats-modal.scss'),
@@ -140,7 +162,7 @@ describe('CSS Architecture Quality & Style Invariants', () => {
         });
     });
 
-    describe('Milestone 3: HTML Static Inline Style Elimination', () => {
+    describe('HTML Static Inline Style Elimination', () => {
         const htmlFiles = [
             path.join(projectRoot, 'index.html'),
             ...scanDir(path.join(projectRoot, 'partials'), f => f.endsWith('.html'))
@@ -176,7 +198,7 @@ describe('CSS Architecture Quality & Style Invariants', () => {
         });
     });
 
-    describe('Milestone 4: Strict Variable Discipline & Design Tokens', () => {
+    describe('Strict Variable Discipline & Design Tokens', () => {
         const scssFiles = scanDir(path.join(projectRoot, 'css'), f => f.endsWith('.scss'));
 
         test('ensures text variables ($text-*) are not used for background or border properties', () => {

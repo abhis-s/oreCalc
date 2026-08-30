@@ -9,6 +9,7 @@ import {
     isDefaultOrGuestPlayer
 } from '../../domain/income/heroJourneyLevels.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
+import { escapeHTML } from '../../utils/stringUtils.js';
 
 import { renderNodesTrack } from './heroJourneyNodesDisplay.js';
 import { initHeroJourneyTooltips } from './heroJourneyPopovers.js';
@@ -18,6 +19,7 @@ import {
     getStoredFilterScrollPosition,
     initClaimSwitchResizeObserver,
     initFilterRowResizeObserver,
+    resetHeroJourneyScrollPositions,
     saveCurrentFilterScrollPosition,
     setIsAutoScrolling,
     updateClaimSwitchPillPosition,
@@ -80,6 +82,8 @@ export function updateHeroJourneyUpcomingBadges(state) {
     updateBadge(starryBadge, upcoming.starry);
 }
 
+let lastRenderedPlayerTag = null;
+
 /**
  * Orchestrates rendering of the Hero's Journey summary card, filters, progress bar, and milestone nodes track.
  * @param {import('../../core/types.js').AppState} state - Global application state.
@@ -88,6 +92,12 @@ export function updateHeroJourneyUpcomingBadges(state) {
 export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, targetScrollLeft, scrollToTrackEnd = false } = {}) {
     const container = document.getElementById('home-hj-card');
     if (!container) return;
+
+    const currentTag = state?.savedPlayerTags?.[0] || 'DEFAULT0';
+    if (lastRenderedPlayerTag !== null && lastRenderedPlayerTag !== currentTag) {
+        resetHeroJourneyScrollPositions();
+    }
+    lastRenderedPlayerTag = currentTag;
 
     const trackWrapper = document.querySelector('.hero-journey-track-wrapper');
     const preRenderScrollLeft = trackWrapper ? trackWrapper.scrollLeft : 0;
@@ -140,10 +150,13 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
 
     const titleEl = document.getElementById('home-hj-title');
     const translatedTitle = translate('views.home.heroJourney.title');
-    const betaLabel = translate('views.settings.badges.beta');
+    const openTooltip = translate('views.home.heroJourney.openInTracker');
+    const rawTag = (!isGuest && state.playerProfile?.tag) ? state.playerProfile.tag : (state.savedPlayerTags?.[0] || '');
+    const playerTag = (rawTag && rawTag !== '#DEFAULT') ? rawTag : '';
+    const openUrl = playerTag ? `/hero-journey/?tag=${encodeURIComponent(playerTag)}` : '/hero-journey/';
 
     if (titleEl) {
-        titleEl.innerHTML = `<span class="hero-journey-title-wrapper"><span class="hero-journey-title-text" data-i18n="views.home.heroJourney.title">${translatedTitle}</span> <span class="beta-badge" data-i18n="views.settings.badges.beta">${betaLabel}</span></span>`;
+        titleEl.innerHTML = `<span class="hero-journey-title-wrapper"><span class="hero-journey-title-text" data-i18n="views.home.heroJourney.title">${translatedTitle}</span><a id="home-hj-open-btn" href="${escapeHTML(openUrl)}" class="hj-open-btn" title="${escapeHTML(openTooltip)}" aria-label="${escapeHTML(openTooltip)}"><orecalc-assets-svg name="open-in-new" height="13" width="13"></orecalc-assets-svg></a></span>`;
     }
 
     const acceleratedSwitch = document.getElementById('home-hj-accelerated-switch');

@@ -33,7 +33,10 @@ export function renderSupercellEventsDisplay(supercellEventsIncome, timeframe) {
     renderSupercellEvents();
 }
 
-function renderSupercellEvents() {
+/**
+ * Renders the tournament schedule table into the supercell-events-container element.
+ */
+export function renderSupercellEvents() {
     const container = document.getElementById('supercell-events-container');
     if (!container) return;
 
@@ -142,8 +145,4 @@ function renderSupercellEvents() {
     `;
 
     container.innerHTML = html;
-}
-
-if (typeof document !== 'undefined') {
-    document.addEventListener('languageChanged', renderSupercellEvents);
 }

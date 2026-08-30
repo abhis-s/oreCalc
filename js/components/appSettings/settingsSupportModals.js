@@ -240,7 +240,7 @@ export async function openRunningCostsModal() {
 
     if (totalValue) totalValue.textContent = '...';
     if (historyContainer) {
-        historyContainer.innerHTML = `<div class="costs-disclaimer" style="text-align: center; border-left: none;">${translate('views.settings.runningCostsModal.loading')}</div>`;
+        historyContainer.innerHTML = `<div class="costs-disclaimer costs-disclaimer--center">${translate('views.settings.runningCostsModal.loading')}</div>`;
     }
 
     try {
@@ -450,6 +450,49 @@ export function openBugReportModal() {
         privacyLink.onclick = (e) => {
             e.preventDefault();
             openPrivacyModal();
+        };
+    }
+
+    modal.classList.add('show');
+    if (dom.overlay) dom.overlay.classList.add('show');
+}
+
+/**
+ * Opens the Contact modal dialog.
+ */
+export function openContactModal() {
+    const modal = document.getElementById('contact-modal');
+    if (!modal) return;
+
+    if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+
+    const closeHeaderBtn = document.getElementById('close-contact-header-btn');
+    const closeBtn = document.getElementById('close-contact-modal-btn');
+    const mailBtn = document.getElementById('contact-mail-btn');
+
+    const closeModal = () => {
+        closeModalAnimated(modal);
+    };
+
+    if (closeHeaderBtn) {
+        closeHeaderBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
+    }
+
+    if (mailBtn) {
+        mailBtn.onclick = (e) => {
+            e.stopPropagation();
+            closeModal();
         };
     }
 

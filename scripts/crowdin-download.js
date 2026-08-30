@@ -14,8 +14,10 @@ const projectRoot = path.resolve(__dirname, '..');
 const token = process.env.CROWDIN_PERSONAL_TOKEN || process.env.CROWDIN_PAT || process.env.PAM || process.env.PERSONAL_ACCESS_TOKEN;
 const projectId = process.env.CROWDIN_PROJECT_ID || process.env.PROJECT_ID || process.env.CROWDIN_PROJECT || '828948';
 const MIN_THRESHOLD = parseInt(process.env.CROWDIN_MIN_PERCENT || '90', 10);
+const branchIndex = process.argv.findIndex(arg => arg === '-b' || arg === '--branch');
+const branch = branchIndex !== -1 ? process.argv[branchIndex + 1] : process.env.CROWDIN_BRANCH || null;
 
-console.log(`--- OreCalc Smart Crowdin Downloader (Threshold: ${MIN_THRESHOLD}%) ---\n`);
+console.log(`--- OreCalc Smart Crowdin Downloader (Threshold: ${MIN_THRESHOLD}%${branch ? `, Branch: ${branch}` : ''}) ---\n`);
 
 function getFallbackLanguages() {
     try {
@@ -97,7 +99,8 @@ function downloadLanguages(langCodes) {
     const crowdinCodes = langCodes.map(c => crowdinLangMap[c] || c);
     console.log(`\n[OK] Downloading translations for eligible languages: ${langCodes.join(', ')} (Crowdin codes: ${crowdinCodes.join(', ')})`);
     const langFlags = crowdinCodes.map(c => `-l ${c}`).join(' ');
-    const cmd = `npx @crowdin/cli download ${langFlags}`;
+    const branchFlag = branch ? `-b ${branch}` : '';
+    const cmd = `npx @crowdin/cli download ${branchFlag} ${langFlags}`.trim().replace(/\s+/g, ' ');
 
     try {
         execSync(cmd, { cwd: projectRoot, stdio: 'inherit' });
@@ -159,7 +162,7 @@ function sanitizeDownloadedTranslations() {
         let strippedCount = 0;
         function pruneUntranslated(obj, prefix = '') {
             for (const key in obj) {
-                if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+                if (!Object.hasOwn(obj, key)) continue;
                 const fullKey = prefix ? `${prefix}.${key}` : key;
                 if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
                     pruneUntranslated(obj[key], fullKey);
@@ -197,8 +200,8 @@ function sanitizeDownloadedTranslations() {
         }
 
         pruneUntranslated(data);
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 4) + '\n', 'utf8');
         if (strippedCount > 0) {
-            fs.writeFileSync(filePath, JSON.stringify(data, null, 4), 'utf8');
             console.log(`[CLEAN] Stripped ${strippedCount} untranslated English fallback string(s) from ${file}`);
         }
     }
@@ -207,7 +210,7 @@ function sanitizeDownloadedTranslations() {
 function flattenObj(obj, prefix = '') {
     let res = {};
     for (const key in obj) {
-        if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+        if (!Object.hasOwn(obj, key)) continue;
         const fullKey = prefix ? `${prefix}.${key}` : key;
         if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
             Object.assign(res, flattenObj(obj[key], fullKey));

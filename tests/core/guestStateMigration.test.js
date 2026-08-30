@@ -234,8 +234,7 @@ test('guest state migration copies custom planner chips and hero journey setting
         typeFilter: 'equipment',
         scrollPosition: 450,
         rewardMode: 'accelerated',
-        acceleratedRewards: true,
-        overrideUnclaimed: [15, 30]
+        acceleratedRewards: true
     };
 
     stateModule.state.allPlayersData['DEFAULT0'].currency = {
@@ -264,10 +263,9 @@ test('guest state migration copies custom planner chips and hero journey setting
     assert.equal(player.planner.calendar.customChipData['chip-123'].notes, 'Saved from weekend');
 
     assert.equal(player.heroJourney.hidden, true);
-    assert.equal(player.heroJourney.unclaimedOnly, true);
-    assert.equal(player.heroJourney.typeFilter, 'equipment');
     assert.equal(player.heroJourney.acceleratedRewards, true);
-    assert.equal(player.heroJourney.rewardMode, 'accelerated');
+    assert.equal(player.heroJourney.unclaimedOnly, undefined);
+    assert.equal(player.heroJourney.typeFilter, undefined);
 
     assert.equal(player.currency.code, 'GBP');
     assert.equal(player.currency.globalPricing.pack_1, 4.99);

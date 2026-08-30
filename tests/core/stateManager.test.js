@@ -39,6 +39,8 @@ const {
     handleStateUpdate,
     registerStateUpdateCallback
 } = await import('../../js/core/stateManager.js');
+const { recalculateAll } = await import('../../js/core/calculator.js');
+const { autoPlaceIncomeChipsForRange } = await import('../../js/utils/autoPlaceChips.js');
 
 beforeEach(() => {
     const fresh = getDefaultState();
@@ -131,4 +133,41 @@ test('handleStateUpdate executes state update, marks calendar dirty, and invokes
     assert.ok(state.timestamp !== undefined);
     assert.equal(callbackInvoked, true);
     assert.equal(callbackSilentArg, false);
+});
+
+test('switchActivePlayer provides defensive defaults when player partition is partial or missing slices', () => {
+    state.allPlayersData['PARTIAL_PLAYER'] = {
+        heroes: { barbarianKing: { level: 10 } }
+        // income, planner, storedOres omitted
+    };
+
+    switchActivePlayer('PARTIAL_PLAYER');
+
+    assert.ok(state.income, 'income slice should fall back to default');
+    assert.ok(state.planner, 'planner slice should fall back to default');
+    assert.ok(state.storedOres, 'storedOres slice should fall back to default');
+
+    // recalculateAll must execute cleanly without throwing TypeErrors
+    assert.doesNotThrow(() => {
+        recalculateAll(state);
+    });
+
+    assert.ok(state.derived.requiredOres !== undefined);
+    assert.ok(state.derived.totalIncome !== undefined);
+});
+
+test('recalculateAll handles completely uninitialized or empty state safely', () => {
+    const emptyState = {};
+    assert.doesNotThrow(() => {
+        recalculateAll(emptyState);
+    });
+    assert.ok(emptyState.derived !== undefined);
+    assert.ok(emptyState.income !== undefined);
+});
+
+test('autoPlaceIncomeChipsForRange handles missing calendar gracefully without throwing', () => {
+    state.planner = {};
+    assert.doesNotThrow(() => {
+        autoPlaceIncomeChipsForRange(1, 2026, 12, 2026, true);
+    });
 });

@@ -10,12 +10,7 @@ import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
 import { formatCurrency } from '../../utils/numberFormatter.js';
 import { getSVG } from '../../utils/svgManager.js';
 
-import { showChangelogModal } from '../changelog/changelogModal.js';
-import { openLicensesModal, openPrivacyModal, openTermsOfUseModal } from './settingsLegalModals.js';
-import { openBugReportModal, openRunningCostsModal } from './settingsSupportModals.js';
 import { dom } from '../../dom/domElements.js';
-import { getChangelogHtml } from '../../services/changelogService.js';
-import { showAlert, showConfirm } from '../../ui/noticeModal.js';
 
 /**
  * Populates language and currency select dropdown options with localized labels and symbols.
@@ -155,19 +150,12 @@ export function renderLabeledActions(containerSelector, data) {
         const btn = document.createElement('button');
         btn.className = `animated-btn ${item.colorClass}`;
         btn.id = `manual-${item.id}-btn`;
-        label.htmlFor = btn.id;
-
-        if (item.actionType === 'link') {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const confirmed = await showConfirm(
-                    `${translate('confirms.externalLink')}<br><code class="external-link-display">${item.url}</code><br><br>${translate('confirms.externalLinkConfirm')}`
-                );
-                if (confirmed) {
-                    window.open(item.url, '_blank', 'noopener,noreferrer');
-                }
-            });
+        btn.dataset.actionType = item.actionType;
+        btn.dataset.itemId = item.id;
+        if (item.url) {
+            btn.dataset.url = item.url;
         }
+        label.htmlFor = btn.id;
 
         const btnText = document.createElement('span');
         btnText.className = 'animated-btn-text';
@@ -187,42 +175,6 @@ export function renderLabeledActions(containerSelector, data) {
         btn.appendChild(btnText);
         itemRow.appendChild(btn);
         container.appendChild(itemRow);
-
-        label.addEventListener('click', (e) => {
-            if (e.target.closest('.info-btn, .info-button, [data-info]')) {
-                return;
-            }
-            e.preventDefault();
-            btn.click();
-        });
-
-        // Add special handler for modal/placeholder actions
-        if (item.actionType === 'modal') {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                if (item.id === 'changelog') {
-                    const content = getChangelogHtml();
-                    showChangelogModal(content);
-                } else if (item.id === 'bugReport') {
-                    openBugReportModal();
-                } else if (item.id === 'contact') {
-                    openContactModal();
-                } else if (item.id === 'privacy') {
-                    openPrivacyModal();
-                } else if (item.id === 'termsOfUse') {
-                    openTermsOfUseModal();
-                } else if (item.id === 'licenses') {
-                    openLicensesModal();
-                } else if (item.id === 'runningCosts') {
-                    openRunningCostsModal();
-                }
-            });
-        } else if (item.actionType === 'placeholder') {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                showAlert(translate('app.comingSoon'));
-            });
-        }
     });
 }
 
@@ -306,43 +258,6 @@ export function renderGlobalPricingGrid(currencyCode) {
 
         gridBody.appendChild(row);
     });
-}
-
-function openContactModal() {
-    const modal = document.getElementById('contact-modal');
-    if (!modal) return;
-
-    const closeHeaderBtn = document.getElementById('close-contact-header-btn');
-    const closeBtn = document.getElementById('close-contact-modal-btn');
-    const mailBtn = document.getElementById('contact-mail-btn');
-
-    const closeModal = () => {
-        closeModalAnimated(modal);
-    };
-
-    if (closeHeaderBtn) {
-        closeHeaderBtn.onclick = (e) => {
-            e.preventDefault();
-            closeModal();
-        };
-    }
-
-    if (closeBtn) {
-        closeBtn.onclick = (e) => {
-            e.preventDefault();
-            closeModal();
-        };
-    }
-
-    if (mailBtn) {
-        mailBtn.onclick = (e) => {
-            e.stopPropagation();
-            closeModal();
-        };
-    }
-
-    modal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
 }
 
 /**

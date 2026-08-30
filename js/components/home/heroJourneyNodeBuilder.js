@@ -4,9 +4,9 @@ import { state as globalState } from '../../core/state.js';
 
 import {
     getEffectiveQuestNodeTH,
-    getQuestChestReward,
-    getResolvedEquipmentReward
+    getQuestChestReward
 } from '../../domain/income/heroJourneyIncome.js';
+import { getResolvedEquipmentReward } from '../../domain/income/heroJourneyResolution.js';
 import { getNodeTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { getSVG } from '../../utils/svgManager.js';
@@ -23,8 +23,8 @@ import { getResourceKey, getTranslatedEquipmentName } from './heroJourneyPopover
  * @param {boolean} ctx.isUserSynced
  * @param {boolean} ctx.isTrueMaxPlayer
  * @param {boolean} ctx.isGuest
- * @param {Set<number>} ctx.overrideUnclaimedSet
  * @param {'accelerated' | 'normal'} ctx.mode
+ * @param {Record<number, any>} [ctx.trackResolution]
  * @returns {HTMLDivElement}
  */
 export function createNodeChipElement(node, ctx) {
@@ -35,15 +35,17 @@ export function createNodeChipElement(node, ctx) {
         isUserSynced,
         isTrueMaxPlayer,
         isGuest,
-        overrideUnclaimedSet,
-        mode
+        mode,
+        trackResolution
     } = ctx;
 
     const isReached = isUserSynced && (cumulativeLevel >= node.level);
-    const isClaimed = isUserSynced && (isTrueMaxPlayer || (isReached && !overrideUnclaimedSet.has(node.level)));
+    const isClaimed = isUserSynced && (isTrueMaxPlayer || isReached);
     const isBeyondTHLimit = node.level > playerMaxLevel;
 
-    const resolvedNode = node.type === 'equipment' ? getResolvedEquipmentReward(node, state) : node;
+    const resolvedNode = node.type === 'equipment'
+        ? getResolvedEquipmentReward(node, state, trackResolution)
+        : node;
     let displayIcon = resolvedNode.resolvedIcon || node.icon;
     let badgeIcon = null;
 
@@ -59,6 +61,8 @@ export function createNodeChipElement(node, ctx) {
     chip.dataset.nodeLevel = String(node.level);
     chip.dataset.level = String(node.level);
     chip.dataset.isClaimed = isClaimed ? 'true' : 'false';
+    chip.setAttribute('role', 'button');
+    chip.setAttribute('tabindex', '-1');
 
     const levelPill = document.createElement('div');
     levelPill.className = 'node-level-pill';
@@ -76,7 +80,9 @@ export function createNodeChipElement(node, ctx) {
             : (node.hero ? translate(`entities.heroes.${node.hero}`) : translate('views.home.heroJourney.heroFallback'));
         nodeAltText = translate('views.home.heroJourney.questTitleFormat', { name: questTargetName });
     } else if (node.type === 'equipment') {
-        nodeAltText = getTranslatedEquipmentName(resolvedNode.resolvedName);
+        nodeAltText = resolvedNode.isFallbackStarry
+            ? `${resolvedNode.fallbackStarry || 50} ${translate('entities.ores.starry')}`
+            : getTranslatedEquipmentName(resolvedNode.resolvedKey || resolvedNode.resolvedName);
     } else if (node.type === 'magicItem') {
         const itemKey = node.itemKey;
         nodeAltText = translate(`entities.magicItems.${itemKey}`);
@@ -89,11 +95,45 @@ export function createNodeChipElement(node, ctx) {
         nodeAltText = translate(`entities.ores.${node.resourceType}`);
     }
 
+    const levelLabel = translate('views.home.heroJourney.nodeLevel', { level: node.level });
+    const statusLabel = isClaimed ? ` (${translate('views.home.heroJourney.poolOwned')})` : '';
+    chip.setAttribute('aria-label', `${levelLabel}: ${nodeAltText}${statusLabel}`);
+
+    const isEquipment = node.type === 'equipment';
     const mainImg = document.createElement('orecalc-assets-image');
     mainImg.setAttribute('src', displayIcon);
     mainImg.setAttribute('alt', nodeAltText);
-    mainImg.className = 'node-icon';
+    mainImg.className = isEquipment ? 'node-icon node-icon-primary' : 'node-icon';
     iconWrapper.appendChild(mainImg);
+
+    let companionStrip = null;
+    if (isEquipment && resolvedNode.poolOptions && resolvedNode.poolOptions.length > 0) {
+        companionStrip = document.createElement('div');
+        companionStrip.className = 'node-companion-strip';
+
+        // Companion preview items for other equipment in pool
+        const companions = resolvedNode.poolOptions.filter(opt => opt.status !== 'awardedHere');
+        for (const comp of companions) {
+            const compItem = document.createElement('div');
+            const statusCls = comp.status === 'owned'
+                ? 'status-owned'
+                : (comp.status === 'awardedEarlier'
+                    ? 'status-awarded-earlier'
+                    : (comp.status === 'missed'
+                        ? 'status-missed'
+                        : (comp.status === 'starryFallback' ? 'status-starry-fallback' : 'status-queued')));
+            const compTitle = getTranslatedEquipmentName(comp.name);
+            compItem.className = `node-companion-item ${statusCls}`;
+            compItem.title = compTitle;
+
+            const compImg = document.createElement('orecalc-assets-image');
+            compImg.setAttribute('src', comp.icon);
+            compImg.setAttribute('alt', compTitle);
+            compImg.className = 'node-companion-icon';
+            compItem.appendChild(compImg);
+            companionStrip.appendChild(compItem);
+        }
+    }
 
     if (badgeIcon) {
         const questBadge = document.createElement('div');
@@ -109,8 +149,8 @@ export function createNodeChipElement(node, ctx) {
         iconWrapper.appendChild(questBadge);
     }
 
-    if (node.type === 'equipment') {
-        const isOwnedEq = isUserSynced && Boolean(resolvedNode.isOwned || resolvedNode.isFallbackStarry);
+    if (node.type === 'equipment' && !resolvedNode.isFallbackStarry) {
+        const isOwnedEq = isUserSynced && Boolean(resolvedNode.isOwned);
         const showOwnedPill = isOwnedEq && !isClaimed;
 
         if (showOwnedPill) {
@@ -130,8 +170,8 @@ export function createNodeChipElement(node, ctx) {
     if (isClaimed) {
         const check = document.createElement('div');
         const isUnownedEquipment = node.type === 'equipment' && !resolvedNode.isOwned;
-        check.className = `node-claimed-checkmark ${isUnownedEquipment ? 'unowned-check' : ''}`;
-        check.textContent = '✓';
+        check.className = `node-claimed-checkmark ${isUnownedEquipment ? 'unowned-cross' : ''}`;
+        check.innerHTML = isUnownedEquipment ? getSVG('close', '', 12, 12) : getSVG('check-simple', '', 12, 12);
         iconWrapper.appendChild(check);
     }
 
@@ -143,48 +183,15 @@ export function createNodeChipElement(node, ctx) {
 
     const hasSub = updateNodeTitleAndSub(titleElem, subElem, node, resolvedNode, isClaimed, state, mode);
 
-    const isAllowedTypeToUnclaim = ['quest', 'ore', 'equipment'].includes(node.type);
-    const isMoreThan10Behind = cumulativeLevel - node.level > 10;
-    const isLockedFromUnclaim = isClaimed && (!isAllowedTypeToUnclaim || isMoreThan10Behind);
-    const actionBtn = document.createElement('button');
-    actionBtn.className = `node-claim-btn ${isClaimed ? 'btn-claimed' : (isReached ? 'btn-unclaimed' : 'btn-upcoming')} ${isLockedFromUnclaim ? 'disabled-unclaim' : ''}`;
-    actionBtn.dataset.nodeLevel = String(node.level);
-
-    if (!isReached) {
-        const levelsNeeded = node.level - cumulativeLevel;
-        if (levelsNeeded <= 25 && !isBeyondTHLimit) {
-            actionBtn.textContent = translate('views.home.heroJourney.upcomingWithLevels', { levels: levelsNeeded });
-        } else {
-            actionBtn.textContent = translate('views.home.heroJourney.upcoming');
-        }
-        actionBtn.disabled = true;
-        actionBtn.title = levelsNeeded === 1
-            ? translate('views.home.heroJourney.upcomingTooltipSingle', { level: node.level, levels: levelsNeeded })
-            : translate('views.home.heroJourney.upcomingTooltipPlural', { level: node.level, levels: levelsNeeded });
-    } else if (isClaimed) {
-        if (isLockedFromUnclaim) {
-            actionBtn.textContent = translate('views.home.heroJourney.claimed');
-            actionBtn.title = !isAllowedTypeToUnclaim
-                ? translate('views.home.heroJourney.cannotUndoTypeTooltip')
-                : translate('views.home.heroJourney.cannotUndoBehindTooltip');
-        } else {
-            actionBtn.innerHTML = `<span class="btn-text-default">${translate('views.home.heroJourney.claimed')}</span><span class="btn-text-hover">${translate('views.home.heroJourney.undoClaim')}</span>`;
-            actionBtn.title = translate('views.home.heroJourney.undoClaimTooltip');
-        }
-    } else {
-        actionBtn.textContent = translate('views.home.heroJourney.claim');
-        actionBtn.title = translate('views.home.heroJourney.claimTooltip');
-    }
-
     chip.appendChild(levelPill);
     chip.appendChild(iconWrapper);
     chip.appendChild(titleElem);
+    if (companionStrip) {
+        chip.appendChild(companionStrip);
+    }
     if (hasSub) {
         chip.classList.add('has-sub');
         chip.appendChild(subElem);
-    }
-    if (!isTrueMaxPlayer && !isGuest) {
-        chip.appendChild(actionBtn);
     }
 
     return chip;
@@ -255,20 +262,13 @@ export function updateNodeTitleAndSub(titleElem, subElem, node, resolvedNode, is
             hasSub = true;
         }
     } else if (node.type === 'equipment') {
-        const translatedEqTitle = getTranslatedEquipmentName(resolvedNode.resolvedName);
-        if (resolvedNode.isFallbackStarry) {
-            const useStrikethrough = !isClaimed;
-            titleElem.innerHTML = `<strong class="${useStrikethrough ? 'equipment-name-strikethrough' : ''}">${translatedEqTitle}</strong>`;
-            if (subElem) {
-                subElem.className = 'node-sub';
-                subElem.innerHTML = `<span><span class="${useStrikethrough ? 'fallback-label-accent' : ''}">${translate('views.home.heroJourney.fallbackLabel')}</span> <span class="fallback-highlight">${node.fallbackStarry} <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" class="sub-ore-icon"></orecalc-assets-image></span></span>`;
-                hasSub = true;
-            }
-        } else {
-            titleElem.innerHTML = `<strong>${translatedEqTitle}</strong>`;
-            if (subElem) {
-                subElem.innerHTML = '';
-            }
+        const fallbackAmount = resolvedNode.fallbackStarry || node.fallbackStarry || 50;
+        const translatedEqTitle = resolvedNode.isFallbackStarry
+            ? `${fallbackAmount} ${translate('entities.ores.starry') || 'Starry Ore'}`
+            : getTranslatedEquipmentName(resolvedNode.resolvedKey || resolvedNode.resolvedName);
+        titleElem.innerHTML = `<strong>${translatedEqTitle}</strong>`;
+        if (subElem) {
+            subElem.innerHTML = '';
         }
     } else if (node.type === 'resource' || node.type === 'ore' || node.type === 'gems') {
         let nameText = '';

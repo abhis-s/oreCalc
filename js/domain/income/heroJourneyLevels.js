@@ -21,8 +21,8 @@ export function getMaxCumulativeLevelsByTH() {
         const thObj = heroMaxLevelsPerTH[heroKey];
         if (thObj && typeof thObj === 'object') {
             for (const thKey in thObj) {
-                const thNum = parseInt(thKey, 10);
-                if (!isNaN(thNum)) {
+                const thNum = Number(thKey);
+                if (!Number.isNaN(thNum)) {
                     if (thNum < minTH) minTH = thNum;
                     if (thNum > maxTH) maxTH = thNum;
                 }
@@ -38,7 +38,7 @@ export function getMaxCumulativeLevelsByTH() {
 
         for (let currentTH = th; currentTH >= minTH; currentTH--) {
             if (thObj[currentTH] !== undefined && thObj[currentTH] !== null) {
-                return parseInt(thObj[currentTH], 10) || 0;
+                return Number(thObj[currentTH]) || 0;
             }
         }
         return 0;
@@ -64,8 +64,8 @@ export function getMaxCumulativeLevelsByTH() {
  * @returns {number} Active Town Hall level.
  */
 export function getTownHallLevel(state) {
-    if (state?.playerProfile?.townHallLevel) {
-        return Number(state.playerProfile.townHallLevel) || 16;
+    if (state?.playerProfile?.townHallLevel || state?.playerProfile?.townHall) {
+        return Number(state.playerProfile.townHallLevel || state.playerProfile.townHall) || 16;
     }
     if (state?.income?.starBonus?.thUpgrades) {
         const ths = Object.keys(state.income.starBonus.thUpgrades).map(Number);
@@ -80,11 +80,11 @@ export function getTownHallLevel(state) {
  * @param {import('../../core/types.js').AppState | any} state - Application state.
  * @returns {Record<string, number>} Map of hero key to clamped hero level.
  */
-export function getHeroLevels(state) {
+function getHeroLevels(state) {
     const thLevel = getTownHallLevel(state);
     const heroLevels = { barbarianKing: 0, archerQueen: 0, minionPrince: 0, grandWarden: 0, royalChampion: 0, dragonDuke: 0 };
 
-    if (state?.playerProfile?.ownedHeroes) {
+    if (state?.playerProfile?.ownedHeroes && typeof state.playerProfile.ownedHeroes === 'object' && !Array.isArray(state.playerProfile.ownedHeroes) && Object.keys(state.playerProfile.ownedHeroes).length > 0) {
         for (const heroName in state.playerProfile.ownedHeroes) {
             const hero = state.playerProfile.ownedHeroes[heroName];
             let key = null;
@@ -94,6 +94,22 @@ export function getHeroLevels(state) {
             else if (heroName === "Grand Warden") key = "grandWarden";
             else if (heroName === "Royal Champion") key = "royalChampion";
             else if (heroName === "Dragon Duke") key = "dragonDuke";
+
+            if (key) {
+                const maxAllowed = heroMaxLevelsPerTH[key]?.[thLevel] ?? 100;
+                heroLevels[key] = Math.min(hero.level || 0, maxAllowed);
+            }
+        }
+    } else if (Array.isArray(state?.playerProfile?.heroes)) {
+        const homeHeroes = state.playerProfile.heroes.filter(h => h.village === 'home' || !h.village);
+        for (const hero of homeHeroes) {
+            let key = null;
+            if (hero.name === "Barbarian King") key = "barbarianKing";
+            else if (hero.name === "Archer Queen") key = "archerQueen";
+            else if (hero.name === "Minion Prince") key = "minionPrince";
+            else if (hero.name === "Grand Warden") key = "grandWarden";
+            else if (hero.name === "Royal Champion") key = "royalChampion";
+            else if (hero.name === "Dragon Duke") key = "dragonDuke";
 
             if (key) {
                 const maxAllowed = heroMaxLevelsPerTH[key]?.[thLevel] ?? 100;
@@ -116,7 +132,7 @@ export function getHeroLevels(state) {
         for (const key in heroLevels) {
             if (state.heroLevels[key] !== undefined) {
                 const maxAllowed = heroMaxLevelsPerTH[key]?.[thLevel] ?? 100;
-                heroLevels[key] = Math.min(parseInt(state.heroLevels[key], 10) || 0, maxAllowed);
+                heroLevels[key] = Math.min(Number(state.heroLevels[key]) || 0, maxAllowed);
             }
         }
     }
@@ -147,10 +163,23 @@ export function getNodeTownHallLevel(nodeLevel) {
     const sortedTHs = Object.keys(maxLevelsByTH).map(Number).sort((a, b) => a - b);
     for (const th of sortedTHs) {
         if (maxLevelsByTH[th] >= nodeLevel) {
-            return Math.max(8, Math.min(18, th));
+            return Math.max(7, Math.min(18, th));
         }
     }
     return 18;
+}
+
+/**
+ * Resolves the starting cumulative level for a Town Hall tier.
+ *
+ * @param {number} th - Town Hall level (7-18).
+ * @returns {number} Starting cumulative level for this TH tier.
+ */
+export function getTownHallStartLevel(th) {
+    if (th <= 7) return 1;
+    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
+    const prevMax = maxLevelsByTH[th - 1];
+    return prevMax ? (prevMax + 1) : 1;
 }
 
 /**
@@ -193,13 +222,10 @@ export function isDefaultOrGuestPlayer(state) {
  * @returns {boolean} Whether player has synced official hero data.
  */
 export function hasSyncedHeroInfo(state) {
-    if (!state?.playerProfile) return false;
-    const tag = state.playerProfile.tag || state.savedPlayerTags?.[0];
+    const profile = state?.playerProfile || (state?.savedPlayerTags?.[0] ? state?.allPlayersData?.[state.savedPlayerTags[0]]?.playerProfile : null);
+    if (!profile) return false;
+    const tag = profile.tag || state?.savedPlayerTags?.[0];
     if (!tag || tag === 'DEFAULT0' || tag.toUpperCase().startsWith('DEFAULT') || tag.toUpperCase().startsWith('GUEST')) {
-        return false;
-    }
-    const ownedHeroes = state.playerProfile.ownedHeroes;
-    if (!ownedHeroes || (typeof ownedHeroes === 'object' && Object.keys(ownedHeroes).length === 0)) {
         return false;
     }
     return true;

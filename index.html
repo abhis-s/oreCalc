@@ -21,14 +21,17 @@
     <meta property="og:description"
         content="The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.">
     <meta property="og:site_name" content="OreCalc">
-    <meta property="og:image" content="https://orecalc.tech/assets/app_icon_large.png">
+    <meta property="og:image" content="https://orecalc.tech/assets/app_og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:logo" content="https://orecalc.tech/assets/app_icon_large.png">
 
-    <meta property="twitter:card" content="summary">
+    <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://orecalc.tech/">
     <meta property="twitter:title" content="OreCalc - Clash of Clans Hero Equipment &amp; Ore Planner">
     <meta property="twitter:description"
         content="The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.">
+    <meta property="twitter:image" content="https://orecalc.tech/assets/app_og.png">
 
     <base href="/">
     <title data-i18n="app.title"></title>
@@ -209,7 +212,7 @@
             <div class="load-failure-details-section">
                 <button id="load-failure-details-toggle" class="details-toggle-btn">
                     <span data-i18n="errors.showDetails"></span>
-                    <span class="chevron-icon">▼</span>
+                    <orecalc-assets-svg name="chevron-down" class="chevron-icon" width="12" height="12"></orecalc-assets-svg>
                 </button>
                 <div id="load-failure-details" class="load-failure-details" style="display: none;">
                     <div class="error-meta">
@@ -276,12 +279,23 @@
 
     <!-- include: partials/bottom-nav.html -->
 
-    <div class="supercell-notice notice">
-        <p data-i18n="app.supercellDisclaimer"></p>
-    </div>
-    <div class="app-copyright notice">
-        <p>&copy; 2025-2026 OreCalc. All rights reserved.</p>
-    </div>
+    <footer class="app-footer">
+        <div class="app-footer__links">
+            <a href="/hero-journey/" class="app-footer__link" data-i18n="views.home.heroJourney.title">Hero's Journey</a>
+            <span class="app-footer__sep" aria-hidden="true">&bull;</span>
+            <a href="/privacy/" target="_blank" rel="noopener noreferrer" class="app-footer__link" data-i18n="nav.privacy">Privacy Policy</a>
+            <span class="app-footer__sep" aria-hidden="true">&bull;</span>
+            <a href="/terms/" target="_blank" rel="noopener noreferrer" class="app-footer__link" data-i18n="nav.tos">Terms of Use</a>
+            <span class="app-footer__sep" aria-hidden="true">&bull;</span>
+            <a href="/licenses/" target="_blank" rel="noopener noreferrer" class="app-footer__link" data-i18n="views.settings.licenses">Licenses</a>
+        </div>
+        <div class="supercell-notice notice">
+            <p data-i18n="app.supercellDisclaimer"></p>
+        </div>
+        <div class="app-copyright notice">
+            <p>&copy; 2025-2026 OreCalc. All rights reserved.</p>
+        </div>
+    </footer>
 
     <!-- include: partials/modals/add-player.html -->
     <!-- include: partials/modals/bug-report.html -->

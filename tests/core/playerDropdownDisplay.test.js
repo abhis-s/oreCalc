@@ -87,6 +87,9 @@ class MockClassList {
 
 function matchesSelector(element, selector) {
     if (!selector || !element) return false;
+    if (selector.includes(',')) {
+        return selector.split(',').some(part => matchesSelector(element, part.trim()));
+    }
     const s = selector.trim();
     if (s.startsWith('#')) {
         return element.id === s.slice(1);
@@ -102,13 +105,18 @@ function matchesSelector(element, selector) {
 
 function parseHTMLToNodes(html) {
     const nodes = [];
-    const itemRegex = /<div class="([^"]*player-dropdown-item[^"]*)"\s+data-tag="([^"]*)"[^>]*>([\s\S]*?)<\/div>(?=\s*(?:<div class="[^"]*player-dropdown-item|$))/g;
+    const itemRegex = /<div class="([^"]*player-dropdown-item[^"]*)"\s+data-tag="([^"]*)"[^>]*>([\s\S]*?)<\/div>(?=\s*(?:<div class="[^"]*player-dropdown-item|<div class="[^"]*player-dropdown-section-header|$))/g;
     let match;
     while ((match = itemRegex.exec(html)) !== null) {
         const [, className, dataTag, inner] = match;
         const itemEl = new MockDOMElement('div', '', className);
         itemEl.dataset.tag = dataTag;
         itemEl.setAttribute('data-tag', dataTag);
+
+        const tabMatch = match[0].match(/tabindex="([^"]*)"/);
+        if (tabMatch) {
+            itemEl.setAttribute('tabindex', tabMatch[1]);
+        }
 
         const cacheIconMatch = inner.match(/class="([^"]*cache-status-icon[^"]*)"/);
         if (cacheIconMatch) {
@@ -134,7 +142,7 @@ function parseHTMLToNodes(html) {
             itemEl.appendChild(infoEl);
         }
 
-        const btnMatch = inner.match(/<button class="([^"]*delete-player-button[^"]*)"\s+data-tag="([^"]*)"([^>]*)>([\s\S]*?)<\/button>/);
+        const btnMatch = inner.match(/<button class="([^"]*(?:delete-player-button|remove-player-button)[^"]*)"\s+data-tag="([^"]*)"([^>]*)>([\s\S]*?)<\/button>/);
         if (btnMatch) {
             const [, btnClass, btnTag, btnAttrs] = btnMatch;
             const btnEl = new MockDOMElement('button', '', btnClass);
@@ -262,12 +270,25 @@ class MockDOMElement {
         handlers.forEach(fn => fn.call(this, eventObj));
         return true;
     }
+
+    focus() {}
+}
+
+if (typeof globalThis.document === 'undefined') {
+    globalThis.document = {
+        createElement: (tag) => new MockDOMElement(tag),
+        getElementById: (id) => null,
+        querySelector: (sel) => null,
+        querySelectorAll: (sel) => [],
+        addEventListener: () => {},
+        removeEventListener: () => {}
+    };
 }
 
 const { state } = await import('../../js/core/state.js');
 const { dom } = await import('../../js/dom/domElements.js');
 const { loadTranslations } = await import('../../js/i18n/translator.js');
-const { renderPlayerDropdown, invalidatePlayerDropdownCache } = await import('../../js/components/player/playerDropdownDisplay.js');
+const { renderPlayerDropdown, invalidatePlayerDropdownCache, toggleMainAppRecentCollapsed, getMainAppRecentCollapsed } = await import('../../js/components/player/playerDropdownDisplay.js');
 
 await loadTranslations('en');
 
@@ -286,12 +307,12 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
             selectedPlayerName: mockLabel
         };
 
-        state.savedPlayerTags = ['#TAG1', '#TAG2', '#TAG3'];
+        state.savedPlayerTags = ['TAG1', 'TAG2', 'TAG3'];
         state.uiSettings = { language: 'en', currency: { code: 'USD' } };
         state.allPlayersData = {
-            '#TAG1': { playerProfile: { name: 'Chief Archer' } },
-            '#TAG2': { playerProfile: { name: 'Barbarian King' } },
-            '#TAG3': { playerProfile: { name: 'Grand Warden' } }
+            'TAG1': { playerProfile: { name: 'Chief Archer' } },
+            'TAG2': { playerProfile: { name: 'Barbarian King' } },
+            'TAG3': { playerProfile: { name: 'Grand Warden' } }
         };
     });
 
@@ -350,9 +371,9 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
 
         const items = mockContainer.querySelectorAll('.player-dropdown-item');
         assert.equal(items.length, 3);
-        assert.equal(items[0].dataset.tag, '#TAG1');
-        assert.equal(items[1].dataset.tag, '#TAG2');
-        assert.equal(items[2].dataset.tag, '#TAG3');
+        assert.equal(items[0].dataset.tag, 'TAG1');
+        assert.equal(items[1].dataset.tag, 'TAG2');
+        assert.equal(items[2].dataset.tag, 'TAG3');
 
         assert.match(mockContainer.innerHTML, /role="button"/);
         assert.match(mockContainer.innerHTML, /tabindex="0"/);
@@ -364,7 +385,7 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         const items = mockContainer.querySelectorAll('.player-dropdown-item');
         const deleteButton = items[1].querySelector('.delete-player-button');
         assert.ok(deleteButton);
-        assert.equal(deleteButton.dataset.tag, '#TAG2');
+        assert.equal(deleteButton.dataset.tag, 'TAG2');
         assert.match(mockContainer.innerHTML, /aria-label="[^"]*"/);
     });
 
@@ -390,6 +411,93 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         invalidatePlayerDropdownCache();
         renderPlayerDropdown();
         assert.equal(innerHtmlSetCount, 2);
+    });
+
+    test('renders trash icon for saved profiles and cross icon for recent searches', () => {
+        globalThis.localStorage.setItem('oreCalc_recentSearches', JSON.stringify([
+            { tag: '#RECENT1', cleanTag: 'RECENT1', name: 'Recent Legend', townHallLevel: 16 }
+        ]));
+
+        invalidatePlayerDropdownCache();
+        renderPlayerDropdown();
+
+        assert.match(mockContainer.innerHTML, /#icon-trash/, 'Saved profiles must render trash icon');
+        assert.match(mockContainer.innerHTML, /player-dropdown-section-header--collapsible/, 'Recent searches header must be collapsible');
+
+        // Toggle to expanded to inspect dismiss button
+        toggleMainAppRecentCollapsed();
+        assert.equal(getMainAppRecentCollapsed(), false);
+        assert.match(mockContainer.innerHTML, /dismiss-recent-button/, 'Expanded recent searches must render dismiss button');
+        assert.match(mockContainer.innerHTML, /#icon-close/, 'Dismiss button must render close icon');
+
+        // Toggle back to collapsed
+        toggleMainAppRecentCollapsed();
+        assert.equal(getMainAppRecentCollapsed(), true);
+    });
+
+    test('always renders Saved Profiles section at the top and Recent Searches below', () => {
+        state.savedPlayerTags = ['#TAG1', '#TAG2'];
+        state.allPlayersData['TAG1'] = { playerProfile: { name: 'Player 1', townHallLevel: 16 } };
+        state.allPlayersData['TAG2'] = { playerProfile: { name: 'Player 2', townHallLevel: 15 } };
+        globalThis.localStorage.setItem('oreCalc_playerTags', JSON.stringify(['TAG1', 'TAG2']));
+        globalThis.localStorage.setItem('oreCalc_recentSearches', JSON.stringify([
+            { tag: '#OTHERREC', cleanTag: 'OTHERREC', name: 'Other Recent', townHallLevel: 15 }
+        ]));
+
+        invalidatePlayerDropdownCache();
+        renderPlayerDropdown();
+
+        // Top section header must be Saved Profiles
+        assert.match(mockContainer.innerHTML, /player\.savedProfiles/);
+        const firstItem = mockContainer.querySelector('.player-dropdown-item');
+        assert.ok(firstItem);
+        assert.equal(firstItem.dataset.tag, 'TAG1');
+        assert.ok(firstItem.classList.contains('active'));
+
+        // Bottom section must be collapsible Recent Searches
+        assert.match(mockContainer.innerHTML, /player-dropdown-section-header--collapsible/);
+    });
+
+    test('omits recent searches section when no standalone recent searches exist', () => {
+        state.savedPlayerTags = ['#TAG1'];
+        state.allPlayersData['TAG1'] = { playerProfile: { name: 'Single Saved', townHallLevel: 17 } };
+        globalThis.localStorage.setItem('oreCalc_playerTags', JSON.stringify(['TAG1']));
+        globalThis.localStorage.setItem('oreCalc_recentSearches', JSON.stringify([]));
+
+        invalidatePlayerDropdownCache();
+        renderPlayerDropdown();
+
+        // Saved profiles is present
+        assert.match(mockContainer.innerHTML, /TAG1/);
+
+        // Recent searches collapsible section must be omitted
+        assert.ok(!mockContainer.innerHTML.includes('player-dropdown-section-header--collapsible'), 'Recent searches must be omitted when empty');
+    });
+
+    test('collapsible recent searches toggle inverts state and renders correctly', () => {
+        state.savedPlayerTags = ['#TAG1'];
+        state.allPlayersData['#TAG1'] = { playerProfile: { name: 'Player 1', townHallLevel: 16 } };
+        globalThis.localStorage.setItem('oreCalc_playerTags', JSON.stringify(['#TAG1']));
+        globalThis.localStorage.setItem('oreCalc_recentSearches', JSON.stringify([
+            { tag: '#REC1', cleanTag: 'REC1', name: 'Recent 1', townHallLevel: 15 }
+        ]));
+
+        invalidatePlayerDropdownCache();
+        renderPlayerDropdown();
+
+        // Default: collapsed
+        assert.equal(getMainAppRecentCollapsed(), true);
+        assert.ok(!mockContainer.innerHTML.includes('Recent 1'));
+
+        // Toggle: expand
+        toggleMainAppRecentCollapsed();
+        assert.equal(getMainAppRecentCollapsed(), false);
+        assert.ok(mockContainer.innerHTML.includes('Recent 1'));
+
+        // Toggle: collapse again
+        toggleMainAppRecentCollapsed();
+        assert.equal(getMainAppRecentCollapsed(), true);
+        assert.ok(!mockContainer.innerHTML.includes('Recent 1'));
     });
 
     test('Add Player Modal layout, Guided Setup action and width invariants', () => {
@@ -423,9 +531,74 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.match(deJson.confirms.deleteProfile, /dauerhaft/, 'deleteProfile in German must state permanent data removal');
     });
 
-    test('tabs module exports resetTabScrollPosition and navigateToTab', () => {
-        const tabsSrc = fs.readFileSync(path.join(projectRoot, 'js/components/layout/tabs.js'), 'utf8');
-        assert.match(tabsSrc, /export function resetTabScrollPosition/, 'resetTabScrollPosition must be exported in tabs.js');
-        assert.match(tabsSrc, /export function navigateToTab/, 'navigateToTab must be exported in tabs.js');
+    test('tabs module exports resetTabScrollPosition and navigateToTab', async () => {
+        const tabs = await import('../../js/components/layout/tabs.js');
+        assert.equal(typeof tabs.resetTabScrollPosition, 'function');
+        assert.equal(typeof tabs.navigateToTab, 'function');
+    });
+
+    test('keyboard navigation handles ArrowDown, ArrowUp, Home, End, Escape, and Delete', async () => {
+        const { initializePlayerDropdown, openDropdown, closeDropdown } = await import('../../js/components/player/playerDropdownInputs.js');
+
+        const mockDropdownBtn = new MockDOMElement('button', 'player-selection-btn');
+        const mockDropdownList = new MockDOMElement('div', 'player-dropdown-list');
+        const mockAddBtn = new MockDOMElement('button', 'add-player-btn');
+        mockDropdownList.appendChild(mockContainer);
+        mockDropdownList.appendChild(mockAddBtn);
+
+        dom.player.dropdownButton = mockDropdownBtn;
+        dom.player.dropdownList = mockDropdownList;
+        dom.player.addPlayerButton = mockAddBtn;
+
+        initializePlayerDropdown();
+        renderPlayerDropdown();
+
+        // Open dropdown via keyboard on dropdown button
+        mockDropdownBtn.dispatchEvent({
+            type: 'keydown',
+            key: 'ArrowDown',
+            preventDefault: () => {}
+        });
+
+        assert.ok(mockDropdownList.classList.contains('show'), 'Dropdown should be open');
+
+        const items = mockContainer.querySelectorAll('.player-dropdown-item');
+        assert.equal(items.length, 3);
+
+        // ArrowDown on items[0]
+        let scrolled = false;
+        items[1].scrollIntoView = () => { scrolled = true; };
+
+        mockContainer.dispatchEvent({
+            type: 'keydown',
+            key: 'ArrowDown',
+            target: items[0],
+            preventDefault: () => {}
+        });
+
+        assert.equal(items[0].getAttribute('tabindex'), '-1');
+        assert.equal(items[1].getAttribute('tabindex'), '0');
+
+        // Home key on items[1] -> moves back to items[0]
+        mockContainer.dispatchEvent({
+            type: 'keydown',
+            key: 'Home',
+            target: items[1],
+            preventDefault: () => {}
+        });
+
+        assert.equal(items[0].getAttribute('tabindex'), '0');
+        assert.equal(items[1].getAttribute('tabindex'), '-1');
+
+        // Escape closes dropdown
+        mockContainer.dispatchEvent({
+            type: 'keydown',
+            key: 'Escape',
+            target: items[0],
+            preventDefault: () => {},
+            stopPropagation: () => {}
+        });
+
+        assert.ok(!mockDropdownList.classList.contains('show'), 'Escape must close dropdown');
     });
 });

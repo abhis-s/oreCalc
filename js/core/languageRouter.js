@@ -1,4 +1,5 @@
 import { SUPPORTED_LANGUAGES } from '../data/languagesData.js';
+import { safeJsonParse } from '../utils/jsonUtils.js';
 import { state } from './state.js';
 
 /**
@@ -8,6 +9,9 @@ import { state } from './state.js';
  * @returns {string | null} 2-letter language code or null.
  */
 export function getLanguageFromPath() {
+    if (typeof window === 'undefined' || !window.location?.pathname) {
+        return null;
+    }
     const pathSegments = window.location.pathname.split('/').filter(Boolean);
     if (pathSegments.length > 0 && SUPPORTED_LANGUAGES.includes(pathSegments[0].toLowerCase())) {
         return pathSegments[0].toLowerCase();
@@ -28,12 +32,14 @@ export function detectLanguage() {
     const pathLang = getLanguageFromPath();
     if (pathLang) return pathLang;
 
-    const savedLang = state.uiSettings?.language || localStorage.getItem('oreCalc_language');
+    const rawSettings = (typeof localStorage !== 'undefined') ? localStorage.getItem('oreCalc_appSettings') : null;
+    const settings = safeJsonParse(rawSettings, {});
+    const savedLang = state.uiSettings?.language || settings?.language;
     if (savedLang && SUPPORTED_LANGUAGES.includes(savedLang) && savedLang !== 'auto') {
         return savedLang;
     }
 
-    const userLangs = navigator.languages || [navigator.language || 'en'];
+    const userLangs = (typeof navigator !== 'undefined') ? (navigator.languages || [navigator.language || 'en']) : ['en'];
     for (const l of userLangs) {
         const prefix = l.toLowerCase().substring(0, 2);
         if (SUPPORTED_LANGUAGES.includes(prefix)) {
@@ -59,23 +65,27 @@ export function syncLanguageUrl(lang, replace = false) {
         pathSegments.shift();
     }
 
+    const currentSearch = window.location.search || '';
     const currentHash = window.location.hash || '';
-    const remainingPath = pathSegments.join('/');
+    let formattedPath = pathSegments.join('/');
+    if (formattedPath && !formattedPath.endsWith('/') && !formattedPath.includes('.')) {
+        formattedPath = `${formattedPath}/`;
+    }
 
     let newPathname;
     let canonicalHref;
 
     if (lang === 'en') {
-        newPathname = remainingPath ? `/${remainingPath}` : '/';
-        canonicalHref = remainingPath ? `https://orecalc.tech/${remainingPath}` : 'https://orecalc.tech/';
+        newPathname = formattedPath ? `/${formattedPath}` : '/';
+        canonicalHref = formattedPath ? `https://orecalc.tech/${formattedPath}` : 'https://orecalc.tech/';
     } else {
-        newPathname = remainingPath ? `/${lang}/${remainingPath}` : `/${lang}/`;
-        canonicalHref = remainingPath ? `https://orecalc.tech/${lang}/${remainingPath}` : `https://orecalc.tech/${lang}/`;
+        newPathname = formattedPath ? `/${lang}/${formattedPath}` : `/${lang}/`;
+        canonicalHref = formattedPath ? `https://orecalc.tech/${lang}/${formattedPath}` : `https://orecalc.tech/${lang}/`;
     }
 
-    const newUrl = `${newPathname}${currentHash}`;
+    const newUrl = `${newPathname}${currentSearch}${currentHash}`;
 
-    if (window.location.pathname + window.location.hash !== newUrl) {
+    if (window.location.pathname + window.location.search + window.location.hash !== newUrl) {
         if (replace) {
             history.replaceState(null, '', newUrl);
         } else {
@@ -105,15 +115,22 @@ export function isValidRoute(pathName) {
     const pathSegments = pathName.split('/').filter(Boolean);
     if (pathSegments.length === 0) return true;
 
-    if (SUPPORTED_LANGUAGES.includes(pathSegments[0].toLowerCase())) {
-        if (pathSegments.length === 1) return true; // /de or /de/
-        const subRoute = pathSegments[1].toLowerCase();
-        const validSubRoutes = ['privacy', 'terms', 'licenses', 'planner', 'income', 'equipment', 'settings', 'home', '404'];
-        if (validSubRoutes.includes(subRoute)) return true;
+    const firstSegment = pathSegments[0].toLowerCase();
+
+    // Check language prefix routes (e.g. /de/, /tr/, /zh/)
+    if (SUPPORTED_LANGUAGES.includes(firstSegment)) {
+        if (pathSegments.length === 1) return true;
+        if (pathSegments.length === 2) {
+            const subRoute = pathSegments[1].toLowerCase();
+            const validLocalizedSubRoutes = ['hero-journey', 'privacy', 'terms', '404'];
+            if (validLocalizedSubRoutes.includes(subRoute)) return true;
+        }
+        return false;
     }
 
-    const validRootRoutes = ['privacy', 'terms', 'licenses'];
-    if (pathSegments.length === 1 && validRootRoutes.includes(pathSegments[0].toLowerCase())) {
+    // Check root standalone tools and legal routes (e.g. /hero-journey/, /privacy/, /terms/, /licenses/)
+    const validRootRoutes = ['hero-journey', 'privacy', 'terms', 'licenses', '404'];
+    if (pathSegments.length === 1 && validRootRoutes.includes(firstSegment)) {
         return true;
     }
 

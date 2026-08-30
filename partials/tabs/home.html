@@ -27,7 +27,9 @@
                         <h2 id="home-hj-title" class="hero-journey-title">
                             <span class="hero-journey-title-wrapper">
                                 <span class="hero-journey-title-text" data-i18n="views.home.heroJourney.title"></span>
-                                <span class="beta-badge" data-i18n="views.settings.badges.beta"></span>
+                                <a id="home-hj-open-btn" href="/hero-journey/" class="hj-open-btn" data-i18n-title="views.home.heroJourney.openInTracker" aria-label="Open in Dedicated Tracker">
+                                    <orecalc-assets-svg name="open-in-new" height="13" width="13"></orecalc-assets-svg>
+                                </a>
                             </span>
                         </h2>
                         <span id="home-hj-cumulative-badge" class="badge hero-journey-level-badge">0/0</span>
@@ -62,7 +64,7 @@
                         </label>
                     </div>
                     <div class="hero-journey-progress-track">
-                        <div id="home-hj-progress-fill" class="hero-journey-progress-fill" style="width: 0%;"></div>
+                        <div id="home-hj-progress-fill" class="hero-journey-progress-fill"></div>
                     </div>
                 </div>
 
@@ -300,7 +302,7 @@
                     </div>
                     <div id="home-required-resources-container" class="required-resources-container">
                         <div class="resources-row">
-                            <span class="resource-item"><img src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" data-i18n-alt="alts.leagueIcon" class="resource-icon calculated" id="home-display-league-icon" width="24" height="24"><span id="home-display-league-requirement" class="calculated" data-i18n="entities.leagues.unranked"></span></span>
+                            <span class="resource-item"><orecalc-assets-image src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" data-i18n-alt="alts.leagueIcon" class="resource-icon calculated" id="home-display-league-icon" width="24" height="24"></orecalc-assets-image><span id="home-display-league-requirement" class="calculated" data-i18n="entities.leagues.unranked"></span></span>
                             <span class="resource-item"><orecalc-assets-image src="assets/resources/cwl.png" data-i18n-alt="views.income.cwl.title"></orecalc-assets-image><span data-i18n="views.income.cwl.participationsColon"></span><span id="home-display-cwl-participations" class="calculated">0</span></span>
                             <span class="resource-item"><orecalc-assets-image src="assets/resources/clanWar.png" data-i18n-alt="views.income.clanWar.title" id="home-display-clan-icon" class="calculated"></orecalc-assets-image><span data-i18n="views.income.clanWar.participationsColon"></span><span id="home-display-clan-war-participations" class="calculated">0</span></span>
                             <span class="resource-item"><orecalc-assets-image src="assets/resources/raidMedal.png" data-i18n-alt="views.income.ores.raidMedal"></orecalc-assets-image><span data-i18n="views.income.raidMedalTrader.medalsColon"></span><span id="home-display-raid-medals" class="calculated">0</span></span>

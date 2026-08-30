@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content">
+    <title data-i18n="views.heroJourneyPage.metaTitle">Hero Journey Rewards &amp; Tracker | Clash of Clans | OreCalc</title>
+    <meta name="description" content="Explore all Clash of Clans Hero Journey milestone rewards, chest ore drops, and track your player progress with direct tag search." data-i18n-content="views.heroJourneyPage.metaDescription">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#121824">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f9fa">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121824">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Hero Journey">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://orecalc.tech/hero-journey/">
+    <meta property="og:title" content="Hero Journey Rewards &amp; Tracker | Clash of Clans | OreCalc">
+    <meta property="og:description" content="Explore all Clash of Clans Hero Journey milestone rewards, chest ore drops, and track your player progress with direct tag search.">
+    <meta property="og:image" content="https://orecalc.tech/assets/hero_journey_og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:logo" content="https://orecalc.tech/assets/hero_journey_icon.png">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://orecalc.tech/hero-journey/">
+    <meta property="twitter:title" content="Hero Journey Rewards &amp; Tracker | Clash of Clans | OreCalc">
+    <meta property="twitter:description" content="Explore all Clash of Clans Hero Journey milestone rewards, chest ore drops, and track your player progress with direct tag search.">
+    <meta property="twitter:image" content="https://orecalc.tech/assets/hero_journey_og.png">
+
+    <link rel="icon" type="image/png" href="/assets/hero_journey_favicon.png">
+    <link rel="apple-touch-icon" href="/assets/hero_journey_icon.png">
+    <link rel="canonical" href="https://orecalc.tech/hero-journey/">
+    <link rel="alternate" hreflang="en" href="https://orecalc.tech/hero-journey/" />
+    <link rel="alternate" hreflang="de" href="https://orecalc.tech/de/hero-journey/" />
+    <link rel="alternate" hreflang="tr" href="https://orecalc.tech/tr/hero-journey/" />
+    <link rel="alternate" hreflang="zh" href="https://orecalc.tech/zh/hero-journey/" />
+    <link rel="alternate" hreflang="x-default" href="https://orecalc.tech/hero-journey/" />
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/hero-journey.css">
+    <script>
+        (function() {
+            try {
+                var isLight = false;
+                var raw = localStorage.getItem('oreCalc_appSettings') || localStorage.getItem('orecalc_state');
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    isLight = (parsed && (parsed.theme === 'light' || (parsed.settings && parsed.settings.theme === 'light')));
+                    var accent = parsed.accentColor || (parsed.settings && parsed.settings.accentColor);
+                    if (accent) {
+                        document.documentElement.setAttribute('data-accent', accent);
+                    }
+                }
+                if (isLight) {
+                    document.documentElement.classList.add('light-mode');
+                } else {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) {}
+        })();
+    </script>
+</head>
+
+<body class="dark-mode hero-journey-page">
+    <!-- include: partials/svg-sprites.html -->
+    <header class="hero-journey-page__header">
+        <div class="hero-journey-page__header-inner">
+            <div class="hero-journey-page__brand">
+                <a href="/" class="brand-title-link" aria-label="OreCalc Home">
+                    <h1 class="brand-title">OreCalc</h1>
+                </a>
+                <span class="brand-separator" aria-hidden="true">&middot;</span>
+                <span class="brand-page-pill" data-i18n="views.home.heroJourney.title">Hero's Journey</span>
+            </div>
+
+            <form id="hj-search-form" class="hero-journey-page__search-form" role="search">
+                <div class="hero-journey-page__search-input-wrapper">
+                    <span id="hj-search-hash-pill" class="hero-journey-page__tag-hash-pill" aria-hidden="true">#</span>
+                    <input type="text" id="hj-search-input" class="hero-journey-page__search-input"
+                        placeholder="Enter Player Tag (e.g. 8PJYGUJC)" data-i18n-placeholder="views.heroJourneyPage.searchPlaceholder"
+                        autocomplete="off" spellcheck="false" maxlength="15" aria-label="Player Tag"
+                        role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="hj-search-dropdown">
+                    <div id="hj-search-active-pill" class="hero-journey-page__active-pill" style="display: none;" role="button" tabindex="0" aria-label="Active player">
+                        <span id="hj-active-pill-name" class="hj-active-pill-name"></span>
+                        <span id="hj-active-pill-tag" class="hj-active-pill-tag"></span>
+                        <span class="hj-active-pill-arrow"><orecalc-assets-svg name="chevron-down" width="12" height="12"></orecalc-assets-svg></span>
+                    </div>
+                    <button type="button" id="hj-search-clear" class="hero-journey-page__search-clear"
+                        aria-label="Clear Search" data-i18n-aria-label="views.heroJourneyPage.clearSearch" style="display: none;">
+                        <orecalc-assets-svg name="close" height="14" width="14"></orecalc-assets-svg>
+                    </button>
+                    <div id="hj-search-dropdown" class="hero-journey-page__search-dropdown" style="display: none;" role="listbox" aria-label="Saved player profiles"></div>
+                </div>
+                <button type="submit" id="hj-load-btn" class="btn-primary hj-track-btn" disabled aria-label="Load">
+                    <span id="hj-load-btn-text" data-i18n="actions.load">Load</span>
+                    <orecalc-assets-image id="hj-load-btn-th" class="hj-track-btn-th-img" src="" alt="Town Hall" style="display: none;"></orecalc-assets-image>
+                </button>
+            </form>
+
+            <div class="hero-journey-page__header-actions">
+                <a href="/" class="btn-secondary hj-header-planner-btn"
+                    aria-label="Ore Calculator" data-i18n-aria-label="app.title"
+                    title="Ore Calculator" data-i18n-title="app.title">
+                    <orecalc-assets-svg name="planner-outline" width="16" height="16" class="hj-planner-btn-icon"></orecalc-assets-svg>
+                    <span class="hj-header-planner-btn-text" data-i18n="app.title">Ore Calculator</span>
+                </a>
+                <div class="hj-settings-wrapper">
+                    <button type="button" id="hj-settings-btn" class="animated-btn btn-accent hj-settings-btn"
+                        aria-haspopup="dialog" aria-expanded="false" aria-controls="hj-settings-popover"
+                        aria-label="Settings" data-i18n-aria-label="views.settings.title"
+                        title="Settings" data-i18n-title="views.settings.title">
+                        <span class="animated-btn-icon-wrapper">
+                            <orecalc-assets-svg name="settings-outline" width="16" height="16"></orecalc-assets-svg>
+                        </span>
+                        <span class="animated-btn-text" data-i18n="views.settings.title">Settings</span>
+                    </button>
+                    <div id="hj-settings-popover" class="hj-settings-popover" role="dialog" aria-modal="false"
+                        aria-label="Settings" data-i18n-aria-label="views.settings.title" style="display: none;">
+                        <div class="hj-settings-popover__header">
+                            <h3 class="hj-settings-popover__title" data-i18n="views.settings.title">Settings</h3>
+                        </div>
+                        <div class="welcome-preferences hj-preferences">
+                            <div class="preference-item">
+                                <span class="preference-label">
+                                    <orecalc-assets-svg name="translate" height="18" width="18" class="pref-label-icon"></orecalc-assets-svg>
+                                    <span data-i18n="views.welcome.chooseLanguage">Language</span>
+                                </span>
+                                <div class="preference-select-wrapper language-select-wrapper">
+                                    <select class="preference-select language-select" id="hj-language-select" aria-label="Select Language">
+                                        <!-- DYNAMIC INSERTION: Language select options -->
+                                    </select>
+                                    <span class="select-arrow"><orecalc-assets-svg name="chevron-down" height="14" width="14"></orecalc-assets-svg></span>
+                                </div>
+                            </div>
+
+                            <div class="preference-item">
+                                <span class="preference-label">
+                                    <orecalc-assets-svg name="routine" height="18" width="18" class="pref-label-icon"></orecalc-assets-svg>
+                                    <span data-i18n="views.welcome.chooseTheme">Theme</span>
+                                </span>
+                                <div class="preference-switch theme-switch" data-active-index="0">
+                                    <div class="switch-pill"></div>
+                                    <button class="pref-btn" data-theme="dark">
+                                        <orecalc-assets-svg name="dark-mode" height="18" width="18"></orecalc-assets-svg>
+                                        <span data-i18n="views.settings.theme.dark">Dark</span>
+                                    </button>
+                                    <button class="pref-btn" data-theme="light">
+                                        <orecalc-assets-svg name="light-mode" height="18" width="18"></orecalc-assets-svg>
+                                        <span data-i18n="views.settings.theme.light">Light</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="preference-item">
+                                <span class="preference-label">
+                                    <orecalc-assets-svg name="colors" height="18" width="18" class="pref-label-icon"></orecalc-assets-svg>
+                                    <span data-i18n="views.welcome.chooseAccent">Accent Color</span>
+                                </span>
+                                <div class="welcome-accent-picker" id="hj-accent-picker">
+                                    <button class="accent-swatch" data-color="blue" data-i18n-aria-label="colors.blue"></button>
+                                    <button class="accent-swatch" data-color="gold" data-i18n-aria-label="colors.gold"></button>
+                                    <button class="accent-swatch" data-color="purple" data-i18n-aria-label="colors.purple"></button>
+                                    <button class="accent-swatch" data-color="green" data-i18n-aria-label="colors.green"></button>
+                                    <button class="accent-swatch" data-color="red" data-i18n-aria-label="colors.red"></button>
+                                    <button class="accent-swatch" data-color="random" data-i18n-aria-label="colors.random" title="Random"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="header-placeholder"></div>
+
+    <main class="container hero-journey-page__main">
+        <div id="hj-error-banner" class="app-message-box app-message-box--error hero-journey-page__error-banner" style="display: none;" role="alert">
+            <div class="app-message-box-content">
+                <div class="app-message-box-item">
+                    <orecalc-assets-svg name="error" width="18" height="18" class="banner-icon"></orecalc-assets-svg>
+                    <span id="hj-error-banner-text" class="banner-text"></span>
+                </div>
+            </div>
+        </div>
+
+        <section id="hj-player-card" class="card home-profile-card hero-journey-page__player-card" aria-label="Player Summary">
+            <div class="hero-journey-page__unconnected">
+                <div class="unconnected-icon-wrapper">
+                    <orecalc-assets-svg name="user" height="32" width="32" class="unconnected-icon"></orecalc-assets-svg>
+                </div>
+                <h2 class="unconnected-title" data-i18n="views.home.profile.noProfileTitle">No Profile Connected</h2>
+                <p class="unconnected-desc" data-i18n="views.heroJourneyPage.noPlayerLoaded">Enter your Clash of Clans player tag above to preview your completed milestones and upcoming ore rewards.</p>
+            </div>
+        </section>
+
+        <div id="home-hj-card" class="card full-width-card hero-journey-card">
+            <div class="hero-journey-header">
+                <div class="hero-journey-title-container">
+                    <div class="hero-mountain-cluster" data-i18n-aria-label="views.home.heroJourney.heroEmblems">
+                        <div class="mountain-badge-slot pos-1">
+                            <orecalc-assets-image src="assets/heroes/emblemRoyalChampion.png" data-i18n-alt="entities.heroes.royalChampion" class="mountain-badge"></orecalc-assets-image>
+                        </div>
+                        <div class="mountain-badge-slot pos-2">
+                            <orecalc-assets-image src="assets/heroes/emblemMinionPrince.png" data-i18n-alt="entities.heroes.minionPrince" class="mountain-badge"></orecalc-assets-image>
+                        </div>
+                        <div class="mountain-badge-slot pos-3">
+                            <orecalc-assets-image src="assets/heroes/emblemBarbarianKing.png" data-i18n-alt="entities.heroes.barbarianKing" class="mountain-badge"></orecalc-assets-image>
+                        </div>
+                        <div class="mountain-badge-slot pos-4">
+                            <orecalc-assets-image src="assets/heroes/emblemArcherQueen.png" data-i18n-alt="entities.heroes.archerQueen" class="mountain-badge"></orecalc-assets-image>
+                        </div>
+                        <div class="mountain-badge-slot pos-5">
+                            <orecalc-assets-image src="assets/heroes/emblemGrandWarden.png" data-i18n-alt="entities.heroes.grandWarden" class="mountain-badge"></orecalc-assets-image>
+                        </div>
+                        <div class="mountain-badge-slot pos-6">
+                            <orecalc-assets-image src="assets/heroes/emblemDragonDuke.png" data-i18n-alt="entities.heroes.dragonDuke" class="mountain-badge"></orecalc-assets-image>
+                        </div>
+                    </div>
+                    <h2 id="home-hj-title" class="hero-journey-title">
+                        <span class="hero-journey-title-wrapper">
+                            <span class="hero-journey-title-text" data-i18n="views.home.heroJourney.title">Hero's Journey</span>
+                        </span>
+                    </h2>
+                    <span id="home-hj-cumulative-badge" class="badge hero-journey-level-badge">0/0</span>
+                </div>
+            </div>
+
+            <div class="hero-journey-progress-bar-container">
+                <div class="hero-journey-progress-info">
+                    <span id="home-hj-progress-text" data-i18n="views.home.heroJourney.progressToNextMilestone">Progress to Next Milestone</span>
+                    <span id="home-hj-progress-percent">0%</span>
+                </div>
+                <div class="hero-journey-accelerated-switch-container">
+                    <div class="hero-journey-accelerated-label-group">
+                        <label for="home-hj-accelerated-switch" class="hero-journey-accelerated-label" data-i18n="views.home.heroJourney.acceleratedRewards">Accelerated Rewards</label>
+                        <button type="button" class="info-btn hj-accelerated-info-btn" data-info="views.home.heroJourney.acceleratedInfoHelp" data-i18n-aria-label="actions.showInfo">
+                            <orecalc-assets-svg name="info" class="info-icon" height="14" width="14"></orecalc-assets-svg>
+                        </button>
+                    </div>
+                    <label class="switch hero-journey-accelerated-switch">
+                        <input type="checkbox" id="home-hj-accelerated-switch">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="hero-journey-progress-track">
+                    <div id="home-hj-progress-fill" class="hero-journey-progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="hero-journey-filter-container">
+                <div class="hero-journey-filters-row">
+                    <div class="hj-segmented-switch" id="home-hj-claim-switch">
+                        <div class="hj-switch-pill" id="home-hj-claim-pill"></div>
+                        <button type="button" class="hj-switch-btn active" data-unclaimed-only="false" data-i18n="views.home.heroJourney.filterAll">All</button>
+                        <button type="button" class="hj-switch-btn" data-unclaimed-only="true" data-i18n="views.home.heroJourney.filterUnclaimed">Unclaimed</button>
+                    </div>
+                    <div class="hj-type-filters" id="home-hj-type-filters">
+                        <select id="home-hj-type-select" class="hj-type-select" aria-label="Filter by type" data-i18n-aria-label="views.home.heroJourney.filterByType">
+                            <option value="all" data-i18n="views.home.heroJourney.filterAllTypes">All Types</option>
+                            <option value="ores" data-i18n="views.home.heroJourney.filterOres">Ores / Quests</option>
+                            <option value="equipment" data-i18n="nav.equipment">Equipment</option>
+                            <option value="skins" data-i18n="views.home.heroJourney.filterSkins">Skins</option>
+                            <option value="items" data-i18n="views.home.heroJourney.filterItems">Items & Resources</option>
+                        </select>
+                        <div class="hj-type-buttons">
+                            <button type="button" class="hj-type-btn" data-type-filter="ores">
+                                <span data-i18n="views.home.heroJourney.filterOres">Ores / Quests</span>
+                                <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                            </button>
+                            <button type="button" class="hj-type-btn" data-type-filter="equipment">
+                                <span data-i18n="nav.equipment">Equipment</span>
+                                <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                            </button>
+                            <button type="button" class="hj-type-btn" data-type-filter="skins">
+                                <span data-i18n="views.home.heroJourney.filterSkins">Skins</span>
+                                <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                            </button>
+                            <button type="button" class="hj-type-btn" data-type-filter="items">
+                                <span data-i18n="views.home.heroJourney.filterItems">Items & Resources</span>
+                                <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-journey-scroll-controls">
+                    <button type="button" id="home-hj-scroll-first" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollFirst" data-i18n-title="views.home.heroJourney.scrollFirst">
+                        <orecalc-assets-svg name="first-item" height="14" width="14"></orecalc-assets-svg>
+                    </button>
+                    <button type="button" id="home-hj-scroll-left" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollLeft" data-i18n-title="views.home.heroJourney.scrollLeft">
+                        <orecalc-assets-svg name="backward" height="14" width="14"></orecalc-assets-svg>
+                    </button>
+                    <button type="button" id="home-hj-scroll-current" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollToCurrentProgress" data-i18n-title="views.home.heroJourney.scrollToCurrentProgress">
+                        <orecalc-assets-svg name="trophy" height="14" width="14"></orecalc-assets-svg>
+                    </button>
+                    <button type="button" id="home-hj-scroll-right" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollRight" data-i18n-title="views.home.heroJourney.scrollRight">
+                        <orecalc-assets-svg name="forward" height="14" width="14"></orecalc-assets-svg>
+                    </button>
+                    <button type="button" id="home-hj-scroll-last" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollLast" data-i18n-title="views.home.heroJourney.scrollLast">
+                        <orecalc-assets-svg name="last-item" height="14" width="14"></orecalc-assets-svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hero-journey-track-wrapper" id="home-hj-track-wrapper">
+                <div id="home-hj-nodes-track" class="hero-journey-nodes-track">
+                    <!-- DYNAMIC INSERTION: Track node chips and TH dividers -->
+                </div>
+            </div>
+
+            <div id="home-hj-custom-scrollbar" class="hero-journey-custom-scrollbar" aria-hidden="true">
+                <div id="home-hj-scrollbar-progress" class="hero-journey-scrollbar-progress"></div>
+                <div id="home-hj-scrollbar-thumb" class="hero-journey-scrollbar-thumb">
+                    <div id="home-hj-scrub-tooltip" class="hero-journey-scrub-tooltip"></div>
+                </div>
+            </div>
+        </div>
+
+        <section class="hero-journey-page__view-toggle-bar">
+            <div class="hero-journey-filters-row" id="hj-table-filters-row">
+                <div class="hj-segmented-switch" id="hj-table-claim-switch">
+                    <div class="hj-switch-pill" id="hj-table-claim-pill"></div>
+                    <button type="button" class="hj-switch-btn active" data-unclaimed-only="false" data-i18n="views.home.heroJourney.filterAll">All</button>
+                    <button type="button" class="hj-switch-btn" data-unclaimed-only="true" data-i18n="views.home.heroJourney.filterUnclaimed">Unclaimed</button>
+                </div>
+                <div class="hj-type-filters" id="hj-table-type-filters">
+                    <select id="hj-table-type-select" class="hj-type-select" aria-label="Filter by type" data-i18n-aria-label="views.home.heroJourney.filterByType">
+                        <option value="all" data-i18n="views.home.heroJourney.filterAllTypes">All Types</option>
+                        <option value="ores" data-i18n="views.home.heroJourney.filterOres">Ores / Quests</option>
+                        <option value="equipment" data-i18n="nav.equipment">Equipment</option>
+                        <option value="skins" data-i18n="views.home.heroJourney.filterSkins">Skins</option>
+                        <option value="items" data-i18n="views.home.heroJourney.filterItems">Items & Resources</option>
+                    </select>
+                    <div class="hj-type-buttons">
+                        <button type="button" class="hj-type-btn" data-type-filter="ores">
+                            <span data-i18n="views.home.heroJourney.filterOres">Ores / Quests</span>
+                            <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                        </button>
+                        <button type="button" class="hj-type-btn" data-type-filter="equipment">
+                            <span data-i18n="nav.equipment">Equipment</span>
+                            <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                        </button>
+                        <button type="button" class="hj-type-btn" data-type-filter="skins">
+                            <span data-i18n="views.home.heroJourney.filterSkins">Skins</span>
+                            <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                        </button>
+                        <button type="button" class="hj-type-btn" data-type-filter="items">
+                            <span data-i18n="views.home.heroJourney.filterItems">Items & Resources</span>
+                            <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-journey-page__table-toggle-action">
+                <button type="button" id="hj-btn-toggle-table" class="btn-secondary">
+                    <span id="hj-toggle-table-text" data-i18n="views.heroJourneyPage.hideTable">Hide Data Table</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="hj-table-wrapper" class="hero-journey-page__table-wrapper">
+            <button type="button" id="expand-hj-table-btn" class="expand-table-btn" data-i18n-title="actions.expandTable" data-i18n-aria-label="actions.expandTable" title="Expand Table" aria-label="Expand Table">
+                <orecalc-assets-svg name="expand"></orecalc-assets-svg>
+            </button>
+            <div class="hero-journey-page__table-container">
+                <table class="hero-journey-page__table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="views.heroJourneyPage.tableColLevel">Hero Level</th>
+                            <th data-i18n="views.heroJourneyPage.tableColReward">Reward</th>
+                            <th data-i18n="views.heroJourneyPage.tableColDetails">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hj-table-body">
+                        <!-- DYNAMIC INSERTION: Table rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="make-notice notice">
+            <p><span data-i18n="app.madeIn"></span><span id="app-version-display" class="version-display-text"></span></p>
+        </div>
+    </main>
+
+    <footer class="app-footer hero-journey-page__footer">
+        <div class="app-footer__links">
+            <a href="/" class="app-footer__link">OreCalc <span data-i18n="nav.home">Home</span></a>
+            <span class="app-footer__sep" aria-hidden="true">&bull;</span>
+            <a href="/privacy/" target="_blank" rel="noopener noreferrer" class="app-footer__link" data-i18n="nav.privacy">Privacy Policy</a>
+            <span class="app-footer__sep" aria-hidden="true">&bull;</span>
+            <a href="/terms/" target="_blank" rel="noopener noreferrer" class="app-footer__link" data-i18n="nav.tos">Terms of Use</a>
+            <span class="app-footer__sep" aria-hidden="true">&bull;</span>
+            <a href="/licenses/" target="_blank" rel="noopener noreferrer" class="app-footer__link" data-i18n="views.settings.licenses">Licenses</a>
+        </div>
+        <div class="supercell-notice notice">
+            <p data-i18n="app.supercellDisclaimer"></p>
+        </div>
+        <div class="app-copyright notice">
+            <p>&copy; 2025-2026 OreCalc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="/js/heroJourneyApp.js"></script>
+</body>
+</html>

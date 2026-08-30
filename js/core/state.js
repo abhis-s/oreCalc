@@ -1,8 +1,8 @@
 import { heroData } from '../data/heroData.js';
 
-import { compareVersions } from './stateCleanup.js';
+import { compareVersions } from '../utils/versionUtils.js';
 
-import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel } from '../domain/income/heroJourneyIncome.js';
+import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolveHeroJourneyTrack } from '../domain/income/heroJourneyResolution.js';
 import { getISOWeekNumber } from '../utils/dateUtils.js';
 
 /** @type {import('./types.js').AppState | any} */
@@ -50,6 +50,7 @@ export function getDefaultState() {
             enableLevelInput: false,
             hideMaxedEquipment: false,
             hideLockedEquipment: false,
+            hideProfileStats: false,
             cloudSync: true,
             uiTimestamps: {
                 privacy: null,
@@ -166,9 +167,9 @@ function getDefaultPlayerStateProperties() {
                 },
                 dates: {},
                 isDirty: true,
-                customChips: [], // Chips waiting to be placed
-                customChipData: {}, // Data for chips already on the calendar
-                lastRecurringProcessed: '', // Last month-year recurring chips were generated
+                customChips: [],
+                customChipData: {},
+                lastRecurringProcessed: '',
                 customChipSettings: Object.fromEntries(
                     Object.entries(DEFAULT_CUSTOM_CHIP_SETTINGS).map(([k, v]) => [k, { ...v }])
                 )
@@ -176,12 +177,9 @@ function getDefaultPlayerStateProperties() {
         },
         heroJourney: {
             hidden: false,
-            unclaimedOnly: false,
-            typeFilter: null,
-            scrollPosition: 0,
             rewardMode: 'normal',
             acceleratedRewards: false,
-            overrideUnclaimed: []
+            revealBeyondTH: false
         },
     };
 }
@@ -298,7 +296,7 @@ export function initializeState(savedState) {
                 }
 
                 playerState.playerProfile = savedPlayerState.playerProfile || playerState.playerProfile || null;
-                playerState.heroJourney = savedPlayerState.heroJourney || playerState.heroJourney || { overrideUnclaimed: [], acceleratedRewards: false };
+                playerState.heroJourney = savedPlayerState.heroJourney || playerState.heroJourney || { acceleratedRewards: false };
                 playerState.onboardingTimestamp = typeof savedPlayerState.onboardingTimestamp === 'number'
                     ? savedPlayerState.onboardingTimestamp
                     : (savedPlayerState.onboardingTimestamp ?? null);
@@ -350,6 +348,7 @@ function ensureStateDefaults(s) {
             if (!ps.heroes || Object.keys(ps.heroes).length === 0) {
                 ps.heroes = getDefaultHeroesState();
             } else {
+                const trackResolution = resolveHeroJourneyTrack(ps);
                 for (const heroKey in heroData) {
                     const hero = heroData[heroKey];
                     const heroName = hero.name;
@@ -362,12 +361,12 @@ function ensureStateDefaults(s) {
                     if (hero.equipment && Array.isArray(hero.equipment)) {
                         hero.equipment.forEach(eq => {
                             const equipName = eq.name;
-                            const defaultLevel = getDefaultEquipmentUnlockLevel(heroKey, equipName);
+                            const defaultLevel = getDefaultEquipmentUnlockLevel(heroKey, equipName, ps, trackResolution);
                             if (!ps.heroes[heroName].equipment[equipName]) {
                                 ps.heroes[heroName].equipment[equipName] = { level: defaultLevel, checked: true };
                             } else {
                                 const eqState = ps.heroes[heroName].equipment[equipName];
-                                if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, ps) && eqState.level === 1 && defaultLevel > 1) {
+                                if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, ps, trackResolution) && eqState.level === 1 && defaultLevel > 1) {
                                     eqState.level = defaultLevel;
                                 }
                             }
@@ -496,8 +495,8 @@ function ensureStateDefaults(s) {
                 ps.planner.calendar.view.month = defaultMonth;
             } else {
                 const parts = ps.planner.calendar.view.month.split('-');
-                const y = parseInt(parts[0], 10);
-                const m = parseInt(parts[1], 10);
+                const y = Number(parts[0]);
+                const m = Number(parts[1]);
                 const currentMonthNow = now.getMonth() + 1;
                 const currentYearNow = now.getFullYear();
                 if (isNaN(m) || isNaN(y) || y < currentYearNow || (y === currentYearNow && m < currentMonthNow)) {
@@ -509,8 +508,8 @@ function ensureStateDefaults(s) {
                 ps.planner.calendar.view.week = defaultWeek;
             } else {
                 const parts = ps.planner.calendar.view.week.split('-');
-                const y = parseInt(parts[0], 10);
-                const w = parseInt(parts[1], 10);
+                const y = Number(parts[0]);
+                const w = Number(parts[1]);
                 if (isNaN(w) || isNaN(y) || y < year || (y === year && w < weekNo)) {
                     ps.planner.calendar.view.week = defaultWeek;
                 }
@@ -538,19 +537,18 @@ function ensureStateDefaults(s) {
             if (!ps.heroJourney) {
                 ps.heroJourney = {
                     hidden: false,
-                    unclaimedOnly: false,
-                    typeFilter: null,
-                    scrollPosition: 0,
-                    rewardMode: 'normal',
                     acceleratedRewards: false,
-                    overrideUnclaimed: []
+                    revealBeyondTH: false
                 };
             } else {
                 if (ps.heroJourney.hidden === undefined) {
                     ps.heroJourney.hidden = false;
                 }
-                if (ps.heroJourney.unclaimedOnly === undefined) {
-                    ps.heroJourney.unclaimedOnly = false;
+                if (ps.heroJourney.acceleratedRewards === undefined) {
+                    ps.heroJourney.acceleratedRewards = false;
+                }
+                if (ps.heroJourney.revealBeyondTH === undefined) {
+                    ps.heroJourney.revealBeyondTH = false;
                 }
             }
 

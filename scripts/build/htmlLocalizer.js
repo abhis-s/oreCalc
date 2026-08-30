@@ -37,18 +37,30 @@ function getNestedValue(obj, keyPath) {
     return keyPath.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
 }
 
-function resolveTranslation(translations, key, lang, getDynamicTranslationArgs) {
+function resolveTranslation(translations, key, lang, getDynamicTranslationArgs, enTranslations = null) {
+    let isFallbackToEnglish = false;
     let val = getNestedValue(translations, key);
+    if (typeof val !== 'string' && enTranslations) {
+        val = getNestedValue(enTranslations, key);
+        if (typeof val === 'string') {
+            isFallbackToEnglish = true;
+        }
+    }
     if (typeof val !== 'string') return null;
 
     if (getDynamicTranslationArgs) {
-        const dynamicArgs = getDynamicTranslationArgs(key, lang, (k) => getNestedValue(translations, k) || '');
+        const dynamicArgs = getDynamicTranslationArgs(key, lang, (k) => getNestedValue(translations, k) || (enTranslations && getNestedValue(enTranslations, k)) || '');
         if (dynamicArgs && Object.keys(dynamicArgs).length > 0) {
             for (const [paramKey, paramVal] of Object.entries(dynamicArgs)) {
                 val = val.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), paramVal);
             }
         }
     }
+
+    if (isFallbackToEnglish && lang !== 'en') {
+        return `[EN] ${val}`;
+    }
+
     return val;
 }
 
@@ -76,26 +88,47 @@ function injectOrReplaceAttribute(tagHtml, attrName, attrValue) {
  * @param {string} [projectRoot=process.cwd()] - Project root path.
  * @returns {string} Fully localized HTML string.
  */
-function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = false, getDynamicTranslationArgs = null, projectRoot = process.cwd()) {
+function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = false, getDynamicTranslationArgs = null, projectRoot = process.cwd(), routePath = '') {
     const i18nFilePath = path.join(projectRoot, `js/i18n/${lang}.json`);
     if (!fs.existsSync(i18nFilePath)) {
         return baseHtml;
     }
     const translations = JSON.parse(fs.readFileSync(i18nFilePath, 'utf8'));
-    const title = translations.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | OreCalc';
-    const description = translations.app?.description || '';
+    const enFilePath = path.join(projectRoot, 'js/i18n/en.json');
+    const enTranslations = (lang !== 'en' && fs.existsSync(enFilePath))
+        ? JSON.parse(fs.readFileSync(enFilePath, 'utf8'))
+        : null;
+
+    let resolvedRoutePath = routePath;
+    if (!resolvedRoutePath) {
+        const canonicalMatch = baseHtml.match(/<link rel="canonical" href="https:\/\/orecalc\.tech\/([^"\/]+)\/">/);
+        if (canonicalMatch && !['de', 'tr', 'zh'].includes(canonicalMatch[1])) {
+            resolvedRoutePath = canonicalMatch[1];
+        }
+    }
+
+    const title = (resolvedRoutePath === 'hero-journey' && translations.views?.heroJourneyPage?.metaTitle)
+        ? translations.views.heroJourneyPage.metaTitle
+        : (translations.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | OreCalc');
+    const description = (resolvedRoutePath === 'hero-journey' && translations.views?.heroJourneyPage?.metaDescription)
+        ? translations.views.heroJourneyPage.metaDescription
+        : (translations.app?.description || '');
     const locale = localesMap[lang] || `${lang}_${lang.toUpperCase()}`;
-    const url = isRoot ? 'https://orecalc.tech/' : `https://orecalc.tech/${lang}/`;
+    const url = isRoot
+        ? (resolvedRoutePath ? `https://orecalc.tech/${resolvedRoutePath}/` : 'https://orecalc.tech/')
+        : (resolvedRoutePath ? `https://orecalc.tech/${lang}/${resolvedRoutePath}/` : `https://orecalc.tech/${lang}/`);
 
     let html = baseHtml;
     html = html.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);
-    html = html.replace(/<title[^>]*>.*?<\/title>/s, `<title data-i18n="app.title">${title}</title>`);
+    html = html.replace(/<title[^>]*>.*?<\/title>/s, `<title data-i18n="${resolvedRoutePath === 'hero-journey' ? 'views.heroJourneyPage.metaTitle' : 'app.title'}">${title}</title>`);
     html = html.replace(/<meta name="description"\s+content="[^"]*">/s, `<meta name="description" content="${description}">`);
     html = html.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">`);
 
-    const hreflangTags = supportedLanguages.map(l =>
-        `<link rel="alternate" hreflang="${l}" href="https://orecalc.tech/${l === 'en' ? '' : l + '/'}" />`
-    ).concat(['<link rel="alternate" hreflang="x-default" href="https://orecalc.tech/" />']).join('\n    ');
+    const hreflangTags = supportedLanguages.map(l => {
+        const prefix = l === 'en' ? '' : l + '/';
+        const sub = resolvedRoutePath ? `${resolvedRoutePath}/` : '';
+        return `<link rel="alternate" hreflang="${l}" href="https://orecalc.tech/${prefix}${sub}" />`;
+    }).concat([`<link rel="alternate" hreflang="x-default" href="https://orecalc.tech/${resolvedRoutePath ? resolvedRoutePath + '/' : ''}" />`]).join('\n    ');
     html = html.replace(/(<link rel="alternate" hreflang="[^"]*" href="[^"]*" \/>\s*)+/g, `${hreflangTags}\n    `);
     html = html.replace(/<meta property="og:title" content="[^"]*">/g, `<meta property="og:title" content="${title}">`);
     html = html.replace(/<meta property="og:description"\s+content="[^"]*">/g, `<meta property="og:description" content="${description}">`);
@@ -113,7 +146,7 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
 
     // Pre-render static body elements marked with data-i18n
     html = html.replace(/<([a-z1-6]+)([^>]*?)\s+data-i18n="([^"]+)"([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tagName, attrsBefore, key, attrsAfter) => {
-        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs);
+        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs, enTranslations);
         if (val !== null && val.trim()) {
             return `<${tagName}${attrsBefore} data-i18n="${key}"${attrsAfter}>${val}</${tagName}>`;
         }
@@ -121,7 +154,7 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
     });
 
     html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-placeholder="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
-        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs);
+        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs, enTranslations);
         if (val !== null) {
             return injectOrReplaceAttribute(match, 'placeholder', val);
         }
@@ -129,7 +162,7 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
     });
 
     html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-title="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
-        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs);
+        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs, enTranslations);
         if (val !== null) {
             return injectOrReplaceAttribute(match, 'title', val);
         }
@@ -137,7 +170,7 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
     });
 
     html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-aria-label="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
-        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs);
+        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs, enTranslations);
         if (val !== null) {
             return injectOrReplaceAttribute(match, 'aria-label', val);
         }
@@ -145,7 +178,7 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
     });
 
     html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-alt="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
-        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs);
+        const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs, enTranslations);
         if (val !== null) {
             return injectOrReplaceAttribute(match, 'alt', val);
         }

@@ -29,7 +29,6 @@ export function renderHomeProfile(state) {
 
     const profile = state.playerProfile;
 
-    // No profile connected
     if (!profile || !profile.tag || profile.tag === 'DEFAULT0') {
         renderState.renderedTag = null;
         renderState.renderedLang = null;
@@ -53,33 +52,47 @@ export function renderHomeProfile(state) {
                 </button>
             </div>
         `;
-        cardContainer.style.display = 'block';
+        cardContainer.style.display = 'flex';
         return;
     }
 
-    let ownedHeroes = profile.ownedHeroes || {};
-    let ownedEquipment = profile.ownedEquipment || {};
+    let ownedHeroes = profile.ownedHeroes;
+    let ownedEquipment = profile.ownedEquipment;
 
     const isGuest = profile.tag === 'DEFAULT0';
-    if (isGuest && state.heroes) {
-        ownedHeroes = {};
-        ownedEquipment = {};
-        for (const heroName in state.heroes) {
-            const heroState = state.heroes[heroName];
-            if (heroState.enabled !== false) {
-                ownedHeroes[heroName] = {
-                    level: 1,
-                    maxLevel: 95
-                };
-                if (heroState.equipment) {
-                    for (const equipName in heroState.equipment) {
-                        const eqState = heroState.equipment[equipName];
-                        if (eqState && eqState.checked !== false) {
-                            ownedEquipment[equipName] = eqState.level || 1;
+    if (!ownedHeroes || !ownedEquipment || Object.keys(ownedEquipment).length === 0) {
+        if (Array.isArray(profile.heroes) || Array.isArray(profile.heroEquipment)) {
+            const homeHeroes = (profile.heroes || []).filter(h => h.village === 'home' || !h.village);
+            const homeEquip = (profile.heroEquipment || []).filter(e => e.village === 'home' || !e.village);
+            ownedHeroes = Object.fromEntries(homeHeroes.map(h => [h.name, {
+                level: h.level,
+                maxLevel: h.maxLevel,
+                equipment: h.equipment?.map(eq => ({ name: eq.name, level: eq.level })) || []
+            }]));
+            ownedEquipment = Object.fromEntries(homeEquip.map(e => [e.name, e.level]));
+        } else if (state.heroes) {
+            ownedHeroes = {};
+            ownedEquipment = {};
+            for (const heroName in state.heroes) {
+                const heroState = state.heroes[heroName];
+                if (heroState.enabled !== false) {
+                    ownedHeroes[heroName] = {
+                        level: heroState.level || 1,
+                        maxLevel: 95
+                    };
+                    if (heroState.equipment) {
+                        for (const equipName in heroState.equipment) {
+                            const eqState = heroState.equipment[equipName];
+                            if (eqState && eqState.checked !== false) {
+                                ownedEquipment[equipName] = eqState.level || 1;
+                            }
                         }
                     }
                 }
             }
+        } else {
+            ownedHeroes = {};
+            ownedEquipment = {};
         }
     }
 
@@ -135,7 +148,6 @@ export function renderHomeProfile(state) {
         }
     }
 
-    // Full rebuild
     renderState.renderedTag = profile.tag;
     renderState.renderedLang = currentLang;
     renderState.renderedTH = thLevel;
@@ -145,14 +157,13 @@ export function renderHomeProfile(state) {
     renderState.pendingSnapshot = null;
     renderState.isAnimating = true;
 
-    // Header: TH badge, name, clan, league
     const thImgUrl = `assets/th/th${thLevel}.png`;
 
     let clanHtml = '';
     if (profile.clan?.name) {
         const badgeUrl = profile.clan.badgeUrls?.small || '';
         const safeBadgeUrl = escapeHTML(badgeUrl);
-        const badgeImg = badgeUrl ? `<img class="clan-badge-img-mini" src="${safeBadgeUrl}" alt="Clan Badge">` : '';
+        const badgeImg = badgeUrl ? `<orecalc-assets-image class="clan-badge-img-mini" src="${safeBadgeUrl}" alt="Clan Badge"></orecalc-assets-image>` : '';
         const roleText = profile.role ? `<span class="clan-role-mini">${formatClanRole(profile.role)}</span>` : '';
         clanHtml = `<div class="player-clan-mini">${badgeImg}<div class="clan-info-col"><span class="clan-name-mini">${escapeHTML(profile.clan.name)}</span>${roleText}</div></div>`;
     } else {
@@ -170,7 +181,7 @@ export function renderHomeProfile(state) {
             .replace(/\s/g, '_');
         leagueNameText = translate(leagueKey);
         const imgUrl = leagueData.iconUrls?.small || '';
-        if (imgUrl) leagueIconHtml = `<img class="league-badge-img-mini" src="${escapeHTML(imgUrl)}" alt="${escapeHTML(leagueNameText)}">`;
+        if (imgUrl) leagueIconHtml = `<orecalc-assets-image class="league-badge-img-mini" src="${escapeHTML(imgUrl)}" alt="${escapeHTML(leagueNameText)}"></orecalc-assets-image>`;
     }
 
     const safeTag = escapeHTML(profile.tag);
@@ -180,6 +191,13 @@ export function renderHomeProfile(state) {
         ? `<span class="player-tag-guest-badge" data-i18n="views.welcome.guestProfileTag">${translate('views.welcome.guestProfileTag')}</span>`
         : `<span class="player-tag">${safeTag}</span>`;
 
+    const isCollapsed = Boolean(state.uiSettings?.hideProfileStats);
+    if (isCollapsed) {
+        cardContainer.classList.add('is-stats-collapsed');
+    } else {
+        cardContainer.classList.remove('is-stats-collapsed');
+    }
+
     cardContainer.innerHTML = `
         <div class="home-profile-header${isGuest ? ' is-guest' : ''}">
             <div class="profile-meta-left">
@@ -188,8 +206,10 @@ export function renderHomeProfile(state) {
                     <span class="th-badge-level-overlay">${thLevel}</span>
                 </div>
                 <div class="player-identity">
-                    <h2 class="player-name">${safePlayerName}</h2>
-                    ${tagHtml}
+                    <div class="player-identity-info">
+                        <h2 class="player-name">${safePlayerName}</h2>
+                        ${tagHtml}
+                    </div>
                     ${clanHtml}
                 </div>
             </div>
@@ -205,9 +225,14 @@ export function renderHomeProfile(state) {
                         </div>
                     </div>
                 </div>
-                <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
-                    <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
-                    <span><span class="maxed-count">${maxedCount}/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
+                <div class="profile-meta-actions-row">
+                    <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
+                        <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
+                        <span><span class="maxed-count">${maxedCount}/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
+                    </div>
+                    <button id="home-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
+                        <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -277,32 +302,40 @@ export function renderHomeProfile(state) {
         </div>
     `;
 
-    cardContainer.style.display = 'block';
+    cardContainer.style.display = 'flex';
 
-    triggerFillAnimation(cardContainer, progress, () => {
-        renderState.isAnimating = false;
+    const preloader = typeof document !== 'undefined' ? document.getElementById('preloader') : null;
+    const isPreloaderActive = Boolean(preloader && !preloader.classList.contains('hidden') && preloader.style.display !== 'none');
+
+    if (isPreloaderActive) {
+        renderState.initialProgress = progress;
         renderState.lastProgress = progress;
+    } else {
+        triggerFillAnimation(cardContainer, progress, () => {
+            renderState.isAnimating = false;
+            renderState.lastProgress = progress;
 
-        // Apply any update that arrived while the animation was running
-        if (renderState.pendingSnapshot) {
-            const { progress: pProg, subData: pSub } = renderState.pendingSnapshot;
-            renderState.pendingSnapshot = null;
+            // Apply any update that arrived while the animation was running
+            if (renderState.pendingSnapshot) {
+                const { progress: pProg, subData: pSub } = renderState.pendingSnapshot;
+                renderState.pendingSnapshot = null;
 
-            const ok = applyProgressDelta(
-                cardContainer,
-                progress,
-                pProg,
-                pSub,
-                state,
-                maxedCount,
-                totalCount,
-                profile
-            );
-            if (ok) {
-                renderState.lastProgress = pProg;
-            } else {
-                renderHomeProfile(state);
+                const ok = applyProgressDelta(
+                    cardContainer,
+                    progress,
+                    pProg,
+                    pSub,
+                    state,
+                    maxedCount,
+                    totalCount,
+                    profile
+                );
+                if (ok) {
+                    renderState.lastProgress = pProg;
+                } else {
+                    renderHomeProfile(state);
+                }
             }
-        }
-    });
+        });
+    }
 }

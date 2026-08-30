@@ -1,6 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 
-import { removePlayerTag, updateSavedPlayerTags } from '../../core/localStorageManager.js';
+import { normalizePlayerTag, removePlayerTag, updateSavedPlayerTags } from '../../core/localStorageManager.js';
 import { getDefaultPlayerState, isProfileOnboarded, state } from '../../core/state.js';
 import { handleStateUpdate, switchActivePlayer } from '../../core/stateManager.js';
 
@@ -25,6 +25,7 @@ import {
     renderWelcomeProfilesList
 } from './welcomeProfileCardRenderer.js';
 import { renderProfilePreviewCard } from './welcomeProfileDisplay.js';
+import { syncWelcomeQuickSettings } from './welcomeSettingsDisplay.js';
 import { updateWelcomeSyncState } from './welcomeSyncDisplay.js';
 import { getWizardCallbacks } from './welcomeWizardInputs.js';
 import {
@@ -168,7 +169,7 @@ export function initializeWelcomeProfilesInputs(modal, carousel) {
                 if (playerData && playerData.tag) {
                     input.value = '';
                     processPlayerDataResponse(playerData);
-                    const tagKey = playerData.tag.startsWith('#') ? playerData.tag.substring(1) : playerData.tag;
+                    const tagKey = normalizePlayerTag(playerData.tag);
 
                     handleStateUpdate(() => {
                         const playerObj = state.allPlayersData[tagKey];
@@ -285,6 +286,84 @@ export function initializeWelcomeProfilesInputs(modal, carousel) {
             }
         });
     }
+
+    /**
+     * @param {HTMLElement} card
+     */
+    const handleCompactCardClick = (card) => {
+        const tag = card.dataset.tag;
+        if (!tag) return;
+        switchActivePlayer(tag);
+
+        renderWelcomeProfilesList(welcomeState.updatingProfiles, welcomeState.errorProfiles);
+
+        safeRaf(() => {
+            const freshCard = document.querySelector(`.welcome-profile-card-compact[data-tag="${tag}"]`);
+            if (freshCard && freshCard instanceof HTMLElement) {
+                const list = freshCard.parentElement;
+                if (list) {
+                    const pad = 24;
+                    if (freshCard.offsetLeft < list.scrollLeft + pad) {
+                        list.scrollLeft = Math.max(0, freshCard.offsetLeft - pad);
+                    } else if (freshCard.offsetLeft + freshCard.offsetWidth > list.scrollLeft + list.clientWidth - pad) {
+                        list.scrollLeft = freshCard.offsetLeft + freshCard.offsetWidth - list.clientWidth + pad;
+                    }
+                }
+            }
+        });
+
+        const activePlayer = state.allPlayersData[tag];
+        if (activePlayer && (activePlayer.playerProfile || activePlayer.playerData)) {
+            renderProfilePreviewCard(activePlayer.playerProfile || activePlayer.playerData);
+            welcomeState.isProfileLoaded = true;
+        } else {
+            const previewContainer = document.getElementById('welcome-profile-preview-container');
+            if (previewContainer) previewContainer.style.display = 'none';
+            welcomeState.isProfileLoaded = false;
+        }
+
+        syncWelcomeQuickSettings(tag);
+    };
+
+    modal.addEventListener('click', (e) => {
+        const target = /** @type {HTMLElement | null} */ (e.target);
+        const card = target?.closest('.welcome-profile-card-compact');
+        if (card && card instanceof HTMLElement) {
+            handleCompactCardClick(card);
+        }
+    });
+
+    modal.addEventListener('focusin', (e) => {
+        const target = /** @type {HTMLElement | null} */ (e.target);
+        const card = target?.closest('.welcome-profile-card-compact');
+        if (card && card instanceof HTMLElement) {
+            const list = card.parentElement;
+            if (list && (list.classList.contains('welcome-profiles-list') || list.id === 'welcome-profiles-list' || list.id === 'welcome-qs-profiles-list')) {
+                const pad = 24;
+                if (card.offsetLeft < list.scrollLeft + pad) {
+                    list.scrollLeft = Math.max(0, card.offsetLeft - pad);
+                } else if (card.offsetLeft + card.offsetWidth > list.scrollLeft + list.clientWidth - pad) {
+                    list.scrollLeft = card.offsetLeft + card.offsetWidth - list.clientWidth + pad;
+                }
+            }
+        }
+    });
+
+    modal.addEventListener('keydown', (e) => {
+        const target = /** @type {HTMLElement | null} */ (e.target);
+        const scrollContainer = target?.closest('.welcome-hero-scroll-container');
+        if (scrollContainer) {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                e.stopPropagation();
+                scrollContainer.scrollBy({ left: -140, behavior: 'smooth' });
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                e.stopPropagation();
+                scrollContainer.scrollBy({ left: 140, behavior: 'smooth' });
+            }
+        }
+    });
 
     document.addEventListener('welcome:profiles-updated', () => {
         renderWelcomeProfilesList(welcomeState.updatingProfiles, welcomeState.errorProfiles);

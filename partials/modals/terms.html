@@ -3,7 +3,7 @@
         <div class="modal-header">
             <h2 id="terms-modal-title" data-i18n="views.settings.termsOfUse"></h2>
             <div class="modal-header-actions">
-                <a href="/terms/" target="_blank" id="terms-open-external-btn" class="modal-header-btn policy-header-btn" aria-label="Open in new tab" title="Open in new tab">
+                <a href="/terms/" target="_blank" rel="noopener noreferrer" id="terms-open-external-btn" class="modal-header-btn policy-header-btn" aria-label="Open in new tab" title="Open in new tab">
                     <orecalc-assets-svg name="open-in-new"></orecalc-assets-svg>
                 </a>
                 <button id="terms-translate-btn" class="modal-header-btn policy-header-btn" aria-label="Translate" title="Translate" style="display: none;">
@@ -19,7 +19,7 @@
 
         </div>
         <div class="modal-body text-left policy-modal-body">
-            <iframe id="terms-policy-iframe" class="policy-iframe" src="/terms/" title="Terms of Use"></iframe>
+            <iframe id="terms-policy-iframe" class="policy-iframe" src="about:blank" loading="lazy" title="Terms of Use"></iframe>
         </div>
         <div class="modal-actions">
             <button id="close-terms-modal-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>

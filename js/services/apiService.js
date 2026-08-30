@@ -1,6 +1,7 @@
+import { formatDisplayTag, normalizePlayerTag } from '../core/localStorageManager.js';
 import { logger } from '../utils/logger.js';
 
-const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+const BASE_URL = (typeof window !== 'undefined' && window.__ENV__?.VITE_API_BASE_URL) || "https://api.orecalc.tech";
 
 /**
  * Checks if the general API is blocked due to rate limiting (429).
@@ -9,7 +10,7 @@ const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech"
 function checkApiBlock() {
     const blockedUntilStr = sessionStorage.getItem('oreCalcApiBlockedUntil');
     if (blockedUntilStr) {
-        const blockedUntil = parseInt(blockedUntilStr, 10);
+        const blockedUntil = Number(blockedUntilStr);
         const now = Date.now();
         if (now < blockedUntil) {
             const secondsLeft = Math.ceil((blockedUntil - now) / 1000);
@@ -27,7 +28,7 @@ function checkApiBlock() {
 function checkClashApiBlock() {
     const blockedUntilStr = sessionStorage.getItem('oreCalcClashApiBlockedUntil');
     if (blockedUntilStr) {
-        const blockedUntil = parseInt(blockedUntilStr, 10);
+        const blockedUntil = Number(blockedUntilStr);
         const now = Date.now();
         if (now < blockedUntil) {
             throw new Error('apiErrors.503');
@@ -50,7 +51,7 @@ function setApiBlock(seconds) {
  * Sets a block on Clash of Clans API requests for 60 seconds.
  */
 function setClashApiBlock() {
-    const blockDurationMs = 60 * 1000; // minimum 60 seconds
+    const blockDurationMs = 60 * 1000;
     sessionStorage.setItem('oreCalcClashApiBlockedUntil', (Date.now() + blockDurationMs).toString());
 }
 
@@ -63,9 +64,9 @@ function setClashApiBlock() {
 async function handleResponseError(response) {
     if (response.status === 429) {
         const retryAfter = response.headers.get('retry-after');
-        let seconds = 60; // minimum 60 seconds
+        let seconds = 60;
         if (retryAfter) {
-            const parsedSeconds = parseInt(retryAfter, 10);
+            const parsedSeconds = Number(retryAfter);
             if (!isNaN(parsedSeconds)) {
                 seconds = Math.max(parsedSeconds, 60);
             }
@@ -109,10 +110,10 @@ async function handleResponseError(response) {
 }
 
 /**
- * Fetches player data for a given player tag, automatically stripping a leading '#' if present.
+ * Fetches player data for a given player tag, automatically stripping all '#' hashes.
  * The request is proxied through the API server to avoid CORS or auth issues.
  *
- * @param {string} playerTag - The player tag to query (e.g. "#PPYY9988" or "PPYY9988").
+ * @param {string} playerTag - The player tag to query (e.g. "#PPYY9988", "#####PPYY9988", or "PPYY9988").
  * @param {string | null} [token=null] - Optional Clash of Clans API verification token for protected tag access.
  * @param {number | null} [timeoutMs=null] - Request timeout duration in milliseconds.
  * @returns {Promise<any>} The parsed player data from the API response.
@@ -122,8 +123,8 @@ export async function fetchPlayerData(playerTag, token = null, timeoutMs = null)
     checkApiBlock();
     checkClashApiBlock();
 
-    const cleanedTag = playerTag.startsWith('#') ? playerTag.substring(1) : playerTag;
-    const url = `${BASE_URL}/proxy/players/${cleanedTag}`;
+    const cleanTag = normalizePlayerTag(playerTag);
+    const url = `${BASE_URL}/proxy/players/${encodeURIComponent(cleanTag)}`;
 
     const headers = { 'Accept': 'application/json' };
     if (token) {
@@ -363,8 +364,8 @@ export async function fetchClanWarLog(clanTag) {
     checkApiBlock();
     checkClashApiBlock();
 
-    const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
-    const url = `${BASE_URL}/proxy/clans/${cleanedTag}/warlog`;
+    const cleanTag = normalizePlayerTag(clanTag);
+    const url = `${BASE_URL}/proxy/clans/${encodeURIComponent(cleanTag)}/warlog`;
 
     const headers = { 'Accept': 'application/json' };
     const userId = localStorage.getItem('oreCalc_userId');
@@ -394,8 +395,8 @@ export async function fetchCwlLeagueGroup(clanTag) {
     checkApiBlock();
     checkClashApiBlock();
 
-    const cleanedTag = clanTag.startsWith('#') ? clanTag.substring(1) : clanTag;
-    const url = `${BASE_URL}/proxy/clans/${cleanedTag}/currentwar/leaguegroup`;
+    const cleanTag = normalizePlayerTag(clanTag);
+    const url = `${BASE_URL}/proxy/clans/${encodeURIComponent(cleanTag)}/currentwar/leaguegroup`;
 
     const headers = { 'Accept': 'application/json' };
     const userId = localStorage.getItem('oreCalc_userId');
@@ -425,8 +426,8 @@ export async function fetchCwlWar(warTag) {
     checkApiBlock();
     checkClashApiBlock();
 
-    const cleanedTag = warTag.startsWith('#') ? warTag.substring(1) : warTag;
-    const url = `${BASE_URL}/proxy/clanwarleagues/wars/${cleanedTag}`;
+    const cleanTag = normalizePlayerTag(warTag);
+    const url = `${BASE_URL}/proxy/clanwarleagues/wars/${encodeURIComponent(cleanTag)}`;
 
     const headers = { 'Accept': 'application/json' };
     const userId = localStorage.getItem('oreCalc_userId');
@@ -455,8 +456,9 @@ export async function fetchCwlWar(warTag) {
 export async function fetchCwlWarsFromServer(clanTag) {
     checkApiBlock();
 
-    const cleanedTag = clanTag.startsWith('#') ? clanTag : `#${clanTag}`;
-    const url = `${BASE_URL}/api/cwl/wars?clanTag=${encodeURIComponent(cleanedTag)}`;
+    const cleanTag = normalizePlayerTag(clanTag);
+    const requestTag = formatDisplayTag(cleanTag);
+    const url = `${BASE_URL}/api/cwl/wars?clanTag=${encodeURIComponent(requestTag)}`;
 
     const headers = { 'Accept': 'application/json' };
     const userId = localStorage.getItem('oreCalc_userId');

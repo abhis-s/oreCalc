@@ -202,69 +202,85 @@ function generateLocalizedHtml(baseHtml, lang) {
     return html;
 }
 
+function getDevEnvironmentData() {
+    const packageJson = require(path.join(process.cwd(), 'package.json'));
+    let gitHash = 'dev';
+    try {
+        const { execSync } = require('child_process');
+        gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+    } catch (e) {}
+    const appVersion = `${packageJson.version}+${gitHash}`;
+
+    let commitsSinceTag = [];
+    try {
+        const { execSync } = require('child_process');
+        let lastTag = '';
+        try {
+            lastTag = execSync('git describe --tags --abbrev=0').toString().trim();
+        } catch (e) {}
+
+        const range = lastTag ? `${lastTag}..HEAD` : '';
+        const logCmd = range
+            ? `git log ${range} --pretty=format:"%h|%at|%s"`
+            : `git log -n 50 --pretty=format:"%h|%at|%s"`;
+        const logOutput = execSync(logCmd).toString().trim();
+
+        if (logOutput) {
+            const lines = logOutput.split('\n');
+            const commits = lines.map(line => {
+                const parts = line.split('|');
+                const hash = parts[0];
+                const timestamp = parseInt(parts[1], 10) * 1000;
+                const subject = parts.slice(2).join('|');
+                return { hash, timestamp, subject };
+            });
+
+            const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+            const commitsInLastWeek = commits.filter(c => c.timestamp >= oneWeekAgo);
+
+            let selectedCommits = [];
+            if (commitsInLastWeek.length >= 3) {
+                selectedCommits = commitsInLastWeek;
+            } else {
+                selectedCommits = commits.slice(0, Math.min(3, commits.length));
+            }
+            commitsSinceTag = selectedCommits.map(c => ({ hash: c.hash, subject: c.subject }));
+        }
+    } catch (error) {}
+
+    const buildTime = process.env.BUILD_TIME || new Date().toISOString();
+    return { appVersion, buildTime, commitsSinceTag };
+}
+
 function getCompiledIndexHtml(lang = 'en') {
     if (!cachedHtml) {
         const indexPath = path.join(process.cwd(), 'index.html');
         let content = fs.readFileSync(indexPath, 'utf8');
         content = processHtmlIncludes(content, process.cwd());
 
-        const packageJson = require(path.join(process.cwd(), 'package.json'));
-        let gitHash = 'dev';
-        try {
-            const { execSync } = require('child_process');
-            gitHash = execSync('git rev-parse --short HEAD').toString().trim();
-        } catch (e) {
-            // fallback
-        }
-        const appVersion = `${packageJson.version}+${gitHash}`;
-
-        let commitsSinceTag = [];
-        try {
-            const { execSync } = require('child_process');
-            let lastTag = '';
-            try {
-                lastTag = execSync('git describe --tags --abbrev=0').toString().trim();
-            } catch (e) {
-                // No tag exists
-            }
-
-            const range = lastTag ? `${lastTag}..HEAD` : '';
-            const logCmd = range
-                ? `git log ${range} --pretty=format:"%h|%at|%s"`
-                : `git log -n 50 --pretty=format:"%h|%at|%s"`;
-            const logOutput = execSync(logCmd).toString().trim();
-
-            if (logOutput) {
-                const lines = logOutput.split('\n');
-                const commits = lines.map(line => {
-                    const parts = line.split('|');
-                    const hash = parts[0];
-                    const timestamp = parseInt(parts[1], 10) * 1000;
-                    const subject = parts.slice(2).join('|');
-                    return { hash, timestamp, subject };
-                });
-
-                const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-                const commitsInLastWeek = commits.filter(c => c.timestamp >= oneWeekAgo);
-
-                let selectedCommits = [];
-                if (commitsInLastWeek.length >= 3) {
-                    selectedCommits = commitsInLastWeek;
-                } else {
-                    selectedCommits = commits.slice(0, Math.min(3, commits.length));
-                }
-                commitsSinceTag = selectedCommits.map(c => ({ hash: c.hash, subject: c.subject }));
-            }
-        } catch (error) {
-            // fallback
-        }
+        const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
 
         // Inject global environment context into index.html head for runtime API endpoint resolving
-        const buildTime = process.env.BUILD_TIME || new Date().toISOString();
         content = content.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${devApiBaseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
         cachedHtml = content;
     }
     return generateLocalizedHtml(cachedHtml, lang);
+}
+
+function getCompiledHeroJourneyHtml(lang = 'en') {
+    const hjPath = path.join(process.cwd(), 'hero-journey.html');
+    if (!fs.existsSync(hjPath)) return '';
+    let content = fs.readFileSync(hjPath, 'utf8');
+    content = processHtmlIncludes(content, process.cwd());
+
+    const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
+    content = content.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${devApiBaseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
+
+    if (lang !== 'en') {
+        const { generateLocalizedHtml } = require('../build/htmlLocalizer.js');
+        content = generateLocalizedHtml(content, lang, supportedLanguages, false, getDynamicTranslationArgs, process.cwd(), 'hero-journey');
+    }
+    return content;
 }
 
 const params = {
@@ -272,14 +288,13 @@ const params = {
     host: "0.0.0.0",
     root: ".",
     open: openBrowser,
-    file: "index.html",
     wait: 1000,
     logLevel: 2,
     middleware: [
         function(req, res, next) {
             const langPatternStr = supportedLanguages.join('|');
             const langAssetRegex = new RegExp(`^\\/(${langPatternStr})\\/(.+)$`);
-            const langMatchRegex = new RegExp(`^\\/(${langPatternStr})(\\/|$)`);
+            const exactLangRegex = new RegExp(`^\\/(${langPatternStr})\\/?$`);
             const exactLangNoSlash = supportedLanguages.map(l => `/${l}`);
 
             // Strip language prefix (/en/, /de/, /tr/, /zh/) for static asset requests if present
@@ -301,28 +316,55 @@ const params = {
 
             const isRoot = pathname === '/' || pathname === '/index.html';
             const isExactLangNoSlash = exactLangNoSlash.includes(pathname);
-            const langMatch = pathname.match(langMatchRegex);
+            const exactLangMatch = pathname.match(exactLangRegex);
 
-            // 1. Direct .html redirects to trailing slash canonical URLs
-            if (pathname.endsWith('.html') && pathname !== '/index.html') {
+            if (pathname.endsWith('.html') && pathname !== '/index.html' && pathname !== '/404.html') {
                 const cleanPath = pathname.substring(0, pathname.length - 5);
                 res.writeHead(301, { Location: `${cleanPath}/${query}` });
                 return res.end();
             }
 
-            // 2. Explicit 301 redirects for legacy non-trailing-slash legal routes
             if (['/privacy', '/terms', '/licenses', '/de/privacy', '/de/terms'].includes(pathname)) {
                 res.writeHead(301, { Location: `${pathname}/${query}` });
                 return res.end();
             }
 
-            // 3. Explicit 301 redirect for /de/licenses to /licenses/
+            if (['/hero-journey', '/de/hero-journey', '/tr/hero-journey', '/zh/hero-journey'].includes(pathname)) {
+                res.writeHead(301, { Location: `${pathname}/${query}` });
+                return res.end();
+            }
+
+            if (pathname === '/hero-journey/') {
+                const html = getCompiledHeroJourneyHtml('en');
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+            const hjLangMatch = pathname.match(/^\/([a-z-]+)\/hero-journey\/$/);
+            if (hjLangMatch && supportedLanguages.includes(hjLangMatch[1])) {
+                const html = getCompiledHeroJourneyHtml(hjLangMatch[1]);
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+
+            if (pathname === '/css/hero-journey.css' || pathname === '/hero-journey/css/hero-journey.css') {
+                const scssPath = path.join(process.cwd(), 'css/hero-journey.scss');
+                if (fs.existsSync(scssPath)) {
+                    try {
+                        const sass = require('sass');
+                        const result = sass.compile(scssPath);
+                        res.setHeader('Content-Type', 'text/css');
+                        return res.end(result.css);
+                    } catch (e) {
+                        return next();
+                    }
+                }
+            }
+
             if (pathname === '/de/licenses' || pathname === '/de/licenses/') {
                 res.writeHead(301, { Location: `/licenses/${query}` });
                 return res.end();
             }
 
-            // 4. Explicit 301 redirects for /en routes
             if (pathname === '/en' || pathname === '/en/') {
                 res.writeHead(301, { Location: `/${query}` });
                 return res.end();
@@ -331,8 +373,7 @@ const params = {
                 return res.end();
             }
 
-            // 5. Legal pages & 404 page serving
-            if (['/privacy/', '/terms/', '/licenses/', '/404', '/404/'].includes(pathname) ||
+            if (['/privacy/', '/terms/', '/licenses/'].includes(pathname) ||
                 ['/de/privacy/', '/de/terms/'].includes(pathname)) {
                 let file = '';
                 if (pathname.includes('privacy')) {
@@ -341,8 +382,6 @@ const params = {
                     file = pathname.startsWith('/de') ? 'legal/terms-de.html' : 'legal/terms-en.html';
                 } else if (pathname.includes('licenses')) {
                     file = 'legal/licenses.html';
-                } else if (pathname.includes('404')) {
-                    file = '404.html';
                 }
                 const filePath = path.join(process.cwd(), file);
                 if (fs.existsSync(filePath)) {
@@ -351,6 +390,13 @@ const params = {
                 } else {
                     return next();
                 }
+            } else if (pathname === '/404' || pathname === '/404/' || pathname === '/404.html') {
+                const filePath = path.join(process.cwd(), '404.html');
+                if (fs.existsSync(filePath)) {
+                    res.writeHead(404, { 'Content-Type': 'text/html' });
+                    return res.end(fs.readFileSync(filePath, 'utf8'));
+                }
+                return next();
             } else if (pathname.startsWith('/licenses/') && pathname.endsWith('.txt')) {
                 const textPath = path.join(process.cwd(), 'legal', pathname);
                 if (fs.existsSync(textPath)) {
@@ -392,14 +438,27 @@ const params = {
                 const html = getCompiledIndexHtml('en');
                 res.setHeader('Content-Type', 'text/html');
                 return res.end(html);
-            } else if (langMatch) {
-                const lang = langMatch[1];
+            } else if (exactLangMatch) {
+                const lang = exactLangMatch[1];
                 const html = getCompiledIndexHtml(lang);
                 res.setHeader('Content-Type', 'text/html');
                 return res.end(html);
-            } else {
-                next();
             }
+
+            // Check if the requested path corresponds to an existing static file on disk
+            const staticFilePath = path.join(process.cwd(), pathname);
+            if (fs.existsSync(staticFilePath) && fs.statSync(staticFilePath).isFile()) {
+                return next();
+            }
+
+            // All unrecognized routes serve 404.html with true HTTP 404 status
+            const errorFilePath = path.join(process.cwd(), '404.html');
+            if (fs.existsSync(errorFilePath)) {
+                res.writeHead(404, { 'Content-Type': 'text/html' });
+                return res.end(fs.readFileSync(errorFilePath, 'utf8'));
+            }
+
+            next();
         }
     ]
 };

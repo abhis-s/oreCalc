@@ -6,11 +6,12 @@ import { leagueTiers } from '../data/leagueTiers.js';
 import { translate } from '../i18n/translator.js';
 
 import { UNRANKED_LEAGUE_ID } from '../core/constants.js';
-import { updateAllPlayersData, updateSavedPlayerTags } from '../core/localStorageManager.js';
+import { normalizePlayerTag, updateAllPlayersData, updateSavedPlayerTags } from '../core/localStorageManager.js';
+import { removeRecentSearch } from '../core/recentSearchesManager.js';
 import { getDefaultPlayerState, state } from '../core/state.js';
 import { handleStateUpdate } from '../core/stateManager.js';
 
-import { cleanupHeroJourneyOverrides, getDefaultEquipmentUnlockLevel, isHeroJourneyFutureOrUnclaimedEquipment } from '../domain/income/heroJourneyIncome.js';
+import { getDefaultEquipmentUnlockLevel, isHeroJourneyFutureOrUnclaimedEquipment } from '../domain/income/heroJourneyResolution.js';
 import { cleanupUpgradePlan, reindexGlobalPriority } from '../utils/plannerUtils.js';
 
 import { fetchPlayerData } from './apiService.js';
@@ -34,10 +35,10 @@ export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, 
             throw new Error('errors.invalidServerData');
         }
 
-        const cleanedServerTag = playerData.tag.startsWith('#') ? playerData.tag.substring(1) : playerData.tag;
+        const cleanedServerTag = normalizePlayerTag(playerData.tag);
 
         handleStateUpdate(() => {
-            if (playerTag !== cleanedServerTag) {
+            if (normalizePlayerTag(playerTag) !== cleanedServerTag) {
                 console.warn(`Player tag corrected: Original '${playerTag}', Corrected '${cleanedServerTag}'`);
             }
             processPlayerDataResponse(playerData, { updateOrder });
@@ -62,7 +63,7 @@ export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, 
             errorKey === 'apiErrors.inMaintenance' ||
             errorKey === 'apiErrors.serverOffline' ||
             errorKey === 'apiErrors.offline' ||
-            error.name === 'TypeError'; // Failed to fetch (no network)
+            error.name === 'TypeError';
 
         // Special handling for protected tags found during refresh/load
         if (errorKey === 'apiErrors.protectedTag' || errorKey === 'apiErrors.invalidToken') {
@@ -83,7 +84,8 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         console.warn('processPlayerDataResponse: Invalid or missing player data payload');
         return;
     }
-    const cleanedTag = playerData.tag.startsWith('#') ? playerData.tag.substring(1) : playerData.tag;
+    const cleanedTag = normalizePlayerTag(playerData.tag);
+    removeRecentSearch(cleanedTag);
 
     const guestData = state.allPlayersData['DEFAULT0']
         ? structuredClone(state.allPlayersData['DEFAULT0'])
@@ -105,21 +107,9 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         } catch (e) {}
     }
 
-    if (updateOrder) {
-        // Explicit add or selection: move this player to the front of the list.
-        // This also calls saveState, so only do it when the player's globals are
-        // about to be set correctly (i.e., on intentional user actions).
-        updateSavedPlayerTags(cleanedTag);
-    } else {
-        // Background refresh: player already exists in the list — don't reorder
-        // and don't trigger a premature saveState with stale global state.
-        if (!state.savedPlayerTags.includes(cleanedTag)) {
-            state.savedPlayerTags.push(cleanedTag);
-        }
-    }
-
     let basePlayerState;
-    if (state.allPlayersData[cleanedTag]) {
+    const isExistingPlayer = Boolean(state.allPlayersData[cleanedTag]?.heroes);
+    if (isExistingPlayer) {
         basePlayerState = structuredClone(state.allPlayersData[cleanedTag]);
     } else if (guestData) {
         // Migrate non-API configurations from guest state
@@ -133,9 +123,6 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         if (guestData.planner) {
             basePlayerState.planner = structuredClone(guestData.planner);
         }
-        if (guestData.heroJourney) {
-            basePlayerState.heroJourney = structuredClone(guestData.heroJourney);
-        }
         if (guestData.currency) {
             basePlayerState.currency = structuredClone(guestData.currency);
         }
@@ -143,15 +130,36 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         basePlayerState = getDefaultPlayerState();
     }
 
+    let initialHeroJourney;
+    if (isExistingPlayer) {
+        initialHeroJourney = {
+            acceleratedRewards: Boolean(basePlayerState.heroJourney?.acceleratedRewards),
+            revealBeyondTH: Boolean(basePlayerState.heroJourney?.revealBeyondTH),
+            hidden: Boolean(basePlayerState.heroJourney?.hidden)
+        };
+    } else if (guestData?.heroJourney) {
+        initialHeroJourney = {
+            acceleratedRewards: Boolean(guestData.heroJourney.acceleratedRewards ?? (guestData.heroJourney.rewardMode === 'accelerated')),
+            revealBeyondTH: Boolean(guestData.heroJourney.revealBeyondTH),
+            hidden: Boolean(guestData.heroJourney.hidden)
+        };
+    } else {
+        initialHeroJourney = {
+            acceleratedRewards: false,
+            revealBeyondTH: false,
+            hidden: false
+        };
+    }
+
     const newPlayerState = {
         ...basePlayerState,
+        heroJourney: initialHeroJourney,
         playerProfile: null,
         onboardingTimestamp: typeof basePlayerState.onboardingTimestamp === 'number'
             ? basePlayerState.onboardingTimestamp
             : null
     };
 
-    const isInitialLoadForBase = !basePlayerState.playerProfile;
     const rawOwnedHeroes = basePlayerState.playerProfile?.ownedHeroes;
     let previousSyncedHeroes;
     if (Array.isArray(rawOwnedHeroes)) {
@@ -171,6 +179,8 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
     } else {
         previousSyncedEquipment = new Set();
     }
+
+    const isInitialLoadForBase = !basePlayerState.playerProfile || !basePlayerState.heroes || previousSyncedEquipment.size === 0;
 
     const homeHeroes = playerData.heroes?.filter(h => h.village === 'home') || [];
     const homeEquipment = playerData.heroEquipment?.filter(e => e.village === 'home') || [];
@@ -263,14 +273,15 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                     equipState.checked = basePlayerState.heroes[heroName]?.equipment[equipKey]?.checked ?? true;
                 }
             } else {
-                const wasChecked = basePlayerState.heroes[heroName]?.equipment[equipKey]?.checked;
+                const wasChecked = basePlayerState.heroes?.[heroName]?.equipment?.[equipKey]?.checked;
                 equipState.checked = isInitialLoadForBase ? false : (wasChecked ?? false);
 
                 const isFutureOrUnclaimed = isHeroJourneyFutureOrUnclaimedEquipment(heroKey, equipKey, newPlayerState);
-                if (isFutureOrUnclaimed && !equipState.checked) {
-                    equipState.level = getDefaultEquipmentUnlockLevel(heroKey, equipKey);
+                const savedLevel = basePlayerState.heroes[heroName]?.equipment[equipKey]?.level;
+                if (isFutureOrUnclaimed) {
+                    equipState.level = savedLevel || getDefaultEquipmentUnlockLevel(heroKey, equipKey, newPlayerState);
                 } else {
-                    equipState.level = basePlayerState.heroes[heroName]?.equipment[equipKey]?.level ?? 1;
+                    equipState.level = savedLevel ?? 1;
                 }
             }
         }
@@ -305,7 +316,7 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
             }
         }
         if (!newPlayerState.income.shopOffers) newPlayerState.income.shopOffers = {};
-        newPlayerState.income.shopOffers.selectedSet = parseInt(bestMatchSet, 10);
+        newPlayerState.income.shopOffers.selectedSet = Number(bestMatchSet) || 0;
         if (!newPlayerState.income.shopOffers[bestMatchSet]) {
             newPlayerState.income.shopOffers[bestMatchSet] = {};
         }
@@ -396,19 +407,29 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         }
     };
 
-    const activePlayerTag = state.savedPlayerTags[0];
-    if (cleanedTag === activePlayerTag) {
+    if (updateOrder) {
         state.heroes = newPlayerState.heroes;
         state.storedOres = newPlayerState.storedOres;
         state.income = newPlayerState.income;
         state.planner = newPlayerState.planner;
         state.playerProfile = newPlayerState.playerProfile;
-        state.heroJourney = newPlayerState.heroJourney || { overrideUnclaimed: [], acceleratedRewards: false };
-        state.heroJourney.overrideUnclaimed = cleanupHeroJourneyOverrides(state);
+        state.heroJourney = newPlayerState.heroJourney;
         reindexGlobalPriority();
-    }
-    if (newPlayerState.heroJourney) {
-        newPlayerState.heroJourney.overrideUnclaimed = cleanupHeroJourneyOverrides(newPlayerState);
+        updateSavedPlayerTags(cleanedTag);
+    } else {
+        const activePlayerTag = state.savedPlayerTags[0];
+        if (cleanedTag === activePlayerTag) {
+            state.heroes = newPlayerState.heroes;
+            state.storedOres = newPlayerState.storedOres;
+            state.income = newPlayerState.income;
+            state.planner = newPlayerState.planner;
+            state.playerProfile = newPlayerState.playerProfile;
+            state.heroJourney = newPlayerState.heroJourney;
+            reindexGlobalPriority();
+        }
+        if (!state.savedPlayerTags.includes(cleanedTag)) {
+            state.savedPlayerTags.push(cleanedTag);
+        }
     }
     updateAllPlayersData(cleanedTag, newPlayerState);
 }

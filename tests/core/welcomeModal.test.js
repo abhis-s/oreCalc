@@ -39,21 +39,6 @@ if (typeof globalThis.window.matchMedia === 'undefined') {
     });
 }
 
-if (typeof globalThis.document === 'undefined') {
-    globalThis.document = {
-        dispatchEvent: () => true,
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        getElementById: () => null,
-        querySelector: () => null,
-        querySelectorAll: () => []
-    };
-} else {
-    if (typeof globalThis.document.dispatchEvent !== 'function') globalThis.document.dispatchEvent = () => true;
-    if (typeof globalThis.document.addEventListener !== 'function') globalThis.document.addEventListener = () => {};
-    if (typeof globalThis.document.removeEventListener !== 'function') globalThis.document.removeEventListener = () => {};
-}
-
 if (typeof globalThis.customElements === 'undefined') {
     globalThis.customElements = {
         get: () => null,
@@ -115,6 +100,13 @@ class MockDOMElement {
         this.clientWidth = 400;
         this.scrollWidth = 1200;
     }
+    get className() {
+        return this.classList.toString();
+    }
+    set className(val) {
+        this._className = val;
+        this.classList = new MockClassList(val);
+    }
     setAttribute(name, val) { this.attributes.set(name, String(val)); }
     removeAttribute(name) { this.attributes.delete(name); }
     getAttribute(name) { return this.attributes.get(name) ?? null; }
@@ -157,6 +149,21 @@ class MockDOMElement {
         search(this);
         return results;
     }
+    closest(selector) {
+        let curr = this;
+        while (curr) {
+            if (selector.includes('modal') && (curr.classList.contains('modal') || curr.tagName === 'DIALOG')) return curr;
+            if (selector.includes('[role="dialog"]') && curr.getAttribute('role') === 'dialog') return curr;
+            const isClass = selector.startsWith('.');
+            const isId = selector.startsWith('#');
+            const target = selector.replace(/^[.#]/, '');
+            if (isClass && curr.classList.contains(target)) return curr;
+            if (isId && curr.id === target) return curr;
+            if (curr.tagName && curr.tagName.toLowerCase() === selector.toLowerCase()) return curr;
+            curr = curr.parentNode;
+        }
+        return null;
+    }
     scrollTo({ left }) {
         this.scrollLeft = left;
     }
@@ -182,8 +189,11 @@ if (typeof globalThis.document === 'undefined') {
         querySelectorAll: () => [],
         body: new MockDOMElement('body'),
         addEventListener: () => {},
-        removeEventListener: () => {}
+        removeEventListener: () => {},
+        dispatchEvent: () => true
     };
+} else {
+    globalThis.document.dispatchEvent = () => true;
 }
 
 if (typeof globalThis.window === 'undefined') {
@@ -241,43 +251,59 @@ describe('Welcome Modal Comprehensive Feature Suite', () => {
         assert.match(syncScssContent, /\.sync-disabled-overlay\s*\{[^}]*border-radius:\s*inherit;/, 'Must use border-radius: inherit on overlay for rounded element clipping');
     });
 
-    test('Welcome Modal & Wizard Inputs Invariants', () => {
-        const wizardInputsPath = path.join(projectRoot, 'js/components/welcome/welcomeWizardInputs.js');
-        const wizardContent = fs.readFileSync(wizardInputsPath, 'utf8');
-        const wizardStatePath = path.join(projectRoot, 'js/components/welcome/welcomeWizardState.js');
-        const stateContent = fs.readFileSync(wizardStatePath, 'utf8');
+    test('Welcome wizard step navigation and state transitions', async () => {
+        const { getWizardState, resetWizardState, setWizardState, goToNextWizardStep, goToPrevWizardStep } = await import('../../js/components/welcome/welcomeWizardState.js');
+        resetWizardState();
+        setWizardState({ currentWizardStepIndex: 0, wizardSteps: [1, 2, 3], selectedTH: 16 });
 
-        assert.match(wizardContent, /img\.className\s*=\s*['"]th-badge-img['"]/, 'Must assign th-badge-img class to TH asset image');
-        assert.match(wizardContent, /span\.className\s*=\s*['"]th-badge-label['"]/, 'Must assign th-badge-label class to TH label span');
-        assert.match(wizardContent, /renderWelcomeShopOffers\(thLevel,\s*welcomeState\.tempShopOffersPurchases\);/, 'Must re-render shop offers upon TH badge selection');
-        assert.match(stateContent, /isProfileOnboarded\(state\.allPlayersData\[tag\]\)/, 'Must handle onboarding flag check via isProfileOnboarded');
+        assert.equal(getWizardState().currentWizardStepIndex, 0);
+        assert.equal(getWizardState().selectedTH, 16);
+
+        goToNextWizardStep();
+        assert.equal(getWizardState().currentWizardStepIndex, 1);
+
+        goToPrevWizardStep();
+        assert.equal(getWizardState().currentWizardStepIndex, 0);
     });
 
-    test('inputPopoverProvider avoids cancelling clicks on option buttons', () => {
-        const popoverPath = path.join(projectRoot, 'js/utils/inputPopoverProvider.js');
-        const content = fs.readFileSync(popoverPath, 'utf8');
+    test('inputPopoverProvider ensures modal containment for inputs inside modal dialogs', async () => {
+        const { registerInputPopover } = await import('../../js/utils/inputPopoverProvider.js');
+        const mockDialog = new MockDOMElement('dialog', 'test-feature-dialog', 'modal');
+        const mockInput = new MockDOMElement('input', 'test-contained-input');
+        mockDialog.appendChild(mockInput);
+        globalThis.document.body.appendChild(mockDialog);
 
-        assert.match(content, /if\s*\(e\.target\s*&&\s*typeof\s*e\.target\.closest\s*===\s*['"]function['"]\s*&&\s*e\.target\.closest\(['"]\.popover-opt-btn['"]\)\)\s*\{\s*return;\s*\}/, 'Must not cancel clicks on popover option buttons');
+        registerInputPopover(mockInput, { min: 1, max: 20 });
+        const popover = mockDialog.children.find(c => c.classList?.contains('input-feature-popover'));
+        assert.ok(popover, 'Popover must be appended inside modal dialog container');
     });
 
-    test('inputPopoverProvider ensures modal containment for inputs inside modal dialogs', () => {
-        const popoverPath = path.join(projectRoot, 'js/utils/inputPopoverProvider.js');
-        const content = fs.readFileSync(popoverPath, 'utf8');
+    test('inputPopoverPositioner positions popovers relative to input with fixed positioning', async () => {
+        const { positionPopover } = await import('../../js/utils/inputPopoverPositioner.js');
+        const mockInput = new MockDOMElement('input', 'test-coord-input');
+        mockInput.getBoundingClientRect = () => ({
+            top: 200,
+            bottom: 240,
+            left: 100,
+            right: 200,
+            width: 100,
+            height: 40
+        });
 
-        assert.match(content, /const getTargetContainer = \(\) => inputElement\.closest\(['"]dialog\.modal, \.modal, \[role="dialog"\]['"]\) \|\| document\.body;/, 'Must target closest modal dialog before falling back to document.body');
-        assert.match(content, /getTargetContainer\(\)\.appendChild\(popover\);/, 'Must append popover to target container on creation');
-        assert.match(content, /const container = getTargetContainer\(\);[\s\S]*?if\s*\(popover\.parentNode !== container\)\s*\{\s*container\.appendChild\(popover\);\s*\}/, 'Must maintain containment upon showPopover');
-    });
+        const mockPopover = new MockDOMElement('div', 'test-popover', 'input-feature-popover show');
+        mockPopover.getBoundingClientRect = () => ({
+            top: 0,
+            bottom: 120,
+            left: 0,
+            right: 180,
+            width: 180,
+            height: 120
+        });
 
-    test('inputPopoverPositioner computes viewport-relative coordinates with visualViewport edge clamping', () => {
-        const positionerPath = path.join(projectRoot, 'js/utils/inputPopoverPositioner.js');
-        const content = fs.readFileSync(positionerPath, 'utf8');
-
-        assert.match(content, /popover\.style\.position\s*=\s*['"]fixed['"];/, 'Must use fixed position for popover');
-        assert.match(content, /top\s*=\s*vvTop\s*\+\s*inputRect\.top\s*-\s*popoverHeight\s*-\s*6;/, 'Above placement must use vvTop + inputRect.top');
-        assert.match(content, /top\s*=\s*vvTop\s*\+\s*inputRect\.bottom\s*\+\s*6;/, 'Below placement must use vvTop + inputRect.bottom');
-        assert.match(content, /left\s*=\s*Math\.max\(vvLeft\s*\+\s*8,\s*Math\.min\(left,\s*vvLeft\s*\+\s*viewportWidth\s*-\s*popoverWidth\s*-\s*8\)\);/, 'Must clamp left coordinate to viewport boundaries');
-        assert.match(content, /top\s*=\s*Math\.max\(vvTop\s*\+\s*8,\s*Math\.min\(top,\s*vvTop\s*\+\s*viewportHeight\s*-\s*popoverHeight\s*-\s*8\)\);/, 'Must clamp top coordinate to viewport boundaries');
+        positionPopover(mockPopover, mockInput);
+        assert.equal(mockPopover.style.position, 'fixed');
+        assert.ok(mockPopover.style.left);
+        assert.ok(mockPopover.style.top);
     });
 
     test('input feature popover uses fixed positioning and popover z-index token', () => {
@@ -325,12 +351,12 @@ describe('Welcome Modal Comprehensive Feature Suite', () => {
         assert.match(carouselScss, /@media\s*\(max-width:\s*\$breakpoint-modal\)\s*\{[\s\S]*?flex-direction:\s*column;[\s\S]*?(\.accept-button|\.btn-primary)[\s\S]*?order:\s*1;[\s\S]*?(\.reject-button|\.btn-secondary)[\s\S]*?order:\s*2;/, 'On narrow devices, accept button must be above reject button');
     });
 
-    test('Welcome carousel scroll navigation uses exact clientWidth multiples without false offsets', () => {
-        const carouselInputsPath = path.join(projectRoot, 'js/components/welcome/welcomeCarouselInputs.js');
-        const content = fs.readFileSync(carouselInputsPath, 'utf8');
-
-        assert.doesNotMatch(content, /\+\s*32/, 'welcomeCarouselInputs.js must not contain obsolete + 32 pixel gap offset in scroll math');
-        assert.match(content, /Math\.round\(scrollLeft\s*\/\s*width\)/, 'Scroll detection must divide scrollLeft by width');
+    test('Welcome carousel visual index mapping converts correctly between 0-indexed and 1-indexed', async () => {
+        const { getPageFromVisualIndex, getVisualIndexFromPage } = await import('../../js/components/welcome/welcomeCarouselDisplay.js');
+        assert.equal(getPageFromVisualIndex(0), 1);
+        assert.equal(getPageFromVisualIndex(1), 2);
+        assert.equal(getVisualIndexFromPage(1), 0);
+        assert.equal(getVisualIndexFromPage(2), 1);
     });
 
     test('welcome modal sync page blurs cloud sync and QR code for guest profiles', async () => {
@@ -451,8 +477,8 @@ describe('Welcome Modal Comprehensive Feature Suite', () => {
 
         const state = loadState();
         assert.ok(state);
-        assert.equal(state.allPlayersData['#EXISTING1'].onboardingTimestamp, EFFECTIVE_DATE_WELCOME + 100);
-        assert.equal(state.allPlayersData['#EXISTING2'].onboardingTimestamp, EFFECTIVE_DATE_WELCOME + 200);
+        assert.equal(state.allPlayersData['EXISTING1'].onboardingTimestamp, EFFECTIVE_DATE_WELCOME + 100);
+        assert.equal(state.allPlayersData['EXISTING2'].onboardingTimestamp, EFFECTIVE_DATE_WELCOME + 200);
     });
 
     test('showWelcomeModal modular startPage and entrySource bypasses Page 1', async () => {

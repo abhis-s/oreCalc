@@ -5,10 +5,8 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8081;
 
-// Enable gzip compression for all responses
 app.use(compression());
 
-// Security Headers & HSTS Middleware
 app.use((req, res, next) => {
     if (process.env.NODE_ENV === 'production' || req.headers['x-forwarded-proto'] === 'https') {
         res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
@@ -29,7 +27,7 @@ app.use((req, res, next) => {
     }
 
     // Explicit 301 redirects for legacy non-trailing-slash routes
-    if (req.path === '/privacy' || req.path === '/terms' || req.path === '/licenses' || req.path === '/de/privacy' || req.path === '/de/terms') {
+    if (['/privacy', '/terms', '/licenses', '/de/privacy', '/de/terms', '/hero-journey', '/de/hero-journey', '/tr/hero-journey', '/zh/hero-journey'].includes(req.path)) {
         const query = req.url.substring(req.path.length);
         return res.redirect(301, req.path + '/' + query);
     }
@@ -52,10 +50,10 @@ app.use(express.static(distPath, {
     setHeaders: (res, filePath) => {
         const relativePath = path.relative(distPath, filePath);
 
-        // Only cache static image assets and fonts immutably for 1 year
+        // Only cache static image assets and fonts immutably for 6 months (180 days = 15,552,000s)
         const isImmutableAsset = /\.(png|jpg|jpeg|gif|ico|svg|avif|webp|woff2?)$/i.test(filePath);
         if (isImmutableAsset) {
-            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            res.setHeader('Cache-Control', 'public, max-age=15552000, immutable');
         } else {
             // All JS, CSS, HTML, JSON, and metadata files revalidate fresh
             res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -65,9 +63,9 @@ app.use(express.static(distPath, {
     }
 }));
 
-// Fallback to index.html for client-side routing
-app.get('/*splat', (req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
+// Serve 404.html with status 404 for all unrecognized routes
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(distPath, '404.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {

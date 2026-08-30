@@ -273,7 +273,7 @@ export function initializeWelcomeModal() {
                     submitBtn.disabled = true;
                     submitBtn.textContent = translate('actions.processing');
 
-                    const { importUserData } = await import('../../utils/cloudSaveHandler.js');
+                    const { importUserData } = await import('../../services/cloudSaveService.js');
                     await importUserData(val);
                 } finally {
                     submitBtn.disabled = false;

@@ -7,7 +7,6 @@ import { logger } from '../utils/logger.js';
 import { escapeHTML } from '../utils/stringUtils.js';
 import { generateUUID } from '../utils/uuidGenerator.js';
 
-import { closeFabMenu } from '../components/fab/fab.js';
 import { dom } from '../dom/domElements.js';
 import { loadUserData, saveSinglePlayerData, saveUserData } from './apiService.js';
 import { showAlert, showConfirm } from '../ui/noticeModal.js';
@@ -58,7 +57,7 @@ export async function initializeAppData() {
         // Version Check: Prevent syncing if cloud data was saved by a newer version than current running client
         const runningAppVersion = window.__ENV__?.APP_VERSION || '2.0.0';
         const cloudAppVersion = cloudData.appVersion || '1.0.0';
-        const { compareVersions } = await import('../core/stateCleanup.js');
+        const { compareVersions } = await import('../utils/versionUtils.js');
 
         if (compareVersions(cloudAppVersion, runningAppVersion) > 0) {
             logger.warn(`Cloud data version (${cloudAppVersion}) is newer than running app version (${runningAppVersion}). Skipping sync until client updates.`);
@@ -86,16 +85,14 @@ export async function initializeAppData() {
             } else if (cloudTimestamp > localTimestamp) {
                 const welcomeModal = document.getElementById('welcome-modal');
                 const welcomeWasVisible = welcomeModal && welcomeModal.classList.contains('show');
-                let welcomeModalModule = null;
                 if (welcomeWasVisible) {
-                    welcomeModalModule = await import('../components/welcome/welcomeModal.js');
-                    welcomeModalModule.showWelcomeModal(false);
+                    welcomeModal.classList.remove('show');
                 }
 
                 const confirmed = await showConfirm(translate('confirms.cloudSync'));
 
-                if (welcomeWasVisible && welcomeModalModule && !confirmed) {
-                    welcomeModalModule.showWelcomeModal(true);
+                if (welcomeWasVisible && !confirmed) {
+                    welcomeModal.classList.add('show');
                 }
 
                 if (confirmed) {
@@ -147,10 +144,8 @@ export async function importUserData(importId) {
 
         const welcomeModal = document.getElementById('welcome-modal');
         const welcomeWasVisible = welcomeModal && welcomeModal.classList.contains('show');
-        let welcomeModalModule = null;
         if (welcomeWasVisible) {
-            welcomeModalModule = await import('../components/welcome/welcomeModal.js');
-            welcomeModalModule.showWelcomeModal(false);
+            welcomeModal.classList.remove('show');
         }
 
         let confirmed = false;
@@ -160,8 +155,8 @@ export async function importUserData(importId) {
             confirmed = await showConfirm(translate('confirms.importOverwrite', { userId: userIdHtml }));
         }
 
-        if (welcomeWasVisible && welcomeModalModule && !confirmed) {
-            welcomeModalModule.showWelcomeModal(true);
+        if (welcomeWasVisible && !confirmed) {
+            welcomeModal.classList.add('show');
         }
 
         if (!confirmed) {
@@ -174,14 +169,14 @@ export async function importUserData(importId) {
                 // Version Check: Prevent importing if data was saved by a newer version than current running client
                 const runningAppVersion = window.__ENV__?.APP_VERSION || '2.0.0';
                 const importedVersion = importedData.appVersion || '1.0.0';
-                const { compareVersions } = await import('../core/stateCleanup.js');
+                const { compareVersions } = await import('../utils/versionUtils.js');
                 if (compareVersions(importedVersion, runningAppVersion) > 0) {
                     await showAlert(translate('alerts.importNewerVersionRequired'));
                     if (window.__WB__) {
                         window.__WB__.update().catch(err => logger.error('Forced SW update check failed:', err));
                     }
-                    if (welcomeWasVisible && welcomeModalModule) {
-                        welcomeModalModule.showWelcomeModal(true);
+                    if (welcomeWasVisible) {
+                        welcomeModal.classList.add('show');
                     }
                     return;
                 }
@@ -196,15 +191,15 @@ export async function importUserData(importId) {
                 location.reload();
             } else {
                 await showAlert(translate('alerts.importNoData'));
-                if (welcomeWasVisible && welcomeModalModule) {
-                    welcomeModalModule.showWelcomeModal(true);
+                if (welcomeWasVisible) {
+                    welcomeModal.classList.add('show');
                 }
             }
         } catch (error) {
             logger.error('Error importing data:', error);
             await showAlert(translate('alerts.importFailed', { error: translate(error.message) }));
-            if (welcomeWasVisible && welcomeModalModule) {
-                welcomeModalModule.showWelcomeModal(true);
+            if (welcomeWasVisible) {
+                welcomeModal.classList.add('show');
             }
         }
     } else {
@@ -221,6 +216,8 @@ export async function importUserData(importId) {
 export async function triggerCloudSave(options = {}) {
     const { silent = false, targetTag = null } = options;
 
+    if (typeof localStorage === 'undefined') return false;
+
     if (state.uiSettings.cloudSync === false) {
         logger.log("Cloud sync is disabled in settings. Skipping save.");
         return false;
@@ -230,25 +227,7 @@ export async function triggerCloudSave(options = {}) {
     if (currentUserId) {
         if (!silent) showSavingIndicator();
         try {
-            const currentPlayerTag = state.savedPlayerTags[0];
-            if (currentPlayerTag) {
-                const existing = state.allPlayersData[currentPlayerTag] || {};
-                state.allPlayersData[currentPlayerTag] = {
-                    ...existing,
-                    heroes: state.heroes,
-                    storedOres: state.storedOres,
-                    income: state.income,
-                    planner: state.planner,
-                    playerProfile: state.playerProfile,
-                    onboardingTimestamp: existing.onboardingTimestamp !== undefined
-                        ? existing.onboardingTimestamp
-                        : (state.onboardingTimestamp ?? null),
-                    currency: {
-                        code: state.uiSettings.currency.code,
-                        globalPricing: existing?.currency?.globalPricing || {}
-                    }
-                };
-            }
+            saveState(state, true);
 
             if (state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0') {
                 if (!silent) {
@@ -315,7 +294,14 @@ export function initializeCloudSaveButtons() {
             const success = await triggerCloudSave();
             if (success) {
                 setTimeout(() => {
-                    closeFabMenu();
+                    const { main, menu } = dom.fab || {};
+                    const overlay = dom.overlay;
+                    if (main && menu && overlay && main.classList.contains('active')) {
+                        main.classList.remove('active');
+                        menu.classList.remove('show');
+                        overlay.classList.remove('show');
+                        document.body.classList.remove('open-fab');
+                    }
                 }, 2000);
             }
         });

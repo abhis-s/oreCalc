@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="Privacy Policy for OreCalc, the privacy-first Clash of Clans hero equipment and upgrade planner.">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f9">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
     <meta name="robots" content="noindex, follow">
     <meta name="effective-date-timestamp" content="1786060800000">
     <title>Privacy Policy - OreCalc</title>
@@ -38,21 +42,23 @@
         <div class="header-row">
             <a href="/" class="back-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12"></line>
                     <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
                 Back to App
             </a>
-            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">🌙</button>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
         </div>
 
         <h1>Privacy Policy</h1>
         <p><strong>Effective Date:</strong> August 7, 2026 (Originally Published: June 5, 2026)</p>
 
-        <div style="background: var(--code-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 18px; margin: 15px 0 20px 0;">
-            <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 1.05em; color: var(--accent-color);">Summary of Recent Updates (August 7, 2026)</h3>
-            <ul style="margin: 0; padding-left: 20px; font-size: 0.95em; line-height: 1.5;">
+        <div class="update-summary-box">
+            <h3 class="update-summary-box__title">Summary of Recent Updates (August 7, 2026)</h3>
+            <ul class="update-summary-box__list">
                 <li><strong>Automated Error Diagnostics:</strong> Disclosed self-hosted, anonymized error logging used to identify software crashes and stack traces.</li>
                 <li><strong>Bug Report Clarification:</strong> Clarified that attaching planner state to voluntary bug reports is strictly optional.</li>
                 <li><strong>Performance Analytics:</strong> Disclosed cookie-free, privacy-first analytics used to measure aggregate site performance.</li>
@@ -108,10 +114,10 @@
         </p>
         <ul>
             <li>
-                <strong>Clash of Clans API:</strong> Player tag requests are subject to Supercell's <a href="https://supercell.com/en/fan-content-policy/" target="_blank">Fan Content Policy</a> and Supercell's <a href="https://supercell.com/en/terms-of-service/" target="_blank">Terms of Service</a>.
+                <strong>Clash of Clans API:</strong> Player tag requests are subject to Supercell's <a href="https://supercell.com/en/fan-content-policy/" target="_blank" rel="noopener noreferrer">Fan Content Policy</a> and Supercell's <a href="https://supercell.com/en/terms-of-service/" target="_blank" rel="noopener noreferrer">Terms of Service</a>.
             </li>
             <li>
-                <strong>API Proxies:</strong> To facilitate API request delivery and optimize operational costs, player tag queries may be routed through third-party proxy servers (such as <code>coproxy.royaleapi.com</code>). Connection data is subject to the respective proxy provider's <a href="https://royaleapi.com/tos" target="_blank">Terms of Service</a> and <a href="https://royaleapi.com/privacy" target="_blank">Privacy Policy</a>.
+                <strong>API Proxies:</strong> To facilitate API request delivery and optimize operational costs, player tag queries may be routed through third-party proxy servers (such as <code>coproxy.royaleapi.com</code>). Connection data is subject to the respective proxy provider's <a href="https://royaleapi.com/tos" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="https://royaleapi.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
             </li>
             <li>
                 <strong>Cloudflare Web Analytics:</strong> We use Cloudflare Web Analytics to measure aggregate, non-personally identifiable pageviews and Core Web Vitals performance metrics. Cloudflare Web Analytics operates without tracking cookies, does not log or store personal IP addresses, and does not track users across third-party websites.
@@ -145,8 +151,17 @@
         </p>
 
         <div class="footer">
-            <p style="margin: 0 0 8px;">This page is available at <a href="https://orecalc.tech/privacy/" target="_blank">orecalc.tech/privacy/</a></p>
-            &copy; 2025-2026 OreCalc. All rights reserved.
+            <div class="footer__links">
+                <a href="/" class="footer__link">Home</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <span class="footer__link is-active" aria-current="page">Privacy Policy</span>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <a href="/terms/" class="footer__link">Terms of Use</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <a href="/licenses/" class="footer__link">Licenses</a>
+            </div>
+            <p class="footer__permalink">This page is available at <a href="https://orecalc.tech/privacy/" target="_blank" rel="noopener noreferrer">orecalc.tech/privacy/</a></p>
+            <p class="footer__copyright">&copy; 2025-2026 OreCalc. All rights reserved.</p>
         </div>
     </main>
 </body>

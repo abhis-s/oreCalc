@@ -3,8 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="Open Source Licenses and attributions for third-party libraries used in OreCalc, the Clash of Clans upgrade planner.">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f9">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
     <meta name="robots" content="noindex, follow">
     <title>Open Source Licenses - OreCalc</title>
     <link rel="canonical" href="https://orecalc.tech/licenses/">
@@ -36,20 +40,22 @@
         <div class="header-row">
             <a href="/" class="back-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12"></line>
                     <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
                 Back to App
             </a>
-            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">🌙</button>
+            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle Theme">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
         </div>
 
         <h1>Open Source Licenses</h1>
         <p class="intro">
             OreCalc is built using open source software and third-party libraries. Below you will find licensing information and attributions for each project included in our codebase.
         </p>
-        <p class="trademark-notice" style="margin-top: -10px; margin-bottom: 30px; font-size: 0.9rem; color: var(--text-secondary); opacity: 0.85; line-height: 1.5;">
+        <p class="trademark-notice">
             All trademarks, logos, and brand assets (including GitHub, Crowdin, and Buy Me a Coffee) are the property of their respective owners. Their appearance on this page does not imply endorsement or affiliation.
         </p>
 
@@ -58,9 +64,18 @@
         </div>
 
         <div class="footer">
-            <p style="margin: 0 0 8px;">This page is available at <a href="https://orecalc.tech/licenses/"
-                    target="_blank">orecalc.tech/licenses/</a></p>
-            &copy; 2025-2026 OreCalc. All rights reserved.
+            <div class="footer__links">
+                <a href="/" class="footer__link">Home</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <a href="/privacy/" class="footer__link">Privacy Policy</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <a href="/terms/" class="footer__link">Terms of Use</a>
+                <span class="footer__sep" aria-hidden="true">&bull;</span>
+                <span class="footer__link is-active" aria-current="page">Licenses</span>
+            </div>
+            <p class="footer__permalink">This page is available at <a href="https://orecalc.tech/licenses/"
+                    target="_blank" rel="noopener noreferrer">orecalc.tech/licenses/</a></p>
+            <p class="footer__copyright">&copy; 2025-2026 OreCalc. All rights reserved.</p>
         </div>
     </div>
 
@@ -101,7 +116,7 @@
                 link.href = item.url;
                 link.target = '_blank';
                 link.rel = 'noopener noreferrer';
-                link.textContent = 'Source →';
+                link.textContent = 'Source Link';
                 link.onclick = (e) => e.stopPropagation();
                 meta.appendChild(link);
 

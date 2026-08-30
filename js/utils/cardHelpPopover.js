@@ -168,11 +168,14 @@ export function showCardHelpPopover(targetElem, content, { isToggle = false } = 
             top = elemRect.bottom + 6;
         }
 
-        // Clamp top so popover is always 100% inside viewport vertical bounds
-        top = Math.max(12, Math.min(top, viewportHeight - popoverHeight - 12));
+        const effectiveHeight = Math.min(popoverHeight, Math.max(0, viewportHeight - 24));
+        const effectiveWidth = Math.min(popoverWidth, Math.max(0, viewportWidth - 24));
 
-        let left = elemRect.left + (elemRect.width / 2) - (popoverWidth / 2);
-        left = Math.max(12, Math.min(left, viewportWidth - popoverWidth - 12));
+        // Clamp top so popover is always 100% inside viewport vertical bounds
+        top = Math.max(12, Math.min(top, viewportHeight - effectiveHeight - 12));
+
+        let left = elemRect.left + (elemRect.width / 2) - (effectiveWidth / 2);
+        left = Math.max(12, Math.min(left, viewportWidth - effectiveWidth - 12));
 
         popover.style.top = `${top}px`;
         popover.style.left = `${left}px`;

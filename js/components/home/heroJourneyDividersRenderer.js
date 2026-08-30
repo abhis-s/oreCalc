@@ -70,17 +70,22 @@ export function createTHBoundaryDivider(highestNextTH, startLvlVal, isCurrentTHD
  * @param {boolean} opts.revealBeyondTH
  * @param {number} opts.nextTH
  * @param {number} opts.nextTHStartLvl
+ * @param {boolean} [opts.isDedicatedPage=false]
  * @returns {HTMLDivElement}
  */
-export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyondTH, nextTH, nextTHStartLvl }) {
+export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyondTH, nextTH, nextTHStartLvl, isDedicatedPage = false }) {
     const blockCard = document.createElement('div');
 
     if (isTrueMax || (isGuest && thLevel >= 18)) {
         blockCard.className = 'th-limit-block-card true-max-card';
+        const actionBtnHtml = isDedicatedPage
+            ? `<button class="th-limit-reveal-btn btn-active" id="hj-show-table-btn" data-i18n="views.heroJourneyPage.viewTable">${translate('views.heroJourneyPage.viewTable')}</button>`
+            : `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.home.heroJourney.hideTrack">${translate('views.home.heroJourney.hideTrack')}</button>`;
+
         blockCard.innerHTML = `
             <orecalc-assets-image src="assets/th/th18.png" alt="TH18" class="th-limit-img"></orecalc-assets-image>
             <div class="th-limit-text"><span data-i18n="views.home.heroJourney.trueMaxTitle">${translate('views.home.heroJourney.trueMaxTitle')}</span><br><span data-i18n="views.home.heroJourney.trueMaxDesc">${translate('views.home.heroJourney.trueMaxDesc')}</span></div>
-            <button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.home.heroJourney.hideTrack">${translate('views.home.heroJourney.hideTrack')}</button>
+            ${actionBtnHtml}
         `;
     } else {
         blockCard.className = 'th-limit-block-card';
@@ -94,7 +99,7 @@ export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyo
         const limitTextArgs = !revealBeyondTH ? JSON.stringify({ th: nextTH, lvl: nextTHStartLvl }) : JSON.stringify({ th: nextTH });
         const limitText = translate(limitTextI18n, !revealBeyondTH ? { th: nextTH, lvl: nextTHStartLvl } : { th: nextTH });
 
-        if (isGuest) {
+        if (isGuest && !isDedicatedPage) {
             const hideBtnHtml = `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.home.heroJourney.hideTrack">${translate('views.home.heroJourney.hideTrack')}</button>`;
             blockCard.innerHTML = `
                 <orecalc-assets-image src="assets/th/th${nextTH}.png" alt="TH${nextTH}" class="th-limit-img"></orecalc-assets-image>

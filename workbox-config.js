@@ -7,7 +7,13 @@ module.exports = {
         '**/*.{js,css,html,png,jpg,jpeg,svg,gif,json,ico,webp,avif,txt}'
     ],
     globIgnores: [
-        '**/404.html'
+        '**/404.html',
+        '**/hero-journey/**',
+        '**/js/heroJourneyApp.js',
+        '**/privacy/**',
+        '**/terms/**',
+        '**/licenses/**',
+        '**/legal/**'
     ],
     // injectManifest: workbox-cli injects self.__WB_MANIFEST into our custom SW template.
     // All routing + runtime caching logic lives in service-worker-src.js.

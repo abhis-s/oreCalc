@@ -10,19 +10,22 @@ import {
 } from './core/appEventInterceptors.js';
 import { recalculateAll } from './core/calculator.js';
 import { detectLanguage, getLanguageFromPath, isValidRoute, syncLanguageUrl } from './core/languageRouter.js';
-import { loadState, resetState, saveState, setResettingState } from './core/localStorageManager.js';
+import { loadPlayerData, loadState, resetState, saveState, setResettingState, updateSavedPlayerTags } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_TERMS, initializeState, state } from './core/state.js';
-import { compareVersions, migrateFullState } from './core/stateCleanup.js';
-import { registerStateUpdateCallback } from './core/stateManager.js';
+import { migrateFullState } from './core/stateCleanup.js';
+import { compareVersions } from './utils/versionUtils.js';
+import { registerStateUpdateCallback, switchActivePlayer } from './core/stateManager.js';
+import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
 import {
     THEME_PALETTE,
     animatePreloaderBackground,
     applyTheme,
-    applyThemeSettings,
-    availableAccents
+    availableAccents,
+    setThemeRenderCallback
 } from './core/themeManager.js';
-
+import { initMainAppCrossTabSync } from './core/crossTabSync.js';
+import { getPlayerTagFromUrl, syncPlayerTagToUrl } from './core/playerUrlRouter.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
 import { logger } from './utils/logger.js';
 import './utils/imageManager.js';
@@ -36,6 +39,7 @@ import { checkLegalConsent, refreshConsentModalStatus } from './services/consent
 import { initializePwaService } from './services/pwaService.js';
 import './console.js';
 
+setThemeRenderCallback(renderApp);
 registerGlobalErrorBoundaries();
 
 if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
@@ -177,8 +181,18 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
         const pathName = window.location.pathname;
         if (!isValidRoute(pathName)) {
+            try {
+                const res = await fetch('/404.html');
+                if (res.ok) {
+                    const html = await res.text();
+                    document.open();
+                    document.write(html);
+                    document.close();
+                    return;
+                }
+            } catch (_) {}
             const currentLang = getLanguageFromPath() || 'en';
-            window.location.href = `/${currentLang}/404`;
+            window.location.href = currentLang === 'en' ? '/404' : `/${currentLang}/404`;
             return;
         }
 
@@ -191,6 +205,27 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 history.replaceState(null, '', window.location.pathname);
                 state.activeTab = 'home-tab';
             }
+        }
+
+        const urlTag = getPlayerTagFromUrl();
+        if (urlTag) {
+            if (!state.allPlayersData[urlTag] || !state.allPlayersData[urlTag].heroes) {
+                const cached = loadPlayerData(urlTag);
+                if (cached && cached.heroes) {
+                    state.allPlayersData[urlTag] = cached;
+                }
+            }
+
+            if (state.allPlayersData[urlTag]?.heroes) {
+                updateSavedPlayerTags(urlTag);
+                switchActivePlayer(urlTag);
+                syncPlayerTagToUrl(urlTag);
+            } else {
+                await loadAndProcessPlayerData(urlTag);
+                syncPlayerTagToUrl(urlTag);
+            }
+        } else if (state.savedPlayerTags?.[0] && state.savedPlayerTags[0] !== 'DEFAULT0') {
+            syncPlayerTagToUrl(state.savedPlayerTags[0]);
         }
 
         let renderFrameId = null;
@@ -286,6 +321,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         });
 
         initializeDOMElements();
+        initMainAppCrossTabSync();
 
         const preloader = dom.preloader;
         if (preloader) {
@@ -334,12 +370,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 if (pendingQrUserId) {
                     sessionStorage.removeItem('oreCalc_pendingQrUserId');
                     try { localStorage.removeItem('oreCalc_pendingQrUserId'); } catch (e) {}
-                    const { importUserData } = await import('./utils/cloudSaveHandler.js');
+                    const { importUserData } = await import('./services/cloudSaveService.js');
                     await importUserData(pendingQrUserId);
                     return;
                 }
 
-                const { initializeAppData } = await import('./utils/cloudSaveHandler.js');
+                const { initializeAppData } = await import('./services/cloudSaveService.js');
                 const syncedState = await initializeAppData();
                 if (syncedState) {
                     const originalVersion = syncedState.appVersion || '1.0.0';

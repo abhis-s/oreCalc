@@ -11,8 +11,59 @@ import { cleanupUpgradePlan, reindexGlobalPriority } from '../../utils/plannerUt
 import { createHeroCard } from '../common/heroDisplayFactory.js';
 import { dom } from '../../dom/domElements.js';
 import { initializeEquipmentDetailsModal, openEquipmentDetailsModal } from './equipmentDetailsModalInputs.js';
-import { markEquipmentManuallyMaxed } from './heroCardDisplay.js';
 import { refreshLayout } from '../../ui/cardLayoutManager.js';
+
+const temporarilyVisibleMaxed = new Set();
+const activeTimeouts = new Map();
+
+/**
+ * Marks an equipment item as manually maxed to preserve visibility for a 5-second grace period.
+ *
+ * @param {string} heroName
+ * @param {string} equipName
+ */
+function markEquipmentManuallyMaxed(heroName, equipName) {
+    const key = `${heroName}|${equipName}`;
+    temporarilyVisibleMaxed.add(key);
+
+    if (activeTimeouts.has(key)) {
+        clearTimeout(activeTimeouts.get(key));
+    }
+
+    const timeoutId = setTimeout(() => {
+        temporarilyVisibleMaxed.delete(key);
+        activeTimeouts.delete(key);
+        handleStateUpdate(() => {});
+    }, 5000);
+
+    activeTimeouts.set(key, timeoutId);
+}
+
+/**
+ * Checks whether an equipment item is temporarily visible within the maxed grace period.
+ *
+ * @param {string} heroName
+ * @param {string} equipName
+ * @returns {boolean}
+ */
+export function isEquipmentTemporarilyVisible(heroName, equipName) {
+    return temporarilyVisibleMaxed.has(`${heroName}|${equipName}`);
+}
+
+/**
+ * Clears the temporary visibility state for an equipment item.
+ *
+ * @param {string} heroName
+ * @param {string} equipName
+ */
+export function clearEquipmentTemporarilyVisible(heroName, equipName) {
+    const key = `${heroName}|${equipName}`;
+    temporarilyVisibleMaxed.delete(key);
+    if (activeTimeouts.has(key)) {
+        clearTimeout(activeTimeouts.get(key));
+        activeTimeouts.delete(key);
+    }
+}
 
 /**
  * Initializes Hero Cards into DOM and attaches input popovers, validation, and action events.

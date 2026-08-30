@@ -5,6 +5,7 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
+import { getMaxTownHall } from '../../utils/dateUtils.js';
 
 import { bindNumericInput, bindSelectInput } from '../common/formBindingUtils.js';
 import { dom } from '../../dom/domElements.js';
@@ -126,7 +127,7 @@ function renderTHPlanningSection() {
         handleStateUpdate(() => {}, true);
     }
 
-    renderTHPlanningSectionDisplay(state, handleTHUpgradeChange);
+    renderTHPlanningSectionDisplay(state);
 }
 
 function renderStarBonusSelectorContent() {
@@ -230,6 +231,26 @@ export function initializeStarBonusSelector() {
             ensureStarBonus2xState().lastEvent = `${year}-${String(month + 1).padStart(2, '0')}`;
         }
     });
+
+    const thContainer = dom.income?.starBonus?.thPlanningSection;
+    if (thContainer) {
+        thContainer.addEventListener('change', (e) => {
+            const select = /** @type {HTMLSelectElement | null} */ (e.target);
+            if (select && select.dataset.th) {
+                const th = Number(select.dataset.th);
+                const offset = parseInt(select.value, 10);
+                const now = new Date();
+                const currentMonthBase = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+                let currentTH = 1;
+                if (state.playerProfile && state.playerProfile.townHallLevel) {
+                    currentTH = Number(state.playerProfile.townHallLevel) || 1;
+                }
+                const maxTH = getMaxTownHall();
+                const thLimit = (currentTH >= maxTH - 1) ? maxTH + 2 : maxTH + 1;
+                handleTHUpgradeChange(th, offset, currentMonthBase, thLimit);
+            }
+        });
+    }
 
     document.addEventListener('languageChanged', () => {
         renderStarBonusSelectorContent();

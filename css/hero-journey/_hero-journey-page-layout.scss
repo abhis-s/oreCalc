@@ -1,0 +1,44 @@
+@use '../abstracts/variables' as *;
+
+.hero-journey-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: $bg-app;
+    color: $text-primary;
+
+    &__main {
+        flex: 1;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    &__player-card {
+        box-sizing: border-box;
+    }
+
+    &__error-banner {
+        margin-bottom: 16px;
+    }
+
+    .hero-journey-progress-fill.is-true-max {
+        background-color: $color-warning;
+        box-shadow: 0 0 8px $color-warning-soft;
+    }
+}
+
+:root.light-mode,
+.light-mode {
+    .hj-theme-btn {
+        .theme-icon-light {
+            display: block;
+        }
+
+        .theme-icon-dark {
+            display: none;
+        }
+    }
+}

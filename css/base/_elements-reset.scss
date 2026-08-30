@@ -1,7 +1,7 @@
 @use '../abstracts/variables' as *;
 
 html {
-    overflow-x: hidden;
+    overflow-x: clip;
     scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
@@ -79,7 +79,7 @@ dialog,
 }
 
 body {
-    overflow-x: hidden;
+    overflow-x: clip;
     color: $text-primary;
     transition: background-color $duration-slow $ease-smooth, color $duration-slow $ease-smooth;
     font-family: $font-family-sans;

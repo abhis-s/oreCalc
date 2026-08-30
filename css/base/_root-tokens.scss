@@ -47,6 +47,7 @@
     --border-accent: #{$palette-blue-300};
     --border-danger: #{$palette-red-400};
     --border-inverse: #{$palette-white};
+    --border-on-accent: #{$palette-slate-500};
     --outline-focus: #{$palette-blue-300};
 
     --color-rarity-common: #{$palette-blue-300};
@@ -98,6 +99,7 @@
     --font-size-xl: 1.125rem;
     --font-size-2xl: 1.25rem;
     --font-size-3xl: 1.5rem;
+    --font-weight-bold: 700;
 
     --material-track-inactive: #{$palette-grey-800};
     --material-track-border-inactive: rgba(255, 255, 255, 0.18);
@@ -144,7 +146,7 @@
     --btn-bg-green-hover: color-mix(in srgb, var(--btn-color-green) 22%, transparent);
     --btn-border-green-hover: color-mix(in srgb, var(--btn-color-green) 45%, transparent);
 
-    --btn-color-amber: #{$palette-amber-400};
+    --btn-color-amber: #{$palette-amber-300};
     --btn-bg-amber: color-mix(in srgb, var(--btn-color-amber) 12%, transparent);
     --btn-border-amber: color-mix(in srgb, var(--btn-color-amber) 30%, transparent);
     --btn-bg-amber-hover: color-mix(in srgb, var(--btn-color-amber) 22%, transparent);
@@ -156,13 +158,13 @@
     --btn-bg-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 22%, transparent);
     --btn-border-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 45%, transparent);
 
-    --btn-color-purple: #{$palette-purple-400};
+    --btn-color-purple: #{$palette-purple-300};
     --btn-bg-purple: color-mix(in srgb, var(--btn-color-purple) 12%, transparent);
     --btn-border-purple: color-mix(in srgb, var(--btn-color-purple) 30%, transparent);
     --btn-bg-purple-hover: color-mix(in srgb, var(--btn-color-purple) 22%, transparent);
     --btn-border-purple-hover: color-mix(in srgb, var(--btn-color-purple) 45%, transparent);
 
-    --btn-color-pink: #{$palette-pink-400};
+    --btn-color-pink: #{$palette-pink-300};
     --btn-bg-pink: color-mix(in srgb, var(--btn-color-pink) 12%, transparent);
     --btn-border-pink: color-mix(in srgb, var(--btn-color-pink) 30%, transparent);
     --btn-bg-pink-hover: color-mix(in srgb, var(--btn-color-pink) 22%, transparent);

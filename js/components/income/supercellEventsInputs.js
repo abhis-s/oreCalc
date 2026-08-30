@@ -2,6 +2,7 @@ import { state } from '../../core/state.js';
 
 import { bindToggleInput } from '../common/formBindingUtils.js';
 import { dom } from '../../dom/domElements.js';
+import { renderSupercellEvents } from './supercellEventsDisplay.js';
 
 /**
  * Initializes Supercell Events world championship toggle input binding.
@@ -15,6 +16,10 @@ export function initializeSupercellEventsInputs() {
             }
             state.income.supercellEvents.worldChampionship = checked;
         }
+    });
+
+    document.addEventListener('languageChanged', () => {
+        renderSupercellEvents();
     });
 }
 

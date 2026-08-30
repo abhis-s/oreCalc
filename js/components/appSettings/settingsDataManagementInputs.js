@@ -1,5 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 
+import { normalizePlayerTag } from '../../core/localStorageManager.js';
 import { state } from '../../core/state.js';
 
 import { logger } from '../../utils/logger.js';
@@ -179,7 +180,7 @@ export function initializeSettingsDataManagement() {
                 const playerData = await fetchPlayerData(tag);
 
                 if (playerData && playerData.tag && deleteTagInput) {
-                    const canonicalTag = playerData.tag.startsWith('#') ? playerData.tag.substring(1) : playerData.tag;
+                    const canonicalTag = normalizePlayerTag(playerData.tag);
                     deleteTagInput.value = canonicalTag.toUpperCase();
                 }
 

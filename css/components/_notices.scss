@@ -1,5 +1,4 @@
 @use '../abstracts/variables' as *;
-@use '../base/placeholder';
 
 .notice {
     color: $text-secondary;
@@ -35,6 +34,48 @@
 
     &.make-notice {
         margin-top: 20px;
+
+        .version-display-text {
+            color: $text-secondary;
+            font-size: 0.85em;
+            margin-left: 5px;
+        }
+    }
+}
+
+.app-footer {
+    width: 100%;
+    margin-top: auto;
+    padding: 0;
+    text-align: center;
+
+    &__links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px 10px 0;
+        margin: 0;
+        font-size: 0.6em;
+    }
+
+    &__link {
+        color: $text-secondary;
+        text-decoration: none;
+        transition: color $duration-fast $ease-smooth;
+
+        &:hover {
+            color: $accent-primary;
+            text-decoration: underline;
+        }
+    }
+
+    &__sep {
+        color: $text-muted;
+        user-select: none;
+        font-size: 0.8em;
+        vertical-align: middle;
     }
 }
 

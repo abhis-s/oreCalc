@@ -219,8 +219,13 @@ dialog.navigation-drawer,
     }
 
     &__footer-sep {
-        color: $text-secondary;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background-color: $bg-surface-tertiary;
         opacity: 0.3;
+        display: inline-block;
+        flex-shrink: 0;
     }
 
     &__app-version {
