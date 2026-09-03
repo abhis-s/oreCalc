@@ -60,4 +60,18 @@ describe('Standalone Pages & Legal Decoupling Invariants', () => {
             assert.ok(!emojiPattern.test(content), `${relFile} must contain zero emojis`);
         }
     });
+
+    test('interactive application entry points maintain safe-area boundary without viewport-fit=cover', () => {
+        const appPages = [
+            'index.html',
+            'hero-journey.html'
+        ];
+
+        for (const relFile of appPages) {
+            const content = fs.readFileSync(path.join(projectRoot, relFile), 'utf8');
+            assert.match(content, /<meta name="viewport" content="[^"]*width=device-width[^"]*">/, `${relFile} must declare responsive viewport`);
+            assert.match(content, /interactive-widget=resizes-content/, `${relFile} must declare interactive-widget=resizes-content`);
+            assert.ok(!content.includes('viewport-fit=cover'), `${relFile} must not declare viewport-fit=cover to prevent iOS status bar clipping`);
+        }
+    });
 });

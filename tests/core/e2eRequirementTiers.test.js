@@ -229,7 +229,7 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
             test('1.5: Verifies header stylesheet declares fixed floating layout and transition tokens', () => {
                 const scss = fs.readFileSync(path.join(projectRoot, 'css/hero-journey/_hero-journey-header.scss'), 'utf8');
                 assert.match(scss, /position:\s*fixed;/);
-                assert.match(scss, /top:\s*15px;/);
+                assert.match(scss, /top:\s*(?:15px|calc\(15px\s*\+\s*env\(safe-area-inset-top,\s*0px\)\));/);
                 assert.match(scss, /transition:\s*background-color\s+\$duration-moderate/);
             });
         });

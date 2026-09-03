@@ -3,7 +3,7 @@
 .hero-journey-page {
     &__header {
         position: fixed;
-        top: 15px;
+        top: calc(15px + env(safe-area-inset-top, 0px));
         left: 15px;
         right: 15px;
         margin-inline: auto;
@@ -346,7 +346,7 @@
 
     @media (max-width: 640px) {
         &__header {
-            top: 8px;
+            top: calc(8px + env(safe-area-inset-top, 0px));
             left: 8px;
             right: 8px;
             border-radius: 16px;
@@ -362,13 +362,13 @@
 
 .header-placeholder {
     display: block;
-    height: 78px;
+    height: calc(78px + env(safe-area-inset-top, 0px));
 
     @media (max-width: 640px) {
-        height: 72px;
+        height: calc(72px + env(safe-area-inset-top, 0px));
     }
 
     body:has(.is-stacked) & {
-        height: 124px;
+        height: calc(124px + env(safe-area-inset-top, 0px));
     }
 }
