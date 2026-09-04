@@ -76,15 +76,17 @@
     .profile-meta-actions-row {
         gap: 8px;
         margin-left: auto;
-        flex-shrink: 0;
+        flex-shrink: 1;
+        min-width: 0;
     }
 
     .player-maxed-equip-mini {
         display: block;
         white-space: normal;
         text-align: right;
-        max-width: 130px;
+        max-width: 100px;
         flex-shrink: 1;
+        min-width: 0;
 
         span {
             display: inline;
