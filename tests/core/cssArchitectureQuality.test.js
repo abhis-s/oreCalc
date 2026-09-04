@@ -322,7 +322,7 @@ describe('CSS Architecture Quality & Style Invariants', () => {
         });
     });
 
-    describe('Milestone 6: Responsive Breakpoint Token Centralization', () => {
+    describe('Responsive Breakpoint Token Centralization', () => {
         const scssFiles = scanDir(path.join(projectRoot, 'css'), f => f.endsWith('.scss'));
 
         test('ensures all 4 standard responsive breakpoint tokens are defined in _variables.scss', () => {

@@ -5,23 +5,21 @@ import path from 'node:path';
 
 describe('Standalone Pages & Legal Decoupling Invariants', () => {
     const projectRoot = process.cwd();
+    const standaloneRoutes = ['privacy', 'terms', 'licenses', 'legal', 'hero-journey'];
 
     test('workbox-config.js explicitly excludes all standalone legal pages and assets', () => {
         const wbContent = fs.readFileSync(path.join(projectRoot, 'workbox-config.js'), 'utf8');
-        assert.match(wbContent, /['"]\*\*\/privacy\/\*\*['"]/);
-        assert.match(wbContent, /['"]\*\*\/terms\/\*\*['"]/);
-        assert.match(wbContent, /['"]\*\*\/licenses\/\*\*['"]/);
-        assert.match(wbContent, /['"]\*\*\/legal\/\*\*['"]/);
-        assert.match(wbContent, /['"]\*\*\/hero-journey\/\*\*['"]/);
+        for (const route of standaloneRoutes) {
+            assert.match(wbContent, new RegExp(`['"]\\*\\*/${route}/\\*\\*['"]`), `workbox-config.js must exclude **/${route}/**`);
+        }
+        assert.match(wbContent, /['"]\*\*\/js\/heroJourneyApp\.js['"]/, 'workbox-config.js must exclude **/js/heroJourneyApp.js');
     });
 
     test('service-worker-src.js explicitly bypasses fetch listener for standalone pages', () => {
         const swContent = fs.readFileSync(path.join(projectRoot, 'service-worker-src.js'), 'utf8');
-        assert.match(swContent, /url\.pathname\.includes\('\/hero-journey'\)/);
-        assert.match(swContent, /url\.pathname\.includes\('\/privacy'\)/);
-        assert.match(swContent, /url\.pathname\.includes\('\/terms'\)/);
-        assert.match(swContent, /url\.pathname\.includes\('\/licenses'\)/);
-        assert.match(swContent, /url\.pathname\.includes\('\/legal'\)/);
+        for (const route of standaloneRoutes) {
+            assert.match(swContent, new RegExp(`url\\.pathname\\.includes\\('/${route}'\\)`), `service-worker-src.js must bypass /${route}`);
+        }
     });
 
     test('_headers enforces strict zero-caching directives for all legal routes', () => {
@@ -33,6 +31,13 @@ describe('Standalone Pages & Legal Decoupling Invariants', () => {
         assert.match(headersContent, /Cache-Control:\s*no-cache,\s*no-store,\s*must-revalidate/);
         assert.match(headersContent, /Pragma:\s*no-cache/);
         assert.match(headersContent, /Expires:\s*0/);
+    });
+
+    test('_headers enforces 6-month static asset caching and zero-stale dynamic revalidation', () => {
+        const headersContent = fs.readFileSync(path.join(projectRoot, '_headers'), 'utf8');
+        assert.match(headersContent, /\/assets\/\*[\s\S]*?Cache-Control:\s*public,\s*max-age=15552000,\s*immutable/, '_headers must set 6-month immutable cache for /assets/*');
+        assert.match(headersContent, /\/\*\.html[\s\S]*?Cache-Control:\s*public,\s*max-age=0,\s*must-revalidate/, '_headers must revalidate HTML fresh');
+        assert.match(headersContent, /\/service-worker\.js[\s\S]*?Cache-Control:\s*no-cache,\s*no-store,\s*must-revalidate/, '_headers must prevent caching service-worker.js');
     });
 
     test('modal partials configure lazy about:blank iframes to prevent startup preload leaks', () => {

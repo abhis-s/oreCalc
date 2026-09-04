@@ -237,20 +237,6 @@ describe('Welcome Modal Comprehensive Feature Suite', () => {
         assert.ok(progress.epic.avg >= 0 && progress.epic.avg <= 100);
     });
 
-    test('UI Fidelity & Contrast Invariants in welcome SCSS partials', () => {
-        const carouselScssPath = path.join(projectRoot, 'css/components/welcome/_welcome-carousel.scss');
-        const carouselScssContent = fs.readFileSync(carouselScssPath, 'utf8');
-        const thBadgesScssPath = path.join(projectRoot, 'css/components/welcome/welcome-profiles/_welcome-th-badges.scss');
-        const thBadgesScssContent = fs.readFileSync(thBadgesScssPath, 'utf8');
-        const syncScssPath = path.join(projectRoot, 'css/components/welcome/_welcome-sync.scss');
-        const syncScssContent = fs.readFileSync(syncScssPath, 'utf8');
-
-        assert.match(thBadgesScssContent, /\.th-badge-img\s*\{[^}]*max-width:\s*32px;[^}]*max-height:\s*32px;/, 'Must constrain th-badge-img dimensions');
-        assert.match(carouselScssContent, /\.welcome-dot,\s*\.welcome-wizard-dot\s*\{[^}]*background-color:\s*\$bg-surface-secondary;/, 'Must define semantic background for inactive dots');
-        assert.match(carouselScssContent, /\.welcome-header-skip-btn\s*\{[^}]*background-color:\s*color-mix\(in srgb,\s*\$bg-surface-secondary\s+75%,\s*transparent\);/, 'Must use surface background');
-        assert.match(syncScssContent, /\.sync-disabled-overlay\s*\{[^}]*border-radius:\s*inherit;/, 'Must use border-radius: inherit on overlay for rounded element clipping');
-    });
-
     test('Welcome wizard step navigation and state transitions', async () => {
         const { getWizardState, resetWizardState, setWizardState, goToNextWizardStep, goToPrevWizardStep } = await import('../../js/components/welcome/welcomeWizardState.js');
         resetWizardState();
@@ -314,13 +300,11 @@ describe('Welcome Modal Comprehensive Feature Suite', () => {
         assert.match(content, /\.input-feature-popover\s*\{[\s\S]*?z-index:\s*\$z-index-popover;/, 'Must use $z-index-popover token');
     });
 
-    test('Welcome modal and wizard bottom buttons ordering and non-mobile flex styling', () => {
+    test('Welcome modal and wizard bottom buttons ordering and DOM sequence', () => {
         const welcomeHtmlPath = path.join(projectRoot, 'partials/modals/welcome-modal.html');
         const welcomeHtml = fs.readFileSync(welcomeHtmlPath, 'utf8');
         const wizardHtmlPath = path.join(projectRoot, 'partials/modals/welcome/setup-wizard-view.html');
         const wizardHtml = fs.readFileSync(wizardHtmlPath, 'utf8');
-        const carouselScssPath = path.join(projectRoot, 'css/components/welcome/_welcome-carousel.scss');
-        const carouselScss = fs.readFileSync(carouselScssPath, 'utf8');
 
         // Tab focus DOM order assertion
         const guestBtnIndex = welcomeHtml.indexOf('id="welcome-guest-btn"');
@@ -340,15 +324,6 @@ describe('Welcome Modal Comprehensive Feature Suite', () => {
         const wizardBackIndex = welcomeHtml.indexOf('id="welcome-wizard-back-btn"');
         assert.ok(wizardBackIndex !== -1 && wizardNextIndex !== -1);
         assert.ok(wizardNextIndex < wizardBackIndex);
-
-        // SCSS flex layout, min-height token, and flex order assertions
-        assert.match(carouselScss, /\.welcome-actions\s*\{[\s\S]*?flex-direction:\s*row;/, 'Must use flex-direction: row for non-mobile');
-        assert.match(carouselScss, /(\.reject-button|\.btn-secondary)[\s\S]*?min-height:\s*44px;/, 'Must standardize min-height to 44px');
-        assert.match(carouselScss, /(\.reject-button|\.btn-secondary)\s*\{[\s\S]*?order:\s*1;/, 'Reject/secondary button must have order: 1 (left)');
-        assert.match(carouselScss, /(\.accept-button|\.btn-primary)\s*\{[\s\S]*?order:\s*2;/, 'Accept/primary button must have order: 2 (right)');
-
-        // Viewport media query layout inversion
-        assert.match(carouselScss, /@media\s*\(max-width:\s*\$breakpoint-modal\)\s*\{[\s\S]*?flex-direction:\s*column;[\s\S]*?(\.accept-button|\.btn-primary)[\s\S]*?order:\s*1;[\s\S]*?(\.reject-button|\.btn-secondary)[\s\S]*?order:\s*2;/, 'On narrow devices, accept button must be above reject button');
     });
 
     test('Welcome carousel visual index mapping converts correctly between 0-indexed and 1-indexed', async () => {

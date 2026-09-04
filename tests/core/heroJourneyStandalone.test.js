@@ -380,14 +380,6 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         assert.ok(html.includes('aria-expanded="true"'), 'Collapsible header must reflect expanded state');
     });
 
-    test('verifies workbox-config.js completely decouples hero-journey from Service Worker caching', async () => {
-        const { default: workboxConfig } = await import('../../workbox-config.js');
-
-        assert.ok(Array.isArray(workboxConfig.globIgnores), 'workbox-config.js must define globIgnores array');
-        assert.ok(workboxConfig.globIgnores.includes('**/hero-journey/**'), 'workbox-config.js must exclude **/hero-journey/** from precache manifest');
-        assert.ok(workboxConfig.globIgnores.includes('**/js/heroJourneyApp.js'), 'workbox-config.js must exclude **/js/heroJourneyApp.js from precache manifest');
-    });
-
     test('verifies updateHeaderLoadButton transitions correctly between focused, active player TH badge, and disabled states', async () => {
         const { updateHeaderLoadButton } = await import('../../js/components/heroJourney/heroJourneyHeaderInputs.js');
         const { hjState } = await import('../../js/components/heroJourney/heroJourneyState.js');
@@ -484,15 +476,5 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
             hjState.playerData = null;
             hjState.thLevel = 18;
         }
-    });
-
-    test('verifies _headers enforces 6-month static asset caching and zero-stale dynamic revalidation', async () => {
-        const fs = await import('node:fs');
-        const path = await import('node:path');
-        const headersFile = fs.readFileSync(path.join(process.cwd(), '_headers'), 'utf8');
-
-        assert.match(headersFile, /\/assets\/\*[\s\S]*?Cache-Control:\s*public,\s*max-age=15552000,\s*immutable/, '_headers must set 6-month immutable cache for /assets/*');
-        assert.match(headersFile, /\/\*\.html[\s\S]*?Cache-Control:\s*public,\s*max-age=0,\s*must-revalidate/, '_headers must revalidate HTML fresh');
-        assert.match(headersFile, /\/service-worker\.js[\s\S]*?Cache-Control:\s*no-cache,\s*no-store,\s*must-revalidate/, '_headers must prevent caching service-worker.js');
     });
 });

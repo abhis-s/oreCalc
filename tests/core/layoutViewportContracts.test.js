@@ -78,68 +78,10 @@ function computeSettingsPopoverOffset({
     return { rightOffset, computedLeft, computedRight };
 }
 
-/**
- * Hero Journey Header dynamic layout decision algorithm.
- * @param {{
- *   containerWidth: number,
- *   brandTitleWidth?: number,
- *   separatorWidth?: number,
- *   pillWidth?: number,
- *   actionsWidth?: number,
- *   searchBtnWidth?: number
- * }} params
- * @returns {{ isStacked: boolean, isCompact: boolean }}
- */
-function computeHeroJourneyHeaderLayout({
-    containerWidth,
-    brandTitleWidth = 75,
-    separatorWidth = 8,
-    pillWidth = 105,
-    actionsWidth = 80,
-    searchBtnWidth = 58
-}) {
-    const minSearchInputWidth = 145;
-    const searchExtra = 56;
-    const minSearchWidth = minSearchInputWidth + searchBtnWidth + searchExtra;
-
-    const gap = 16;
-    const stackedGap = 16;
-
-    const fullBrandWidth = brandTitleWidth + separatorWidth + pillWidth + 12;
-    const compactBrandWidth = brandTitleWidth;
-
-    const singleRowFullWidth = fullBrandWidth + minSearchWidth + actionsWidth + (2 * gap);
-    const singleRowCompactWidth = compactBrandWidth + minSearchWidth + actionsWidth + (2 * gap);
-
-    let nextStacked = false;
-    let nextCompact = false;
-
-    if (containerWidth >= singleRowFullWidth) {
-        nextStacked = false;
-        nextCompact = false;
-    } else if (containerWidth >= singleRowCompactWidth) {
-        nextStacked = false;
-        nextCompact = true;
-    } else {
-        nextStacked = true;
-        const row1Needed = fullBrandWidth + actionsWidth + stackedGap;
-        nextCompact = containerWidth < row1Needed;
-    }
-
-    return { isStacked: nextStacked, isCompact: nextCompact };
-}
-
 describe('Layout & Viewport Hardening Contracts', () => {
 
-    describe('Responsive Breakpoint Tokens & Z-Index Tokens Invariant', () => {
+    describe('Z-Index Tokens Invariant', () => {
         const variablesScss = fs.readFileSync(path.join(projectRoot, 'css/abstracts/_variables.scss'), 'utf8');
-
-        test('defines standard responsive breakpoint tokens', () => {
-            assert.match(variablesScss, /\$breakpoint-compact:\s*425px;/, 'Must define $breakpoint-compact: 425px');
-            assert.match(variablesScss, /\$breakpoint-phone:\s*480px;/, 'Must define $breakpoint-phone: 480px');
-            assert.match(variablesScss, /\$breakpoint-modal:\s*625px;/, 'Must define $breakpoint-modal: 625px');
-            assert.match(variablesScss, /\$breakpoint-desktop:\s*780px;/, 'Must define $breakpoint-desktop: 780px');
-        });
 
         test('defines monotonically ordered z-index design tokens', () => {
             const extractZIndex = (name) => {
@@ -287,41 +229,6 @@ describe('Layout & Viewport Hardening Contracts', () => {
                     `Computed left edge (${result.computedLeft}px) must be >= 12px for ${vp.name}`
                 );
             }
-        });
-    });
-
-    describe('Hero Journey Header Dynamic Geometry Mathematics', () => {
-        test('determines single-row desktop layout for wide containers', () => {
-            const layout = computeHeroJourneyHeaderLayout({
-                containerWidth: 1130
-            });
-            assert.equal(layout.isStacked, false, 'Desktop 1130px should not be stacked');
-            assert.equal(layout.isCompact, false, 'Desktop 1130px should not be compact');
-        });
-
-        test('determines single-row layout with icon actions for tablet containers', () => {
-            const layout = computeHeroJourneyHeaderLayout({
-                containerWidth: 706,
-                actionsWidth: 80
-            });
-            assert.equal(layout.isStacked, false, 'Tablet 706px should fit in single row');
-            assert.equal(layout.isCompact, false, 'Tablet 706px should retain full brand pill');
-        });
-
-        test('transitions to 2-row stacked layout when width drops below singleRowCompactWidth', () => {
-            const layout = computeHeroJourneyHeaderLayout({
-                containerWidth: 440
-            });
-            assert.equal(layout.isStacked, true, '440px container must switch to stacked 2-row mode');
-            assert.equal(layout.isCompact, false, '440px container has room for full brand in Row 1');
-        });
-
-        test('activates compact brand when container drops below row 1 requirement in stacked mode', () => {
-            const layout = computeHeroJourneyHeaderLayout({
-                containerWidth: 280
-            });
-            assert.equal(layout.isStacked, true, '280px container must switch to stacked 2-row mode');
-            assert.equal(layout.isCompact, true, '280px container must activate compact brand');
         });
     });
 
