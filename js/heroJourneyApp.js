@@ -284,7 +284,7 @@ function clearActivePlayerToGuest(tag) {
 
     hjState.playerData = null;
     hjState.activeTag = null;
-    hjState.thLevel = 16;
+    hjState.thLevel = 18;
     hjState.cumulativeLevel = 0;
     hjState.isAccelerated = false;
     hjState.unclaimedOnly = false;

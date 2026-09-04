@@ -288,13 +288,52 @@ export function renderPlayerSummary() {
     if (!hjState.playerData) {
         hjRenderState.renderedTag = null;
         hjRenderState.lastProgress = null;
+        card.classList.add('is-stats-collapsed');
+        const thLevel = hjState.thLevel || 18;
+        const thImgUrl = `assets/th/th${thLevel}.png`;
+        const leagueNameText = translate('entities.leagues.unranked');
+        const bridgeUrl = './';
+
         card.innerHTML = `
-            <div class="hero-journey-page__unconnected">
-                <div class="unconnected-icon-wrapper">
-                    <orecalc-assets-svg name="user" height="32" width="32" class="unconnected-icon"></orecalc-assets-svg>
+            <div class="hero-journey-page__player-header home-profile-header">
+                <div class="profile-meta-left">
+                    <div class="th-badge-wrapper">
+                        <orecalc-assets-image class="th-badge-img is-silhouette" src="${thImgUrl}" alt="Town Hall ${thLevel}" size="standard"></orecalc-assets-image>
+                        <span class="th-badge-level-overlay">${thLevel}</span>
+                    </div>
+                    <div class="player-identity">
+                        <div class="player-identity-info">
+                            <h2 class="player-name" data-i18n="views.home.profile.noProfileTitle">${translate('views.home.profile.noProfileTitle')}</h2>
+                            <span class="player-tag-guest-badge" data-i18n="views.welcome.guestProfileTag">${translate('views.welcome.guestProfileTag')}</span>
+                        </div>
+                        <div class="player-clan-mini">
+                            <span class="clan-name-mini text-muted" data-i18n="views.welcome.noClan">${translate('views.welcome.noClan')}</span>
+                        </div>
+                    </div>
                 </div>
-                <h2 class="unconnected-title" data-i18n="views.home.profile.noProfileTitle">${translate('views.home.profile.noProfileTitle')}</h2>
-                <p class="unconnected-desc" data-i18n="views.heroJourneyPage.noPlayerLoaded">${translate('views.heroJourneyPage.noPlayerLoaded')}</p>
+
+                <div class="profile-meta-right">
+                    <div class="league-details-mini" title="${leagueNameText}">
+                        <orecalc-assets-image class="league-badge-img-mini" src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" alt="${leagueNameText}" size="standard"></orecalc-assets-image>
+                        <div class="league-text-mini">
+                            <span class="league-name-mini" data-i18n="entities.leagues.unranked">${leagueNameText}</span>
+                            <div class="player-trophies-mini">
+                                <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
+                                <span>--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-meta-actions-row">
+                        <a href="${bridgeUrl}" class="hj-planner-bridge-btn" title="${translate('views.heroJourneyPage.backToPlannerHelp')}" aria-label="${translate('views.heroJourneyPage.backToPlanner')}">
+                            <orecalc-assets-svg name="planner-outline" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
+                            <span class="planner-bridge-label" data-i18n="views.heroJourneyPage.backToPlanner">${translate('views.heroJourneyPage.backToPlanner')}</span>
+                        </a>
+                        <button id="hj-unconnected-search-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="${translate('views.home.profile.connectBtn')}" title="${translate('views.home.profile.connectBtn')}">
+                            <orecalc-assets-svg name="search" height="14" width="14"></orecalc-assets-svg>
+                            <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
         return;

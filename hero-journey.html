@@ -185,13 +185,46 @@
             </div>
         </div>
 
-        <section id="hj-player-card" class="card home-profile-card hero-journey-page__player-card" aria-label="Player Summary">
-            <div class="hero-journey-page__unconnected">
-                <div class="unconnected-icon-wrapper">
-                    <orecalc-assets-svg name="user" height="32" width="32" class="unconnected-icon"></orecalc-assets-svg>
+        <section id="hj-player-card" class="card home-profile-card hero-journey-page__player-card is-stats-collapsed" aria-label="Player Summary">
+            <div class="hero-journey-page__player-header home-profile-header">
+                <div class="profile-meta-left">
+                    <div class="th-badge-wrapper">
+                        <orecalc-assets-image class="th-badge-img is-silhouette" src="assets/th/th18.png" alt="Town Hall 18" size="standard"></orecalc-assets-image>
+                        <span class="th-badge-level-overlay">18</span>
+                    </div>
+                    <div class="player-identity">
+                        <div class="player-identity-info">
+                            <h2 class="player-name" data-i18n="views.home.profile.noProfileTitle">No Profile Connected</h2>
+                            <span class="player-tag-guest-badge" data-i18n="views.welcome.guestProfileTag">Guest Profile</span>
+                        </div>
+                        <div class="player-clan-mini">
+                            <span class="clan-name-mini text-muted" data-i18n="views.welcome.noClan">No Clan</span>
+                        </div>
+                    </div>
                 </div>
-                <h2 class="unconnected-title" data-i18n="views.home.profile.noProfileTitle">No Profile Connected</h2>
-                <p class="unconnected-desc" data-i18n="views.heroJourneyPage.noPlayerLoaded">Enter your Clash of Clans player tag above to preview your completed milestones and upcoming ore rewards.</p>
+
+                <div class="profile-meta-right">
+                    <div class="league-details-mini" title="Unranked">
+                        <orecalc-assets-image class="league-badge-img-mini" src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" alt="Unranked" size="standard"></orecalc-assets-image>
+                        <div class="league-text-mini">
+                            <span class="league-name-mini" data-i18n="entities.leagues.unranked">Unranked</span>
+                            <div class="player-trophies-mini">
+                                <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
+                                <span>--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-meta-actions-row">
+                        <a href="./" class="hj-planner-bridge-btn" title="Equipment Planner" aria-label="Equipment Planner">
+                            <orecalc-assets-svg name="planner-outline" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
+                            <span class="planner-bridge-label" data-i18n="views.heroJourneyPage.backToPlanner">Equipment Planner</span>
+                        </a>
+                        <button id="hj-unconnected-search-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="Connect Profile" title="Connect Profile">
+                            <orecalc-assets-svg name="search" height="14" width="14"></orecalc-assets-svg>
+                            <span data-i18n="views.home.profile.connectBtn">Connect Profile</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
 

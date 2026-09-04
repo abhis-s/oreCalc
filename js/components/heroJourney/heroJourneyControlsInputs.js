@@ -255,6 +255,16 @@ export function initHeroJourneyControls(hjState, renderUI, resetFiltersFn) {
             return;
         }
 
+        const searchBtn = target.closest('#hj-unconnected-search-btn');
+        if (searchBtn) {
+            const input = document.getElementById('hj-search-input');
+            if (input) {
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                input.focus();
+            }
+            return;
+        }
+
         const collapseBtn = target.closest('#hj-profile-collapse-btn');
         if (collapseBtn) {
             const card = document.getElementById('hj-player-card');

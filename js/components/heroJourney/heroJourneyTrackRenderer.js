@@ -211,7 +211,7 @@ export function renderTrackView(options = {}) {
  */
 export function updateProgressBar() {
     const maxLevelsByTH = getMaxCumulativeLevelsByTH();
-    const thLevel = hjState.thLevel || 17;
+    const thLevel = hjState.thLevel || 18;
     const thMaxLevel = maxLevelsByTH[thLevel] || 0;
     const allMax = Object.values(maxLevelsByTH);
     const overallMax = allMax.length > 0 ? Math.max(...allMax) : 485;

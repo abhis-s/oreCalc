@@ -198,7 +198,7 @@ describe('Milestone 2 State & Interaction Lifecycle Hardening Suite', () => {
         } finally {
             globalThis.document = origDoc;
             hjState.playerData = null;
-            hjState.thLevel = 16;
+            hjState.thLevel = 18;
         }
     });
 

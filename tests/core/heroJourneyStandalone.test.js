@@ -482,7 +482,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         } finally {
             globalThis.document = origDoc;
             hjState.playerData = null;
-            hjState.thLevel = 16;
+            hjState.thLevel = 18;
         }
     });
 

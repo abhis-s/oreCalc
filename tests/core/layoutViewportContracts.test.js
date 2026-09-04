@@ -172,11 +172,16 @@ describe('Layout & Viewport Hardening Contracts', () => {
         const cardsPopoversScss = fs.readFileSync(path.join(projectRoot, 'css/components/cards/_cards-popovers.scss'), 'utf8');
         const settingsPopoverScss = fs.readFileSync(path.join(projectRoot, 'css/hero-journey/_hero-journey-settings.scss'), 'utf8');
 
-        test('verifies desktop player-identity-info is unconstrained and modal breakpoint applies max-width: 58%', () => {
+        test('verifies desktop player-identity-info is unconstrained and mobile layout applies max-width: 58%', () => {
             assert.match(
                 profileHeaderScss,
-                /\.player-identity-info\s*\{[\s\S]*?max-width:\s*100%;[\s\S]*?@media\s*\(max-width:\s*\$breakpoint-modal\)\s*\{\s*max-width:\s*58%;\s*\}/,
-                'player-identity-info must have max-width: 100% on desktop and max-width: 58% at $breakpoint-modal'
+                /\.player-identity-info\s*\{[\s\S]*?max-width:\s*100%;/,
+                'player-identity-info must have max-width: 100% on desktop'
+            );
+            assert.match(
+                profileHeaderScss,
+                /\.player-identity-info\s*\{[\s\S]*?max-width:\s*58%;/,
+                'player-identity-info must have max-width: 58% in mobile/stacked layout'
             );
         });
 
@@ -317,6 +322,21 @@ describe('Layout & Viewport Hardening Contracts', () => {
             });
             assert.equal(layout.isStacked, true, '280px container must switch to stacked 2-row mode');
             assert.equal(layout.isCompact, true, '280px container must activate compact brand');
+        });
+    });
+
+    describe('Profile Card Container Query & Responsive Invariants', () => {
+        test('verifies profile cards declare container-type inline-size for native container queries', () => {
+            const scssPath = path.join(projectRoot, 'css/components/profile/_profile-card-container.scss');
+            const content = fs.readFileSync(scssPath, 'utf8');
+            assert.match(content, /container-type:\s*inline-size;/, 'Profile card container must declare container-type: inline-size');
+        });
+
+        test('verifies profile header stylesheet declares container query layout adaptation', () => {
+            const headerScssPath = path.join(projectRoot, 'css/components/profile/_profile-header.scss');
+            const content = fs.readFileSync(headerScssPath, 'utf8');
+            assert.match(content, /@container\s*\(max-width:\s*680px\)/, 'Profile header must adapt via @container (max-width: 680px)');
+            assert.match(content, /@include\s+mobile-header-full-layout;/, 'Container query must invoke mobile-header-full-layout mixin');
         });
     });
 });

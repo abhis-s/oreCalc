@@ -4,7 +4,7 @@
     align-items: center;
     background-color: transparent;
     border: 1px solid color-mix(in srgb, $border-primary 80%, transparent);
-    border-radius: 6px;
+    border-radius: $shape-corner-small;
     color: $text-secondary;
     cursor: pointer;
     display: inline-flex;
@@ -29,11 +29,12 @@
     orecalc-assets-svg,
     svg {
         display: block;
-        transition: transform $duration-base $ease-smooth;
     }
 }
 
-.home-profile-card {
+.home-profile-card,
+.hero-journey-page__player-card {
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -49,7 +50,7 @@
 
     &.is-stats-collapsed {
         .home-profile-stats-container {
-            display: none !important;
+            display: none;
         }
     }
 }

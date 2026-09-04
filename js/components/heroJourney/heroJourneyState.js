@@ -35,7 +35,7 @@ export const hjState = {
     activeTag: '',
     playerData: null,
     cumulativeLevel: 0,
-    thLevel: 17,
+    thLevel: 18,
     unclaimedOnly: false,
     typeFilter: 'all',
     searchQuery: '',
@@ -167,7 +167,7 @@ export function buildStateFromPlayerData(playerData, state) {
         homeEquipment.map(e => [e.name, e.level])
     );
 
-    const thLevel = Math.min(Math.max(Number(playerData?.townHallLevel) || Number(state?.thLevel) || 16, 1), 18);
+    const thLevel = Math.min(Math.max(Number(playerData?.townHallLevel) || Number(state?.thLevel) || 18, 1), 18);
 
     const playerProfile = cleanTag ? {
         name: playerData?.name || '',

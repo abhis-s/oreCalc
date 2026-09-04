@@ -1,29 +1,175 @@
 @use '../../abstracts/variables' as *;
 
+// --- 1. MIXINS & MOBILE LAYOUT ---
+
+@mixin mobile-clan-layout {
+    margin-top: 0;
+    margin-left: auto;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 0 1 auto;
+    max-width: 50%;
+
+    .clan-badge-img-mini {
+        order: 2;
+        width: clamp(20px, 2.8vw, 24px);
+        height: clamp(20px, 2.8vw, 24px);
+        align-self: center;
+        flex-shrink: 0;
+    }
+
+    .clan-info-col {
+        order: 1;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+        text-align: right;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+
+        .clan-name-mini {
+            text-align: right;
+            white-space: normal;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            max-width: 100%;
+            line-height: 1.2;
+        }
+
+        .clan-role-mini {
+            text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+
+            &::before,
+            &::after {
+                content: none;
+            }
+        }
+    }
+}
+
+@mixin mobile-meta-right-layout {
+    align-items: center;
+    text-align: left;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    border-top: 1px dashed $border-primary;
+    padding-top: 12px;
+    margin-top: 4px;
+
+    .league-details-mini {
+        flex-shrink: 0;
+    }
+
+    .profile-meta-actions-row {
+        gap: 8px;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .player-maxed-equip-mini {
+        display: block;
+        white-space: normal;
+        text-align: right;
+        max-width: 130px;
+        flex-shrink: 1;
+
+        span {
+            display: inline;
+            text-align: right;
+        }
+
+        .maxed-equip-icon-mini {
+            display: inline-block;
+            vertical-align: -1px;
+            margin-right: 4px;
+            margin-top: 0;
+        }
+    }
+
+    .hj-planner-bridge-btn {
+        align-self: center;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        justify-content: center;
+
+        .planner-bridge-label {
+            display: none;
+        }
+    }
+
+    @media (max-width: $breakpoint-compact) {
+        .unconnected-connect-btn {
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            justify-content: center;
+
+            span[data-i18n] {
+                display: none;
+            }
+        }
+    }
+}
+
+@mixin mobile-header-full-layout {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+
+    .profile-meta-left {
+        width: 100%;
+        gap: 12px;
+
+        .player-identity {
+            flex: 1;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+
+            .player-identity-info {
+                max-width: 58%;
+            }
+
+            .player-clan-mini {
+                @include mobile-clan-layout;
+            }
+        }
+    }
+
+    .profile-meta-right {
+        @include mobile-meta-right-layout;
+    }
+}
+
+// --- 2. BASE CONTAINER & LEFT META ---
+
 .home-profile-header,
 .hero-journey-page__player-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
     gap: 16px;
-
-    &.is-guest {
-        .clan-name-mini,
-        .player-trophies-mini {
-            display: none !important;
-        }
-    }
 
     .profile-meta-left {
         display: flex;
         align-items: center;
         gap: 16px;
-
-        @media (max-width: $breakpoint-modal) {
-            width: 100%;
-            gap: 12px;
-        }
     }
 
     .th-badge-wrapper {
@@ -40,6 +186,14 @@
             height: 100%;
             object-fit: contain;
             filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
+
+            &.is-silhouette {
+                filter: brightness(0) invert(1) opacity(0.35);
+
+                :root[data-theme="light"] & {
+                    filter: brightness(0) opacity(0.25);
+                }
+            }
         }
 
         .th-badge-level-overlay {
@@ -52,7 +206,7 @@
             font-weight: 800;
             padding: 2px 6px;
             border-radius: 6px;
-            border: 1.5px solid var(--bg-surface-secondary);
+            border: 1.5px solid $border-primary;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
         }
     }
@@ -61,15 +215,6 @@
         display: flex;
         flex-direction: column;
         min-width: 0;
-
-        @media (max-width: $breakpoint-modal) {
-            flex: 1;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            min-width: 0;
-        }
 
         .player-identity-info {
             display: flex;
@@ -112,6 +257,8 @@
 
         .player-tag-guest-badge {
             display: inline-block;
+            align-self: flex-start;
+            width: fit-content;
             margin: 4px 0 0 0;
             padding: 2px 6px;
             font-size: clamp(10px, 1.3vw, 11px);
@@ -173,64 +320,10 @@
                 }
             }
 
-            @media (max-width: $breakpoint-modal) {
-                margin-top: 0;
-                margin-left: auto;
-                text-align: right;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                min-width: 0;
-                flex: 0 1 auto;
-                max-width: 50%;
-
-                .clan-badge-img-mini {
-                    order: 2;
-                    width: clamp(20px, 2.8vw, 24px);
-                    height: clamp(20px, 2.8vw, 24px);
-                    align-self: center;
-                    flex-shrink: 0;
-                }
-
-                .clan-info-col {
-                    order: 1;
-                    flex-direction: column;
-                    align-items: flex-end;
-                    gap: 2px;
-                    text-align: right;
-                    min-width: 0;
-                    max-width: 100%;
-                    overflow: hidden;
-
-                    .clan-name-mini {
-                        text-align: right;
-                        white-space: normal;
-                        display: -webkit-box;
-                        -webkit-line-clamp: 2;
-                        -webkit-box-orient: vertical;
-                        overflow: hidden;
-                        overflow-wrap: anywhere;
-                        word-break: break-word;
-                        max-width: 100%;
-                        line-height: 1.2;
-                    }
-
-                    .clan-role-mini {
-                        text-align: right;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        max-width: 100%;
-
-                        &::before,
-                        &::after {
-                            content: none;
-                        }
-                    }
-                }
-            }
         }
     }
+
+// --- 4. RIGHT META & ACTIONS ---
 
     .profile-meta-right {
         display: flex;
@@ -267,6 +360,7 @@
                     font-size: clamp(12px, 1.6vw, 14px);
                     font-weight: 700;
                     color: $text-primary;
+                    white-space: nowrap;
                 }
 
                 .player-trophies-mini {
@@ -276,9 +370,12 @@
                     font-size: clamp(11px, 1.5vw, 13px);
                     color: $accent-primary;
                     font-weight: 700;
+                    white-space: nowrap;
 
                     .trophy-icon-mini {
-                        color: #f59e0b;
+                        color: $palette-amber-500;
+                        display: inline-flex;
+                        align-items: center;
                     }
                 }
             }
@@ -287,91 +384,57 @@
         .profile-meta-actions-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            min-height: 32px;
+
+            .unconnected-connect-btn {
+                flex-shrink: 0;
+            }
         }
 
         .player-maxed-equip-mini {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 4px;
-            font-size: clamp(12px, 1.6vw, 14px);
+            gap: 6px;
+            font-size: clamp(11px, 1.4vw, 12px);
+            font-weight: 600;
             color: $text-secondary;
-            opacity: 0.8;
             white-space: nowrap;
 
             .maxed-equip-icon-mini {
                 color: $accent-primary;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .maxed-count {
+                color: $text-primary;
+                font-weight: 700;
             }
         }
 
         .hj-planner-bridge-btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
-            padding: 5px 12px;
-            font-size: clamp(12px, 1.5vw, 13px);
+            padding: 0 12px;
+            font-size: 12px;
             font-weight: 600;
-            color: $accent-primary;
-            background-color: color-mix(in srgb, $accent-primary 12%, $bg-surface-primary);
-            border: 1px solid color-mix(in srgb, $accent-primary 28%, transparent);
+            @include btn-accent-style;
             border-radius: $shape-corner-small;
             text-decoration: none;
             white-space: nowrap;
             height: 32px;
             box-sizing: border-box;
-            transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+            @include motion-interactive;
 
             &:hover {
-                background-color: color-mix(in srgb, $accent-primary 22%, $bg-surface-primary);
-                border-color: $accent-primary;
-                color: $accent-primary;
                 transform: translateY(-1px);
             }
 
             .planner-bridge-icon {
                 color: $accent-primary;
                 flex-shrink: 0;
-            }
-        }
-
-        @media (max-width: $breakpoint-modal) {
-            align-items: center;
-            text-align: left;
-            width: 100%;
-            flex-direction: row;
-            justify-content: space-between;
-            border-top: 1px dashed $border-primary;
-            padding-top: 12px;
-            margin-top: 4px;
-
-            .profile-meta-actions-row {
-                gap: 8px;
-                margin-left: auto;
-            }
-
-            .player-maxed-equip-mini {
-                display: block;
-                white-space: normal;
-                text-align: right;
-                max-width: 130px;
-                flex-shrink: 1;
-
-                span {
-                    display: inline;
-                    text-align: right;
-                }
-
-                .maxed-equip-icon-mini {
-                    display: inline-block;
-                    vertical-align: -1px;
-                    margin-right: 4px;
-                    margin-top: 0;
-                }
-            }
-
-            .hj-planner-bridge-btn {
-                align-self: center;
             }
         }
 
@@ -387,5 +450,15 @@
                 }
             }
         }
+    }
+
+// --- 4. RESPONSIVE CONTAINER & MEDIA QUERIES ---
+
+    @container (max-width: 680px) {
+        @include mobile-header-full-layout;
+    }
+
+    @media (max-width: $breakpoint-modal) {
+        @include mobile-header-full-layout;
     }
 }
