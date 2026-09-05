@@ -142,6 +142,9 @@
     "app": {
         "comingSoon": "敬请期待！",
         "description": "专业的《部落冲突》矿石计算与升级规划工具。预测矿石收入量，通过拖放日历规划英雄装备升级，并管理多个账号。支持完整的矿石收益追踪、升级优先级列表、离线使用（PWA）以及云端同步。",
+        "domainNotice": {
+            "dismiss": "Dismiss notice"
+        },
         "latest": "最新",
         "madeIn": "德国精心打造",
         "none": "无",
@@ -411,7 +414,7 @@
     "player": {
         "addPlayer": "添加玩家",
         "addPlayerHelp": "<p>如何查找玩家标签：打开《部落冲突》，点击左上角的村庄名称，复制位于你名称正下方的唯一代码（例如：#XX88Y22）。</p><p>你也可以点击<strong>引导设置</strong>，按照步骤完成新手引导，或配置访客资料。</p>",
-        "addPlus": "+ 添加玩家",
+        "addPlus": "添加玩家",
         "addTitle": "添加新玩家",
         "apiToken": "游戏内 API 令牌",
         "apiTokenHint": "提示：你可以在游戏内通过“设置 > 更多设置 > API 令牌”找到你的 API 令牌。",
@@ -1006,7 +1009,7 @@
                 "tuesday": "星期二"
             },
             "step": "阶段",
-            "stepLevelRange": "第 #{n} 阶段：等级 {x} 至 {y}",
+            "stepLevelRange": "第 #{n} 阶段：等级 {x} → {y}",
             "suggestionEpicUp": "将 {futureItemName} 提前，以更快完成升级。你有多余的星辉矿石。",
             "suggestionInterleave": "等待 {itemName} 矿石期间，可完成 {itemNames}，不会影响你的计划。",
             "toggleEquipment": "切换 {name} 是否参与规划",
@@ -1140,15 +1143,15 @@
                 "disclaimer": "以上费用为 OreCalc 在 Google Cloud 上运行所产生的服务器及基础设施总成本。如需支持项目开发，欢迎前往 <a href=\"https://buymeacoffee.com/orecalc\" target=\"_blank\" rel=\"noopener noreferrer\">Buy Me a Coffee</a> 赞助我们。",
                 "historyTitle": "近 6 个月总成本",
                 "lastUpdated": "最后更新：",
-                "loading": "正在加载成本历史记录...",
-                "noHistory": "暂无运行成本历史记录。",
+                "loading": "正在加载成本历史记录…",
+                "noHistory": "暂无运行成本记录。",
                 "noServices": "暂无服务记录",
                 "others": "其他",
                 "plusTaxes": "+ 税费",
                 "title": "项目运行成本",
                 "totalLabel": "累计总成本（自成立以来）"
             },
-            "sourceLink": "源码",
+            "sourceLink": "源码 →",
             "termsOfUse": "使用条款",
             "theme": {
                 "dark": "深色",

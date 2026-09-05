@@ -143,9 +143,9 @@
         "comingSoon": "Demnächst!",
         "description": "Der ultimative Clash of Clans Erz-Rechner und Upgrade-Planer. Prognostiziere dein Erz-Einkommen, plane Heldenausrüstungs-Upgrades mit einem Drag-and-Drop-Kalender und verwalte mehrere Accounts. Bietet umfassendes Einkommens-Tracking, Upgrade-Prioritätslisten, Offline-Unterstützung (PWA) und Cloud-Synchronisation.",
         "domainNotice": {
-            "cta": "Zu ClashCalc wechseln",
-            "dismiss": "Hinweis schließen",
-            "message": "OreCalc ist jetzt ClashCalc! Besuchen Sie die neue Seite für aktuelle Features und Updates."
+            "cta": "Switch to ClashCalc",
+            "dismiss": "Dismiss notice",
+            "message": "OreCalc has evolved into ClashCalc! Visit the new home for enhanced features and future updates."
         },
         "latest": "Aktuell",
         "madeIn": "Präzisionsgefertigt in Deutschland",
