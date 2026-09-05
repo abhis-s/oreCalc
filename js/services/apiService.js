@@ -1,7 +1,25 @@
 import { formatDisplayTag, normalizePlayerTag } from '../core/localStorageManager.js';
 import { logger } from '../utils/logger.js';
 
-const BASE_URL = (typeof window !== 'undefined' && window.__ENV__?.VITE_API_BASE_URL) || "https://api.orecalc.tech";
+/**
+ * Resolves the appropriate backend API base URL based on the active origin.
+ *
+ * @param {string} [hostname] - Optional hostname override for testing or SSR contexts.
+ * @returns {string} Fully qualified backend API origin.
+ */
+export function getApiBaseUrl(hostname) {
+    const currentHost = hostname || (typeof window !== 'undefined' ? window.location?.hostname : '');
+    if (currentHost) {
+        if (currentHost === 'clashcalc.com' ||
+            currentHost === 'www.clashcalc.com' ||
+            currentHost.endsWith('.clashcalc.com')) {
+            return 'https://api.clashcalc.com';
+        }
+    }
+    return (typeof window !== 'undefined' && window.__ENV__?.VITE_API_BASE_URL) || 'https://api.orecalc.tech';
+}
+
+const BASE_URL = getApiBaseUrl();
 
 /**
  * Checks if the general API is blocked due to rate limiting (429).

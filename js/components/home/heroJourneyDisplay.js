@@ -9,6 +9,7 @@ import {
     isDefaultOrGuestPlayer
 } from '../../domain/income/heroJourneyLevels.js';
 import { normalizePlayerTag } from '../../core/localStorageManager.js';
+import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 
@@ -155,7 +156,11 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
     const rawTag = (!isGuest && state.playerProfile?.tag) ? state.playerProfile.tag : (state.savedPlayerTags?.[0] || '');
     const cleanTag = normalizePlayerTag(rawTag);
     const playerTag = (!isGuest && cleanTag && cleanTag !== 'DEFAULT0') ? cleanTag : '';
-    const openUrl = playerTag ? `/hero-journey/?tag=${encodeURIComponent(playerTag)}` : '/hero-journey/';
+    const currentLang = getLanguageFromPath();
+    const langPrefix = (currentLang && currentLang !== 'en') ? `/${currentLang}` : '';
+    const openUrl = playerTag
+        ? `${langPrefix}/hero-journey/?tag=${encodeURIComponent(playerTag)}`
+        : `${langPrefix}/hero-journey/`;
 
     if (titleEl) {
         titleEl.innerHTML = `<span class="hero-journey-title-wrapper"><span class="hero-journey-title-text" data-i18n="views.home.heroJourney.title">${translatedTitle}</span><a id="home-hj-open-btn" href="${escapeHTML(openUrl)}" class="hj-open-btn" title="${escapeHTML(openTooltip)}" aria-label="${escapeHTML(openTooltip)}"><orecalc-assets-svg name="open-in-new" height="13" width="13"></orecalc-assets-svg></a></span>`;

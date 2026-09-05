@@ -25,7 +25,7 @@ import {
 import { formatDisplayTag, getPlayerStorageKey, normalizePlayerTag, PLAYER_PREFIX } from './core/localStorageManager.js';
 import { removeRecentSearch } from './core/recentSearchesManager.js';
 import { initSettings, getCurrentSettings, initHjCrossTabSync } from './components/heroJourney/heroJourneySettings.js';
-import { syncLanguageUrl } from './core/languageRouter.js';
+import { syncLanguageUrl, getLanguageFromPath } from './core/languageRouter.js';
 import { initHeaderLayoutObserver } from './components/heroJourney/heroJourneyHeaderDisplay.js';
 import { initSearchControls, updateHeaderLoadButton } from './components/heroJourney/heroJourneyHeaderInputs.js';
 import { renderPlayerSummary } from './components/heroJourney/heroJourneyPlayerRenderer.js';
@@ -261,7 +261,10 @@ function renderUI() {
     const headerPlannerBtn = /** @type {HTMLAnchorElement|null} */ (document.querySelector('.hj-header-planner-btn'));
     if (headerPlannerBtn) {
         const cleanTag = String(hjState.activeTag || '').replace(/^#+/, '');
-        headerPlannerBtn.href = cleanTag ? `/?tag=${encodeURIComponent(cleanTag)}` : '/';
+        const currentLang = getLanguageFromPath();
+        const langPrefix = (currentLang && currentLang !== 'en') ? `/${currentLang}` : '';
+        const targetPath = `${langPrefix}/ore-calculator/`;
+        headerPlannerBtn.href = cleanTag ? `${targetPath}?tag=${encodeURIComponent(cleanTag)}` : targetPath;
     }
 }
 

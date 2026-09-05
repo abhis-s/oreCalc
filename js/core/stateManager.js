@@ -1,6 +1,7 @@
 import { MAX_SAVED_PLAYERS } from './constants.js';
 import { getResettingState, saveState, normalizePlayerTag, getPlayerStorageKey } from './localStorageManager.js';
 import { getDefaultPlayerState, state } from './state.js';
+import { getApiBaseUrl } from '../services/apiService.js';
 
 let stateUpdateCallback = null;
 let cloudSaveTimeout = null;
@@ -154,8 +155,7 @@ if (typeof window !== 'undefined') {
 
                 const isOnlyDefault = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
                 if (!isOnlyDefault) {
-                    const BASE_URL = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
-                    const url = `${BASE_URL}/api/user-data/save`;
+                    const url = `${getApiBaseUrl()}/api/user-data/save`;
                     const blob = new Blob([JSON.stringify({ userId: currentUserId, data: stateToSave })], { type: 'application/json' });
                     navigator.sendBeacon(url, blob);
                 }
