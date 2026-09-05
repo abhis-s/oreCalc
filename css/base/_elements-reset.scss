@@ -192,7 +192,8 @@ code {
     opacity: 0.5;
 }
 
-orecalc-assets-svg {
+orecalc-assets-svg,
+clashcalc-assets-svg {
     display: contents;
 
     &:empty {
@@ -222,7 +223,8 @@ orecalc-assets-svg {
     }
 }
 
-orecalc-assets-image {
+orecalc-assets-image,
+clashcalc-assets-image {
     display: contents;
 
     &:empty {

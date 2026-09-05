@@ -5,11 +5,16 @@ import { applyThemeSettings } from './themeManager.js';
 import { loadTranslations } from '../i18n/translator.js';
 import { syncLanguageUrl } from './languageRouter.js';
 
-const APP_SETTINGS_KEY = 'oreCalc_appSettings';
+import { CANONICAL_PLAYER_PREFIX, LEGACY_PLAYER_PREFIX, STORAGE_KEY_MAP } from './constants.js';
+
+const APP_SETTINGS_CANONICAL = STORAGE_KEY_MAP.appSettings.canonical;
+const APP_SETTINGS_LEGACY = STORAGE_KEY_MAP.appSettings.legacy;
+const PLAYER_TAGS_CANONICAL = STORAGE_KEY_MAP.playerTags.canonical;
+const PLAYER_TAGS_LEGACY = STORAGE_KEY_MAP.playerTags.legacy;
+const RECENT_SEARCHES_CANONICAL = STORAGE_KEY_MAP.recentSearches.canonical;
+const RECENT_SEARCHES_LEGACY = STORAGE_KEY_MAP.recentSearches.legacy;
 const ACCELERATED_KEY = 'oreCalc_isAccelerated';
-const PLAYER_TAGS_KEY = 'oreCalc_playerTags';
-const RECENT_SEARCHES_KEY = 'oreCalc_recentSearches';
-const PLAYER_PREFIX = 'oreCalc_player_';
+const CANONICAL_ACCELERATED_KEY = 'clashCalc_isAccelerated';
 
 let isCrossTabSyncInitialized = false;
 let hasPendingActivePlayerSync = false;
@@ -58,8 +63,15 @@ export function initMainAppCrossTabSync() {
         if (!event.key || !event.newValue) return;
 
         // Partitioned per-player storage sync
-        if (event.key.startsWith(PLAYER_PREFIX)) {
-            const rawTag = event.key.slice(PLAYER_PREFIX.length);
+        let matchedPrefix = null;
+        if (event.key.startsWith(CANONICAL_PLAYER_PREFIX)) {
+            matchedPrefix = CANONICAL_PLAYER_PREFIX;
+        } else if (event.key.startsWith(LEGACY_PLAYER_PREFIX)) {
+            matchedPrefix = LEGACY_PLAYER_PREFIX;
+        }
+
+        if (matchedPrefix) {
+            const rawTag = event.key.slice(matchedPrefix.length);
             const tag = String(rawTag).replace(/^#+/, '').trim().toUpperCase();
             const playerData = safeJsonParse(event.newValue, null);
             if (!tag || !playerData || typeof playerData !== 'object') return;
@@ -87,7 +99,7 @@ export function initMainAppCrossTabSync() {
             return;
         }
 
-        if (event.key === APP_SETTINGS_KEY) {
+        if (event.key === APP_SETTINGS_CANONICAL || event.key === APP_SETTINGS_LEGACY) {
             const newSettings = safeJsonParse(event.newValue, null);
             if (!newSettings || typeof newSettings !== 'object') return;
 
@@ -163,7 +175,7 @@ export function initMainAppCrossTabSync() {
             return;
         }
 
-        if (event.key === ACCELERATED_KEY) {
+        if (event.key === CANONICAL_ACCELERATED_KEY || event.key === ACCELERATED_KEY) {
             const isAccelerated = event.newValue === 'true';
             if (state.heroJourney?.isAccelerated !== isAccelerated) {
                 handleStateUpdate(() => {
@@ -174,7 +186,7 @@ export function initMainAppCrossTabSync() {
             return;
         }
 
-        if (event.key === PLAYER_TAGS_KEY) {
+        if (event.key === PLAYER_TAGS_CANONICAL || event.key === PLAYER_TAGS_LEGACY) {
             const newTags = safeJsonParse(event.newValue, null);
             if (Array.isArray(newTags)) {
                 handleStateUpdate(() => {
@@ -194,7 +206,7 @@ export function initMainAppCrossTabSync() {
             return;
         }
 
-        if (event.key === RECENT_SEARCHES_KEY) {
+        if (event.key === RECENT_SEARCHES_CANONICAL || event.key === RECENT_SEARCHES_LEGACY) {
             if (typeof document?.dispatchEvent === 'function') {
                 document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
             }

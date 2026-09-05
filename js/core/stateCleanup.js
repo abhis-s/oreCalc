@@ -1,10 +1,6 @@
 import { getEquipmentMaxLevel } from '../data/equipmentCommonData.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
-import { compareVersions } from '../utils/versionUtils.js';
-
-const PLAYER_PREFIX = 'oreCalc_player_';
-const PLAYER_TAGS_KEY = 'oreCalc_playerTags';
-const RECENT_SEARCHES_KEY = 'oreCalc_recentSearches';
+import { CANONICAL_PLAYER_PREFIX, LEGACY_PLAYER_PREFIX } from './constants.js';
 
 const normalizePlayerTag = (tag) => {
     if (!tag) return '';
@@ -12,8 +8,6 @@ const normalizePlayerTag = (tag) => {
     if (trimmed === 'DEFAULT0') return 'DEFAULT0';
     return trimmed.replace(/#/g, '');
 };
-
-const getPlayerStorageKey = (tag) => `${PLAYER_PREFIX}${normalizePlayerTag(tag)}`;
 
 /**
  * Copies the level of each equipment item from old player data to new player data.
@@ -406,25 +400,35 @@ export function cleanupOrphanedPlayerPartitions(stateObj = null) {
     if (typeof localStorage === 'undefined') return deletedKeys;
 
     try {
-        const savedTagsStr = localStorage.getItem(PLAYER_TAGS_KEY);
-        const savedTagsList = safeJsonParse(savedTagsStr, []);
         const allowedTags = new Set();
 
-        if (Array.isArray(savedTagsList)) {
-            savedTagsList.forEach(t => {
-                const clean = normalizePlayerTag(t);
-                if (clean) allowedTags.add(clean);
-            });
-        }
+        const collectTags = (key) => {
+            const savedTagsStr = localStorage.getItem(key);
+            const savedTagsList = safeJsonParse(savedTagsStr, []);
+            if (Array.isArray(savedTagsList)) {
+                savedTagsList.forEach(t => {
+                    const clean = normalizePlayerTag(t);
+                    if (clean) allowedTags.add(clean);
+                });
+            }
+        };
 
-        const recentSearchesStr = localStorage.getItem(RECENT_SEARCHES_KEY);
-        const recentSearchesList = safeJsonParse(recentSearchesStr, []);
-        if (Array.isArray(recentSearchesList)) {
-            recentSearchesList.forEach(item => {
-                const clean = item?.cleanTag || normalizePlayerTag(item?.tag);
-                if (clean) allowedTags.add(clean);
-            });
-        }
+        collectTags('clashCalc_playerTags');
+        collectTags('oreCalc_playerTags');
+
+        const collectRecentTags = (key) => {
+            const recentSearchesStr = localStorage.getItem(key);
+            const recentSearchesList = safeJsonParse(recentSearchesStr, []);
+            if (Array.isArray(recentSearchesList)) {
+                recentSearchesList.forEach(item => {
+                    const clean = item?.cleanTag || normalizePlayerTag(item?.tag);
+                    if (clean) allowedTags.add(clean);
+                });
+            }
+        };
+
+        collectRecentTags('clashCalc_recentSearches');
+        collectRecentTags('oreCalc_recentSearches');
 
         const isGuestAllowed = allowedTags.has('DEFAULT0') || allowedTags.size === 0;
 
@@ -433,10 +437,18 @@ export function cleanupOrphanedPlayerPartitions(stateObj = null) {
             : Object.keys(localStorage);
 
         for (const key of allKeys) {
-            if (key && key.startsWith(PLAYER_PREFIX)) {
-                const rawSuffix = key.slice(PLAYER_PREFIX.length);
+            if (!key) continue;
+            let activePrefix = null;
+            if (key.startsWith(CANONICAL_PLAYER_PREFIX)) {
+                activePrefix = CANONICAL_PLAYER_PREFIX;
+            } else if (key.startsWith(LEGACY_PLAYER_PREFIX)) {
+                activePrefix = LEGACY_PLAYER_PREFIX;
+            }
+
+            if (activePrefix) {
+                const rawSuffix = key.slice(activePrefix.length);
                 const cleanTag = normalizePlayerTag(rawSuffix);
-                const canonicalKey = getPlayerStorageKey(cleanTag);
+                const canonicalKey = `${activePrefix}${cleanTag}`;
 
                 const isAllowed = cleanTag && (
                     allowedTags.has(cleanTag) ||

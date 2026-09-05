@@ -1,8 +1,17 @@
-import { normalizePlayerTag, formatDisplayTag, getSavedPlayerTagsList } from './localStorageManager.js';
+import { normalizePlayerTag, formatDisplayTag, getSavedPlayerTagsList, getStorageItem, isClashCalcHost } from './localStorageManager.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
 
 export const RECENT_SEARCHES_KEY = 'oreCalc_recentSearches';
+export const CANONICAL_RECENT_SEARCHES_KEY = 'clashCalc_recentSearches';
 const MAX_RECENT_SEARCHES = 10;
+
+/**
+ * Returns the active recent searches storage key for the current host environment.
+ * @returns {string} Active storage key.
+ */
+function getActiveRecentSearchesKey() {
+    return isClashCalcHost() ? CANONICAL_RECENT_SEARCHES_KEY : RECENT_SEARCHES_KEY;
+}
 
 /**
  * Retrieves list of recently searched player profiles from localStorage.
@@ -11,7 +20,7 @@ const MAX_RECENT_SEARCHES = 10;
 export function getRecentSearches() {
     if (typeof localStorage === 'undefined') return [];
     try {
-        const str = localStorage.getItem(RECENT_SEARCHES_KEY);
+        const str = getStorageItem(CANONICAL_RECENT_SEARCHES_KEY, RECENT_SEARCHES_KEY);
         const list = safeJsonParse(str, []);
         if (!Array.isArray(list)) return [];
         const savedTags = getSavedPlayerTagsList();
@@ -47,7 +56,7 @@ export function addRecentSearch(playerData) {
         if (current.length > MAX_RECENT_SEARCHES) {
             current.length = MAX_RECENT_SEARCHES;
         }
-        localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(current));
+        localStorage.setItem(getActiveRecentSearchesKey(), JSON.stringify(current));
     } catch {}
 }
 
@@ -59,10 +68,10 @@ export function removeRecentSearch(tag) {
     if (typeof localStorage === 'undefined' || !tag) return;
     const cleanTag = normalizePlayerTag(tag);
     try {
-        const str = localStorage.getItem(RECENT_SEARCHES_KEY);
+        const str = getStorageItem(CANONICAL_RECENT_SEARCHES_KEY, RECENT_SEARCHES_KEY);
         const list = safeJsonParse(str, []);
         if (!Array.isArray(list)) return;
         const current = list.filter(item => item && item.cleanTag !== cleanTag);
-        localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(current));
+        localStorage.setItem(getActiveRecentSearchesKey(), JSON.stringify(current));
     } catch {}
 }

@@ -22,6 +22,19 @@ export function getApiBaseUrl(hostname) {
 const BASE_URL = getApiBaseUrl();
 
 /**
+ * Resolves active user ID from canonical or legacy localStorage keys.
+ * @returns {string} User ID or empty string.
+ */
+function getActiveUserId() {
+    if (typeof localStorage === 'undefined') return '';
+    try {
+        return localStorage.getItem('clashCalc_userId') || localStorage.getItem('oreCalc_userId') || '';
+    } catch (_) {
+        return '';
+    }
+}
+
+/**
  * Checks if the general API is blocked due to rate limiting (429).
  * Throws an error immediately if blocked.
  */
@@ -148,7 +161,7 @@ export async function fetchPlayerData(playerTag, token = null, timeoutMs = null)
     if (token) {
         headers['x-verify-token'] = token;
     }
-    const userId = localStorage.getItem('oreCalc_userId');
+    const userId = getActiveUserId();
     if (userId) {
         headers['x-user-id'] = userId;
     }
@@ -322,7 +335,7 @@ export async function erasePlayerTagFromAllUsers(playerTag, token) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-user-id': localStorage.getItem('oreCalc_userId') || ''
+                'x-user-id': getActiveUserId()
             },
             body: JSON.stringify({ playerTag, token })
         });
@@ -386,7 +399,7 @@ export async function fetchClanWarLog(clanTag) {
     const url = `${BASE_URL}/proxy/clans/${encodeURIComponent(cleanTag)}/warlog`;
 
     const headers = { 'Accept': 'application/json' };
-    const userId = localStorage.getItem('oreCalc_userId');
+    const userId = getActiveUserId();
     if (userId) {
         headers['x-user-id'] = userId;
     }
@@ -417,7 +430,7 @@ export async function fetchCwlLeagueGroup(clanTag) {
     const url = `${BASE_URL}/proxy/clans/${encodeURIComponent(cleanTag)}/currentwar/leaguegroup`;
 
     const headers = { 'Accept': 'application/json' };
-    const userId = localStorage.getItem('oreCalc_userId');
+    const userId = getActiveUserId();
     if (userId) {
         headers['x-user-id'] = userId;
     }
@@ -448,7 +461,7 @@ export async function fetchCwlWar(warTag) {
     const url = `${BASE_URL}/proxy/clanwarleagues/wars/${encodeURIComponent(cleanTag)}`;
 
     const headers = { 'Accept': 'application/json' };
-    const userId = localStorage.getItem('oreCalc_userId');
+    const userId = getActiveUserId();
     if (userId) {
         headers['x-user-id'] = userId;
     }
@@ -479,7 +492,7 @@ export async function fetchCwlWarsFromServer(clanTag) {
     const url = `${BASE_URL}/api/cwl/wars?clanTag=${encodeURIComponent(requestTag)}`;
 
     const headers = { 'Accept': 'application/json' };
-    const userId = localStorage.getItem('oreCalc_userId');
+    const userId = getActiveUserId();
     if (userId) {
         headers['x-user-id'] = userId;
     }

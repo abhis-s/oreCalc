@@ -50,6 +50,56 @@ export const STAR_BONUS_2X_DEFAULTS = Object.freeze({
     maxDuration: 7
 });
 
+export const LEGACY_PLAYER_PREFIX = 'oreCalc_player_';
+export const CANONICAL_PLAYER_PREFIX = 'clashCalc_player_';
+
+export const STORAGE_KEY_MAP = Object.freeze({
+    appSettings: Object.freeze({
+        canonical: 'clashCalc_appSettings',
+        legacy: 'oreCalc_appSettings'
+    }),
+    playerTags: Object.freeze({
+        canonical: 'clashCalc_playerTags',
+        legacy: 'oreCalc_playerTags'
+    }),
+    userId: Object.freeze({
+        canonical: 'clashCalc_userId',
+        legacy: 'oreCalc_userId'
+    }),
+    playerPrefix: Object.freeze({
+        canonical: CANONICAL_PLAYER_PREFIX,
+        legacy: LEGACY_PLAYER_PREFIX
+    }),
+    recentSearches: Object.freeze({
+        canonical: 'clashCalc_recentSearches',
+        legacy: 'oreCalc_recentSearches'
+    }),
+    domainNoticeDismissed: Object.freeze({
+        canonical: 'clashCalc_domainNoticeDismissed',
+        legacy: 'oreCalc_domainNoticeDismissed'
+    }),
+    pendingQrUserId: Object.freeze({
+        canonical: 'clashCalc_pendingQrUserId',
+        legacy: 'oreCalc_pendingQrUserId'
+    }),
+    justSyncedFromQr: Object.freeze({
+        canonical: 'clashCalc_justSyncedFromQr',
+        legacy: 'oreCalc_justSyncedFromQr'
+    }),
+    customChipDraft: Object.freeze({
+        canonical: 'clashCalc_custom_chip_draft',
+        legacy: 'oreCalc_custom_chip_draft'
+    }),
+    showChangelog: Object.freeze({
+        canonical: 'clashCalc_showChangelog',
+        legacy: 'oreCalc_showChangelog'
+    }),
+    crossTabSync: Object.freeze({
+        canonical: 'clashCalc_crossTabSync',
+        legacy: 'oreCalc_crossTabSync'
+    })
+});
+
 export const STORAGE_KEYS = Object.freeze({
     STATE: 'oreCalculatorState',
     APP_VERSION: 'oreCalc_appVersion',

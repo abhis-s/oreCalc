@@ -95,7 +95,14 @@ if (typeof HTMLElement !== 'undefined') {
         }
     }
 
-    if (typeof customElements !== 'undefined' && !customElements.get('orecalc-assets-image')) {
-        customElements.define('orecalc-assets-image', OrecalcAssetsImage);
+    class ClashcalcAssetsImage extends OrecalcAssetsImage {}
+
+    if (typeof customElements !== 'undefined') {
+        if (!customElements.get('orecalc-assets-image')) {
+            customElements.define('orecalc-assets-image', OrecalcAssetsImage);
+        }
+        if (!customElements.get('clashcalc-assets-image')) {
+            customElements.define('clashcalc-assets-image', ClashcalcAssetsImage);
+        }
     }
 }

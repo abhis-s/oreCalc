@@ -13,7 +13,8 @@
     width: auto;
 }
 
-orecalc-assets-svg {
+orecalc-assets-svg,
+clashcalc-assets-svg {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -29,7 +30,8 @@ orecalc-assets-svg {
     }
 }
 
-orecalc-assets-image {
+orecalc-assets-image,
+clashcalc-assets-image {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -45,7 +47,8 @@ orecalc-assets-image {
 }
 
 .ore-image,
-orecalc-assets-image.ore-image {
+orecalc-assets-image.ore-image,
+clashcalc-assets-image.ore-image {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -95,6 +98,7 @@ orecalc-assets-image.ore-image {
 .level-input-container {
     input:focus ~ .currency-symbol,
     input:focus ~ orecalc-assets-image,
+    input:focus ~ clashcalc-assets-image,
     input:focus ~ .ore-image {
         transform: scale(1.15);
         filter: drop-shadow(0 0 6px rgba($accent-primary, 0.4));
@@ -102,7 +106,8 @@ orecalc-assets-image.ore-image {
 }
 
 .title-icon,
-orecalc-assets-image.title-icon {
+orecalc-assets-image.title-icon,
+clashcalc-assets-image.title-icon {
     display: inline-block;
     height: 30px;
     margin-right: 10px;

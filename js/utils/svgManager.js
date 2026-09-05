@@ -56,7 +56,14 @@ if (typeof HTMLElement !== 'undefined') {
         }
     }
 
-    if (typeof customElements !== 'undefined' && !customElements.get('orecalc-assets-svg')) {
-        customElements.define('orecalc-assets-svg', OrecalcAssetsSvg);
+    class ClashcalcAssetsSvg extends OrecalcAssetsSvg {}
+
+    if (typeof customElements !== 'undefined') {
+        if (!customElements.get('orecalc-assets-svg')) {
+            customElements.define('orecalc-assets-svg', OrecalcAssetsSvg);
+        }
+        if (!customElements.get('clashcalc-assets-svg')) {
+            customElements.define('clashcalc-assets-svg', ClashcalcAssetsSvg);
+        }
     }
 }

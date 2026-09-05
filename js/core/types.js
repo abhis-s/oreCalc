@@ -115,7 +115,7 @@
 /**
  * @typedef {Object} CurrencySettings
  * @property {string} code - ISO currency code (e.g. 'USD', 'EUR')
- * @property {Record<string, number>} [globalPricing] - Optional custom pricing overrides per tier
+ * @property {Record<string, any>} [globalPricing] - Optional custom pricing overrides per currency
  */
 
 /**

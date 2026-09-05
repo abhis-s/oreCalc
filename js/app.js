@@ -10,7 +10,7 @@ import {
 } from './core/appEventInterceptors.js';
 import { recalculateAll } from './core/calculator.js';
 import { detectLanguage, getLanguageFromPath, isValidRoute, syncLanguageUrl } from './core/languageRouter.js';
-import { loadPlayerData, loadState, resetState, saveState, setResettingState, updateSavedPlayerTags } from './core/localStorageManager.js';
+import { getStorageItem, isClashCalcHost, loadPlayerData, loadState, resetState, saveState, setResettingState, updateSavedPlayerTags } from './core/localStorageManager.js';
 import { renderApp } from './core/renderer.js';
 import { EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_TERMS, initializeState, state } from './core/state.js';
 import { migrateFullState } from './core/stateCleanup.js';
@@ -50,9 +50,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         let tagFromUrl = urlParams.get('tag');
 
         if (userIdFromUrl) {
-            const playerTagsStr = localStorage.getItem('oreCalc_playerTags');
+            const playerTagsStr = getStorageItem('clashCalc_playerTags', 'oreCalc_playerTags');
             const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
-            const currentUserId = localStorage.getItem('oreCalc_userId');
+            const currentUserId = getStorageItem('clashCalc_userId', 'oreCalc_userId');
 
             let hasRealLocalData = false;
             if (playerTagsStr) {
@@ -73,10 +73,14 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 : '';
 
             if (hasRealLocalData && isDifferentUser) {
+                sessionStorage.setItem('clashCalc_pendingQrUserId', userIdFromUrl);
                 sessionStorage.setItem('oreCalc_pendingQrUserId', userIdFromUrl);
                 window.history.replaceState({}, document.title, window.location.pathname + targetSearch);
             } else {
+                const targetUserIdKey = isClashCalcHost() ? 'clashCalc_userId' : 'oreCalc_userId';
+                localStorage.setItem(targetUserIdKey, userIdFromUrl);
                 localStorage.setItem('oreCalc_userId', userIdFromUrl);
+                sessionStorage.setItem('clashCalc_justSyncedFromQr', 'true');
                 sessionStorage.setItem('oreCalc_justSyncedFromQr', 'true');
                 window.history.replaceState({}, document.title, window.location.pathname + targetSearch);
                 location.reload();
@@ -85,7 +89,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         }
 
         const checkMigrationLock = () => {
-            const appSettingsStr = localStorage.getItem('oreCalc_appSettings');
+            const appSettingsStr = getStorageItem('clashCalc_appSettings', 'oreCalc_appSettings');
             const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
 
             let needsMigration = false;
@@ -111,9 +115,11 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     window.location.reload();
                 } catch (err) {
                     console.error('CRITICAL ERROR DURING MIGRATION:', err);
-                    const appSettingsStr = localStorage.getItem('oreCalc_appSettings');
-                    const cleanAppSettings = (appSettingsStr ? safeJsonParse(appSettingsStr, {}) : {}) || {};
+                    const fallbackSettingsStr = getStorageItem('clashCalc_appSettings', 'oreCalc_appSettings');
+                    const cleanAppSettings = (fallbackSettingsStr ? safeJsonParse(fallbackSettingsStr, {}) : {}) || {};
                     cleanAppSettings.appVersion = '2.0.0';
+                    const targetSettingsKey = isClashCalcHost() ? 'clashCalc_appSettings' : 'oreCalc_appSettings';
+                    localStorage.setItem(targetSettingsKey, JSON.stringify(cleanAppSettings));
                     localStorage.setItem('oreCalc_appSettings', JSON.stringify(cleanAppSettings));
                     localStorage.removeItem('oreCalculatorState');
                     localStorage.removeItem('OreCalculatorState');
@@ -137,8 +143,10 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         }
         let originalVersion = savedState?.appVersion || '1.0.0';
 
-        const showChangelogFlag = sessionStorage.getItem('oreCalc_showChangelog') === 'true';
-        const migratedFrom = sessionStorage.getItem('oreCalc_showChangelogFromVersion');
+        const showChangelogFlag = sessionStorage.getItem('clashCalc_showChangelog') === 'true' ||
+                                  sessionStorage.getItem('oreCalc_showChangelog') === 'true';
+        const migratedFrom = sessionStorage.getItem('clashCalc_showChangelogFromVersion') ||
+                             sessionStorage.getItem('oreCalc_showChangelogFromVersion');
         if (showChangelogFlag && migratedFrom) {
             originalVersion = migratedFrom;
         }
@@ -159,7 +167,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                         window.pendingChangelogContent = content;
                     } else {
                         showChangelogModal(content);
+                        sessionStorage.removeItem('clashCalc_showChangelog');
                         sessionStorage.removeItem('oreCalc_showChangelog');
+                        sessionStorage.removeItem('clashCalc_showChangelogFromVersion');
                         sessionStorage.removeItem('oreCalc_showChangelogFromVersion');
                     }
                 }, 1200);
@@ -370,10 +380,17 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
         setTimeout(async () => {
             try {
-                const pendingQrUserId = sessionStorage.getItem('oreCalc_pendingQrUserId') || localStorage.getItem('oreCalc_pendingQrUserId');
+                const pendingQrUserId = sessionStorage.getItem('clashCalc_pendingQrUserId') ||
+                                        sessionStorage.getItem('oreCalc_pendingQrUserId') ||
+                                        localStorage.getItem('clashCalc_pendingQrUserId') ||
+                                        localStorage.getItem('oreCalc_pendingQrUserId');
                 if (pendingQrUserId) {
+                    sessionStorage.removeItem('clashCalc_pendingQrUserId');
                     sessionStorage.removeItem('oreCalc_pendingQrUserId');
-                    try { localStorage.removeItem('oreCalc_pendingQrUserId'); } catch (e) {}
+                    try {
+                        localStorage.removeItem('clashCalc_pendingQrUserId');
+                        localStorage.removeItem('oreCalc_pendingQrUserId');
+                    } catch (e) {}
                     const { importUserData } = await import('./services/cloudSaveService.js');
                     await importUserData(pendingQrUserId);
                     return;
@@ -405,7 +422,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     recalculateAll(state);
                     renderApp(state);
                 }
-                if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
+                const justSynced = sessionStorage.getItem('clashCalc_justSyncedFromQr') === 'true' ||
+                                   sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true';
+                if (justSynced) {
                     if (!state.uiSettings) state.uiSettings = {};
                     if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
                     const now = Date.now();
@@ -414,13 +433,16 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     state.uiSettings.uiTimestamps.tos = now;
                     saveState(state);
 
+                    sessionStorage.removeItem('clashCalc_justSyncedFromQr');
                     sessionStorage.removeItem('oreCalc_justSyncedFromQr');
                     checkLegalConsent();
                 }
             } catch (error) {
                 if (window.handleChunkError && window.handleChunkError(error)) return;
                 console.error('Error initializing app data:', error);
-                if (sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true') {
+                const justSynced = sessionStorage.getItem('clashCalc_justSyncedFromQr') === 'true' ||
+                                   sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true';
+                if (justSynced) {
                     if (!state.uiSettings) state.uiSettings = {};
                     if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
                     const now = Date.now();
@@ -429,6 +451,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     state.uiSettings.uiTimestamps.tos = now;
                     saveState(state);
 
+                    sessionStorage.removeItem('clashCalc_justSyncedFromQr');
                     sessionStorage.removeItem('oreCalc_justSyncedFromQr');
                     checkLegalConsent();
                 }

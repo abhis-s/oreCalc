@@ -1,6 +1,6 @@
 import { translate } from '../i18n/translator.js';
 
-import { loadState, saveState } from '../core/localStorageManager.js';
+import { loadState, saveState, getStorageItem, isClashCalcHost } from '../core/localStorageManager.js';
 import { state } from '../core/state.js';
 
 import { logger } from '../utils/logger.js';
@@ -18,10 +18,11 @@ import { showSaveErrorIndicator, showSaveSuccessIndicator, showSavingIndicator }
  * @returns {Promise<any>} Restored cloud payload or null.
  */
 export async function initializeAppData() {
-    let userId = localStorage.getItem('oreCalc_userId');
+    let userId = getStorageItem('clashCalc_userId', 'oreCalc_userId');
     if (!userId) {
         userId = generateUUID();
-        localStorage.setItem('oreCalc_userId', userId);
+        const targetUserIdKey = isClashCalcHost() ? 'clashCalc_userId' : 'oreCalc_userId';
+        localStorage.setItem(targetUserIdKey, userId);
     }
 
     if (state.uiSettings.cloudSync === false) {
@@ -30,7 +31,8 @@ export async function initializeAppData() {
     }
 
     const localData = loadState();
-    const justSyncedFromQr = sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true';
+    const justSyncedFromQr = sessionStorage.getItem('clashCalc_justSyncedFromQr') === 'true' ||
+                             sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true';
     if (!justSyncedFromQr && localData && localData.savedPlayerTags.length === 1 && localData.savedPlayerTags[0] === 'DEFAULT0') {
         logger.log("Skipping cloud sync: Only default player tag exists locally.");
         return null;
@@ -112,7 +114,7 @@ export async function initializeAppData() {
                 }
             } else if (localTimestamp > cloudTimestamp) {
                 logger.log("Local data is newer. Automatically pushing to cloud.");
-                const userId = localStorage.getItem('oreCalc_userId');
+                const userId = getStorageItem('clashCalc_userId', 'oreCalc_userId');
                 if (userId) {
                     try {
                         await saveUserData(userId, localData);
@@ -138,7 +140,7 @@ export async function initializeAppData() {
  */
 export async function importUserData(importId) {
     if (importId) {
-        const currentUserId = localStorage.getItem('oreCalc_userId');
+        const currentUserId = getStorageItem('clashCalc_userId', 'oreCalc_userId');
         const safeImportId = escapeHTML(importId);
         const userIdHtml = `<code class="user-id-code">${safeImportId}</code>`;
 
@@ -186,6 +188,8 @@ export async function importUserData(importId) {
                 }
                 importedData.uiSettings.cloudSync = true;
                 localStorage.setItem('oreCalculatorState', JSON.stringify(importedData));
+                const targetUserIdKey = isClashCalcHost() ? 'clashCalc_userId' : 'oreCalc_userId';
+                localStorage.setItem(targetUserIdKey, importId);
                 localStorage.setItem('oreCalc_userId', importId);
                 await showAlert(translate('alerts.importSuccess'));
                 location.reload();
@@ -223,7 +227,7 @@ export async function triggerCloudSave(options = {}) {
         return false;
     }
 
-    const currentUserId = localStorage.getItem('oreCalc_userId');
+    const currentUserId = getStorageItem('clashCalc_userId', 'oreCalc_userId');
     if (currentUserId) {
         if (!silent) showSavingIndicator();
         try {
