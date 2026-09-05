@@ -329,6 +329,21 @@ async function build() {
         fs.writeFileSync(path.join(distDir, 'index.html'), defaultHtml, 'utf8');
         console.log(`Compiled and bundled index.html for root and language routes.`);
 
+        const oreCalcDestDir = path.join(distDir, 'ore-calculator');
+        fs.mkdirSync(oreCalcDestDir, { recursive: true });
+        const defaultOreCalcHtml = generateLocalizedHtml(indexHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
+        fs.writeFileSync(path.join(oreCalcDestDir, 'index.html'), defaultOreCalcHtml, 'utf8');
+        console.log('Generated root tool route: dist/ore-calculator/index.html');
+
+        for (const lang of supportedLanguages) {
+            if (lang === 'en') continue;
+            const langOreCalcDir = path.join(distDir, lang, 'ore-calculator');
+            fs.mkdirSync(langOreCalcDir, { recursive: true });
+            const localizedOreCalcHtml = generateLocalizedHtml(indexHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
+            fs.writeFileSync(path.join(langOreCalcDir, 'index.html'), localizedOreCalcHtml, 'utf8');
+            console.log(`Generated localized tool route: dist/${lang}/ore-calculator/index.html`);
+        }
+
         const sitemapXml = generateSitemapXml(supportedLanguages);
         fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml, 'utf8');
         console.log('Generated dynamic dist/sitemap.xml for enabled languages.');

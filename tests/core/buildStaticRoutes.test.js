@@ -87,6 +87,32 @@ describe('Static Build Routes Verification Suite', () => {
         assert.ok(content.includes('<loc>https://orecalc.tech/zh/hero-journey/</loc>'));
     });
 
+    test('verifies standalone ore-calculator routes exist across all supported locales', () => {
+        const oreRoutes = [
+            { path: path.join(distDir, 'ore-calculator', 'index.html'), lang: 'en', canonical: 'https://orecalc.tech/ore-calculator/' },
+            { path: path.join(distDir, 'de', 'ore-calculator', 'index.html'), lang: 'de', canonical: 'https://orecalc.tech/de/ore-calculator/' },
+            { path: path.join(distDir, 'tr', 'ore-calculator', 'index.html'), lang: 'tr', canonical: 'https://orecalc.tech/tr/ore-calculator/' },
+            { path: path.join(distDir, 'zh', 'ore-calculator', 'index.html'), lang: 'zh', canonical: 'https://orecalc.tech/zh/ore-calculator/' }
+        ];
+
+        for (const { path: routePath, lang, canonical } of oreRoutes) {
+            assert.equal(fs.existsSync(routePath), true, `${routePath} must exist in dist`);
+            const content = fs.readFileSync(routePath, 'utf8');
+            assert.ok(content.includes(`<html lang="${lang}">`), `Should declare lang="${lang}"`);
+            assert.ok(content.includes(`<link rel="canonical" href="${canonical}">`), `Canonical must be ${canonical}`);
+        }
+    });
+
+    test('verifies dist/sitemap.xml contains all canonical ore-calculator tool routes', () => {
+        const sitemapPath = path.join(distDir, 'sitemap.xml');
+        const content = fs.readFileSync(sitemapPath, 'utf8');
+
+        assert.ok(content.includes('<loc>https://orecalc.tech/ore-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://orecalc.tech/de/ore-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://orecalc.tech/tr/ore-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://orecalc.tech/zh/ore-calculator/</loc>'));
+    });
+
     test('verifies dist/_redirects exists and configures 301 redirects for legacy routes', () => {
         const redirectsPath = path.join(distDir, '_redirects');
         assert.equal(fs.existsSync(redirectsPath), true);
@@ -94,6 +120,7 @@ describe('Static Build Routes Verification Suite', () => {
         const content = fs.readFileSync(redirectsPath, 'utf8');
         assert.ok(content.includes('/en/*    /:splat    301') || content.includes('/en/*'));
         assert.ok(content.includes('/en      /          301') || content.includes('/en /'));
+        assert.ok(content.includes('/ore-calculator   /ore-calculator/        301'));
     });
 
     test('verifies legal routes and static legal stylesheet/script assets exist with noindex meta in dist', () => {

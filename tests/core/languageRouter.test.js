@@ -276,6 +276,8 @@ describe('Language Router Domain Suite', () => {
             assert.equal(isValidRoute('/404'), true);
             assert.equal(isValidRoute('/404.html'), true);
             assert.equal(isValidRoute('/hero-journey'), true);
+            assert.equal(isValidRoute('/ore-calculator'), true);
+            assert.equal(isValidRoute('/ore-calculator/'), true);
             assert.equal(isValidRoute('/privacy'), true);
             assert.equal(isValidRoute('/terms'), true);
             assert.equal(isValidRoute('/licenses'), true);
@@ -285,13 +287,17 @@ describe('Language Router Domain Suite', () => {
             assert.equal(isValidRoute('/en'), true);
             assert.equal(isValidRoute('/en/'), true);
             assert.equal(isValidRoute('/en/hero-journey'), true);
+            assert.equal(isValidRoute('/en/ore-calculator'), true);
             assert.equal(isValidRoute('/de'), true);
             assert.equal(isValidRoute('/de/'), true);
             assert.equal(isValidRoute('/de/hero-journey'), true);
+            assert.equal(isValidRoute('/de/ore-calculator'), true);
             assert.equal(isValidRoute('/de/privacy'), true);
             assert.equal(isValidRoute('/de/terms'), true);
             assert.equal(isValidRoute('/tr/hero-journey'), true);
+            assert.equal(isValidRoute('/tr/ore-calculator'), true);
             assert.equal(isValidRoute('/zh/hero-journey'), true);
+            assert.equal(isValidRoute('/zh/ore-calculator'), true);
         });
 
         test('rejects unrecognized routes and fake path subroutes', () => {

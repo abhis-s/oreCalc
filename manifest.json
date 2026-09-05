@@ -10,6 +10,9 @@
     "url_handlers": [
         {
             "origin": "https://orecalc.tech"
+        },
+        {
+            "origin": "https://clashcalc.com"
         }
     ],
     "display": "standalone",

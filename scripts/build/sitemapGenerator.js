@@ -26,6 +26,17 @@ function generateSitemapXml(supportedLanguages, legalPages = []) {
         sitemapXml += `  <url>\n    <loc>https://orecalc.tech/${lang}/</loc>\n${alternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n\n`;
     }
 
+    const oreCalcAlternateLinks = supportedLanguages.map(l =>
+        `    <xhtml:link rel="alternate" hreflang="${l}" href="https://orecalc.tech/${l === 'en' ? '' : l + '/'}ore-calculator/" />`
+    ).concat(['    <xhtml:link rel="alternate" hreflang="x-default" href="https://orecalc.tech/ore-calculator/" />']).join('\n');
+
+    sitemapXml += `  <url>\n    <loc>https://orecalc.tech/ore-calculator/</loc>\n${oreCalcAlternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n\n`;
+
+    for (const lang of supportedLanguages) {
+        if (lang === 'en') continue;
+        sitemapXml += `  <url>\n    <loc>https://orecalc.tech/${lang}/ore-calculator/</loc>\n${oreCalcAlternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n\n`;
+    }
+
     const toolAlternateLinks = supportedLanguages.map(l =>
         `    <xhtml:link rel="alternate" hreflang="${l}" href="https://orecalc.tech/${l === 'en' ? '' : l + '/'}hero-journey/" />`
     ).concat(['    <xhtml:link rel="alternate" hreflang="x-default" href="https://orecalc.tech/hero-journey/" />']).join('\n');

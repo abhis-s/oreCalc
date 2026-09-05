@@ -7,7 +7,8 @@ const {
     BILLING_MONTH_REGEX,
     ALLOWED_ORIGINS,
     RATE_LIMIT_DEFAULTS,
-    SERVER_CONSTANTS
+    SERVER_CONSTANTS,
+    getClientIp
 } = require('../constants.js');
 
 test('SERVER_CONSTANTS is deeply frozen and defines valid operational parameters', () => {
@@ -24,6 +25,9 @@ test('ALLOWED_ORIGINS is deeply frozen and contains production and local develop
     assert.ok(ALLOWED_ORIGINS.includes('https://orecalc.tech'));
     assert.ok(ALLOWED_ORIGINS.includes('https://www.orecalc.tech'));
     assert.ok(ALLOWED_ORIGINS.includes('https://beta.orecalc.tech'));
+    assert.ok(ALLOWED_ORIGINS.includes('https://clashcalc.com'));
+    assert.ok(ALLOWED_ORIGINS.includes('https://www.clashcalc.com'));
+    assert.ok(ALLOWED_ORIGINS.includes('https://beta.clashcalc.com'));
     assert.ok(ALLOWED_ORIGINS.includes('https://orecalc-beta.pages.dev'));
     assert.ok(ALLOWED_ORIGINS.includes('http://localhost:8080'));
 });
@@ -46,4 +50,21 @@ test('Regular expression patterns validate expected formats correctly', () => {
     assert.ok(BILLING_MONTH_REGEX.test('2026-08'));
     assert.equal(BILLING_MONTH_REGEX.test('2026-13'), false);
     assert.equal(BILLING_MONTH_REGEX.test('2026/08'), false);
+});
+
+test('getClientIp prioritizes Cloudflare CF-Connecting-IP over direct req.ip', () => {
+    const cfReq = {
+        headers: { 'cf-connecting-ip': '203.0.113.195' },
+        ip: '10.0.0.1'
+    };
+    assert.equal(getClientIp(cfReq), '203.0.113.195');
+
+    const directReq = {
+        headers: {},
+        ip: '198.51.100.42'
+    };
+    assert.equal(getClientIp(directReq), '198.51.100.42');
+
+    const fallbackReq = {};
+    assert.equal(getClientIp(fallbackReq), '127.0.0.1');
 });

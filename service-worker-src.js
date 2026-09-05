@@ -132,7 +132,7 @@ self.addEventListener('fetch', event => {
 
 // Runtime routes
 registerRoute(
-    /^https:\/\/api\.orecalc\.tech\//,
+    /^https:\/\/api\.(orecalc\.tech|clashcalc\.com)\//,
     new NetworkFirst({
         cacheName: 'api-cache',
         networkTimeoutSeconds: 10,
@@ -168,8 +168,20 @@ registerRoute(
             lang = segments[0].toLowerCase();
         }
 
-        const localizedKey = (lang !== 'en' ? precacheController.getCacheKeyForURL(`/${lang}/index.html`) : null)
-                          || precacheController.getCacheKeyForURL('/index.html');
+        const isOreCalcTool = pathname.includes('/ore-calculator');
+        const candidateUrls = [];
+        if (lang !== 'en') {
+            if (isOreCalcTool) candidateUrls.push(`/${lang}/ore-calculator/index.html`);
+            candidateUrls.push(`/${lang}/index.html`);
+        }
+        if (isOreCalcTool) candidateUrls.push('/ore-calculator/index.html');
+        candidateUrls.push('/index.html');
+
+        let localizedKey = null;
+        for (const candidate of candidateUrls) {
+            localizedKey = precacheController.getCacheKeyForURL(candidate);
+            if (localizedKey) break;
+        }
 
         if (localizedKey) {
             const cache = await caches.open(workbox.core.cacheNames.precache);

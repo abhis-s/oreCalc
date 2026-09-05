@@ -3,6 +3,7 @@ import { updateUIWithTranslations } from './i18n/uiTranslator.js';
 import { fetchPlayerData } from './services/apiService.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
 import { state } from './core/state.js';
+import { STORAGE_KEYS } from './core/constants.js';
 import './utils/imageManager.js';
 import { initHeroJourneyTooltips, initHeroJourneyTableTooltips } from './components/home/heroJourneyPopovers.js';
 import { setupMountainClusterTouchInteractions } from './components/home/heroJourneyInputs.js';
@@ -41,6 +42,7 @@ import {
     resetFilters as handleResetFilters,
     syncTypeFiltersUI
 } from './components/heroJourney/heroJourneyControlsInputs.js';
+import { initDomainNotice } from './components/common/domainNotice.js';
 
 const resetFilters = () => handleResetFilters(hjState, renderUI);
 
@@ -364,19 +366,36 @@ async function init() {
     if (appVersionDisplay) {
         appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.2.0').replace(/^v/, '');
     }
-    initControls();
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const userIdFromUrl = urlParams.get('userId');
+    if (userIdFromUrl && typeof userIdFromUrl === 'string' && userIdFromUrl.trim()) {
+        try {
+            if (!localStorage.getItem(STORAGE_KEYS.USER_ID)) {
+                localStorage.setItem(STORAGE_KEYS.USER_ID, userIdFromUrl.trim());
+            }
+        } catch (_) {}
+    }
+
+    initControls();
     let initialTag = urlTag || getTagFromUrl();
     const cleanInitialTag = normalizePlayerTag(initialTag);
+    let resolvedHjTag = cleanInitialTag;
 
     if (!cleanInitialTag || cleanInitialTag === 'DEFAULT0') {
         const savedProfiles = getSavedProfiles();
         if (savedProfiles.length > 0) {
             initialTag = savedProfiles[0].cleanTag || savedProfiles[0].tag;
+            resolvedHjTag = normalizePlayerTag(initialTag);
         } else {
             initialTag = '';
+            resolvedHjTag = null;
         }
     }
+
+    initDomainNotice({
+        activePlayerTag: resolvedHjTag || null
+    });
 
     const finalCleanTag = normalizePlayerTag(initialTag);
     if (finalCleanTag && finalCleanTag !== 'DEFAULT0') {

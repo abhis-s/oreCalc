@@ -47,6 +47,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     document.addEventListener('DOMContentLoaded', async () => {
         const urlParams = new URLSearchParams(window.location.search);
         let userIdFromUrl = urlParams.get('userId');
+        let tagFromUrl = urlParams.get('tag');
 
         if (userIdFromUrl) {
             const playerTagsStr = localStorage.getItem('oreCalc_playerTags');
@@ -67,14 +68,17 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             }
 
             const isDifferentUser = currentUserId && currentUserId !== userIdFromUrl;
+            const targetSearch = (tagFromUrl && tagFromUrl !== 'DEFAULT0')
+                ? `?tag=${encodeURIComponent(tagFromUrl)}`
+                : '';
 
             if (hasRealLocalData && isDifferentUser) {
                 sessionStorage.setItem('oreCalc_pendingQrUserId', userIdFromUrl);
-                window.history.replaceState({}, document.title, window.location.pathname);
+                window.history.replaceState({}, document.title, window.location.pathname + targetSearch);
             } else {
                 localStorage.setItem('oreCalc_userId', userIdFromUrl);
                 sessionStorage.setItem('oreCalc_justSyncedFromQr', 'true');
-                window.history.replaceState({}, document.title, window.location.pathname);
+                window.history.replaceState({}, document.title, window.location.pathname + targetSearch);
                 location.reload();
                 return;
             }

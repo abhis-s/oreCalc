@@ -8,6 +8,9 @@ const ALLOWED_ORIGINS = deepFreeze([
     'https://orecalc.tech',
     'https://www.orecalc.tech',
     'https://beta.orecalc.tech',
+    'https://clashcalc.com',
+    'https://www.clashcalc.com',
+    'https://beta.clashcalc.com',
     'https://orecalc-beta.pages.dev',
     'http://localhost:8080',
     'http://127.0.0.1:8080',
@@ -15,20 +18,38 @@ const ALLOWED_ORIGINS = deepFreeze([
     'http://127.0.0.1:8081'
 ]);
 
+/**
+ * Resolves the client IP address, prioritizing Cloudflare CF-Connecting-IP header
+ * to prevent proxy-induced rate-limit sharing across users behind Cloudflare / GCP Load Balancer.
+ *
+ * @param {import('express').Request | Record<string, any>} [req] - Express request object.
+ * @returns {string} Client IP address.
+ */
+function getClientIp(req) {
+    const cfIp = req?.headers?.['cf-connecting-ip'];
+    if (typeof cfIp === 'string' && cfIp.trim()) {
+        return cfIp.trim();
+    }
+    return req?.ip || '127.0.0.1';
+}
+
 const RATE_LIMIT_DEFAULTS = deepFreeze({
     general: {
         windowMs: 15 * 60 * 1000,
         max: 500,
+        keyGenerator: getClientIp,
         message: 'Too many requests from this IP, please try again after 15 minutes.'
     },
     sensitive: {
         windowMs: 60 * 60 * 1000,
         max: 5,
+        keyGenerator: getClientIp,
         message: 'Too many destructive operations from this IP, please try again after an hour.'
     },
     proxy: {
         windowMs: 15 * 60 * 1000,
         max: 250,
+        keyGenerator: getClientIp,
         message: 'Too many player fetch requests from this IP, please try again after 15 minutes.'
     }
 });
@@ -47,5 +68,6 @@ module.exports = {
     BILLING_MONTH_REGEX,
     ALLOWED_ORIGINS,
     RATE_LIMIT_DEFAULTS,
-    SERVER_CONSTANTS
+    SERVER_CONSTANTS,
+    getClientIp
 };

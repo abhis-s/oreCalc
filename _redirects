@@ -1,10 +1,17 @@
-# Legacy language routes redirect to root canonical
 /en/*    /:splat    301
 /en      /          301
 
-# Legal routes trailing slash normalizations
 /privacy   /privacy/   301
 /terms     /terms/     301
 /licenses  /licenses/  301
 /de/privacy /de/privacy/ 301
 /de/terms   /de/terms/   301
+
+/ore-calculator   /ore-calculator/        301
+/hero-journey     /hero-journey/          301
+/de/ore-calculator /de/ore-calculator/    301
+/de/hero-journey  /de/hero-journey/       301
+/tr/ore-calculator /tr/ore-calculator/    301
+/tr/hero-journey  /tr/hero-journey/       301
+/zh/ore-calculator /zh/ore-calculator/    301
+/zh/hero-journey  /zh/hero-journey/       301

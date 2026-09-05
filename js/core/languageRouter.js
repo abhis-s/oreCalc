@@ -74,13 +74,16 @@ export function syncLanguageUrl(lang, replace = false) {
 
     let newPathname;
     let canonicalHref;
+    const baseOrigin = (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null')
+        ? window.location.origin
+        : 'https://orecalc.tech';
 
     if (lang === 'en') {
         newPathname = formattedPath ? `/${formattedPath}` : '/';
-        canonicalHref = formattedPath ? `https://orecalc.tech/${formattedPath}` : 'https://orecalc.tech/';
+        canonicalHref = formattedPath ? `${baseOrigin}/${formattedPath}` : `${baseOrigin}/`;
     } else {
         newPathname = formattedPath ? `/${lang}/${formattedPath}` : `/${lang}/`;
-        canonicalHref = formattedPath ? `https://orecalc.tech/${lang}/${formattedPath}` : `https://orecalc.tech/${lang}/`;
+        canonicalHref = formattedPath ? `${baseOrigin}/${lang}/${formattedPath}` : `${baseOrigin}/${lang}/`;
     }
 
     const newUrl = `${newPathname}${currentSearch}${currentHash}`;
@@ -122,14 +125,13 @@ export function isValidRoute(pathName) {
         if (pathSegments.length === 1) return true;
         if (pathSegments.length === 2) {
             const subRoute = pathSegments[1].toLowerCase();
-            const validLocalizedSubRoutes = ['hero-journey', 'privacy', 'terms', '404'];
+            const validLocalizedSubRoutes = ['ore-calculator', 'hero-journey', 'privacy', 'terms', '404'];
             if (validLocalizedSubRoutes.includes(subRoute)) return true;
         }
         return false;
     }
 
-    // Check root standalone tools and legal routes (e.g. /hero-journey/, /privacy/, /terms/, /licenses/)
-    const validRootRoutes = ['hero-journey', 'privacy', 'terms', 'licenses', '404'];
+    const validRootRoutes = ['ore-calculator', 'hero-journey', 'privacy', 'terms', 'licenses', '404'];
     if (pathSegments.length === 1 && validRootRoutes.includes(firstSegment)) {
         return true;
     }

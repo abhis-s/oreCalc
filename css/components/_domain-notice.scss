@@ -1,0 +1,198 @@
+@use '../abstracts/variables' as *;
+
+:root {
+    --domain-notice-height: 0px;
+}
+
+.domain-notice {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: $bg-surface-secondary;
+    border-bottom: 1px solid $border-primary;
+    color: $text-primary;
+    z-index: $z-index-consent-banner;
+    padding: 8px 16px;
+    padding-top: calc(8px + env(safe-area-inset-top, 0px));
+    transition: opacity $duration-moderate $ease-smooth, transform $duration-moderate $ease-exit;
+
+    &--exiting {
+        opacity: 0;
+        transform: translateY(-100%);
+        pointer-events: none;
+    }
+
+    .domain-notice-inner {
+        max-width: 1170px;
+        margin-inline: auto;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .domain-notice-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $accent-primary;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    .domain-notice-text {
+        margin: 0;
+        color: $text-primary;
+        font-weight: 500;
+        font-size: var(--font-size-xs);
+        line-height: 1.4;
+        flex: 1;
+        letter-spacing: -0.01em;
+    }
+
+    .domain-notice-actions {
+        flex-shrink: 0;
+    }
+
+    .domain-notice-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 12px;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        border-radius: $shape-corner-small;
+        font-weight: 600;
+        font-size: var(--font-size-xs);
+        text-decoration: none;
+        box-sizing: border-box;
+        white-space: nowrap;
+        transition: background-color $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+
+        &:hover {
+            background-color: $accent-primary-hover;
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            background-color: $accent-primary-active;
+            transform: translateY(0);
+        }
+    }
+
+    .domain-notice-dismiss-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+        padding: 0;
+        color: $text-secondary;
+        cursor: pointer;
+        border-radius: 50%;
+        flex-shrink: 0;
+        transition: background-color $duration-fast $ease-smooth,
+                    border-color $duration-fast $ease-smooth,
+                    color $duration-fast $ease-smooth,
+                    transform $duration-fast $ease-smooth;
+
+        svg,
+        orecalc-assets-svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        &:hover {
+            color: $text-primary;
+            background-color: $bg-surface-primary;
+            border-color: $border-secondary;
+            transform: scale(1.08);
+        }
+
+        &:active {
+            transform: scale(0.92);
+        }
+
+        &:focus-visible {
+            outline: 2px solid $outline-focus;
+            outline-offset: 1px;
+        }
+    }
+
+    @media (max-width: $breakpoint-phone) {
+        padding: 8px 12px;
+        padding-top: calc(8px + env(safe-area-inset-top, 0px));
+
+        .domain-notice-inner {
+            display: grid;
+            grid-template-columns: 16px 1fr 24px;
+            grid-template-areas:
+                "badge text    dismiss"
+                "cta   cta     cta";
+            column-gap: 10px;
+            row-gap: 8px;
+            align-items: center;
+        }
+
+        .domain-notice-badge {
+            grid-area: badge;
+            align-self: center;
+        }
+
+        .domain-notice-text {
+            grid-area: text;
+        }
+
+        .domain-notice-actions {
+            grid-area: cta;
+            display: flex;
+            justify-content: center;
+        }
+
+        .domain-notice-cta {
+            width: 100%;
+            height: 32px;
+            padding: 0 12px;
+        }
+
+        .domain-notice-dismiss-btn {
+            grid-area: dismiss;
+            align-self: center;
+            justify-self: end;
+            width: 24px;
+            height: 24px;
+        }
+    }
+}
+
+.header-placeholder {
+    transition: margin-top $duration-moderate $ease-smooth;
+}
+
+body:has(.domain-notice:not(.domain-notice--exiting)) {
+    .header-container {
+        top: calc(15px + var(--domain-notice-height, 48px));
+
+        @media (max-width: #{$breakpoint-desktop - 1px}) {
+            top: calc(10px + var(--domain-notice-height, 48px));
+        }
+    }
+
+    .hero-journey-page__header {
+        top: calc(15px + var(--domain-notice-height, 48px));
+
+        @media (max-width: 640px) {
+            top: calc(8px + var(--domain-notice-height, 48px));
+        }
+    }
+
+    .header-placeholder {
+        margin-top: var(--domain-notice-height, 48px);
+    }
+}

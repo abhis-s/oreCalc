@@ -27,6 +27,7 @@
         will-change: transform;
 
         transition: background-color $duration-moderate $ease-smooth,
+                    top $duration-moderate $ease-smooth,
                     box-shadow $duration-moderate $ease-smooth,
                     border-color $duration-moderate $ease-smooth,
                     backdrop-filter $duration-moderate $ease-smooth,
