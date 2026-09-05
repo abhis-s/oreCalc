@@ -142,6 +142,9 @@
     "app": {
         "comingSoon": "Yakında gelecek!",
         "description": "En gelişmiş Clash of Clans Cevher Hesaplayıcısı ve Planlayıcısı. Cevher gelirinizi tahmin edin, sürükle-bırak takvimi ile kahraman ekipmanı yükseltmelerini planlayın ve birden fazla hesabı yönetin. Kapsamlı gelir takibi, yükseltme öncelik listeleri, çevrimdışı destek (PWA) ve bulut senkronizasyonu içerir.",
+        "domainNotice": {
+            "dismiss": "Dismiss notice"
+        },
         "latest": "En son",
         "madeIn": "Almanya'da hassas bir şekilde üretilmiştir",
         "none": "Hiçbiri",
