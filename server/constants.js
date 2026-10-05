@@ -51,15 +51,41 @@ const RATE_LIMIT_DEFAULTS = deepFreeze({
         max: 250,
         keyGenerator: getClientIp,
         message: 'Too many player fetch requests from this IP, please try again after 15 minutes.'
+    },
+    auth: {
+        windowMs: 15 * 60 * 1000,
+        max: 20,
+        keyGenerator: getClientIp,
+        message: 'Too many authentication attempts from this IP, please try again after 15 minutes.'
     }
 });
+
+const AUTH_CONSTANTS = deepFreeze({
+    SALT_ROUNDS: 12,
+    TOKEN_EXPIRY: '30d',
+    USERNAME_REGEX: /^[a-zA-Z0-9_]{3,20}$/,
+    MIN_PASSWORD_LENGTH: 6,
+    MAX_PASSWORD_LENGTH: 72,
+    CHALLENGE_TTL_MS: 120 * 1000,
+    VALID_AVATARS: ['archer', 'builder', 'giant', 'goblin', 'golem', 'hogRider', 'hog', 'skeleton']
+});
+
+/**
+ * Returns a random avatar identifier from the canonical avatar keys.
+ *
+ * @returns {string}
+ */
+function getRandomAvatar() {
+    return AUTH_CONSTANTS.VALID_AVATARS[Math.floor(Math.random() * AUTH_CONSTANTS.VALID_AVATARS.length)];
+}
 
 const SERVER_CONSTANTS = deepFreeze({
     PORT_DEFAULT: 3000,
     INACTIVE_USER_DAYS_THRESHOLD: 90,
     PRUNE_BATCH_LIMIT: 25,
     MAX_HISTORICAL_BILLING_MONTHS: 6,
-    NEGLIGIBLE_COST_THRESHOLD: 0.01
+    NEGLIGIBLE_COST_THRESHOLD: 0.01,
+    MIN_SUPPORTED_APP_VERSION: '2.2.0'
 });
 
 module.exports = {
@@ -69,5 +95,7 @@ module.exports = {
     ALLOWED_ORIGINS,
     RATE_LIMIT_DEFAULTS,
     SERVER_CONSTANTS,
+    AUTH_CONSTANTS,
+    getRandomAvatar,
     getClientIp
 };

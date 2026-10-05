@@ -1,22 +1,23 @@
 import { translate } from '../../i18n/translator.js';
 
-import { saveState } from '../../core/localStorageManager.js';
 import { state } from '../../core/state.js';
-import { handleStateUpdate } from '../../core/stateManager.js';
 
-import { escapeHTML } from '../../utils/stringUtils.js';
+import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
 
 import { dom } from '../../dom/domElements.js';
 import { showAlert } from '../../ui/noticeModal.js';
+import { isAuthenticated } from '../../services/authClientService.js';
 
 function toggleFabMenu() {
     const { main, menu } = dom.fab;
-    const overlay = dom.overlay;
+    const overlay = dom.overlay || document.getElementById('overlay');
 
-    if (!main || !menu || !overlay) return;
+    if (!main || !menu) return;
     const isActive = main.classList.toggle('active');
     menu.classList.toggle('show', isActive);
-    overlay.classList.toggle('show', isActive);
+    if (overlay) {
+        overlay.classList.toggle('show', isActive);
+    }
     document.body.classList.toggle('open-fab', isActive);
 }
 
@@ -25,15 +26,18 @@ function toggleFabMenu() {
  */
 export function closeFabMenu() {
     const { main, menu } = dom.fab;
-    const overlay = dom.overlay;
+    const overlay = dom.overlay || document.getElementById('overlay');
 
-    if (!main || !menu || !overlay) return;
-    if (main.classList.contains('active')) {
+    if (main) {
         main.classList.remove('active');
-        menu.classList.remove('show');
-        overlay.classList.remove('show');
-        document.body.classList.remove('open-fab');
     }
+    if (menu) {
+        menu.classList.remove('show');
+    }
+    if (overlay) {
+        overlay.classList.remove('show');
+    }
+    document.body.classList.remove('open-fab');
 }
 
 /**
@@ -41,7 +45,7 @@ export function closeFabMenu() {
  */
 export function initializeFab() {
     const { main, pills } = dom.fab;
-    const overlay = dom.overlay;
+    const overlay = dom.overlay || document.getElementById('overlay');
 
     if (!main) return;
 
@@ -70,7 +74,6 @@ export function initializeFab() {
 
         try {
             pills.refresh.classList.add('saving');
-            const { loadAndProcessPlayerData } = await import('../../services/serverResponseHandler.js');
             const result = await loadAndProcessPlayerData(activeTag, { updateOrder: false });
 
             pills.refresh.classList.remove('saving');
@@ -108,7 +111,7 @@ export function renderFab(playerTag) {
 
     const floatingSaveBtn = dom.controls?.saveButton;
     const fabSaveDataPill = dom.fab?.pills?.saveData;
-    const isCloudSyncDisabled = state.uiSettings.cloudSync === false;
+    const isCloudSyncDisabled = !isAuthenticated() && state.uiSettings.cloudSync === false;
 
     if (floatingSaveBtn) {
         floatingSaveBtn.disabled = isDisabled;

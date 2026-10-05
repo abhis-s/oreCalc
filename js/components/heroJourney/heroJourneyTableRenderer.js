@@ -17,7 +17,7 @@ import { getFilteredNodes, syncClaimSwitchPill } from './heroJourneyTrackRendere
  * @returns {{ name: string, nameHtml?: string | null, icon: string, yieldHtml: string }}
  */
 function getTableNodeDetails(node, trackResolution = null, state = null) {
-    let name = translate('views.heroJourneyPage.milestoneReward') || 'Milestone Reward';
+    let name = translate('views.heroJourney.page.milestoneReward') || 'Milestone Reward';
     let icon = (node.icon || 'assets/shiny_ore.png').replace(/^\//, '');
     let yieldHtml = '—';
 
@@ -37,8 +37,8 @@ function getTableNodeDetails(node, trackResolution = null, state = null) {
     if (node.type === 'quest') {
         const questTargetName = node.equipmentKey
             ? translate(`entities.equipment.${node.equipmentKey}`)
-            : (node.hero ? translate(`entities.heroes.${node.hero}`) : translate('views.home.heroJourney.heroFallback'));
-        name = translate('views.home.heroJourney.questTitleFormat', { name: questTargetName });
+            : (node.hero ? translate(`entities.heroes.${node.hero}`) : translate('app.alts.hero'));
+        name = translate('views.heroJourney.nodes.questTitleFormat', { name: questTargetName });
         icon = 'assets/heroJourney/chest_ore.png';
         const shinyLabel = escapeHTML(translate('entities.ores.shiny'));
         const glowyLabel = escapeHTML(translate('entities.ores.glowy'));
@@ -77,7 +77,7 @@ function getTableNodeDetails(node, trackResolution = null, state = null) {
         icon = (resolvedNode.resolvedIcon || node.icon || 'assets/heroes/emblemBarbarianKing.png').replace(/^\//, '');
         if (resolvedNode.isFallbackStarry) {
             const starryLabel = escapeHTML(translate('entities.ores.starry'));
-            const fallbackLabel = escapeHTML(translate('views.home.heroJourney.fallbackLabel'));
+            const fallbackLabel = escapeHTML(translate('views.heroJourney.nodes.fallbackLabel'));
             yieldHtml = `
                 <div class="table-ore-yield-group">
                     <span class="table-ore-item" title="${node.fallbackStarry || 50} ${starryLabel}">
@@ -90,7 +90,7 @@ function getTableNodeDetails(node, trackResolution = null, state = null) {
             const nameHtml = `${resolvedNode.fallbackStarry || 50} <span class="ore-text-starry">${starryLabel}</span>`;
             return { name, nameHtml, icon, yieldHtml };
         } else {
-            yieldHtml = escapeHTML(translate('views.heroJourneyPage.tableYieldUnlockLevel', { level: resolvedNode.equipmentLevel || 1 }));
+            yieldHtml = escapeHTML(translate('views.heroJourney.page.tableYieldUnlockLevel', { level: resolvedNode.equipmentLevel || 1 }));
             const nameHtml = `<span class="equipment-text-epic">${escapeHTML(name)}</span>`;
             return { name, nameHtml, icon, yieldHtml };
         }
@@ -105,7 +105,7 @@ function getTableNodeDetails(node, trackResolution = null, state = null) {
         icon = (node.icon || 'assets/dark_elixir.png').replace(/^\//, '');
         yieldHtml = '—';
     } else if (node.type === 'skin') {
-        const rawSkinName = translate(`entities.skins.${node.skinKey}`) || translate('views.heroJourneyPage.skinFallback') || 'Hero Skin';
+        const rawSkinName = translate(`entities.skins.${node.skinKey}`) || translate('views.heroJourney.page.skinFallback') || 'Hero Skin';
         const skinWords = rawSkinName.split(' ');
         const nameHtml = skinWords.length > 1
             ? `<span class="accent-text">${escapeHTML(skinWords[0])}</span> ${escapeHTML(skinWords.slice(1).join(' '))}`
@@ -135,9 +135,9 @@ export function renderTableView() {
                 <td colspan="3" class="table-empty-cell">
                     <div class="hero-journey-empty-filter-card">
                         <orecalc-assets-svg name="sliders" class="empty-filter-icon"></orecalc-assets-svg>
-                        <div class="empty-filter-title">${translate('views.home.heroJourney.emptyFilterTitle')}</div>
-                        <div class="empty-filter-desc">${translate('views.home.heroJourney.emptyFilterDesc')}</div>
-                        <button type="button" class="th-limit-reveal-btn hero-journey-empty-filter-btn" id="hj-table-clear-filters-btn">${translate('views.home.heroJourney.clearFilter')}</button>
+                        <div class="empty-filter-title">${translate('views.heroJourney.filters.emptyFilterTitle')}</div>
+                        <div class="empty-filter-desc">${translate('views.heroJourney.filters.emptyFilterDesc')}</div>
+                        <button type="button" class="th-limit-reveal-btn hero-journey-empty-filter-btn" id="hj-table-clear-filters-btn">${translate('views.heroJourney.filters.clearFilter')}</button>
                     </div>
                 </td>
             </tr>
@@ -163,7 +163,7 @@ export function renderTableView() {
                     <td colspan="3">
                         <div class="th-header-cell">
                             <orecalc-assets-image src="assets/th/th${nodeTH}.png" alt="TH ${nodeTH}" class="th-header-img" size="thumbnail"></orecalc-assets-image>
-                            <span data-i18n="views.heroJourneyPage.thMilestonesHeader" data-i18n-th="${nodeTH}">${translate('views.heroJourneyPage.thMilestonesHeader', { th: nodeTH })}</span>
+                            <span data-i18n="views.heroJourney.page.thMilestonesHeader" data-i18n-th="${nodeTH}">${translate('views.heroJourney.page.thMilestonesHeader', { th: nodeTH })}</span>
                         </div>
                     </td>
                 </tr>
@@ -177,8 +177,8 @@ export function renderTableView() {
 
         const claimedBadgeHtml = isClaimed
             ? (isUnownedEquipment
-                ? `<span class="table-claimed-badge table-unowned-badge" title="${escapeHTML(translate('views.home.heroJourney.unownedClaimedTitle'))}" aria-label="${escapeHTML(translate('views.home.heroJourney.unownedClaimedTitle'))}"><orecalc-assets-svg name="close" width="11" height="11"></orecalc-assets-svg></span>`
-                : `<span class="table-claimed-badge" title="${escapeHTML(translate('views.home.heroJourney.claimed'))}" aria-label="${escapeHTML(translate('views.home.heroJourney.claimed'))}"><orecalc-assets-svg name="check" width="11" height="11"></orecalc-assets-svg></span>`)
+                ? `<span class="table-claimed-badge table-unowned-badge" title="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}"><orecalc-assets-svg name="close" width="11" height="11"></orecalc-assets-svg></span>`
+                : `<span class="table-claimed-badge" title="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}"><orecalc-assets-svg name="check" width="11" height="11"></orecalc-assets-svg></span>`)
             : '';
 
         rowsHtml += `

@@ -1,15 +1,15 @@
-import { getLocale } from '../../data/languagesData.js';
 import { runningCostsData } from '../../data/runningCostsData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
+import { getActiveUserId } from '../../core/storageKeys.js';
 
+import { formatDate } from '../../utils/dateUtils.js';
 import { logger } from '../../utils/logger.js';
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { animateValue, formatCurrency } from '../../utils/numberFormatter.js';
 
 import { openPrivacyModal } from './settingsLegalModals.js';
-import { dom } from '../../dom/domElements.js';
 import { fetchRunningCosts, submitBugReport } from '../../services/apiService.js';
 import { showAlert } from '../../ui/noticeModal.js';
 
@@ -52,9 +52,9 @@ export function formatInvoiceMonth(invoiceMonth) {
     const year = match[1];
     const monthIndex = parseInt(match[2], 10) - 1;
 
-    const locale = getLocale(state.uiSettings?.language || 'en');
+    const lang = state.uiSettings?.language || 'en';
     const date = new Date(parseInt(year, 10), monthIndex, 1);
-    return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+    return formatDate(date, { month: 'long', year: 'numeric' }, lang);
 }
 
 /**
@@ -77,7 +77,19 @@ export function renderRunningCostsData(modal, data, totalValue, historyContainer
         const prevVal = typeof totalValue._currentNumericValue === 'number'
             ? totalValue._currentNumericValue
             : (parseFloat(totalValue.textContent.replace(/[^0-9.-]/g, '')) || 0);
-        const endVal = Number(data.totalCostTillDate || 0);
+        let endVal = Number(data.totalCostTillDate || 0);
+        // Exclude legacy cached invoice taxes from the cumulative total to align with the + TAX badge
+        if (data.breakdown && Array.isArray(data.breakdown)) {
+            data.breakdown.forEach(item => {
+                (item.services || []).forEach(s => {
+                    const name = (s.name || '').toLowerCase();
+                    if (name === 'invoice' || name === 'tax') {
+                        endVal -= (s.cost || 0);
+                    }
+                });
+            });
+            endVal = parseFloat(endVal.toFixed(2));
+        }
         totalValue._currentNumericValue = endVal;
 
         if (totalValue.textContent && totalValue.textContent !== '...' && Math.abs(prevVal - endVal) > 0.0001) {
@@ -90,14 +102,14 @@ export function renderRunningCostsData(modal, data, totalValue, historyContainer
     if (updateDate && data.lastUpdated) {
         try {
             const date = new Date(data.lastUpdated);
+            const lang = state.uiSettings?.language || 'en';
             if (!isNaN(date.getTime())) {
-                const locale = getLocale(state.uiSettings?.language || 'en');
-                updateDate.textContent = date.toLocaleDateString(locale, { dateStyle: 'medium' });
+                updateDate.textContent = formatDate(date, { day: 'numeric', month: 'short', year: 'numeric' }, lang);
             } else {
-                updateDate.textContent = data.lastUpdated.split('T')[0];
+                updateDate.textContent = '';
             }
         } catch {
-            updateDate.textContent = data.lastUpdated.split('T')[0];
+            updateDate.textContent = '';
         }
     }
 
@@ -116,9 +128,20 @@ export function renderRunningCostsData(modal, data, totalValue, historyContainer
                 monthName.textContent = formatInvoiceMonth(item.month);
                 header.appendChild(monthName);
 
+                const rawServices = item.services || [];
+                // Defensively exclude invoice taxes and adjustments to ensure values strictly reflect pre-tax infrastructure
+                const services = rawServices.filter(s => {
+                    const name = (s.name || '').toLowerCase();
+                    return name !== 'invoice' && name !== 'tax';
+                });
+                const hasFilteredTaxes = services.length < rawServices.length;
+                const totalCost = hasFilteredTaxes
+                    ? parseFloat(services.reduce((sum, s) => sum + (s.cost || 0), 0).toFixed(2))
+                    : (item.totalCost || 0);
+
                 const monthTotal = document.createElement('span');
                 monthTotal.className = 'costs-month-total';
-                monthTotal.textContent = `$${formatCurrency(item.totalCost || 0)}`;
+                monthTotal.textContent = `$${formatCurrency(totalCost)}`;
                 header.appendChild(monthTotal);
 
                 card.appendChild(header);
@@ -128,8 +151,7 @@ export function renderRunningCostsData(modal, data, totalValue, historyContainer
 
                 let toggleBtn = null;
 
-                if (item.services && item.services.length > 0) {
-                    const services = item.services;
+                if (services.length > 0) {
                     const highlightedServices = services.filter(s => s.highlight);
                     const standardServices = services.filter(s => !s.highlight);
 
@@ -150,7 +172,7 @@ export function renderRunningCostsData(modal, data, totalValue, historyContainer
                             list.appendChild(createServiceRow(service.name, service.cost));
                         });
 
-                        list.appendChild(createServiceRow(translate('views.settings.runningCostsModal.others'), restSum, 'others-row'));
+                        list.appendChild(createServiceRow(translate('views.settings.projectCosts.modal.others'), restSum, 'others-row'));
 
                         rest.forEach(service => {
                             list.appendChild(createServiceRow(service.name, service.cost, 'extra-service'));
@@ -211,8 +233,7 @@ export async function openRunningCostsModal() {
     if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
 
-    modal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
+    openModal(modal);
 
     const closeBtn = document.getElementById('close-running-costs-modal-btn');
     const closeActionBtn = document.getElementById('running-costs-close-btn');
@@ -240,7 +261,7 @@ export async function openRunningCostsModal() {
 
     if (totalValue) totalValue.textContent = '...';
     if (historyContainer) {
-        historyContainer.innerHTML = `<div class="costs-disclaimer costs-disclaimer--center">${translate('views.settings.runningCostsModal.loading')}</div>`;
+        historyContainer.innerHTML = `<div class="costs-disclaimer costs-disclaimer--center">${translate('views.settings.projectCosts.modal.loading')}</div>`;
     }
 
     try {
@@ -362,9 +383,8 @@ export function openBugReportModal() {
                 }
             }
 
-            sessionStorage.removeItem('oreCalcLastUpdateReload');
+            sessionStorage.removeItem('clashCalc_lastSwReload');
             sessionStorage.removeItem('oreCalcUpdateDetectedAt');
-            try { localStorage.removeItem('oreCalcUpdateDetectedAt'); } catch (_) {}
             window.location.reload();
         };
     }
@@ -413,7 +433,7 @@ export function openBugReportModal() {
             if (closeBtn) closeBtn.disabled = true;
 
             try {
-                const currentUserId = localStorage.getItem('oreCalc_userId') || 'unknown';
+                const currentUserId = getActiveUserId() || 'unknown';
 
                 let attachedData = null;
                 if (attachCheckbox && attachCheckbox.checked) {
@@ -453,8 +473,7 @@ export function openBugReportModal() {
         };
     }
 
-    modal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
+    openModal(modal);
 }
 
 /**
@@ -496,6 +515,5 @@ export function openContactModal() {
         };
     }
 
-    modal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
+    openModal(modal);
 }

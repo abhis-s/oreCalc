@@ -14,9 +14,9 @@
     background-color: $bg-surface-secondary;
     border-bottom: 1px solid $border-primary;
     color: $text-primary;
-    z-index: $z-index-consent-banner;
-    padding: 8px 16px;
-    padding-top: calc(8px + env(safe-area-inset-top, 0px));
+    z-index: $z-index-domain-notice;
+    padding: $spacing-sm $spacing-lg;
+    padding-top: calc(#{$spacing-sm} + env(safe-area-inset-top, 0px));
     transition: opacity $duration-moderate $ease-smooth, transform $duration-moderate $ease-exit;
 
     &--exiting {
@@ -62,7 +62,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 4px 12px;
+        padding: $spacing-xs $spacing-md;
         background-color: $accent-primary;
         color: $text-on-accent;
         border-radius: $shape-corner-small;
@@ -126,8 +126,8 @@
     }
 
     @media (max-width: $breakpoint-phone) {
-        padding: 8px 12px;
-        padding-top: calc(8px + env(safe-area-inset-top, 0px));
+        padding: $spacing-sm $spacing-md;
+        padding-top: calc(#{$spacing-sm} + env(safe-area-inset-top, 0px));
 
         .domain-notice-inner {
             display: grid;
@@ -136,7 +136,7 @@
                 "badge text    dismiss"
                 "cta   cta     cta";
             column-gap: 10px;
-            row-gap: 8px;
+            row-gap: $spacing-sm;
             align-items: center;
         }
 
@@ -158,7 +158,7 @@
         .domain-notice-cta {
             width: 100%;
             height: 32px;
-            padding: 0 12px;
+            padding: 0 $spacing-md;
         }
 
         .domain-notice-dismiss-btn {
@@ -176,19 +176,13 @@
 }
 
 body:has(.domain-notice:not(.domain-notice--exiting)) {
-    .header-container {
-        top: calc(15px + var(--domain-notice-height, 48px));
+    .header-container,
+    .hero-journey-page__header,
+    .landing-header {
+        top: calc(#{$header-top-desktop} + env(safe-area-inset-top, 0px) + var(--domain-notice-height, 48px));
 
         @media (max-width: #{$breakpoint-desktop - 1px}) {
-            top: calc(10px + var(--domain-notice-height, 48px));
-        }
-    }
-
-    .hero-journey-page__header {
-        top: calc(15px + var(--domain-notice-height, 48px));
-
-        @media (max-width: 640px) {
-            top: calc(8px + var(--domain-notice-height, 48px));
+            top: calc(#{$header-top-mobile} + env(safe-area-inset-top, 0px) + var(--domain-notice-height, 48px));
         }
     }
 

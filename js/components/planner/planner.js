@@ -14,6 +14,7 @@ import { renderIncomeChips } from './incomeChipsDisplay.js';
 import { initializeIncomeChipsEventListeners } from './incomeChipsInputs.js';
 import { initializePlannerCustomLevels, renderPlannerCustomLevels } from './plannerCustomLevels.js';
 import { initializePriorityList } from './priorityList.js';
+import { refreshLayout } from '../../ui/cardLayoutManager.js';
 import { dom } from '../../dom/domElements.js';
 
 let scrollInterval = null;
@@ -222,9 +223,7 @@ export function renderPlanner(plannerState) {
 
     // Refresh planner layout drag handles and restore card order only on initialization
     if (!isLayoutInitialized) {
-        import('../../ui/cardLayoutManager.js').then(module => {
-            module.refreshLayout('planner');
-        });
+        refreshLayout('planner');
         isLayoutInitialized = true;
     }
 }

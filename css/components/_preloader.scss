@@ -2,6 +2,7 @@
 @use '../base/placeholder';
 
 #preloader {
+    display: none !important; // Preloader disabled in place; remove to re-enable
     @extend %full-screen-overlay;
     @extend %flex-center;
     background-color: #121212;
@@ -15,6 +16,12 @@
 
     &[data-theme="light"] {
         background-color: $color-white-const;
+    }
+
+    @media (prefers-color-scheme: light) {
+        &:not(.dark-mode-override) {
+            background-color: $color-white-const;
+        }
     }
 
     &.hidden {

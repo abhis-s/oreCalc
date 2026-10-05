@@ -44,9 +44,9 @@
 .hero-chip {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 8px;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $shape-corner-small;
     background-color: $bg-surface-secondary;
     border: 1px solid $border-secondary;
     font-weight: var(--font-weight-bold);
@@ -72,10 +72,10 @@
 .equipment-chip {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: $spacing-sm;
     background-color: $bg-surface-tertiary;
-    padding: 6px 12px;
-    border-radius: 16px;
+    padding: 6px $spacing-md;
+    border-radius: $shape-corner-large;
     cursor: pointer;
     transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
     border: 1px solid $border-primary;

@@ -1,12 +1,12 @@
 <dialog id="licenses-modal" class="modal" aria-labelledby="licenses-modal-title">
     <div class="modal-content modal-large">
         <div class="modal-header">
-            <h2 id="licenses-modal-title" data-i18n="views.settings.openSourceLicenses"></h2>
+            <h2 id="licenses-modal-title" data-i18n="nav.licenses"></h2>
             <div class="modal-header-actions">
-                <a href="/licenses/" target="_blank" rel="noopener noreferrer" id="licenses-open-external-btn" class="modal-header-btn" aria-label="Open in new tab" title="Open in new tab">
+                <a href="/licenses/" target="_blank" rel="noopener noreferrer" id="licenses-open-external-btn" class="modal-header-btn" aria-label="Open in new tab" title="Open in new tab" data-i18n-aria-label="actions.openInNewTab" data-i18n-title="actions.openInNewTab">
                     <orecalc-assets-svg name="open-in-new"></orecalc-assets-svg>
                 </a>
-                <button id="close-licenses-header-btn" class="close-button" data-i18n-aria-label="actions.close" title="Close">
+                <button type="button" id="close-licenses-header-btn" class="close-button" data-i18n-aria-label="actions.close" data-i18n-title="actions.close" title="Close">
                     <orecalc-assets-svg name="close"></orecalc-assets-svg>
                 </button>
             </div>
@@ -16,7 +16,7 @@
             <!-- DYNAMIC INSERTION: Dependency license entries -->
         </div>
         <div class="modal-actions">
-            <button id="close-licenses-modal-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
+            <button type="button" id="close-licenses-modal-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
         </div>
     </div>
 </dialog>

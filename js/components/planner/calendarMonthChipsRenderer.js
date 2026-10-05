@@ -22,6 +22,7 @@ export function renderMonthChips() {
     const monthChipContainer = document.getElementById('month-chip-container');
     if (!monthChipContainer) return;
     monthChipContainer.innerHTML = '';
+    const currentLang = state.uiSettings?.language || 'en';
 
     for (let year = getMinDate().year; year <= getMaxDate().year; year++) {
         const startMonth = (year === getMinDate().year) ? getMinDate().month : 1;
@@ -40,7 +41,7 @@ export function renderMonthChips() {
             const monthDate = new Date(Date.UTC(year, month - 1, 1));
             const monthNameSpan = document.createElement('span');
             monthNameSpan.classList.add('month-name');
-            const monthName = formatDate(monthDate, { month: 'short' });
+            const monthName = formatDate(monthDate, { month: 'short' }, currentLang);
             monthNameSpan.textContent = monthName;
 
             chip.appendChild(monthNameSpan);

@@ -1,0 +1,497 @@
+@use '../../abstracts/variables' as *;
+@use '../../base/placeholder' as *;
+
+.guided-setup-profile-preview {
+    position: relative;
+    background: color-mix(in srgb, $bg-surface-primary 70%, transparent);
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-large;
+    padding: $spacing-lg;
+    text-align: left;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: $elevation-3;
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-md;
+    }
+
+    .profile-card-tabs {
+        display: flex;
+        border-bottom: 1px solid $border-primary;
+        margin-bottom: $spacing-md;
+        gap: $spacing-lg;
+
+        .profile-tab-btn {
+            background: transparent;
+            border: none;
+            color: $text-secondary;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-semibold;
+            padding: $spacing-sm $spacing-xs;
+            cursor: pointer;
+            position: relative;
+            transition: color $duration-fast $ease-smooth;
+            margin: 0;
+
+            &:hover {
+                color: $text-primary;
+            }
+
+            &.active {
+                color: $accent-primary;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -1px;
+                    left: 0;
+                    right: 0;
+                    height: 2px;
+                    background-color: $accent-primary;
+                    border-radius: 1px;
+                }
+            }
+        }
+    }
+
+    .profile-card-body {
+        .profile-tab-content {
+            display: none;
+
+            &.active {
+                display: block;
+            }
+        }
+
+        .profile-header-main {
+            display: flex;
+            align-items: center;
+            gap: $spacing-lg;
+            margin-bottom: $spacing-lg;
+
+            .th-image-wrapper {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 48px;
+                height: 48px;
+
+                orecalc-assets-image {
+                    width: 48px;
+                    height: 48px;
+                    display: block;
+
+                    img,
+                    picture {
+                        width: 48px;
+                        height: 48px;
+                        display: block;
+                        object-fit: contain;
+                        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+                    }
+                }
+
+                .th-level-badge {
+                    position: absolute;
+                    bottom: -4px;
+                    right: -4px;
+                    background-color: $accent-primary;
+                    color: $text-on-accent;
+                    font-size: $font-size-2xs;
+                    font-weight: $font-weight-bold;
+                    padding: $spacing-2xs $spacing-xs;
+                    border-radius: $shape-corner-small;
+                    border: 1.5px solid $border-secondary;
+                    box-shadow: $elevation-1;
+                }
+            }
+
+            .player-title-details {
+                h3 {
+                    font-size: $font-size-xl;
+                    font-weight: $font-weight-bold;
+                    color: $text-primary;
+                    margin: 0 0 $spacing-2xs 0;
+                }
+
+                p {
+                    font-size: $font-size-xs;
+                    color: $text-muted;
+                    margin: 0;
+                    font-family: monospace;
+                    opacity: 0.85;
+                }
+            }
+        }
+
+        .profile-clan-details {
+            display: flex;
+            align-items: center;
+            gap: $spacing-md;
+            background-color: color-mix(in srgb, $bg-surface-primary 30%, transparent);
+            padding: $spacing-sm $spacing-md;
+            border-radius: $shape-corner-medium;
+            margin-bottom: $spacing-lg;
+            border: 1px solid color-mix(in srgb, $border-primary 30%, transparent);
+
+            .clan-badge-img {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+            }
+
+            .clan-text-details {
+                display: flex;
+                flex-direction: column;
+
+                .clan-label {
+                    font-size: $font-size-2xs;
+                    color: $text-muted;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    font-weight: $font-weight-semibold;
+                }
+
+                .clan-name-wrapper {
+                    display: flex;
+                    align-items: baseline;
+                    gap: $spacing-xs;
+                    flex-wrap: wrap;
+
+                    .clan-name {
+                        font-size: $font-size-sm;
+                        font-weight: $font-weight-semibold;
+                        color: $text-primary;
+                    }
+
+                    .clan-role {
+                        font-size: $font-size-2xs;
+                        font-weight: $font-weight-medium;
+                        color: $text-secondary;
+                        opacity: 0.85;
+                    }
+                }
+            }
+        }
+
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: $spacing-md;
+
+            .stat-box {
+                background-color: color-mix(in srgb, $bg-surface-primary 30%, transparent);
+                border: 1px solid color-mix(in srgb, $border-primary 30%, transparent);
+                border-radius: $shape-corner-medium;
+                padding: $spacing-md $spacing-sm;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+
+                .stat-icon {
+                    color: $accent-primary;
+                    margin-bottom: $spacing-xs;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .league-icon-img {
+                        width: 20px;
+                        height: 20px;
+                        object-fit: contain;
+                        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+                    }
+                }
+
+                .stat-value {
+                    font-size: $font-size-sm;
+                    font-weight: $font-weight-bold;
+                    color: $text-primary;
+                }
+
+                .stat-label {
+                    font-size: $font-size-2xs;
+                    color: $text-muted;
+                    margin-top: $spacing-2xs;
+                    font-weight: $font-weight-medium;
+                }
+
+                .league-name-value {
+                    font-size: $font-size-xs;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 100%;
+                }
+            }
+        }
+    }
+}
+
+.guided-setup-equip-progress-group {
+    margin-bottom: $spacing-lg;
+    background: color-mix(in srgb, $bg-surface-primary 30%, transparent);
+    border: 1px solid color-mix(in srgb, $border-primary 25%, transparent);
+    border-radius: $shape-corner-medium;
+    padding: $spacing-md;
+
+    .group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: $spacing-sm;
+
+        .group-title {
+            font-size: $font-size-xs;
+            font-weight: $font-weight-bold;
+            color: $text-primary;
+        }
+
+        .group-average {
+            font-size: $font-size-xs;
+            font-weight: $font-weight-bold;
+            color: $accent-primary;
+        }
+    }
+
+    .split-progress-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: $spacing-md;
+
+        @media (max-width: $breakpoint-compact) {
+            gap: $spacing-xs;
+        }
+
+        .progress-section {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-xs;
+
+            &.disabled {
+                opacity: 0.45;
+            }
+
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                font-size: $font-size-2xs;
+                font-weight: $font-weight-semibold;
+                color: $text-secondary;
+            }
+
+            .progress-track {
+                height: 6px;
+                background-color: color-mix(in srgb, $bg-surface-primary 70%, transparent);
+                border-radius: 3px;
+                overflow: hidden;
+                border: 1px solid color-mix(in srgb, $border-primary 15%, transparent);
+                position: relative;
+
+                .progress-fill {
+                    width: 0%;
+                    height: 100%;
+                    border-radius: 3px;
+                    transition: width $duration-slow $ease-smooth;
+                }
+            }
+
+            &.shiny {
+                .progress-track {
+                    background-color: rgba(26, 54, 93, 0.3);
+                    border-color: rgba(66, 153, 225, 0.15);
+                }
+
+                .progress-fill {
+                    background: linear-gradient(90deg, #3182ce 0%, #63b3ed 50%, #ebf8ff 100%);
+                    box-shadow: 0 0 4px rgba(66, 153, 225, 0.4);
+                }
+            }
+
+            &.glowy {
+                .progress-track {
+                    background-color: rgba(74, 37, 75, 0.3);
+                    border-color: rgba(184, 50, 128, 0.15);
+                }
+
+                .progress-fill {
+                    background: linear-gradient(90deg, #b83280 0%, #ec4899 50%, #fbcfe8 100%);
+                    box-shadow: 0 0 4px rgba(236, 72, 153, 0.4);
+                }
+            }
+
+            &.starry {
+                .progress-track {
+                    background-color: rgba(116, 83, 16, 0.3);
+                    border-color: rgba(221, 107, 32, 0.15);
+                }
+
+                .progress-fill {
+                    background: linear-gradient(90deg, #dd6b20 0%, #ecc94b 50%, #fefcbf 100%);
+                    box-shadow: 0 0 4px rgba(236, 201, 75, 0.4);
+                }
+            }
+        }
+    }
+}
+
+.guided-setup-hero-scroll-container {
+    display: flex;
+    flex-direction: row;
+    gap: $spacing-lg;
+    padding: $spacing-2xs 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    @extend %hide-scrollbar;
+}
+
+.guided-setup-hero-group {
+    display: flex;
+    align-items: center;
+    position: relative;
+    background: color-mix(in srgb, $bg-surface-primary 35%, transparent);
+    border: 1px solid color-mix(in srgb, $border-primary 20%, transparent);
+    border-radius: $shape-corner-medium;
+    padding: $spacing-sm $spacing-md;
+    gap: $spacing-lg;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.guided-setup-hero-badge {
+    position: sticky;
+    left: 0;
+    z-index: $z-index-base;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    background: color-mix(in srgb, $bg-surface-secondary 95%, transparent);
+    border: 1px solid color-mix(in srgb, $border-primary 80%, transparent);
+    border-radius: $shape-corner-small;
+    padding: $spacing-xs;
+    flex-shrink: 0;
+    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.25);
+
+    &.max-level {
+        border-color: #d4af37;
+        box-shadow: 4px 0 8px rgba(0, 0, 0, 0.25), 0 0 6px rgba(212, 175, 55, 0.4);
+        background: linear-gradient(135deg, color-mix(in srgb, $bg-surface-secondary 95%, transparent) 0%, rgba(212, 175, 55, 0.08) 100%);
+    }
+
+    .guided-setup-hero-img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+    }
+
+    .guided-setup-hero-name {
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
+        color: $text-secondary;
+        margin-top: $spacing-xs;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 42px;
+    }
+
+    .guided-setup-hero-level {
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-semibold;
+        color: $text-muted;
+        margin-top: $spacing-2xs;
+        text-align: center;
+        white-space: nowrap;
+
+        &.max-level-text {
+            color: #ffd700;
+            font-weight: $font-weight-bold;
+        }
+    }
+}
+
+.guided-setup-hero-equip-list {
+    display: flex;
+    gap: $spacing-md;
+    padding-left: $spacing-xs;
+    flex-grow: 1;
+}
+
+.guided-setup-equip-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+    gap: $spacing-xs;
+
+    &.locked {
+        .equipment-image {
+            filter: grayscale(100%);
+            opacity: 0.45;
+        }
+
+        .equipment-level-box {
+            display: none !important;
+        }
+    }
+
+    .equipment-image-container {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        aspect-ratio: 1 / 1;
+
+        .equipment-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            aspect-ratio: 1 / 1;
+        }
+
+        .equipment-level-box {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background-color: $bg-surface-tertiary;
+            color: $text-primary;
+            padding: 1px 2.5px;
+            font-size: $font-size-3xs;
+            line-height: 1;
+            min-width: 11px;
+            text-align: center;
+            border-radius: $shape-corner-2xs;
+            z-index: $z-index-base;
+            font-weight: $font-weight-bold;
+            border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
+
+            &.max-level {
+                background: linear-gradient(135deg, #ffd700 0%, #d4af37 60%, #aa7c11 100%);
+                color: #111111;
+                border-color: #aa7c11;
+            }
+        }
+    }
+
+    .guided-setup-equip-name {
+        font-size: $font-size-2xs;
+        color: $text-muted;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        font-weight: $font-weight-medium;
+    }
+}

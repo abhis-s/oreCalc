@@ -6,7 +6,6 @@ import { CUSTOM_CHIP_LIMITS } from '../../core/constants.js';
 import { state } from '../../core/state.js';
 
 import { convertOres, findOptimalConversionSchedule, getBaseIncome, getUpgradeRequirements } from '../../domain/income/prospectorManager.js';
-import { safeJsonParse } from '../../utils/jsonUtils.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
 
@@ -67,7 +66,7 @@ export function getNextUpgradeProspectorRecommendations() {
  * Returns the highest priority prospector recommendation.
  * @returns {Object|null}
  */
-export function getNextUpgradeProspectorRecommendation() {
+function getNextUpgradeProspectorRecommendation() {
     const recs = getNextUpgradeProspectorRecommendations();
     if (recs.length === 0) return null;
     const sortedConvs = [...recs].sort((a, b) => b.days - a.days);
@@ -99,7 +98,7 @@ export function updatePerChipRewardsPreview() {
             if (multiplierSelect) {
                 const multiplier = multiplierSelect.value;
                 const baseIncome = getSourceById('starBonus')?.getBaseIncome(state) || { shiny: 0, glowy: 0, starry: 0 };
-                const multValue = parseInt(multiplier.replace('x', ''), 10) || 1;
+                const multValue = Number(multiplier.replace('x', '')) || 1;
                 shiny = baseIncome.shiny * multValue;
                 glowy = baseIncome.glowy * multValue;
                 starry = baseIncome.starry * multValue;
@@ -109,9 +108,9 @@ export function updatePerChipRewardsPreview() {
 
         case 'clanWar': {
             const cwResult = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-clanWar-result'))?.value || 'win';
-            const cwRawShiny = parseInt(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clanWar-shiny'))?.value || '0', 10) || 0;
-            const cwRawGlowy = parseInt(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clanWar-glowy'))?.value || '0', 10) || 0;
-            const cwRawStarry = parseInt(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clanWar-starry'))?.value || '0', 10) || 0;
+            const cwRawShiny = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clanWar-shiny'))?.value) || 0;
+            const cwRawGlowy = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clanWar-glowy'))?.value) || 0;
+            const cwRawStarry = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clanWar-starry'))?.value) || 0;
             const cwFactor = cwResult === 'win' ? 1.0 : (cwResult === 'loss' ? 0.5 : 0.75);
             shiny = Math.round(2 * cwRawShiny * cwFactor);
             glowy = Math.round(2 * cwRawGlowy * cwFactor);
@@ -121,9 +120,9 @@ export function updatePerChipRewardsPreview() {
 
         case 'cwl': {
             const cwlResult = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-cwl-result'))?.value || 'win';
-            const cwlRawShiny = parseInt(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-cwl-shiny'))?.value || '0', 10) || 0;
-            const cwlRawGlowy = parseInt(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-cwl-glowy'))?.value || '0', 10) || 0;
-            const cwlRawStarry = parseInt(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-cwl-starry'))?.value || '0', 10) || 0;
+            const cwlRawShiny = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-cwl-shiny'))?.value) || 0;
+            const cwlRawGlowy = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-cwl-glowy'))?.value) || 0;
+            const cwlRawStarry = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-cwl-starry'))?.value) || 0;
             const cwlFactor = cwlResult === 'win' ? 1.0 : (cwlResult === 'loss' ? 0.5 : 0.75);
             shiny = Math.round(1 * cwlRawShiny * cwlFactor);
             glowy = Math.round(1 * cwlRawGlowy * cwlFactor);
@@ -136,8 +135,8 @@ export function updatePerChipRewardsPreview() {
             const toDropdown = document.getElementById('custom-chip-prospector-to-ore');
             const fromOre = fromDropdown?.dataset.value || 'shiny';
             const toOre = toDropdown?.dataset.value || 'glowy';
-            const fromAmount = parseInt(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-prospector-from-amount'))?.value || '0', 10) || 0;
-            const toAmount = parseInt(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-prospector-to-amount'))?.value || '0', 10) || 0;
+            const fromAmount = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-prospector-from-amount'))?.value) || 0;
+            const toAmount = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-prospector-to-amount'))?.value) || 0;
 
             if (fromOre !== toOre && fromAmount > 0 && toAmount > 0) {
                 const tempOres = { shiny: 0, glowy: 0, starry: 0 };
@@ -192,7 +191,7 @@ export function updatePerChipRewardsPreview() {
 /**
  * Updates min/max limits for prospector inputs.
  */
-export function updateProspectorInputLimits() {
+function updateProspectorInputLimits() {
     const fromOre = prospectorUIState.fromOre;
     const toOre = prospectorUIState.toOre;
 
@@ -206,7 +205,7 @@ export function updateProspectorInputLimits() {
         fromAmountInput.setAttribute('max', String(limit.max));
         fromAmountInput.setAttribute('maxlength', String(limit.maxlength));
 
-        const val = parseInt(fromAmountInput.value, 10) || 0;
+        const val = Number(fromAmountInput.value) || 0;
         if (val > limit.max) {
             fromAmountInput.value = String(limit.max);
             fromAmountInput.dataset.lastValidValue = limit.max.toString();
@@ -220,7 +219,7 @@ export function updateProspectorInputLimits() {
         toAmountInput.setAttribute('max', String(limit.max));
         toAmountInput.setAttribute('maxlength', String(limit.maxlength));
 
-        const val = parseInt(toAmountInput.value, 10) || 0;
+        const val = Number(toAmountInput.value) || 0;
         if (val > limit.max) {
             toAmountInput.value = String(limit.max);
             toAmountInput.dataset.lastValidValue = limit.max.toString();
@@ -294,13 +293,7 @@ export function updateModalProspectorDropdowns() {
 export function prefillModalInputs(type) {
     if (!type) return;
 
-    if (!state.planner.calendar.customChipSettings) {
-        state.planner.calendar.customChipSettings = {};
-    }
-    if (!state.planner.calendar.customChipSettings[type]) {
-        state.planner.calendar.customChipSettings[type] = {};
-    }
-    const settings = state.planner.calendar.customChipSettings[type];
+    const settings = state.planner?.calendar?.customChipSettings?.[type] || {};
 
     const setVal = (id, val) => {
         const el = /** @type {HTMLInputElement|null} */ (document.getElementById(id));
@@ -506,38 +499,6 @@ export function openCreateCustomChipsModal() {
     checkboxes.forEach(cb => {
         /** @type {HTMLInputElement} */ (cb).checked = false;
     });
-
-    const draftStr = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('oreCalc_custom_chip_draft') : null;
-    if (draftStr) {
-        const draft = safeJsonParse(draftStr, null);
-        if (draft && draft.type && typeSelect) {
-            typeSelect.value = draft.type;
-            if (dynamicInputsContainer) dynamicInputsContainer.style.display = 'block';
-            const activeSection = document.getElementById(`custom-chip-section-${draft.type}`);
-            if (activeSection) {
-                activeSection.style.display = 'block';
-            }
-            if (draft.type === 'prospector') {
-                prefillModalInputs('prospector');
-            } else {
-                prefillModalInputs(draft.type);
-            }
-            if (draft.values) {
-                for (const inputId in draft.values) {
-                    const el = document.getElementById(inputId);
-                    if (el) {
-                        if (el instanceof HTMLInputElement && el.type === 'checkbox') {
-                            el.checked = Boolean(draft.values[inputId]);
-                        } else if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement) {
-                            el.value = String(draft.values[inputId]);
-                            el.dataset.lastValidValue = String(draft.values[inputId]);
-                        }
-                    }
-                }
-            }
-            updatePerChipRewardsPreview();
-        }
-    }
 
     openModal(modal);
 }

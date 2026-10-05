@@ -4,8 +4,8 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 
-import { getSupercellEventsForYear } from '../../utils/dateUtils.js';
-import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
+import { getSupercellEventsForYear, isEventPlaceholder, isSupercellEventLive } from '../../domain/income/supercellEventsSchedule.js';
+import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
 import { dom } from '../../dom/domElements.js';
@@ -20,8 +20,6 @@ export function renderSupercellEventsDisplay(supercellEventsIncome, timeframe) {
 
     if (!supercellEventsElements) return;
 
-    const timeframeIncome = supercellEventsIncome[timeframe] || {};
-
     updateCalculatedValue(supercellEventsElements.perEvent?.shiny, supercellEventsIncome.perEvent?.shiny || 0);
     updateCalculatedValue(supercellEventsElements.perEvent?.glowy, supercellEventsIncome.perEvent?.glowy || 0);
     updateCalculatedValue(supercellEventsElements.perEvent?.starry, supercellEventsIncome.perEvent?.starry || 0);
@@ -35,16 +33,16 @@ export function renderSupercellEventsDisplay(supercellEventsIncome, timeframe) {
 
 /**
  * Renders the tournament schedule table into the supercell-events-container element.
+ * @param {Date} [referenceDate] - Optional reference date for time evaluation. Defaults to current date.
  */
-export function renderSupercellEvents() {
+export function renderSupercellEvents(referenceDate = new Date()) {
     const container = document.getElementById('supercell-events-container');
     if (!container) return;
 
-    const now = new Date();
+    const now = referenceDate;
     const currentYear = now.getUTCFullYear();
     const currentLang = state.uiSettings?.language || 'en';
     const events = getSupercellEventsForYear(currentYear, supercellEventsData, currentLang);
-    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
     if (events.length === 0) {
         container.innerHTML = `
@@ -81,11 +79,14 @@ export function renderSupercellEvents() {
     `;
 
     events.forEach(event => {
-        const startDate = new Date(event.start);
-        const endDate = new Date(event.end);
-        const isDimmed = endDate < now;
-        const isCurrentMonth = startDate.getUTCMonth() === now.getUTCMonth() && startDate.getUTCFullYear() === now.getUTCFullYear();
-        const isLive = now >= startDate && now <= endDate;
+        const isPlaceholder = isEventPlaceholder(event);
+        const hasDates = Boolean(event.start && event.end);
+        const startDate = hasDates ? new Date(event.start) : null;
+        const endDate = hasDates ? new Date(event.end) : null;
+        const isValidDates = Boolean(startDate && endDate && !isNaN(startDate.getTime()) && !isNaN(endDate.getTime()));
+        const isDimmed = Boolean(isValidDates && endDate && endDate < now);
+        const isCurrentMonth = Boolean(isValidDates && startDate && startDate.getUTCMonth() === now.getUTCMonth() && startDate.getUTCFullYear() === now.getUTCFullYear());
+        const isLive = isSupercellEventLive(event, now);
 
         let rowClasses = [];
         if (isDimmed) rowClasses.push('dimmed');
@@ -112,15 +113,17 @@ export function renderSupercellEvents() {
         })();
         let eventNameHtml = translatedEventName;
         if (event.name === 'World Finals') {
-            eventNameHtml = `<span class="world-finals-wrapper"><orecalc-assets-image src="assets/crown.png" alt="${translate('alts.crown')}" class="world-finals-crown"></orecalc-assets-image>${translatedEventName}</span>`;
+            eventNameHtml = `<span class="world-finals-wrapper"><orecalc-assets-image src="assets/crown.png" alt="${translate('app.alts.crown')}" class="world-finals-crown"></orecalc-assets-image>${translatedEventName}</span>`;
         }
 
-        let labelHtml = event.label;
-        const diffTime = startDate.getTime() - now.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        let labelHtml = event.label || 'TBD';
+        if (isValidDates && startDate && !isPlaceholder) {
+            const diffTime = startDate.getTime() - now.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays > 0 && diffDays <= 7) {
-            labelHtml = `<span class="countdown-text">${translate('views.income.supercellEvents.inDays', { days: diffDays })}</span> ${event.label}`;
+            if (diffDays > 0 && diffDays <= 7) {
+                labelHtml = `<span class="countdown-text">${translate('views.income.supercellEvents.inDays', { days: diffDays })}</span> ${event.label}`;
+            }
         }
 
         html += `

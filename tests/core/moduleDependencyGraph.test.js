@@ -131,12 +131,10 @@ export const AUTHORIZED_COMPONENT_FACADES = new Set([
     'js/components/appSettings/settingsModals.js',
     'js/components/equipment/equipmentDetailsModal.js',
     'js/components/planner/calendar.js',
-    'js/components/planner/createCustomChipsModal.js',
-    'js/components/planner/incomeChips.js',
     'js/components/planner/priorityListModal.js',
     'js/components/player/playerDropdown.js',
     'js/components/player/playerModal.js',
-    'js/components/welcome/welcomeModal.js'
+    'js/components/guidedSetup/guidedSetupModal.js'
 ]);
 
 /**
@@ -290,6 +288,159 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
         if (violations.length > 0) {
             const formatted = violations.map(v => `  - [INWARD FAÇADE LEAK] ${v.file} imports from parent façade "${v.facade}"`).join('\n');
             assert.fail(`Found ${violations.length} inward façade leak(s):\n${formatted}`);
+        }
+        assert.equal(violations.length, 0);
+    });
+
+    test('Rule 12: pure domain calculation modules in js/domain/ have zero DOM or Tier 3/4 imports', () => {
+        const domainFiles = scanJsFiles('js/domain');
+        assert.ok(domainFiles.length > 0, 'Must find domain modules to test');
+        const violations = [];
+
+        const forbiddenGlobalsRegex = /\b(document|window|HTMLElement|localStorage|sessionStorage|CustomEvent)\b/;
+
+        for (const file of domainFiles) {
+            const relPath = path.relative(projectRoot, file).replace(/\\/g, '/');
+            const rawContent = fs.readFileSync(file, 'utf8');
+            const content = stripComments(rawContent);
+
+            const domMatch = forbiddenGlobalsRegex.exec(content);
+            if (domMatch) {
+                violations.push({
+                    file: relPath,
+                    reason: `Domain module accesses DOM global "${domMatch[0]}" (domain calculations must be 100% pure)`
+                });
+            }
+
+            const importRegex = /(?:from\s*['"]|import\s*\(\s*['"])([^'"]+)['"]/g;
+            let match;
+            const dir = path.dirname(file);
+            while ((match = importRegex.exec(content)) !== null) {
+                const importPath = match[1];
+                if (importPath.startsWith('.')) {
+                    const resolved = path.resolve(dir, importPath);
+                    const resolvedRel = path.relative(projectRoot, resolved).replace(/\\/g, '/');
+                    const isTier1 = resolvedRel.startsWith('js/data/') || resolvedRel === 'js/core/constants.js' || resolvedRel === 'js/core/types.js';
+                    const isTier2 = resolvedRel.startsWith('js/domain/') || resolvedRel.startsWith('js/utils/');
+                    if (!isTier1 && !isTier2) {
+                        violations.push({
+                            file: relPath,
+                            reason: `Domain module imports from higher tier: "${resolvedRel}" (must only import Tier 1 Data or Tier 2 Utils)`
+                        });
+                    }
+                }
+            }
+        }
+
+        if (violations.length > 0) {
+            const formatted = violations.map(v => `  - [DOMAIN PURITY VIOLATION] ${v.file}: ${v.reason}`).join('\n');
+            assert.fail(`Found ${violations.length} domain purity violation(s):\n${formatted}`);
+        }
+        assert.equal(violations.length, 0);
+    });
+
+    test('Rule 12: Tier 1 (data) and Tier 2 (utils) never import Tier 4 (components/ui/apps)', () => {
+        const lowerTierFiles = [
+            ...scanJsFiles('js/data'),
+            ...scanJsFiles('js/utils')
+        ];
+        assert.ok(lowerTierFiles.length > 0, 'Must find lower tier files');
+        const violations = [];
+
+        function isTier4Path(rel) {
+            return rel.startsWith('js/components/') ||
+                rel.startsWith('js/ui/') ||
+                rel.startsWith('js/layout/') ||
+                rel === 'js/app.js' ||
+                rel === 'js/damageApp.js' ||
+                rel === 'js/heroJourneyApp.js' ||
+                rel === 'js/console.js' ||
+                rel === 'js/landingApp.js';
+        }
+
+        for (const file of lowerTierFiles) {
+            const relPath = path.relative(projectRoot, file).replace(/\\/g, '/');
+            const rawContent = fs.readFileSync(file, 'utf8');
+            const content = stripComments(rawContent);
+            const dir = path.dirname(file);
+
+            const importRegex = /(?:from\s*['"]|import\s*\(\s*['"])([^'"]+)['"]/g;
+            let match;
+            while ((match = importRegex.exec(content)) !== null) {
+                const importPath = match[1];
+                if (importPath.startsWith('.')) {
+                    const resolved = path.resolve(dir, importPath);
+                    const resolvedRel = path.relative(projectRoot, resolved).replace(/\\/g, '/');
+                    if (isTier4Path(resolvedRel)) {
+                        violations.push({
+                            file: relPath,
+                            target: resolvedRel,
+                            reason: 'Lower tier module must never import Tier 4 UI components or application controllers'
+                        });
+                    }
+                }
+            }
+        }
+
+        if (violations.length > 0) {
+            const formatted = violations.map(v => `  - [TIER VIOLATION] ${v.file} imports ${v.target} (${v.reason})`).join('\n');
+            assert.fail(`Found ${violations.length} lower-to-higher tier violation(s):\n${formatted}`);
+        }
+        assert.equal(violations.length, 0);
+    });
+
+    test('Rule 13: Display and Renderer modules have zero state mutations and zero interactive event listeners', () => {
+        const allSourceFiles = scanJsFiles('js');
+        const displayAndRendererFiles = allSourceFiles.filter(file => {
+            const name = path.basename(file);
+            return name.endsWith('Display.js') || name.endsWith('Renderer.js');
+        });
+        assert.ok(displayAndRendererFiles.length > 50, 'Must find display and renderer files');
+
+        // Allowlisted composite controllers with presentation-only event triggers:
+        // - navigationDrawerRenderer: manages cross-app navigation links and drawer toggling
+        // - priorityListModalDisplay: manages read-only priority ore popover positioning and dismissal (0 state mutations)
+        const ALLOWED_RENDERER_INTERACTIONS = new Set([
+            'js/components/common/navigationDrawerRenderer.js',
+            'js/components/planner/priorityListModalDisplay.js'
+        ]);
+
+        const violations = [];
+
+        for (const file of displayAndRendererFiles) {
+            const relPath = path.relative(projectRoot, file).replace(/\\/g, '/');
+            const rawContent = fs.readFileSync(file, 'utf8');
+            const content = stripComments(rawContent);
+
+            if (content.includes('handleStateUpdate')) {
+                violations.push({
+                    file: relPath,
+                    reason: 'Display/Renderer module must never execute handleStateUpdate transactions'
+                });
+            }
+
+            const stateMutationRegex = /\bstate(?:\.[a-zA-Z0-9_$]+)+\s*=(?!=)/g;
+            let stateMatch;
+            while ((stateMatch = stateMutationRegex.exec(content)) !== null) {
+                violations.push({
+                    file: relPath,
+                    reason: `Display/Renderer module directly mutates global state: "${stateMatch[0]}"`
+                });
+            }
+
+            if (!ALLOWED_RENDERER_INTERACTIONS.has(relPath)) {
+                if (content.includes('addEventListener')) {
+                    violations.push({
+                        file: relPath,
+                        reason: 'Display/Renderer module must never attach event listeners directly (delegate to *Inputs.js)'
+                    });
+                }
+            }
+        }
+
+        if (violations.length > 0) {
+            const formatted = violations.map(v => `  - [RULE 13 VIOLATION] ${v.file}: ${v.reason}`).join('\n');
+            assert.fail(`Found ${violations.length} Display/Renderer purity violation(s):\n${formatted}`);
         }
         assert.equal(violations.length, 0);
     });

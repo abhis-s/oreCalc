@@ -1,13 +1,10 @@
 import { test, beforeEach, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '../..');
-const enJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/en.json'), 'utf8'));
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 if (typeof globalThis.localStorage === 'undefined') {
     const store = new Map();
@@ -232,7 +229,6 @@ const { state, getDefaultState } = await import('../../js/core/state.js');
 const { dom } = await import('../../js/dom/domElements.js');
 const { recalculateAll } = await import('../../js/core/calculator.js');
 const { renderIncomeCard } = await import('../../js/components/income/incomeCardHandler.js');
-const { renderHomeIncomeTable } = await import('../../js/components/home/homeTableRenderer.js');
 const { renderApp } = await import('../../js/core/renderer.js');
 const { loadTranslations } = await import('../../js/i18n/translator.js');
 

@@ -6,15 +6,15 @@
 .eq-details-niche-banner,
 .eq-details-unreleased-banner.rec-banner-card {
     margin-bottom: 10px;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
 }
 
 .eq-details-props-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
+    gap: $spacing-md;
     padding: 14px;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
     background: color-mix(in srgb, $bg-surface-secondary 50%, transparent);
     border: 1px solid color-mix(in srgb, $border-primary 30%, transparent);
 
@@ -33,7 +33,7 @@
             font-size: 0.95rem;
             color: $text-primary;
             font-weight: 600;
-            margin-top: 2px;
+            margin-top: $spacing-2xs;
         }
     }
 }
@@ -55,13 +55,13 @@
 .eq-details-current-level-box {
     flex: 1 1 0px;
     min-width: 0;
-    padding: 16px;
+    padding: $spacing-lg;
     border-radius: 14px;
     background: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
     border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
 
     .eq-details-stats-progress-list {
-        margin-top: 12px;
+        margin-top: $spacing-md;
     }
 
     .eq-details-level-header {
@@ -99,7 +99,7 @@
         background: color-mix(in srgb, $accent-primary 15%, transparent);
         border: 1px solid color-mix(in srgb, $accent-primary 35%, transparent);
         color: $accent-primary;
-        padding: 5px 12px;
+        padding: 5px $spacing-md;
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 600;
@@ -135,8 +135,8 @@
         flex-wrap: wrap;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        margin-bottom: 12px;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-md;
     }
 
     #eq-details-static-stats-content {
@@ -156,7 +156,7 @@
             .unit-stats-title-group {
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: $spacing-sm;
                 flex-wrap: wrap;
 
                 .unit-title {
@@ -168,7 +168,7 @@
                 .unit-level-badge {
                     font-size: 0.75rem;
                     font-weight: 600;
-                    padding: 3px 8px;
+                    padding: 3px $spacing-sm;
                     border-radius: 6px;
                     background: color-mix(in srgb, $accent-primary 15%, transparent);
                     color: $accent-primary;
@@ -189,14 +189,14 @@
 .eq-details-stats-progress-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: $spacing-md;
     width: 100%;
     min-width: 0;
 
     .stat-progress-row {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: $spacing-xs;
         width: 100%;
         min-width: 0;
 
@@ -204,7 +204,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
+            gap: $spacing-sm;
             font-size: 0.78rem;
             color: $text-primary;
             white-space: nowrap;
@@ -321,7 +321,7 @@
 
 .eq-details-rec-banner {
     margin-top: 14px;
-    padding: 12px 16px;
+    padding: $spacing-md $spacing-lg;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -363,7 +363,7 @@
         background-color: transparent;
         border: 1px solid currentColor;
         color: inherit;
-        padding: 5px 12px;
+        padding: 5px $spacing-md;
         border-radius: 6px;
         cursor: pointer;
         font-size: 0.75rem;

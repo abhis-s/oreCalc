@@ -1,29 +1,29 @@
 <dialog id="terms-modal" class="modal" aria-labelledby="terms-modal-title">
     <div class="modal-content modal-large">
         <div class="modal-header">
-            <h2 id="terms-modal-title" data-i18n="views.settings.termsOfUse"></h2>
+            <h2 id="terms-modal-title" data-i18n="nav.tos"></h2>
             <div class="modal-header-actions">
-                <a href="/terms/" target="_blank" rel="noopener noreferrer" id="terms-open-external-btn" class="modal-header-btn policy-header-btn" aria-label="Open in new tab" title="Open in new tab">
+                <a href="/terms/" target="_blank" rel="noopener noreferrer" id="terms-open-external-btn" class="modal-header-btn policy-header-btn" aria-label="Open in new tab" title="Open in new tab" data-i18n-aria-label="actions.openInNewTab" data-i18n-title="actions.openInNewTab">
                     <orecalc-assets-svg name="open-in-new"></orecalc-assets-svg>
                 </a>
-                <button id="terms-translate-btn" class="modal-header-btn policy-header-btn" aria-label="Translate" title="Translate" style="display: none;">
+                <button type="button" id="terms-translate-btn" class="modal-header-btn policy-header-btn" aria-label="Translate" title="Translate" data-i18n-aria-label="actions.translate" data-i18n-title="actions.translate" hidden>
                     <orecalc-assets-svg name="translate"></orecalc-assets-svg>
                 </button>
-                <button id="terms-theme-toggle-btn" class="modal-header-btn policy-header-btn" aria-label="Toggle Theme">
+                <button type="button" id="terms-theme-toggle-btn" class="modal-header-btn policy-header-btn" aria-label="Toggle Theme" data-i18n-aria-label="actions.toggleTheme">
                     <orecalc-assets-svg name="dark-mode" class="icon-dark"></orecalc-assets-svg>
                 </button>
-                <button id="close-terms-header-btn" class="close-button modal-close-icon" data-i18n-aria-label="actions.close">
+                <button type="button" id="close-terms-header-btn" class="close-button modal-close-icon" data-i18n-aria-label="actions.close">
                     <orecalc-assets-svg name="close"></orecalc-assets-svg>
                 </button>
             </div>
 
         </div>
         <div class="modal-body text-left policy-modal-body">
-            <iframe id="terms-policy-iframe" class="policy-iframe" src="about:blank" loading="lazy" title="Terms of Use"></iframe>
+            <iframe id="terms-policy-iframe" class="policy-iframe" src="about:blank" loading="lazy" title="Terms of Use" data-i18n-title="nav.tos"></iframe>
         </div>
         <div class="modal-actions">
-            <button id="close-terms-modal-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
-            <button id="accept-terms-modal-btn" class="accept-button" style="display: none;" data-i18n="actions.accept"></button>
+            <button type="button" id="close-terms-modal-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
+            <button type="button" id="accept-terms-modal-btn" class="accept-button" hidden data-i18n="actions.accept"></button>
         </div>
     </div>
 </dialog>

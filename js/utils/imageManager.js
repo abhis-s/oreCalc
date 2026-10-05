@@ -39,15 +39,9 @@ function getImage(src, className = '', size = 'standard', alt = '') {
         return `<img src="${pngUrl}" alt="${alt}" class="${className}" loading="lazy" decoding="async" draggable="false">`;
     }
 
-    // Sub-folder assets (equipment, heroes, resources) are resized and get suffixes.
+    // Sub-folder assets (equipment, heroes, guardians, supercharge, etc.) are resized and get suffixes.
     // Top-level assets (like shiny_ore, crown, favicon) keep their original resolutions.
-    const isSubfolderAsset = base.includes('assets/equipment/') ||
-                             base.includes('assets/heroes/') ||
-                             base.includes('assets/resources/') ||
-                             base.includes('assets/skins/') ||
-                             base.includes('assets/magicItems/') ||
-                             base.includes('assets/heroJourney/') ||
-                             base.includes('assets/th/');
+    const isSubfolderAsset = /assets\/[^/]+\//.test(base);
 
     const suffix = isSubfolderAsset ? (size === 'thumbnail' ? '-100' : '-200') : '';
 

@@ -63,8 +63,8 @@
 
     .hero-header-section {
         background-color: $bg-surface-tertiary;
-        border-radius: 8px;
-        padding: 8px 12px;
+        border-radius: $shape-corner-small;
+        padding: $spacing-sm $spacing-md;
         margin-bottom: 10px;
         width: 100%;
         display: flex;
@@ -75,7 +75,7 @@
     .hero-info-and-name {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: $spacing-sm;
         min-width: 0; // Prevent flex item overflow beyond container width for ellipsis
         flex: 1;
     }
@@ -107,7 +107,7 @@
     display: flex;
     justify-content: center;
     margin: 7.5px auto;
-    gap: 8px;
+    gap: $spacing-sm;
 }
 
 .dot {
@@ -132,7 +132,7 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 2px 0;
+    padding: $spacing-2xs 0;
 
     .equipment-info {
         display: flex;
@@ -143,7 +143,7 @@
         img {
             width: 25px;
             height: 25px;
-            margin-right: 8px;
+            margin-right: $spacing-sm;
             object-fit: contain;
             display: inline-block;
         }
@@ -228,6 +228,13 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+
+    .custom-max-level-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+    }
 }
 
 @media (max-width: #{$breakpoint-desktop - 1px}) {
@@ -256,7 +263,7 @@
     align-items: center;
     background-color: $accent-primary-soft;
     border: 1px solid $border-primary;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
     color: $accent-primary;
     cursor: pointer;
     display: flex;
@@ -302,7 +309,7 @@
 
     &::-webkit-scrollbar-thumb {
         background-color: $bg-surface-tertiary;
-        border-radius: 4px;
+        border-radius: $shape-corner-xs;
     }
 }
 
@@ -310,28 +317,35 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px 12px;
+    padding: $spacing-xl $spacing-md;
     color: $text-secondary;
 
-    .button-loader span {
-        width: 8px;
-        height: 8px;
-        background-color: $accent-primary;
+    .button-loader {
+        position: static;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+
+        span {
+            width: 8px;
+            height: 8px;
+            background-color: $accent-primary;
+        }
     }
 }
 
 .priority-list-item {
     display: flex;
     align-items: center;
-    padding: 8px 12px;
-    margin-bottom: 8px;
+    padding: $spacing-sm $spacing-md;
+    margin-bottom: $spacing-sm;
     background-color: $bg-surface-primary;
-    border-radius: 8px;
+    border-radius: $shape-corner-small;
 
     .equipment-info {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: $spacing-md;
 
         .equipment-image-container {
             position: relative;
@@ -351,9 +365,9 @@
                 right: -5px;
                 background-color: $bg-surface-tertiary;
                 color: $text-primary;
-                padding: 1px 4px;
+                padding: 1px $spacing-xs;
                 font-size: 10px;
-                border-radius: 4px;
+                border-radius: $shape-corner-xs;
                 z-index: 1;
                 font-weight: var(--font-weight-bold);
             }
@@ -398,7 +412,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: $spacing-sm;
     padding: 0 1rem;
 
     svg {

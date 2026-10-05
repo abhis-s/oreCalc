@@ -5,7 +5,7 @@ dialog.modal,
     @media (max-width: $breakpoint-modal) {
         .modal-content,
         .eq-details-modal-content,
-        .welcome-modal-content,
+        .guided-setup-modal-content,
         .accent-picker-modal-content,
         .data-erasure-modal-content,
         [class*="modal-content"],
@@ -15,10 +15,12 @@ dialog.modal,
         }
 
         .modal-header {
-            padding: 16px 20px 12px;
-            gap: 8px;
+            padding: $spacing-lg 20px $spacing-md;
+            gap: $spacing-sm;
 
-            h2 {
+            h2,
+            h3,
+            .modal-title {
                 font-size: clamp(1.05rem, 3.5vw, 1.15rem);
             }
 
@@ -56,13 +58,13 @@ dialog.modal,
         }
 
         .modal-body {
-            padding: 12px 20px 20px;
+            padding: $spacing-md 20px 20px;
             font-size: 0.9375rem;
         }
 
         .modal-actions {
-            padding: 12px 20px;
-            gap: 8px;
+            padding: $spacing-md 20px;
+            gap: $spacing-sm;
         }
 
         &.modal-sheet-mobile {
@@ -70,7 +72,7 @@ dialog.modal,
 
             .modal-content,
             .eq-details-modal-content,
-            .welcome-modal-content,
+            .guided-setup-modal-content,
             .accent-picker-modal-content,
             .data-erasure-modal-content,
             [class*="modal-content"],
@@ -98,13 +100,17 @@ dialog.modal,
 #changelog-modal,
 #commits-modal,
 #device-sync-modal,
-#global-pricing-modal {
+#account-data-modal,
+#global-pricing-modal,
+#calc-offense-modal,
+#calc-target-combos-modal,
+#guided-setup-modal {
     @media (max-width: $breakpoint-modal) {
         padding: 0 !important;
 
         .modal-content,
         .eq-details-modal-content,
-        .welcome-modal-content,
+        .guided-setup-modal-content,
         .accent-picker-modal-content,
         .data-erasure-modal-content,
         [class*="modal-content"],

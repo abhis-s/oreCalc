@@ -1,0 +1,367 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-sources-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding: $spacing-md $spacing-lg;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        padding: $spacing-sm $spacing-md;
+    }
+
+    &__modifier-row {
+        width: 100%;
+        min-width: 0;
+
+        .calc-modifier-bar {
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            margin-block-end: 0;
+        }
+    }
+
+    &__divider {
+        width: 100%;
+        height: 0;
+        border-top: 1px solid $border-primary;
+        margin-block: $spacing-sm;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+        margin-block-end: $spacing-2xs;
+    }
+
+    &__title-group {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2xs;
+        min-width: 0;
+        flex: 1;
+    }
+
+    &__title {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    &__hint {
+        font-size: $font-size-2xs;
+        color: $text-muted;
+
+        @media (max-width: $breakpoint-compact) {
+            display: none;
+        }
+    }
+
+    &__edit-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        min-height: 34px;
+        padding-block: $spacing-xs;
+        padding-inline: $spacing-md;
+        border-radius: $shape-corner-small;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        flex-shrink: 0;
+
+        @media (max-width: $breakpoint-micro) {
+            padding-inline: $spacing-xs;
+        }
+    }
+
+    &__header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: $spacing-sm;
+        width: 100%;
+        margin-block-end: $spacing-sm;
+
+        .calc-sources-section__modifier-row {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .calc-sources-section__edit-btn {
+            flex-shrink: 0;
+        }
+    }
+}
+
+.calc-card__header-actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    flex-wrap: wrap;
+}
+
+.calc-damage-sources-grid {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+
+    @media (min-width: $breakpoint-desktop) {
+        gap: $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        gap: $spacing-xs;
+    }
+}
+
+.calc-source-toggle-btn {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: $spacing-2xs;
+    background-color: $bg-surface-tertiary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-small;
+    cursor: pointer;
+    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast, opacity $transition-fast;
+    flex-shrink: 0;
+
+    @media (max-width: $breakpoint-micro) {
+        width: 38px;
+        height: 38px;
+    }
+
+    &:hover {
+        border-color: $border-accent;
+        transform: translateY(-1px);
+    }
+
+    &.is-active {
+        border-color: $accent-primary;
+        background-color: $accent-primary-soft;
+        box-shadow: 0 0 0 1px $accent-primary;
+
+        .calc-source-toggle-btn__lvl {
+            background-color: $accent-primary;
+            color: $text-on-accent;
+        }
+    }
+
+    &.is-inactive {
+        opacity: 0.45;
+        filter: grayscale(85%);
+
+        &:hover {
+            opacity: 0.75;
+            filter: grayscale(30%);
+        }
+
+        .calc-source-toggle-btn__lvl {
+            background-color: $bg-surface-primary;
+            color: $text-muted;
+        }
+    }
+
+    &.is-downgraded {
+        border-color: $color-warning;
+    }
+
+    &__icon {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+
+        @media (max-width: $breakpoint-micro) {
+            width: 28px;
+            height: 28px;
+        }
+    }
+
+    &__lvl {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        padding-block: 1px;
+        padding-inline: $spacing-xs;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
+        border-radius: $shape-corner-full;
+        border: 1px solid $border-primary;
+        line-height: 1;
+        box-shadow: $elevation-1;
+
+        &--downgraded {
+            background-color: $color-warning;
+            color: $text-inverse;
+            border-color: $color-warning;
+        }
+    }
+}
+
+.calc-sources-divider {
+    width: 0;
+    height: 32px;
+    border-left: 1px solid $border-primary;
+    margin-inline: $spacing-2xs;
+    align-self: center;
+    flex-shrink: 0;
+
+    @media (max-width: $breakpoint-micro) {
+        height: 28px;
+        margin-inline: 1px;
+    }
+}
+
+.calc-sources-cc-group {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+
+    @media (max-width: $breakpoint-micro) {
+        gap: $spacing-xs;
+    }
+}
+
+.calc-th-preset-group--sources {
+    @media (max-width: $breakpoint-phone) {
+        grid-area: auto;
+    }
+}
+
+.calc-source-cc-pill {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: $spacing-2xs;
+    background-color: $bg-surface-secondary;
+    border: 1px dashed $border-accent;
+    border-radius: $shape-corner-small;
+    cursor: pointer;
+    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast;
+    flex-shrink: 0;
+
+    @media (max-width: $breakpoint-micro) {
+        width: 38px;
+        height: 38px;
+    }
+
+    &:hover {
+        border-style: solid;
+        border-color: $accent-primary;
+        background-color: $accent-primary-soft;
+        transform: translateY(-1px);
+    }
+
+    &.is-inactive {
+        opacity: 0.45;
+        filter: grayscale(85%);
+
+        &:hover {
+            opacity: 0.75;
+            filter: grayscale(30%);
+        }
+    }
+}
+
+.calc-source-cc-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    padding-block: 1px;
+    padding-inline: $spacing-xs;
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-bold;
+    line-height: 1;
+    border-radius: $shape-corner-xs;
+    border: 1px solid $accent-primary;
+    background-color: $accent-primary;
+    color: $text-on-accent;
+    box-shadow: $elevation-1;
+}
+
+.calc-modifier-bar {
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-medium;
+    padding: $spacing-sm $spacing-md;
+    margin-block-end: $spacing-lg;
+    box-shadow: $elevation-1;
+    max-width: 100%;
+    overflow: hidden;
+
+    &__inner {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: $spacing-md;
+        max-width: 100%;
+        min-width: 0;
+
+        &.is-stacked {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: $spacing-sm;
+
+            .calc-modifier-bar__tabs-container {
+                width: 100%;
+            }
+        }
+    }
+
+    &__label-group {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        flex-shrink: 0;
+    }
+
+    &__label,
+    &__mod-label {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $text-secondary;
+        flex-shrink: 0;
+    }
+
+    &__tabs-container {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        min-width: 0;
+        flex: 1;
+    }
+}
+
+.calc-modifier-tabs {
+    margin: 0;
+    max-width: 100%;
+}

@@ -1,10 +1,19 @@
-    <dialog id="navigation-drawer" class="navigation-drawer" aria-label="Navigation drawer">
+    <dialog id="navigation-drawer" class="navigation-drawer" aria-label="Navigation drawer" data-i18n-aria-label="nav.drawerTitle">
+        <div class="navigation-drawer__header">
+            <div class="navigation-drawer__brand">
+                <h2 class="navigation-drawer__app-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h2>
+                <span class="navigation-drawer__subtitle" data-drawer-subtitle></span>
+            </div>
+            <button type="button" class="navigation-drawer__close" aria-label="Close navigation drawer" data-i18n-aria-label="actions.close">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
         <div class="navigation-drawer__content">
-            <div class="navigation-drawer__header">
-                <h2 class="navigation-drawer__app-title">OreCalc</h2>
-                <button class="navigation-drawer__close" aria-label="Close navigation drawer">
-                    <orecalc-assets-svg name="close"></orecalc-assets-svg>
-                </button>
+            <div class="navigation-drawer__dock">
+                <!-- DYNAMIC INSERTION: Drawer tool dock segments -->
+            </div>
+            <div class="navigation-drawer__context-card">
+                <!-- DYNAMIC INSERTION: Drawer active tool context card -->
             </div>
             <div class="navigation-drawer__tabs">
                 <!-- DYNAMIC INSERTION: Drawer tab items -->
@@ -15,11 +24,18 @@
                 <!-- DYNAMIC INSERTION: Secondary drawer action links -->
             </div>
             <div class="navigation-drawer__footer-links">
-                <a href="/privacy/" class="navigation-drawer__footer-link" data-i18n="nav.privacy"></a>
-                <span class="navigation-drawer__footer-sep" aria-hidden="true"></span>
-                <a href="/terms/" class="navigation-drawer__footer-link" data-i18n="nav.tos"></a>
+                <div class="navigation-drawer__footer-row">
+                    <a href="/privacy/" class="navigation-drawer__footer-link" data-i18n="nav.privacy">Privacy Policy</a>
+                    <span class="navigation-drawer__footer-sep" aria-hidden="true">&middot;</span>
+                    <a href="/terms/" class="navigation-drawer__footer-link" data-i18n="nav.tos">Terms of Use</a>
+                </div>
+                <div class="navigation-drawer__footer-row">
+                    <a href="/licenses/" class="navigation-drawer__footer-link" data-i18n="nav.licenses">Licenses</a>
+                    <span class="navigation-drawer__footer-sep" aria-hidden="true">&middot;</span>
+                    <a href="/about/" class="navigation-drawer__footer-link" data-modal-target="running-costs-modal" data-i18n="views.settings.projectCosts.title">Project Costs</a>
+                </div>
             </div>
             <div class="navigation-drawer__app-version">v2.0.0</div>
-            <div class="navigation-drawer__copyright">&copy; 2025-2026 OreCalc. All rights reserved.</div>
+            <div class="navigation-drawer__copyright">&copy; 2025-2026 ClashCalc (formerly OreCalc).<br class="navigation-drawer__copyright-break"> <span data-i18n="app.allRightsReserved">All rights reserved.</span></div>
         </div>
     </dialog>

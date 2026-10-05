@@ -3,6 +3,8 @@
  * Centralized singleton provider for #card-help-popover tooltips across the application.
  */
 
+import { translate } from '../i18n/translator.js';
+
 let helpPopover = null;
 let activeTargetElem = null;
 let isDismissBound = false;
@@ -17,7 +19,7 @@ function bindOutsideDismissListener() {
         if (helpPopover.contains(target)) return;
         if (activeTargetElem) {
             if (activeTargetElem === target || activeTargetElem.contains(target)) return;
-            const closestTarget = target.closest('.hero-journey-node-chip, [data-info], .info-btn, .info-button, .eq-badge, .hero-journey-upcoming-badge, .priority-item-ores');
+            const closestTarget = target.closest('.hero-journey-node-chip, [data-info], .info-btn, .info-button, .eq-badge, .hero-journey-upcoming-badge, .priority-item-ores, .calc-info-btn, [data-calc-info], [data-action-info], [data-note-code], .calc-combo-defense-card__info-btn, [data-cluster-target-info], [data-casualty-info-btn], [data-source-info], [data-combo-badge], [data-shared-combo-info]');
             if (closestTarget && (closestTarget === activeTargetElem || activeTargetElem.contains(closestTarget))) return;
         }
         hideCardHelpPopover();
@@ -65,6 +67,16 @@ function getOrCreateHelpPopover() {
         }
     }
     bindOutsideDismissListener();
+    if (helpPopover && !helpPopover.dataset?.hasLeaveListener && typeof helpPopover.addEventListener === 'function') {
+        if (helpPopover.dataset) {
+            helpPopover.dataset.hasLeaveListener = 'true';
+        }
+        helpPopover.addEventListener('pointerleave', (event) => {
+            const related = /** @type {Node | null} */ (event.relatedTarget);
+            if (activeTargetElem && related && activeTargetElem.contains(related)) return;
+            hideCardHelpPopover();
+        });
+    }
     return helpPopover;
 }
 
@@ -74,6 +86,9 @@ function getOrCreateHelpPopover() {
 export function hideCardHelpPopover() {
     if (activeTargetElem) {
         activeTargetElem.removeAttribute('aria-describedby');
+    }
+    if (!helpPopover && typeof document !== 'undefined') {
+        helpPopover = document.getElementById('card-help-popover');
     }
     if (helpPopover) {
         helpPopover.classList.remove('show');
@@ -183,4 +198,20 @@ export function showCardHelpPopover(targetElem, content, { isToggle = false } = 
 
     positionPopover();
     setTimeout(positionPopover, 0);
+}
+
+/**
+ * Resolves localized Add Player help HTML, appending the Guided Setup paragraph
+ * only when the Guided Setup action is present and visible in the active modal.
+ * @returns {string}
+ */
+export function getAddPlayerHelpContent() {
+    const p1 = translate('player.addPlayerHelp');
+    if (typeof document === 'undefined') return p1;
+    const guidedBtn = document.getElementById('add-player-guided-setup-btn');
+    const isVisible = guidedBtn && guidedBtn.style.display !== 'none' && !guidedBtn.hidden && guidedBtn.getAttribute('aria-hidden') !== 'true';
+    if (isVisible) {
+        return `${p1}${translate('player.addPlayerHelpGuided')}`;
+    }
+    return p1;
 }

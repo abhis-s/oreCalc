@@ -51,7 +51,7 @@
     align-items: center;
     background-color: $bg-surface-primary;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: $shape-corner-small;
     margin: 5px 0;
     box-shadow: $elevation-2;
     border: 1.5px solid $border-primary;
@@ -146,8 +146,8 @@
         font-size: 11px;
         color: $text-secondary;
         cursor: pointer;
-        padding: 3px 8px;
-        border-radius: 12px;
+        padding: 3px $spacing-sm;
+        border-radius: $shape-corner-medium;
         background-color: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
         border: 1px solid color-mix(in srgb, $border-primary 70%, transparent);
         transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth, box-shadow $duration-fast $ease-smooth;
@@ -176,7 +176,7 @@
         span {
             display: flex;
             align-items: center;
-            gap: 2px;
+            gap: $spacing-2xs;
         }
 
         .ore-icon-small {
@@ -202,7 +202,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 4px;
+        padding: $spacing-xs;
 
         &:hover {
             color: $color-danger;
@@ -234,7 +234,7 @@
     .priority-list-editor-item .item-details {
         flex-direction: column;
         align-items: flex-start;
-        gap: 4px;
+        gap: $spacing-xs;
         margin-right: 0;
     }
 

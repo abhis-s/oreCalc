@@ -18,7 +18,7 @@ workbox.core.setCacheNameDetails({
 
 const { PrecacheController, cleanupOutdatedCaches } = workbox.precaching;
 const { registerRoute }                              = workbox.routing;
-const { NetworkFirst, StaleWhileRevalidate, CacheFirst } = workbox.strategies;
+const { NetworkFirst, CacheFirst }                    = workbox.strategies;
 const { CacheableResponsePlugin }                    = workbox.cacheableResponse;
 const { ExpirationPlugin }                           = workbox.expiration;
 
@@ -107,14 +107,17 @@ self.addEventListener('message', event => {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Bypass Service Worker completely for standalone pages (Hero Journey, Legal/Policy, and Error pages)
+    // Bypass Service Worker completely for standalone pages (Hero Journey, Damage Calculator, Legal/Policy, and Error pages)
     if (
         url.pathname.includes('/hero-journey') ||
         url.pathname.includes('heroJourneyApp') ||
+        url.pathname.includes('/damage-calculator') ||
+        url.pathname.includes('damageApp') ||
         url.pathname.includes('/privacy') ||
         url.pathname.includes('/terms') ||
         url.pathname.includes('/licenses') ||
         url.pathname.includes('/legal') ||
+        url.pathname.includes('/assets/spells/') ||
         url.pathname.includes('/404')
     ) {
         return;
@@ -149,6 +152,7 @@ registerRoute(
     ({ request, url }) => request.mode === 'navigate' &&
         !url.pathname.includes('/api/') &&
         !url.pathname.includes('/hero-journey') &&
+        !url.pathname.includes('/damage-calculator') &&
         !url.pathname.includes('/privacy') &&
         !url.pathname.includes('/terms') &&
         !url.pathname.includes('/licenses') &&
@@ -205,5 +209,23 @@ registerRoute(
                 maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
             }),
         ],
+    })
+);
+
+// Runtime cache for dynamic game assets (equipment, town halls, heroes, buildings, resources)
+registerRoute(
+    ({ request, url }) => (request.destination === 'image' ||
+        (url.origin === self.location.origin && url.pathname.startsWith('/assets/'))) &&
+        !url.pathname.includes('/assets/spells/'),
+    new CacheFirst({
+        cacheName: 'orecalc-assets-cache',
+        plugins: [
+            new CacheableResponsePlugin({ statuses: [0, 200] }),
+            new ExpirationPlugin({
+                maxEntries: 250,
+                maxAgeSeconds: 60 * 24 * 60 * 60, // 60 Days
+                purgeOnQuotaError: true
+            })
+        ]
     })
 );

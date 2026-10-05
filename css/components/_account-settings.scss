@@ -1,0 +1,585 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+#account-card {
+    scroll-margin-top: calc(96px + env(safe-area-inset-top, 0px));
+
+    @media (max-width: #{$breakpoint-desktop - 1px}) {
+        scroll-margin-top: calc(84px + env(safe-area-inset-top, 0px));
+    }
+}
+
+.account-state-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}
+
+#account-guest-section {
+    .form-setting-text {
+        font-size: $font-size-xs;
+        line-height: 1.35;
+    }
+}
+
+.guest-only-item {
+    &.is-hidden {
+        display: none !important;
+    }
+}
+
+.account-user-profile-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm $spacing-md;
+    padding: $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+
+    .account-user-profile-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: $spacing-xs;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .account-user-profile-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: $shape-corner-full;
+        border: 1px solid $border-secondary;
+        background-color: $bg-surface-tertiary;
+        padding: 0;
+        cursor: pointer;
+        flex-shrink: 0;
+        overflow: hidden;
+        transition: transform $transition-fast, box-shadow $transition-fast, border-color $transition-fast;
+
+        &:hover {
+            transform: scale(1.06);
+            border-color: $border-card-hover;
+        }
+
+        &:focus-visible {
+            outline: 2px solid $outline-focus;
+            outline-offset: 2px;
+        }
+
+        orecalc-assets-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+    }
+
+    .account-user-profile-details {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2xs;
+        flex: 1 1 max-content;
+        min-width: 0;
+    }
+
+    .account-user-profile-name {
+        font-size: $font-size-md;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .account-user-profile-status {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+    }
+}
+
+.header-account-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    padding: 0;
+    margin: 0;
+    border-radius: $shape-corner-full;
+    border: 1px solid $border-secondary;
+    background-color: $bg-surface-tertiary;
+    color: $text-secondary;
+    overflow: hidden;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast, color $transition-fast;
+
+    &:hover:not(:disabled) {
+        transform: scale(1.05);
+        border-color: $border-card-hover;
+        color: $text-primary;
+        background-color: $bg-surface-secondary;
+    }
+
+    &.is-open {
+        border-color: $accent-primary;
+        color: $accent-primary;
+    }
+
+    .header-account-icon-wrapper,
+    .animated-btn-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+
+        orecalc-assets-svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    .header-account-avatar-img {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .animated-btn-text {
+        display: none !important;
+    }
+
+    &.is-authenticated {
+        .header-account-icon-wrapper,
+        .animated-btn-icon-wrapper {
+            display: none !important;
+        }
+    }
+}
+
+.avatar-options-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-md;
+    padding: $spacing-md 0;
+    justify-items: center;
+}
+
+.avatar-option-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: $shape-corner-full;
+    border: 2px solid $border-secondary;
+    background-color: $bg-surface-tertiary;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform $transition-fast, box-shadow $transition-fast, border-color $transition-fast;
+
+    orecalc-assets-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &:hover {
+        transform: scale(1.08);
+        border-color: $border-card-hover;
+    }
+
+    &.is-selected {
+        border-color: $outline-focus;
+        box-shadow: 0 0 0 2px $outline-focus;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $outline-focus;
+        outline-offset: 2px;
+    }
+}
+
+.account-backup-actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    width: 100%;
+
+    .animated-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+.guest-only-tier,
+.auth-only-tier {
+    &.is-hidden {
+        display: none !important;
+    }
+}
+
+.account-data-modal-content,
+.account-management-modal-content {
+    max-width: $modal-width-standard;
+
+    .sync-account-callout {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+        padding: $spacing-md;
+        margin-bottom: $spacing-md;
+        border-radius: $card-radius;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+
+        &.is-hidden {
+            display: none !important;
+        }
+
+        .sync-account-callout-content {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            font-size: $font-size-sm;
+            color: $text-secondary;
+            line-height: 1.4;
+
+            .sync-account-icon {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+                fill: $accent-primary;
+            }
+        }
+
+        #modal-guest-signin-btn {
+            margin: 0;
+            min-height: 0;
+            height: 34px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: $breakpoint-compact) {
+            flex-direction: column;
+            align-items: stretch;
+
+            #modal-guest-signin-btn {
+                width: 100%;
+            }
+        }
+    }
+
+    .account-lifecycle-options {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+    }
+
+    .lifecycle-tier-item {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+        padding: $spacing-md;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-medium;
+
+        .lifecycle-tier-info {
+            strong {
+                font-size: $font-size-sm;
+                color: $text-primary;
+            }
+
+            p {
+                margin-top: $spacing-xs;
+                font-size: $font-size-xs;
+                color: $text-secondary;
+                line-height: 1.35;
+            }
+        }
+
+        &.lifecycle-danger-zone {
+            border-color: color-mix(in srgb, $color-danger 30%, transparent);
+            background-color: color-mix(in srgb, $color-danger 5%, transparent);
+        }
+    }
+}
+
+.app-account-popover {
+    gap: $spacing-sm;
+
+    .animated-btn {
+        width: auto;
+        min-width: auto;
+        height: 32px;
+        min-height: 32px;
+        padding: 0 $spacing-md;
+        border-radius: $shape-corner-full;
+
+        .animated-btn-text {
+            display: inline-block !important;
+            opacity: 1;
+            transform: none;
+        }
+
+        .animated-btn-icon-wrapper {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(100%);
+        }
+
+        &:hover:not(:disabled) {
+            .animated-btn-text {
+                opacity: 0;
+                transform: translateY(-100%);
+            }
+
+            .animated-btn-icon-wrapper {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    }
+
+    .account-popover-section {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+
+        &.is-hidden {
+            display: none !important;
+        }
+    }
+
+    .account-popover-subactions {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+        padding: $spacing-md;
+        background-color: color-mix(in srgb, $bg-surface-primary 40%, transparent);
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-medium;
+
+        .account-popover-item {
+            background-color: transparent;
+            border: none;
+            padding: $spacing-2xs 0;
+            border-radius: 0;
+
+            &:not(:last-child) {
+                padding-bottom: $spacing-md;
+                border-bottom: 1px solid $border-secondary;
+            }
+        }
+    }
+
+    .account-popover-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-sm;
+        padding: $spacing-sm $spacing-md;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-medium;
+
+        .field-descriptor-group {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-2xs;
+            flex: 1;
+            min-width: 0;
+
+            .settings-item-label {
+                font-size: $font-size-xs;
+                font-weight: $font-weight-bold;
+                color: $text-primary;
+            }
+
+            .form-setting-text {
+                font-size: 11px;
+                color: $text-secondary;
+                margin: 0;
+                line-height: 1.3;
+            }
+        }
+
+        .task-btn {
+            height: 32px;
+            min-height: 32px;
+            padding: 0 $spacing-md;
+            border-radius: $shape-corner-full;
+            flex-shrink: 0;
+            font-size: $font-size-xs;
+        }
+    }
+
+    .account-popover-guest-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-sm;
+        padding: $spacing-md;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-medium;
+
+        .account-popover-guest-content {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .account-popover-guest-icon-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: $shape-corner-full;
+            background-color: color-mix(in srgb, $accent-primary 15%, transparent);
+            flex-shrink: 0;
+
+            .account-popover-guest-icon {
+                width: 18px;
+                height: 18px;
+                fill: $accent-primary;
+            }
+        }
+
+        .account-popover-guest-details {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-2xs;
+            min-width: 0;
+
+            .account-popover-guest-title {
+                font-size: $font-size-sm;
+                font-weight: $font-weight-bold;
+                color: $text-primary;
+            }
+
+            .form-setting-text {
+                font-size: 11px;
+                color: $text-secondary;
+                margin: 0;
+                line-height: 1.3;
+            }
+        }
+
+        .task-btn {
+            height: 32px;
+            min-height: 32px;
+            padding: 0 $spacing-md;
+            border-radius: $shape-corner-full;
+            flex-shrink: 0;
+            font-size: $font-size-xs;
+        }
+    }
+
+    .account-popover-divider {
+        margin: 0;
+        border: 0;
+        border-top: 1px solid $border-secondary;
+    }
+
+    .account-popover-preferences {
+        display: flex;
+        flex-direction: column;
+
+        .account-popover-prefs-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 32px;
+            padding: $spacing-xs $spacing-sm;
+            box-sizing: border-box;
+            cursor: pointer;
+            user-select: none;
+            list-style: none;
+            border-radius: $shape-corner-small;
+            transition: background-color $transition-fast;
+
+            &::-webkit-details-marker {
+                display: none;
+            }
+
+            &:hover {
+                background-color: $bg-surface-secondary;
+            }
+
+            &:focus-visible {
+                outline: 2px solid $outline-focus;
+                outline-offset: 1px;
+            }
+
+            .account-popover-prefs-title {
+                display: flex;
+                align-items: center;
+                gap: $spacing-sm;
+                font-size: $font-size-xs;
+                font-weight: $font-weight-bold;
+                color: $text-primary;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+
+                .pref-label-icon {
+                    fill: currentColor;
+                }
+            }
+
+            .account-popover-prefs-chevron {
+                transition: transform $transition-fast;
+                fill: $text-secondary;
+            }
+        }
+
+        &[open] {
+            .account-popover-prefs-summary {
+                .account-popover-prefs-chevron {
+                    transform: rotate(180deg);
+                }
+            }
+        }
+    }
+}

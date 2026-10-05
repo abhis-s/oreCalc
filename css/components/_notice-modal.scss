@@ -1,0 +1,175 @@
+@use '../abstracts/variables' as *;
+
+// Notice & confirmation modal dialog presentation
+dialog#notice-modal,
+#notice-modal {
+    border: none;
+    padding: $spacing-md;
+    background: transparent;
+    color: inherit;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    margin: auto;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    z-index: $z-index-semi-high-priority-modal;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity $duration-base $ease-enter,
+                visibility $duration-base $ease-enter,
+                display $duration-base allow-discrete,
+                overlay $duration-base allow-discrete;
+
+    &[open],
+    &.show {
+        display: flex;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+
+        .modal-content {
+            transform: translate3d(0, 0, 0) scale(1);
+            opacity: 1;
+        }
+
+        @starting-style {
+            opacity: 0;
+
+            .modal-content {
+                transform: translate3d(0, 30px, 0) scale(0.96);
+                opacity: 0;
+            }
+        }
+    }
+
+    &::backdrop {
+        background-color: $bg-overlay;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        opacity: 0;
+        transition: opacity $duration-base $ease-smooth,
+                    backdrop-filter $duration-base $ease-smooth,
+                    -webkit-backdrop-filter $duration-base $ease-smooth,
+                    display $duration-base allow-discrete,
+                    overlay $duration-base allow-discrete;
+    }
+
+    &[open]::backdrop {
+        opacity: 1;
+
+        @starting-style {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+    }
+
+    .modal-content {
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: $modal-radius-standard;
+        box-shadow: 0 6px 10px $palette-overlay-dark-10, 0 20px 30px $palette-overlay-dark-10;
+        width: 100%;
+        max-width: min(#{$modal-width-compact}, 92vw);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transform: translate3d(0, 30px, 0) scale(0.96);
+        opacity: 0;
+        transition: transform $duration-base $ease-enter, opacity $duration-base $ease-smooth;
+    }
+
+    .modal-header {
+        padding: $spacing-xl $spacing-xl $spacing-sm;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-bottom: none;
+        flex-shrink: 0;
+        text-align: center;
+
+        h2 {
+            font-size: clamp(1.1rem, 2.5vw, 1.25rem);
+            font-weight: 600;
+            color: $text-primary;
+            margin: 0;
+            line-height: 1.3;
+            text-align: center;
+        }
+    }
+
+    .modal-body {
+        padding: $spacing-sm $spacing-xl $spacing-lg;
+        color: $text-primary;
+        line-height: 1.5;
+        font-size: 1rem;
+        text-align: center;
+        overflow-y: auto;
+        min-height: 0;
+        flex: 1;
+
+        .notice-modal-message {
+            text-align: center;
+
+            p {
+                margin: 0 0 10px 0;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        code {
+            font-family: 'Roboto Mono', monospace;
+            background-color: rgba($palette-grey-500, 0.12);
+            border: 1px solid rgba($palette-grey-500, 0.24);
+            padding: $spacing-2xs $spacing-xs;
+            border-radius: $shape-corner-xs;
+            word-break: break-all;
+        }
+
+        .external-link-display {
+            display: inline-block;
+            color: $accent-primary;
+            background-color: rgba($accent-primary-soft, 0.1);
+            border: 1px dashed rgba($accent-primary, 0.35);
+            padding: $spacing-sm 14px;
+            border-radius: 6px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85em;
+            font-weight: var(--font-weight-medium);
+            word-break: break-all;
+            margin: $spacing-md 0;
+            max-width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            user-select: all;
+        }
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: $spacing-sm $spacing-xl $spacing-xl;
+        gap: $spacing-md;
+        background-color: transparent;
+        border-top: none;
+        flex-shrink: 0;
+
+        button {
+            min-width: 96px;
+        }
+    }
+}

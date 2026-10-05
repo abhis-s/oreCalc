@@ -1,0 +1,180 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+#calc-offense-modal {
+    .calc-offense-modal-content {
+        max-width: $modal-width-expanded;
+        width: 100%;
+        height: $modal-max-height-fallback;
+        height: $modal-max-height;
+        box-sizing: border-box;
+    }
+
+    .calc-offense-modal-body {
+        padding: 0 $spacing-lg $spacing-lg;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+
+        @media (max-width: $breakpoint-modal) {
+            padding: 0 $spacing-sm $spacing-sm;
+        }
+    }
+
+    .calc-offense-modal-sticky-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: $bg-surface-secondary;
+        padding-top: $spacing-lg;
+        padding-bottom: $spacing-xs;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+
+        @media (max-width: $breakpoint-modal) {
+            padding-top: $spacing-sm;
+            padding-bottom: $spacing-2xs;
+            gap: $spacing-xs;
+        }
+    }
+
+    .calc-building-sticky-controls {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+
+        .calc-building-toolbar,
+        .calc-building-search-wrap {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: $breakpoint-modal) {
+            gap: $spacing-xs;
+        }
+    }
+
+    .calc-offense-groups {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-lg;
+        padding-top: $spacing-sm;
+
+        @media (max-width: $breakpoint-modal) {
+            gap: $spacing-sm;
+            padding-top: $spacing-xs;
+        }
+    }
+}
+
+.calc-offense-modal-esports-notice {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-sm;
+    background-color: $color-warning-soft;
+    border: 1px solid $color-warning;
+    border-radius: $shape-corner-small;
+    font-size: $font-size-xs;
+    color: $color-warning;
+    line-height: 1.4;
+
+    orecalc-assets-svg {
+        flex-shrink: 0;
+        color: $color-warning;
+    }
+}
+
+.calc-offense-modal-sync-notice {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-sm;
+    background-color: $color-info-soft;
+    border: 1px solid $color-info;
+    border-radius: $shape-corner-small;
+    font-size: $font-size-xs;
+    color: $color-info;
+    line-height: 1.4;
+
+    orecalc-assets-svg {
+        flex-shrink: 0;
+        color: $color-info;
+    }
+}
+
+.calc-offense-modal-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    &__title {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: $text-muted;
+        margin: 0;
+    }
+}
+
+.calc-offense-modal-row {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    padding: $spacing-sm;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-small;
+    min-width: 0;
+    box-sizing: border-box;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-xs;
+        font-size: $font-size-xs;
+        flex-wrap: wrap;
+    }
+
+    &__identity {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        min-width: 0;
+    }
+
+    &__thumb {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: $shape-corner-xs;
+        }
+    }
+
+    &__name {
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    &__value {
+        font-weight: $font-weight-semibold;
+        color: $text-secondary;
+    }
+
+    &__controls {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        min-width: 0;
+    }
+}

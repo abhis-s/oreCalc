@@ -2,15 +2,15 @@ import { currencyData } from '../data/pricingData.js';
 import { loadTranslations } from '../i18n/translator.js';
 import { updateUIWithTranslations } from '../i18n/uiTranslator.js';
 
-import { isInterruptionRestricted, triggerPendingModals } from './appEventInterceptors.js';
+import { triggerPendingModals } from './appEventInterceptors.js';
 import { recalculateAll } from './calculator.js';
 import { renderApp } from './renderer.js';
-import { EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_TERMS, state } from './state.js';
+import { state } from './state.js';
 import { applyThemeSettings } from './themeManager.js';
 
 import { autoPlaceIncomeChipsForRange } from '../utils/autoPlaceChips.js';
 import { checkAndGenerateRecurringChips } from '../utils/chipManager.js';
-import { getMaxDate, getMinDate } from '../utils/dateUtils.js';
+import { getMaxDate, getMinDate, setDefaultDateLocale } from '../utils/dateUtils.js';
 import { validateAllInputs, validateAllSelects } from '../utils/inputValidator.js';
 import { logger } from '../utils/logger.js';
 import { initializeModalHistoryManager } from '../utils/modalHistoryManager.js';
@@ -37,6 +37,7 @@ import { initializeShopOffers } from '../components/income/shopOffersInputs.js';
 import { initializeStarBonusSelector } from '../components/income/starBonusInputs.js';
 import { initializeSupercellEventsInputs } from '../components/income/supercellEventsInputs.js';
 import { initDomainNotice } from '../components/common/domainNotice.js';
+import { initAppFooter } from '../components/common/appFooter.js';
 import { initializeHeader } from '../components/layout/header.js';
 import { initializeNavGlideController } from '../components/layout/navGlideController.js';
 import { initializeNavigation } from '../components/layout/navigation.js';
@@ -44,13 +45,15 @@ import { initializePullToRefresh } from '../components/layout/pullToRefresh.js';
 import { initializeTabs } from '../components/layout/tabs.js';
 import { initializePlanner } from '../components/planner/planner.js';
 import { initializePriorityListModal } from '../components/planner/priorityListModal.js';
-import { initializePlayerDropdown } from '../components/player/playerDropdown.js';
+import { initializePlayerDropdown, updateRefreshButtonVisibility } from '../components/player/playerDropdown.js';
 import { initializePlayerModal, showAddPlayerModal } from '../components/player/playerModal.js';
-import { initializeWelcomeModal } from '../components/welcome/welcomeModal.js';
+import { initializeGuidedSetupModal } from '../components/guidedSetup/guidedSetupModal.js';
 import { dom } from '../dom/domElements.js';
-import { checkLegalConsent } from '../services/consentManager.js';
 import { initializeGlobalHaptics } from '../services/hapticService.js';
+import { initializeCloudSaveButtons } from '../services/cloudSaveService.js';
+import { loadAndProcessPlayerData } from '../services/serverResponseHandler.js';
 import { applyCardLayout, initCardLayoutManager } from '../ui/cardLayoutManager.js';
+import { showApiErrorToast } from '../ui/toast.js';
 
 /**
  * Detects currency from browser navigator languages if not explicitly configured.
@@ -102,6 +105,7 @@ export async function bootstrapUIComponents(initialLang) {
         console.error('Failed loading initial translations:', e);
     }
     state.uiSettings.language = initialLang;
+    setDefaultDateLocale(initialLang);
 
     autoDetectCurrency();
 
@@ -145,7 +149,7 @@ export async function bootstrapUIComponents(initialLang) {
     initializeHeroCards(state.heroes, state.uiSettings, state.planner);
     initializePlayerDropdown();
     initializePlayerModal();
-    initializeWelcomeModal();
+    initializeGuidedSetupModal();
     initializeFab();
     initializeAppSettings();
     initializePlanner();
@@ -172,27 +176,24 @@ export async function bootstrapUIComponents(initialLang) {
     }
     applyCardLayout(layoutMode || 'cozy', false, false);
 
-    import('../services/cloudSaveService.js').then(module => {
-        module.initializeCloudSaveButtons();
-    });
+    initializeCloudSaveButtons();
 
     validateAllInputs();
     validateAllSelects();
 
     renderApp(state);
 
-    const notices = document.querySelectorAll('.supercell-notice, .app-copyright');
-    notices.forEach(notice => notice.classList.add('show'));
+    initAppFooter({ version: state.appVersion });
 
     const refreshButton = dom.controls.refreshButton;
     if (refreshButton) {
+        updateRefreshButtonVisibility();
         refreshButton.addEventListener('click', async () => {
             const activeTag = state.savedPlayerTags[0];
             if (activeTag && activeTag !== 'DEFAULT0') {
                 try {
                     startTopProgressBar();
                     refreshButton.classList.add('saving');
-                    const { loadAndProcessPlayerData } = await import('../services/serverResponseHandler.js');
                     const result = await loadAndProcessPlayerData(activeTag, { updateOrder: false });
 
                     refreshButton.classList.remove('saving');
@@ -205,6 +206,8 @@ export async function bootstrapUIComponents(initialLang) {
                         setTimeout(() => refreshButton.classList.remove('error'), 3000);
                         if (result.errorType === 'apiErrors.protectedTag') {
                             showAddPlayerModal(activeTag, true);
+                        } else {
+                            showApiErrorToast(result);
                         }
                     }
                 } catch (error) {
@@ -214,6 +217,7 @@ export async function bootstrapUIComponents(initialLang) {
                     refreshButton.classList.remove('saving');
                     refreshButton.classList.add('error');
                     setTimeout(() => refreshButton.classList.remove('error'), 3000);
+                    showApiErrorToast(error);
                 }
             }
         });
@@ -223,7 +227,35 @@ export async function bootstrapUIComponents(initialLang) {
             refreshButton.click();
         }
     }
-    checkLegalConsent();
+}
+
+/**
+ * Finalizes startup state, announces loaded status, and triggers guided tour or pending modals.
+ */
+function finishStartupTeardown() {
+    if (typeof window.__APP_LOADED__ === 'function') {
+        window.__APP_LOADED__();
+    }
+
+    const tourTimestamp = state.uiSettings?.uiTimestamps?.tour;
+
+    if (!tourTimestamp) {
+        window.isTourPending = true;
+        setTimeout(() => {
+            import('../components/tour/appTour.js').then(module => {
+                module.startTour().then(started => {
+                    window.isAppStartingUp = false;
+                    if (!started) {
+                        window.isTourPending = false;
+                        triggerPendingModals();
+                    }
+                });
+            });
+        }, 100);
+    } else {
+        window.isAppStartingUp = false;
+        triggerPendingModals();
+    }
 }
 
 /**
@@ -247,36 +279,7 @@ export function handlePreloaderTeardown(preloader) {
 
             setTimeout(() => {
                 preloader.style.display = 'none';
-                if (typeof window.__APP_LOADED__ === 'function') {
-                    window.__APP_LOADED__();
-                }
-
-                const welcomeTimestamp = state.uiSettings?.uiTimestamps?.welcome;
-                const tourTimestamp = state.uiSettings?.uiTimestamps?.tour;
-                const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
-                const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
-
-                const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
-                const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
-                const hasPendingConsent = needsPrivacy || needsTerms;
-
-                if (welcomeTimestamp && !hasPendingConsent) {
-                    window.isTourPending = true;
-                    setTimeout(() => {
-                        import('../components/tour/appTour.js').then(module => {
-                            module.startTour().then(started => {
-                                window.isAppStartingUp = false;
-                                if (!started) {
-                                    window.isTourPending = false;
-                                    triggerPendingModals();
-                                }
-                            });
-                        });
-                    }, 800);
-                } else {
-                    window.isAppStartingUp = false;
-                    triggerPendingModals();
-                }
+                finishStartupTeardown();
             }, 600);
 
             if (state.activeTab === 'planner-tab') {
@@ -287,8 +290,10 @@ export function handlePreloaderTeardown(preloader) {
             }
         }, 2100);
     } else {
-        if (typeof window.__APP_LOADED__ === 'function') {
-            window.__APP_LOADED__();
+        const domPreloader = typeof document !== 'undefined' ? document.getElementById('preloader') : null;
+        if (domPreloader) {
+            domPreloader.style.display = 'none';
         }
+        finishStartupTeardown();
     }
 }

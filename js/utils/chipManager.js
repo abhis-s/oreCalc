@@ -6,7 +6,7 @@ import { state } from '../core/state.js';
 import { handleStateUpdate } from '../core/stateManager.js';
 
 import { convertOres, getProspectorConversions, getProspectorIncomeForDate } from '../domain/income/prospectorManager.js';
-import { getSupercellEventsForYear } from './dateUtils.js';
+import { getSupercellEventsForYear } from '../domain/income/supercellEventsSchedule.js';
 
 /**
  * Computes the cumulative accumulated ore amounts from tomorrow up to a specified target date.
@@ -287,7 +287,7 @@ export function clearMonthCalendarChips(monthYearKey) {
                 let instance = customData.instance;
                 if (instance === undefined) {
                     const parts = originalId.split('-');
-                    const lastPart = parts[parts.length - 1];
+                    const lastPart = parts.at(-1);
                     if (/^\d+$/.test(lastPart)) {
                         instance = parseInt(lastPart, 10) + 1;
                     } else {

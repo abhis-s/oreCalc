@@ -30,18 +30,6 @@ describe('Changelog Modal & Commits Button Visibility Domain Suite', () => {
             'changelog-commits-btn': {
                 id: 'changelog-commits-btn',
                 style: { display: 'none' }
-            },
-            'welcome-modal': {
-                id: 'welcome-modal',
-                classList: { contains: () => false }
-            },
-            'consent-banner': {
-                id: 'consent-banner',
-                classList: { contains: () => false }
-            },
-            'consent-modal': {
-                id: 'consent-modal',
-                classList: { contains: () => false }
             }
         };
 

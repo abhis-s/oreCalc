@@ -69,6 +69,11 @@
     --hero-rc: #{$palette-hero-rc};
     --hero-dd: #{$palette-hero-dd};
 
+    --damage-arrow: #ef4444;
+    --damage-overload: #d946ef;
+    --damage-zap: #00e5ff;
+    --damage-quake: #f59e0b;
+
     --color-income-star-bonus: #{$palette-cyan-200};
     --color-income-clan-war: #{$palette-blue-200};
     --color-income-cwl: #{$palette-indigo-200};
@@ -90,6 +95,7 @@
     --color-danger-300: $color-danger;
 
     --font-family-base: #{$font-family-sans};
+    --font-size-3xs: 0.5625rem;
     --font-size-2xs: 0.6875rem;
     --font-size-xs: 0.75rem;
     --font-size-sm: 0.8125rem;

@@ -4,9 +4,9 @@ import { prospectorData } from '../../data/incomeSources/prospector.js';
 import { conversionRates, oreMaxValues } from '../../data/oreConversionData.js';
 import { currencyData } from '../../data/pricingData.js';
 
-import { selectDerivedSourceIncome } from '../../core/selectors.js';
-
 import { getPriceForTier } from '../../utils/incomeUtils.js';
+
+const ZERO_ORES = Object.freeze({ shiny: 0, glowy: 0, starry: 0 });
 
 /**
  * Returns the relative value factor of an ore type for conversion ratios.
@@ -552,7 +552,7 @@ export function getBaseIncome(appState) {
     const baseMonthlyIncome = { shiny: 0, glowy: 0, starry: 0 };
     for (const source in incomeSources) {
         if (source === 'prospector') continue;
-        const monthly = selectDerivedSourceIncome(appState, source, 'monthly');
+        const monthly = incomeSources[source]?.monthly || ZERO_ORES;
         baseMonthlyIncome.shiny += monthly.shiny || 0;
         baseMonthlyIncome.glowy += monthly.glowy || 0;
         baseMonthlyIncome.starry += monthly.starry || 0;

@@ -5,15 +5,20 @@ import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { populateDropdowns } from './appSettingsDisplay.js';
 import { showChangelogModal } from '../changelog/changelogModal.js';
+import { showAddPlayerModal } from '../player/playerModalInputs.js';
 import { openLicensesModal, openPrivacyModal, openTermsOfUseModal } from './settingsLegalModals.js';
 import { openBugReportModal, openContactModal, openRunningCostsModal } from './settingsSupportModals.js';
 import { initializeSettingsAppearance } from './settingsAppearanceInputs.js';
+import { initializeSettingsAccount } from './settingsAccountInputs.js';
+import { initializeAuthModal } from '../auth/authModalInputs.js';
+import { initializePasskeysModal } from '../auth/passkeysModalInputs.js';
 import { initializeSettingsDataManagement } from './settingsDataManagementInputs.js';
 import { initializeDeviceSyncInputs } from './settingsDeviceSyncInputs.js';
 import { initializeSettingsPricing } from './settingsPricingInputs.js';
 import { dom } from '../../dom/domElements.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
 import { showAlert, showConfirm } from '../../ui/noticeModal.js';
+import { initAppSettings } from '../common/appSettings.js';
 
 let isAppSettingsInitialized = false;
 
@@ -24,7 +29,11 @@ export function initializeAppSettings() {
     if (isAppSettingsInitialized) return;
     isAppSettingsInitialized = true;
 
+    initAppSettings();
     populateDropdowns();
+    initializeSettingsAccount();
+    initializeAuthModal();
+    initializePasskeysModal();
     initializeSettingsAppearance();
     initializeSettingsDataManagement();
     initializeDeviceSyncInputs();
@@ -36,9 +45,8 @@ export function initializeAppSettings() {
     } = dom.appSettings || {};
 
     if (addPlayerLink) {
-        addPlayerLink.addEventListener('click', async (e) => {
+        addPlayerLink.addEventListener('click', (e) => {
             e.preventDefault();
-            const { showAddPlayerModal } = await import('../player/playerModal.js');
             showAddPlayerModal();
         });
     }
@@ -50,7 +58,7 @@ export function initializeAppSettings() {
         enableLevelInputToggle.addEventListener('change', (e) => {
             handleStateUpdate(() => {
                 state.uiSettings.enableLevelInput = /** @type {HTMLInputElement} */ (e.target).checked;
-            });
+            }, false, { preferencesOnly: true });
         });
     }
 
@@ -66,13 +74,13 @@ export function initializeAppSettings() {
                 document.startViewTransition(() => {
                     window.__FORCE_SYNC_RENDER__ = true;
                     try {
-                        handleStateUpdate(updateState);
+                        handleStateUpdate(updateState, false, { preferencesOnly: true });
                     } finally {
                         window.__FORCE_SYNC_RENDER__ = false;
                     }
                 });
             } else {
-                handleStateUpdate(updateState);
+                handleStateUpdate(updateState, false, { preferencesOnly: true });
             }
         });
     }
@@ -89,19 +97,19 @@ export function initializeAppSettings() {
                 document.startViewTransition(() => {
                     window.__FORCE_SYNC_RENDER__ = true;
                     try {
-                        handleStateUpdate(updateState);
+                        handleStateUpdate(updateState, false, { preferencesOnly: true });
                     } finally {
                         window.__FORCE_SYNC_RENDER__ = false;
                     }
                 });
             } else {
-                handleStateUpdate(updateState);
+                handleStateUpdate(updateState, false, { preferencesOnly: true });
             }
         });
     }
 
     if (appVersionDisplay) {
-        appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.2.0').replace(/^v/, '');
+        appVersionDisplay.textContent = 'v' + (window.__ENV__?.APP_VERSION || state.appVersion || '3.0.0').replace(/^v/, '');
     }
 
     const settingsTab = document.getElementById('settings-tab') || document.querySelector('.settings-tab');

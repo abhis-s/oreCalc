@@ -1,0 +1,169 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-tradeoffs-container {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    padding: $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-medium;
+    box-sizing: border-box;
+    width: 100%;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+
+    &__title {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: $text-muted;
+    }
+
+    &__pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+        width: 100%;
+    }
+}
+
+.calc-tradeoff-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding-block: $spacing-xs;
+    padding-inline: $spacing-sm;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-small;
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    cursor: pointer;
+    min-height: 44px;
+    box-sizing: border-box;
+    transition: background-color $transition-fast, border-color $transition-fast, color $transition-fast, transform $transition-fast;
+
+    &:hover {
+        background-color: $bg-surface-tertiary;
+        border-color: $border-card-hover;
+        color: $text-primary;
+        transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent-primary;
+        outline-offset: 2px;
+    }
+
+    &.is-active {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+        color: $accent-primary;
+        font-weight: $font-weight-semibold;
+        box-shadow: $elevation-1;
+    }
+
+    &--overcapacity {
+        opacity: 0.65;
+        border-style: dashed;
+
+        &:hover {
+            opacity: 0.95;
+            border-style: solid;
+        }
+
+        &.is-active {
+            opacity: 1;
+            border-style: solid;
+            border-color: $color-warning;
+            background-color: $color-warning-soft;
+            color: $color-warning;
+
+            .calc-tradeoff-pill__tag {
+                color: $color-warning;
+            }
+        }
+    }
+
+    &__spells {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2xs;
+        line-height: 1;
+    }
+
+    &__tag {
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
+        color: $accent-primary;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        line-height: 1;
+
+        &--optimal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: $spacing-2xs 5px;
+            background-color: $accent-primary-soft;
+            color: $accent-primary;
+            border: 1px solid $accent-primary;
+            border-radius: $shape-corner-full;
+
+            svg, orecalc-assets-svg {
+                display: inline-flex;
+                width: 12px;
+                height: 12px;
+                fill: currentColor;
+            }
+        }
+    }
+
+    &__equip-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: $shape-corner-2xs;
+        object-fit: contain;
+    }
+
+    &__spell-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+        display: inline-block;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
+}
+
+.calc-tradeoff-spell-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    line-height: 1;
+}
+
+.calc-tradeoff-plus {
+    font-size: $font-size-2xs;
+    color: $text-muted;
+    font-weight: $font-weight-bold;
+    line-height: 1;
+    padding-inline: 1px;
+}
+
+// Seamless integration inside solution hero cards
+.solution-hero-card .calc-tradeoffs-container {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin-block-start: 0;
+}

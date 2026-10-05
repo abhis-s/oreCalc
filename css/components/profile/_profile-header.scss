@@ -8,7 +8,7 @@
     text-align: right;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: $spacing-sm;
     min-width: 0;
     flex: 0 1 auto;
     max-width: 50%;
@@ -25,7 +25,7 @@
         order: 1;
         flex-direction: column;
         align-items: flex-end;
-        gap: 2px;
+        gap: $spacing-2xs;
         text-align: right;
         min-width: 0;
         max-width: 100%;
@@ -66,15 +66,15 @@
     flex-direction: row;
     justify-content: space-between;
     border-top: 1px dashed $border-primary;
-    padding-top: 12px;
-    margin-top: 4px;
+    padding-top: $spacing-md;
+    margin-top: $spacing-xs;
 
     .league-details-mini {
         flex-shrink: 0;
     }
 
     .profile-meta-actions-row {
-        gap: 8px;
+        gap: $spacing-sm;
         margin-left: auto;
         flex-shrink: 1;
         min-width: 0;
@@ -96,7 +96,7 @@
         .maxed-equip-icon-mini {
             display: inline-block;
             vertical-align: -1px;
-            margin-right: 4px;
+            margin-right: $spacing-xs;
             margin-top: 0;
         }
     }
@@ -130,18 +130,18 @@
 @mixin mobile-header-full-layout {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: $spacing-md;
 
     .profile-meta-left {
         width: 100%;
-        gap: 12px;
+        gap: $spacing-md;
 
         .player-identity {
             flex: 1;
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: $spacing-md;
             min-width: 0;
 
             .player-identity-info {
@@ -166,12 +166,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 16px;
+    gap: $spacing-lg;
 
     .profile-meta-left {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: $spacing-lg;
     }
 
     .th-badge-wrapper {
@@ -206,7 +206,7 @@
             color: $text-on-accent;
             font-size: clamp(10px, 1.3vw, 12px);
             font-weight: 800;
-            padding: 2px 6px;
+            padding: $spacing-2xs 6px;
             border-radius: 6px;
             border: 1.5px solid $border-primary;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
@@ -246,7 +246,7 @@
         }
 
         .player-tag {
-            margin: 4px 0 0 0;
+            margin: $spacing-xs 0 0 0;
             font-size: clamp(12px, 1.6vw, 14px);
             color: $text-secondary;
             opacity: 0.65;
@@ -261,14 +261,14 @@
             display: inline-block;
             align-self: flex-start;
             width: fit-content;
-            margin: 4px 0 0 0;
-            padding: 2px 6px;
+            margin: $spacing-xs 0 0 0;
+            padding: $spacing-2xs 6px;
             font-size: clamp(10px, 1.3vw, 11px);
             font-weight: 700;
             color: $accent-primary;
             background-color: color-mix(in srgb, $accent-primary 8%, transparent);
             border: 1px solid color-mix(in srgb, $accent-primary 20%, transparent);
-            border-radius: 4px;
+            border-radius: $shape-corner-xs;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             white-space: nowrap;
@@ -295,7 +295,7 @@
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                gap: 4px;
+                gap: $spacing-xs;
                 min-width: 0;
 
                 .clan-name-mini {
@@ -325,19 +325,19 @@
         }
     }
 
-// --- 4. RIGHT META & ACTIONS ---
+// --- 3. RIGHT META & ACTIONS ---
 
     .profile-meta-right {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 8px;
+        gap: $spacing-sm;
         text-align: right;
 
         .league-details-mini {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: $spacing-sm;
 
             .league-badge-img-mini {
                 width: clamp(28px, 3.8vw, 36px);
@@ -356,7 +356,7 @@
                 flex-direction: column;
                 align-items: flex-start;
                 text-align: left;
-                gap: 4px;
+                gap: $spacing-xs;
 
                 .league-name-mini {
                     font-size: clamp(12px, 1.6vw, 14px);
@@ -386,7 +386,7 @@
         .profile-meta-actions-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: $spacing-sm;
             min-height: 32px;
 
             .unconnected-connect-btn {
@@ -419,7 +419,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 0 12px;
+            padding: 0 $spacing-md;
             font-size: 12px;
             font-weight: 600;
             @include btn-accent-style;

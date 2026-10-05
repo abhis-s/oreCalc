@@ -1,21 +1,15 @@
 import { dom } from '../../dom/domElements.js';
+import { initAppHeader } from '../common/appHeader.js';
 
 /**
- * Sets up an IntersectionObserver scroll sentinel to toggle the sticky header background elevation.
+ * Sets up header scroll sentinel and space-constrained layout observer.
+ * @returns {ReturnType<typeof initAppHeader>}
  */
 export function initializeHeader() {
-    const headerContainer = dom.header?.container;
-    if (!headerContainer) return;
-
-    // Create an invisible 1px sentinel at top: 5px to trigger scrolled state off-main-thread
-    const sentinel = document.createElement('div');
-    sentinel.className = 'header-scroll-sentinel';
-    sentinel.style.cssText = 'position: absolute; top: 5px; left: 0; width: 1px; height: 1px; pointer-events: none; opacity: 0; z-index: -1;';
-    document.body.prepend(sentinel);
-
-    const observer = new IntersectionObserver(([entry]) => {
-        headerContainer.classList.toggle('is-scrolled', !entry.isIntersecting);
+    return initAppHeader({
+        headerElement: dom.header?.container || '.header-container',
+        hasTabs: true,
+        hasPlayerDropdown: true,
+        hasPill: true
     });
-
-    observer.observe(sentinel);
 }

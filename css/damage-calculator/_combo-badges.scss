@@ -1,0 +1,208 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-equip-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-2xs;
+    background-color: $accent-primary-soft;
+    border: 1px solid $accent-primary;
+    border-radius: $shape-corner-small;
+    cursor: pointer;
+    transition: transform $transition-fast, box-shadow $transition-fast, filter $transition-fast;
+
+    &:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+        box-shadow: $elevation-1;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent-primary;
+        outline-offset: 2px;
+    }
+
+    &__icon {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        display: block;
+    }
+}
+
+.calc-combo-item {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.calc-combo-plus {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    color: $text-muted;
+    margin-inline: 0;
+    user-select: none;
+    line-height: 1;
+}
+
+.calc-spell-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding-block: $spacing-2xs;
+    padding-inline-start: $spacing-sm;
+    padding-inline-end: $spacing-2xs;
+    border-radius: $shape-corner-small;
+    cursor: pointer;
+    transition: transform $transition-fast, box-shadow $transition-fast, filter $transition-fast;
+
+    &:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+        box-shadow: $elevation-1;
+    }
+
+    &:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+
+    &--zap {
+        background-color: $color-info-soft;
+        color: $color-info;
+        border: 1px solid $color-info;
+    }
+
+    &--eq {
+        background-color: $accent-secondary-soft;
+        color: $accent-secondary;
+        border: 1px solid $accent-secondary;
+    }
+
+    &--equipment {
+        background-color: var(--btn-bg-purple);
+        color: var(--btn-color-purple);
+        border: 1px solid var(--btn-border-purple);
+    }
+
+    &--cc {
+        border-style: dashed;
+        border-width: 1.5px;
+    }
+
+    &--remaining {
+        background-color: $color-warning-soft;
+        color: $color-warning;
+        border: 1px solid $color-warning;
+        padding-inline-end: $spacing-sm;
+        min-height: 38px;
+        box-sizing: border-box;
+    }
+
+    &--indestructible {
+        background-color: $color-warning-soft;
+        color: $color-warning;
+        border: 1px solid $color-warning;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        padding-inline: $spacing-sm;
+        cursor: default;
+
+        &:hover {
+            transform: none;
+            filter: none;
+            box-shadow: none;
+        }
+    }
+
+    &__icon-svg {
+        display: inline-flex;
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+    }
+
+    &__label {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        line-height: 1;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
+    &__cc-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding-block: 1px;
+        padding-inline: $spacing-xs;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
+        line-height: 1;
+        border-radius: $shape-corner-full;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        box-shadow: $elevation-1;
+    }
+
+    &__multiplier {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-bold;
+        line-height: 1;
+    }
+
+    &__icon {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        display: block;
+    }
+}
+
+.calc-target-combo-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2xs;
+    padding: $spacing-2xs $spacing-xs;
+    border-radius: $shape-corner-xs;
+    background-color: $bg-surface-tertiary;
+    border: 1px solid $border-primary;
+    line-height: 1;
+
+    &--equip {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+    }
+
+    &--eq {
+        background-color: $accent-secondary-soft;
+        border-color: $accent-secondary;
+    }
+
+    &--zap {
+        background-color: $color-info-soft;
+        border-color: $color-info;
+    }
+
+    &--cc {
+        border-style: dashed;
+    }
+
+    &__icon {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+    }
+
+    &__multiplier {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+}

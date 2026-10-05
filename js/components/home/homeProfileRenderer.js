@@ -1,10 +1,7 @@
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
-import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
-
-import { formatNumber } from '../../utils/numberFormatter.js';
-import { escapeHTML } from '../../utils/stringUtils.js';
+import { renderProfileHeaderHtml } from '../common/profileHeaderRenderer.js';
 
 import {
     applyProgressDelta,
@@ -13,11 +10,12 @@ import {
 } from './homeProfileAnimations.js';
 import {
     buildSubData,
-    calculateEquipmentProgress,
-    formatClanRole,
-    getOverallGradient,
     subtextHTML
 } from './homeProfileCalculations.js';
+import {
+    calculateEquipmentProgress,
+    getOverallGradient
+} from '../../domain/equipment/equipmentProgressDomain.js';
 
 /**
  * Main function to render the Home tab profile card.
@@ -26,6 +24,9 @@ import {
 export function renderHomeProfile(state) {
     const cardContainer = document.getElementById('home-player-profile-card');
     if (!cardContainer) return;
+
+    cardContainer.removeAttribute('hidden');
+    cardContainer.hidden = false;
 
     const profile = state.playerProfile;
 
@@ -41,52 +42,26 @@ export function renderHomeProfile(state) {
 
         cardContainer.classList.add('is-stats-collapsed');
         const thLevel = profile?.townHallLevel || 18;
-        const thImgUrl = `assets/th/th${thLevel}.png`;
-        const leagueNameText = translate('entities.leagues.unranked');
-        const unrankedIcon = leagueTiers.items.find(l => l.id === 105000000)?.iconUrls?.small || 'https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png';
 
-        cardContainer.innerHTML = `
-            <div class="home-profile-header">
-                <div class="profile-meta-left">
-                    <div class="th-badge-wrapper">
-                        <orecalc-assets-image class="th-badge-img is-silhouette" src="${thImgUrl}" alt="Town Hall" size="standard"></orecalc-assets-image>
-                        <span class="th-badge-level-overlay">${thLevel}</span>
-                    </div>
-                    <div class="player-identity">
-                        <div class="player-identity-info">
-                            <h2 class="player-name" data-i18n="views.home.profile.noProfileTitle">${translate('views.home.profile.noProfileTitle')}</h2>
-                            <span class="player-tag-guest-badge" data-i18n="views.welcome.guestProfileTag">${translate('views.welcome.guestProfileTag')}</span>
-                        </div>
-                        <div class="player-clan-mini">
-                            <span class="clan-name-mini text-muted" data-i18n="views.welcome.noClan">${translate('views.welcome.noClan')}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-meta-right">
-                    <div class="league-details-mini" title="${leagueNameText}">
-                        <orecalc-assets-image class="league-badge-img-mini" src="${unrankedIcon}" alt="${escapeHTML(leagueNameText)}" size="standard"></orecalc-assets-image>
-                        <div class="league-text-mini">
-                            <span class="league-name-mini" data-i18n="entities.leagues.unranked">${leagueNameText}</span>
-                            <div class="player-trophies-mini">
-                                <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
-                                <span>--</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="profile-meta-actions-row">
-                        <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
-                            <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
-                            <span><span class="maxed-count">--/--</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
-                        </div>
-                        <button id="home-profile-connect-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="${translate('views.home.profile.connectBtn')}" title="${translate('views.home.profile.connectBtn')}">
-                            <orecalc-assets-svg name="plus" height="14" width="14"></orecalc-assets-svg>
-                            <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
-                        </button>
-                    </div>
-                </div>
+        const actionsRowHtml = `
+            <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
+                <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
+                <span><span class="maxed-count">--/--</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
             </div>
+            <button id="home-profile-connect-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="${translate('views.home.profile.connectBtn')}" title="${translate('views.home.profile.connectBtn')}">
+                <orecalc-assets-svg name="plus" height="14" width="14"></orecalc-assets-svg>
+                <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
+            </button>
         `;
+
+        cardContainer.innerHTML = renderProfileHeaderHtml({
+            profile: null,
+            isGuest: true,
+            thLevel,
+            actionsRowHtml
+        });
+        cardContainer.removeAttribute('hidden');
+        cardContainer.hidden = false;
         cardContainer.style.display = 'flex';
         return;
     }
@@ -192,40 +167,6 @@ export function renderHomeProfile(state) {
     renderState.pendingSnapshot = null;
     renderState.isAnimating = true;
 
-    const thImgUrl = `assets/th/th${thLevel}.png`;
-
-    let clanHtml = '';
-    if (profile.clan?.name) {
-        const badgeUrl = profile.clan.badgeUrls?.small || '';
-        const safeBadgeUrl = escapeHTML(badgeUrl);
-        const badgeImg = badgeUrl ? `<orecalc-assets-image class="clan-badge-img-mini" src="${safeBadgeUrl}" alt="Clan Badge"></orecalc-assets-image>` : '';
-        const roleText = profile.role ? `<span class="clan-role-mini">${formatClanRole(profile.role)}</span>` : '';
-        clanHtml = `<div class="player-clan-mini">${badgeImg}<div class="clan-info-col"><span class="clan-name-mini">${escapeHTML(profile.clan.name)}</span>${roleText}</div></div>`;
-    } else {
-        clanHtml = `<div class="player-clan-mini"><span class="clan-name-mini text-muted" data-i18n="views.welcome.noClan">${translate('views.welcome.noClan')}</span></div>`;
-    }
-
-    const leagueData = leagueTiers.items.find(l => l.id === leagueId);
-    let leagueIconHtml = `<orecalc-assets-svg name="star-badge" height="24" width="24" class="league-default-icon"></orecalc-assets-svg>`;
-    let leagueNameText = translate('entities.leagues.unranked');
-
-    if (leagueData) {
-        const leagueKey = 'entities.leagues.' + leagueData.name.toLowerCase()
-            .replace(/\./g, '')
-            .replace(/\s(i+)$/i, (_, p1) => p1.toUpperCase())
-            .replace(/\s/g, '_');
-        leagueNameText = translate(leagueKey);
-        const imgUrl = leagueData.iconUrls?.small || '';
-        if (imgUrl) leagueIconHtml = `<orecalc-assets-image class="league-badge-img-mini" src="${escapeHTML(imgUrl)}" alt="${escapeHTML(leagueNameText)}"></orecalc-assets-image>`;
-    }
-
-    const safeTag = escapeHTML(profile.tag);
-    const safePlayerName = escapeHTML(profile.name);
-
-    const tagHtml = isGuest
-        ? `<span class="player-tag-guest-badge" data-i18n="views.welcome.guestProfileTag">${translate('views.welcome.guestProfileTag')}</span>`
-        : `<span class="player-tag">${safeTag}</span>`;
-
     const isCollapsed = Boolean(state.uiSettings?.hideProfileStats);
     if (isCollapsed) {
         cardContainer.classList.add('is-stats-collapsed');
@@ -233,44 +174,32 @@ export function renderHomeProfile(state) {
         cardContainer.classList.remove('is-stats-collapsed');
     }
 
-    cardContainer.innerHTML = `
-        <div class="home-profile-header${isGuest ? ' is-guest' : ''}">
-            <div class="profile-meta-left">
-                <div class="th-badge-wrapper">
-                    <orecalc-assets-image class="th-badge-img" src="${thImgUrl}" alt="Town Hall" size="standard"></orecalc-assets-image>
-                    <span class="th-badge-level-overlay">${thLevel}</span>
-                </div>
-                <div class="player-identity">
-                    <div class="player-identity-info">
-                        <h2 class="player-name">${safePlayerName}</h2>
-                        ${tagHtml}
-                    </div>
-                    ${clanHtml}
-                </div>
-            </div>
+    const prevTrophies = Number((cardContainer.querySelector('.player-trophies-mini span')?.textContent || '').replace(/\D/g, '')) || 0;
+    const prevMaxed = parseInt((cardContainer.querySelector('.maxed-count')?.textContent || '').split('/')[0], 10) || 0;
+    const targetTrophies = Number(profile.trophies) || 0;
 
-            <div class="profile-meta-right">
-                <div class="league-details-mini" title="${leagueNameText}">
-                    ${leagueIconHtml}
-                    <div class="league-text-mini">
-                        <span class="league-name-mini">${leagueNameText}</span>
-                        <div class="player-trophies-mini">
-                            <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
-                            <span>${formatNumber(profile.trophies || 0)}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="profile-meta-actions-row">
-                    <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
-                        <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
-                        <span><span class="maxed-count">${maxedCount}/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
-                    </div>
-                    <button id="home-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
-                        <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
-                    </button>
-                </div>
-            </div>
+    const actionsRowHtml = `
+        <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
+            <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
+            <span><span class="maxed-count" data-target-maxed="${maxedCount}" data-prev-maxed="${prevMaxed}" data-total-equip="${totalCount}">${prevMaxed}/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
         </div>
+        <button id="home-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
+            <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
+        </button>
+    `;
+
+    const headerHtml = renderProfileHeaderHtml({
+        profile,
+        isGuest,
+        thLevel,
+        tag: profile.tag,
+        trophies: targetTrophies,
+        prevTrophies,
+        actionsRowHtml
+    });
+
+    cardContainer.innerHTML = `
+        ${headerHtml}
 
         <div class="home-profile-stats-container">
             <div class="home-profile-overall-progress${progress.overall >= 100 ? ' fully-maxed' : ''}">
@@ -337,6 +266,8 @@ export function renderHomeProfile(state) {
         </div>
     `;
 
+    cardContainer.removeAttribute('hidden');
+    cardContainer.hidden = false;
     cardContainer.style.display = 'flex';
 
     const preloader = typeof document !== 'undefined' ? document.getElementById('preloader') : null;

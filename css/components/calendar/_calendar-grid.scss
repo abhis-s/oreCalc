@@ -24,13 +24,13 @@
     border: 1px solid $border-primary;
     border-radius: $shape-corner-medium;
     overflow: hidden;
-    background-color: var(--border-primary);
+    background-color: $bg-surface-secondary;
     gap: 1px;
 
     .day-name {
         font-weight: var(--font-weight-bold);
         color: $text-secondary;
-        padding: 12px 5px;
+        padding: $spacing-md 5px;
         background-color: $bg-surface-primary;
         font-size: 0.8em;
         text-transform: uppercase;
@@ -38,7 +38,7 @@
     }
 
     .day-cell {
-        padding: 12px 5px 8px 5px;
+        padding: $spacing-md 5px $spacing-sm 5px;
         cursor: pointer;
         transition: background-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
         background-color: $bg-surface-primary;
@@ -62,8 +62,8 @@
 
         .chip-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(#{$chip-size-calendar}, calc(50% - 2px)), 1fr));
-            gap: $chip-gap-subgrid;
+            grid-template-columns: repeat(auto-fit, minmax(min(32px, calc(50% - 2px)), 1fr));
+            gap: 3px;
             justify-items: center;
             align-items: center;
             align-content: flex-start;
@@ -77,12 +77,12 @@
 
             &.subgrid-2 {
                 grid-template-columns: repeat(2, 1fr);
-                gap: $chip-gap-subgrid;
+                gap: 3px;
             }
 
             &.subgrid-compact-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: $chip-gap-subgrid;
+                gap: 3px;
             }
         }
     }

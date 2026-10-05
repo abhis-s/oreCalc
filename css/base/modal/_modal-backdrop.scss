@@ -9,41 +9,6 @@ body:has(dialog.navigation-drawer[open]) {
     overflow: hidden !important;
 }
 
-@keyframes modalSlideUp {
-    0% {
-        opacity: 0;
-        transform: translate3d(0, 50px, 0) scale(0.94);
-    }
-    100% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
-    }
-}
-
-@keyframes modalSlideDown {
-    0% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translate3d(0, 48px, 0) scale(0.95);
-    }
-}
-
-@keyframes backdropFadeOut {
-    0% {
-        opacity: 1;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-    }
-    100% {
-        opacity: 0;
-        backdrop-filter: blur(0px);
-        -webkit-backdrop-filter: blur(0px);
-    }
-}
-
 dialog.modal,
 .modal {
     border: none;

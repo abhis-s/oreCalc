@@ -1,17 +1,27 @@
 import { translate } from '../i18n/translator.js';
-
 import { state } from '../core/state.js';
 
-import { dom } from '../dom/domElements.js';
+/**
+ * Resolves active saving buttons present in the current DOM environment.
+ * @returns {{ floatingSaveBtn: HTMLElement | null, fabSaveDataPill: HTMLElement | null, mainFab: HTMLElement | null, buttons: HTMLElement[] }}
+ */
+function getSaveElements() {
+    if (typeof document === 'undefined') {
+        return { floatingSaveBtn: null, fabSaveDataPill: null, mainFab: null, buttons: [] };
+    }
+    const floatingSaveBtn = document.getElementById('floating-save-btn');
+    const fabSaveDataPill = document.getElementById('fab-save-data-pill');
+    const mainFab = document.getElementById('main-fab');
+    const buttons = /** @type {HTMLElement[]} */ ([floatingSaveBtn, fabSaveDataPill, mainFab].filter(Boolean));
+    return { floatingSaveBtn, fabSaveDataPill, mainFab, buttons };
+}
 
 /**
  * Displays active saving spinners and updates text across floating save buttons and FAB pills.
  */
-export function showSavingIndicator() {
-    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
-    const floatingSaveBtn = dom.controls.saveButton;
-    const fabSaveDataPill = dom.fab.pills.saveData;
-    const mainFab = dom.fab.main;
+function showSavingIndicator() {
+    const { floatingSaveBtn, fabSaveDataPill, mainFab, buttons } = getSaveElements();
+    if (buttons.length === 0) return;
 
     if (floatingSaveBtn) {
         floatingSaveBtn.classList.add('saving');
@@ -37,11 +47,9 @@ export function showSavingIndicator() {
 /**
  * Hides saving spinner indicators and resets button labels back to default.
  */
-export function hideSavingIndicator() {
-    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
-    const floatingSaveBtn = dom.controls.saveButton;
-    const fabSaveDataPill = dom.fab.pills.saveData;
-    const mainFab = dom.fab.main;
+function hideSavingIndicator() {
+    const { floatingSaveBtn, fabSaveDataPill, mainFab, buttons } = getSaveElements();
+    if (buttons.length === 0) return;
 
     if (floatingSaveBtn) {
         floatingSaveBtn.classList.remove('saving');
@@ -67,22 +75,17 @@ export function hideSavingIndicator() {
 /**
  * Displays transient success checkmark animation across floating save buttons and FAB pills.
  */
-export function showSaveSuccessIndicator() {
-    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
-    const floatingSaveBtn = dom.controls.saveButton;
-    const fabSaveDataPill = dom.fab.pills.saveData;
-    const mainFab = dom.fab.main;
-    const buttons = [floatingSaveBtn, fabSaveDataPill, mainFab];
+function showSaveSuccessIndicator() {
+    const { buttons } = getSaveElements();
+    if (buttons.length === 0) return;
 
     buttons.forEach(btn => {
-        if (btn) {
-            btn.classList.remove('saving');
-            btn.classList.remove('error');
-            btn.classList.add('success');
-            const textElement = btn.querySelector('.animated-btn-text');
-            if (textElement) {
-                textElement.textContent = translate('actions.synced');
-            }
+        btn.classList.remove('saving');
+        btn.classList.remove('error');
+        btn.classList.add('success');
+        const textElement = btn.querySelector('.animated-btn-text');
+        if (textElement) {
+            textElement.textContent = translate('actions.synced');
         }
     });
 
@@ -92,19 +95,14 @@ export function showSaveSuccessIndicator() {
 }
 
 function hideSaveSuccessIndicator() {
-    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
-    const floatingSaveBtn = dom.controls.saveButton;
-    const fabSaveDataPill = dom.fab.pills.saveData;
-    const mainFab = dom.fab.main;
-    const buttons = [floatingSaveBtn, fabSaveDataPill, mainFab];
+    const { buttons } = getSaveElements();
+    if (buttons.length === 0) return;
 
     buttons.forEach(btn => {
-        if (btn) {
-            btn.classList.remove('success');
-            const textElement = btn.querySelector('.animated-btn-text');
-            if (textElement) {
-                textElement.textContent = translate('actions.syncToCloud');
-            }
+        btn.classList.remove('success');
+        const textElement = btn.querySelector('.animated-btn-text');
+        if (textElement) {
+            textElement.textContent = translate('actions.syncToCloud');
         }
     });
 }
@@ -112,24 +110,19 @@ function hideSaveSuccessIndicator() {
 /**
  * Displays transient error warning animation across floating save buttons and FAB pills.
  */
-export function showSaveErrorIndicator() {
-    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
-    const floatingSaveBtn = dom.controls.saveButton;
-    const fabSaveDataPill = dom.fab.pills.saveData;
-    const mainFab = dom.fab.main;
-    const buttons = [floatingSaveBtn, fabSaveDataPill, mainFab];
+function showSaveErrorIndicator() {
+    const { buttons } = getSaveElements();
+    if (buttons.length === 0) return;
 
     state.uiSettings.saveError = true;
 
     buttons.forEach(btn => {
-        if (btn) {
-            btn.classList.remove('saving');
-            btn.classList.remove('success');
-            btn.classList.add('error');
-            const textElement = btn.querySelector('.animated-btn-text');
-            if (textElement) {
-                textElement.textContent = translate('actions.failed');
-            }
+        btn.classList.remove('saving');
+        btn.classList.remove('success');
+        btn.classList.add('error');
+        const textElement = btn.querySelector('.animated-btn-text');
+        if (textElement) {
+            textElement.textContent = translate('actions.failed');
         }
     });
 
@@ -139,21 +132,33 @@ export function showSaveErrorIndicator() {
 }
 
 function hideSaveErrorIndicator() {
-    if (!dom || !dom.controls || !dom.fab || !dom.fab.pills) return;
-    const floatingSaveBtn = dom.controls.saveButton;
-    const fabSaveDataPill = dom.fab.pills.saveData;
-    const mainFab = dom.fab.main;
-    const buttons = [floatingSaveBtn, fabSaveDataPill, mainFab];
+    const { buttons } = getSaveElements();
+    if (buttons.length === 0) return;
 
     state.uiSettings.saveError = false;
 
     buttons.forEach(btn => {
-        if (btn) {
-            btn.classList.remove('error');
-            const textElement = btn.querySelector('.animated-btn-text');
-            if (textElement) {
-                textElement.textContent = translate('actions.syncToCloud');
-            }
+        btn.classList.remove('error');
+        const textElement = btn.querySelector('.animated-btn-text');
+        if (textElement) {
+            textElement.textContent = translate('actions.syncToCloud');
+        }
+    });
+}
+
+// Auto-register reactive event listener for application save state events
+if (typeof document !== 'undefined') {
+    document.addEventListener('app:savingState', (event) => {
+        const customEvent = /** @type {CustomEvent<{ status: string }>} */ (event);
+        const status = customEvent.detail?.status;
+        if (status === 'saving') {
+            showSavingIndicator();
+        } else if (status === 'success') {
+            showSaveSuccessIndicator();
+        } else if (status === 'error') {
+            showSaveErrorIndicator();
+        } else if (status === 'idle') {
+            hideSavingIndicator();
         }
     });
 }

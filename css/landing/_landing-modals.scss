@@ -1,0 +1,318 @@
+@use '../abstracts/mixins' as *;
+
+dialog.landing-modal {
+    border: none;
+    padding: $spacing-md;
+    background: transparent;
+    color: inherit;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    margin: auto;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    z-index: $z-index-modal;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+
+    &[open],
+    &.show {
+        display: flex;
+
+        .modal-content {
+            transform: translate3d(0, 0, 0) scale(1);
+            opacity: 1;
+        }
+    }
+
+    &::backdrop {
+        background-color: $bg-overlay;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    &.closing {
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity $duration-exit $ease-exit;
+
+        .modal-content {
+            transform: translate3d(0, 48px, 0) scale(0.95);
+            transition: transform $duration-exit $ease-exit;
+        }
+    }
+}
+
+.landing-modal-content {
+    position: relative;
+    width: 100%;
+    max-width: $modal-width-standard;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $modal-radius-standard;
+    box-shadow: $elevation-4;
+    padding: $spacing-xl;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    overflow: hidden;
+    transform: translate3d(0, 30px, 0) scale(0.96);
+    transition: transform $duration-base $ease-enter, opacity $duration-base $ease-enter;
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-lg $spacing-md;
+        border-radius: $modal-radius-workspace;
+    }
+}
+
+.landing-modal-close {
+    position: absolute;
+    top: $spacing-md;
+    right: $spacing-md;
+    width: 36px;
+    height: 36px;
+    border-radius: $shape-corner-medium;
+    border: 1px solid $border-primary;
+    background-color: $bg-surface-secondary;
+    color: $text-secondary;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color $duration-fast $ease-smooth,
+                border-color $duration-fast $ease-smooth,
+                color $duration-fast $ease-smooth,
+                transform $duration-fast $ease-smooth;
+
+    orecalc-assets-svg {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &:hover,
+    &:focus-visible {
+        background-color: $bg-surface-tertiary;
+        border-color: $accent-primary;
+        color: $text-primary;
+        transform: scale(1.08) rotate(90deg);
+        outline: none;
+    }
+
+    &:active {
+        transform: scale(0.94);
+    }
+}
+
+.landing-modal-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-xs;
+
+    .landing-modal-th {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        flex-shrink: 0;
+        margin-bottom: $spacing-2xs;
+
+        .th-badge-img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            max-width: 64px;
+            max-height: 64px;
+            object-fit: contain;
+            filter: drop-shadow(0 3px 6px $shadow-overlay-dark);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;
+            }
+        }
+
+        .th-badge-level-overlay {
+            position: absolute;
+            bottom: -3px;
+            right: -3px;
+            background-color: $accent-primary;
+            color: $text-on-accent;
+            font-size: $font-size-2xs;
+            font-weight: $font-weight-extrabold;
+            padding: $spacing-2xs 6px;
+            border-radius: $shape-corner-small;
+            border: 1.5px solid $border-primary;
+            box-shadow: $elevation-1;
+        }
+    }
+}
+
+.landing-modal-title {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-extrabold;
+    color: $text-primary;
+    letter-spacing: 0.01em;
+}
+
+.landing-modal-identity {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+
+    .landing-launch-name {
+        font-size: $font-size-md;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    .landing-launch-tag {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        color: $text-secondary;
+        letter-spacing: 0.05em;
+    }
+}
+
+.landing-modal-prompt {
+    margin: 0;
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    line-height: 1.4;
+}
+
+.landing-modal-tools {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $breakpoint-compact) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.landing-modal-tool-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-sm;
+    height: 100%;
+    padding: $spacing-lg $spacing-md;
+    border-radius: $card-radius;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-card;
+    box-shadow: $elevation-1;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: border-color $duration-fast $ease-smooth,
+                box-shadow $duration-fast $ease-smooth,
+                transform $duration-fast $ease-smooth,
+                background-color $duration-fast $ease-smooth;
+
+    &:hover {
+        border-color: $accent-primary;
+        box-shadow: $elevation-card-hover;
+        transform: translateY(-2px);
+
+        .tool-card-action {
+            background-color: $btn-hover-blue-bg;
+            border-color: $btn-border-blue-hover;
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent-primary;
+        outline-offset: 2px;
+    }
+
+    .tool-card-icon-cluster {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        height: 32px;
+        flex-shrink: 0;
+    }
+
+    .tool-card-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        width: 100%;
+        gap: $spacing-xs;
+    }
+
+    .tool-card-title {
+        margin: 0;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        line-height: 1.3;
+        min-height: 2.6em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .tool-card-action {
+        width: 100%;
+        height: 32px;
+        margin-top: auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-semibold;
+        border-radius: $shape-corner-small;
+        box-sizing: border-box;
+        pointer-events: none;
+        transition: background-color $duration-fast $ease-smooth,
+                    border-color $duration-fast $ease-smooth;
+    }
+}
+
+.landing-modal-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: $spacing-2xs;
+}
+
+.landing-modal-stay-btn {
+    min-height: 32px;
+    padding: $spacing-xs $spacing-lg;
+    border-radius: $shape-corner-medium;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    background-color: $bg-surface-tertiary;
+    border: 1px solid $border-primary;
+    cursor: pointer;
+    transition: background-color $duration-fast $ease-smooth,
+                color $duration-fast $ease-smooth,
+                border-color $duration-fast $ease-smooth;
+
+    &:hover {
+        background-color: $btn-bg-grey-soft-hover;
+        color: $text-primary;
+        border-color: $border-secondary;
+    }
+}

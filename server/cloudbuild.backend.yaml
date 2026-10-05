@@ -21,7 +21,9 @@ steps:
          '--update-secrets', 'CLASH_OF_CLANS_API_TOKEN=clash-of-clans-api-token:latest',
          '--update-secrets', 'FIRESTORE_SA_KEY=orecalc-firestore-sa-key:latest',
          '--update-secrets', 'SMTP_PASS=smtp-password:latest',
-         '--update-env-vars', 'SMTP_HOST=smtp.zoho.eu,SMTP_PORT=465,SMTP_SECURE=true,SMTP_USER=admin@clashcalc.com,EMAIL_FROM=noreply@clashcalc.com,RECIPIENT_EMAIL_LEGAL=legal@clashcalc.com,RECIPIENT_EMAIL_SUPPORT=support@clashcalc.com,RECIPIENT_EMAIL_SECURITY=security@clashcalc.com']
+         '--update-secrets', 'JWT_SECRET=jwt-secret:latest',
+         '--update-secrets', 'TURNSTILE_SECRET_KEY=turnstile-secret-key:latest',
+         '--update-env-vars', 'SMTP_HOST=smtp.zoho.eu,SMTP_PORT=465,SMTP_SECURE=true,SMTP_USER=admin@clashcalc.com,EMAIL_FROM=noreply@clashcalc.com,RECIPIENT_EMAIL_LEGAL=legal@clashcalc.com,RECIPIENT_EMAIL_SUPPORT=support@clashcalc.com,RECIPIENT_EMAIL_SECURITY=security@clashcalc.com,RP_NAME=ClashCalc,RP_ID=clashcalc.com,RP_ORIGIN=https://clashcalc.com,TURNSTILE_ENABLED=true,TURNSTILE_SITE_KEY=0x4AAAAAAFKe1o6aVU7iEWw7']
   entrypoint: gcloud
 
 images:

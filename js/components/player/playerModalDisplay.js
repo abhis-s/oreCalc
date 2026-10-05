@@ -2,12 +2,25 @@ import { translate } from '../../i18n/translator.js';
 
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
-
-import { dom } from '../../dom/domElements.js';
 import { sanitizeHTML } from '../../ui/noticeModal.js';
 
 let errorTimeout;
 let isForcedVerification = false;
+
+/**
+ * Resolves Add Player Modal DOM elements from document.
+ */
+function getPlayerModalElements() {
+    return {
+        modal: /** @type {HTMLDialogElement|HTMLElement|null} */ (document.getElementById('add-player-modal')),
+        playerTagInput: /** @type {HTMLInputElement|null} */ (document.getElementById('player-tag-input-modal')),
+        loadButton: /** @type {HTMLButtonElement|null} */ (document.getElementById('load-player-modal-btn')),
+        verifyButton: /** @type {HTMLButtonElement|null} */ (document.getElementById('verify-player-modal-btn')),
+        tokenContainer: document.getElementById('add-player-token-container'),
+        tokenInput: /** @type {HTMLInputElement|null} */ (document.getElementById('add-player-token-input')),
+        errorMessageElement: document.getElementById('player-tag-error-message')
+    };
+}
 
 /**
  * Returns whether API token verification is currently enforced for player loading.
@@ -39,12 +52,14 @@ export function updateLoadButtonState(playerTagInput, loadButton) {
  * Resets Player Modal input fields, validation error classes, and button states to initial defaults.
  */
 export function resetModalState() {
-    const playerTagInput = dom.player?.playerTagInputModal;
-    const loadButton = dom.player?.loadPlayerModalButton;
-    const verifyButton = dom.player?.verifyPlayerModalButton;
-    const tokenContainer = dom.player?.addPlayerTokenContainer;
-    const tokenInput = dom.player?.addPlayerTokenInput;
-    const errorMessageElement = dom.player?.playerTagErrorMessage;
+    const {
+        playerTagInput,
+        loadButton,
+        verifyButton,
+        tokenContainer,
+        tokenInput,
+        errorMessageElement
+    } = getPlayerModalElements();
 
     if (playerTagInput) {
         playerTagInput.disabled = false;
@@ -80,12 +95,15 @@ export function resetModalState() {
  * @param {string} [errorType=null] - Specific API error type code.
  */
 export function renderPlayerModal(isVisible, currentTag, message, isError, errorType = null) {
-    const modal = dom.player?.addPlayerModal;
-    const playerTagInput = dom.player?.playerTagInputModal;
-    const errorMessageElement = dom.player?.playerTagErrorMessage;
-    const loadButton = dom.player?.loadPlayerModalButton;
-    const verifyButton = dom.player?.verifyPlayerModalButton;
-    const tokenContainer = dom.player?.addPlayerTokenContainer;
+    const {
+        modal,
+        playerTagInput,
+        errorMessageElement,
+        loadButton,
+        verifyButton,
+        tokenContainer,
+        tokenInput
+    } = getPlayerModalElements();
 
     if (!modal || !playerTagInput || !errorMessageElement || !loadButton) {
         console.error('Modal DOM elements not found for rendering.');
@@ -119,7 +137,6 @@ export function renderPlayerModal(isVisible, currentTag, message, isError, error
         if (playerTagInput) {
             playerTagInput.classList.remove('input-error');
         }
-        const tokenInput = dom.player?.addPlayerTokenInput;
         if (tokenInput) {
             tokenInput.classList.remove('input-error');
         }

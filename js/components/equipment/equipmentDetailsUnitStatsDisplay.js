@@ -4,10 +4,9 @@ import { state } from '../../core/state.js';
 
 import {
     computeEffectiveLevels,
-    formatDiffVal,
-    isStatModifiable
+    formatDiffVal
 } from '../../domain/equipment/modifierCalculator.js';
-import { animateValue } from '../../utils/numberFormatter.js';
+import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
 
 /**
  * Returns map of spawned unit stat values and percentages for mode animation.
@@ -83,7 +82,6 @@ export function getCurrentUnitStatsStateMap(data, levelsArray, currentLevel, cal
 export function renderUnitStatsView(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, targetLevel, animateEntry = false, previousUnitMap = null) {
     if (!unitStatsContent || !data?.spawnedUnits) return;
 
-    const effective = computeEffectiveLevels(currentLevel, calculatedMaxLevel, data.rarity || equipmentRarity, activeModifierTab);
     const sp = data.spawnedUnits;
     const unitTypeKey = sp.unitType;
     const translatedUnitName = translate(`entities.unitTypes.${unitTypeKey}`);
@@ -139,10 +137,10 @@ export function renderUnitStatsView(unitStatsContent, data, levelsArray, current
         if (typeof v !== 'number') return String(v);
         if (vUnit === 'seconds' || vUnit === 'tiles') {
             const num = Math.round(v * 10) / 10;
-            return `${num.toLocaleString()}${vUnit === 'seconds' ? 's' : ' tiles'}`;
+            return `${formatNumber(num)}${vUnit === 'seconds' ? 's' : ' tiles'}`;
         }
         const isInt = Number.isInteger(v);
-        const numStr = isInt ? Math.round(v).toLocaleString() : (Math.round(v * 10) / 10).toLocaleString();
+        const numStr = isInt ? formatNumber(Math.round(v)) : formatNumber(Math.round(v * 10) / 10);
         if (vUnit === 'percentage' || vUnit === 'percent') return `${numStr}%`;
         return numStr;
     };
@@ -228,12 +226,12 @@ export function renderUnitStatsView(unitStatsContent, data, levelsArray, current
                                 if (typeof v !== 'number') return String(v);
                                 if (vUnit === 'seconds' || vUnit === 'tiles') {
                                     const num = Math.round(v * 10) / 10;
-                                    return `${num.toLocaleString()}${vUnit === 'seconds' ? 's' : ' tiles'}`;
+                                    return `${formatNumber(num)}${vUnit === 'seconds' ? 's' : ' tiles'}`;
                                 }
                                 const isInt = isIntStat || Number.isInteger(v);
                                 const num = isInt ? Math.round(v) : (Math.round(v * 10) / 10);
-                                if (vUnit === 'percentage' || vUnit === 'percent') return `${num.toLocaleString()}%`;
-                                return num.toLocaleString();
+                                if (vUnit === 'percentage' || vUnit === 'percent') return `${formatNumber(num)}%`;
+                                return formatNumber(num);
                             };
                             const delta = Math.abs(targetVal - startVal);
                             const animDuration = Math.min(450, Math.max(150, Math.round(Math.log10(delta + 1) * 160)));
@@ -323,10 +321,10 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
         if (typeof v !== 'number') return String(v);
         if (vUnit === 'seconds' || vUnit === 'tiles') {
             const num = Math.round(v * 10) / 10;
-            return `${num.toLocaleString()}${vUnit === 'seconds' ? 's' : ' tiles'}`;
+            return `${formatNumber(num)}${vUnit === 'seconds' ? 's' : ' tiles'}`;
         }
         const isInt = Number.isInteger(v);
-        const numStr = isInt ? Math.round(v).toLocaleString() : (Math.round(v * 10) / 10).toLocaleString();
+        const numStr = isInt ? formatNumber(Math.round(v)) : formatNumber(Math.round(v * 10) / 10);
         if (vUnit === 'percentage' || vUnit === 'percent') return `${numStr}%`;
         return numStr;
     };
@@ -394,7 +392,7 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
                 }
             }
 
-            const diffSign = formatDiffVal(diff, meta.valueUnit);
+            const diffSign = formatDiffVal(diff, meta.valueUnit, { tilesSuffix: translate('views.equipment.tilesSuffix') || 'tiles' });
             const formattedBase = formatVal(safeBase, meta.valueUnit);
             const formattedHover = formatVal(safeHover, meta.valueUnit);
             const deltaTextClass = isGain ? 'val-increase' : (isSame ? '' : 'val-decrease');
@@ -415,12 +413,12 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
                     if (typeof v !== 'number') return String(v);
                     if (vUnit === 'seconds' || vUnit === 'tiles') {
                         const num = Math.round(v * 10) / 10;
-                        return `${num.toLocaleString()}${vUnit === 'seconds' ? 's' : ' tiles'}`;
+                        return `${formatNumber(num)}${vUnit === 'seconds' ? 's' : ' tiles'}`;
                     }
                     const isInt = isIntStat || Number.isInteger(v);
                     const num = isInt ? Math.round(v) : (Math.round(v * 10) / 10);
-                    if (vUnit === 'percentage' || vUnit === 'percent') return `${num.toLocaleString()}%`;
-                    return num.toLocaleString();
+                    if (vUnit === 'percentage' || vUnit === 'percent') return `${formatNumber(num)}%`;
+                    return formatNumber(num);
                 };
 
                 if (!existingCompare) {

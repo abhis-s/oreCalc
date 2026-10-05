@@ -199,6 +199,9 @@ export function initializeCalendarEventListeners() {
                 }
             }
         });
+        if (monthChipContainer.children.length === 0) {
+            renderMonthChips();
+        }
     }
 
     mediaQuery.addEventListener('change', handleMediaQueryChange);

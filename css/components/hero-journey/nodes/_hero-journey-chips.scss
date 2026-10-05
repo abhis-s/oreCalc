@@ -9,7 +9,7 @@
     padding: 14px 10px;
     background: $bg-surface-primary;
     border: 1px solid $border-primary;
-    border-radius: 8px;
+    border-radius: $shape-corner-small;
     text-align: center;
     box-sizing: border-box;
     align-self: stretch;
@@ -63,9 +63,9 @@
     font-weight: 700;
     background: $bg-surface-secondary;
     color: $text-primary;
-    padding: 2px 8px;
+    padding: $spacing-2xs $spacing-sm;
     border-radius: 6px;
-    margin-bottom: 8px;
+    margin-bottom: $spacing-sm;
     border: 1px solid $border-primary;
     flex-shrink: 0;
 }
@@ -77,7 +77,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 8px;
+    margin-bottom: $spacing-sm;
     flex-shrink: 0;
     transition: width $duration-base $ease-smooth, height $duration-base $ease-smooth;
 
@@ -122,8 +122,8 @@
         color: $text-on-accent;
         font-size: 0.62rem;
         font-weight: 800;
-        padding: 2px;
-        border-radius: 4px;
+        padding: $spacing-2xs;
+        border-radius: $shape-corner-xs;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
         border: 1.5px solid $border-primary;
         z-index: 2;
@@ -135,7 +135,7 @@
             color: $text-inverse;
             font-size: 0.58rem;
             text-transform: uppercase;
-            padding: 2px 4px;
+            padding: $spacing-2xs $spacing-xs;
             letter-spacing: 0.3px;
         }
     }
@@ -170,8 +170,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    margin: 2px 0 6px;
+    gap: $spacing-xs;
+    margin: $spacing-2xs 0 6px;
     width: 100%;
     min-height: 20px;
     flex-wrap: wrap;
@@ -180,7 +180,7 @@
         position: relative;
         width: 18px;
         height: 18px;
-        border-radius: 4px;
+        border-radius: $shape-corner-xs;
         background: $bg-surface-secondary;
         border: 1px solid $border-primary;
         display: flex;

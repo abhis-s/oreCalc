@@ -5,7 +5,7 @@
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: $spacing-lg;
     margin-bottom: 20px;
 }
 
@@ -21,7 +21,7 @@
     justify-content: center;
     position: relative;
     height: 3.4rem;
-    padding: 0 4px;
+    padding: 0 $spacing-xs;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
@@ -148,7 +148,7 @@
         align-items: center;
         justify-content: center;
         color: $text-muted;
-        padding: 4px;
+        padding: $spacing-xs;
         border-radius: $shape-corner-small;
         border: 1px solid transparent;
         background: transparent;
@@ -188,7 +188,7 @@
     background-color: $accent-primary;
     color: $text-on-accent;
     font-weight: 800;
-    padding: 2px 8px;
+    padding: $spacing-2xs $spacing-sm;
     border-radius: 6px;
     font-size: clamp(0.7rem, 0.5vw + 0.65rem, 0.8rem);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);

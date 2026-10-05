@@ -1,66 +1,6 @@
 @use '../../abstracts/variables' as *;
 @use '../../base/placeholder';
-
-.eq-details-modifier-tabs {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 4px;
-    width: auto;
-    max-width: 100%;
-    box-sizing: border-box;
-    margin: 10px auto;
-    overflow-x: auto;
-    @extend %hide-scrollbar;
-    -webkit-overflow-scrolling: touch;
-    padding: 3px;
-    background: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
-    border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
-    border-radius: 10px;
-
-    .mod-tab-indicator {
-        position: absolute;
-        top: 3px;
-        bottom: 3px;
-        left: 0;
-        width: 0;
-        background: color-mix(in srgb, $accent-primary 20%, transparent);
-        border: 1px solid color-mix(in srgb, $accent-primary 40%, transparent);
-        border-radius: 7px;
-        transition: transform $duration-moderate $ease-spring, width $duration-moderate $ease-spring;
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    .mod-tab-btn {
-        position: relative;
-        z-index: 2;
-        flex: 0 0 auto;
-        min-width: auto;
-        padding: 5px 9px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: $text-secondary;
-        border-radius: 7px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        cursor: pointer;
-        white-space: nowrap;
-        text-align: center;
-        transition: color $duration-fast $ease-smooth;
-
-        &:hover:not(.active) {
-            color: $text-primary;
-            background: color-mix(in srgb, $accent-primary 10%, transparent);
-        }
-
-        &.active {
-            color: $accent-primary;
-            font-weight: 700;
-        }
-    }
-}
+@use '../modifier-tabs';
 
 #eq-details-empty-state-container {
     flex: 1;
@@ -81,9 +21,9 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 32px 24px;
+    padding: $spacing-2xl $spacing-xl;
     background: color-mix(in srgb, $bg-surface-secondary 40%, transparent);
-    border-radius: 16px;
+    border-radius: $shape-corner-large;
     border: 1px dashed color-mix(in srgb, $border-primary 50%, transparent);
     margin: 0;
     box-sizing: border-box;
@@ -96,7 +36,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 16px;
+        margin-bottom: $spacing-lg;
         color: $text-secondary;
 
         svg {
@@ -107,7 +47,7 @@
     }
 
     h3 {
-        margin: 0 0 8px;
+        margin: 0 0 $spacing-sm;
         font-size: 1.2rem;
         color: $text-primary;
     }
@@ -118,7 +58,7 @@
         color: $text-secondary;
 
         &.empty-state-contribute {
-            margin-top: 8px;
+            margin-top: $spacing-sm;
             font-size: 0.85rem;
 
             em {

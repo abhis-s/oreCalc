@@ -25,15 +25,7 @@ export const tourSteps = [
         tab: 'home',
         titleKey: 'views.tour.profileTitle',
         descKey: 'views.tour.profileDesc',
-        placement: 'bottom',
-        onEnter: async () => {
-            const { openDropdown } = await import('../components/player/playerDropdown.js');
-            openDropdown();
-        },
-        onLeave: async () => {
-            const { closeDropdown } = await import('../components/player/playerDropdown.js');
-            closeDropdown();
-        }
+        placement: 'bottom'
     },
     {
         id: 'player-profile-card',
@@ -66,7 +58,7 @@ export const tourSteps = [
         tab: 'home',
         titleKey: () => {
             const isSmallScreen = window.innerWidth < 780;
-            return isSmallScreen ? 'views.tour.fabTitle' : 'views.tour.saveTitle';
+            return isSmallScreen ? 'actions.actionsMenu' : 'views.tour.saveTitle';
         },
         descKey: () => {
             const isSmallScreen = window.innerWidth < 780;
@@ -75,39 +67,6 @@ export const tourSteps = [
         placement: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? 'top' : 'left';
-        },
-        onEnter: async () => {
-            const isSmallScreen = window.innerWidth < 780;
-            if (isSmallScreen) {
-                const mainFab = document.getElementById('main-fab');
-                const fabMenu = document.querySelector('.fab-menu');
-                const overlay = document.getElementById('overlay');
-                if (mainFab && fabMenu) {
-                    mainFab.classList.add('active');
-                    fabMenu.classList.add('show');
-                    overlay?.classList.add('show');
-                    document.body.classList.add('open-fab');
-                }
-            } else {
-                const saveBtn = document.getElementById('floating-save-btn');
-                if (saveBtn) {
-                    saveBtn.dataset.originalDisplay = saveBtn.style.display;
-                    saveBtn.style.setProperty('display', 'block', 'important');
-                }
-            }
-        },
-        onLeave: async () => {
-            const isSmallScreen = window.innerWidth < 780;
-            if (isSmallScreen) {
-                const { closeFabMenu } = await import('../components/fab/fab.js');
-                closeFabMenu();
-            } else {
-                const saveBtn = document.getElementById('floating-save-btn');
-                if (saveBtn && saveBtn.dataset.originalDisplay !== undefined) {
-                    saveBtn.style.display = saveBtn.dataset.originalDisplay;
-                    delete saveBtn.dataset.originalDisplay;
-                }
-            }
         }
     },
     {
@@ -120,7 +79,7 @@ export const tourSteps = [
             return isSmallScreen ? '.nav-button[data-tab="equipment"]' : '.tab-button[data-tab="equipment"]';
         },
         tab: 'equipment',
-        titleKey: 'views.tour.navEquipmentTitle',
+        titleKey: 'nav.equipment',
         descKey: 'views.tour.navEquipmentDesc',
         placement: () => {
             const isSmallScreen = window.innerWidth < 780;
@@ -149,20 +108,7 @@ export const tourSteps = [
         tab: 'equipment',
         titleKey: 'views.tour.eqDetailsModalTitle',
         descKey: 'views.tour.eqDetailsModalDesc',
-        placement: 'bottom',
-        onEnter: async () => {
-
-            const { openEquipmentDetailsModal } = await import('../components/equipment/equipmentDetailsModal.js');
-            const { state } = await import('../core/state.js');
-            const playerLevel = state.heroes?.['Dragon Duke']?.equipment?.['Fire Heart']?.level || 1;
-            await openEquipmentDetailsModal('Fire Heart', playerLevel);
-            await new Promise(resolve => setTimeout(resolve, 300));
-        },
-        onLeave: async () => {
-            const closeBtn = document.getElementById('close-eq-details-modal-btn');
-            if (closeBtn) closeBtn.click();
-            await new Promise(resolve => setTimeout(resolve, 200));
-        }
+        placement: 'bottom'
     },
     {
         id: 'eq-settings',
@@ -194,21 +140,11 @@ export const tourSteps = [
             return isSmallScreen ? '.nav-button[data-tab="income"]' : '.tab-button[data-tab="income"]';
         },
         tab: 'income',
-        titleKey: 'views.tour.navIncomeTitle',
+        titleKey: 'nav.income',
         descKey: 'views.tour.navIncomeDesc',
         placement: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? 'top' : 'bottom';
-        },
-        onEnter: () => {
-            document.querySelectorAll('.income-card .card-title').forEach(el => {
-                el.classList.add('tour-glow-title');
-            });
-        },
-        onLeave: () => {
-            document.querySelectorAll('.income-card .card-title').forEach(el => {
-                el.classList.remove('tour-glow-title');
-            });
         }
     },
     {
@@ -234,8 +170,8 @@ export const tourSteps = [
         order: '04.01',
         target: '#planner-max-levels-card',
         tab: 'planner',
-        titleKey: 'views.tour.targetTitle',
-        descKey: 'views.tour.targetDesc',
+        titleKey: 'views.planner.customMaxLevel',
+        descKey: 'views.planner.customMaxLevelHelp',
         placement: 'bottom'
     },
     {
@@ -245,7 +181,7 @@ export const tourSteps = [
         target: '.planner-hero-carousel',
         tab: 'planner',
         titleKey: 'views.tour.disableHeroEquipmentTitle',
-        descKey: 'views.tour.heroCarouselDesc',
+        descKey: 'views.planner.heroCarouselHelp',
         placement: 'bottom'
     },
     {
@@ -254,8 +190,8 @@ export const tourSteps = [
         order: '04.03',
         target: '#priority-list-card',
         tab: 'planner',
-        titleKey: 'views.tour.priorityTitle',
-        descKey: 'views.tour.priorityDesc',
+        titleKey: 'views.planner.priorityList',
+        descKey: 'views.planner.priorityListHelp',
         placement: 'bottom'
     },
     {
@@ -264,8 +200,8 @@ export const tourSteps = [
         order: '04.04',
         target: '#calendar-container',
         tab: 'planner',
-        titleKey: 'views.tour.calendarTitle',
-        descKey: 'views.tour.calendarDesc',
+        titleKey: 'views.planner.calendarTitle',
+        descKey: 'views.planner.calendarHelp',
         placement: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? 'bottom' : 'top';
@@ -277,8 +213,8 @@ export const tourSteps = [
         order: '04.05',
         target: '#income-chips-card',
         tab: 'planner',
-        titleKey: 'views.tour.incomeChipsTitle',
-        descKey: 'views.tour.incomeChipsDesc',
+        titleKey: 'views.income.chipsTitle',
+        descKey: 'views.planner.incomeChipsHelp',
         placement: () => {
             const isSmallScreen = window.innerWidth < 780;
             return isSmallScreen ? 'bottom' : 'top';
@@ -295,7 +231,7 @@ export const tourSteps = [
             return isSmallScreen ? '.nav-button[data-tab="settings"]' : '.tab-button[data-tab="settings"]';
         },
         tab: 'settings',
-        titleKey: 'views.tour.navSettingsTitle',
+        titleKey: 'nav.settings',
         descKey: 'views.tour.navSettingsDesc',
         placement: () => {
             const isSmallScreen = window.innerWidth < 780;
@@ -308,7 +244,7 @@ export const tourSteps = [
         order: '05.01',
         target: '#preferences-card',
         tab: 'settings',
-        titleKey: 'views.tour.preferencesTitle',
+        titleKey: 'views.settings.cards.preferences',
         descKey: 'views.tour.preferencesDesc',
         placement: 'bottom'
     },
@@ -316,9 +252,9 @@ export const tourSteps = [
         id: 'backup-sync',
         setId: 'v1.0',
         order: '05.02',
-        target: '#backup-sync-card',
+        target: '#account-card',
         tab: 'settings',
-        titleKey: 'views.tour.backupSyncTitle',
+        titleKey: 'views.settings.cards.accountAndSync',
         descKey: 'views.tour.backupSyncDesc',
         placement: 'bottom'
     }

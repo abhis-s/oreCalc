@@ -78,7 +78,7 @@
         }
 
         .modal-header {
-            padding: 12px 16px;
+            padding: $spacing-md $spacing-lg;
 
             h2 {
                 font-size: 1.15rem;
@@ -88,7 +88,7 @@
         }
 
         .modal-body {
-            padding: 12px 16px 16px;
+            padding: $spacing-md $spacing-lg $spacing-lg;
         }
 
         .eq-details-fallback-desc {
@@ -97,13 +97,13 @@
 
         .eq-details-avatars {
             padding: 5px 10px;
-            gap: 8px;
-            border-radius: 12px;
+            gap: $spacing-sm;
+            border-radius: $shape-corner-medium;
 
             .eq-details-hero-emblem {
                 width: 30px;
                 height: 30px;
-                border-radius: 8px;
+                border-radius: $shape-corner-small;
             }
 
             .avatar-sep {
@@ -118,17 +118,17 @@
 
         .eq-badge {
             font-size: 0.68rem;
-            padding: 3px 8px;
+            padding: 3px $spacing-sm;
         }
 
         .mod-tab-btn {
             font-size: 0.68rem;
-            padding: 4px 8px;
+            padding: $spacing-xs $spacing-sm;
         }
 
         .eq-details-props-grid {
             gap: 10px;
-            padding: 12px;
+            padding: $spacing-md;
 
             .prop-card-header {
                 font-size: 0.72rem;
@@ -163,7 +163,7 @@
             font-size: 0.8rem;
 
             th, td {
-                padding: 8px 8px;
+                padding: $spacing-sm $spacing-sm;
             }
 
             thead tr.super-header-row th.category-header {
@@ -195,7 +195,7 @@
 
     @media (max-width: $breakpoint-modal) {
         .modal-header {
-            padding: 10px 12px;
+            padding: 10px $spacing-md;
 
             h2 {
                 font-size: 1.05rem;
@@ -203,8 +203,8 @@
         }
 
         .eq-details-header-row {
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: $spacing-sm;
+            margin-bottom: $spacing-sm;
         }
 
         .eq-details-fallback-desc {
@@ -212,7 +212,7 @@
         }
 
         .eq-details-avatars {
-            padding: 4px 8px;
+            padding: $spacing-xs $spacing-sm;
             gap: 6px;
             border-radius: 10px;
 
@@ -234,17 +234,12 @@
 
         .eq-badge {
             font-size: 0.64rem;
-            padding: 2px 7px;
-        }
-
-        .mod-tab-btn {
-            font-size: 0.64rem;
-            padding: 4px 7px;
+            padding: $spacing-2xs 7px;
         }
 
         .eq-details-props-grid {
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 8px;
+            gap: $spacing-sm;
             padding: 10px;
 
             .prop-card-header {
@@ -262,7 +257,7 @@
 
         .eq-details-static-stats-box,
         .eq-details-current-level-box {
-            padding: 8px 12px;
+            padding: $spacing-sm $spacing-md;
 
             .unit-title,
             .eq-details-level-header {
@@ -278,14 +273,14 @@
 
         .rec-banner-card {
             font-size: 0.75rem;
-            padding: 8px 10px;
+            padding: $spacing-sm 10px;
         }
 
         .eq-details-table {
             font-size: 0.75rem;
 
             th, td {
-                padding: 6px 4px;
+                padding: 6px $spacing-xs;
             }
 
             thead tr.super-header-row th.category-header {

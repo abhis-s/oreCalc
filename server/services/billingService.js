@@ -51,6 +51,7 @@ async function fetchBillingCostsFromBigQuery() {
           ROUND(SUM(amount), 2) as total_cost,
           FORMAT_TIMESTAMP('%Y-%m', activity_date) as billing_month
         FROM \`${projectId}.${datasetId}.${tableId}\`
+        WHERE LOWER(service_name) != 'invoice' AND LOWER(sku_name) NOT IN ('tax', 'rounding error')
         GROUP BY 1, 2, 4
         ORDER BY billing_month DESC, total_cost DESC
     `;

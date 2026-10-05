@@ -1,0 +1,77 @@
+@use '../abstracts/variables' as *;
+
+.calc-stepped-slider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 90px;
+    height: 16px;
+
+    .calc-slider {
+        width: 100%;
+        height: 16px;
+        margin: 0;
+        accent-color: $accent-primary;
+        cursor: pointer;
+        vertical-align: middle;
+
+        &:focus-visible {
+            outline: 2px solid $border-accent;
+            outline-offset: 2px;
+        }
+
+        &:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+    }
+
+    .calc-slider-locked-track {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 50%;
+        right: 1px;
+        // Native range thumb has 8px radius ($spacing-sm) and 16px travel inset ($spacing-lg)
+        left: calc(#{$spacing-lg} + var(--slider-locked-ratio, calc(var(--slider-locked-start, 100%) / 100%)) * (100% - #{$spacing-lg}));
+        background: repeating-linear-gradient(
+            -45deg,
+            rgba(255, 255, 255, 0.05),
+            rgba(255, 255, 255, 0.05) 3px,
+            rgba(255, 255, 255, 0.12) 3px,
+            rgba(255, 255, 255, 0.12) 6px
+        );
+        border-radius: 0 $shape-corner-xs $shape-corner-xs 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .calc-slider-ticks {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        // Inset by thumb radius so first and last notches center directly under min and max thumb positions
+        padding-inline: $spacing-sm;
+        height: $spacing-xs;
+        pointer-events: none;
+    }
+
+    .calc-slider-tick {
+        width: 0;
+        height: $spacing-xs;
+        border-left: 1.5px solid $border-primary;
+        border-radius: $shape-corner-2xs;
+        opacity: 0.7;
+
+        &.is-disabled {
+            opacity: 0.2;
+            border-left: 1.5px dashed $border-secondary;
+        }
+    }
+}

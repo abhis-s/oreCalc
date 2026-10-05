@@ -491,7 +491,7 @@ describe('Home Income Table & Number Animation Suite', () => {
         });
 
         test('updatePerChipRewardsPreview animates signed custom chip rewards preview', () => {
-            const previewContainer = createMockElement('div', 'custom-chip-rewards-preview');
+            createMockElement('div', 'custom-chip-rewards-preview');
             const typeSelect = createMockElement('select', 'custom-chip-type-select');
             typeSelect.value = 'starBonus';
 
@@ -518,8 +518,8 @@ describe('Home Income Table & Number Animation Suite', () => {
 
         test('updateHeroJourneyUpcomingBadges animates and displays green badges when synced', () => {
             const shinyBadge = createMockElement('span', 'eq-shiny-hero-journey-badge');
-            const glowyBadge = createMockElement('span', 'eq-glowy-hero-journey-badge');
-            const starryBadge = createMockElement('span', 'eq-starry-hero-journey-badge');
+            createMockElement('span', 'eq-glowy-hero-journey-badge');
+            createMockElement('span', 'eq-starry-hero-journey-badge');
 
             state.savedPlayerTags = ['#PLAYER123'];
             state.playerProfile = {

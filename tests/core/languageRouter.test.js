@@ -5,6 +5,7 @@ import {
     getLanguageFromPath,
     detectLanguage,
     syncLanguageUrl,
+    getLocalizedPath,
     isValidRoute
 } from '../../js/core/languageRouter.js';
 import { state } from '../../js/core/state.js';
@@ -269,6 +270,52 @@ describe('Language Router Domain Suite', () => {
         });
     });
 
+    describe('getLocalizedPath', () => {
+        test('constructs localized sub-routes for damage calculator preserving trailing slash', () => {
+            assert.equal(getLocalizedPath('de', { pathname: '/damage-calculator/' }), '/de/damage-calculator/');
+            assert.equal(getLocalizedPath('tr', { pathname: '/damage-calculator/' }), '/tr/damage-calculator/');
+            assert.equal(getLocalizedPath('zh', { pathname: '/damage-calculator/' }), '/zh/damage-calculator/');
+            assert.equal(getLocalizedPath('en', { pathname: '/damage-calculator/' }), '/damage-calculator/');
+        });
+
+        test('switches between localized sub-routes and English without duplicating language codes', () => {
+            assert.equal(getLocalizedPath('en', { pathname: '/de/damage-calculator/' }), '/damage-calculator/');
+            assert.equal(getLocalizedPath('tr', { pathname: '/de/damage-calculator/' }), '/tr/damage-calculator/');
+            assert.equal(getLocalizedPath('zh', { pathname: '/tr/hero-journey/' }), '/zh/hero-journey/');
+        });
+
+        test('preserves search query parameters and hash fragments on sub-routes', () => {
+            const loc = {
+                pathname: '/hero-journey/',
+                search: '?tag=8PJYGUJC',
+                hash: '#milestones'
+            };
+            assert.equal(getLocalizedPath('de', loc), '/de/hero-journey/?tag=8PJYGUJC#milestones');
+            assert.equal(getLocalizedPath('en', loc), '/hero-journey/?tag=8PJYGUJC#milestones');
+
+            const localizedLoc = {
+                pathname: '/de/damage-calculator/',
+                search: '?_t=1789835700',
+                hash: '#defense'
+            };
+            assert.equal(getLocalizedPath('en', localizedLoc), '/damage-calculator/?_t=1789835700#defense');
+            assert.equal(getLocalizedPath('tr', localizedLoc), '/tr/damage-calculator/?_t=1789835700#defense');
+        });
+
+        test('normalizes root path between English and non-English locales', () => {
+            assert.equal(getLocalizedPath('de', { pathname: '/' }), '/de/');
+            assert.equal(getLocalizedPath('tr', { pathname: '/' }), '/tr/');
+            assert.equal(getLocalizedPath('en', { pathname: '/' }), '/');
+            assert.equal(getLocalizedPath('en', { pathname: '/de/' }), '/');
+            assert.equal(getLocalizedPath('zh', { pathname: '/de/' }), '/zh/');
+        });
+
+        test('falls back safely to root path if location is missing or empty', () => {
+            assert.equal(getLocalizedPath('de', null), '/de/');
+            assert.equal(getLocalizedPath('en', null), '/');
+        });
+    });
+
     describe('isValidRoute', () => {
         test('recognizes standard application routes and root pages', () => {
             assert.equal(isValidRoute('/'), true);
@@ -278,6 +325,8 @@ describe('Language Router Domain Suite', () => {
             assert.equal(isValidRoute('/hero-journey'), true);
             assert.equal(isValidRoute('/ore-calculator'), true);
             assert.equal(isValidRoute('/ore-calculator/'), true);
+            assert.equal(isValidRoute('/damage-calculator'), true);
+            assert.equal(isValidRoute('/damage-calculator/'), true);
             assert.equal(isValidRoute('/privacy'), true);
             assert.equal(isValidRoute('/terms'), true);
             assert.equal(isValidRoute('/licenses'), true);
@@ -288,16 +337,20 @@ describe('Language Router Domain Suite', () => {
             assert.equal(isValidRoute('/en/'), true);
             assert.equal(isValidRoute('/en/hero-journey'), true);
             assert.equal(isValidRoute('/en/ore-calculator'), true);
+            assert.equal(isValidRoute('/en/damage-calculator'), true);
             assert.equal(isValidRoute('/de'), true);
             assert.equal(isValidRoute('/de/'), true);
             assert.equal(isValidRoute('/de/hero-journey'), true);
             assert.equal(isValidRoute('/de/ore-calculator'), true);
+            assert.equal(isValidRoute('/de/damage-calculator'), true);
             assert.equal(isValidRoute('/de/privacy'), true);
             assert.equal(isValidRoute('/de/terms'), true);
             assert.equal(isValidRoute('/tr/hero-journey'), true);
             assert.equal(isValidRoute('/tr/ore-calculator'), true);
+            assert.equal(isValidRoute('/tr/damage-calculator'), true);
             assert.equal(isValidRoute('/zh/hero-journey'), true);
             assert.equal(isValidRoute('/zh/ore-calculator'), true);
+            assert.equal(isValidRoute('/zh/damage-calculator'), true);
         });
 
         test('rejects unrecognized routes and fake path subroutes', () => {

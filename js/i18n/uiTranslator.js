@@ -5,8 +5,7 @@ import { state } from '../core/state.js';
 import { applyThemeSettings } from '../core/themeManager.js';
 
 import { safeJsonParse } from '../utils/jsonUtils.js';
-
-import { getAppLastUpdatedDateFormatted } from '../components/appSettings/appSettingsDisplay.js';
+import { setDefaultDateLocale, getAppLastUpdatedDateFormatted } from '../utils/dateUtils.js';
 
 /**
  * Traverses DOM data-i18n attributes and updates element text/attributes with translated strings.
@@ -14,6 +13,7 @@ import { getAppLastUpdatedDateFormatted } from '../components/appSettings/appSet
  */
 export function updateUIWithTranslations(isInitialLoad = false) {
     const currentLang = state.uiSettings?.language || 'en';
+    setDefaultDateLocale(currentLang);
 
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
@@ -22,7 +22,7 @@ export function updateUIWithTranslations(isInitialLoad = false) {
         const argsAttr = element.getAttribute('data-i18n-args');
         let args = argsAttr ? (safeJsonParse(argsAttr, {}) || {}) : {};
 
-        if (key === 'views.settings.bugReportDesc') {
+        if (key === 'views.settings.bugReport.desc') {
             const formattedDate = getAppLastUpdatedDateFormatted(currentLang);
             args.date = formattedDate;
             element.setAttribute('data-i18n-args', JSON.stringify(args));
@@ -93,10 +93,12 @@ export function updateUIWithTranslations(isInitialLoad = false) {
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) ogTitle.setAttribute('content', translate('app.title'));
 
-    if (!isInitialLoad) {
+    if (!isInitialLoad && state.uiSettings) {
         applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');
     }
 
-    document.documentElement.lang = state.uiSettings.language || 'auto';
-    document.dispatchEvent(new CustomEvent('languageChanged'));
+    document.documentElement.lang = state.uiSettings?.language || 'auto';
+    if (!isInitialLoad) {
+        document.dispatchEvent(new CustomEvent('languageChanged'));
+    }
 }

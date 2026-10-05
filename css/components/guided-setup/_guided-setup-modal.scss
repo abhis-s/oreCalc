@@ -1,0 +1,220 @@
+@use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
+
+#guided-setup-modal {
+    background-color: $shadow-overlay-dark;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: $z-index-modal;
+    max-width: 100vw;
+
+    &[open] {
+        display: flex;
+    }
+
+    @media (max-width: $breakpoint-modal) {
+        background-color: $bg-surface-secondary;
+        padding: 0 !important;
+    }
+}
+
+.guided-setup-modal-content {
+    animation: none;
+    transform: none;
+    transition: opacity $duration-fast $ease-smooth, visibility $duration-fast $ease-smooth;
+    max-width: min($modal-width-expanded, 100vw);
+    width: 100%;
+    height: min(640px, calc(100dvh - 64px));
+    max-height: $modal-max-height;
+    margin: auto;
+    padding: 0;
+    text-align: left;
+    background-color: $bg-surface-secondary;
+    border: 1px solid color-mix(in srgb, $accent-primary 15%, transparent);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 50px color-mix(in srgb, $accent-primary 5%, transparent);
+    border-radius: $modal-radius-standard;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+    position: relative;
+
+    @media (max-width: $breakpoint-modal) {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: $bg-surface-secondary;
+        justify-content: flex-start;
+    }
+
+    .guided-setup-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+        padding: 20px $spacing-xl $spacing-lg;
+        border-bottom: 1px solid $border-primary;
+        text-align: left;
+        flex-shrink: 0;
+        box-sizing: border-box;
+
+        @media (max-width: $breakpoint-modal) {
+            padding: $spacing-lg 20px $spacing-md;
+        }
+
+        .guided-setup-header-titles {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-xs;
+            flex: 1;
+            min-width: 0;
+
+            h1 {
+                font-size: $font-size-xl;
+                font-weight: $font-weight-bold;
+                color: $text-primary;
+                margin: 0;
+                line-height: 1.25;
+            }
+
+            .guided-setup-subtitle {
+                font-size: $font-size-sm;
+                color: $text-secondary;
+                line-height: 1.4;
+                margin: 0;
+            }
+        }
+
+        .guided-setup-header-actions {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            flex-shrink: 0;
+
+            .guided-setup-step-indicator {
+                width: auto;
+                min-width: 0;
+                max-width: none;
+                height: auto;
+                min-height: 0;
+                max-height: none;
+                aspect-ratio: auto;
+                border: none;
+                font-size: $font-size-sm;
+                font-weight: $font-weight-semibold;
+                color: $accent-primary;
+                padding: $spacing-xs $spacing-sm;
+                border-radius: $shape-corner-small;
+                background-color: $accent-primary-soft;
+                white-space: nowrap;
+            }
+        }
+    }
+
+    .guided-setup-body {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-lg;
+        min-height: 0;
+        padding: 20px $spacing-xl;
+        scrollbar-width: thin;
+        scroll-behavior: smooth;
+        text-align: left;
+        box-sizing: border-box;
+
+        @media (max-width: $breakpoint-modal) {
+            padding: $spacing-lg 20px 20px;
+            gap: $spacing-md;
+        }
+    }
+
+    .guided-setup-step {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-lg;
+        width: 100%;
+        box-sizing: border-box;
+
+        &[style*="display: block"] {
+            display: flex !important;
+        }
+
+        @media (max-width: $breakpoint-modal) {
+            gap: $spacing-md;
+        }
+    }
+
+    .guided-setup-actions {
+        position: relative;
+        z-index: $z-index-base;
+        display: flex;
+        flex-direction: row;
+        gap: $spacing-md;
+        padding: $spacing-lg $spacing-xl;
+        border-top: 1px solid $border-primary;
+        width: 100%;
+        background-color: $bg-surface-secondary;
+        justify-content: space-between;
+        align-items: center;
+        box-sizing: border-box;
+        flex-shrink: 0;
+
+        @media (max-width: $breakpoint-modal) {
+            padding: $spacing-md 20px;
+            gap: $spacing-sm;
+        }
+
+        .guided-setup-actions-left,
+        .guided-setup-actions-right {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+        }
+
+        .btn-secondary,
+        .btn-primary {
+            min-height: 40px;
+            line-height: 1.25;
+            padding: $spacing-sm $spacing-lg;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-medium;
+            border-radius: $shape-corner-medium;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 96px;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
+
+            @media (max-width: $breakpoint-modal) {
+                min-width: 72px;
+                padding: $spacing-xs $spacing-md;
+                min-height: 38px;
+            }
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            border: 1px solid transparent;
+            color: $text-secondary;
+
+            &:hover {
+                background-color: $bg-surface-tertiary;
+                color: $text-primary;
+                border-color: $border-primary;
+            }
+        }
+    }
+}

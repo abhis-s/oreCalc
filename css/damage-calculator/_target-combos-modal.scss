@@ -1,0 +1,279 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+#calc-target-combos-modal {
+    .calc-target-combos-modal-content {
+        max-width: $modal-width-expanded;
+        width: 100%;
+        height: $modal-max-height-fallback;
+        height: $modal-max-height;
+        box-sizing: border-box;
+    }
+
+    .calc-target-combos-modal-body {
+        padding: 0 $spacing-md $spacing-md;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+
+        @media (max-width: $breakpoint-modal) {
+            padding: 0 $spacing-sm $spacing-sm;
+        }
+    }
+}
+
+.calc-target-combos-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: $bg-surface-secondary;
+    padding-top: $spacing-md;
+    padding-bottom: $spacing-xs;
+
+    @media (max-width: $breakpoint-modal) {
+        padding-top: $spacing-sm;
+        padding-bottom: $spacing-2xs;
+    }
+}
+
+.calc-target-combos-sheet {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}
+
+.calc-target-combos-overview {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+
+    @media (max-width: $breakpoint-phone) {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-areas:
+            "thumb title"
+            "thumb hp"
+            "control control";
+        gap: $spacing-xs $spacing-sm;
+        padding: $spacing-sm;
+    }
+
+    &__thumb-wrapper {
+        position: relative;
+        flex-shrink: 0;
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-small;
+
+        @media (max-width: $breakpoint-phone) {
+            grid-area: thumb;
+            align-self: center;
+            width: 48px;
+            height: 48px;
+        }
+    }
+
+    &__thumb {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+
+        @media (max-width: $breakpoint-phone) {
+            width: 42px;
+            height: 42px;
+        }
+    }
+
+    &__seasonal-badge {
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        width: 16px;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: color-mix(in srgb, $bg-surface-tertiary 90%, black);
+        border: 1px solid $border-primary;
+        color: $accent-primary;
+        border-radius: $shape-corner-full;
+        box-shadow: $elevation-1;
+    }
+
+    &__meta {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+        flex: 1;
+        min-width: 0;
+
+        @media (max-width: $breakpoint-phone) {
+            display: contents;
+        }
+    }
+
+    &__title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-xs;
+        min-height: 28px;
+
+        @media (max-width: $breakpoint-phone) {
+            grid-area: title;
+            min-width: 0;
+        }
+
+        @media (max-width: $breakpoint-micro) {
+            min-height: 24px;
+        }
+    }
+
+    &__name {
+        margin: 0;
+        font-size: $font-size-md;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__reset-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2xs;
+        height: 28px;
+        padding: 0 $spacing-sm;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-full;
+        color: $text-secondary;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        cursor: pointer;
+        box-sizing: border-box;
+        transition: color $transition-fast, border-color $transition-fast, background-color $transition-fast;
+        flex-shrink: 0;
+
+        &:hover {
+            color: $accent-primary;
+            border-color: $border-accent;
+            background-color: $bg-surface-primary;
+        }
+
+        @media (max-width: $breakpoint-micro) {
+            height: 24px;
+            padding: 0 $spacing-xs;
+            font-size: $font-size-2xs;
+            white-space: nowrap;
+        }
+    }
+
+    &__hp-row {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+
+        @media (max-width: $breakpoint-phone) {
+            grid-area: hp;
+            min-width: 0;
+        }
+    }
+
+    &__sep {
+        color: $text-muted;
+        font-size: $font-size-xs;
+        user-select: none;
+    }
+
+    &__hp {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-bold;
+        color: $accent-primary;
+    }
+
+    &__level-control {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        flex-wrap: wrap;
+
+        .calc-stepper-track {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        @media (max-width: $breakpoint-phone) {
+            grid-area: control;
+            width: 100%;
+            flex-wrap: nowrap;
+            gap: $spacing-xs;
+
+            .calc-stepper-track {
+                min-width: 0;
+            }
+        }
+    }
+
+    &__level-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $text-secondary;
+        white-space: nowrap;
+
+        @media (max-width: $breakpoint-micro) {
+            font-size: $font-size-2xs;
+        }
+    }
+
+    &__supercharge {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2xs;
+        color: $color-info;
+    }
+
+    &__th-max {
+        margin-left: auto;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $text-secondary;
+        white-space: nowrap;
+
+        @media (max-width: $breakpoint-micro) {
+            font-size: $font-size-2xs;
+        }
+    }
+
+    .calc-target-modal-slider-wrap {
+        flex: 1;
+        min-width: 60px;
+
+        @media (max-width: $breakpoint-phone) {
+            min-width: 0;
+        }
+    }
+
+    .calc-target-modal-supercharge-wrap {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+
+        &.is-disabled {
+            opacity: 0.5;
+        }
+    }
+}

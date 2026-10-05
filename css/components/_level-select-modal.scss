@@ -1,4 +1,5 @@
 @use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 
 #level-select-modal {
     z-index: #{$z-index-modal + 1};
@@ -23,7 +24,7 @@
         p {
             font-size: 0.9rem;
             color: $text-secondary;
-            margin-bottom: 16px;
+            margin-bottom: $spacing-lg;
             text-align: center;
 
             #current-equipment-level {
@@ -38,7 +39,7 @@
 
             th,
             td {
-                padding: 16px 8px;
+                padding: $spacing-lg $spacing-sm;
                 text-align: center;
                 border-bottom: 1px solid $border-primary;
             }
@@ -62,30 +63,15 @@
             }
 
             .level-input {
+                @include input-focus-ring;
                 width: 100%;
-                padding: 8px;
+                padding: $spacing-sm;
                 font-size: 1rem;
                 background-color: $bg-surface-tertiary;
                 border: 1px solid $border-primary;
-                border-radius: 8px;
+                border-radius: $shape-corner-small;
                 color: $text-primary;
                 text-align: center;
-                transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth, transform $duration-base $ease-spring;
-
-                &:hover {
-                    transform: scale(1.04);
-                }
-
-                &:focus {
-                    outline: none;
-                }
-
-                &:focus-visible {
-                    border-color: $accent-primary;
-                    animation: input-glow-pulse 1.8s infinite ease-in-out;
-                    transform: scale(1.06);
-                    outline: none;
-                }
             }
 
             .enable-cell {
@@ -147,7 +133,7 @@
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 4px;
+                gap: $spacing-xs;
                 line-height: 1.2;
 
                 .set-target-text {
@@ -164,12 +150,12 @@
 
         .modal-body {
             p {
-                margin-bottom: 12px;
+                margin-bottom: $spacing-md;
             }
 
             #level-select-table {
                 th, td {
-                    padding: 10px 4px;
+                    padding: 10px $spacing-xs;
                     font-size: 0.875rem;
                 }
 

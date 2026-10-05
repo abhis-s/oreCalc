@@ -18,15 +18,15 @@
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
+    gap: $spacing-md;
+    padding: $spacing-md 20px;
     height: 50px;
     box-sizing: border-box;
     background-color: color-mix(in srgb, $bg-surface-tertiary 85%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid $border-secondary;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
     color: $text-primary;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
     font-size: var(--font-size-sm);
@@ -88,11 +88,11 @@
     .toast-notification {
         left: 0;
         right: 0;
-        padding: 8px 16px;
+        padding: $spacing-sm $spacing-lg;
         height: 40px;
-        border-radius: 8px;
+        border-radius: $shape-corner-small;
         font-size: var(--font-size-xs);
-        gap: 8px;
+        gap: $spacing-sm;
 
         .toast-icon-svg {
             width: 16px;

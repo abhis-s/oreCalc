@@ -1,0 +1,167 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-info-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    padding: $spacing-2xs;
+    border-radius: $shape-corner-xs;
+    cursor: pointer;
+    line-height: 1;
+    vertical-align: middle;
+    transition: color $transition-fast, background-color $transition-fast;
+
+    &:hover {
+        color: $accent-primary;
+        background-color: $bg-surface-secondary;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent-primary;
+        outline-offset: 1px;
+    }
+}
+
+.calc-note-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding-block: $spacing-2xs;
+    padding-inline: $spacing-xs;
+    border-radius: $shape-corner-xs;
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-medium;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: border-color $transition-fast, color $transition-fast, background-color $transition-fast;
+
+    &:hover {
+        border-color: $accent-primary;
+        color: $accent-primary;
+        background-color: $bg-surface-tertiary;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent-primary;
+        outline-offset: 1px;
+    }
+}
+
+.calc-breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+    margin-block-start: $spacing-2xs;
+}
+
+.calc-breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: $font-size-xs;
+    gap: $spacing-sm;
+    color: $text-secondary;
+
+    > :first-child {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    > :last-child:not(:only-child) {
+        flex-shrink: 0;
+        text-align: end;
+        min-width: 0;
+    }
+
+    &--total {
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        border-block-start: 1px solid $border-primary;
+        padding-block-start: $spacing-2xs;
+        margin-block-start: 2px;
+    }
+
+    &--overkill {
+        font-weight: $font-weight-bold;
+        color: $color-success;
+        border-block-start: 1px solid $border-primary;
+        padding-block-start: $spacing-2xs;
+        margin-block-start: 2px;
+
+        // Reset divider when preceded by total row in simulator and casualty views
+        .calc-breakdown-row--total + & {
+            border-block-start: none;
+            padding-block-start: 0;
+            margin-block-start: 0;
+        }
+    }
+
+    &--remaining {
+        font-weight: $font-weight-bold;
+        color: $color-danger;
+
+        &:not(.calc-breakdown-row--total) {
+            border-block-start: 1px solid $border-primary;
+            padding-block-start: $spacing-2xs;
+            margin-block-start: 2px;
+        }
+
+        // Reset divider when preceded by total row in simulator and casualty views
+        .calc-breakdown-row--total + & {
+            border-block-start: none;
+            padding-block-start: 0;
+            margin-block-start: 0;
+        }
+    }
+
+    &--deficit {
+        font-weight: $font-weight-bold;
+        color: $color-danger;
+    }
+}
+
+.calc-breakdown-meta {
+    font-size: $font-size-2xs;
+    color: $text-muted;
+    font-weight: $font-weight-regular;
+    margin-inline-start: $spacing-2xs;
+}
+
+.calc-popover-stat-list {
+    margin: 0;
+    padding-inline-start: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+    font-size: $font-size-xs;
+    line-height: 1.35;
+    color: $text-secondary;
+
+    li {
+        strong {
+            color: $text-primary;
+            font-weight: $font-weight-semibold;
+        }
+    }
+}
+
+.calc-popover-diminishing-section {
+    margin-block-start: $spacing-xs;
+    padding-block-start: $spacing-xs;
+    border-block-start: 1px dashed $border-primary;
+}
+
+.calc-popover-diminishing-title {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin-block-end: $spacing-2xs;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}

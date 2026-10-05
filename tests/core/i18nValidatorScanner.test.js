@@ -14,7 +14,6 @@ const {
     getAllKeys,
     checkAlphabeticalSort,
     validateTemplateLiteral,
-    scanCodebaseKeys,
     validateDomainEnumerations,
     validateDictionaries
 } = require('../../scripts/validate-i18n.js');

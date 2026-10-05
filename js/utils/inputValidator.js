@@ -2,7 +2,21 @@ import { translate } from '../i18n/translator.js';
 
 import { formatCurrency } from './numberFormatter.js';
 
-import { showToast } from '../ui/toast.js';
+/**
+ * Emits a validation notification event from the target input element.
+ * @param {HTMLInputElement|any} inputElement
+ * @param {string} message
+ * @param {'warning'|'error'|'info'|'success'} [type='warning']
+ */
+function notifyValidation(inputElement, message, type = 'warning') {
+    if (inputElement && typeof inputElement.dispatchEvent === 'function') {
+        inputElement.dispatchEvent(new CustomEvent('input-validation-message', {
+            bubbles: true,
+            composed: true,
+            detail: { message, type }
+        }));
+    }
+}
 
 function getNumericBounds(inputElement) {
     const minRaw = parseInt(inputElement.min, 10);
@@ -53,7 +67,7 @@ export function addCurrencyValidation(inputElement) {
             inputElement.classList.remove('soft-shake');
             void inputElement.offsetWidth; // Force reflow
             inputElement.classList.add('input-status-error', 'soft-shake');
-            showToast(translate('validation.invalidCurrency'), 'error');
+            notifyValidation(inputElement, translate('validation.invalidCurrency'), 'error');
         }
     });
 
@@ -72,8 +86,7 @@ export function addCurrencyValidation(inputElement) {
 export function addValidation(inputElement, options = {}) {
     if (!inputElement) return;
 
-    const maxLength = parseInt(inputElement.maxLength, 10) || Infinity;
-    const { min, max } = getNumericBounds(inputElement);
+    const { min } = getNumericBounds(inputElement);
 
     inputElement.dataset.lastValidValue = inputElement.value.trim() === '' ? (inputElement.dataset.allowEmpty === 'true' ? '' : min.toString()) : inputElement.value;
 
@@ -132,13 +145,13 @@ export function addValidation(inputElement, options = {}) {
             if (currentValue >= max) {
                 event.preventDefault();
                 setInputStatus('warning');
-                showToast(translate('validation.maxValue', { max: max }), 'warning');
+                notifyValidation(inputElement, translate('validation.maxValue', { max: max }), 'warning');
             }
         } else if (event.key === 'ArrowDown') {
             if (currentValue <= min) {
                 event.preventDefault();
                 setInputStatus('warning');
-                showToast(translate('validation.minValue', { min: min }), 'warning');
+                notifyValidation(inputElement, translate('validation.minValue', { min: min }), 'warning');
             }
         } else {
             inputElement.classList.remove('input-status-warning', 'input-status-error');
@@ -156,7 +169,7 @@ export function addValidation(inputElement, options = {}) {
         if (maxLength > 0 && value.length > maxLength) {
             value = value.slice(0, maxLength);
             setInputStatus('warning');
-            showToast(translate('validation.maxLength', { maxLength: maxLength }), 'warning');
+            notifyValidation(inputElement, translate('validation.maxLength', { maxLength: maxLength }), 'warning');
         }
 
         event.target.value = value;
@@ -184,7 +197,7 @@ export function addValidation(inputElement, options = {}) {
 
         if (isNaN(currentValue) || currentValue < min || currentValue > max) {
             setInputStatus('error');
-            showToast(translate('validation.invalidRevert'), 'error');
+            notifyValidation(inputElement, translate('validation.invalidRevert'), 'error');
             let lastValid = Number(inputElement.dataset.lastValidValue);
             if (isNaN(lastValid) || lastValid < min) {
                 currentValue = min;

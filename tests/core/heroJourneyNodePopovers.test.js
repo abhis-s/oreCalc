@@ -331,7 +331,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
 
             assert.ok(popoverElem.classList.contains('show'));
             assert.ok(popoverElem.innerHTML.includes('<span class="popover-title">1x Hero Potion</span>'));
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.magicItemBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.magicItemBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes(translate('entities.magicItemDescriptions.heroPotion')));
         });
 
@@ -341,7 +341,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
             showNodeTooltip(chip21);
 
             assert.ok(popoverElem.innerHTML.includes('<span class="popover-title">3x Mighty Morsel</span>'));
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.magicItemBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.magicItemBadge')}</span>`));
 
             const chip195 = new MockDOMElement('div', '', 'hero-journey-node-chip');
             chip195.dataset.nodeLevel = '195';
@@ -370,7 +370,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
             assert.ok(popoverElem.classList.contains('show'));
             assert.ok(popoverElem.innerHTML.includes('<span class="popover-title">2,500 Shiny Ore</span>'));
             assert.ok(!popoverElem.innerHTML.includes('2,500x Shiny Ore'));
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.oreRewardBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.oreRewardBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes('Claiming this milestone awards <strong>2,500 Shiny Ore</strong>.'));
         });
 
@@ -382,7 +382,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
 
             assert.ok(popoverElem.innerHTML.includes('<span class="popover-title">200 Glowy Ore</span>'));
             assert.ok(!popoverElem.innerHTML.includes('200x Glowy Ore'));
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.oreRewardBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.oreRewardBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes('Claiming this milestone awards <strong>200 Glowy Ore</strong>.'));
         });
 
@@ -394,7 +394,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
 
             assert.ok(popoverElem.innerHTML.includes('<span class="popover-title">10 Starry Ore</span>'));
             assert.ok(!popoverElem.innerHTML.includes('10x Starry Ore'));
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.oreRewardBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.oreRewardBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes('Claiming this milestone awards <strong>10 Starry Ore</strong>.'));
         });
     });
@@ -409,7 +409,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
             assert.ok(popoverElem.classList.contains('show'));
             assert.ok(popoverElem.innerHTML.includes('<span class="popover-title">3,000 Dark Elixir</span>'));
             assert.ok(!popoverElem.innerHTML.includes('3,000x Dark Elixir'));
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.resourceRewardBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.resourceRewardBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes('Claiming this milestone awards <strong>3,000 Dark Elixir</strong>.'));
         });
 
@@ -431,7 +431,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
 
             assert.ok(popoverElem.innerHTML.includes('<span class="popover-title">5,000,000 Elixir</span>'));
             assert.ok(!popoverElem.innerHTML.includes('5,000,000x Elixir'));
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.resourceRewardBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.resourceRewardBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes('Claiming this milestone awards <strong>5,000,000 Elixir</strong>.'));
 
             const chip211 = new MockDOMElement('div', '', 'hero-journey-node-chip');
@@ -450,7 +450,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
 
             showNodeTooltip(chip);
 
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.epicEquipmentBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.epicEquipmentBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes('Giant Gauntlet'));
             assert.ok(popoverElem.innerHTML.includes('popover-equipment-pool'));
             assert.ok(popoverElem.innerHTML.includes('Barbarian King Equipment Pool'));
@@ -474,8 +474,8 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
             showNodeTooltip(chip);
 
             assert.ok(popoverElem.innerHTML.includes('<span class="accent-text">Majestic</span> Barbarian King'));
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.legendaryHeroSkinBadge')}</span>`));
-            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.skinPopoverBody')));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.legendaryHeroSkinBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(translate('views.heroJourney.nodes.skinPopoverBody')));
         });
 
         test('formats quest node popover with chest ore ranges and Hero Quest badge', () => {
@@ -485,7 +485,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
             showNodeTooltip(chip);
 
             assert.ok(popoverElem.innerHTML.includes('Quest - Barbarian King'));
-            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.home.heroJourney.heroQuestBadge')}</span>`));
+            assert.ok(popoverElem.innerHTML.includes(`<span class="popover-badge">${translate('views.heroJourney.nodes.heroQuestBadge')}</span>`));
             assert.ok(popoverElem.innerHTML.includes('popover-chest-breakdown'));
             assert.ok(popoverElem.innerHTML.includes('chest-ore-inline-chip'));
         });
@@ -510,8 +510,8 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
 
             assert.ok(popoverElem.innerHTML.includes('popover-unowned-alert'), 'Popover must contain unowned alert');
             assert.ok(popoverElem.innerHTML.includes('name="close"'), 'Alert must use close icon');
-            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.unownedClaimedTitle')));
-            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.poolIntroText')), 'Unowned popover must show pool intro and full pool');
+            assert.ok(popoverElem.innerHTML.includes(translate('views.heroJourney.nodes.equipmentMissingTitle')));
+            assert.ok(popoverElem.innerHTML.includes(translate('views.heroJourney.nodes.poolIntroText')), 'Unowned popover must show pool intro and full pool');
             assert.ok(popoverElem.innerHTML.includes('popover-equipment-pool'), 'Unowned popover must show equipment pool section');
         });
 
@@ -534,8 +534,8 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
             showNodeTooltip(chip, state);
 
             assert.ok(popoverElem.innerHTML.includes('popover-unowned-alert'), 'Popover must contain unowned alert');
-            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.unownedClaimedDescWithLevel', { level: 180 })));
-            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.poolNowAwardedAtLevel', { level: 180 })));
+            assert.ok(popoverElem.innerHTML.includes(translate('views.heroJourney.nodes.unownedClaimedDescWithLevel', { level: 180 })));
+            assert.ok(popoverElem.innerHTML.includes(translate('views.heroJourney.nodes.poolNowAwardedAtLevel', { level: 180 })));
         });
 
         test('renders popover-unowned-alert when triggered from table info button on missed equipment row', () => {
@@ -555,8 +555,8 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
             showNodeTooltip(infoBtn, state);
 
             assert.ok(popoverElem.innerHTML.includes('popover-unowned-alert'), 'Table info button popover must contain unowned alert');
-            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.unownedClaimedTitle')));
-            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.unownedClaimedDesc')));
+            assert.ok(popoverElem.innerHTML.includes(translate('views.heroJourney.nodes.equipmentMissingTitle')));
+            assert.ok(popoverElem.innerHTML.includes(translate('views.heroJourney.nodes.unownedClaimedDesc')));
         });
 
         test('renders At Lvl X badge for equipment scheduled on another node, and In Queue for equipment not on any node', () => {
@@ -568,7 +568,7 @@ describe("Hero's Journey Milestone Node Popovers Suite", () => {
             showNodeTooltip(chip, state);
 
             // BK Node 20 awards Giant Gauntlet. Spiky Ball is scheduled at Node 180.
-            assert.ok(popoverElem.innerHTML.includes(translate('views.home.heroJourney.poolAtLevel', { level: 180 })), 'Spiky Ball should show At Lvl 180 badge');
+            assert.ok(popoverElem.innerHTML.includes(translate('views.heroJourney.nodes.poolAtLevel', { level: 180 })), 'Spiky Ball should show At Lvl 180 badge');
             assert.ok(popoverElem.innerHTML.includes('badge--queued'), 'At Lvl badge should retain badge--queued class');
         });
     });

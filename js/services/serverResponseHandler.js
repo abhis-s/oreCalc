@@ -1,13 +1,13 @@
 import { heroData } from '../data/heroData.js';
-import { shopOfferData } from '../data/incomeSources/shopOffers.js';
+import { resolveBestMatchShopOfferSet } from '../data/incomeSources/shopOffers.js';
 import { getWarOreValue } from '../data/incomeSources/warOres.js';
-import { LAB_SCALING_TROOP_KEYS } from '../data/labTroopsData.js';
 import { leagueTiers } from '../data/leagueTiers.js';
 import { translate } from '../i18n/translator.js';
 
 import { UNRANKED_LEAGUE_ID } from '../core/constants.js';
-import { normalizePlayerTag, updateAllPlayersData, updateSavedPlayerTags } from '../core/localStorageManager.js';
-import { removeRecentSearch } from '../core/recentSearchesManager.js';
+import { normalizePlayerTag } from '../core/storageKeys.js';
+import { updateAllPlayersData, updateSavedPlayerTags } from '../core/playerStorage.js';
+import { sanitizePlayerProfile } from '../core/playerStorageSanitizer.js';
 import { getDefaultPlayerState, state } from '../core/state.js';
 import { handleStateUpdate } from '../core/stateManager.js';
 
@@ -85,17 +85,28 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         return;
     }
     const cleanedTag = normalizePlayerTag(playerData.tag);
-    removeRecentSearch(cleanedTag);
 
-    const guestData = state.allPlayersData['DEFAULT0']
-        ? structuredClone(state.allPlayersData['DEFAULT0'])
-        : (state.savedPlayerTags.includes('DEFAULT0') && state.storedOres ? {
-            storedOres: structuredClone(state.storedOres),
-            income: structuredClone(state.income),
-            planner: structuredClone(state.planner),
-            heroJourney: structuredClone(state.heroJourney || {}),
-            currency: { code: state.uiSettings?.currency?.code || 'USD' }
-        } : null);
+    if (!state.allPlayersData || typeof state.allPlayersData !== 'object') {
+        state.allPlayersData = {};
+    }
+    if (!Array.isArray(state.savedPlayerTags)) {
+        state.savedPlayerTags = [];
+    }
+
+    const hasOnlyGuest = !state.savedPlayerTags || state.savedPlayerTags.length === 0 ||
+        state.savedPlayerTags.every(t => !t || normalizePlayerTag(t) === 'DEFAULT0');
+
+    const guestData = hasOnlyGuest ? (
+        state.allPlayersData['DEFAULT0']
+            ? structuredClone(state.allPlayersData['DEFAULT0'])
+            : (state.savedPlayerTags.includes('DEFAULT0') && state.storedOres ? {
+                storedOres: structuredClone(state.storedOres),
+                income: structuredClone(state.income),
+                planner: structuredClone(state.planner),
+                heroJourney: structuredClone(state.heroJourney || {}),
+                currency: { code: state.uiSettings?.currency?.code || 'USD' }
+            } : null)
+    ) : null;
 
     if (cleanedTag !== 'DEFAULT0') {
         state.savedPlayerTags = state.savedPlayerTags.filter(tag => tag !== 'DEFAULT0');
@@ -185,44 +196,7 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
     const homeHeroes = playerData.heroes?.filter(h => h.village === 'home') || [];
     const homeEquipment = playerData.heroEquipment?.filter(e => e.village === 'home') || [];
 
-    const leagueObj = playerData.leagueTier ? {
-        id: playerData.leagueTier.id,
-        name: playerData.leagueTier.name || '',
-        iconUrls: {
-            small: playerData.leagueTier.iconUrls?.small || ''
-        }
-    } : null;
-
-    newPlayerState.playerProfile = {
-        name: playerData.name,
-        tag: playerData.tag,
-        townHallLevel: playerData.townHallLevel,
-        clanBadgeUrl: playerData.clan?.badgeUrls?.small || '',
-        clan: playerData.clan ? {
-            tag: playerData.clan.tag,
-            name: playerData.clan.name,
-            badgeUrls: {
-                small: playerData.clan.badgeUrls?.small || '',
-                medium: playerData.clan.badgeUrls?.medium || '',
-                large: playerData.clan.badgeUrls?.large || ''
-            }
-        } : null,
-        role: playerData.role || null,
-        leagueTier: leagueObj,
-        trophies: playerData.trophies || 0,
-        warStars: playerData.warStars || 0,
-        ownedHeroes: Object.fromEntries(homeHeroes.map(h => [h.name, {
-            level: h.level,
-            maxLevel: h.maxLevel,
-            equipment: h.equipment?.map(eq => ({ name: eq.name, level: eq.level })) || []
-        }])),
-        ownedEquipment: Object.fromEntries(homeEquipment.map(e => [e.name, e.level])),
-        labTroops: Object.fromEntries(
-            (playerData.troops?.filter(t => t.village === 'home') || [])
-                .filter(t => LAB_SCALING_TROOP_KEYS[t.name])
-                .map(t => [LAB_SCALING_TROOP_KEYS[t.name], t.level])
-        )
-    };
+    newPlayerState.playerProfile = sanitizePlayerProfile(playerData);
 
     const serverHeroMap = new Map(homeHeroes.map(hero => [hero.name, hero]));
     const serverEquipMap = new Map(homeEquipment.map(eq => [eq.name, eq]));
@@ -277,10 +251,10 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                 equipState.checked = isInitialLoadForBase ? false : (wasChecked ?? false);
 
                 const isFutureOrUnclaimed = isHeroJourneyFutureOrUnclaimedEquipment(heroKey, equipKey, newPlayerState);
-                const savedLevel = basePlayerState.heroes[heroName]?.equipment[equipKey]?.level;
                 if (isFutureOrUnclaimed) {
-                    equipState.level = savedLevel || getDefaultEquipmentUnlockLevel(heroKey, equipKey, newPlayerState);
+                    equipState.level = getDefaultEquipmentUnlockLevel(heroKey, equipKey, newPlayerState);
                 } else {
+                    const savedLevel = basePlayerState.heroes[heroName]?.equipment[equipKey]?.level;
                     equipState.level = savedLevel ?? 1;
                 }
             }
@@ -303,20 +277,11 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
     }
 
     const selected = newPlayerState.income.shopOffers?.selectedSet;
-    if (selected !== 0 && playerData.townHallLevel) {
+    if (selected !== 0 && selected !== '0' && playerData.townHallLevel) {
         const thLevel = playerData.townHallLevel;
-        let bestMatchSet = '0';
-        let closestTh = -1;
-
-        for (const setKey in shopOfferData) {
-            const set = shopOfferData[setKey];
-            if (set.townHallLevel !== undefined && set.townHallLevel <= thLevel && set.townHallLevel > closestTh) {
-                closestTh = set.townHallLevel;
-                bestMatchSet = setKey;
-            }
-        }
+        const bestMatchSet = resolveBestMatchShopOfferSet(thLevel);
         if (!newPlayerState.income.shopOffers) newPlayerState.income.shopOffers = {};
-        newPlayerState.income.shopOffers.selectedSet = Number(bestMatchSet) || 0;
+        newPlayerState.income.shopOffers.selectedSet = bestMatchSet;
         if (!newPlayerState.income.shopOffers[bestMatchSet]) {
             newPlayerState.income.shopOffers[bestMatchSet] = {};
         }

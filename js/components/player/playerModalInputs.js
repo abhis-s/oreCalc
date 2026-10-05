@@ -1,13 +1,12 @@
 import { translate } from '../../i18n/translator.js';
 
-import { removePlayerTag, saveState } from '../../core/localStorageManager.js';
+import { saveState } from '../../core/localStorageManager.js';
+import { removePlayerTag } from '../../core/playerStorage.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 
-import { openPrivacyModal, openTermsOfUseModal } from '../appSettings/settingsModals.js';
-import { navigateToTab } from '../layout/tabs.js';
 import {
     getForcedVerification,
     renderPlayerModal,
@@ -15,11 +14,24 @@ import {
     setForcedVerification,
     updateLoadButtonState
 } from './playerModalDisplay.js';
-import { dom } from '../../dom/domElements.js';
 import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
+import { triggerCloudSave } from '../../services/cloudSaveService.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 
 let isPlayerModalInitialized = false;
+
+/**
+ * Programmatically switches to the Home tab if tab navigation exists in current DOM.
+ */
+function navigateToHomeTab() {
+    if (typeof document === 'undefined') return;
+    const homeTabButton = /** @type {HTMLElement | null} */ (
+        document.querySelector('.tab-button[data-tab="home"], .nav-button[data-tab="home"]')
+    );
+    if (homeTabButton) {
+        homeTabButton.click();
+    }
+}
 
 async function checkAndPromptCloudSync() {
     if (state.uiSettings?.cloudSync === false) {
@@ -34,7 +46,6 @@ async function checkAndPromptCloudSync() {
                 state.uiSettings.cloudSync = true;
             });
             saveState(state, true);
-            const { triggerCloudSave } = await import('../../services/cloudSaveService.js');
             triggerCloudSave();
         }
     }
@@ -47,15 +58,15 @@ export function initializePlayerModal() {
     if (isPlayerModalInitialized) return;
     isPlayerModalInitialized = true;
 
-    const modal = dom.player?.addPlayerModal;
-    const cancelButton = dom.player?.cancelAddPlayerButton;
-    const loadButton = dom.player?.loadPlayerModalButton;
-    const verifyButton = dom.player?.verifyPlayerModalButton;
-    const guidedSetupButton = dom.player?.guidedSetupButton;
-    const playerTagInput = dom.player?.playerTagInputModal;
-    const tokenInput = dom.player?.addPlayerTokenInput;
-    const errorMessageElement = dom.player?.playerTagErrorMessage;
-    const closeBtn = dom.player?.closeAddPlayerModalBtn;
+    const modal = document.getElementById('add-player-modal');
+    const cancelButton = document.getElementById('cancel-add-player-button');
+    const loadButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('load-player-modal-btn'));
+    const verifyButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('verify-player-modal-btn'));
+    const guidedSetupButton = document.getElementById('add-player-guided-setup-btn');
+    const playerTagInput = /** @type {HTMLInputElement | null} */ (document.getElementById('player-tag-input-modal'));
+    const tokenInput = /** @type {HTMLInputElement | null} */ (document.getElementById('add-player-token-input'));
+    const errorMessageElement = document.getElementById('player-tag-error-message');
+    const closeBtn = document.getElementById('close-add-player-modal-btn');
 
     if (modal && cancelButton && loadButton && playerTagInput) {
         updateLoadButtonState(playerTagInput, loadButton);
@@ -79,9 +90,10 @@ export function initializePlayerModal() {
         closeBtn?.addEventListener('click', closeHandler);
 
         guidedSetupButton?.addEventListener('click', () => {
+            const currentTag = playerTagInput.value.trim();
             renderPlayerModal(false, '', '', false);
-            import('../welcome/welcomeModal.js').then(({ showWelcomeModal }) => {
-                showWelcomeModal(true, { startPage: 2, entrySource: 'playerModal' });
+            import('../guidedSetup/guidedSetupModal.js').then(({ openGuidedSetupModal }) => {
+                openGuidedSetupModal({ initialTag: currentTag });
             });
         });
 
@@ -98,7 +110,7 @@ export function initializePlayerModal() {
 
                     if (result.success) {
                         renderPlayerModal(false, '', '', false);
-                        navigateToTab('home', { resetScroll: true });
+                        navigateToHomeTab();
                         await checkAndPromptCloudSync();
                     } else {
                         renderPlayerModal(true, cleanedTag, result.message, true, result.errorType);
@@ -143,7 +155,7 @@ export function initializePlayerModal() {
                 if (loadResult.success) {
                     setForcedVerification(false);
                     renderPlayerModal(false, '', '', false);
-                    navigateToTab('home', { resetScroll: true });
+                    navigateToHomeTab();
                     await checkAndPromptCloudSync();
                 } else {
 
@@ -204,22 +216,19 @@ export function initializePlayerModal() {
 
     if (modal) {
         modal.addEventListener('click', (event) => {
-            const termsLink = event.target.closest('#add-player-terms-link');
-            const privacyLink = event.target.closest('#add-player-privacy-link');
+            const target = /** @type {HTMLElement | null} */ (event.target);
+            const termsLink = target?.closest('#add-player-terms-link');
+            const privacyLink = target?.closest('#add-player-privacy-link');
 
             if (termsLink) {
                 event.preventDefault();
-                const termsModal = document.getElementById('terms-modal');
-                if (termsModal) termsModal.classList.add('modal-top');
-                openTermsOfUseModal();
+                import('../appSettings/settingsLegalModals.js').then(m => m.openTermsOfUseModal());
                 return;
             }
 
             if (privacyLink) {
                 event.preventDefault();
-                const privacyModal = document.getElementById('privacy-modal');
-                if (privacyModal) privacyModal.classList.add('modal-top');
-                openPrivacyModal();
+                import('../appSettings/settingsLegalModals.js').then(m => m.openPrivacyModal());
                 return;
             }
 
@@ -230,6 +239,8 @@ export function initializePlayerModal() {
 
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && modal.classList.contains('show')) {
+                const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
+                if (openModals.length > 0 && openModals.at(-1) !== modal) return;
                 renderPlayerModal(false, '', '', false);
             }
         });

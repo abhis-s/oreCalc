@@ -97,9 +97,9 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
 
             const levelPill = chip.querySelector('.node-level-pill');
             if (levelPill) {
-                levelPill.dataset.i18n = 'views.home.heroJourney.nodeLevel';
+                levelPill.dataset.i18n = 'views.heroJourney.nodes.nodeLevel';
                 levelPill.dataset.i18nArgs = JSON.stringify({ level: node.level });
-                levelPill.textContent = translate('views.home.heroJourney.nodeLevel', { level: node.level });
+                levelPill.textContent = translate('views.heroJourney.nodes.nodeLevel', { level: node.level });
             }
 
             const iconWrapper = chip.querySelector('.node-icon-wrapper');
@@ -151,7 +151,10 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
                 const isOwnedEq = isUserSynced && Boolean(resolvedNode.isOwned);
                 const showOwnedPill = !isFallbackStarry && isOwnedEq && !isClaimed;
                 const displayIcon = resolvedNode.resolvedIcon || resolvedNode.bestGuess?.icon || '';
-                const eqName = resolvedNode.resolvedName || resolvedNode.bestGuess?.name || '';
+                const eqKey = resolvedNode.key || resolvedNode.bestGuess?.key || node.equipmentKey;
+                const eqName = isFallbackStarry
+                    ? translate('entities.ores.starry')
+                    : (eqKey ? getTranslatedEquipmentName(eqKey) : (resolvedNode.resolvedName || resolvedNode.bestGuess?.name || ''));
                 const primaryImg = iconWrapper.querySelector('.node-icon');
                 if (primaryImg) {
                     primaryImg.setAttribute('src', displayIcon);
@@ -207,8 +210,8 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
                         iconWrapper.appendChild(eqPill);
                     }
                     eqPill.className = 'equipment-level-pill owned-pill';
-                    eqPill.dataset.i18n = 'views.home.heroJourney.owned';
-                    eqPill.textContent = translate('views.home.heroJourney.owned');
+                    eqPill.dataset.i18n = 'views.heroJourney.nodes.owned';
+                    eqPill.textContent = translate('views.heroJourney.nodes.owned');
                 } else if (resolvedNode.equipmentLevel) {
                     if (!eqPill) {
                         eqPill = document.createElement('div');
@@ -240,14 +243,14 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
             const tagEl = startDivider.querySelector('.th-max-tag');
             const lvlEl = startDivider.querySelector('.th-max-lvl');
             if (tagEl) {
-                tagEl.dataset.i18n = 'views.home.heroJourney.thStartTag';
+                tagEl.dataset.i18n = 'views.heroJourney.nodes.thStartTag';
                 tagEl.dataset.i18nArgs = JSON.stringify({ th: startTH });
-                tagEl.textContent = translate('views.home.heroJourney.thStartTag', { th: startTH });
+                tagEl.textContent = translate('views.heroJourney.nodes.thStartTag', { th: startTH });
             }
             if (lvlEl) {
-                lvlEl.dataset.i18n = 'views.home.heroJourney.thStartLvl';
+                lvlEl.dataset.i18n = 'views.heroJourney.nodes.thStartLvl';
                 lvlEl.dataset.i18nArgs = JSON.stringify({ lvl: startLvl });
-                lvlEl.textContent = translate('views.home.heroJourney.thStartLvl', { lvl: startLvl });
+                lvlEl.textContent = translate('views.heroJourney.nodes.thStartLvl', { lvl: startLvl });
             }
         }
 
@@ -258,14 +261,14 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
             const th = div.dataset.th ? Number(div.dataset.th) : null;
             const startLvl = div.dataset.startLvl ? Number(div.dataset.startLvl) : null;
             if (tagEl && th) {
-                tagEl.dataset.i18n = 'views.home.heroJourney.thStartTag';
+                tagEl.dataset.i18n = 'views.heroJourney.nodes.thStartTag';
                 tagEl.dataset.i18nArgs = JSON.stringify({ th });
-                tagEl.textContent = translate('views.home.heroJourney.thStartTag', { th });
+                tagEl.textContent = translate('views.heroJourney.nodes.thStartTag', { th });
             }
             if (lvlEl && startLvl) {
-                lvlEl.dataset.i18n = 'views.home.heroJourney.thStartLvl';
+                lvlEl.dataset.i18n = 'views.heroJourney.nodes.thStartLvl';
                 lvlEl.dataset.i18nArgs = JSON.stringify({ lvl: startLvl });
-                lvlEl.textContent = translate('views.home.heroJourney.thStartLvl', { lvl: startLvl });
+                lvlEl.textContent = translate('views.heroJourney.nodes.thStartLvl', { lvl: startLvl });
             }
         });
 
@@ -319,9 +322,9 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
         emptyCard.className = 'hero-journey-empty-filter-card';
         emptyCard.innerHTML = `
             <orecalc-assets-svg name="sliders" class="empty-filter-icon"></orecalc-assets-svg>
-            <div class="empty-filter-title">${translate('views.home.heroJourney.emptyFilterTitle')}</div>
-            <div class="empty-filter-desc">${translate('views.home.heroJourney.emptyFilterDesc')}</div>
-            <button class="th-limit-reveal-btn hero-journey-empty-filter-btn" id="home-hj-reset-filters-btn">${translate('views.home.heroJourney.clearFilter')}</button>
+            <div class="empty-filter-title">${translate('views.heroJourney.filters.emptyFilterTitle')}</div>
+            <div class="empty-filter-desc">${translate('views.heroJourney.filters.emptyFilterDesc')}</div>
+            <button class="th-limit-reveal-btn hero-journey-empty-filter-btn" id="home-hj-reset-filters-btn">${translate('views.heroJourney.filters.clearFilter')}</button>
         `;
         track.appendChild(emptyCard);
         return;

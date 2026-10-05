@@ -5,7 +5,7 @@ import path from 'node:path';
 
 describe('Standalone Pages & Legal Decoupling Invariants', () => {
     const projectRoot = process.cwd();
-    const standaloneRoutes = ['privacy', 'terms', 'licenses', 'legal', 'hero-journey'];
+    const standaloneRoutes = ['privacy', 'terms', 'licenses', 'legal', 'hero-journey', 'damage-calculator'];
 
     test('workbox-config.js explicitly excludes all standalone legal pages and assets', () => {
         const wbContent = fs.readFileSync(path.join(projectRoot, 'workbox-config.js'), 'utf8');
@@ -13,6 +13,7 @@ describe('Standalone Pages & Legal Decoupling Invariants', () => {
             assert.match(wbContent, new RegExp(`['"]\\*\\*/${route}/\\*\\*['"]`), `workbox-config.js must exclude **/${route}/**`);
         }
         assert.match(wbContent, /['"]\*\*\/js\/heroJourneyApp\.js['"]/, 'workbox-config.js must exclude **/js/heroJourneyApp.js');
+        assert.match(wbContent, /['"]\*\*\/js\/damageApp\.js['"]/, 'workbox-config.js must exclude **/js/damageApp.js');
     });
 
     test('service-worker-src.js explicitly bypasses fetch listener for standalone pages', () => {
@@ -69,7 +70,9 @@ describe('Standalone Pages & Legal Decoupling Invariants', () => {
     test('interactive application entry points maintain safe-area boundary without viewport-fit=cover', () => {
         const appPages = [
             'index.html',
-            'hero-journey.html'
+            'ore-calculator/index.html',
+            'hero-journey/index.html',
+            'damage-calculator/index.html'
         ];
 
         for (const relFile of appPages) {

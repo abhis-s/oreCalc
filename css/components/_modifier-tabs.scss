@@ -1,0 +1,73 @@
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.eq-details-modifier-tabs {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: $spacing-xs;
+    width: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: $spacing-sm auto;
+    overflow-x: auto;
+    @extend %hide-scrollbar;
+    -webkit-overflow-scrolling: touch;
+    padding: 3px;
+    background: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
+    border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
+    border-radius: $card-radius;
+
+    .mod-tab-indicator {
+        position: absolute;
+        top: 3px;
+        bottom: 3px;
+        left: 0;
+        width: 0;
+        background: color-mix(in srgb, $accent-primary 20%, transparent);
+        border: 1px solid color-mix(in srgb, $accent-primary 40%, transparent);
+        border-radius: $card-radius-inner;
+        transition: transform $duration-moderate $ease-spring, width $duration-moderate $ease-spring;
+        pointer-events: none;
+        z-index: $z-index-base;
+    }
+
+    .mod-tab-btn {
+        position: relative;
+        z-index: $z-index-base + 1;
+        flex: 0 0 auto;
+        min-width: auto;
+        padding: 5px 9px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: $text-secondary;
+        border-radius: $card-radius-inner;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-semibold;
+        cursor: pointer;
+        white-space: nowrap;
+        text-align: center;
+        transition: color $duration-fast $ease-smooth;
+
+        &:hover:not(.active) {
+            color: $text-primary;
+            background: color-mix(in srgb, $accent-primary 10%, transparent);
+        }
+
+        &.active {
+            color: $accent-primary;
+            font-weight: $font-weight-bold;
+        }
+
+        @media (max-width: #{$breakpoint-phone - 1px}) {
+            font-size: 0.64rem;
+            padding: $spacing-xs 7px;
+        }
+
+        @media (max-width: $breakpoint-micro) {
+            font-size: 0.60rem;
+            padding: 3px 6px;
+        }
+    }
+}

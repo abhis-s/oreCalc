@@ -66,6 +66,15 @@ function aggregateMonthlyBilling(rows = [], extrasConfig = { extras: [], footers
             const month = row.billing_month;
             if (!month || isNaN(cost)) return;
 
+            const serviceName = row.service_name || 'Other Services';
+            const skuName = row.sku_name || '';
+            const normalizedService = serviceName.toLowerCase();
+            const normalizedSku = skuName.toLowerCase();
+            // Google Cloud invoice-level taxes and adjustments are excluded to ensure pre-tax metrics match the UI + TAX badge
+            if (normalizedService === 'invoice' || normalizedService === 'tax' || normalizedSku === 'tax' || normalizedSku === 'rounding error') {
+                return;
+            }
+
             if (month < currentMonthStr) {
                 totalCostTillDate += cost;
             }
@@ -77,7 +86,6 @@ function aggregateMonthlyBilling(rows = [], extrasConfig = { extras: [], footers
                 };
             }
 
-            const serviceName = row.service_name || 'Other Services';
             if (!monthlyGroups[month].services[serviceName]) {
                 monthlyGroups[month].services[serviceName] = 0;
             }

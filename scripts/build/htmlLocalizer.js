@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { safeJsonParse } = require('../../server/utils/jsonUtils');
 
 const localesMap = {
     en: 'en_US',
@@ -93,10 +94,10 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
     if (!fs.existsSync(i18nFilePath)) {
         return baseHtml;
     }
-    const translations = JSON.parse(fs.readFileSync(i18nFilePath, 'utf8'));
+    const translations = safeJsonParse(fs.readFileSync(i18nFilePath, 'utf8'), {});
     const enFilePath = path.join(projectRoot, 'js/i18n/en.json');
     const enTranslations = (lang !== 'en' && fs.existsSync(enFilePath))
-        ? JSON.parse(fs.readFileSync(enFilePath, 'utf8'))
+        ? safeJsonParse(fs.readFileSync(enFilePath, 'utf8'), null)
         : null;
 
     let resolvedRoutePath = routePath;
@@ -107,12 +108,25 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
         }
     }
 
-    const title = (resolvedRoutePath === 'hero-journey' && translations.views?.heroJourneyPage?.metaTitle)
-        ? translations.views.heroJourneyPage.metaTitle
-        : (translations.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | OreCalc');
-    const description = (resolvedRoutePath === 'hero-journey' && translations.views?.heroJourneyPage?.metaDescription)
-        ? translations.views.heroJourneyPage.metaDescription
-        : (translations.app?.description || '');
+    const titleKey = resolvedRoutePath === 'hero-journey'
+        ? 'views.heroJourney.page.metaTitle'
+        : (resolvedRoutePath === 'damage-calculator'
+            ? 'views.damageCalc.meta.title'
+            : (resolvedRoutePath === '' ? 'views.landing.metaTitle' : 'app.title'));
+    const title = (resolvedRoutePath === 'hero-journey' && (translations.views?.heroJourney?.page?.metaTitle || enTranslations?.views?.heroJourney?.page?.metaTitle))
+        ? (translations.views?.heroJourney?.page?.metaTitle || enTranslations?.views?.heroJourney?.page?.metaTitle)
+        : (resolvedRoutePath === 'damage-calculator' && (translations.views?.damageCalc?.meta?.title || enTranslations?.views?.damageCalc?.meta?.title))
+            ? (translations.views?.damageCalc?.meta?.title || enTranslations?.views?.damageCalc?.meta?.title)
+            : (resolvedRoutePath === '' && (translations.views?.landing?.metaTitle || enTranslations?.views?.landing?.metaTitle)
+                ? (translations.views?.landing?.metaTitle || enTranslations?.views?.landing?.metaTitle)
+                : (translations.app?.title || enTranslations?.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | ClashCalc'));
+    const description = (resolvedRoutePath === 'hero-journey' && (translations.views?.heroJourney?.page?.metaDescription || enTranslations?.views?.heroJourney?.page?.metaDescription))
+        ? (translations.views?.heroJourney?.page?.metaDescription || enTranslations?.views?.heroJourney?.page?.metaDescription)
+        : (resolvedRoutePath === 'damage-calculator' && (translations.views?.damageCalc?.meta?.description || enTranslations?.views?.damageCalc?.meta?.description))
+            ? (translations.views?.damageCalc?.meta?.description || enTranslations?.views?.damageCalc?.meta?.description)
+            : (resolvedRoutePath === '' && (translations.views?.landing?.metaDescription || enTranslations?.views?.landing?.metaDescription)
+                ? (translations.views?.landing?.metaDescription || enTranslations?.views?.landing?.metaDescription)
+                : (translations.app?.description || enTranslations?.app?.description || ''));
     const locale = localesMap[lang] || `${lang}_${lang.toUpperCase()}`;
     const url = isRoot
         ? (resolvedRoutePath ? `https://orecalc.tech/${resolvedRoutePath}/` : 'https://orecalc.tech/')
@@ -120,7 +134,7 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
 
     let html = baseHtml;
     html = html.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);
-    html = html.replace(/<title[^>]*>.*?<\/title>/s, `<title data-i18n="${resolvedRoutePath === 'hero-journey' ? 'views.heroJourneyPage.metaTitle' : 'app.title'}">${title}</title>`);
+    html = html.replace(/<title[^>]*>.*?<\/title>/s, `<title data-i18n="${titleKey}">${title}</title>`);
     html = html.replace(/<meta name="description"\s+content="[^"]*">/s, `<meta name="description" content="${description}">`);
     html = html.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">`);
 

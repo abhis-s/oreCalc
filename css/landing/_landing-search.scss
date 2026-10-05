@@ -1,0 +1,259 @@
+@use '../abstracts/mixins' as *;
+
+.landing-search-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+    width: 100%;
+    margin-inline: auto;
+    position: relative;
+
+    @media (min-width: $breakpoint-modal) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+}
+
+.landing-search-input-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    @media (min-width: $breakpoint-modal) {
+        flex: 1;
+        min-width: 240px;
+    }
+
+    .error-message {
+        color: $color-danger;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        margin-top: $spacing-xs;
+        padding-left: $spacing-xs;
+        text-align: left;
+        display: none;
+
+        &.show {
+            display: block;
+        }
+    }
+}
+
+.landing-search-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    height: 44px;
+    box-sizing: border-box;
+    transition: background-color $duration-slow $ease-smooth, border-color $duration-base $ease-smooth, box-shadow $duration-base $ease-smooth;
+
+    &:focus-within {
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 3px $accent-primary-soft;
+    }
+
+    &:hover {
+        border-color: color-mix(in srgb, $accent-primary 40%, $border-primary);
+    }
+
+    &.has-error,
+    &:has(.input-error) {
+        border-color: $color-danger;
+        box-shadow: 0 0 0 $spacing-2xs color-mix(in srgb, $color-danger 20%, transparent);
+    }
+
+    &.shake {
+        animation: shake 500ms $ease-smooth;
+    }
+}
+
+.landing-search-hash {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 $spacing-sm;
+    margin-left: $spacing-sm;
+    background-color: color-mix(in srgb, $accent-primary 14%, $bg-surface-tertiary);
+    border: 1px solid color-mix(in srgb, $accent-primary 25%, transparent);
+    border-radius: $shape-corner-xs;
+    color: $accent-primary;
+    font-weight: $font-weight-extrabold;
+    font-size: $font-size-sm;
+    font-family: monospace;
+    user-select: none;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.landing-search-input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    padding: $spacing-xs $spacing-sm;
+    padding-right: $spacing-2xl;
+    background: transparent;
+    border: none;
+    color: $text-primary;
+    font-size: $font-size-md;
+    font-family: monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    outline: none;
+
+    &:focus,
+    &:focus-visible {
+        outline: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+
+    &::placeholder {
+        text-transform: none;
+        font-family: inherit;
+        color: $text-muted;
+        font-size: $font-size-sm;
+        letter-spacing: normal;
+
+        @media (max-width: $breakpoint-phone) {
+            font-size: $font-size-xs;
+        }
+    }
+}
+
+.landing-search-clear {
+    position: absolute;
+    right: $spacing-sm;
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-xs;
+    border-radius: $shape-corner-full;
+
+    &:hover {
+        color: $text-primary;
+    }
+}
+
+.landing-search-actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    width: 100%;
+    flex-shrink: 0;
+
+    @media (min-width: $breakpoint-modal) {
+        width: auto;
+    }
+}
+
+.landing-search-cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 $spacing-lg;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    line-height: 1;
+    border-radius: $shape-corner-medium;
+    color: $text-secondary;
+    border: 1px solid $border-primary;
+    background-color: $bg-surface-secondary;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
+    flex: 1;
+
+    @media (min-width: $breakpoint-modal) {
+        flex: none;
+    }
+
+    &:hover {
+        background-color: $bg-surface-tertiary;
+        color: $text-primary;
+        border-color: $border-secondary;
+    }
+}
+
+.landing-search-btn {
+    height: 44px;
+    padding: 0 $spacing-xl;
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    gap: $spacing-sm;
+    border-radius: $shape-corner-medium;
+    width: 100%;
+    flex: 2;
+    flex-shrink: 0;
+    position: relative;
+
+    @media (min-width: $breakpoint-modal) {
+        width: auto;
+        flex: none;
+    }
+
+    .landing-search-btn-spinner {
+        display: none;
+    }
+
+    &.is-loading {
+        pointer-events: none;
+        opacity: 0.85;
+
+        .landing-search-btn-icon,
+        .landing-search-btn-text {
+            opacity: 0;
+        }
+
+        .landing-search-btn-spinner {
+            display: block !important;
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #fff;
+            border-radius: $shape-corner-full;
+            animation: landing-spin 0.6s linear infinite;
+        }
+    }
+}
+
+.landing-search-feedback {
+    width: 100%;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $shape-corner-small;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+
+    &.is-error {
+        color: $color-danger;
+        background-color: color-mix(in srgb, $color-danger 10%, transparent);
+        border: 1px solid color-mix(in srgb, $color-danger 30%, transparent);
+    }
+
+    &.is-notice {
+        color: $palette-amber-500;
+        background-color: color-mix(in srgb, $palette-amber-500 10%, transparent);
+        border: 1px solid color-mix(in srgb, $palette-amber-500 30%, transparent);
+    }
+}
+
+@keyframes landing-spin {
+    to { transform: rotate(360deg); }
+}

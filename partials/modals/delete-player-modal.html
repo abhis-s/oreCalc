@@ -1,14 +1,14 @@
 <dialog id="delete-player-modal" class="modal" aria-labelledby="delete-player-modal-title">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 id="delete-player-modal-title" data-i18n="actions.completeDelete"></h2>
-            <button id="close-delete-player-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+            <h2 id="delete-player-modal-title" data-i18n="views.settings.dataErasure.requestExclusionFromService"></h2>
+            <button type="button" id="close-delete-player-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
         <div class="modal-body">
             <div class="modal-info-text">
-                <p data-i18n="views.settings.completeDeleteInfo"></p>
+                <p data-i18n="views.settings.dataErasure.completeDeleteInfo"></p>
             </div>
             <div class="player-name-input-container" id="delete-tag-container">
                 <label for="delete-player-tag-input" data-i18n="player.tag"></label>
@@ -23,12 +23,12 @@
             </div>
         </div>
         <div class="modal-actions" id="delete-modal-actions-validate">
-            <button id="cancel-delete-player-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button id="validate-delete-player-btn" class="accept-button" data-i18n="actions.validate"></button>
+            <button type="button" id="cancel-delete-player-btn" class="reject-button" data-i18n="actions.cancel"></button>
+            <button type="button" id="validate-delete-player-btn" class="accept-button" data-i18n="actions.validate"></button>
         </div>
         <div class="modal-actions hidden" id="delete-modal-actions-verify">
-            <button id="cancel-delete-verify-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button id="verify-delete-player-btn" class="accept-button" data-i18n="actions.verify"></button>
+            <button type="button" id="cancel-delete-verify-btn" class="reject-button" data-i18n="actions.cancel"></button>
+            <button type="button" id="verify-delete-player-btn" class="accept-button" data-i18n="actions.verify"></button>
         </div>
     </div>
 </dialog>

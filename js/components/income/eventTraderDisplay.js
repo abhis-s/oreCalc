@@ -6,7 +6,7 @@ import { state } from '../../core/state.js';
 import { calculateEventPassIncome } from '../../domain/income/eventPassIncome.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { addValidation } from '../../utils/inputValidator.js';
-import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
+import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 
 import { renderOfferGrid } from '../common/offerGrid.js';
 import { dom } from '../../dom/domElements.js';

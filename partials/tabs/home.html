@@ -1,10 +1,12 @@
-        <div class="tab-content" id="home-tab">
-            <div id="home-player-profile-card" class="card home-profile-card" style="display: none;"></div>
+        <div class="tab-content active" id="home-tab">
+            <div id="home-player-profile-card" class="card home-profile-card" hidden>
+                <!-- DYNAMIC INSERTION: Home player profile card -->
+            </div>
 
             <div id="home-hj-card" class="card full-width-card hero-journey-card">
                 <div class="hero-journey-header">
                     <div class="hero-journey-title-container">
-                        <div class="hero-mountain-cluster" data-i18n-aria-label="views.home.heroJourney.heroEmblems">
+                        <div class="hero-mountain-cluster" data-i18n-aria-label="views.heroJourney.nodes.heroEmblems">
                             <div class="mountain-badge-slot pos-1">
                                 <orecalc-assets-image src="assets/heroes/emblemRoyalChampion.png" data-i18n-alt="entities.heroes.royalChampion" class="mountain-badge"></orecalc-assets-image>
                             </div>
@@ -26,8 +28,8 @@
                         </div>
                         <h2 id="home-hj-title" class="hero-journey-title">
                             <span class="hero-journey-title-wrapper">
-                                <span class="hero-journey-title-text" data-i18n="views.home.heroJourney.title"></span>
-                                <a id="home-hj-open-btn" href="/hero-journey/" class="hj-open-btn" data-i18n-title="views.home.heroJourney.openInTracker" aria-label="Open in Dedicated Tracker">
+                                <span class="hero-journey-title-text" data-i18n="views.heroJourney.widget.title"></span>
+                                <a id="home-hj-open-btn" href="/hero-journey/" class="hj-open-btn" data-i18n-title="views.heroJourney.widget.openInTracker" data-i18n-aria-label="views.heroJourney.widget.openInTracker" aria-label="Open in Dedicated Tracker">
                                     <orecalc-assets-svg name="open-in-new" height="13" width="13"></orecalc-assets-svg>
                                 </a>
                             </span>
@@ -36,16 +38,16 @@
                     </div>
                 </div>
 
-                <div id="home-hj-collapsed-note" class="hero-journey-collapsed-note" style="display: none;">
+                <div id="home-hj-collapsed-note" class="hero-journey-collapsed-note">
                     <div class="hero-journey-collapsed-content">
-                        <span class="hero-journey-collapsed-text" data-i18n="views.home.heroJourney.collapsedNote"></span>
-                        <button type="button" id="home-hj-explore-btn" class="th-limit-reveal-btn" data-i18n="views.home.heroJourney.showTrack"></button>
+                        <span class="hero-journey-collapsed-text" data-i18n="views.heroJourney.track.collapsedNote"></span>
+                        <button type="button" id="home-hj-explore-btn" class="th-limit-reveal-btn" data-i18n="views.heroJourney.track.showTrack"></button>
                     </div>
                 </div>
 
                 <div class="hero-journey-progress-bar-container">
                     <div class="hero-journey-progress-info">
-                        <span id="home-hj-progress-text" data-i18n="views.home.heroJourney.progressToNextMilestone"></span>
+                        <span id="home-hj-progress-text" data-i18n="views.heroJourney.track.progressToNextMilestone"></span>
                         <span id="home-hj-progress-percent">0%</span>
                     </div>
                     <div class="hero-journey-no-profile-info">
@@ -53,8 +55,8 @@
                     </div>
                     <div class="hero-journey-accelerated-switch-container">
                         <div class="hero-journey-accelerated-label-group">
-                            <label for="home-hj-accelerated-switch" class="hero-journey-accelerated-label" data-i18n="views.home.heroJourney.acceleratedRewards"></label>
-                            <button type="button" class="info-btn hj-accelerated-info-btn" data-info="views.home.heroJourney.acceleratedInfoHelp" data-i18n-aria-label="actions.showInfo">
+                            <label for="home-hj-accelerated-switch" class="hero-journey-accelerated-label" data-i18n="views.heroJourney.track.acceleratedRewards"></label>
+                            <button type="button" class="info-btn hj-accelerated-info-btn" data-info="views.heroJourney.track.acceleratedInfoHelp" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="14" width="14"></orecalc-assets-svg>
                             </button>
                         </div>
@@ -72,43 +74,43 @@
                     <div class="hero-journey-filters-row">
                         <div class="hj-segmented-switch" id="home-hj-claim-switch">
                             <div class="hj-switch-pill" id="home-hj-claim-pill"></div>
-                            <button class="hj-switch-btn active" data-unclaimed-only="false" data-i18n="views.home.heroJourney.filterAll"></button>
-                            <button class="hj-switch-btn" data-unclaimed-only="true" data-i18n="views.home.heroJourney.filterUnclaimed"></button>
+                            <button type="button" class="hj-switch-btn active" data-unclaimed-only="false" data-i18n="views.heroJourney.filters.filterAll"></button>
+                            <button type="button" class="hj-switch-btn" data-unclaimed-only="true" data-i18n="views.heroJourney.filters.filterUnclaimed"></button>
                         </div>
                         <div class="hj-type-filters" id="home-hj-type-filters">
-                            <select id="home-hj-type-select" class="hj-type-select" data-i18n-aria-label="views.home.heroJourney.filterByType">
-                                <option value="all" data-i18n="views.home.heroJourney.filterAllTypes"></option>
-                                <option value="ores" data-i18n="views.home.heroJourney.filterOres"></option>
+                            <select id="home-hj-type-select" class="hj-type-select" data-i18n-aria-label="views.heroJourney.filters.filterByType">
+                                <option value="all" data-i18n="views.heroJourney.filters.filterAllTypes"></option>
+                                <option value="ores" data-i18n="views.heroJourney.filters.filterOres"></option>
                                 <option value="equipment" data-i18n="nav.equipment"></option>
-                                <option value="skins" data-i18n="views.home.heroJourney.filterSkins"></option>
-                                <option value="items" data-i18n="views.home.heroJourney.filterItems"></option>
+                                <option value="skins" data-i18n="views.heroJourney.filters.filterSkins"></option>
+                                <option value="items" data-i18n="views.heroJourney.filters.filterItems"></option>
                             </select>
                             <div class="hj-type-buttons">
-                                <button class="hj-type-btn" data-type-filter="ores">
-                                    <span data-i18n="views.home.heroJourney.filterOres"></span>
-                                    <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                <button type="button" class="hj-type-btn" data-type-filter="ores">
+                                    <span data-i18n="views.heroJourney.filters.filterOres"></span>
+                                    <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
                                 </button>
-                                <button class="hj-type-btn" data-type-filter="equipment">
+                                <button type="button" class="hj-type-btn" data-type-filter="equipment">
                                     <span data-i18n="nav.equipment"></span>
-                                    <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                    <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
                                 </button>
-                                <button class="hj-type-btn" data-type-filter="skins">
-                                    <span data-i18n="views.home.heroJourney.filterSkins"></span>
-                                    <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                <button type="button" class="hj-type-btn" data-type-filter="skins">
+                                    <span data-i18n="views.heroJourney.filters.filterSkins"></span>
+                                    <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
                                 </button>
-                                <button class="hj-type-btn" data-type-filter="items">
-                                    <span data-i18n="views.home.heroJourney.filterItems"></span>
-                                    <span class="type-close-icon" data-i18n-aria-label="views.home.heroJourney.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                <button type="button" class="hj-type-btn" data-type-filter="items">
+                                    <span data-i18n="views.heroJourney.filters.filterItems"></span>
+                                    <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div class="hero-journey-scroll-controls">
-                        <button id="home-hj-scroll-first" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollFirst" data-i18n-title="views.home.heroJourney.scrollFirst"><orecalc-assets-svg name="first-item" height="14" width="14"></orecalc-assets-svg></button>
-                        <button id="home-hj-scroll-left" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollLeft"><orecalc-assets-svg name="backward" height="14" width="14"></orecalc-assets-svg></button>
-                        <button id="home-hj-scroll-current" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollToCurrentProgress" data-i18n-title="views.home.heroJourney.scrollToCurrentProgress"><orecalc-assets-svg name="trophy" height="14" width="14"></orecalc-assets-svg></button>
-                        <button id="home-hj-scroll-right" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollRight"><orecalc-assets-svg name="forward" height="14" width="14"></orecalc-assets-svg></button>
-                        <button id="home-hj-scroll-last" class="scroll-btn" data-i18n-aria-label="views.home.heroJourney.scrollLast" data-i18n-title="views.home.heroJourney.scrollLast"><orecalc-assets-svg name="last-item" height="14" width="14"></orecalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-first" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollFirst" data-i18n-title="views.heroJourney.track.scrollFirst"><orecalc-assets-svg name="first-item" height="14" width="14"></orecalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-left" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLeft"><orecalc-assets-svg name="backward" height="14" width="14"></orecalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-current" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollToCurrentProgress" data-i18n-title="views.heroJourney.track.scrollToCurrentProgress"><orecalc-assets-svg name="trophy" height="14" width="14"></orecalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-right" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollRight"><orecalc-assets-svg name="forward" height="14" width="14"></orecalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-last" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLast" data-i18n-title="views.heroJourney.track.scrollLast"><orecalc-assets-svg name="last-item" height="14" width="14"></orecalc-assets-svg></button>
                     </div>
                 </div>
 
@@ -126,7 +128,7 @@
 
                 <div id="home-hj-no-profile-notice" class="hero-journey-no-profile-notice">
                     <orecalc-assets-svg name="sync-problem" class="sync-notice-icon" height="14" width="14"></orecalc-assets-svg>
-                    <span data-i18n="views.home.heroJourney.noProfileNotice"></span>
+                    <span data-i18n="views.heroJourney.widget.noProfileNotice"></span>
                 </div>
             </div>
 
@@ -134,9 +136,9 @@
                 <div id="home-left-panel" class="left-panel">
                     <div id="home-result-quantity-card" class="card small-width-card">
                         <h2 class="results-title">
-                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image>
+                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="app.alts.oresIcon" class="title-icon"></orecalc-assets-image>
                             <span id="home-required-ores-title" data-i18n="views.income.ores.requiredTitle"></span>
-                            <button class="info-btn" data-info="views.home.requiredOres.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.home.requiredOres.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -159,9 +161,9 @@
                 <div id="home-right-panel" class="right-panel">
                     <div id="home-result-time-card" class="card small-width-card">
                         <h2 class="results-title">
-                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="alts.timeIcon" class="title-icon"></orecalc-assets-image>
+                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="app.alts.timeIcon" class="title-icon"></orecalc-assets-image>
                             <span id="home-remaining-time-title" data-i18n="time.remainingTitle"></span>
-                            <button class="info-btn" data-info="views.home.remainingTime.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.home.remainingTime.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -302,7 +304,7 @@
                     </div>
                     <div id="home-required-resources-container" class="required-resources-container">
                         <div class="resources-row">
-                            <span class="resource-item"><orecalc-assets-image src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" data-i18n-alt="alts.leagueIcon" class="resource-icon calculated" id="home-display-league-icon" width="24" height="24"></orecalc-assets-image><span id="home-display-league-requirement" class="calculated" data-i18n="entities.leagues.unranked"></span></span>
+                            <span class="resource-item"><orecalc-assets-image src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" data-i18n-alt="app.alts.leagueIcon" class="resource-icon calculated" id="home-display-league-icon" width="24" height="24"></orecalc-assets-image><span id="home-display-league-requirement" class="calculated" data-i18n="entities.leagues.unranked"></span></span>
                             <span class="resource-item"><orecalc-assets-image src="assets/resources/cwl.png" data-i18n-alt="views.income.cwl.title"></orecalc-assets-image><span data-i18n="views.income.cwl.participationsColon"></span><span id="home-display-cwl-participations" class="calculated">0</span></span>
                             <span class="resource-item"><orecalc-assets-image src="assets/resources/clanWar.png" data-i18n-alt="views.income.clanWar.title" id="home-display-clan-icon" class="calculated"></orecalc-assets-image><span data-i18n="views.income.clanWar.participationsColon"></span><span id="home-display-clan-war-participations" class="calculated">0</span></span>
                             <span class="resource-item"><orecalc-assets-image src="assets/resources/raidMedal.png" data-i18n-alt="views.income.ores.raidMedal"></orecalc-assets-image><span data-i18n="views.income.raidMedalTrader.medalsColon"></span><span id="home-display-raid-medals" class="calculated">0</span></span>
@@ -313,4 +315,5 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>

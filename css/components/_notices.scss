@@ -1,91 +1,12 @@
 @use '../abstracts/variables' as *;
 
-.notice {
-    color: $text-secondary;
-    font-size: 0.6em;
-    padding: 10px;
-    text-align: center;
-
-    p {
-        margin: 0;
-    }
-
-    a {
-        color: $text-primary;
-        text-decoration: underline;
-        display: inline-block;
-    }
-
-    &.supercell-notice {
-        margin-top: 10px;
-        a:hover {
-            color: $accent-primary;
-        }
-    }
-
-    &.app-copyright {
-        margin-top: 5px;
-        margin-bottom: 20px;
-
-        @media (max-width: #{$breakpoint-desktop - 1px}) {
-            margin-bottom: calc(75px + env(safe-area-inset-bottom, 0px));
-        }
-    }
-
-    &.make-notice {
-        margin-top: 20px;
-
-        .version-display-text {
-            color: $text-secondary;
-            font-size: 0.85em;
-            margin-left: 5px;
-        }
-    }
-}
-
-.app-footer {
-    width: 100%;
-    margin-top: auto;
-    padding: 0;
-    text-align: center;
-
-    &__links {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 10px 10px 0;
-        margin: 0;
-        font-size: 0.6em;
-    }
-
-    &__link {
-        color: $text-secondary;
-        text-decoration: none;
-        transition: color $duration-fast $ease-smooth;
-
-        &:hover {
-            color: $accent-primary;
-            text-decoration: underline;
-        }
-    }
-
-    &__sep {
-        color: $text-muted;
-        user-select: none;
-        font-size: 0.8em;
-        vertical-align: middle;
-    }
-}
-
 .app-message-box {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 6px;
     padding: 10px 15px;
-    border-radius: 8px;
+    border-radius: $shape-corner-small;
     font-size: var(--font-size-sm);
     line-height: 1.4;
     box-sizing: border-box;
@@ -129,7 +50,7 @@
         background-color: transparent;
         border: 1px solid currentColor;
         color: inherit;
-        padding: 5px 12px;
+        padding: 5px $spacing-md;
         border-radius: 6px;
         cursor: pointer;
         font-size: var(--font-size-xs);
@@ -221,7 +142,6 @@
         .app-message-box-content,
         .suggestion-messages-wrapper,
         .banner-messages-wrapper {
-            margin-bottom: 12px;
             width: 100%;
         }
 
@@ -253,19 +173,19 @@
     background-color: color-mix(in srgb, $color-warning 15%, $bg-surface-secondary);
     border: 1px solid $color-warning;
     color: $text-primary;
-    border-radius: 8px;
+    border-radius: $shape-corner-small;
     padding: 10px 14px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: $spacing-md;
     font-size: var(--font-size-sm);
 
     .compatibility-notice-content {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: $spacing-sm;
         flex: 1;
     }
 
@@ -280,12 +200,12 @@
         background: transparent;
         border: none;
         cursor: pointer;
-        padding: 4px;
+        padding: $spacing-xs;
         display: flex;
         align-items: center;
         justify-content: center;
         color: $text-secondary;
-        border-radius: 4px;
+        border-radius: $shape-corner-xs;
         transition: color $duration-fast $ease-smooth;
 
         &:hover {

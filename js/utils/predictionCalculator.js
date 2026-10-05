@@ -2,13 +2,12 @@ import { upgradeCosts } from '../data/equipmentCommonData.js';
 import { heroData } from '../data/heroData.js';
 import { getSourceById, incomeData } from '../data/incomeSourceRegistry.js';
 import { supercellEventsData } from '../data/incomeSources/supercellEvents.js';
-import { storageCapacities } from '../data/oreConversionData.js';
 import { translate } from '../i18n/translator.js';
 
 import { state } from '../core/state.js';
 
 import { getProspectorIncomeForDate } from '../domain/income/prospectorManager.js';
-import { getSupercellEventsForYear } from './dateUtils.js';
+import { getSupercellEventsForYear } from '../domain/income/supercellEventsSchedule.js';
 import { toCamelCase } from './stringUtils.js';
 
 let lastEventsYear = null;
@@ -19,7 +18,7 @@ let cachedEvents = null;
  * @param {Date} date - Target Date object.
  * @returns {{ shiny: number, glowy: number, starry: number }} Daily ore income object.
  */
-export function getDailyIncomeFromCalendar(date) {
+function getDailyIncomeFromCalendar(date) {
     const dailyIncome = { shiny: 0, glowy: 0, starry: 0 };
     const monthYearKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
     const dayKey = String(date.getUTCDate()).padStart(2, '0');
@@ -270,7 +269,7 @@ export function calculateCompletionDates(priorityList) {
 
             currentDate = new Date(completionDate);
 
-            // --- Efficiency Boost Logic ---
+            // Suggest interleaving common upgrades when starry ore is the primary bottleneck
             if (isStarryBottleneck) {
                 let surplusShiny = currentOres.shiny;
                 let surplusGlowy = currentOres.glowy;
@@ -320,7 +319,7 @@ export function calculateCompletionDates(priorityList) {
                 }
             }
 
-            // --- Move Epic Up Logic ---
+            // Suggest prioritizing epic equipment when common upgrade has no starry demand
             if (equipmentType === 'common') {
                 for (let j = i + 1; j < priorityList.length; j++) {
                     const futureItem = priorityList[j];

@@ -11,11 +11,10 @@ import {
     updateActiveChip,
     updateHeader
 } from './calendarMonthChipsRenderer.js';
-import { getCurrentView, getEquipmentSchedule, setCurrentView } from './calendarScheduler.js';
+import { getCurrentView, getEquipmentSchedule } from './calendarScheduler.js';
 import { renderIncomeChips } from './incomeChipsDisplay.js';
 
 let animateNextRender = false;
-let animationBaseDelay = 0.2;
 let activeEquipmentSchedule = { milestones: {}, ranges: [] };
 
 /**
@@ -55,7 +54,6 @@ export function positionTrackAtIndex(index, animated = false) {
  */
 export function setAnimateNextRender(val, delay = 0.2) {
     animateNextRender = false;
-    animationBaseDelay = delay;
 }
 
 /**
@@ -122,7 +120,8 @@ export function renderCalendar(plannerState) {
             positionTrackAtIndex(0);
         }
 
-        updateHeader(formatDate(currentDate, { month: 'long', year: 'numeric' }));
+        const currentLang = state.uiSettings?.language || 'en';
+        updateHeader(formatDate(currentDate, { month: 'long', year: 'numeric' }, currentLang));
         renderIncomeChips(currentYear, currentMonth);
     } else if (currentView === 'weekly') {
         calendarTrack.classList.add('weekly-view-grid');
@@ -178,11 +177,18 @@ export function renderCalendar(plannerState) {
             displayYear = maxBound.year;
         }
 
-        const monthName = formatDate(new Date(Date.UTC(displayYear, displayMonth, 1)), { month: 'short' });
+        const currentLang = state.uiSettings?.language || 'en';
+        const monthName = formatDate(new Date(Date.UTC(displayYear, displayMonth, 1)), { month: 'short' }, currentLang);
         updateHeader(translate('time.weekOfYear', { week: currentWeek, year: currentYear, month: monthName }));
         renderIncomeChips(displayYear, displayMonth);
     }
-    updateActiveChip();
+
+    const monthChipContainer = document.getElementById('month-chip-container');
+    if (monthChipContainer && monthChipContainer.children.length === 0) {
+        renderMonthChips();
+    } else {
+        updateActiveChip();
+    }
 
     if (animateNextRender) {
         setTimeout(() => {

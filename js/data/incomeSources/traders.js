@@ -7,8 +7,8 @@ export const raidMedalTraderData = deepFreeze([
 ]);
 
 export const gemTraderData = deepFreeze([
-    { id: "gem_starry", shiny: 0, glowy: 0, starry: 15, cost: 115, currency: "gems", maxPacks: 10 },
-    { id: "gem_glowy", shiny: 0, glowy: 60, starry: 0, cost: 90, currency: "gems", maxPacks: 10 },
+    { id: "gem_starry", shiny: 0, glowy: 0, starry: 15, cost: 150, currency: "gems", maxPacks: 5, recommendedPacks: 2 },
+    { id: "gem_glowy", shiny: 0, glowy: 60, starry: 0, cost: 90, currency: "gems", maxPacks: 5 },
     { id: "gem_shiny", shiny: 300, glowy: 0, starry: 0, cost: 75, currency: "gems", maxPacks: 10 },
 ]);
 

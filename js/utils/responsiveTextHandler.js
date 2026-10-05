@@ -1,11 +1,11 @@
 import { translate } from '../i18n/translator.js';
 
 const RESPONSIVE_TITLE_CONFIGS = [
-    { id: 'results-title-text', fullKey: 'views.income.ores.requiredTitle', shortKey: 'views.income.ores.requiredShort' },
-    { id: 'storage-title-text', fullKey: 'views.income.ores.storedTitle', shortKey: 'views.income.ores.storedShort' },
-    { id: 'home-required-ores-title', fullKey: 'views.income.ores.requiredTitle', shortKey: 'views.income.ores.short' },
-    { id: 'home-remaining-time-title', fullKey: 'time.remainingTitle', shortKey: 'time.short' },
-    { selector: '.income-summary-title', fullKey: 'views.income.summaryTitle', shortKey: 'views.income.summaryTitleShort' }
+    { id: 'results-title-text', containerSelector: 'h2', fullKey: 'views.income.ores.requiredTitle', shortKey: 'views.income.ores.requiredShort' },
+    { id: 'storage-title-text', containerSelector: 'h2', fullKey: 'views.income.ores.storedTitle', shortKey: 'views.income.ores.storedShort' },
+    { id: 'home-required-ores-title', containerSelector: 'h2', fullKey: 'views.income.ores.requiredTitle', shortKey: 'views.income.ores.short' },
+    { id: 'home-remaining-time-title', containerSelector: 'h2', fullKey: 'time.remainingTitle', shortKey: 'time.short' },
+    { selector: '.income-summary-title', containerSelector: '.income-header', fullKey: 'views.income.summaryTitle', shortKey: 'views.income.summaryTitleShort' }
 ];
 
 let isUpdatePending = false;
@@ -24,7 +24,9 @@ export function updateResponsiveText() {
     for (const config of RESPONSIVE_TITLE_CONFIGS) {
         const el = config.id ? document.getElementById(config.id) : document.querySelector(config.selector);
         if (!el) continue;
-        const container = el.closest('h2, .income-header, .card-header, .income-summary-title') || el.parentElement;
+        const container = config.containerSelector
+            ? (el.matches(config.containerSelector) ? el.parentElement?.closest(config.containerSelector) || el.parentElement : el.closest(config.containerSelector))
+            : (el.parentElement?.closest('h2, .income-header, .card-header') || el.parentElement);
         if (!container) continue;
 
         items.push({ el, container, fullKey: config.fullKey, shortKey: config.shortKey });
@@ -32,18 +34,18 @@ export function updateResponsiveText() {
 
     if (items.length === 0) return;
 
-    // Phase 1: Batch Write (Reset to Canonical Full Titles)
+    // Reset to canonical full titles
     for (const item of items) {
         item.el.setAttribute('data-i18n', item.fullKey);
         item.el.textContent = translate(item.fullKey);
     }
 
-    // Phase 2: Batch Read (Measure Container Overflow)
+    // Measure container overflow
     for (const item of items) {
         item.isOverflowing = item.container.scrollWidth > item.container.clientWidth + 1;
     }
 
-    // Phase 3: Batch Write (Apply Short Titles to Overflowing Elements)
+    // Apply short titles to overflowing elements
     for (const item of items) {
         if (item.isOverflowing) {
             item.el.setAttribute('data-i18n', item.shortKey);
@@ -55,20 +57,31 @@ export function updateResponsiveText() {
 /**
  * Coalesces multiple layout adjustment requests into a single requestAnimationFrame tick.
  */
-function requestResponsiveTextUpdate() {
+export function requestResponsiveTextUpdate() {
     if (!isUpdatePending) {
         isUpdatePending = true;
-        window.requestAnimationFrame(updateResponsiveText);
+        if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+            window.requestAnimationFrame(updateResponsiveText);
+        } else {
+            updateResponsiveText();
+        }
     }
 }
 
 // Observe container/window resize automatically
-if (typeof ResizeObserver !== 'undefined') {
+if (typeof ResizeObserver !== 'undefined' && typeof document !== 'undefined' && document.body) {
     const observer = new ResizeObserver(() => {
         requestResponsiveTextUpdate();
     });
     observer.observe(document.body);
 }
 
+// Listen for window resize as a robust fallback
+if (typeof window !== 'undefined') {
+    window.addEventListener('resize', requestResponsiveTextUpdate, { passive: true });
+}
+
 // Listen for language changes
-document.addEventListener('languageChanged', requestResponsiveTextUpdate);
+if (typeof document !== 'undefined') {
+    document.addEventListener('languageChanged', requestResponsiveTextUpdate);
+}

@@ -52,6 +52,18 @@ input[type="checkbox"] {
     }
 }
 
+// Suppress native WebKit search cancel and decoration buttons across all search inputs
+input[type="search"] {
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration {
+        -webkit-appearance: none;
+        appearance: none;
+        display: none;
+    }
+}
+
 html {
     overscroll-behavior-y: contain;
 }
@@ -151,8 +163,8 @@ code {
     font-family: 'Roboto Mono', monospace;
     background-color: color-mix(in srgb, $color-danger 12%, transparent);
     border: 1px solid color-mix(in srgb, $color-danger 24%, transparent);
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: $spacing-2xs 6px;
+    border-radius: $shape-corner-xs;
     font-size: 0.9em;
     color: $color-danger;
     display: inline-block;
@@ -172,8 +184,8 @@ code {
 	background-color: $bg-surface-primary;
 	border-radius: $shape-corner-large;
 	box-shadow: $elevation-2;
-	margin: 0 auto;
-	max-width: 1200px;
+	margin: 0 auto $spacing-2xl;
+	max-width: $container-max-width;
 	padding: 20px;
 }
 
@@ -181,7 +193,15 @@ code {
     color: $color-danger;
 }
 
-.hidden {
+[hidden],
+.hidden,
+.is-hidden,
+.svg-sprite-sheet {
+    display: none !important;
+}
+
+.badge:empty,
+.form-setting-text:empty {
     display: none !important;
 }
 
@@ -282,7 +302,7 @@ clashcalc-assets-image {
     line-height: 1.2;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 2px 6px;
+    padding: $spacing-2xs 6px;
     border-radius: 6px;
     border: 1px solid transparent;
     flex-shrink: 0;
@@ -314,8 +334,8 @@ clashcalc-assets-image {
 %app-tooltip {
     background-color: $bg-surface-tertiary;
     color: $text-primary;
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $shape-corner-small;
     white-space: nowrap;
     z-index: $z-index-tooltip;
     pointer-events: none;

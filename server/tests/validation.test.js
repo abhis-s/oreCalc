@@ -5,12 +5,13 @@ const {
     isValidTag,
     normalizeTag,
     isValidUserId,
-    isValidMonthStr
+    isValidMonthStr,
+    compareVersions
 } = require('../utils/validation.js');
 
 test('isValidTag validates Clash of Clans tags against official character set', () => {
-    assert.equal(isValidTag('#2PP0V2RGY'), true);
-    assert.equal(isValidTag('2PP0V2RGY'), true);
+    assert.equal(isValidTag('#8PJYGUJC'), true);
+    assert.equal(isValidTag('8PJYGUJC'), true);
     assert.equal(isValidTag('0289CGJLOPQRUV'), true);
     assert.equal(isValidTag('#0289cgjlopqruv'), true);
 
@@ -25,9 +26,9 @@ test('isValidTag validates Clash of Clans tags against official character set', 
 });
 
 test('normalizeTag strips leading hashtag, trims, and uppercases tag cleanly', () => {
-    assert.equal(normalizeTag('#2pp0v2rgy'), '2PP0V2RGY');
-    assert.equal(normalizeTag('  #2pp0v2rgy  '), '2PP0V2RGY');
-    assert.equal(normalizeTag('2pp0v2rgy'), '2PP0V2RGY');
+    assert.equal(normalizeTag('#8pjygujc'), '8PJYGUJC');
+    assert.equal(normalizeTag('  #8pjygujc  '), '8PJYGUJC');
+    assert.equal(normalizeTag('8pjygujc'), '8PJYGUJC');
     assert.equal(normalizeTag(''), '');
     assert.equal(normalizeTag(null), '');
     assert.equal(normalizeTag(undefined), '');
@@ -58,4 +59,18 @@ test('isValidMonthStr validates YYYY-MM format correctly', () => {
     assert.equal(isValidMonthStr('August 2026'), false);
     assert.equal(isValidMonthStr(''), false);
     assert.equal(isValidMonthStr(null), false);
+});
+
+test('compareVersions accurately compares semver strings with build hashes', () => {
+    assert.equal(compareVersions('2.2.0', '2.2.0'), 0);
+    assert.equal(compareVersions('2.2.0+386e26f', '2.2.0'), 0);
+    assert.equal(compareVersions('v2.2.0', '2.2.0'), 0);
+    assert.equal(compareVersions('2.2.1', '2.2.0'), 1);
+    assert.equal(compareVersions('2.3.0', '2.2.0'), 1);
+    assert.equal(compareVersions('3.0.0', '2.2.0'), 1);
+    assert.equal(compareVersions('2.1.9', '2.2.0'), -1);
+    assert.equal(compareVersions('2.0.0', '2.2.0'), -1);
+    assert.equal(compareVersions('1.9.9', '2.2.0'), -1);
+    assert.equal(compareVersions('1.0.0', '2.2.0'), -1);
+    assert.equal(compareVersions('0.0.0', '2.2.0'), -1);
 });

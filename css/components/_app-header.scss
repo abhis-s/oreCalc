@@ -1,0 +1,251 @@
+@use '../abstracts/mixins' as *;
+@use '../base/placeholder';
+
+.app-header {
+    @include app-header-shell;
+
+    &__inner {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+        flex-wrap: nowrap;
+        box-sizing: border-box;
+
+        @media (max-width: $breakpoint-phone) {
+            gap: $spacing-sm;
+        }
+    }
+
+    &__hamburger,
+    .hamburger {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: #{$z-index-layout + 1};
+        position: relative;
+        outline: none;
+        width: 40px;
+        height: 40px;
+        border-radius: $shape-corner-small;
+        background: none;
+        border: none;
+        padding: 0;
+        color: inherit;
+        transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+
+        @media (hover: hover) {
+            &:hover {
+                background-color: $bg-surface-tertiary;
+            }
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+
+        &:focus-visible {
+            outline: 2px solid $accent-primary;
+            outline-offset: 2px;
+        }
+
+        .menu-icon {
+            fill: $text-primary;
+            width: 24px;
+            height: 24px;
+        }
+
+        @media (max-width: #{$breakpoint-desktop - 1px}) {
+            display: flex;
+        }
+    }
+
+    &__brand {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        user-select: none;
+        flex-shrink: 0;
+
+        .brand-title-link {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+
+            &:hover .brand-title {
+                opacity: 0.85;
+            }
+        }
+
+        .brand-title {
+            font-size: $font-size-2xl;
+            font-weight: $font-weight-extrabold;
+            margin: 0;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: opacity $duration-base $ease-smooth;
+
+            @include brand-gradient-split;
+
+            @media (max-width: $breakpoint-phone) {
+                font-size: $font-size-xl;
+            }
+        }
+
+        .brand-separator {
+            font-size: $font-size-xl;
+            font-weight: $font-weight-bold;
+            color: $text-muted;
+            margin: 0;
+            line-height: 1;
+            user-select: none;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .brand-page-pill {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            padding: 3px $spacing-sm;
+            font-size: $font-size-2xs;
+            font-weight: $font-weight-bold;
+            border-radius: $shape-corner-full;
+            background: color-mix(in srgb, $accent-primary 15%, $bg-surface-secondary);
+            color: $accent-primary;
+            border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
+            cursor: default;
+            user-select: none;
+            pointer-events: none;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        &.is-compact {
+            .brand-separator,
+            .brand-page-pill {
+                display: none;
+            }
+        }
+
+        &.is-minimal {
+            .brand-title {
+                display: none;
+            }
+        }
+
+        @media (max-width: $breakpoint-phone) {
+            .brand-separator,
+            .brand-page-pill {
+                display: none;
+            }
+        }
+    }
+
+    &__tabs {
+        display: flex;
+        align-items: center;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-full;
+        padding: $spacing-xs;
+        gap: $spacing-2xs;
+        margin: 0 auto;
+        overflow: hidden;
+        flex-grow: 0;
+        flex-shrink: 0;
+        transition: padding $duration-fast $ease-smooth, gap $duration-fast $ease-smooth;
+
+        &.is-compact {
+            padding: 3px;
+            gap: 1px;
+
+            .tab-button {
+                padding: 5px $spacing-sm;
+                font-size: var(--font-size-xs);
+            }
+        }
+
+        overflow-x: auto;
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-button {
+            flex-shrink: 0;
+            background-color: transparent;
+            border: none;
+            border-radius: $shape-corner-full;
+            color: $text-secondary;
+            font-size: var(--font-size-sm);
+            font-weight: $font-weight-semibold;
+            padding: 6px $spacing-lg;
+            cursor: pointer;
+            box-shadow: none;
+            transition: background-color $duration-fast $ease-smooth,
+                        color $duration-fast $ease-smooth,
+                        transform $duration-fast $ease-smooth;
+
+            &:hover:not(.active) {
+                background-color: $accent-primary-soft;
+                color: $accent-primary;
+                transform: scale(1.02);
+            }
+
+            &:active {
+                transform: scale(0.96);
+            }
+
+            &.active {
+                background-color: $accent-primary;
+                color: $text-on-accent;
+                box-shadow: 0 2px 8px $accent-primary-soft;
+            }
+        }
+
+        @media (max-width: #{$breakpoint-desktop - 1px}) {
+            display: none !important;
+        }
+    }
+
+    &__player-dropdown,
+    .player-dropdown-container {
+        margin-left: auto;
+        flex: 0 1 auto;
+        min-width: 76px;
+        max-width: 180px;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        flex-shrink: 0;
+        position: relative;
+        z-index: $z-index-overlay;
+
+        @media (max-width: $breakpoint-compact) {
+            gap: 6px;
+        }
+
+        &:has(.is-open),
+        &:focus-within {
+            z-index: $z-index-layout;
+        }
+
+        @container header-shell (max-width: #{$container-header-collapse}) {
+            > .animated-btn,
+            > .app-account-wrapper > .header-account-btn {
+                @include header-action-btn-collapse;
+            }
+        }
+    }
+}
+
+.app-header-placeholder {
+    @include app-header-placeholder;
+}

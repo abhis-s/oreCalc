@@ -1,29 +1,29 @@
 <dialog id="privacy-modal" class="modal" aria-labelledby="privacy-modal-title">
     <div class="modal-content modal-large">
         <div class="modal-header">
-            <h2 id="privacy-modal-title" data-i18n="views.settings.privacyPolicy"></h2>
+            <h2 id="privacy-modal-title" data-i18n="nav.privacy"></h2>
             <div class="modal-header-actions">
-                <a href="/privacy/" target="_blank" rel="noopener noreferrer" id="privacy-open-external-btn" class="modal-header-btn policy-header-btn" aria-label="Open in new tab" title="Open in new tab">
+                <a href="/privacy/" target="_blank" rel="noopener noreferrer" id="privacy-open-external-btn" class="modal-header-btn policy-header-btn" aria-label="Open in new tab" title="Open in new tab" data-i18n-aria-label="actions.openInNewTab" data-i18n-title="actions.openInNewTab">
                     <orecalc-assets-svg name="open-in-new"></orecalc-assets-svg>
                 </a>
-                <button id="privacy-translate-btn" class="modal-header-btn policy-header-btn" aria-label="Translate" title="Translate" style="display: none;">
+                <button type="button" id="privacy-translate-btn" class="modal-header-btn policy-header-btn" aria-label="Translate" title="Translate" data-i18n-aria-label="actions.translate" data-i18n-title="actions.translate" hidden>
                     <orecalc-assets-svg name="translate"></orecalc-assets-svg>
                 </button>
-                <button id="privacy-theme-toggle-btn" class="modal-header-btn policy-header-btn" aria-label="Toggle Theme">
+                <button type="button" id="privacy-theme-toggle-btn" class="modal-header-btn policy-header-btn" aria-label="Toggle Theme" data-i18n-aria-label="actions.toggleTheme">
                     <orecalc-assets-svg name="dark-mode" class="icon-dark"></orecalc-assets-svg>
                 </button>
-                <button id="close-privacy-header-btn" class="close-button modal-close-icon" data-i18n-aria-label="actions.close">
+                <button type="button" id="close-privacy-header-btn" class="close-button modal-close-icon" data-i18n-aria-label="actions.close">
                     <orecalc-assets-svg name="close"></orecalc-assets-svg>
                 </button>
             </div>
 
         </div>
         <div class="modal-body text-left policy-modal-body">
-            <iframe id="privacy-policy-iframe" class="policy-iframe" src="about:blank" loading="lazy" title="Privacy Policy"></iframe>
+            <iframe id="privacy-policy-iframe" class="policy-iframe" src="about:blank" loading="lazy" title="Privacy Policy" data-i18n-title="nav.privacy"></iframe>
         </div>
         <div class="modal-actions">
-            <button id="close-privacy-modal-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
-            <button id="accept-privacy-modal-btn" class="accept-button" style="display: none;" data-i18n="actions.accept"></button>
+            <button type="button" id="close-privacy-modal-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
+            <button type="button" id="accept-privacy-modal-btn" class="accept-button" hidden data-i18n="actions.accept"></button>
         </div>
     </div>
 </dialog>

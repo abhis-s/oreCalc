@@ -29,11 +29,27 @@ test('calculateGemTraderIncome computes correct ores and gem costs for pack purc
     assert.equal(result.weekly.shiny, 600);
     assert.equal(result.weekly.glowy, 70);
     assert.equal(result.weekly.starry, 30);
-    assert.equal(result.cost, 470);
+    assert.equal(result.cost, 540);
 
     assert.ok(result.monthly.shiny > 600);
     assert.ok(result.monthly.glowy > 70);
     assert.ok(result.monthly.starry > 30);
+});
+
+test('calculateGemTraderIncome handles purchasing all maximum allowed packs', () => {
+    const maxPacksState = {
+        packs: {
+            starry: 5,
+            glowy: 5,
+            shiny: 10
+        }
+    };
+    const result = calculateGemTraderIncome(maxPacksState);
+
+    assert.equal(result.weekly.shiny, 3000); // 10 * 300
+    assert.equal(result.weekly.glowy, 310);  // 5 * 60 + 10 free
+    assert.equal(result.weekly.starry, 75);  // 5 * 15
+    assert.equal(result.cost, 1950);         // 5*150 + 5*90 + 10*75 = 750 + 450 + 750
 });
 
 test('calculateGemTraderIncome handles zero and undefined pack counts safely', () => {

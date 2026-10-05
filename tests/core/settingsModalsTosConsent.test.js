@@ -328,12 +328,12 @@ if (typeof globalThis.localStorage === 'undefined') {
     };
 }
 
-const { state, EFFECTIVE_DATE_TERMS } = await import('../../js/core/state.js');
+const { state } = await import('../../js/core/state.js');
 const { openTermsOfUseModal } = await import('../../js/components/appSettings/settingsModals.js');
 const { migrateAppSettings } = await import('../../js/core/stateCleanup.js');
 const { translate } = await import('../../js/i18n/translator.js');
 
-describe('Settings Modals ToS Consent Standardization Suite', () => {
+describe('Settings Modals Legal Informational Suite', () => {
     let termsModal;
     let termsModalActions;
     let closeTermsBtn;
@@ -366,18 +366,12 @@ describe('Settings Modals ToS Consent Standardization Suite', () => {
 
         if (!state.uiSettings) state.uiSettings = {};
         state.uiSettings.uiTimestamps = {
-            privacy: null,
-            tos: null,
-            welcome: null,
             tour: null
         };
         state.uiSettings.language = 'en';
     });
 
-    test('openTermsOfUseModal: Informational Mode when tos timestamp is valid and >= EFFECTIVE_DATE_TERMS', () => {
-        state.uiSettings.uiTimestamps.tos = EFFECTIVE_DATE_TERMS + 5000;
-        delete state.uiSettings.uiTimestamps.terms;
-
+    test('openTermsOfUseModal: Informational Mode configures close button and hides accept button', () => {
         openTermsOfUseModal();
 
         assert.equal(closeTermsBtn.classList.contains('reject-button'), true);
@@ -386,66 +380,24 @@ describe('Settings Modals ToS Consent Standardization Suite', () => {
         assert.equal(acceptTermsBtn.style.display, 'none');
     });
 
-    test('openTermsOfUseModal: Consent Mode when tos timestamp is null, missing, or outdated', () => {
-        state.uiSettings.uiTimestamps.tos = null;
-        delete state.uiSettings.uiTimestamps.terms;
-
-        openTermsOfUseModal();
-
-        assert.equal(closeTermsBtn.classList.contains('reject-button'), true);
-        assert.equal(closeTermsBtn.getAttribute('data-i18n'), 'actions.cancel');
-        assert.equal(closeTermsBtn.textContent, translate('actions.cancel'));
-        assert.equal(acceptTermsBtn.style.display, 'inline-flex');
-        assert.equal(acceptTermsBtn.getAttribute('data-i18n'), 'actions.accept');
-        assert.equal(acceptTermsBtn.textContent, translate('actions.accept'));
-    });
-
-    test('openTermsOfUseModal: Legacy fallback works when only terms timestamp is present in state', () => {
-        state.uiSettings.uiTimestamps.tos = null;
-        state.uiSettings.uiTimestamps.terms = EFFECTIVE_DATE_TERMS + 10000;
-
-        openTermsOfUseModal();
-
-        assert.equal(closeTermsBtn.getAttribute('data-i18n'), 'actions.close');
-        assert.equal(acceptTermsBtn.style.display, 'none');
-    });
-
-    test('openTermsOfUseModal: Legacy fallback enters Consent Mode when terms timestamp is outdated', () => {
-        state.uiSettings.uiTimestamps.tos = null;
-        state.uiSettings.uiTimestamps.terms = EFFECTIVE_DATE_TERMS - 10000;
-
-        openTermsOfUseModal();
-
-        assert.equal(closeTermsBtn.getAttribute('data-i18n'), 'actions.cancel');
-        assert.equal(acceptTermsBtn.style.display, 'inline-flex');
-    });
-
-    test('handleAccept: Sets state.uiSettings.uiTimestamps.tos and prunes legacy terms key', () => {
-        state.uiSettings.uiTimestamps.tos = null;
-        state.uiSettings.uiTimestamps.terms = 1700000000000;
-
+    test('openTermsOfUseModal: Closing modal triggers terms:close custom event', () => {
         let closeEventFired = false;
         documentEventListeners.set('terms:close', [() => { closeEventFired = true; }]);
 
         openTermsOfUseModal();
-        assert.equal(acceptTermsBtn.style.display, 'inline-flex');
+        closeTermsBtn.click();
 
-        const startTime = Date.now();
-        acceptTermsBtn.click();
-
-        assert.ok(typeof state.uiSettings.uiTimestamps.tos === 'number');
-        assert.ok(state.uiSettings.uiTimestamps.tos >= startTime);
-        assert.equal('terms' in state.uiSettings.uiTimestamps, false);
         assert.equal(closeEventFired, true);
     });
 
-    test('migrateAppSettings: Normalizes legacy terms to tos and omits orphaned terms property', () => {
+    test('migrateAppSettings: Only retains tour timestamp in uiTimestamps, stripping privacy, tos, terms, welcome', () => {
         const oldUI = {
             currency: 'USD',
             language: 'en',
             uiTimestamps: {
                 privacy: 1786060800000,
                 terms: 1780617600000,
+                tos: 1780617600000,
                 welcome: 1780617600000,
                 tour: 1780617600000
             }
@@ -453,28 +405,24 @@ describe('Settings Modals ToS Consent Standardization Suite', () => {
 
         const migrated = migrateAppSettings(oldUI);
 
-        assert.equal(migrated.uiTimestamps.tos, 1780617600000);
+        assert.deepEqual(migrated.uiTimestamps, {
+            tour: 1780617600000
+        });
         assert.equal('terms' in migrated.uiTimestamps, false);
-        assert.equal(migrated.uiTimestamps.privacy, 1786060800000);
-        assert.equal(migrated.uiTimestamps.welcome, 1780617600000);
-        assert.equal(migrated.uiTimestamps.tour, 1780617600000);
+        assert.equal('tos' in migrated.uiTimestamps, false);
+        assert.equal('privacy' in migrated.uiTimestamps, false);
+        assert.equal('welcome' in migrated.uiTimestamps, false);
     });
 
-    test('migrateAppSettings: Prefers canonical tos over legacy terms when both are present', () => {
+    test('migrateAppSettings: Defaults tour to null when uiTimestamps is empty or missing', () => {
         const oldUI = {
-            currency: 'EUR',
-            uiTimestamps: {
-                privacy: 1786060800000,
-                tos: 1790000000000,
-                terms: 1780000000000,
-                welcome: null,
-                tour: null
-            }
+            currency: 'EUR'
         };
 
         const migrated = migrateAppSettings(oldUI);
 
-        assert.equal(migrated.uiTimestamps.tos, 1790000000000);
-        assert.equal('terms' in migrated.uiTimestamps, false);
+        assert.deepEqual(migrated.uiTimestamps, {
+            tour: null
+        });
     });
 });

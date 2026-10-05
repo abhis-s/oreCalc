@@ -54,7 +54,10 @@ export function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
     errorContainer.innerHTML = '';
     errorContainer.style.display = 'none';
     errorContainer.classList.remove('suggestion-only', 'error');
-    if (unhideBtn) unhideBtn.style.display = 'none';
+    if (unhideBtn) {
+        unhideBtn.hidden = true;
+        unhideBtn.style.display = 'none';
+    }
 
     listItems.forEach(item => item.classList.remove('error', 'suggestion'));
     document.querySelectorAll('.suggestion-bar').forEach(bar => bar.remove());
@@ -143,6 +146,7 @@ export function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
             });
         } else if (!hasError && suggestionsHidden) {
             if (unhideBtn) {
+                unhideBtn.hidden = false;
                 unhideBtn.style.display = 'flex';
                 const badge = unhideBtn.querySelector('#suggestion-badge');
                 if (badge) badge.textContent = String(suggestions.length);

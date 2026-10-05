@@ -1,0 +1,87 @@
+<dialog id="account-data-modal" class="modal modal-sheet-mobile" aria-labelledby="account-data-modal-title">
+    <div class="modal-content account-data-modal-content">
+        <div class="modal-header">
+            <h2 id="account-data-modal-title" data-i18n="auth.accountAndDataManagement"></h2>
+            <button type="button" id="close-account-data-header-btn" class="close-button" data-i18n-aria-label="actions.close">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="account-data-signin-tier" class="sync-account-callout guest-only-tier">
+                <div class="sync-account-callout-content">
+                    <orecalc-assets-svg name="user" class="sync-account-icon"></orecalc-assets-svg>
+                    <span data-i18n="auth.accountCardDesc"></span>
+                </div>
+                <button type="button" id="modal-guest-signin-btn" class="animated-btn btn-accent compact">
+                    <span class="animated-btn-text" data-i18n="auth.signIn"></span>
+                </button>
+            </div>
+
+            <div class="account-lifecycle-options flex-column-gap-15">
+                <div id="account-data-backup-tier" class="lifecycle-tier-item">
+                    <div class="lifecycle-tier-info">
+                        <strong data-i18n="auth.dataBackupAndRestore"></strong>
+                        <p class="form-setting-text" data-i18n="auth.dataBackupAndRestoreDesc"></p>
+                    </div>
+                    <div class="account-backup-actions">
+                        <button type="button" id="account-data-download-btn" class="animated-btn btn-download task-btn">
+                            <span class="animated-btn-icon-wrapper fill-current">
+                                <orecalc-assets-svg name="download"></orecalc-assets-svg>
+                            </span>
+                            <span class="animated-btn-text" data-i18n="actions.download"></span>
+                        </button>
+                        <button type="button" id="account-data-restore-btn" class="animated-btn btn-secondary task-btn">
+                            <span class="animated-btn-icon-wrapper fill-current">
+                                <orecalc-assets-svg name="import"></orecalc-assets-svg>
+                            </span>
+                            <span class="animated-btn-text" data-i18n="actions.restore"></span>
+                        </button>
+                        <input type="file" id="account-data-restore-file-input" accept=".json,application/json" class="hidden" hidden aria-label="Restore Account Data" data-i18n-aria-label="actions.restore">
+                    </div>
+                </div>
+
+                <div id="account-data-clear-cache-tier" class="lifecycle-tier-item">
+                    <div class="lifecycle-tier-info">
+                        <strong id="tier-clear-cache-label" data-i18n="auth.clearDeviceCache"></strong>
+                        <p id="tier-clear-cache-desc" class="form-setting-text" data-i18n="auth.explanations.clearCache"></p>
+                    </div>
+                    <button type="button" id="modal-clear-cache-btn" class="animated-btn btn-secondary full-width">
+                        <span class="animated-btn-icon-wrapper fill-current">
+                            <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                        </span>
+                        <span id="modal-clear-cache-btn-text" class="animated-btn-text" data-i18n="auth.clearDeviceCache"></span>
+                    </button>
+                </div>
+
+                <div id="account-data-reset-data-tier" class="lifecycle-tier-item">
+                    <div class="lifecycle-tier-info">
+                        <strong id="tier-reset-data-label" data-i18n="auth.resetVillageData"></strong>
+                        <p id="tier-reset-data-desc" class="form-setting-text" data-i18n="auth.explanations.resetData"></p>
+                    </div>
+                    <button type="button" id="modal-reset-data-btn" class="animated-btn btn-danger-action full-width">
+                        <span class="animated-btn-icon-wrapper">
+                            <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                        </span>
+                        <span id="modal-reset-data-btn-text" class="animated-btn-text" data-i18n="auth.resetVillageData"></span>
+                    </button>
+                </div>
+
+                <div id="account-data-delete-account-tier" class="lifecycle-tier-item lifecycle-danger-zone auth-only-tier">
+                    <div class="lifecycle-tier-info">
+                        <strong class="text-danger" data-i18n="auth.deleteAccount"></strong>
+                        <p class="form-setting-text" data-i18n="auth.explanations.deleteAccount"></p>
+                    </div>
+                    <button type="button" id="modal-delete-account-btn" class="animated-btn btn-danger-action btn-extreme-danger full-width">
+                        <span class="animated-btn-icon-wrapper">
+                            <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                        </span>
+                        <span class="animated-btn-text" data-i18n="auth.deleteAccount"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" id="close-account-data-modal-btn" class="reject-button" data-i18n="actions.cancel" data-modal-autofocus></button>
+        </div>
+    </div>
+</dialog>

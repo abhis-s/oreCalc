@@ -40,7 +40,7 @@ test('RATE_LIMIT_DEFAULTS is deeply frozen and defines windows and max counts', 
 });
 
 test('Regular expression patterns validate expected formats correctly', () => {
-    assert.ok(COC_TAG_REGEX.test('2PP0V2RGY'));
+    assert.ok(COC_TAG_REGEX.test('8PJYGUJC'));
     assert.ok(COC_TAG_REGEX.test('0289CGJLOPQRUV'));
     assert.equal(COC_TAG_REGEX.test('INVALID_TAG_S'), false);
 

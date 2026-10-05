@@ -5,10 +5,17 @@ import { MOTION_DURATION_FAST_MS, MOTION_DURATION_MODERATE_MS } from '../../core
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
+import { autoPlaceIncomeChipsForRange } from '../../utils/autoPlaceChips.js';
+import { getMaxDate, getMinDate } from '../../utils/dateUtils.js';
 import { closeAllModals } from '../../utils/modalHistoryManager.js';
+import { escapeHTML } from '../../utils/stringUtils.js';
 
 import { showConfirm } from '../../ui/noticeModal.js';
+import { closeFabMenu } from '../fab/fab.js';
+import { openEquipmentDetailsModal } from '../equipment/equipmentDetailsModalInputs.js';
+import { setAnimateNextRender } from '../planner/calendarDisplay.js';
 import { closeStoredOresModal } from '../planner/priorityListModal.js';
+import { closeDropdown, openDropdown } from '../player/playerDropdownInputs.js';
 
 let activeSteps = [];
 let currentStepIndex = 0;
@@ -248,6 +255,70 @@ function positionTooltip(highlightRect, tooltip, placement) {
     tooltip.style.top  = `${finalPos.top}px`;
 }
 
+async function executeStepEnter(step) {
+    if (!step) return;
+    if (typeof step.onEnter === 'function') {
+        await step.onEnter();
+        return;
+    }
+    if (step.id === 'profile-dropdown') {
+        openDropdown();
+    } else if (step.id === 'action-sync') {
+        const isSmallScreen = window.innerWidth < 780;
+        if (isSmallScreen) {
+            const mainFab = document.getElementById('main-fab');
+            const fabMenu = document.querySelector('.fab-menu');
+            const overlay = document.getElementById('overlay');
+            if (mainFab && fabMenu) {
+                mainFab.classList.add('active');
+                fabMenu.classList.add('show');
+                overlay?.classList.add('show');
+                document.body.classList.add('open-fab');
+            }
+        } else {
+            const saveBtn = document.getElementById('floating-save-btn');
+            if (saveBtn) {
+                saveBtn.dataset.originalDisplay = saveBtn.style.display;
+                saveBtn.style.setProperty('display', 'block', 'important');
+            }
+        }
+    } else if (step.id === 'eq-details-modal') {
+        const playerLevel = state.heroes?.['Dragon Duke']?.equipment?.['Fire Heart']?.level || 1;
+        await openEquipmentDetailsModal('Fire Heart', playerLevel);
+        await new Promise(resolve => setTimeout(resolve, 300));
+    } else if (step.id === 'nav-income') {
+        document.querySelectorAll('.income-card .card-title').forEach(el => {
+            el.classList.add('tour-glow-title');
+        });
+    }
+}
+
+async function executeStepLeave(step) {
+    if (!step) return;
+    if (typeof step.onLeave === 'function') {
+        await step.onLeave();
+        return;
+    }
+    if (step.id === 'profile-dropdown') {
+        closeDropdown();
+    } else if (step.id === 'action-sync') {
+        closeFabMenu();
+        const saveBtn = document.getElementById('floating-save-btn');
+        if (saveBtn && saveBtn.dataset.originalDisplay !== undefined) {
+            saveBtn.style.display = saveBtn.dataset.originalDisplay;
+            delete saveBtn.dataset.originalDisplay;
+        }
+    } else if (step.id === 'eq-details-modal') {
+        const closeBtn = document.getElementById('close-eq-details-modal-btn');
+        if (closeBtn) closeBtn.click();
+        await new Promise(resolve => setTimeout(resolve, 200));
+    } else if (step.id === 'nav-income') {
+        document.querySelectorAll('.income-card .card-title').forEach(el => {
+            el.classList.remove('tour-glow-title');
+        });
+    }
+}
+
 async function showStep() {
     if (currentStepIndex < 0 || currentStepIndex >= activeSteps.length) {
         finishTour();
@@ -266,16 +337,12 @@ async function showStep() {
 
     if (lastStepIndex >= 0 && lastStepIndex < activeSteps.length) {
         const lastStep = activeSteps[lastStepIndex];
-        if (typeof lastStep.onLeave === 'function') {
-            await lastStep.onLeave();
-        }
+        await executeStepLeave(lastStep);
     }
     lastStepIndex = currentStepIndex;
 
-    if (typeof step.onEnter === 'function') {
-        await step.onEnter();
-        await new Promise(resolve => setTimeout(resolve, MOTION_DURATION_FAST_MS));
-    }
+    await executeStepEnter(step);
+    await new Promise(resolve => setTimeout(resolve, MOTION_DURATION_FAST_MS));
 
     const target = resolveTargetElement(step.target);
     if (!target) {
@@ -321,20 +388,19 @@ async function showStep() {
     const titleKey = typeof step.titleKey === 'function' ? step.titleKey() : step.titleKey;
     const descKey = typeof step.descKey === 'function' ? step.descKey() : step.descKey;
 
-    // Update tooltip HTML content
     tooltipEl.innerHTML = `
         <div class="tour-tooltip-header">
             <h4 class="tour-tooltip-title">${translate(titleKey)}</h4>
-            <button class="tour-close-btn" aria-label="Close">&times;</button>
+            <button class="tour-close-btn" aria-label="${escapeHTML(translate('actions.close'))}">&times;</button>
         </div>
         <div class="tour-tooltip-body">
             ${translate(descKey)}
         </div>
         <div class="tour-tooltip-footer">
             <div class="tour-actions">
-                <button class="tour-btn tour-btn-skip">${translate('views.tour.skip')}</button>
-                ${currentStepIndex > 0 ? `<button class="tour-btn tour-btn-prev">${translate('views.tour.prev')}</button>` : ''}
-                <button class="tour-btn tour-btn-next">${currentStepIndex === activeSteps.length - 1 ? translate('views.tour.finish') : translate('views.tour.next')}</button>
+                <button class="tour-btn tour-btn-skip">${translate('actions.skip')}</button>
+                ${currentStepIndex > 0 ? `<button class="tour-btn tour-btn-prev">${translate('actions.back')}</button>` : ''}
+                <button class="tour-btn tour-btn-next">${currentStepIndex === activeSteps.length - 1 ? translate('views.tour.finish') : translate('actions.next')}</button>
             </div>
             <div class="tour-progress">${translate('views.tour.step', { current: currentStepIndex + 1, total: activeSteps.length })}</div>
         </div>
@@ -434,21 +500,14 @@ export async function startTour(setId) {
 
     // Trigger auto chip placement when the tour starts (for the entire planning range)
     try {
-        Promise.all([
-            import('../planner/calendar.js'),
-            import('../../utils/dateUtils.js'),
-            import('../../utils/autoPlaceChips.js')
-        ]).then(([calendarModule, dateUtilsModule, autoPlaceModule]) => {
-            calendarModule.setAnimateNextRender('auto-placed');
-            const { month: MIN_MONTH, year: MIN_YEAR } = dateUtilsModule.getMinDate();
-            const { month: MAX_MONTH, year: MAX_YEAR } = dateUtilsModule.getMaxDate();
-            autoPlaceModule.autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR);
-        }).catch(err => console.error('Failed to import modules for tour auto-placement:', err));
+        setAnimateNextRender('auto-placed');
+        const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+        const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
+        autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR);
     } catch (err) {
         console.error('Failed to auto-place chips on tour start:', err);
     }
 
-    // Set up repositioning listeners
     window.addEventListener('resize', updatePositions, { passive: true });
     window.addEventListener('scroll', updatePositions, { capture: true, passive: true });
 
@@ -462,6 +521,14 @@ function closeTour() {
     window.isTourRunning = false;
     window.isTourPending = false;
     document.body.classList.remove('tour-active');
+    document.body.classList.remove('open-fab');
+    closeFabMenu();
+
+    const saveBtn = document.getElementById('floating-save-btn');
+    if (saveBtn && saveBtn.dataset.originalDisplay !== undefined) {
+        saveBtn.style.display = saveBtn.dataset.originalDisplay;
+        delete saveBtn.dataset.originalDisplay;
+    }
 
     window.removeEventListener('resize', updatePositions);
     window.removeEventListener('scroll', updatePositions, { capture: true });
@@ -469,9 +536,7 @@ function closeTour() {
     // Call onLeave of the last active step if any
     if (lastStepIndex >= 0 && lastStepIndex < activeSteps.length) {
         const lastStep = activeSteps[lastStepIndex];
-        if (typeof lastStep.onLeave === 'function') {
-            lastStep.onLeave();
-        }
+        executeStepLeave(lastStep);
     }
     lastStepIndex = -1;
 

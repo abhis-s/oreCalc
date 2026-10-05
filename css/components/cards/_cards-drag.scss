@@ -76,7 +76,7 @@
 .equipment-card.dragging {
     opacity: 0.3;
     border: 2px dashed $accent-primary;
-    border-radius: 10px;
+    border-radius: $card-radius;
 }
 
 .card-drag-preview-pill {
@@ -86,7 +86,7 @@
     background-color: $bg-surface-secondary;
     border: 1px solid $accent-primary;
     border-radius: 20px;
-    padding: 8px 16px;
+    padding: $spacing-sm $spacing-lg;
     display: flex;
     align-items: center;
     gap: 10px;

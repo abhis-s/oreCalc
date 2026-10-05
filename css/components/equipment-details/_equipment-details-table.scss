@@ -26,7 +26,7 @@
         border: 1px solid color-mix(in srgb, $border-primary 50%, transparent);
         color: $text-secondary;
         border-radius: 6px;
-        padding: 4px 6px;
+        padding: $spacing-xs 6px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -61,7 +61,7 @@
     min-height: 0;
     overflow-x: auto;
     overflow-y: auto;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
     border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
 }
 
@@ -73,7 +73,7 @@
     text-align: center;
 
     th, td {
-        padding: 10px 12px;
+        padding: 10px $spacing-md;
         border-bottom: 1px solid color-mix(in srgb, $border-primary 20%, transparent);
         border-right: 1px solid color-mix(in srgb, $border-primary 15%, transparent);
         vertical-align: middle;
@@ -232,7 +232,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: $spacing-xs;
             white-space: nowrap;
 
             .rec-level-icon {
@@ -270,7 +270,7 @@
                 align-items: center;
                 justify-content: center;
                 flex-wrap: wrap;
-                gap: 2px 4px;
+                gap: $spacing-2xs $spacing-xs;
                 text-align: center;
                 width: 100%;
             }
@@ -293,7 +293,7 @@
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                gap: 4px;
+                gap: $spacing-xs;
                 vertical-align: middle;
 
                 orecalc-assets-image {
@@ -371,7 +371,7 @@
 
             td.total-cost-label-cell {
                 text-align: right;
-                padding-right: 8px;
+                padding-right: $spacing-sm;
             }
 
             .total-cost-label {
@@ -386,8 +386,8 @@
 .eq-details-footer-meta {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 10px 4px 0 4px;
+    gap: $spacing-sm;
+    padding: 10px $spacing-xs 0 $spacing-xs;
     margin-top: auto;
     flex-shrink: 0;
     font-size: 0.75rem;
@@ -399,7 +399,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 12px;
+        gap: $spacing-md;
         flex-wrap: wrap;
         width: 100%;
     }
@@ -427,7 +427,7 @@
         .eq-details-footer-top-row {
             justify-content: center;
             text-align: center;
-            gap: 4px;
+            gap: $spacing-xs;
 
             .eq-details-report-inaccuracies,
             .eq-details-last-updated {
@@ -458,7 +458,7 @@
         .open-in-new-icon {
             width: 11px;
             height: 11px;
-            margin-left: 2px;
+            margin-left: $spacing-2xs;
             vertical-align: middle;
             fill: currentColor;
         }

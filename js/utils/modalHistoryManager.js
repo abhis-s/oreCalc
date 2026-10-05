@@ -8,6 +8,7 @@
  */
 
 import { MOTION_DURATION_EXIT_MS } from '../core/constants.js';
+import { hideCardHelpPopover } from './cardHelpPopover.js';
 
 let modalStack = [];
 let isPoppingForClose = false;
@@ -47,6 +48,7 @@ function trapFocus(modal, e) {
  * @param {Object} [options] - Optional configuration options.
  */
 export function openModal(modalOrId, options = {}) {
+    hideCardHelpPopover();
     const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
     if (!modal) return;
 
@@ -89,12 +91,13 @@ export function closeModal(modalOrId, callback) {
 
 /**
  * Animates modal dialog closure with smooth scale/fade exit transitions before removing DOM state.
- * @param {HTMLElement|HTMLDialogElement|any} modal - Target modal or dialog element.
+ * @param {HTMLElement|HTMLDialogElement|string|any} modalOrId - Target modal element or ID string.
  * @param {() => void} [callback] - Optional completion callback executed after exit animation finishes.
  */
-export function closeModalAnimated(modal, callback) {
+export function closeModalAnimated(modalOrId, callback) {
+    const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
     if (!modal) return;
-    if (modal.id === 'welcome-modal' || modal.classList.contains('welcome-modal-content')) {
+    if (modal.id === 'guided-setup-modal' || modal.classList.contains('guided-setup-modal-content')) {
         modal.classList.remove('show', 'active', 'open', 'closing');
         if (typeof modal.close === 'function' && modal.open) {
             try {
@@ -177,7 +180,7 @@ export function initializeModalHistoryManager() {
 
         const modal = closeBtn.closest('.modal, dialog, .dialog-overlay');
         const isOpen = modal && (modal.classList.contains('show') || modal.open);
-        if (modal && modal.id !== 'welcome-modal' && isOpen && !modal.classList.contains('closing')) {
+        if (modal && modal.id !== 'guided-setup-modal' && isOpen && !modal.classList.contains('closing')) {
             closeModalAnimated(modal);
         }
     });
@@ -187,7 +190,7 @@ export function initializeModalHistoryManager() {
         if (e.key === 'Escape' || e.key === 'Esc') {
             if (modalStack.length > 0) {
                 const topModal = modalStack.at(-1);
-                if (topModal && topModal.element && topModal.element.id !== 'welcome-modal') {
+                if (topModal && topModal.element && topModal.element.id !== 'guided-setup-modal') {
                     closeTargetModal(topModal);
                 }
             }
@@ -213,45 +216,53 @@ export function initializeModalHistoryManager() {
         el.__historyObserverAttached = true;
 
         // Ensure ARIA semantics and accessible name
-        if (!el.hasAttribute('role') && (el.classList.contains('modal') || el.classList.contains('dialog-overlay') || el.tagName === 'DIALOG')) {
-            el.setAttribute('role', 'dialog');
-            el.setAttribute('aria-modal', 'true');
+        if (typeof el.hasAttribute === 'function' && !el.hasAttribute('role') && (el.classList?.contains?.('modal') || el.classList?.contains?.('dialog-overlay') || el.tagName === 'DIALOG')) {
+            if (typeof el.setAttribute === 'function') {
+                el.setAttribute('role', 'dialog');
+                el.setAttribute('aria-modal', 'true');
+            }
         }
 
-        if (el.getAttribute('role') === 'dialog' || el.classList.contains('modal') || el.tagName === 'DIALOG') {
-            if (!el.hasAttribute('aria-labelledby') && !el.hasAttribute('aria-label')) {
-                const heading = el.querySelector('.modal-header h1, .modal-header h2, .modal-header h3, h1, h2, h3');
+        if (typeof el.getAttribute === 'function' && (el.getAttribute('role') === 'dialog' || el.classList?.contains?.('modal') || el.tagName === 'DIALOG')) {
+            if (typeof el.hasAttribute === 'function' && !el.hasAttribute('aria-labelledby') && !el.hasAttribute('aria-label')) {
+                const heading = typeof el.querySelector === 'function'
+                    ? el.querySelector('.modal-header h1, .modal-header h2, .modal-header h3, h1, h2, h3')
+                    : null;
                 if (heading) {
                     if (!heading.id) {
                         heading.id = `${el.id || 'modal'}-title`;
                     }
-                    el.setAttribute('aria-labelledby', heading.id);
+                    if (typeof el.setAttribute === 'function') el.setAttribute('aria-labelledby', heading.id);
                 } else if (el.id) {
                     const fallbackName = el.id.replace(/-modal$/, '').replace(/-/g, ' ');
-                    el.setAttribute('aria-label', fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1));
+                    if (typeof el.setAttribute === 'function') el.setAttribute('aria-label', fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1));
                 }
             }
         }
 
-        // Native cancel event listener (fired on Escape key in native dialogs)
-        el.addEventListener('cancel', (e) => {
-            e.preventDefault();
-            if (el.id === 'welcome-modal') return;
-            closeModalAnimated(el);
-        });
-
-        // Native backdrop click listener: clicks on the <dialog> element itself (outside .modal-content)
-        el.addEventListener('click', (e) => {
-            if (e.target === el) {
-                if (el.id === 'welcome-modal') return;
+        if (typeof el.addEventListener === 'function') {
+            // Native cancel event listener (fired on Escape key in native dialogs)
+            el.addEventListener('cancel', (e) => {
+                e.preventDefault();
+                if (el.id === 'guided-setup-modal') return;
                 closeModalAnimated(el);
-            }
-        });
+            });
 
-        observer.observe(el, {
-            attributes: true,
-            attributeFilter: ['class', 'open']
-        });
+            // Native backdrop click listener: clicks on the <dialog> element itself (outside .modal-content)
+            el.addEventListener('click', (e) => {
+                if (e.target === el) {
+                    if (el.id === 'guided-setup-modal') return;
+                    closeModalAnimated(el);
+                }
+            });
+        }
+
+        if (observer && typeof observer.observe === 'function') {
+            observer.observe(el, {
+                attributes: true,
+                attributeFilter: ['class', 'open']
+            });
+        }
     };
 
     // Observe body & document tree for modal/drawer visibility changes
@@ -274,8 +285,8 @@ export function initializeModalHistoryManager() {
 
             const target = mutation.target;
 
-            // Target check: modals, dialog overlays, side drawer, FAB menu (excluding welcome-modal to prevent mobile back-gesture dismissal)
-            const isModal = (target.classList.contains('modal') && target.id !== 'welcome-modal') ||
+            // Target check: modals, dialog overlays, side drawer, FAB menu (excluding guided-setup-modal to prevent mobile back-gesture dismissal)
+            const isModal = (target.classList.contains('modal') && target.id !== 'guided-setup-modal') ||
                             target.tagName === 'DIALOG' ||
                             target.classList.contains('dialog-overlay') ||
                             target.classList.contains('nav-drawer') ||
@@ -291,7 +302,7 @@ export function initializeModalHistoryManager() {
 
             const isBodyDrawerOrFab = target === document.body && (mutation.attributeName === 'class');
 
-            if (isModal && target.id !== 'welcome-modal') {
+            if (isModal && target.id !== 'guided-setup-modal') {
                 const isOpen = target.classList.contains('show') ||
                                target.classList.contains('open') ||
                                target.classList.contains('active') ||
@@ -379,13 +390,14 @@ function isInteractiveCandidate(el) {
  * @returns {Element|null} - The element that should receive initial focus.
  */
 export function getInitialModalFocusTarget(modal) {
-    if (!modal || typeof modal.querySelector !== 'function') return null;
+    if (!modal || typeof modal.querySelector !== 'function' || typeof modal.querySelectorAll !== 'function') return null;
 
     const autofocusCandidates = Array.from(modal.querySelectorAll('[data-modal-autofocus], [autofocus]'));
     const explicitTarget = autofocusCandidates.find(isInteractiveCandidate);
     if (explicitTarget) return explicitTarget;
 
     const bodyScope = modal.querySelector('.modal-body') || modal.querySelector('.modal-content') || modal;
+    if (!bodyScope || typeof bodyScope.querySelectorAll !== 'function') return null;
     const actionsScope = modal.querySelector('.modal-actions, .modal-footer');
 
     const textInputSelector = 'input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])';
@@ -423,8 +435,10 @@ export function getInitialModalFocusTarget(modal) {
     const anyClose = modal.querySelector('.close-button, .close-btn');
     if (anyClose && isInteractiveCandidate(anyClose)) return anyClose;
 
-    if (!modal.hasAttribute('tabindex')) {
-        modal.setAttribute('tabindex', '-1');
+    if (typeof modal.hasAttribute === 'function' && !modal.hasAttribute('tabindex')) {
+        if (typeof modal.setAttribute === 'function') {
+            modal.setAttribute('tabindex', '-1');
+        }
     }
     return modal;
 }
@@ -437,8 +451,8 @@ export function getInitialModalFocusTarget(modal) {
  */
 export function handleModalStateChange(element, isOpen, options = {}) {
     if (!element) return;
-    if (element.id === 'welcome-modal') {
-        // Welcome modal is onboarding flow, exempted from history back popping
+    if (element.id === 'guided-setup-modal') {
+        // Guided setup modal is multi-step wizard, exempted from history back popping
         return;
     }
 
@@ -453,27 +467,31 @@ export function handleModalStateChange(element, isOpen, options = {}) {
 
         if (existingIndex === -1) {
             // Ensure ARIA semantics & accessible name
-            if (!element.hasAttribute('role')) {
-                element.setAttribute('role', 'dialog');
+            if (typeof element.hasAttribute === 'function' && !element.hasAttribute('role')) {
+                if (typeof element.setAttribute === 'function') element.setAttribute('role', 'dialog');
             }
-            element.setAttribute('aria-modal', 'true');
+            if (typeof element.setAttribute === 'function') element.setAttribute('aria-modal', 'true');
 
-            if (!element.hasAttribute('aria-labelledby') && !element.hasAttribute('aria-label')) {
-                const heading = element.querySelector('.modal-header h1, .modal-header h2, .modal-header h3, h1, h2, h3');
+            if (typeof element.hasAttribute === 'function' && !element.hasAttribute('aria-labelledby') && !element.hasAttribute('aria-label')) {
+                const heading = typeof element.querySelector === 'function'
+                    ? element.querySelector('.modal-header h1, .modal-header h2, .modal-header h3, h1, h2, h3')
+                    : null;
                 if (heading) {
                     if (!heading.id) {
                         heading.id = `${element.id || 'modal'}-title`;
                     }
-                    element.setAttribute('aria-labelledby', heading.id);
+                    if (typeof element.setAttribute === 'function') element.setAttribute('aria-labelledby', heading.id);
                 } else if (element.id) {
                     const fallbackName = element.id.replace(/-modal$/, '').replace(/-/g, ' ');
-                    element.setAttribute('aria-label', fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1));
+                    if (typeof element.setAttribute === 'function') element.setAttribute('aria-label', fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1));
                 }
             }
 
-            const previousActiveElement = document.activeElement;
+            const previousActiveElement = typeof document !== 'undefined' ? document.activeElement : null;
             const trapHandler = (e) => trapFocus(element, e);
-            element.addEventListener('keydown', trapHandler);
+            if (typeof element.addEventListener === 'function') {
+                element.addEventListener('keydown', trapHandler);
+            }
 
             // Focus initial interactive element inside modal according to WAI-ARIA hierarchy
             setTimeout(() => {
@@ -500,7 +518,7 @@ export function handleModalStateChange(element, isOpen, options = {}) {
         if (existingIndex !== -1) {
             const [removed] = modalStack.splice(existingIndex, 1);
 
-            if (removed && removed.trapHandler) {
+            if (removed && removed.trapHandler && typeof element.removeEventListener === 'function') {
                 element.removeEventListener('keydown', removed.trapHandler);
             }
 

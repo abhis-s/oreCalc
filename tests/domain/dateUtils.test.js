@@ -2,15 +2,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
     formatDate,
-    formatSupercellEventsDate,
+    formatDateRange,
+    getDefaultDateLocale,
     getDaysInMonth,
-    getSupercellEventsForYear,
     getISOWeekNumber,
     getDateOfWeek,
-    extractScheduleStartDate
+    getShortDayNames,
+    setDefaultDateLocale,
+    extractScheduleStartDate,
+    formatRegionalDate
 } from '../../js/utils/dateUtils.js';
-
-import { supercellEventsData } from '../../js/data/incomeSources/supercellEvents.js';
 
 test('getDaysInMonth accurately calculates February and month day counts for leap and non-leap years', () => {
     assert.equal(getDaysInMonth(2024, 1), 29);
@@ -26,28 +27,18 @@ test('formatDate renders valid localized date string with cached formatter', () 
     assert.ok(strEn.includes('Aug') || strEn.includes('14'));
 });
 
-test('getSupercellEventsForYear generates valid ISO date strings without invalid calendar days', () => {
-    const events = getSupercellEventsForYear(2026, supercellEventsData);
-    assert.ok(Array.isArray(events));
-    assert.ok(events.length > 0);
+test('formatDateRange renders localized date range strings cleanly', () => {
+    const startRange = new Date(Date.UTC(2026, 5, 27));
+    const endRange = new Date(Date.UTC(2026, 5, 28));
 
-    for (const evt of events) {
-        assert.ok(evt.start);
-        assert.ok(evt.end);
+    const enRange = formatDateRange(startRange, endRange, { month: 'short', day: 'numeric', timeZone: 'UTC' }, 'en');
+    assert.ok(enRange.includes('Jun') && enRange.includes('27') && enRange.includes('28'));
 
-        const startDate = new Date(evt.start);
-        const endDate = new Date(evt.end);
+    const deRange = formatDateRange(startRange, endRange, { month: 'short', day: 'numeric', timeZone: 'UTC' }, 'de');
+    assert.ok(deRange.includes('27') && deRange.includes('28'));
 
-        assert.ok(!isNaN(startDate.getTime()), `Invalid start date for event ${evt.name}: ${evt.start}`);
-        assert.ok(!isNaN(endDate.getTime()), `Invalid end date for event ${evt.name}: ${evt.end}`);
-        assert.ok(endDate >= startDate, `End date must be on or after start date for ${evt.name}`);
-
-        const endDay = parseInt(evt.end.split('T')[0].split('-')[2], 10);
-        const endMonth = parseInt(evt.end.split('T')[0].split('-')[1], 10);
-        const endYear = parseInt(evt.end.split('T')[0].split('-')[0], 10);
-        const maxDaysInEndMonth = getDaysInMonth(endYear, endMonth - 1);
-        assert.ok(endDay <= maxDaysInEndMonth, `Day ${endDay} exceeds month ${endMonth} maximum ${maxDaysInEndMonth}`);
-    }
+    const zhRange = formatDateRange(startRange, endRange, { month: 'short', day: 'numeric', timeZone: 'UTC' }, 'zh');
+    assert.ok(zhRange.includes('6') && zhRange.includes('27') && zhRange.includes('28'));
 });
 
 test('getISOWeekNumber and getDateOfWeek calculate ISO 8601 weeks correctly across years', () => {
@@ -79,34 +70,113 @@ test('extractScheduleStartDate normalizes Date objects and range objects cleanly
     assert.equal(extractScheduleStartDate('invalid'), 'invalid');
 });
 
-test('formatSupercellEventsDate produces standard localized date ranges and full-month formats', () => {
-    const startRange = new Date('2026-06-27T16:00:00Z');
-    const endRange = new Date('2026-06-28T23:00:00Z');
+test('setDefaultDateLocale and getDefaultDateLocale manage application-wide date locale fallback', () => {
+    const original = getDefaultDateLocale();
+    try {
+        assert.equal(typeof original, 'string');
+        setDefaultDateLocale('de');
+        assert.equal(getDefaultDateLocale(), 'de');
 
-    const enRange = formatSupercellEventsDate(startRange, endRange, 'en');
-    assert.ok(enRange.includes('Jun') && enRange.includes('27') && enRange.includes('28'));
+        setDefaultDateLocale('tr');
+        assert.equal(getDefaultDateLocale(), 'tr');
 
-    const deRange = formatSupercellEventsDate(startRange, endRange, 'de');
-    assert.ok(deRange.includes('27') && deRange.includes('28'));
+        setDefaultDateLocale('zh');
+        assert.equal(getDefaultDateLocale(), 'zh');
 
-    const zhRange = formatSupercellEventsDate(startRange, endRange, 'zh');
-    assert.ok(zhRange.includes('6') && zhRange.includes('27') && zhRange.includes('28'));
-
-    const startMonth = new Date('2026-11-01T00:00:00Z');
-    const endMonth = new Date('2026-11-30T23:59:59Z');
-
-    assert.equal(formatSupercellEventsDate(startMonth, endMonth, 'en'), 'November');
-    assert.equal(formatSupercellEventsDate(startMonth, endMonth, 'de'), 'November');
-    assert.equal(formatSupercellEventsDate(startMonth, endMonth, 'zh'), '十一月');
-    assert.equal(formatSupercellEventsDate(startMonth, endMonth, 'tr'), 'Kasım');
+        // Ignored invalid inputs
+        setDefaultDateLocale('');
+        assert.equal(getDefaultDateLocale(), 'zh');
+        setDefaultDateLocale(null);
+        assert.equal(getDefaultDateLocale(), 'zh');
+    } finally {
+        setDefaultDateLocale(original);
+    }
 });
 
-test('getSupercellEventsForYear formats localized event labels according to passed locale', () => {
-    const eventsEn = getSupercellEventsForYear(2026, supercellEventsData, 'en');
-    const eventsDe = getSupercellEventsForYear(2026, supercellEventsData, 'de');
-    const eventsZh = getSupercellEventsForYear(2026, supercellEventsData, 'zh');
+test('formatDate defaults to defaultDateLocale and formats localized month names correctly', () => {
+    const original = getDefaultDateLocale();
+    try {
+        const marchDate = new Date(Date.UTC(2026, 2, 1));
+        const octDate = new Date(Date.UTC(2026, 9, 1));
 
-    assert.equal(eventsEn[eventsEn.length - 1].label, 'November');
-    assert.equal(eventsDe[eventsDe.length - 1].label, 'November');
-    assert.equal(eventsZh[eventsZh.length - 1].label, '十一月');
+        setDefaultDateLocale('en');
+        assert.equal(formatDate(marchDate, { month: 'short' }), 'Mar');
+        assert.equal(formatDate(octDate, { month: 'short' }), 'Oct');
+
+        setDefaultDateLocale('de');
+        assert.equal(formatDate(marchDate, { month: 'short' }), 'Mär');
+        assert.equal(formatDate(octDate, { month: 'short' }), 'Okt');
+
+        setDefaultDateLocale('tr');
+        assert.equal(formatDate(octDate, { month: 'short' }), 'Eki');
+
+        setDefaultDateLocale('zh');
+        assert.equal(formatDate(marchDate, { month: 'short' }), '3月');
+        assert.equal(formatDate(octDate, { month: 'short' }), '10月');
+
+        // Explicit locale parameter overrides defaultDateLocale
+        assert.equal(formatDate(octDate, { month: 'short' }, 'de'), 'Okt');
+        assert.equal(formatDate(octDate, { month: 'short' }, 'en'), 'Oct');
+    } finally {
+        setDefaultDateLocale(original);
+    }
+});
+
+test('getShortDayNames defaults to defaultDateLocale and respects explicit locale', () => {
+    const original = getDefaultDateLocale();
+    try {
+        setDefaultDateLocale('de');
+        const deDays = getShortDayNames('monday');
+        assert.ok(deDays.includes('Mo'));
+        assert.ok(deDays.includes('Di'));
+
+        setDefaultDateLocale('en');
+        const enDays = getShortDayNames('monday');
+        assert.ok(enDays.includes('Mon'));
+        assert.ok(enDays.includes('Tue'));
+
+        // Explicit locale parameter overrides defaultDateLocale
+        const explicitDeDays = getShortDayNames('monday', 'de');
+        assert.ok(explicitDeDays.includes('Mo'));
+    } finally {
+        setDefaultDateLocale(original);
+    }
+});
+
+test('formatDate enforces textual month format and prevents ambiguous numeric MM-DD / DD-MM output', () => {
+    const testDate = new Date(Date.UTC(2026, 8, 25)); // Sep 25, 2026
+    const ambiguousNumericPattern = /^\d{1,2}[-/.]\d{1,2}([-/.]\d{2,4})?$/;
+
+    // 1. Default options (when options argument is omitted)
+    const enDefault = formatDate(testDate, undefined, 'en');
+    const deDefault = formatDate(testDate, undefined, 'de');
+    const trDefault = formatDate(testDate, undefined, 'tr');
+    const zhDefault = formatDate(testDate, undefined, 'zh');
+
+    assert.ok(enDefault.includes('Sep'), 'English default must include Sep');
+    assert.ok(deDefault.includes('Sept.'), 'German default must include Sept.');
+    assert.ok(trDefault.includes('Eyl'), 'Turkish default must include Eyl');
+    assert.ok(zhDefault.includes('9月'), 'Chinese default must include 9月');
+
+    assert.ok(!ambiguousNumericPattern.test(enDefault.trim()), 'English default must not be numeric MM-DD / DD-MM');
+    assert.ok(!ambiguousNumericPattern.test(deDefault.trim()), 'German default must not be numeric MM-DD / DD-MM');
+    assert.ok(!ambiguousNumericPattern.test(trDefault.trim()), 'Turkish default must not be numeric MM-DD / DD-MM');
+    assert.ok(!ambiguousNumericPattern.test(zhDefault.trim()), 'Chinese default must not be numeric MM-DD / DD-MM');
+
+    // 2. dateStyle: 'medium' normalization (prevents German de-DE 25.09.2026)
+    const deMedium = formatDate(testDate, { dateStyle: 'medium' }, 'de');
+    assert.ok(deMedium.includes('Sept.'), 'German dateStyle medium must be normalized to Sept.');
+    assert.ok(!deMedium.includes('25.09.2026'), 'German dateStyle medium must never produce 25.09.2026');
+
+    // 3. month: 'numeric' / '2-digit' normalization when day is present
+    const enNumericMonth = formatDate(testDate, { day: 'numeric', month: 'numeric' }, 'en');
+    assert.ok(enNumericMonth.includes('Sep'), 'Numeric month with day must be upgraded to short text month');
+    assert.ok(!enNumericMonth.includes('9/25') && !enNumericMonth.includes('09/25'), 'Must never emit 9/25 or 09/25');
+});
+
+test('formatRegionalDate formats ISO dates with regional locale or falls back gracefully', () => {
+    assert.equal(formatRegionalDate(''), '');
+    assert.ok(formatRegionalDate('2026-06-05', 'en').includes('2026'));
+    assert.ok(formatRegionalDate('2026-06-05', 'en').includes('Jun'));
+    assert.equal(formatRegionalDate('invalid-date'), 'invalid-date');
 });

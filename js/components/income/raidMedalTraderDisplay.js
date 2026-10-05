@@ -49,6 +49,14 @@ export function renderRaidMedalTraderRow(offer, offerState) {
             }));
 
             checkboxDiv.appendChild(checkbox);
+
+            const checkIcon = document.createElement('orecalc-assets-svg');
+            checkIcon.setAttribute('name', 'check-simple');
+            checkIcon.setAttribute('class', 'offer-checkbox-icon');
+            checkIcon.setAttribute('width', '14');
+            checkIcon.setAttribute('height', '14');
+            checkIcon.setAttribute('aria-hidden', 'true');
+            checkboxDiv.appendChild(checkIcon);
         }
         row.appendChild(checkboxDiv);
     }

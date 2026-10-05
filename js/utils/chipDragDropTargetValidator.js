@@ -157,7 +157,7 @@ export function highlightDropTargets(chip, chipData) {
         if (isValidRange && isMultiplierStarBonus && maxChips > 0) {
             if (existingDays.length > 0) {
                 const minEx = existingDays[0];
-                const maxEx = existingDays[existingDays.length - 1];
+                const maxEx = existingDays.at(-1);
                 const newMin = Math.min(day, minEx);
                 const newMax = Math.max(day, maxEx);
                 if ((newMax - newMin + 1) > maxChips) {

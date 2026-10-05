@@ -25,7 +25,7 @@ export function renderSyncQRCode(container, userId, size = 250) {
         width: size,
         height: size,
         data: data,
-        image: 'assets/app_icon_small.png',
+        image: '/assets/favicon.png',
         dotsOptions: {
             color: textPrimaryColor || '#000000',
             type: 'rounded'

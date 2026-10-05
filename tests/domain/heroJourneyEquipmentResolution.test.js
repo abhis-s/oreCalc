@@ -401,6 +401,35 @@ describe('Hero Journey Equipment Resolution Engine', () => {
         const res180 = trackResolution[180];
         assert.equal(res180.resolvedKey, 'giantGauntlet', 'Node 180 must fall back to unowned Giant Gauntlet');
         assert.equal(res180.isOwned, false);
+
+        // Giant Gauntlet was missed at Node 20 (level 1) and rescheduled to Node 180 (level 12)
+        assert.equal(getDefaultEquipmentUnlockLevel('barbarianKing', 'giantGauntlet', syncedState), 12);
+        assert.equal(isHeroJourneyFutureOrUnclaimedEquipment('barbarianKing', 'giantGauntlet', syncedState), true);
+        assert.equal(shouldApplyHeroJourneyAutoLevel('Barbarian King', 'Giant Gauntlet', syncedState), true);
+    });
+
+    test('rescheduled equipment node guesses future award level rather than missed baseline level', () => {
+        // Player past Node 99 (cumulative level 150), missed Dark Crown, owns Meteor Staff
+        const syncedState = {
+            playerProfile: {
+                tag: '#MISSED_DARK_CROWN',
+                townHallLevel: 14,
+                ownedHeroes: {
+                    'Barbarian King': { level: 50 },
+                    'Archer Queen': { level: 50 },
+                    'Grand Warden': { level: 35 },
+                    'Minion Prince': { level: 15 } // sum = 150 (past Node 99, before Node 302)
+                },
+                ownedEquipment: {
+                    'Meteor Staff': 15
+                }
+            }
+        };
+
+        // Dark Crown was missed at Node 99 (TH11 milestone level 9), but rescheduled to Node 302 (TH14 milestone level 15)
+        assert.equal(getDefaultEquipmentUnlockLevel('minionPrince', 'darkCrown', syncedState), 15);
+        assert.equal(isHeroJourneyFutureOrUnclaimedEquipment('minionPrince', 'darkCrown', syncedState), true);
+        assert.equal(shouldApplyHeroJourneyAutoLevel('Minion Prince', 'Dark Crown', syncedState), true);
     });
 
     test('missed equipment node with no remaining future nodes marks status as missed', () => {

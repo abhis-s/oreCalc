@@ -40,7 +40,7 @@
 
 /**
  * @typedef {Object} PlayerProfile
- * @property {string} tag - Player tag (e.g. #2PP)
+ * @property {string} tag - Player tag (e.g. #8PJYGUJC)
  * @property {string} name - Player in-game name
  * @property {number} townHallLevel - Town Hall level
  * @property {LeagueTierInfo} [leagueTier] - League tier info
@@ -99,7 +99,7 @@
 /**
  * @typedef {Object} EquipmentModifierResult
  * @property {number} effectiveLevel - Effective level after modifier clamping/downgrades
- * @property {number} effectiveMaxLevel - Effective max level cap under active modifier
+ * @property {number} effectiveMaxLevel - Effective max level under active modifier
  * @property {number} trueMaxLevel - Baseline unadjusted maximum level
  * @property {boolean} isDowngraded - Whether the modifier applied a level downgrade
  * @property {number} downgrade - Number of levels downgraded
@@ -140,6 +140,8 @@
  * @property {UISettingsTimestamps} [uiTimestamps] - Legal consent timestamps
  * @property {'daily' | 'weekly' | 'monthly' | 'bimonthly' | string} [summaryTimeframe] - Summary display timeframe
  * @property {string} [cardLayout] - Equipment card density layout ('cozy' | 'compact')
+ * @property {'standard' | 'legend3' | 'legend2' | 'legend1' | 'esports' | string} [leagueModifier] - Global battle modifier preference
+ * @property {number} [stateResetEpoch] - Server prune or state reset epoch timestamp in milliseconds
  * @property {boolean} [saveError] - Indicator if local storage saving is suspended due to quota error
  */
 

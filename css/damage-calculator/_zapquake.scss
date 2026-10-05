@@ -1,0 +1,372 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-view-combos-layout {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    .calc-view-header {
+        margin-block-end: 0;
+    }
+}
+
+.calc-combos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: $spacing-md;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    grid-auto-flow: dense;
+
+    @media (max-width: $breakpoint-phone) {
+        grid-template-columns: minmax(0, 1fr);
+        gap: $spacing-sm;
+    }
+}
+
+.calc-combo-card {
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-medium;
+    padding: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    box-shadow: $elevation-1;
+    transition: border-color $transition-fast, transform $transition-fast;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: $breakpoint-micro) {
+        padding: $spacing-sm;
+        gap: $spacing-xs;
+    }
+
+    &:hover {
+        border-color: $border-card-hover;
+    }
+
+    &--remaining {
+        border-color: color-mix(in srgb, $color-warning 30%, $border-card);
+    }
+
+    &--full-width {
+        grid-column: 1 / -1;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+        border-bottom: 1px solid $border-primary;
+        padding-block-end: $spacing-sm;
+
+        @media (max-width: $breakpoint-micro) {
+            padding-block-end: $spacing-xs;
+        }
+    }
+
+    &__spells {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        flex-wrap: wrap;
+
+        .calc-equip-badge {
+            padding: $spacing-2xs;
+            width: 36px;
+            height: 36px;
+            box-sizing: border-box;
+
+            &__icon {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        .calc-spell-badge {
+            padding-block: $spacing-2xs;
+            padding-inline-start: $spacing-xs;
+            padding-inline-end: $spacing-2xs;
+            gap: $spacing-2xs;
+            height: 36px;
+            box-sizing: border-box;
+
+            &__multiplier {
+                font-size: $font-size-xs;
+            }
+
+            &__icon {
+                width: 28px;
+                height: 28px;
+            }
+        }
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+}
+
+.calc-combo-defenses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: $spacing-xs;
+    width: 100%;
+    min-width: 0;
+
+    @media (max-width: $breakpoint-phone) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: $spacing-2xs;
+    }
+
+    &--compact {
+        grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+        gap: $spacing-2xs;
+
+        @media (max-width: $breakpoint-phone) {
+            grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+        }
+    }
+}
+
+.calc-combo-defense-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-small;
+    cursor: pointer;
+    transition: transform $transition-fast, background-color $transition-fast, border-color $transition-fast;
+    min-width: 0;
+    box-sizing: border-box;
+
+    &:hover {
+        background-color: $bg-surface-tertiary;
+        border-color: $border-accent;
+        transform: translateY(-1px);
+    }
+
+    &--compact {
+        position: relative;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: $spacing-2xs;
+        width: 100%;
+        min-height: 48px;
+        aspect-ratio: 1 / 1;
+
+        .calc-combo-defense-card__thumb-wrapper {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .calc-combo-defense-card__thumb,
+        orecalc-assets-image {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            object-fit: contain;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+        }
+
+        .calc-combo-defense-card__info-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            margin-inline-start: 0;
+            padding: 1px;
+            opacity: 0.6;
+            background-color: color-mix(in srgb, $bg-surface-primary 75%, transparent);
+            border-radius: $shape-corner-xs;
+            z-index: $z-index-base;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    &--remaining {
+        border-color: color-mix(in srgb, $color-warning 25%, $border-primary);
+
+        &:hover {
+            border-color: $color-warning;
+        }
+    }
+
+    &__thumb-wrapper {
+        position: relative;
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__seasonal-badge {
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        width: 14px;
+        height: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: color-mix(in srgb, $bg-surface-tertiary 90%, black);
+        border: 1px solid $border-primary;
+        color: $accent-primary;
+        border-radius: $shape-corner-full;
+        box-shadow: $elevation-1;
+
+        svg, orecalc-assets-svg {
+            display: inline-flex;
+            width: 10px;
+            height: 10px;
+            fill: currentColor;
+        }
+    }
+
+    &__thumb {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-width: 0;
+    }
+
+    &__name {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__meta {
+        display: inline-flex;
+        align-items: center;
+        font-size: $font-size-2xs;
+        color: $text-muted;
+        white-space: nowrap;
+    }
+
+    &__level {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2xs;
+    }
+
+    &__supercharge {
+        display: inline-flex;
+        align-items: center;
+        margin-inline-start: 1px;
+        flex-shrink: 0;
+    }
+
+    &__sep {
+        color: $text-muted;
+        user-select: none;
+        padding-inline: $spacing-2xs;
+    }
+
+    &__info-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        color: $text-muted;
+        padding: $spacing-2xs;
+        border-radius: $shape-corner-xs;
+        cursor: pointer;
+        margin-inline-start: auto;
+        opacity: 0.7;
+        transition: opacity $transition-fast, color $transition-fast;
+
+        &:hover {
+            opacity: 1;
+            color: $accent-primary;
+        }
+    }
+}
+
+.calc-filter-tabs {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: nowrap;
+}
+
+.calc-filter-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    min-width: 48px;
+    padding-block: 0;
+    padding-inline: $spacing-sm;
+    box-sizing: border-box;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-full;
+    color: $text-secondary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: background-color $transition-fast, color $transition-fast, border-color $transition-fast;
+
+    &:hover {
+        background-color: $bg-surface-tertiary;
+        color: $text-primary;
+    }
+
+    &.is-active {
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        border-color: $accent-primary;
+    }
+}
+
+.calc-view-mode-switch {
+    display: inline-flex;
+
+    .segmented-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        flex: 1 1 auto;
+    }
+}

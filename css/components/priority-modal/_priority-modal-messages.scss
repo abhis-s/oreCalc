@@ -4,7 +4,7 @@
     background-color: $accent-primary-soft;
     border: 1px solid $accent-primary;
     padding: 10px 15px;
-    border-radius: 8px;
+    border-radius: $shape-corner-small;
     margin: 1rem;
     text-align: center;
     display: none;
@@ -81,7 +81,7 @@
         justify-content: flex-start;
         text-align: left;
         gap: 6px;
-        padding: 8px 0;
+        padding: $spacing-sm 0;
         margin: 0;
 
         &:not(:first-child) {
@@ -112,7 +112,7 @@
             text-align: center;
 
             .suggestion-messages-wrapper {
-                margin-bottom: 12px;
+                margin-bottom: $spacing-md;
                 width: 100%;
             }
 
@@ -137,7 +137,7 @@
     background-color: $btn-bg-emerald-soft;
     color: $btn-color-emerald;
     border: 1px solid $btn-border-emerald;
-    padding: 6px 12px;
+    padding: 6px $spacing-md;
     border-radius: 6px;
     cursor: pointer;
     font-size: var(--font-size-xs);
@@ -166,7 +166,7 @@
 .suggestion-bar {
     height: 3px;
     background-color: $accent-primary;
-    margin: 2px 0 10px 0;
+    margin: $spacing-2xs 0 10px 0;
 }
 
 .suggestion-messages-wrapper {
@@ -178,7 +178,7 @@
     border: 1px solid $accent-primary;
     color: $accent-primary;
     padding: 5px 10px;
-    border-radius: 4px;
+    border-radius: $shape-corner-xs;
     cursor: pointer;
     font-size: var(--font-size-xs);
     margin-left: 10px;

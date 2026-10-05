@@ -44,22 +44,28 @@ $border-accent: var(--border-accent);
 $border-danger: var(--border-danger);
 $border-inverse: var(--border-inverse);
 $border-on-accent: var(--border-on-accent);
+$border-card: color-mix(in srgb, $border-primary 70%, transparent);
+$border-card-hover: color-mix(in srgb, $accent-primary 35%, $border-primary);
 $outline-focus: var(--outline-focus);
 
-$chip-size-calendar: 32px;
-$chip-size-compact: 22px;
-$chip-size-subgrid: 26px;
-$chip-gap-subgrid: 3px;
-$drag-ghost-scale: 1.08;
-$drag-ghost-opacity: 0.95;
-$popover-width-day-overview: 300px;
-$popover-radius-day-overview: 14px;
+$spacing-2xs: 2px;
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$spacing-2xl: 32px;
+$spacing-3xl: 40px;
 
+$shape-corner-2xs: 2px;
+$shape-corner-xs: 4px;
 $shape-corner-small: 8px;
 $shape-corner-medium: 12px;
 $shape-corner-large: 16px;
 $shape-corner-extra-large: 28px;
 $shape-corner-full: 9999px;
+$card-radius: 10px;
+$card-radius-inner: $shape-corner-small;
 
 $modal-width-compact: 420px;
 $modal-width-standard: 480px;
@@ -67,18 +73,49 @@ $modal-width-expanded: 580px;
 $modal-width-large: 740px;
 $modal-width-workspace: 1080px;
 
+$modal-height-viewport-offset: 48px;
+$modal-max-height-fallback: calc(100vh - #{$modal-height-viewport-offset});
+$modal-max-height: calc(100dvh - #{$modal-height-viewport-offset});
+
 $modal-radius-standard: 28px;
 $modal-radius-card: 18px;
 $modal-radius-workspace: 20px;
-$modal-radius-inner: 16px;
+
+$header-height-desktop: 64px;
+$header-height-mobile: 56px;
+$header-max-width: 1170px;
+$container-max-width: 1200px;
+$header-top-desktop: 15px;
+$header-top-mobile: 10px;
+$header-inset-desktop: 15px;
+$header-inset-mobile: 10px;
+$header-radius-desktop: $modal-radius-workspace;
+$header-radius-mobile: 14px;
 
 $elevation-1: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px rgba(0, 0, 0, 0.15);
 $elevation-2: 0px 2px 4px rgba(0, 0, 0, 0.3), 0px 2px 6px rgba(0, 0, 0, 0.15);
 $elevation-3: 0px 4px 8px rgba(0, 0, 0, 0.3), 0px 4px 12px rgba(0, 0, 0, 0.15);
 $elevation-4: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px 6px 18px rgba(0, 0, 0, 0.15);
 $elevation-5: 0px 8px 16px rgba(0, 0, 0, 0.3), 0px 8px 24px rgba(0, 0, 0, 0.15);
+$elevation-card-hover: 0 8px 24px -4px rgba(0, 0, 0, 0.22), 0 0 12px color-mix(in srgb, $accent-primary 8%, transparent);
 
 $font-family-sans: 'Roboto', sans-serif;
+
+$font-size-3xs: var(--font-size-3xs, 0.5625rem);
+$font-size-2xs: var(--font-size-2xs, 0.6875rem);
+$font-size-xs: var(--font-size-xs, 0.75rem);
+$font-size-sm: var(--font-size-sm, 0.8125rem);
+$font-size-md: var(--font-size-md, 0.9375rem);
+$font-size-lg: var(--font-size-lg, 1rem);
+$font-size-xl: var(--font-size-xl, 1.125rem);
+$font-size-2xl: var(--font-size-2xl, 1.25rem);
+
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: var(--font-weight-bold, 700);
+$font-weight-extrabold: 800;
+$font-weight-black: 900;
 
 $z-index-below: -1;
 $z-index-base: 1;
@@ -87,9 +124,9 @@ $z-index-overlay: 10;
 $z-index-fab: 20;
 $z-index-layout: 30;
 $z-index-drawer: 40;
-$z-index-consent-banner: 50;
+$z-index-drawer-backdrop: $z-index-drawer - 1;
+$z-index-domain-notice: 50;
 $z-index-modal: 60;
-$z-index-modal-top: 65;
 $z-index-popover: 70;
 $z-index-tooltip: 75;
 $z-index-welcome-modal: 80;
@@ -121,6 +158,11 @@ $hero-mp: var(--hero-mp);
 $hero-gw: var(--hero-gw);
 $hero-rc: var(--hero-rc);
 $hero-dd: var(--hero-dd);
+
+$damage-arrow: var(--damage-arrow);
+$damage-overload: var(--damage-overload);
+$damage-zap: var(--damage-zap);
+$damage-quake: var(--damage-quake);
 
 $color-income-star-bonus: var(--color-income-star-bonus);
 $color-income-clan-war: var(--color-income-clan-war);
@@ -185,6 +227,9 @@ $accent-option-gradient-red: $palette-red-400;
 $accent-option-gradient-gold: $palette-yellow-400;
 $accent-option-gradient-green: $palette-green-400;
 
+$brand-gradient-primary: linear-gradient(135deg, $palette-yellow-300 0%, $palette-yellow-600 100%);
+$brand-gradient-secondary: linear-gradient(135deg, $palette-pink-300 0%, $palette-purple-600 100%);
+
 // --- 4. MOTION SYSTEM (Easing Curves & Durations) ---
 $ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
 $ease-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
@@ -203,6 +248,12 @@ $duration-moderate: 300ms;
 $duration-slow: 400ms;
 $duration-theme-switch: 1000ms;
 $duration-color-morph: 2000ms;
+$transition-fast: $duration-fast $ease-standard;
+$transition-smooth: $duration-base $ease-smooth;
+$transition-card: border-color $duration-moderate $ease-smooth,
+                  box-shadow $duration-moderate $ease-smooth,
+                  background-color $duration-moderate $ease-smooth,
+                  transform $duration-base $ease-standard;
 @mixin transition($properties...) {
     @if length($properties) == 0 {
         transition: all $duration-base $ease-standard;
@@ -242,8 +293,35 @@ $duration-color-morph: 2000ms;
     }
 }
 
+@mixin brand-gradient-split {
+    .brand-clash,
+    .brand-ore {
+        background: $brand-gradient-primary;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .brand-calc {
+        background: $brand-gradient-secondary;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+}
+
 // --- 5. RESPONSIVE BREAKPOINT TOKENS ---
+$breakpoint-micro: 360px;
 $breakpoint-compact: 425px;
 $breakpoint-phone: 480px;
 $breakpoint-modal: 625px;
 $breakpoint-desktop: 780px;
+$breakpoint-wide: 1200px;
+
+$container-header-compact: 420px;
+$container-header-collapse: 720px;
+$container-header-wide: 980px;
+
+$container-toolbar-compact: 560px;
+$container-toolbar-collapse: 820px;
+$container-card-toolbar-collapse: 510px;

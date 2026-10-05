@@ -1,4 +1,4 @@
-import { shopOfferData } from '../../data/incomeSources/shopOffers.js';
+import { shopOfferData, SHOP_OFFER_ORDER } from '../../data/incomeSources/shopOffers.js';
 import { currencyData } from '../../data/pricingData.js';
 import { translate } from '../../i18n/translator.js';
 
@@ -9,13 +9,6 @@ import { formatCurrency, formatNumber, updateCalculatedValue } from '../../utils
 
 import { renderOfferGrid } from '../common/offerGrid.js';
 import { dom } from '../../dom/domElements.js';
-
-const TH_SET_TRANSLATION_MAP = {
-    8: 'views.income.shopOffers.th8Set',
-    11: 'views.income.shopOffers.th11Set',
-    14: 'views.income.shopOffers.th14Set',
-    16: 'views.income.shopOffers.th16Set'
-};
 
 /**
  * Renders the options inside the Shop Offer set selection dropdown.
@@ -28,13 +21,20 @@ export function renderShopOfferSelectorContent() {
     selector.innerHTML = '';
 
     for (const key in shopOfferData) {
+        if (shopOfferData[key]?.disabled) continue;
         const option = document.createElement('option');
         option.value = key;
         const thLevel = shopOfferData[key]?.townHallLevel;
-        const i18nKey = key === '0' ? 'app.none' : (thLevel && TH_SET_TRANSLATION_MAP[thLevel]);
-        if (i18nKey) {
-            option.dataset.i18n = i18nKey;
-            option.textContent = translate(i18nKey);
+        if (key === '0') {
+            option.dataset.i18n = 'app.none';
+            option.textContent = translate('app.none');
+        } else if (key === 'newSet' || shopOfferData[key]?.name === 'New Set') {
+            option.dataset.i18n = 'views.income.shopOffers.newSet';
+            option.textContent = translate('views.income.shopOffers.newSet');
+        } else if (thLevel) {
+            option.dataset.i18n = 'views.income.shopOffers.thSet';
+            option.dataset.i18nArgs = JSON.stringify({ th: thLevel });
+            option.textContent = translate('views.income.shopOffers.thSet', { th: thLevel });
         } else {
             option.textContent = key;
         }
@@ -116,6 +116,14 @@ export function renderShopOfferRow(offer, offerState) {
             }));
 
             checkboxDiv.appendChild(checkbox);
+
+            const checkIcon = document.createElement('orecalc-assets-svg');
+            checkIcon.setAttribute('name', 'check-simple');
+            checkIcon.setAttribute('class', 'offer-checkbox-icon');
+            checkIcon.setAttribute('width', '14');
+            checkIcon.setAttribute('height', '14');
+            checkIcon.setAttribute('aria-hidden', 'true');
+            checkboxDiv.appendChild(checkIcon);
         }
         row.appendChild(checkboxDiv);
     }
@@ -133,10 +141,9 @@ export function renderShopOfferSelector(shopOfferState) {
         let selected = shopOfferState.selectedSet;
         if (selected === undefined || selected === null) {
             const firstKey = Object.keys(shopOfferState).find(k => k !== 'selectedSet');
-            selected = firstKey ? Number(firstKey) || 0 : 0;
+            selected = firstKey || '0';
         }
-        const selectedNum = Number(selected) || 0;
-        selector.value = selectedNum.toString();
+        selector.value = String(selected);
     }
 }
 
@@ -151,15 +158,14 @@ export function renderShopOfferGrid(shopOfferState) {
     let selected = shopOfferState.selectedSet;
     if (selected === undefined || selected === null) {
         const firstKey = Object.keys(shopOfferState).find(k => k !== 'selectedSet');
-        selected = firstKey ? Number(firstKey) || 0 : 0;
+        selected = firstKey || '0';
     }
-    const selectedNum = Number(selected) || 0;
+    const setKey = String(selected);
 
-    const order = { 'shiny_large': 1, 'starry': 2, 'glowy': 3, 'shiny_small': 4, 'shiny': 4 };
-    const offersForSet = (selectedNum !== 0 && shopOfferData[selectedNum]) ?
-        Object.entries(shopOfferData[selectedNum])
-            .filter(([offerId]) => offerId !== 'townHallLevel')
-            .sort(([idA], [idB]) => (order[idA] || 99) - (order[idB] || 99))
+    const offersForSet = (setKey !== '0' && shopOfferData[setKey] && !shopOfferData[setKey].disabled) ?
+        Object.entries(shopOfferData[setKey])
+            .filter(([offerId]) => offerId !== 'townHallLevel' && offerId !== 'disabled' && offerId !== 'name')
+            .sort(([idA], [idB]) => (SHOP_OFFER_ORDER[idA] || 99) - (SHOP_OFFER_ORDER[idB] || 99))
             .map(([offerId, offer]) => ({
                 ...offer,
                 id: offerId
@@ -167,23 +173,23 @@ export function renderShopOfferGrid(shopOfferState) {
         : [];
 
     const rows = container.querySelectorAll('.offer-grid-row');
-    const isSetChanged = container.dataset.renderedSet !== String(selectedNum);
+    const isSetChanged = container.dataset.renderedSet !== setKey;
     const needsFullRender = isSetChanged || rows.length === 0 || rows.length !== offersForSet.length;
 
     if (needsFullRender) {
-        container.dataset.renderedSet = String(selectedNum);
+        container.dataset.renderedSet = setKey;
         renderOfferGrid({
             container,
             offers: offersForSet,
             stateSelector: (offer) => {
-                const currentSetPurchases = shopOfferState[selectedNum] || {};
+                const currentSetPurchases = shopOfferState[setKey] || {};
                 return currentSetPurchases[offer.id] || 0;
             },
             renderRow: renderShopOfferRow
         });
     } else {
         offersForSet.forEach((offer, index) => {
-            const currentSetPurchases = shopOfferState[selectedNum] || {};
+            const currentSetPurchases = shopOfferState[setKey] || {};
             const offerState = currentSetPurchases[offer.id] || 0;
 
             const row = rows[index];
@@ -200,7 +206,7 @@ export function renderShopOfferGrid(shopOfferState) {
             }
 
             const select = container.querySelector(`select[data-offer-id="${offer.id}"]`);
-            if (select && parseInt(select.value, 10) !== offerState) {
+            if (select && Number(select.value) !== offerState) {
                 select.value = offerState;
             }
 

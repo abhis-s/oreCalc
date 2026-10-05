@@ -9,6 +9,7 @@ import { adjustWarRates } from '../../utils/incomeUtils.js';
 import { logger } from '../../utils/logger.js';
 
 import { bindNumericInput } from '../common/formBindingUtils.js';
+import { fetchClanWarLog } from '../../services/apiService.js';
 import { dom } from '../../dom/domElements.js';
 
 let calculatedStats = {
@@ -30,12 +31,14 @@ function parseCoCDateTime(str) {
     return new Date(Date.UTC(year, month, day, hour, minute, second));
 }
 
+const warLogCooldowns = new Map();
+
 async function triggerWarLogFetch(clanTag) {
     if (calculatedStats.isFetching) return;
 
     // Cooldown check: 1 hour (3600000 ms)
     const now = Date.now();
-    const lastFetch = parseInt(sessionStorage.getItem(`oreCalc_cooldown_warlog_${clanTag}`), 10) || 0;
+    const lastFetch = warLogCooldowns.get(clanTag) || 0;
     if (now - lastFetch < 3600000) {
         logger.debug(`Clan war fetch cooldown active for clan ${clanTag}.`);
         return;
@@ -43,10 +46,9 @@ async function triggerWarLogFetch(clanTag) {
 
     calculatedStats.isFetching = true;
     try {
-        const { fetchClanWarLog } = await import('../../services/apiService.js');
         const data = await fetchClanWarLog(clanTag);
 
-        sessionStorage.setItem(`oreCalc_cooldown_warlog_${clanTag}`, now.toString());
+        warLogCooldowns.set(clanTag, now);
 
         const wars = data.items || [];
 
@@ -103,7 +105,7 @@ async function triggerWarLogFetch(clanTag) {
     } catch (error) {
         logger.error("Failed to fetch clan war log for recommended values:", error);
 
-        sessionStorage.setItem(`oreCalc_cooldown_warlog_${clanTag}`, Date.now().toString()); // Set cooldown on failure so we don't spam
+        warLogCooldowns.set(clanTag, Date.now()); // Set cooldown on failure so we don't spam
 
         calculatedStats.winRate = 70;
         calculatedStats.drawRate = 0;
@@ -200,7 +202,7 @@ export function initializeClanWarInputs() {
                 if (calculatedStats.warsCount >= 5) {
                     return translate('views.income.clanWar.last60DaysNWars', { count: calculatedStats.warsCount });
                 }
-                return translate('views.planner.recommended');
+                return translate('validation.recommended');
             },
             clickToFill: {
                 min: true,
@@ -224,7 +226,7 @@ export function initializeClanWarInputs() {
                 if (calculatedStats.warsCount >= 5) {
                     return translate('views.income.clanWar.last60DaysNWars', { count: calculatedStats.warsCount });
                 }
-                return translate('views.planner.recommended');
+                return translate('validation.recommended');
             },
             clickToFill: {
                 min: true,

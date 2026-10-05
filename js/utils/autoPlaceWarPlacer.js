@@ -66,7 +66,7 @@ export function autoPlaceCwlChips(cwlChipsToPlaceActual, currentYear, currentMon
     }
 
     if (placedCount < cwlChipsToPlaceActual.length) {
-        let lastCwlDate = idealCwlDates.length > 0 ? idealCwlDates[idealCwlDates.length - 1] : new Date(Date.UTC(currentYear, currentMonth, 1));
+        let lastCwlDate = idealCwlDates.length > 0 ? idealCwlDates.at(-1) : new Date(Date.UTC(currentYear, currentMonth, 1));
         for (const day in newCalendarDates[monthYearKey]) {
             if (newCalendarDates[monthYearKey][day].some(id => idMatchesType(id, 'cwl-'))) {
                 const date = getDateFromDayAndMonth(currentYear, currentMonth, parseInt(day, 10));
@@ -150,7 +150,7 @@ export function autoPlaceClanWarChips(allClanWarChips, currentYear, currentMonth
             if (firstCwlChipDate) {
                 const cwlStartPlus8 = incomeData.cwl.schedule.dateStart + 8;
                 const cwlEndPlus1 = incomeData.cwl.schedule.dateEnd + 1;
-                const lastCwlInstanceDate = placedCwlDatesInMonth[placedCwlDatesInMonth.length - 1];
+                const lastCwlInstanceDate = placedCwlDatesInMonth.at(-1);
                 const lastCwlPlus2 = lastCwlInstanceDate.getUTCDate() + 2;
                 let calculatedDay = lastCwlPlus2 <= cwlStartPlus8 ? cwlStartPlus8 : cwlEndPlus1;
                 earliestStartDateCandidate = getDateFromDayAndMonth(currentYear, currentMonth, calculatedDay);

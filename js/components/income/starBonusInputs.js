@@ -5,7 +5,7 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
-import { getMaxTownHall } from '../../utils/dateUtils.js';
+import { getMaxTownHall } from '../../domain/townHall/townHallSchedule.js';
 
 import { bindNumericInput, bindSelectInput } from '../common/formBindingUtils.js';
 import { dom } from '../../dom/domElements.js';
@@ -32,7 +32,6 @@ function renderLastEventOptions() {
         savedMonth = month - 1;
     }
 
-    // Initialize if missing
     if (savedMonth === undefined || savedYear === undefined) {
         savedMonth = currentMonth;
         savedYear = currentYear;
@@ -279,7 +278,6 @@ export function renderStarBonusControls(incomeState) {
 
     const frequencyInput = dom.income?.starBonus?.frequencyInput;
     const durationInput = dom.income?.starBonus?.durationInput;
-    const lastEventSelect = dom.income?.starBonus?.lastEventSelect;
 
     if (frequencyInput) {
         frequencyInput.value = safeState["2x"]?.frequency || STAR_BONUS_2X_DEFAULTS.frequency;

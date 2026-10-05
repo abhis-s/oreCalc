@@ -5,7 +5,7 @@ import { translate } from '../../i18n/translator.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
 import { renderGlobalPricingGrid, renderLabeledActions } from './appSettingsDisplay.js';
 import { dom } from '../../dom/domElements.js';
@@ -48,11 +48,11 @@ export function initializeSettingsPricing() {
                 }
                 handleStateUpdate(() => {
                     state.uiSettings.cloudSync = false;
-                });
+                }, false, { preferencesOnly: true });
             } else {
                 handleStateUpdate(() => {
                     state.uiSettings.cloudSync = true;
-                });
+                }, false, { preferencesOnly: true });
             }
         });
     }
@@ -72,7 +72,7 @@ export function initializeSettingsPricing() {
                         state.allPlayersData[activeTag].currency.code = selectedCurrency;
                     }
                 }
-            });
+            }, false, { preferencesOnly: true });
         });
     }
 
@@ -106,8 +106,7 @@ export function initializeSettingsPricing() {
                 globalPricingCurrencySelect.value = state.uiSettings.currency.code;
                 renderGlobalPricingGrid(globalPricingCurrencySelect.value);
             }
-            globalPricingModal.classList.add('show');
-            dom.overlay?.classList.add('show');
+            openModal(globalPricingModal);
         });
 
         globalPricingCurrencySelect?.addEventListener('change', (e) => {
@@ -121,7 +120,7 @@ export function initializeSettingsPricing() {
 
         const closeGlobalPricing = async (isCancel = false) => {
             if (isCancel && isGlobalPricingDirty) {
-                if (await showConfirm(translate('views.settings.globalPricingModal.confirmCancel'))) {
+                if (await showConfirm(translate('views.settings.globalPricing.modal.confirmCancel'))) {
                     closeModalAnimated(globalPricingModal);
                 }
             } else {

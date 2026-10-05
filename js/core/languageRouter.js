@@ -51,12 +51,52 @@ export function detectLanguage() {
 }
 
 /**
+ * Constructs a localized path preserving current sub-route, query parameters, and hash.
+ * e.g., on "/damage-calculator/?_t=123", getLocalizedPath('de') -> "/de/damage-calculator/?_t=123"
+ * e.g., on "/de/hero-journey/?player=TAG", getLocalizedPath('en') -> "/hero-journey/?player=TAG"
+ * e.g., on "/", getLocalizedPath('de') -> "/de/"
+ *
+ * @param {string} lang - Target language code ('en', 'de', 'tr', 'zh').
+ * @param {Location | { pathname: string, search?: string, hash?: string } | null} [loc]
+ * @returns {string} Fully localized path with query and hash.
+ */
+export function getLocalizedPath(lang, loc = (typeof window !== 'undefined' ? window.location : null)) {
+    if (!loc || !loc.pathname) {
+        return lang === 'en' ? '/' : `/${lang}/`;
+    }
+
+    const pathSegments = loc.pathname.split('/').filter(Boolean);
+    const hasLangPrefix = pathSegments.length > 0 && SUPPORTED_LANGUAGES.includes(pathSegments[0].toLowerCase());
+
+    if (hasLangPrefix) {
+        pathSegments.shift();
+    }
+
+    const currentSearch = loc.search || '';
+    const currentHash = loc.hash || '';
+    let formattedPath = pathSegments.join('/');
+    if (formattedPath && !formattedPath.endsWith('/') && !formattedPath.includes('.')) {
+        formattedPath = `${formattedPath}/`;
+    }
+
+    if (lang === 'en') {
+        const newPathname = formattedPath ? `/${formattedPath}` : '/';
+        return `${newPathname}${currentSearch}${currentHash}`;
+    }
+
+    const newPathname = formattedPath ? `/${lang}/${formattedPath}` : `/${lang}/`;
+    return `${newPathname}${currentSearch}${currentHash}`;
+}
+
+/**
  * Synchronizes browser URL to include /${lang}/ (or root / for 'en') without triggering page reload.
  * @param {string} lang - Language code to sync into URL path.
  * @param {boolean} [replace=false] - Whether to use history.replaceState instead of pushState.
  */
 export function syncLanguageUrl(lang, replace = false) {
     if (!SUPPORTED_LANGUAGES.includes(lang)) return;
+
+    const newUrl = getLocalizedPath(lang);
 
     const pathSegments = window.location.pathname.split('/').filter(Boolean);
     const hasLangPrefix = pathSegments.length > 0 && SUPPORTED_LANGUAGES.includes(pathSegments[0].toLowerCase());
@@ -65,28 +105,18 @@ export function syncLanguageUrl(lang, replace = false) {
         pathSegments.shift();
     }
 
-    const currentSearch = window.location.search || '';
-    const currentHash = window.location.hash || '';
     let formattedPath = pathSegments.join('/');
     if (formattedPath && !formattedPath.endsWith('/') && !formattedPath.includes('.')) {
         formattedPath = `${formattedPath}/`;
     }
 
-    let newPathname;
-    let canonicalHref;
     const baseOrigin = (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null')
         ? window.location.origin
         : 'https://orecalc.tech';
 
-    if (lang === 'en') {
-        newPathname = formattedPath ? `/${formattedPath}` : '/';
-        canonicalHref = formattedPath ? `${baseOrigin}/${formattedPath}` : `${baseOrigin}/`;
-    } else {
-        newPathname = formattedPath ? `/${lang}/${formattedPath}` : `/${lang}/`;
-        canonicalHref = formattedPath ? `${baseOrigin}/${lang}/${formattedPath}` : `${baseOrigin}/${lang}/`;
-    }
-
-    const newUrl = `${newPathname}${currentSearch}${currentHash}`;
+    const canonicalHref = (lang === 'en')
+        ? (formattedPath ? `${baseOrigin}/${formattedPath}` : `${baseOrigin}/`)
+        : (formattedPath ? `${baseOrigin}/${lang}/${formattedPath}` : `${baseOrigin}/${lang}/`);
 
     if (window.location.pathname + window.location.search + window.location.hash !== newUrl) {
         if (replace) {
@@ -125,13 +155,13 @@ export function isValidRoute(pathName) {
         if (pathSegments.length === 1) return true;
         if (pathSegments.length === 2) {
             const subRoute = pathSegments[1].toLowerCase();
-            const validLocalizedSubRoutes = ['ore-calculator', 'hero-journey', 'privacy', 'terms', '404'];
+            const validLocalizedSubRoutes = ['ore-calculator', 'hero-journey', 'damage-calculator', 'privacy', 'terms', '404'];
             if (validLocalizedSubRoutes.includes(subRoute)) return true;
         }
         return false;
     }
 
-    const validRootRoutes = ['ore-calculator', 'hero-journey', 'privacy', 'terms', 'licenses', '404'];
+    const validRootRoutes = ['ore-calculator', 'hero-journey', 'damage-calculator', 'privacy', 'terms', 'licenses', '404'];
     if (pathSegments.length === 1 && validRootRoutes.includes(firstSegment)) {
         return true;
     }

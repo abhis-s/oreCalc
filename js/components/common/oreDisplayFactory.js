@@ -30,7 +30,6 @@ function createOreDisplay(config, oreType) {
         input.value = '0';
         input.min = '0';
 
-        // Add aria-label for accessibility
         const labelText = `${translate('views.income.ores.storedTitle')} - ${translate(`entities.ores.${oreType}`)}`;
         input.setAttribute('aria-label', labelText);
 

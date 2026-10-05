@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizePlayerTag, formatDisplayTag } from '../../js/core/localStorageManager.js';
-import { getTagFromUrl } from '../../js/components/heroJourney/heroJourneyState.js';
+import { normalizePlayerTag, formatDisplayTag } from '../../js/core/storageKeys.js';
+import { getTagFromUrl, updateUrlTag } from '../../js/components/heroJourney/heroJourneyState.js';
 
 test('Hero Journey Player Tag Routing & DEFAULT0 Isolation Suite', async (t) => {
     await t.test('normalizePlayerTag isolates DEFAULT0 and cleans hashes and casings', () => {
@@ -71,6 +71,12 @@ test('Hero Journey Player Tag Routing & DEFAULT0 Isolation Suite', async (t) => 
             });
             assert.equal(getTagFromUrl(), '');
 
+            // Test 4b: in-page anchor hash=#hero-journey-table
+            globalThis.window = /** @type {any} */ ({
+                location: { search: '', hash: '#hero-journey-table' }
+            });
+            assert.equal(getTagFromUrl(), '', 'Anchor hashes must be ignored');
+
             // Test 5: valid player tag tag=MOCKTAG1
             globalThis.window = /** @type {any} */ ({
                 location: { search: '?tag=MOCKTAG1', hash: '' }
@@ -82,6 +88,45 @@ test('Hero Journey Player Tag Routing & DEFAULT0 Isolation Suite', async (t) => 
                 location: { search: '?tag=%23TESTTAG99', hash: '' }
             });
             assert.equal(getTagFromUrl(), 'TESTTAG99');
+        } finally {
+            globalThis.window = originalWindow;
+        }
+    });
+
+    await t.test('updateUrlTag updates or cleans search parameter in address bar', () => {
+        const originalWindow = globalThis.window;
+
+        try {
+            let replacedUrl = '';
+            globalThis.window = /** @type {any} */ ({
+                location: {
+                    href: 'http://localhost:8080/hero-journey/?tag=OLDTAG',
+                    pathname: '/hero-journey/',
+                    search: '?tag=OLDTAG',
+                    hash: ''
+                },
+                history: {
+                    replaceState: (_state, _title, url) => {
+                        replacedUrl = url;
+                    }
+                }
+            });
+
+            // Updating with valid new tag
+            updateUrlTag('#NEWTAG1');
+            assert.equal(replacedUrl, '/hero-journey/?tag=NEWTAG1');
+
+            // Updating with null removes tag from URL
+            globalThis.window.location.search = '?tag=NEWTAG1';
+            globalThis.window.location.href = 'http://localhost:8080/hero-journey/?tag=NEWTAG1';
+            updateUrlTag(null);
+            assert.equal(replacedUrl, '/hero-journey/');
+
+            // Updating with DEFAULT0 removes tag from URL
+            globalThis.window.location.search = '?tag=NEWTAG1';
+            globalThis.window.location.href = 'http://localhost:8080/hero-journey/?tag=NEWTAG1';
+            updateUrlTag('DEFAULT0');
+            assert.equal(replacedUrl, '/hero-journey/');
         } finally {
             globalThis.window = originalWindow;
         }

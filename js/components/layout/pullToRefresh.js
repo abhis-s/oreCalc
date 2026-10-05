@@ -22,7 +22,7 @@ export function initializePullToRefresh() {
             <div class="ptr-icon-wrapper">
                 <orecalc-assets-svg name="refresh" class="ptr-icon"></orecalc-assets-svg>
             </div>
-            <span class="ptr-label">${translate('actions.pullToRefresh')}</span>
+            <span class="ptr-label">${translate('nav.pullToRefresh.pullToRefresh')}</span>
         </div>
     `;
     document.body.appendChild(ptrContainer);
@@ -44,7 +44,7 @@ export function initializePullToRefresh() {
             return true;
         }
         return Boolean(target.closest(
-            '.modal, .player-dropdown-list, .hero-carousel, .updatable, input, textarea, select, button, .eq-details-modal, .priority-list-modal, .welcome-modal, .card-drag-handle, .drag-handle, .income-chip, .dragging, .dragging-clone, .card-drag-preview-pill'
+            '.modal, .player-dropdown-list, .hero-carousel, .updatable, input, textarea, select, button, .eq-details-modal, .priority-list-modal, .guided-setup-modal, .card-drag-handle, .drag-handle, .income-chip, .dragging, .dragging-clone, .card-drag-preview-pill'
         ));
     };
 
@@ -53,7 +53,7 @@ export function initializePullToRefresh() {
         if (window.scrollY > 2) return;
         if (isTargetExcluded(e.target)) return;
 
-        const activeOverlay = document.querySelector('.modal-overlay.active, .modal.open, .welcome-modal.active');
+        const activeOverlay = document.querySelector('.modal-overlay.active, .modal.open, .guided-setup-modal.active');
         if (activeOverlay) return;
 
         startY = e.touches[0].clientY;
@@ -72,7 +72,7 @@ export function initializePullToRefresh() {
             mainContainer.style.transform = '';
         }
 
-        if (ptrLabel) ptrLabel.textContent = translate('actions.pullToRefresh');
+        if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.pullToRefresh');
         if (ptrIconWrapper) ptrIconWrapper.style.transform = '';
 
         isPulling = false;
@@ -140,7 +140,7 @@ export function initializePullToRefresh() {
                 currentStage = 2;
                 ptrContainer.classList.remove('ptr-threshold');
                 ptrContainer.classList.add('ptr-stage2');
-                if (ptrLabel) ptrLabel.textContent = translate('actions.releaseToReloadApp');
+                if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.releaseToReloadApp');
                 triggerHaptic('toggle');
             }
         } else if (pullDistance >= STAGE1_THRESHOLD) {
@@ -148,14 +148,14 @@ export function initializePullToRefresh() {
                 currentStage = 1;
                 ptrContainer.classList.remove('ptr-stage2');
                 ptrContainer.classList.add('ptr-threshold');
-                if (ptrLabel) ptrLabel.textContent = translate('actions.releaseToSync');
+                if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.releaseToSync');
                 triggerHaptic('light');
             }
         } else {
             if (currentStage !== 0) {
                 currentStage = 0;
                 ptrContainer.classList.remove('ptr-threshold', 'ptr-stage2');
-                if (ptrLabel) ptrLabel.textContent = translate('actions.pullToRefresh');
+                if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.pullToRefresh');
             }
         }
     };
@@ -205,7 +205,7 @@ export function initializePullToRefresh() {
         ptrContainer.classList.add('ptr-refreshing');
         ptrContainer.style.transform = 'translate3d(-50%, 90px, 0)';
         ptrContainer.style.opacity = '1';
-        if (ptrLabel) ptrLabel.textContent = translate('actions.refreshingState');
+        if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.updating');
 
         try {
             const refreshBtn = dom.controls?.refreshButton;
@@ -238,7 +238,7 @@ export function initializePullToRefresh() {
 
         ptrContainer.style.transform = 'translate3d(-50%, 90px, 0)';
         ptrContainer.style.opacity = '1';
-        if (ptrLabel) ptrLabel.textContent = translate('actions.reloadingApp');
+        if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.reloadingApp');
         triggerHaptic('success');
 
         setTimeout(() => {
@@ -259,7 +259,7 @@ export function initializePullToRefresh() {
 
         setTimeout(() => {
             ptrContainer.classList.remove('ptr-resetting', 'ptr-releasing');
-            if (ptrLabel) ptrLabel.textContent = translate('actions.pullToRefresh');
+            if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.pullToRefresh');
             if (ptrIconWrapper) ptrIconWrapper.style.transform = '';
             if (mainContainer) mainContainer.style.transition = '';
             isRefreshing = false;

@@ -1,4 +1,5 @@
 @use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 
 #bug-report-modal {
     z-index: $z-index-welcome-modal + 1;
@@ -8,13 +9,13 @@
     }
 
     .bug-report-form {
-        padding: 16px 24px 24px;
+        padding: $spacing-lg $spacing-xl $spacing-xl;
         flex: 1;
         overflow-y: auto;
         min-height: 0;
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: $spacing-lg;
     }
 
     .form-group {
@@ -32,25 +33,15 @@
     }
 
     .input-style {
+        @include input-focus-ring;
         width: 100%;
-        padding: 12px 16px;
+        padding: $spacing-md $spacing-lg;
         border: 1px solid $border-primary;
-        border-radius: 12px;
+        border-radius: $shape-corner-medium;
         font-size: 16px;
         background-color: $bg-surface-primary;
         color: $text-primary;
         box-sizing: border-box;
-        transition: border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
-
-        &:focus {
-            outline: none;
-        }
-
-        &:focus-visible {
-            border-color: $accent-primary;
-            box-shadow: 0 0 0 3px $accent-primary-soft;
-            outline: none;
-        }
 
         &.input-error {
             border-color: $color-danger;
@@ -68,14 +59,14 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        margin-top: 4px;
+        margin-top: $spacing-xs;
     }
 
     .input-error-msg {
         color: $color-danger;
         font-size: 12px;
         font-weight: 500;
-        margin-top: 4px;
+        margin-top: $spacing-xs;
         display: none;
         text-align: left;
 
@@ -92,18 +83,18 @@
     .attachment-box {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: $spacing-md;
         flex-wrap: wrap;
     }
 
     .attachment-status {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: $spacing-sm;
         background-color: rgba($color-success, 0.08);
         border: 1px solid rgba($color-success, 0.2);
-        padding: 8px 16px;
-        border-radius: 12px;
+        padding: $spacing-sm $spacing-lg;
+        border-radius: $shape-corner-medium;
         transition: opacity $duration-fast $ease-smooth;
 
         &.hidden {
@@ -134,7 +125,7 @@
         font-size: 18px;
         line-height: 1;
         cursor: pointer;
-        padding: 2px 6px;
+        padding: $spacing-2xs 6px;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -153,39 +144,37 @@
         cursor: pointer;
         user-select: none;
         width: 100%;
-        margin-top: 4px;
+        margin-top: $spacing-xs;
+
+        .checkbox-control {
+            align-items: center;
+            display: inline-flex;
+            flex-shrink: 0;
+            height: 20px;
+            justify-content: center;
+            position: relative;
+            width: 20px;
+        }
 
         input[type="checkbox"] {
             -webkit-appearance: none;
             appearance: none;
+            background-color: $bg-surface-primary;
             border: 1px solid $border-primary;
             border-radius: 6px;
+            box-shadow: 0 0 0 0 transparent;
             cursor: pointer;
+            flex-shrink: 0;
             height: 20px;
-            width: 20px;
+            margin: 0;
             outline: none;
             position: relative;
-            background-color: $bg-surface-primary;
-            transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
-            flex-shrink: 0;
-            margin: 0;
+            transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-base $ease-smooth;
+            width: 20px;
 
             &:checked {
                 background-color: $accent-primary;
                 border-color: $accent-primary;
-
-                &::after {
-                    content: '';
-                    display: block;
-                    width: 4px;
-                    height: 9px;
-                    border: solid $border-on-accent;
-                    border-width: 0 2px 2px 0;
-                    transform: rotate(45deg);
-                    position: absolute;
-                    left: 7px;
-                    top: 3px;
-                }
             }
 
             &:focus {
@@ -198,6 +187,31 @@
             }
         }
 
+        .checkbox-icon {
+            color: $text-on-accent;
+            display: flex;
+            height: 14px;
+            left: 50%;
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform $duration-fast $ease-spring, opacity $duration-fast $ease-smooth;
+            width: 14px;
+
+            svg {
+                display: block;
+                height: 14px;
+                width: 14px;
+            }
+        }
+
+        input[type="checkbox"]:checked ~ .checkbox-icon {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
         .checkbox-label {
             font-size: 14px;
             font-weight: 500;
@@ -207,12 +221,12 @@
     }
 
     .form-setting-text {
-        margin-top: 4px;
+        margin-top: $spacing-xs;
     }
 
     .sw-troubleshoot-box {
         background: color-mix(in srgb, $bg-surface-primary 50%, transparent);
-        padding: 12px;
+        padding: $spacing-md;
         border-radius: 10px;
         border: 1px solid $border-primary;
 
@@ -220,13 +234,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: $spacing-md;
         }
 
         .sw-troubleshoot-text {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: $spacing-2xs;
             flex: 1;
         }
 
@@ -248,7 +262,7 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        padding: 8px 14px;
+        padding: $spacing-sm 14px;
         background-color: $accent-primary;
         border: 1px solid $btn-border-blue;
         border-radius: 10px;
@@ -272,8 +286,8 @@
 
     @media (max-width: $breakpoint-modal) {
         .bug-report-form {
-            padding: 12px 20px 20px;
-            gap: 12px;
+            padding: $spacing-md 20px 20px;
+            gap: $spacing-md;
         }
 
         .input-style {

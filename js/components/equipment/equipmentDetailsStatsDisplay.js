@@ -4,9 +4,9 @@ import {
     computeEffectiveLevels,
     formatDiffVal,
     isStatModifiable,
-    MODIFIER_HERO_BOOST_MULTIPLIERS
+    MODIFIER_HERO_BOOST_MULTIPLIERS,
 } from '../../domain/equipment/modifierCalculator.js';
-import { animateValue } from '../../utils/numberFormatter.js';
+import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
 
 /**
  * Generates map of current stat values and progress percentages for mode interpolation.
@@ -72,7 +72,7 @@ export function renderStatsProgressList(statsProgressList, data, levelsArray, cu
                 return `
                     <div class="stat-progress-row">
                         <div class="stat-label-line">
-                            <span class="stat-name" title="${statLabel}"><span class="stat-name-text">${statLabel}</span></span>
+                            <span class="stat-name" title="${statLabel}"><span class="stat-name-text" data-i18n="entities.stats.${meta.key}">${statLabel}</span></span>
                             <span class="stat-val"><span class="stat-val-number">-</span></span>
                         </div>
                         <div class="progress-bar-bg">
@@ -87,7 +87,7 @@ export function renderStatsProgressList(statsProgressList, data, levelsArray, cu
                 barsHTML += `
                     <div class="stat-progress-row">
                         <div class="stat-label-line">
-                            <span class="stat-name" title="${notAvailableLabel}"><span class="stat-name-text">${notAvailableLabel}</span></span>
+                            <span class="stat-name" title="${notAvailableLabel}"><span class="stat-name-text" data-i18n="views.equipment.dataNotAvailable">${notAvailableLabel}</span></span>
                             <span class="stat-val"><span class="stat-val-number">-</span></span>
                         </div>
                         <div class="progress-bar-bg">
@@ -129,7 +129,7 @@ export function renderStatsProgressList(statsProgressList, data, levelsArray, cu
             if (v === undefined || v === null) return '-';
             if (typeof v !== 'number') return String(v);
             const isInt = Number.isInteger(v);
-            const numStr = isInt ? Math.round(v).toLocaleString() : (Math.round(v * 100) / 100).toLocaleString();
+            const numStr = isInt ? formatNumber(Math.round(v)) : formatNumber(Math.round(v * 100) / 100);
             if (vUnit === 'percentage' || vUnit === 'percent') return `${numStr}%`;
             if (vUnit === 'seconds') return `${numStr}s`;
             if (vUnit === 'tiles') return `${numStr} tiles`;
@@ -190,12 +190,12 @@ export function renderStatsProgressList(statsProgressList, data, levelsArray, cu
                                 if (typeof v !== 'number') return String(v);
                                 if (vUnit === 'seconds' || vUnit === 'tiles') {
                                     const num = Math.round(v * 10) / 10;
-                                    return `${num.toLocaleString()}${vUnit === 'seconds' ? 's' : ' tiles'}`;
+                                    return `${formatNumber(num)}${vUnit === 'seconds' ? 's' : ' tiles'}`;
                                 }
                                 const isInt = isIntStat || Number.isInteger(v);
                                 const num = isInt ? Math.round(v) : (Math.round(v * 10) / 10);
-                                if (vUnit === 'percentage' || vUnit === 'percent') return `${num.toLocaleString()}%`;
-                                return num.toLocaleString();
+                                if (vUnit === 'percentage' || vUnit === 'percent') return `${formatNumber(num)}%`;
+                                return formatNumber(num);
                             };
                             const delta = Math.abs(targetVal - startVal);
                             const animDuration = Math.min(450, Math.max(150, Math.round(Math.log10(delta + 1) * 160)));
@@ -266,10 +266,10 @@ export function updateStatsProgressHover(statsProgressList, data, levelsArray, c
             if (typeof v !== 'number') return String(v);
             if (vUnit === 'seconds' || vUnit === 'tiles') {
                 const num = Math.round(v * 10) / 10;
-                return `${num.toLocaleString()}${vUnit === 'seconds' ? 's' : ' tiles'}`;
+                return `${formatNumber(num)}${vUnit === 'seconds' ? 's' : ' tiles'}`;
             }
             const isInt = Number.isInteger(v);
-            const numStr = isInt ? Math.round(v).toLocaleString() : (Math.round(v * 10) / 10).toLocaleString();
+            const numStr = isInt ? formatNumber(Math.round(v)) : formatNumber(Math.round(v * 10) / 10);
             if (vUnit === 'percentage' || vUnit === 'percent') return `${numStr}%`;
             return numStr;
         };
@@ -337,7 +337,7 @@ export function updateStatsProgressHover(statsProgressList, data, levelsArray, c
                 const rawHoverVal = getStatValue(hoverLevelObj);
                 const hoverNumVal = (typeof rawHoverVal === 'number') ? Math.round(rawHoverVal * multiplier * 100) / 100 : rawHoverVal;
                 const diff = (typeof hoverNumVal === 'number') ? Math.round((hoverNumVal - baseNumVal) * 100) / 100 : 0;
-                const diffSign = formatDiffVal(diff, meta.valueUnit);
+                const diffSign = formatDiffVal(diff, meta.valueUnit, { tilesSuffix: translate('views.equipment.tilesSuffix') || 'tiles' });
                 const formattedBase = formatVal(baseNumVal, meta.valueUnit);
                 const formattedHover = formatVal(hoverNumVal, meta.valueUnit);
 
@@ -358,12 +358,12 @@ export function updateStatsProgressHover(statsProgressList, data, levelsArray, c
                     if (typeof v !== 'number') return String(v);
                     if (vUnit === 'seconds' || vUnit === 'tiles') {
                         const num = Math.round(v * 10) / 10;
-                        return `${num.toLocaleString()}${vUnit === 'seconds' ? 's' : ' tiles'}`;
+                        return `${formatNumber(num)}${vUnit === 'seconds' ? 's' : ' tiles'}`;
                     }
                     const isInt = isIntStat || Number.isInteger(v);
                     const num = isInt ? Math.round(v) : (Math.round(v * 10) / 10);
-                    if (vUnit === 'percentage' || vUnit === 'percent') return `${num.toLocaleString()}%`;
-                    return num.toLocaleString();
+                    if (vUnit === 'percentage' || vUnit === 'percent') return `${formatNumber(num)}%`;
+                    return formatNumber(num);
                 };
 
                 if (!existingCompare) {

@@ -2,8 +2,6 @@ import { state } from './state.js';
 
 import { easeInOutCubic, interpolateColor } from '../utils/colorUtils.js';
 
-import { dom } from '../dom/domElements.js';
-
 export const availableAccents = ['blue', 'gold', 'purple', 'green', 'red'];
 
 let themeRenderCallback = null;
@@ -255,14 +253,6 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
     const typographyAndBorders = theme === 'light' ? LIGHT_TYPOGRAPHY_AND_BORDERS : DARK_TYPOGRAPHY_AND_BORDERS;
     const colors = { ...baseColors, ...typographyAndBorders };
 
-    const welcomeModal = document.getElementById('welcome-modal');
-    if (welcomeModal && welcomeModal.classList.contains('show')) {
-        const currentAccent = state?.uiSettings?.accentColor || 'random';
-        welcomeModal.querySelectorAll('#welcome-accent-picker .accent-swatch').forEach(s => {
-            s.classList.toggle('active', /** @type {HTMLElement} */ (s).dataset.color === currentAccent);
-        });
-    }
-
     lastAppliedAccentColor = effectiveAccentColor;
 
     if (origin) {
@@ -291,7 +281,7 @@ export function applyTheme(theme, origin = null) {
  * @param {number} [durationMs=1100]
  */
 export function animatePreloaderBackground(targetBgColor, durationMs = 1100) {
-    const preloader = dom.preloader || document.getElementById('preloader');
+    const preloader = typeof document !== 'undefined' ? document.getElementById('preloader') : null;
     if (!preloader) return;
 
     const isLight = preloader.getAttribute('data-theme') === 'light' ||

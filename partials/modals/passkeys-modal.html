@@ -1,0 +1,47 @@
+<dialog id="passkeys-modal" class="modal" aria-labelledby="passkeys-modal-title">
+    <div class="modal-content passkeys-modal-content">
+        <div class="modal-header">
+            <h2 id="passkeys-modal-title" data-i18n="auth.managePasskeys"></h2>
+            <button type="button" id="close-passkeys-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p class="auth-hint" data-i18n="auth.passkeyDesc"></p>
+
+            <div class="passkeys-list-container">
+                <div id="passkeys-items-list" class="passkeys-items-list">
+                    <!-- DYNAMIC INSERTION: Passkey credential items -->
+                </div>
+                <div id="passkeys-empty-state" class="passkeys-empty is-hidden">
+                    <orecalc-assets-svg name="passkey" class="empty-icon"></orecalc-assets-svg>
+                    <p data-i18n="auth.noPasskeysRegistered"></p>
+                </div>
+            </div>
+
+            <div class="add-passkey-form push-top-15 auth-form">
+                <div class="form-group">
+                    <label for="add-passkey-name" data-i18n="auth.passkeyName"></label>
+                    <div class="input-with-icon">
+                        <span class="input-icon">
+                            <orecalc-assets-svg name="passkey"></orecalc-assets-svg>
+                        </span>
+                        <input type="text" id="add-passkey-name" maxlength="30" spellcheck="false" placeholder="e.g. iCloud Keychain, Google, Security Key" data-i18n-placeholder="auth.passkeyNamePlaceholder">
+                    </div>
+                </div>
+                <p class="form-setting-text push-top-5" data-i18n="auth.passkeySyncHint"></p>
+                <button type="button" id="register-new-passkey-btn" class="animated-btn btn-accent full-width push-top-10">
+                    <span class="animated-btn-icon-wrapper fill-dark">
+                        <orecalc-assets-svg name="passkey"></orecalc-assets-svg>
+                    </span>
+                    <span class="animated-btn-text" data-i18n="auth.addPasskey"></span>
+                </button>
+            </div>
+
+            <div id="passkeys-status" class="status-message"></div>
+        </div>
+        <div class="modal-actions compact">
+            <button type="button" id="close-passkeys-btn" class="reject-button" data-i18n="actions.close"></button>
+        </div>
+    </div>
+</dialog>

@@ -1,6 +1,5 @@
 import { navigationRegistry } from '../../data/navigationRegistry.js';
 
-import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
@@ -8,7 +7,6 @@ import { closeFabMenu } from '../fab/fab.js';
 import { showUpdateModal } from '../modals/updateModal.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
 import { openStoredOresModal } from '../planner/priorityListModal.js';
-import { dom } from '../../dom/domElements.js';
 
 function checkPlannerTabStoredOres() {
     const storedOres = state.storedOres || {};
@@ -39,6 +37,26 @@ const tabScrollPositions = {
 };
 
 /**
+ * Constructs the canonical URL for a given tab, preserving pathname and search parameters.
+ *
+ * @param {string} tabKey - Tab key or ID (e.g. 'home', 'equipment', 'income', 'planner', 'settings', or 'home-tab').
+ * @param {string} [pathname] - Pathname override (defaults to window.location.pathname).
+ * @param {string} [search] - Search query override (defaults to window.location.search).
+ * @returns {string} Relative URL with preserved pathname, query params, and appropriate hash.
+ */
+export function constructTabUrl(tabKey, pathname, search) {
+    const basePath = pathname !== undefined
+        ? pathname
+        : (typeof window !== 'undefined' && window.location ? window.location.pathname : '/');
+    const baseSearch = search !== undefined
+        ? search
+        : (typeof window !== 'undefined' && window.location ? window.location.search : '');
+    const cleanTab = tabKey ? tabKey.replace(/-tab$/, '') : '';
+    const hash = (!cleanTab || cleanTab === 'home') ? '' : `#${cleanTab}`;
+    return `${basePath}${baseSearch}${hash}`;
+}
+
+/**
  * Initializes hash routing, tab switching click listeners, popstate listeners, and scroll state preservation.
  */
 export function initializeTabs() {
@@ -46,12 +64,12 @@ export function initializeTabs() {
     let initialTab = window.location.hash ? `${window.location.hash.substring(1)}-tab` : 'home-tab';
 
     if (!validTabs.includes(initialTab)) {
-        const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
-        const pathPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
-        history.replaceState(null, '', `${pathPrefix}/`);
+        history.replaceState(null, '', constructTabUrl('home'));
         initialTab = 'home-tab';
     }
-    state.activeTab = initialTab;
+    handleStateUpdate(() => {
+        state.activeTab = initialTab;
+    });
 
     if (initialTab === 'planner-tab') {
         setTimeout(checkPlannerTabStoredOres, 100);
@@ -64,9 +82,7 @@ export function initializeTabs() {
 
         const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
         if (!tabOrder.includes(tabId)) {
-            const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
-            const pathPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
-            history.replaceState(null, '', `${pathPrefix}/`);
+            history.replaceState(null, '', constructTabUrl('home'));
             tabId = 'home-tab';
         }
 
@@ -145,10 +161,7 @@ export function initializeTabs() {
                 }, 100);
             }
 
-            const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
-            const hash = button.dataset.tab === 'home' ? '' : `#${button.dataset.tab}`;
-            const pathPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
-            const targetUrl = `${pathPrefix}/${hash}`;
+            const targetUrl = constructTabUrl(button.dataset.tab);
             history.pushState(null, '', targetUrl);
             handleStateUpdate(() => {
                 state.activeTab = tabId;

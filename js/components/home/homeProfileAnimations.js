@@ -2,7 +2,7 @@ import { translate } from '../../i18n/translator.js';
 
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
 
-import { getOverallGradient } from './homeProfileCalculations.js';
+import { getOverallGradient } from '../../domain/equipment/equipmentProgressDomain.js';
 
 /**
  * Incremental render state tracking cached player and progress snapshots to prevent redundant DOM reconstructions.
@@ -51,19 +51,29 @@ export function applyProgressDelta(container, prevProg, currProg, subData, state
     if (maxedCount !== undefined && totalCount !== undefined) {
         const maxedCountEl = container.querySelector('.maxed-count');
         if (maxedCountEl) {
-            const newCountText = `${maxedCount}/${totalCount}`;
-            if (maxedCountEl.textContent !== newCountText) {
-                maxedCountEl.textContent = newCountText;
+            const currentText = maxedCountEl.textContent || '';
+            const prevMaxed = parseInt(currentText.split('/')[0], 10) || 0;
+            if (prevMaxed !== maxedCount) {
+                animateValue(maxedCountEl, prevMaxed, maxedCount, 1800, val => `${Math.round(val)}/${totalCount}`);
+            } else {
+                maxedCountEl.textContent = `${maxedCount}/${totalCount}`;
             }
+            maxedCountEl.dataset.targetMaxed = String(maxedCount);
+            maxedCountEl.dataset.totalEquip = String(totalCount);
         }
     }
     if (profile && profile.trophies !== undefined) {
         const trophiesEl = container.querySelector('.player-trophies-mini span');
         if (trophiesEl) {
-            const newTrophiesText = formatNumber(profile.trophies);
-            if (trophiesEl.textContent !== newTrophiesText) {
-                trophiesEl.textContent = newTrophiesText;
+            const currentText = (trophiesEl.textContent || '').replace(/\D/g, '');
+            const prevTrophies = Number(currentText) || 0;
+            const targetTrophies = Number(profile.trophies) || 0;
+            if (prevTrophies !== targetTrophies) {
+                animateValue(trophiesEl, prevTrophies, targetTrophies, 1800, val => formatNumber(Math.round(val)));
+            } else {
+                trophiesEl.textContent = formatNumber(targetTrophies);
             }
+            trophiesEl.dataset.targetTrophies = String(targetTrophies);
         }
     }
 
@@ -216,6 +226,25 @@ export function triggerFillAnimation(container, progressObj, onComplete) {
                 if (valEl) {
                     const targetVal = progressObj[key] || 0;
                     animateValue(valEl, 0, targetVal, key === 'overall' ? 2000 : 1800, val => `${Math.round(val)}%`);
+                }
+            }
+
+            const trophiesEl = container.querySelector('.player-trophies-mini span');
+            if (trophiesEl && trophiesEl.dataset.targetTrophies !== undefined) {
+                const prev = Number(trophiesEl.dataset.prevTrophies) || 0;
+                const target = Number(trophiesEl.dataset.targetTrophies) || 0;
+                if (prev !== target || prev === 0) {
+                    animateValue(trophiesEl, prev, target, 1800, val => formatNumber(Math.round(val)));
+                }
+            }
+
+            const maxedCountEl = container.querySelector('.maxed-count');
+            if (maxedCountEl && maxedCountEl.dataset.targetMaxed !== undefined) {
+                const prev = Number(maxedCountEl.dataset.prevMaxed) || 0;
+                const target = Number(maxedCountEl.dataset.targetMaxed) || 0;
+                const total = Number(maxedCountEl.dataset.totalEquip) || 0;
+                if (prev !== target || prev === 0) {
+                    animateValue(maxedCountEl, prev, target, 1800, val => `${Math.round(val)}/${total}`);
                 }
             }
 

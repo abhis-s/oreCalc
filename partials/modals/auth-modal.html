@@ -1,0 +1,115 @@
+<dialog id="auth-modal" class="modal" aria-labelledby="auth-modal-title">
+    <div class="modal-content auth-modal-content">
+        <div class="modal-header">
+            <h2 id="auth-modal-title" data-i18n="auth.signInToAccount"></h2>
+            <button type="button" id="close-auth-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="auth-tabs segmented-control">
+                <button type="button" id="auth-tab-signin" class="segmented-btn active" data-auth-mode="signin" data-i18n="auth.signIn"></button>
+                <button type="button" id="auth-tab-register" class="segmented-btn" data-auth-mode="register" data-i18n="auth.createAccount"></button>
+            </div>
+
+            <div id="auth-signin-view" class="auth-view">
+                <div class="auth-passkey-hero">
+                    <button type="button" id="auth-passkey-login-btn" class="auth-passkey-btn btn-accent full-width">
+                        <orecalc-assets-svg name="passkey" class="auth-btn-icon"></orecalc-assets-svg>
+                        <span data-i18n="auth.signInWithPasskey"></span>
+                    </button>
+                    <p class="auth-hint" data-i18n="auth.passkeyDesc"></p>
+                </div>
+
+                <div class="auth-divider">
+                    <span data-i18n="auth.dividerOr"></span>
+                </div>
+
+                <form id="auth-signin-form" class="auth-form" novalidate>
+                    <div class="form-group">
+                        <label for="auth-signin-username" data-i18n="auth.username"></label>
+                        <div class="input-with-icon">
+                            <span class="input-icon"><orecalc-assets-svg name="user"></orecalc-assets-svg></span>
+                            <input type="text" id="auth-signin-username" autocomplete="username webauthn" maxlength="20" spellcheck="false" data-i18n-placeholder="auth.usernamePlaceholder" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="auth-signin-password" data-i18n="auth.password"></label>
+                        <div class="input-with-icon">
+                            <span class="input-icon"><orecalc-assets-svg name="password"></orecalc-assets-svg></span>
+                            <input type="password" id="auth-signin-password" autocomplete="current-password" maxlength="72" data-i18n-placeholder="auth.passwordPlaceholder" required>
+                            <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-i18n-aria-label="auth.togglePasswordVisibility">
+                                <orecalc-assets-svg name="visibility-on" class="icon-vis-on"></orecalc-assets-svg>
+                                <orecalc-assets-svg name="visibility-off" class="icon-vis-off is-hidden"></orecalc-assets-svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="auth-signin-turnstile" class="auth-turnstile-container"></div>
+
+                    <div id="auth-signin-status" class="status-message"></div>
+
+                    <div class="modal-actions">
+                        <button type="submit" id="auth-signin-submit-btn" class="accept-button full-width" data-i18n="auth.signInWithPassword"></button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="auth-register-view" class="auth-view is-hidden">
+                <div class="auth-claim-banner">
+                    <orecalc-assets-svg name="info" class="banner-icon"></orecalc-assets-svg>
+                    <p data-i18n="auth.accountLinkedNotice"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="auth-register-username" data-i18n="auth.username"></label>
+                    <div class="input-with-icon">
+                        <span class="input-icon"><orecalc-assets-svg name="user"></orecalc-assets-svg></span>
+                        <input type="text" id="auth-register-username" autocomplete="username" maxlength="20" spellcheck="false" data-i18n-placeholder="auth.usernamePlaceholder" required>
+                    </div>
+                </div>
+
+                <div id="auth-register-turnstile" class="auth-turnstile-container"></div>
+
+                <div class="auth-register-pathways">
+                    <div class="pathway-passkey-group">
+                        <button type="button" id="auth-register-passkey-btn" class="auth-passkey-btn btn-accent full-width">
+                            <orecalc-assets-svg name="passkey" class="auth-btn-icon"></orecalc-assets-svg>
+                            <span data-i18n="auth.createWithPasskey"></span>
+                        </button>
+                        <p class="auth-hint" data-i18n="auth.passkeyDesc"></p>
+                    </div>
+
+                    <div class="auth-divider">
+                        <span data-i18n="auth.dividerOr"></span>
+                    </div>
+
+                    <form id="auth-register-password-form" class="auth-form" novalidate>
+                        <div class="form-group">
+                            <label for="auth-register-password" data-i18n="auth.password"></label>
+                            <div class="input-with-icon">
+                                <span class="input-icon"><orecalc-assets-svg name="password"></orecalc-assets-svg></span>
+                                <input type="password" id="auth-register-password" autocomplete="new-password" minlength="6" maxlength="72" data-i18n-placeholder="auth.passwordPlaceholder" required>
+                                <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-i18n-aria-label="auth.togglePasswordVisibility">
+                                    <orecalc-assets-svg name="visibility-on" class="icon-vis-on"></orecalc-assets-svg>
+                                    <orecalc-assets-svg name="visibility-off" class="icon-vis-off is-hidden"></orecalc-assets-svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="auth-register-status" class="status-message"></div>
+
+                        <div class="modal-actions">
+                            <button type="submit" id="auth-register-password-submit-btn" class="accept-button full-width" data-i18n="auth.createWithPassword"></button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="auth-privacy-notice privacy-notice">
+                    <p data-i18n="auth.disclaimer"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</dialog>

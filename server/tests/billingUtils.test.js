@@ -75,3 +75,23 @@ test('aggregateMonthlyBilling handles empty or malformed rows safely', () => {
     assert.equal(result.totalCostTillDate, 0);
     assert.deepEqual(result.breakdown, []);
 });
+
+test('aggregateMonthlyBilling strictly filters out invoice-level taxes and rounding error adjustments', () => {
+    const mockRows = [
+        { service_name: 'Compute Engine', sku_name: 'Instance Core', total_cost: 20.00, billing_month: '2026-07' },
+        { service_name: 'Invoice', sku_name: 'Tax', total_cost: 1.45, billing_month: '2026-07' },
+        { service_name: 'Invoice', sku_name: 'Rounding Error', total_cost: 0.01, billing_month: '2026-07' },
+        { service_name: 'Networking', sku_name: 'Load Balancer', total_cost: 10.00, billing_month: '2026-07' }
+    ];
+
+    const result = aggregateMonthlyBilling(mockRows, { extras: [], footers: [] }, '2026-08');
+
+    assert.equal(result.totalCostTillDate, 30.00);
+    assert.equal(result.breakdown.length, 1);
+    const july = result.breakdown[0];
+    assert.equal(july.totalCost, 30.00);
+
+    const invoiceService = july.services.find(s => s.name.toLowerCase() === 'invoice');
+    assert.equal(invoiceService, undefined);
+    assert.equal(july.services.length, 2);
+});

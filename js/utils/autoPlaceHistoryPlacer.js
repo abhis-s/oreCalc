@@ -49,7 +49,7 @@ function parseHistoricalChipId(id) {
     const type = parts[0];
     let instance = parseInt(parts[1], 10);
     if (isNaN(instance) && parts.length > 2) {
-        const lastPart = parseInt(parts[parts.length - 1], 10);
+        const lastPart = parseInt(parts.at(-1), 10);
         if (!isNaN(lastPart)) {
             instance = lastPart + 1;
         }

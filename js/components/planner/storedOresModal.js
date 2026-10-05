@@ -6,23 +6,15 @@ import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { addValidation } from '../../utils/inputValidator.js';
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
 /**
  * Checks if opening the stored ores modal should be suppressed due to open welcome/consent/tour dialogs.
  * @returns {boolean}
  */
 export function isInterruptionRestricted() {
-    const welcomeModal = document.getElementById('welcome-modal');
-    if (welcomeModal && welcomeModal.classList.contains('show')) {
-        return true;
-    }
-    const consentBanner = document.getElementById('consent-banner');
-    if (consentBanner && consentBanner.classList.contains('show')) {
-        return true;
-    }
-    const consentModal = document.getElementById('consent-modal');
-    if (consentModal && consentModal.classList.contains('show')) {
+    const guidedSetupModal = document.getElementById('guided-setup-modal');
+    if (guidedSetupModal && (guidedSetupModal.classList.contains('show') || /** @type {HTMLDialogElement} */ (guidedSetupModal).open)) {
         return true;
     }
     const tourTooltip = /** @type {HTMLElement|null} */ (document.querySelector('.tour-tooltip'));
@@ -63,7 +55,7 @@ export function openStoredOresModal() {
     if (starryEl) starryEl.value = String(state.storedOres.starry !== undefined ? state.storedOres.starry : 0);
     if (dontAskCheckbox) dontAskCheckbox.checked = false;
 
-    modal.classList.add('show');
+    openModal(modal);
 }
 
 /**
@@ -141,9 +133,9 @@ export function initializeStoredOresModal() {
     if (cancelBtn) cancelBtn.addEventListener('click', closeStoredOresModal);
     if (saveBtn) {
         saveBtn.addEventListener('click', () => {
-            const shinyVal = shinyInput ? parseInt(shinyInput.value, 10) || 0 : 0;
-            const glowyVal = glowyInput ? parseInt(glowyInput.value, 10) || 0 : 0;
-            const starryVal = starryInput ? parseInt(starryInput.value, 10) || 0 : 0;
+            const shinyVal = shinyInput ? Number(shinyInput.value) || 0 : 0;
+            const glowyVal = glowyInput ? Number(glowyInput.value) || 0 : 0;
+            const starryVal = starryInput ? Number(starryInput.value) || 0 : 0;
 
             const dontAskCheckbox = /** @type {HTMLInputElement|null} */ (document.getElementById('modal-stored-ore-dont-ask'));
             const dontAsk = dontAskCheckbox ? dontAskCheckbox.checked : false;

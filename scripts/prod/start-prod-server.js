@@ -48,8 +48,6 @@ app.use(express.static(distPath, {
     extensions: ['html'],
     maxAge: '1d',
     setHeaders: (res, filePath) => {
-        const relativePath = path.relative(distPath, filePath);
-
         // Only cache static image assets and fonts immutably for 6 months (180 days = 15,552,000s)
         const isImmutableAsset = /\.(png|jpg|jpeg|gif|ico|svg|avif|webp|woff2?)$/i.test(filePath);
         if (isImmutableAsset) {

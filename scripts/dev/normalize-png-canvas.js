@@ -117,7 +117,7 @@ function parseCommandLineArgs(args) {
         }
 
         if (arg === '--size' || arg === '-s' || arg === '--canvas-size') {
-            const val = parseInt(args[++i], 10);
+            const val = Number(args[++i]);
             if (isNaN(val) || val <= 0) {
                 throw new Error(`[ERROR] Invalid --size value: "${args[i]}". Must be a positive integer.`);
             }
@@ -126,7 +126,7 @@ function parseCommandLineArgs(args) {
         }
 
         if (arg === '--padding' || arg === '-p') {
-            const val = parseInt(args[++i], 10);
+            const val = Number(args[++i]);
             if (isNaN(val) || val < 0) {
                 throw new Error(`[ERROR] Invalid --padding value: "${args[i]}". Must be a non-negative integer.`);
             }
@@ -135,7 +135,7 @@ function parseCommandLineArgs(args) {
         }
 
         if (arg === '--threshold' || arg === '-t') {
-            const val = parseInt(args[++i], 10);
+            const val = Number(args[++i]);
             if (isNaN(val) || val < 0 || val > 255) {
                 throw new Error(`[ERROR] Invalid --threshold value: "${args[i]}". Must be between 0 and 255.`);
             }
@@ -287,28 +287,22 @@ async function processImage(inputFilePath, outputFilePath, options) {
         // Available inner area for the image after applying padding
         const innerMax = Math.max(1, targetSize - (options.padding * 2));
 
-        // If the trimmed image exceeds available inner area, scale down proportionally to fit (NO CROPPING)
-        let renderWidth = currentWidth;
-        let renderHeight = currentHeight;
+        // Scale image proportionally so its maximum dimension fills innerMax (with uniform padding)
+        const resizeResult = await sharp(currentBuffer)
+            .resize(innerMax, innerMax, {
+                fit: 'inside'
+            })
+            .toBuffer({ resolveWithObject: true });
 
-        if (currentWidth > innerMax || currentHeight > innerMax) {
-            const scale = Math.min(innerMax / currentWidth, innerMax / currentHeight);
-            renderWidth = Math.round(currentWidth * scale);
-            renderHeight = Math.round(currentHeight * scale);
-
-            currentBuffer = await sharp(currentBuffer)
-                .resize(renderWidth, renderHeight, {
-                    fit: 'inside',
-                    withoutEnlargement: true
-                })
-                .toBuffer();
-        }
+        currentBuffer = resizeResult.data;
+        currentWidth = resizeResult.info.width;
+        currentHeight = resizeResult.info.height;
 
         // Calculate centering offsets onto the target square canvas
-        const leftPadding = Math.floor((targetSize - renderWidth) / 2);
-        const rightPadding = targetSize - renderWidth - leftPadding;
-        const topPadding = Math.floor((targetSize - renderHeight) / 2);
-        const bottomPadding = targetSize - renderHeight - topPadding;
+        const leftPadding = Math.floor((targetSize - currentWidth) / 2);
+        const rightPadding = targetSize - currentWidth - leftPadding;
+        const topPadding = Math.floor((targetSize - currentHeight) / 2);
+        const bottomPadding = targetSize - currentHeight - topPadding;
 
         // Extend canvas with transparent background
         currentBuffer = await sharp(currentBuffer)

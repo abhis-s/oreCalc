@@ -1,13 +1,19 @@
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
 import { showCommitsModal } from './commitsModal.js';
-import { dom } from '../../dom/domElements.js';
 
 /**
  * Initializes close button event listeners and commits modal toggle triggers for the Changelog modal.
  */
 export function initializeChangelogModal() {
     const modal = document.getElementById('changelog-modal');
+    if (!modal || modal.dataset?.changelogInitialized === 'true') {
+        return;
+    }
+    if (modal.dataset) {
+        modal.dataset.changelogInitialized = 'true';
+    }
+
     const closeButton = document.getElementById('close-changelog-modal-btn');
     const footerCloseButton = document.getElementById('changelog-close-btn');
     const commitsButton = document.getElementById('changelog-commits-btn');
@@ -16,15 +22,15 @@ export function initializeChangelogModal() {
         if (modal) closeModalAnimated(modal);
     };
 
-    if (closeButton) {
+    if (closeButton && typeof closeButton.addEventListener === 'function') {
         closeButton.addEventListener('click', closeModal);
     }
 
-    if (footerCloseButton) {
+    if (footerCloseButton && typeof footerCloseButton.addEventListener === 'function') {
         footerCloseButton.addEventListener('click', closeModal);
     }
 
-    if (modal && commitsButton) {
+    if (modal && commitsButton && typeof commitsButton.addEventListener === 'function') {
         commitsButton.addEventListener('click', () => {
             const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
             const commits = Array.isArray(rawCommits) ? rawCommits : [];
@@ -41,16 +47,8 @@ function isInterruptionRestricted() {
     if (window.isAppStartingUp) {
         return true;
     }
-    const welcomeModal = document.getElementById('welcome-modal');
-    if (welcomeModal && welcomeModal.classList.contains('show')) {
-        return true;
-    }
-    const consentBanner = document.getElementById('consent-banner');
-    if (consentBanner && consentBanner.classList.contains('show')) {
-        return true;
-    }
-    const consentModal = document.getElementById('consent-modal');
-    if (consentModal && consentModal.classList.contains('show')) {
+    const guidedSetupModal = document.getElementById('guided-setup-modal');
+    if (guidedSetupModal && (guidedSetupModal.classList.contains('show') || /** @type {HTMLDialogElement} */ (guidedSetupModal).open)) {
         return true;
     }
     const tourTooltip = document.querySelector('.tour-tooltip');
@@ -75,9 +73,8 @@ export function showChangelogModal(content) {
     const modal = document.getElementById('changelog-modal');
     const modalBody = document.getElementById('changelog-modal-body');
     const commitsButton = document.getElementById('changelog-commits-btn');
-    const overlay = dom.overlay;
 
-    if (modal && modalBody && overlay) {
+    if (modal && modalBody) {
         modalBody.innerHTML = content;
 
         if (commitsButton) {
@@ -87,7 +84,7 @@ export function showChangelogModal(content) {
             commitsButton.style.display = (commits.length > 0 && !isChangelogEmpty) ? 'inline-flex' : 'none';
         }
 
-        modal.classList.add('show');
-        overlay.classList.add('show');
+        initializeChangelogModal();
+        openModal(modal);
     }
 }

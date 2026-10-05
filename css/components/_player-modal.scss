@@ -1,4 +1,5 @@
 @use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 
 #add-player-modal {
     .modal-content {
@@ -13,7 +14,8 @@
         .modal-actions-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: $spacing-md;
+            margin-left: auto;
         }
 
         @media (max-width: $breakpoint-modal) {
@@ -47,7 +49,7 @@
 #add-player-modal, #delete-player-modal, #import-data-modal {
     .player-name-input-container,
     .import-data-input-container {
-        padding: 0 24px;
+        padding: 0 $spacing-xl;
         margin: 20px 0;
         position: relative;
 
@@ -56,28 +58,18 @@
             font-size: 14px;
             font-weight: 500;
             color: $text-secondary;
-            margin-bottom: 8px;
+            margin-bottom: $spacing-sm;
         }
 
         input {
+            @include input-focus-ring;
             width: 100%;
-            padding: 12px 16px;
+            padding: $spacing-md $spacing-lg;
             border: 1px solid $border-primary;
-            border-radius: 12px;
+            border-radius: $shape-corner-medium;
             font-size: 16px;
             background-color: $bg-surface-primary;
             color: $text-primary;
-            transition: border-color $duration-moderate $ease-smooth;
-
-            &:focus {
-                outline: none;
-            }
-
-            &:focus-visible {
-                border-color: $accent-primary;
-                box-shadow: 0 0 0 3px $accent-primary-soft;
-                outline: none;
-            }
 
             &.input-error {
                 border-color: $color-danger;
@@ -92,7 +84,7 @@
         color: $color-danger;
         font-size: 12px;
         font-weight: 500;
-        margin-top: 8px;
+        margin-top: $spacing-sm;
         text-align: left;
         display: none;
 

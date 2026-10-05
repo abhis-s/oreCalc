@@ -1,16 +1,17 @@
 import { LEGENDS_LEAGUE_ID } from '../../core/constants.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
+import { battleModifiersData } from '../../data/battleModifiersData.js';
 
-export const ESPORTS_COMMON_DOWNGRADE = 3;
-export const ESPORTS_EPIC_DOWNGRADE = 6;
+export const ESPORTS_COMMON_DOWNGRADE = battleModifiersData.leagues.esports.equipLevelLossCommon;
+export const ESPORTS_EPIC_DOWNGRADE = battleModifiersData.leagues.esports.equipLevelLossEpic;
 
-export const MODIFIER_HERO_BOOST_MULTIPLIERS = {
-    standard: 1.00,
-    legend3: 0.95,
-    legend2: 0.90,
-    legend1: 0.80,
-    esports: 0.80
-};
+export const MODIFIER_HERO_BOOST_MULTIPLIERS = Object.freeze({
+    standard: battleModifiersData.leagues.standard.atkHeroMultiplier,
+    legend3: battleModifiersData.leagues.legend3.atkHeroMultiplier,
+    legend2: battleModifiersData.leagues.legend2.atkHeroMultiplier,
+    legend1: battleModifiersData.leagues.legend1.atkHeroMultiplier,
+    esports: battleModifiersData.leagues.esports.atkHeroMultiplier
+});
 
 /**
  * Resolves the recommended target equipment level for a specific Town Hall.
@@ -62,7 +63,7 @@ export function isStatModifiable(meta) {
 }
 
 /**
- * Calculates effective equipment level and max caps under active tournament/league modifiers (e.g. Esports cap).
+ * Calculates effective equipment level and max levels under active tournament/league modifiers (e.g. Esports level downgrades).
  *
  * @param {number | string} currentLevel - Current equipment level.
  * @param {number} calculatedMaxLevel - Maximum unadjusted equipment level for Town Hall.
@@ -73,9 +74,11 @@ export function isStatModifiable(meta) {
 export function computeEffectiveLevels(currentLevel, calculatedMaxLevel, rarity = 'Common', modifierKey = 'standard') {
     const isEpic = rarity.toLowerCase() === 'epic';
     const validCurrentLevel = Math.max(1, Math.min(calculatedMaxLevel, Number(currentLevel) || 1));
-    if (modifierKey === 'esports') {
-        const downgrade = isEpic ? ESPORTS_EPIC_DOWNGRADE : ESPORTS_COMMON_DOWNGRADE;
-        const esportsMaxLevel = calculatedMaxLevel - downgrade;
+    const league = battleModifiersData.leagues[modifierKey] || battleModifiersData.leagues.standard;
+    const downgrade = isEpic ? (league.equipLevelLossEpic || 0) : (league.equipLevelLossCommon || 0);
+
+    if (downgrade > 0) {
+        const esportsMaxLevel = Math.max(1, calculatedMaxLevel - downgrade);
         const effectiveLevel = Math.max(1, Math.min(esportsMaxLevel, validCurrentLevel - downgrade));
         const effectiveMaxLevel = esportsMaxLevel;
         return {
@@ -96,38 +99,15 @@ export function computeEffectiveLevels(currentLevel, calculatedMaxLevel, rarity 
 }
 
 /**
- * Formats an ISO date string (YYYY-MM-DD) into a localized UTC date representation.
- *
- * @param {string} isoDateStr - ISO date string.
- * @param {string} [language='en'] - UI language locale code.
- * @returns {string} Formatted localized date string.
- */
-export function formatRegionalDate(isoDateStr, language = 'en') {
-    if (!isoDateStr) return '';
-    try {
-        const parts = isoDateStr.split('-');
-        if (parts.length !== 3) return isoDateStr;
-        const [year, month, day] = parts.map(Number);
-        const date = new Date(Date.UTC(year, month - 1, day));
-        return new Intl.DateTimeFormat(language || 'en', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            timeZone: 'UTC'
-        }).format(date);
-    } catch (e) {
-        return isoDateStr;
-    }
-}
-
-/**
  * Formats a numeric stat delta value with optional signed prefix and units.
  *
  * @param {number} diffVal - Numeric difference value.
  * @param {string} [vUnit] - Value unit descriptor ('seconds' | 'tiles' | 'percentage' | 'percent').
+ * @param {Object} [options={}] - Formatting options.
+ * @param {string} [options.tilesSuffix='tiles'] - Localized suffix for tiles unit.
  * @returns {string} Formatted difference string.
  */
-export function formatDiffVal(diffVal, vUnit) {
+export function formatDiffVal(diffVal, vUnit, options = {}) {
     if (typeof diffVal !== 'number' || isNaN(diffVal) || diffVal === 0) return '0';
     const isPositive = diffVal > 0;
     const absVal = Math.abs(diffVal);
@@ -135,7 +115,8 @@ export function formatDiffVal(diffVal, vUnit) {
 
     if (vUnit === 'seconds' || vUnit === 'tiles') {
         const num = Math.round(absVal * 10) / 10;
-        formattedNum = `${formatNumber(num)}${vUnit === 'seconds' ? 's' : ' tiles'}`;
+        const tilesSuffix = options.tilesSuffix ? ` ${options.tilesSuffix}` : ' tiles';
+        formattedNum = `${formatNumber(num)}${vUnit === 'seconds' ? 's' : tilesSuffix}`;
     } else if (vUnit === 'percentage' || vUnit === 'percent') {
         const num = Number.isInteger(absVal) ? Math.round(absVal) : (Math.round(absVal * 10) / 10);
         formattedNum = `${formatNumber(num)}%`;

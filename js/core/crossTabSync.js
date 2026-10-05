@@ -1,9 +1,12 @@
 import { state } from './state.js';
-import { handleStateUpdate } from './stateManager.js';
+import { handleStateUpdate, switchActivePlayer } from './stateManager.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
 import { applyThemeSettings } from './themeManager.js';
-import { loadTranslations } from '../i18n/translator.js';
+import { loadTranslations, translate } from '../i18n/translator.js';
 import { syncLanguageUrl } from './languageRouter.js';
+import { getStorageItem, normalizePlayerTag } from './storageKeys.js';
+import { loadPlayerData } from './playerStorage.js';
+import { syncPlayerTagToUrl } from './playerUrlRouter.js';
 
 import { CANONICAL_PLAYER_PREFIX, LEGACY_PLAYER_PREFIX, STORAGE_KEY_MAP } from './constants.js';
 
@@ -11,10 +14,6 @@ const APP_SETTINGS_CANONICAL = STORAGE_KEY_MAP.appSettings.canonical;
 const APP_SETTINGS_LEGACY = STORAGE_KEY_MAP.appSettings.legacy;
 const PLAYER_TAGS_CANONICAL = STORAGE_KEY_MAP.playerTags.canonical;
 const PLAYER_TAGS_LEGACY = STORAGE_KEY_MAP.playerTags.legacy;
-const RECENT_SEARCHES_CANONICAL = STORAGE_KEY_MAP.recentSearches.canonical;
-const RECENT_SEARCHES_LEGACY = STORAGE_KEY_MAP.recentSearches.legacy;
-const ACCELERATED_KEY = 'oreCalc_isAccelerated';
-const CANONICAL_ACCELERATED_KEY = 'clashCalc_isAccelerated';
 
 let isCrossTabSyncInitialized = false;
 let hasPendingActivePlayerSync = false;
@@ -37,7 +36,40 @@ export function initMainAppCrossTabSync() {
     if (typeof document?.addEventListener === 'function') {
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
-                document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
+                const storedTagsStr = getStorageItem(PLAYER_TAGS_CANONICAL, PLAYER_TAGS_LEGACY);
+                const storedTags = safeJsonParse(storedTagsStr, null);
+                if (Array.isArray(storedTags) && storedTags.length > 0) {
+                    const cleanStoredActive = normalizePlayerTag(storedTags[0]);
+                    const currentActive = normalizePlayerTag(state.savedPlayerTags?.[0] || 'DEFAULT0');
+
+                    if (cleanStoredActive !== currentActive) {
+                        const cleanedTags = storedTags.map(normalizePlayerTag).filter(Boolean);
+                        if (cleanStoredActive === 'DEFAULT0') {
+                            handleStateUpdate(() => {
+                                state.savedPlayerTags = ['DEFAULT0'];
+                            }, false, { skipSave: true });
+                            syncPlayerTagToUrl(null);
+                        } else {
+                            if (!state.allPlayersData?.[cleanStoredActive] || !state.allPlayersData[cleanStoredActive].heroes) {
+                                const cached = loadPlayerData(cleanStoredActive);
+                                if (cached && cached.heroes) {
+                                    if (!state.allPlayersData) state.allPlayersData = {};
+                                    state.allPlayersData[cleanStoredActive] = cached;
+                                }
+                            }
+                            if (state.allPlayersData?.[cleanStoredActive]?.heroes) {
+                                switchActivePlayer(cleanStoredActive, { skipSave: true });
+                                handleStateUpdate(() => {
+                                    state.savedPlayerTags = cleanedTags;
+                                }, false, { skipSave: true });
+                                syncPlayerTagToUrl(cleanStoredActive);
+                            }
+                        }
+                        hasPendingActivePlayerSync = false;
+                        document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
+                        return;
+                    }
+                }
 
                 if (hasPendingActivePlayerSync) {
                     hasPendingActivePlayerSync = false;
@@ -55,6 +87,8 @@ export function initMainAppCrossTabSync() {
                         }, false, { skipSave: true });
                     }
                 }
+
+                document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
             }
         });
     }
@@ -94,6 +128,10 @@ export function initMainAppCrossTabSync() {
                         if (playerData.heroJourney) state.heroJourney = playerData.heroJourney;
                         if (playerData.onboardingTimestamp !== undefined) state.onboardingTimestamp = playerData.onboardingTimestamp;
                     }, false, { skipSave: true });
+
+                    if (typeof document?.dispatchEvent === 'function') {
+                        document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
+                    }
                 }
             }
             return;
@@ -126,22 +164,28 @@ export function initMainAppCrossTabSync() {
 
                 applyThemeSettings(themeToApply, accentToApply, { isSwatchClick: false });
 
+                const isLight = (themeToApply === 'light');
+                const labelKey = isLight ? 'views.settings.options.themeDark' : 'views.settings.options.themeLight';
+                const translated = translate(labelKey);
+
                 const themeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-theme-toggle'));
                 if (themeToggle) {
-                    themeToggle.checked = (themeToApply === 'light');
+                    themeToggle.checked = isLight;
                     const themeLabel = document.querySelector('label[for="settings-theme-toggle"]');
                     if (themeLabel) {
-                        const labelKey = (themeToApply === 'light') ? 'views.settings.options.themeDark' : 'views.settings.options.themeLight';
+                        themeLabel.textContent = translated;
                         themeLabel.setAttribute('data-i18n', labelKey);
                     }
                 }
 
-                const welcomeThemeSwitch = document.querySelector('#welcome-modal .theme-switch');
-                if (welcomeThemeSwitch) {
-                    welcomeThemeSwitch.setAttribute('data-active-index', themeToApply === 'dark' ? '0' : '1');
-                    welcomeThemeSwitch.querySelectorAll('.pref-btn').forEach(btn => {
-                        btn.classList.toggle('active', btn.getAttribute('data-theme') === themeToApply);
-                    });
+                const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-toggle'));
+                if (appThemeToggle) {
+                    appThemeToggle.checked = isLight;
+                    const appThemeLabel = document.getElementById('app-theme-label');
+                    if (appThemeLabel) {
+                        appThemeLabel.textContent = translated;
+                        appThemeLabel.setAttribute('data-i18n', labelKey);
+                    }
                 }
 
                 const allSwatches = document.querySelectorAll('.accent-swatch, #welcome-accent-picker .accent-swatch, #mobile-accent-picker-modal .accent-swatch');
@@ -175,40 +219,48 @@ export function initMainAppCrossTabSync() {
             return;
         }
 
-        if (event.key === CANONICAL_ACCELERATED_KEY || event.key === ACCELERATED_KEY) {
-            const isAccelerated = event.newValue === 'true';
-            if (state.heroJourney?.isAccelerated !== isAccelerated) {
-                handleStateUpdate(() => {
-                    if (!state.heroJourney) state.heroJourney = {};
-                    state.heroJourney.isAccelerated = isAccelerated;
-                }, false, { skipSave: true });
-            }
-            return;
-        }
-
         if (event.key === PLAYER_TAGS_CANONICAL || event.key === PLAYER_TAGS_LEGACY) {
             const newTags = safeJsonParse(event.newValue, null);
             if (Array.isArray(newTags)) {
-                handleStateUpdate(() => {
-                    const currentActiveTag = state.savedPlayerTags?.[0];
-                    if (currentActiveTag && newTags.includes(currentActiveTag)) {
-                        const remaining = newTags.filter(t => t !== currentActiveTag);
-                        state.savedPlayerTags = [currentActiveTag, ...remaining];
+                const cleanedTags = newTags.map(normalizePlayerTag).filter(Boolean);
+                const newActiveTag = cleanedTags[0] || 'DEFAULT0';
+                const currentActiveTag = normalizePlayerTag(state.savedPlayerTags?.[0] || 'DEFAULT0');
+
+                if (newActiveTag !== currentActiveTag) {
+                    if (newActiveTag === 'DEFAULT0') {
+                        handleStateUpdate(() => {
+                            state.savedPlayerTags = ['DEFAULT0'];
+                        }, false, { skipSave: true });
+                        syncPlayerTagToUrl(null);
                     } else {
-                        state.savedPlayerTags = newTags;
+                        if (!state.allPlayersData?.[newActiveTag] || !state.allPlayersData[newActiveTag].heroes) {
+                            const cached = loadPlayerData(newActiveTag);
+                            if (cached && cached.heroes) {
+                                if (!state.allPlayersData) state.allPlayersData = {};
+                                state.allPlayersData[newActiveTag] = cached;
+                            }
+                        }
+                        if (state.allPlayersData?.[newActiveTag]?.heroes) {
+                            switchActivePlayer(newActiveTag, { skipSave: true });
+                            handleStateUpdate(() => {
+                                state.savedPlayerTags = cleanedTags;
+                            }, false, { skipSave: true });
+                            syncPlayerTagToUrl(newActiveTag);
+                        } else {
+                            handleStateUpdate(() => {
+                                state.savedPlayerTags = cleanedTags;
+                            }, false, { skipSave: true });
+                        }
                     }
-                }, false, { skipSave: true });
+                } else {
+                    handleStateUpdate(() => {
+                        state.savedPlayerTags = cleanedTags;
+                    }, false, { skipSave: true });
+                }
 
                 if (typeof document?.dispatchEvent === 'function') {
                     document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
                 }
-            }
-            return;
-        }
-
-        if (event.key === RECENT_SEARCHES_CANONICAL || event.key === RECENT_SEARCHES_LEGACY) {
-            if (typeof document?.dispatchEvent === 'function') {
-                document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
             }
             return;
         }

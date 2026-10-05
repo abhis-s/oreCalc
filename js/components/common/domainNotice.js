@@ -1,6 +1,8 @@
 import { translate } from '../../i18n/translator.js';
-import { STORAGE_KEYS } from '../../core/constants.js';
+import { STORAGE_KEY_MAP } from '../../core/constants.js';
+import { getStorageItem, isClashCalcHost } from '../../core/storageKeys.js';
 import { getSVG } from '../../utils/svgManager.js';
+import { triggerCloudSave } from '../../services/cloudSaveService.js';
 
 export const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 export const IS_DOMAIN_NOTICE_ACTIVE = false;
@@ -125,7 +127,7 @@ export function initDomainNotice(options = {}) {
     const hostname = window.location.hostname;
     let rawDismissed = null;
     try {
-        rawDismissed = localStorage.getItem(STORAGE_KEYS.DOMAIN_NOTICE_DISMISSED);
+        rawDismissed = getStorageItem(STORAGE_KEY_MAP.domainNoticeDismissed.canonical, STORAGE_KEY_MAP.domainNoticeDismissed.legacy);
     } catch {
         // LocalStorage access may be restricted in third-party iframe contexts
     }
@@ -143,7 +145,7 @@ export function initDomainNotice(options = {}) {
     let resolvedUserId = options.userId || null;
     if (!resolvedUserId) {
         try {
-            resolvedUserId = localStorage.getItem(STORAGE_KEYS.USER_ID);
+            resolvedUserId = getStorageItem(STORAGE_KEY_MAP.userId.canonical, STORAGE_KEY_MAP.userId.legacy);
         } catch {
             resolvedUserId = null;
         }
@@ -186,9 +188,7 @@ export function initDomainNotice(options = {}) {
 
     // Flush pending cloud saves when user prepares to navigate to ClashCalc
     ctaLink.addEventListener('pointerdown', () => {
-        import('../../services/cloudSaveService.js')
-            .then(m => m.triggerCloudSave?.({ silent: true }))
-            .catch(() => {});
+        triggerCloudSave({ silent: true }).catch(() => {});
     }, { once: true, passive: true });
 
     actionWrapper.appendChild(ctaLink);
@@ -216,7 +216,11 @@ export function initDomainNotice(options = {}) {
 
     dismissBtn.addEventListener('click', () => {
         try {
-            localStorage.setItem(STORAGE_KEYS.DOMAIN_NOTICE_DISMISSED, String(Date.now()));
+            const targetDismissKey = isClashCalcHost() ? STORAGE_KEY_MAP.domainNoticeDismissed.canonical : STORAGE_KEY_MAP.domainNoticeDismissed.legacy;
+            localStorage.setItem(targetDismissKey, String(Date.now()));
+            if (isClashCalcHost()) {
+                localStorage.removeItem(STORAGE_KEY_MAP.domainNoticeDismissed.legacy);
+            }
         } catch {
             // Storage quota or restriction fallback
         }

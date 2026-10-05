@@ -34,7 +34,7 @@
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid color-mix(in srgb, $accent-primary 35%, $border-primary);
-        border-radius: 99px;
+        border-radius: $shape-corner-full;
         padding: 9px 20px;
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), 0 0 15px color-mix(in srgb, $accent-primary 20%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;

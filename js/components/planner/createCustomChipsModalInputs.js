@@ -1,6 +1,5 @@
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
-
 import { addValidation } from '../../utils/inputValidator.js';
 
 import {
@@ -20,7 +19,7 @@ let isProspectorInitialized = false;
 /**
  * Synchronizes Prospector UI elements and initial dropdown comboboxes.
  */
-export function syncProspectorUI() {
+function syncProspectorUI() {
     const fromDropdown = document.getElementById('custom-chip-prospector-from-ore');
     const toDropdown = document.getElementById('custom-chip-prospector-to-ore');
 
@@ -40,13 +39,11 @@ export function initializeCreateCustomChipsModalListeners() {
     const modal = document.getElementById('create-custom-chips-modal');
     if (!modal) return;
 
-    // Register all numeric inputs inside this modal for validation
     const numberInputs = modal.querySelectorAll('input[type="number"]');
     numberInputs.forEach(input => {
         addValidation(input, { inputName: input.id });
     });
 
-    // Register all input popovers
     registerCustomChipsPopovers();
 
     const typeSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-type-select'));
@@ -101,10 +98,6 @@ export function initializeCreateCustomChipsModalListeners() {
         }
     });
 
-    // Auto-save form drafts to sessionStorage on any change
-    modal.addEventListener('input', saveCustomChipDraft);
-    modal.addEventListener('change', saveCustomChipDraft);
-
     const closeBtn = document.getElementById('close-create-custom-chips-modal-btn');
     const cancelBtn = document.getElementById('cancel-create-custom-chips-btn');
     const saveBtn = document.getElementById('save-create-custom-chips-btn');
@@ -112,7 +105,6 @@ export function initializeCreateCustomChipsModalListeners() {
     if (closeBtn) closeBtn.addEventListener('click', closeCreateCustomChipsModal);
     if (cancelBtn) {
         cancelBtn.addEventListener('click', () => {
-            clearCustomChipDraft();
             closeCreateCustomChipsModal();
         });
     }
@@ -138,49 +130,10 @@ export function initializeCreateCustomChipsModalListeners() {
                 state.planner.calendar.customChips = customChips;
             });
 
-            clearCustomChipDraft();
             closeCreateCustomChipsModal();
             if (state.planner?.calendar?.view?.month) {
                 renderIncomeChips(parseInt(state.planner.calendar.view.month.split('-')[0], 10), parseInt(state.planner.calendar.view.month.split('-')[1], 10) - 1);
             }
         });
     }
-}
-
-/**
- * Saves in-progress custom chip creation inputs to sessionStorage.
- */
-export function saveCustomChipDraft() {
-    const modal = document.getElementById('create-custom-chips-modal');
-    const typeSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-type-select'));
-    if (!modal || !typeSelect || !typeSelect.value) return;
-
-    const draft = {
-        type: typeSelect.value,
-        values: {}
-    };
-
-    const inputs = modal.querySelectorAll('input, select');
-    inputs.forEach(input => {
-        const el = /** @type {HTMLInputElement|HTMLSelectElement} */ (input);
-        if (!el.id || el.id === 'custom-chip-type-select') return;
-        if (el instanceof HTMLInputElement && el.type === 'checkbox') {
-            draft.values[el.id] = el.checked;
-        } else {
-            draft.values[el.id] = el.value;
-        }
-    });
-
-    try {
-        sessionStorage.setItem('oreCalc_custom_chip_draft', JSON.stringify(draft));
-    } catch (_) {}
-}
-
-/**
- * Clears custom chip draft from sessionStorage.
- */
-export function clearCustomChipDraft() {
-    try {
-        sessionStorage.removeItem('oreCalc_custom_chip_draft');
-    } catch (_) {}
 }

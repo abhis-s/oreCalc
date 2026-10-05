@@ -1,71 +1,41 @@
 @use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 @use '../base/placeholder';
 
 input[type="text"],
+input[type="password"],
 input[type="number"],
 input[type="email"],
 select,
 textarea,
 .dropdown-style {
-    transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth, transform $duration-fast $ease-standard;
-
-    &:hover {
-        transform: translateY(-1px);
-    }
-
-    &:focus {
-        outline: none;
-    }
-
-@keyframes input-glow-pulse {
-        0%, 100% {
-            box-shadow: 0 0 0 3px rgba($accent-primary, 0.2);
-        }
-        50% {
-            box-shadow: 0 0 0 5px rgba($accent-primary, 0.4);
-        }
-    }
-
-    &:focus-visible {
-        border-color: $accent-primary;
-        animation: input-glow-pulse 1.8s infinite ease-in-out;
-        transform: translateY(-1px) scale(1.01);
-        outline: none;
-    }
+    @include input-focus-ring;
 }
 
 input[type="number"].offer-input-number,
 .input-group-flex input[type="number"],
-.input-group-flex select,
 .ore-input-item input[type="number"],
 .custom-chip-prospector-row input[type="number"] {
     background-color: $bg-app;
     border: 1px solid $border-primary;
     border-radius: 5px;
     color: $text-primary;
-    padding: 8px;
+    padding: $spacing-sm;
     text-align: center;
-    transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
     width: 80px;
-
-    &:focus {
-        outline: none;
-    }
-
-    &:focus-visible {
-        border-color: $accent-primary;
-        box-shadow: 0 0 0 3px $accent-primary-soft;
-        outline: none;
-    }
+    @include input-focus-ring;
 }
 
 .dropdown-style {
     background-color: $bg-app;
     border: 1px solid $border-primary;
-    border-radius: 4px;
+    border-radius: $shape-corner-xs;
     color: $text-primary;
     font-size: var(--font-size-sm);
-    padding: 5px;
+    padding: 6px 28px 6px 10px;
+    text-align: left;
+    text-align-last: left;
+    @include custom-select-chevron;
 }
 
 .input-group-flex {
@@ -165,20 +135,10 @@ input[type="number"] {
     position: relative;
     width: 50px;
     border: 1px solid $border-primary;
-    border-radius: 4px;
+    border-radius: $shape-corner-xs;
     cursor: pointer;
     background-color: $bg-app;
-    transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
-
-    &:focus {
-        outline: none;
-    }
-
-    &:focus-visible {
-        border-color: $accent-primary;
-        box-shadow: 0 0 0 3px $accent-primary-soft;
-        outline: none;
-    }
+    @include input-focus-ring;
 
     .dropdown-selected {
         padding: 5px;
@@ -201,7 +161,7 @@ input[type="number"] {
         width: 50px;
         border: 1px solid $border-primary;
         border-top: none;
-        border-radius: 0 0 4px 4px;
+        border-radius: 0 0 $shape-corner-xs $shape-corner-xs;
         background-color: $bg-app;
         z-index: $z-index-base;
 
@@ -235,7 +195,7 @@ input[type="number"] {
     min-width: 0;
 
     .flex-center-gap-8 {
-        margin-bottom: 2px;
+        margin-bottom: $spacing-2xs;
 
         label {
             margin-bottom: 0;
@@ -243,7 +203,7 @@ input[type="number"] {
     }
 
     label {
-        margin-bottom: 2px;
+        margin-bottom: $spacing-2xs;
         flex: none; // Override parent input-group-flex label expansion
     }
 }
@@ -257,7 +217,7 @@ input[type="number"] {
 .custom-chip-ores-row {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    gap: $spacing-sm;
     margin: 10px 0;
     width: 100%;
     box-sizing: border-box;
@@ -298,22 +258,12 @@ input[type="number"] {
         border: 1px solid $border-primary;
         border-radius: 5px;
         color: $text-primary;
-        padding: 8px 4px;
+        padding: $spacing-sm $spacing-xs;
         text-align: center;
         width: 100%;
         min-width: 0;
         box-sizing: border-box;
-        transition: border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
-
-        &:focus {
-            outline: none;
-        }
-
-        &:focus-visible {
-            border-color: $accent-primary;
-            box-shadow: 0 0 0 3px $accent-primary-soft;
-            outline: none;
-        }
+        @include input-focus-ring;
     }
 }
 
@@ -385,7 +335,7 @@ input[type="number"] {
     font-size: var(--font-size-lg);
     font-weight: bold;
     align-self: flex-end;
-    padding-bottom: 4px;
+    padding-bottom: $spacing-xs;
 }
 
 .custom-chip-rewards-preview {

@@ -4,8 +4,8 @@ import { I18N_DYNAMIC_PARAMS, getDynamicTranslationArgs } from '../../js/i18n/i1
 
 test('I18N_DYNAMIC_PARAMS registers expected parameter resolvers', () => {
     assert.ok(typeof I18N_DYNAMIC_PARAMS['app.supercellDisclaimer'] === 'function');
-    assert.ok(typeof I18N_DYNAMIC_PARAMS['views.settings.bugReportInfo'] === 'function');
-    assert.ok(typeof I18N_DYNAMIC_PARAMS['views.settings.bugReportPrivacyInfo'] === 'function');
+    assert.ok(typeof I18N_DYNAMIC_PARAMS['views.settings.bugReport.info'] === 'function');
+    assert.ok(typeof I18N_DYNAMIC_PARAMS['views.settings.bugReport.privacyInfo'] === 'function');
 });
 
 test('getDynamicTranslationArgs resolves supercellDisclaimer for various languages', () => {
@@ -27,7 +27,7 @@ test('getDynamicTranslationArgs resolves supercellDisclaimer for various languag
 });
 
 test('getDynamicTranslationArgs resolves bugReportInfo with GitHub Issues link', () => {
-    const args = getDynamicTranslationArgs('views.settings.bugReportInfo', 'en');
+    const args = getDynamicTranslationArgs('views.settings.bugReport.info', 'en');
     assert.ok(args.link);
     assert.ok(args.link.includes('https://github.com/abhis-s/oreCalc/issues'));
     assert.ok(args.link.includes('GitHub Issues'));
@@ -36,10 +36,10 @@ test('getDynamicTranslationArgs resolves bugReportInfo with GitHub Issues link',
 
 test('getDynamicTranslationArgs resolves bugReportPrivacyInfo using getTranslation callback', () => {
     const mockGetTranslation = (key) => {
-        if (key === 'views.settings.privacyPolicyText') return 'Datenschutzerklärung';
+        if (key === 'nav.privacy') return 'Datenschutzerklärung';
         return '';
     };
-    const args = getDynamicTranslationArgs('views.settings.bugReportPrivacyInfo', 'de', mockGetTranslation);
+    const args = getDynamicTranslationArgs('views.settings.bugReport.privacyInfo', 'de', mockGetTranslation);
     assert.ok(args.link);
     assert.ok(args.link.includes('id="bug-report-privacy-link"'));
     assert.ok(args.link.includes('Datenschutzerklärung'));
@@ -47,7 +47,7 @@ test('getDynamicTranslationArgs resolves bugReportPrivacyInfo using getTranslati
 });
 
 test('getDynamicTranslationArgs falls back to default Privacy Policy when getTranslation returns empty', () => {
-    const args = getDynamicTranslationArgs('views.settings.bugReportPrivacyInfo', 'en', () => '');
+    const args = getDynamicTranslationArgs('views.settings.bugReport.privacyInfo', 'en', () => '');
     assert.ok(args.link.includes('Privacy Policy'));
 });
 

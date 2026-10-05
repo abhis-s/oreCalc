@@ -30,7 +30,7 @@
     .slider {
         background-color: $material-track-inactive;
         border: 1px solid $material-track-border-inactive;
-        border-radius: 16px;
+        border-radius: $shape-corner-large;
         box-sizing: border-box;
         bottom: 0;
         cursor: pointer;

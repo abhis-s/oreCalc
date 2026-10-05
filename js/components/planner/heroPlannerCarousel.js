@@ -110,7 +110,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         checkbox.id = `planner-${heroKey}-toggle`;
         checkbox.name = `planner-${heroKey}-toggle`;
         checkbox.checked = heroState.enabled !== false;
-        checkbox.setAttribute('aria-label', translate('views.planner.toggleHero', {
+        checkbox.setAttribute('aria-label', translate('views.planner.toggleEquipment', {
             name: translate(`entities.heroes.${heroKey}`) || hero.name
         }));
         switchLabel.appendChild(checkbox);

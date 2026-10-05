@@ -1,4 +1,4 @@
-import test, { describe, before } from 'node:test';
+import test, { describe } from 'node:test';
 import assert from 'node:assert/strict';
 
 if (typeof globalThis.HTMLElement === 'undefined') {
@@ -148,5 +148,54 @@ describe('Card Drag Manager & Scroll-Invariant Drop Targeting Suite', () => {
         const positions2Col = calculateSlotVisualPositions(cards, cardRectsMap2Col, slotToCardMap);
         assert.strictEqual(positions2Col.get(0).left, 50);
         assert.strictEqual(positions2Col.get(1).left, 400);
+    });
+
+    test('settings account card retains .card-drag-handle across updateAccountUI transitions', async () => {
+        const { updateAccountUI } = await import('../../js/components/appSettings/settingsAccountDisplay.js');
+
+        const dragHandle = {
+            className: 'card-drag-handle',
+            nodeType: 1
+        };
+
+        const textNode = {
+            nodeType: 3,
+            textContent: 'Account & Cloud Sync'
+        };
+
+        const accountCardTitle = {
+            id: 'account-card-title',
+            nodeType: 1,
+            childNodes: [textNode, dragHandle],
+            dataset: {},
+            attributes: new Map(),
+            setAttribute: (k, v) => accountCardTitle.attributes.set(k, v),
+            getAttribute: (k) => accountCardTitle.attributes.get(k),
+            querySelector: (sel) => sel === '.card-drag-handle' ? dragHandle : null,
+            get firstChild() { return this.childNodes[0]; }
+        };
+
+        const elements = new Map([
+            ['account-card-title', accountCardTitle]
+        ]);
+
+        const prevGetElementById = globalThis.document.getElementById;
+        globalThis.document.getElementById = (id) => elements.get(id) || null;
+
+        try {
+            // Authenticated transition
+            updateAccountUI({ username: 'Chief' });
+            assert.strictEqual(accountCardTitle.childNodes.includes(dragHandle), true, 'drag handle must be preserved when authenticated');
+            assert.strictEqual(accountCardTitle.childNodes[0].textContent, 'auth.account');
+            assert.strictEqual(accountCardTitle.querySelector('.card-drag-handle'), dragHandle);
+
+            // Guest transition
+            updateAccountUI(null);
+            assert.strictEqual(accountCardTitle.childNodes.includes(dragHandle), true, 'drag handle must be preserved in guest mode');
+            assert.strictEqual(accountCardTitle.childNodes[0].textContent, 'views.settings.cards.accountAndSync');
+            assert.strictEqual(accountCardTitle.querySelector('.card-drag-handle'), dragHandle);
+        } finally {
+            globalThis.document.getElementById = prevGetElementById;
+        }
     });
 });

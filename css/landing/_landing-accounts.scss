@@ -1,0 +1,414 @@
+@use '../abstracts/mixins' as *;
+@use '../components/profile/profile-header';
+
+.landing-active-profile {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.active-profile-card {
+    padding: $spacing-md $spacing-lg;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-card;
+    border-radius: $card-radius;
+    box-shadow: $elevation-1;
+    transition: $transition-card;
+
+    &:hover {
+        border-color: $border-card-hover;
+        box-shadow: $elevation-card-hover;
+    }
+
+    &.is-collapsed {
+        @include profile-header.mobile-header-full-layout;
+    }
+
+    .player-maxed-equip-mini {
+        max-width: none;
+    }
+}
+
+.landing-accounts-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    width: 100%;
+}
+
+.landing-accounts-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    row-gap: $spacing-xs;
+    column-gap: $spacing-sm;
+    padding: 0 $spacing-2xs;
+}
+
+.landing-accounts-title-group {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    .landing-accounts-title {
+        margin: 0;
+        font-size: $font-size-md;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    .landing-accounts-count {
+        font-size: $font-size-2xs;
+        padding: 1px $spacing-xs;
+        background-color: $bg-surface-tertiary;
+        color: $text-secondary;
+        border-radius: $shape-corner-full;
+        font-weight: $font-weight-semibold;
+    }
+}
+
+.landing-accounts-actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    margin-left: auto;
+}
+
+.landing-refresh-toggle-btn,
+.landing-manage-toggle-btn,
+.landing-add-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    background: transparent;
+    border: 1px solid transparent;
+    color: $accent-primary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    padding: $spacing-xs $spacing-sm;
+    min-height: 32px;
+    border-radius: $shape-corner-small;
+    white-space: nowrap;
+    position: relative;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-width: 44px;
+        min-height: 44px;
+        width: 100%;
+        height: 100%;
+    }
+
+    &:hover {
+        background-color: $accent-primary-soft;
+        border-color: color-mix(in srgb, $accent-primary 30%, transparent);
+    }
+
+    &.is-active {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+    }
+}
+
+.landing-refresh-toggle-btn {
+    &.is-refreshing {
+        pointer-events: none;
+        opacity: 0.8;
+        cursor: not-allowed;
+
+        .landing-refresh-icon {
+            animation: spin 1s linear infinite;
+        }
+    }
+}
+
+.landing-accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: $spacing-sm;
+    width: 100%;
+}
+
+.landing-account-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-card;
+    border-radius: $card-radius;
+    color: $text-primary;
+    cursor: pointer;
+    text-align: left;
+    box-shadow: $elevation-1;
+    position: relative;
+    transition: $transition-card;
+
+    &:hover {
+        border-color: $border-card-hover;
+        background-color: color-mix(in srgb, $accent-primary 8%, transparent);
+        box-shadow: $elevation-card-hover;
+        transform: translateY(-1px);
+    }
+
+    &.is-active {
+        border-color: $accent-primary;
+        background-color: color-mix(in srgb, $accent-primary 10%, $bg-surface-secondary);
+        box-shadow: 0 0 0 1px $accent-primary, 0 4px 16px -2px color-mix(in srgb, $accent-primary 25%, transparent);
+
+        &:hover {
+            background-color: color-mix(in srgb, $accent-primary 14%, $bg-surface-secondary);
+            box-shadow: 0 0 0 1px $accent-primary, $elevation-card-hover;
+            transform: translateY(-1px);
+        }
+    }
+
+    &.is-refreshing {
+        pointer-events: none;
+        position: relative;
+        opacity: 0.85;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            border: 1.5px solid $accent-primary;
+            animation: card-refreshing-pulse 1.2s ease-in-out infinite;
+            pointer-events: none;
+        }
+    }
+
+    &.is-confirming-delete,
+    &:has(.account-card-delete-btn.is-confirming) {
+        .account-card-meta {
+            display: none;
+        }
+    }
+}
+
+.account-card-th {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+
+    .th-mini-img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+    }
+
+    .th-mini-level {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        border: 1.5px solid $border-primary;
+        border-radius: $shape-corner-xs;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-extrabold;
+        line-height: 1;
+        min-width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1px 3px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+    }
+}
+
+.account-card-player {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+    min-width: 0;
+    flex: 1;
+
+    .account-card-name {
+        font-weight: $font-weight-bold;
+        font-size: $font-size-sm;
+        color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .account-card-tag {
+        font-family: monospace;
+        font-size: $font-size-2xs;
+        color: $text-muted;
+        line-height: 1.2;
+    }
+}
+
+.account-card-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $spacing-2xs;
+    margin-left: auto;
+    flex-shrink: 1;
+    min-width: 0;
+    text-align: right;
+
+    .account-card-clan {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: $spacing-xs;
+        min-width: 0;
+        max-width: 140px;
+        font-size: $font-size-xs;
+        color: $text-secondary;
+
+        .clan-badge-img-tiny {
+            width: 14px;
+            height: 14px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .clan-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: $font-size-xs;
+        }
+    }
+
+    .account-card-stats {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: $spacing-xs;
+        font-size: $font-size-xs;
+        color: $text-secondary;
+
+        .account-card-league {
+            display: inline-flex;
+            align-items: center;
+
+            .league-badge-img-tiny {
+                width: 14px;
+                height: 14px;
+                object-fit: contain;
+                flex-shrink: 0;
+            }
+        }
+
+        .account-card-trophies {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            color: $text-secondary;
+            font-weight: $font-weight-semibold;
+
+            .trophy-icon-mini {
+                color: $palette-amber-500;
+                display: inline-flex;
+                align-items: center;
+            }
+        }
+    }
+}
+
+.trophy-icon-amber {
+    color: $palette-amber-500;
+}
+
+.account-card-delete-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2xs;
+    background: transparent;
+    border: 1px solid transparent;
+    color: $text-muted;
+    cursor: pointer;
+    padding: $spacing-xs;
+    border-radius: $shape-corner-small;
+    flex-shrink: 0;
+    transition: background-color $duration-fast $ease-smooth,
+                border-color $duration-fast $ease-smooth,
+                color $duration-fast $ease-smooth;
+
+    .delete-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .delete-confirm-text {
+        display: none;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    &:hover {
+        color: $color-danger;
+        background-color: $color-danger-soft;
+        border-color: $color-danger;
+    }
+
+    &.is-confirming {
+        background-color: $color-danger;
+        color: $text-on-accent;
+        border-color: $color-danger;
+        padding: $spacing-xs $spacing-sm;
+
+        .delete-confirm-text {
+            display: inline;
+        }
+
+        &:hover {
+            background-color: color-mix(in srgb, $color-danger 85%, black);
+            border-color: color-mix(in srgb, $color-danger 85%, black);
+            color: $text-on-accent;
+        }
+    }
+}
+
+.landing-accounts-grid.is-managing {
+    .account-card-delete-btn {
+        display: inline-flex;
+    }
+}
+
+@keyframes card-refreshing-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 1px $accent-primary, 0 0 8px color-mix(in srgb, $accent-primary 30%, transparent);
+        opacity: 0.6;
+    }
+    50% {
+        box-shadow: 0 0 0 2px $accent-primary, 0 0 16px color-mix(in srgb, $accent-primary 60%, transparent);
+        opacity: 1;
+    }
+}
+
+@keyframes card-highlight-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 2px $accent-primary, 0 4px 16px -2px color-mix(in srgb, $accent-primary 35%, transparent);
+    }
+    50% {
+        box-shadow: 0 0 0 4px $accent-primary, 0 6px 24px color-mix(in srgb, $accent-primary 60%, transparent);
+    }
+}
+
+.landing-account-card.is-pulse {
+    animation: card-highlight-pulse 0.75s ease-in-out 2;
+}

@@ -7,6 +7,10 @@ declare global {
         __ENV__?: {
             APP_VERSION?: string;
             API_BASE_URL?: string;
+            PUBLIC_API_BASE_URL?: string;
+            PUBLIC_TURNSTILE_SITE_KEY?: string;
+            VITE_API_BASE_URL?: string;
+            VITE_TURNSTILE_SITE_KEY?: string;
             [key: string]: any;
         };
         __APP_INITIALIZED__?: boolean;
@@ -23,6 +27,8 @@ declare global {
         pendingCommits?: any;
         resetApplication?: () => void;
         handleChunkError?: (error: any) => any;
+        startTour?: (setId?: string) => Promise<string>;
+        resetTour?: () => string;
         QRCodeStyling?: any;
         [key: string]: any;
     }
@@ -31,6 +37,10 @@ declare global {
     const __ENV__: {
         APP_VERSION?: string;
         API_BASE_URL?: string;
+        PUBLIC_API_BASE_URL?: string;
+        PUBLIC_TURNSTILE_SITE_KEY?: string;
+        VITE_API_BASE_URL?: string;
+        VITE_TURNSTILE_SITE_KEY?: string;
         [key: string]: any;
     } | undefined;
 

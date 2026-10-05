@@ -11,8 +11,6 @@ const projectRoot = process.cwd();
 const distDir = path.join(projectRoot, 'dist');
 const verbose = process.argv.includes('--verbose') || process.env.VERBOSE === 'true';
 
-let includeCount = 0;
-
 /**
  * Recursively parses HTML content to locate and resolve custom include directives.
  * Replaces comments of format `<!-- include: partials/file.html -->` with actual contents.
@@ -24,7 +22,6 @@ function processHtmlIncludes(htmlContent) {
     return htmlContent.replace(/<!--\s*include:\s*(.*?)\s*-->/g, (match, filePath) => {
         const fullPath = path.join(projectRoot, filePath.trim());
         if (fs.existsSync(fullPath)) {
-            includeCount++;
             if (verbose) {
                 console.log(`Including: ${fullPath}`);
             }
@@ -78,7 +75,7 @@ async function resolveBuildMetadata(packageJson) {
             const commits = lines.map(line => {
                 const parts = line.split('|');
                 const hash = parts[0];
-                const timestamp = parseInt(parts[1], 10) * 1000;
+                const timestamp = (Number(parts[1]) || 0) * 1000;
                 const subject = parts.slice(2).join('|');
                 return { hash, timestamp, subject };
             });
@@ -182,21 +179,48 @@ async function build() {
 
         console.log('\n--- Copying and compiling files ---');
 
-        let indexHtml = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
-        indexHtml = processHtmlIncludes(indexHtml);
-
         const packageJson = require('../package.json');
         const { appVersion, commitsSinceTag } = await resolveBuildMetadata(packageJson);
-        const baseUrl = process.env.VITE_API_BASE_URL || 'https://api.orecalc.tech';
+        const baseUrl = process.env.PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL || 'https://api.orecalc.tech';
+        const turnstileSiteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY || process.env.VITE_TURNSTILE_SITE_KEY || '';
         const buildTime = process.env.BUILD_TIME || new Date().toISOString();
+        const envScript = `<meta charset="UTF-8">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${baseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${turnstileSiteKey}", VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`;
 
-        indexHtml = indexHtml.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
-        indexHtml = indexHtml.replace(/src="js\/app\.js(\?v=[^"]+)?"/g, `src="js/app.js?v=${encodeURIComponent(appVersion)}"`);
-        indexHtml = indexHtml.replace(/href="js\/app\.js(\?v=[^"]+)?"/g, `href="js/app.js?v=${encodeURIComponent(appVersion)}"`);
+        let landingHtml = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
+        landingHtml = processHtmlIncludes(landingHtml);
+        landingHtml = landingHtml.replace('<meta charset="UTF-8">', envScript);
+        landingHtml = landingHtml.replace(/src="\/?js\/landingApp\.js(\?v=[^"]+)?"/g, `src="/js/landingApp.js?v=${encodeURIComponent(appVersion)}"`);
+        landingHtml = landingHtml.replace(/href="\/?css\/landing(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/landing.min.css?v=${encodeURIComponent(appVersion)}"`);
+        landingHtml = landingHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
 
-        console.log(`[OK] Injected build parameters (v${appVersion}, commits: ${commitsSinceTag.length}) into index.html head.`);
+        let oreCalcHtml = fs.readFileSync(path.join(projectRoot, 'ore-calculator/index.html'), 'utf8');
+        oreCalcHtml = processHtmlIncludes(oreCalcHtml);
+        oreCalcHtml = oreCalcHtml.replace('<meta charset="UTF-8">', envScript);
+        oreCalcHtml = oreCalcHtml.replace(/src="js\/app\.js(\?v=[^"]+)?"/g, `src="js/app.js?v=${encodeURIComponent(appVersion)}"`);
+        oreCalcHtml = oreCalcHtml.replace(/href="js\/app\.js(\?v=[^"]+)?"/g, `href="js/app.js?v=${encodeURIComponent(appVersion)}"`);
+        oreCalcHtml = oreCalcHtml.replace(/href="css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+        oreCalcHtml = oreCalcHtml.replace(/<link rel="modulepreload" href="js\/(?!app\.js)[^"]+">\s*/g, '');
 
-        indexHtml = indexHtml.replace(/<link rel="modulepreload" href="js\/(?!app\.js)[^"]+">\s*/g, '');
+        let hjHtml = fs.readFileSync(path.join(projectRoot, 'hero-journey/index.html'), 'utf8');
+        hjHtml = processHtmlIncludes(hjHtml);
+        hjHtml = hjHtml.replace('<meta charset="UTF-8">', envScript);
+        hjHtml = hjHtml.replace(/src="\/?js\/heroJourneyApp\.js(\?v=[^"]+)?"/g, `src="/js/heroJourneyApp.js?v=${encodeURIComponent(appVersion)}"`);
+        hjHtml = hjHtml.replace(/href="\/?css\/hero-journey(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/hero-journey.min.css?v=${encodeURIComponent(appVersion)}"`);
+        hjHtml = hjHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+
+        let damageCalcHtml = fs.readFileSync(path.join(projectRoot, 'damage-calculator/index.html'), 'utf8');
+        damageCalcHtml = processHtmlIncludes(damageCalcHtml);
+        damageCalcHtml = damageCalcHtml.replace('<meta charset="UTF-8">', envScript);
+        damageCalcHtml = damageCalcHtml.replace(/src="\/?js\/damageApp\.js(\?v=[^"]+)?"/g, `src="/js/damageApp.js?v=${encodeURIComponent(appVersion)}"`);
+        damageCalcHtml = damageCalcHtml.replace(/href="\/?css\/damage-calculator(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/damage-calculator.min.css?v=${encodeURIComponent(appVersion)}"`);
+        damageCalcHtml = damageCalcHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+
+        landingHtml = landingHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
+        oreCalcHtml = oreCalcHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
+        hjHtml = hjHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
+        damageCalcHtml = damageCalcHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
+
+        console.log(`[OK] Injected build parameters (v${appVersion}, commits: ${commitsSinceTag.length}) into HTML heads.`);
 
         const copyEntries = [
             { src: 'assets', dest: 'assets' },
@@ -231,7 +255,7 @@ async function build() {
         }
 
         console.log('--- Bundling JS with esbuild ---');
-        const esbuildBundleCmd = `npx esbuild "${path.join(projectRoot, 'js/app.js')}" "${path.join(projectRoot, 'js/heroJourneyApp.js')}" --bundle --outdir="${jsDestDir}" --format=esm --splitting --minify`;
+        const esbuildBundleCmd = `npx esbuild "${path.join(projectRoot, 'js/app.js')}" "${path.join(projectRoot, 'js/heroJourneyApp.js')}" "${path.join(projectRoot, 'js/damageApp.js')}" "${path.join(projectRoot, 'js/landingApp.js')}" --bundle --outdir="${jsDestDir}" --format=esm --splitting --minify`;
         execSync(esbuildBundleCmd, { stdio: verbose ? 'inherit' : 'ignore' });
 
         const esbuildQrCmd = `npx esbuild "${path.join(projectRoot, 'js/qr-code-styling.js')}" --minify --outfile="${path.join(jsDestDir, 'qr-code-styling.js')}"`;
@@ -250,39 +274,64 @@ async function build() {
             console.warn('Could not parse languagesData.js dynamically, using fallback supported languages');
         }
 
+        const defaultLandingHtml = generateLocalizedHtml(landingHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, '');
+        fs.writeFileSync(path.join(distDir, 'index.html'), defaultLandingHtml, 'utf8');
+        console.log('Compiled and bundled index.html for root landing portal.');
+
         for (const lang of supportedLanguages) {
             if (lang === 'en') continue;
             const langDir = path.join(distDir, lang);
             if (!fs.existsSync(langDir)) {
                 fs.mkdirSync(langDir, { recursive: true });
             }
-            const localizedHtml = generateLocalizedHtml(indexHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot);
-            fs.writeFileSync(path.join(langDir, 'index.html'), localizedHtml, 'utf8');
+            const localizedLandingHtml = generateLocalizedHtml(landingHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, '');
+            fs.writeFileSync(path.join(langDir, 'index.html'), localizedLandingHtml, 'utf8');
             console.log(`Generated localized route: dist/${lang}/index.html`);
         }
 
-        const hjSrcPath = path.join(projectRoot, 'hero-journey.html');
-        if (fs.existsSync(hjSrcPath)) {
-            let hjHtml = fs.readFileSync(hjSrcPath, 'utf8');
-            hjHtml = processHtmlIncludes(hjHtml);
-            hjHtml = hjHtml.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
-            hjHtml = hjHtml.replace(/src="\/?js\/heroJourneyApp\.js(\?v=[^"]+)?"/g, `src="/js/heroJourneyApp.js?v=${encodeURIComponent(appVersion)}"`);
-            hjHtml = hjHtml.replace(/href="\/?css\/hero-journey(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/hero-journey.min.css?v=${encodeURIComponent(appVersion)}"`);
-            hjHtml = hjHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+        const oreCalcDestDir = path.join(distDir, 'ore-calculator');
+        fs.mkdirSync(oreCalcDestDir, { recursive: true });
+        const defaultOreCalcHtml = generateLocalizedHtml(oreCalcHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
+        fs.writeFileSync(path.join(oreCalcDestDir, 'index.html'), defaultOreCalcHtml, 'utf8');
+        console.log('Generated root tool route: dist/ore-calculator/index.html');
 
-            const hjDestDir = path.join(distDir, 'hero-journey');
-            fs.mkdirSync(hjDestDir, { recursive: true });
-            fs.writeFileSync(path.join(hjDestDir, 'index.html'), hjHtml, 'utf8');
-            console.log('Generated root tool route: dist/hero-journey/index.html');
+        for (const lang of supportedLanguages) {
+            if (lang === 'en') continue;
+            const langOreCalcDir = path.join(distDir, lang, 'ore-calculator');
+            fs.mkdirSync(langOreCalcDir, { recursive: true });
+            const localizedOreCalcHtml = generateLocalizedHtml(oreCalcHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
+            fs.writeFileSync(path.join(langOreCalcDir, 'index.html'), localizedOreCalcHtml, 'utf8');
+            console.log(`Generated localized tool route: dist/${lang}/ore-calculator/index.html`);
+        }
 
-            for (const lang of supportedLanguages) {
-                if (lang === 'en') continue;
-                const langHjDir = path.join(distDir, lang, 'hero-journey');
-                fs.mkdirSync(langHjDir, { recursive: true });
-                const localizedHjHtml = generateLocalizedHtml(hjHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'hero-journey');
-                fs.writeFileSync(path.join(langHjDir, 'index.html'), localizedHjHtml, 'utf8');
-                console.log(`Generated localized tool route: dist/${lang}/hero-journey/index.html`);
-            }
+        const hjDestDir = path.join(distDir, 'hero-journey');
+        fs.mkdirSync(hjDestDir, { recursive: true });
+        const defaultHjHtml = generateLocalizedHtml(hjHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'hero-journey');
+        fs.writeFileSync(path.join(hjDestDir, 'index.html'), defaultHjHtml, 'utf8');
+        console.log('Generated root tool route: dist/hero-journey/index.html');
+
+        for (const lang of supportedLanguages) {
+            if (lang === 'en') continue;
+            const langHjDir = path.join(distDir, lang, 'hero-journey');
+            fs.mkdirSync(langHjDir, { recursive: true });
+            const localizedHjHtml = generateLocalizedHtml(hjHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'hero-journey');
+            fs.writeFileSync(path.join(langHjDir, 'index.html'), localizedHjHtml, 'utf8');
+            console.log(`Generated localized tool route: dist/${lang}/hero-journey/index.html`);
+        }
+
+        const damageCalcDestDir = path.join(distDir, 'damage-calculator');
+        fs.mkdirSync(damageCalcDestDir, { recursive: true });
+        const defaultDamageCalcHtml = generateLocalizedHtml(damageCalcHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'damage-calculator');
+        fs.writeFileSync(path.join(damageCalcDestDir, 'index.html'), defaultDamageCalcHtml, 'utf8');
+        console.log('Generated root tool route: dist/damage-calculator/index.html');
+
+        for (const lang of supportedLanguages) {
+            if (lang === 'en') continue;
+            const langDamageCalcDir = path.join(distDir, lang, 'damage-calculator');
+            fs.mkdirSync(langDamageCalcDir, { recursive: true });
+            const localizedDamageCalcHtml = generateLocalizedHtml(damageCalcHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'damage-calculator');
+            fs.writeFileSync(path.join(langDamageCalcDir, 'index.html'), localizedDamageCalcHtml, 'utf8');
+            console.log(`Generated localized tool route: dist/${lang}/damage-calculator/index.html`);
         }
 
         const legalPages = [
@@ -325,25 +374,6 @@ async function build() {
             }
         }
 
-        const defaultHtml = generateLocalizedHtml(indexHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot);
-        fs.writeFileSync(path.join(distDir, 'index.html'), defaultHtml, 'utf8');
-        console.log(`Compiled and bundled index.html for root and language routes.`);
-
-        const oreCalcDestDir = path.join(distDir, 'ore-calculator');
-        fs.mkdirSync(oreCalcDestDir, { recursive: true });
-        const defaultOreCalcHtml = generateLocalizedHtml(indexHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
-        fs.writeFileSync(path.join(oreCalcDestDir, 'index.html'), defaultOreCalcHtml, 'utf8');
-        console.log('Generated root tool route: dist/ore-calculator/index.html');
-
-        for (const lang of supportedLanguages) {
-            if (lang === 'en') continue;
-            const langOreCalcDir = path.join(distDir, lang, 'ore-calculator');
-            fs.mkdirSync(langOreCalcDir, { recursive: true });
-            const localizedOreCalcHtml = generateLocalizedHtml(indexHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
-            fs.writeFileSync(path.join(langOreCalcDir, 'index.html'), localizedOreCalcHtml, 'utf8');
-            console.log(`Generated localized tool route: dist/${lang}/ore-calculator/index.html`);
-        }
-
         const sitemapXml = generateSitemapXml(supportedLanguages);
         fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml, 'utf8');
         console.log('Generated dynamic dist/sitemap.xml for enabled languages.');
@@ -372,6 +402,21 @@ async function build() {
             files: [path.join(distDir, 'index.html'), path.join(distDir, '**/index.html')],
             from: /css\/main\.css/g,
             to: 'css/main.min.css',
+        });
+        await replaceInFile({
+            files: [path.join(distDir, 'index.html'), path.join(distDir, '**/index.html')],
+            from: /css\/landing\.css/g,
+            to: 'css/landing.min.css',
+        });
+        await replaceInFile({
+            files: [path.join(distDir, 'index.html'), path.join(distDir, '**/index.html')],
+            from: /css\/hero-journey\.css/g,
+            to: 'css/hero-journey.min.css',
+        });
+        await replaceInFile({
+            files: [path.join(distDir, 'index.html'), path.join(distDir, '**/index.html')],
+            from: /css\/damage-calculator\.css/g,
+            to: 'css/damage-calculator.min.css',
         });
         console.log('[OK] Production stylesheet references updated.');
 

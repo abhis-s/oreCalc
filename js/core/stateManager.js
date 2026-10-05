@@ -1,7 +1,9 @@
-import { MAX_SAVED_PLAYERS } from './constants.js';
-import { getResettingState, saveState, normalizePlayerTag, getPlayerStorageKey } from './localStorageManager.js';
+import { MAX_SAVED_PLAYERS, STORAGE_KEY_MAP } from './constants.js';
+import { getResettingState, saveState } from './localStorageManager.js';
+import { normalizePlayerTag, getPlayerStorageKey, getStorageItem } from './storageKeys.js';
 import { getDefaultPlayerState, state } from './state.js';
 import { getApiBaseUrl } from '../services/apiService.js';
+import { triggerPreferencesSave, triggerCloudSave } from '../services/cloudSaveService.js';
 
 let stateUpdateCallback = null;
 let cloudSaveTimeout = null;
@@ -20,7 +22,7 @@ export function registerStateUpdateCallback(callback) {
  * and debounced cloud saves.
  * @param {() => void} updateFn - Function that modifies state.
  * @param {boolean} [silent=false] - If true, skips UI rendering.
- * @param {{ skipSave?: boolean }} [options={}] - Optional execution flags (e.g. skipSave for cross-tab sync).
+ * @param {{ skipSave?: boolean, preferencesOnly?: boolean }} [options={}] - Optional execution flags (e.g. skipSave for cross-tab sync, preferencesOnly for decoupled preferences).
  */
 export function handleStateUpdate(updateFn, silent = false, options = {}) {
     if (!silent && state.planner?.calendar) {
@@ -33,19 +35,23 @@ export function handleStateUpdate(updateFn, silent = false, options = {}) {
         stateUpdateCallback(state, silent);
     }
     if (!options.skipSave) {
-        saveState(state);
+        saveState(state, Boolean(options.preferencesOnly));
     }
 
-    if (state.uiSettings.cloudSync !== false && !options.skipSave) {
+    if (options.preferencesOnly) {
+        triggerPreferencesSave({ silent: true }).catch(() => {});
+        return;
+    }
+
+    const hasPlayerState = Array.isArray(state.savedPlayerTags) && Boolean(state.allPlayersData);
+    const isAuthed = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('clashCalc_authToken') && localStorage.getItem('clashCalc_username'));
+    const shouldSync = isAuthed || state.uiSettings?.cloudSync !== false;
+    if (shouldSync && !options.skipSave && hasPlayerState) {
         if (cloudSaveTimeout) {
             clearTimeout(cloudSaveTimeout);
         }
         cloudSaveTimeout = setTimeout(() => {
-            import('../services/cloudSaveService.js')
-                .then(module => {
-                    module.triggerCloudSave({ silent: true });
-                })
-                .catch(() => {});
+            triggerCloudSave({ silent: true }).catch(() => {});
         }, 3000);
     } else if (!options.skipSave) {
         if (cloudSaveTimeout) {
@@ -59,14 +65,20 @@ export function handleStateUpdate(updateFn, silent = false, options = {}) {
  * Safely switches the active player by pointing global active state references
  * directly to the selected player's data partition in O(1) time without JSON cloning.
  * @param {string} newTag - The player tag to switch to.
+ * @param {{ skipSave?: boolean, preferencesOnly?: boolean, silent?: boolean }} [options={}] - Execution options.
  */
-export function switchActivePlayer(newTag) {
+export function switchActivePlayer(newTag, options = {}) {
     handleStateUpdate(() => {
         const cleanTag = normalizePlayerTag(newTag);
-        const newPlayerData = state.allPlayersData[cleanTag] || state.allPlayersData[newTag];
+        let newPlayerData = state.allPlayersData[cleanTag] || state.allPlayersData[newTag];
         if (!newPlayerData) {
-            console.error(`switchActivePlayer: Player data not found for tag: ${newTag}`);
-            return;
+            if (state.savedPlayerTags.some(t => normalizePlayerTag(t) === cleanTag)) {
+                newPlayerData = getDefaultPlayerState();
+                state.allPlayersData[cleanTag] = newPlayerData;
+            } else {
+                console.error(`switchActivePlayer: Player data not found for tag: ${newTag}`);
+                return;
+            }
         }
 
         if (cleanTag !== 'DEFAULT0' && state.savedPlayerTags.some(t => normalizePlayerTag(t) === 'DEFAULT0')) {
@@ -101,10 +113,10 @@ export function switchActivePlayer(newTag) {
                 code: newPlayerData.currency.code || 'USD'
             };
         }
-    });
+    }, Boolean(options.silent), options);
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
     window.addEventListener('beforeunload', () => {
         if (
             getResettingState() ||
@@ -112,18 +124,19 @@ if (typeof window !== 'undefined') {
             !Array.isArray(state.savedPlayerTags) ||
             state.savedPlayerTags.length === 0 ||
             !state.allPlayersData ||
-            localStorage.getItem('oreCalc_playerTags') === null
+            getStorageItem(STORAGE_KEY_MAP.playerTags.canonical, STORAGE_KEY_MAP.playerTags.legacy) === null
         ) {
             return;
         }
 
         saveState(state, true);
 
-        if (cloudSaveTimeout && state.uiSettings?.cloudSync !== false) {
+        const isAuthedBeforeUnload = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('clashCalc_authToken') && localStorage.getItem('clashCalc_username'));
+        if (cloudSaveTimeout && (isAuthedBeforeUnload || state.uiSettings?.cloudSync !== false)) {
             clearTimeout(cloudSaveTimeout);
             cloudSaveTimeout = null;
 
-            const currentUserId = localStorage.getItem('oreCalc_userId');
+            const currentUserId = getStorageItem(STORAGE_KEY_MAP.userId.canonical, STORAGE_KEY_MAP.userId.legacy);
             if (currentUserId) {
                 const currentPlayerTag = state.savedPlayerTags[0];
                 if (currentPlayerTag && state.allPlayersData[currentPlayerTag]) {
@@ -156,8 +169,23 @@ if (typeof window !== 'undefined') {
                 const isOnlyDefault = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
                 if (!isOnlyDefault) {
                     const url = `${getApiBaseUrl()}/api/user-data/save`;
-                    const blob = new Blob([JSON.stringify({ userId: currentUserId, data: stateToSave })], { type: 'application/json' });
-                    navigator.sendBeacon(url, blob);
+                    const payload = JSON.stringify({ userId: currentUserId, data: stateToSave });
+                    const headers = { 'Content-Type': 'application/json' };
+                    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('clashCalc_authToken') : null;
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    if (typeof fetch === 'function') {
+                        fetch(url, {
+                            method: 'POST',
+                            headers,
+                            body: payload,
+                            keepalive: true
+                        }).catch(() => {});
+                    } else if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+                        const blob = new Blob([payload], { type: 'application/json' });
+                        navigator.sendBeacon(url, blob);
+                    }
                 }
             }
         }

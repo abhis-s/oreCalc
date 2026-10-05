@@ -26,7 +26,7 @@ export function initializePlannerCustomLevels() {
     if (!container) return;
 
     container.innerHTML = `
-        <h3 class="custom-max-level-title" style="display: flex; align-items: center; gap: 6px; margin: 0;">
+        <h3 class="custom-max-level-title">
             <span data-i18n="views.planner.customMaxLevel">${translate('views.planner.customMaxLevel')}</span>
             <button class="info-btn" data-info="views.planner.customMaxLevelHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
@@ -37,8 +37,8 @@ export function initializePlannerCustomLevels() {
     settingsContainer.className = 'level-settings-container';
 
     const levels = [
-        { id: 'planner-common-max-level', key: 'common', i18n: 'views.planner.common', max: getEquipmentMaxLevel('common') },
-        { id: 'planner-epic-max-level', key: 'epic', i18n: 'views.planner.epic', max: getEquipmentMaxLevel('epic') }
+        { id: 'planner-common-max-level', key: 'common', i18n: 'views.equipment.common', max: getEquipmentMaxLevel('common') },
+        { id: 'planner-epic-max-level', key: 'epic', i18n: 'views.equipment.epic', max: getEquipmentMaxLevel('epic') }
     ];
 
     levels.forEach(level => {
@@ -87,7 +87,7 @@ export function initializePlannerCustomLevels() {
                 return getTownHallMaxLevel(level.key, playerTH);
             },
             recommendedLabel: () => {
-                return translate('views.planner.recommended');
+                return translate('validation.recommended');
             },
             clickToFill: {
                 max: true,

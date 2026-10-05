@@ -61,8 +61,8 @@ if (typeof globalThis.customElements === 'undefined') {
 const stateModule = await import('../../js/core/state.js');
 const { getDefaultState, getDefaultPlayerState, initializeState } = stateModule;
 const { processPlayerDataResponse } = await import('../../js/services/serverResponseHandler.js');
-const { loadState, saveState, removePlayerTag, updateSavedPlayerTags } = await import('../../js/core/localStorageManager.js');
-const { switchActivePlayer } = await import('../../js/core/stateManager.js');
+const { loadState, saveState } = await import('../../js/core/localStorageManager.js');
+const { removePlayerTag } = await import('../../js/core/playerStorage.js');
 
 beforeEach(() => {
     localStorageStore.clear();
@@ -85,8 +85,8 @@ test('guest state migration copies storedOres from DEFAULT0 when first API playe
     };
 
     const mockApiResponse = {
-        tag: '#2PP001',
-        name: 'ChiefClasher',
+        tag: '#TESTTAG1',
+        name: 'Chief',
         townHallLevel: 15,
         trophies: 4200,
         warStars: 800,
@@ -101,7 +101,7 @@ test('guest state migration copies storedOres from DEFAULT0 when first API playe
 
     processPlayerDataResponse(mockApiResponse, { updateOrder: true });
 
-    const player = stateModule.state.allPlayersData['2PP001'];
+    const player = stateModule.state.allPlayersData['TESTTAG1'];
     assert.ok(player);
     assert.equal(player.storedOres.shiny, 45000);
     assert.equal(player.storedOres.glowy, 3200);
@@ -381,9 +381,10 @@ test('clean re-seeding of DEFAULT0 when all real players are deleted', () => {
     assert.ok(stateModule.state.heroes);
     assert.ok(stateModule.state.storedOres);
 
-    const diskTags = JSON.parse(localStorage.getItem('oreCalc_playerTags') || '[]');
+    const diskTags = JSON.parse(localStorage.getItem('clashCalc_playerTags') || localStorage.getItem('oreCalc_playerTags') || '[]');
     assert.deepEqual(diskTags, ['DEFAULT0']);
-    assert.ok(localStorage.getItem('oreCalc_player_DEFAULT0'));
+    assert.ok(localStorage.getItem('clashCalc_player_DEFAULT0') || localStorage.getItem('oreCalc_player_DEFAULT0'));
+    assert.equal(localStorage.getItem('clashCalc_player_REAL2'), null);
     assert.equal(localStorage.getItem('oreCalc_player_REAL2'), null);
 });
 

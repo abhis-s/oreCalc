@@ -19,7 +19,7 @@ let isInitialized = false;
  * Handles HTML5 dragover events over the unplaced income chips container.
  * @param {DragEvent} e - Native dragover event object.
  */
-export function handleDragOverForChipContainer(e) {
+function handleDragOverForChipContainer(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     e.currentTarget.classList.add('valid-drop-target');
@@ -29,7 +29,7 @@ export function handleDragOverForChipContainer(e) {
  * Handles HTML5 dragleave events over the unplaced income chips container to remove highlight.
  * @param {DragEvent} e - Native dragleave event object.
  */
-export function handleDragLeaveForChipContainer(e) {
+function handleDragLeaveForChipContainer(e) {
     e.currentTarget.classList.remove('valid-drop-target');
 }
 
@@ -37,7 +37,7 @@ export function handleDragLeaveForChipContainer(e) {
  * Handles HTML5 drop events onto the unplaced income chips container to return placed chips back to tray.
  * @param {DragEvent} e - Native drop event object.
  */
-export function handleDropToChipContainer(e) {
+function handleDropToChipContainer(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('valid-drop-target');
     if (!e.dataTransfer) return;
@@ -90,7 +90,7 @@ export function handleChipDropOnContainer(incomeChipData) {
                     // If it was a custom chip, put it back in customChips list
                     if (removedChipId.startsWith('custom-')) {
                         const customData = state.planner.calendar.customChipData?.[removedChipId] || {};
-                        const [, , timestamp, index] = removedChipId.split('-');
+                        const [, , , index] = removedChipId.split('-');
                         const customChipData = {
                             id: removedChipId.split('-cal')[0],
                             type: incomeChipData.type,
@@ -145,7 +145,6 @@ export function initializeIncomeChipsEventListeners() {
     incomeChipsContainer.addEventListener('dragleave', handleDragLeaveForChipContainer);
     incomeChipsContainer.addEventListener('drop', handleDropToChipContainer);
 
-    // Event delegation for custom chips button click
     document.addEventListener('click', (e) => {
         const target = /** @type {HTMLElement} */ (e.target);
         const btn = target.closest('.create-custom-chips-btn');
@@ -154,7 +153,6 @@ export function initializeIncomeChipsEventListeners() {
         }
     });
 
-    // Wire up modal events
     initializeCreateCustomChipsModalListeners();
 
     // Use ResizeObserver for layout packing

@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="Datenschutzerklärung für OreCalc, den datenschutzfreundlichen Clash of Clans Heldenausrüstungs- und Upgrade-Planer.">
+    <meta name="description" content="Datenschutzerklärung für ClashCalc, das datenschutzfreundliche Clash of Clans Toolkit und den Fortschrittsplaner.">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#121212">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f9">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
     <meta name="robots" content="noindex, follow">
-    <meta name="effective-date-timestamp" content="1780617600000">
-    <title>Datenschutzerklärung - OreCalc</title>
+    <meta name="effective-date-timestamp" content="1790985600000">
+    <title>Datenschutzerklärung - ClashCalc</title>
     <link rel="canonical" href="https://orecalc.tech/de/privacy/">
     <link rel="alternate" hreflang="en" href="https://orecalc.tech/privacy/" />
     <link rel="alternate" hreflang="de" href="https://orecalc.tech/de/privacy/" />
@@ -18,13 +18,13 @@
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://orecalc.tech/de/privacy/">
-    <meta property="og:title" content="Datenschutzerklärung - OreCalc">
-    <meta property="og:description" content="Datenschutzerklärung für OreCalc, den datenschutzfreundlichen Clash of Clans Heldenausrüstungs- und Upgrade-Planer.">
+    <meta property="og:title" content="Datenschutzerklärung - ClashCalc">
+    <meta property="og:description" content="Datenschutzerklärung für ClashCalc, das datenschutzfreundliche Clash of Clans Toolkit und den Fortschrittsplaner.">
 
     <meta property="twitter:card" content="summary">
     <meta property="twitter:url" content="https://orecalc.tech/de/privacy/">
-    <meta property="twitter:title" content="Datenschutzerklärung - OreCalc">
-    <meta property="twitter:description" content="Datenschutzerklärung für OreCalc, den datenschutzfreundlichen Clash of Clans Heldenausrüstungs- und Upgrade-Planer.">
+    <meta property="twitter:title" content="Datenschutzerklärung - ClashCalc">
+    <meta property="twitter:description" content="Datenschutzerklärung für ClashCalc, das datenschutzfreundliche Clash of Clans Toolkit und den Fortschrittsplaner.">
     <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="/legal/legal.css">
     <script>
@@ -38,7 +38,7 @@
     <script src="/legal/legal.js" defer></script>
 </head>
 <body>
-    <div class="container">
+    <main class="container">
         <div class="header-row">
             <a href="/" class="back-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -48,25 +48,26 @@
                 </svg>
                 Zurück zur App
             </a>
-            <button id="theme-toggle-btn" class="theme-toggle" aria-label="Design wechseln">
+            <button type="button" id="theme-toggle-btn" class="theme-toggle" aria-label="Design wechseln">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             </button>
         </div>
 
         <h1>Datenschutzerklärung</h1>
-        <p><strong>Inkrafttreten:</strong> 7. August 2026 (Ursprünglich veröffentlicht: 5. Juni 2026)</p>
+        <p><strong>Inkrafttreten:</strong> 3. Oktober 2026 (Ursprünglich veröffentlicht: 5. Juni 2026)</p>
 
         <div class="update-summary-box">
-            <h3 class="update-summary-box__title">Zusammenfassung der letzten Aktualisierungen (7. August 2026)</h3>
+            <h3 class="update-summary-box__title">Zusammenfassung der letzten Aktualisierungen (3. Oktober 2026)</h3>
             <ul class="update-summary-box__list">
-                <li><strong>Automatisierte Fehlerdiagnose:</strong> Offenlegung der selbstgehosteten, anonymisierten Fehlerprotokollierung zur Identifizierung von Softwareabstürzen und Stack-Traces.</li>
-                <li><strong>Klarstellung zu Fehlerberichten:</strong> Klarstellung, dass das Anhängen von Planer-Daten an freiwillige Fehlerberichte rein optional ist.</li>
-                <li><strong>Performance-Analysen:</strong> Offenlegung von cookie-freien, datenschutzfreundlichen Analysen zur Messung der aggregierten Website-Performance.</li>
+                <li><strong>Benutzerkonten &amp; Passkeys:</strong> Offenlegung der Datenverarbeitung für registrierte Konten (pseudonyme Benutzernamen, mit bcrypt gehashte Passwörter und öffentliche WebAuthn/Passkey-Zugangsdaten).</li>
+                <li><strong>Missbrauchsschutz &amp; Bot-Sicherheit:</strong> Offenlegung der Cloudflare Turnstile-Verifizierung an Authentifizierungs-Endpunkten.</li>
+                <li><strong>Einheitliche Daten-Selbstverwaltung:</strong> Ersatz früherer manueller Ausschlussanträge durch einheitliche Selbstbedienungsfunktionen: lokaler JSON-Export/-Import, Cache-Löschung, Dorfdaten-Reset und sofortige dauerhafte Kontolöschung.</li>
+                <li><strong>Aufbewahrungsfrist für Diagnosedaten:</strong> Festlegung einer automatisierten 15-tägigen Time-to-Live (TTL)-Löschfrist für Fehlerdiagnosen.</li>
             </ul>
         </div>
 
         <p>
-            Diese Datenschutzerklärung erläutert, wie <strong>OreCalc</strong> („wir“, „unser“ oder „der Dienst“), derzeit erreichbar unter <code>orecalc.tech</code> (und in Zukunft umziehend auf <code>clashcalc.com</code>), mit Ihren Informationen umgeht.
+            Diese Datenschutzerklärung erläutert, wie <strong>ClashCalc</strong> (ehemals <strong>OreCalc</strong>, „wir“, „unser“ oder „der Dienst“), erreichbar unter <code>clashcalc.com</code> und <code>orecalc.tech</code>, mit Ihren Informationen umgeht.
         </p>
         <p>
             Unser Dienst ist standardmäßig auf Datenschutz ausgelegt („Privacy-First“). <strong>Wir erheben, speichern oder verarbeiten standardmäßig keine Ihrer personenbezogenen Daten auf unseren Servern.</strong>
@@ -74,7 +75,7 @@
 
         <h2>1. Clientseitige Verarbeitung (Offline standardmäßig)</h2>
         <p>
-            OreCalc ist eine Progressive Web App (PWA), die Berechnungen und Upgrade-Planungen <strong>vollständig auf Ihrem lokalen Gerät ausführt.</strong>
+            ClashCalc ist eine Progressive Web App (PWA), die Berechnungen und Upgrade-Planungen <strong>vollständig auf Ihrem lokalen Gerät ausführt.</strong>
         </p>
         <ul>
             <li>Es werden keine Berechnungen, Upgrade-Kosten oder Ressourcenschätzungen auf unseren Servern durchgeführt.</li>
@@ -89,10 +90,19 @@
                 <strong>Clash of Clans Spieler-Kürzel (Player Tags):</strong> Wenn Sie ein Spieler-Kürzel eingeben, fragt die App die offizielle öffentliche Clash of Clans API ab, um Spieldaten abzurufen, einschließlich der Stufen von Heldenausrüstung und Upgrades. Spieler-Kürzel und Spielstatistiken sind öffentlich. Ihr Kürzel wird lokal auf Ihrem Gerät gespeichert, es sei denn, die Cloud-Synchronisation wird explizit aktiviert.
             </li>
             <li>
-                <strong>Cloud-Synchronisation (Optional & Opt-In):</strong> Wenn Sie sich für die Aktivierung der Cloud-Synchronisation entscheiden, werden Ihre Einstellungen und Ihre lokale Planer-Konfiguration sicher auf unseren Servern gesichert, um eine geräteübergreifende Synchronisation zu ermöglichen. Bitte beachten Sie, dass Sie Ihre Daten zuerst über die Clash of Clans API abrufen müssen, um die Cloud-Synchronisation zu aktivieren; eine Synchronisation ohne ein gültiges Spieler-Kürzel ist nicht zulässig.
+                <strong>Benutzerkonten &amp; Authentifizierung (Optional):</strong> Wenn Sie sich für die Registrierung eines Kontos entscheiden, verarbeiten wir folgende Anmeldedaten:
+                <ul>
+                    <li><em>Benutzername:</em> Ein von Ihnen gewählter pseudonymer Identifikator (3–20 Zeichen) zur Kennzeichnung Ihres Kontos.</li>
+                    <li><em>Passwort:</em> Bei der Registrierung mit Passwort wird dieses mit <code>bcrypt</code> und einem Salt gehasht, bevor es in unserer Datenbank gespeichert wird. Klartext-Passwörter werden niemals protokolliert, gespeichert oder für irgendjemanden zugänglich gemacht.</li>
+                    <li><em>Passkeys (FIDO2 / WebAuthn):</em> Bei der Registrierung mit einem Passkey werden lediglich öffentliche Zugangsdaten-Metadaten (Credential-ID, öffentlicher Schlüssel, Signaturzähler und optionaler Gerätename) auf unseren Servern gespeichert. Private kryptografische Schlüssel verbleiben strikt auf Ihrem persönlichen Authentifizierungsgerät und verlassen dieses zu keinem Zeitpunkt.</li>
+                    <li><em>Sitzungs-Token:</em> Kryptografisch signierte JSON Web Tokens (JWT), die im lokalen Browserspeicher abgelegt werden, um aktive, authentifizierte Sitzungen aufrechtzuerhalten.</li>
+                </ul>
             </li>
             <li>
-                <strong>Automatisierte Fehlerdiagnose (Selbstgehostet):</strong> Wenn ein unerwarteter Laufzeitfehler oder eine JavaScript-Exception auftritt, werden technische Diagnosedaten (Fehlermeldung, Stack-Trace, Browserversion, Seiten-URL und Ihre Anwendungs-Nutzer-ID) an unsere sicheren Backend-Server gesendet, um uns bei der Fehlerbehebung zu helfen. Diese Diagnosedaten werden auf unseren eigenen Servern verarbeitet, enthalten keine Tracking-Cookies und werden niemals an Drittanbieter-Trackingdienste weitergegeben.
+                <strong>Cloud-Synchronisation (Optional &amp; Opt-In):</strong> Wenn Sie sich für die Aktivierung der Cloud-Synchronisation entscheiden, werden Ihre Einstellungen und Ihre lokale Planer-Konfiguration sicher auf unseren Servern gesichert, um eine geräteübergreifende Synchronisation zu ermöglichen. Bitte beachten Sie, dass Sie Ihre Daten zuerst über die Clash of Clans API abrufen müssen, um die Cloud-Synchronisation zu aktivieren; eine Synchronisation ohne ein gültiges Spieler-Kürzel ist nicht zulässig.
+            </li>
+            <li>
+                <strong>Automatisierte Fehlerdiagnose (Selbstgehostet):</strong> Wenn ein unerwarteter Laufzeitfehler oder eine JavaScript-Exception auftritt, werden technische Diagnosedaten (Fehlermeldung, Stack-Trace, Browserversion, Seiten-URL und Ihre Anwendungs-Nutzer-ID) an unsere sicheren Backend-Server gesendet, um uns bei der Fehlerbehebung zu helfen. Diese Diagnosedaten werden auf unseren eigenen Servern verarbeitet, enthalten keine Tracking-Cookies, werden im Rahmen eines automatisierten Time-to-Live (TTL)-Plans maximal 15 Tage aufbewahrt und danach unwiderruflich gelöscht. Sie werden niemals an Drittanbieter-Trackingdienste weitergegeben.
             </li>
             <li>
                 <strong>Fehlerberichte (Freiwillig):</strong> Wenn Sie einen Fehlerbericht senden, werden Ihre Nachricht, eine optionale E-Mail-Adresse und ein optionaler Schnappschuss Ihres lokalen Planer-Status (nur wenn Sie das Kontrollkästchen „Nutzerdaten anhängen“ aktiviert lassen) an unseren Support-Mailhandler unter <code>clashcalc.com</code> gesendet, um uns bei der Diagnose des Problems zu helfen.
@@ -100,17 +110,18 @@
         </ul>
 
         <h2>3. Nutzung der Informationen</h2>
-        <p> Alle vom Dienst verarbeiteten öffentlichen Spielstatistiken, Diagnoseprotokolle oder lokalen Planer-Konfigurationen werden ausschließlich verwendet, um: </p>
+        <p> Alle vom Dienst verarbeiteten öffentlichen Spielstatistiken, Anmeldedaten, Diagnoseprotokolle oder lokalen Planer-Konfigurationen werden ausschließlich verwendet, um: </p>
         <ul>
             <li>Ihre persönliche Planer-Konfiguration und Upgrade-Protokolle darzustellen.</li>
+            <li>Ihre Kontositzungen zu authentifizieren und vor unbefugtem Zugriff oder Kontoübernahmen zu schützen.</li>
             <li>Ihre Daten geräteübergreifend zu synchronisieren (nur wenn Sie die Cloud-Synchronisation explizit aktivieren).</li>
             <li>Softwarefehler zu beheben und freiwillige Fehlerberichte zu bearbeiten.</li>
         </ul>
         <p>Wir verwenden keine Tracking-Cookies, führen keine Werbeskripte aus und werden niemals Nutzerdaten weitergeben oder verkaufen. Wir verwenden cookie-freie, datenschutzfreundliche Analysen ausschließlich zur Messung der aggregierten Website-Performance und Seitenaufrufe.</p>
 
-        <h2>4. Integrationen von Drittanbietern & Analysen</h2>
+        <h2>4. Integrationen von Drittanbietern &amp; Sicherheit</h2>
         <p>
-            Um Ihr Planer-Profil auszufüllen und die Systemstabilität zu überwachen, binden wir folgende Dienste ein:
+            Um Ihr Planer-Profil auszufüllen, Missbrauch zu verhindern und die Systemstabilität zu überwachen, binden wir folgende Dienste ein:
         </p>
         <ul>
             <li>
@@ -123,25 +134,32 @@
                 <strong>Cloudflare Web Analytics:</strong> Wir verwenden Cloudflare Web Analytics, um aggregierte, nicht-personenbezogene Seitenaufrufe und Core Web Vitals-Performancedaten zu messen. Cloudflare Web Analytics funktioniert ohne Tracking-Cookies, speichert keine persönlichen IP-Adressen und verfolgt Nutzer nicht über Websites von Drittanbietern hinweg.
             </li>
             <li>
+                <strong>Cloudflare Turnstile (Bot-Schutz):</strong> Wir nutzen Cloudflare Turnstile an Authentifizierungs- und Registrierungs-Endpunkten, um uns gegen automatisierte Bot-Angriffe, Credential-Stuffing und Brute-Force-Attacken zu schützen. Turnstile überprüft Sicherheits-Challenge-Token ohne den Einsatz von Tracking-Cookies, ohne sitzungsübergreifende Nutzerprofilierung und ohne Erfassung personenbezogener Daten.
+            </li>
+            <li>
                 <strong>Schutz der Identität:</strong> Wir erfassen oder verknüpfen keine persönlichen Identitäten der realen Welt mit Clash of Clans Spielerprofilen.
             </li>
         </ul>
 
-        <h2>5. Ihre Datenrechte & Löschwerkzeuge</h2>
+        <h2>5. Ihre Datenrechte &amp; Löschwerkzeuge</h2>
         <p>
-            Wir orientieren uns an den globalen Datenschutzstandards wie der EU-DSGVO und dem CCPA, indem wir direkt in den Einstellungen Tools zur Selbstverwaltung Ihrer Daten bereitstellen:
+            Wir orientieren uns an den globalen Datenschutzstandards wie der EU-DSGVO und dem CCPA, indem wir direkt in den Einstellungen unter <strong>Konto- &amp; Datenverwaltung</strong> umfassende Tools zur Selbstverwaltung Ihrer Daten bereitstellen:
         </p>
         <ul>
             <li>
-                <strong>Nutzerdaten herunterladen:</strong> Exportieren und laden Sie Ihren gesamten Anwendungsstatus jederzeit als JSON-Datei herunter.
+                <strong>Daten sichern &amp; wiederherstellen:</strong> Exportieren und laden Sie Ihren gesamten Anwendungsstatus jederzeit als JSON-Datei herunter oder stellen Sie Ihre Konfiguration aus einer früheren Sicherungsdatei wieder her.
             </li>
             <li>
-                <strong>Optionen zur Datenlöschung:</strong> Wir bieten drei verschiedene Stufen der Datenlöschung an:
-                <ul>
-                    <li><strong>Lokaler Reset:</strong> Löscht dauerhaft alle lokalen Konfigurationen, Stufen der Heldenausrüstung, Benutzereinstellungen und Offline-Planerdaten, die im <code>localStorage</code> Ihres Browsers gespeichert sind.</li>
-                    <li><strong>Alle Daten löschen (Lokal &amp; Cloud):</strong> Löscht alle lokalen Browserdaten und entfernt Ihr synchronisiertes Backup-Profil sowie Ihre Einstellungen dauerhaft von unseren Cloud-Servern.</li>
-                    <li><strong>Ausschluss beantragen (Vollständige Löschung):</strong> Verifiziert den Besitz Ihres Spieler-Kürzels über die offizielle Clash of Clans API. Nach erfolgreicher Verifizierung wird ein Antrag eingereicht, um Ihr Spieler-Kürzel dauerhaft aus allen OreCalc-Nutzerprofilen in unserer Datenbank zu entfernen. Dieser Antrag wird innerhalb von 30 Tagen bearbeitet. Zudem wird das Spieler-Kürzel auf unseren Servern für andere Nutzer gesperrt. Diese Sperrung verhindert, dass andere Personen Ihr Spieler-Kürzel innerhalb des Dienstes abrufen oder verknüpfen können, ohne zuvor den Besitz nachzuweisen. Bitte beachten Sie, dass diese Sperre nur innerhalb des Dienstes selbst wirksam ist, da alle zugrunde liegenden Clash of Clans-Spieldaten über die offizielle API von Supercell weiterhin öffentlich zugänglich bleiben.</li>
-                </ul>
+                <strong>Geräte-Cache leeren:</strong> Löscht temporäre zwischengespeicherte Antworten und Asset-Indizes, ohne Ihre dauerhaften Spielerkonfigurationen oder Einstellungen zu verändern.
+            </li>
+            <li>
+                <strong>Dorfdaten zurücksetzen:</strong> Setzt den lokalen Spielfortschritt, Ausrüstungsstufen und nicht synchronisierte Berechnungen, die im <code>localStorage</code> Ihres Browsers gespeichert sind, dauerhaft zurück.
+            </li>
+            <li>
+                <strong>Alle Daten löschen (Anonyme Cloud-Synchronisation):</strong> Löscht dauerhaft alle lokalen Browserdaten und entfernt Ihr synchronisiertes Sicherungsprofil sowie Ihre Einstellungen von unseren Cloud-Servern.
+            </li>
+            <li>
+                <strong>Konto löschen (Registrierte Benutzerkonten):</strong> Bietet eine sofortige Selbstbedienungs-Löschoption, die Ihr registriertes Konto dauerhaft bereinigt, Ihren Passwort-Hash und registrierte Passkeys entfernt, alle in der Cloud synchronisierten Dörfer und Planer-Konfigurationen aus unserer Datenbank löscht, aktive Sitzungs-Token entwertet und Ihre Benutzer-ID in einem Löschregister sperrt, um verwaiste Datenbestände auszuschließen.
             </li>
         </ul>
 
@@ -154,7 +172,7 @@
             <div class="footer__links">
                 <a href="/de/" class="footer__link">Startseite</a>
                 <span class="footer__sep" aria-hidden="true">&bull;</span>
-                <span class="footer__link is-active" aria-current="page">Datenschutz</span>
+                <a href="/de/privacy/" class="footer__link">Datenschutz</a>
                 <span class="footer__sep" aria-hidden="true">&bull;</span>
                 <a href="/de/terms/" class="footer__link">Nutzungsbedingungen</a>
                 <span class="footer__sep" aria-hidden="true">&bull;</span>
@@ -162,8 +180,8 @@
             </div>
             <p class="footer__permalink">Diese Übersetzung dient ausschließlich Informationszwecken. Rechtlich verbindlich ist allein die <a href="/privacy/">englische Originalfassung</a>.</p>
             <p class="footer__permalink">Diese Seite ist verfügbar unter <a href="https://orecalc.tech/de/privacy/" target="_blank" rel="noopener noreferrer">orecalc.tech/de/privacy/</a></p>
-            <p class="footer__copyright">&copy; 2026 OreCalc. Alle Rechte vorbehalten.</p>
+            <p class="footer__copyright">&copy; 2025-2026 ClashCalc. Alle Rechte vorbehalten.</p>
         </div>
-    </div>
+    </main>
 </body>
 </html>

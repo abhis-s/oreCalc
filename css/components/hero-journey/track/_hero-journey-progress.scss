@@ -3,7 +3,7 @@
 .hero-journey-accelerated-switch-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: $spacing-sm;
     font-size: clamp(0.75rem, 0.6vw + 0.65rem, 0.88rem);
 
     .hero-journey-accelerated-label-group {
@@ -23,7 +23,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 2px 3px;
+        padding: $spacing-2xs 3px;
         background: transparent;
         border: none;
         color: $text-muted;
@@ -57,7 +57,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 8px 12px;
+    gap: $spacing-sm $spacing-md;
     margin-bottom: 20px;
 
     .hero-journey-progress-info {
@@ -107,7 +107,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-top: 2px;
+        margin-top: $spacing-2xs;
         font-size: clamp(0.75rem, 0.6vw + 0.65rem, 0.88rem);
     }
 }
@@ -118,7 +118,7 @@
             order: 1;
             width: auto;
             justify-content: flex-start;
-            gap: 8px;
+            gap: $spacing-sm;
         }
 
         .hero-journey-accelerated-switch-container {

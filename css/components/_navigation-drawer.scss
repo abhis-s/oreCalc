@@ -1,0 +1,5 @@
+// Navigation Drawer Composite Stylesheet
+// Declares dialog.navigation-drawer container and native ::backdrop presentation.
+@forward 'navigation-drawer/drawer-shell';
+@forward 'navigation-drawer/drawer-context-card';
+@forward 'navigation-drawer/drawer-content';

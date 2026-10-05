@@ -1,4 +1,4 @@
-import { shopOfferData } from '../../data/incomeSources/shopOffers.js';
+import { shopOfferData, SHOP_OFFER_ORDER } from '../../data/incomeSources/shopOffers.js';
 
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
@@ -10,22 +10,22 @@ import { renderShopOfferGrid, renderShopOfferRow, renderShopOfferSelectorContent
 
 function updateShopOfferState(offerId, oreType, count) {
     const selector = dom.income?.shopOffers?.dropdown;
-    const thLevel = selector ? parseInt(selector.value, 10) : 0;
-    if (thLevel === 0) return;
+    const setKey = selector ? selector.value : '0';
+    if (setKey === '0') return;
 
     handleStateUpdate(() => {
         if (!state.income.shopOffers) {
-            state.income.shopOffers = { selectedSet: thLevel };
+            state.income.shopOffers = { selectedSet: setKey };
         }
-        state.income.shopOffers.selectedSet = thLevel;
-        if (!state.income.shopOffers[thLevel]) {
-            state.income.shopOffers[thLevel] = {};
+        state.income.shopOffers.selectedSet = setKey;
+        if (!state.income.shopOffers[setKey]) {
+            state.income.shopOffers[setKey] = {};
         }
 
         if (count > 0) {
-            state.income.shopOffers[thLevel][offerId] = count;
+            state.income.shopOffers[setKey][offerId] = count;
         } else {
-            delete state.income.shopOffers[thLevel][offerId];
+            delete state.income.shopOffers[setKey][offerId];
         }
     });
 }
@@ -41,12 +41,13 @@ export function initializeShopOffers() {
     renderShopOfferSelectorContent();
 
     bindSelectInput(selector, {
-        numeric: true,
-        onUpdate: (newTh) => {
+        numeric: false,
+        onUpdate: (newSetKey) => {
+            const setKey = String(newSetKey);
             if (!state.income.shopOffers) state.income.shopOffers = {};
-            state.income.shopOffers.selectedSet = newTh;
-            if (!state.income.shopOffers[newTh]) {
-                state.income.shopOffers[newTh] = {};
+            state.income.shopOffers.selectedSet = setKey;
+            if (!state.income.shopOffers[setKey]) {
+                state.income.shopOffers[setKey] = {};
             }
         },
         afterUpdate: () => {
@@ -57,12 +58,11 @@ export function initializeShopOffers() {
     document.addEventListener('languageChanged', renderShopOfferSelectorContent);
 
     const getDynamicOffers = () => {
-        const sel = selector.value; // The selector value is still a string
-        if (sel === '0' || !shopOfferData[sel]) return [];
-        const order = { 'shiny_large': 1, 'glowy': 2, 'starry': 3, 'shiny_small': 4 };
+        const sel = selector.value;
+        if (sel === '0' || !shopOfferData[sel] || shopOfferData[sel].disabled) return [];
         return Object.entries(shopOfferData[sel])
-            .filter(([id]) => id !== 'townHallLevel')
-            .sort(([idA], [idB]) => (order[idA] || 99) - (order[idB] || 99))
+            .filter(([id]) => id !== 'townHallLevel' && id !== 'disabled' && id !== 'name')
+            .sort(([idA], [idB]) => (SHOP_OFFER_ORDER[idA] || 99) - (SHOP_OFFER_ORDER[idB] || 99))
             .map(([id, data]) => ({ ...data, id }));
     };
 

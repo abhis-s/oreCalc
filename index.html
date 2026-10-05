@@ -4,23 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <title data-i18n="views.landing.metaTitle">ClashCalc (formerly OreCalc) | The Ultimate Clash of Clans Toolkit</title>
     <meta name="description"
-        content="The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.">
+        content="ClashCalc (formerly OreCalc) is the ultimate Clash of Clans toolkit featuring the Ore &amp; Equipment Calculator, Hero Journey Tracker, and progression roadmaps."
+        data-i18n-content="views.landing.metaDescription">
     <meta name="color-scheme" content="light dark">
-    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" content="#121824">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f9fa">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121824">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="OreCalc">
+    <meta name="apple-mobile-web-app-title" content="ClashCalc">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://orecalc.tech/">
-    <meta property="og:title" content="OreCalc - Clash of Clans Hero Equipment &amp; Ore Planner">
+    <meta property="og:title" content="ClashCalc (formerly OreCalc) | The Ultimate Clash of Clans Toolkit">
     <meta property="og:description"
-        content="The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.">
-    <meta property="og:site_name" content="OreCalc">
+        content="ClashCalc (formerly OreCalc) is the ultimate Clash of Clans toolkit featuring the Ore &amp; Equipment Calculator, Hero Journey Tracker, and progression roadmaps.">
+    <meta property="og:site_name" content="ClashCalc">
     <meta property="og:image" content="https://orecalc.tech/assets/app_og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -28,15 +30,13 @@
 
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://orecalc.tech/">
-    <meta property="twitter:title" content="OreCalc - Clash of Clans Hero Equipment &amp; Ore Planner">
+    <meta property="twitter:title" content="ClashCalc (formerly OreCalc) | The Ultimate Clash of Clans Toolkit">
     <meta property="twitter:description"
-        content="The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.">
+        content="ClashCalc (formerly OreCalc) is the ultimate Clash of Clans toolkit featuring the Ore &amp; Equipment Calculator, Hero Journey Tracker, and progression roadmaps.">
     <meta property="twitter:image" content="https://orecalc.tech/assets/app_og.png">
 
-    <base href="/">
-    <title data-i18n="app.title"></title>
-    <link rel="icon" href="assets/favicon.png" type="image/x-icon">
-    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
+    <link rel="manifest" href="/manifest.json">
     <link rel="canonical" href="https://orecalc.tech/">
     <link rel="alternate" hreflang="en" href="https://orecalc.tech/" />
     <link rel="alternate" hreflang="de" href="https://orecalc.tech/de/" />
@@ -44,69 +44,22 @@
     <link rel="alternate" hreflang="zh" href="https://orecalc.tech/zh/" />
     <link rel="alternate" hreflang="x-default" href="https://orecalc.tech/" />
 
-    <link rel="stylesheet" href="css/main.css">
-    <style>
-        #preloader {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #121212;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 1;
-            visibility: visible;
-            z-index: 110;
-            overflow: hidden;
-        }
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/landing.css">
 
-        @media (prefers-color-scheme: light) {
-            #preloader:not(.dark-mode-override) {
-                background-color: #ffffff;
-            }
-        }
-
-        .modal {
-            position: fixed !important;
-            inset: 0 !important;
-            display: none !important;
-        }
-
-        .modal.show {
-            display: flex !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
-
-        .tab-content {
-            display: none !important;
-        }
-
-        .tab-content.active {
-            display: block !important;
-        }
-
-        .supercell-notice,
-        .app-copyright {
-            display: none !important;
-        }
-
-        .supercell-notice.show,
-        .app-copyright.show {
-            display: block !important;
-        }
-    </style>
     <script>
         (function() {
             try {
-                var s = JSON.parse(localStorage.getItem('oreCalc_appSettings') || '{}');
-                var isLight = (s.theme === 'light');
-                var bg = isLight ? '#f8f9fa' : '#121212';
-                var m = document.querySelector('meta[name="theme-color"]:not([media])');
-                if (m) m.setAttribute('content', bg);
-                document.documentElement.style.backgroundColor = bg;
-                document.documentElement.style.colorScheme = isLight ? 'light' : 'dark';
+                var raw = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings') || localStorage.getItem('orecalc_state');
+                var isLight = false;
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    isLight = (parsed && (parsed.theme === 'light' || (parsed.settings && parsed.settings.theme === 'light')));
+                    var accent = parsed.accentColor || (parsed.settings && parsed.settings.accentColor);
+                    if (accent) {
+                        document.documentElement.setAttribute('data-accent', accent);
+                    }
+                }
                 if (isLight) {
                     document.documentElement.classList.add('light-mode');
                 } else {
@@ -115,323 +68,292 @@
             } catch (e) {}
         })();
     </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "OreCalc",
-      "operatingSystem": "All",
-      "applicationCategory": "UtilityApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "OreCalc is an optimization calculator for managing Clash of Clans equipment upgrades and scheduling ore requirements."
-    }
-    </script>
-
-    <link rel="modulepreload" href="js/app.js">
-    <link rel="modulepreload" href="js/core/state.js">
-    <link rel="modulepreload" href="js/core/stateManager.js">
-    <link rel="modulepreload" href="js/core/renderer.js">
-    <link rel="modulepreload" href="js/core/calculator.js">
-    <link rel="modulepreload" href="js/core/localStorageManager.js">
-    <link rel="modulepreload" href="js/dom/domElements.js">
-    <link rel="modulepreload" href="js/ui/noticeModal.js">
-    <link rel="modulepreload" href="js/i18n/translator.js">
-    <link rel="modulepreload" href="js/utils/logger.js">
-    <link rel="modulepreload" href="js/utils/svgManager.js">
-    <link rel="modulepreload" href="js/utils/responsiveTextHandler.js">
-    <link rel="modulepreload" href="js/utils/inputValidator.js">
-    <link rel="modulepreload" href="js/utils/chipManager.js">
+    <!-- include: partials/head/importmap.html -->
 </head>
 
-<body class="dark-mode">
+<body class="dark-mode landing-page">
     <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     <!-- include: partials/watchdog.html -->
 
     <!-- include: partials/svg-sprites.html -->
-    <div id="browser-compatibility-notice" class="browser-compatibility-notice" style="display: none;" role="alert">
-        <div class="compatibility-notice-content">
-            <svg class="compatibility-notice-icon" aria-hidden="true"><use href="#icon-warning"></use></svg>
-            <span class="compatibility-notice-text" data-i18n="errors.compatibilityNoticeFallback">Storage access is restricted or your browser is outdated. Please enable cookies/local storage or update your browser for OreCalc to function properly.</span>
-        </div>
-        <button type="button" class="compatibility-notice-close" onclick="document.getElementById('browser-compatibility-notice').style.display='none'" aria-label="Dismiss" data-i18n-aria-label="actions.dismiss">
-            <svg class="compatibility-notice-close-icon" aria-hidden="true"><use href="#icon-close"></use></svg>
-        </button>
-    </div>
+    <!-- include: partials/load-failure-screen.html -->
 
-    <div id="overlay" class="overlay"></div>
-    <div id="preloader">
-        <script>
-            (function () {
-                var accent = 'blue';
-                var isLight = false;
-                try {
-                    var settingsStr = localStorage.getItem('oreCalc_appSettings');
-                    if (settingsStr) {
-                        var parsed = JSON.parse(settingsStr);
-                        if (parsed) {
-                            if (parsed.accentColor) accent = parsed.accentColor;
-                            if (parsed.theme === 'light') isLight = true;
-                        }
-                    }
-                } catch (e) {}
-                if (accent === 'random') {
-                    var accents = ['blue', 'gold', 'purple', 'green', 'red'];
-                    accent = accents[Math.floor(Math.random() * accents.length)];
-                    window.sessionRandomAccent = accent;
-                }
-                var preloader = document.getElementById('preloader');
-                preloader.setAttribute('data-accent', accent);
-                preloader.setAttribute('data-theme', isLight ? 'light' : 'dark');
-            })();
-        </script>
-        <div class="preloader-loader">
-            <div class="preloader-dot-wrapper"><span></span></div>
-            <div class="preloader-dot-wrapper"><span></span></div>
-            <div class="preloader-dot-wrapper"><span></span></div>
-            <div class="preloader-dot-wrapper"><span></span></div>
-            <div class="preloader-dot-wrapper"><span></span></div>
-        </div>
-    </div>
-
-    <div id="load-failure-screen" class="load-failure-screen" style="display: none;">
-        <div class="load-failure-card">
-            <div class="load-failure-header">
-                <div class="load-failure-icon-container">
-                    <svg width="32" height="32" fill="var(--color-danger)">
-                        <use href="#icon-warning"></use>
-                    </svg>
-                </div>
-                <h1 data-i18n="errors.loadFailureTitle"></h1>
-                <p data-i18n="errors.loadFailureMessage"></p>
+    <header class="app-header landing-header">
+        <div class="app-header__inner landing-header__inner">
+            <div class="app-header__brand landing-header__brand-group">
+                <button type="button" id="landing-hamburger-btn" class="app-header__hamburger hamburger landing-hamburger"
+                    aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
+                    <orecalc-assets-svg name="menu" class="menu-icon"></orecalc-assets-svg>
+                </button>
+                <a href="/" class="landing-brand" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
+                    <span class="landing-brand__name">
+                        <span class="brand-clash">Clash</span><span class="brand-calc">Calc</span>
+                    </span>
+                </a>
             </div>
 
-            <div class="load-failure-details-section">
-                <button id="load-failure-details-toggle" class="details-toggle-btn">
-                    <span data-i18n="errors.showDetails"></span>
-                    <orecalc-assets-svg name="chevron-down" class="chevron-icon" width="12" height="12"></orecalc-assets-svg>
-                </button>
-                <div id="load-failure-details" class="load-failure-details" style="display: none;">
-                    <div class="error-meta">
-                        <strong>Error:</strong> <span id="load-failure-error-msg">N/A</span>
-                    </div>
-                    <pre id="load-failure-error-stack">No stack trace available.</pre>
-                </div>
-            </div>
-
-            <div id="load-failure-report-form" class="load-failure-report-form" style="display: none;">
-                <h2 data-i18n="views.settings.bugReport"></h2>
-                <div class="form-group">
-                    <label for="load-failure-email" class="input-label"
-                        data-i18n="views.settings.options.contactEmail"></label>
-                    <input type="email" id="load-failure-email" class="input-style"
-                        autocomplete="email" placeholder="your-email@example.com">
-                </div>
-                <div class="form-group">
-                    <label for="load-failure-desc" class="input-label"
-                        data-i18n="views.settings.options.bugDescriptionOptional"></label>
-                    <textarea id="load-failure-desc" class="input-style" rows="3"
-                        placeholder="Please describe what you did before the crash..."></textarea>
-                    <div class="textarea-footer">
-                        <span id="load-failure-desc-error" class="input-error-msg"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="checkbox-group">
-                        <input type="checkbox" id="load-failure-attach-checkbox" checked>
-                        <span class="checkbox-label" data-i18n="views.settings.options.userDataAttachment"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="load-failure-actions">
-                <button id="load-failure-reset-btn" class="reject-button" onclick="window.resetApplication()">
-                    Reset App
-                </button>
-                <button id="load-failure-action-btn" class="accept-button">
-                    Report Bug
-                </button>
+            <div class="app-header__actions landing-header__actions">
+                <!-- include: partials/header-account.html -->
             </div>
         </div>
-    </div>
-
-    <!-- include: partials/header.html -->
+    </header>
     <div class="header-placeholder"></div>
-    <!-- include: partials/navigation-drawer.html -->
 
-    <main class="container">
+    <main class="landing-main">
+        <section class="landing-hero">
+            <h1 class="landing-hero__title">
+                <span class="brand-clash">Clash</span><span class="brand-calc">Calc</span>
+            </h1>
+            <span class="landing-hero__badge badge" data-i18n="views.landing.formerlyBadge">formerly OreCalc</span>
+            <p class="landing-hero__subtitle" data-i18n="views.landing.heroSubtitle">Select a village or choose a tool to calculate and plan your progression.</p>
+        </section>
 
-        <!-- include: partials/tabs/home.html -->
-        <!-- include: partials/tabs/equipment.html -->
-        <!-- include: partials/tabs/income.html -->
-        <!-- include: partials/tabs/planner.html -->
-        <!-- include: partials/tabs/settings.html -->
+        <section id="landing-active-profile" class="landing-active-profile" hidden aria-label="Active Village Showcase" data-i18n-aria-label="views.landing.activeVillageShowcase">
+            <!-- DYNAMIC INSERTION: Active player profile card -->
+        </section>
+
+        <section id="landing-saved-accounts" class="landing-accounts-section">
+            <div class="landing-accounts-header" hidden>
+                <div class="landing-accounts-title-group">
+                    <h2 class="landing-accounts-title" data-i18n="nav.views.hub.villages">Saved Villages</h2>
+                    <span id="landing-accounts-count" class="landing-accounts-count badge">0</span>
+                </div>
+                <div class="landing-accounts-actions">
+                    <button type="button" id="landing-refresh-accounts-btn" class="landing-refresh-toggle-btn" aria-label="Refresh Villages" data-i18n-aria-label="actions.refresh">
+                        <orecalc-assets-svg name="refresh" width="14" height="14" class="landing-refresh-icon"></orecalc-assets-svg>
+                        <span data-i18n="actions.refresh">Refresh</span>
+                    </button>
+                    <button type="button" id="landing-manage-accounts-btn" class="landing-manage-toggle-btn" aria-label="Manage Villages" data-i18n-aria-label="views.landing.manageVillages">
+                        <orecalc-assets-svg name="edit" width="14" height="14"></orecalc-assets-svg>
+                        <span data-i18n="actions.manage">Manage</span>
+                    </button>
+                    <button type="button" id="landing-toggle-add-btn" class="landing-add-toggle-btn" aria-label="Add Village" data-i18n-aria-label="views.landing.addVillage">
+                        <orecalc-assets-svg name="plus" width="14" height="14"></orecalc-assets-svg>
+                        <span data-i18n="views.landing.addVillage">Add Village</span>
+                    </button>
+                </div>
+            </div>
+
+            <form id="landing-search-form" class="landing-search-form" role="search">
+                <div class="landing-search-input-container">
+                    <div class="landing-search-wrapper">
+                        <span class="landing-search-hash" aria-hidden="true">#</span>
+                        <input type="text" id="landing-search-input" class="landing-search-input"
+                            placeholder="Enter Player Tag (e.g. 8PJYGUJC)"
+                            data-i18n-placeholder="views.heroJourney.page.searchPlaceholder"
+                            maxlength="12" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-label="Player Tag" data-i18n-aria-label="player.tag">
+                        <button type="button" id="landing-search-clear" class="landing-search-clear"
+                            aria-label="Clear Search" data-i18n-aria-label="views.heroJourney.page.clearSearch" hidden>
+                            <orecalc-assets-svg name="close" width="14" height="14"></orecalc-assets-svg>
+                        </button>
+                    </div>
+                    <div id="landing-search-error-message" class="error-message"></div>
+                </div>
+                <div class="landing-search-actions">
+                    <button type="button" id="landing-search-cancel-btn" class="secondary-button landing-search-cancel-btn" hidden aria-label="Cancel" data-i18n-aria-label="actions.cancel">
+                        <span data-i18n="actions.cancel">Cancel</span>
+                    </button>
+                    <button type="submit" id="landing-search-btn" class="btn-primary landing-search-btn" aria-label="Load Village" data-i18n-aria-label="views.landing.loadVillage">
+                        <span class="landing-search-btn-spinner" aria-hidden="true"></span>
+                        <orecalc-assets-svg name="search" width="16" height="16" aria-hidden="true" class="landing-search-btn-icon"></orecalc-assets-svg>
+                        <span class="landing-search-btn-text" data-i18n="views.landing.loadVillage">Load Village</span>
+                    </button>
+                </div>
+                <div id="landing-search-feedback" class="landing-search-feedback" hidden role="alert" aria-live="polite"></div>
+            </form>
+
+            <div id="landing-accounts-list" class="landing-accounts-grid" role="listbox" aria-label="Select Active Village" data-i18n-aria-label="views.landing.selectActiveVillage" hidden>
+                <!-- DYNAMIC INSERTION: Saved player accounts -->
+            </div>
+        </section>
+
+        <section id="landing-tools-section" class="landing-tools-section">
+            <div class="landing-section-header">
+                <h2 class="landing-section-title" data-i18n="nav.views.hub.tools">Progression &amp; Tactical Tools</h2>
+            </div>
+
+            <div class="landing-tools-grid">
+                <article class="card landing-tool-card landing-tool-card--ore">
+                    <div class="landing-tool-card__header">
+                        <div class="landing-tool-card__icon-cluster" aria-label="Ores" aria-hidden="true">
+                            <orecalc-assets-image class="landing-ore-icon" src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="entities.ores.shiny" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-ore-icon" src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="entities.ores.glowy" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-ore-icon" src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="entities.ores.starry" size="standard"></orecalc-assets-image>
+                        </div>
+                        <h3 class="landing-tool-card__title">
+                            <a href="/ore-calculator/" id="landing-title-link-ore" class="landing-tool-card__title-link" data-i18n="views.landing.toolOreCalcTitle">Ore &amp; Equipment Calculator</a>
+                        </h3>
+                        <span id="landing-ore-badge" class="landing-tool-card__badge badge" hidden></span>
+                    </div>
+                    <p class="landing-tool-card__desc" data-i18n="views.landing.toolOreCalcDesc">The original OreCalc calculator. Optimize ore spending, calculate time-to-max for all hero equipment, simulate daily income from Clan Wars, CWL, and Star Bonus, and organize upgrades with an interactive calendar.</p>
+                    <div id="landing-ore-progress" class="landing-tool-card__live-progress" hidden aria-live="polite"></div>
+                    <div class="landing-tool-card__quick-links" aria-label="Quick Jump" data-i18n-aria-label="views.landing.quickJump">
+                        <span class="quick-links-label" data-i18n="views.landing.quickJump">Quick Jump</span>
+                        <div class="quick-links-group">
+                            <a href="/ore-calculator/#income" id="landing-jump-income" class="tool-quick-link">
+                                <orecalc-assets-svg name="income-filled" width="13" height="13" class="quick-link-icon" aria-hidden="true"></orecalc-assets-svg>
+                                <span data-i18n="views.landing.jumpIncome">Daily Income</span>
+                            </a>
+                            <a href="/ore-calculator/#planner" id="landing-jump-planner" class="tool-quick-link">
+                                <orecalc-assets-svg name="planner-filled" width="13" height="13" class="quick-link-icon" aria-hidden="true"></orecalc-assets-svg>
+                                <span data-i18n="views.tour.navPlannerTitle">Upgrade Planner</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="landing-tool-card__footer">
+                        <a href="/ore-calculator/" id="landing-launch-ore" class="btn-primary landing-tool-card__cta" data-i18n="views.landing.launchCalculator">Launch Calculator</a>
+                    </div>
+                </article>
+
+                <article class="card landing-tool-card landing-tool-card--hj">
+                    <div class="landing-tool-card__header">
+                        <div class="landing-tool-card__icon-cluster landing-hero-mountain" aria-label="Heroes" aria-hidden="true">
+                            <orecalc-assets-image class="landing-hero-emblem landing-hero-emblem--bk" src="assets/heroes/emblemBarbarianKing.png" alt="Barbarian King" data-i18n-alt="entities.heroes.barbarianKing" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-hero-emblem landing-hero-emblem--aq" src="assets/heroes/emblemArcherQueen.png" alt="Archer Queen" data-i18n-alt="entities.heroes.archerQueen" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-hero-emblem landing-hero-emblem--mp" src="assets/heroes/emblemMinionPrince.png" alt="Minion Prince" data-i18n-alt="entities.heroes.minionPrince" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-hero-emblem landing-hero-emblem--gw" src="assets/heroes/emblemGrandWarden.png" alt="Grand Warden" data-i18n-alt="entities.heroes.grandWarden" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-hero-emblem landing-hero-emblem--rc" src="assets/heroes/emblemRoyalChampion.png" alt="Royal Champion" data-i18n-alt="entities.heroes.royalChampion" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-hero-emblem landing-hero-emblem--dd" src="assets/heroes/emblemDragonDuke.png" alt="Dragon Duke" data-i18n-alt="entities.heroes.dragonDuke" size="standard"></orecalc-assets-image>
+                        </div>
+                        <h3 class="landing-tool-card__title">
+                            <a href="/hero-journey/" id="landing-title-link-hj" class="landing-tool-card__title-link" data-i18n="views.landing.toolHeroJourneyTitle">Hero's Journey Tracker</a>
+                        </h3>
+                        <span id="landing-hj-badge" class="landing-tool-card__badge badge" hidden></span>
+                    </div>
+                    <p class="landing-tool-card__desc" data-i18n="views.landing.toolHeroJourneyDesc">Explore all milestone rewards across the Hero Journey track, track your cumulative hero levels, inspect chest drop probabilities, and filter by ores, equipment, skins, and magic items.</p>
+                    <div id="landing-hj-progress" class="landing-tool-card__live-progress" hidden aria-live="polite"></div>
+                    <div class="landing-tool-card__quick-links" aria-label="Quick Jump" data-i18n-aria-label="views.landing.quickJump">
+                        <span class="quick-links-label" data-i18n="views.landing.quickJump">Quick Jump</span>
+                        <div class="quick-links-group">
+                            <a href="/hero-journey/#home-hj-card" id="landing-jump-track" class="tool-quick-link">
+                                <orecalc-assets-svg name="timeline" width="13" height="13" class="quick-link-icon" aria-hidden="true"></orecalc-assets-svg>
+                                <span data-i18n="nav.views.heroJourney.track">Milestone Track</span>
+                            </a>
+                            <a href="/hero-journey/#hero-journey-table" id="landing-jump-table" class="tool-quick-link">
+                                <orecalc-assets-svg name="table-view" width="13" height="13" class="quick-link-icon" aria-hidden="true"></orecalc-assets-svg>
+                                <span data-i18n="views.landing.jumpTable">Rewards Table</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="landing-tool-card__footer">
+                        <a href="/hero-journey/" id="landing-launch-hj" class="btn-primary landing-tool-card__cta" data-i18n="views.landing.launchHeroJourney">Explore Hero Journey</a>
+                    </div>
+                </article>
+
+                <article class="card landing-tool-card landing-tool-card--damage">
+                    <div class="landing-tool-card__header">
+                        <div class="landing-tool-card__icon-cluster landing-damage-cluster" aria-label="Equipment Damage" aria-hidden="true">
+                            <orecalc-assets-image class="landing-damage-icon landing-damage-icon--arrow" src="assets/equipment/archer_queen/AQ_giant_arrow.png" alt="Giant Arrow" data-i18n-alt="entities.equipment.giantArrow" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-damage-icon" src="assets/equipment/dragon_duke/DD_rocket_backpack.png" alt="Rocket Backpack" data-i18n-alt="entities.equipment.rocketBackpack" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-damage-icon" src="assets/spells/lightning.png" alt="Lightning" data-i18n-alt="views.damageCalc.offense.spellLightning" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-damage-icon" src="assets/spells/earthquake.png" alt="Earthquake" data-i18n-alt="views.damageCalc.offense.spellEarthquake" size="standard"></orecalc-assets-image>
+                        </div>
+                        <h3 class="landing-tool-card__title">
+                            <a href="/damage-calculator/" id="landing-title-link-damage" class="landing-tool-card__title-link" data-i18n="views.landing.toolDamageCalcTitle">Equipment Damage &amp; ZapQuake</a>
+                        </h3>
+                    </div>
+                    <p class="landing-tool-card__desc" data-i18n="views.landing.toolDamageCalcDesc">Simulate exact hero equipment and spell damage thresholds, calculate optimal ZapQuake combinations to snipe key defenses, and test attack sequences against Town Hall defenses.</p>
+                    <div id="landing-damage-progress" class="landing-tool-card__live-progress" hidden aria-live="polite"></div>
+                    <div class="landing-tool-card__quick-links" aria-label="Quick Jump" data-i18n-aria-label="views.landing.quickJump">
+                        <span class="quick-links-label" data-i18n="views.landing.quickJump">Quick Jump</span>
+                        <div class="quick-links-group">
+                            <a href="/damage-calculator/" id="landing-jump-zapquake" class="tool-quick-link">
+                                <orecalc-assets-svg name="bolt-planner" width="13" height="13" class="quick-link-icon" aria-hidden="true"></orecalc-assets-svg>
+                                <span data-i18n="views.landing.jumpZapQuake">ZapQuake</span>
+                            </a>
+                            <a href="/damage-calculator/#cluster_planner" id="landing-jump-eq-snipes" class="tool-quick-link">
+                                <orecalc-assets-svg name="equipment-filled" width="13" height="13" class="quick-link-icon" aria-hidden="true"></orecalc-assets-svg>
+                                <span data-i18n="views.damageCalc.tabs.clusterPlanner">Cluster Planner</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="landing-tool-card__footer">
+                        <a href="/damage-calculator/" id="landing-launch-damage" class="btn-primary landing-tool-card__cta" data-i18n="views.landing.launchSimulator">Launch Simulator</a>
+                    </div>
+                </article>
+            </div>
+        </section>
     </main>
 
-    <!-- include: partials/floating-save-button.html -->
-    <!-- include: partials/fab.html -->
+    <!-- include: partials/footer.html -->
 
-    <script src="js/workbox-window.js" defer></script>
-    <script type="module" src="js/app.js"></script>
-
-    <!-- include: partials/bottom-nav.html -->
-
-    <footer class="app-footer">
-        <div class="app-footer__links">
-            <a href="/hero-journey/" class="app-footer__link" data-i18n="views.home.heroJourney.title">Hero's Journey</a>
-            <span class="app-footer__sep" aria-hidden="true">&bull;</span>
-            <a href="/privacy/" target="_blank" rel="noopener noreferrer" class="app-footer__link" data-i18n="nav.privacy">Privacy Policy</a>
-            <span class="app-footer__sep" aria-hidden="true">&bull;</span>
-            <a href="/terms/" target="_blank" rel="noopener noreferrer" class="app-footer__link" data-i18n="nav.tos">Terms of Use</a>
-            <span class="app-footer__sep" aria-hidden="true">&bull;</span>
-            <a href="/licenses/" target="_blank" rel="noopener noreferrer" class="app-footer__link" data-i18n="views.settings.licenses">Licenses</a>
+    <dialog id="landing-launch-modal" class="modal landing-modal" aria-labelledby="landing-launch-title">
+        <div class="modal-content landing-modal-content">
+            <button type="button" class="close-button landing-modal-close" id="landing-launch-close" aria-label="Close" data-i18n-aria-label="actions.close">
+                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+            </button>
+            <div class="modal-header landing-modal-header">
+                <div class="th-badge-wrapper landing-modal-th" id="landing-launch-th">
+                    <!-- DYNAMIC INSERTION: Town Hall launch badge -->
+                </div>
+                <h2 id="landing-launch-title" class="landing-modal-title" data-i18n="views.landing.launchModalTitle">Village Loaded!</h2>
+                <div class="player-identity landing-modal-identity">
+                    <span id="landing-launch-name" class="player-name landing-launch-name"></span>
+                    <span id="landing-launch-tag" class="player-tag landing-launch-tag"></span>
+                </div>
+                <p class="landing-modal-prompt" data-i18n="views.landing.launchModalSubtitle">Where would you like to plan your progression?</p>
+            </div>
+            <div class="modal-body landing-modal-body">
+                <div class="landing-modal-tools">
+                    <a href="/ore-calculator/" id="landing-modal-launch-ore" class="landing-modal-tool-card">
+                        <div class="tool-card-icon-cluster">
+                            <orecalc-assets-image class="landing-ore-icon" src="assets/shiny_ore.png" alt="" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-ore-icon" src="assets/glowy_ore.png" alt="" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-ore-icon" src="assets/starry_ore.png" alt="" size="standard"></orecalc-assets-image>
+                        </div>
+                        <div class="tool-card-info">
+                            <h3 class="tool-card-title" data-i18n="views.landing.toolOreCalcTitle">Ore & Equipment Calculator</h3>
+                            <span class="tool-card-action btn-primary" data-i18n="views.landing.launchCalculator">Launch Calculator</span>
+                        </div>
+                    </a>
+                    <a href="/hero-journey/" id="landing-modal-launch-hj" class="landing-modal-tool-card">
+                        <div class="tool-card-icon-cluster">
+                            <orecalc-assets-image class="landing-hero-emblem" src="assets/heroes/emblemBarbarianKing.png" alt="" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-hero-emblem" src="assets/heroes/emblemArcherQueen.png" alt="" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-hero-emblem" src="assets/heroes/emblemGrandWarden.png" alt="" size="standard"></orecalc-assets-image>
+                        </div>
+                        <div class="tool-card-info">
+                            <h3 class="tool-card-title" data-i18n="views.landing.toolHeroJourneyTitle">Hero's Journey Tracker</h3>
+                            <span class="tool-card-action btn-primary" data-i18n="views.landing.launchHeroJourney">Explore Hero Journey</span>
+                        </div>
+                    </a>
+                    <a href="/damage-calculator/" id="landing-modal-launch-damage" class="landing-modal-tool-card">
+                        <div class="tool-card-icon-cluster">
+                            <orecalc-assets-image class="landing-damage-icon" src="assets/equipment/archer_queen/AQ_giant_arrow.png" alt="" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-damage-icon" src="assets/spells/lightning.png" alt="" size="standard"></orecalc-assets-image>
+                            <orecalc-assets-image class="landing-damage-icon" src="assets/spells/earthquake.png" alt="" size="standard"></orecalc-assets-image>
+                        </div>
+                        <div class="tool-card-info">
+                            <h3 class="tool-card-title" data-i18n="views.landing.toolDamageCalcTitle">Equipment Damage &amp; ZapQuake</h3>
+                            <span class="tool-card-action btn-primary" data-i18n="views.landing.launchSimulator">Launch Simulator</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="modal-actions modal-actions-center landing-modal-actions">
+                <button type="button" id="landing-modal-stay-btn" class="secondary-button landing-modal-stay-btn" data-i18n="views.landing.stayOnHub">Stay on Hub</button>
+            </div>
         </div>
-        <div class="supercell-notice notice">
-            <p data-i18n="app.supercellDisclaimer"></p>
-        </div>
-        <div class="app-copyright notice">
-            <p>&copy; 2025-2026 OreCalc. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <!-- include: partials/modals/add-player.html -->
-    <!-- include: partials/modals/bug-report.html -->
-    <!-- include: partials/modals/contact.html -->
-    <!-- include: partials/modals/privacy.html -->
-    <!-- include: partials/modals/terms.html -->
-    <!-- include: partials/modals/consent-modal.html -->
-    <!-- include: partials/modals/consent-banner.html -->
-    <!-- include: partials/modals/welcome-modal.html -->
-    <!-- include: partials/modals/priority-list.html -->
-    <!-- include: partials/modals/stored-ores-modal.html -->
-    <!-- include: partials/modals/update-available.html -->
+    </dialog>
+    <!-- include: partials/navigation-drawer.html -->
     <!-- include: partials/modals/changelog.html -->
     <!-- include: partials/modals/commits.html -->
-    <!-- include: partials/modals/accent-picker.html -->
-    <!-- include: partials/modals/download-data.html -->
-    <!-- include: partials/modals/notice.html -->
-    <!-- include: partials/modals/device-sync.html -->
-    <!-- include: partials/modals/delete-player-modal.html -->
-    <!-- include: partials/modals/data-erasure-modal.html -->
-
-    <!-- include: partials/modals/star-bonus-multiplier.html -->
-    <!-- include: partials/modals/global-pricing.html -->
-    <!-- include: partials/modals/calendar-settings.html -->
-    <!-- include: partials/modals/create-custom-chips.html -->
-    <!-- include: partials/modals/equipment-details-modal.html -->
+    <!-- include: partials/modals/privacy.html -->
+    <!-- include: partials/modals/terms.html -->
     <!-- include: partials/modals/licenses.html -->
+    <!-- include: partials/modals/notice.html -->
+    <!-- include: partials/modals/auth-modal.html -->
+    <!-- include: partials/modals/passkeys-modal.html -->
+    <!-- include: partials/modals/avatar-modal.html -->
+    <!-- include: partials/modals/account-data-modal.html -->
+    <!-- include: partials/modals/update-available.html -->
+    <!-- include: partials/modals/device-sync.html -->
+    <!-- include: partials/modals/bug-report.html -->
+    <!-- include: partials/modals/contact.html -->
     <!-- include: partials/modals/running-costs.html -->
-    <script src="js/qr-code-styling.js" defer></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var toggleBtn = document.getElementById('load-failure-details-toggle');
-            var detailsContainer = document.getElementById('load-failure-details');
-            if (toggleBtn && detailsContainer) {
-                toggleBtn.addEventListener('click', function () {
-                    var isHidden = detailsContainer.style.display === 'none';
-                    detailsContainer.style.display = isHidden ? 'block' : 'none';
-                    toggleBtn.classList.toggle('active', isHidden);
-                    var chevron = toggleBtn.querySelector('.chevron-icon');
-                    if (chevron) {
-                        chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-                    }
-                });
-            }
-
-            var actionBtn = document.getElementById('load-failure-action-btn');
-            var reportForm = document.getElementById('load-failure-report-form');
-            var resetBtn = document.getElementById('load-failure-reset-btn');
-            var formVisible = false;
-
-            if (actionBtn && reportForm) {
-                actionBtn.addEventListener('click', async function () {
-                    if (!formVisible) {
-                        reportForm.style.display = 'flex';
-                        actionBtn.textContent = 'Submit Report';
-                        if (resetBtn) {
-                            resetBtn.textContent = 'Cancel';
-                            resetBtn.onclick = function (e) {
-                                e.preventDefault();
-                                reportForm.style.display = 'none';
-                                actionBtn.textContent = 'Report Bug';
-                                resetBtn.textContent = 'Reset App';
-                                resetBtn.onclick = function () { window.resetApplication(); };
-                                formVisible = false;
-                            };
-                        }
-                        formVisible = true;
-                    } else {
-                        var emailInput = document.getElementById('load-failure-email');
-                        var descInput = document.getElementById('load-failure-desc');
-                        var errorEl = document.getElementById('load-failure-desc-error');
-
-                        var email = emailInput ? emailInput.value.trim() : '';
-                        var description = descInput ? descInput.value.trim() : '';
-
-                        if (errorEl) errorEl.textContent = '';
-                        if (descInput) descInput.classList.remove('input-error');
-
-                        var origText = actionBtn.textContent;
-                        actionBtn.disabled = true;
-                        actionBtn.textContent = 'Submitting...';
-                        if (resetBtn) resetBtn.disabled = true;
-
-                        try {
-                            var currentUserId = localStorage.getItem('oreCalcUserId') || 'unknown';
-                            var errorMsg = document.getElementById('load-failure-error-msg')?.textContent || 'Unknown Load Error';
-                            var errorStack = document.getElementById('load-failure-error-stack')?.textContent || '';
-
-                            var attachedData = null;
-                            var attachCheckbox = document.getElementById('load-failure-attach-checkbox');
-                            if (attachCheckbox && attachCheckbox.checked) {
-                                try {
-                                    var savedState = localStorage.getItem('oreCalculatorState');
-                                    if (savedState) {
-                                        attachedData = JSON.parse(savedState);
-                                    }
-                                } catch (e) {
-                                    console.error('Failed to parse localStorage state for bug report:', e);
-                                }
-                            }
-
-                            var payload = {
-                                email: email,
-                                description: `[Catastrophic Load Failure]\nError: ${errorMsg}\n\nUser Description:\n${description}\n\nStack:\n${errorStack}`,
-                                attachData: attachedData,
-                                userId: currentUserId
-                            };
-
-                            var baseUrl = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
-                            var response = await fetch(baseUrl + '/api/support/bug-report', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(payload)
-                            });
-
-                            if (!response.ok) {
-                                throw new Error('Server returned status ' + response.status);
-                            }
-
-                            alert('Bug report submitted successfully! Thank you.');
-                            location.reload();
-                        } catch (err) {
-                            console.error('Failed to submit load failure report:', err);
-                            alert('Failed to submit bug report. ' + err.message);
-                        } finally {
-                            actionBtn.disabled = false;
-                            actionBtn.textContent = origText;
-                            if (resetBtn) resetBtn.disabled = false;
-                        }
-                    }
-                });
-            }
-        });
-    </script>
+    <script src="/js/qr-code-styling.js" defer></script>
+    <script src="js/workbox-window.js" defer></script>
+    <script type="module" src="/js/landingApp.js"></script>
 </body>
 
 </html>

@@ -1,4 +1,3 @@
-import { translate } from '../../i18n/translator.js';
 import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { dom } from '../../dom/domElements.js';
 

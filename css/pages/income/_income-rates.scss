@@ -1,4 +1,5 @@
 @use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
 
 #inc-clan-war-shiny-bonus-input,
 #inc-cwl-shiny-bonus-input {
@@ -38,20 +39,10 @@
             border: 1px solid $border-primary;
             border-radius: 5px;
             color: $text-secondary;
-            padding: 8px;
+            padding: $spacing-sm;
             text-align: center;
-            transition: border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
             width: 80px;
-
-            &:focus {
-                outline: none;
-            }
-
-            &:focus-visible {
-                border-color: $accent-primary;
-                box-shadow: 0 0 0 3px $accent-primary-soft;
-                outline: none;
-            }
+            @include input-focus-ring;
         }
     }
 }

@@ -6,17 +6,18 @@
     box-sizing: border-box;
     container-type: inline-size;
     container-name: hero-journey-card;
-    padding: 24px;
-    margin-bottom: 24px;
+    padding: $spacing-xl;
+    margin-bottom: $spacing-xl;
+    scroll-margin-top: calc(92px + env(safe-area-inset-top, 0px));
     background-color: $bg-surface-secondary;
-    border: 1px solid color-mix(in srgb, $border-primary 70%, transparent);
-    border-radius: 10px;
+    border: 1px solid $border-card;
+    border-radius: $card-radius;
     box-shadow: $elevation-1;
-    transition: padding $duration-base $ease-standard, border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth, transform $duration-base $ease-standard;
+    transition: padding $duration-base $ease-standard, $transition-card;
 
     &:hover {
-        border-color: color-mix(in srgb, $accent-primary 35%, $border-primary);
-        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.22), 0 0 12px color-mix(in srgb, $accent-primary 8%, transparent);
+        border-color: $border-card-hover;
+        box-shadow: $elevation-card-hover;
     }
 
     &.is-collapsed {
@@ -52,7 +53,7 @@
 
         .hero-journey-progress-bar-container {
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: $spacing-md;
 
             .hero-journey-no-profile-info {
                 display: flex !important;
@@ -67,7 +68,7 @@
                 width: 100%;
                 justify-content: space-between;
                 margin-left: 0;
-                margin-top: 2px;
+                margin-top: $spacing-2xs;
             }
 
             &.no-profile-stacked {
@@ -82,7 +83,7 @@
                     width: 100% !important;
                     margin-left: 0 !important;
                     justify-content: space-between !important;
-                    margin-top: 2px !important;
+                    margin-top: $spacing-2xs !important;
                 }
             }
         }
@@ -94,7 +95,8 @@
 
     &.is-true-max {
         #home-hj-claim-switch,
-        .hj-segmented-switch {
+        .hj-segmented-switch,
+        .hero-journey-progress-track {
             display: none !important;
         }
     }
@@ -116,9 +118,9 @@
                 .hj-type-select {
                     width: 100% !important;
                     box-sizing: border-box !important;
-                    text-align: center !important;
-                    text-align-last: center !important;
-                    padding: 8px 12px !important;
+                    text-align: left !important;
+                    text-align-last: left !important;
+                    padding: $spacing-sm 28px $spacing-sm $spacing-md !important;
                 }
 
                 .hj-type-buttons {
@@ -134,12 +136,12 @@
     display: none;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: $spacing-lg;
     padding: 14px 20px;
     margin-top: 30px;
     background: color-mix(in srgb, $bg-surface-primary 75%, transparent);
     border: 1px dashed color-mix(in srgb, $border-primary 85%, transparent);
-    border-radius: 10px;
+    border-radius: $card-radius;
     box-sizing: border-box;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -180,7 +182,7 @@
                 justify-content: center;
                 align-items: center;
                 text-align: center;
-                gap: 12px;
+                gap: $spacing-md;
             }
 
             .hero-journey-collapsed-text {

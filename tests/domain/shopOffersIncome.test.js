@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateShopOfferIncome } from '../../js/domain/income/shopOffersIncome.js';
-import { currencyData } from '../../js/data/pricingData.js';
 
 test('calculateShopOfferIncome returns zero ores and costs for default set 0', () => {
     const result = calculateShopOfferIncome();
@@ -76,4 +75,28 @@ test('calculateShopOfferIncome infers first numeric key when selectedSet is omit
     });
 
     assert.equal(result.monthly.shiny, 12000);
+});
+
+test('calculateShopOfferIncome calculates correct ores and multi-currency costs for unified newSet', () => {
+    const shopOfferState = {
+        selectedSet: 'newSet',
+        newSet: {
+            shiny_large: 2,
+            glowy: 2,
+            starry: 2,
+            shiny_small: 1
+        }
+    };
+    const result = calculateShopOfferIncome(shopOfferState);
+
+    assert.equal(result.monthly.shiny, 37500); // (2 * 15000) + (1 * 7500)
+    assert.equal(result.monthly.glowy, 1800);  // 2 * 900
+    assert.equal(result.monthly.starry, 180);  // 2 * 90
+
+    assert.equal(result.daily.shiny, 37500 / 30);
+    assert.equal(result.weekly.shiny, (37500 / 30) * 7);
+    assert.equal(result.bimonthly.shiny, 37500 * 2);
+
+    assert.ok(Math.abs(result.monthly.USD - 44.93) < 0.01);
+    assert.ok(Math.abs(result.monthly.EUR - 53.93) < 0.01);
 });

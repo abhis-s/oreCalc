@@ -152,7 +152,8 @@ export function initializePriorityList(options = {}) {
 
         let completionDateText;
         if (item.completionDate) {
-            completionDateText = `${translate('views.planner.completeByColon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric' })}`;
+            const currentLang = state.uiSettings?.language || 'en';
+            completionDateText = `${translate('views.planner.completeByColon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric' }, currentLang)}`;
         } else {
             completionDateText = translate('views.planner.notEnoughIncome');
         }

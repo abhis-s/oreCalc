@@ -57,15 +57,26 @@ export function validatePlayerTagInput(inputElement, errorElement) {
         void inputElement.offsetWidth; // Force reflow
         inputElement.classList.add('shake');
 
+        if (typeof inputElement.addEventListener === 'function') {
+            inputElement.addEventListener('animationend', () => {
+                inputElement.classList.remove('shake');
+            }, { once: true });
+        }
+        setTimeout(() => {
+            inputElement.classList.remove('shake');
+        }, 550);
+
         validationErrorTimeout = setTimeout(() => {
             errorElement.textContent = '';
             errorElement.classList.remove('show');
             inputElement.classList.remove('input-error');
+            inputElement.classList.remove('shake');
         }, 5000);
     } else {
         errorElement.textContent = '';
         errorElement.classList.remove('show');
         inputElement.classList.remove('input-error');
+        inputElement.classList.remove('shake');
     }
 
     return { cleanedTag, isValid };

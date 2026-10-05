@@ -1,0 +1,468 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+#auth-modal,
+#passkeys-modal {
+    .modal-content {
+        max-width: $modal-width-compact;
+    }
+
+    .modal-body {
+        padding: $spacing-md $spacing-lg;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+
+        label {
+            font-size: $font-size-sm;
+            font-weight: $font-weight-medium;
+            color: $text-secondary;
+        }
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        box-sizing: border-box;
+        width: 100%;
+        height: 42px;
+        padding: 0 $spacing-md;
+        background-color: $bg-app;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-small;
+        color: $text-primary;
+        font-size: $font-size-sm;
+        transition: border-color $transition-fast, box-shadow $transition-fast;
+
+        &:focus {
+            outline: none;
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 2px color-mix(in srgb, $accent-primary 25%, transparent);
+        }
+
+        &::placeholder {
+            color: $text-muted;
+        }
+    }
+
+    .input-with-icon input {
+        padding-left: 36px;
+        padding-right: 38px;
+    }
+
+    .status-message {
+        font-size: $font-size-sm;
+        text-align: center;
+        transition: opacity $transition-fast;
+
+        &:empty {
+            display: none;
+            min-height: 0;
+            margin: 0;
+        }
+
+        &:not(:empty) {
+            min-height: 20px;
+            margin-top: $spacing-sm;
+        }
+
+        &.error {
+            color: $color-danger;
+        }
+
+        &.success {
+            color: $color-success;
+        }
+    }
+
+    @media (max-width: $breakpoint-modal) {
+        padding: 0 !important;
+
+        .modal-content {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            border-radius: 0 !important;
+        }
+    }
+}
+
+.auth-tabs {
+    margin-bottom: $spacing-md;
+
+    .segmented-btn {
+        flex: 1;
+        justify-content: center;
+        padding: $spacing-sm $spacing-md;
+        font-size: $font-size-sm;
+    }
+}
+
+.auth-hint {
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    line-height: 1.4;
+    margin: $spacing-md 0 0;
+    text-align: center;
+}
+
+#auth-modal {
+    .auth-hint {
+        margin: $spacing-md 0 0;
+    }
+}
+
+.auth-passkey-hero {
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $card-radius;
+    padding: $spacing-md;
+    text-align: center;
+}
+
+.auth-passkey-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    width: 100%;
+    min-height: 44px;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $card-radius;
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform $duration-fast $ease-decelerate, background-color $transition-fast, opacity $transition-fast;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.98);
+    }
+
+    orecalc-assets-svg,
+    .auth-btn-icon {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+        flex-shrink: 0;
+    }
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: $spacing-md 0;
+    color: $text-muted;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.5px;
+
+    &::before,
+    &::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid $border-primary;
+    }
+
+    span {
+        padding: 0 $spacing-sm;
+    }
+}
+
+.auth-claim-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-sm;
+    background-color: $color-info-soft;
+    border: 1px solid $border-primary;
+    border-radius: $card-radius;
+    padding: $spacing-sm $spacing-md;
+    margin-bottom: $spacing-md;
+
+    .banner-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin-top: $spacing-2xs;
+        fill: $accent-primary;
+    }
+
+    p {
+        margin: 0;
+        font-size: $font-size-xs;
+        color: $text-primary;
+        line-height: 1.35;
+    }
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .input-icon {
+        position: absolute;
+        left: $spacing-sm;
+        display: flex;
+        align-items: center;
+        pointer-events: none;
+        fill: $text-muted;
+
+        orecalc-assets-svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    input {
+        box-sizing: border-box;
+        width: 100%;
+        height: 42px;
+        padding-left: 36px;
+        padding-right: 38px;
+        background-color: $bg-app;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-small;
+        color: $text-primary;
+        font-size: $font-size-sm;
+        transition: border-color $transition-fast, box-shadow $transition-fast;
+
+        &:focus {
+            outline: none;
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 2px color-mix(in srgb, $accent-primary 25%, transparent);
+        }
+
+        &::placeholder {
+            color: $text-muted;
+        }
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: $spacing-xs;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: $spacing-xs;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        fill: $text-muted;
+        transition: fill $transition-fast;
+
+        &:hover {
+            fill: $text-primary;
+        }
+
+        orecalc-assets-svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}
+
+.auth-turnstile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 65px;
+
+    &:empty {
+        display: none;
+        min-height: 0;
+        margin: 0;
+    }
+}
+
+#auth-register-turnstile:not(:empty) {
+    margin-top: $spacing-md;
+}
+
+.auth-register-pathways {
+    display: flex;
+    flex-direction: column;
+    margin-top: $spacing-md;
+}
+
+.auth-privacy-notice {
+    text-align: center;
+    margin-top: $spacing-md;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $border-primary;
+    color: $text-muted;
+    font-size: $font-size-xs;
+    line-height: 1.4;
+
+    p {
+        margin: 0;
+    }
+}
+
+.pathway-passkey-group {
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $card-radius;
+    padding: $spacing-md;
+}
+
+.passkeys-list-container {
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    padding: $spacing-md;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.passkeys-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    max-height: 220px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.passkeys-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 56px;
+    color: $text-secondary;
+
+    .button-loader {
+        position: static;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+
+        span {
+            width: 8px;
+            height: 8px;
+            background-color: $accent-primary;
+        }
+    }
+}
+
+.passkey-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-small;
+    padding: $spacing-sm $spacing-md;
+    min-height: 56px;
+    box-sizing: border-box;
+    transition: border-color $transition-fast;
+
+    .passkey-info {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2xs;
+        min-width: 0;
+    }
+
+    .passkey-header-row {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        min-width: 0;
+    }
+
+    .passkey-device-name {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .passkey-created-date {
+        font-size: $font-size-xs;
+        color: $text-muted;
+    }
+
+    .passkey-delete-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: $spacing-xs;
+        border-radius: $shape-corner-small;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        fill: $text-muted;
+        transition: fill $transition-fast, background-color $transition-fast;
+
+        &:hover {
+            fill: $color-danger;
+            background-color: $color-danger-soft;
+        }
+
+        orecalc-assets-svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+}
+
+.passkeys-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: $spacing-md;
+    margin: auto 0;
+    color: $text-muted;
+
+    .empty-icon {
+        width: 36px;
+        height: 36px;
+        margin-bottom: $spacing-xs;
+        fill: $text-muted;
+        opacity: 0.6;
+    }
+
+    p {
+        margin: 0;
+        font-size: $font-size-sm;
+    }
+}
+
+#passkeys-modal {
+    .auth-hint {
+        margin: 0 0 $spacing-lg;
+        line-height: 1.5;
+    }
+
+    .modal-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: $spacing-sm;
+    }
+}

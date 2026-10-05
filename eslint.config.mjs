@@ -1,5 +1,16 @@
 import globals from "globals";
 
+const unusedVarsRule = [
+    "error",
+    {
+        vars: "all",
+        args: "none",
+        caughtErrors: "none",
+        ignoreRestSiblings: true,
+        varsIgnorePattern: "^_"
+    }
+];
+
 export default [
     {
         ignores: [
@@ -22,7 +33,8 @@ export default [
             }
         },
         rules: {
-            "no-undef": "error"
+            "no-undef": "error",
+            "no-unused-vars": unusedVarsRule
         }
     },
     {
@@ -36,7 +48,8 @@ export default [
             }
         },
         rules: {
-            "no-undef": "error"
+            "no-undef": "error",
+            "no-unused-vars": unusedVarsRule
         }
     },
     {
@@ -52,7 +65,8 @@ export default [
             }
         },
         rules: {
-            "no-undef": "error"
+            "no-undef": "error",
+            "no-unused-vars": unusedVarsRule
         }
     }
 ];

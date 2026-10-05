@@ -78,12 +78,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Listen for theme change messages from host window when embedded in settings modal iframe
-    window.addEventListener('message', (event) => {
-        if (event.data && typeof event.data === 'object' && (event.data.type === 'theme-toggle' || event.data.type === 'theme-change') && event.data.theme) {
-            updateTheme(event.data.theme);
-        } else if (event.data && typeof event.data === 'string' && (event.data === 'dark' || event.data === 'light')) {
-            updateTheme(event.data);
+    // Automatically mark and disable the active footer link corresponding to the current route
+    function syncActiveFooterLinks() {
+        const normalize = (path) => path.replace(/^\/(de|tr|zh)(\/|$)/, '/').replace(/\/+$/, '') || '/';
+        const currentPath = normalize(window.location.pathname);
+
+        const links = document.querySelectorAll('.footer__link[href]');
+        for (const link of links) {
+            const href = link.getAttribute('href') || '';
+            const linkPath = normalize(href);
+            if (currentPath === linkPath) {
+                link.classList.add('is-active');
+                link.setAttribute('aria-current', 'page');
+                link.removeAttribute('href');
+            }
         }
-    });
+    }
+
+    syncActiveFooterLinks();
+
+    const copyrightEl = document.querySelector('.footer__copyright');
+    if (copyrightEl) {
+        const currentYear = new Date().getFullYear();
+        const yearRange = currentYear > 2025 ? `2025-${currentYear}` : '2025';
+        copyrightEl.innerHTML = `&copy; ${yearRange} ClashCalc. All rights reserved.`;
+    }
 });

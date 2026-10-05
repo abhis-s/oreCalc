@@ -20,6 +20,120 @@ function getAllKeys(obj, prefix = '') {
     return keys;
 }
 
+/**
+ * Centrally documented allowlist of justified duplicate string values in en.json.
+ * Any duplicate value in en.json must be explicitly registered here with
+ * a clear linguistic, architectural, or domain justification.
+ * @type {Record<string, string>}
+ */
+const ALLOWED_DUPLICATE_KEYS = {
+    // 1. Linguistic: Verb action vs Completion status (Turkish: Tamam vs Tamamlandı; Chinese: 完成 vs 已完成)
+    'actions.done': 'Linguistic: Action verb (Turkish: Tamam) vs time status (Turkish: Tamamlandı)',
+    'time.done': 'Linguistic: Action verb (Turkish: Tamam) vs time status (Turkish: Tamamlandı)',
+
+    // 2. Linguistic: Action button verb vs Changelog category badge (German: Beheben vs Fehlerbehebung)
+    'actions.fix': 'Linguistic: Action button verb vs Changelog entry category badge',
+    'views.changelog.type.fix': 'Linguistic: Action button verb vs Changelog entry category badge',
+
+    // 3. Linguistic: Step navigation vs Temporal iteration (Chinese: 上一步 vs 上期)
+    'actions.previous': 'Linguistic: Navigation step (Chinese: 上一步) vs seasonal pass iteration (Chinese: 上期)',
+    'views.income.eventPass.previous': 'Linguistic: Navigation step (Chinese: 上一步) vs seasonal pass iteration (Chinese: 上期)',
+
+    // 4-8. Architectural: Dynamic HTTP status code alias mappings in apiService.js
+    'apiErrors.400': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+    'apiErrors.badRequest': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+    'apiErrors.403': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+    'apiErrors.accessDenied': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+    'apiErrors.404': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+    'apiErrors.notFound': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+    'apiErrors.429': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+    'apiErrors.tooManyRequests': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+    'apiErrors.503': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+    'apiErrors.inMaintenance': 'Architectural: Numerical HTTP status alias for dynamic apiService.js fallback',
+
+    // 9-11. Domain: Multiplayer league tier entity vs Tournament equipment modifier mode
+    'entities.leagues.legendI': 'Domain: Multiplayer league tier entity vs tournament equipment modifier mode',
+    'views.equipment.modifiers.legend1': 'Domain: Multiplayer league tier entity vs tournament equipment modifier mode',
+    'entities.leagues.legendII': 'Domain: Multiplayer league tier entity vs tournament equipment modifier mode',
+    'views.equipment.modifiers.legend2': 'Domain: Multiplayer league tier entity vs tournament equipment modifier mode',
+    'entities.leagues.legendIII': 'Domain: Multiplayer league tier entity vs tournament equipment modifier mode',
+    'views.equipment.modifiers.legend3': 'Domain: Multiplayer league tier entity vs tournament equipment modifier mode',
+
+    // 12. Context: Modal/Page title header vs Settings menu item
+    'views.changelog.title': 'Context: Modal/Page title header vs About settings menu item',
+    'views.settings.about.changelog': 'Context: Modal/Page title header vs About settings menu item',
+
+    // 13. Linguistic: Substitute item reward vs Algorithmic fallback rule (German: Ersatz vs Zurückgreifen)
+    'views.heroJourney.nodes.fallbackLabel': 'Linguistic: Substitute item reward (German: Ersatz) vs fallback calculation (German: Zurückgreifen)',
+    'views.income.prospector.tips.fallback': 'Linguistic: Substitute item reward (German: Ersatz) vs fallback calculation (German: Zurückgreifen)',
+
+    // 14. UI Context: Full card title vs Compact mobile shortcut pill
+    'views.income.cwl.title': 'UI Context: Full card title vs compact mobile shortcut pill',
+    'views.income.shortcuts.cwl': 'UI Context: Full card title vs compact mobile shortcut pill',
+
+    // 15. UI Context: In-game currency entity name vs Trader shortcut pill
+    'views.income.ores.gem': 'UI Context: In-game currency entity name vs Trader shortcut pill',
+    'views.income.shortcuts.gemTrader': 'UI Context: In-game currency entity name vs Trader shortcut pill',
+
+    // 16. UI Context: Compact shortcut pill vs Event table column header
+    'views.income.shortcuts.eventTrader': 'UI Context: Compact shortcut pill vs Event table column header',
+    'views.income.supercellEvents.tableEvent': 'UI Context: Compact shortcut pill vs Event table column header',
+
+    // 17. Linguistic: Income revenue origin vs Source code repository link (Chinese: 来源 vs 源码)
+    'views.income.source': 'Linguistic: Income revenue stream (Chinese: 来源) vs Source code repository link (Chinese: 源码)',
+    'views.settings.about.sourceLink': 'Linguistic: Income revenue stream (Chinese: 来源) vs Source code repository link (Chinese: 源码)'
+};
+
+/**
+ * Detects unauthorized duplicate string values or accidental casing discrepancies in en.json.
+ * @param {Record<string, string>} enKeysMap
+ * @param {Record<string, string>} [allowedDuplicates=ALLOWED_DUPLICATE_KEYS]
+ * @returns {{ unauthorizedDuplicates: Array<{ value: string, collidingKeys: string[], unallowedKeys: string[] }>, caseDiscrepancies: Array<{ lower: string, variations: string[], keys: string[] }> }}
+ */
+function findDuplicateEnStrings(enKeysMap, allowedDuplicates = ALLOWED_DUPLICATE_KEYS) {
+    const valueToKeys = {};
+    const lowerToValues = {};
+
+    for (const [key, rawVal] of Object.entries(enKeysMap)) {
+        if (typeof rawVal !== 'string') continue;
+        const val = rawVal.trim();
+        if (!valueToKeys[val]) valueToKeys[val] = [];
+        valueToKeys[val].push(key);
+
+        const lower = val.toLowerCase();
+        if (!lowerToValues[lower]) lowerToValues[lower] = [];
+        lowerToValues[lower].push({ key, val });
+    }
+
+    const unauthorizedDuplicates = [];
+    for (const [val, keys] of Object.entries(valueToKeys)) {
+        if (keys.length > 1) {
+            const unallowed = keys.filter(k => !allowedDuplicates[k]);
+            if (unallowed.length > 0) {
+                unauthorizedDuplicates.push({
+                    value: val,
+                    collidingKeys: keys,
+                    unallowedKeys: unallowed
+                });
+            }
+        }
+    }
+
+    const caseDiscrepancies = [];
+    for (const [lower, items] of Object.entries(lowerToValues)) {
+        const uniqueOriginals = new Set(items.map(i => i.val));
+        if (uniqueOriginals.size > 1) {
+            caseDiscrepancies.push({
+                lower,
+                variations: Array.from(uniqueOriginals),
+                keys: items.map(i => `${i.key} ("${i.val}")`)
+            });
+        }
+    }
+
+    return { unauthorizedDuplicates, caseDiscrepancies };
+}
+
 function extractPlaceholders(str) {
     if (typeof str !== 'string') return [];
     const matches = str.match(/\{(\w+)\}/g);
@@ -145,7 +259,7 @@ function scanCodebaseKeys(files, enKeysMap) {
             }
 
             // B. Match data-i18n="static.key" or data-i18n-*="static.key"
-            const dataI18nMatches = line.matchAll(/data-i18n(?:-[a-z]+)?=\s*['"]([a-zA-Z0-9_.-]+)['"]/g);
+            const dataI18nMatches = line.matchAll(/data-i18n(?:-[a-z-]+)?=\s*['"]([a-zA-Z0-9_.-]+)['"]/g);
             for (const match of dataI18nMatches) {
                 const k = match[1];
                 if (k !== 'key.name' && !k.endsWith('.')) {
@@ -177,6 +291,22 @@ function scanCodebaseKeys(files, enKeysMap) {
                 dynamicPatterns.push({ pattern: synthesized, file: filePath, line: lineNum });
                 const patternErrors = validateTemplateLiteral(synthesized, filePath, lineNum, enKeysMap);
                 errors.push(...patternErrors);
+            }
+
+            // E. Match ambient canonical namespace string literals across production code
+            // (e.g. showConfirm(msg, 'actions.confirm', 'actions.clear'), notice titleKey/okBtnKey, configs)
+            const isTestFile = filePath.includes('/tests/') || filePath.includes('\\tests\\');
+            if (!isTestFile) {
+                const codePart = line.replace(/\/\/.*$/, '');
+                if (!/\.(startsWith|endsWith|includes)\(/.test(codePart)) {
+                    const namespaceMatches = codePart.matchAll(/['"`]((?:actions|alerts|apiErrors|app|auth|colors|confirms|entities|errors|legal|nav|player|status|time|validation|views)\.[a-zA-Z0-9_.-]+)['"`]/g);
+                    for (const match of namespaceMatches) {
+                        const k = match[1];
+                        if (k !== 'key.name' && !k.endsWith('.') && !/\.(css|js|png|html|svg|json)$/i.test(k)) {
+                            usedKeysInCode.add(k);
+                        }
+                    }
+                }
             }
         }
     }
@@ -282,6 +412,23 @@ function validateDomainEnumerations(enKeysMap, rootDir = projectRoot) {
         }
     }
 
+    const defensesList = [
+        'airDefense', 'airSweeper', 'archerTower', 'bombTower', 'buildersHut',
+        'cakeAPult', 'cannon', 'clanCastle', 'darkElixirStorage', 'eagleArtillery',
+        'elixirStorage', 'firespitter', 'goldStorage', 'heroHunter', 'hiddenTesla',
+        'hotCandle', 'infernoTower', 'logger', 'longshot', 'monolith',
+        'mortar', 'multiArcherTower', 'multiGearTower', 'revengeTower', 'ricochetCannon',
+        'scattershot', 'smasher', 'storages', 'spellTower', 'superWizardTower', 'townHall',
+        'wizardTower', 'xBow'
+    ];
+    for (const def of defensesList) {
+        const key = `entities.defenses.${def}`;
+        count++;
+        if (!(key in enKeysMap)) {
+            errors.push(`[ERROR] Missing defense entity key in en.json: ${key}`);
+        }
+    }
+
     const equipDir = path.join(rootDir, 'js/data/equipment');
     if (fs.existsSync(equipDir)) {
         const equipFiles = fs.readdirSync(equipDir).filter(f => f.endsWith('.json'));
@@ -317,6 +464,45 @@ function validateDomainEnumerations(enKeysMap, rootDir = projectRoot) {
     }
 
     return { errors, count };
+}
+
+/**
+ * Audits en.json canonical dictionary for unreferenced keys outside dynamic domain namespaces.
+ * @param {Record<string, string>} enKeysMap
+ * @param {string[]} codeFiles
+ * @param {Set<string>} usedKeysInCode
+ * @returns {string[]} List of unreferenced keys
+ */
+function auditUnusedKeys(enKeysMap, codeFiles, usedKeysInCode) {
+    const dynamicPrefixes = [
+        'entities.',
+        'apiErrors.',
+        'theme.',
+        'languages.',
+        'rarity.',
+        'player.roles.',
+        'views.equipment.',
+        'views.changelog.type.',
+        'views.income.shortcuts.',
+        'views.income.starBonus.event',
+        'views.income.supercellEvents.',
+        'app.description',
+        'time.'
+    ];
+
+    const fileContents = codeFiles.map(f => fs.readFileSync(f, 'utf8'));
+    const unreferencedKeys = [];
+
+    for (const key of Object.keys(enKeysMap)) {
+        if (usedKeysInCode.has(key)) continue;
+        if (dynamicPrefixes.some(p => key.startsWith(p) || key === p)) continue;
+        const isFound = fileContents.some(content => content.includes(key));
+        if (!isFound) {
+            unreferencedKeys.push(key);
+        }
+    }
+
+    return unreferencedKeys;
 }
 
 function runValidatorCli() {
@@ -383,6 +569,33 @@ function runValidatorCli() {
         hasErrors = true;
     } else {
         console.log(`[OK] All ${domainCount} dynamic domain entities and enumerations verify cleanly in en.json.`);
+    }
+
+    console.log('\n--- Unused Translation Key Audit ---');
+    const unusedKeys = auditUnusedKeys(enKeysMap, codeFiles, usedKeysInCode);
+    if (unusedKeys.length > 0) {
+        console.warn(`[WARN] Found ${unusedKeys.length} potentially unused translation key(s) in en.json:\n  ${unusedKeys.slice(0, 10).map(k => ' - ' + k).join('\n  ')}${unusedKeys.length > 10 ? `\n  ... and ${unusedKeys.length - 10} more` : ''}`);
+    } else {
+        console.log('[OK] 0 unreferenced keys detected in canonical en.json dictionary.');
+    }
+
+    console.log('\n--- Canonical en.json Duplicate String Audit ---');
+    const { unauthorizedDuplicates, caseDiscrepancies } = findDuplicateEnStrings(enKeysMap, ALLOWED_DUPLICATE_KEYS);
+    if (unauthorizedDuplicates.length > 0) {
+        hasErrors = true;
+        console.error(`[ERROR] Found ${unauthorizedDuplicates.length} unauthorized duplicate string value(s) in en.json:`);
+        unauthorizedDuplicates.forEach(dup => {
+            console.error(`   - "${dup.value}" is shared by [${dup.collidingKeys.join(', ')}]. Unauthorized: [${dup.unallowedKeys.join(', ')}]`);
+        });
+        console.error('   Rule: Reuse existing canonical key or register justified false-friends in ALLOWED_DUPLICATE_KEYS.');
+    } else if (caseDiscrepancies.length > 0) {
+        hasErrors = true;
+        console.error(`[ERROR] Found ${caseDiscrepancies.length} accidental case variation(s) in en.json:`);
+        caseDiscrepancies.forEach(cd => {
+            console.error(`   - Variations [${cd.variations.join(', ')}] across keys: ${cd.keys.join(', ')}`);
+        });
+    } else {
+        console.log('[OK] 0 unauthorized duplicate strings in en.json (all duplicate values strictly allowlisted).');
     }
 
     let enabledLangCodes = ['en', 'de', 'tr', 'zh'];
@@ -494,7 +707,6 @@ function validateDictionaries(i18nDir, enKeysMap, totalEnKeys, enabledLangCodes 
         let missingCount = 0;
         let obsoleteCount = 0;
         let placeholderErrors = 0;
-        let htmlErrors = 0;
 
         for (const [key, enValue] of Object.entries(enKeysMap)) {
             if (!(key in langKeysMap) || langKeysMap[key] === undefined || langKeysMap[key] === '') {
@@ -519,13 +731,6 @@ function validateDictionaries(i18nDir, enKeysMap, totalEnKeys, enabledLangCodes 
                     placeholderErrors++;
                     errors.push(`[ERROR] [${lang}] Unexpected placeholder {${ph}} in key "${key}"`);
                 }
-            }
-
-            const enTags = extractHtmlTags(enValue);
-            const langTags = extractHtmlTags(langValue);
-
-            if (enTags.length !== langTags.length) {
-                htmlErrors++;
             }
         }
 
@@ -583,5 +788,7 @@ module.exports = {
     scanCodebaseKeys,
     validateDomainEnumerations,
     validateDictionaries,
+    ALLOWED_DUPLICATE_KEYS,
+    findDuplicateEnStrings,
     runValidatorCli
 };

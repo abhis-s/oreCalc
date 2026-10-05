@@ -1,0 +1,330 @@
+@use '../abstracts/mixins' as *;
+
+.app-settings-wrapper,
+.app-account-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+
+    &:has(.app-settings-popover.is-open),
+    &:has(.app-account-popover.is-open),
+    &:has(.is-open) {
+        z-index: $z-index-popover;
+    }
+}
+
+.app-settings-btn {
+    @include btn-accent-style;
+    min-height: 36px;
+    height: 36px;
+    min-width: auto;
+    padding: 6px 14px;
+    border-radius: $shape-corner-full;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    box-sizing: border-box;
+
+    .animated-btn-icon-wrapper svg {
+        width: 15px;
+        height: 15px;
+        display: block;
+        fill: currentColor;
+    }
+
+    orecalc-assets-svg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform $duration-moderate $ease-smooth;
+    }
+
+    &:hover:not(:disabled) {
+        orecalc-assets-svg {
+            transform: rotate(90deg);
+        }
+    }
+
+    &.is-open {
+        background-color: color-mix(in srgb, $accent-primary 25%, transparent);
+        border-color: $accent-primary;
+        color: $accent-primary;
+
+        .animated-btn-text {
+            opacity: 0;
+            transform: translateY(-100%);
+        }
+
+        .animated-btn-icon-wrapper {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        orecalc-assets-svg {
+            transform: rotate(90deg);
+        }
+    }
+
+    @container header-shell (max-width: #{$container-header-collapse}) {
+        @include header-action-btn-collapse;
+    }
+
+    &.is-icon-only {
+        @include header-action-btn-collapse;
+    }
+}
+
+.app-settings-popover,
+.app-account-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: max-content;
+    min-width: min(340px, calc(100vw - 24px));
+    max-width: min(380px, calc(100vw - 24px));
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-primary;
+    border-radius: $modal-radius-card;
+    box-shadow: $elevation-3;
+    z-index: $z-index-popover;
+    padding: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    box-sizing: border-box;
+    transform-origin: top right;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity $duration-fast $ease-enter, transform $duration-fast $ease-enter;
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-md;
+        gap: 10px;
+    }
+
+    &.is-open {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: $spacing-sm;
+        border-bottom: 1px solid $border-secondary;
+    }
+
+    &__title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: $text-primary;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .app-settings-injections {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 $spacing-xs;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    .welcome-preferences.app-preferences {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: color-mix(in srgb, $bg-surface-primary 40%, transparent);
+        padding: $spacing-md;
+        border-radius: 14px;
+        border: 1px solid $border-primary;
+        text-align: left;
+
+        @media (max-width: $breakpoint-phone) {
+            padding: 10px;
+            gap: 10px;
+        }
+    }
+
+    .preference-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+        min-height: 36px;
+        flex-wrap: nowrap;
+
+        @media (max-width: $breakpoint-phone) {
+            gap: $spacing-sm;
+        }
+
+            .preference-label {
+                display: inline-flex;
+                align-items: center;
+                gap: $spacing-sm;
+                font-size: 13px;
+                font-weight: 600;
+                color: $text-secondary;
+                cursor: pointer;
+
+                .pref-label-icon {
+                    flex-shrink: 0;
+                    color: $text-secondary;
+
+                    svg,
+                    orecalc-assets-svg {
+                        fill: currentColor;
+                        display: block;
+                    }
+                }
+            }
+
+            .switch {
+                flex-shrink: 0;
+            }
+
+            .preference-select-wrapper.language-select-wrapper {
+                position: relative;
+                display: flex;
+                align-items: center;
+                min-width: 140px;
+                flex-shrink: 0;
+
+                @media (max-width: $breakpoint-phone) {
+                    min-width: 120px;
+                }
+
+                .preference-select.language-select {
+                    width: 100%;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    background: color-mix(in srgb, $bg-surface-primary 60%, transparent);
+                    border: 1px solid $border-primary;
+                    border-radius: $shape-corner-medium;
+                    padding: 5px 28px 5px 10px;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    color: $text-primary;
+                    cursor: pointer;
+                    outline: none;
+                    transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+
+                    &:hover {
+                        border-color: color-mix(in srgb, $accent-primary 50%, $border-primary);
+                    }
+
+                    &:focus {
+                        border-color: $accent-primary;
+                        box-shadow: 0 0 0 2px color-mix(in srgb, $accent-primary 25%, transparent);
+                    }
+
+                    option {
+                        background-color: $bg-surface-secondary;
+                        color: $text-primary;
+                        padding: $spacing-sm;
+                    }
+                }
+
+                .select-arrow {
+                    position: absolute;
+                    right: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: $text-secondary;
+                    pointer-events: none;
+
+                    svg,
+                    orecalc-assets-svg {
+                        fill: currentColor;
+                        display: block;
+                    }
+                }
+            }
+
+            .welcome-accent-picker {
+                display: flex;
+                gap: $spacing-sm;
+                align-items: center;
+                justify-content: flex-end;
+                flex-wrap: nowrap;
+                width: auto;
+                flex-shrink: 0;
+
+                @media (max-width: $breakpoint-phone) {
+                    padding: $spacing-2xs $spacing-sm $spacing-2xs $spacing-2xs;
+                    gap: $spacing-xs;
+                }
+
+                .accent-swatch {
+                    position: relative;
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    border: none;
+                    cursor: pointer;
+                    padding: 0;
+                    transition: transform $duration-fast $ease-standard;
+                    box-shadow: 0 2px 4px $shadow-overlay-dark;
+                    flex-shrink: 0;
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        min-width: 32px;
+                        min-height: 32px;
+                    }
+
+                    @media (max-width: $breakpoint-phone) {
+                        width: 20px;
+                        height: 20px;
+                    }
+
+                    &:hover {
+                        transform: scale(1.12);
+                    }
+
+                    &:active {
+                        transform: scale(0.95);
+                        filter: brightness(0.85);
+                    }
+
+                    @keyframes app-swatch-select-pop {
+                        0% {
+                            transform: scale(0.92);
+                        }
+                        50% {
+                            transform: scale(1.08);
+                        }
+                        100% {
+                            transform: scale(1);
+                        }
+                    }
+
+                    &.active {
+                        transform: scale(1);
+                        animation: app-swatch-select-pop $duration-moderate $ease-spring forwards;
+                        box-shadow: 0 0 0 2px $bg-surface-primary, 0 0 0 3.5px $accent-primary;
+                    }
+
+                    &[data-color="blue"] { background-color: $accent-option-blue; }
+                    &[data-color="gold"] { background-color: $accent-option-gold; }
+                    &[data-color="purple"] { background-color: $accent-option-purple; }
+                    &[data-color="green"] { background-color: $accent-option-green; }
+                    &[data-color="red"] { background-color: $accent-option-red; }
+                    &[data-color="random"] {
+                        background: conic-gradient(from 0deg, $accent-option-gradient-blue, $accent-option-gradient-purple, $accent-option-gradient-red, $accent-option-gradient-gold, $accent-option-gradient-green, $accent-option-gradient-blue);
+                    }
+                }
+            }
+        }
+    }

@@ -34,7 +34,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: $spacing-xs;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -81,7 +81,7 @@
     width: 14px;
     height: 14px;
     background: rgba(0, 0, 0, 0.25);
-    border-radius: 4px;
+    border-radius: $shape-corner-xs;
 }
 
 .calendar-equipment-level {
@@ -96,7 +96,7 @@
     display: flex;
     flex-direction: column;
     padding: 15px;
-    gap: 12px;
+    gap: $spacing-md;
     width: calc(100% / 3);
     flex-shrink: 0;
     box-sizing: border-box;
@@ -105,9 +105,9 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        padding: 12px 15px;
+        padding: $spacing-md 15px;
         border: 1px solid $border-primary;
-        border-radius: 16px;
+        border-radius: $shape-corner-large;
         background-color: $bg-surface-primary;
         min-height: auto;
         gap: 15px;
@@ -159,7 +159,7 @@
             min-width: 60px;
 
             .calendar-equipment-container {
-                margin-top: 2px;
+                margin-top: $spacing-2xs;
                 margin-left: 0;
                 width: auto;
                 padding-top: 0;
@@ -186,7 +186,7 @@
         display: flex;
         flex-wrap: wrap;
         flex: 1 1 0px;
-        gap: 4px;
+        gap: $spacing-xs;
         flex-direction: row;
         justify-content: flex-end;
         align-content: center;

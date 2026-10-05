@@ -137,7 +137,7 @@ export function autoScrollToCompletedNode(cumulativeLevel) {
 /**
  * Updates the active sliding pill indicator position in the segmented claim switch.
  */
-export function updateClaimSwitchPillPosition() {
+function updateClaimSwitchPillPosition() {
     const activeBtn = document.querySelector('#home-hj-claim-switch .hj-switch-btn.active');
     const claimSwitchPill = document.getElementById('home-hj-claim-pill');
     if (activeBtn && claimSwitchPill) {

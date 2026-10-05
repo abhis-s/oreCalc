@@ -1,0 +1,368 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-selector-container {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}
+
+.calc-building-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: 6px;
+    padding: $spacing-2xs;
+    width: 100%;
+    min-width: 0;
+
+    @media (max-width: $breakpoint-micro) {
+        grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+        gap: $spacing-xs;
+        padding: 0;
+    }
+
+    > .calc-empty-notice {
+        grid-column: 1 / -1;
+    }
+}
+
+.calc-building-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-2xs;
+    padding: 5px $spacing-xs $spacing-xs $spacing-xs;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-small;
+    cursor: pointer;
+    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast, box-shadow $transition-fast;
+    position: relative;
+    min-width: 0;
+    box-sizing: border-box;
+
+    @media (max-width: $breakpoint-micro) {
+        padding: $spacing-2xs;
+    }
+
+    &:hover {
+        background-color: $bg-surface-tertiary;
+        border-color: $border-accent;
+        transform: translateY(-1px);
+    }
+
+    &.is-selected {
+        border-color: $accent-primary;
+        background-color: $accent-primary-soft;
+        box-shadow: 0 0 0 1px $accent-primary;
+    }
+
+    &.is-in-cluster {
+        border-color: $accent-secondary;
+    }
+
+    &__img-wrapper {
+        position: relative;
+        width: 46px;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        @media (max-width: $breakpoint-micro) {
+            width: 38px;
+        }
+    }
+
+    &__img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    &__cluster-badge {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 16px;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        border-radius: $shape-corner-full;
+        font-size: 9px;
+        font-weight: $font-weight-bold;
+        box-shadow: $elevation-1;
+    }
+
+    &__seasonal-badge {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: color-mix(in srgb, $bg-surface-tertiary 90%, black);
+        border: 1px solid $border-primary;
+        color: $accent-primary;
+        border-radius: $shape-corner-full;
+        box-shadow: $elevation-1;
+
+        svg, orecalc-assets-svg {
+            display: inline-flex;
+            width: 11px;
+            height: 11px;
+            fill: currentColor;
+        }
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    &__level {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-2xs;
+        min-height: 12px;
+        font-size: 10px;
+        font-weight: $font-weight-medium;
+        color: $text-muted;
+        white-space: nowrap;
+        line-height: 1.2;
+
+        @media (max-width: $breakpoint-micro) {
+            font-size: 9px;
+        }
+    }
+}
+
+.calc-target-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding: $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-medium;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: $breakpoint-modal) {
+        padding: $spacing-sm;
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        padding: $spacing-xs $spacing-sm;
+        gap: $spacing-xs;
+    }
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        min-width: 0;
+        width: 100%;
+    }
+
+    &__thumb-frame {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-small;
+        padding: $spacing-2xs;
+        flex-shrink: 0;
+    }
+
+    &__thumb {
+        width: 44px;
+        height: 44px;
+        object-fit: contain;
+    }
+
+    &__meta {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2xs;
+        min-width: 0;
+        flex: 1;
+    }
+
+    &__title-row {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        flex-wrap: wrap;
+        min-width: 0;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    &__hp-badge {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        color: $accent-primary;
+    }
+
+    &__controls {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+.calc-crafted-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding-block: 1px;
+    padding-inline: 6px;
+    background: color-mix(in srgb, $accent-primary 15%, transparent);
+    border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
+    border-radius: $shape-corner-full;
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-semibold;
+    color: $accent-primary;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    svg, orecalc-assets-svg {
+        display: inline-flex;
+        width: 12px;
+        height: 12px;
+        fill: currentColor;
+    }
+}
+
+.calc-level-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+    width: 100%;
+}
+
+.calc-level-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+    padding-inline: $spacing-2xs;
+    min-width: 0;
+}
+
+.calc-level-label {
+    font-size: $font-size-2xs;
+    color: $text-secondary;
+    font-weight: $font-weight-medium;
+    white-space: nowrap;
+}
+
+.calc-level-value {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    white-space: nowrap;
+}
+
+.calc-level-max {
+    font-weight: $font-weight-regular;
+    color: $text-muted;
+}
+
+.calc-stepper-track {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2xs;
+    width: 100%;
+    min-width: 0;
+
+    @media (max-width: $breakpoint-micro) {
+        gap: $spacing-2xs;
+    }
+}
+
+.calc-stepper-btn {
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $bg-surface-tertiary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-xs;
+    color: $text-primary;
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color $transition-fast, color $transition-fast, border-color $transition-fast;
+
+    &:hover:not(:disabled) {
+        background-color: $accent-primary-soft;
+        color: $accent-primary;
+        border-color: $accent-primary;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    &--min,
+    &--max {
+        padding-inline: $spacing-xs;
+        min-width: 36px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        @media (max-width: $breakpoint-micro) {
+            min-width: 28px;
+            padding-inline: $spacing-xs;
+            font-size: 10px;
+        }
+    }
+
+    &--step {
+        width: 28px;
+        min-width: 28px;
+        padding: 0;
+
+        @media (max-width: $breakpoint-micro) {
+            width: 26px;
+            min-width: 26px;
+            height: 26px;
+        }
+
+        svg, orecalc-assets-svg {
+            display: inline-flex;
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+    }
+}
+
+.calc-slider-input-wrapper {
+    flex: 1;
+    min-width: 48px;
+}

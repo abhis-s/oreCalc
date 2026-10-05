@@ -60,7 +60,7 @@
 .hero-journey-track-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 16px 8px 8px 8px;
+    padding: $spacing-lg $spacing-sm $spacing-sm $spacing-sm;
     margin: -14px -8px -4px -8px;
     scroll-behavior: smooth;
     scrollbar-width: none;
@@ -78,7 +78,7 @@
     height: 4px;
     margin: 14px 0 6px 0;
     background: color-mix(in srgb, $bg-surface-tertiary 80%, $bg-surface-primary);
-    border-radius: 2px;
+    border-radius: $shape-corner-2xs;
     cursor: pointer;
     user-select: none;
     touch-action: none;
@@ -106,7 +106,7 @@
     height: 100%;
     width: 0%;
     background: linear-gradient(90deg, $accent-primary 0%, color-mix(in srgb, $accent-primary 80%, $color-white-const) 100%);
-    border-radius: 2px;
+    border-radius: $shape-corner-2xs;
     pointer-events: none;
     z-index: 1;
     transition: width $duration-base $ease-standard;
@@ -152,7 +152,7 @@
         pointer-events: none;
         background: $bg-surface-primary;
         border: 1px solid $border-primary;
-        border-radius: 9999px;
+        border-radius: $shape-corner-full;
         padding: 3px 9px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
         color: $text-primary;
@@ -194,20 +194,20 @@
 .hero-journey-no-profile-notice {
     display: none;
     align-items: flex-start;
-    gap: 8px;
-    margin-top: 16px;
+    gap: $spacing-sm;
+    margin-top: $spacing-lg;
     font-size: clamp(10px, 1.3vw, 11px);
     color: $text-muted;
     line-height: 1.4;
     text-align: left;
     opacity: 0.8;
-    padding: 8px 12px;
+    padding: $spacing-sm $spacing-md;
     background-color: $bg-surface-tertiary;
     border-radius: 6px;
     border: 1px solid $border-secondary;
 
     @media (max-width: $breakpoint-modal) {
-        margin-top: 12px;
+        margin-top: $spacing-md;
         padding: 6px 10px;
     }
 

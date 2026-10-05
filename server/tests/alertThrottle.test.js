@@ -2,7 +2,6 @@ const { test, describe, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
-    ALERT_COOLDOWN_MS,
     outageState,
     isIgnoredNoise,
     isBotTraffic,
@@ -42,6 +41,9 @@ describe('Server Alert Throttling and Diagnostic Rules Suite', () => {
         assert.equal(isIgnoredNoise('Console Error: [ERROR] Error fetching clan war log: Clan war log is private'), true);
         assert.equal(isIgnoredNoise('Console Error: [ERROR] SW registration failed: Rejected'), true);
         assert.equal(isIgnoredNoise('ResizeObserver loop completed with undelivered notifications.'), true);
+        assert.equal(isIgnoredNoise('Console Error: [ERROR] Failed to read clipboard: NotAllowedError: Read permission denied.'), true);
+        assert.equal(isIgnoredNoise('DOMException: Clipboard read permission was denied.'), true);
+        assert.equal(isIgnoredNoise('Unhandled Promise Rejection: NotAllowedError: Failed to execute \'readText\' on \'Clipboard\': Read permission denied.'), true);
 
         // Genuine runtime errors, network drops, chunk reloads, and 702 must NOT be ignored (they are stored in DB)
         assert.equal(isIgnoredNoise('Console Error: [ERROR] Uncaught error: Cannot read properties of undefined (reading \'getData\')'), false);
@@ -95,6 +97,26 @@ describe('Server Alert Throttling and Diagnostic Rules Suite', () => {
         assert.equal(lighthouseDecision.reason, 'bot_crawler_traffic');
     });
 
+    test('shouldSendAlertEmail strictly suppresses email alerts for clipboard reading and permission denial errors', () => {
+        const clipboardError = {
+            userId: '12345678-1234-1234-1234-1234567890ab',
+            environment: 'orecalc.tech',
+            message: 'Console Error: [ERROR] Failed to read clipboard: NotAllowedError: Read permission denied.'
+        };
+        const decision = shouldSendAlertEmail(clipboardError);
+        assert.equal(decision.shouldSend, false);
+        assert.equal(decision.reason, 'ignored_noise');
+
+        const unhandledClipboardError = {
+            userId: '12345678-1234-1234-1234-1234567890ab',
+            environment: 'orecalc.tech',
+            message: 'Unhandled Promise Rejection: NotAllowedError: Failed to execute \'readText\' on \'Clipboard\': Must be handling a user gesture to show a permission request.'
+        };
+        const unhandledDecision = shouldSendAlertEmail(unhandledClipboardError);
+        assert.equal(unhandledDecision.shouldSend, false);
+        assert.equal(unhandledDecision.reason, 'ignored_noise');
+    });
+
     test('shouldSendAlertEmail permits valid critical errors and enforces 10-minute cooldown', () => {
         const validError = {
             userId: '12345678-1234-1234-1234-1234567890ab',
@@ -137,7 +159,7 @@ describe('Server Alert Throttling and Diagnostic Rules Suite', () => {
         assert.equal(duplicateDecision.reason, 'cooldown_active_503');
 
         // Recovery: notify503RecoveryIfActive marks outage resolved
-        const recoverySent = await notify503RecoveryIfActive();
+        await notify503RecoveryIfActive();
         assert.equal(outageState.is503Active, false);
     });
 

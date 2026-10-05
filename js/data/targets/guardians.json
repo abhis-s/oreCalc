@@ -1,0 +1,98 @@
+{
+    "longshot": {
+        "id": "longshot",
+        "minTH": 18,
+        "maxLevel": 5,
+        "category": "guardian",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 7000,
+                "th": 18
+            },
+            "2": {
+                "hp": 8000,
+                "th": 18
+            },
+            "3": {
+                "hp": 9000,
+                "th": 18
+            },
+            "4": {
+                "hp": 10000,
+                "th": 18
+            },
+            "5": {
+                "hp": 11000,
+                "th": 18
+            }
+        }
+    },
+    "smasher": {
+        "id": "smasher",
+        "minTH": 18,
+        "maxLevel": 5,
+        "category": "guardian",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 12000,
+                "th": 18
+            },
+            "2": {
+                "hp": 13000,
+                "th": 18
+            },
+            "3": {
+                "hp": 14000,
+                "th": 18
+            },
+            "4": {
+                "hp": 15000,
+                "th": 18
+            },
+            "5": {
+                "hp": 16000,
+                "th": 18
+            }
+        }
+    },
+    "logger": {
+        "id": "logger",
+        "minTH": 18,
+        "maxLevel": 5,
+        "category": "guardian",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 8000,
+                "th": 18
+            },
+            "2": {
+                "hp": 9000,
+                "th": 18
+            },
+            "3": {
+                "hp": 10000,
+                "th": 18
+            },
+            "4": {
+                "hp": 11000,
+                "th": 18
+            },
+            "5": {
+                "hp": 12000,
+                "th": 18
+            }
+        }
+    }
+}

@@ -3,7 +3,7 @@
         <div class="modal-header">
             <h2 id="eq-details-title" data-i18n="nav.equipment"></h2>
             <div class="modal-header-actions">
-                <button type="button" id="unhide-eq-note-btn" class="suggestion-message-btn unhide-note-btn" style="display: none;" data-i18n-title="actions.showNote" data-i18n-aria-label="actions.showNote">
+                <button type="button" id="unhide-eq-note-btn" class="suggestion-message-btn unhide-note-btn" hidden data-i18n-title="actions.showNote" data-i18n-aria-label="actions.showNote">
                     <orecalc-assets-svg name="suggestion" width="20" height="20"></orecalc-assets-svg>
                     <span class="badge">!</span>
                 </button>
@@ -20,27 +20,35 @@
         </div>
         <div class="modal-body">
             <div id="eq-details-content-wrapper">
-                <div id="eq-details-props-grid" class="eq-details-props-grid"></div>
-                <div id="eq-details-rec-banner-container"></div>
+                <div id="eq-details-props-grid" class="eq-details-props-grid">
+                    <!-- DYNAMIC INSERTION: Equipment properties grid -->
+                </div>
+                <div id="eq-details-rec-banner-container">
+                    <!-- DYNAMIC INSERTION: Equipment recommendation banner -->
+                </div>
                 <div class="eq-details-boxes-row">
                     <div id="eq-details-static-box" class="eq-details-static-stats-box">
                         <div class="eq-details-header-row">
                             <div class="eq-details-avatars">
-                                <orecalc-assets-image id="eq-details-hero-emblem" src="" data-i18n-alt="alts.hero" class="eq-details-hero-emblem"></orecalc-assets-image>
+                                <orecalc-assets-image id="eq-details-hero-emblem" src="" data-i18n-alt="app.alts.hero" class="eq-details-hero-emblem"></orecalc-assets-image>
                                 <div class="avatar-sep"></div>
                                 <orecalc-assets-image id="eq-details-item-img" src="" data-i18n-alt="nav.equipment" class="eq-details-item-img"></orecalc-assets-image>
                             </div>
                             <div class="eq-details-badges">
                                 <span id="eq-details-type-badge" class="eq-badge"></span>
                                 <span id="eq-details-rarity-badge" class="eq-badge"></span>
-                                <span id="eq-details-rec-badge" class="eq-badge" style="display: none;"></span>
+                                <span id="eq-details-rec-badge" class="eq-badge" hidden></span>
                             </div>
                         </div>
-                        <div id="eq-details-modifier-tabs" class="eq-details-modifier-tabs"></div>
-                        <div id="eq-details-static-stats-content"></div>
-                        <div id="eq-details-unit-stats-content" class="eq-details-unit-stats-content" style="display: none;"></div>
+                        <div id="eq-details-modifier-tabs" class="eq-details-modifier-tabs">
+                            <!-- DYNAMIC INSERTION: Equipment modifier tabs -->
+                        </div>
+                        <div id="eq-details-static-stats-content">
+                            <!-- DYNAMIC INSERTION: Equipment static stats content -->
+                        </div>
+                        <div id="eq-details-unit-stats-content" class="eq-details-unit-stats-content" hidden></div>
                         <div class="eq-unit-stats-toggle-row">
-                            <button type="button" id="eq-unit-stats-toggle-btn" class="eq-unit-stats-toggle-btn" style="display: none;"></button>
+                            <button type="button" id="eq-unit-stats-toggle-btn" class="eq-unit-stats-toggle-btn" hidden aria-label="Unit Stats" data-i18n-aria-label="views.equipment.unitStats"></button>
                         </div>
                     </div>
                     <div class="eq-details-current-level-box">
@@ -48,11 +56,15 @@
                             <span><span id="eq-details-lvl-header-label" data-i18n="validation.level"></span> <strong id="eq-details-current-lvl-text">1</strong></span>
                             <span id="eq-details-max-lvl-text" class="text-secondary"></span>
                         </div>
-                        <div id="eq-details-stats-progress-list" class="eq-details-stats-progress-list"></div>
+                        <div id="eq-details-stats-progress-list" class="eq-details-stats-progress-list">
+                            <!-- DYNAMIC INSERTION: Equipment level progress list -->
+                        </div>
                     </div>
                 </div>
             </div>
-            <div id="eq-details-empty-state-container" style="display: none;"></div>
+            <div id="eq-details-empty-state-container" hidden>
+                <!-- DYNAMIC INSERTION: Equipment details empty state -->
+            </div>
             <div class="eq-details-table-wrapper">
                 <button type="button" id="expand-eq-table-btn" class="expand-table-btn" data-i18n-title="actions.expandTable" data-i18n-aria-label="actions.expandTable">
                     <orecalc-assets-svg name="expand"></orecalc-assets-svg>
@@ -64,7 +76,9 @@
                     </table>
                 </div>
             </div>
-            <div id="eq-details-footer-meta" class="eq-details-footer-meta"></div>
+            <div id="eq-details-footer-meta" class="eq-details-footer-meta">
+                <!-- DYNAMIC INSERTION: Equipment footer meta info -->
+            </div>
         </div>
     </div>
 </dialog>

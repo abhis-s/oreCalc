@@ -9,7 +9,7 @@
     #licenses-container {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: $spacing-md;
         padding: 1.5rem;
     }
 
@@ -17,7 +17,7 @@
         flex-shrink: 0;
         background-color: $bg-surface-primary;
         border: 1px solid $border-primary;
-        border-radius: 12px;
+        border-radius: $shape-corner-medium;
         overflow: hidden;
         transition: border-color $duration-base $ease-enter,
                     box-shadow $duration-base $ease-enter,
@@ -45,7 +45,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: $spacing-sm;
         padding: 14px 20px;
         font-weight: 600;
         color: $text-primary;
@@ -91,8 +91,8 @@
         font-size: 0.85rem;
         color: $text-secondary;
         background-color: $bg-surface-secondary;
-        padding: 2px 6px;
-        border-radius: 4px;
+        padding: $spacing-2xs 6px;
+        border-radius: $shape-corner-xs;
         white-space: nowrap;
         flex-shrink: 0;
     }
@@ -104,11 +104,11 @@
         background-color: $accent-primary-soft;
         color: $accent-primary;
         border: 1px solid $border-primary;
-        padding: 2px 8px;
+        padding: $spacing-2xs $spacing-sm;
         border-radius: 6px;
         letter-spacing: 0.5px;
         margin-left: auto;
-        margin-right: 12px;
+        margin-right: $spacing-md;
         white-space: nowrap;
         flex-shrink: 0;
     }
@@ -117,7 +117,7 @@
         padding: 14px 20px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: $spacing-md;
         background-color: $bg-surface-secondary;
         border-top: 1px solid $border-primary;
     }
@@ -127,7 +127,7 @@
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: $spacing-sm;
         font-size: 0.85rem;
         color: $text-secondary;
 
@@ -162,7 +162,7 @@
     }
 
     .license-text {
-        padding: 16px 20px;
+        padding: $spacing-lg 20px;
         background-color: rgba(0, 0, 0, 0.15);
         color: $text-secondary;
         font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
@@ -173,8 +173,8 @@
         max-height: 280px;
         overflow-y: auto;
         border: 1px solid $border-primary;
-        border-radius: 8px;
-        margin-top: 12px;
+        border-radius: $shape-corner-small;
+        margin-top: $spacing-md;
         box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
         @extend %hide-scrollbar;
     }
@@ -185,7 +185,7 @@
         }
 
         details {
-            border-radius: 8px;
+            border-radius: $shape-corner-small;
         }
 
         summary {
@@ -203,7 +203,7 @@
 
         .license-version {
             font-size: 0.8rem;
-            padding: 1px 4px;
+            padding: 1px $spacing-xs;
         }
 
         .license-badge {
@@ -219,7 +219,7 @@
         .license-text {
             padding: 10px 14px;
             font-size: 0.775rem;
-            margin-top: 8px;
+            margin-top: $spacing-sm;
         }
     }
 }

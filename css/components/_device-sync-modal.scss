@@ -1,4 +1,5 @@
 @use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 
 #device-sync-modal {
     .modal-content {
@@ -6,7 +7,56 @@
     }
 
     .modal-body {
-        padding: 15px 24px;
+        padding: 15px $spacing-xl;
+    }
+
+    .sync-account-callout {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+        padding: $spacing-md;
+        margin-bottom: $spacing-md;
+        border-radius: $card-radius;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+
+        &.hidden {
+            display: none;
+        }
+
+        .sync-account-callout-content {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            font-size: $font-size-sm;
+            color: $text-secondary;
+            line-height: 1.4;
+
+            .sync-account-icon {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+                fill: $accent-primary;
+            }
+        }
+
+        #device-sync-open-auth-btn {
+            margin: 0;
+            min-height: 0;
+            height: 34px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: $breakpoint-compact) {
+            flex-direction: column;
+            align-items: stretch;
+
+            #device-sync-open-auth-btn {
+                width: 100%;
+            }
+        }
     }
 
     .sync-instruction {
@@ -85,8 +135,8 @@
         display: block;
         font-family: 'Roboto Mono', monospace;
         background-color: $bg-surface-tertiary;
-        padding: 8px 12px;
-        border-radius: 8px;
+        padding: $spacing-sm $spacing-md;
+        border-radius: $shape-corner-small;
         font-size: 0.9em;
         word-break: break-all;
         cursor: pointer;
@@ -102,7 +152,7 @@
     details {
         margin-bottom: 15px;
         border: 1px solid $border-primary;
-        border-radius: 12px;
+        border-radius: $shape-corner-medium;
         background-color: $bg-surface-secondary;
         overflow: hidden;
         transition: background-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
@@ -155,28 +205,18 @@
             font-size: 14px;
             font-weight: 500;
             color: $text-secondary;
-            margin-bottom: 8px;
+            margin-bottom: $spacing-sm;
         }
 
         input {
+            @include input-focus-ring;
             width: 100%;
-            padding: 12px 16px;
+            padding: $spacing-md $spacing-lg;
             border: 1px solid $border-primary;
-            border-radius: 12px;
+            border-radius: $shape-corner-medium;
             font-size: 16px;
             background-color: $bg-surface-primary;
             color: $text-primary;
-            transition: border-color $duration-moderate $ease-smooth;
-
-            &:focus {
-                outline: none;
-            }
-
-            &:focus-visible {
-                border-color: $accent-primary;
-                box-shadow: 0 0 0 3px $accent-primary-soft;
-                outline: none;
-            }
 
             &.input-error {
                 border-color: $color-danger;
@@ -188,7 +228,7 @@
     .status-message {
         font-size: 12px;
         font-weight: 500;
-        margin-top: 8px;
+        margin-top: $spacing-sm;
         text-align: left;
         display: none;
 
@@ -211,7 +251,7 @@
         #device-sync-copy-btn {
             min-width: 40px;
             width: 40px;
-            padding: 8px;
+            padding: $spacing-sm;
 
             .animated-btn-text {
                 display: none;

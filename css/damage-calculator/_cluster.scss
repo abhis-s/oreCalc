@@ -1,0 +1,361 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-cluster-toggle-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+}
+
+.calc-cluster-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: start;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+
+    &__track {
+        position: relative;
+        display: inline-block;
+        width: 38px;
+        height: 22px;
+        flex-shrink: 0;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-full;
+        transition: background-color $transition-fast, border-color $transition-fast;
+    }
+
+    &__thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        background-color: $bg-surface-secondary;
+        border-radius: $shape-corner-full;
+        transition: transform $transition-fast, background-color $transition-fast;
+    }
+
+    &.is-active {
+        .calc-cluster-switch__track {
+            background-color: $accent-primary-soft;
+            border-color: $accent-primary;
+        }
+
+        .calc-cluster-switch__thumb {
+            transform: translateX(16px);
+            background-color: $accent-primary;
+        }
+    }
+
+    &__text {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2xs;
+        min-width: 0;
+        flex: 1;
+    }
+
+    &__title {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    &__subtitle {
+        font-size: $font-size-2xs;
+        color: $text-secondary;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+}
+
+.calc-multi-counter-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    padding-inline: $spacing-xs;
+    background-color: $accent-primary-soft;
+    color: $accent-primary;
+    border: 1px solid $accent-primary;
+    border-radius: $shape-corner-full;
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-bold;
+    white-space: nowrap;
+}
+
+.calc-cluster-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    padding: $spacing-sm;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+
+    &.is-empty {
+        padding: $spacing-sm $spacing-md;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 6px;
+    }
+
+    &__title {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    &__separator {
+        color: $text-muted;
+        font-weight: $font-weight-regular;
+        user-select: none;
+        margin-inline: 1px;
+    }
+
+    &__empty-hint {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-sm;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    &__empty-prompt {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2xs;
+        font-size: $font-size-xs;
+        color: $text-secondary;
+    }
+
+    &__empty-icon {
+        color: $accent-primary;
+        flex-shrink: 0;
+    }
+}
+
+.calc-cluster-ghost-slots {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2xs;
+}
+
+.calc-cluster-ghost-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: $shape-corner-full;
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-bold;
+    color: $text-muted;
+    background-color: $bg-surface-tertiary;
+    border: 1px dashed $border-primary;
+    user-select: none;
+
+    &.is-required {
+        border-color: $border-accent;
+        color: $accent-primary;
+    }
+}
+
+.calc-cluster-counter {
+    display: inline-flex;
+    align-items: center;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-regular;
+    color: $text-muted;
+    letter-spacing: normal;
+
+    &.is-max {
+        color: $accent-primary;
+        font-weight: $font-weight-semibold;
+    }
+}
+
+.calc-cluster-clear-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2xs;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    background: transparent;
+    border: none;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $shape-corner-xs;
+    cursor: pointer;
+    line-height: 1.2;
+    transition: color $transition-fast, background-color $transition-fast;
+
+    svg, orecalc-assets-svg {
+        display: inline-flex;
+        width: 12px;
+        height: 12px;
+        fill: currentColor;
+    }
+
+    &:hover {
+        color: $color-danger;
+        background-color: $bg-surface-tertiary;
+    }
+}
+
+.calc-cluster-chips-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.calc-cluster-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2xs;
+    padding-block: $spacing-2xs;
+    padding-inline-start: 4px;
+    padding-inline-end: 6px;
+    background-color: $bg-surface-tertiary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-full;
+    font-size: $font-size-xs;
+    min-height: 32px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: border-color $transition-fast, background-color $transition-fast;
+
+    &:hover {
+        border-color: $border-accent;
+    }
+
+    &.is-active-target {
+        border-color: $accent-primary;
+        background-color: $accent-primary-soft;
+    }
+
+    &__index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        padding-inline: $spacing-2xs;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        border-radius: $shape-corner-full;
+        font-size: 10px;
+        font-weight: $font-weight-bold;
+        flex-shrink: 0;
+    }
+
+    &__thumb {
+        width: 26px;
+        height: 26px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    &__name {
+        color: $text-primary;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        white-space: nowrap;
+    }
+
+    &__level {
+        color: $text-muted;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-medium;
+        white-space: nowrap;
+    }
+
+    &__supercharge {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    &__remove {
+        border: none;
+        background: transparent;
+        color: $text-muted;
+        cursor: pointer;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: $shape-corner-full;
+        margin-inline-start: 2px;
+        flex-shrink: 0;
+        transition: background-color $transition-fast, color $transition-fast;
+
+        svg, orecalc-assets-svg {
+            display: inline-flex;
+            width: 10px;
+            height: 10px;
+            fill: currentColor;
+        }
+
+        &:hover {
+            color: $color-danger;
+            background-color: $color-danger-soft;
+        }
+    }
+}
+
+.calc-cluster-notice {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    margin: 0;
+    padding-block-start: $spacing-2xs;
+    font-size: $font-size-2xs;
+    color: $text-muted;
+
+    &__icon {
+        width: 14px;
+        height: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+}

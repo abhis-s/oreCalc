@@ -1,13 +1,13 @@
 <dialog id="bug-report-modal" class="modal" aria-labelledby="bug-report-modal-title">
     <div class="modal-content bug-report-modal-content">
         <div class="modal-header">
-            <h2 id="bug-report-modal-title" data-i18n="views.settings.bugReport"></h2>
-            <button id="close-bug-report-header-btn" class="close-button" data-i18n-aria-label="actions.close">
+            <h2 id="bug-report-modal-title" data-i18n="views.settings.bugReport.title"></h2>
+            <button type="button" id="close-bug-report-header-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
         <div class="modal-info-text text-left">
-            <p data-i18n="views.settings.bugReportInfo"></p>
+            <p data-i18n="views.settings.bugReport.info"></p>
         </div>
         <div class="bug-report-form flex-column-gap-15 text-left push-top-10">
             <div class="form-group flex-column-gap-5">
@@ -25,7 +25,10 @@
             </div>
             <div class="form-group push-top-5">
                 <label class="checkbox-group">
-                    <input type="checkbox" id="bug-report-attach-checkbox" checked>
+                    <span class="checkbox-control">
+                        <input type="checkbox" id="bug-report-attach-checkbox" checked>
+                        <orecalc-assets-svg name="check-simple" class="checkbox-icon" width="14" height="14" aria-hidden="true"></orecalc-assets-svg>
+                    </span>
                     <span class="checkbox-label" data-i18n="views.settings.options.userDataAttachment"></span>
                 </label>
                 <p class="form-setting-text" data-i18n="views.settings.options.uuidAttachmentInfo"></p>
@@ -33,22 +36,22 @@
             <div class="sw-troubleshoot-box push-top-5">
                 <div class="sw-troubleshoot-content">
                     <div class="sw-troubleshoot-text">
-                        <span class="sw-troubleshoot-title" data-i18n="views.settings.bugReportSWTitle"></span>
-                        <span class="sw-troubleshoot-desc" data-i18n="views.settings.bugReportSWDesc"></span>
+                        <span class="sw-troubleshoot-title" data-i18n="views.settings.bugReport.appNotUpdatingTitle"></span>
+                        <span class="sw-troubleshoot-desc" data-i18n="views.settings.bugReport.swDesc"></span>
                     </div>
                     <button id="bug-report-reset-sw-btn" type="button" class="bug-report-sw-btn">
                         <orecalc-assets-svg name="sync" height="14" width="14"></orecalc-assets-svg>
-                        <span data-i18n="views.settings.bugReportResetSWLabel"></span>
+                        <span data-i18n="views.settings.bugReport.forceUpdateLabel"></span>
                     </button>
                 </div>
             </div>
             <div class="privacy-notice push-top-5">
-                <p data-i18n="views.settings.bugReportPrivacyInfo"></p>
+                <p data-i18n="views.settings.bugReport.privacyInfo"></p>
             </div>
         </div>
         <div class="modal-actions push-top-15">
-            <button id="close-bug-report-modal-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button id="submit-bug-report-btn" class="accept-button" data-i18n="actions.submit"></button>
+            <button type="button" id="close-bug-report-modal-btn" class="reject-button" data-i18n="actions.cancel"></button>
+            <button type="button" id="submit-bug-report-btn" class="accept-button" data-i18n="actions.submit"></button>
         </div>
     </div>
 </dialog>

@@ -3,10 +3,10 @@
                     <div class="modal-header">
                         <h2 id="add-player-modal-title" data-i18n="player.addTitle"></h2>
                         <div class="modal-header-actions">
-                            <button id="add-player-modal-info-btn" class="info-button" data-info="player.addPlayerHelp" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" id="add-player-modal-info-btn" class="info-button" data-info="player.addPlayerHelp" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" height="22" width="22"></orecalc-assets-svg>
                             </button>
-                            <button id="close-add-player-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+                            <button type="button" id="close-add-player-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
                             </button>
                         </div>
@@ -16,7 +16,7 @@
                         <input type="text" id="player-tag-input-modal" maxlength="12" data-i18n-placeholder="player.placeholderTag" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" data-modal-autofocus>
                         <div id="player-tag-error-message" class="error-message"></div>
                     </div>
-                    <div class="player-name-input-container" id="add-player-token-container" style="display: none;">
+                    <div class="player-name-input-container" id="add-player-token-container" hidden>
                         <label for="add-player-token-input" data-i18n="player.apiToken"></label>
                         <input type="text" id="add-player-token-input" maxlength="8" data-i18n-placeholder="player.placeholderToken" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
                         <small class="api-token-hint" data-i18n="player.apiTokenHint"></small>
@@ -25,11 +25,11 @@
                         <p data-i18n="player.disclaimer"></p>
                     </div>
                     <div class="modal-actions">
-                        <button id="add-player-guided-setup-btn" class="btn-secondary" data-i18n="actions.guidedSetup"></button>
+                        <button type="button" id="add-player-guided-setup-btn" class="btn-secondary" data-i18n="views.guidedSetup.title"></button>
                         <div class="modal-actions-right">
-                            <button id="cancel-add-player-button" class="btn-secondary" data-i18n="actions.cancel"></button>
-                            <button id="load-player-modal-btn" class="btn-primary" data-i18n="actions.load"></button>
-                            <button id="verify-player-modal-btn" class="btn-primary" style="display: none;" data-i18n="actions.verify"></button>
+                            <button type="button" id="cancel-add-player-button" class="btn-secondary" data-i18n="actions.cancel"></button>
+                            <button type="button" id="load-player-modal-btn" class="btn-primary" data-i18n="actions.load"></button>
+                            <button type="button" id="verify-player-modal-btn" class="btn-primary" hidden data-i18n="actions.verify"></button>
                         </div>
                     </div>
 

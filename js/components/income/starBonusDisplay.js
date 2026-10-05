@@ -2,7 +2,8 @@ import { leagueTiers } from '../../data/leagueTiers.js';
 import { townHallLeagueFloors } from '../../data/incomeSources/starBonus.js';
 import { translate } from '../../i18n/translator.js';
 
-import { formatDate, getMaxTownHall, getTHReleaseDate } from '../../utils/dateUtils.js';
+import { getMaxTownHall, getTHReleaseDate } from '../../domain/townHall/townHallSchedule.js';
+import { formatDate } from '../../utils/dateUtils.js';
 import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 
 import { dom } from '../../dom/domElements.js';
@@ -103,8 +104,9 @@ export function renderStarBonusSelectorContent(state) {
  * @param {number} currentMonth - Current UTC month index (0-11).
  * @param {number} savedYear - Saved event year.
  * @param {number} savedMonth - Saved event month index (0-11).
+ * @param {string} [locale] - UI language locale.
  */
-export function renderLastEventOptions(select, frequency, currentYear, currentMonth, savedYear, savedMonth) {
+export function renderLastEventOptions(select, frequency, currentYear, currentMonth, savedYear, savedMonth, locale = undefined) {
     const row = select.closest('.input-group-flex');
     if (row) {
         row.style.display = frequency === 1 ? 'none' : 'flex';
@@ -126,7 +128,7 @@ export function renderLastEventOptions(select, frequency, currentYear, currentMo
             const date = new Date(currentMonthBase);
             date.setUTCMonth(date.getUTCMonth() - i);
 
-            const monthLabel = formatDate(date, { month: 'short', year: '2-digit' });
+            const monthLabel = formatDate(date, { month: 'short', year: '2-digit' }, locale);
 
             const option = document.createElement('option');
             option.value = String(-i);
@@ -187,6 +189,7 @@ export function renderTHPlanningSection(state) {
     }
 
     const planningData = state.income.starBonus?.thUpgrades || {};
+    const currentLang = state.uiSettings?.language || 'en';
     const now = new Date();
     const currentMonth = now.getUTCMonth();
     const currentYear = now.getUTCFullYear();
@@ -241,7 +244,7 @@ export function renderTHPlanningSection(state) {
             for (let i = startOffset; i <= endOffset; i++) {
                 const date = new Date(currentMonthBase);
                 date.setUTCMonth(date.getUTCMonth() + (i - 1));
-                const monthLabel = formatDate(date, { month: 'short', year: '2-digit' });
+                const monthLabel = formatDate(date, { month: 'short', year: '2-digit' }, currentLang);
                 const option = document.createElement('option');
                 option.value = String(i);
                 option.textContent = monthLabel;

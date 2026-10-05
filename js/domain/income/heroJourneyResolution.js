@@ -342,6 +342,72 @@ export function getResolvedEquipmentReward(node, state, trackResolution = null) 
 }
 
 /**
+ * Resolves the milestone node where an equipment item is actually awarded.
+ * If the equipment was missed at an earlier claimed node, it resolves to the
+ * future node where the item has been rescheduled to be awarded.
+ *
+ * @param {string} eqKey - Equipment key (e.g. 'darkCrown').
+ * @param {string} eqName - Equipment name (e.g. 'Dark Crown').
+ * @param {Record<number, any>} trackResolution - Track resolution map.
+ * @param {import('../../core/types.js').AppState | any} [state=null] - Application state.
+ * @returns {any | null} The resolved node entry from trackResolution, or null.
+ */
+function getAssignedEquipmentTrackNode(eqKey, eqName, trackResolution, state = null) {
+    if (!trackResolution) return null;
+
+    const cumulativeLevel = state ? getCumulativeHeroLevel(state) : 0;
+
+    // Priority: future unreached node where equipment is awarded
+    const futureAwardLevel = Object.keys(trackResolution).find(lvl => {
+        if (Number(lvl) <= cumulativeLevel) return false;
+        const res = trackResolution[lvl];
+        if (!res || res.isFallbackStarry) return false;
+        if (res.resolvedKey !== eqKey && res.resolvedName !== eqName) return false;
+        const opt = res.poolOptions?.find(o => o.key === eqKey || o.name === eqName);
+        return opt ? opt.status === 'awardedHere' : true;
+    });
+
+    if (futureAwardLevel) {
+        return trackResolution[futureAwardLevel];
+    }
+
+    // Check rescheduled future node from earlier missed award
+    for (const lvl of Object.keys(trackResolution)) {
+        const res = trackResolution[lvl];
+        if (!res) continue;
+        const opt = res.poolOptions?.find(o => (o.key === eqKey || o.name === eqName) && o.status === 'nowAwardedAt' && o.awardedAtLevel);
+        if (opt?.awardedAtLevel && trackResolution[opt.awardedAtLevel]) {
+            return trackResolution[opt.awardedAtLevel];
+        }
+    }
+
+    // Check past awarded node (e.g. already-owned milestone)
+    const awardedLevel = Object.keys(trackResolution).find(lvl => {
+        const res = trackResolution[lvl];
+        if (!res || res.isFallbackStarry) return false;
+        if (res.resolvedKey !== eqKey && res.resolvedName !== eqName) return false;
+        const opt = res.poolOptions?.find(o => o.key === eqKey || o.name === eqName);
+        return opt ? opt.status === 'awardedHere' : false;
+    });
+
+    if (awardedLevel) {
+        return trackResolution[awardedLevel];
+    }
+
+    // Fallback: any matching node in resolution map
+    const fallbackLevel = Object.keys(trackResolution).find(lvl => {
+        const res = trackResolution[lvl];
+        return res && !res.isFallbackStarry && (res.resolvedKey === eqKey || res.resolvedName === eqName);
+    });
+
+    if (fallbackLevel) {
+        return trackResolution[fallbackLevel];
+    }
+
+    return null;
+}
+
+/**
  * Resolves the default equipment unlock level for unowned equipment.
  * If application state is provided, it dynamically queries the player's resolved track.
  * Otherwise, it falls back to the static baseline node.
@@ -358,13 +424,10 @@ export function getDefaultEquipmentUnlockLevel(heroNameOrKey, equipNameOrKey, st
 
     if (state || precalculatedResolution) {
         const trackResolution = precalculatedResolution || resolveHeroJourneyTrack(state);
-        const assignedLevel = Object.keys(trackResolution).find(lvl => {
-            const res = trackResolution[lvl];
-            return res && !res.isFallbackStarry && (res.resolvedKey === eqKey || res.resolvedName === eqName);
-        });
+        const assignedNode = getAssignedEquipmentTrackNode(eqKey, eqName, trackResolution, state);
 
-        if (assignedLevel && trackResolution[assignedLevel]?.equipmentLevel) {
-            return trackResolution[assignedLevel].equipmentLevel;
+        if (assignedNode?.equipmentLevel) {
+            return assignedNode.equipmentLevel;
         }
     }
 
@@ -444,14 +507,11 @@ export function isHeroJourneyFutureOrUnclaimedEquipment(heroNameOrKey, equipName
     const eqName = typeof equipNameOrKey === 'object' ? equipNameOrKey?.name : equipNameOrKey;
 
     const trackResolution = precalculatedResolution || resolveHeroJourneyTrack(state);
-    const assignedLevel = Object.keys(trackResolution).find(lvl => {
-        const res = trackResolution[lvl];
-        return res && !res.isFallbackStarry && (res.resolvedKey === eqKey || res.resolvedName === eqName);
-    });
+    const assignedNode = getAssignedEquipmentTrackNode(eqKey, eqName, trackResolution, state);
 
-    if (assignedLevel) {
+    if (assignedNode) {
         const cumulativeLevel = getCumulativeHeroLevel(state);
-        return cumulativeLevel < Number(assignedLevel);
+        return cumulativeLevel < Number(assignedNode.node.level);
     }
 
     let targetNodeLevel = null;

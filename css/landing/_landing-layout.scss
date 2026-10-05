@@ -1,0 +1,135 @@
+@use '../abstracts/mixins' as *;
+
+.landing-page {
+    min-height: 100vh;
+    background-color: $bg-app;
+    color: $text-primary;
+    display: flex;
+    flex-direction: column;
+}
+
+.landing-header {
+    @include app-header-shell;
+    padding: 0 $spacing-xl;
+
+    &__inner {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-lg;
+
+        @media (max-width: $breakpoint-phone) {
+            gap: $spacing-sm;
+        }
+    }
+
+    &__brand-group {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+
+    @media (max-width: $breakpoint-desktop) {
+        padding: 0 $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-compact) {
+        padding: 0 $spacing-sm;
+    }
+}
+
+.header-placeholder {
+    @include app-header-placeholder;
+}
+
+.landing-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    text-decoration: none;
+    color: $text-primary;
+    transition: opacity $duration-fast $ease-smooth;
+
+    &:hover {
+        opacity: 0.85;
+    }
+
+    &__name {
+        font-size: 20px;
+        font-weight: $font-weight-extrabold;
+        letter-spacing: -0.5px;
+
+        @media (max-width: $breakpoint-modal) {
+            font-size: 18px;
+        }
+
+        @include brand-gradient-split;
+    }
+}
+
+.landing-header__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    @media (max-width: $breakpoint-phone) {
+        gap: $spacing-xs;
+    }
+}
+
+.landing-main {
+    flex: 1;
+    width: 100%;
+    max-width: $container-max-width;
+    margin-inline: auto;
+    padding: $spacing-md $spacing-lg $spacing-2xl;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    box-sizing: border-box;
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-sm $spacing-md $spacing-md;
+        gap: $spacing-md;
+    }
+}
+
+.landing-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: $spacing-sm 0 0;
+    margin: 0;
+
+    &__title {
+        margin: 0 0 $spacing-2xs;
+        font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+        font-weight: $font-weight-black;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+
+        @include brand-gradient-split;
+    }
+
+    &__badge {
+        margin: 0 0 $spacing-xs;
+        padding: $spacing-2xs $spacing-sm;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        text-transform: none;
+        letter-spacing: 0.02em;
+        color: $text-secondary;
+        background-color: color-mix(in srgb, $bg-surface-secondary 80%, transparent);
+        border: 1px solid $border-secondary;
+        border-radius: $shape-corner-full;
+    }
+
+    &__subtitle {
+        max-width: 540px;
+        margin: 0;
+        font-size: $font-size-sm;
+        line-height: 1.45;
+        color: $text-secondary;
+    }
+}

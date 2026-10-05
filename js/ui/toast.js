@@ -1,5 +1,8 @@
+import { translate } from '../i18n/translator.js';
 import { announce } from '../utils/a11yAnnouncer.js';
 
+export const API_ERROR_COOLDOWN_MS = 2 * 60 * 1000;
+let lastApiErrorTimestamp = 0;
 const activeToasts = [];
 
 function updateToastPositions() {
@@ -45,18 +48,14 @@ export function showToast(message, type = 'info') {
         iconId = 'icon-warning';
     }
 
+    const iconName = iconId.replace(/^icon-/, '');
     toast.innerHTML = `
         <span class="toast-icon">
-            <svg class="toast-icon-svg" aria-hidden="true">
-                <use href="#${iconId}"></use>
-            </svg>
+            <orecalc-assets-svg name="${iconName}" class="toast-icon-svg" aria-hidden="true"></orecalc-assets-svg>
         </span>
         <span class="toast-message">${message}</span>
     `;
 
-    // Start offset for transition entry
-    const isMobile = window.innerWidth <= 779;
-    const rowHeight = isMobile ? 48 : 62;
     // Position it at slot 0 initially, but offset slightly down and faded out for the transition
     toast.style.opacity = '0';
     toast.style.transform = `translateY(20px) scale(0.95)`;
@@ -100,4 +99,73 @@ export function showToast(message, type = 'info') {
             toast.remove();
         });
     }, 4000);
+
+    return toast;
+}
+
+/**
+ * Normalizes and extracts user-friendly text from error codes, objects, or strings.
+ * @param {any} errorOrMessage - Error payload, i18n key, or message string.
+ * @returns {string} Sanitized localized message.
+ */
+export function formatApiErrorMessage(errorOrMessage) {
+    if (!errorOrMessage) {
+        return translate('apiErrors.500');
+    }
+    if (typeof errorOrMessage === 'object') {
+        if (errorOrMessage.errorType && typeof errorOrMessage.errorType === 'string') {
+            return translate(errorOrMessage.errorType);
+        }
+        if (errorOrMessage.message && typeof errorOrMessage.message === 'string') {
+            return errorOrMessage.message.replace(/<[^>]*>/g, '').trim();
+        }
+    }
+    if (typeof errorOrMessage === 'string') {
+        if (errorOrMessage.startsWith('apiErrors.') || errorOrMessage.startsWith('errors.')) {
+            return translate(errorOrMessage);
+        }
+        return errorOrMessage.replace(/<[^>]*>/g, '').trim();
+    }
+    return String(errorOrMessage);
+}
+
+/**
+ * Displays an API error toast constrained to at most 1 visible instance and a 2-minute mute cooldown.
+ * Subsequent API errors during the 2-minute window are dropped without altering base toast settings.
+ * @param {any} errorOrMessage - Error payload, i18n key, or error object.
+ * @returns {HTMLElement|null} The toast element if rendered, or null if dropped by cooldown.
+ */
+export function showApiErrorToast(errorOrMessage) {
+    const now = Date.now();
+
+    if (now - lastApiErrorTimestamp < API_ERROR_COOLDOWN_MS) {
+        return null;
+    }
+
+    lastApiErrorTimestamp = now;
+
+    // Dismiss any existing API error toast before rendering to enforce 1-toast limit for API errors
+    for (let i = activeToasts.length - 1; i >= 0; i--) {
+        const activeToast = activeToasts[i];
+        if (activeToast && activeToast.classList.contains('toast-api-error')) {
+            activeToasts.splice(i, 1);
+            activeToast.remove();
+        }
+    }
+    updateToastPositions();
+
+    const cleanMessage = formatApiErrorMessage(errorOrMessage);
+    const toast = showToast(cleanMessage, 'error');
+    if (toast) {
+        toast.classList.add('toast-api-error');
+        toast.dataset.toastCategory = 'api-error';
+    }
+    return toast;
+}
+
+/**
+ * Resets the 2-minute API error cooldown timer in memory (primarily for testing).
+ */
+export function resetApiErrorCooldown() {
+    lastApiErrorTimestamp = 0;
 }

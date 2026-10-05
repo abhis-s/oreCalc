@@ -16,7 +16,7 @@ export const currencyData = deepFreeze({
 
 export const priceTierRegistry = deepFreeze({
     "tier1": {
-        "i18nKey": "pricing.gems",
+        "i18nKey": "entities.pricing.gems",
         "i18nArgs": { "count": 80 },
         "EUR": 1.19,
         "USD": 0.99,
@@ -31,7 +31,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 44.99
     },
     "tier3": {
-        "i18nKey": "pricing.miniEventPass",
+        "i18nKey": "entities.pricing.miniEventPass",
         "EUR": 3.49,
         "USD": 2.99,
         "GBP": 2.99,
@@ -45,7 +45,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 134.99
     },
     "tier4": {
-        "i18nKey": "pricing.tier4",
+        "i18nKey": "entities.pricing.tier4",
         "EUR": 4.49,
         "USD": 3.99,
         "GBP": 3.99,
@@ -59,7 +59,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 179.99
     },
     "tier5": {
-        "i18nKey": "pricing.gemsEventPass",
+        "i18nKey": "entities.pricing.gemsEventPass",
         "i18nArgs": { "count": 500 },
         "EUR": 5.99,
         "USD": 4.99,
@@ -74,7 +74,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 224.99
     },
     "tier6": {
-        "i18nKey": "pricing.tier6",
+        "i18nKey": "entities.pricing.tier6",
         "EUR": 6.99,
         "USD": 5.99,
         "GBP": 5.99,
@@ -88,7 +88,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 269.99
     },
     "tier7": {
-        "i18nKey": "pricing.goldPass",
+        "i18nKey": "entities.pricing.goldPass",
         "EUR": 7.99,
         "USD": 6.99,
         "GBP": 6.99,
@@ -102,7 +102,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 319.99
     },
     "tier10": {
-        "i18nKey": "pricing.gems",
+        "i18nKey": "entities.pricing.gems",
         "i18nArgs": { "count": 1200 },
         "EUR": 11.99,
         "USD": 9.99,
@@ -117,7 +117,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 449.99
     },
     "tier15": {
-        "i18nKey": "pricing.gems",
+        "i18nKey": "entities.pricing.gems",
         "i18nArgs": { "count": 1850 },
         "EUR": 17.99,
         "USD": 14.99,
@@ -132,7 +132,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 679.99
     },
     "tier20": {
-        "i18nKey": "pricing.gems",
+        "i18nKey": "entities.pricing.gems",
         "i18nArgs": { "count": 2500 },
         "EUR": 23.99,
         "USD": 19.99,
@@ -147,7 +147,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 899.99
     },
     "tier50": {
-        "i18nKey": "pricing.gems",
+        "i18nKey": "entities.pricing.gems",
         "i18nArgs": { "count": 6500 },
         "EUR": 59.99,
         "USD": 49.99,
@@ -162,7 +162,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 2249.99
     },
     "tier100": {
-        "i18nKey": "pricing.gems",
+        "i18nKey": "entities.pricing.gems",
         "i18nArgs": { "count": 14000 },
         "EUR": 119.99,
         "USD": 99.99,
@@ -177,7 +177,7 @@ export const priceTierRegistry = deepFreeze({
         "TRY": 4499.99
     },
     "tier200": {
-        "i18nKey": "pricing.gems",
+        "i18nKey": "entities.pricing.gems",
         "i18nArgs": { "count": 30000 },
         "EUR": 239.99,
         "USD": 199.99,

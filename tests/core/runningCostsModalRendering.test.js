@@ -231,7 +231,7 @@ const mockWindow = {
     cancelAnimationFrame: () => {},
     scrollTo: () => {},
     location: { hostname: 'localhost' },
-    __ENV__: { APP_VERSION: '2.1.0', VITE_API_BASE_URL: 'https://api.orecalc.tech' }
+    __ENV__: { APP_VERSION: '2.1.0', PUBLIC_API_BASE_URL: 'https://api.orecalc.tech', VITE_API_BASE_URL: 'https://api.orecalc.tech' }
 };
 
 if (typeof globalThis.window === 'undefined') {
@@ -611,6 +611,42 @@ describe('Project Running Costs Modal Breakdown & Accordion Recovery Suite', () 
 
             toggleBtn.click();
             assert.equal(btnText.textContent, 'Weniger anzeigen');
+        });
+
+        test('defensively excludes invoice and tax services from monthly breakdown and cumulative total', () => {
+            const modal = new MockDOMElement('div');
+            const totalValue = new MockDOMElement('span');
+            const historyContainer = new MockDOMElement('div');
+
+            const payload = {
+                isMock: false,
+                totalCostTillDate: 51.94,
+                breakdown: [
+                    {
+                        month: '2026-07',
+                        totalCost: 51.94,
+                        services: [
+                            { name: 'Networking', cost: 18.67 },
+                            { name: 'Invoice', cost: 1.45 },
+                            { name: 'Compute Engine', cost: 0.69 }
+                        ]
+                    }
+                ]
+            };
+
+            renderRunningCostsData(modal, payload, totalValue, historyContainer, null);
+
+            assert.equal(totalValue.textContent, '$50.49');
+
+            const card = historyContainer.querySelector('.costs-month-card');
+            const monthTotal = card.querySelector('.costs-month-total');
+            assert.equal(monthTotal.textContent, '$19.36');
+
+            const rows = card.querySelectorAll('.costs-service-row');
+            assert.equal(rows.length, 2);
+            const serviceNames = Array.from(rows).map(r => r.querySelector('.costs-service-name').textContent);
+            assert.ok(!serviceNames.includes('Invoice'));
+            assert.ok(!serviceNames.includes('Tax'));
         });
     });
 });

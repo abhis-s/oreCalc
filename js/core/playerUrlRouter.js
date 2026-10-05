@@ -1,4 +1,4 @@
-import { normalizePlayerTag } from './localStorageManager.js';
+import { normalizePlayerTag } from './storageKeys.js';
 
 /**
  * Extracts and sanitizes player tag from URL query parameters.

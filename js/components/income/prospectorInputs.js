@@ -72,7 +72,6 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
 
     dropdownElement.addEventListener('keydown', (e) => {
         const target = e.target;
-        const isOpen = dropdownElement.classList.contains('open');
 
         if (target === dropdownElement) {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -266,6 +265,7 @@ function updateAssistedOverlay(isAssisted) {
     const overlay = dom.income.prospector.assistedOverlay;
     const wrapper = overlay?.closest('.prospector-grid-wrapper');
     if (!overlay || !wrapper) return;
+    overlay.hidden = !isAssisted;
     overlay.style.display = isAssisted ? 'flex' : 'none';
     wrapper.classList.toggle('is-assisted', isAssisted);
 }
@@ -321,10 +321,8 @@ export function renderProspector(prospectorState) {
 export function initializeProspector() {
     if (!dom.income?.prospector?.fromAmount) return;
 
-    // --- Set Initial UI Values from State ---
     renderProspector(state.income.prospector);
 
-    // --- Add Validation ---
     addValidation(dom.income.prospector.fromAmount, { inputName: translate('validation.amount') });
     registerInputPopover(dom.income.prospector.fromAmount, {
         title: () => translate('views.income.prospector.fromOre'),
@@ -346,13 +344,13 @@ export function initializeProspector() {
             if (exceeds) {
                 return [
                     {
-                        label: () => `${translate('views.planner.recommended')} (${translate('views.income.prospector.tips.preferred')} <orecalc-assets-svg name="warning" width="14" height="14" class="prospector-warning-icon"></orecalc-assets-svg>)`,
+                        label: () => `${translate('validation.recommended')} (${translate('views.income.prospector.tips.preferred')} <orecalc-assets-svg name="warning" width="14" height="14" class="prospector-warning-icon"></orecalc-assets-svg>)`,
                         value: preferred,
                         className: 'exceeded-color',
                         clickToFill: true
                     },
                     {
-                        label: () => `${translate('views.planner.recommended')} (${translate('views.income.prospector.tips.fallback')})`,
+                        label: () => `${translate('validation.recommended')} (${translate('views.income.prospector.tips.fallback')})`,
                         value: fallback,
                         className: 'match-color',
                         clickToFill: true
@@ -361,7 +359,7 @@ export function initializeProspector() {
             } else {
                 return [
                     {
-                        label: () => translate('views.planner.recommended'),
+                        label: () => translate('validation.recommended'),
                         value: preferred,
                         clickToFill: true
                     }
@@ -374,7 +372,6 @@ export function initializeProspector() {
         }
     });
 
-    // --- Initialize Dropdown Options & Event Listeners ---
     initializeCustomDropdown(dom.income.prospector.fromOre, 'from');
     initializeCustomDropdown(dom.income.prospector.toOre, 'to');
 

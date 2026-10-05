@@ -43,7 +43,7 @@
         justify-content: flex-start;
 
         .ore-text {
-            padding: 0 2px;
+            padding: 0 $spacing-2xs;
             width: 60px;
         }
     }
@@ -107,24 +107,6 @@
 
     #planner-tab .planner-cards-grid {
         grid-template-columns: minmax(0, 1fr);
-    }
-}
-
-@media (max-width: $breakpoint-compact) {
-    .header-container {
-        top: 0;
-        left: 0;
-        right: 0;
-        width: auto;
-        border-radius: 0;
-
-        h1 {
-            font-size: var(--font-size-lg);
-        }
-    }
-
-    .header-placeholder {
-        height: 68px;
     }
 }
 

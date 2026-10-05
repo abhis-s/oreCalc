@@ -79,6 +79,8 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
     });
 
     test('zero Unicode dingbats and raw symbols across production source files, templates, and dictionaries', () => {
+        // Barred: raw arrows, box drawing, geometric symbols, dingbats, and raw bullet dingbats (\u2022).
+        // Note: Middle dot '\u00B7' (· / &middot;) is a permitted typographic separator (Rule 3) and must NOT be barred.
         const prohibitedSymbols = /[\u2190-\u21FF\u2500-\u257F\u25A0-\u25FF\u2600-\u26FF\u2700-\u27BF\u2022]/u;
         const violations = [];
 
@@ -210,7 +212,7 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
                 const scriptBody = match[1];
 
                 if (/src\s*=/i.test(scriptOpeningTag)) continue;
-                if (/type\s*=\s*['"]application\/(?:ld\+)?json['"]/i.test(scriptOpeningTag)) continue;
+                if (/type\s*=\s*['"](?:application\/(?:ld\+)?json|importmap)['"]/i.test(scriptOpeningTag)) continue;
                 if (!scriptBody.trim()) continue;
 
                 const isModule = /type\s*=\s*['"]module['"]/i.test(scriptOpeningTag);
@@ -247,7 +249,7 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
             if (rel === 'js/utils/imageManager.js') return false;
             if (rel.startsWith('tests/') || rel.startsWith('scripts/')) return false;
             if (rel.endsWith('.md') || rel.endsWith('.json') || rel.endsWith('.scss') || rel.endsWith('.css')) return false;
-            return rel.startsWith('partials/') || rel.startsWith('js/') || rel === 'index.html' || rel === 'hero-journey.html';
+            return rel.startsWith('partials/') || rel.startsWith('js/') || rel === 'index.html' || rel === 'ore-calculator/index.html' || rel === 'hero-journey/index.html';
         });
 
         for (const file of targetFiles) {
@@ -391,6 +393,7 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
             const relFromRoot = path.relative(projectRoot, file).replace(/\\/g, '/');
 
             const isDynamicTH = filename.startsWith('th') && !isNaN(Number(filename.slice(2, -4)));
+            const isDynamicBuilding = relFromAssets.startsWith('buildings/') && filename.startsWith('level_');
 
             const isReferenced = sourceContents.some(({ content }) => {
                 if (content.includes(filename) || content.includes(relFromAssets) || content.includes(relFromRoot)) {
@@ -400,6 +403,9 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
                     return true;
                 }
                 if (isDynamicTH && (content.includes('assets/th/th$') || content.includes('assets/th/th') || content.includes('assets/th/'))) {
+                    return true;
+                }
+                if (isDynamicBuilding && (content.includes('assets/buildings/') || content.includes('/assets/buildings/'))) {
                     return true;
                 }
                 return false;

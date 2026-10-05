@@ -1,3 +1,4 @@
+@forward 'variables';
 @use 'variables' as *;
 
 @mixin transition($properties...) {
@@ -37,4 +38,129 @@
         background-color: $btn-hover-blue-bg;
         border-color: $btn-border-blue-hover;
     }
+}
+
+@mixin brand-gradient-split {
+    .brand-clash,
+    .brand-ore {
+        background: $brand-gradient-primary;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .brand-calc {
+        background: $brand-gradient-secondary;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+}
+
+@mixin app-header-shell {
+    position: fixed;
+    top: calc(#{$header-top-desktop} + env(safe-area-inset-top, 0px));
+    left: $header-inset-desktop;
+    right: $header-inset-desktop;
+    margin-inline: auto;
+    max-width: $header-max-width;
+    width: auto;
+    height: $header-height-desktop;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: color-mix(in srgb, $bg-surface-secondary 45%, transparent);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid color-mix(in srgb, $border-primary 35%, transparent);
+    border-radius: $header-radius-desktop;
+    z-index: $z-index-layout;
+    container-type: inline-size;
+    container-name: header-shell;
+    isolation: isolate;
+    transform: translateZ(0);
+    will-change: transform;
+
+    transition: background-color $duration-moderate $ease-smooth,
+                top $duration-moderate $ease-smooth,
+                box-shadow $duration-moderate $ease-smooth,
+                border-color $duration-moderate $ease-smooth,
+                backdrop-filter $duration-moderate $ease-smooth;
+
+    &.is-scrolled {
+        background-color: color-mix(in srgb, $bg-surface-secondary 65%, transparent);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        border-color: color-mix(in srgb, $border-primary 60%, transparent);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    padding: 0 $spacing-xl;
+
+    @media (max-width: #{$breakpoint-desktop - 1px}) {
+        height: $header-height-mobile;
+        top: calc(#{$header-top-mobile} + env(safe-area-inset-top, 0px));
+        left: $header-inset-mobile;
+        right: $header-inset-mobile;
+        border-radius: $header-radius-mobile;
+        padding: 0 $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-compact) {
+        padding: 0 $spacing-sm;
+    }
+}
+
+@mixin app-header-placeholder {
+    display: block;
+    height: calc(#{$header-height-desktop} + #{$header-top-desktop} + #{$spacing-md} + env(safe-area-inset-top, 0px));
+
+    @media (max-width: #{$breakpoint-desktop - 1px}) {
+        height: calc(#{$header-height-mobile} + #{$header-top-mobile} + #{$spacing-md} + env(safe-area-inset-top, 0px));
+    }
+}
+
+@mixin header-action-btn-collapse {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+
+    .animated-btn-text {
+        display: none;
+    }
+
+    .animated-btn-icon-wrapper {
+        opacity: 1;
+        transform: translateY(0);
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+@mixin input-focus-ring {
+    box-shadow: 0 0 0 0 transparent;
+    transition: border-color $duration-base $ease-smooth, box-shadow $duration-base $ease-smooth;
+
+    &:focus,
+    &:focus-visible {
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 3px $accent-primary-soft;
+        outline: none;
+    }
+}
+
+@mixin custom-select-chevron($right-offset: 10px, $size: 12px, $padding-right: 28px) {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right $right-offset center;
+    background-size: $size $size;
+    padding-right: $padding-right;
+    cursor: pointer;
 }

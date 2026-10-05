@@ -25,7 +25,7 @@
     .changelog-release {
         background-color: $bg-surface-primary;
         border: 1px solid $border-secondary;
-        border-radius: 12px;
+        border-radius: $shape-corner-medium;
         padding: 1.5rem;
         transition: transform $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
 

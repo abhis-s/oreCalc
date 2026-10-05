@@ -210,15 +210,22 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             assert.equal(gemTraderData.length, 3);
             for (const offer of gemTraderData) {
                 assert.equal(offer.currency, 'gems');
-                assert.equal(offer.maxPacks, 10);
+                assert.ok(offer.maxPacks > 0);
                 assert.ok(offer.cost > 0);
             }
             const starry = gemTraderData.find(o => o.id === 'gem_starry');
             const glowy = gemTraderData.find(o => o.id === 'gem_glowy');
             const shiny = gemTraderData.find(o => o.id === 'gem_shiny');
-            assert.equal(starry.cost, 115);
+            assert.equal(starry.cost, 150);
+            assert.equal(starry.maxPacks, 5);
+            assert.equal(starry.starry, 15);
+            assert.equal(starry.recommendedPacks, 2);
             assert.equal(glowy.cost, 90);
+            assert.equal(glowy.maxPacks, 5);
+            assert.equal(glowy.glowy, 60);
             assert.equal(shiny.cost, 75);
+            assert.equal(shiny.maxPacks, 10);
+            assert.equal(shiny.shiny, 300);
         });
 
         test('Event Trader data maintains correct currencies and pack caps', () => {
@@ -264,10 +271,10 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             assert.equal(getEquipmentMaxLevel(), 18);
         });
 
-        test('All 42 equipment JSON definition files match rarity level caps', () => {
+        test('All 43 equipment JSON definition files match rarity level caps', () => {
             const equipmentDir = path.join(projectRoot, 'js', 'data', 'equipment');
             const files = fs.readdirSync(equipmentDir).filter(f => f.endsWith('.json'));
-            assert.equal(files.length, 42, 'Expected 42 equipment definition files');
+            assert.equal(files.length, 43, 'Expected 43 equipment definition files');
 
             for (const file of files) {
                 const filePath = path.join(equipmentDir, file);
@@ -312,6 +319,7 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             const unrankedItem = leagueTiers.items[0];
             assert.equal(unrankedItem.id, UNRANKED_LEAGUE_ID);
             assert.equal(unrankedItem.name, 'Unranked');
+            assert.ok(typeof unrankedItem.iconUrls?.small === 'string' && unrankedItem.iconUrls.small.length > 0);
 
             const legendsItem = leagueTiers.items[36];
             assert.equal(legendsItem.id, LEGENDS_LEAGUE_ID);
@@ -375,11 +383,11 @@ describe('Single Source of Truth Integrity Test Suite', () => {
     });
 
     describe('9. Static HTML Template Attribute Invariant Checker', () => {
-        test('Stored ore inputs across equipment.html, stored-ores-modal.html, and setup-wizard-view.html match STORAGE_LIMITS and STORAGE_STEPS', () => {
+        test('Stored ore inputs across equipment.html, stored-ores-modal.html, and guided-setup-modal.html match STORAGE_LIMITS and STORAGE_STEPS', () => {
             const files = [
                 path.join(projectRoot, 'partials', 'tabs', 'equipment.html'),
                 path.join(projectRoot, 'partials', 'modals', 'stored-ores-modal.html'),
-                path.join(projectRoot, 'partials', 'modals', 'welcome', 'setup-wizard-view.html')
+                path.join(projectRoot, 'partials', 'modals', 'guided-setup-modal.html')
             ];
 
             for (const filePath of files) {

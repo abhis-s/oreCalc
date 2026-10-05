@@ -37,23 +37,23 @@ function attachPriorityOresPopover(oresEl, item, startLevel, heroName, equipName
             </div>
         `,
         body: `
-            <p>${translate('views.income.ores.tooltipReached')}</p>
-            <p>${translate('views.income.prospector.tooltipConsider')}</p>
+            <p data-i18n="views.income.ores.tooltipReached">${translate('views.income.ores.tooltipReached')}</p>
+            <p data-i18n="views.income.prospector.tooltipConsider">${translate('views.income.prospector.tooltipConsider')}</p>
             <div class="popover-chest-breakdown popover-ores-breakdown">
-                <div class="popover-range-label">${translate('views.income.ores.tooltipRequired')}</div>
+                <div class="popover-range-label" data-i18n="views.income.ores.tooltipRequired">${translate('views.income.ores.tooltipRequired')}</div>
                 <div class="popover-chest-ranges-row popover-ores-ranges-row">
                     <div class="chest-ore-inline-chip popover-ore-inline-chip">
                         <span><strong>${formatNumber(item.requiredOres.shiny)}</strong></span>
-                        <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" class="ore-mini-icon"></orecalc-assets-image>
+                        <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" data-i18n-alt="entities.ores.shiny" class="ore-mini-icon"></orecalc-assets-image>
                     </div>
                     <div class="chest-ore-inline-chip popover-ore-inline-chip">
                         <span><strong>${formatNumber(item.requiredOres.glowy)}</strong></span>
-                        <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" class="ore-mini-icon"></orecalc-assets-image>
+                        <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" data-i18n-alt="entities.ores.glowy" class="ore-mini-icon"></orecalc-assets-image>
                     </div>
                     ${(item.requiredOres.starry > 0 || state.heroes[heroName]?.equipment[equipName]?.type === 'epic') ? `
                     <div class="chest-ore-inline-chip popover-ore-inline-chip">
                         <span><strong>${formatNumber(item.requiredOres.starry)}</strong></span>
-                        <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" class="ore-mini-icon"></orecalc-assets-image>
+                        <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" data-i18n-alt="entities.ores.starry" class="ore-mini-icon"></orecalc-assets-image>
                     </div>` : ''}
                 </div>
             </div>
@@ -127,9 +127,11 @@ export function renderDraggableList(globalPriorityList, suggestions) {
     const resetButton = /** @type {HTMLElement|null} */ (document.getElementById('reset-priority-list-modal-btn'));
     const infoButton = /** @type {HTMLElement|null} */ (document.getElementById('priority-list-modal-info-btn'));
     if (resetButton) {
+        resetButton.hidden = globalPriorityList.length === 0;
         resetButton.style.display = globalPriorityList.length === 0 ? 'none' : 'flex';
     }
     if (infoButton) {
+        infoButton.hidden = globalPriorityList.length !== 0;
         infoButton.style.display = globalPriorityList.length === 0 ? 'flex' : 'none';
     }
 
@@ -170,7 +172,8 @@ export function renderDraggableList(globalPriorityList, suggestions) {
         } else if (item.error) {
             completionDateText = item.message;
         } else if (item.completionDate) {
-            completionDateText = `${translate('views.planner.completeByColon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            const currentLang = state.uiSettings?.language || 'en';
+            completionDateText = `${translate('views.planner.completeByColon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric', year: 'numeric' }, currentLang)}`;
         } else {
             completionDateText = translate('views.planner.notEnoughIncome');
         }
@@ -293,7 +296,8 @@ export function updateDraggableListValues() {
         } else if (item.error) {
             completionDateText = item.message;
         } else if (item.completionDate) {
-            completionDateText = `${translate('views.planner.completeByColon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            const currentLang = state.uiSettings?.language || 'en';
+            completionDateText = `${translate('views.planner.completeByColon')} ${formatDate(item.completionDate, { month: 'short', day: 'numeric', year: 'numeric' }, currentLang)}`;
         } else {
             completionDateText = translate('views.planner.notEnoughIncome');
         }

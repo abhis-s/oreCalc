@@ -11,8 +11,8 @@
         line-height: 1.4;
         text-align: left;
         border-top: 1px solid $border-primary;
-        padding-top: 12px;
-        margin-top: 16px;
+        padding-top: $spacing-md;
+        margin-top: $spacing-lg;
 
         p {
             margin: 0;
@@ -34,8 +34,8 @@
     .settings-card {
         border: 1px solid $accent-primary;
         background: $accent-primary-soft;
-        padding: 16px 20px;
-        border-radius: 12px;
+        padding: $spacing-lg 20px;
+        border-radius: $shape-corner-medium;
         transition: border-color $duration-moderate $ease-smooth, background-color $duration-moderate $ease-smooth;
     }
 
@@ -44,7 +44,7 @@
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: $spacing-lg;
         width: 100%;
     }
 
@@ -81,15 +81,15 @@
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 4px;
+        gap: $spacing-xs;
 
         #settings-update-now-btn {
             background-color: $accent-primary;
-            color: $bg-app;
+            color: $text-on-accent;
             border: none;
             font-weight: 600;
-            padding: 10px 24px;
-            border-radius: 8px;
+            padding: 10px $spacing-xl;
+            border-radius: $shape-corner-small;
             cursor: pointer;
             transition: background-color $duration-fast $ease-smooth;
         }
@@ -109,7 +109,7 @@
             flex-direction: column;
             align-items: stretch;
             text-align: center;
-            gap: 12px;
+            gap: $spacing-md;
         }
 
         .update-card-left {

@@ -8,6 +8,7 @@ import {
     resolveModifierRecommendation
 } from '../../domain/equipment/modifierCalculator.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
+import { escapeHTML } from '../../utils/stringUtils.js';
 
 import { computeStatDelta } from './equipmentDetailsModalData.js';
 
@@ -196,7 +197,7 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
         const activeRecRes = resolveModifierRecommendation(rec, activeModifierTab, userTH, calculatedMaxLevel);
         const activeTargetLevel = activeRecRes.targetRecLevel;
         const isRecTarget = !isEquipmentMaxed && activeTargetLevel && levelNumber === activeTargetLevel;
-        const recTargetIcon = isRecTarget ? `<orecalc-assets-svg name="thumbs-up" class="rec-level-icon" title="Target Level"></orecalc-assets-svg>` : '';
+        const recTargetIcon = isRecTarget ? `<orecalc-assets-svg name="thumbs-up" class="rec-level-icon" title="${escapeHTML(translate('views.equipment.targetLevel'))}"></orecalc-assets-svg>` : '';
 
         const thText = translate('views.equipment.thShort', { level: reqTH });
 

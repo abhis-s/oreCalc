@@ -24,7 +24,6 @@ import {
 
 let isCompact = false;
 let currentMode = 'cozy'; // 'cozy', 'compact0', 'compact1'
-let isWindowResizing = false;
 let windowResizeTimeout = null;
 let resizeTimer = null;
 
@@ -32,12 +31,10 @@ let resizeTimer = null;
  * Window resize handler - rebuilds layout or resets based on screen width.
  */
 function onWindowResize() {
-    isWindowResizing = true;
     if (windowResizeTimeout !== null) {
         clearTimeout(windowResizeTimeout);
     }
     windowResizeTimeout = setTimeout(() => {
-        isWindowResizing = false;
         windowResizeTimeout = null;
     }, 300);
 

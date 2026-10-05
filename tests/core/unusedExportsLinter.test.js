@@ -120,13 +120,6 @@ describe('Dead & Unused Export Linter Suite', () => {
             `;
             const mockConsumerCode = 'import { usedFunction } from ' + "'sourceModule';\nconsole.log(USED_CONSTANT);";
 
-            const options = {
-                projectRoot,
-                sourceFiles: ['/mock/source.js'],
-                consumerFiles: ['/mock/source.js', '/mock/consumer.js'],
-                whitelist: new Set()
-            };
-
             const fileExports = extractExports('/mock/source.js', mockSourceCode);
             const consumerContent = mockConsumerCode;
 

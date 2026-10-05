@@ -26,13 +26,13 @@ describe('Player URL Router Suite', () => {
             };
             assert.equal(getPlayerTagFromUrl(), '8PJYGUJC');
 
-            // Test lowercase and leading hashes ?tag=##2pp
+            // Test lowercase and leading hashes ?tag=##8pjygujc
             globalThis.window = {
                 location: {
-                    search: '?tag=##2pp'
+                    search: '?tag=##8pjygujc'
                 }
             };
-            assert.equal(getPlayerTagFromUrl(), '2PP');
+            assert.equal(getPlayerTagFromUrl(), '8PJYGUJC');
 
             // Test ?p=abc
             globalThis.window = {
@@ -105,13 +105,14 @@ describe('Player URL Router Suite', () => {
     });
 
     test('verifies urlTag bootstrap prioritizes cached recent partitions and switches active player', async () => {
-        const { loadPlayerData, updateSavedPlayerTags, getPlayerStorageKey } = await import('../../js/core/localStorageManager.js');
+        const { loadPlayerData, updateSavedPlayerTags } = await import('../../js/core/playerStorage.js');
+        const { getPlayerStorageKey } = await import('../../js/core/storageKeys.js');
         const { state, getDefaultPlayerState } = await import('../../js/core/state.js');
         const { switchActivePlayer } = await import('../../js/core/stateManager.js');
 
-        const testTag = 'GUYCG8G9R';
+        const testTag = '8PJYGUJC';
         const samplePlayer = getDefaultPlayerState();
-        samplePlayer.playerProfile = { name: 'JeffLogos', tag: `#${testTag}` };
+        samplePlayer.playerProfile = { name: 'Chief', tag: `#${testTag}` };
 
         if (!state.allPlayersData) state.allPlayersData = {};
         if (!state.savedPlayerTags) state.savedPlayerTags = [];
@@ -121,14 +122,14 @@ describe('Player URL Router Suite', () => {
             localStorage.setItem(getPlayerStorageKey(testTag), JSON.stringify(samplePlayer));
             const cached = loadPlayerData(testTag);
             assert.ok(cached, 'Cached player partition must be retrievable via loadPlayerData');
-            assert.equal(cached.playerProfile.name, 'JeffLogos');
+            assert.equal(cached.playerProfile.name, 'Chief');
 
             state.allPlayersData[testTag] = cached;
             updateSavedPlayerTags(testTag);
             switchActivePlayer(testTag);
 
             assert.equal(state.savedPlayerTags[0], testTag, 'Active tag must be shifted to index 0');
-            assert.equal(state.playerProfile?.name, 'JeffLogos', 'Active state.playerProfile must point to new player');
+            assert.equal(state.playerProfile?.name, 'Chief', 'Active state.playerProfile must point to new player');
         } finally {
             localStorage.removeItem(getPlayerStorageKey(testTag));
         }

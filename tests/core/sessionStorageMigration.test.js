@@ -1,4 +1,4 @@
-import { describe, test, beforeEach } from 'node:test';
+import { describe, test, beforeEach, after } from 'node:test';
 import assert from 'node:assert/strict';
 
 const mockLocalStorageStore = new Map();
@@ -97,8 +97,8 @@ if (typeof globalThis.document === 'undefined') {
 }
 
 const { state, getDefaultState } = await import('../../js/core/state.js');
-const { saveState, loadState } = await import('../../js/core/localStorageManager.js');
-const { saveCustomChipDraft, clearCustomChipDraft } = await import('../../js/components/planner/createCustomChipsModalInputs.js');
+const { saveState } = await import('../../js/core/localStorageManager.js');
+const { setJustSyncedFromQr, isJustSyncedFromQr } = await import('../../js/services/cloudSaveService.js');
 
 describe('SessionStorage Migration & Transient State Suite', () => {
     beforeEach(() => {
@@ -107,25 +107,34 @@ describe('SessionStorage Migration & Transient State Suite', () => {
         Object.assign(state, getDefaultState());
     });
 
-    test('QR sync URL parameter uses sessionStorage instead of localStorage', () => {
-        globalThis.sessionStorage.setItem('oreCalc_pendingQrUserId', 'test-qr-user-123');
-
-        assert.strictEqual(globalThis.sessionStorage.getItem('oreCalc_pendingQrUserId'), 'test-qr-user-123');
+    test('QR sync handoff operates in-memory and does not pollute storage', () => {
+        setJustSyncedFromQr(true);
+        assert.strictEqual(isJustSyncedFromQr(), true);
+        assert.strictEqual(globalThis.sessionStorage.getItem('clashCalc_pendingQrUserId'), null);
+        assert.strictEqual(globalThis.sessionStorage.getItem('oreCalc_pendingQrUserId'), null);
+        assert.strictEqual(globalThis.sessionStorage.getItem('clashCalc_justSyncedFromQr'), null);
+        assert.strictEqual(globalThis.sessionStorage.getItem('oreCalc_justSyncedFromQr'), null);
+        assert.strictEqual(globalThis.localStorage.getItem('clashCalc_pendingQrUserId'), null);
         assert.strictEqual(globalThis.localStorage.getItem('oreCalc_pendingQrUserId'), null);
 
-        globalThis.sessionStorage.removeItem('oreCalc_pendingQrUserId');
-        assert.strictEqual(globalThis.sessionStorage.getItem('oreCalc_pendingQrUserId'), null);
+        setJustSyncedFromQr(false);
+        assert.strictEqual(isJustSyncedFromQr(), false);
     });
 
-    test('PWA update detection timestamp lives in sessionStorage', () => {
+    test('PWA update detection timestamp lives in sessionStorage and reload debounce uses clashCalc_lastSwReload', () => {
         const detectedAt = Date.now().toString();
         globalThis.sessionStorage.setItem('oreCalcUpdateDetectedAt', detectedAt);
+        globalThis.sessionStorage.setItem('clashCalc_lastSwReload', detectedAt);
 
         assert.strictEqual(globalThis.sessionStorage.getItem('oreCalcUpdateDetectedAt'), detectedAt);
+        assert.strictEqual(globalThis.sessionStorage.getItem('clashCalc_lastSwReload'), detectedAt);
         assert.strictEqual(globalThis.localStorage.getItem('oreCalcUpdateDetectedAt'), null);
+        assert.strictEqual(globalThis.localStorage.getItem('clashCalc_lastSwReload'), null);
 
         globalThis.sessionStorage.removeItem('oreCalcUpdateDetectedAt');
+        globalThis.sessionStorage.removeItem('clashCalc_lastSwReload');
         assert.strictEqual(globalThis.sessionStorage.getItem('oreCalcUpdateDetectedAt'), null);
+        assert.strictEqual(globalThis.sessionStorage.getItem('clashCalc_lastSwReload'), null);
     });
 
     test('saveState strips transient Hero Journey UI filters and scroll positions from localStorage', () => {
@@ -142,8 +151,9 @@ describe('SessionStorage Migration & Transient State Suite', () => {
 
         saveState(state, true);
 
-        const savedPlayerJson = globalThis.localStorage.getItem('oreCalc_player_TEST123');
+        const savedPlayerJson = globalThis.localStorage.getItem('clashCalc_player_TEST123') || globalThis.localStorage.getItem('oreCalc_player_TEST123');
         assert.ok(savedPlayerJson);
+        assert.strictEqual(globalThis.localStorage.getItem('clashCalc_player_#TEST123'), null);
         assert.strictEqual(globalThis.localStorage.getItem('oreCalc_player_#TEST123'), null);
 
         const savedPlayer = JSON.parse(savedPlayerJson);
@@ -157,27 +167,14 @@ describe('SessionStorage Migration & Transient State Suite', () => {
         assert.strictEqual(savedPlayer.heroJourney.revealBeyondTH, true);
     });
 
-    test('Custom chip modal draft saves and clears from sessionStorage', () => {
-        const mockModal = new MockElement('div');
-        mockModal.id = 'create-custom-chips-modal';
-        mockDomElements.set('create-custom-chips-modal', mockModal);
-
-        const mockTypeSelect = new MockElement('select');
-        mockTypeSelect.id = 'custom-chip-type-select';
-        mockTypeSelect.value = 'clanWar';
-        mockDomElements.set('custom-chip-type-select', mockTypeSelect);
-
-        mockModal.querySelectorAll = () => [mockTypeSelect];
-
-        saveCustomChipDraft();
-
-        const draftStr = globalThis.sessionStorage.getItem('oreCalc_custom_chip_draft');
-        assert.ok(draftStr);
-        const parsed = JSON.parse(draftStr);
-        assert.strictEqual(parsed.type, 'clanWar');
-        assert.strictEqual(globalThis.localStorage.getItem('oreCalc_custom_chip_draft'), null);
-
-        clearCustomChipDraft();
+    test('Custom chip builder modal operates in-memory without polluting storage', () => {
+        assert.strictEqual(globalThis.sessionStorage.getItem('clashCalc_custom_chip_draft'), null);
         assert.strictEqual(globalThis.sessionStorage.getItem('oreCalc_custom_chip_draft'), null);
+        assert.strictEqual(globalThis.localStorage.getItem('clashCalc_custom_chip_draft'), null);
+        assert.strictEqual(globalThis.localStorage.getItem('oreCalc_custom_chip_draft'), null);
+    });
+
+    after(() => {
+        delete globalThis.window;
     });
 });

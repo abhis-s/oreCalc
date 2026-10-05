@@ -1,4 +1,4 @@
-import { formatDisplayTag, normalizePlayerTag } from '../core/localStorageManager.js';
+import { formatDisplayTag, getActiveUserId, normalizePlayerTag } from '../core/storageKeys.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -16,39 +16,38 @@ export function getApiBaseUrl(hostname) {
             return 'https://api.clashcalc.com';
         }
     }
-    return (typeof window !== 'undefined' && window.__ENV__?.VITE_API_BASE_URL) || 'https://api.orecalc.tech';
+    return (typeof window !== 'undefined' && (window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL)) || 'https://api.orecalc.tech';
 }
 
 const BASE_URL = getApiBaseUrl();
 
 /**
- * Resolves active user ID from canonical or legacy localStorage keys.
- * @returns {string} User ID or empty string.
+ * Injects Authorization header if a session token is present.
+ * @param {Record<string, string>} [baseHeaders]
+ * @returns {Record<string, string>}
  */
-function getActiveUserId() {
-    if (typeof localStorage === 'undefined') return '';
-    try {
-        return localStorage.getItem('clashCalc_userId') || localStorage.getItem('oreCalc_userId') || '';
-    } catch (_) {
-        return '';
+function getAuthHeaders(baseHeaders = {}) {
+    const headers = { ...baseHeaders };
+    if (typeof localStorage !== 'undefined') {
+        const token = localStorage.getItem('clashCalc_authToken');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
     }
+    return headers;
 }
+
+let apiBlockedUntil = 0;
+let clashApiBlockedUntil = 0;
 
 /**
  * Checks if the general API is blocked due to rate limiting (429).
  * Throws an error immediately if blocked.
  */
 function checkApiBlock() {
-    const blockedUntilStr = sessionStorage.getItem('oreCalcApiBlockedUntil');
-    if (blockedUntilStr) {
-        const blockedUntil = Number(blockedUntilStr);
-        const now = Date.now();
-        if (now < blockedUntil) {
-            const secondsLeft = Math.ceil((blockedUntil - now) / 1000);
-            throw new Error(`apiErrors.rateLimitedWithTime:${secondsLeft}`);
-        } else {
-            sessionStorage.removeItem('oreCalcApiBlockedUntil');
-        }
+    if (apiBlockedUntil && Date.now() < apiBlockedUntil) {
+        const secondsLeft = Math.ceil((apiBlockedUntil - Date.now()) / 1000);
+        throw new Error(`apiErrors.rateLimitedWithTime:${secondsLeft}`);
     }
 }
 
@@ -57,15 +56,8 @@ function checkApiBlock() {
  * Throws an error immediately if blocked.
  */
 function checkClashApiBlock() {
-    const blockedUntilStr = sessionStorage.getItem('oreCalcClashApiBlockedUntil');
-    if (blockedUntilStr) {
-        const blockedUntil = Number(blockedUntilStr);
-        const now = Date.now();
-        if (now < blockedUntil) {
-            throw new Error('apiErrors.503');
-        } else {
-            sessionStorage.removeItem('oreCalcClashApiBlockedUntil');
-        }
+    if (clashApiBlockedUntil && Date.now() < clashApiBlockedUntil) {
+        throw new Error('apiErrors.503');
     }
 }
 
@@ -75,15 +67,14 @@ function checkClashApiBlock() {
  */
 function setApiBlock(seconds) {
     const blockDurationMs = Math.max(seconds, 60) * 1000;
-    sessionStorage.setItem('oreCalcApiBlockedUntil', (Date.now() + blockDurationMs).toString());
+    apiBlockedUntil = Date.now() + blockDurationMs;
 }
 
 /**
  * Sets a block on Clash of Clans API requests for 60 seconds.
  */
 function setClashApiBlock() {
-    const blockDurationMs = 60 * 1000;
-    sessionStorage.setItem('oreCalcClashApiBlockedUntil', (Date.now() + blockDurationMs).toString());
+    clashApiBlockedUntil = Date.now() + 60 * 1000;
 }
 
 /**
@@ -144,7 +135,7 @@ async function handleResponseError(response) {
  * Fetches player data for a given player tag, automatically stripping all '#' hashes.
  * The request is proxied through the API server to avoid CORS or auth issues.
  *
- * @param {string} playerTag - The player tag to query (e.g. "#PPYY9988", "#####PPYY9988", or "PPYY9988").
+ * @param {string} playerTag - The player tag to query (e.g. "#8PJYGUJC", "#####8PJYGUJC", or "8PJYGUJC").
  * @param {string | null} [token=null] - Optional Clash of Clans API verification token for protected tag access.
  * @param {number | null} [timeoutMs=null] - Request timeout duration in milliseconds.
  * @returns {Promise<any>} The parsed player data from the API response.
@@ -206,10 +197,10 @@ export async function saveUserData(userId, data) {
     try {
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
+            headers: getAuthHeaders({
                 'Content-Type': 'application/json',
                 'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
-            },
+            }),
             body: JSON.stringify({ userId, data })
         });
 
@@ -239,10 +230,10 @@ export async function saveSinglePlayerData(userId, tag, playerData) {
     try {
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
+            headers: getAuthHeaders({
                 'Content-Type': 'application/json',
                 'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
-            },
+            }),
             body: JSON.stringify({ userId, tag, playerData })
         });
 
@@ -253,6 +244,38 @@ export async function saveSinglePlayerData(userId, tag, playerData) {
         return await response.json();
     } catch (error) {
         logger.error(`Error saving single player data for ${tag}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Saves/persists decoupled user preferences to the server.
+ *
+ * @param {string} userId - The unique identifier of the user.
+ * @param {Object} preferences - The decoupled uiSettings preferences object.
+ * @returns {Promise<Object|undefined>} The API response payload on success.
+ */
+export async function saveUserPreferences(userId, preferences) {
+    checkApiBlock();
+
+    const url = `${BASE_URL}/api/user-data/preferences`;
+    try {
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: getAuthHeaders({
+                'Content-Type': 'application/json',
+                'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+            }),
+            body: JSON.stringify({ userId, preferences })
+        });
+
+        if (!response.ok) {
+            throw new Error(await handleResponseError(response));
+        }
+
+        return await response.json();
+    } catch (error) {
+        logger.error("Error saving user preferences:", error);
         throw error;
     }
 }
@@ -270,9 +293,9 @@ export async function loadUserData(userId) {
     const url = `${BASE_URL}/api/user-data/load/${userId}`;
     try {
         const response = await fetch(url, {
-            headers: {
+            headers: getAuthHeaders({
                 'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
-            }
+            })
         });
 
         if (!response.ok) {

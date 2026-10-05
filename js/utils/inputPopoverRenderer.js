@@ -13,13 +13,10 @@ export function getButtonHotkey(btn, btnLabel) {
     const lowerLabel = (btnLabel || '').toLowerCase();
     const actionsDisable = translate('actions.disable').toLowerCase();
     const actionsEnable = translate('actions.enable').toLowerCase();
-    const equipDisable = translate('views.equipment.disable').toLowerCase();
-    const equipEnable = translate('views.equipment.enable').toLowerCase();
 
     if (lowerLabel.includes('disable') || lowerLabel.includes('enable') ||
         lowerLabel.includes('deaktivieren') || lowerLabel.includes('aktivieren') ||
-        lowerLabel.includes(actionsDisable) || lowerLabel.includes(actionsEnable) ||
-        lowerLabel.includes(equipDisable) || lowerLabel.includes(equipEnable)) {
+        lowerLabel.includes(actionsDisable) || lowerLabel.includes(actionsEnable)) {
         return 'd';
     }
     return null;
@@ -77,7 +74,7 @@ export function renderPopoverContent(cfg) {
         `;
     });
 
-    if (showRange) {
+    if (showRange && currMin <= currMax) {
         html += `
             <div class="popover-opt-btn readonly" data-action="range" role="document">
                  <span>${translate('validation.range')}</span>

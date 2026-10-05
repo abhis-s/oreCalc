@@ -96,9 +96,19 @@
                 text-align: center !important;
             }
 
-            > select,
             > input[type="number"] {
                 text-align: center !important;
+            }
+
+            > select {
+                text-align: center !important;
+                text-align-last: center !important;
+                padding-left: 28px !important;
+                padding-right: 28px !important;
+            }
+
+            > select,
+            > input[type="number"] {
                 width: 100% !important;
             }
         }
@@ -213,6 +223,11 @@
 
         .offer-input-dropdown {
             text-align: center;
+            text-align-last: center;
+            padding-left: 20px;
+            padding-right: 20px;
+            background-position: right 8px center;
+            background-size: 10px 10px;
         }
 
         .summary-grid {

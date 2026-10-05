@@ -52,26 +52,47 @@ async function pruneInactiveUsers() {
             return { prunedCount: 0, prunedUserIds: [] };
         }
 
-        // Firestore batch limits operations to 500 writes. We use 25 here
-        // to avoid "Transaction too big" errors when documents/index entries are large.
-        const docs = querySnapshot.docs;
-        const chunks = [];
-        for (let i = 0; i < docs.length; i += 25) {
-            chunks.push(docs.slice(i, i + 25));
-        }
-
         let prunedCount = 0;
+        let subcollectionDocsDeleted = 0;
         const prunedUserIds = [];
 
-        for (const chunk of chunks) {
+        for (const doc of querySnapshot.docs) {
+            const data = doc.data() || {};
+            const savedPlayerTags = Array.isArray(data.savedPlayerTags) ? data.savedPlayerTags : [];
+            const currentUiSettings = data.uiSettings && typeof data.uiSettings === 'object' ? data.uiSettings : {};
+            const preservedUiSettings = {
+                currency: currentUiSettings.currency || { code: 'USD' },
+                theme: currentUiSettings.theme || 'dark',
+                language: currentUiSettings.language || 'auto'
+            };
+
+            const prunedRootDoc = {
+                appVersion: SERVER_CONSTANTS.MIN_SUPPORTED_APP_VERSION,
+                savedPlayerTags,
+                uiSettings: preservedUiSettings,
+                timestamp: new Date().toISOString(),
+                stateResetEpoch: Date.now(),
+                isPruned: true,
+                isMigrated: true,
+                ownerAccount: data.ownerAccount ?? null,
+                authRequired: data.authRequired ?? false
+            };
+
             const batch = db.batch();
-            chunk.forEach(doc => {
-                batch.delete(doc.ref);
-                prunedUserIds.push(doc.id);
-                prunedCount++;
-            });
+            // Full replacement on parent document wipes heavy state properties
+            batch.set(doc.ref, prunedRootDoc);
+
+            // Subcollection Sweeper: fetch and delete stranded player documents
+            const playersSnapshot = await doc.ref.collection('players').get();
+            for (const playerDoc of playersSnapshot.docs) {
+                batch.delete(playerDoc.ref);
+                subcollectionDocsDeleted++;
+            }
+
             await batch.commit();
-            console.log(`[PRUNE] Committed batch deletion of ${chunk.length} documents.`);
+            prunedUserIds.push(doc.id);
+            prunedCount++;
+            console.log(`[PRUNE] Successfully pruned user ${doc.id} (deleted ${playersSnapshot.size} subcollection player docs).`);
         }
 
         // Persist audit record in pruneAuditLogs collection
@@ -81,11 +102,12 @@ async function pruneInactiveUsers() {
             inactiveThresholdDate: thresholdIsoString,
             inactiveDaysThreshold: SERVER_CONSTANTS.INACTIVE_USER_DAYS_THRESHOLD,
             prunedCount,
+            subcollectionDocsDeleted,
             prunedUserIds
         });
 
-        console.log(`[PRUNE] Successfully pruned a total of ${prunedCount} inactive userStates documents. Audit log ID: ${auditLogRef.id}`);
-        return { prunedCount, prunedUserIds, auditLogId: auditLogRef.id };
+        console.log(`[PRUNE] Successfully pruned a total of ${prunedCount} inactive userStates documents (${subcollectionDocsDeleted} player subcollection docs wiped). Audit log ID: ${auditLogRef.id}`);
+        return { prunedCount, subcollectionDocsDeleted, prunedUserIds, auditLogId: auditLogRef.id };
     } catch (error) {
         console.error('[PRUNE] Error during inactive data pruning:', error);
         throw error;

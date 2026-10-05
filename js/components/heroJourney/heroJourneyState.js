@@ -1,14 +1,19 @@
+import { MAX_SAVED_PLAYERS } from '../../core/constants.js';
 import { safeJsonParse } from '../../utils/jsonUtils.js';
+import { sanitizePlayerProfile } from '../../core/playerStorageSanitizer.js';
 import {
-    formatDisplayTag,
+    CANONICAL_PLAYER_PREFIX,
+    CANONICAL_PLAYER_TAGS_KEY,
+    getActivePlayerTagsKey,
+    getActiveUserId,
     getPlayerStorageKey,
+    isClashCalcHost,
     normalizePlayerTag,
     PLAYER_PREFIX,
     PLAYER_TAGS_KEY
-} from '../../core/localStorageManager.js';
-import {
-    addRecentSearch
-} from '../../core/recentSearchesManager.js';
+} from '../../core/storageKeys.js';
+import { saveSinglePlayerData } from '../../services/apiService.js';
+import { getPlayerTagFromUrl, syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 
 /**
  * @typedef {Object} StandaloneHJState
@@ -48,38 +53,77 @@ export const hjState = {
 };
 
 /**
- * Calculates cumulative hero level from API player response.
- * @param {Object | null} playerData - Player data payload from backend API.
+ * Calculates cumulative hero level from API player response or stored partition.
+ * @param {Object | null} playerData - Player data payload from backend API or localStorage.
  * @returns {number} Cumulative hero level.
  */
 export function computePlayerCumulativeLevel(playerData) {
-    if (!playerData || !Array.isArray(playerData.heroes)) return 0;
+    if (!playerData || typeof playerData !== 'object') return 0;
     const activeHeroes = ['Barbarian King', 'Archer Queen', 'Grand Warden', 'Royal Champion', 'Minion Prince', 'Dragon Duke'];
     let total = 0;
-    for (const hero of playerData.heroes) {
-        if (activeHeroes.includes(hero.name) && Number.isFinite(hero.level)) {
-            total += hero.level;
+
+    if (Array.isArray(playerData.heroes)) {
+        for (const hero of playerData.heroes) {
+            if (hero && activeHeroes.includes(hero.name) && Number.isFinite(hero.level)) {
+                total += Number(hero.level) || 0;
+            }
+        }
+        if (total > 0) return total;
+    }
+
+    const ownedMap = playerData.ownedHeroes || playerData.playerProfile?.ownedHeroes;
+    if (ownedMap && typeof ownedMap === 'object' && !Array.isArray(ownedMap)) {
+        for (const heroName of activeHeroes) {
+            const h = ownedMap[heroName];
+            if (h !== undefined && h !== null) {
+                const lvl = typeof h === 'object' ? Number(h.level) : Number(h);
+                if (Number.isFinite(lvl)) {
+                    total += lvl;
+                }
+            }
+        }
+        if (total > 0) return total;
+    }
+
+    if (playerData.heroes && typeof playerData.heroes === 'object' && !Array.isArray(playerData.heroes)) {
+        for (const heroName of activeHeroes) {
+            const h = playerData.heroes[heroName];
+            if (h !== undefined && h !== null) {
+                const lvl = typeof h === 'object' ? Number(h.level) : Number(h);
+                if (Number.isFinite(lvl)) {
+                    total += lvl;
+                }
+            }
+        }
+        if (total > 0) return total;
+    }
+
+    const tag = playerData.tag || playerData.playerProfile?.tag;
+    if (tag) {
+        const cleanTag = normalizePlayerTag(tag);
+        if (cleanTag && cleanTag !== 'DEFAULT0') {
+            try {
+                const canonicalKey = getPlayerStorageKey(cleanTag);
+                const raw = localStorage.getItem(canonicalKey) || localStorage.getItem(`${PLAYER_PREFIX}#${cleanTag}`);
+                if (raw) {
+                    const parsed = safeJsonParse(raw, null);
+                    if (parsed && parsed !== playerData) {
+                        return computePlayerCumulativeLevel(parsed.playerProfile || parsed);
+                    }
+                }
+            } catch (_) {}
         }
     }
+
     return total;
 }
 
 /**
- * Parses URL query params or hash for initial player tag.
+ * Parses URL query params for initial player tag.
  * @returns {string} Cleaned player tag if present (without '#' or '%23').
  */
 export function getTagFromUrl() {
-    if (typeof window === 'undefined' || !window.location) return '';
-    try {
-        const params = new URLSearchParams(window.location.search);
-        const tagParam = params.get('tag') || params.get('p') || window.location.hash.replace(/^#+/, '');
-        if (!tagParam) return '';
-        const cleanTag = normalizePlayerTag(tagParam);
-        if (!cleanTag || cleanTag === 'DEFAULT0') return '';
-        return cleanTag;
-    } catch {
-        return '';
-    }
+    return getPlayerTagFromUrl() || '';
 }
 
 /**
@@ -87,35 +131,17 @@ export function getTagFromUrl() {
  * @param {string} tag - Tag to set in URL.
  */
 export function updateUrlTag(tag) {
-    if (typeof window === 'undefined' || !window.location || !window.history?.replaceState) return;
-    try {
-        const cleanTag = normalizePlayerTag(tag);
-        const url = new URL(window.location.href);
-        if (!url.pathname.endsWith('/') && !url.pathname.includes('.')) {
-            url.pathname = `${url.pathname}/`;
-        }
-        if (cleanTag && cleanTag !== 'DEFAULT0') {
-            url.searchParams.set('tag', cleanTag);
-        } else {
-            url.searchParams.delete('tag');
-            url.searchParams.delete('p');
-        }
-        const newRelativeUrl = url.pathname + (url.search ? url.search : '') + url.hash;
-        const currentRelativeUrl = window.location.pathname + window.location.search + window.location.hash;
-        if (currentRelativeUrl !== newRelativeUrl) {
-            window.history.replaceState({}, '', newRelativeUrl);
-        }
-    } catch {}
+    syncPlayerTagToUrl(tag);
 }
 
 /**
  * Constructs an AppState-compatible state object from the active player data.
- * @param {Object | null} playerData - API player data object.
+ * @param {Object | null} playerData - API player data object or stored playerProfile.
  * @param {StandaloneHJState} state - Standalone Hero Journey state.
  * @returns {import('../../core/types.js').AppState | Object} AppState slice.
  */
 export function buildStateFromPlayerData(playerData, state) {
-    const cleanTag = normalizePlayerTag(playerData?.tag);
+    const cleanTag = normalizePlayerTag(playerData?.tag || state?.activeTag);
     let savedPartition = null;
     if (cleanTag) {
         try {
@@ -143,39 +169,87 @@ export function buildStateFromPlayerData(playerData, state) {
         ? state.revealBeyondTH
         : Boolean(savedPartition?.heroJourney?.revealBeyondTH);
 
-    const typeFilter = state?.typeFilter || savedPartition?.heroJourney?.typeFilter || 'all';
-    const unclaimedOnly = typeof state?.unclaimedOnly === 'boolean'
-        ? state.unclaimedOnly
-        : Boolean(savedPartition?.heroJourney?.unclaimedOnly);
+    let ownedHeroes = {};
+    if (Array.isArray(playerData?.heroes)) {
+        const homeHeroes = playerData.heroes.filter(h => h && (h.village === 'home' || !h.village));
+        ownedHeroes = Object.fromEntries(
+            homeHeroes.map(h => [h.name, {
+                level: h.level,
+                maxLevel: h.maxLevel,
+                equipment: h.equipment?.map(eq => ({ name: eq.name, level: eq.level })) || []
+            }])
+        );
+    } else if (playerData?.ownedHeroes && typeof playerData.ownedHeroes === 'object') {
+        ownedHeroes = playerData.ownedHeroes;
+    } else if (savedPartition?.playerProfile?.ownedHeroes && typeof savedPartition.playerProfile.ownedHeroes === 'object') {
+        ownedHeroes = savedPartition.playerProfile.ownedHeroes;
+    } else if (savedPartition?.heroes && typeof savedPartition.heroes === 'object') {
+        ownedHeroes = Object.fromEntries(
+            Object.entries(savedPartition.heroes).map(([name, h]) => [name, {
+                level: h.level ?? 1,
+                maxLevel: h.maxLevel ?? 100,
+                equipment: h.equipment ? Object.entries(h.equipment).map(([eqName, eq]) => ({
+                    name: eqName,
+                    level: typeof eq === 'object' ? eq.level : eq
+                })) : []
+            }])
+        );
+    } else if (playerData?.heroes && typeof playerData.heroes === 'object') {
+        ownedHeroes = Object.fromEntries(
+            Object.entries(playerData.heroes).map(([name, h]) => [name, {
+                level: h.level ?? 1,
+                maxLevel: h.maxLevel ?? 100,
+                equipment: h.equipment ? Object.entries(h.equipment).map(([eqName, eq]) => ({
+                    name: eqName,
+                    level: typeof eq === 'object' ? eq.level : eq
+                })) : []
+            }])
+        );
+    }
 
-    const showTable = typeof state?.showTable === 'boolean'
-        ? state.showTable
-        : (typeof savedPartition?.heroJourney?.showTable === 'boolean' ? savedPartition.heroJourney.showTable : true);
+    let ownedEquipment = {};
+    if (Array.isArray(playerData?.heroEquipment)) {
+        const homeEquipment = playerData.heroEquipment.filter(e => e && (e.village === 'home' || !e.village));
+        ownedEquipment = Object.fromEntries(
+            homeEquipment.map(e => [e.name, e.level])
+        );
+    } else if (playerData?.ownedEquipment && typeof playerData.ownedEquipment === 'object') {
+        ownedEquipment = playerData.ownedEquipment;
+    } else if (savedPartition?.playerProfile?.ownedEquipment && typeof savedPartition.playerProfile.ownedEquipment === 'object') {
+        ownedEquipment = savedPartition.playerProfile.ownedEquipment;
+    } else if (savedPartition?.heroes && typeof savedPartition.heroes === 'object') {
+        const extracted = {};
+        for (const heroName in savedPartition.heroes) {
+            const h = savedPartition.heroes[heroName];
+            if (h?.equipment && typeof h.equipment === 'object') {
+                for (const eqName in h.equipment) {
+                    const eq = h.equipment[eqName];
+                    extracted[eqName] = typeof eq === 'object' ? (eq.level || 1) : (eq || 1);
+                }
+            }
+        }
+        ownedEquipment = extracted;
+    }
 
-    const homeHeroes = playerData?.heroes?.filter(h => h.village === 'home' || !h.village) || [];
-    const homeEquipment = playerData?.heroEquipment?.filter(e => e.village === 'home' || !e.village) || [];
-
-    const ownedHeroes = Object.fromEntries(
-        homeHeroes.map(h => [h.name, {
-            level: h.level,
-            maxLevel: h.maxLevel,
-            equipment: h.equipment?.map(eq => ({ name: eq.name, level: eq.level })) || []
-        }])
-    );
-
-    const ownedEquipment = Object.fromEntries(
-        homeEquipment.map(e => [e.name, e.level])
-    );
-
-    const thLevel = Math.min(Math.max(Number(playerData?.townHallLevel) || Number(state?.thLevel) || 18, 1), 18);
+    const thLevel = Math.min(Math.max(
+        Number(playerData?.townHallLevel) ||
+        Number(playerData?.townHall) ||
+        Number(savedPartition?.playerProfile?.townHallLevel) ||
+        Number(state?.thLevel) ||
+        18,
+        1
+    ), 18);
 
     const playerProfile = cleanTag ? {
-        name: playerData?.name || '',
+        name: playerData?.name || savedPartition?.playerProfile?.name || '',
         townHall: thLevel,
         townHallLevel: thLevel,
         tag: cleanTag,
         ownedHeroes,
-        ownedEquipment
+        ownedEquipment,
+        clan: playerData?.clan || savedPartition?.playerProfile?.clan || null,
+        leagueTier: playerData?.leagueTier || savedPartition?.playerProfile?.leagueTier || null,
+        trophies: playerData?.trophies ?? savedPartition?.playerProfile?.trophies ?? 0
     } : null;
 
     return {
@@ -198,66 +272,6 @@ export function buildStateFromPlayerData(playerData, state) {
 }
 
 /**
- * @typedef {Object} SavedProfileSummary
- * @property {string} tag
- * @property {string} cleanTag
- * @property {string} name
- * @property {number} townHallLevel
- * @property {number} trophies
- * @property {any} [cachedData]
- * @property {any} [heroJourney]
- */
-
-/**
- * Retrieves list of saved player profile summaries from localStorage.
- * @returns {SavedProfileSummary[]} Array of saved profiles.
- */
-export function getSavedProfiles() {
-    try {
-        const tagsStr = localStorage.getItem(PLAYER_TAGS_KEY);
-        const tags = safeJsonParse(tagsStr, []);
-        const tagList = Array.isArray(tags) ? [...tags] : [];
-
-        const seenTags = new Set();
-        const summaries = [];
-        for (const rawTag of tagList) {
-            if (!rawTag || rawTag === 'DEFAULT0') continue;
-            const cleanTag = normalizePlayerTag(rawTag);
-            if (!cleanTag || cleanTag === 'DEFAULT0' || seenTags.has(cleanTag)) continue;
-            seenTags.add(cleanTag);
-
-            const canonicalKey = getPlayerStorageKey(cleanTag);
-            let playerStr = localStorage.getItem(canonicalKey);
-            if (!playerStr) {
-                const legacyKey = `${PLAYER_PREFIX}#${cleanTag}`;
-                playerStr = localStorage.getItem(legacyKey);
-                if (playerStr) {
-                    try {
-                        localStorage.setItem(canonicalKey, playerStr);
-                        localStorage.removeItem(legacyKey);
-                    } catch {}
-                }
-            }
-            const playerData = safeJsonParse(playerStr, null);
-            const profile = playerData?.playerProfile || playerData?.playerData || null;
-
-            summaries.push({
-                tag: formatDisplayTag(cleanTag),
-                cleanTag,
-                name: profile?.name || formatDisplayTag(cleanTag),
-                townHallLevel: Number(profile?.townHallLevel) || 1,
-                trophies: Number(profile?.trophies) || 0,
-                cachedData: profile || null,
-                heroJourney: playerData?.heroJourney || null
-            });
-        }
-        return summaries;
-    } catch {
-        return [];
-    }
-}
-
-/**
  * Saves or updates a fetched player profile in localStorage if it exists or is saved.
  * @param {Object} playerData - Live player data payload.
  * @param {StandaloneHJState} [state=hjState] - Current standalone state.
@@ -271,37 +285,44 @@ export function syncPlayerToStorage(playerData, state = hjState) {
         const legacyKey = `${PLAYER_PREFIX}#${cleanTag}`;
         const existingStr = localStorage.getItem(canonicalKey) || localStorage.getItem(legacyKey);
         const existing = safeJsonParse(existingStr, {});
-        const homeHeroes = playerData.heroes?.filter(h => h.village === 'home' || !h.village) || [];
-        const homeEquipment = playerData.heroEquipment?.filter(e => e.village === 'home' || !e.village) || [];
 
-        existing.playerProfile = {
-            ...playerData,
-            tag: cleanTag,
-            ownedHeroes: Object.fromEntries(homeHeroes.map(h => [h.name, {
-                level: h.level,
-                maxLevel: h.maxLevel,
-                equipment: h.equipment?.map(eq => ({ name: eq.name, level: eq.level })) || []
-            }])),
-            ownedEquipment: Object.fromEntries(homeEquipment.map(e => [e.name, e.level]))
-        };
+        existing.playerProfile = sanitizePlayerProfile(playerData);
         existing.heroJourney = {
             acceleratedRewards: Boolean(state.isAccelerated),
             revealBeyondTH: state.revealBeyondTH ?? false,
             hidden: Boolean(existing.heroJourney?.hidden)
         };
 
+        try {
+            const targetKey = getActivePlayerTagsKey();
+            const fallbackKey = isClashCalcHost() ? PLAYER_TAGS_KEY : CANONICAL_PLAYER_TAGS_KEY;
+            const rawStr = localStorage.getItem(targetKey) || localStorage.getItem(fallbackKey);
+            const list = safeJsonParse(rawStr, []);
+            const tags = Array.isArray(list) ? list.map(normalizePlayerTag).filter(t => t && t !== 'DEFAULT0') : [];
+            const filtered = tags.filter(t => t !== cleanTag);
+            filtered.unshift(cleanTag);
+            if (filtered.length > MAX_SAVED_PLAYERS) {
+                const poppedTag = filtered.pop();
+                if (poppedTag) {
+                    const cleanPopped = normalizePlayerTag(poppedTag);
+                    localStorage.removeItem(getPlayerStorageKey(cleanPopped, CANONICAL_PLAYER_PREFIX));
+                    localStorage.removeItem(getPlayerStorageKey(cleanPopped, PLAYER_PREFIX));
+                    localStorage.removeItem(`${CANONICAL_PLAYER_PREFIX}#${cleanPopped}`);
+                    localStorage.removeItem(`${PLAYER_PREFIX}#${cleanPopped}`);
+                }
+            }
+            localStorage.setItem(targetKey, JSON.stringify(filtered));
+            if (fallbackKey && localStorage.getItem(fallbackKey)) {
+                localStorage.setItem(fallbackKey, JSON.stringify(filtered));
+            }
+        } catch {}
+
         localStorage.setItem(canonicalKey, JSON.stringify(existing));
         localStorage.removeItem(legacyKey);
 
-        const tagsStr = localStorage.getItem(PLAYER_TAGS_KEY);
-        const tags = safeJsonParse(tagsStr, []);
-        const isSaved = Array.isArray(tags) && tags.some(t => normalizePlayerTag(t) === cleanTag);
-
-        if (!isSaved) {
-            addRecentSearch({
-                ...playerData,
-                tag: cleanTag
-            });
+        const userId = getActiveUserId();
+        if (userId) {
+            saveSinglePlayerData(userId, cleanTag, existing).catch(() => {});
         }
     } catch {}
 }

@@ -48,6 +48,17 @@ function generateSitemapXml(supportedLanguages, legalPages = []) {
         sitemapXml += `  <url>\n    <loc>https://orecalc.tech/${lang}/hero-journey/</loc>\n${toolAlternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n\n`;
     }
 
+    const damageCalcAlternateLinks = supportedLanguages.map(l =>
+        `    <xhtml:link rel="alternate" hreflang="${l}" href="https://orecalc.tech/${l === 'en' ? '' : l + '/'}damage-calculator/" />`
+    ).concat(['    <xhtml:link rel="alternate" hreflang="x-default" href="https://orecalc.tech/damage-calculator/" />']).join('\n');
+
+    sitemapXml += `  <url>\n    <loc>https://orecalc.tech/damage-calculator/</loc>\n${damageCalcAlternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n\n`;
+
+    for (const lang of supportedLanguages) {
+        if (lang === 'en') continue;
+        sitemapXml += `  <url>\n    <loc>https://orecalc.tech/${lang}/damage-calculator/</loc>\n${damageCalcAlternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n\n`;
+    }
+
     if (Array.isArray(legalPages) && legalPages.length > 0) {
         for (const page of legalPages) {
             let altLinks = '';

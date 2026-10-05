@@ -4,7 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 const verbose = process.env.VERBOSE === 'true';
-const devApiBaseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const devApiBaseUrl = process.env.PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const devTurnstileSiteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY || process.env.VITE_TURNSTILE_SITE_KEY || '';
 
 /**
  * Searches the host OS network interfaces to find the external, non-loopback IPv4 address.
@@ -55,25 +56,24 @@ function processHtmlIncludes(htmlContent, rootDir) {
 let cachedHtml = null;
 
 /**
- * Watch callback function that invalidates the HTML cache when any HTML file is modified.
+ * Watch callback function that invalidates the HTML cache when any source HTML file is modified,
+ * while ignoring compiled production artifacts in dist/.
  *
  * @param {string} eventType - The fs.watch event type (e.g. 'change').
  * @param {string} filename - The name of the file that changed.
  */
 const watchCallback = (eventType, filename) => {
     if (filename && filename.endsWith('.html')) {
+        const normalized = filename.replace(/\\/g, '/');
+        if (normalized.startsWith('dist/') || normalized === 'dist') {
+            return;
+        }
         cachedHtml = null;
         if (verbose) {
             console.log(`[Dev Server] HTML file changed (${filename}). Invalidating HTML cache.`);
         }
     }
 };
-
-fs.watch(process.cwd(), watchCallback);
-const partialsDir = path.join(process.cwd(), 'partials');
-if (fs.existsSync(partialsDir)) {
-    fs.watch(partialsDir, { recursive: true }, watchCallback);
-}
 
 const openBrowser = !process.argv.includes('--no-open') &&
                     !process.argv.includes('--no-browser') &&
@@ -98,109 +98,7 @@ import('../../js/i18n/i18nParams.js').then(mod => {
     console.warn('[Dev Server] Failed to load i18nParams.js:', err);
 });
 
-const localesMap = { en: 'en_US', de: 'de_DE', tr: 'tr_TR', zh: 'zh_CN', 'zh-TW': 'zh_TW' };
-
-function getNestedValue(obj, keyPath) {
-    return keyPath.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
-}
-
-function resolveTranslation(translations, key, lang) {
-    let val = getNestedValue(translations, key);
-    if (typeof val !== 'string') return null;
-
-    const dynamicArgs = getDynamicTranslationArgs(key, lang, (k) => getNestedValue(translations, k) || '');
-    if (dynamicArgs && Object.keys(dynamicArgs).length > 0) {
-        for (const [paramKey, paramVal] of Object.entries(dynamicArgs)) {
-            val = val.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), paramVal);
-        }
-    }
-    return val;
-}
-
-function injectOrReplaceAttribute(tagHtml, attrName, attrValue) {
-    const escapedValue = attrValue.replace(/"/g, '&quot;');
-    const attrRegex = new RegExp(`(?<!-)\\b${attrName}="[^"]*"`, 'i');
-    if (attrRegex.test(tagHtml)) {
-        return tagHtml.replace(attrRegex, `${attrName}="${escapedValue}"`);
-    }
-    if (tagHtml.endsWith('/>')) {
-        return tagHtml.slice(0, -2) + ` ${attrName}="${escapedValue}"/>`;
-    }
-    return tagHtml.slice(0, -1) + ` ${attrName}="${escapedValue}">`;
-}
-
-function generateLocalizedHtml(baseHtml, lang) {
-    const i18nFilePath = path.join(process.cwd(), `js/i18n/${lang}.json`);
-    if (!fs.existsSync(i18nFilePath)) {
-        return baseHtml;
-    }
-    const translations = JSON.parse(fs.readFileSync(i18nFilePath, 'utf8'));
-    const title = translations.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | OreCalc';
-    const description = translations.app?.description || '';
-    const locale = localesMap[lang] || `${lang}_${lang.toUpperCase()}`;
-    const url = `https://orecalc.tech/${lang}/`;
-
-    let html = baseHtml;
-    html = html.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);
-    html = html.replace(/<title[^>]*>.*?<\/title>/s, `<title data-i18n="app.title">${title}</title>`);
-    html = html.replace(/<meta name="description"\s+content="[^"]*">/s, `<meta name="description" content="${description}">`);
-    html = html.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">`);
-    html = html.replace(/<meta property="og:title" content="[^"]*">/g, `<meta property="og:title" content="${title}">`);
-    html = html.replace(/<meta property="og:description"\s+content="[^"]*">/g, `<meta property="og:description" content="${description}">`);
-    html = html.replace(/<meta property="og:url" content="[^"]*">/g, `<meta property="og:url" content="${url}">`);
-    if (html.includes('<meta property="og:locale"')) {
-        html = html.replace(/<meta property="og:locale" content="[^"]*">/, `<meta property="og:locale" content="${locale}">`);
-    } else {
-        html = html.replace(/<meta property="og:type" content="website">/, `<meta property="og:type" content="website">\n    <meta property="og:locale" content="${locale}">`);
-    }
-    html = html.replace(/<meta property="twitter:title" content="[^"]*">/g, `<meta property="twitter:title" content="${title}">`);
-    html = html.replace(/<meta property="twitter:description"\s+content="[^"]*">/g, `<meta property="twitter:description" content="${description}">`);
-    html = html.replace(/<meta property="twitter:url" content="[^"]*">/g, `<meta property="twitter:url" content="${url}">`);
-    html = html.replace(/"description": "[^"]*"/, `"description": "${description.replace(/"/g, '\\"')}"`);
-    html = html.replace(/"url": "[^"]*"/, `"url": "${url}"`);
-
-    html = html.replace(/<([a-z1-6]+)([^>]*?)\s+data-i18n="([^"]+)"([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tagName, attrsBefore, key, attrsAfter) => {
-        const val = resolveTranslation(translations, key, lang);
-        if (val !== null && val.trim()) {
-            return `<${tagName}${attrsBefore} data-i18n="${key}"${attrsAfter}>${val}</${tagName}>`;
-        }
-        return match;
-    });
-
-    html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-placeholder="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
-        const val = resolveTranslation(translations, key, lang);
-        if (val !== null) {
-            return injectOrReplaceAttribute(match, 'placeholder', val);
-        }
-        return match;
-    });
-
-    html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-title="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
-        const val = resolveTranslation(translations, key, lang);
-        if (val !== null) {
-            return injectOrReplaceAttribute(match, 'title', val);
-        }
-        return match;
-    });
-
-    html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-aria-label="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
-        const val = resolveTranslation(translations, key, lang);
-        if (val !== null) {
-            return injectOrReplaceAttribute(match, 'aria-label', val);
-        }
-        return match;
-    });
-
-    html = html.replace(/<([a-z1-6]+)([^>]*?\s+data-i18n-alt="([^"]+)"[^>]*)>/gi, (match, tagName, allAttrs, key) => {
-        const val = resolveTranslation(translations, key, lang);
-        if (val !== null) {
-            return injectOrReplaceAttribute(match, 'alt', val);
-        }
-        return match;
-    });
-
-    return html;
-}
+const { generateLocalizedHtml } = require('../build/htmlLocalizer.js');
 
 function getDevEnvironmentData() {
     const packageJson = require(path.join(process.cwd(), 'package.json'));
@@ -230,7 +128,7 @@ function getDevEnvironmentData() {
             const commits = lines.map(line => {
                 const parts = line.split('|');
                 const hash = parts[0];
-                const timestamp = parseInt(parts[1], 10) * 1000;
+                const timestamp = (Number(parts[1]) || 0) * 1000;
                 const subject = parts.slice(2).join('|');
                 return { hash, timestamp, subject };
             });
@@ -252,6 +150,10 @@ function getDevEnvironmentData() {
     return { appVersion, buildTime, commitsSinceTag };
 }
 
+function getDevEnvScript(appVersion, buildTime, commitsSinceTag) {
+    return `<meta charset="UTF-8">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${devApiBaseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${devTurnstileSiteKey}", VITE_API_BASE_URL: "${devApiBaseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`;
+}
+
 function getCompiledIndexHtml(lang = 'en') {
     if (!cachedHtml) {
         const indexPath = path.join(process.cwd(), 'index.html');
@@ -261,36 +163,74 @@ function getCompiledIndexHtml(lang = 'en') {
         const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
 
         // Inject global environment context into index.html head for runtime API endpoint resolving
-        content = content.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${devApiBaseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
+        content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
         cachedHtml = content;
     }
-    return generateLocalizedHtml(cachedHtml, lang);
+    return generateLocalizedHtml(cachedHtml, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), '');
 }
 
 function getCompiledHeroJourneyHtml(lang = 'en') {
-    const hjPath = path.join(process.cwd(), 'hero-journey.html');
+    const hjPath = path.join(process.cwd(), 'hero-journey/index.html');
     if (!fs.existsSync(hjPath)) return '';
     let content = fs.readFileSync(hjPath, 'utf8');
     content = processHtmlIncludes(content, process.cwd());
 
     const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
-    content = content.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n    <script>window.__ENV__ = { VITE_API_BASE_URL: "${devApiBaseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`);
+    content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
 
-    if (lang !== 'en') {
-        const { generateLocalizedHtml } = require('../build/htmlLocalizer.js');
-        content = generateLocalizedHtml(content, lang, supportedLanguages, false, getDynamicTranslationArgs, process.cwd(), 'hero-journey');
-    }
-    return content;
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'hero-journey');
 }
 
-const params = {
-    port: process.env.PORT ? parseInt(process.env.PORT, 10) : 8080,
-    host: "0.0.0.0",
-    root: ".",
-    open: openBrowser,
-    wait: 1000,
-    logLevel: 2,
-    middleware: [
+function getCompiledOreCalcHtml(lang = 'en') {
+    const calcPath = path.join(process.cwd(), 'ore-calculator/index.html');
+    if (!fs.existsSync(calcPath)) return '';
+    let content = fs.readFileSync(calcPath, 'utf8');
+    content = processHtmlIncludes(content, process.cwd());
+
+    const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
+    content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
+
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'ore-calculator');
+}
+
+function getCompiledDamageCalcHtml(lang = 'en') {
+    const calcPath = path.join(process.cwd(), 'damage-calculator/index.html');
+    if (!fs.existsSync(calcPath)) return '';
+    let content = fs.readFileSync(calcPath, 'utf8');
+    content = processHtmlIncludes(content, process.cwd());
+
+    const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
+    content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
+
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'damage-calculator');
+}
+
+/**
+ * Constructs the configuration parameters for live-server.
+ *
+ * @param {Object} [overrides={}] - Optional configuration overrides for testing.
+ * @returns {Object} Full live-server options object.
+ */
+function createDevServerParams(overrides = {}) {
+    return {
+        port: Number(process.env.PORT) || 8080,
+        host: "0.0.0.0",
+        root: ".",
+        open: openBrowser,
+        wait: 1000,
+        logLevel: 2,
+        ignore: [
+            'dist',
+            'dist/**',
+            '**/dist/**',
+            path.join(process.cwd(), 'dist'),
+            'node_modules',
+            'scratch',
+            'tests'
+        ],
+        ignorePattern: /(?:^|[\\/])(dist|node_modules|scratch|tests)(?:[\\/]|$)/,
+        ...overrides,
+        middleware: [
         function(req, res, next) {
             const langPatternStr = supportedLanguages.join('|');
             const langAssetRegex = new RegExp(`^\\/(${langPatternStr})\\/(.+)$`);
@@ -346,8 +286,70 @@ const params = {
                 return res.end(html);
             }
 
+            if (['/ore-calculator', '/de/ore-calculator', '/tr/ore-calculator', '/zh/ore-calculator'].includes(pathname)) {
+                res.writeHead(301, { Location: `${pathname}/${query}` });
+                return res.end();
+            }
+
+            if (pathname === '/ore-calculator/') {
+                const html = getCompiledOreCalcHtml('en');
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+            const oreCalcLangMatch = pathname.match(/^\/([a-z-]+)\/ore-calculator\/$/);
+            if (oreCalcLangMatch && supportedLanguages.includes(oreCalcLangMatch[1])) {
+                const html = getCompiledOreCalcHtml(oreCalcLangMatch[1]);
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+
+            if (['/damage-calculator', '/de/damage-calculator', '/tr/damage-calculator', '/zh/damage-calculator'].includes(pathname)) {
+                res.writeHead(301, { Location: `${pathname}/${query}` });
+                return res.end();
+            }
+
+            if (pathname === '/damage-calculator/') {
+                const html = getCompiledDamageCalcHtml('en');
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+            const damageCalcLangMatch = pathname.match(/^\/([a-z-]+)\/damage-calculator\/$/);
+            if (damageCalcLangMatch && supportedLanguages.includes(damageCalcLangMatch[1])) {
+                const html = getCompiledDamageCalcHtml(damageCalcLangMatch[1]);
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+
             if (pathname === '/css/hero-journey.css' || pathname === '/hero-journey/css/hero-journey.css') {
                 const scssPath = path.join(process.cwd(), 'css/hero-journey.scss');
+                if (fs.existsSync(scssPath)) {
+                    try {
+                        const sass = require('sass');
+                        const result = sass.compile(scssPath);
+                        res.setHeader('Content-Type', 'text/css');
+                        return res.end(result.css);
+                    } catch (e) {
+                        return next();
+                    }
+                }
+            }
+
+            if (pathname === '/css/damage-calculator.css' || pathname === '/damage-calculator/css/damage-calculator.css') {
+                const scssPath = path.join(process.cwd(), 'css/damage-calculator.scss');
+                if (fs.existsSync(scssPath)) {
+                    try {
+                        const sass = require('sass');
+                        const result = sass.compile(scssPath);
+                        res.setHeader('Content-Type', 'text/css');
+                        return res.end(result.css);
+                    } catch (e) {
+                        return next();
+                    }
+                }
+            }
+
+            if (pathname === '/css/landing.css') {
+                const scssPath = path.join(process.cwd(), 'css/landing.scss');
                 if (fs.existsSync(scssPath)) {
                     try {
                         const sass = require('sass');
@@ -461,8 +463,22 @@ const params = {
             next();
         }
     ]
+    };
+}
+
+if (require.main === module) {
+    fs.watch(process.cwd(), watchCallback);
+    const partialsDir = path.join(process.cwd(), 'partials');
+    if (fs.existsSync(partialsDir)) {
+        fs.watch(partialsDir, { recursive: true }, watchCallback);
+    }
+
+    const params = createDevServerParams();
+    liveServer.start(params);
+    console.log(`Serving on your local network IP as well (accessible from other devices on the network): http://${localIp}:${params.port}`);
+}
+
+module.exports = {
+    createDevServerParams,
+    watchCallback
 };
-
-liveServer.start(params);
-
-console.log(`Serving on your local network IP as well (accessible from other devices on the network): http://${localIp}:${params.port}`);

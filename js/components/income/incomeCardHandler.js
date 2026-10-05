@@ -3,12 +3,13 @@ import { currencyData } from '../../data/pricingData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
-import { handleStateUpdate } from '../../core/stateManager.js';
 
-import { hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
-import { formatCurrency, formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
+import { getAddPlayerHelpContent, hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import { formatRegionalDate } from '../../utils/dateUtils.js';
+import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 
 import { bindSelectInput } from '../common/formBindingUtils.js';
+import { openBugReportModal } from '../appSettings/settingsSupportModals.js';
 import { dom } from '../../dom/domElements.js';
 
 /**
@@ -32,31 +33,14 @@ export function initializeIncomeCardHandler() {
         showCardHelpPopover(btn, content, { isToggle: true });
     };
 
-    function formatRegionalDate(isoDateStr) {
-        if (!isoDateStr) return '';
-        try {
-            const parts = isoDateStr.split('-');
-            if (parts.length !== 3) return isoDateStr;
-            const [year, month, day] = parts.map(Number);
-            const date = new Date(Date.UTC(year, month - 1, day));
-            const lang = state.uiSettings?.language || 'en';
-            return new Intl.DateTimeFormat(lang, {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                timeZone: 'UTC'
-            }).format(date);
-        } catch (e) {
-            return isoDateStr;
-        }
-    }
-
     const getPopoverContent = (btnOrKey) => {
         const infoKey = typeof btnOrKey === 'string' ? btnOrKey : btnOrKey.getAttribute('data-info');
         let body = '';
         let footer = null;
 
-        if (infoKey === 'views.income.supercellEvents.help') {
+        if (infoKey === 'player.addPlayerHelp') {
+            body = getAddPlayerHelpContent();
+        } else if (infoKey === 'views.income.supercellEvents.help') {
             const currentLang = state.uiSettings?.language || 'en';
             body = translate(infoKey, { url: getSupercellEventUrl(currentLang) });
         } else if (infoKey === 'views.equipment.badgeRarityHelp' && typeof btnOrKey === 'object' && btnOrKey) {
@@ -96,11 +80,7 @@ export function initializeIncomeCardHandler() {
             e.preventDefault();
             e.stopPropagation();
             hideHelpPopover();
-            import('../appSettings/settingsModals.js').then(module => {
-                if (module.openBugReportModal) {
-                    module.openBugReportModal();
-                }
-            });
+            openBugReportModal();
             return;
         }
 
@@ -116,19 +96,21 @@ export function initializeIncomeCardHandler() {
 
     document.addEventListener('mouseover', (e) => {
         if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-        const badge = e.target.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info]');
-        if (badge && activeHelpBtn !== badge) {
-            const text = getPopoverContent(badge);
-            showHelpPopover(badge, text);
+        const targetBtn = /** @type {HTMLElement | null} */ (e.target)?.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, .info-button, [data-info]');
+        if (targetBtn && activeHelpBtn !== targetBtn) {
+            const text = getPopoverContent(targetBtn);
+            if (text) {
+                showHelpPopover(targetBtn, text);
+            }
         }
     });
 
     document.addEventListener('mouseout', (e) => {
         if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-        const badge = e.target.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info]');
-        if (badge && activeHelpBtn === badge) {
-            const related = e.relatedTarget;
-            if (!related || !badge.contains(related)) {
+        const targetBtn = /** @type {HTMLElement | null} */ (e.target)?.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, .info-button, [data-info]');
+        if (targetBtn && activeHelpBtn === targetBtn) {
+            const related = /** @type {Node | null} */ (e.relatedTarget);
+            if (!related || !targetBtn.contains(related)) {
                 hideHelpPopover();
             }
         }

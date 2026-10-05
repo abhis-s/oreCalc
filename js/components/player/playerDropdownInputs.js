@@ -1,16 +1,19 @@
 import { translate } from '../../i18n/translator.js';
 
-import { loadPlayerData, normalizePlayerTag, removePlayerTag, updateSavedPlayerTags } from '../../core/localStorageManager.js';
-import { removeRecentSearch } from '../../core/recentSearchesManager.js';
+import { normalizePlayerTag } from '../../core/storageKeys.js';
+import { loadPlayerData, removePlayerTag, updateSavedPlayerTags } from '../../core/playerStorage.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate, switchActivePlayer } from '../../core/stateManager.js';
 import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
 
-import { invalidatePlayerDropdownCache, renderPlayerDropdown, toggleMainAppRecentCollapsed } from './playerDropdownDisplay.js';
+import { autoPlaceIncomeChipsForRange } from '../../utils/autoPlaceChips.js';
+import { getMaxDate, getMinDate } from '../../utils/dateUtils.js';
+import { invalidatePlayerDropdownCache, renderPlayerDropdown } from './playerDropdownDisplay.js';
 import { showAddPlayerModal } from './playerModalInputs.js';
 import { dom } from '../../dom/domElements.js';
 import { showAlert, showConfirm } from '../../ui/noticeModal.js';
+import { showApiErrorToast } from '../../ui/toast.js';
 
 let lastTouchTime = 0;
 let isPlayerDropdownInitialized = false;
@@ -61,9 +64,6 @@ export async function handlePlayerSelection(tag) {
     const cleanTag = normalizePlayerTag(tag);
     if (!cleanTag) return;
 
-    // Immediately remove from recent searches if present
-    removeRecentSearch(cleanTag);
-
     // If not yet in memory state, attempt to load cached partition
     if (!state.allPlayersData[cleanTag] || !state.allPlayersData[cleanTag].heroes) {
         const cached = loadPlayerData(cleanTag);
@@ -73,27 +73,36 @@ export async function handlePlayerSelection(tag) {
     }
 
     if (state.allPlayersData[cleanTag]?.heroes) {
-        updateSavedPlayerTags(cleanTag);
         switchActivePlayer(cleanTag);
+        updateSavedPlayerTags(cleanTag);
         syncPlayerTagToUrl(cleanTag);
     } else {
-        await loadAndProcessPlayerData(cleanTag);
-        syncPlayerTagToUrl(cleanTag);
+        const result = await loadAndProcessPlayerData(cleanTag);
+        if (result?.success) {
+            syncPlayerTagToUrl(cleanTag);
+        } else {
+            const errorKey = result?.message || 'apiErrors.notFound';
+            showApiErrorToast(errorKey);
+            if (state.savedPlayerTags?.[0] && state.savedPlayerTags[0] !== 'DEFAULT0') {
+                syncPlayerTagToUrl(state.savedPlayerTags[0]);
+            } else {
+                syncPlayerTagToUrl(null);
+            }
+            invalidatePlayerDropdownCache();
+            renderDropdown();
+            return;
+        }
     }
 
     // Auto place chips for the newly selected active player to keep the calendar fully up to date
-    import('../../utils/autoPlaceChips.js').then(({ autoPlaceIncomeChipsForRange }) => {
-        import('../../utils/dateUtils.js').then(({ getMinDate, getMaxDate }) => {
-            const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
-            const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
-            autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
-            handleStateUpdate(() => {
-                if (state.planner?.calendar) {
-                    state.planner.calendar.isHydrated = true;
-                }
-            }, false);
-        });
-    });
+    const { month: minMonth, year: minYear } = getMinDate();
+    const { month: maxMonth, year: maxYear } = getMaxDate();
+    autoPlaceIncomeChipsForRange(minMonth, minYear, maxMonth, maxYear, true);
+    handleStateUpdate(() => {
+        if (state.planner?.calendar) {
+            state.planner.calendar.isHydrated = true;
+        }
+    }, false);
 
     invalidatePlayerDropdownCache();
     renderDropdown();
@@ -106,9 +115,10 @@ export async function handlePlayerSelection(tag) {
  */
 export async function handleDeletePlayer(tagToDelete) {
     const validSavedTags = state.savedPlayerTags
-        .map(tag => normalizePlayerTag(tag))
+        .map(normalizePlayerTag)
         .filter(tag => tag && tag !== 'DEFAULT0');
     if (validSavedTags.length <= 1) {
+        closeDropdown();
         await showAlert(
             translate('alerts.cannotDeleteLastProfile'),
             'status.info'
@@ -118,7 +128,7 @@ export async function handleDeletePlayer(tagToDelete) {
 
     const confirmed = await showConfirm(
         translate('confirms.deleteProfile'),
-        'status.confirm',
+        'actions.confirm',
         'actions.delete'
     );
     if (confirmed) {
@@ -130,18 +140,14 @@ export async function handleDeletePlayer(tagToDelete) {
             if (nextTag) {
                 switchActivePlayer(nextTag);
                 syncPlayerTagToUrl(nextTag);
-                import('../../utils/autoPlaceChips.js').then(({ autoPlaceIncomeChipsForRange }) => {
-                    import('../../utils/dateUtils.js').then(({ getMinDate, getMaxDate }) => {
-                        const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
-                        const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
-                        autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
-                        handleStateUpdate(() => {
-                            if (state.planner?.calendar) {
-                                state.planner.calendar.isHydrated = true;
-                            }
-                        }, false);
-                    });
-                });
+                const { month: minMonth, year: minYear } = getMinDate();
+                const { month: maxMonth, year: maxYear } = getMaxDate();
+                autoPlaceIncomeChipsForRange(minMonth, minYear, maxMonth, maxYear, true);
+                handleStateUpdate(() => {
+                    if (state.planner?.calendar) {
+                        state.planner.calendar.isHydrated = true;
+                    }
+                }, false);
             }
         } else {
             handleStateUpdate(() => {}, false);
@@ -179,13 +185,6 @@ export function initializePlayerDropdown() {
 
     if (playerItemsContainer) {
         const handleSectionHeaderInteraction = (event) => {
-            const collapsibleHeader = /** @type {HTMLElement} */ (event.target)?.closest?.('.player-dropdown-section-header--collapsible');
-            if (collapsibleHeader) {
-                event.preventDefault();
-                event.stopPropagation();
-                toggleMainAppRecentCollapsed();
-                return true;
-            }
             const sectionHeader = /** @type {HTMLElement} */ (event.target)?.closest?.('.player-dropdown-section-header');
             if (sectionHeader) {
                 event.preventDefault();
@@ -201,19 +200,6 @@ export function initializePlayerDropdown() {
 
         playerItemsContainer.addEventListener('click', (event) => {
             if (handleSectionHeaderInteraction(event)) return;
-
-            const dismissBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('.dismiss-recent-button');
-            if (dismissBtn) {
-                event.preventDefault();
-                event.stopPropagation();
-                const tagToDismiss = dismissBtn.dataset.tag;
-                if (tagToDismiss) {
-                    removeRecentSearch(tagToDismiss);
-                    invalidatePlayerDropdownCache();
-                    renderDropdown();
-                }
-                return;
-            }
 
             const deleteBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('.delete-player-button, .remove-player-button');
             if (deleteBtn) {
@@ -307,23 +293,7 @@ export function initializePlayerDropdown() {
                 closeDropdown();
                 dom.player?.dropdownButton?.focus();
             } else if (event.key === 'Delete' || event.key === 'Backspace') {
-                const dismissBtn = target?.closest?.('.player-dropdown-item--recent')?.querySelector('.dismiss-recent-button') || target?.closest?.('.dismiss-recent-button');
-                if (dismissBtn) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    const tagToDismiss = dismissBtn.dataset.tag;
-                    if (tagToDismiss) {
-                        removeRecentSearch(tagToDismiss);
-                        invalidatePlayerDropdownCache();
-                        renderDropdown();
-                        const nextRows = getNavigableRows();
-                        const focusTarget = nextRows[Math.min(currentIndex, nextRows.length - 1)];
-                        if (focusTarget) focusTarget.focus();
-                    }
-                    return;
-                }
-
-                const deleteBtn = target?.closest?.('.player-dropdown-item:not(.player-dropdown-item--recent)')?.querySelector('.delete-player-button');
+                const deleteBtn = target?.closest?.('.player-dropdown-item')?.querySelector('.delete-player-button');
                 if (deleteBtn) {
                     event.preventDefault();
                     event.stopPropagation();
@@ -334,31 +304,6 @@ export function initializePlayerDropdown() {
                     return;
                 }
             } else if (event.key === 'Enter' || event.key === ' ') {
-                const collapsibleHeader = target?.closest?.('.player-dropdown-section-header--collapsible');
-                if (collapsibleHeader) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    toggleMainAppRecentCollapsed();
-                    const newHeader = playerItemsContainer.querySelector('.player-dropdown-section-header--collapsible');
-                    if (newHeader) {
-                        /** @type {HTMLElement} */ (newHeader).focus();
-                    }
-                    return;
-                }
-
-                const dismissBtn = target?.closest?.('.dismiss-recent-button');
-                if (dismissBtn) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    const tagToDismiss = dismissBtn.dataset.tag;
-                    if (tagToDismiss) {
-                        removeRecentSearch(tagToDismiss);
-                        invalidatePlayerDropdownCache();
-                        renderDropdown();
-                    }
-                    return;
-                }
-
                 const deleteBtn = target?.closest?.('.delete-player-button, .remove-player-button');
                 if (deleteBtn) return;
 

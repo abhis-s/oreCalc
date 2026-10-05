@@ -3,7 +3,7 @@
 .tour-highlight-box {
     position: fixed;
     border: none;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65), 0 0 15px color-mix(in srgb, $accent-primary 40%, transparent);
     pointer-events: none;
     z-index: $z-index-tour;
@@ -19,12 +19,12 @@
     max-width: calc(100vw - 24px);
     background: color-mix(in srgb, $bg-surface-secondary 92%, transparent);
     border: 1px solid color-mix(in srgb, $accent-primary 25%, transparent);
-    border-radius: 16px;
+    border-radius: $shape-corner-large;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px color-mix(in srgb, $border-primary 50%, transparent);
-    padding: 16px;
+    padding: $spacing-lg;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: $spacing-md;
     box-sizing: border-box;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -34,7 +34,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 12px;
+        gap: $spacing-md;
 
         .tour-tooltip-title {
             font-size: 15px;
@@ -71,8 +71,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 8px;
-        margin-top: 8px;
+        gap: $spacing-sm;
+        margin-top: $spacing-sm;
         width: 100%;
 
         .tour-actions {
@@ -80,14 +80,14 @@
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            gap: 8px;
+            gap: $spacing-sm;
             width: 100%;
 
             .tour-btn {
                 background: none;
                 border: 1px solid transparent;
-                border-radius: 8px;
-                padding: 6px 12px;
+                border-radius: $shape-corner-small;
+                padding: 6px $spacing-md;
                 font-size: 12px;
                 font-weight: 600;
                 cursor: pointer;

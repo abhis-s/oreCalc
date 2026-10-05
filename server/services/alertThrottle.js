@@ -21,12 +21,12 @@ function isIgnoredNoise(message) {
     if (!message || typeof message !== 'string') return true;
     const str = message.trim();
 
-    // 1. Browser extension / opaque cross-origin script error
+    // Browser extension / opaque cross-origin script error
     if (str === 'Script error.' || str === 'Console Error: Script error.' || str.includes('Script error.')) {
         return true;
     }
 
-    // 2. Player tag / Clan search 404 or syntax typos
+    // Player tag / Clan search 404 or syntax typos
     if (
         str.includes('apiErrors.notFound') ||
         str.includes('Invalid Clash of Clans tag format') ||
@@ -36,7 +36,7 @@ function isIgnoredNoise(message) {
         return true;
     }
 
-    // 3. Expected game states (CWL inactive, private war log)
+    // Expected game states (CWL inactive, private war log)
     if (
         str.includes('CWL league group: apiErrors.notFound') ||
         str.includes('CWL') ||
@@ -47,12 +47,22 @@ function isIgnoredNoise(message) {
         return true;
     }
 
-    // 4. Service Worker lifecycle / background polling drops
+    // Service Worker lifecycle / background polling drops
     if (
         str.includes('SW registration failed') ||
         str.includes('SW update check failed') ||
         str.includes('ServiceWorker') ||
         str.includes('ResizeObserver')
+    ) {
+        return true;
+    }
+
+    // Clipboard permission denial / read failures (user denied permission or browser policy)
+    if (
+        str.toLowerCase().includes('clipboard') ||
+        str.includes('Failed to read clipboard') ||
+        str.includes('readText') ||
+        str.includes('NotAllowedError')
     ) {
         return true;
     }
@@ -71,7 +81,6 @@ function isIgnoredNoise(message) {
 function isBotTraffic(userAgent = '', message = '', url = '') {
     const ua = String(userAgent || '').toLowerCase();
     const msg = String(message || '').toLowerCase();
-    const pageUrl = String(url || '').toLowerCase();
 
     // Known search engine crawlers, preview bots, security scanners, and headless renderers
     const botPatterns = [
@@ -185,22 +194,22 @@ function computeErrorSignature(message, source = '') {
 function shouldSendAlertEmail(errorData) {
     const { userId, message, source, userAgent, url } = errorData;
 
-    // 1. Check if noise
-    if (isIgnoredNoise(message)) {
+    // Discard noise or clipboard reading denial
+    if (isIgnoredNoise(message) || /clipboard|readText|NotAllowedError/i.test(message)) {
         return { shouldSend: false, reason: 'ignored_noise', signature: '' };
     }
 
-    // 2. Check if search crawler / bot traffic (Googlebot, Bingbot, Lighthouse, etc. - even if holding a guest userId)
+    // Discard search crawler / bot traffic (Googlebot, Bingbot, Lighthouse, etc.)
     if (isBotTraffic(userAgent, message, url)) {
         return { shouldSend: false, reason: 'bot_crawler_traffic', signature: '' };
     }
 
-    // 3. Check if anonymous / unknown traffic (log in DB only)
+    // Anonymous / unknown traffic logged in DB only
     if (!userId || userId === 'unknown' || userId === 'null' || userId === 'undefined') {
         return { shouldSend: false, reason: 'anonymous_user_db_only', signature: '' };
     }
 
-    // 4. Check 503 outage state
+    // Check 503 outage state
     const is503 = message.includes('503') || message.includes('apiErrors.503') || message.includes('inMaintenance');
     const signature = computeErrorSignature(message, source || '');
     const now = Date.now();
@@ -212,7 +221,7 @@ function shouldSendAlertEmail(errorData) {
         return { shouldSend: true, reason: 'supercell_503_alert', signature };
     }
 
-    // 5. Check 10-minute cooldown for critical errors (413, TypeError, etc.)
+    // Enforce cooldown for critical errors (413, TypeError, etc.)
     const lastSent = recentAlertTimestamps.get(signature) || 0;
     if (now - lastSent < ALERT_COOLDOWN_MS) {
         return { shouldSend: false, reason: 'cooldown_active', signature };
@@ -245,7 +254,7 @@ function createSmtpTransporter() {
     if (!process.env.SMTP_USER || !process.env.SMTP_HOST) return null;
     return nodemailer.createTransport({
         host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587', 10),
+        port: Number(process.env.SMTP_PORT) || 587,
         secure: process.env.SMTP_SECURE === 'true',
         auth: {
             user: process.env.SMTP_USER,
@@ -286,10 +295,10 @@ async function notify503RecoveryIfActive() {
 
     const nowIso = new Date().toISOString();
     const mailOptions = {
-        from: `"OreCalc Alert" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
+        from: `"ClashCalc Alert" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
         to: recipientEmail,
-        subject: `[OreCalc Alert] RESOLVED: Supercell Clash of Clans API is Back Online`,
-        text: `Hello,\n\nThe Supercell Clash of Clans API has recovered from maintenance break and is back online.\n\nRecovery Details:\n- Status: RESOLVED\n- Resolved At: ${nowIso}\n- API Target: ${process.env.COC_API_BASE_URL || 'Supercell Clash API'}\n\nNormal upstream proxying has resumed.\n\nRegards,\nOreCalc Error Monitoring`
+        subject: `[ClashCalc Alert] RESOLVED: Supercell Clash of Clans API is Back Online`,
+        text: `Hello,\n\nThe Supercell Clash of Clans API has recovered from maintenance break and is back online.\n\nRecovery Details:\n- Status: RESOLVED\n- Resolved At: ${nowIso}\n- API Target: ${process.env.COC_API_BASE_URL || 'Supercell Clash API'}\n\nNormal upstream proxying has resumed.\n\nRegards,\nClashCalc Error Monitoring`
     };
 
     const sent = await sendMailSafely(mailOptions);

@@ -29,9 +29,9 @@
 .income-chips-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: $spacing-sm;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: $shape-corner-small;
     background-color: $bg-surface-secondary;
     border: 1px solid $border-primary;
 
@@ -42,7 +42,7 @@
 }
 
 .income-chip {
-    padding: 6px 12px;
+    padding: 6px $spacing-md;
     border-radius: 20px;
     color: var(--color-on-income);
     font-size: 0.85em;
@@ -66,8 +66,8 @@
     &.dragging-clone {
         position: fixed;
         box-shadow: $elevation-4;
-        transform: scale($drag-ghost-scale);
-        opacity: $drag-ghost-opacity;
+        transform: scale(1.08);
+        opacity: 0.95;
         pointer-events: none;
         z-index: 99999;
         will-change: transform, opacity;
@@ -133,7 +133,7 @@
             right: -6px;
             margin-left: 0;
             font-size: 0.65em;
-            padding: 2px 4px;
+            padding: $spacing-2xs $spacing-xs;
             border-radius: 10px;
             background-color: $bg-surface-primary;
             color: $text-primary;
@@ -167,7 +167,7 @@
 
     @media (max-width: $breakpoint-compact) {
         font-size: 10px;
-        padding: 4px 8px;
+        padding: $spacing-xs $spacing-sm;
     }
 
     &.dragging {
@@ -227,9 +227,9 @@
         color: $text-primary;
         font-size: 0.7em;
         font-weight: 700;
-        padding: 1px 4px;
-        border-radius: 4px;
-        margin-left: 2px;
+        padding: 1px $spacing-xs;
+        border-radius: $shape-corner-xs;
+        margin-left: $spacing-2xs;
         line-height: 1;
         display: inline-block;
         box-shadow: 0 1px 2px rgba(0,0,0,0.2);
@@ -280,8 +280,8 @@
             min-width: 30px;
             height: 14px;
             min-height: 14px;
-            border-radius: 4px;
-            padding: 0 4px;
+            border-radius: $shape-corner-xs;
+            padding: 0 $spacing-xs;
 
             .chip-text {
                 font-size: 7px;
@@ -293,7 +293,7 @@
             right: -4px;
             font-size: 0.55em;
             padding: 1px 3px;
-            border-radius: 8px;
+            border-radius: $shape-corner-small;
         }
     }
 }
@@ -317,7 +317,7 @@
 
     .tooltip-header {
         font-weight: 600;
-        margin-bottom: 4px;
+        margin-bottom: $spacing-xs;
         color: $accent-primary;
         width: 100%;
         text-align: center;
@@ -328,7 +328,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: $spacing-sm;
         width: 100%;
         font-size: 0.85em;
         font-weight: 500;
@@ -356,7 +356,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 4px;
+        gap: $spacing-xs;
 
         .valid-range-label {
             opacity: 0.8;
@@ -374,30 +374,30 @@
     flex-wrap: wrap;
     margin-top: 20px;
     padding: 15px;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
     background-color: $bg-surface-primary;
     border: 1px solid $border-secondary;
 
     @media (max-width: $breakpoint-compact) {
-        gap: 2px;
+        gap: $spacing-2xs;
     }
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: $spacing-sm;
     flex-shrink: 0;
     color: $text-secondary;
     font-size: 0.85em;
     font-weight: 500;
-    padding: 4px 8px;
+    padding: $spacing-xs $spacing-sm;
     border-radius: 6px;
     cursor: pointer;
     transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
 
     @media (max-width: $breakpoint-compact) {
-        padding: 2px 4px;
+        padding: $spacing-2xs $spacing-xs;
     }
 
     &:hover {
@@ -409,7 +409,7 @@
 .color-box {
     width: 14px;
     height: 14px;
-    border-radius: 4px;
+    border-radius: $shape-corner-xs;
     border: 1px solid var(--chip-border);
 }
 
@@ -445,7 +445,7 @@ h3.income-chips-title {
 .income-chips-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: $spacing-sm;
 
     .create-custom-chips-btn {
         margin: 0;
@@ -455,7 +455,7 @@ h3.income-chips-title {
 .auto-place-chips-btn {
     @include btn-accent-style;
     border-radius: 20px;
-    padding: 8px 16px;
+    padding: $spacing-sm $spacing-lg;
     font-size: 0.85em;
     font-weight: 600;
     cursor: pointer;
@@ -484,13 +484,13 @@ h3.income-chips-title {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: $spacing-sm;
 }
 
 .income-chip-group {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: $spacing-xs;
     flex-shrink: 0;
 }
 

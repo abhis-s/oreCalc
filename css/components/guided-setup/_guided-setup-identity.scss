@@ -1,0 +1,304 @@
+@use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
+
+#guided-setup-step-1 {
+    gap: $spacing-md;
+}
+
+.player-name-input-container {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+
+    label {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $text-secondary;
+    }
+
+    .input-with-button {
+        display: flex;
+        gap: $spacing-sm;
+        width: 100%;
+
+        @media (max-width: $breakpoint-compact) {
+            flex-direction: column;
+            gap: $spacing-sm;
+        }
+
+        input {
+            @include input-focus-ring;
+            flex: 1;
+            width: 100%;
+            padding: $spacing-md $spacing-lg;
+            border: 1px solid $border-primary;
+            border-radius: $shape-corner-medium;
+            font-size: $font-size-lg;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            box-sizing: border-box;
+
+            &.input-error {
+                border-color: $color-danger;
+                box-shadow: 0 0 0 3px color-mix(in srgb, $color-danger 15%, transparent);
+            }
+        }
+
+        .guided-setup-inline-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: $spacing-md $spacing-lg;
+            background-color: $accent-primary;
+            border: 1px solid $btn-border-blue;
+            border-radius: $shape-corner-medium;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-semibold;
+            color: $text-on-accent;
+            cursor: pointer;
+            transition: background-color $duration-fast $ease-smooth;
+            white-space: nowrap;
+            margin: 0;
+            box-sizing: border-box;
+
+            @media (max-width: $breakpoint-compact) {
+                width: 100%;
+            }
+
+            &:hover {
+                background-color: color-mix(in srgb, $accent-primary 85%, black);
+            }
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+    }
+
+    .error-message {
+        display: none;
+        color: $color-danger;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+
+        &.show {
+            display: block;
+            margin-top: $spacing-2xs;
+        }
+    }
+}
+
+.guided-setup-saved-profiles {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    width: 100%;
+    text-align: left;
+
+    &[style*="display: block"] {
+        display: flex !important;
+    }
+}
+
+.guided-setup-saved-profiles-header {
+    display: flex;
+    align-items: center;
+    padding: 0 $spacing-2xs;
+}
+
+.guided-setup-saved-profiles-title {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $text-secondary;
+}
+
+.guided-setup-saved-profiles-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: $spacing-sm;
+    width: 100%;
+
+    @media (max-width: $breakpoint-compact) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.guided-setup-saved-profile-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-card;
+    border-radius: $card-radius;
+    color: $text-primary;
+    cursor: pointer;
+    text-align: left;
+    box-shadow: $elevation-1;
+    position: relative;
+    transition: $transition-card;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+
+    &:hover {
+        border-color: $border-card-hover;
+        background-color: color-mix(in srgb, $accent-primary 8%, transparent);
+        box-shadow: $elevation-card-hover;
+        transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent-primary;
+        outline-offset: 2px;
+    }
+
+    &.is-active {
+        border-color: $accent-primary;
+        background-color: color-mix(in srgb, $accent-primary 10%, $bg-surface-secondary);
+        box-shadow: 0 0 0 1px $accent-primary, 0 4px 16px -2px color-mix(in srgb, $accent-primary 25%, transparent);
+
+        &:hover {
+            background-color: color-mix(in srgb, $accent-primary 14%, $bg-surface-secondary);
+            box-shadow: 0 0 0 1px $accent-primary, $elevation-card-hover;
+            transform: translateY(-1px);
+        }
+    }
+
+    .account-card-th {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+
+        .th-mini-img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+        }
+
+        .th-mini-level {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background-color: $accent-primary;
+            color: $text-on-accent;
+            border: 1.5px solid $border-primary;
+            border-radius: $shape-corner-xs;
+            font-size: $font-size-2xs;
+            font-weight: $font-weight-extrabold;
+            line-height: 1;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1px 3px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+        }
+    }
+
+    .account-card-player {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2xs;
+        min-width: 0;
+        flex: 1;
+
+        .account-card-name {
+            font-weight: $font-weight-bold;
+            font-size: $font-size-sm;
+            color: $text-primary;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .account-card-tag {
+            font-family: monospace;
+            font-size: $font-size-2xs;
+            color: $text-muted;
+            line-height: 1.2;
+        }
+    }
+
+    .account-card-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: $spacing-2xs;
+        margin-left: auto;
+        flex-shrink: 1;
+        min-width: 0;
+        text-align: right;
+
+        .account-card-clan {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: $spacing-xs;
+            min-width: 0;
+            max-width: 140px;
+            font-size: $font-size-xs;
+            color: $text-secondary;
+
+            .clan-badge-img-tiny {
+                width: 14px;
+                height: 14px;
+                object-fit: contain;
+                flex-shrink: 0;
+            }
+
+            .clan-name-text {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: $font-size-xs;
+            }
+        }
+
+        .account-card-stats {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: $spacing-xs;
+            font-size: $font-size-xs;
+            color: $text-secondary;
+
+            .account-card-league {
+                display: inline-flex;
+                align-items: center;
+
+                .league-badge-img-tiny {
+                    width: 14px;
+                    height: 14px;
+                    object-fit: contain;
+                    flex-shrink: 0;
+                }
+            }
+
+            .account-card-trophies {
+                display: inline-flex;
+                align-items: center;
+                gap: 3px;
+                color: $text-secondary;
+                font-weight: $font-weight-semibold;
+
+                .trophy-icon-mini {
+                    color: $palette-amber-500;
+                    display: inline-flex;
+                    align-items: center;
+                }
+            }
+        }
+    }
+}

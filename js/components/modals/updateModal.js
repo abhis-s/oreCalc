@@ -1,9 +1,10 @@
-import { dom } from '../../dom/domElements.js';
 import { translate } from '../../i18n/translator.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
 let countdownInterval = null;
 let settingsInterval = null;
 let activeWorkboxInstance = null;
+let hasAddedGrace = false;
 
 function applyTimerColor(element, timeLeft) {
     if (!element) return;
@@ -23,7 +24,7 @@ function applyTimerColor(element, timeLeft) {
  * Synchronizes update-pending badge indicator classes across all Settings navigation buttons.
  */
 export function updateNavigationBadges() {
-    const hasPending = !!(sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt'));
+    const hasPending = !!sessionStorage.getItem('oreCalcUpdateDetectedAt');
     const headerSettingsBtn = document.querySelector('.tab-button[data-tab="settings"]');
     const drawerSettingsBtn = document.querySelector('.navigation-drawer__tab[data-tab="settings"]');
     const bottomSettingsBtn = document.querySelector('.nav-button[data-tab="settings"]');
@@ -42,6 +43,7 @@ export function updateNavigationBadges() {
     if (!hasPending) {
         const card = document.getElementById('settings-update-card');
         if (card) {
+            card.hidden = true;
             card.style.display = 'none';
         }
         if (settingsInterval) {
@@ -60,9 +62,10 @@ function initSettingsUpdateCard(wb) {
 
     if (!card) return;
 
-    const detectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt');
+    const detectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt');
 
     if (!detectedAtStr) {
+        card.hidden = true;
         card.style.display = 'none';
         if (settingsInterval) {
             clearInterval(settingsInterval);
@@ -78,18 +81,18 @@ function initSettingsUpdateCard(wb) {
         if (countdownInterval) clearInterval(countdownInterval);
 
         // Safeguard to prevent infinite reload loops (e.g. if blocked by another tab)
-        const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
+        const lastReload = sessionStorage.getItem('clashCalc_lastSwReload');
         const now = Date.now();
         if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
             console.warn('Update reload loop detected. Aborting forced reload.');
             return;
         }
 
-        sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
+        sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
         sessionStorage.removeItem('oreCalcUpdateDetectedAt');
-        try { localStorage.removeItem('oreCalcUpdateDetectedAt'); } catch (e) {}
         updateNavigationBadges();
 
+        card.hidden = true;
         card.style.display = 'none';
 
         if (currentWb) {
@@ -103,14 +106,14 @@ function initSettingsUpdateCard(wb) {
     };
 
     const updateCardCountdown = () => {
-        const currentDetectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt');
+        const currentDetectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt');
 
-        // Check if update is no longer active before running logic
         if (!currentDetectedAtStr) {
             if (settingsInterval) {
                 clearInterval(settingsInterval);
                 settingsInterval = null;
             }
+            card.hidden = true;
             card.style.display = 'none';
             return;
         }
@@ -134,8 +137,7 @@ function initSettingsUpdateCard(wb) {
         // Apply 2 minutes grace adjustment when time left drops below 1 hour
         const oneHourMs = 1 * 60 * 60 * 1000;
         if (timeLeft > 0 && timeLeft < oneHourMs) {
-            const lastGrace = sessionStorage.getItem('oreCalcGraceAdded');
-            if (!lastGrace) {
+            if (!hasAddedGrace) {
                 let newDetectedAt = currentDetectedAt - (2 * 60 * 1000); // Shift backward to add 2 mins
                 let newTimeLeft = limitMs - (Date.now() - newDetectedAt);
                 if (newTimeLeft > oneHourMs) {
@@ -143,7 +145,7 @@ function initSettingsUpdateCard(wb) {
                 }
                 currentDetectedAt = newDetectedAt;
                 sessionStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
-                sessionStorage.setItem('oreCalcGraceAdded', 'true');
+                hasAddedGrace = true;
 
                 timeLeft = limitMs - (Date.now() - currentDetectedAt);
             }
@@ -175,6 +177,8 @@ function initSettingsUpdateCard(wb) {
         };
     }
 
+    card.hidden = false;
+    card.removeAttribute('hidden');
     card.style.display = 'block';
 
     if (settingsInterval) clearInterval(settingsInterval);
@@ -192,12 +196,11 @@ export function showUpdateModal(wb) {
     const reloadBtn = document.getElementById('update-reload-button');
     const closeBtn = document.getElementById('close-update-modal-btn');
     const countdownText = document.getElementById('update-force-countdown-text');
-    const overlay = dom.overlay;
 
     if (!modal) return;
 
     // Check or set the update detected timestamp
-    let detectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt');
+    let detectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt');
     if (!detectedAtStr) {
         detectedAtStr = Date.now().toString();
         sessionStorage.setItem('oreCalcUpdateDetectedAt', detectedAtStr);
@@ -212,16 +215,15 @@ export function showUpdateModal(wb) {
         if (settingsInterval) clearInterval(settingsInterval);
 
         // Safeguard to prevent infinite reload loops (e.g. if blocked by another tab)
-        const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
+        const lastReload = sessionStorage.getItem('clashCalc_lastSwReload');
         const now = Date.now();
         if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
             console.warn('Update reload loop detected. Aborting forced reload.');
             return;
         }
 
-        sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
+        sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
         sessionStorage.removeItem('oreCalcUpdateDetectedAt');
-        try { localStorage.removeItem('oreCalcUpdateDetectedAt'); } catch (e) {}
         updateNavigationBadges();
 
         wb.addEventListener('controlling', () => {
@@ -231,16 +233,14 @@ export function showUpdateModal(wb) {
     };
 
     const updateCountdown = () => {
-        const currentDetectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt') || localStorage.getItem('oreCalcUpdateDetectedAt');
+        const currentDetectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt');
 
-        // Check if update is no longer active before running logic
         if (!currentDetectedAtStr) {
             if (countdownInterval) {
                 clearInterval(countdownInterval);
                 countdownInterval = null;
             }
-            modal.classList.remove('show');
-            if (overlay) overlay.classList.remove('show');
+            closeModalAnimated(modal);
             return;
         }
 
@@ -264,8 +264,7 @@ export function showUpdateModal(wb) {
         // Apply 2 minutes grace adjustment when time left drops below 1 hour
         const oneHourMs = 1 * 60 * 60 * 1000;
         if (timeLeft > 0 && timeLeft < oneHourMs) {
-            const lastGrace = sessionStorage.getItem('oreCalcGraceAdded');
-            if (!lastGrace) {
+            if (!hasAddedGrace) {
                 let newDetectedAt = currentDetectedAt - (2 * 60 * 1000); // Shift backward to add 2 mins
                 let newTimeLeft = limitMs - (Date.now() - newDetectedAt);
                 if (newTimeLeft > oneHourMs) {
@@ -273,7 +272,7 @@ export function showUpdateModal(wb) {
                 }
                 currentDetectedAt = newDetectedAt;
                 sessionStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
-                sessionStorage.setItem('oreCalcGraceAdded', 'true');
+                hasAddedGrace = true;
 
                 timeLeft = limitMs - (Date.now() - currentDetectedAt);
             }
@@ -319,21 +318,13 @@ export function showUpdateModal(wb) {
 
     if (laterBtn) {
         laterBtn.onclick = () => {
-            modal.classList.remove('show');
-            if (typeof modal.close === 'function' && modal.open) {
-                try { modal.close(); } catch (e) {}
-            }
-            if (overlay) overlay.classList.remove('show');
+            closeModalAnimated(modal);
         };
     }
 
     if (closeBtn) {
         closeBtn.onclick = () => {
-            modal.classList.remove('show');
-            if (typeof modal.close === 'function' && modal.open) {
-                try { modal.close(); } catch (e) {}
-            }
-            if (overlay) overlay.classList.remove('show');
+            closeModalAnimated(modal);
         };
     }
 
@@ -343,11 +334,7 @@ export function showUpdateModal(wb) {
         };
     }
 
-    if (typeof modal.showModal === 'function' && !modal.open) {
-        try { modal.showModal(); } catch (e) {}
-    }
-    modal.classList.add('show');
-    if (overlay) overlay.classList.add('show');
+    openModal(modal);
 }
 
 if (typeof document !== 'undefined') {

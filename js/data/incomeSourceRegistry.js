@@ -6,7 +6,8 @@ import { translate } from '../i18n/translator.js';
 import { selectDerivedSourceIncome, ZERO_ORES } from '../core/selectors.js';
 
 import { getProspectorIncomeForDate } from '../domain/income/prospectorManager.js';
-import { getStarBonus2xWindow, getSupercellEventsForYear, isStarBonusEventMonth } from '../utils/dateUtils.js';
+import { getSupercellEventsForYear } from '../domain/income/supercellEventsSchedule.js';
+import { getStarBonus2xWindow, isStarBonusEventMonth } from '../utils/dateUtils.js';
 import { formatCurrency } from '../utils/numberFormatter.js';
 
 export const CANONICAL_CHIP_PRIORITY_ORDER = [
@@ -92,7 +93,7 @@ export const incomeData = {
         getBaseIncome: (state) => selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'),
         getSVGUrl: (state) => state.derived.incomeSources.starBonus?.iconUrl || '',
         getResourceString: (state) => {
-            const leagueId = parseInt(state.income.starBonus?.league || 105000000, 10);
+            const leagueId = Number(state.income.starBonus?.league) || 105000000;
             const leagueData = leagueTiers.items.find(l => l.id === leagueId);
             const leagueName = leagueData ? leagueData.name : 'Unranked';
             const leagueKey = 'entities.leagues.' + leagueName.toLowerCase()
@@ -342,7 +343,7 @@ export const incomeData = {
         getIncome: (state) => selectDerivedSourceIncome(state, 'prospector', 'daily'),
         getResourceString: (state) => (
             state.income.prospector?.goldPass
-                ? `${translate('views.income.prospector.goldPass')} (${getCostString(state, 'prospector')})`
+                ? `${translate('entities.pricing.goldPass')} (${getCostString(state, 'prospector')})`
                 : translate('views.income.prospector.silverPass')
         ),
         getAutomaticSchedule: (date, state) => {

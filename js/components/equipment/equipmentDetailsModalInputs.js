@@ -3,12 +3,14 @@ import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
+import { saveState } from '../../core/localStorageManager.js';
 
 import { computeEffectiveLevels, getDefaultModifierKey, resolveModifierRecommendation } from '../../domain/equipment/modifierCalculator.js';
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
-import { renderEmptyState, renderFooterMeta, renderModalHeader, renderModifierTabs, updateTabIndicator } from './equipmentDetailsHeaderDisplay.js';
+import { renderEmptyState, renderFooterMeta, renderModalHeader, renderModifierTabs } from './equipmentDetailsHeaderDisplay.js';
+import { updateTabIndicator } from '../common/battleModifierSwitcher.js';
 import { dismissNote, fetchEquipmentData, findValidEquipmentIndex, getEquipLevel, getFlatEquipmentsList, getModalSessionState, getRecommendationsData, isNoteDismissed, resetModalSessionState, setModalSessionState, undismissNote } from './equipmentDetailsModalData.js';
 import { getCurrentStatsStateMap, renderStatsProgressList, updateStatsProgressHover } from './equipmentDetailsStatsDisplay.js';
 import { renderPropertiesGrid, renderRecommendationBadge, renderStaticStats, renderStrategyBanner } from './equipmentDetailsStrategyDisplay.js';
@@ -90,17 +92,6 @@ export function initializeEquipmentDetailsModal() {
                 activeTabSelectCallback?.(btn.dataset.modKey);
             }
         });
-
-        const handleResize = () => {
-            requestAnimationFrame(() => updateTabIndicator(modifierTabsContainer, null, false));
-        };
-
-        if (window.ResizeObserver) {
-            const ro = new ResizeObserver(() => handleResize());
-            ro.observe(modifierTabsContainer);
-        } else {
-            window.addEventListener('resize', handleResize);
-        }
     }
 
     const tableBody = document.getElementById('eq-details-table-body');
@@ -113,7 +104,7 @@ export function initializeEquipmentDetailsModal() {
                     cancelAnimationFrame(hoverResetTimer);
                     hoverResetTimer = null;
                 }
-                activeRowHoverCallback?.(Number(row.dataset.level));
+                activeRowHoverCallback?.(Number(row.dataset.level) || 0);
             }
         });
         tableBody.addEventListener('mouseout', (e) => {
@@ -173,6 +164,8 @@ export function initializeEquipmentDetailsModal() {
         if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
 
         if (e.key === 'Escape') {
+            const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
+            if (openModals.length > 0 && openModals.at(-1) !== modal) return;
             closeModalAnimated(modal, () => resetModalSessionState());
             return;
         }
@@ -250,6 +243,8 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const equipmentType = data?.type || (equipInfo ? equipInfo.type : 'Common');
     const equipmentRarity = data?.rarity || (equipInfo ? equipInfo.type : 'Common');
 
+    renderModalHeader(modal, data, equipmentName, heroInfo, equipInfo, equipmentRarity, equipmentType);
+
     if (!data) {
         renderEmptyState(modal, equipmentName, equipmentRarity, equipmentType, currentLevel, null);
         return;
@@ -318,7 +313,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const currentLeagueId = state.income?.starBonus?.league || state.playerProfile?.leagueTier?.id || 0;
     const currentLeagueName = state.playerProfile?.leagueTier?.name || '';
     const session = getModalSessionState();
-    let activeModifierTab = session.activeModifierTab || state.uiSettings?.leagueModifier || getDefaultModifierKey(currentLeagueId, currentLeagueName);
+    let activeModifierTab = session.activeModifierTab || state.uiSettings?.leagueModifier || getDefaultModifierKey(currentLeagueId, currentLeagueName) || 'standard';
     setModalSessionState({ activeModifierTab });
 
     const equipId = data.id || equipmentName;
@@ -448,6 +443,11 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             const prevUnitMap = getCurrentUnitStatsStateMap(data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab);
             activeModifierTab = newKey;
             setModalSessionState({ activeModifierTab: newKey });
+            if (!state.uiSettings) {
+                state.uiSettings = {};
+            }
+            state.uiSettings.leagueModifier = newKey;
+            saveState(state);
             if (modifierTabsContainer) {
                 modifierTabsContainer.querySelectorAll('.mod-tab-btn').forEach(b => b.classList.toggle('active', /** @type {HTMLElement} */ (b).dataset.modKey === activeModifierTab));
                 const activeBtn = modifierTabsContainer.querySelector(`.mod-tab-btn[data-mod-key="${activeModifierTab}"]`);
@@ -566,7 +566,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
 
     if (footerMetaElem) renderFooterMeta(footerMetaElem);
 
-    modal.classList.add('show');
+    openModal(modal);
 
     requestAnimationFrame(() => {
         const activeRow = /** @type {HTMLElement | null} */ (modal.querySelector('.active-level-row, .active-max-level-row'));

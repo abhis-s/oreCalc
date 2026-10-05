@@ -1,0 +1,356 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.damage-calc-page {
+    background-color: $bg-app;
+    color: $text-primary;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.damage-calc-main {
+    flex: 1;
+    width: 100%;
+    max-width: $container-max-width;
+    margin-inline: auto;
+    padding-inline: $spacing-lg;
+    padding-block: $spacing-xl;
+    box-sizing: border-box;
+
+    @media (max-width: $breakpoint-phone) {
+        padding-inline: $spacing-md;
+        padding-block: $spacing-lg;
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        padding-inline: $spacing-xs;
+        padding-block: $spacing-md;
+    }
+}
+
+.calc-tab-layout {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+    width: 100%;
+
+    @media (max-width: $breakpoint-phone) {
+        gap: $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        gap: $spacing-sm;
+    }
+}
+
+.calc-view {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: $spacing-xl;
+    width: 100%;
+    min-width: 0;
+
+    @media (max-width: $breakpoint-phone) {
+        gap: $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        gap: $spacing-sm;
+    }
+
+    @media (min-width: 900px) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+    }
+}
+
+.calc-card {
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-medium;
+    padding: $spacing-xl;
+    box-shadow: $elevation-1;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-md;
+        gap: $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        padding: $spacing-sm;
+        gap: $spacing-sm;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+
+    &__title {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin: 0;
+
+        @media (max-width: $breakpoint-micro) {
+            font-size: $font-size-md;
+        }
+    }
+
+    &__clear-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2xs;
+        padding-block: $spacing-2xs;
+        padding-inline: $spacing-sm;
+        border-radius: $shape-corner-full;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $text-secondary;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
+
+        &:hover {
+            background-color: $btn-bg-grey-soft-hover;
+            color: $text-primary;
+        }
+    }
+}
+
+.calc-select {
+    padding-block: $spacing-sm;
+    padding-inline: $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-small;
+    color: $text-primary;
+    font-size: $font-size-sm;
+    outline: none;
+    transition: border-color $transition-fast;
+
+    &:focus {
+        border-color: $border-accent;
+    }
+}
+
+.calc-slider {
+    width: 100%;
+    accent-color: $accent-primary;
+}
+
+.calc-view-header {
+    container-type: inline-size;
+    container-name: view-header;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+    margin-block-end: $spacing-lg;
+
+    .calc-filter-tabs {
+        align-items: center;
+    }
+
+    .calc-view-actions {
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+        margin-inline-start: auto;
+        flex-shrink: 0;
+    }
+
+    @container view-header (max-width: #{$container-toolbar-collapse}) {
+        row-gap: $spacing-md;
+
+        .calc-view-search-wrapper {
+            flex: 1 1 100%;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .calc-view-actions {
+            width: 100%;
+            justify-content: space-between;
+            margin-inline-start: 0;
+        }
+
+        .calc-filter-tabs {
+            justify-content: flex-start;
+        }
+    }
+
+    @container view-header (max-width: #{$container-toolbar-compact}) {
+        row-gap: $spacing-md;
+
+        .calc-view-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: $spacing-md;
+        }
+
+        .calc-filter-tabs {
+            width: 100%;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: $spacing-sm;
+        }
+
+        .calc-view-mode-switch {
+            width: 100%;
+            display: flex;
+
+            .segmented-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    }
+}
+
+.calc-card--inputs {
+    gap: $spacing-md;
+
+    .calc-view-header {
+        margin-block-end: 0;
+
+        .calc-view-search-wrapper {
+            flex: 1 1 180px;
+            min-width: 180px;
+            max-width: 320px;
+            width: auto;
+        }
+
+        .calc-view-actions,
+        .calc-filter-tabs {
+            margin-inline-start: auto;
+            flex-shrink: 0;
+            width: auto;
+        }
+
+        @container view-header (max-width: #{$container-card-toolbar-collapse}) {
+            .calc-view-search-wrapper {
+                flex: 1 1 100%;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .calc-view-actions,
+            .calc-filter-tabs {
+                width: 100%;
+                margin-inline-start: 0;
+                justify-content: flex-start;
+            }
+        }
+    }
+}
+
+.calc-view-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+
+    .calc-search-icon {
+        position: absolute;
+        left: $spacing-sm;
+        color: $text-muted;
+        pointer-events: none;
+        flex-shrink: 0;
+    }
+
+    .calc-search-clear-btn {
+        position: absolute;
+        right: $spacing-xs;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        background: transparent;
+        border: none;
+        color: $text-muted;
+        cursor: pointer;
+        border-radius: $shape-corner-full;
+        transition: color $transition-fast ease-in-out;
+
+        &:hover,
+        &:focus-visible {
+            color: $text-primary;
+        }
+    }
+}
+
+.calc-search-input {
+    width: 100%;
+    height: 36px;
+    padding-block: 0;
+    padding-inline-start: calc(#{$spacing-sm} + 15px + #{$spacing-xs});
+    padding-inline-end: calc(#{$spacing-sm} + 20px);
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-small;
+    color: $text-primary;
+    font-size: $font-size-sm;
+    box-sizing: border-box;
+    @include input-focus-ring;
+
+    &::placeholder {
+        color: $text-muted;
+    }
+
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration {
+        -webkit-appearance: none;
+        appearance: none;
+        display: none;
+    }
+}
+
+.calc-empty-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-md;
+    padding: $spacing-xl;
+    text-align: center;
+    color: $text-muted;
+    font-size: $font-size-sm;
+    background-color: $bg-surface-secondary;
+    border-radius: $shape-corner-medium;
+    border: 1px dashed $border-primary;
+
+    &__text {
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    &__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+}
+
+.calc-building-grid--empty {
+    grid-column: 1 / -1;
+    display: block;
+}

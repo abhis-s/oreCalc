@@ -5,7 +5,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 18px;
-    gap: 12px;
+    gap: $spacing-md;
     flex-wrap: wrap;
 }
 
@@ -25,7 +25,7 @@
     border: 1px solid $border-primary;
     border-radius: $shape-corner-full;
     padding: 3px;
-    gap: 2px;
+    gap: $spacing-2xs;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
     user-select: none;
     overflow: hidden;
@@ -92,7 +92,7 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 5px 12px;
+        padding: 5px $spacing-md;
         font-size: clamp(0.7rem, 0.4vw + 0.62rem, 0.75rem);
         font-weight: 600;
         border-radius: $shape-corner-full;
@@ -113,7 +113,7 @@
             background: rgba(0, 0, 0, 0.2);
             color: currentColor;
             transition: background $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
-            margin-left: 2px;
+            margin-left: $spacing-2xs;
 
             orecalc-assets-svg, svg {
                 display: flex;
@@ -146,7 +146,7 @@
             border-color: $accent-primary;
             color: $text-on-accent;
             font-weight: 700;
-            padding-right: 8px;
+            padding-right: $spacing-sm;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 
             .type-close-icon {

@@ -155,7 +155,7 @@
 
 .button-loader {
     display: flex;
-    gap: 4px;
+    gap: $spacing-xs;
 
     span {
         width: 6px;
@@ -272,7 +272,7 @@
     @extend %flex-center;
     background-color: $accent-primary-soft;
     border: 1px solid $btn-border-blue;
-    border-radius: 4px;
+    border-radius: $shape-corner-xs;
     color: $accent-primary;
     cursor: pointer;
     font-size: 12px;
@@ -299,7 +299,7 @@
     @extend %flex-center;
     background-color: $accent-primary-soft;
     border: 1px solid $border-primary;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
     color: $accent-primary;
     cursor: pointer;
     height: 36px;

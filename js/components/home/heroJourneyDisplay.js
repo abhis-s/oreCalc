@@ -8,7 +8,7 @@ import {
     hasSyncedHeroInfo,
     isDefaultOrGuestPlayer
 } from '../../domain/income/heroJourneyLevels.js';
-import { normalizePlayerTag } from '../../core/localStorageManager.js';
+import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
@@ -24,7 +24,6 @@ import {
     resetHeroJourneyScrollPositions,
     saveCurrentFilterScrollPosition,
     setIsAutoScrolling,
-    updateClaimSwitchPillPosition,
     updateCollapsedNoteLayout,
     updateCustomScrollbar,
     updateFilterRowLayout,
@@ -43,14 +42,17 @@ export function updateHeroJourneyUpcomingBadges(state) {
     if (!hasSyncedHeroInfo(state)) {
         if (shinyBadge) {
             shinyBadge._currentNumericValue = 0;
+            shinyBadge.hidden = true;
             shinyBadge.style.display = 'none';
         }
         if (glowyBadge) {
             glowyBadge._currentNumericValue = 0;
+            glowyBadge.hidden = true;
             glowyBadge.style.display = 'none';
         }
         if (starryBadge) {
             starryBadge._currentNumericValue = 0;
+            starryBadge.hidden = true;
             starryBadge.style.display = 'none';
         }
         return;
@@ -72,9 +74,12 @@ export function updateHeroJourneyUpcomingBadges(state) {
             } else {
                 badge.textContent = `+${formatNumber(endVal)}`;
             }
+            badge.hidden = false;
+            badge.removeAttribute('hidden');
             badge.style.display = 'inline-flex';
         } else {
             badge._currentNumericValue = 0;
+            badge.hidden = true;
             badge.style.display = 'none';
         }
     };
@@ -127,6 +132,10 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
         card.classList.toggle('no-synced-heroes', !hasSyncedHeroes);
         card.classList.toggle('is-true-max', isTrueMaxPlayer);
     }
+    const progressTracks = document.querySelectorAll('.hero-journey-progress-track');
+    progressTracks.forEach(track => {
+        /** @type {HTMLElement} */ (track).style.display = isTrueMaxPlayer ? 'none' : '';
+    });
     if (collapsedNote) {
         collapsedNote.style.display = isHidden ? 'flex' : 'none';
         if (isHidden) {
@@ -151,8 +160,8 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
     }
 
     const titleEl = document.getElementById('home-hj-title');
-    const translatedTitle = translate('views.home.heroJourney.title');
-    const openTooltip = translate('views.home.heroJourney.openInTracker');
+    const translatedTitle = translate('views.heroJourney.widget.title');
+    const openTooltip = translate('views.heroJourney.widget.openInTracker');
     const rawTag = (!isGuest && state.playerProfile?.tag) ? state.playerProfile.tag : (state.savedPlayerTags?.[0] || '');
     const cleanTag = normalizePlayerTag(rawTag);
     const playerTag = (!isGuest && cleanTag && cleanTag !== 'DEFAULT0') ? cleanTag : '';
@@ -163,7 +172,7 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
         : `${langPrefix}/hero-journey/`;
 
     if (titleEl) {
-        titleEl.innerHTML = `<span class="hero-journey-title-wrapper"><span class="hero-journey-title-text" data-i18n="views.home.heroJourney.title">${translatedTitle}</span><a id="home-hj-open-btn" href="${escapeHTML(openUrl)}" class="hj-open-btn" title="${escapeHTML(openTooltip)}" aria-label="${escapeHTML(openTooltip)}"><orecalc-assets-svg name="open-in-new" height="13" width="13"></orecalc-assets-svg></a></span>`;
+        titleEl.innerHTML = `<span class="hero-journey-title-wrapper"><span class="hero-journey-title-text" data-i18n="views.heroJourney.widget.title">${translatedTitle}</span><a id="home-hj-open-btn" href="${escapeHTML(openUrl)}" class="hj-open-btn" title="${escapeHTML(openTooltip)}" aria-label="${escapeHTML(openTooltip)}"><orecalc-assets-svg name="open-in-new" height="13" width="13"></orecalc-assets-svg></a></span>`;
     }
 
     const acceleratedSwitch = document.getElementById('home-hj-accelerated-switch');
@@ -212,13 +221,13 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
 
         if (progressText) {
             progressText.textContent = isTHMaxed
-                ? translate('views.home.heroJourney.thMaxed', { th: thLevel, current: cumulativeLevel, target: thMaxLevel })
-                : translate('views.home.heroJourney.thMaxProgress', { th: thLevel, current: cumulativeLevel, target: thMaxLevel });
+                ? translate('views.heroJourney.track.thMaxed', { th: thLevel, current: cumulativeLevel, target: thMaxLevel })
+                : translate('views.heroJourney.track.thMaxProgress', { th: thLevel, current: cumulativeLevel, target: thMaxLevel });
         }
         if (progressPercent) progressPercent.textContent = `${pct}%`;
         if (progressFill) progressFill.style.width = `${pct}%`;
     } else {
-        if (progressText) progressText.textContent = translate('views.home.heroJourney.levelProgress', { current: cumulativeLevel });
+        if (progressText) progressText.textContent = translate('views.heroJourney.track.levelProgress', { current: cumulativeLevel });
         if (progressPercent) progressPercent.textContent = `100%`;
         if (progressFill) progressFill.style.width = `100%`;
     }

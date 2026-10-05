@@ -1,12 +1,13 @@
 {
   "dependencies": {
+    "@simplewebauthn/browser": "^14.0.0",
     "compression": "^1.8.1",
     "express": "^5.2.1",
     "workbox-window": "^7.4.1"
   },
   "packageManager": "pnpm@11.3.0",
   "name": "orecalc-frontend",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "",
   "main": "service-worker.js",
   "scripts": {
@@ -37,10 +38,10 @@
     "watch:sass": "node scripts/dev/watch-sass.js",
     "watch:js": "node scripts/dev/watch-js.js",
     "dev:server": "node -r dotenv/config scripts/dev/start-dev-server.js",
-    "build": "VITE_API_BASE_URL=https://api.orecalc.tech pnpm run build:assets",
-    "build:dev": "VITE_API_BASE_URL=http://localhost:3000 pnpm run build:assets",
+    "build": "PUBLIC_API_BASE_URL=https://api.orecalc.tech pnpm run build:assets",
+    "build:dev": "PUBLIC_API_BASE_URL=http://localhost:3000 pnpm run build:assets",
     "build:assets": "node scripts/fetch-billing-costs.js && node scripts/validate-i18n.js && node scripts/build.js && pnpm run build:css && pnpm run build:sw",
-    "build:css": "sass css/main.scss dist/css/main.min.css --style compressed && sass css/hero-journey.scss dist/css/hero-journey.min.css --style compressed && sass legal/legal.scss dist/legal/legal.css --style compressed",
+    "build:css": "sass css/main.scss dist/css/main.min.css --style compressed && sass css/hero-journey.scss dist/css/hero-journey.min.css --style compressed && sass css/landing.scss dist/css/landing.min.css --style compressed && sass css/damage-calculator.scss dist/css/damage-calculator.min.css --style compressed && sass legal/legal.scss dist/legal/legal.css --style compressed",
     "build:sw": "workbox injectManifest workbox-config.js",
     "bump": "node scripts/bump.js",
     "start": "node scripts/prod/start-prod-server.js"

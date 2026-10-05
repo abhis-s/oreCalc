@@ -1,0 +1,339 @@
+@use '../abstracts/mixins' as *;
+
+.notice {
+    color: $text-secondary;
+    font-size: 0.6em;
+    padding: $spacing-sm;
+    text-align: center;
+
+    p {
+        margin: 0;
+    }
+
+    a {
+        color: $text-primary;
+        text-decoration: underline;
+        display: inline-block;
+    }
+
+    &.supercell-notice {
+        margin-top: $spacing-sm;
+
+        @media (max-width: #{$breakpoint-desktop - 1px}) {
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        a:hover {
+            color: $accent-primary;
+        }
+    }
+
+    &.app-copyright {
+        margin-top: $spacing-xs;
+        margin-bottom: $spacing-lg;
+
+        @media (max-width: #{$breakpoint-desktop - 1px}) {
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+    }
+
+    &.make-notice {
+        margin-top: $spacing-lg;
+
+        .app-footer__sep {
+            margin: 0 $spacing-xs;
+            display: none;
+        }
+
+        &:has(#app-version-display:not(:empty)) .app-footer__sep {
+            display: inline;
+        }
+
+        .version-display-text {
+            color: $text-secondary;
+            font-size: 0.85em;
+        }
+    }
+}
+
+.app-footer {
+    width: 100%;
+    margin-top: auto;
+    background-color: $bg-surface-secondary;
+    border-top: 1px solid $border-secondary;
+    box-sizing: border-box;
+
+    &__container {
+        max-width: $container-max-width;
+        margin: 0 auto;
+        padding: $spacing-xl $spacing-lg $spacing-lg;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: minmax(260px, 1.4fr) minmax(220px, 1.2fr) repeat(2, minmax(140px, 1fr));
+        gap: $spacing-xl;
+        margin-bottom: $spacing-lg;
+        text-align: left;
+    }
+
+    &__col--brand {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    &__brand-title {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-sm;
+        line-height: 1.2;
+    }
+
+    &__brand-name {
+        font-size: 1.35rem;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+        display: inline-block;
+        font-family: Roboto, sans-serif;
+
+        @include brand-gradient-split;
+    }
+
+    &__brand-badge {
+        font-size: 0.6875rem;
+        font-weight: 500;
+        padding: $spacing-2xs $spacing-sm;
+        border-radius: $shape-corner-full;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid $border-secondary;
+        color: $text-secondary;
+        white-space: nowrap;
+    }
+
+    &__brand-tagline {
+        font-size: 0.8125rem;
+        color: $text-secondary;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    &__meta-row {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        font-size: 0.75rem;
+        color: $text-muted;
+        margin-top: $spacing-2xs;
+        padding: 0;
+        text-align: left;
+
+        p {
+            margin: 0;
+            text-align: left;
+        }
+    }
+
+    &__copyright {
+        font-size: 0.6875rem;
+        color: $text-muted;
+        margin-top: $spacing-sm;
+        margin-bottom: 0;
+        padding: 0;
+        text-align: left;
+        line-height: 1.4;
+
+        p {
+            margin: 0;
+        }
+    }
+
+    &__heading {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: $text-muted;
+        margin: 0 0 $spacing-md 0;
+    }
+
+    &__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+    }
+
+    &__link,
+    &__modal-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 0.8125rem;
+        color: $text-secondary;
+        text-decoration: none;
+        text-align: left;
+        cursor: pointer;
+        transition: color $duration-fast $ease-smooth;
+        font-family: inherit;
+
+        &:hover {
+            color: $accent-primary;
+            text-decoration: underline;
+        }
+
+        &.is-active,
+        &[aria-current="page"] {
+            color: $text-primary;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: default;
+            pointer-events: none;
+        }
+    }
+
+    &__meta-changelog {
+        font-size: 0.85em;
+        display: inline-block;
+        vertical-align: baseline;
+    }
+
+    &__sep {
+        color: $text-muted;
+        user-select: none;
+        font-size: 0.8em;
+        vertical-align: middle;
+    }
+
+    &__bottom {
+        border-top: 1px solid $border-secondary;
+        padding-top: $spacing-md;
+        text-align: center;
+    }
+
+    &__disclaimer {
+        font-size: 0.6875rem;
+        color: $text-muted;
+        max-width: 860px;
+        line-height: 1.5;
+        margin: 0 auto;
+        padding: 0;
+
+        p {
+            margin: 0;
+        }
+
+        a {
+            color: $text-secondary;
+            text-decoration: underline;
+
+            &:hover {
+                color: $accent-primary;
+            }
+        }
+    }
+
+    @media (max-width: #{$breakpoint-desktop - 1px}) {
+        &__container {
+            padding: $spacing-md $spacing-md calc(#{$spacing-xl} + env(safe-area-inset-bottom, 0px));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: $spacing-xs;
+
+            body:has(.bottom-nav-bar) & {
+                padding-bottom: calc(75px + #{$spacing-xl} + env(safe-area-inset-bottom, 0px));
+            }
+        }
+
+        &__grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: $spacing-xs;
+            margin-bottom: 0;
+            width: 100%;
+        }
+
+        &__brand-title,
+        &__brand-tagline,
+        &__heading,
+        &__col:not(&__col--brand):not(&__col--legal) {
+            display: none !important;
+        }
+
+        &__col--brand,
+        &__col--legal {
+            display: contents !important;
+        }
+
+        &__meta-row {
+            order: 1;
+            margin-top: 0;
+            justify-content: center;
+            text-align: center;
+
+            p {
+                text-align: center;
+            }
+        }
+
+        &__sep--changelog,
+        &__meta-changelog {
+            display: none !important;
+        }
+
+        &__item--costs {
+            display: none !important;
+        }
+
+        &__list {
+            order: 2;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: $spacing-xs $spacing-sm;
+
+            li {
+                display: inline-flex;
+                align-items: center;
+
+                & + li:not(.app-footer__item--costs)::before {
+                    content: "\2022";
+                    color: $text-muted;
+                    margin-right: $spacing-sm;
+                    font-size: 0.75em;
+                    user-select: none;
+                    pointer-events: none;
+                }
+            }
+        }
+
+        &__bottom {
+            order: 3;
+            padding-top: 0;
+            border-top: none;
+            width: 100%;
+        }
+
+        &__copyright {
+            order: 4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        &__copyright-break {
+            display: none;
+        }
+    }
+}

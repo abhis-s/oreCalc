@@ -23,7 +23,7 @@ function getChipTypePriority(type) {
  * @param {number} month 0-based month index
  * @returns {Record<string, Array<HTMLElement>>}
  */
-export function calculateIncomeChips(year, month) {
+function calculateIncomeChips(year, month) {
     const daysInCurrentMonth = getDaysInMonth(year, month);
     const groupedChips = {};
 
@@ -88,7 +88,7 @@ export function calculateIncomeChips(year, month) {
  * Returns a Set of IDs for chips already placed on calendar day cells.
  * @returns {Set<string>}
  */
-export function getPlacedChipIds() {
+function getPlacedChipIds() {
     const placedChipOriginalIds = new Set();
 
     const autoSourceIds = new Set();
@@ -159,7 +159,7 @@ export function getPlacedChipIds() {
  * @param {Set<string>} placedChipOriginalIds
  * @returns {Array<{ type: string, element: HTMLElement }>}
  */
-export function renderUnplacedChips(incomeChipsContainer, groupedChips, placedChipOriginalIds) {
+function renderUnplacedChips(incomeChipsContainer, groupedChips, placedChipOriginalIds) {
     const chipGroups = [];
 
     for (const type in groupedChips) {
@@ -317,8 +317,8 @@ export function renderIncomeChips(year, month) {
 
         const btn = document.createElement('button');
         btn.className = 'animated-btn btn-accent create-custom-chips-btn';
-        btn.textContent = translate('views.planner.createCustomChips');
-        btn.dataset.i18n = 'views.planner.createCustomChips';
+        btn.textContent = translate('views.planner.actions.createCustomChips');
+        btn.dataset.i18n = 'views.planner.actions.createCustomChips';
         incomeChipsContainer.appendChild(btn);
     }
 

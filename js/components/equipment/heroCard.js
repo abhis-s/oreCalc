@@ -125,7 +125,7 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
                     const equipItem = /** @type {HTMLElement | null} */ (input.closest('.equipment-item'));
                     const equipName = equipItem?.dataset.equipName;
                     const isChecked = (heroName && equipName) ? state.heroes[heroName]?.equipment?.[equipName]?.checked !== false : true;
-                    return isChecked ? translate('views.equipment.disable') : translate('views.equipment.enable');
+                    return isChecked ? translate('actions.disable') : translate('actions.enable');
                 },
                 clickToFill: false,
                 className: () => {

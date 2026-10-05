@@ -3,55 +3,13 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 
-import { formatRegionalDate } from '../../domain/equipment/modifierCalculator.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
+import { formatRegionalDate } from '../../utils/dateUtils.js';
+import { openModal } from '../../utils/modalHistoryManager.js';
+import { getEquipmentDisplayName } from '../../utils/equipmentMetadata.js';
 
-const MODIFIER_KEYS = ['standard', 'legend3', 'legend2', 'legend1', 'esports'];
-
-/**
- * Updates sliding modifier tab pill indicator position.
- *
- * @param {HTMLElement | null} modifierTabsContainer
- * @param {string} [activeModifierTab]
- * @param {boolean} [isInstant=false]
- */
-export function updateTabIndicator(modifierTabsContainer, activeModifierTab = null, isInstant = false) {
-    if (!modifierTabsContainer || typeof modifierTabsContainer.querySelector !== 'function') return;
-    const indicator = modifierTabsContainer.querySelector('.mod-tab-indicator');
-    if (!indicator) return;
-
-    if (activeModifierTab && modifierTabsContainer.dataset) {
-        modifierTabsContainer.dataset.activeKey = activeModifierTab;
-    }
-
-    const keyToFind = activeModifierTab || modifierTabsContainer.dataset?.activeKey;
-    const activeBtn = keyToFind
-        ? /** @type {HTMLElement | null} */ (modifierTabsContainer.querySelector(`.mod-tab-btn[data-mod-key="${keyToFind}"]`))
-        : /** @type {HTMLElement | null} */ (modifierTabsContainer.querySelector('.mod-tab-btn.active'));
-
-    if (activeBtn) {
-        const left = activeBtn.offsetLeft;
-        const width = activeBtn.offsetWidth;
-
-        if (width === 0) {
-            requestAnimationFrame(() => {
-                updateTabIndicator(modifierTabsContainer, keyToFind, isInstant);
-            });
-            return;
-        }
-
-        if (isInstant) {
-            /** @type {HTMLElement} */ (indicator).style.transition = 'none';
-            /** @type {HTMLElement} */ (indicator).style.transform = `translateX(${left}px)`;
-            /** @type {HTMLElement} */ (indicator).style.width = `${width}px`;
-            void indicator.offsetHeight;
-            /** @type {HTMLElement} */ (indicator).style.transition = '';
-        } else {
-            /** @type {HTMLElement} */ (indicator).style.transform = `translateX(${left}px)`;
-            /** @type {HTMLElement} */ (indicator).style.width = `${width}px`;
-        }
-    }
-}
+import {
+    renderBattleModifierSwitcher
+} from '../common/battleModifierSwitcher.js';
 
 /**
  * Renders the modifier tab bar and updates the active tab indicator.
@@ -70,22 +28,7 @@ export function renderModifierTabs(modifierTabsContainer, hasValidLevels, hasSta
     }
 
     modifierTabsContainer.style.display = 'inline-flex';
-    modifierTabsContainer.dataset.activeKey = activeModifierTab;
-    let html = '<div class="mod-tab-indicator"></div>';
-    for (const mKey of MODIFIER_KEYS) {
-        const label = translate(`views.equipment.modifiers.${mKey}`);
-        const activeClass = mKey === activeModifierTab ? 'active' : '';
-        html += `<button type="button" class="mod-tab-btn ${activeClass}" data-mod-key="${mKey}" data-i18n="views.equipment.modifiers.${mKey}">${label}</button>`;
-    }
-    modifierTabsContainer.innerHTML = html;
-
-    requestAnimationFrame(() => {
-        updateTabIndicator(modifierTabsContainer, activeModifierTab, true);
-        const activeBtn = modifierTabsContainer.querySelector('.mod-tab-btn.active');
-        if (activeBtn) {
-            activeBtn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
-        }
-    });
+    renderBattleModifierSwitcher(modifierTabsContainer, activeModifierTab, { includePercentages: false });
 }
 
 /**
@@ -112,7 +55,7 @@ export function renderModalHeader(modal, data, equipmentName, heroInfo, equipInf
     const effectiveRarity = data?.rarity || equipmentRarity || 'Common';
     const effectiveType = data?.type || equipmentType || 'Active';
 
-    const translatedTitle = translate(`entities.equipment.${toCamelCase(data?.id || equipmentName)}`);
+    const translatedTitle = getEquipmentDisplayName(data?.id || equipmentName);
     const translatedRarity = translate(`views.equipment.${effectiveRarity.toLowerCase()}`);
     const translatedType = translate(`views.equipment.${effectiveType.toLowerCase()}`);
     const heroEquipFallbackText = translate('views.equipment.heroEquipment');
@@ -197,7 +140,7 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
     const footerMetaElem = /** @type {HTMLElement | null} */ (modal.querySelector('#eq-details-footer-meta'));
 
     if (itemImg) itemImg.classList.add('is-data-unavailable');
-    const fallbackTitle = translate(`entities.equipment.${toCamelCase(equipmentName)}`);
+    const fallbackTitle = getEquipmentDisplayName(equipmentName);
     const dataNotAvailableTitle = translate('views.equipment.dataNotAvailable');
     const dataNotAvailableDesc = translate('views.equipment.detailsNotAvailableDesc');
     const contributeText = translate('views.equipment.contributeMissingData');
@@ -219,7 +162,7 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
     if (recBadge) {
         recBadge.style.display = 'inline-flex';
         recBadge.className = 'eq-badge badge-unreleased';
-        recBadge.innerHTML = `<orecalc-assets-svg name="sparkles" class="badge-icon"></orecalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
+        recBadge.innerHTML = `<orecalc-assets-svg name="experiment" class="badge-icon"></orecalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
         recBadge.setAttribute('data-info', 'views.equipment.recUnreleasedHelp');
     }
 
@@ -310,5 +253,5 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
     }
 
     if (footerMetaElem) renderFooterMeta(footerMetaElem);
-    modal.classList.add('show');
+    openModal(modal);
 }

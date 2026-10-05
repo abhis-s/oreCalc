@@ -6,15 +6,13 @@ export_approved_only: false        # Allow community translations to export with
 skip_untranslated_strings: true    # Omit missing keys to enable runtime i18n fallback in translator.js
 skip_untranslated_files: true      # Avoid creating empty 0%-translated locale files
 
-# Language Code Mapping
-language_mapping:
-  two_letters_code:
-    zh-CN: zh
-    zh-TW: zh-TW
-
 # File Specifications
 files:
   - source: /js/i18n/en.json
     translation: /js/i18n/%two_letters_code%.json
     type: json
     update_option: update_as_unapproved
+    languages_mapping:
+      two_letters_code:
+        zh-CN: zh
+        zh-TW: zh-TW

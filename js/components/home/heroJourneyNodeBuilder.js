@@ -34,7 +34,6 @@ export function createNodeChipElement(node, ctx) {
         playerMaxLevel,
         isUserSynced,
         isTrueMaxPlayer,
-        isGuest,
         mode,
         trackResolution
     } = ctx;
@@ -66,9 +65,9 @@ export function createNodeChipElement(node, ctx) {
 
     const levelPill = document.createElement('div');
     levelPill.className = 'node-level-pill';
-    levelPill.dataset.i18n = 'views.home.heroJourney.nodeLevel';
+    levelPill.dataset.i18n = 'views.heroJourney.nodes.nodeLevel';
     levelPill.dataset.i18nArgs = JSON.stringify({ level: node.level });
-    levelPill.textContent = translate('views.home.heroJourney.nodeLevel', { level: node.level });
+    levelPill.textContent = translate('views.heroJourney.nodes.nodeLevel', { level: node.level });
 
     const iconWrapper = document.createElement('div');
     iconWrapper.className = 'node-icon-wrapper';
@@ -77,8 +76,8 @@ export function createNodeChipElement(node, ctx) {
     if (node.type === 'quest') {
         const questTargetName = node.equipmentKey
             ? translate(`entities.equipment.${node.equipmentKey}`)
-            : (node.hero ? translate(`entities.heroes.${node.hero}`) : translate('views.home.heroJourney.heroFallback'));
-        nodeAltText = translate('views.home.heroJourney.questTitleFormat', { name: questTargetName });
+            : (node.hero ? translate(`entities.heroes.${node.hero}`) : translate('app.alts.hero'));
+        nodeAltText = translate('views.heroJourney.nodes.questTitleFormat', { name: questTargetName });
     } else if (node.type === 'equipment') {
         nodeAltText = resolvedNode.isFallbackStarry
             ? `${resolvedNode.fallbackStarry || 50} ${translate('entities.ores.starry')}`
@@ -95,8 +94,8 @@ export function createNodeChipElement(node, ctx) {
         nodeAltText = translate(`entities.ores.${node.resourceType}`);
     }
 
-    const levelLabel = translate('views.home.heroJourney.nodeLevel', { level: node.level });
-    const statusLabel = isClaimed ? ` (${translate('views.home.heroJourney.poolOwned')})` : '';
+    const levelLabel = translate('views.heroJourney.nodes.nodeLevel', { level: node.level });
+    const statusLabel = isClaimed ? ` (${translate('views.heroJourney.nodes.owned')})` : '';
     chip.setAttribute('aria-label', `${levelLabel}: ${nodeAltText}${statusLabel}`);
 
     const isEquipment = node.type === 'equipment';
@@ -141,8 +140,8 @@ export function createNodeChipElement(node, ctx) {
 
         const badgeImg = document.createElement('orecalc-assets-image');
         badgeImg.setAttribute('src', badgeIcon);
-        badgeImg.setAttribute('alt', translate('views.home.heroJourney.questBadgeAlt'));
-        badgeImg.dataset.i18nAlt = 'views.home.heroJourney.questBadgeAlt';
+        badgeImg.setAttribute('alt', translate('views.heroJourney.nodes.questBadgeAlt'));
+        badgeImg.dataset.i18nAlt = 'views.heroJourney.nodes.questBadgeAlt';
         badgeImg.className = 'quest-badge-img';
 
         questBadge.appendChild(badgeImg);
@@ -156,8 +155,8 @@ export function createNodeChipElement(node, ctx) {
         if (showOwnedPill) {
             const eqPill = document.createElement('div');
             eqPill.className = 'equipment-level-pill owned-pill';
-            eqPill.dataset.i18n = 'views.home.heroJourney.owned';
-            eqPill.textContent = translate('views.home.heroJourney.owned');
+            eqPill.dataset.i18n = 'views.heroJourney.nodes.owned';
+            eqPill.textContent = translate('views.heroJourney.nodes.owned');
             iconWrapper.appendChild(eqPill);
         } else if (resolvedNode.equipmentLevel) {
             const eqPill = document.createElement('div');
@@ -216,8 +215,8 @@ export function updateNodeTitleAndSub(titleElem, subElem, node, resolvedNode, is
     if (node.type === 'quest') {
         const questTargetName = node.equipmentKey
             ? translate(`entities.equipment.${node.equipmentKey}`)
-            : (node.hero ? translate(`entities.heroes.${node.hero}`) : translate('views.home.heroJourney.heroFallback'));
-        const questTitleText = translate('views.home.heroJourney.questTitleFormat', { name: questTargetName });
+            : (node.hero ? translate(`entities.heroes.${node.hero}`) : translate('app.alts.hero'));
+        const questTitleText = translate('views.heroJourney.nodes.questTitleFormat', { name: questTargetName });
 
         titleElem.innerHTML = `<strong>${questTitleText}</strong>`;
         if (subElem) {

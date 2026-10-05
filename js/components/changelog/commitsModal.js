@@ -1,18 +1,23 @@
 import { translate } from '../../i18n/translator.js';
 
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
-
-import { dom } from '../../dom/domElements.js';
 
 /**
  * Initializes close button event listeners for the Git Commits / Release History modal.
  */
 export function initializeCommitsModal() {
     const modal = document.getElementById('commits-modal');
+    if (!modal || modal.dataset?.commitsInitialized === 'true') {
+        return;
+    }
+    if (modal.dataset) {
+        modal.dataset.commitsInitialized = 'true';
+    }
+
     const closeButton = document.getElementById('close-commits-modal-btn');
 
-    if (modal && closeButton) {
+    if (closeButton && typeof closeButton.addEventListener === 'function') {
         closeButton.addEventListener('click', () => {
             closeModalAnimated(modal);
         });
@@ -23,16 +28,8 @@ function isInterruptionRestricted() {
     if (window.isAppStartingUp) {
         return true;
     }
-    const welcomeModal = document.getElementById('welcome-modal');
-    if (welcomeModal && welcomeModal.classList.contains('show')) {
-        return true;
-    }
-    const consentBanner = document.getElementById('consent-banner');
-    if (consentBanner && consentBanner.classList.contains('show')) {
-        return true;
-    }
-    const consentModal = document.getElementById('consent-modal');
-    if (consentModal && consentModal.classList.contains('show')) {
+    const guidedSetupModal = document.getElementById('guided-setup-modal');
+    if (guidedSetupModal && (guidedSetupModal.classList.contains('show') || /** @type {HTMLDialogElement} */ (guidedSetupModal).open)) {
         return true;
     }
     const tourTooltip = document.querySelector('.tour-tooltip');
@@ -56,9 +53,9 @@ export function showCommitsModal(commits) {
 
     const modal = document.getElementById('commits-modal');
     const modalBody = document.getElementById('commits-modal-body');
-    const overlay = dom.overlay;
+    const overlay = typeof document !== 'undefined' ? (document.getElementById('overlay') || document.querySelector('.overlay')) : null;
 
-    if (modal && modalBody && overlay) {
+    if (modal && modalBody) {
         const conventionalCommitRegex = /^([a-z-]+)(?:\(([^)]+)\))?:\s*(.*)$/i;
         const milestoneRegex = /^milestone(?:\(([^)]+)\))?:\s*(.*)$/i;
 
@@ -137,14 +134,14 @@ export function showCommitsModal(commits) {
 
                 if (milestoneMatch) {
                     const scope = milestoneMatch[1] ? `<span class="commit-scope">${escapeHTML(milestoneMatch[1])}:</span> ` : '';
-                    typeHtml = `<span class="commit-type type-feat" style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8); border: 1px solid rgba(234, 179, 8, 0.3);">milestone</span>`;
+                    typeHtml = `<span class="commit-type type-milestone">milestone</span>`;
                     subjectHtml = `${scope}<span class="commit-msg-text">${escapeHTML(milestoneMatch[2])}</span>`;
                 } else if (match) {
                     const type = match[1].toLowerCase();
                     const scope = match[2] ? `<span class="commit-scope">${escapeHTML(match[2])}:</span> ` : '';
                     const message = match[3];
                     if (type === 'milestone' || type === 'announcement') {
-                        typeHtml = `<span class="commit-type type-feat" style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8); border: 1px solid rgba(234, 179, 8, 0.3);">milestone</span>`;
+                        typeHtml = `<span class="commit-type type-milestone">milestone</span>`;
                     } else {
                         typeHtml = `<span class="commit-type type-${escapeHTML(type)}">${escapeHTML(type)}</span>`;
                     }
@@ -170,10 +167,11 @@ export function showCommitsModal(commits) {
             }
         }
 
-        html += '</div>';
-
         modalBody.innerHTML = html;
-        modal.classList.add('show');
-        overlay.classList.add('show');
+        initializeCommitsModal();
+        openModal(modal);
+        if (overlay && overlay.classList) {
+            overlay.classList.add('show');
+        }
     }
 }

@@ -7,7 +7,6 @@ import {
     formatDiffVal,
     resolveModifierRecommendation,
     getDefaultModifierKey,
-    formatRegionalDate,
     ESPORTS_COMMON_DOWNGRADE,
     ESPORTS_EPIC_DOWNGRADE,
     MODIFIER_HERO_BOOST_MULTIPLIERS
@@ -138,8 +137,19 @@ test('getDefaultModifierKey resolves Legends league IDs and names to correspondi
     assert.equal(getDefaultModifierKey(105000000, 'Titan I'), 'standard');
 });
 
-test('formatRegionalDate formats ISO dates or gracefully falls back', () => {
-    assert.equal(formatRegionalDate(''), '');
-    assert.ok(formatRegionalDate('2026-06-05', 'en').includes('2026'));
-    assert.equal(formatRegionalDate('invalid-date'), 'invalid-date');
+test('MODIFIER_HERO_BOOST_MULTIPLIERS correctly maps league hero boost multipliers from canonical data', () => {
+    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.standard, 1.00);
+    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.legend3, 0.95);
+    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.legend2, 0.90);
+    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.legend1, 0.80);
+    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.esports, 0.80);
+});
+
+test('computeEffectiveLevels leaves levels un-downgraded across Legend tiers', () => {
+    for (const leg of ['legend1', 'legend2', 'legend3']) {
+        const res = computeEffectiveLevels(18, 18, 'Common', leg);
+        assert.equal(res.effectiveLevel, 18);
+        assert.equal(res.isDowngraded, false);
+        assert.equal(res.downgrade, 0);
+    }
 });

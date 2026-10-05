@@ -1,0 +1,271 @@
+@use '../../abstracts/variables' as *;
+
+dialog.navigation-drawer,
+.navigation-drawer {
+    &__tabs {
+        display: flex;
+        flex-direction: column;
+        padding: $spacing-xs $spacing-sm;
+        position: relative;
+        z-index: #{$z-index-drawer + 1};
+    }
+
+    &__tab {
+        background: none;
+        border: none;
+        color: $text-primary;
+        padding: 10px $spacing-lg;
+        text-align: left;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color $duration-moderate $ease-smooth,
+                    color $duration-moderate $ease-smooth,
+                    opacity $duration-moderate $ease-smooth;
+        border-radius: $shape-corner-small;
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+        text-decoration: none;
+
+        svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            fill: $text-secondary;
+            transition: fill $duration-fast $ease-smooth;
+        }
+
+        &.secondary-tab {
+            font-size: 13.5px;
+            padding: $spacing-sm $spacing-lg;
+            color: $text-secondary;
+            opacity: 0.8;
+            width: 100%;
+            box-sizing: border-box;
+
+            .tab-label {
+                flex-grow: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .open-in-icon {
+                width: 12px;
+                height: 12px;
+                opacity: 0.5;
+                margin-left: auto;
+                transition: opacity $duration-fast $ease-smooth,
+                            fill $duration-fast $ease-smooth;
+            }
+
+            svg {
+                width: 16px;
+                height: 16px;
+                opacity: 0.8;
+                fill: $text-secondary;
+                flex-shrink: 0;
+            }
+
+            &--half {
+                position: relative;
+                padding: $spacing-sm $spacing-xs;
+                gap: 6px;
+                justify-content: center;
+                text-align: center;
+
+                .tab-label {
+                    flex-grow: 0;
+                }
+
+                .open-in-icon {
+                    position: absolute;
+                    right: $spacing-lg;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 0;
+                    width: 12px;
+                    height: 12px;
+                    opacity: 0.5;
+
+                    svg {
+                        width: 12px;
+                        height: 12px;
+                    }
+                }
+            }
+
+            &:hover {
+                opacity: 1;
+                color: $accent-primary;
+                background-color: var(--accent-soft);
+                border-radius: $shape-corner-medium;
+
+                svg {
+                    fill: $accent-primary;
+                    opacity: 1;
+                }
+
+                .open-in-icon {
+                    opacity: 1;
+                    fill: $accent-primary;
+                }
+            }
+        }
+
+        &:hover {
+            background-color: var(--accent-soft);
+            border-radius: $shape-corner-extra-large;
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            background-color: var(--accent-soft);
+            border-radius: $shape-corner-extra-large;
+            outline: 2px solid $accent-primary;
+            outline-offset: -2px;
+        }
+
+        &.active {
+            background-color: var(--accent-soft);
+            color: $accent-primary;
+            border-radius: $shape-corner-extra-large;
+
+            svg {
+                fill: $accent-primary;
+            }
+        }
+    }
+
+    &__secondary-actions {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: $spacing-xs;
+        padding: 0;
+        box-sizing: border-box;
+        margin-bottom: $spacing-xs;
+    }
+
+    &__secondary-row {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: $spacing-xs;
+        width: 100%;
+        box-sizing: border-box;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 16px;
+            border-left: 1px solid $border-secondary;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+    }
+
+    &__footer {
+        padding: $spacing-md;
+        border-top: 1px solid $border-secondary;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $spacing-sm;
+        font-size: 12px;
+        flex-shrink: 0;
+        margin-top: auto;
+    }
+
+    &__footer-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-xs;
+        text-align: center;
+        width: 100%;
+    }
+
+    &__footer-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: $spacing-sm;
+        width: 100%;
+    }
+
+    &__footer-link {
+        color: $text-secondary;
+        opacity: 0.7;
+        text-decoration: none;
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        cursor: pointer;
+        transition: color $duration-fast $ease-smooth,
+                    opacity $duration-fast $ease-smooth;
+
+        &:first-child {
+            text-align: right;
+            justify-self: end;
+        }
+
+        &:last-child {
+            text-align: left;
+            justify-self: start;
+        }
+
+        &:hover {
+            color: $accent-primary;
+            opacity: 1;
+        }
+    }
+
+    &__footer-sep {
+        color: $text-secondary;
+        opacity: 0.6;
+        user-select: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        justify-self: center;
+        font-size: $font-size-sm;
+        line-height: 1;
+        flex-shrink: 0;
+
+        &:empty::before {
+            content: '\00B7';
+        }
+    }
+
+    &__app-version {
+        color: $text-secondary;
+        opacity: 0.4;
+        font-size: 11px;
+        font-family: monospace;
+    }
+
+    &__copyright {
+        color: $text-secondary;
+        opacity: 0.35;
+        font-size: 10px;
+        margin-top: $spacing-2xs;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+        line-height: 1.4;
+
+        &-break {
+            display: inline;
+        }
+    }
+}

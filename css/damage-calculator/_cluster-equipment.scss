@@ -1,0 +1,284 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-cluster-equipment-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    width: 100%;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__title {
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: $text-muted;
+    }
+
+    &__chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+}
+
+.calc-cluster-equip-btn {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: $spacing-2xs;
+    background-color: $bg-surface-tertiary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-small;
+    cursor: pointer;
+    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast, opacity $transition-fast;
+    flex-shrink: 0;
+
+    @media (max-width: $breakpoint-micro) {
+        width: 38px;
+        height: 38px;
+    }
+
+    &:hover {
+        border-color: $border-accent;
+        transform: translateY(-1px);
+    }
+
+    &.is-active {
+        border-color: $accent-primary;
+        background-color: $accent-primary-soft;
+        box-shadow: 0 0 0 1px $accent-primary;
+
+        .calc-cluster-equip-btn__lvl {
+            background-color: $accent-primary;
+            color: $text-on-accent;
+        }
+    }
+
+    &.is-inactive {
+        opacity: 0.45;
+        filter: grayscale(85%);
+
+        &:hover {
+            opacity: 0.75;
+            filter: grayscale(30%);
+        }
+
+        .calc-cluster-equip-btn__lvl {
+            background-color: $bg-surface-primary;
+            color: $text-muted;
+        }
+    }
+
+    &.is-downgraded {
+        border-color: $color-warning;
+    }
+
+    &__icon {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @media (max-width: $breakpoint-micro) {
+            width: 28px;
+            height: 28px;
+        }
+    }
+
+    &__lvl {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        padding-block: 1px;
+        padding-inline: $spacing-xs;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
+        border-radius: $shape-corner-full;
+        border: 1px solid $border-primary;
+        line-height: 1;
+        box-shadow: $elevation-1;
+
+        &--downgraded {
+            background-color: $color-warning;
+            color: $text-inverse;
+            border-color: $color-warning;
+        }
+    }
+}
+
+.calc-cluster-equipment-sharing {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    margin-block-start: $spacing-xs;
+}
+
+.calc-cluster-sharing-row {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    padding: $spacing-2xs $spacing-xs;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-small;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-xs;
+    }
+
+    &__label {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: $font-size-xs;
+        color: $text-secondary;
+
+        strong {
+            color: $text-primary;
+            font-weight: $font-weight-semibold;
+        }
+    }
+
+    &__icon {
+        width: 18px;
+        height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    &__targets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+    }
+}
+
+.calc-cluster-share-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding-block: 3px;
+    padding-inline: $spacing-sm;
+    background-color: transparent;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-full;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $text-muted;
+    cursor: pointer;
+    min-height: 26px;
+    box-sizing: border-box;
+    transition: background-color $transition-fast, border-color $transition-fast, color $transition-fast;
+
+    svg, orecalc-assets-svg {
+        display: inline-flex;
+        width: 12px;
+        height: 12px;
+        fill: currentColor;
+    }
+
+    &:hover {
+        color: $text-primary;
+        border-color: $border-accent;
+    }
+
+    &.is-active {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+        color: $accent-primary;
+    }
+}
+
+.calc-cluster-share-target {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding-block: $spacing-2xs;
+    padding-inline: 6px;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-small;
+    font-size: $font-size-2xs;
+    color: $text-muted;
+    cursor: pointer;
+    min-height: 28px;
+    box-sizing: border-box;
+    transition: background-color $transition-fast, border-color $transition-fast, color $transition-fast;
+
+    &:hover {
+        border-color: $border-accent;
+        color: $text-primary;
+    }
+
+    &.is-active {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+        color: $accent-primary;
+        font-weight: $font-weight-semibold;
+
+        .calc-cluster-share-target__index {
+            background-color: $accent-primary;
+            color: $text-on-accent;
+        }
+    }
+
+    &__index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 14px;
+        height: 14px;
+        padding-inline: $spacing-2xs;
+        background-color: $bg-surface-tertiary;
+        color: $text-muted;
+        border-radius: $shape-corner-full;
+        font-size: 9px;
+        font-weight: $font-weight-bold;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    &__thumb {
+        width: 22px;
+        height: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+}

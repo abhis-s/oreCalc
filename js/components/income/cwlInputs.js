@@ -9,6 +9,7 @@ import { adjustWarRates } from '../../utils/incomeUtils.js';
 import { logger } from '../../utils/logger.js';
 
 import { bindNumericInput } from '../common/formBindingUtils.js';
+import { fetchCwlLeagueGroup, fetchCwlWar, fetchCwlWarsFromServer } from '../../services/apiService.js';
 import { dom } from '../../dom/domElements.js';
 
 let calculatedCwlStats = {
@@ -63,7 +64,7 @@ function getRecommendedLabel() {
     const cachedSeasons = state.playerProfile?.cwlSeasons || [];
 
     if (!calculatedCwlStats.hasCalculated || cachedSeasons.length === 0) {
-        return translate('views.planner.recommended');
+        return translate('validation.recommended');
     }
 
     const currentSeason = cachedSeasons[0];
@@ -179,15 +180,17 @@ function compileCwlSeasonsFromWars(warsList, activePlayerTag, cleanClanTag) {
     return compiledSeasons.slice(0, 2);
 }
 
+const cwlCooldowns = new Map();
+
 async function triggerCwlLogFetch(clanTag) {
     if (calculatedCwlStats.isFetching) return;
 
     // Cooldown check!
     const now = Date.now();
-    let lastFetch = parseInt(sessionStorage.getItem(`oreCalc_cooldown_cwl_${clanTag}`), 10) || 0;
+    let lastFetch = cwlCooldowns.get(clanTag) || 0;
     if (lastFetch === 0 && state.playerProfile?.lastCwlFetchTime) {
         lastFetch = new Date(state.playerProfile.lastCwlFetchTime).getTime();
-        sessionStorage.setItem(`oreCalc_cooldown_cwl_${clanTag}`, lastFetch.toString());
+        cwlCooldowns.set(clanTag, lastFetch);
     }
     const cachedSeasons = state.playerProfile?.cwlSeasons || [];
     const currentSeason = cachedSeasons[0];
@@ -210,7 +213,6 @@ async function triggerCwlLogFetch(clanTag) {
 
     calculatedCwlStats.isFetching = true;
     try {
-        const { fetchCwlLeagueGroup, fetchCwlWar, fetchCwlWarsFromServer } = await import('../../services/apiService.js');
         const cleanClanTag = clanTag.startsWith('#') ? clanTag : `#${clanTag}`;
 
         // Fetch server cached wars and live group data concurrently
@@ -225,7 +227,7 @@ async function triggerCwlLogFetch(clanTag) {
             })
         ]);
 
-        sessionStorage.setItem(`oreCalc_cooldown_cwl_${clanTag}`, now.toString());
+        cwlCooldowns.set(clanTag, now);
         if (state.playerProfile) {
             state.playerProfile.lastCwlFetchTime = new Date(now).toISOString();
         }
@@ -329,7 +331,7 @@ async function triggerCwlLogFetch(clanTag) {
         logger.error("Failed to fetch CWL log for recommended values:", error);
 
         // Update last fetch time even on failure so we don't spam the API
-        sessionStorage.setItem(`oreCalc_cooldown_cwl_${clanTag}`, Date.now().toString());
+        cwlCooldowns.set(clanTag, Date.now());
         if (state.playerProfile) {
             state.playerProfile.lastCwlFetchTime = new Date().toISOString();
         }

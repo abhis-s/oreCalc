@@ -1,0 +1,434 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.cluster-targets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+    gap: $spacing-sm;
+    margin-block-start: $spacing-sm;
+    width: 100%;
+    min-width: 0;
+}
+
+.cluster-target-card {
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-small;
+    padding: $spacing-sm;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    transition: border-color $transition-fast;
+
+    &:hover {
+        border-color: $border-card-hover;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+
+    &__identity {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__supercharge {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2xs;
+        color: $color-info;
+    }
+
+    &__index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: $shape-corner-full;
+        background-color: $accent-primary-soft;
+        border: 1px solid $accent-primary;
+        color: $accent-primary;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
+        flex-shrink: 0;
+        line-height: 1;
+    }
+
+    &__thumb {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+
+    &__meta {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__name-row {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+
+    &__name {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        line-height: 1.25;
+    }
+
+    &__level {
+        font-size: $font-size-2xs;
+        color: $text-muted;
+        line-height: 1.2;
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+
+    &__hp {
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-medium;
+        color: $text-muted;
+        line-height: 1.2;
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    &__damage-flow {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        padding-block: $spacing-2xs;
+        font-size: $font-size-2xs;
+        flex-wrap: wrap;
+    }
+
+    &__damage-step {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2xs;
+        flex-shrink: 0;
+    }
+
+    &__eq-stage {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+
+    &__equip-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: $spacing-2xs 6px $spacing-2xs 3px;
+        background-color: var(--btn-bg-purple);
+        border: 1px solid var(--btn-border-purple);
+        border-radius: $shape-corner-small;
+        color: var(--btn-color-purple);
+        font-weight: $font-weight-bold;
+        line-height: 1;
+        white-space: nowrap;
+
+        .cluster-target-card__spell-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            display: block;
+        }
+    }
+
+    &__eq-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: $spacing-2xs 6px $spacing-2xs $spacing-xs;
+        background-color: $accent-secondary-soft;
+        border: 1px solid $accent-secondary;
+        border-radius: $shape-corner-small;
+        color: $accent-secondary;
+        font-weight: $font-weight-bold;
+        line-height: 1;
+        white-space: nowrap;
+
+        .cluster-target-card__spell-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .cluster-target-card__spell-count {
+            font-size: $font-size-2xs;
+            font-weight: $font-weight-bold;
+            line-height: 1;
+        }
+    }
+
+    &__zap-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: $spacing-2xs 6px $spacing-2xs $spacing-xs;
+        background-color: $color-info-soft;
+        border: 1px solid $color-info;
+        border-radius: $shape-corner-small;
+        color: $color-info;
+        font-weight: $font-weight-bold;
+        line-height: 1;
+        white-space: nowrap;
+
+        .cluster-target-card__spell-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .cluster-target-card__spell-count {
+            font-size: $font-size-2xs;
+            font-weight: $font-weight-bold;
+            line-height: 1;
+        }
+    }
+
+    &__rem-hp {
+        color: $text-secondary;
+        font-weight: $font-weight-medium;
+    }
+
+    &__immune-badge {
+        display: inline-flex;
+        align-items: center;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
+        color: $color-warning;
+        background-color: $color-warning-soft;
+        border: 1px solid $color-warning;
+        border-radius: $shape-corner-full;
+        padding-inline: $spacing-xs;
+        padding-block: 1px;
+        line-height: 1;
+    }
+
+    &__zap-stage {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+}
+
+.cluster-damage-flow__arrow {
+    color: $text-muted;
+    font-size: $font-size-xs;
+    line-height: 1;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.solution-hero-card--cluster {
+    border-color: $accent-primary;
+
+    &.is-indestructible {
+        border-color: $color-warning;
+    }
+}
+
+.calc-cluster-indestructible-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-left: 3px solid $color-warning;
+    border-radius: $shape-corner-medium;
+    width: 100%;
+    box-sizing: border-box;
+
+    &__icon {
+        color: $color-warning;
+        flex-shrink: 0;
+        margin-top: $spacing-2xs;
+    }
+
+    &__text {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2xs;
+        min-width: 0;
+    }
+
+    &__title {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    &__desc {
+        font-size: $font-size-2xs;
+        color: $text-secondary;
+        margin: 0;
+        line-height: 1.45;
+    }
+}
+
+.solution-hero-card__header-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    flex-wrap: wrap;
+}
+
+.calc-capacity-warning {
+    display: inline-flex;
+    align-items: center;
+    padding-block: $spacing-2xs;
+    padding-inline: $spacing-xs;
+    background-color: $color-warning-soft;
+    color: $color-warning;
+    border: 1px solid $color-warning;
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-bold;
+    border-radius: $shape-corner-full;
+    line-height: 1;
+}
+
+.calc-adjacent-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: 3px $spacing-xs;
+    background-color: $bg-surface-tertiary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-full;
+    color: $text-secondary;
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    min-height: 28px;
+    box-sizing: border-box;
+    transition: background-color $transition-fast, border-color $transition-fast, color $transition-fast;
+
+    &__zap {
+        flex-shrink: 0;
+    }
+
+    &__thumb {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+        display: block;
+        flex-shrink: 0;
+        border-radius: $shape-corner-2xs;
+    }
+
+    &__index {
+        font-weight: $font-weight-bold;
+        color: $accent-primary;
+        line-height: 1;
+    }
+
+    &__name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 90px;
+        line-height: 1;
+    }
+
+    &:hover {
+        background-color: $bg-surface-secondary;
+        border-color: $color-info;
+        color: $text-primary;
+    }
+
+    &.is-active {
+        background-color: $color-info-soft;
+        border-color: $color-info;
+        color: $color-info;
+        font-weight: $font-weight-bold;
+
+        .calc-adjacent-toggle__index {
+            color: $color-info;
+        }
+    }
+}
+
+.cluster-target-card__adjacencies {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: $spacing-xs;
+    margin-block-start: 2px;
+    flex-wrap: wrap;
+
+    > .calc-adjacent-toggle {
+        min-height: 24px;
+        padding: $spacing-2xs $spacing-xs;
+        font-size: $font-size-2xs;
+    }
+}
+
+.cluster-target-card__adj-label {
+    font-size: $font-size-2xs;
+    color: $text-muted;
+    font-weight: $font-weight-medium;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cluster-target-card__adj-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-xs;
+
+    .calc-adjacent-toggle {
+        min-height: 24px;
+        height: 24px;
+        padding: $spacing-2xs 6px $spacing-2xs $spacing-xs;
+        gap: 3px;
+        border-radius: $shape-corner-full;
+
+        &__name {
+            display: none;
+        }
+
+        &__zap {
+            opacity: 0.4;
+            transition: opacity $transition-fast;
+        }
+
+        &__thumb {
+            width: 16px;
+            height: 16px;
+        }
+
+        &__index {
+            font-size: $font-size-2xs;
+            font-weight: $font-weight-bold;
+        }
+
+        &.is-active {
+            .calc-adjacent-toggle__zap {
+                opacity: 1;
+            }
+        }
+    }
+}

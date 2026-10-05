@@ -1,6 +1,7 @@
-import { test, describe, beforeEach } from 'node:test';
+import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { updateTabIndicator, renderModifierTabs } from '../../js/components/equipment/equipmentDetailsHeaderDisplay.js';
+import { renderModifierTabs } from '../../js/components/equipment/equipmentDetailsHeaderDisplay.js';
+import { updateTabIndicator, observeModifierTabsResize, renderBattleModifierSwitcher } from '../../js/components/common/battleModifierSwitcher.js';
 
 describe('Equipment Details Modifier Tab Indicator Suite', () => {
 
@@ -108,6 +109,104 @@ describe('Equipment Details Modifier Tab Indicator Suite', () => {
     test('updateTabIndicator handles empty or missing container gracefully', () => {
         assert.doesNotThrow(() => updateTabIndicator(null, 'standard'));
         assert.doesNotThrow(() => updateTabIndicator(/** @type {any} */ ({}), 'standard'));
+    });
+
+    test('observeModifierTabsResize handles null, invalid container, or unsupported environments gracefully', () => {
+        assert.doesNotThrow(() => observeModifierTabsResize(null));
+        assert.doesNotThrow(() => observeModifierTabsResize(/** @type {any} */ ({})));
+        const mockEl = new MockElement('div');
+        assert.doesNotThrow(() => observeModifierTabsResize(/** @type {any} */ (mockEl)));
+    });
+
+    test('observeModifierTabsResize integrates with ResizeObserver and triggers recalculation', () => {
+        const mockEl = new MockElement('div');
+        let observedTarget = null;
+
+        const originalResizeObserver = global.ResizeObserver;
+        const originalWindow = global.window;
+
+        try {
+            global.window = /** @type {any} */ ({
+                ResizeObserver: class MockResizeObserver {
+                    constructor() {}
+                    observe(target) {
+                        observedTarget = target;
+                    }
+                    disconnect() {}
+                }
+            });
+
+            observeModifierTabsResize(/** @type {any} */ (mockEl));
+            assert.strictEqual(observedTarget, mockEl);
+
+            // Double observation guard: should not re-observe or crash
+            observeModifierTabsResize(/** @type {any} */ (mockEl));
+        } finally {
+            global.ResizeObserver = originalResizeObserver;
+            global.window = originalWindow;
+        }
+    });
+
+    test('renderBattleModifierSwitcher automatically registers container for resize observation', () => {
+        const mockContainer = new MockElement('div');
+
+        const originalWindow = global.window;
+        try {
+            global.window = /** @type {any} */ ({
+                ResizeObserver: class MockResizeObserver {
+                    constructor() {}
+                    observe() {}
+                    disconnect() {}
+                }
+            });
+
+            renderBattleModifierSwitcher(/** @type {any} */ (mockContainer), 'standard');
+            assert.ok(mockContainer.innerHTML.includes('mod-tab-indicator'));
+        } finally {
+            global.window = originalWindow;
+        }
+    });
+
+    test('updateModifierBarLayout stacks modifier label above switcher only on space constraint', async () => {
+        const { updateModifierBarLayout } = await import('../../js/components/damage/damageCalcOffenseBarDisplay.js');
+        const container = new MockElement('div');
+        const inner = new MockElement('div', { className: 'calc-modifier-bar__inner' });
+        const label = new MockElement('span', { className: 'calc-modifier-bar__label' });
+        const tabs = new MockElement('div', { className: 'calc-modifier-tabs' });
+
+        inner.children.push(label, tabs);
+        container.children.push(inner);
+
+        inner.querySelector = (sel) => {
+            if (sel === '.calc-modifier-bar__label') return label;
+            if (sel === '.calc-modifier-tabs') return tabs;
+            return null;
+        };
+        container.querySelector = (sel) => {
+            if (sel === '.calc-modifier-bar__inner') return inner;
+            if (sel === '.calc-modifier-bar__label') return label;
+            if (sel === '.calc-modifier-tabs') return tabs;
+            return null;
+        };
+
+        // Scenario 1: Wide desktop space - sufficient room, should NOT stack
+        inner.clientWidth = 1000;
+        label.offsetWidth = 80;
+        tabs.scrollWidth = 450;
+        updateModifierBarLayout(/** @type {any} */ (container));
+        assert.equal(inner.classList.contains('is-stacked'), false);
+
+        // Scenario 2: Constrained mobile space - insufficient room, MUST stack
+        inner.clientWidth = 360;
+        label.offsetWidth = 80;
+        tabs.scrollWidth = 450;
+        updateModifierBarLayout(/** @type {any} */ (container));
+        assert.equal(inner.classList.contains('is-stacked'), true);
+
+        // Scenario 3: Screen widens back up - should unstack
+        inner.clientWidth = 1200;
+        updateModifierBarLayout(/** @type {any} */ (container));
+        assert.equal(inner.classList.contains('is-stacked'), false);
     });
 
     test('renderModifierTabs hides and clears container when data is invalid', () => {

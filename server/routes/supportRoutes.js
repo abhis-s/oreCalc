@@ -51,7 +51,7 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
                 const nodemailer = require('nodemailer');
                 const transporter = nodemailer.createTransport({
                     host: process.env.SMTP_HOST,
-                    port: parseInt(process.env.SMTP_PORT || '587', 10),
+                    port: Number(process.env.SMTP_PORT) || 587,
                     secure: process.env.SMTP_SECURE === 'true',
                     auth: {
                         user: process.env.SMTP_USER,
@@ -71,8 +71,8 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
                 const mailOptions = {
                     from: `"ClashCalc System" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
                     to: process.env.RECIPIENT_EMAIL_SUPPORT || 'support@clashcalc.com',
-                    subject: `[OreCalc] Bug Report - ${docRef.id} (${reportData.userId})`,
-                    text: `Hello,\n\nA new bug report has been submitted.\n\nDetails:\n- Report ID: ${docRef.id}\n- User ID: ${reportData.userId}\n- Contact Email: ${reportData.email || 'none'}\n- Date: ${reportData.reportedAt}\n\nDescription:\n${description}\n\n${attachData ? 'User data is attached to this email.' : 'No user data was attached.'}\n\nRegards,\nOreCalc Support System`,
+                    subject: `[ClashCalc] Bug Report - ${docRef.id} (${reportData.userId})`,
+                    text: `Hello,\n\nA new bug report has been submitted.\n\nDetails:\n- Report ID: ${docRef.id}\n- User ID: ${reportData.userId}\n- Contact Email: ${reportData.email || 'none'}\n- Date: ${reportData.reportedAt}\n\nDescription:\n${description}\n\n${attachData ? 'User data is attached to this email.' : 'No user data was attached.'}\n\nRegards,\nClashCalc Support System`,
                     attachments
                 };
 
@@ -108,7 +108,7 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
         return res.status(400).json({ reason: 'invalidMessage', message: 'Error message is required.' });
     }
 
-    // 1. Completely discard client noise (extension scripts, 404 tag typos, CWL/war log states)
+    // Completely discard client noise (extension scripts, 404 tag typos, CWL/war log states)
     if (isIgnoredNoise(message)) {
         return res.status(200).json({
             message: 'Ignored client noise error.',
@@ -151,10 +151,10 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
             const recipientEmail = process.env.RECIPIENT_EMAIL_ALERTS;
             if (recipientEmail) {
                 const mailOptions = {
-                    from: `"OreCalc Error Alert" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
+                    from: `"ClashCalc Error Alert" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
                     to: recipientEmail,
-                    subject: `[OreCalc Error Alert] ${errorData.environment} - User ${errorData.userId}`,
-                    text: `Hello,\n\nAn automated client console error was reported on ${errorData.environment}.\n\nError Details:\n- Record ID: ${docRef.id}\n- User ID: ${errorData.userId}\n- Environment: ${errorData.environment}\n- Page URL: ${errorData.url}\n- Date: ${errorData.reportedAt}\n- Expires At (TTL): ${expireDate.toISOString()}\n- User Agent: ${errorData.userAgent}\n\nMessage:\n${errorData.message}\n\nSource: ${errorData.source}:${errorData.line}:${errorData.col}\n\nStack Trace:\n${errorData.stack || 'None provided'}\n\nRegards,\nOreCalc Error Monitoring`
+                    subject: `[ClashCalc Error Alert] ${errorData.environment} - User ${errorData.userId}`,
+                    text: `Hello,\n\nAn automated client console error was reported on ${errorData.environment}.\n\nError Details:\n- Record ID: ${docRef.id}\n- User ID: ${errorData.userId}\n- Environment: ${errorData.environment}\n- Page URL: ${errorData.url}\n- Date: ${errorData.reportedAt}\n- Expires At (TTL): ${expireDate.toISOString()}\n- User Agent: ${errorData.userAgent}\n\nMessage:\n${errorData.message}\n\nSource: ${errorData.source}:${errorData.line}:${errorData.col}\n\nStack Trace:\n${errorData.stack || 'None provided'}\n\nRegards,\nClashCalc Error Monitoring`
                 };
 
                 emailSent = await sendMailSafely(mailOptions);
@@ -180,7 +180,7 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
 });
 
 router.get('/version', (req, res) => {
-    res.json({ currentAppVersion: '2.2.0' });
+    res.json({ currentAppVersion: '3.0.0' });
 });
 
 router.get('/check-ip', async (req, res) => {

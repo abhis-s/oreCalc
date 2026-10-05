@@ -1,22 +1,32 @@
 <dialog id="device-sync-modal" class="modal" aria-labelledby="device-sync-modal-title">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 id="device-sync-modal-title" data-i18n="views.settings.deviceSyncTitle"></h2>
-            <button id="close-device-sync-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+            <h2 id="device-sync-modal-title" data-i18n="views.settings.cloudSync.title"></h2>
+            <button type="button" id="close-device-sync-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
         <div class="modal-body text-left">
+            <div class="sync-account-callout">
+                <div class="sync-account-callout-content">
+                    <orecalc-assets-svg name="user" class="sync-account-icon"></orecalc-assets-svg>
+                    <span data-i18n="auth.accountCardDesc"></span>
+                </div>
+                <button type="button" id="device-sync-open-auth-btn" class="animated-btn btn-accent compact">
+                    <span class="animated-btn-text" data-i18n="auth.signIn"></span>
+                </button>
+            </div>
+
             <details class="sync-section" open>
                 <summary>
-                    <span data-i18n="views.settings.yourSyncCode"></span>
+                    <span data-i18n="views.settings.cloudSync.yourSyncCode"></span>
                     <orecalc-assets-svg name="chevron-up" class="chevron"></orecalc-assets-svg>
                 </summary>
                 <div class="details-content">
                     <p data-i18n="player.qrDisplayInstruction" class="form-setting-text sync-instruction"></p>
                     <div class="sync-code-container">
                         <div id="device-sync-user-id" class="calculated id-child-fields qr-user-id" data-i18n-title="actions.clickToCopy"></div>
-                        <button id="device-sync-copy-btn" class="animated-btn btn-accent" data-modal-autofocus>
+                        <button type="button" id="device-sync-copy-btn" class="animated-btn btn-accent" data-modal-autofocus>
                             <span class="animated-btn-icon-wrapper fill-dark">
                                 <orecalc-assets-svg name="copy"></orecalc-assets-svg>
                             </span>
@@ -29,22 +39,22 @@
 
             <details class="sync-section">
                 <summary>
-                    <span data-i18n="views.settings.linkDevice"></span>
+                    <span data-i18n="actions.linkDevice"></span>
                     <orecalc-assets-svg name="chevron-down" class="chevron"></orecalc-assets-svg>
                 </summary>
                 <div class="details-content">
                     <p data-i18n="player.qrScanInstruction" class="form-setting-text sync-instruction"></p>
                     <div class="import-data-input-container no-margin">
                         <label for="device-sync-input" data-i18n="player.userId"></label>
-                        <input type="text" id="device-sync-input" data-i18n-placeholder="views.settings.placeholderSyncCode" maxlength="36" spellcheck="false">
+                        <input type="text" id="device-sync-input" data-i18n-placeholder="views.settings.cloudSync.placeholderSyncCode" maxlength="36" spellcheck="false">
                         <div id="device-sync-status" class="status-message"></div>
                     </div>
                 </div>
             </details>
         </div>
         <div class="modal-actions compact">
-            <button id="cancel-device-sync-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button id="confirm-device-sync-btn" class="accept-button hidden" data-i18n="actions.linkDevice"></button>
+            <button type="button" id="cancel-device-sync-btn" class="reject-button" data-i18n="actions.cancel"></button>
+            <button type="button" id="confirm-device-sync-btn" class="accept-button hidden" data-i18n="actions.linkDevice"></button>
         </div>
     </div>
 </dialog>

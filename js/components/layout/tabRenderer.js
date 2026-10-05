@@ -1,4 +1,5 @@
 import { dom } from '../../dom/domElements.js';
+import { requestResponsiveTextUpdate } from '../../utils/responsiveTextHandler.js';
 
 /**
  * Toggles active visual states across tab content containers and header tab buttons.
@@ -17,4 +18,6 @@ export function renderTabs(activeTabId) {
         const tabDataValue = activeTabId.replace('-tab', '');
         button.classList.toggle('active', button.dataset.tab === tabDataValue);
     });
+
+    requestResponsiveTextUpdate();
 }

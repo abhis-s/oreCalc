@@ -90,7 +90,7 @@ if (typeof globalThis.customElements === 'undefined') {
 
 const { WAR_ORE_MAX_LIMITS, getWarOreValue } = await import('../../js/data/incomeSources/warOres.js');
 const { raidMedalTraderData, gemTraderData, eventTraderData } = await import('../../js/data/incomeSources/traders.js');
-const { renderWelcomeTraderRows } = await import('../../js/components/welcome/welcomeSettingsDisplay.js');
+const { renderGuidedSetupTraderRows } = await import('../../js/components/guidedSetup/guidedSetupStepsDisplay.js');
 
 const { renderRaidMedalTraderRow } = await import('../../js/components/income/raidMedalTraderDisplay.js');
 const { renderGemTraderRow } = await import('../../js/components/income/gemTraderDisplay.js');
@@ -114,15 +114,16 @@ test('Trader datasets contain correct normalized IDs, costs, ores, and pack limi
 
     assert.ok(gemStarry);
     assert.equal(gemStarry.id, 'gem_starry');
-    assert.equal(gemStarry.cost, 115);
+    assert.equal(gemStarry.cost, 150);
     assert.equal(gemStarry.starry, 15);
-    assert.equal(gemStarry.maxPacks, 10);
+    assert.equal(gemStarry.maxPacks, 5);
+    assert.equal(gemStarry.recommendedPacks, 2);
 
     assert.ok(gemGlowy);
     assert.equal(gemGlowy.id, 'gem_glowy');
     assert.equal(gemGlowy.cost, 90);
     assert.equal(gemGlowy.glowy, 60);
-    assert.equal(gemGlowy.maxPacks, 10);
+    assert.equal(gemGlowy.maxPacks, 5);
 
     assert.ok(gemShiny);
     assert.equal(gemShiny.id, 'gem_shiny');
@@ -184,15 +185,75 @@ test('renderRaidMedalTraderRow generates checkboxes with normalized IDs and attr
     assert.equal(cb2.checked, false);
 });
 
-test('renderGemTraderRow generates input template containing normalized element ID and dataset attribute', () => {
+test('renderGemTraderRow generates input template containing normalized element ID, dataset attribute, and max caps', () => {
+    const starryOffer = gemTraderData.find(o => o.id === 'gem_starry');
     const glowyOffer = gemTraderData.find(o => o.id === 'gem_glowy');
-    const row = renderGemTraderRow(glowyOffer, 3);
+    const shinyOffer = gemTraderData.find(o => o.id === 'gem_shiny');
 
-    assert.equal(row.children.length, 3);
-    const inputDiv = row.children[2];
-    assert.ok(inputDiv.innerHTML.includes('id="gem-trader-gem_glowy-input"'));
-    assert.ok(inputDiv.innerHTML.includes('data-offer-id="gem_glowy"'));
-    assert.ok(inputDiv.innerHTML.includes('value="3"'));
+    const starryRow = renderGemTraderRow(starryOffer, 2);
+    const glowyRow = renderGemTraderRow(glowyOffer, 3);
+    const shinyRow = renderGemTraderRow(shinyOffer, 5);
+
+    assert.equal(glowyRow.children.length, 3);
+    const glowyInputDiv = glowyRow.children[2];
+    assert.ok(glowyInputDiv.innerHTML.includes('id="gem-trader-gem_glowy-input"'));
+    assert.ok(glowyInputDiv.innerHTML.includes('data-offer-id="gem_glowy"'));
+    assert.ok(glowyInputDiv.innerHTML.includes('value="3"'));
+    assert.ok(glowyInputDiv.innerHTML.includes('max="5"'));
+
+    const starryInputDiv = starryRow.children[2];
+    assert.ok(starryInputDiv.innerHTML.includes('id="gem-trader-gem_starry-input"'));
+    assert.ok(starryInputDiv.innerHTML.includes('data-offer-id="gem_starry"'));
+    assert.ok(starryInputDiv.innerHTML.includes('value="2"'));
+    assert.ok(starryInputDiv.innerHTML.includes('max="5"'));
+
+    const shinyInputDiv = shinyRow.children[2];
+    assert.ok(shinyInputDiv.innerHTML.includes('id="gem-trader-gem_shiny-input"'));
+    assert.ok(shinyInputDiv.innerHTML.includes('data-offer-id="gem_shiny"'));
+    assert.ok(shinyInputDiv.innerHTML.includes('value="5"'));
+    assert.ok(shinyInputDiv.innerHTML.includes('max="10"'));
+});
+
+test('renderGuidedSetupTraderRows generates valid options, caps, and thumbs-up badge for Gem Trader', () => {
+    const container = registerTestContainer('test-gem-trader-container');
+
+    renderGuidedSetupTraderRows(
+        'test-gem-trader-container',
+        gemTraderData,
+        'welcome-pref-gems',
+        'gem',
+        'Gems',
+        { starry: 'thumbs-up' }
+    );
+
+    assert.equal(container.children.length, 3);
+
+    // Starry: 0..5 (6 options) with thumbs-up recommendation badge
+    const starryRow = container.children[0];
+    assert.equal(starryRow.dataset.oreType, 'starry');
+    const starrySelect = starryRow.children[3];
+    assert.equal(starrySelect.children.length, 6);
+    assert.equal(starrySelect.children[0].value, '0');
+    assert.equal(starrySelect.children[5].value, '5');
+    // Ensure thumbs-up recommendation badge is rendered inside row
+    assert.equal(starryRow.children[2].children.length, 1);
+    assert.ok(starryRow.children[2].children[0].innerHTML.includes('thumbs-up'));
+
+    // Glowy: 0..5 (6 options) with no badge
+    const glowyRow = container.children[1];
+    assert.equal(glowyRow.dataset.oreType, 'glowy');
+    const glowySelect = glowyRow.children[3];
+    assert.equal(glowySelect.children.length, 6);
+    assert.equal(glowySelect.children[5].value, '5');
+    assert.equal(glowyRow.children[2].children.length, 0);
+
+    // Shiny: 0..10 (11 options) with no badge
+    const shinyRow = container.children[2];
+    assert.equal(shinyRow.dataset.oreType, 'shiny');
+    const shinySelect = shinyRow.children[3];
+    assert.equal(shinySelect.children.length, 11);
+    assert.equal(shinySelect.children[10].value, '10');
+    assert.equal(shinyRow.children[2].children.length, 0);
 });
 
 test('renderEventTraderRow generates row template containing normalized element ID and dataset attribute', () => {
@@ -204,10 +265,10 @@ test('renderEventTraderRow generates row template containing normalized element 
     assert.ok(row.innerHTML.includes('value="5"'));
 });
 
-test('renderWelcomeTraderRows generates valid DOM structure with correct select options and IDs', () => {
+test('renderGuidedSetupTraderRows generates valid DOM structure with correct select options and IDs', () => {
     const container = registerTestContainer('test-raid-trader-container');
 
-    renderWelcomeTraderRows(
+    renderGuidedSetupTraderRows(
         'test-raid-trader-container',
         raidMedalTraderData,
         'welcome-pref-raid-medals',
@@ -220,9 +281,9 @@ test('renderWelcomeTraderRows generates valid DOM structure with correct select 
 
     const starryRow = container.children[0];
     assert.equal(starryRow.dataset.oreType, 'starry');
-    assert.equal(starryRow.children.length, 3);
+    assert.equal(starryRow.children.length, 4);
 
-    const select = starryRow.children[2];
+    const select = starryRow.querySelector('select') || starryRow.children[3];
     assert.equal(select.id, 'welcome-pref-raid-medals-starry');
     assert.equal(select.children.length, 3);
     assert.equal(select.children[0].value, '0');
@@ -230,10 +291,10 @@ test('renderWelcomeTraderRows generates valid DOM structure with correct select 
     assert.equal(select.children[2].value, '2');
 });
 
-test('renderWelcomeTraderRows generates all 41 option elements for Event Trader Shiny', () => {
+test('renderGuidedSetupTraderRows generates all 41 option elements for Event Trader Shiny', () => {
     const container = registerTestContainer('test-event-trader-container');
 
-    renderWelcomeTraderRows(
+    renderGuidedSetupTraderRows(
         'test-event-trader-container',
         eventTraderData,
         'welcome-pref-event-trader',
@@ -247,7 +308,7 @@ test('renderWelcomeTraderRows generates all 41 option elements for Event Trader 
     const shinyRow = container.children[2];
     assert.equal(shinyRow.dataset.oreType, 'shiny');
 
-    const select = shinyRow.children[2];
+    const select = shinyRow.querySelector('select') || shinyRow.children[3];
     assert.equal(select.id, 'welcome-pref-event-trader-shiny');
     assert.equal(select.children.length, 41);
     assert.equal(select.children[0].value, '0');

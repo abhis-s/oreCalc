@@ -11,7 +11,7 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid $border-primary;
     border-radius: $shape-corner-medium;
-    padding: 8px 12px;
+    padding: $spacing-sm $spacing-md;
     box-shadow: $elevation-4;
     max-width: min(240px, calc(100vw - 24px));
     font-size: 0.72rem;
@@ -77,6 +77,7 @@
             color: $accent-primary;
             text-transform: uppercase;
             letter-spacing: 0.4px;
+            white-space: nowrap;
 
             .purple-text {
                 color: $color-rarity-epic;
@@ -106,13 +107,13 @@
             margin: 0;
 
             & + p {
-                margin-top: 8px;
+                margin-top: $spacing-sm;
             }
         }
 
         .popover-chest-breakdown,
         .popover-ores-breakdown {
-            margin-top: 8px;
+            margin-top: $spacing-sm;
             padding-top: 6px;
             border-top: 1px dashed color-mix(in srgb, $border-primary 50%, transparent);
             display: flex;
@@ -140,7 +141,7 @@
                     gap: 5px;
                     background: color-mix(in srgb, $bg-surface-primary 70%, transparent);
                     border: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
-                    padding: 2px 7px;
+                    padding: $spacing-2xs 7px;
                     border-radius: 6px;
                     font-size: 0.72rem;
 
@@ -164,8 +165,8 @@
             background: color-mix(in srgb, $color-danger 12%, transparent);
             border: 1px solid color-mix(in srgb, $color-danger 30%, transparent);
             border-radius: 6px;
-            padding: 6px 8px;
-            margin-bottom: 8px;
+            padding: 6px $spacing-sm;
+            margin-bottom: $spacing-sm;
 
             .unowned-alert-title {
                 display: flex;
@@ -174,7 +175,7 @@
                 font-size: 0.72rem;
                 font-weight: 800;
                 color: $color-danger;
-                margin-bottom: 2px;
+                margin-bottom: $spacing-2xs;
 
                 .unowned-alert-icon {
                     flex-shrink: 0;
@@ -190,7 +191,7 @@
             }
         }
         .popover-equipment-pool {
-            margin-top: 8px;
+            margin-top: $spacing-sm;
             padding-top: 6px;
             border-top: 1px dashed color-mix(in srgb, $border-primary 50%, transparent);
 
@@ -204,14 +205,14 @@
             .popover-pool-list {
                 display: flex;
                 flex-direction: column;
-                gap: 4px;
+                gap: $spacing-xs;
             }
 
             .pool-item-row {
                 display: flex;
                 align-items: center;
                 gap: 7px;
-                padding: 4px 7px;
+                padding: $spacing-xs 7px;
                 border-radius: 6px;
                 background: $bg-surface-secondary;
                 border: 1px solid $border-primary;
@@ -257,8 +258,8 @@
                 .pool-status-badge {
                     font-size: 0.56rem;
                     font-weight: 700;
-                    padding: 2px 5px;
-                    border-radius: 4px;
+                    padding: $spacing-2xs 5px;
+                    border-radius: $shape-corner-xs;
                     white-space: nowrap;
                     text-transform: uppercase;
                     flex-shrink: 0;
@@ -319,9 +320,17 @@
         width: min(280px, calc(100vw - 24px));
     }
 
+    &:has(.calc-breakdown-row),
+    &:has(.calc-breakdown-list),
+    &:has(.calc-popover-diminishing-section) {
+        max-width: min(320px, calc(100vw - 24px));
+        width: max-content;
+        min-width: min(250px, calc(100vw - 24px));
+    }
+
     .popover-footer {
         margin-top: 10px;
-        padding-top: 8px;
+        padding-top: $spacing-sm;
         border-top: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
         font-size: 0.74rem;
         color: $text-muted;
@@ -344,11 +353,11 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid $border-primary;
     border-radius: $shape-corner-medium;
-    padding: 8px;
+    padding: $spacing-sm;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: $spacing-sm;
     box-shadow: $elevation-4;
     z-index: $z-index-popover;
     opacity: 0;
@@ -388,8 +397,8 @@
         letter-spacing: 0.5px;
         text-align: center;
         border-bottom: 1px solid $border-secondary;
-        padding-bottom: 4px;
-        margin-bottom: 2px;
+        padding-bottom: $spacing-xs;
+        margin-bottom: $spacing-2xs;
     }
 
     .popover-options {
@@ -401,13 +410,13 @@
     .popover-opt-btn {
         background-color: $bg-surface-secondary;
         border: 1px solid $border-primary;
-        border-radius: 8px;
+        border-radius: $shape-corner-small;
         color: $text-primary;
-        padding: 5px 8px;
+        padding: 5px $spacing-sm;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 12px;
+        gap: $spacing-md;
         font-size: var(--font-size-xs);
         width: 100%;
         box-sizing: border-box;
@@ -509,11 +518,11 @@
             color: $text-primary;
             border: 1px solid $border-secondary;
             border-bottom: 2px solid $border-primary;
-            border-radius: 4px;
+            border-radius: $shape-corner-xs;
             font-family: 'Roboto Mono', monospace;
             font-size: 8px;
             font-weight: 700;
-            padding: 0 4px;
+            padding: 0 $spacing-xs;
             margin-left: 6px;
             height: 14px;
             min-width: 14px;

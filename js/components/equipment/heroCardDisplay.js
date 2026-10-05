@@ -129,6 +129,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             let currentLevel = equipState.level;
             if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, state, trackResolution)) {
                 currentLevel = getDefaultEquipmentUnlockLevel(heroName, equipName, state, trackResolution);
+                equipState.level = currentLevel;
             } else if (!currentLevel) {
                 currentLevel = 1;
             }
@@ -205,6 +206,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
 
     const hiddenCountLabel = dom.equipment?.hiddenCountLabel;
     if (hiddenCountLabel) {
+        hiddenCountLabel.hidden = !isHideMaxedEnabled;
         if (isHideMaxedEnabled) {
             hiddenCountLabel.textContent = translate('views.planner.equipmentHiddenCount', { count: hiddenCount });
             hiddenCountLabel.style.display = 'block';
@@ -215,6 +217,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
 
     const lockedHiddenCountLabel = dom.equipment?.lockedHiddenCountLabel;
     if (lockedHiddenCountLabel) {
+        lockedHiddenCountLabel.hidden = !isHideLockedEnabled;
         if (isHideLockedEnabled) {
             lockedHiddenCountLabel.textContent = translate('views.planner.lockedEquipmentHiddenCount', { count: lockedHiddenCount });
             lockedHiddenCountLabel.style.display = 'block';

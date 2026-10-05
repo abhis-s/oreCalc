@@ -9,14 +9,14 @@
     gap: 6px;
     align-items: center;
     font-size: clamp(11px, 2.5vw, 13px) !important;
-    padding: clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 14px) !important;
-    gap: clamp(4px, 1vw, 6px) !important;
+    padding: clamp(6px, 1.5vw, 10px) clamp($spacing-sm, 2vw, 14px) !important;
+    gap: clamp($spacing-xs, 1vw, 6px) !important;
     max-width: 90vw;
     box-sizing: border-box;
 
     .tooltip-header {
-        font-weight: 600;
-        margin-bottom: 4px;
+        font-weight: 700;
+        margin-bottom: $spacing-xs;
         color: $accent-primary;
         width: 100%;
         text-align: center;
@@ -25,6 +25,7 @@
     }
 
     .tooltip-message {
+        color: $color-danger;
         font-size: clamp(9px, 2vw, 11px) !important;
         white-space: normal;
         text-align: center;
@@ -41,7 +42,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: $spacing-sm;
         width: 100%;
         font-size: 0.85em;
         font-weight: 500;
@@ -60,14 +61,14 @@
 
     .tooltip-req-ores {
         display: flex;
-        gap: clamp(4px, 1vw, 8px);
+        gap: clamp($spacing-xs, 1vw, $spacing-sm);
         margin-top: 3px;
         align-items: center;
 
         span {
             display: inline-flex;
             align-items: center;
-            gap: clamp(2px, 0.5vw, 4px);
+            gap: clamp($spacing-2xs, 0.5vw, $spacing-xs);
             font-size: clamp(10px, 2.2vw, 12px) !important;
         }
 
@@ -81,11 +82,11 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 4px;
-        margin-top: 8px;
+        gap: $spacing-xs;
+        margin-top: $spacing-sm;
         width: 100%;
         border-top: 1px dashed $border-primary;
-        padding-top: 8px;
+        padding-top: $spacing-sm;
         box-sizing: border-box;
 
         .in-progress-title {
@@ -101,11 +102,11 @@
             align-items: center;
             gap: 6px;
             background: rgba(45, 52, 54, 0.4);
-            padding: 4px 8px;
-            border-radius: 8px;
+            padding: $spacing-xs $spacing-sm;
+            border-radius: $shape-corner-small;
             border: 1px solid var(--equip-color, #2d3436);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-            margin-top: 2px;
+            margin-top: $spacing-2xs;
         }
 
         .in-progress-icon {
@@ -124,7 +125,7 @@
             align-items: center;
             justify-content: center;
             background-color: #2d3436;
-            border-radius: 4px;
+            border-radius: $shape-corner-xs;
         }
 
         .in-progress-level {
@@ -140,15 +141,15 @@
     position: fixed;
     z-index: $z-index-popover;
     width: 90vw;
-    max-width: $popover-width-day-overview;
+    max-width: min(300px, 90vw);
     background-color: $bg-surface-primary;
     border: 1px solid $border-primary;
-    border-radius: $popover-radius-day-overview;
+    border-radius: $shape-corner-medium;
     box-shadow: $elevation-4;
     padding: 14px;
     display: none;
     flex-direction: column;
-    gap: 12px;
+    gap: $spacing-md;
     box-sizing: border-box;
 
     &.show,
@@ -160,7 +161,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding-bottom: 8px;
+        padding-bottom: $spacing-sm;
         border-bottom: 1px solid $border-secondary;
 
         .day-overview-date {
@@ -175,7 +176,7 @@
             border: none;
             color: $text-secondary;
             cursor: pointer;
-            padding: 4px;
+            padding: $spacing-xs;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -213,7 +214,7 @@
             display: flex;
             align-items: center;
             justify-content: space-around;
-            gap: 8px;
+            gap: $spacing-sm;
 
             .day-ore-stat {
                 display: flex;
@@ -256,7 +257,7 @@
             .day-overview-milestone-item {
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: $spacing-sm;
                 background-color: $bg-surface-secondary;
                 border: 1.5px solid var(--equip-color, $border-primary);
                 border-radius: $shape-corner-small;
@@ -273,7 +274,7 @@
                     height: 24px;
                     background-color: $bg-surface-tertiary;
                     color: $text-primary;
-                    border-radius: 4px;
+                    border-radius: $shape-corner-xs;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -284,7 +285,7 @@
                 .milestone-text-group {
                     display: flex;
                     flex-direction: column;
-                    gap: 2px;
+                    gap: $spacing-2xs;
 
                     .milestone-title {
                         font-size: 0.85rem;
@@ -312,7 +313,7 @@
             font-size: 0.8rem;
             color: $text-muted;
             text-align: center;
-            padding: 8px 0;
+            padding: $spacing-sm 0;
             font-style: italic;
         }
 
@@ -329,7 +330,7 @@
                 border: 1px solid $border-secondary;
                 border-radius: $shape-corner-small;
                 padding: 6px 10px;
-                gap: 8px;
+                gap: $spacing-sm;
 
                 .chip-row-info {
                     display: flex;
@@ -362,7 +363,7 @@
                 .chip-row-actions {
                     display: flex;
                     align-items: center;
-                    gap: 4px;
+                    gap: $spacing-xs;
 
                     .chip-action-btn {
                         background: none;
@@ -370,7 +371,7 @@
                         border-radius: 6px;
                         color: $text-secondary;
                         cursor: pointer;
-                        padding: 4px;
+                        padding: $spacing-xs;
                         display: flex;
                         align-items: center;
                         justify-content: center;

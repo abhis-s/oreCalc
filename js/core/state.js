@@ -1,16 +1,15 @@
 import { heroData } from '../data/heroData.js';
+import { shopOfferData, resolveBestMatchShopOfferSet } from '../data/incomeSources/shopOffers.js';
 
 import { compareVersions } from '../utils/versionUtils.js';
 
 import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolveHeroJourneyTrack } from '../domain/income/heroJourneyResolution.js';
 import { getISOWeekNumber } from '../utils/dateUtils.js';
+import { migrateComingSoonEquipment } from './stateCleanup.js';
 
 /** @type {import('./types.js').AppState | any} */
 export let state = {};
 
-export const EFFECTIVE_DATE_TERMS = 1780617600000; // June 5, 2026 (00:00 UTC)
-export const EFFECTIVE_DATE_PRIVACY = 1786060800000; // August 7, 2026 (00:00 UTC)
-export const EFFECTIVE_DATE_WELCOME = 1780617600000; // June 5, 2026 (00:00 UTC)
 export const EFFECTIVE_DATE_PROFILE_ONBOARDING = 1780617600000; // June 5, 2026 (00:00 UTC)
 
 export const DEFAULT_CUSTOM_CHIP_SETTINGS = Object.freeze({
@@ -33,7 +32,7 @@ export const DEFAULT_CUSTOM_CHIP_SETTINGS = Object.freeze({
  */
 export function getDefaultState() {
     return {
-        appVersion: (typeof window !== 'undefined' ? window.__ENV__?.APP_VERSION : null) || '2.2.0',
+        appVersion: (typeof window !== 'undefined' ? window.__ENV__?.APP_VERSION : null) || '3.0.0',
         timestamp: new Date().toISOString(),
         activeTab: 'home-tab',
         savedPlayerTags: [],
@@ -53,13 +52,11 @@ export function getDefaultState() {
             hideProfileStats: false,
             cloudSync: true,
             uiTimestamps: {
-                privacy: null,
-                tos: null,
-                welcome: null,
                 tour: null
             },
             summaryTimeframe: 'monthly',
-            cardLayout: 'cozy'
+            cardLayout: 'cozy',
+            leagueModifier: 'standard'
         },
 
         ...getDefaultPlayerStateProperties(),
@@ -340,6 +337,7 @@ function ensureStateDefaults(s) {
     const [year, weekNo] = getISOWeekNumber(now);
     const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const defaultWeek = `${year}-${String(weekNo).padStart(2, '0')}`;
+    let hasMigrationOccurred = false;
 
     if (s.allPlayersData) {
         for (const tag in s.allPlayersData) {
@@ -363,15 +361,27 @@ function ensureStateDefaults(s) {
                             const equipName = eq.name;
                             const defaultLevel = getDefaultEquipmentUnlockLevel(heroKey, equipName, ps, trackResolution);
                             if (!ps.heroes[heroName].equipment[equipName]) {
-                                ps.heroes[heroName].equipment[equipName] = { level: defaultLevel, checked: true };
+                                const hasOwnedEquipment = ps.playerProfile && ps.playerProfile.ownedEquipment && typeof ps.playerProfile.ownedEquipment === 'object';
+                                const isOwned = hasOwnedEquipment
+                                    ? (Array.isArray(ps.playerProfile.ownedEquipment)
+                                        ? ps.playerProfile.ownedEquipment.includes(equipName)
+                                        : (equipName in ps.playerProfile.ownedEquipment))
+                                    : true;
+
+                                const isChecked = isOwned;
+                                const initialLevel = isOwned ? defaultLevel : 1;
+                                ps.heroes[heroName].equipment[equipName] = { level: initialLevel, checked: isChecked };
                             } else {
                                 const eqState = ps.heroes[heroName].equipment[equipName];
-                                if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, ps, trackResolution) && eqState.level === 1 && defaultLevel > 1) {
+                                if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, ps, trackResolution)) {
                                     eqState.level = defaultLevel;
                                 }
                             }
                         });
                     }
+                }
+                if (migrateComingSoonEquipment(ps.heroes)) {
+                    hasMigrationOccurred = true;
                 }
             }
 
@@ -388,6 +398,19 @@ function ensureStateDefaults(s) {
             } else {
                 if (!ps.income.shopOffers) ps.income.shopOffers = { enabled: false, selectedSet: null, purchases: {}, '0': {} };
                 if (!ps.income.shopOffers.purchases) ps.income.shopOffers.purchases = {};
+
+                const currentSet = ps.income.shopOffers.selectedSet;
+                const currentSetKey = currentSet !== undefined && currentSet !== null ? String(currentSet) : null;
+                if (currentSetKey && currentSetKey !== '0' && (shopOfferData[currentSetKey]?.disabled || !shopOfferData[currentSetKey])) {
+                    const thLevel = ps.playerProfile?.townHallLevel;
+                    const resolvedSet = resolveBestMatchShopOfferSet(thLevel);
+                    ps.income.shopOffers.selectedSet = resolvedSet;
+                    if (!ps.income.shopOffers[resolvedSet]) {
+                        ps.income.shopOffers[resolvedSet] = {};
+                    }
+                } else if (currentSetKey && !ps.income.shopOffers[currentSetKey]) {
+                    ps.income.shopOffers[currentSetKey] = {};
+                }
 
                 if (!ps.income.raidMedals) ps.income.raidMedals = { enabled: false, earned: 1200, packs: { shiny: 0, glowy: 0, starry: 0 } };
                 if (!ps.income.raidMedals.packs) ps.income.raidMedals.packs = { shiny: 0, glowy: 0, starry: 0 };
@@ -555,6 +578,16 @@ function ensureStateDefaults(s) {
             if (ps.onboardingTimestamp === undefined) {
                 ps.onboardingTimestamp = null;
             }
+        }
+
+        if (s.heroes && typeof s.heroes === 'object') {
+            if (migrateComingSoonEquipment(s.heroes)) {
+                hasMigrationOccurred = true;
+            }
+        }
+
+        if (hasMigrationOccurred) {
+            s.timestamp = new Date().toISOString();
         }
     }
 }

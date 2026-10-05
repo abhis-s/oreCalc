@@ -35,8 +35,8 @@
         }
 
         .modal-header {
-            padding: 12px 16px;
-            gap: 8px;
+            padding: $spacing-md $spacing-lg;
+            gap: $spacing-sm;
 
             h2 {
                 font-size: 1.1rem;
@@ -51,7 +51,7 @@
                 button:not(.suggestion-message-btn) {
                     height: 32px;
                     width: 32px;
-                    border-radius: 8px;
+                    border-radius: $shape-corner-small;
 
                     svg, img {
                         width: 20px;
@@ -63,7 +63,7 @@
                     height: 32px;
                     width: 32px;
                     padding: 0;
-                    border-radius: 8px;
+                    border-radius: $shape-corner-small;
                     justify-content: center;
                 }
             }

@@ -401,7 +401,6 @@ const { state } = await import('../../js/core/state.js');
 const { loadTranslations, translate } = await import('../../js/i18n/translator.js');
 const { renderDraggableList } = await import('../../js/components/planner/priorityListModalDisplay.js');
 const { hideCardHelpPopover } = await import('../../js/utils/cardHelpPopover.js');
-const { initializePriorityList } = await import('../../js/components/planner/priorityList.js');
 
 describe('Priority List Step Ores Popover Suite', () => {
     let editorElement;

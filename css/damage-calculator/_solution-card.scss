@@ -1,0 +1,85 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.solution-hero-card {
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-medium;
+    padding: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-md;
+        gap: $spacing-sm;
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        padding: $spacing-sm;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+    }
+
+    &__badge {
+        padding-block: $spacing-2xs;
+        padding-inline: $spacing-sm;
+        background-color: $accent-primary-soft;
+        color: $accent-primary;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        border-radius: $shape-corner-full;
+
+        &--indestructible {
+            background-color: $color-warning-soft;
+            color: $color-warning;
+            border: 1px solid $color-warning;
+        }
+    }
+
+    &__spells {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        flex-wrap: wrap;
+
+        .calc-equip-badge {
+            padding: $spacing-2xs;
+            width: 36px;
+            height: 36px;
+            box-sizing: border-box;
+
+            &__icon {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        .calc-spell-badge {
+            padding-block: $spacing-2xs;
+            padding-inline-start: $spacing-xs;
+            padding-inline-end: $spacing-2xs;
+            gap: $spacing-2xs;
+            height: 36px;
+            box-sizing: border-box;
+
+            &__multiplier {
+                font-size: $font-size-xs;
+            }
+
+            &__icon {
+                width: 28px;
+                height: 28px;
+            }
+        }
+    }
+}

@@ -18,11 +18,11 @@ export const I18N_DYNAMIC_PARAMS = {
             displayUrl: url.replace(/^https?:\/\//, '')
         };
     },
-    'views.settings.bugReportInfo': () => ({
+    'views.settings.bugReport.info': () => ({
         link: '<a href="https://github.com/abhis-s/oreCalc/issues" target="_blank" rel="noopener noreferrer" class="theme-link">GitHub Issues</a>'
     }),
-    'views.settings.bugReportPrivacyInfo': (lang, getTranslation) => {
-        const privacyText = (typeof getTranslation === 'function' ? getTranslation('views.settings.privacyPolicyText') : '') || 'Privacy Policy';
+    'views.settings.bugReport.privacyInfo': (lang, getTranslation) => {
+        const privacyText = (typeof getTranslation === 'function' ? getTranslation('nav.privacy') : '') || 'Privacy Policy';
         return {
             link: `<a href="#" id="bug-report-privacy-link" class="theme-link">${privacyText}</a>`
         };

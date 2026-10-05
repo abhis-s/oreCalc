@@ -125,7 +125,7 @@ function extractExports(filePath, content) {
     const exports = [];
     const cleanContent = stripComments(content);
 
-    // 1. export (async) function <name>
+    // Match export (async) function <name>
     const funcRegex = /export\s+(?:async\s+)?function\s+([a-zA-Z0-9_$]+)/g;
     let match;
     while ((match = funcRegex.exec(cleanContent)) !== null) {
@@ -137,7 +137,7 @@ function extractExports(filePath, content) {
         });
     }
 
-    // 2. export class <name>
+    // Match export class <name>
     const classRegex = /export\s+class\s+([a-zA-Z0-9_$]+)/g;
     while ((match = classRegex.exec(cleanContent)) !== null) {
         exports.push({
@@ -148,7 +148,7 @@ function extractExports(filePath, content) {
         });
     }
 
-    // 3. export const/let/var declarations
+    // Match export const/let/var declarations
     const declRegex = /export\s+(?:const|let|var)\s+/g;
     while ((match = declRegex.exec(cleanContent)) !== null) {
         const remaining = cleanContent.substring(match.index + match[0].length);
@@ -163,7 +163,7 @@ function extractExports(filePath, content) {
         }
     }
 
-    // 4. export { a, b as c } [from './...']
+    // Match export { a, b as c } [from './...']
     const namedExportRegex = /export\s*\{([^}]+)\}(?:\s*from\s*['"]([^'"]+)['"])?/g;
     while ((match = namedExportRegex.exec(cleanContent)) !== null) {
         const specifiers = match[1].split(',');

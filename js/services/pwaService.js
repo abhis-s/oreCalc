@@ -17,14 +17,21 @@ export function initializePwaService() {
 
     const markSWUpdated = () => {
         try {
-            localStorage.setItem('oreCalc_SWUpdatedTime', new Date().toISOString());
+            const isCanonical = typeof window !== 'undefined' && window.location?.hostname
+                ? !window.location.hostname.toLowerCase().includes('orecalc.tech')
+                : false;
+            const targetKey = isCanonical ? 'clashCalc_SWUpdatedTime' : 'oreCalc_SWUpdatedTime';
+            localStorage.setItem(targetKey, new Date().toISOString());
             localStorage.removeItem('oreCalcSWUpdatedTime');
+            if (isCanonical) {
+                localStorage.removeItem('oreCalc_SWUpdatedTime');
+            }
         } catch (_) {}
     };
 
     const handleSWWaiting = (reg) => {
         logger.log('A new version of OreCalc is available and waiting.');
-        if (!sessionStorage.getItem('oreCalcUpdateDetectedAt') && !localStorage.getItem('oreCalcUpdateDetectedAt')) {
+        if (!sessionStorage.getItem('oreCalcUpdateDetectedAt')) {
             sessionStorage.setItem('oreCalcUpdateDetectedAt', Date.now().toString());
         }
         updateNavigationBadges();
@@ -48,6 +55,13 @@ export function initializePwaService() {
     // Reload cleanly ONLY when the controller actually changes to avoid mismatched dynamic imports
     wb.addEventListener('controlling', () => {
         if (refreshing) return;
+        const lastSwReload = Number(sessionStorage.getItem('clashCalc_lastSwReload') || 0);
+        const now = Date.now();
+        if (lastSwReload && (now - lastSwReload < 10000)) {
+            logger.warn('Service worker controlling reload loop detected. Aborting reload.');
+            return;
+        }
+        sessionStorage.setItem('clashCalc_lastSwReload', String(now));
         refreshing = true;
         markSWUpdated();
         window.location.reload();
@@ -60,15 +74,14 @@ export function initializePwaService() {
 
     // Listen for server-forced update events (e.g., on 426 responses)
     document.addEventListener('app:api-version-force-update', () => {
-        const lastReload = sessionStorage.getItem('oreCalcLastUpdateReload');
+        const lastReload = sessionStorage.getItem('clashCalc_lastSwReload');
         const now = Date.now();
-        if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
+        if (lastReload && (now - Number(lastReload) < 15000)) {
             logger.warn('Forced update reload loop detected. Aborting automatic reload.');
             return;
         }
-        sessionStorage.setItem('oreCalcLastUpdateReload', now.toString());
+        sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
         sessionStorage.removeItem('oreCalcUpdateDetectedAt');
-        try { localStorage.removeItem('oreCalcUpdateDetectedAt'); } catch (_) {}
         markSWUpdated();
 
         wb.register().then(reg => {
@@ -82,14 +95,14 @@ export function initializePwaService() {
 
     wb.register().then(reg => {
         if (reg) {
-            if (!localStorage.getItem('oreCalc_SWUpdatedTime') && !localStorage.getItem('oreCalcSWUpdatedTime')) {
+            const swTime = localStorage.getItem('clashCalc_SWUpdatedTime') || localStorage.getItem('oreCalc_SWUpdatedTime') || localStorage.getItem('oreCalcSWUpdatedTime');
+            if (!swTime) {
                 markSWUpdated();
             }
             if (reg.waiting) {
                 handleSWWaiting(reg.waiting);
             } else {
                 sessionStorage.removeItem('oreCalcUpdateDetectedAt');
-                try { localStorage.removeItem('oreCalcUpdateDetectedAt'); } catch (_) {}
                 updateNavigationBadges();
             }
 

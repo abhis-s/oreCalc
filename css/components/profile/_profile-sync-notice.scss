@@ -3,20 +3,20 @@
 .home-profile-sync-notice {
     display: flex;
     align-items: flex-start;
-    gap: 8px;
-    margin-top: 16px;
+    gap: $spacing-sm;
+    margin-top: $spacing-lg;
     font-size: clamp(10px, 1.3vw, 11px);
     color: $text-muted;
     line-height: 1.4;
     text-align: left;
     opacity: 0.8;
-    padding: 8px 12px;
+    padding: $spacing-sm $spacing-md;
     background-color: $bg-surface-tertiary;
     border-radius: 6px;
     border: 1px solid $border-secondary;
 
     @media (max-width: $breakpoint-modal) {
-        margin-top: 12px;
+        margin-top: $spacing-md;
         padding: 6px 10px;
     }
 

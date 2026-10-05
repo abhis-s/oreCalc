@@ -30,7 +30,6 @@ router.get('/players/:playerTag', async (req, res) => {
             const protectedData = protectedDoc.data();
             const verifiedUuids = protectedData.verifiedUuids || [];
 
-            // Check if this user is already authorized via UUID
             const isAuthorized = userId && verifiedUuids.includes(userId);
 
             if (isAuthorized) {

@@ -30,6 +30,18 @@ export function getSVG(id, className = '', height = 24, width = 24, fill = 'curr
     </svg>`;
 }
 
+/**
+ * Checks whether an SVG symbol exists in the current document's DOM.
+ * @param {string} id - The symbol ID to inspect (with or without 'icon-' prefix or leading '#').
+ * @returns {boolean} True if the element exists in document.
+ */
+export function symbolExists(id) {
+    if (!id || typeof document === 'undefined') return false;
+    const clean = id.startsWith('#') ? id.substring(1) : id;
+    const symbolId = clean.startsWith('icon-') ? clean : `icon-${clean}`;
+    return Boolean(document.getElementById(symbolId));
+}
+
 if (typeof HTMLElement !== 'undefined') {
     class OrecalcAssetsSvg extends HTMLElement {
         static get observedAttributes() {

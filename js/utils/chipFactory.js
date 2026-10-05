@@ -17,7 +17,8 @@ function getChipValidRangeString(chip, data, incomeSource) {
         if (!dateInput) return '';
         const d = typeof dateInput === 'string' ? new Date(dateInput.includes('T') ? dateInput : dateInput + 'T00:00:00Z') : dateInput;
         if (isNaN(d.getTime())) return '';
-        return formatDate(d, { day: '2-digit', month: 'short' });
+        const currentLang = state.uiSettings?.language || 'en';
+        return formatDate(d, { day: '2-digit', month: 'short' }, currentLang);
     };
 
     if (chipStartDate && chipEndDate) {
@@ -34,7 +35,7 @@ function getChipValidRangeString(chip, data, incomeSource) {
         }
         if (validDays.length > 0) {
             const firstDate = new Date(Date.UTC(calYear, calMonth - 1, validDays[0]));
-            const lastDate = new Date(Date.UTC(calYear, calMonth - 1, validDays[validDays.length - 1]));
+            const lastDate = new Date(Date.UTC(calYear, calMonth - 1, validDays.at(-1)));
             return `${formatDateShort(firstDate)} – ${formatDateShort(lastDate)}`;
         }
     }
@@ -46,7 +47,7 @@ function getChipValidRangeString(chip, data, incomeSource) {
                 return translate('views.planner.anyDate');
             }
             const firstItem = scheduled[0];
-            const lastItem = scheduled[scheduled.length - 1];
+            const lastItem = scheduled.at(-1);
 
             const firstDate = firstItem instanceof Date ? firstItem : (firstItem?.startDate || null);
             const lastDate = lastItem instanceof Date ? lastItem : (lastItem?.endDate || lastItem?.startDate || null);
@@ -181,7 +182,7 @@ export function createIncomeChip(text, className, data, month, year, id = null) 
                     }
                 } else {
                     chip.dataset.startDate = scheduledDates[0].toISOString().split('T')[0];
-                    chip.dataset.endDate = scheduledDates[scheduledDates.length - 1].toISOString().split('T')[0];
+                    chip.dataset.endDate = scheduledDates.at(-1).toISOString().split('T')[0];
                 }
             }
         }

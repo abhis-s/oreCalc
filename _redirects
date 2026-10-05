@@ -9,9 +9,13 @@
 
 /ore-calculator   /ore-calculator/        301
 /hero-journey     /hero-journey/          301
+/damage-calculator /damage-calculator/    301
 /de/ore-calculator /de/ore-calculator/    301
 /de/hero-journey  /de/hero-journey/       301
+/de/damage-calculator /de/damage-calculator/ 301
 /tr/ore-calculator /tr/ore-calculator/    301
 /tr/hero-journey  /tr/hero-journey/       301
+/tr/damage-calculator /tr/damage-calculator/ 301
 /zh/ore-calculator /zh/ore-calculator/    301
 /zh/hero-journey  /zh/hero-journey/       301
+/zh/damage-calculator /zh/damage-calculator/ 301

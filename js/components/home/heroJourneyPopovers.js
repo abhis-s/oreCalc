@@ -88,7 +88,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
                 <orecalc-assets-image src="${node.icon}" alt="${itemNameText}" class="popover-img"></orecalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${node.amount}x ${itemNameText}</span>
-                    <span class="popover-badge">${translate('views.home.heroJourney.magicItemBadge')}</span>
+                    <span class="popover-badge">${translate('views.heroJourney.nodes.magicItemBadge')}</span>
                 </div>
             `,
             body: `<p>${descText}</p>`
@@ -106,10 +106,10 @@ export function showNodeTooltip(chip, stateOverride = null) {
                 <orecalc-assets-image src="${node.icon}" alt="${skinNameText}" class="popover-img"></orecalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${popoverTitle}</span>
-                    <span class="popover-badge">${translate('views.home.heroJourney.legendaryHeroSkinBadge')}</span>
+                    <span class="popover-badge">${translate('views.heroJourney.nodes.legendaryHeroSkinBadge')}</span>
                 </div>
             `,
-            body: `<p>${translate('views.home.heroJourney.skinPopoverBody')}</p>`
+            body: `<p>${translate('views.heroJourney.nodes.skinPopoverBody')}</p>`
         });
     } else if (node.type === 'equipment') {
         const appState = stateOverride || globalState;
@@ -120,8 +120,8 @@ export function showNodeTooltip(chip, stateOverride = null) {
             ? `${resolvedNode.fallbackStarry || 50} ${translate('entities.ores.starry')}`
             : getTranslatedEquipmentName(rawKeyOrTitle);
         const translatedHeroName = node.hero ? translate(`entities.heroes.${node.hero}`) : 'Hero';
-        const poolTitle = translate('views.home.heroJourney.poolHeaderTitle', { hero: translatedHeroName });
-        const poolIntro = translate('views.home.heroJourney.poolIntroText');
+        const poolTitle = translate('views.heroJourney.nodes.poolHeaderTitle', { hero: translatedHeroName });
+        const poolIntro = translate('views.heroJourney.nodes.poolIntroText');
 
         const playerCumLevel = Number(appState?.playerProfile?.cumulativeLevel) || (appState?.playerProfile?.ownedHeroes ? getCumulativeHeroLevel(appState.playerProfile.ownedHeroes) : 0);
         const isClaimedByLevel = Boolean(appState?.playerProfile?.tag) && playerCumLevel >= node.level;
@@ -135,29 +135,29 @@ export function showNodeTooltip(chip, stateOverride = null) {
                 let badgeText = '';
                 let badgeClass = '';
                 if (opt.status === 'owned') {
-                    badgeText = translate('views.home.heroJourney.poolOwned');
+                    badgeText = translate('views.heroJourney.nodes.owned');
                     badgeClass = 'badge--owned';
                 } else if (opt.status === 'awardedHere') {
-                    badgeText = translate('views.home.heroJourney.poolAwardedHere');
+                    badgeText = translate('views.heroJourney.nodes.poolAwardedHere');
                     badgeClass = 'badge--awarded';
                 } else if (opt.status === 'nowAwardedAt') {
-                    badgeText = translate('views.home.heroJourney.poolNowAwardedAtLevel', { level: opt.awardedAtLevel || '' });
+                    badgeText = translate('views.heroJourney.nodes.poolNowAwardedAtLevel', { level: opt.awardedAtLevel || '' });
                     badgeClass = 'badge--now-awarded';
                 } else if (opt.status === 'missed') {
-                    badgeText = translate('views.home.heroJourney.poolMissed');
+                    badgeText = translate('views.heroJourney.nodes.poolMissed');
                     badgeClass = 'badge--missed';
                 } else if (opt.status === 'awardedEarlier') {
-                    badgeText = translate('views.home.heroJourney.poolAwardedAtLevel', { level: opt.awardedAtLevel || '' });
+                    badgeText = translate('views.heroJourney.nodes.poolAwardedAtLevel', { level: opt.awardedAtLevel || '' });
                     badgeClass = 'badge--awarded-earlier';
                 } else if (opt.status === 'queued') {
                     if (opt.awardedAtLevel) {
-                        badgeText = translate('views.home.heroJourney.poolAtLevel', { level: opt.awardedAtLevel });
+                        badgeText = translate('views.heroJourney.nodes.poolAtLevel', { level: opt.awardedAtLevel });
                     } else {
-                        badgeText = translate('views.home.heroJourney.poolInQueue');
+                        badgeText = translate('views.heroJourney.nodes.poolInQueue');
                     }
                     badgeClass = 'badge--queued';
                 } else if (opt.status === 'starryFallback') {
-                    badgeText = translate('views.home.heroJourney.fallbackLabel');
+                    badgeText = translate('views.heroJourney.nodes.fallbackLabel');
                     badgeClass = 'badge--starry';
                 }
 
@@ -193,14 +193,14 @@ export function showNodeTooltip(chip, stateOverride = null) {
             const currentItemOpt = resolvedNode.poolOptions?.find(opt => opt.key === resolvedNode.resolvedKey || opt.name === resolvedNode.resolvedName);
             const awardedAtLevel = currentItemOpt?.status === 'nowAwardedAt' ? currentItemOpt.awardedAtLevel : null;
             const desc = awardedAtLevel
-                ? translate('views.home.heroJourney.unownedClaimedDescWithLevel', { level: awardedAtLevel })
-                : translate('views.home.heroJourney.unownedClaimedDesc');
+                ? translate('views.heroJourney.nodes.unownedClaimedDescWithLevel', { level: awardedAtLevel })
+                : translate('views.heroJourney.nodes.unownedClaimedDesc');
 
             unownedAlertHtml = `
                 <div class="popover-unowned-alert">
                     <div class="unowned-alert-title">
                         <orecalc-assets-svg name="close" class="unowned-alert-icon" width="14" height="14"></orecalc-assets-svg>
-                        <span>${translate('views.home.heroJourney.unownedClaimedTitle')}</span>
+                        <span>${translate('views.heroJourney.nodes.equipmentMissingTitle')}</span>
                     </div>
                     <p class="unowned-alert-desc">${desc}</p>
                 </div>
@@ -212,7 +212,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
                 <orecalc-assets-image src="${icon}" alt="${title}" class="popover-img"></orecalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${title}</span>
-                    <span class="popover-badge">${translate('views.home.heroJourney.epicEquipmentBadge')}</span>
+                    <span class="popover-badge">${translate('views.heroJourney.nodes.epicEquipmentBadge')}</span>
                 </div>
             `,
             body: `${unownedAlertHtml}<p>${poolIntro}</p>${poolListHtml || ''}`
@@ -221,20 +221,20 @@ export function showNodeTooltip(chip, stateOverride = null) {
         const appState = stateOverride || globalState;
         const targetName = node.equipmentKey
             ? translate(`entities.equipment.${node.equipmentKey}`)
-            : (node.hero ? translate(`entities.heroes.${node.hero}`) : translate('views.home.heroJourney.heroFallback'));
-        const questTitleText = translate('views.home.heroJourney.questTitleFormat', { name: targetName });
-        const bodyIntroText = translate('views.home.heroJourney.questPopoverBody', { target: targetName });
+            : (node.hero ? translate(`entities.heroes.${node.hero}`) : translate('app.alts.hero'));
+        const questTitleText = translate('views.heroJourney.nodes.questTitleFormat', { name: targetName });
+        const bodyIntroText = translate('views.heroJourney.nodes.questPopoverBody', { target: targetName });
 
         const nodeTH = getNodeTownHallLevel(node.level);
         const effectiveTH = getEffectiveQuestNodeTH(node, appState);
         const rewardMode = appState?.heroJourney?.acceleratedRewards ? 'accelerated' : 'normal';
         const chestRewards = getQuestChestReward(effectiveTH, rewardMode);
 
-        let rangeLabelKey = 'views.home.heroJourney.chestRewardRangeLabel';
+        let rangeLabelKey = 'views.heroJourney.track.chestRewardRangeLabel';
         if (rewardMode === 'accelerated') {
-            rangeLabelKey = 'views.home.heroJourney.chestRewardRangeLabelAccelerated';
+            rangeLabelKey = 'views.heroJourney.track.chestRewardRangeLabelAccelerated';
         } else if (effectiveTH > nodeTH) {
-            rangeLabelKey = 'views.home.heroJourney.chestRewardRangeLabelThScaled';
+            rangeLabelKey = 'views.heroJourney.track.chestRewardRangeLabelThScaled';
         }
 
         const shinyRangeStr = `${formatNumber(chestRewards.minShiny)} - ${formatNumber(chestRewards.maxShiny)}`;
@@ -267,7 +267,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
                 <orecalc-assets-image src="${node.icon}" alt="${questTitleText}" class="popover-img"></orecalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${questTitleText}</span>
-                    <span class="popover-badge">${translate('views.home.heroJourney.heroQuestBadge')}</span>
+                    <span class="popover-badge">${translate('views.heroJourney.nodes.heroQuestBadge')}</span>
                 </div>
             `,
             body: breakdownHtml
@@ -282,10 +282,10 @@ export function showNodeTooltip(chip, stateOverride = null) {
                 <orecalc-assets-image src="${node.icon}" alt="${oreNameText}" class="popover-img"></orecalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${formattedAmount} ${oreNameText}</span>
-                    <span class="popover-badge">${translate('views.home.heroJourney.oreRewardBadge')}</span>
+                    <span class="popover-badge">${translate('views.heroJourney.nodes.oreRewardBadge')}</span>
                 </div>
             `,
-            body: `<p>${translate('views.home.heroJourney.orePopoverBody', { amount: formattedAmount, ore: oreNameText })}</p>`
+            body: `<p>${translate('views.heroJourney.nodes.orePopoverBody', { amount: formattedAmount, ore: oreNameText })}</p>`
         });
     } else if (node.type === 'resource') {
         const resKey = getResourceKey(node.resourceType);
@@ -297,10 +297,10 @@ export function showNodeTooltip(chip, stateOverride = null) {
                 <orecalc-assets-image src="${node.icon}" alt="${resNameText}" class="popover-img"></orecalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${formattedAmount} ${resNameText}</span>
-                    <span class="popover-badge">${translate('views.home.heroJourney.resourceRewardBadge')}</span>
+                    <span class="popover-badge">${translate('views.heroJourney.nodes.resourceRewardBadge')}</span>
                 </div>
             `,
-            body: `<p>${translate('views.home.heroJourney.resourcePopoverBody', { amount: formattedAmount, resource: resNameText })}</p>`
+            body: `<p>${translate('views.heroJourney.nodes.resourcePopoverBody', { amount: formattedAmount, resource: resNameText })}</p>`
         });
     }
 }

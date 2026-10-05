@@ -81,7 +81,7 @@ test('translate switches translation based on selected language', async () => {
 test('translate falls back to English with [EN] prefix when missing in non-English language', async () => {
     state.uiSettings = { language: 'de' };
     const tempDe = JSON.parse(JSON.stringify(deJson));
-    delete tempDe.views.settings.github; // remove a key from German to simulate missing translation
+    delete tempDe.views.settings.about.github; // remove a key from German to simulate missing translation
 
     globalThis.fetch = async (url) => {
         if (url.includes('/en.json')) return { ok: true, json: async () => enJson };
@@ -92,8 +92,8 @@ test('translate falls back to English with [EN] prefix when missing in non-Engli
     await loadTranslations('en');
     await loadTranslations('de');
 
-    const result = translate('views.settings.github');
-    assert.equal(result, `[EN] ${enJson.views.settings.github}`);
+    const result = translate('views.settings.about.github');
+    assert.equal(result, `[EN] ${enJson.views.settings.about.github}`);
 });
 
 test('translate formats placeholders correctly', async () => {
@@ -123,7 +123,7 @@ test('updateUIWithTranslations updates DOM elements with data-i18n and data-i18n
 
     const el = {
         attributes: {
-            'data-i18n': 'views.home.heroJourney.nodeLevel',
+            'data-i18n': 'views.heroJourney.nodes.nodeLevel',
             'data-i18n-args': JSON.stringify({ level: 480 })
         },
         getAttribute(k) { return this.attributes[k] || null; },

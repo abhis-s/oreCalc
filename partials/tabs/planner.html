@@ -19,7 +19,7 @@
                 <div id="planner-calendar-card" class="full-width-planner-section card">
                     <h2 class="calendar-planner-title">
                         <span data-i18n="views.planner.calendarTitle"></span>
-                        <button class="info-btn" data-info="views.planner.calendarHelp" data-i18n-aria-label="actions.showInfo">
+                        <button type="button" class="info-btn" data-info="views.planner.calendarHelp" data-i18n-aria-label="actions.showInfo">
                             <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                         </button>
                     </h2>
@@ -30,13 +30,13 @@
                             </div>
 
                             <div class="calendar-action-buttons">
-                                <button id="calendar-settings-btn" class="icon-button planner-action-button" data-i18n-aria-label="actions.calendarSettings">
-                                    <orecalc-assets-svg name="settings-outline"></orecalc-assets-svg>
+                                <button type="button" id="calendar-settings-btn" class="icon-button planner-action-button" data-i18n-aria-label="views.planner.actions.calendarSettings">
+                                    <orecalc-assets-svg name="settings-filled"></orecalc-assets-svg>
                                 </button>
-                                <button id="delete-current-month-chips-btn" class="icon-button planner-action-button" data-i18n-aria-label="actions.deleteMonthChips">
+                                <button type="button" id="delete-current-month-chips-btn" class="icon-button planner-action-button" data-i18n-aria-label="views.planner.actions.deleteMonthChips">
                                     <orecalc-assets-svg name="trash"></orecalc-assets-svg>
                                 </button>
-                                <button id="delete-all-chips-btn" class="icon-button planner-action-button" data-i18n-aria-label="actions.deleteAllChips">
+                                <button type="button" id="delete-all-chips-btn" class="icon-button planner-action-button" data-i18n-aria-label="views.planner.actions.deleteAllChips">
                                     <orecalc-assets-svg name="trash-sweep"></orecalc-assets-svg>
                                 </button>
                             </div>
@@ -48,22 +48,24 @@
                                 <!-- DYNAMIC INSERTION: Calendar month grids -->
                             </div>
                         </div>
-                        <div id="month-chip-container" class="month-chip-container"></div>
+                        <div id="month-chip-container" class="month-chip-container">
+                            <!-- DYNAMIC INSERTION: Calendar month chip items -->
+                        </div>
                     </div>
                     <div class="inner-card" id="income-chips-card">
                         <div class="income-chips-header">
                             <h3 class="income-chips-title">
                                 <span class="full-title" data-i18n="views.income.chipsTitle"></span>
                                 <span class="short-title" data-i18n="views.income.chips"></span>
-                                <button class="info-btn" data-info="views.planner.incomeChipsHelp" data-i18n-aria-label="actions.showInfo">
+                                <button type="button" class="info-btn" data-info="views.planner.incomeChipsHelp" data-i18n-aria-label="actions.showInfo">
                                     <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                                 </button>
                             </h3>
                             <div class="income-chips-actions">
-                                <button id="create-custom-chips-btn" class="icon-button create-custom-chips-btn" title="Create Custom Chips" data-i18n-aria-label="actions.createCustomChips">
+                                <button type="button" id="create-custom-chips-btn" class="icon-button create-custom-chips-btn" title="Create Custom Chips" data-i18n-aria-label="views.planner.actions.createCustomChips" data-i18n-title="views.planner.actions.createCustomChips">
                                     <orecalc-assets-svg name="edit" width="20" height="20"></orecalc-assets-svg>
                                 </button>
-                                <button id="auto-place-chips-btn" class="auto-place-chips-btn" data-i18n="actions.autoPlace"></button>
+                                <button type="button" id="auto-place-chips-btn" class="auto-place-chips-btn" data-i18n="views.planner.actions.autoPlace"></button>
                             </div>
                         </div>
                         <div id="income-chips-container" class="income-chips-container">

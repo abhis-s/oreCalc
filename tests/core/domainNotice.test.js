@@ -92,14 +92,14 @@ test('buildClashCalcTargetUrl carries over userId and player tag query parameter
     const urlWithParams = buildClashCalcTargetUrl({
         currentPath: '/',
         userId: 'usr_abc1234567890',
-        activePlayerTag: '#9PP0V2RGY'
+        activePlayerTag: '#8PJYGUJC'
     });
 
     const parsed = new URL(urlWithParams);
     assert.equal(parsed.origin, 'https://clashcalc.com');
     assert.equal(parsed.pathname, '/ore-calculator/');
     assert.equal(parsed.searchParams.get('userId'), 'usr_abc1234567890');
-    assert.equal(parsed.searchParams.get('tag'), '#9PP0V2RGY');
+    assert.equal(parsed.searchParams.get('tag'), '#8PJYGUJC');
 });
 
 test('buildClashCalcTargetUrl ignores default tag placeholder and trims whitespace', () => {
@@ -143,7 +143,7 @@ test('buildClashCalcTargetUrl strips domainNotice and testDomainNotice test flag
         currentPath: '/',
         currentSearch: '?domainNotice=true&testDomainNotice=true&customParam=hello',
         userId: 'usr_abc',
-        activePlayerTag: '#9PP0V2RGY'
+        activePlayerTag: '#8PJYGUJC'
     });
 
     const parsed = new URL(targetUrl);
@@ -151,5 +151,5 @@ test('buildClashCalcTargetUrl strips domainNotice and testDomainNotice test flag
     assert.equal(parsed.searchParams.has('testDomainNotice'), false);
     assert.equal(parsed.searchParams.get('customParam'), 'hello');
     assert.equal(parsed.searchParams.get('userId'), 'usr_abc');
-    assert.equal(parsed.searchParams.get('tag'), '#9PP0V2RGY');
+    assert.equal(parsed.searchParams.get('tag'), '#8PJYGUJC');
 });

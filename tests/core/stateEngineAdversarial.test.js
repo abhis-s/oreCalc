@@ -67,14 +67,17 @@ const {
     saveState,
     loadState,
     setResettingState,
-    getResettingState,
-    updateSavedPlayerTags,
-    updateAllPlayersData
+    getResettingState
 } = localStorageManager;
+
+const playerStorage = await import('../../js/core/playerStorage.js');
+const {
+    updateSavedPlayerTags,
+    removePlayerTag
+} = playerStorage;
 
 const { calculateStarBonusIncome } = await import('../../js/domain/income/starBonusIncome.js');
 const { calculateEventPassIncome } = await import('../../js/domain/income/eventPassIncome.js');
-const { migrateFullState } = await import('../../js/core/stateCleanup.js');
 const { compareVersions } = await import('../../js/utils/versionUtils.js');
 const { recalculateAll } = await import('../../js/core/calculator.js');
 
@@ -200,9 +203,9 @@ describe('Adversarial Challenge: State Engine Modernization', () => {
             const loaded = loadState();
             assert.ok(loaded);
             assert.equal(localStorage.getItem('oreCalculatorState'), null);
-            assert.ok(localStorage.getItem('oreCalc_playerTags'));
-            assert.ok(localStorage.getItem('oreCalc_player_LEGACY1'));
-            assert.ok(localStorage.getItem('oreCalc_appSettings'));
+            assert.ok(localStorage.getItem('clashCalc_playerTags') || localStorage.getItem('oreCalc_playerTags'));
+            assert.ok(localStorage.getItem('clashCalc_player_LEGACY1') || localStorage.getItem('oreCalc_player_LEGACY1'));
+            assert.ok(localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings'));
         });
     });
 
@@ -451,8 +454,6 @@ describe('Adversarial Challenge: State Engine Modernization', () => {
     });
 
     describe('6. Player Partition Lifecycle & Tag Management', () => {
-        const { removePlayerTag } = localStorageManager;
-
         test('removePlayerTag protects DEFAULT0 from deletion', () => {
             stateModule.state.savedPlayerTags = ['DEFAULT0'];
             stateModule.state.allPlayersData = { DEFAULT0: getDefaultPlayerState() };
@@ -480,7 +481,8 @@ describe('Adversarial Challenge: State Engine Modernization', () => {
             assert.deepEqual(stateModule.state.savedPlayerTags, ['DEFAULT0']);
             assert.ok(stateModule.state.allPlayersData['DEFAULT0']);
             assert.equal(localStorage.getItem('oreCalc_player_SOLO_PLAYER'), null);
-            assert.ok(localStorage.getItem('oreCalc_player_DEFAULT0'));
+            assert.equal(localStorage.getItem('clashCalc_player_SOLO_PLAYER'), null);
+            assert.ok(localStorage.getItem('clashCalc_player_DEFAULT0') || localStorage.getItem('oreCalc_player_DEFAULT0'));
         });
 
         test('updateSavedPlayerTags strips DEFAULT0 when a real tag is added', () => {

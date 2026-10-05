@@ -1,51 +1,14 @@
-@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 @use '../base/placeholder';
 
 // --- 1. DESKTOP HEADER & APP BAR ---
 .header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    @include app-header-shell;
     flex-wrap: nowrap;
-
-    height: 64px;
-    box-sizing: border-box;
-    padding: 0 24px;
-    background-color: color-mix(in srgb, $bg-surface-secondary 45%, transparent);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid color-mix(in srgb, $border-primary 35%, transparent);
-    border-radius: 20px;
-    max-width: 1170px;
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    right: 15px;
-    margin-inline: auto;
-    width: auto;
-    z-index: $z-index-layout;
-    isolation: isolate;
-    transform: translateZ(0);
-    will-change: transform;
-
-    transition: background-color $duration-moderate $ease-smooth,
-                top $duration-moderate $ease-smooth,
-                box-shadow $duration-moderate $ease-smooth,
-                border-color $duration-moderate $ease-smooth,
-                backdrop-filter $duration-moderate $ease-smooth;
-
-    &.is-scrolled {
-        background-color: color-mix(in srgb, $bg-surface-secondary 65%, transparent);
-        backdrop-filter: blur(28px);
-        -webkit-backdrop-filter: blur(28px);
-        border-color: color-mix(in srgb, $border-primary 60%, transparent);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
 }
 
 .header-placeholder {
-    display: block;
-    height: 91px;
+    @include app-header-placeholder;
 }
 
 .hamburger {
@@ -58,7 +21,11 @@
     outline: none;
     width: 40px;
     height: 40px;
-    border-radius: 8px;
+    border-radius: $shape-corner-small;
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
     transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
 
     @media (hover: hover) {
@@ -86,20 +53,79 @@
 .header-brand {
     display: flex;
     align-items: center;
-    cursor: pointer;
+    gap: $spacing-sm;
     user-select: none;
     flex-shrink: 0;
+
+    .brand-title-link {
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+
+        &:hover .brand-title {
+            opacity: 0.85;
+        }
+    }
 
     .brand-title {
         font-size: 20px;
         font-weight: 800;
         margin: 0;
-        background: linear-gradient(135deg, $accent-primary 30%, #a8c0ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         letter-spacing: -0.5px;
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         transition: opacity $duration-base $ease-smooth;
+
+        @include brand-gradient-split;
+    }
+
+    .brand-separator {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: $text-muted;
+        margin: 0;
+        line-height: 1;
+        user-select: none;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .brand-page-pill {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        padding: 3px $spacing-sm;
+        font-size: 0.72rem;
+        font-weight: 700;
+        border-radius: $shape-corner-full;
+        background: color-mix(in srgb, $accent-primary 15%, $bg-surface-secondary);
+        color: $accent-primary;
+        border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
+        cursor: default;
+        user-select: none;
+        pointer-events: none;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+    }
+
+    &.is-compact {
+        .brand-separator,
+        .brand-page-pill {
+            display: none;
+        }
+    }
+
+    &.is-minimal {
+        .brand-title {
+            display: none;
+        }
+    }
+
+    @media (max-width: $breakpoint-phone) {
+        .brand-separator,
+        .brand-page-pill {
+            display: none;
+        }
     }
 }
 
@@ -108,13 +134,24 @@
     align-items: center;
     background-color: $bg-surface-tertiary;
     border: 1px solid $border-primary;
-    border-radius: 99px;
-    padding: 4px;
-    gap: 2px;
+    border-radius: $shape-corner-full;
+    padding: $spacing-xs;
+    gap: $spacing-2xs;
     margin: 0 auto;
     overflow: hidden;
     flex-grow: 0;
     flex-shrink: 0;
+    transition: padding $duration-fast $ease-smooth, gap $duration-fast $ease-smooth;
+
+    &.is-compact {
+        padding: 3px;
+        gap: 1px;
+
+        .tab-button {
+            padding: 5px $spacing-sm;
+            font-size: var(--font-size-xs);
+        }
+    }
 
     overflow-x: auto;
     scrollbar-width: none;
@@ -126,11 +163,11 @@
         flex-shrink: 0;
         background-color: transparent;
         border: none;
-        border-radius: 99px;
+        border-radius: $shape-corner-full;
         color: $text-secondary;
         font-size: var(--font-size-sm);
         font-weight: 600;
-        padding: 6px 16px;
+        padding: 6px $spacing-lg;
         cursor: pointer;
         box-shadow: none;
         transition: background-color $duration-fast $ease-smooth,
@@ -156,12 +193,13 @@
 }
 
 .player-dropdown-container {
-    margin-left: 12px;
-    flex-shrink: 0;
+    margin-left: auto;
+    flex: 0 1 auto;
+    min-width: 76px;
+    max-width: 180px;
 }
 
 .data-buttons-container {
-    margin-left: 12px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -170,7 +208,7 @@
         min-height: 36px;
         min-width: auto;
         padding: 6px 14px;
-        border-radius: 99px;
+        border-radius: $shape-corner-full;
         font-size: var(--font-size-xs);
         font-weight: 600;
 
@@ -182,126 +220,26 @@
 }
 
 // --- 2. RESPONSIVE & MOBILE HEADER ---
-@media (min-width: $breakpoint-desktop) {
-    @media (max-width: 1200px) {
-        .data-buttons-container #refresh-button {
-            padding: 6px 10px;
-            .animated-btn-text {
-                display: none;
-            }
-            .animated-btn-icon-wrapper {
-                opacity: 1;
-                transform: translateY(0);
-                position: relative;
-                width: 100%;
-                height: 100%;
-            }
-        }
-    }
+.data-buttons-container #refresh-button.is-icon-only {
+    @include header-action-btn-collapse;
+}
 
-    @media (max-width: 960px) {
-        .header-container {
-            padding: 0 16px;
-
-            .header-brand .brand-title {
-                display: none;
-            }
-        }
-
-        .tab-bar-container {
-            margin-left: 0;
-            margin-right: auto;
-        }
-
-        .player-dropdown-container {
-            width: 130px;
-        }
-
-        .player-dropdown-button {
-            padding: 10px 10px;
-        }
-
-        #selected-player-name {
-            max-width: 65px;
-        }
+@container header-shell (max-width: #{$container-header-wide}) {
+    .data-buttons-container #refresh-button {
+        @include header-action-btn-collapse;
     }
 }
 
 @media (max-width: #{$breakpoint-desktop - 1px}) {
-    .header-container {
-        height: 56px;
-        top: 10px;
-        left: 10px;
-        right: 10px;
-        padding: 0 12px;
-        border-radius: 14px;
-        width: auto;
-    }
-
-    .header-placeholder {
-        height: 78px;
-    }
-
     .hamburger {
         display: flex;
-        margin-right: 8px;
     }
 
-    .header-brand {
-        margin-right: auto;
-
-        .brand-title {
-            display: block;
-            font-size: 18px;
-        }
+    .header-brand .brand-title {
+        font-size: 18px;
     }
 
     .tab-bar-container {
         display: none !important;
-    }
-
-    .player-dropdown-container {
-        margin-left: 8px;
-        width: 130px;
-    }
-
-    #selected-player-name {
-        max-width: 65px;
-    }
-
-    .data-buttons-container {
-        margin-left: 8px;
-
-        #refresh-button {
-            min-width: 36px;
-            width: 36px;
-            height: 36px;
-            min-height: 36px;
-            padding: 0;
-            border-radius: 50%;
-
-            .animated-btn-text {
-                display: none;
-            }
-
-            .animated-btn-icon-wrapper {
-                opacity: 1;
-                transform: translateY(0);
-                position: relative;
-                width: 100%;
-                height: 100%;
-
-                svg {
-                    width: 15px;
-                    height: 15px;
-                }
-            }
-        }
-    }
-
-    @media (max-width: $breakpoint-compact) {
-        .header-container .header-brand .brand-title {
-            display: none;
-        }
     }
 }

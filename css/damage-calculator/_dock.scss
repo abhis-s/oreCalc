@@ -1,0 +1,283 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-mobile-dock-backdrop {
+    display: none;
+
+    @media (max-width: $breakpoint-modal) {
+        position: fixed;
+        inset: 0;
+        z-index: $z-index-drawer-backdrop;
+        background-color: $bg-overlay;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity $transition-smooth;
+
+        &.is-active {
+            display: block;
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+}
+
+.calc-mobile-spell-dock {
+    display: none;
+
+    @media (max-width: $breakpoint-modal) {
+        display: flex;
+        flex-direction: column-reverse;
+        position: fixed;
+        bottom: calc(15px + 66px + #{$spacing-xs});
+        left: 15px;
+        right: 15px;
+        z-index: $z-index-layout;
+        background-color: color-mix(in srgb, $bg-surface-primary 95%, transparent);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid $border-card;
+        border-radius: $shape-corner-medium;
+        box-shadow: $elevation-3;
+        padding-inline: $spacing-md;
+        padding-block: $spacing-xs;
+        box-sizing: border-box;
+        overflow: hidden;
+        transition: transform $duration-slow $ease-enter,
+                    opacity $duration-fast $ease-smooth,
+                    border-color $duration-fast,
+                    box-shadow $duration-moderate $ease-smooth;
+
+        &.is-expanded {
+            z-index: $z-index-drawer;
+            box-shadow: $elevation-4;
+            border-color: $border-card-hover;
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        &.is-scrolled-down,
+        &.is-hidden {
+            &:not(.is-expanded) {
+                transform: translateY(calc(100% + 90px));
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        left: 8px;
+        right: 8px;
+        padding-inline: $spacing-sm;
+    }
+
+    &__bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-sm;
+        min-height: 48px;
+        width: 100%;
+        box-sizing: border-box;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    &__title {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $text-secondary;
+        white-space: nowrap;
+        user-select: none;
+        flex-shrink: 0;
+
+        &--indestructible {
+            color: $color-warning;
+        }
+    }
+
+    &__recipe {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        margin-left: auto;
+        flex-shrink: 0;
+        max-width: 55%;
+        overflow-x: auto;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        .calc-combo-item {
+            display: inline-flex;
+            align-items: center;
+            gap: $spacing-xs;
+        }
+
+        .calc-combo-plus {
+            font-size: $font-size-xs;
+            color: $text-muted;
+            font-weight: $font-weight-bold;
+            user-select: none;
+        }
+
+        .calc-equip-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: $spacing-2xs;
+            width: 36px;
+            height: 36px;
+            background-color: $bg-surface-tertiary;
+            border: 1px solid $border-card;
+            border-radius: $shape-corner-small;
+            box-sizing: border-box;
+
+            &__icon {
+                width: 28px;
+                height: 28px;
+                object-fit: contain;
+            }
+        }
+
+        .calc-spell-badge {
+            padding-block: $spacing-2xs;
+            padding-inline-start: $spacing-xs;
+            padding-inline-end: $spacing-2xs;
+            gap: $spacing-2xs;
+            height: 36px;
+            box-sizing: border-box;
+
+            &__multiplier {
+                font-size: $font-size-xs;
+            }
+
+            &__icon {
+                width: 28px;
+                height: 28px;
+            }
+        }
+    }
+
+    &__toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        padding: 0;
+        flex-shrink: 0;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-card;
+        border-radius: $shape-corner-small;
+        color: $text-primary;
+        cursor: pointer;
+        box-sizing: border-box;
+        transition: background-color $transition-fast, transform $transition-fast;
+
+        &:hover {
+            background-color: $bg-surface-tertiary;
+        }
+
+        &:focus-visible {
+            outline: 2px solid $accent-primary;
+            outline-offset: 2px;
+        }
+    }
+
+    &__chevron {
+        transform: rotate(180deg);
+        transition: transform $duration-slow $ease-enter;
+
+        &.is-expanded {
+            transform: rotate(0deg);
+        }
+    }
+
+    &__drawer {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+        height: 0;
+        max-height: 0;
+        opacity: 0;
+        visibility: hidden;
+        overflow: hidden;
+        transform: translateY(24px);
+        padding-block: 0;
+        border-bottom: 1px solid transparent;
+        margin-block-end: 0;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, $accent-primary 35%, transparent) transparent;
+        transition: height $duration-slow $ease-enter,
+                    max-height $duration-slow $ease-enter,
+                    transform $duration-slow $ease-enter,
+                    opacity $duration-moderate $ease-smooth,
+                    visibility $duration-slow $ease-enter,
+                    padding $duration-slow $ease-enter,
+                    margin $duration-slow $ease-enter,
+                    border-color $duration-fast;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: color-mix(in srgb, $accent-primary 35%, transparent);
+            border-radius: $shape-corner-full;
+        }
+
+        &.is-expanded {
+            height: calc(100dvh - (15px + 66px + #{$spacing-xs}) - 48px - #{$spacing-lg} - #{$spacing-2xl} - env(safe-area-inset-top, 0px));
+            max-height: calc(100dvh - (15px + 66px + #{$spacing-xs}) - 48px - #{$spacing-lg} - #{$spacing-2xl} - env(safe-area-inset-top, 0px));
+            opacity: 1;
+            visibility: visible;
+            overflow-y: auto;
+            transform: translateY(0);
+            padding-block-start: $spacing-md;
+            padding-block-end: $spacing-sm;
+            border-bottom: 1px solid $border-card;
+            margin-block-end: $spacing-xs;
+        }
+    }
+}
+
+// Search input focus & keyboard avoidance
+body:has(#zq-search-input:focus) .calc-mobile-spell-dock:not(.is-expanded) {
+    transform: translateY(calc(100% + 90px));
+    opacity: 0;
+    pointer-events: none;
+}
+
+// Modal, Drawer & Popover Suppression
+body:has(dialog.modal[open]) .calc-mobile-spell-dock,
+body:has(.modal.show) .calc-mobile-spell-dock,
+body:has(dialog.navigation-drawer[open]) .calc-mobile-spell-dock,
+body:has(.app-settings-popover.is-open) .calc-mobile-spell-dock,
+body:has(.app-account-popover.is-open) .calc-mobile-spell-dock {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+body:has(dialog.modal[open]) .calc-mobile-dock-backdrop,
+body:has(.modal.show) .calc-mobile-dock-backdrop,
+body:has(dialog.navigation-drawer[open]) .calc-mobile-dock-backdrop,
+body:has(.app-settings-popover.is-open) .calc-mobile-dock-backdrop,
+body:has(.app-account-popover.is-open) .calc-mobile-dock-backdrop {
+    display: none !important;
+}

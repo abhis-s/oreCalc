@@ -56,7 +56,7 @@ function checkModuleImportBindings() {
         const dir = path.dirname(file);
         const relPath = path.relative(projectRoot, file);
 
-        // 1. Static imports: import ... from "./..."
+        // Static imports: import ... from "./..."
         const staticImportRegex = /from\s*['"]([^'"]+)['"]/g;
         let match;
         while ((match = staticImportRegex.exec(content)) !== null) {
@@ -70,7 +70,7 @@ function checkModuleImportBindings() {
             }
         }
 
-        // 2. Dynamic imports: import("./...")
+        // Dynamic imports: import("./...")
         const dynamicImportRegex = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
         while ((match = dynamicImportRegex.exec(content)) !== null) {
             const importPath = match[1];
@@ -83,7 +83,7 @@ function checkModuleImportBindings() {
             }
         }
 
-        // 3. Named export verification: import { foo } from "./path.js"
+        // Named export verification: import { foo } from "./path.js"
         const namedImportRegex = /import\s*\{([^}]+)\}\s*from\s*['"]([^'"]+)['"]/g;
         while ((match = namedImportRegex.exec(content)) !== null) {
             const symbols = match[1].split(',').map(s => s.trim().split(/\s+as\s+/)[0]).filter(Boolean);
@@ -107,7 +107,7 @@ function checkModuleImportBindings() {
             }
         }
 
-        // 4. Late Static Import Detection (imports must be at top of module)
+        // Late Static Import Detection (imports must be at top of module)
         if (file.endsWith('.js') && !file.includes('/tests/') && !file.includes('/scripts/') && !file.includes('/server/')) {
             const rawLines = fs.readFileSync(file, 'utf8').split('\n');
             let seenNonImportCode = false;
@@ -230,7 +230,7 @@ async function checkInlineHtmlScriptSyntax(eslint) {
             const scriptBody = match[1];
 
             if (/src\s*=/i.test(scriptOpeningTag)) continue;
-            if (/type\s*=\s*['"]application\/(?:ld\+)?json['"]/i.test(scriptOpeningTag)) continue;
+            if (/type\s*=\s*['"](?:application\/(?:ld\+)?json|importmap)['"]/i.test(scriptOpeningTag)) continue;
             if (!scriptBody.trim()) continue;
 
             const isModule = /type\s*=\s*['"]module['"]/i.test(scriptOpeningTag);
@@ -260,20 +260,20 @@ async function checkInlineHtmlScriptSyntax(eslint) {
  * Main execution runner.
  */
 async function main() {
-    console.log('--- Static Scope & Undefined Variable Linter ---');
+    console.log('--- Static Scope, Undefined & Unused Variable Linter ---');
 
-    // 1. Check module import/export bindings
+    // Check module import/export bindings
     const bindingErrors = checkModuleImportBindings();
 
-    // 2. Check safe JSON parsing enforcement
+    // Check safe JSON parsing enforcement
     const jsonErrors = checkSafeJsonParsing();
 
     const eslint = new ESLint();
 
-    // 3. Check HTML inline script syntax
+    // Check HTML inline script syntax
     const inlineScriptErrors = await checkInlineHtmlScriptSyntax(eslint);
 
-    // 4. ESLint scope analysis
+    // ESLint scope analysis
     const results = await eslint.lintFiles([
         'js/**/*.js',
         'tests/**/*.js',
@@ -299,13 +299,13 @@ async function main() {
     const totalErrors = bindingErrors + jsonErrors + inlineScriptErrors + eslintErrorCount;
 
     if (totalErrors === 0) {
-        console.log('[OK] All JavaScript modules pass strict static scope & undefined identifier checks.');
+        console.log('[OK] All JavaScript modules pass strict static scope, undefined identifier, and unused variable checks.');
         console.log('[OK] All HTML inline <script> blocks pass strict JavaScript syntax validation.');
         console.log('[OK] All import bindings and named exports resolve cleanly.');
         console.log('[OK] All JSON deserialization routed via safeJsonParse.\n');
         process.exit(0);
     } else {
-        console.error(`\n[FAIL] Found ${totalErrors} unresolved or undeclared symbol error(s).\n`);
+        console.error(`\n[FAIL] Found ${totalErrors} unresolved, undeclared, or unused symbol error(s).\n`);
         process.exit(1);
     }
 }

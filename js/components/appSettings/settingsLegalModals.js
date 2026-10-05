@@ -1,12 +1,9 @@
 import { licensesData } from '../../data/licensesData.js';
 import { translate } from '../../i18n/translator.js';
 
-import { EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_TERMS, state } from '../../core/state.js';
-import { handleStateUpdate } from '../../core/stateManager.js';
+import { state } from '../../core/state.js';
 
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
-
-import { dom } from '../../dom/domElements.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
 /**
  * Opens the Open Source Licenses legal dialog and renders license packages.
@@ -65,7 +62,7 @@ export function openLicensesModal() {
             metaDiv.className = 'meta-row';
 
             const authorSpan = document.createElement('span');
-            authorSpan.innerHTML = `<strong>${translate('views.settings.author')}:</strong> ${item.copyright}`;
+            authorSpan.innerHTML = `<strong>${translate('views.settings.about.author')}:</strong> ${item.copyright}`;
             metaDiv.appendChild(authorSpan);
 
             const link = document.createElement('a');
@@ -75,7 +72,7 @@ export function openLicensesModal() {
             link.className = 'license-link';
 
             const linkText = document.createElement('span');
-            linkText.textContent = translate('views.settings.sourceLink');
+            linkText.textContent = translate('views.settings.about.sourceLink');
             link.appendChild(linkText);
 
             const svgIcon = document.createElement('orecalc-assets-svg');
@@ -87,7 +84,7 @@ export function openLicensesModal() {
 
             const pre = document.createElement('pre');
             pre.className = 'license-text';
-            pre.textContent = translate('views.settings.loadingLicense');
+            pre.textContent = translate('views.settings.about.loadingLicense');
             detailsBody.appendChild(pre);
 
             let isLoaded = false;
@@ -123,7 +120,7 @@ export function openLicensesModal() {
                                 isLoaded = true;
                             })
                             .catch(err => {
-                                pre.textContent = `${translate('views.settings.errorLoadingLicense')}\n\n${item.licenseUrl ? 'Please view it here: ' + item.licenseUrl : ''}`;
+                                pre.textContent = `${translate('views.settings.about.errorLoadingLicense')}\n\n${item.licenseUrl ? translate('views.settings.about.viewLicenseHere', { url: item.licenseUrl }) : ''}`;
                                 console.error('Error fetching license:', err);
                             });
                     }
@@ -135,8 +132,7 @@ export function openLicensesModal() {
         });
     }
 
-    modal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
+    openModal(modal);
 }
 
 /**
@@ -148,9 +144,6 @@ export function openPrivacyModal() {
 
     if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
-
-    const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
-    const needsConsent = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
 
     const closeHeaderBtn = document.getElementById('close-privacy-header-btn');
     const closeBtn = document.getElementById('close-privacy-modal-btn');
@@ -167,10 +160,9 @@ export function openPrivacyModal() {
     const initialUrl = hasTranslation ? `/${currentLang}/privacy/` : '/privacy/';
 
     if (translateBtn) {
-        if (!hasTranslation) {
-            translateBtn.style.display = 'none';
-        } else {
-            translateBtn.style.display = 'inline-flex';
+        translateBtn.hidden = !hasTranslation;
+        translateBtn.style.display = hasTranslation ? 'inline-flex' : 'none';
+        if (hasTranslation) {
             translateBtn.onclick = (e) => {
                 e.preventDefault();
                 showingEnglish = !showingEnglish;
@@ -212,77 +204,29 @@ export function openPrivacyModal() {
 
     const closeModal = () => {
         closeModalAnimated(modal);
-        modal.classList.remove('modal-top');
-    };
-
-    const handleAccept = () => {
-        handleStateUpdate(() => {
-            if (!state.uiSettings.uiTimestamps) {
-                state.uiSettings.uiTimestamps = {};
-            }
-            state.uiSettings.uiTimestamps.privacy = Date.now();
-        }, true);
-        closeModal();
-    };
-
-    const handleDecline = () => {
-        closeModal();
     };
 
     if (closeHeaderBtn) {
         closeHeaderBtn.onclick = (e) => {
             e.preventDefault();
-            if (needsConsent) {
-                handleDecline();
-            } else {
-                closeModal();
-            }
+            closeModal();
         };
     }
 
     if (closeBtn) {
         closeBtn.className = 'reject-button';
-        if (needsConsent) {
-            closeBtn.textContent = translate('actions.cancel');
-            closeBtn.setAttribute('data-i18n', 'actions.cancel');
-            closeBtn.onclick = (e) => {
-                e.preventDefault();
-                handleDecline();
-            };
-        } else {
-            closeBtn.textContent = translate('actions.close');
-            closeBtn.setAttribute('data-i18n', 'actions.close');
-            closeBtn.onclick = (e) => {
-                e.preventDefault();
-                closeModal();
-            };
-        }
+        closeBtn.textContent = translate('actions.close');
+        closeBtn.setAttribute('data-i18n', 'actions.close');
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
     }
 
-    let acceptBtn = document.getElementById('accept-privacy-modal-btn') || document.getElementById('privacy-accept-btn');
-    if (needsConsent) {
-        if (!acceptBtn && closeBtn && closeBtn.parentNode) {
-            acceptBtn = document.createElement('button');
-            acceptBtn.id = 'accept-privacy-modal-btn';
-            acceptBtn.className = 'accept-button';
-            acceptBtn.textContent = translate('actions.accept');
-            acceptBtn.setAttribute('data-i18n', 'actions.accept');
-            closeBtn.parentNode.insertBefore(acceptBtn, closeBtn.nextSibling);
-        }
-        if (acceptBtn) {
-            acceptBtn.className = 'accept-button';
-            acceptBtn.style.display = 'inline-flex';
-            acceptBtn.textContent = translate('actions.accept');
-            acceptBtn.setAttribute('data-i18n', 'actions.accept');
-            acceptBtn.onclick = (e) => {
-                e.preventDefault();
-                handleAccept();
-            };
-        }
-    } else {
-        if (acceptBtn) {
-            acceptBtn.style.display = 'none';
-        }
+    const acceptBtn = document.getElementById('accept-privacy-modal-btn') || document.getElementById('privacy-accept-btn');
+    if (acceptBtn) {
+        acceptBtn.hidden = true;
+        acceptBtn.style.display = 'none';
     }
 
     if (iframe) {
@@ -319,8 +263,7 @@ export function openPrivacyModal() {
         }
     }
 
-    modal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
+    openModal(modal);
 }
 
 /**
@@ -332,9 +275,6 @@ export function openTermsOfUseModal() {
 
     if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
-
-    const tosTimestamp = state.uiSettings?.uiTimestamps?.tos ?? state.uiSettings?.uiTimestamps?.terms;
-    const needsConsent = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
 
     const closeHeaderBtn = document.getElementById('close-terms-header-btn');
     const closeBtn = document.getElementById('close-terms-modal-btn');
@@ -351,10 +291,9 @@ export function openTermsOfUseModal() {
     const initialUrl = hasTranslation ? `/${currentLang}/terms/` : '/terms/';
 
     if (translateBtn) {
-        if (!hasTranslation) {
-            translateBtn.style.display = 'none';
-        } else {
-            translateBtn.style.display = 'inline-flex';
+        translateBtn.hidden = !hasTranslation;
+        translateBtn.style.display = hasTranslation ? 'inline-flex' : 'none';
+        if (hasTranslation) {
             translateBtn.onclick = (e) => {
                 e.preventDefault();
                 showingEnglish = !showingEnglish;
@@ -396,81 +335,30 @@ export function openTermsOfUseModal() {
 
     const closeModal = () => {
         closeModalAnimated(modal);
-        modal.classList.remove('modal-top');
         document.dispatchEvent(new CustomEvent('terms:close'));
-    };
-
-    const handleAccept = () => {
-        handleStateUpdate(() => {
-            if (!state.uiSettings.uiTimestamps) {
-                state.uiSettings.uiTimestamps = {};
-            }
-            state.uiSettings.uiTimestamps.tos = Date.now();
-            if ('terms' in state.uiSettings.uiTimestamps) {
-                delete state.uiSettings.uiTimestamps.terms;
-            }
-        }, true);
-        closeModal();
-    };
-
-    const handleDecline = () => {
-        closeModal();
     };
 
     if (closeHeaderBtn) {
         closeHeaderBtn.onclick = (e) => {
             e.preventDefault();
-            if (needsConsent) {
-                handleDecline();
-            } else {
-                closeModal();
-            }
+            closeModal();
         };
     }
 
     if (closeBtn) {
         closeBtn.className = 'reject-button';
-        if (needsConsent) {
-            closeBtn.textContent = translate('actions.cancel');
-            closeBtn.setAttribute('data-i18n', 'actions.cancel');
-            closeBtn.onclick = (e) => {
-                e.preventDefault();
-                handleDecline();
-            };
-        } else {
-            closeBtn.textContent = translate('actions.close');
-            closeBtn.setAttribute('data-i18n', 'actions.close');
-            closeBtn.onclick = (e) => {
-                e.preventDefault();
-                closeModal();
-            };
-        }
+        closeBtn.textContent = translate('actions.close');
+        closeBtn.setAttribute('data-i18n', 'actions.close');
+        closeBtn.onclick = (e) => {
+            e.preventDefault();
+            closeModal();
+        };
     }
 
-    let acceptBtn = document.getElementById('accept-terms-modal-btn') || document.getElementById('terms-accept-btn');
-    if (needsConsent) {
-        if (!acceptBtn && closeBtn && closeBtn.parentNode) {
-            acceptBtn = document.createElement('button');
-            acceptBtn.id = 'accept-terms-modal-btn';
-            acceptBtn.className = 'accept-button';
-            acceptBtn.textContent = translate('actions.accept');
-            acceptBtn.setAttribute('data-i18n', 'actions.accept');
-            closeBtn.parentNode.insertBefore(acceptBtn, closeBtn.nextSibling);
-        }
-        if (acceptBtn) {
-            acceptBtn.className = 'accept-button';
-            acceptBtn.style.display = 'inline-flex';
-            acceptBtn.textContent = translate('actions.accept');
-            acceptBtn.setAttribute('data-i18n', 'actions.accept');
-            acceptBtn.onclick = (e) => {
-                e.preventDefault();
-                handleAccept();
-            };
-        }
-    } else {
-        if (acceptBtn) {
-            acceptBtn.style.display = 'none';
-        }
+    const acceptBtn = document.getElementById('accept-terms-modal-btn') || document.getElementById('terms-accept-btn');
+    if (acceptBtn) {
+        acceptBtn.hidden = true;
+        acceptBtn.style.display = 'none';
     }
 
     if (iframe) {
@@ -507,6 +395,5 @@ export function openTermsOfUseModal() {
         }
     }
 
-    modal.classList.add('show');
-    if (dom.overlay) dom.overlay.classList.add('show');
+    openModal(modal);
 }

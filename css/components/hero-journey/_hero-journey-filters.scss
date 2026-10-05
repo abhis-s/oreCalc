@@ -1,4 +1,5 @@
 @use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
 
 .hero-journey-filter-container.filter-stage-1 {
     display: flex !important;
@@ -64,13 +65,15 @@
             color: $text-primary;
             border: 1px solid $border-primary;
             border-radius: $shape-corner-full;
-            padding: 6px 12px;
+            padding: 6px 28px 6px $spacing-md;
             font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
             font-weight: 600;
-            cursor: pointer;
             outline: none;
+            text-align: left;
+            text-align-last: left;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
             transition: border-color $duration-fast $ease-smooth;
+            @include custom-select-chevron;
 
             &:focus, &:hover {
                 border-color: $accent-primary;
@@ -100,8 +103,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        margin-bottom: 16px;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-lg;
     }
 
     .hj-type-filters {
@@ -117,13 +120,16 @@
             color: $text-primary;
             border: 1px solid $border-primary;
             border-radius: $shape-corner-full;
-            padding: 6px 12px;
+            padding: 6px 28px 6px $spacing-md;
             font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
             font-weight: 600;
             cursor: pointer;
             outline: none;
+            text-align: left;
+            text-align-last: left;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
             transition: border-color $duration-fast $ease-smooth;
+            @include custom-select-chevron;
 
             &:focus, &:hover {
                 border-color: $accent-primary;
@@ -137,8 +143,9 @@
     }
 
     &.no-claim-switch,
-    &:has(#home-hj-claim-switch[style*="display: none"]),
-    &:has(#home-hj-claim-switch:not(:visible)) {
+    &:has(#home-hj-claim-switch[hidden]),
+    &:has(#home-hj-claim-switch.hidden),
+    &:has(#home-hj-claim-switch.is-hidden) {
         .hero-journey-filters-row {
             justify-content: center !important;
             width: 100% !important;
@@ -153,9 +160,9 @@
             .hj-type-select {
                 width: 100% !important;
                 box-sizing: border-box !important;
-                text-align: center !important;
-                text-align-last: center !important;
-                padding: 8px 12px !important;
+                text-align: left !important;
+                text-align-last: left !important;
+                padding: $spacing-sm 28px $spacing-sm $spacing-md !important;
             }
 
             .hj-type-buttons {
@@ -198,8 +205,8 @@
         display: flex !important;
         flex-direction: column !important;
         align-items: stretch !important;
-        gap: 8px !important;
-        margin-bottom: 16px !important;
+        gap: $spacing-sm !important;
+        margin-bottom: $spacing-lg !important;
     }
 
     .hj-segmented-switch {
@@ -225,19 +232,20 @@
             display: block !important;
             width: 100% !important;
             box-sizing: border-box !important;
-            text-align: center !important;
-            text-align-last: center !important;
+            text-align: left !important;
+            text-align-last: left !important;
             background-color: $bg-surface-primary;
             color: $text-primary;
             border: 1px solid $border-primary;
             border-radius: $shape-corner-full;
-            padding: 8px 12px;
+            padding: $spacing-sm 28px $spacing-sm $spacing-md;
             font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
             font-weight: 600;
             cursor: pointer;
             outline: none;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
             transition: border-color $duration-fast $ease-smooth;
+            @include custom-select-chevron;
 
             &:focus, &:hover {
                 border-color: $accent-primary;
@@ -295,7 +303,7 @@
             text-align: left;
             display: inline-flex !important;
             align-items: center;
-            gap: 8px;
+            gap: $spacing-sm;
         }
 
         .hero-mountain-cluster {
@@ -329,7 +337,7 @@
         justify-content: center;
         text-align: center;
         width: 100%;
-        gap: 8px;
+        gap: $spacing-sm;
         margin-bottom: 14px;
     }
 
@@ -345,7 +353,7 @@
         .hero-mountain-cluster {
             order: 1;
             margin-left: 0;
-            margin-bottom: 4px;
+            margin-bottom: $spacing-xs;
             align-self: center;
             position: static !important;
             transform: none !important;
@@ -378,19 +386,19 @@
 
     .hero-journey-progress-bar-container {
         order: 2;
-        margin-bottom: 16px;
+        margin-bottom: $spacing-lg;
     }
 }
 
 @media (max-width: $breakpoint-modal) {
     .hero-journey-card {
-        padding: 16px;
+        padding: $spacing-lg;
         margin-bottom: 20px;
     }
 
     .hero-journey-node-chip {
         width: clamp(120px, 28vw, 135px);
-        padding: 10px 8px;
+        padding: 10px $spacing-sm;
     }
 
     .node-icon-wrapper {

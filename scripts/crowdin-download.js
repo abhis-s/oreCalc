@@ -174,8 +174,8 @@ function sanitizeDownloadedTranslations() {
                     const enVal = enFlat[fullKey];
                     // Exclude genuine proper nouns, brand names, and short strings (< 15 chars) that are legitimately identical across languages
                     const allowedIdenticalKeys = [
-                        'views.settings.github',
-                        'views.settings.buyMeACoffee',
+                        'views.settings.about.github',
+                        'views.settings.about.buyMeACoffee',
                         'views.settings.options.emailPlaceholder'
                     ];
 

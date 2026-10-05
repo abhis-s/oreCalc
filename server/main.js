@@ -26,6 +26,7 @@ const {
 const proxyRoutes = require('./routes/proxyRoutes.js');
 const warRoutes = require('./routes/warRoutes.js');
 const userDataRoutes = require('./routes/userDataRoutes.js');
+const authRoutes = require('./routes/authRoutes.js');
 const supportRoutes = require('./routes/supportRoutes.js');
 const billingRoutes = require('./routes/billingRoutes.js');
 
@@ -59,7 +60,7 @@ app.use(cors({
         }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-verify-token', 'x-user-id', 'x-app-version'],
     exposedHeaders: ['Retry-After', 'RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset']
 }));
@@ -70,6 +71,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Mount modular route subsystems
 app.use('/proxy', proxyRoutes);
 app.use('/api', warRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/user-data', userDataRoutes);
 app.use('/api', supportRoutes);
 app.use('/api/billing', billingRoutes);

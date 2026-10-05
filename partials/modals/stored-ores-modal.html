@@ -1,8 +1,8 @@
-<dialog id="stored-ores-modal" class="modal modal-top" aria-labelledby="stored-ores-modal-title">
+<dialog id="stored-ores-modal" class="modal" aria-labelledby="stored-ores-modal-title">
     <div class="modal-content">
         <div class="modal-header">
             <h2 id="stored-ores-modal-title" data-i18n="views.income.ores.storedTitle"></h2>
-            <button id="close-stored-ores-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+            <button type="button" id="close-stored-ores-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                 <orecalc-assets-svg name="close"></orecalc-assets-svg>
             </button>
         </div>
@@ -13,19 +13,19 @@
                     <div class="popover-wrapper">
                         <input type="number" id="modal-stored-ore-shiny" min="0" max="50000" step="100" maxlength="5" value="0" data-modal-autofocus>
                     </div>
-                    <label for="modal-stored-ore-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></orecalc-assets-image></label>
+                    <label for="modal-stored-ore-shiny"><orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="entities.ores.shiny" class="ore-image"></orecalc-assets-image></label>
                 </div>
                 <div class="custom-chip-ore-input-group">
                     <div class="popover-wrapper">
                         <input type="number" id="modal-stored-ore-glowy" min="0" max="5000" step="10" maxlength="4" value="0">
                     </div>
-                    <label for="modal-stored-ore-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></orecalc-assets-image></label>
+                    <label for="modal-stored-ore-glowy"><orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="entities.ores.glowy" class="ore-image"></orecalc-assets-image></label>
                 </div>
                 <div class="custom-chip-ore-input-group">
                     <div class="popover-wrapper">
                         <input type="number" id="modal-stored-ore-starry" min="0" max="1000" step="1" maxlength="4" value="0">
                     </div>
-                    <label for="modal-stored-ore-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></orecalc-assets-image></label>
+                    <label for="modal-stored-ore-starry"><orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="entities.ores.starry" class="ore-image"></orecalc-assets-image></label>
                 </div>
             </div>
 
@@ -55,8 +55,8 @@
             </div>
         </div>
         <div class="modal-actions">
-            <button id="cancel-stored-ores-modal-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button id="save-stored-ores-modal-btn" class="accept-button" data-i18n="actions.save"></button>
+            <button type="button" id="cancel-stored-ores-modal-btn" class="reject-button" data-i18n="actions.cancel"></button>
+            <button type="button" id="save-stored-ores-modal-btn" class="accept-button" data-i18n="actions.save"></button>
         </div>
     </div>
 </dialog>

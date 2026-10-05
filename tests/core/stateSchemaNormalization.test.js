@@ -63,8 +63,7 @@ if (typeof globalThis.customElements === 'undefined') {
 
 const stateModule = await import('../../js/core/state.js');
 const { getDefaultState, getDefaultPlayerState, initializeState } = stateModule;
-const { welcomeState } = await import('../../js/components/welcome/welcomeModalState.js');
-const { applyChecklistToProfile, resetWizardState } = await import('../../js/components/welcome/welcomeWizardState.js');
+const { guidedSetupState, applyPreferencesToProfile, resetGuidedSetupState } = await import('../../js/components/guidedSetup/guidedSetupState.js');
 const { processPlayerDataResponse } = await import('../../js/services/serverResponseHandler.js');
 
 beforeEach(() => {
@@ -74,7 +73,7 @@ beforeEach(() => {
     stateModule.state.uiSettings.cloudSync = false;
     stateModule.state.savedPlayerTags = ['DEFAULT0'];
     stateModule.state.allPlayersData = {};
-    resetWizardState();
+    resetGuidedSetupState();
 });
 
 test('getDefaultPlayerState returns complete instantiated income schema with zero undefined sub-properties', () => {
@@ -129,10 +128,10 @@ test('getDefaultPlayerState returns complete instantiated income schema with zer
     assert.ok(income.shopOffers.purchases);
 });
 
-test('applyChecklistToProfile safely handles empty profile object without throwing', () => {
+test('applyPreferencesToProfile safely handles empty profile object without throwing', () => {
     const emptyPlayer = {};
     assert.doesNotThrow(() => {
-        applyChecklistToProfile(emptyPlayer);
+        applyPreferencesToProfile(emptyPlayer);
     });
 
     assert.ok(emptyPlayer.storedOres);
@@ -142,20 +141,20 @@ test('applyChecklistToProfile safely handles empty profile object without throwi
     assert.ok(emptyPlayer.income.cwl.oresPerAttack);
 });
 
-test('applyChecklistToProfile resolves crash when income.eventPass is an empty object', () => {
+test('applyPreferencesToProfile resolves crash when income.eventPass is an empty object', () => {
     const playerWithEmptyEventPass = {
         income: {
             eventPass: {}
         }
     };
 
-    welcomeState.tempEventTraderBuy = true;
-    welcomeState.tempEventTraderShiny = 3;
-    welcomeState.tempEventTraderGlowy = 1;
-    welcomeState.tempEventTraderStarry = 0;
+    guidedSetupState.tempEventTraderBuy = true;
+    guidedSetupState.tempEventTraderShiny = 3;
+    guidedSetupState.tempEventTraderGlowy = 1;
+    guidedSetupState.tempEventTraderStarry = 0;
 
     assert.doesNotThrow(() => {
-        applyChecklistToProfile(playerWithEmptyEventPass);
+        applyPreferencesToProfile(playerWithEmptyEventPass);
     });
 
     assert.equal(playerWithEmptyEventPass.income.eventPass.trader.enabled, true);
@@ -164,26 +163,26 @@ test('applyChecklistToProfile resolves crash when income.eventPass is an empty o
     assert.equal(playerWithEmptyEventPass.income.eventTrader.packs.shiny, 3);
 });
 
-test('applyChecklistToProfile correctly normalizes clanWar and cwl properties', () => {
+test('applyPreferencesToProfile correctly normalizes clanWar and cwl properties', () => {
     const player = {
         playerProfile: { townHallLevel: 15 },
         income: {}
     };
 
-    welcomeState.tempClanWars = true;
-    welcomeState.tempClanWarsCount = 10;
-    welcomeState.tempClanWarsWinrate = 80;
-    welcomeState.tempClanWarsDrawrate = 5;
+    guidedSetupState.tempClanWars = true;
+    guidedSetupState.tempClanWarsCount = 10;
+    guidedSetupState.tempClanWarsWinrate = 80;
+    guidedSetupState.tempClanWarsDrawrate = 5;
 
-    welcomeState.tempCwl = true;
-    welcomeState.tempCwlHits = 6;
-    welcomeState.tempCwlWinrate = 66;
-    welcomeState.tempCwlDrawrate = 0;
+    guidedSetupState.tempCwl = true;
+    guidedSetupState.tempCwlHits = 6;
+    guidedSetupState.tempCwlWinrate = 66;
+    guidedSetupState.tempCwlDrawrate = 0;
 
-    welcomeState.tempEventPassBuy = true;
-    welcomeState.tempEventBonusMedals = 150;
+    guidedSetupState.tempEventPassBuy = true;
+    guidedSetupState.tempEventBonusMedals = 150;
 
-    applyChecklistToProfile(player);
+    applyPreferencesToProfile(player);
 
     assert.equal(player.income.clanWar.enabled, true);
     assert.equal(player.income.clanWar.warsPerMonth, 10);
@@ -231,8 +230,8 @@ test('initializeState normalizes player income configuration and preserves setti
 
 test('processPlayerDataResponse creates complete player state with full income defaults on remote fetch', () => {
     const mockApiResponse = {
-        tag: '#2PP',
-        name: 'ClashLegend',
+        tag: '#8PJYGUJC',
+        name: 'Chief',
         townHallLevel: 16,
         trophies: 5500,
         warStars: 1200,
@@ -247,9 +246,9 @@ test('processPlayerDataResponse creates complete player state with full income d
 
     processPlayerDataResponse(mockApiResponse);
 
-    const player = stateModule.state.allPlayersData['2PP'];
+    const player = stateModule.state.allPlayersData['8PJYGUJC'];
     assert.ok(player);
-    assert.equal(player.playerProfile.name, 'ClashLegend');
+    assert.equal(player.playerProfile.name, 'Chief');
     assert.equal(player.playerProfile.townHallLevel, 16);
 
     assert.ok(player.income.eventPass.trader.packs);

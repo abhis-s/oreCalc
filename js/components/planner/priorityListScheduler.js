@@ -7,6 +7,8 @@ import { getMaxDate, getMinDate } from '../../utils/dateUtils.js';
 import { logger } from '../../utils/logger.js';
 import { calculateCompletionDates } from '../../utils/predictionCalculator.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
+import { isComingSoonEquipment } from '../../core/constants.js';
+import { migrateComingSoonEquipment } from '../../core/stateCleanup.js';
 
 /**
  * Automatically places recurring income chips across the entire date range based on active priority schedules.
@@ -35,6 +37,10 @@ let cachedIsHydrated = null;
  * @returns {{ globalPriorityList: Array<any>, suggestions: Array<any>|null }}
  */
 export function getGlobalPriorityList() {
+    if (state.heroes && typeof state.heroes === 'object') {
+        migrateComingSoonEquipment(state.heroes);
+    }
+
     const isHydrated = state.planner?.calendar?.isHydrated === true;
     if (cachedPriorityList && cachedTimestamp === state.timestamp && cachedIsHydrated === isHydrated) {
         return { globalPriorityList: cachedPriorityList, suggestions: cachedSuggestions };
@@ -59,6 +65,7 @@ export function getGlobalPriorityList() {
     for (const heroKey in state.heroes) {
         const hero = state.heroes[heroKey];
         for (const equipName in hero.equipment) {
+            if (isComingSoonEquipment(equipName)) continue;
             const equipment = hero.equipment[equipName];
             if (equipment.upgradePlan) {
                 for (const stepNum in equipment.upgradePlan) {
@@ -69,11 +76,12 @@ export function getGlobalPriorityList() {
                         const heroEntry = heroData[heroDataKey];
                         if (!heroEntry) continue;
 
-                        const equipMatch = heroEntry.equipment.find(e => e.key === equipName || e.key === toCamelCase(equipName));
+                        const equipMatch = heroEntry.equipment.find(e => e.name === equipName || e.key === equipName || e.key === toCamelCase(equipName));
+                        if (!equipMatch || !equipMatch.image) continue;
 
                         globalPriorityList.push({
-                            name: equipName,
-                            image: equipMatch?.image,
+                            name: equipMatch.name || equipName,
+                            image: equipMatch.image,
                             targetLevel: stepData.targetLevel,
                             step: parseInt(stepNum, 10),
                             priorityIndex: stepData.priorityIndex,

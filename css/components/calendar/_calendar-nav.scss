@@ -38,7 +38,7 @@
 
     .calendar-action-buttons {
         display: flex;
-        gap: 8px;
+        gap: $spacing-sm;
         align-items: center;
     }
 
@@ -65,7 +65,7 @@
     display: flex;
     overflow-x: auto;
     padding: 10px;
-    gap: 8px;
+    gap: $spacing-sm;
     @extend %hide-scrollbar;
 }
 
@@ -81,8 +81,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: $spacing-sm $spacing-lg;
+    border-radius: $shape-corner-small;
     background-color: $bg-surface-tertiary;
     color: $text-primary;
     cursor: pointer;
@@ -165,14 +165,14 @@
 
 @media (max-width: $breakpoint-compact) {
     .calendar-header {
-        padding: 8px 10px;
+        padding: $spacing-sm 10px;
 
         h2 {
             font-size: 0.95rem;
         }
 
         .calendar-action-buttons {
-            gap: 4px;
+            gap: $spacing-xs;
         }
 
         .planner-action-button {

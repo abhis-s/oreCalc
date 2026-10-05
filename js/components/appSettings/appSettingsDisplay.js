@@ -1,12 +1,11 @@
-import { getLocale, languagesData } from '../../data/languagesData.js';
+import { languagesData } from '../../data/languagesData.js';
 import { currencyData, priceTierRegistry } from '../../data/pricingData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 
-import { formatDate } from '../../utils/dateUtils.js';
+import { getAppLastUpdatedDateFormatted } from '../../utils/dateUtils.js';
 import { addCurrencyValidation } from '../../utils/inputValidator.js';
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
 import { formatCurrency } from '../../utils/numberFormatter.js';
 import { getSVG } from '../../utils/svgManager.js';
 
@@ -47,34 +46,6 @@ export function populateDropdowns() {
             }
         });
     }
-}
-
-/**
- * Formats the application build/update timestamp into a localized date string.
- * @param {string} [locale=state.uiSettings?.language || 'en'] - Target locale identifier.
- * @returns {string} Formatted localized date string.
- */
-export function getAppLastUpdatedDateFormatted(locale = state.uiSettings?.language || 'en') {
-    let dateObj;
-    const swUpdateTime = localStorage.getItem('oreCalc_SWUpdatedTime') || localStorage.getItem('oreCalcSWUpdatedTime');
-    if (swUpdateTime) {
-        dateObj = new Date(swUpdateTime);
-    }
-    if (!dateObj || isNaN(dateObj.getTime())) {
-        if (window.__ENV__?.BUILD_TIME) {
-            dateObj = new Date(window.__ENV__.BUILD_TIME);
-        }
-    }
-    if (!dateObj || isNaN(dateObj.getTime())) {
-        dateObj = new Date();
-    }
-    return formatDate(dateObj, {
-        day: '2-digit',
-        month: 'short',
-        year: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    }, locale);
 }
 
 /**
@@ -160,7 +131,7 @@ export function renderLabeledActions(containerSelector, data) {
         const btnText = document.createElement('span');
         btnText.className = 'animated-btn-text';
         if (item.id === 'version') {
-            const versionText = window.__ENV__?.APP_VERSION || state.appVersion || '2.2.0';
+            const versionText = window.__ENV__?.APP_VERSION || state.appVersion || '3.0.0';
             btnText.textContent = versionText;
         } else {
             btnText.dataset.i18n = item.i18nAction;
@@ -333,11 +304,11 @@ export function renderAppSettings(uiSettings) {
 
     if (cloudSyncInfo) {
         if (hasOnlyDefaultPlayer) {
-            cloudSyncInfo.textContent = translate('views.settings.cloudSyncDisabledNoPlayer');
-            cloudSyncInfo.setAttribute('data-i18n', 'views.settings.cloudSyncDisabledNoPlayer');
+            cloudSyncInfo.textContent = translate('views.settings.cloudSync.cloudSyncDisabledNoPlayer');
+            cloudSyncInfo.setAttribute('data-i18n', 'views.settings.cloudSync.cloudSyncDisabledNoPlayer');
         } else {
-            cloudSyncInfo.textContent = translate('views.settings.cloudSyncInfo');
-            cloudSyncInfo.setAttribute('data-i18n', 'views.settings.cloudSyncInfo');
+            cloudSyncInfo.textContent = translate('views.settings.cloudSync.cloudSyncInfo');
+            cloudSyncInfo.setAttribute('data-i18n', 'views.settings.cloudSync.cloudSyncInfo');
         }
     }
 

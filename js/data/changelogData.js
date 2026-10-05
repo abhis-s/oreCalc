@@ -1,5 +1,22 @@
 export const changelogData = [
     {
+        version: "v3.0.0",
+        date: "2026-10-05",
+        changes: [
+            { type: "feature", text: "<strong>ClashCalc Domain Launch & Brand Evolution</strong>: Migrated to ClashCalc with primary rollout on <code>clashcalc.com</code> and <code>beta.clashcalc.com</code>, powered by a dual-brand storage layer that seamlessly preserves, reads, and migrates existing player profiles from <code>orecalc.tech</code>." },
+            { type: "feature", text: "<strong>Equipment Damage & ZapQuake Calculator</strong>: Introduced an all-new dedicated calculator suite (<code>/damage-calculator/</code>) featuring offensive gear synergy models, ability multipliers, defense progression tables, and a mathematical ZapQuake spell optimization solver." },
+            { type: "feature", text: "<strong>User Accounts & Passkey Authentication</strong>: Built a full user account management system featuring native biometric passkeys (WebAuthn), passwordless login, cross-device sync, and custom avatar profiles." },
+            { type: "feature", text: "<strong>Guided Setup Onboarding Wizard</strong>: Replaced the legacy welcome dialog with an interactive 6-step guided setup wizard for village identity, stored ores, war participation, and income preferences." },
+            { type: "feature", text: "<strong>Landing Portal Dashboard</strong>: Built a modern home landing portal (<code>/</code>) displaying live player progress summaries, quick stat cards, and fast launchers across all tools." },
+            { type: "feature", text: "<strong>Unified Navigation & Profile Switching</strong>: Integrated a synchronized header, navigation drawer, and player profile switcher across Landing, Ore Calculator, Hero Journey, and Damage Calculator." },
+            { type: "feature", text: "<strong>Cloudflare Turnstile Bot Protection</strong>: Integrated privacy-preserving Turnstile CAPTCHA verification across authentication and account creation endpoints." },
+            { type: "fix", text: "<strong>Dual-Namespace Storage & Multi-Tab Synchronization</strong>: Implemented host-aware storage adapters with cross-tab event broadcasting, preventing state collisions between <code>clashCalc_*</code> and <code>oreCalc_*</code> partitions." },
+            { type: "fix", text: "<strong>Responsive Mobile Layout & Popover Optimization</strong>: Enhanced header account popovers, modal backdrops, and toolbar controls for seamless operation on mobile screens down to 360px." },
+            { type: "chore", text: "<strong>Backend Distributed Challenges & Inactivity Lifecycles</strong>: Added Firestore-backed WebAuthn challenge persistence with TTL expiry, 90-day inactivity pruning, and dynamic CORS origin negotiation for all production and staging subdomains." },
+            { type: "chore", text: "<strong>100% Verification Suite & Architectural Consolidation</strong>: Expanded automated test suite to 1312 passing tests across 192 suites with zero circular dependencies, complete TypeScript type checking, and canonical i18n parity." }
+        ]
+    },
+    {
         version: "v2.2.0",
         date: "2026-08-22",
         changes: [

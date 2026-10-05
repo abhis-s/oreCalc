@@ -46,17 +46,17 @@
 
 .card {
     background-color: $bg-surface-secondary;
-    border: 1px solid color-mix(in srgb, $border-primary 70%, transparent);
-    border-radius: 10px;
+    border: 1px solid $border-card;
+    border-radius: $card-radius;
     padding: 30px;
     flex: 1;
     position: relative;
     box-shadow: $elevation-1;
-    transition: padding $duration-base $ease-standard, border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth, transform $duration-base $ease-standard;
+    transition: padding $duration-base $ease-standard, $transition-card;
 
     &:hover:not(.dragging) {
-        border-color: color-mix(in srgb, $accent-primary 35%, $border-primary);
-        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.22), 0 0 12px rgba($accent-primary, 0.08);
+        border-color: $border-card-hover;
+        box-shadow: $elevation-card-hover;
     }
 
     @container (max-width: 445px) {
@@ -85,7 +85,7 @@
 
     .inner-card {
         background-color: $bg-surface-primary;
-        border-radius: 8px;
+        border-radius: $card-radius-inner;
         margin: 15px 0;
         padding: 20px;
 
@@ -99,7 +99,7 @@
     .ores {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
+        gap: $spacing-lg;
         width: 100%;
         max-width: 480px;
         margin: 15px auto 0;
@@ -151,7 +151,7 @@
         border: 1px solid color-mix(in srgb, var(--color-success) 35%, transparent);
         font-size: 0.65rem;
         font-weight: 700;
-        padding: 2px 6px;
+        padding: $spacing-2xs 6px;
         border-radius: 6px;
         letter-spacing: 0.3px;
         white-space: nowrap;
@@ -193,7 +193,7 @@
 
 .income-card {
     background-color: $bg-surface-secondary;
-    border-radius: 10px;
+    border-radius: $card-radius;
     display: flex;
     flex-direction: column;
     min-width: 0;

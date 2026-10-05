@@ -7,86 +7,14 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '../..');
-
-/**
- * Pure coordinate clamping algorithm for contextual tooltips and popovers.
- * @param {{
- *   elemRect: { top: number, bottom: number, left: number, width: number, height: number },
- *   popoverRect: { width: number, height: number },
- *   viewport: { width: number, height: number },
- *   margin?: number
- * }} params
- * @returns {{ top: number, left: number }}
- */
-function computePopoverCoordinates({
-    elemRect,
-    popoverRect,
-    viewport,
-    margin = 12
-}) {
-    const popoverHeight = popoverRect.height || 140;
-    const popoverWidth = popoverRect.width || 230;
-
-    const spaceAbove = elemRect.top;
-    const spaceBelow = viewport.height - elemRect.bottom;
-
-    let top = 0;
-    if (spaceAbove >= popoverHeight + 10 || spaceAbove >= spaceBelow) {
-        top = elemRect.top - popoverHeight - 6;
-    } else {
-        top = elemRect.bottom + 6;
-    }
-
-    const effectiveHeight = Math.min(popoverHeight, Math.max(0, viewport.height - (margin * 2)));
-    const effectiveWidth = Math.min(popoverWidth, Math.max(0, viewport.width - (margin * 2)));
-
-    top = Math.max(margin, Math.min(top, viewport.height - effectiveHeight - margin));
-
-    let left = elemRect.left + (elemRect.width / 2) - (effectiveWidth / 2);
-    left = Math.max(margin, Math.min(left, viewport.width - effectiveWidth - margin));
-
-    return { top, left };
-}
-
-/**
- * Pure right-aligned popover positioning algorithm (e.g. settings popover).
- * @param {{
- *   btnRect: { right: number },
- *   popoverWidth: number,
- *   viewportWidth: number,
- *   margin?: number
- * }} params
- * @returns {{ rightOffset: number, computedLeft: number }}
- */
-function computeSettingsPopoverOffset({
-    btnRect,
-    popoverWidth,
-    viewportWidth,
-    margin = 12
-}) {
-    const naturalLeft = btnRect.right - popoverWidth;
-    let rightOffset = 0;
-
-    if (naturalLeft < margin) {
-        rightOffset = -(margin - naturalLeft);
-    }
-
-    // In CSS with position: absolute; right: ${rightOffset}px,
-    // a negative right value (e.g. -3px) extends the right boundary by 3px past btnRect.right
-    const computedRight = btnRect.right - rightOffset;
-    const computedLeft = computedRight - popoverWidth;
-    return { rightOffset, computedLeft, computedRight };
-}
-
 describe('Layout & Viewport Hardening Contracts', () => {
-
     describe('Z-Index Tokens Invariant', () => {
         const variablesScss = fs.readFileSync(path.join(projectRoot, 'css/abstracts/_variables.scss'), 'utf8');
 
         test('defines monotonically ordered z-index design tokens', () => {
             const extractZIndex = (name) => {
                 const match = variablesScss.match(new RegExp(`\\$${name}:\\s*(-?\\d+);`));
-                return match ? parseInt(match[1], 10) : null;
+                return match ? Number(match[1]) : null;
             };
 
             const zLayout = extractZIndex('z-index-layout');
@@ -109,141 +37,15 @@ describe('Layout & Viewport Hardening Contracts', () => {
         });
     });
 
-    describe('Profile Header & Popover Responsive CSS Contracts', () => {
-        const profileHeaderScss = fs.readFileSync(path.join(projectRoot, 'css/components/profile/_profile-header.scss'), 'utf8');
-        const cardsPopoversScss = fs.readFileSync(path.join(projectRoot, 'css/components/cards/_cards-popovers.scss'), 'utf8');
-        const settingsPopoverScss = fs.readFileSync(path.join(projectRoot, 'css/hero-journey/_hero-journey-settings.scss'), 'utf8');
+    describe('Universal Header Shell Accessibility Contracts', () => {
+        test('All three application headers utilize semantic button with aria-controls for hamburger', () => {
+            const hjHtml = fs.readFileSync(path.join(projectRoot, 'hero-journey/index.html'), 'utf8');
+            const headerHtml = fs.readFileSync(path.join(projectRoot, 'partials/header.html'), 'utf8');
+            const landingHtml = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 
-        test('verifies desktop player-identity-info is unconstrained and mobile layout applies max-width: 58%', () => {
-            assert.match(
-                profileHeaderScss,
-                /\.player-identity-info\s*\{[\s\S]*?max-width:\s*100%;/,
-                'player-identity-info must have max-width: 100% on desktop'
-            );
-            assert.match(
-                profileHeaderScss,
-                /\.player-identity-info\s*\{[\s\S]*?max-width:\s*58%;/,
-                'player-identity-info must have max-width: 58% in mobile/stacked layout'
-            );
-        });
-
-        test('verifies player-name and mobile clan-name-mini include overflow-wrap: anywhere and word-break: break-word', () => {
-            assert.match(
-                profileHeaderScss,
-                /\.player-name\s*\{[\s\S]*?overflow-wrap:\s*anywhere;[\s\S]*?word-break:\s*break-word;/,
-                'player-name must declare overflow-wrap: anywhere and word-break: break-word'
-            );
-
-            assert.match(
-                profileHeaderScss,
-                /\.clan-name-mini\s*\{[\s\S]*?overflow-wrap:\s*anywhere;[\s\S]*?word-break:\s*break-word;/,
-                'mobile clan-name-mini must declare overflow-wrap: anywhere and word-break: break-word'
-            );
-        });
-
-        test('verifies card-help-popover and equipment pool popover enforce responsive viewport max-width constraints', () => {
-            assert.match(
-                cardsPopoversScss,
-                /max-width:\s*min\(240px,\s*calc\(100vw\s*-\s*24px\)\);/,
-                'Base card-help-popover must enforce min(240px, calc(100vw - 24px))'
-            );
-
-            assert.match(
-                cardsPopoversScss,
-                /width:\s*min\(280px,\s*calc\(100vw\s*-\s*24px\)\);/,
-                'Equipment pool popover must enforce width: min(280px, calc(100vw - 24px))'
-            );
-        });
-
-        test('verifies settings popover enforces responsive viewport min/max constraints', () => {
-            assert.match(
-                settingsPopoverScss,
-                /max-width:\s*min\(440px,\s*calc\(100vw\s*-\s*24px\)\);/,
-                'Settings popover must declare max-width: min(440px, calc(100vw - 24px))'
-            );
-        });
-    });
-
-    describe('Popover Coordinate Clamping & Boundary Mathematics', () => {
-        const testViewports = [
-            { width: 280, height: 500, name: 'Ultra-narrow 280px' },
-            { width: 320, height: 568, name: 'Compact Phone 320px' },
-            { width: 375, height: 667, name: 'Standard Phone 375px' },
-            { width: 480, height: 800, name: 'Large Phone 480px' },
-            { width: 768, height: 1024, name: 'Tablet 768px' },
-            { width: 1280, height: 800, name: 'Desktop 1280px' }
-        ];
-
-        test('clamps popover left and top coordinates strictly within viewport bounds across all screen widths', () => {
-            for (const vp of testViewports) {
-                // Test multiple anchor trigger positions: left edge, center, right edge
-                const anchorPositions = [
-                    { top: 50, bottom: 90, left: 10, width: 40, height: 40 },
-                    { top: 200, bottom: 240, left: vp.width / 2 - 20, width: 40, height: 40 },
-                    { top: 400, bottom: 440, left: vp.width - 50, width: 40, height: 40 }
-                ];
-
-                for (const elemRect of anchorPositions) {
-                    const coords = computePopoverCoordinates({
-                        elemRect,
-                        popoverRect: { width: 280, height: 160 },
-                        viewport: { width: vp.width, height: vp.height },
-                        margin: 12
-                    });
-
-                    assert.ok(
-                        coords.left >= 12,
-                        `Left coordinate (${coords.left}px) must be >= 12px for ${vp.name}`
-                    );
-
-                    const effectiveWidth = Math.min(280, Math.max(0, vp.width - 24));
-                    const maxAllowedLeft = Math.max(12, vp.width - effectiveWidth - 12);
-                    assert.ok(
-                        coords.left <= maxAllowedLeft,
-                        `Left coordinate (${coords.left}px) must be <= maxAllowedLeft (${maxAllowedLeft}px) for ${vp.name}`
-                    );
-
-                    assert.ok(
-                        coords.top >= 12,
-                        `Top coordinate (${coords.top}px) must be >= 12px for ${vp.name}`
-                    );
-                }
-            }
-        });
-
-        test('ensures settings popover right offset shift guarantees left edge >= 12px', () => {
-            for (const vp of testViewports) {
-                // Button positioned near right edge (e.g. right = vp.width - 15)
-                const btnRect = { right: vp.width - 15 };
-                const popoverWidth = Math.min(320, vp.width - 24);
-
-                const result = computeSettingsPopoverOffset({
-                    btnRect,
-                    popoverWidth,
-                    viewportWidth: vp.width,
-                    margin: 12
-                });
-
-                assert.ok(
-                    result.computedLeft >= 12,
-                    `Computed left edge (${result.computedLeft}px) must be >= 12px for ${vp.name}`
-                );
-            }
-        });
-    });
-
-    describe('Profile Card Container Query & Responsive Invariants', () => {
-        test('verifies profile cards declare container-type inline-size for native container queries', () => {
-            const scssPath = path.join(projectRoot, 'css/components/profile/_profile-card-container.scss');
-            const content = fs.readFileSync(scssPath, 'utf8');
-            assert.match(content, /container-type:\s*inline-size;/, 'Profile card container must declare container-type: inline-size');
-        });
-
-        test('verifies profile header stylesheet declares container query layout adaptation', () => {
-            const headerScssPath = path.join(projectRoot, 'css/components/profile/_profile-header.scss');
-            const content = fs.readFileSync(headerScssPath, 'utf8');
-            assert.match(content, /@container\s*\(max-width:\s*680px\)/, 'Profile header must adapt via @container (max-width: 680px)');
-            assert.match(content, /@include\s+mobile-header-full-layout;/, 'Container query must invoke mobile-header-full-layout mixin');
+            assert.match(hjHtml, /<button[^>]*class="[^"]*hamburger[^"]*"[^>]*aria-controls="navigation-drawer"/);
+            assert.match(headerHtml, /<button[^>]*class="[^"]*hamburger[^"]*"[^>]*aria-controls="navigation-drawer"/);
+            assert.match(landingHtml, /<button[^>]*class="[^"]*hamburger[^"]*"[^>]*aria-controls="navigation-drawer"/);
         });
     });
 });

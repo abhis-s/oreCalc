@@ -16,8 +16,8 @@ describe('SVG Sprite Sheet Integrity & Symbol Completeness Suite', () => {
 
         assert.ok(definedSymbols.size > 50, 'Sprite sheet should contain at least 50 registered symbols');
 
-        const scanDirs = ['js', 'partials', 'legal'];
-        const rootFiles = ['index.html', 'hero-journey.html', '404.html'];
+        const scanDirs = ['js', 'partials', 'legal', 'ore-calculator', 'hero-journey', 'damage-calculator'];
+        const rootFiles = ['index.html', '404.html'];
         const referencedIcons = new Map();
 
         function scanFile(filePath) {

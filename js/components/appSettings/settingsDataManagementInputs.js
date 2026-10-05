@@ -1,13 +1,14 @@
 import { translate } from '../../i18n/translator.js';
 
-import { normalizePlayerTag } from '../../core/localStorageManager.js';
+import { getActiveUserId, normalizePlayerTag } from '../../core/storageKeys.js';
 import { state } from '../../core/state.js';
 
 import { logger } from '../../utils/logger.js';
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 
 import { dom } from '../../dom/domElements.js';
+import { deleteUserData, erasePlayerTagFromAllUsers, fetchPlayerData } from '../../services/apiService.js';
 import { showAlert, showConfirm } from '../../ui/noticeModal.js';
 
 /**
@@ -25,7 +26,6 @@ export function initializeSettingsDataManagement() {
         closeDataErasureModalBtn,
         importModal,
         deleteModal,
-        deleteTagContainer,
         deleteTokenContainer,
         deleteTagInput,
         deleteTokenInput,
@@ -55,12 +55,11 @@ export function initializeSettingsDataManagement() {
         };
 
         downloadUserDataBtn.addEventListener('click', () => {
-            const currentUserId = localStorage.getItem('oreCalc_userId') || 'unknown';
+            const currentUserId = getActiveUserId() || 'unknown';
             if (downloadFilenamePreview) {
                 downloadFilenamePreview.innerHTML = translate('views.settings.download.filenameInfo', { uuid: currentUserId });
             }
-            downloadDataModal.classList.add('show');
-            if (dom.overlay) dom.overlay.classList.add('show');
+            openModal(downloadDataModal);
         });
 
         closeDownloadDataModalBtn?.addEventListener('click', closeDownloadModal);
@@ -71,7 +70,7 @@ export function initializeSettingsDataManagement() {
             confirmDownloadDataBtn.disabled = true;
             confirmDownloadDataBtn.textContent = translate('actions.processing');
 
-            const currentUserId = localStorage.getItem('oreCalc_userId') || 'unknown';
+            const currentUserId = getActiveUserId() || 'unknown';
             const dataToExport = {
                 ...state,
                 userId: currentUserId
@@ -79,7 +78,7 @@ export function initializeSettingsDataManagement() {
             const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute('href', dataStr);
-            downloadAnchorNode.setAttribute('download', `OreCalc-Data_${currentUserId}.json`);
+            downloadAnchorNode.setAttribute('download', `ClashCalc-Data_${currentUserId}.json`);
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
@@ -95,13 +94,12 @@ export function initializeSettingsDataManagement() {
     if (resetLocalBtn) {
         resetLocalBtn.addEventListener('click', async () => {
             if (dom.appSettings?.dataErasureModal) closeModalAnimated(dom.appSettings.dataErasureModal);
-            if (await showConfirm(translate('confirms.resetLocal'), 'status.confirm', 'actions.reset')) {
+            if (await showConfirm(translate('confirms.resetLocal'), 'actions.confirm', 'actions.reset')) {
                 if (typeof window.resetApplication === 'function') {
                     window.resetApplication();
                 }
             } else {
-                if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.add('show');
-                if (dom.overlay) dom.overlay.classList.add('show');
+                if (dom.appSettings?.dataErasureModal) openModal(dom.appSettings.dataErasureModal);
             }
         });
     }
@@ -109,11 +107,10 @@ export function initializeSettingsDataManagement() {
     if (resetCloudBtn) {
         resetCloudBtn.addEventListener('click', async () => {
             if (dom.appSettings?.dataErasureModal) closeModalAnimated(dom.appSettings.dataErasureModal);
-            if (await showConfirm(translate('confirms.resetCloud'), 'status.confirm', 'actions.reset')) {
-                const currentUserId = localStorage.getItem('oreCalc_userId');
+            if (await showConfirm(translate('confirms.resetCloud'), 'actions.confirm', 'actions.reset')) {
+                const currentUserId = getActiveUserId();
                 if (currentUserId) {
                     try {
-                        const { deleteUserData } = await import('../../services/apiService.js');
                         await deleteUserData(currentUserId);
                     } catch (error) {
                         logger.error('Failed to delete cloud data:', error);
@@ -124,8 +121,7 @@ export function initializeSettingsDataManagement() {
                     window.resetApplication();
                 }
             } else {
-                if (dom.appSettings?.dataErasureModal) dom.appSettings.dataErasureModal.classList.add('show');
-                if (dom.overlay) dom.overlay.classList.add('show');
+                if (dom.appSettings?.dataErasureModal) openModal(dom.appSettings.dataErasureModal);
             }
         });
     }
@@ -155,8 +151,7 @@ export function initializeSettingsDataManagement() {
             if (dom.appSettings?.dataErasureModal) {
                 closeModalAnimated(dom.appSettings.dataErasureModal);
             }
-            deleteModal.classList.add('show');
-            if (dom.overlay) dom.overlay.classList.add('show');
+            openModal(deleteModal);
         });
 
         cancelDeletePlayerBtn?.addEventListener('click', closeDeleteModal);
@@ -176,7 +171,6 @@ export function initializeSettingsDataManagement() {
             }
             try {
                 validateDeletePlayerBtn.disabled = true;
-                const { fetchPlayerData } = await import('../../services/apiService.js');
                 const playerData = await fetchPlayerData(tag);
 
                 if (playerData && playerData.tag && deleteTagInput) {
@@ -226,7 +220,6 @@ export function initializeSettingsDataManagement() {
             try {
                 verifyDeletePlayerBtn.disabled = true;
 
-                const { erasePlayerTagFromAllUsers } = await import('../../services/apiService.js');
                 await erasePlayerTagFromAllUsers(tag, token);
 
                 closeDeleteModal();
@@ -269,7 +262,7 @@ export function initializeSettingsDataManagement() {
     }
 
     if (userIdDisplayLabel) {
-        const currentUserId = localStorage.getItem('oreCalc_userId');
+        const currentUserId = getActiveUserId();
         if (currentUserId) {
             const maskedId = currentUserId.length > 8 ? currentUserId.substring(0, 8) + '...' : currentUserId;
             userIdDisplayLabel.textContent = `${translate('player.userId')}: ${maskedId}`;
@@ -279,8 +272,7 @@ export function initializeSettingsDataManagement() {
 
     if (openDataErasureBtn && dataErasureModal) {
         openDataErasureBtn.addEventListener('click', () => {
-            dataErasureModal.classList.add('show');
-            if (dom.overlay) dom.overlay.classList.add('show');
+            openModal(dataErasureModal);
         });
     }
 

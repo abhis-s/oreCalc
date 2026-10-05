@@ -1,0 +1,358 @@
+@use '../../abstracts/variables' as *;
+@use '../../base/placeholder';
+
+dialog.navigation-drawer,
+.navigation-drawer {
+    border: none;
+    padding: 0;
+    margin: 0;
+    position: fixed;
+    inset: 0 auto 0 0;
+    top: 0;
+    left: 0;
+    width: min(320px, 85vw);
+    height: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    max-width: none;
+    overflow: hidden;
+    color: inherit;
+    box-sizing: border-box;
+
+    background-color: color-mix(in srgb, $bg-surface-primary 80%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid $border-secondary;
+    box-shadow: $elevation-3;
+    z-index: $z-index-drawer;
+    border-radius: 0 $shape-corner-extra-large $shape-corner-extra-large 0;
+    isolation: isolate;
+
+    display: flex;
+    flex-direction: column;
+
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+
+    transform: translateX(-100%);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform $duration-moderate $ease-enter,
+                visibility $duration-moderate $ease-enter,
+                display $duration-moderate allow-discrete,
+                overlay $duration-moderate allow-discrete;
+
+    &[open],
+    &.open {
+        transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
+
+        @starting-style {
+            transform: translateX(-100%);
+        }
+    }
+
+    &::backdrop {
+        background-color: $bg-overlay;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+        opacity: 0;
+        transition: opacity $duration-moderate $ease-smooth,
+                    backdrop-filter $duration-moderate $ease-smooth,
+                    -webkit-backdrop-filter $duration-moderate $ease-smooth,
+                    display $duration-moderate allow-discrete,
+                    overlay $duration-moderate allow-discrete;
+    }
+
+    &[open]::backdrop {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+
+        @starting-style {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none !important;
+
+        &::backdrop {
+            transition: none !important;
+        }
+    }
+
+    &__overlay {
+        touch-action: none;
+        overscroll-behavior: contain;
+        @extend %full-screen-overlay;
+        background-color: $bg-overlay;
+        z-index: #{$z-index-drawer - 1};
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+        isolation: isolate;
+        transform: translateZ(0);
+        transition: opacity $duration-moderate $ease-smooth,
+                    visibility $duration-moderate $ease-smooth,
+                    backdrop-filter $duration-moderate $ease-smooth,
+                    -webkit-backdrop-filter $duration-moderate $ease-smooth;
+
+        &.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        &.closing {
+            pointer-events: none;
+        }
+    }
+
+    &__content {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: $bg-surface-tertiary;
+            border-radius: $shape-corner-full;
+        }
+    }
+
+    &__header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+        padding: $spacing-md;
+        border-top-right-radius: $shape-corner-extra-large;
+        flex-shrink: 0;
+    }
+
+    &__brand {
+        display: flex;
+        flex-direction: column;
+        margin-top: $spacing-2xl;
+        margin-left: $spacing-sm;
+    }
+
+    &__app-title {
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0 0 $spacing-2xs 0;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+
+        @include brand-gradient-split;
+    }
+
+    &__subtitle {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0;
+        color: $text-secondary;
+        opacity: 0.6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    &__close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-medium;
+        color: $text-secondary;
+        cursor: pointer;
+        height: 36px;
+        width: 36px;
+        padding: 0;
+        transition: background-color $duration-fast $ease-smooth,
+                    border-color $duration-fast $ease-smooth,
+                    transform $duration-instant $ease-smooth;
+        margin-top: $spacing-2xl;
+        margin-right: $spacing-sm;
+
+        svg {
+            fill: currentColor;
+            width: 20px;
+            height: 20px;
+        }
+
+        &:hover,
+        &:focus {
+            background-color: $bg-surface-tertiary;
+            border-color: $accent-primary;
+            color: $text-primary;
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
+    &__dock {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: $spacing-xs;
+        padding: $spacing-xs;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-secondary;
+        border-radius: $shape-corner-medium;
+        margin: $spacing-sm $spacing-md $spacing-md;
+        box-sizing: border-box;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    &__dock-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-2xs;
+        padding: 6px $spacing-2xs;
+        border-radius: $shape-corner-small;
+        background: transparent;
+        border: 1px solid transparent;
+        color: $text-secondary;
+        font-size: 11px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        position: relative;
+        transition: background-color $duration-fast $ease-smooth,
+                    border-color $duration-fast $ease-smooth,
+                    color $duration-fast $ease-smooth;
+        box-sizing: border-box;
+
+        svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            flex-shrink: 0;
+            transition: fill $duration-fast $ease-smooth;
+        }
+
+        &:hover {
+            background-color: $bg-surface-tertiary;
+            color: $text-primary;
+        }
+
+        &.active {
+            background-color: var(--accent-soft);
+            color: var(--accent-primary);
+            border-color: color-mix(in srgb, var(--accent-primary) 35%, transparent);
+            box-shadow: $elevation-1;
+
+            svg {
+                fill: var(--accent-primary);
+            }
+        }
+
+        &--soon {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+
+            &:hover {
+                background: transparent;
+                color: $text-secondary;
+            }
+        }
+    }
+
+    &__dock-badge-soon {
+        position: absolute;
+        top: -3px;
+        right: 2px;
+        font-size: 8px;
+        font-weight: 800;
+        padding: 1px $spacing-xs;
+        border-radius: $shape-corner-xs;
+        background-color: $bg-surface-tertiary;
+        color: $text-primary;
+        text-transform: uppercase;
+        letter-spacing: 0.2px;
+        line-height: 1.1;
+    }
+
+}
+
+.hamburger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: #{$z-index-layout + 1};
+    position: relative;
+    outline: none;
+    width: 40px;
+    height: 40px;
+    border-radius: $shape-corner-small;
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    transition: background-color $duration-fast $ease-smooth,
+                transform $duration-instant $ease-smooth;
+
+    @media (hover: hover) {
+        &:hover {
+            background-color: $bg-surface-tertiary;
+        }
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent-primary;
+        outline-offset: 2px;
+    }
+
+    .menu-icon,
+    svg {
+        fill: $text-primary;
+        width: 24px;
+        height: 24px;
+        display: block;
+    }
+
+    @media (max-width: #{$breakpoint-desktop - 1px}) {
+        display: flex;
+    }
+}
+
+body.open-drawer {
+    overflow: hidden;
+    touch-action: none;
+}

@@ -1,0 +1,1968 @@
+{
+    "town_hall": {
+        "id": "town_hall",
+        "size": [
+            4,
+            4
+        ],
+        "minTH": 1,
+        "maxLevel": 18,
+        "category": "building",
+        "subCategory": "townhall",
+        "immunities": {
+            "lightning": true,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 400,
+                "th": 1
+            },
+            "2": {
+                "hp": 800,
+                "th": 2
+            },
+            "3": {
+                "hp": 1600,
+                "th": 3
+            },
+            "4": {
+                "hp": 2000,
+                "th": 4
+            },
+            "5": {
+                "hp": 2400,
+                "th": 5
+            },
+            "6": {
+                "hp": 2800,
+                "th": 6
+            },
+            "7": {
+                "hp": 3300,
+                "th": 7
+            },
+            "8": {
+                "hp": 3900,
+                "th": 8
+            },
+            "9": {
+                "hp": 4600,
+                "th": 9
+            },
+            "10": {
+                "hp": 5500,
+                "th": 10
+            },
+            "11": {
+                "hp": 6800,
+                "th": 11
+            },
+            "12": {
+                "hp": 7500,
+                "th": 12,
+                "weapon": "Giga Tesla"
+            },
+            "13": {
+                "hp": 8200,
+                "th": 13,
+                "weapon": "Giga Inferno"
+            },
+            "14": {
+                "hp": 8900,
+                "th": 14,
+                "weapon": "Giga Inferno"
+            },
+            "15": {
+                "hp": 9600,
+                "th": 15,
+                "weapon": "Giga Inferno"
+            },
+            "16": {
+                "hp": 10000,
+                "th": 16,
+                "weapon": "Giga Inferno"
+            },
+            "17": {
+                "hp": 10400,
+                "th": 17,
+                "weapon": "Inferno Artillery",
+                "stars": {
+                    "1": {
+                        "hp": 10400,
+                        "dps": 40,
+                        "dph": 140
+                    },
+                    "2": {
+                        "hp": 10400,
+                        "dps": 45,
+                        "dph": 157.5
+                    },
+                    "3": {
+                        "hp": 10400,
+                        "dps": 50,
+                        "dph": 175
+                    },
+                    "4": {
+                        "hp": 10400,
+                        "dps": 55,
+                        "dph": 192.5
+                    },
+                    "5": {
+                        "hp": 10400,
+                        "dps": 60,
+                        "dph": 210
+                    }
+                }
+            },
+            "18": {
+                "hp": 10800,
+                "th": 18,
+                "weapon": "Guardians"
+            }
+        }
+    },
+    "clan_castle": {
+        "id": "clan_castle",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 1,
+        "maxLevel": 14,
+        "category": "building",
+        "subCategory": "cc",
+        "immunities": {
+            "lightning": true,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 600,
+                "th": 1,
+                "spellSpace": 0
+            },
+            "2": {
+                "hp": 1200,
+                "th": 2,
+                "spellSpace": 0
+            },
+            "3": {
+                "hp": 1800,
+                "th": 3,
+                "spellSpace": 0
+            },
+            "4": {
+                "hp": 2600,
+                "th": 8,
+                "spellSpace": 1
+            },
+            "5": {
+                "hp": 3000,
+                "th": 9,
+                "spellSpace": 1
+            },
+            "6": {
+                "hp": 3400,
+                "th": 10,
+                "spellSpace": 1
+            },
+            "7": {
+                "hp": 4000,
+                "th": 11,
+                "spellSpace": 2
+            },
+            "8": {
+                "hp": 4400,
+                "th": 12,
+                "spellSpace": 2
+            },
+            "9": {
+                "hp": 4800,
+                "th": 13,
+                "spellSpace": 2
+            },
+            "10": {
+                "hp": 5200,
+                "th": 14,
+                "spellSpace": 3
+            },
+            "11": {
+                "hp": 5400,
+                "th": 15,
+                "spellSpace": 3
+            },
+            "12": {
+                "hp": 5600,
+                "th": 16,
+                "spellSpace": 3
+            },
+            "13": {
+                "hp": 5800,
+                "th": 17,
+                "spellSpace": 3
+            },
+            "14": {
+                "hp": 6000,
+                "th": 18,
+                "spellSpace": 4
+            }
+        }
+    },
+    "cake_a_pult": {
+        "id": "cake_a_pult",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 11,
+        "maxLevel": 10,
+        "category": "building",
+        "subCategory": "crafted",
+        "seasonStarts": "2026-08-01T00:00:00Z",
+        "seasonExpires": "2026-12-31T23:59:59Z",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 1600,
+                "th": 11
+            },
+            "2": {
+                "hp": 1800,
+                "th": 12
+            },
+            "3": {
+                "hp": 2150,
+                "th": 13
+            },
+            "4": {
+                "hp": 2500,
+                "th": 14
+            },
+            "5": {
+                "hp": 2700,
+                "th": 15
+            },
+            "6": {
+                "hp": 3150,
+                "th": 16
+            },
+            "7": {
+                "hp": 3800,
+                "th": 17
+            },
+            "8": {
+                "hp": 4300,
+                "th": 18
+            },
+            "9": {
+                "hp": 4950,
+                "th": 18
+            },
+            "10": {
+                "hp": 5800,
+                "th": 18
+            }
+        }
+    },
+    "hero_hunter": {
+        "id": "hero_hunter",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 11,
+        "maxLevel": 10,
+        "category": "building",
+        "subCategory": "crafted",
+        "seasonStarts": "2026-08-01T00:00:00Z",
+        "seasonExpires": "2026-12-31T23:59:59Z",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 1600,
+                "th": 11
+            },
+            "2": {
+                "hp": 1800,
+                "th": 12
+            },
+            "3": {
+                "hp": 2150,
+                "th": 13
+            },
+            "4": {
+                "hp": 2500,
+                "th": 14
+            },
+            "5": {
+                "hp": 2700,
+                "th": 15
+            },
+            "6": {
+                "hp": 3150,
+                "th": 16
+            },
+            "7": {
+                "hp": 3900,
+                "th": 17
+            },
+            "8": {
+                "hp": 4400,
+                "th": 18
+            },
+            "9": {
+                "hp": 5200,
+                "th": 18
+            },
+            "10": {
+                "hp": 6000,
+                "th": 18
+            }
+        }
+    },
+    "hot_candle": {
+        "id": "hot_candle",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 11,
+        "maxLevel": 10,
+        "category": "building",
+        "subCategory": "crafted",
+        "seasonStarts": "2026-08-01T00:00:00Z",
+        "seasonExpires": "2026-12-31T23:59:59Z",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 1600,
+                "th": 11
+            },
+            "2": {
+                "hp": 1800,
+                "th": 12
+            },
+            "3": {
+                "hp": 2150,
+                "th": 13
+            },
+            "4": {
+                "hp": 2500,
+                "th": 14
+            },
+            "5": {
+                "hp": 2700,
+                "th": 15
+            },
+            "6": {
+                "hp": 3150,
+                "th": 16
+            },
+            "7": {
+                "hp": 3900,
+                "th": 17
+            },
+            "8": {
+                "hp": 4500,
+                "th": 18
+            },
+            "9": {
+                "hp": 5200,
+                "th": 18
+            },
+            "10": {
+                "hp": 6000,
+                "th": 18
+            }
+        }
+    },
+    "revenge_tower": {
+        "id": "revenge_tower",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 18,
+        "maxLevel": 2,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 5800,
+                "th": 18
+            },
+            "2": {
+                "hp": 6200,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 6200
+                    },
+                    "tier2": {
+                        "hp": 6300
+                    }
+                }
+            }
+        }
+    },
+    "super_wizard_tower": {
+        "id": "super_wizard_tower",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 18,
+        "maxLevel": 2,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 6000,
+                "th": 18
+            },
+            "2": {
+                "hp": 6300,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 6300
+                    },
+                    "tier2": {
+                        "hp": 6450
+                    }
+                }
+            }
+        }
+    },
+    "firespitter": {
+        "id": "firespitter",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 17,
+        "maxLevel": 3,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 4500,
+                "th": 17
+            },
+            "2": {
+                "hp": 5000,
+                "th": 17
+            },
+            "3": {
+                "hp": 5300,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 5300
+                    },
+                    "tier2": {
+                        "hp": 5550
+                    }
+                }
+            }
+        }
+    },
+    "multi_gear_tower": {
+        "id": "multi_gear_tower",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 17,
+        "maxLevel": 3,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 4000,
+                "th": 18
+            },
+            "2": {
+                "hp": 4200,
+                "th": 18
+            },
+            "3": {
+                "hp": 4350,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 4350
+                    },
+                    "tier2": {
+                        "hp": 4500
+                    }
+                }
+            }
+        }
+    },
+    "multi_archer_tower": {
+        "id": "multi_archer_tower",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 16,
+        "maxLevel": 4,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 5000,
+                "th": 16
+            },
+            "2": {
+                "hp": 5200,
+                "th": 16
+            },
+            "3": {
+                "hp": 5400,
+                "th": 17
+            },
+            "4": {
+                "hp": 5500,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 5500
+                    },
+                    "tier2": {
+                        "hp": 5600
+                    }
+                }
+            }
+        }
+    },
+    "ricochet_cannon": {
+        "id": "ricochet_cannon",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 16,
+        "maxLevel": 4,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 5400,
+                "th": 16
+            },
+            "2": {
+                "hp": 5700,
+                "th": 16
+            },
+            "3": {
+                "hp": 6000,
+                "th": 17
+            },
+            "4": {
+                "hp": 6100,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 6100
+                    },
+                    "tier2": {
+                        "hp": 6250
+                    }
+                }
+            }
+        }
+    },
+    "monolith": {
+        "id": "monolith",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 15,
+        "maxLevel": 5,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 4747,
+                "th": 15,
+                "pctDmg": 0.11
+            },
+            "2": {
+                "hp": 5050,
+                "th": 15,
+                "pctDmg": 0.12
+            },
+            "3": {
+                "hp": 5353,
+                "th": 16,
+                "pctDmg": 0.13
+            },
+            "4": {
+                "hp": 5656,
+                "th": 17,
+                "pctDmg": 0.14
+            },
+            "5": {
+                "hp": 5959,
+                "th": 18,
+                "pctDmg": 0.15,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 5959
+                    },
+                    "tier2": {
+                        "hp": 6161
+                    }
+                }
+            }
+        }
+    },
+    "spell_tower": {
+        "id": "spell_tower",
+        "size": [
+            2,
+            2
+        ],
+        "minTH": 15,
+        "maxLevel": 4,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 2500,
+                "th": 15,
+                "mode": "Rage"
+            },
+            "2": {
+                "hp": 2800,
+                "th": 15,
+                "mode": "Poison"
+            },
+            "3": {
+                "hp": 3100,
+                "th": 15,
+                "mode": "Invisibility"
+            },
+            "4": {
+                "hp": 3200,
+                "th": 17,
+                "mode": "Earthquake"
+            }
+        }
+    },
+    "builders_hut": {
+        "id": "builders_hut",
+        "size": [
+            2,
+            2
+        ],
+        "minTH": 14,
+        "maxLevel": 8,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 250,
+                "th": 1,
+                "isWeaponized": false
+            },
+            "2": {
+                "hp": 1000,
+                "th": 14,
+                "isWeaponized": true,
+                "repairRate": 37.5
+            },
+            "3": {
+                "hp": 1300,
+                "th": 14,
+                "isWeaponized": true,
+                "repairRate": 45
+            },
+            "4": {
+                "hp": 1600,
+                "th": 14,
+                "isWeaponized": true,
+                "repairRate": 52.5
+            },
+            "5": {
+                "hp": 1800,
+                "th": 15,
+                "isWeaponized": true,
+                "repairRate": 60
+            },
+            "6": {
+                "hp": 1900,
+                "th": 16,
+                "isWeaponized": true,
+                "repairRate": 63.75
+            },
+            "7": {
+                "hp": 2000,
+                "th": 17,
+                "isWeaponized": true,
+                "repairRate": 67.5
+            },
+            "8": {
+                "hp": 2100,
+                "th": 18,
+                "isWeaponized": true,
+                "repairRate": 71.25,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 2100
+                    },
+                    "tier2": {
+                        "hp": 2150
+                    }
+                }
+            }
+        }
+    },
+    "scattershot": {
+        "id": "scattershot",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 13,
+        "maxLevel": 7,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 3600,
+                "th": 13
+            },
+            "2": {
+                "hp": 4200,
+                "th": 13
+            },
+            "3": {
+                "hp": 4800,
+                "th": 14
+            },
+            "4": {
+                "hp": 5100,
+                "th": 15
+            },
+            "5": {
+                "hp": 5410,
+                "th": 16
+            },
+            "6": {
+                "hp": 5600,
+                "th": 17
+            },
+            "7": {
+                "hp": 5800,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 5800
+                    },
+                    "tier2": {
+                        "hp": 5950
+                    }
+                }
+            }
+        }
+    },
+    "eagle_artillery": {
+        "id": "eagle_artillery",
+        "size": [
+            4,
+            4
+        ],
+        "minTH": 11,
+        "maxTH": 16,
+        "maxLevel": 7,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 4000,
+                "th": 11
+            },
+            "2": {
+                "hp": 4400,
+                "th": 11
+            },
+            "3": {
+                "hp": 4800,
+                "th": 12
+            },
+            "4": {
+                "hp": 5200,
+                "th": 13
+            },
+            "5": {
+                "hp": 5600,
+                "th": 14
+            },
+            "6": {
+                "hp": 5900,
+                "th": 15
+            },
+            "7": {
+                "hp": 6200,
+                "th": 16
+            }
+        }
+    },
+    "inferno_tower": {
+        "id": "inferno_tower",
+        "size": [
+            2,
+            2
+        ],
+        "minTH": 10,
+        "maxLevel": 12,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 1500,
+                "th": 10
+            },
+            "2": {
+                "hp": 1800,
+                "th": 10
+            },
+            "3": {
+                "hp": 2100,
+                "th": 10
+            },
+            "4": {
+                "hp": 2400,
+                "th": 11
+            },
+            "5": {
+                "hp": 2700,
+                "th": 11
+            },
+            "6": {
+                "hp": 3000,
+                "th": 12
+            },
+            "7": {
+                "hp": 3300,
+                "th": 13
+            },
+            "8": {
+                "hp": 3700,
+                "th": 14
+            },
+            "9": {
+                "hp": 4000,
+                "th": 15
+            },
+            "10": {
+                "hp": 4400,
+                "th": 16
+            },
+            "11": {
+                "hp": 4800,
+                "th": 17
+            },
+            "12": {
+                "hp": 5100,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 5100
+                    },
+                    "tier2": {
+                        "hp": 5300
+                    }
+                }
+            }
+        }
+    },
+    "x_bow": {
+        "id": "x_bow",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 9,
+        "maxLevel": 13,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 1500,
+                "th": 9
+            },
+            "2": {
+                "hp": 1900,
+                "th": 9
+            },
+            "3": {
+                "hp": 2300,
+                "th": 9
+            },
+            "4": {
+                "hp": 2700,
+                "th": 10
+            },
+            "5": {
+                "hp": 3100,
+                "th": 11
+            },
+            "6": {
+                "hp": 3400,
+                "th": 12
+            },
+            "7": {
+                "hp": 3700,
+                "th": 13
+            },
+            "8": {
+                "hp": 4000,
+                "th": 13
+            },
+            "9": {
+                "hp": 4200,
+                "th": 14
+            },
+            "10": {
+                "hp": 4400,
+                "th": 15
+            },
+            "11": {
+                "hp": 4600,
+                "th": 16
+            },
+            "12": {
+                "hp": 4800,
+                "th": 17
+            },
+            "13": {
+                "hp": 5000,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 5000
+                    },
+                    "tier2": {
+                        "hp": 5100
+                    }
+                }
+            }
+        }
+    },
+    "bomb_tower": {
+        "id": "bomb_tower",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 8,
+        "maxLevel": 13,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 650,
+                "th": 8
+            },
+            "2": {
+                "hp": 700,
+                "th": 8
+            },
+            "3": {
+                "hp": 750,
+                "th": 9
+            },
+            "4": {
+                "hp": 850,
+                "th": 10
+            },
+            "5": {
+                "hp": 1050,
+                "th": 11
+            },
+            "6": {
+                "hp": 1300,
+                "th": 11
+            },
+            "7": {
+                "hp": 1600,
+                "th": 12
+            },
+            "8": {
+                "hp": 1900,
+                "th": 13
+            },
+            "9": {
+                "hp": 2300,
+                "th": 14
+            },
+            "10": {
+                "hp": 2500,
+                "th": 15
+            },
+            "11": {
+                "hp": 2700,
+                "th": 16
+            },
+            "12": {
+                "hp": 2900,
+                "th": 17
+            },
+            "13": {
+                "hp": 3050,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 3050
+                    },
+                    "tier2": {
+                        "hp": 3150
+                    }
+                }
+            }
+        }
+    },
+    "hidden_tesla": {
+        "id": "hidden_tesla",
+        "size": [
+            2,
+            2
+        ],
+        "minTH": 7,
+        "maxLevel": 17,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 600,
+                "th": 7
+            },
+            "2": {
+                "hp": 630,
+                "th": 7
+            },
+            "3": {
+                "hp": 660,
+                "th": 7
+            },
+            "4": {
+                "hp": 690,
+                "th": 8
+            },
+            "5": {
+                "hp": 730,
+                "th": 8
+            },
+            "6": {
+                "hp": 770,
+                "th": 8
+            },
+            "7": {
+                "hp": 810,
+                "th": 9
+            },
+            "8": {
+                "hp": 850,
+                "th": 10
+            },
+            "9": {
+                "hp": 900,
+                "th": 11
+            },
+            "10": {
+                "hp": 980,
+                "th": 12
+            },
+            "11": {
+                "hp": 1100,
+                "th": 13
+            },
+            "12": {
+                "hp": 1200,
+                "th": 13
+            },
+            "13": {
+                "hp": 1350,
+                "th": 14
+            },
+            "14": {
+                "hp": 1450,
+                "th": 15
+            },
+            "15": {
+                "hp": 1550,
+                "th": 16
+            },
+            "16": {
+                "hp": 1650,
+                "th": 17
+            },
+            "17": {
+                "hp": 1750,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 1750
+                    },
+                    "tier2": {
+                        "hp": 1800
+                    }
+                }
+            }
+        }
+    },
+    "air_sweeper": {
+        "id": "air_sweeper",
+        "size": [
+            2,
+            2
+        ],
+        "minTH": 6,
+        "maxLevel": 7,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 750,
+                "th": 6
+            },
+            "2": {
+                "hp": 800,
+                "th": 6
+            },
+            "3": {
+                "hp": 850,
+                "th": 7
+            },
+            "4": {
+                "hp": 900,
+                "th": 8
+            },
+            "5": {
+                "hp": 950,
+                "th": 9
+            },
+            "6": {
+                "hp": 1000,
+                "th": 10
+            },
+            "7": {
+                "hp": 1050,
+                "th": 11
+            }
+        }
+    },
+    "wizard_tower": {
+        "id": "wizard_tower",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 5,
+        "maxLevel": 17,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 620,
+                "th": 5
+            },
+            "2": {
+                "hp": 650,
+                "th": 5
+            },
+            "3": {
+                "hp": 680,
+                "th": 6
+            },
+            "4": {
+                "hp": 730,
+                "th": 7
+            },
+            "5": {
+                "hp": 840,
+                "th": 8
+            },
+            "6": {
+                "hp": 960,
+                "th": 8
+            },
+            "7": {
+                "hp": 1200,
+                "th": 9
+            },
+            "8": {
+                "hp": 1440,
+                "th": 10
+            },
+            "9": {
+                "hp": 1600,
+                "th": 10
+            },
+            "10": {
+                "hp": 1900,
+                "th": 11
+            },
+            "11": {
+                "hp": 2120,
+                "th": 12
+            },
+            "12": {
+                "hp": 2240,
+                "th": 13
+            },
+            "13": {
+                "hp": 2500,
+                "th": 13
+            },
+            "14": {
+                "hp": 2800,
+                "th": 14
+            },
+            "15": {
+                "hp": 3000,
+                "th": 15
+            },
+            "16": {
+                "hp": 3150,
+                "th": 16
+            },
+            "17": {
+                "hp": 3300,
+                "th": 17
+            }
+        }
+    },
+    "air_defense": {
+        "id": "air_defense",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 4,
+        "maxLevel": 16,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "damageMultipliers": {
+            "giant_arrow": 2
+        },
+        "levels": {
+            "1": {
+                "hp": 800,
+                "th": 4
+            },
+            "2": {
+                "hp": 850,
+                "th": 4
+            },
+            "3": {
+                "hp": 900,
+                "th": 5
+            },
+            "4": {
+                "hp": 950,
+                "th": 6
+            },
+            "5": {
+                "hp": 1000,
+                "th": 7
+            },
+            "6": {
+                "hp": 1050,
+                "th": 8
+            },
+            "7": {
+                "hp": 1100,
+                "th": 9
+            },
+            "8": {
+                "hp": 1210,
+                "th": 10
+            },
+            "9": {
+                "hp": 1300,
+                "th": 11
+            },
+            "10": {
+                "hp": 1400,
+                "th": 12
+            },
+            "11": {
+                "hp": 1500,
+                "th": 13
+            },
+            "12": {
+                "hp": 1650,
+                "th": 14
+            },
+            "13": {
+                "hp": 1750,
+                "th": 15
+            },
+            "14": {
+                "hp": 1850,
+                "th": 16
+            },
+            "15": {
+                "hp": 1950,
+                "th": 17
+            },
+            "16": {
+                "hp": 2000,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 2000,
+                        "dps": 720
+                    },
+                    "tier2": {
+                        "hp": 2000,
+                        "dps": 740
+                    }
+                }
+            }
+        }
+    },
+    "mortar": {
+        "id": "mortar",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 3,
+        "maxLevel": 18,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 400,
+                "th": 3
+            },
+            "2": {
+                "hp": 450,
+                "th": 4
+            },
+            "3": {
+                "hp": 500,
+                "th": 5
+            },
+            "4": {
+                "hp": 550,
+                "th": 6
+            },
+            "5": {
+                "hp": 600,
+                "th": 7
+            },
+            "6": {
+                "hp": 650,
+                "th": 8
+            },
+            "7": {
+                "hp": 700,
+                "th": 9
+            },
+            "8": {
+                "hp": 800,
+                "th": 10
+            },
+            "9": {
+                "hp": 950,
+                "th": 11
+            },
+            "10": {
+                "hp": 1100,
+                "th": 12
+            },
+            "11": {
+                "hp": 1300,
+                "th": 12
+            },
+            "12": {
+                "hp": 1500,
+                "th": 13
+            },
+            "13": {
+                "hp": 1700,
+                "th": 13
+            },
+            "14": {
+                "hp": 1950,
+                "th": 14
+            },
+            "15": {
+                "hp": 2150,
+                "th": 15
+            },
+            "16": {
+                "hp": 2300,
+                "th": 16
+            },
+            "17": {
+                "hp": 2450,
+                "th": 17
+            },
+            "18": {
+                "hp": 2550,
+                "th": 18,
+                "supercharges": {
+                    "tier1": {
+                        "hp": 2550
+                    },
+                    "tier2": {
+                        "hp": 2625
+                    }
+                }
+            }
+        }
+    },
+    "archer_tower": {
+        "id": "archer_tower",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 2,
+        "maxLevel": 21,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 380,
+                "th": 2
+            },
+            "2": {
+                "hp": 420,
+                "th": 2
+            },
+            "3": {
+                "hp": 460,
+                "th": 3
+            },
+            "4": {
+                "hp": 500,
+                "th": 4
+            },
+            "5": {
+                "hp": 540,
+                "th": 5
+            },
+            "6": {
+                "hp": 580,
+                "th": 5
+            },
+            "7": {
+                "hp": 630,
+                "th": 6
+            },
+            "8": {
+                "hp": 690,
+                "th": 7
+            },
+            "9": {
+                "hp": 750,
+                "th": 8
+            },
+            "10": {
+                "hp": 810,
+                "th": 8
+            },
+            "11": {
+                "hp": 890,
+                "th": 9
+            },
+            "12": {
+                "hp": 970,
+                "th": 10
+            },
+            "13": {
+                "hp": 1050,
+                "th": 10
+            },
+            "14": {
+                "hp": 1130,
+                "th": 11
+            },
+            "15": {
+                "hp": 1230,
+                "th": 11
+            },
+            "16": {
+                "hp": 1310,
+                "th": 12
+            },
+            "17": {
+                "hp": 1390,
+                "th": 12
+            },
+            "18": {
+                "hp": 1510,
+                "th": 13
+            },
+            "19": {
+                "hp": 1600,
+                "th": 13
+            },
+            "20": {
+                "hp": 1700,
+                "th": 14
+            },
+            "21": {
+                "hp": 1800,
+                "th": 15
+            }
+        }
+    },
+    "cannon": {
+        "id": "cannon",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 1,
+        "maxTH": 17,
+        "maxLevel": 21,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 300,
+                "th": 1
+            },
+            "2": {
+                "hp": 360,
+                "th": 1
+            },
+            "3": {
+                "hp": 420,
+                "th": 2
+            },
+            "4": {
+                "hp": 500,
+                "th": 3
+            },
+            "5": {
+                "hp": 600,
+                "th": 4
+            },
+            "6": {
+                "hp": 660,
+                "th": 5
+            },
+            "7": {
+                "hp": 730,
+                "th": 6
+            },
+            "8": {
+                "hp": 800,
+                "th": 7
+            },
+            "9": {
+                "hp": 880,
+                "th": 8
+            },
+            "10": {
+                "hp": 960,
+                "th": 8
+            },
+            "11": {
+                "hp": 1060,
+                "th": 9
+            },
+            "12": {
+                "hp": 1160,
+                "th": 10
+            },
+            "13": {
+                "hp": 1260,
+                "th": 10
+            },
+            "14": {
+                "hp": 1380,
+                "th": 11
+            },
+            "15": {
+                "hp": 1500,
+                "th": 11
+            },
+            "16": {
+                "hp": 1620,
+                "th": 12
+            },
+            "17": {
+                "hp": 1740,
+                "th": 12
+            },
+            "18": {
+                "hp": 1870,
+                "th": 13
+            },
+            "19": {
+                "hp": 2000,
+                "th": 13
+            },
+            "20": {
+                "hp": 2150,
+                "th": 14
+            },
+            "21": {
+                "hp": 2250,
+                "th": 15
+            }
+        }
+    },
+    "gold_storage": {
+        "id": "gold_storage",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 1,
+        "maxLevel": 19,
+        "category": "building",
+        "subCategory": "resource",
+        "immunities": {
+            "lightning": true,
+            "earthquake": true
+        },
+        "levels": {
+            "1": {
+                "hp": 150,
+                "th": 1
+            },
+            "2": {
+                "hp": 300,
+                "th": 2
+            },
+            "3": {
+                "hp": 450,
+                "th": 3
+            },
+            "4": {
+                "hp": 600,
+                "th": 4
+            },
+            "5": {
+                "hp": 800,
+                "th": 5
+            },
+            "6": {
+                "hp": 1000,
+                "th": 6
+            },
+            "7": {
+                "hp": 1250,
+                "th": 7
+            },
+            "8": {
+                "hp": 1500,
+                "th": 8
+            },
+            "9": {
+                "hp": 1700,
+                "th": 8
+            },
+            "10": {
+                "hp": 1900,
+                "th": 9
+            },
+            "11": {
+                "hp": 2100,
+                "th": 9
+            },
+            "12": {
+                "hp": 2500,
+                "th": 10
+            },
+            "13": {
+                "hp": 2900,
+                "th": 11
+            },
+            "14": {
+                "hp": 3300,
+                "th": 12
+            },
+            "15": {
+                "hp": 3700,
+                "th": 13
+            },
+            "16": {
+                "hp": 3900,
+                "th": 14
+            },
+            "17": {
+                "hp": 4050,
+                "th": 16
+            },
+            "18": {
+                "hp": 4200,
+                "th": 17
+            },
+            "19": {
+                "hp": 4300,
+                "th": 18
+            }
+        }
+    },
+    "elixir_storage": {
+        "id": "elixir_storage",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 1,
+        "maxLevel": 19,
+        "category": "building",
+        "subCategory": "resource",
+        "immunities": {
+            "lightning": true,
+            "earthquake": true
+        },
+        "levels": {
+            "1": {
+                "hp": 150,
+                "th": 1
+            },
+            "2": {
+                "hp": 300,
+                "th": 2
+            },
+            "3": {
+                "hp": 450,
+                "th": 3
+            },
+            "4": {
+                "hp": 600,
+                "th": 4
+            },
+            "5": {
+                "hp": 800,
+                "th": 5
+            },
+            "6": {
+                "hp": 1000,
+                "th": 6
+            },
+            "7": {
+                "hp": 1250,
+                "th": 7
+            },
+            "8": {
+                "hp": 1500,
+                "th": 8
+            },
+            "9": {
+                "hp": 1700,
+                "th": 8
+            },
+            "10": {
+                "hp": 1900,
+                "th": 9
+            },
+            "11": {
+                "hp": 2100,
+                "th": 9
+            },
+            "12": {
+                "hp": 2500,
+                "th": 10
+            },
+            "13": {
+                "hp": 2900,
+                "th": 11
+            },
+            "14": {
+                "hp": 3300,
+                "th": 12
+            },
+            "15": {
+                "hp": 3700,
+                "th": 13
+            },
+            "16": {
+                "hp": 3900,
+                "th": 14
+            },
+            "17": {
+                "hp": 4050,
+                "th": 16
+            },
+            "18": {
+                "hp": 4200,
+                "th": 17
+            },
+            "19": {
+                "hp": 4300,
+                "th": 18
+            }
+        }
+    },
+    "dark_elixir_storage": {
+        "id": "dark_elixir_storage",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 7,
+        "maxLevel": 13,
+        "category": "building",
+        "subCategory": "resource",
+        "immunities": {
+            "lightning": true,
+            "earthquake": true
+        },
+        "levels": {
+            "1": {
+                "hp": 2000,
+                "th": 7
+            },
+            "2": {
+                "hp": 2200,
+                "th": 7
+            },
+            "3": {
+                "hp": 2400,
+                "th": 8
+            },
+            "4": {
+                "hp": 2600,
+                "th": 8
+            },
+            "5": {
+                "hp": 2900,
+                "th": 9
+            },
+            "6": {
+                "hp": 3200,
+                "th": 9
+            },
+            "7": {
+                "hp": 3500,
+                "th": 10
+            },
+            "8": {
+                "hp": 3800,
+                "th": 11
+            },
+            "9": {
+                "hp": 4100,
+                "th": 12
+            },
+            "10": {
+                "hp": 4300,
+                "th": 13
+            },
+            "11": {
+                "hp": 4500,
+                "th": 15
+            },
+            "12": {
+                "hp": 4700,
+                "th": 17
+            },
+            "13": {
+                "hp": 4800,
+                "th": 18
+            }
+        }
+    }
+}

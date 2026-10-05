@@ -4,20 +4,20 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: $spacing-md;
+    margin-bottom: $spacing-md;
     width: 100%;
 }
 
 .eq-details-avatars {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: $spacing-md;
     flex-shrink: 0;
     background: color-mix(in srgb, $bg-surface-secondary 80%, transparent);
     border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
-    padding: 6px 12px;
-    border-radius: 16px;
+    padding: 6px $spacing-md;
+    border-radius: $shape-corner-large;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 
     .eq-details-hero-emblem {
@@ -50,7 +50,7 @@
 
 .eq-details-title-group {
     h2 {
-        margin: 0 0 4px;
+        margin: 0 0 $spacing-xs;
         font-size: 1.4rem;
         font-weight: 700;
         color: $text-primary;
@@ -74,7 +74,7 @@
     align-items: center;
     align-content: center;
     justify-content: center;
-    gap: 4px 6px;
+    gap: $spacing-xs 6px;
     flex: 1;
     min-width: 0;
 
@@ -84,7 +84,7 @@
         gap: 6px;
         font-size: 0.72rem;
         font-weight: 700;
-        padding: 3px 8px;
+        padding: 3px $spacing-sm;
         border-radius: 6px;
         text-transform: uppercase;
         letter-spacing: 0.5px;

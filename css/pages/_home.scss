@@ -5,6 +5,8 @@
     align-items: center;
     box-shadow: none;
     display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
     justify-content: space-between;
     padding: 10px 15px;
 

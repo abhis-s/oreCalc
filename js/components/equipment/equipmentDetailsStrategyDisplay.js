@@ -1,5 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 import { resolveModifierRecommendation } from '../../domain/equipment/modifierCalculator.js';
+import { formatNumber } from '../../utils/numberFormatter.js';
 
 /**
  * Renders recommendation badge with icon, target level, and localized tooltips.
@@ -29,7 +30,7 @@ export function renderRecommendationBadge(recBadge, data, equipmentName, rec, ac
 
     if (isUnreleased) {
         recBadge.style.display = 'inline-flex';
-        recBadge.innerHTML = `<orecalc-assets-svg name="sparkles" class="badge-icon"></orecalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
+        recBadge.innerHTML = `<orecalc-assets-svg name="experiment" class="badge-icon"></orecalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
         recBadge.className = 'eq-badge badge-unreleased';
         recBadge.setAttribute('data-info', 'views.equipment.recUnreleasedHelp');
     } else if (isMustHave) {
@@ -52,7 +53,7 @@ export function renderRecommendationBadge(recBadge, data, equipmentName, rec, ac
         recBadge.setAttribute('data-info', 'views.equipment.recNicheHelp');
     } else if (isRecommended) {
         recBadge.style.display = 'inline-flex';
-        const recText = levelDisplay ? `${translate('views.equipment.recommended')}: ${levelDisplay}` : translate('views.equipment.recommended');
+        const recText = levelDisplay ? `${translate('validation.recommended')}: ${levelDisplay}` : translate('validation.recommended');
         recBadge.innerHTML = `<orecalc-assets-svg name="thumbs-up" class="badge-icon"></orecalc-assets-svg> <span>${recText}</span>`;
         recBadge.className = 'eq-badge badge-recommended';
         recBadge.setAttribute('data-info', 'views.equipment.recRecommendedHelp');
@@ -113,7 +114,7 @@ export function renderStrategyBanner(recBannerContainer, unhideNoteBtn, equipId,
             let bannerIconName = 'thumbs-up';
             if (bannerType === 'unreleased') {
                 bannerThemeClass = 'banner-unreleased';
-                bannerIconName = 'sparkles';
+                bannerIconName = 'experiment';
             } else if (bannerType === 'must_have') {
                 bannerThemeClass = 'banner-must-have';
                 bannerIconName = 'thumbs-double';
@@ -172,10 +173,11 @@ export function renderStaticStats(staticStatsContent, data) {
     if (data?.staticStats && data.staticStats.length > 0) {
         const formatVal = (v, vUnit) => {
             if (v === undefined || v === null) return '-';
-            if (vUnit === 'percentage' || vUnit === 'percent') return `${v}%`;
-            if (vUnit === 'seconds') return `${v}${translate('time.secondsSuffix')}`;
-            if (vUnit === 'tiles') return `${v} ${translate('views.equipment.tilesSuffix')}`;
-            if (typeof v === 'number') return v.toLocaleString();
+            const formattedNum = typeof v === 'number' ? formatNumber(v) : String(v);
+            if (vUnit === 'percentage' || vUnit === 'percent') return `${formattedNum}%`;
+            if (vUnit === 'seconds') return `${formattedNum}${translate('time.secondsSuffix')}`;
+            if (vUnit === 'tiles') return `${formattedNum} ${translate('views.equipment.tilesSuffix')}`;
+            if (typeof v === 'number') return formattedNum;
             return String(v);
         };
 

@@ -1,12 +1,12 @@
 <dialog id="running-costs-modal" class="modal" aria-labelledby="running-costs-modal-title">
     <div class="modal-content running-costs-content">
         <div class="modal-header">
-            <h2 id="running-costs-modal-title" data-i18n="views.settings.runningCostsModal.title"></h2>
+            <h2 id="running-costs-modal-title" data-i18n="views.settings.projectCosts.title"></h2>
             <div class="modal-header-actions">
                 <a id="running-costs-volunteer-btn" href="https://buymeacoffee.com/orecalc" target="_blank" rel="noopener noreferrer" class="volunteer-button modal-header-btn" data-i18n-title="actions.support" data-i18n-aria-label="actions.support">
                     <orecalc-assets-svg name="volunteer-support"></orecalc-assets-svg>
                 </a>
-                <button id="close-running-costs-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+                <button type="button" id="close-running-costs-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                     <orecalc-assets-svg name="close"></orecalc-assets-svg>
                 </button>
             </div>
@@ -14,26 +14,26 @@
         </div>
         <div class="modal-body">
             <div class="costs-summary-card">
-                <span class="costs-summary-label" data-i18n="views.settings.runningCostsModal.totalLabel"></span>
+                <span class="costs-summary-label" data-i18n="views.settings.projectCosts.modal.totalLabel"></span>
                 <div class="costs-summary-value-wrapper">
                     <span id="running-costs-total-value" class="costs-summary-value">$0.00</span>
-                    <span class="costs-tax-badge" data-i18n="views.settings.runningCostsModal.plusTaxes"></span>
+                    <span class="costs-tax-badge" data-i18n="views.settings.projectCosts.modal.plusTaxes"></span>
                 </div>
             </div>
 
-            <h3 class="costs-section-title" data-i18n="views.settings.runningCostsModal.historyTitle"></h3>
+            <h3 class="costs-section-title" data-i18n="views.settings.projectCosts.modal.historyTitle"></h3>
             <div id="running-costs-history-container" class="costs-history-container">
                 <!-- DYNAMIC INSERTION: Monthly running cost cards -->
             </div>
 
-            <p class="costs-disclaimer" data-i18n="views.settings.runningCostsModal.disclaimer"></p>
+            <p class="costs-disclaimer" data-i18n="views.settings.projectCosts.modal.disclaimer"></p>
         </div>
         <div class="modal-actions running-costs-actions">
             <div class="running-costs-last-updated">
-                <span data-i18n="views.settings.runningCostsModal.lastUpdated"></span>
-                <span id="running-costs-update-date">2026-06-04</span>
+                <span data-i18n="views.settings.projectCosts.modal.lastUpdated"></span>
+                <span id="running-costs-update-date">---</span>
             </div>
-            <button id="running-costs-close-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
+            <button type="button" id="running-costs-close-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
         </div>
     </div>
 </dialog>

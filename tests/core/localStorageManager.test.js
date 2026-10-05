@@ -1,4 +1,4 @@
-import { test, beforeEach } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 if (typeof globalThis.localStorage === 'undefined') {
@@ -14,7 +14,8 @@ if (typeof globalThis.localStorage === 'undefined') {
 
 import { state } from '../../js/core/state.js';
 import { MAX_SAVED_PLAYERS } from '../../js/core/constants.js';
-import { updateSavedPlayerTags, updateAllPlayersData, saveState } from '../../js/core/localStorageManager.js';
+import { saveState } from '../../js/core/localStorageManager.js';
+import { updateSavedPlayerTags, updateAllPlayersData, getSavedProfiles, getSavedPlayerTagsList } from '../../js/core/playerStorage.js';
 
 test('localStorageManager supports up to MAX_SAVED_PLAYERS (12) without truncating', () => {
     state.uiSettings = { currency: { code: 'USD' } };
@@ -75,4 +76,36 @@ test('saveState handles uninitialized, null, and empty state objects without thr
         // @ts-expect-error - Testing defensive boundary
         saveState({ savedPlayerTags: [], allPlayersData: null }, true);
     });
+});
+
+test('getSavedProfiles immediately reflects newly added player tags and profiles synchronously', () => {
+    state.savedPlayerTags = [];
+    state.allPlayersData = {};
+
+    const tag = 'SYNCTEST99';
+    const mockPlayerState = {
+        playerProfile: {
+            name: 'Sync Chief',
+            tag: '#SYNCTEST99',
+            townHallLevel: 17,
+            trophies: 5400
+        },
+        heroes: {},
+        storedOres: { shiny: 5000 },
+        income: {},
+        planner: {}
+    };
+
+    updateSavedPlayerTags(tag);
+    updateAllPlayersData(tag, mockPlayerState);
+
+    const tagsList = getSavedPlayerTagsList();
+    assert.deepEqual(tagsList, ['SYNCTEST99']);
+
+    const profiles = getSavedProfiles();
+    assert.equal(profiles.length, 1);
+    assert.equal(profiles[0].cleanTag, 'SYNCTEST99');
+    assert.equal(profiles[0].name, 'Sync Chief');
+    assert.equal(profiles[0].townHallLevel, 17);
+    assert.equal(profiles[0].trophies, 5400);
 });

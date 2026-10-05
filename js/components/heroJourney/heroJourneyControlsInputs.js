@@ -1,5 +1,5 @@
 import { translate } from '../../i18n/translator.js';
-import { showCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import { showCardHelpPopover, hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import {
     saveCurrentFilterScrollPosition,
     getActiveFilterKey,
@@ -13,6 +13,8 @@ import { hjState, buildStateFromPlayerData, syncPlayerToStorage } from './heroJo
 import { renderTrackView, syncClaimSwitchPill } from './heroJourneyTrackRenderer.js';
 import { renderTableView } from './heroJourneyTableRenderer.js';
 import { renderPlayerSummary } from './heroJourneyPlayerRenderer.js';
+import { state } from '../../core/state.js';
+import { persistAppSettings } from '../common/appSettings.js';
 
 /**
  * Synchronizes type filter buttons and select dropdowns across all filter bars.
@@ -162,9 +164,6 @@ export function initHeroJourneyControls(hjState, renderUI, resetFiltersFn) {
             }
 
             hjState.showTable = !hjState.showTable;
-            if (typeof sessionStorage !== 'undefined') {
-                sessionStorage.setItem('orecalc_hj_table_expanded', String(hjState.showTable));
-            }
             if (hjState.playerData) {
                 syncPlayerToStorage(hjState.playerData, hjState);
             }
@@ -211,9 +210,6 @@ export function initHeroJourneyControls(hjState, renderUI, resetFiltersFn) {
             const showTableBtn = target.closest('#hj-show-table-btn');
             if (showTableBtn) {
                 hjState.showTable = true;
-                if (typeof sessionStorage !== 'undefined') {
-                    sessionStorage.setItem('orecalc_hj_table_expanded', 'true');
-                }
                 if (hjState.playerData) {
                     syncPlayerToStorage(hjState.playerData, hjState);
                 }
@@ -280,8 +276,37 @@ export function initHeroJourneyControls(hjState, renderUI, resetFiltersFn) {
                     icon.setAttribute('name', willBeCollapsed ? 'chevron-down' : 'chevron-up');
                 }
                 if (typeof sessionStorage !== 'undefined') {
-                    sessionStorage.setItem('orecalc_hj_profile_stats_collapsed', String(willBeCollapsed));
+                    sessionStorage.removeItem('orecalc_hj_profile_stats_collapsed');
                 }
+                persistAppSettings({ hideProfileStats: willBeCollapsed });
+                if (state.uiSettings) {
+                    state.uiSettings.hideProfileStats = willBeCollapsed;
+                }
+            }
+        }
+    });
+
+    document.addEventListener('mouseover', (e) => {
+        if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        const target = /** @type {HTMLElement} */ (e.target);
+        const btn = /** @type {HTMLElement | null} */ (target.closest('[data-info], .info-btn, .info-button'));
+        if (btn) {
+            const key = btn.getAttribute('data-info');
+            if (key) {
+                const text = translate(key);
+                showCardHelpPopover(btn, text, { isToggle: false });
+            }
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        const target = /** @type {HTMLElement} */ (e.target);
+        const btn = /** @type {HTMLElement | null} */ (target.closest('[data-info], .info-btn, .info-button'));
+        if (btn) {
+            const related = /** @type {Node | null} */ (e.relatedTarget);
+            if (!related || (!btn.contains(related) && !document.getElementById('card-help-popover')?.contains(related))) {
+                hideCardHelpPopover();
             }
         }
     });

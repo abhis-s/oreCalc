@@ -1,0 +1,32 @@
+@use '../abstracts/variables' as *;
+
+.has-snake-highlight {
+    position: relative !important;
+}
+
+.snake-highlight-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+    z-index: $z-index-overlay;
+    opacity: 1;
+    transition: opacity $duration-slow $ease-smooth;
+
+    &.fade-out {
+        opacity: 0;
+    }
+
+    svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: visible;
+    }
+}

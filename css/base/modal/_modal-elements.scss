@@ -4,15 +4,17 @@
 dialog.modal,
 .modal {
     .modal-header {
-        padding: 24px 24px 16px;
+        padding: $spacing-xl $spacing-xl $spacing-lg;
         display: flex;
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid $border-primary;
         flex-shrink: 0;
-        gap: 12px;
+        gap: $spacing-md;
 
-        h2 {
+        h2,
+        h3,
+        .modal-title {
             font-size: clamp(1.1rem, 2.5vw, 1.25rem);
             font-weight: 600;
             color: $text-primary;
@@ -28,7 +30,7 @@ dialog.modal,
         .button-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: $spacing-sm;
             flex-shrink: 0;
         }
 
@@ -51,7 +53,7 @@ dialog.modal,
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
+            border-radius: $shape-corner-medium;
             border: 1px solid $border-primary;
             background-color: $bg-surface-secondary;
             color: $text-secondary;
@@ -101,6 +103,13 @@ dialog.modal,
             }
         }
 
+        .close-button {
+            transition: background-color $duration-fast $ease-smooth,
+                        border-color $duration-fast $ease-smooth,
+                        color $duration-fast $ease-smooth,
+                        transform $duration-moderate $ease-smooth;
+        }
+
         .close-button:hover,
         .close-button:focus-visible {
             transform: scale(1.08) rotate(90deg);
@@ -143,14 +152,14 @@ dialog.modal,
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border: 2px solid var(--bg-surface-secondary);
+                border: 2px solid $border-secondary;
                 box-sizing: border-box;
             }
         }
     }
 
     .modal-body {
-        padding: 16px 24px 24px;
+        padding: $spacing-lg $spacing-xl $spacing-xl;
         color: $text-primary;
         line-height: 1.5;
         font-size: 1rem;
@@ -165,19 +174,19 @@ dialog.modal,
         code {
             font-family: 'Roboto Mono', monospace;
             background-color: $palette-overlay-light-10;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: $spacing-2xs 6px;
+            border-radius: $shape-corner-xs;
             font-size: 0.9em;
             word-break: normal;
             overflow-wrap: break-word;
             display: inline-block;
-            margin: 2px 0;
+            margin: $spacing-2xs 0;
             color: $accent-primary;
         }
     }
 
     .modal-info-text {
-        padding: 0 24px;
+        padding: 0 $spacing-xl;
         margin-top: 10px;
         font-size: 0.9em;
         color: $text-secondary;
@@ -190,7 +199,7 @@ dialog.modal,
         line-height: 1.4;
         text-align: left;
         border-top: 1px solid $border-primary;
-        padding-top: 12px;
+        padding-top: $spacing-md;
         margin-top: 15px;
 
         p {
@@ -201,8 +210,8 @@ dialog.modal,
     .modal-actions {
         display: flex;
         justify-content: flex-end;
-        padding: 16px 24px;
-        gap: 12px;
+        padding: $spacing-lg $spacing-xl;
+        gap: $spacing-md;
         background-color: $bg-surface-secondary;
         flex-shrink: 0;
 
@@ -229,7 +238,7 @@ dialog.modal,
         @extend %flex-center;
         background-color: $bg-surface-secondary;
         border: 1px solid $border-primary;
-        border-radius: 12px;
+        border-radius: $shape-corner-medium;
         color: $text-secondary;
         cursor: pointer;
         width: 36px;
@@ -298,17 +307,17 @@ dialog.modal,
         .modal-header {
             justify-content: center;
             border-bottom: none;
-            padding-bottom: 8px;
+            padding-bottom: $spacing-sm;
         }
 
         .modal-body {
             text-align: center;
-            padding-top: 8px;
+            padding-top: $spacing-sm;
         }
 
         .modal-actions {
             justify-content: center;
-            padding-top: 8px;
+            padding-top: $spacing-sm;
             background-color: transparent;
         }
     }

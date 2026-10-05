@@ -2,20 +2,23 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
+import { getActiveUserId } from '../../core/storageKeys.js';
 
 import { logger } from '../../utils/logger.js';
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { renderSyncQRCode } from '../../utils/qrCodeHelper.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
 
-import { dom } from '../../dom/domElements.js';
 import { showAlert, showConfirm } from '../../ui/noticeModal.js';
 import { showToast } from '../../ui/toast.js';
+import { openAuthModal } from '../auth/authModalInputs.js';
+import { isAuthenticated } from '../../services/authClientService.js';
+import { triggerCloudSave, importUserData } from '../../services/cloudSaveService.js';
 
 /**
  * Manages animated expanding and collapsing behavior for `<details>` accordion elements.
  */
-export class Accordion {
+class Accordion {
     /**
      * @param {HTMLDetailsElement|HTMLElement} el
      */
@@ -34,6 +37,7 @@ export class Accordion {
             icon.setAttribute('name', this.el.open ? 'chevron-up' : 'chevron-down');
         }
 
+        /** @type {HTMLDetailsElement & { _accordionInstance?: Accordion }} */ (this.el)._accordionInstance = this;
         this.summary?.addEventListener('click', (e) => this.onClick(e));
     }
 
@@ -46,11 +50,23 @@ export class Accordion {
 
         if (this.el.open) {
             const allDetails = this.el.parentElement?.querySelectorAll('details.sync-section') || [];
-            const openDetails = Array.from(allDetails).filter(d => /** @type {HTMLDetailsElement} */ (d).open);
-            if (openDetails.length <= 1) {
-                return;
+            const other = Array.from(allDetails).find(d => d !== this.el);
+            if (other) {
+                const otherEl = /** @type {HTMLDetailsElement & { _accordionInstance?: Accordion }} */ (other);
+                const otherAccordion = otherEl._accordionInstance;
+                if (otherAccordion) {
+                    if (otherAccordion.isClosing || otherAccordion.isExpanding) return;
+                    otherAccordion.open();
+                } else {
+                    otherEl.open = true;
+                    otherEl.classList.add('is-open');
+                    const otherIcon = otherEl.querySelector('orecalc-assets-svg.chevron');
+                    if (otherIcon) {
+                        otherIcon.setAttribute('name', 'chevron-up');
+                    }
+                    this.shrink();
+                }
             }
-            this.shrink();
         } else {
             this.open();
         }
@@ -152,24 +168,132 @@ export class Accordion {
     }
 }
 
+let isDeviceSyncInputsInitialized = false;
+
+/**
+ * Opens the Device Sync modal dialog and generates/updates the active QR code.
+ * @returns {Promise<void>}
+ */
+export async function openDeviceSyncModal() {
+    initializeDeviceSyncInputs();
+
+    const deviceSyncModal = document.getElementById('device-sync-modal');
+    if (!deviceSyncModal) return;
+
+    if (state.uiSettings.cloudSync === false) {
+        const enableSync = await showConfirm(
+            translate('alerts.enableCloudSyncPrompt'),
+            'status.info',
+            'actions.enableAndCopy'
+        );
+        if (enableSync) {
+            handleStateUpdate(() => {
+                state.uiSettings.cloudSync = true;
+            });
+            const toggleEl = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-cloud-sync-toggle'));
+            if (toggleEl) {
+                toggleEl.checked = true;
+            }
+        } else {
+            return;
+        }
+    }
+
+    const userId = getActiveUserId(true);
+    const deviceSyncUserIdDisplay = document.getElementById('device-sync-user-id');
+    const deviceSyncQrContainer = document.getElementById('device-sync-qr-container');
+    const deviceSyncInput = /** @type {HTMLInputElement|null} */ (document.getElementById('device-sync-input'));
+    const deviceSyncStatus = document.getElementById('device-sync-status');
+    const confirmDeviceSyncBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById('confirm-device-sync-btn'));
+
+    if (userId && deviceSyncUserIdDisplay) {
+        deviceSyncUserIdDisplay.textContent = userId;
+        deviceSyncUserIdDisplay.dataset.fullId = userId;
+
+        if (deviceSyncQrContainer) {
+            renderSyncQRCode(deviceSyncQrContainer, userId, 250);
+        }
+    }
+
+    let clipboardHasValidId = false;
+    if (deviceSyncInput) {
+        deviceSyncInput.value = '';
+        try {
+            const clipboardText = await navigator.clipboard.readText();
+            if (clipboardText) {
+                const trimmed = clipboardText.trim();
+                if (isValidUUID(trimmed) && trimmed !== userId) {
+                    clipboardHasValidId = true;
+                    deviceSyncInput.value = trimmed;
+                    if (deviceSyncStatus) {
+                        deviceSyncStatus.textContent = translate('alerts.uuidDetected');
+                        deviceSyncStatus.classList.remove('error');
+                        deviceSyncStatus.classList.add('success');
+                        deviceSyncStatus.classList.add('show');
+                    }
+                }
+            }
+        } catch (err) {
+            logger.warn('Clipboard read failed or denied');
+        }
+    }
+
+    const syncDetails = deviceSyncModal.querySelectorAll('details.sync-section');
+    const hasNoProfiles = !state.savedPlayerTags || state.savedPlayerTags.length === 0 || (state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0');
+    const shouldOpenSecondSection = clipboardHasValidId || hasNoProfiles;
+
+    syncDetails.forEach((details, idx) => {
+        const detailsEl = /** @type {HTMLDetailsElement} */ (details);
+        detailsEl.open = shouldOpenSecondSection ? (idx === 1) : (idx === 0);
+        detailsEl.classList.toggle('is-open', detailsEl.open);
+        detailsEl.style.height = '';
+        const icon = detailsEl.querySelector('orecalc-assets-svg.chevron');
+        if (icon) {
+            icon.setAttribute('name', detailsEl.open ? 'chevron-up' : 'chevron-down');
+        }
+    });
+
+    if (shouldOpenSecondSection && deviceSyncInput) {
+        setTimeout(() => {
+            deviceSyncInput.focus();
+        }, 50);
+    }
+
+    openModal(deviceSyncModal);
+
+    if (confirmDeviceSyncBtn) {
+        const linkSection = deviceSyncModal.querySelectorAll('details.sync-section')[1];
+        const isSection2Open = linkSection ? linkSection.classList.contains('is-open') : false;
+
+        if (isSection2Open) {
+            confirmDeviceSyncBtn.classList.remove('hidden');
+            const inputValue = deviceSyncInput ? deviceSyncInput.value.trim() : '';
+            const currentUserId = getActiveUserId();
+            confirmDeviceSyncBtn.disabled = !(isValidUUID(inputValue) && inputValue !== currentUserId);
+        } else {
+            confirmDeviceSyncBtn.classList.add('hidden');
+        }
+    }
+}
+
 /**
  * Initializes device sync modals, QR code renderer, and link device actions.
  */
 export function initializeDeviceSyncInputs() {
-    const {
-        deviceSyncBtn,
-        deviceSyncModal,
-        closeDeviceSyncModalBtn,
-        deviceSyncUserIdDisplay,
-        deviceSyncCopyBtn,
-        deviceSyncQrContainer,
-        deviceSyncInput,
-        deviceSyncStatus,
-        cancelDeviceSyncBtn,
-        confirmDeviceSyncBtn,
-        cloudSyncToggle
-    } = dom.appSettings || {};
-    const overlay = dom.overlay;
+    if (isDeviceSyncInputsInitialized) return;
+    const deviceSyncModal = document.getElementById('device-sync-modal');
+    if (!deviceSyncModal) return;
+    isDeviceSyncInputsInitialized = true;
+
+    const deviceSyncBtn = document.getElementById('device-sync-btn');
+    const closeDeviceSyncModalBtn = document.getElementById('close-device-sync-modal-btn');
+    const deviceSyncUserIdDisplay = document.getElementById('device-sync-user-id');
+    const deviceSyncCopyBtn = document.getElementById('device-sync-copy-btn');
+    const deviceSyncInput = /** @type {HTMLInputElement|null} */ (document.getElementById('device-sync-input'));
+    const deviceSyncStatus = document.getElementById('device-sync-status');
+    const cancelDeviceSyncBtn = document.getElementById('cancel-device-sync-btn');
+    const confirmDeviceSyncBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById('confirm-device-sync-btn'));
+    const overlay = document.getElementById('overlay');
 
     const updateConfirmButtonVisibility = () => {
         if (!confirmDeviceSyncBtn) return;
@@ -179,7 +303,7 @@ export function initializeDeviceSyncInputs() {
         if (isSection2Open) {
             confirmDeviceSyncBtn.classList.remove('hidden');
             const inputValue = deviceSyncInput ? deviceSyncInput.value.trim() : '';
-            const currentUserId = localStorage.getItem('oreCalc_userId');
+            const currentUserId = getActiveUserId();
             confirmDeviceSyncBtn.disabled = !(isValidUUID(inputValue) && inputValue !== currentUserId);
         } else {
             confirmDeviceSyncBtn.classList.add('hidden');
@@ -188,82 +312,9 @@ export function initializeDeviceSyncInputs() {
 
     document.addEventListener('deviceSyncStateChange', updateConfirmButtonVisibility);
 
-    if (deviceSyncBtn && deviceSyncModal && overlay) {
-        deviceSyncBtn.addEventListener('click', async () => {
-            if (state.uiSettings.cloudSync === false) {
-                const enableSync = await showConfirm(
-                    translate('alerts.enableCloudSyncToCopy'),
-                    'status.info',
-                    'actions.enableAndCopy'
-                );
-                if (enableSync) {
-                    handleStateUpdate(() => {
-                        state.uiSettings.cloudSync = true;
-                    });
-                    const toggleEl = cloudSyncToggle || /** @type {HTMLInputElement|null} */ (document.getElementById('settings-cloud-sync-toggle'));
-                    if (toggleEl) {
-                        toggleEl.checked = true;
-                    }
-                } else {
-                    return;
-                }
-            }
-
-            const userId = localStorage.getItem('oreCalc_userId');
-            if (userId && deviceSyncUserIdDisplay) {
-                deviceSyncUserIdDisplay.textContent = userId;
-                deviceSyncUserIdDisplay.dataset.fullId = userId;
-
-                if (deviceSyncQrContainer) {
-                    renderSyncQRCode(deviceSyncQrContainer, userId, 250);
-                }
-            }
-
-            let clipboardHasValidId = false;
-            if (deviceSyncInput) {
-                deviceSyncInput.value = '';
-                try {
-                    const clipboardText = await navigator.clipboard.readText();
-                    if (clipboardText) {
-                        const trimmed = clipboardText.trim();
-                        if (isValidUUID(trimmed) && trimmed !== userId) {
-                            clipboardHasValidId = true;
-                            deviceSyncInput.value = trimmed;
-                            if (deviceSyncStatus) {
-                                deviceSyncStatus.textContent = translate('alerts.uuidDetected');
-                                deviceSyncStatus.classList.remove('error');
-                                deviceSyncStatus.classList.add('success');
-                                deviceSyncStatus.classList.add('show');
-                            }
-                        }
-                    }
-                } catch (err) {
-                    logger.warn('Clipboard read failed or denied');
-                }
-            }
-
-            if (deviceSyncModal) {
-                const syncDetails = deviceSyncModal.querySelectorAll('details.sync-section');
-                const hasNoProfiles = !state.savedPlayerTags || state.savedPlayerTags.length === 0 || (state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0');
-                const shouldOpenSecondSection = clipboardHasValidId || hasNoProfiles;
-
-                syncDetails.forEach((details, idx) => {
-                    const detailsEl = /** @type {HTMLDetailsElement} */ (details);
-                    detailsEl.open = shouldOpenSecondSection ? (idx === 1) : (idx === 0);
-                    detailsEl.classList.toggle('is-open', detailsEl.open);
-                    detailsEl.style.height = '';
-                });
-
-                if (shouldOpenSecondSection && deviceSyncInput) {
-                    setTimeout(() => {
-                        deviceSyncInput.focus();
-                    }, 50);
-                }
-            }
-
-            deviceSyncModal.classList.add('show');
-            overlay.classList.add('show');
-            updateConfirmButtonVisibility();
+    if (deviceSyncBtn) {
+        deviceSyncBtn.addEventListener('click', () => {
+            openDeviceSyncModal();
         });
     }
 
@@ -278,11 +329,11 @@ export function initializeDeviceSyncInputs() {
     const handleCopySyncCode = async () => {
         const hasOnlyDefaultPlayer = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
         if (hasOnlyDefaultPlayer) {
-            await showAlert(translate('views.settings.noPlayerForCopy'));
+            await showAlert(translate('views.settings.cloudSync.cloudSyncDisabledNoPlayer'));
             return;
         }
 
-        const userId = localStorage.getItem('oreCalc_userId');
+        const userId = getActiveUserId();
         if (!userId) return;
 
         if (!navigator.clipboard || !navigator.clipboard.writeText) {
@@ -310,7 +361,6 @@ export function initializeDeviceSyncInputs() {
 
             let messageKey = '';
             if (state.uiSettings.cloudSync !== false) {
-                const { triggerCloudSave } = await import('../../services/cloudSaveService.js');
                 const saveSuccess = await triggerCloudSave({ silent: true });
                 messageKey = saveSuccess ? 'alerts.copyAndSaveSuccess' : 'alerts.copySuccessSaveFailed';
             } else {
@@ -383,6 +433,22 @@ export function initializeDeviceSyncInputs() {
         }
     });
 
+    const updateAuthCallout = () => {
+        const authCallout = deviceSyncModal?.querySelector('.sync-account-callout');
+        if (authCallout) {
+            authCallout.classList.toggle('hidden', isAuthenticated());
+        }
+    };
+
+    const authShortcutBtn = document.getElementById('device-sync-open-auth-btn');
+    authShortcutBtn?.addEventListener('click', () => {
+        closeDeviceSyncModal();
+        openAuthModal('signin');
+    });
+
+    document.addEventListener('auth:state-change', updateAuthCallout);
+    updateAuthCallout();
+
     confirmDeviceSyncBtn?.addEventListener('click', async () => {
         if (!deviceSyncInput) return;
         const val = deviceSyncInput.value.trim();
@@ -392,7 +458,6 @@ export function initializeDeviceSyncInputs() {
                 confirmDeviceSyncBtn.disabled = true;
                 confirmDeviceSyncBtn.textContent = translate('actions.processing');
 
-                const { importUserData } = await import('../../services/cloudSaveService.js');
                 await importUserData(val);
             } finally {
                 confirmDeviceSyncBtn.disabled = false;
@@ -433,7 +498,7 @@ export function initializeDeviceSyncInputs() {
             }
         }
 
-        const currentUserId = localStorage.getItem('oreCalc_userId');
+        const currentUserId = getActiveUserId();
 
         if (!val) {
             if (deviceSyncStatus) {

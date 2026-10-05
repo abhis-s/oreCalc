@@ -1,40 +1,49 @@
-    <header class="header-container">
-        <div class="hamburger" tabindex="0" role="button" aria-label="Menu" aria-expanded="false">
-            <orecalc-assets-svg name="menu" class="menu-icon"></orecalc-assets-svg>
-        </div>
-        <div class="header-brand">
-            <h1 class="brand-title">OreCalc</h1>
-        </div>
-
-        <div class="tab-bar-container">
-            <button class="tab-button active" data-tab="home" data-i18n="nav.home"></button>
-            <button class="tab-button" data-tab="equipment" data-i18n="nav.equipment"></button>
-            <button class="tab-button" data-tab="income" data-i18n="nav.income"></button>
-            <button class="tab-button" data-tab="planner" data-i18n="nav.planner"></button>
-            <button class="tab-button" data-tab="settings" data-i18n="nav.settings"></button>
-        </div>
-        <div class="player-dropdown-container">
-            <button id="player-dropdown-button" class="player-dropdown-button">
-                <span id="selected-player-name"></span>
-                <orecalc-assets-svg name="chevron-down" class="dropdown-arrow"></orecalc-assets-svg>
-            </button>
-            <div id="player-dropdown-list" class="player-dropdown-list">
-                <div id="player-items-container"></div>
-                <button id="add-player-button" class="add-player-button" data-i18n="player.addPlus"></button>
+    <header class="app-header header-container">
+        <div class="app-header__inner header-inner">
+            <div class="app-header__brand header-brand">
+                <button type="button" id="hamburger-button" class="app-header__hamburger hamburger" aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
+                    <orecalc-assets-svg name="menu" class="menu-icon"></orecalc-assets-svg>
+                </button>
+                <a href="/" class="brand-title-link" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
+                    <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
+                </a>
+                <span class="brand-separator" aria-hidden="true">&middot;</span>
+                <span class="brand-page-pill" data-i18n="app.brandToolName">OreCalc</span>
             </div>
-        </div>
 
-        <div class="data-buttons-container">
-            <button id="refresh-button" class="animated-btn btn-accent task-btn" data-i18n-aria-label="actions.refresh">
-                <span class="animated-btn-icon-wrapper">
-                    <orecalc-assets-svg name="refresh"></orecalc-assets-svg>
-                </span>
-                <span class="animated-btn-text" data-i18n="actions.refresh"></span>
-                <span class="button-loader">
-                    <span></span><span></span><span></span>
-                </span>
-                <span class="button-success-icon"><orecalc-assets-svg name="cloud-check"></orecalc-assets-svg></span>
-                <span class="button-error-icon"><orecalc-assets-svg name="cloud-error"></orecalc-assets-svg></span>
-            </button>
+            <div class="app-header__tabs tab-bar-container">
+                <button type="button" class="tab-button active" data-tab="home" data-i18n="nav.home"></button>
+                <button type="button" class="tab-button" data-tab="equipment" data-i18n="nav.equipment"></button>
+                <button type="button" class="tab-button" data-tab="income" data-i18n="nav.income"></button>
+                <button type="button" class="tab-button" data-tab="planner" data-i18n="nav.planner"></button>
+                <button type="button" class="tab-button" data-tab="settings" data-i18n="nav.settings"></button>
+            </div>
+            <div class="app-header__player-dropdown player-dropdown-container">
+                <button type="button" id="player-dropdown-button" class="player-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select Player" data-i18n-aria-label="player.selectPlaceholder">
+                    <span id="selected-player-name"></span>
+                    <orecalc-assets-svg name="chevron-down" class="dropdown-arrow"></orecalc-assets-svg>
+                </button>
+                <div id="player-dropdown-list" class="player-dropdown-list">
+                    <div id="player-items-container">
+                        <!-- DYNAMIC INSERTION: Header player selector items -->
+                    </div>
+                    <button type="button" id="add-player-button" class="add-player-button" data-i18n="player.addPlus"></button>
+                </div>
+            </div>
+
+            <div class="app-header__actions data-buttons-container">
+                <button id="refresh-button" class="animated-btn btn-accent task-btn is-hidden" type="button" data-i18n-aria-label="actions.refresh">
+                    <span class="animated-btn-icon-wrapper">
+                        <orecalc-assets-svg name="refresh"></orecalc-assets-svg>
+                    </span>
+                    <span class="animated-btn-text" data-i18n="actions.refresh"></span>
+                    <span class="button-loader">
+                        <span></span><span></span><span></span>
+                    </span>
+                    <span class="button-success-icon"><orecalc-assets-svg name="cloud-check"></orecalc-assets-svg></span>
+                    <span class="button-error-icon"><orecalc-assets-svg name="cloud-error"></orecalc-assets-svg></span>
+                </button>
+                <!-- include: partials/header-account.html -->
+            </div>
         </div>
     </header>

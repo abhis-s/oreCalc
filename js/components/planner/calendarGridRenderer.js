@@ -42,7 +42,8 @@ export function createDayCell(date, plannerState, activeEquipmentSchedule = { mi
 
         const dayInfo = document.createElement('div');
         dayInfo.classList.add('day-info');
-        const formattedDay = formatDate(date, { weekday: 'short' });
+        const language = state.uiSettings?.language || 'en';
+        const formattedDay = formatDate(date, { weekday: 'short' }, language);
 
         const dayNameSpan = document.createElement('span');
         dayNameSpan.classList.add('day-name-short');
@@ -288,7 +289,7 @@ export function createDayCell(date, plannerState, activeEquipmentSchedule = { mi
 
                 const levelSpan = document.createElement('span');
                 levelSpan.classList.add('calendar-equipment-level');
-                const lvlPrefix = translate('views.equipment.lvlShort');
+                const lvlPrefix = translate('views.equipment.lvl');
                 levelSpan.textContent = `${lvlPrefix} ${item.targetLevel}`;
                 badge.appendChild(levelSpan);
 
@@ -339,7 +340,7 @@ export function generateMonthGrid(dateForMonth, plannerState, activeEquipmentSch
     else if (effectiveStartDay === 'friday') startDayIndex = 5;
     else if (effectiveStartDay === 'saturday') startDayIndex = 6;
 
-    const dayNames = getShortDayNames(firstDayOfWeekSetting);
+    const dayNames = getShortDayNames(firstDayOfWeekSetting, language);
     dayNames.forEach(day => {
         const dayNameCell = document.createElement('div');
         dayNameCell.classList.add('day-name');

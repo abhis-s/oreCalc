@@ -4,7 +4,7 @@ import { syncLanguageUrl } from '../../core/languageRouter.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
-import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
+import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
 import { dom } from '../../dom/domElements.js';
 import { applyCardLayout } from '../../ui/cardLayoutManager.js';
@@ -28,7 +28,7 @@ export function initializeSettingsAppearance() {
             handleStateUpdate(() => {
                 state.uiSettings.language = newLanguage;
                 syncLanguageUrl(newLanguage, false);
-            });
+            }, false, { preferencesOnly: true });
 
             document.dispatchEvent(new CustomEvent('app:translate'));
 
@@ -63,7 +63,7 @@ export function initializeSettingsAppearance() {
 
             handleStateUpdate(() => {
                 state.uiSettings.theme = newTheme;
-            }, true);
+            }, true, { preferencesOnly: true });
             document.dispatchEvent(new CustomEvent('app:theme-change', { detail: { theme: newTheme, origin } }));
             updateThemeLabel();
         });
@@ -87,7 +87,7 @@ export function initializeSettingsAppearance() {
             const layout = /** @type {HTMLInputElement} */ (e.target).checked ? 'compact0' : 'cozy';
             handleStateUpdate(() => {
                 state.uiSettings.cardLayout = layout;
-            }, true);
+            }, true, { preferencesOnly: true });
             applyCardLayout(layout);
             updateLayoutLabel();
         });
@@ -99,7 +99,7 @@ export function initializeSettingsAppearance() {
                 if (state.uiSettings.cardLayout !== targetLayout) {
                     handleStateUpdate(() => {
                         state.uiSettings.cardLayout = targetLayout;
-                    }, true);
+                    }, true, { preferencesOnly: true });
                     applyCardLayout(targetLayout);
                     updateLayoutLabel();
                 }
@@ -117,7 +117,7 @@ export function initializeSettingsAppearance() {
 
         handleStateUpdate(() => {
             state.uiSettings.accentColor = color;
-        }, true);
+        }, true, { preferencesOnly: true });
 
         if (accentColorSwatches) {
             accentColorSwatches.forEach(s => s.classList.toggle('active', s.dataset.color === color));
@@ -131,8 +131,7 @@ export function initializeSettingsAppearance() {
 
     if (mobileAccentPickerBtn && accentPickerModal) {
         mobileAccentPickerBtn.addEventListener('click', () => {
-            accentPickerModal.classList.add('show');
-            if (dom.overlay) dom.overlay.classList.add('show');
+            openModal(accentPickerModal);
         });
 
         const closeMobilePicker = () => {

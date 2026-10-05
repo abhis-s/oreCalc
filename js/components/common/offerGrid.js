@@ -1,3 +1,5 @@
+import { repackCards } from '../../ui/cardLayoutManager.js';
+
 /**
  * @param {{ container: HTMLElement|Element|any, offers?: any[] | ReadonlyArray<any>, onStateChange?: Function, getDynamicOffers?: Function, renderRow?: Function }} options
  */
@@ -106,7 +108,7 @@ export function renderOfferGrid({ container, offers, stateSelector, renderRow, o
                 container.style.opacity = '';
                 container.style.transform = '';
                 container.style.transition = '';
-                import('../../ui/cardLayoutManager.js').then(m => m.repackCards());
+                repackCards();
             }, 200);
         } else {
             container.innerHTML = '';

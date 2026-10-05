@@ -1,13 +1,13 @@
 import { translate } from '../i18n/translator.js';
 
-import { EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_TERMS, state } from './state.js';
-
 import { logger } from '../utils/logger.js';
 import { closeModalAnimated } from '../utils/modalHistoryManager.js';
 
 import { showChangelogModal } from '../components/changelog/changelogModal.js';
 import { showCommitsModal } from '../components/changelog/commitsModal.js';
-import { showAlert, showConfirm } from '../ui/noticeModal.js';
+import { showAlert } from '../ui/noticeModal.js';
+import { showToast } from '../ui/toast.js';
+import { initExternalLinkCatcher } from '../components/common/externalLinkCatcher.js';
 
 /**
  * Handles module dynamic chunk loading errors with self-healing reload.
@@ -28,6 +28,44 @@ function handleDynamicImportError(err) {
 }
 
 /**
+ * Returns true for errors originating from browser-injected scripts (crypto wallets,
+ * content scripts, browser extensions) rather than the app codebase.
+ * Detection is purely structural — no message content scanning.
+ *
+ * @param {ErrorEvent | PromiseRejectionEvent} event
+ * @returns {boolean}
+ */
+function isInjectedScriptError(event) {
+    // "Script error." is the browser's sanitized form of any cross-origin script error.
+    // It always indicates an external script — never app bundle code.
+    const msg = String(
+        /** @type {ErrorEvent} */ (event).message ||
+        /** @type {PromiseRejectionEvent} */ (event).reason?.message ||
+        /** @type {PromiseRejectionEvent} */ (event).reason ||
+        ''
+    );
+    if (msg === 'Script error.' || msg === 'Script error') return true;
+
+    // For ErrorEvent only — PromiseRejectionEvent has no filename/lineno.
+    if (event instanceof ErrorEvent) {
+        const src = event.filename || '';
+
+        // Browser extension scripts (Chrome, Firefox, Safari)
+        if (/^(chrome|moz|safari|webkit)-extension:\/\//i.test(src)) return true;
+
+        // No source file — injected anonymous/inline code. App bundles always have a filename.
+        if (!src) return true;
+
+        // Line 1 of the page document itself — browser-injected code (crypto wallets,
+        // native app bridges, __gCrWeb, etc.) runs at document scope with the page URL as filename.
+        // App bundles are always loaded as separate JS files and never fire from line 1 of the page.
+        if (event.lineno === 1 && (src === window.location.href || src === window.location.origin + '/')) return true;
+    }
+
+    return false;
+}
+
+/**
  * Registers window error and unhandled rejection event boundaries.
  */
 export function registerGlobalErrorBoundaries() {
@@ -40,17 +78,19 @@ export function registerGlobalErrorBoundaries() {
     } catch (_) {}
 
     window.addEventListener('error', (event) => {
+        if (isInjectedScriptError(event)) return;
         logger.error('Uncaught error:', event.error || event.message);
         if (handleDynamicImportError(event.error || event.message)) return;
         if (!window.__APP_LOADED_STATUS__) return;
-        showAlert(translate('errors.unexpectedError'), 'errors.errorTitle');
+        showAlert(translate('errors.unexpectedError'), 'status.error');
     });
 
     window.addEventListener('unhandledrejection', (event) => {
+        if (isInjectedScriptError(event)) return;
         logger.error('Unhandled promise rejection:', event.reason);
         if (handleDynamicImportError(event.reason)) return;
         if (!window.__APP_LOADED_STATUS__) return;
-        showAlert(translate('errors.unexpectedError'), 'errors.errorTitle');
+        showAlert(translate('errors.unexpectedError'), 'status.error');
     });
 }
 
@@ -62,16 +102,8 @@ export function isInterruptionRestricted() {
     if (window.isAppStartingUp) {
         return true;
     }
-    const welcomeModal = document.getElementById('welcome-modal');
-    if (welcomeModal && welcomeModal.classList.contains('show')) {
-        return true;
-    }
-    const consentBanner = document.getElementById('consent-banner');
-    if (consentBanner && consentBanner.classList.contains('show')) {
-        return true;
-    }
-    const consentModal = document.getElementById('consent-modal');
-    if (consentModal && consentModal.classList.contains('show')) {
+    const guidedSetupModal = document.getElementById('guided-setup-modal');
+    if (guidedSetupModal && (guidedSetupModal.classList.contains('show') || /** @type {HTMLDialogElement} */ (guidedSetupModal).open)) {
         return true;
     }
     const tourTooltip = document.querySelector('.tour-tooltip');
@@ -95,8 +127,6 @@ export function triggerPendingModals() {
         const content = window.pendingChangelogContent;
         window.pendingChangelogContent = null;
         showChangelogModal(content);
-        sessionStorage.removeItem('oreCalc_showChangelog');
-        sessionStorage.removeItem('oreCalc_showChangelogFromVersion');
     } else if (window.pendingCommits) {
         const commits = window.pendingCommits;
         window.pendingCommits = null;
@@ -121,19 +151,11 @@ export function initializeGlobalInterceptors() {
         if (target.classList.contains('modal') || target.id === 'overlay' || (target.tagName === 'DIALOG' && target.classList.contains('modal'))) {
             const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
 
-            if (target.id === 'welcome-modal') {
+            if (target.id === 'guided-setup-modal') {
                 return;
             }
-            if (target.id === 'overlay' && openModals.some(m => m.id === 'welcome-modal')) {
+            if (target.id === 'overlay' && openModals.some(m => m.id === 'guided-setup-modal')) {
                 return;
-            }
-
-            let closingConsentModal = false;
-
-            if (target.id === 'consent-modal') {
-                closingConsentModal = true;
-            } else if (target.id === 'overlay') {
-                closingConsentModal = openModals.some(m => m.id === 'consent-modal');
             }
 
             if (target.classList.contains('modal') || target.tagName === 'DIALOG') {
@@ -141,27 +163,12 @@ export function initializeGlobalInterceptors() {
             } else if (target.id === 'overlay') {
                 openModals.forEach(m => closeModalAnimated(m));
             }
-
-            if (closingConsentModal) {
-                const consentBanner = document.getElementById('consent-banner');
-                if (consentBanner) {
-                    const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
-                    const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
-                    const needsConsent = !privacyTimestamp ||
-                        privacyTimestamp < EFFECTIVE_DATE_PRIVACY ||
-                        !tosTimestamp ||
-                        tosTimestamp < EFFECTIVE_DATE_TERMS;
-                    if (needsConsent) {
-                        consentBanner.classList.add('show');
-                    }
-                }
-            }
         }
     });
 
-    document.addEventListener('keydown', async (event) => {
+    document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' || event.key === 'Esc') {
-            const activeModal = document.querySelector('.modal.show:not(#welcome-modal), dialog.modal[open]:not(#welcome-modal)');
+            const activeModal = document.querySelector('.modal.show:not(#guided-setup-modal), dialog.modal[open]:not(#guided-setup-modal)');
             if (activeModal && !activeModal.classList.contains('closing')) {
                 closeModalAnimated(activeModal);
                 return;
@@ -169,55 +176,42 @@ export function initializeGlobalInterceptors() {
 
             const drawer = document.querySelector('.navigation-drawer, #navigation-drawer, #nav-drawer');
             if (drawer && (drawer.classList.contains('open') || /** @type {HTMLDialogElement} */ (drawer).open || (typeof drawer.hasAttribute === 'function' && drawer.hasAttribute('open')))) {
-                const hamburger = /** @type {HTMLElement|null} */ (document.querySelector('.hamburger'));
+                const hamburger = /** @type {HTMLElement|null} */ (document.querySelector('.hamburger, [data-drawer-trigger], .app-header__hamburger'));
                 if (hamburger) {
                     hamburger.click();
                     hamburger.focus();
                 } else {
-                    const { closeNavigationDrawer } = await import('../components/layout/navigation.js');
-                    closeNavigationDrawer();
+                    const closeBtn = drawer.querySelector('.drawer-close, [data-action="close"], .navigation-drawer__close');
+                    if (closeBtn) {
+                        /** @type {HTMLElement} */ (closeBtn).click();
+                    } else {
+                        drawer.classList.remove('open');
+                        const overlay = document.querySelector('.drawer-overlay, #drawer-overlay, .navigation-drawer__overlay');
+                        if (overlay) overlay.classList.remove('show');
+                        document.body?.classList.remove('open-drawer');
+                        if (typeof /** @type {HTMLDialogElement} */ (drawer).close === 'function' && /** @type {HTMLDialogElement} */ (drawer).open) {
+                            try { /** @type {HTMLDialogElement} */ (drawer).close(); } catch (e) {}
+                        }
+                    }
                 }
                 return;
             }
 
             const mainFab = document.getElementById('main-fab');
             if (mainFab && mainFab.classList.contains('active')) {
-                const { closeFabMenu } = await import('../components/fab/fab.js');
-                closeFabMenu();
+                mainFab.click();
                 mainFab.focus();
             }
         }
     });
 
-    document.body.addEventListener('click', async (e) => {
-        const link = /** @type {HTMLElement} */ (e.target).closest('a');
-        if (!link) return;
-
-        const href = link.getAttribute('href');
-        if (!href) return;
-
-        if (href.startsWith('#') || href.startsWith('javascript:')) return;
-
-        const isMailto = href.startsWith('mailto:');
-        if (isMailto) {
-            e.preventDefault();
-            const confirmed = await showConfirm(translate('confirms.mailtoLink'));
-            if (confirmed) {
-                window.location.href = href;
-            }
-            return;
-        }
-
-        const isHttpExternal = (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(window.location.host);
-
-        if (isHttpExternal) {
-            e.preventDefault();
-            const confirmed = await showConfirm(
-                `${translate('confirms.externalLink')}<br><code class="external-link-display">${href}</code><br><br>${translate('confirms.externalLinkConfirm')}`
-            );
-            if (confirmed) {
-                window.open(href, '_blank', 'noopener,noreferrer');
-            }
+    document.addEventListener('input-validation-message', (event) => {
+        const customEvent = /** @type {CustomEvent} */ (event);
+        const { message, type } = customEvent.detail || {};
+        if (message) {
+            showToast(message, type || 'warning');
         }
     });
+
+    initExternalLinkCatcher(document.body);
 }

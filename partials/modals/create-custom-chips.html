@@ -1,12 +1,12 @@
 <dialog id="create-custom-chips-modal" class="modal" aria-labelledby="create-custom-chips-modal-title">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 id="create-custom-chips-modal-title" data-i18n="views.planner.createCustomChipsModal.title"></h2>
+            <h2 id="create-custom-chips-modal-title" data-i18n="views.planner.actions.createCustomChips"></h2>
             <div class="modal-header-actions">
-                <button id="create-custom-chips-modal-info-btn" class="info-button" data-info="views.planner.createCustomChipsHelp" data-i18n-aria-label="actions.showInfo">
+                <button type="button" id="create-custom-chips-modal-info-btn" class="info-button" data-info="views.planner.createCustomChipsHelp" data-i18n-aria-label="actions.showInfo">
                     <orecalc-assets-svg name="info" height="22" width="22"></orecalc-assets-svg>
                 </button>
-                <button id="close-create-custom-chips-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+                <button type="button" id="close-create-custom-chips-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
                     <orecalc-assets-svg name="close"></orecalc-assets-svg>
                 </button>
             </div>
@@ -19,23 +19,23 @@
                 <select id="custom-chip-type-select" class="dropdown-style" data-modal-autofocus>
                     <option value="" data-i18n="views.planner.createCustomChipsModal.chooseType"></option>
                     <option value="extras" data-i18n="views.planner.createCustomChipsModal.typeExtras"></option>
-                    <option value="starBonus" data-i18n="views.planner.createCustomChipsModal.typeStarBonus"></option>
-                    <option value="shopOffers" data-i18n="views.planner.createCustomChipsModal.typeShopOffer"></option>
-                    <option value="gemTrader" data-i18n="views.planner.createCustomChipsModal.typeGemTrader"></option>
-                    <option value="raidMedalTrader" data-i18n="views.planner.createCustomChipsModal.typeRaidMedalTrader"></option>
-                    <option value="eventTrader" data-i18n="views.planner.createCustomChipsModal.typeEventTrader"></option>
-                    <option value="eventPass" data-i18n="views.planner.createCustomChipsModal.typeEventPass"></option>
-                    <option value="clanWar" data-i18n="views.planner.createCustomChipsModal.typeClanWar"></option>
-                    <option value="cwl" data-i18n="views.planner.createCustomChipsModal.typeCwl"></option>
-                    <option value="supercellEvents" data-i18n="views.planner.createCustomChipsModal.typeSupercellEvent"></option>
-                    <option value="prospector" data-i18n="views.planner.createCustomChipsModal.typeProspector"></option>
+                    <option value="starBonus" data-i18n="views.income.starBonus.title"></option>
+                    <option value="shopOffers" data-i18n="views.income.shopOffers.title"></option>
+                    <option value="gemTrader" data-i18n="views.income.gemTrader.title"></option>
+                    <option value="raidMedalTrader" data-i18n="views.income.raidMedalTrader.title"></option>
+                    <option value="eventTrader" data-i18n="views.income.eventTrader.title"></option>
+                    <option value="eventPass" data-i18n="views.income.eventPass.title"></option>
+                    <option value="clanWar" data-i18n="views.income.clanWar.title"></option>
+                    <option value="cwl" data-i18n="views.income.cwl.title"></option>
+                    <option value="supercellEvents" data-i18n="views.income.supercellEvents.title"></option>
+                    <option value="prospector" data-i18n="views.income.prospector.title"></option>
                 </select>
             </div>
 
-            <!-- DYNAMIC INSERTION: Custom chip input sections -->
-            <div id="custom-chip-dynamic-inputs" class="flex-column-gap-15" style="display: none;">
+            <div id="custom-chip-dynamic-inputs" class="flex-column-gap-15" hidden>
+                <!-- DYNAMIC INSERTION: Custom chip input sections -->
 
-                <div id="custom-chip-section-extras" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-extras" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
@@ -69,7 +69,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-starBonus" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-starBonus" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
@@ -104,7 +104,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-shopOffers" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-shopOffers" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
@@ -138,7 +138,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-gemTrader" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-gemTrader" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
@@ -172,7 +172,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-raidMedalTrader" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-raidMedalTrader" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
@@ -206,7 +206,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-eventTrader" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-eventTrader" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
@@ -240,7 +240,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-eventPass" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-eventPass" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
@@ -274,7 +274,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-clanWar" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-clanWar" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
@@ -331,7 +331,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-cwl" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-cwl" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
@@ -388,7 +388,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-supercellEvents" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-supercellEvents" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
@@ -423,7 +423,7 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-prospector" class="custom-chip-section" style="display: none;">
+                <div id="custom-chip-section-prospector" class="custom-chip-section" hidden>
                     <div class="flex-column-gap-10">
                         <div class="custom-chip-prospector-row">
                             <div class="custom-dropdown" id="custom-chip-prospector-from-ore">
@@ -468,27 +468,27 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-rewards-preview" class="custom-chip-rewards-preview" style="display: none;">
+                <div id="custom-chip-rewards-preview" class="custom-chip-rewards-preview" hidden>
                     <span class="preview-label" data-i18n="views.planner.createCustomChipsModal.perChipRewards"></span>
                     <span id="custom-chip-preview-shiny-container" class="preview-ore-item">
                         <span id="custom-chip-preview-shiny">0</span>
-                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" class="ore-image"></orecalc-assets-image>
+                        <orecalc-assets-image src="assets/shiny_ore.png" alt="Shiny Ore" data-i18n-alt="entities.ores.shiny" class="ore-image"></orecalc-assets-image>
                     </span>
                     <span id="custom-chip-preview-glowy-container" class="preview-ore-item">
                         <span id="custom-chip-preview-glowy">0</span>
-                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" class="ore-image"></orecalc-assets-image>
+                        <orecalc-assets-image src="assets/glowy_ore.png" alt="Glowy Ore" data-i18n-alt="entities.ores.glowy" class="ore-image"></orecalc-assets-image>
                     </span>
                     <span id="custom-chip-preview-starry-container" class="preview-ore-item">
                         <span id="custom-chip-preview-starry">0</span>
-                        <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" class="ore-image"></orecalc-assets-image>
+                        <orecalc-assets-image src="assets/starry_ore.png" alt="Starry Ore" data-i18n-alt="entities.ores.starry" class="ore-image"></orecalc-assets-image>
                     </span>
                 </div>
 
             </div>
         </div>
         <div class="modal-actions">
-            <button id="cancel-create-custom-chips-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button id="save-create-custom-chips-btn" class="accept-button" data-i18n="actions.create"></button>
+            <button type="button" id="cancel-create-custom-chips-btn" class="reject-button" data-i18n="actions.cancel"></button>
+            <button type="button" id="save-create-custom-chips-btn" class="accept-button" data-i18n="actions.create"></button>
         </div>
     </div>
 </dialog>

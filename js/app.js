@@ -1,4 +1,4 @@
-import { loadTranslations } from './i18n/translator.js';
+import { loadTranslations, translate } from './i18n/translator.js';
 import { updateUIWithTranslations } from './i18n/uiTranslator.js';
 
 import { bootstrapUIComponents, handlePreloaderTeardown } from './core/appBootstrapper.js';
@@ -10,10 +10,13 @@ import {
 } from './core/appEventInterceptors.js';
 import { recalculateAll } from './core/calculator.js';
 import { detectLanguage, getLanguageFromPath, isValidRoute, syncLanguageUrl } from './core/languageRouter.js';
-import { getStorageItem, isClashCalcHost, loadPlayerData, loadState, resetState, saveState, setResettingState, updateSavedPlayerTags } from './core/localStorageManager.js';
+import { loadState, resetState, saveState, setResettingState } from './core/localStorageManager.js';
+import { getStorageItem, isClashCalcHost, normalizePlayerTag } from './core/storageKeys.js';
+import { loadPlayerData, updateSavedPlayerTags } from './core/playerStorage.js';
 import { renderApp } from './core/renderer.js';
-import { EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_TERMS, initializeState, state } from './core/state.js';
-import { migrateFullState } from './core/stateCleanup.js';
+import { initializeState, state } from './core/state.js';
+import { autoPlaceIncomeChipsForRange } from './utils/autoPlaceChips.js';
+import { getMaxDate, getMinDate } from './utils/dateUtils.js';
 import { compareVersions } from './utils/versionUtils.js';
 import { registerStateUpdateCallback, switchActivePlayer } from './core/stateManager.js';
 import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
@@ -26,17 +29,21 @@ import {
 } from './core/themeManager.js';
 import { initMainAppCrossTabSync } from './core/crossTabSync.js';
 import { getPlayerTagFromUrl, syncPlayerTagToUrl } from './core/playerUrlRouter.js';
+import { showApiErrorToast, showToast } from './ui/toast.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
+import { initAppFooter } from './components/common/appFooter.js';
 import { logger } from './utils/logger.js';
 import './utils/imageManager.js';
 import './utils/svgManager.js';
+import './ui/savingIndicator.js';
 
 import { showChangelogModal } from './components/changelog/changelogModal.js';
 import { showCommitsModal } from './components/changelog/commitsModal.js';
 import { dom, initializeDOMElements } from './dom/domElements.js';
 import { getChangelogHtml } from './services/changelogService.js';
-import { checkLegalConsent, refreshConsentModalStatus } from './services/consentManager.js';
 import { initializePwaService } from './services/pwaService.js';
+import { setJustSyncedFromQr, importUserData, initializeAppData, isJustSyncedFromQr } from './services/cloudSaveService.js';
+import { showAddPlayerModal } from './components/player/playerModalInputs.js';
 import './console.js';
 
 setThemeRenderCallback(renderApp);
@@ -48,6 +55,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         const urlParams = new URLSearchParams(window.location.search);
         let userIdFromUrl = urlParams.get('userId');
         let tagFromUrl = urlParams.get('tag');
+        let pendingQrUserId = null;
 
         if (userIdFromUrl) {
             const playerTagsStr = getStorageItem('clashCalc_playerTags', 'oreCalc_playerTags');
@@ -57,7 +65,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             let hasRealLocalData = false;
             if (playerTagsStr) {
                 const tags = safeJsonParse(playerTagsStr, []);
-                if (Array.isArray(tags) && tags.length > 0) {
+                if (Array.isArray(tags) && tags.length > 0 && tags.some(t => t && t !== 'DEFAULT0')) {
                     hasRealLocalData = true;
                 }
             } else if (legacyStateStr) {
@@ -73,61 +81,71 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 : '';
 
             if (hasRealLocalData && isDifferentUser) {
-                sessionStorage.setItem('clashCalc_pendingQrUserId', userIdFromUrl);
-                sessionStorage.setItem('oreCalc_pendingQrUserId', userIdFromUrl);
+                pendingQrUserId = userIdFromUrl;
                 window.history.replaceState({}, document.title, window.location.pathname + targetSearch);
             } else {
                 const targetUserIdKey = isClashCalcHost() ? 'clashCalc_userId' : 'oreCalc_userId';
                 localStorage.setItem(targetUserIdKey, userIdFromUrl);
-                localStorage.setItem('oreCalc_userId', userIdFromUrl);
-                sessionStorage.setItem('clashCalc_justSyncedFromQr', 'true');
-                sessionStorage.setItem('oreCalc_justSyncedFromQr', 'true');
+                if (!isClashCalcHost()) {
+                    localStorage.setItem('oreCalc_userId', userIdFromUrl);
+                }
+                setJustSyncedFromQr(true);
                 window.history.replaceState({}, document.title, window.location.pathname + targetSearch);
-                location.reload();
-                return;
             }
         }
 
         const checkMigrationLock = () => {
-            const appSettingsStr = getStorageItem('clashCalc_appSettings', 'oreCalc_appSettings');
             const legacyStateStr = localStorage.getItem('oreCalculatorState') || localStorage.getItem('OreCalculatorState');
+            const appSettingsStr = getStorageItem('clashCalc_appSettings', 'oreCalc_appSettings');
 
-            let needsMigration = false;
-            if (!appSettingsStr && legacyStateStr) {
-                needsMigration = true;
-            } else if (appSettingsStr) {
-                const settings = safeJsonParse(appSettingsStr, {}) || {};
-                const version = settings.appVersion || '1.0.0';
-                if (version.startsWith('1.') || compareVersions(version, '2.0.0') < 0) {
-                    needsMigration = true;
+            // If monolithic legacy state does not exist, no monolithic migration is needed.
+            if (!legacyStateStr) {
+                if (appSettingsStr) {
+                    const settings = safeJsonParse(appSettingsStr, {}) || {};
+                    if (!settings.appVersion || compareVersions(settings.appVersion, '2.0.0') < 0) {
+                        settings.appVersion = window.__ENV__?.APP_VERSION || '3.0.0';
+                        const targetKey = isClashCalcHost() ? 'clashCalc_appSettings' : 'oreCalc_appSettings';
+                        try {
+                            localStorage.setItem(targetKey, JSON.stringify(settings));
+                        } catch {}
+                    }
                 }
+                return false;
             }
 
-            if (needsMigration) {
-                console.log('Migration Lock Active: Running monolithic state migration to 2.0.0...');
-                let legacyState = null;
-                if (legacyStateStr) {
-                    legacyState = safeJsonParse(legacyStateStr, null);
+            console.log('Legacy monolithic state detected: resetting to baseline 3.0.0...');
+            let legacyState = safeJsonParse(legacyStateStr, null);
+            try {
+                let extractedTags = [];
+                if (legacyState?.savedPlayerTags && Array.isArray(legacyState.savedPlayerTags)) {
+                    extractedTags = legacyState.savedPlayerTags.map(normalizePlayerTag).filter(t => t && t !== 'DEFAULT0');
+                } else if (legacyState?.lastPlayerTag) {
+                    const clean = normalizePlayerTag(legacyState.lastPlayerTag);
+                    if (clean && clean !== 'DEFAULT0') extractedTags.push(clean);
                 }
-                try {
-                    migrateFullState(legacyState);
-                    console.log('Migration completed successfully. Reloading page...');
-                    window.location.reload();
-                } catch (err) {
-                    console.error('CRITICAL ERROR DURING MIGRATION:', err);
-                    const fallbackSettingsStr = getStorageItem('clashCalc_appSettings', 'oreCalc_appSettings');
-                    const cleanAppSettings = (fallbackSettingsStr ? safeJsonParse(fallbackSettingsStr, {}) : {}) || {};
-                    cleanAppSettings.appVersion = '2.0.0';
-                    const targetSettingsKey = isClashCalcHost() ? 'clashCalc_appSettings' : 'oreCalc_appSettings';
-                    localStorage.setItem(targetSettingsKey, JSON.stringify(cleanAppSettings));
-                    localStorage.setItem('oreCalc_appSettings', JSON.stringify(cleanAppSettings));
-                    localStorage.removeItem('oreCalculatorState');
-                    localStorage.removeItem('OreCalculatorState');
-                    window.location.reload();
+                const safeTags = extractedTags.length > 0 ? extractedTags : ['DEFAULT0'];
+                const targetTagsKey = isClashCalcHost() ? 'clashCalc_playerTags' : 'oreCalc_playerTags';
+                localStorage.setItem(targetTagsKey, JSON.stringify(safeTags));
+
+                const fallbackSettingsStr = getStorageItem('clashCalc_appSettings', 'oreCalc_appSettings');
+                const cleanAppSettings = (fallbackSettingsStr ? safeJsonParse(fallbackSettingsStr, {}) : {}) || {};
+                cleanAppSettings.appVersion = '3.0.0';
+                const targetSettingsKey = isClashCalcHost() ? 'clashCalc_appSettings' : 'oreCalc_appSettings';
+                localStorage.setItem(targetSettingsKey, JSON.stringify(cleanAppSettings));
+                if (isClashCalcHost()) {
+                    localStorage.removeItem('oreCalc_appSettings');
                 }
-                return true;
+                localStorage.removeItem('oreCalculatorState');
+                localStorage.removeItem('OreCalculatorState');
+                console.log('Reset to 3.0.0 completed successfully. Reloading page...');
+                window.location.reload();
+            } catch (err) {
+                console.error('CRITICAL ERROR DURING LEGACY STATE RESET:', err);
+                localStorage.removeItem('oreCalculatorState');
+                localStorage.removeItem('OreCalculatorState');
+                window.location.reload();
             }
-            return false;
+            return true;
         };
 
         if (checkMigrationLock()) {
@@ -141,21 +159,13 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             console.error('Failed to load partitioned state:', e);
             savedState = null;
         }
-        let originalVersion = savedState?.appVersion || '1.0.0';
-
-        const showChangelogFlag = sessionStorage.getItem('clashCalc_showChangelog') === 'true' ||
-                                  sessionStorage.getItem('oreCalc_showChangelog') === 'true';
-        const migratedFrom = sessionStorage.getItem('clashCalc_showChangelogFromVersion') ||
-                             sessionStorage.getItem('oreCalc_showChangelogFromVersion');
-        if (showChangelogFlag && migratedFrom) {
-            originalVersion = migratedFrom;
-        }
+        const originalVersion = savedState?.appVersion || '1.0.0';
 
         initializeState(savedState);
-        if (savedState && (state.appVersion !== originalVersion || showChangelogFlag)) {
+        if (savedState && state.appVersion !== originalVersion) {
             logger.log(`Upgraded localStorage state version from ${originalVersion} to ${state.appVersion}`);
             saveState(state, true);
-            if (compareVersions(originalVersion, state.appVersion) < 0 || showChangelogFlag) {
+            if (compareVersions(originalVersion, state.appVersion) < 0) {
                 setTimeout(async () => {
                     const currentLang = state.uiSettings?.language || 'en';
                     await loadTranslations('en');
@@ -167,10 +177,6 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                         window.pendingChangelogContent = content;
                     } else {
                         showChangelogModal(content);
-                        sessionStorage.removeItem('clashCalc_showChangelog');
-                        sessionStorage.removeItem('oreCalc_showChangelog');
-                        sessionStorage.removeItem('clashCalc_showChangelogFromVersion');
-                        sessionStorage.removeItem('oreCalc_showChangelogFromVersion');
                     }
                 }, 1200);
             } else {
@@ -216,11 +222,25 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             if (validTabs.includes(initialTab)) {
                 state.activeTab = initialTab;
             } else {
-                history.replaceState(null, '', window.location.pathname);
+                history.replaceState(null, '', `${window.location.pathname}${window.location.search || ''}`);
                 state.activeTab = 'home-tab';
             }
         }
 
+        if (!state.uiSettings) state.uiSettings = {};
+        const initialLang = detectLanguage();
+        state.uiSettings.language = initialLang;
+        syncLanguageUrl(initialLang, true);
+        try {
+            await loadTranslations('en');
+            if (initialLang !== 'en') {
+                await loadTranslations(initialLang);
+            }
+        } catch (err) {
+            logger.warn('Preloading translations failed:', err);
+        }
+
+        const hasUrlTagParam = urlParams.has('tag') || urlParams.has('p') || urlParams.has('player');
         const urlTag = getPlayerTagFromUrl();
         if (urlTag) {
             if (!state.allPlayersData[urlTag] || !state.allPlayersData[urlTag].heroes) {
@@ -231,13 +251,24 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             }
 
             if (state.allPlayersData[urlTag]?.heroes) {
-                updateSavedPlayerTags(urlTag);
                 switchActivePlayer(urlTag);
+                updateSavedPlayerTags(urlTag);
                 syncPlayerTagToUrl(urlTag);
             } else {
-                await loadAndProcessPlayerData(urlTag);
-                syncPlayerTagToUrl(urlTag);
+                const result = await loadAndProcessPlayerData(urlTag);
+                if (result?.success) {
+                    syncPlayerTagToUrl(urlTag);
+                } else {
+                    showApiErrorToast(result || 'apiErrors.notFound');
+                    if (state.savedPlayerTags?.[0] && state.savedPlayerTags[0] !== 'DEFAULT0') {
+                        syncPlayerTagToUrl(state.savedPlayerTags[0]);
+                    } else {
+                        syncPlayerTagToUrl(null);
+                    }
+                }
             }
+        } else if (hasUrlTagParam) {
+            showToast(translate('apiErrors.invalidTag'), 'error');
         } else if (state.savedPlayerTags?.[0] && state.savedPlayerTags[0] !== 'DEFAULT0') {
             syncPlayerTagToUrl(state.savedPlayerTags[0]);
         }
@@ -246,8 +277,6 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
         registerStateUpdateCallback(async (state, silent) => {
             if (state.planner?.calendar && !state.planner.calendar.isHydrated) {
-                const { getMinDate, getMaxDate } = await import('./utils/dateUtils.js');
-                const { autoPlaceIncomeChipsForRange } = await import('./utils/autoPlaceChips.js');
                 const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
                 const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
                 autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
@@ -301,35 +330,6 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             updateUIWithTranslations();
         });
 
-        document.addEventListener('welcome:close', () => {
-            const tourTimestamp = state.uiSettings?.uiTimestamps?.tour;
-            const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
-            const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
-
-            const needsPrivacy = !privacyTimestamp || privacyTimestamp < EFFECTIVE_DATE_PRIVACY;
-            const needsTerms = !tosTimestamp || tosTimestamp < EFFECTIVE_DATE_TERMS;
-            const hasPendingConsent = needsPrivacy || needsTerms;
-
-            if (!tourTimestamp && !hasPendingConsent) {
-                window.isTourPending = true;
-                setTimeout(() => {
-                    import('./components/tour/appTour.js').then(module => {
-                        module.startTour().then(started => {
-                            window.isAppStartingUp = false;
-                            if (!started) {
-                                window.isTourPending = false;
-                                triggerPendingModals();
-                            }
-                        });
-                    });
-                }, 300);
-            } else {
-                setTimeout(() => {
-                    triggerPendingModals();
-                }, 150);
-            }
-        });
-
         document.addEventListener('tour:close', () => {
             triggerPendingModals();
         });
@@ -338,7 +338,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         initMainAppCrossTabSync();
 
         const preloader = dom.preloader;
-        if (preloader) {
+        const isPreloaderEnabled = false; // Preloader disabled in place; set to true to re-enable
+
+        if (isPreloaderEnabled && preloader) {
             let effectivePreloaderAccent = preloader.getAttribute('data-accent');
             if (!effectivePreloaderAccent) {
                 effectivePreloaderAccent = state.uiSettings.accentColor || 'random';
@@ -360,50 +362,26 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             }, 650);
         }
 
-        if (!state.uiSettings) state.uiSettings = {};
-        const initialLang = detectLanguage();
-        state.uiSettings.language = initialLang;
-        syncLanguageUrl(initialLang, true);
-
-        loadTranslations('en').then(() => {
-            if (initialLang !== 'en') {
-                return loadTranslations(initialLang);
-            }
-        }).catch(err => logger.warn('Preloading translations failed:', err));
-
+        const bootstrapDelay = isPreloaderEnabled ? 1900 : 0;
         setTimeout(async () => {
             await bootstrapUIComponents(initialLang);
-        }, 1900);
+        }, bootstrapDelay);
 
-        handlePreloaderTeardown(preloader);
+        handlePreloaderTeardown(isPreloaderEnabled ? preloader : null);
         initializePwaService();
 
         setTimeout(async () => {
             try {
-                const pendingQrUserId = sessionStorage.getItem('clashCalc_pendingQrUserId') ||
-                                        sessionStorage.getItem('oreCalc_pendingQrUserId') ||
-                                        localStorage.getItem('clashCalc_pendingQrUserId') ||
-                                        localStorage.getItem('oreCalc_pendingQrUserId');
                 if (pendingQrUserId) {
-                    sessionStorage.removeItem('clashCalc_pendingQrUserId');
-                    sessionStorage.removeItem('oreCalc_pendingQrUserId');
-                    try {
-                        localStorage.removeItem('clashCalc_pendingQrUserId');
-                        localStorage.removeItem('oreCalc_pendingQrUserId');
-                    } catch (e) {}
-                    const { importUserData } = await import('./services/cloudSaveService.js');
                     await importUserData(pendingQrUserId);
                     return;
                 }
 
-                const { initializeAppData } = await import('./services/cloudSaveService.js');
                 const syncedState = await initializeAppData();
                 if (syncedState) {
                     const originalVersion = syncedState.appVersion || '1.0.0';
                     initializeState(syncedState);
                     if (state.planner?.calendar) {
-                        const { getMinDate, getMaxDate } = await import('./utils/dateUtils.js');
-                        const { autoPlaceIncomeChipsForRange } = await import('./utils/autoPlaceChips.js');
                         const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
                         const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
                         autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
@@ -415,60 +393,42 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     } else {
                         saveState(state);
                     }
-                    const appVersionDisplay = document.getElementById('app-version-display');
-                    if (appVersionDisplay) {
-                        appVersionDisplay.textContent = '| v' + (window.__ENV__?.APP_VERSION || state.appVersion || '2.2.0').replace(/^v/, '');
-                    }
+                    initAppFooter({ version: state.appVersion });
                     recalculateAll(state);
                     renderApp(state);
                 }
-                const justSynced = sessionStorage.getItem('clashCalc_justSyncedFromQr') === 'true' ||
-                                   sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true';
-                if (justSynced) {
-                    if (!state.uiSettings) state.uiSettings = {};
-                    if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
-                    const now = Date.now();
-                    state.uiSettings.uiTimestamps.welcome = now;
-                    state.uiSettings.uiTimestamps.privacy = now;
-                    state.uiSettings.uiTimestamps.tos = now;
-                    saveState(state);
-
-                    sessionStorage.removeItem('clashCalc_justSyncedFromQr');
-                    sessionStorage.removeItem('oreCalc_justSyncedFromQr');
-                    checkLegalConsent();
+                if (isJustSyncedFromQr()) {
+                    setJustSyncedFromQr(false);
                 }
             } catch (error) {
                 if (window.handleChunkError && window.handleChunkError(error)) return;
                 console.error('Error initializing app data:', error);
-                const justSynced = sessionStorage.getItem('clashCalc_justSyncedFromQr') === 'true' ||
-                                   sessionStorage.getItem('oreCalc_justSyncedFromQr') === 'true';
-                if (justSynced) {
-                    if (!state.uiSettings) state.uiSettings = {};
-                    if (!state.uiSettings.uiTimestamps) state.uiSettings.uiTimestamps = {};
-                    const now = Date.now();
-                    state.uiSettings.uiTimestamps.welcome = now;
-                    state.uiSettings.uiTimestamps.privacy = now;
-                    state.uiSettings.uiTimestamps.tos = now;
-                    saveState(state);
-
-                    sessionStorage.removeItem('clashCalc_justSyncedFromQr');
-                    sessionStorage.removeItem('oreCalc_justSyncedFromQr');
-                    checkLegalConsent();
+                if (isJustSyncedFromQr()) {
+                    setJustSyncedFromQr(false);
                 }
             }
         }, 2000);
 
         initializeGlobalInterceptors();
+
+        document.addEventListener('app:accountSynced', async () => {
+            recalculateAll(state);
+            renderApp(state);
+
+            const hasRealTags = Boolean(state.savedPlayerTags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0'));
+            if (!hasRealTags) {
+                showAddPlayerModal();
+            }
+        });
     });
 }
 
 window.resetApplication = () => {
     setResettingState(true);
+    syncPlayerTagToUrl(null);
     resetState();
-    if (window.location.hash) {
+    if (window.location.hash || window.location.search) {
         history.replaceState(null, '', window.location.pathname);
     }
     window.location.href = window.location.origin + window.location.pathname;
 };
-
-window.refreshConsentModalStatus = refreshConsentModalStatus;

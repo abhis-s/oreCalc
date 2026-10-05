@@ -12,7 +12,7 @@ import { addDays, extractScheduleStartDate, getDaysInMonth, getMaxDate, getMinDa
 /**
  * Reindexes all non-auto income types to ensure calendar chip numbering is consistent.
  */
-export function reindexNonAutoChips() {
+function reindexNonAutoChips() {
     const reindexTypes = new Set();
     const findReindexTypes = (source, id) => {
         if (!source.autoGenerateInCalendar && id !== 'raidMedalTrader' && id !== 'gemTrader') {

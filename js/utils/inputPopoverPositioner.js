@@ -11,8 +11,8 @@ export function positionPopover(popover, inputElement, options = {}) {
     const inputRect = inputElement.getBoundingClientRect();
 
     const vv = window.visualViewport;
-    const viewportHeight = vv ? vv.height : window.innerHeight;
-    const viewportWidth = vv ? vv.width : window.innerWidth;
+    const viewportHeight = vv ? vv.height : (window.innerHeight || 800);
+    const viewportWidth = vv ? vv.width : (window.innerWidth || 1200);
 
     const HEADER_OFFSET = 80;
     const spaceAbove = inputRect.top - HEADER_OFFSET;
@@ -70,10 +70,22 @@ export function positionPopover(popover, inputElement, options = {}) {
 
     if (finalPlacement === 'above') {
         top = vvTop + inputRect.top - popoverHeight - 6;
-        left = vvLeft + inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
+        if (options.align === 'right') {
+            left = vvLeft + inputRect.right - popoverWidth;
+        } else if (options.align === 'left') {
+            left = vvLeft + inputRect.left;
+        } else {
+            left = vvLeft + inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
+        }
     } else if (finalPlacement === 'below') {
         top = vvTop + inputRect.bottom + 6;
-        left = vvLeft + inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
+        if (options.align === 'right') {
+            left = vvLeft + inputRect.right - popoverWidth;
+        } else if (options.align === 'left') {
+            left = vvLeft + inputRect.left;
+        } else {
+            left = vvLeft + inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
+        }
     } else if (finalPlacement === 'right') {
         top = vvTop + inputRect.top + (inputRect.height / 2) - (popoverHeight / 2);
         left = vvLeft + inputRect.right + 8;

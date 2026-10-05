@@ -7,6 +7,7 @@ import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter
 
 import { renderOfferGrid } from '../common/offerGrid.js';
 import { dom } from '../../dom/domElements.js';
+import { state } from '../../core/state.js';
 
 /**
  * Renders a single Gem Trader offer row element.
@@ -74,12 +75,16 @@ export function renderGemTraderGrid(gemState) {
                     const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
                     const maxPacks = offer.maxPacks || 10;
                     addValidation(input, { inputName: translate('entities.ores.' + oreType) });
+                    const isStarry = oreType === 'starry';
+                    const isGoldPass = () => Boolean(state.income?.prospector?.goldPass || state.income?.goldPass?.enabled);
                     registerInputPopover(input, {
                         title: () => translate('entities.ores.' + oreType),
                         min: 0,
                         max: maxPacks,
                         step: 1,
-                        clickToFill: { max: true }
+                        showRecommended: () => isStarry && isGoldPass(),
+                        recommended: () => offer.recommendedPacks || 2,
+                        clickToFill: { max: true, recommended: isStarry }
                     });
                 }
             }
@@ -88,10 +93,13 @@ export function renderGemTraderGrid(gemState) {
         gemTraderData.forEach(offer => {
             const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
             const input = container.querySelector(`input[data-offer-id="${offer.id}"]`);
-            if (input && document.activeElement !== input) {
-                const expectedValue = safeState.packs?.[oreType] || 0;
-                if (parseInt(input.value, 10) !== expectedValue) {
-                    input.value = expectedValue;
+            if (input) {
+                input.max = String(offer.maxPacks || 10);
+                if (document.activeElement !== input) {
+                    const expectedValue = safeState.packs?.[oreType] || 0;
+                    if (parseInt(input.value, 10) !== expectedValue) {
+                        input.value = expectedValue;
+                    }
                 }
             }
         });

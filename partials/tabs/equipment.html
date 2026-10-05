@@ -1,7 +1,9 @@
         <div class="tab-content" id="equipment-tab">
             <div class="main-content">
                 <div class="left-panel">
-                    <div id="heroes-container"></div>
+                    <div id="heroes-container">
+                        <!-- DYNAMIC INSERTION: Hero equipment cards -->
+                    </div>
                 </div>
                 <div class="right-panel">
                     <div id="eq-settings-container-card" class="equipment-card card">
@@ -15,7 +17,7 @@
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
                                 <label for="eq-hide-maxed-toggle" data-i18n="views.planner.hideMaxedEquipment"></label>
-                                <p id="eq-hidden-count" class="form-setting-text" style="display: none;"></p>
+                                <p id="eq-hidden-count" class="form-setting-text" hidden></p>
                             </div>
                             <div class="switch">
                                 <input type="checkbox" id="eq-hide-maxed-toggle">
@@ -25,7 +27,7 @@
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
                                 <label for="eq-hide-locked-toggle" data-i18n="views.planner.hideLockedEquipment"></label>
-                                <p id="eq-locked-hidden-count" class="form-setting-text" style="display: none;"></p>
+                                <p id="eq-locked-hidden-count" class="form-setting-text" hidden></p>
                             </div>
                             <div class="switch">
                                 <input type="checkbox" id="eq-hide-locked-toggle">
@@ -35,9 +37,9 @@
                     </div>
                     <div id="eq-results-container-card" class="equipment-card card calculated">
                         <h2 class="results-title">
-                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image>
+                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="app.alts.oresIcon" class="title-icon"></orecalc-assets-image>
                             <span id="results-title-text" data-i18n="views.income.ores.requiredTitle"></span>
-                            <button class="info-btn" data-info="views.equipment.requiredOres.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.home.requiredOres.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -58,9 +60,9 @@
                     </div>
                     <div id="eq-storage-container-card" class="equipment-card card calculated">
                         <h2 class="storage-title">
-                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="alts.oresIcon" class="title-icon"></orecalc-assets-image>
+                            <orecalc-assets-image src="assets/ore_icon.png" data-i18n-alt="app.alts.oresIcon" class="title-icon"></orecalc-assets-image>
                             <span id="storage-title-text" data-i18n="views.income.ores.storedTitle"></span>
-                            <button class="info-btn" data-info="views.equipment.storedOres.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.equipment.storedOres.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -68,22 +70,22 @@
                             <div class="ore">
                                 <orecalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></orecalc-assets-image>
                                 <div class="ore-input-wrapper">
-                                    <input type="number" id="eq-shiny-ore-storage" name="eq-shiny-ore-storage" class="ore-value updatable" value="0" min="0" max="50000" step="100" maxlength="5" aria-label="Stored Ores - Shiny Ore" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
-                                    <span id="eq-shiny-hero-journey-badge" class="badge hero-journey-upcoming-badge" style="display: none;" data-info="views.home.heroJourney.upcomingOresTooltip">+0</span>
+                                    <input type="number" id="eq-shiny-ore-storage" name="eq-shiny-ore-storage" class="ore-value updatable" value="0" min="0" max="50000" step="100" maxlength="5" aria-label="Shiny Ore" data-i18n-aria-label="entities.ores.shiny" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                    <span id="eq-shiny-hero-journey-badge" class="badge hero-journey-upcoming-badge" hidden data-info="views.heroJourney.nodes.upcomingOresTooltip">+0</span>
                                 </div>
                             </div>
                             <div class="ore">
                                 <orecalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></orecalc-assets-image>
                                 <div class="ore-input-wrapper">
-                                    <input type="number" id="eq-glowy-ore-storage" name="eq-glowy-ore-storage" class="ore-value updatable" value="0" min="0" max="5000" step="10" maxlength="4" aria-label="Stored Ores - Glowy Ore" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
-                                    <span id="eq-glowy-hero-journey-badge" class="badge hero-journey-upcoming-badge" style="display: none;" data-info="views.home.heroJourney.upcomingOresTooltip">+0</span>
+                                    <input type="number" id="eq-glowy-ore-storage" name="eq-glowy-ore-storage" class="ore-value updatable" value="0" min="0" max="5000" step="10" maxlength="4" aria-label="Glowy Ore" data-i18n-aria-label="entities.ores.glowy" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                    <span id="eq-glowy-hero-journey-badge" class="badge hero-journey-upcoming-badge" hidden data-info="views.heroJourney.nodes.upcomingOresTooltip">+0</span>
                                 </div>
                             </div>
                             <div class="ore">
                                 <orecalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></orecalc-assets-image>
                                 <div class="ore-input-wrapper">
-                                    <input type="number" id="eq-starry-ore-storage" name="eq-starry-ore-storage" class="ore-value updatable" value="0" min="0" max="1000" step="1" maxlength="4" aria-label="Stored Ores - Starry Ore" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
-                                    <span id="eq-starry-hero-journey-badge" class="badge hero-journey-upcoming-badge" style="display: none;" data-info="views.home.heroJourney.upcomingOresTooltip">+0</span>
+                                    <input type="number" id="eq-starry-ore-storage" name="eq-starry-ore-storage" class="ore-value updatable" value="0" min="0" max="1000" step="1" maxlength="4" aria-label="Starry Ore" data-i18n-aria-label="entities.ores.starry" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                                    <span id="eq-starry-hero-journey-badge" class="badge hero-journey-upcoming-badge" hidden data-info="views.heroJourney.nodes.upcomingOresTooltip">+0</span>
                                 </div>
                             </div>
                         </div>

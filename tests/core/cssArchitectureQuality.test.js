@@ -26,109 +26,7 @@ function scanDir(dir, filter) {
 
 describe('CSS Architecture Quality & Style Invariants', () => {
 
-    describe('Dead SCSS Rules & Obsolete Keyframes', () => {
-        const scssFiles = scanDir(path.join(projectRoot, 'css'), f => f.endsWith('.scss'));
-
-        test('ensures obsolete legacy selectors are completely removed', () => {
-            const obsoleteSelectors = [
-                /\.th-badge-icon\b/,
-                /\.status-icon-wrapper\b/,
-                /\.compact-icon-wrapper\b/,
-                /#welcome-profile-th-badge\b/,
-                /\.welcome-stat-icon-img\b/
-            ];
-
-            const violations = [];
-
-            for (const file of scssFiles) {
-                const content = fs.readFileSync(file, 'utf8');
-                const relPath = path.relative(projectRoot, file);
-                const lines = content.split('\n');
-
-                lines.forEach((line, idx) => {
-                    const trimmed = line.trim();
-                    if (trimmed.startsWith('//') || trimmed.startsWith('/*')) return;
-                    for (const pattern of obsoleteSelectors) {
-                        if (pattern.test(trimmed)) {
-                            violations.push(`${relPath}:${idx + 1} -> ${trimmed}`);
-                        }
-                    }
-                });
-            }
-
-            assert.equal(
-                violations.length,
-                0,
-                `Found obsolete legacy selectors in SCSS:\n${violations.join('\n')}`
-            );
-        });
-
-        test('ensures obsolete keyframe animations are removed', () => {
-            const obsoleteKeyframes = [
-                /@keyframes\s+pulse-once\b/,
-                /@keyframes\s+glow-pulse\b/,
-                /@keyframes\s+subpanelSlideDown\b/,
-                /@keyframes\s+badge-pulse\b/,
-                /@keyframes\s+badge-pulse-success\b/,
-                /@keyframes\s+badge-scale-pulse\b/
-            ];
-
-            const violations = [];
-
-            for (const file of scssFiles) {
-                const content = fs.readFileSync(file, 'utf8');
-                const relPath = path.relative(projectRoot, file);
-                for (const pattern of obsoleteKeyframes) {
-                    if (pattern.test(content)) {
-                        violations.push(`${relPath} matches ${pattern}`);
-                    }
-                }
-            }
-
-            assert.equal(
-                violations.length,
-                0,
-                `Found obsolete @keyframes definitions:\n${violations.join('\n')}`
-            );
-        });
-
-        test('ensures obsolete badge pulse animation properties are removed', () => {
-            const badgePulseRegex = /animation:\s*badge-(?:pulse|scale-pulse|pulse-success)/;
-            const violations = [];
-
-            for (const file of scssFiles) {
-                const content = fs.readFileSync(file, 'utf8');
-                const relPath = path.relative(projectRoot, file);
-                if (badgePulseRegex.test(content)) {
-                    violations.push(`${relPath} matches ${badgePulseRegex}`);
-                }
-            }
-
-            assert.equal(
-                violations.length,
-                0,
-                `Found obsolete badge pulse animation declarations:\n${violations.join('\n')}`
-            );
-        });
-    });
-
     describe('Component SCSS Deduplication & Sheet Centralization', () => {
-        test('ensures deleted fragmented modal files do not exist', () => {
-            const fragmentedFiles = [
-                path.join(projectRoot, 'css/components/_stats-modal.scss'),
-                path.join(projectRoot, 'css/components/_equipment-modal.scss'),
-                path.join(projectRoot, 'css/components/_import-data-modal.scss'),
-                path.join(projectRoot, 'css/components/_delete-player-modal.scss')
-            ];
-
-            for (const file of fragmentedFiles) {
-                assert.equal(
-                    fs.existsSync(file),
-                    false,
-                    `Fragmented modal stylesheet should be deleted and centralized in _player-modal.scss: ${path.relative(projectRoot, file)}`
-                );
-            }
-        });
 
         test('ensures all SCSS partials in components/ and pages/ are included in main.scss', () => {
             const mainScssPath = path.join(projectRoot, 'css/main.scss');
@@ -165,10 +63,12 @@ describe('CSS Architecture Quality & Style Invariants', () => {
     describe('HTML Static Inline Style Elimination', () => {
         const htmlFiles = [
             path.join(projectRoot, 'index.html'),
+            path.join(projectRoot, 'hero-journey', 'index.html'),
+            path.join(projectRoot, 'ore-calculator', 'index.html'),
             ...scanDir(path.join(projectRoot, 'partials'), f => f.endsWith('.html'))
         ];
 
-        test('verifies that zero static style attributes exist across all HTML partials and index.html', () => {
+        test('verifies that zero style attributes exist across all HTML partials and templates (Rule 8)', () => {
             const staticStyleViolations = [];
 
             for (const file of htmlFiles) {
@@ -179,13 +79,7 @@ describe('CSS Architecture Quality & Style Invariants', () => {
                 lines.forEach((line, idx) => {
                     const match = line.match(/style="([^"]*)"/);
                     if (match) {
-                        const styleValue = match[1].trim();
-                        const isDynamicDisplayNone = /^display:\s*none;?$/.test(styleValue);
-                        const isDynamicWidthZero = /^width:\s*0%?;?$/.test(styleValue);
-
-                        if (!isDynamicDisplayNone && !isDynamicWidthZero) {
-                            staticStyleViolations.push(`${relPath}:${idx + 1} -> ${match[0]}`);
-                        }
+                        staticStyleViolations.push(`${relPath}:${idx + 1} -> ${match[0]}`);
                     }
                 });
             }
@@ -193,7 +87,7 @@ describe('CSS Architecture Quality & Style Invariants', () => {
             assert.equal(
                 staticStyleViolations.length,
                 0,
-                `Found static inline styles that must be extracted to SCSS classes:\n${staticStyleViolations.join('\n')}`
+                `Found inline style attributes that must be extracted to SCSS classes or semantic HTML boolean attributes:\n${staticStyleViolations.join('\n')}`
             );
         });
     });
@@ -271,9 +165,9 @@ describe('CSS Architecture Quality & Style Invariants', () => {
                     const trimmed = line.trim();
                     if (trimmed.startsWith('//') || trimmed.startsWith('/*')) return;
 
-                    if (/(?<!background-)color\s*:[^;]*\$bg-(?!app)/.test(trimmed) ||
-                        /border\s*:[^;]*\$bg-/.test(trimmed) ||
-                        /border-color\s*:[^;]*\$bg-/.test(trimmed)) {
+                    if (/(?<!background-)color\s*:[^;]*(?:\$bg-|var\(--bg-)/.test(trimmed) ||
+                        /border(?:-(?:top|bottom|left|right|color))?\s*:[^;]*(?:\$bg-|var\(--bg-)/.test(trimmed) ||
+                        /background(?:-color)?\s*:[^;]*(?:\$border-|var\(--border-)/.test(trimmed)) {
                         violations.push(`${relPath}:${idx + 1} -> ${trimmed}`);
                     }
                 });

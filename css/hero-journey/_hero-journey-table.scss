@@ -10,7 +10,7 @@
         #home-hj-card,
         .make-notice,
         .supercell-notice,
-        .hero-journey-page__footer {
+        .app-footer {
             display: none !important;
         }
 
@@ -21,11 +21,12 @@
             min-height: 0;
             height: calc(100vh - 65px);
             height: calc(100dvh - 65px);
-            padding: 12px 20px 16px;
+            padding: $spacing-md 20px $spacing-lg;
             box-sizing: border-box;
+            margin-bottom: 0;
 
             @media (max-width: $breakpoint-phone) {
-                padding: 8px 12px 12px;
+                padding: $spacing-sm $spacing-md $spacing-md;
             }
         }
 
@@ -67,155 +68,6 @@
         }
     }
 
-    &__view-toggle-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin: 20px 0 12px 0;
-        scroll-margin-top: 85px;
-        transition: padding $duration-base $ease-standard, gap $duration-base $ease-standard;
-
-        .hero-journey-filters-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            flex: 1 1 auto;
-            min-width: 0;
-        }
-
-        .hj-type-filters {
-            .hj-type-select {
-                display: none;
-            }
-
-            .hj-type-buttons {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-            }
-        }
-
-        .hero-journey-page__table-toggle-action {
-            margin-left: auto;
-            flex-shrink: 0;
-        }
-
-        // Responsive filter stage 1: full desktop pill buttons
-        &.table-filter-stage-1 {
-            .hj-type-filters {
-                .hj-type-buttons {
-                    display: inline-flex;
-                }
-
-                .hj-type-select {
-                    display: none;
-                }
-            }
-        }
-
-        // Responsive filter stage 2: compact select dropdown
-        &.table-filter-stage-2 {
-            .hj-type-filters {
-                .hj-type-buttons {
-                    display: none;
-                }
-
-                .hj-type-select {
-                    display: block;
-                    background-color: $bg-surface-primary;
-                    color: $text-primary;
-                    border: 1px solid $border-primary;
-                    border-radius: $shape-corner-full;
-                    padding: 6px 12px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                    cursor: pointer;
-                    outline: none;
-                }
-            }
-        }
-
-        // Responsive filter stage 3: stacked multi-row mobile layout
-        &.table-filter-stage-3 {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-
-            .hero-journey-filters-row {
-                display: contents;
-
-                &:has(.hj-segmented-switch:not([style*="display: none"])) {
-                    &::after {
-                        content: "";
-                        flex-basis: 100%;
-                        width: 100%;
-                        height: 0;
-                        order: 1;
-                    }
-                }
-            }
-
-            .hj-segmented-switch {
-                order: 0;
-                width: 100%;
-                display: flex;
-                box-sizing: border-box;
-                margin-bottom: 4px;
-
-                .hj-switch-btn {
-                    flex: 1;
-                    text-align: center;
-                }
-            }
-
-            .hj-type-filters {
-                order: 2;
-                flex: 1 1 0%;
-                min-width: 0;
-                margin-left: 0;
-
-                .hj-type-buttons {
-                    display: none;
-                }
-
-                .hj-type-select {
-                    display: block;
-                    width: 100%;
-                    min-width: 0;
-                    box-sizing: border-box;
-                    background-color: $bg-surface-primary;
-                    color: $text-primary;
-                    border: 1px solid $border-primary;
-                    border-radius: $shape-corner-full;
-                    padding: 6px 8px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                    cursor: pointer;
-                    outline: none;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-            }
-
-            .hero-journey-page__table-toggle-action {
-                order: 3;
-                flex: 0 0 auto;
-                margin-left: auto;
-
-                .btn-secondary {
-                    padding: 6px 10px;
-                    font-size: 0.75rem;
-                    white-space: nowrap;
-                }
-            }
-        }
-    }
-
     &__table-wrapper {
         position: relative;
         width: 100%;
@@ -230,6 +82,7 @@
         box-shadow: $elevation-1;
         margin-top: 0;
         scroll-margin-top: 85px;
+
         &.is-empty {
             .hero-journey-page__table-container {
                 height: 100%;
@@ -265,7 +118,7 @@
             border: 1px solid color-mix(in srgb, $border-primary 50%, transparent);
             color: $text-secondary;
             border-radius: 6px;
-            padding: 4px 6px;
+            padding: $spacing-xs 6px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -307,7 +160,7 @@
         .level-cell-content {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: $spacing-sm;
             white-space: nowrap;
         }
 
@@ -359,7 +212,7 @@
             .table-ore-item {
                 display: inline-flex;
                 align-items: center;
-                gap: 4px;
+                gap: $spacing-xs;
                 font-size: 0.82rem;
                 font-weight: 600;
                 color: $text-primary;
@@ -419,7 +272,7 @@
         }
 
         th, td {
-            padding: 12px 16px;
+            padding: $spacing-md $spacing-lg;
             border-bottom: 1px solid $border-primary;
         }
 
@@ -485,7 +338,7 @@
                     background-color: color-mix(in srgb, $bg-surface-secondary 95%, $bg-surface-primary);
                     backdrop-filter: blur(8px);
                     -webkit-backdrop-filter: blur(8px);
-                    padding: 8px 16px;
+                    padding: $spacing-sm $spacing-lg;
                     border-bottom: none;
                     box-shadow: inset 0 -1px 0 $border-primary;
                 }
@@ -493,7 +346,7 @@
                 .th-header-cell {
                     display: inline-flex;
                     align-items: center;
-                    gap: 8px;
+                    gap: $spacing-sm;
                 }
 
                 .th-header-img {
@@ -516,7 +369,7 @@
             .table-empty-cell {
                 text-align: center;
                 vertical-align: middle;
-                padding: 32px 16px;
+                padding: $spacing-2xl $spacing-lg;
                 background: transparent;
                 height: 100%;
                 border-bottom: none;
@@ -601,11 +454,11 @@
     @media (max-width: $breakpoint-phone) {
         &__table {
             th, td {
-                padding: 10px 8px;
+                padding: 10px $spacing-sm;
             }
 
             th:last-child {
-                padding-right: 32px;
+                padding-right: $spacing-2xl;
             }
         }
     }

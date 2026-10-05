@@ -1,0 +1,189 @@
+<div id="browser-compatibility-notice" class="browser-compatibility-notice" hidden role="alert">
+    <div class="compatibility-notice-content">
+        <orecalc-assets-svg name="warning" class="compatibility-notice-icon" aria-hidden="true"></orecalc-assets-svg>
+        <span class="compatibility-notice-text" data-i18n="errors.compatibilityNoticeFallback">Storage access is restricted or your browser is outdated. Please enable cookies/local storage or update your browser for OreCalc to function properly.</span>
+    </div>
+    <button type="button" class="compatibility-notice-close" onclick="var el = document.getElementById('browser-compatibility-notice'); if (el) { el.hidden = true; el.style.display = 'none'; }" aria-label="Dismiss" data-i18n-aria-label="actions.close">
+        <orecalc-assets-svg name="close" class="compatibility-notice-close-icon" aria-hidden="true"></orecalc-assets-svg>
+    </button>
+</div>
+
+<div id="load-failure-screen" class="load-failure-screen" hidden>
+    <div class="load-failure-card">
+        <div class="load-failure-header">
+            <div class="load-failure-icon-container">
+                <orecalc-assets-svg name="warning" width="32" height="32" fill="var(--color-danger)"></orecalc-assets-svg>
+            </div>
+            <h1 data-i18n="errors.loadFailureTitle"></h1>
+            <p data-i18n="errors.loadFailureMessage"></p>
+        </div>
+
+        <div class="load-failure-details-section">
+            <button type="button" id="load-failure-details-toggle" class="details-toggle-btn">
+                <span data-i18n="errors.showDetails"></span>
+                <orecalc-assets-svg name="chevron-down" class="chevron-icon" width="12" height="12"></orecalc-assets-svg>
+            </button>
+            <div id="load-failure-details" class="load-failure-details" hidden>
+                <div class="error-meta">
+                    <strong data-i18n="status.error">Error:</strong> <span id="load-failure-error-msg">N/A</span>
+                </div>
+                <pre id="load-failure-error-stack" data-i18n="errors.noStackTrace">No stack trace available.</pre>
+            </div>
+        </div>
+
+        <div id="load-failure-report-form" class="load-failure-report-form" hidden>
+            <h2 data-i18n="views.settings.bugReport.title"></h2>
+            <div class="form-group">
+                <label for="load-failure-email" class="input-label"
+                    data-i18n="views.settings.options.contactEmail"></label>
+                <input type="email" id="load-failure-email" class="input-style"
+                    autocomplete="email" placeholder="your-email@example.com"
+                    data-i18n-placeholder="views.settings.options.emailPlaceholder">
+            </div>
+            <div class="form-group">
+                <label for="load-failure-desc" class="input-label"
+                    data-i18n="views.settings.options.bugDescriptionOptional"></label>
+                <textarea id="load-failure-desc" class="input-style" rows="3"
+                    placeholder="Please describe what you did before the crash..."
+                    data-i18n-placeholder="views.settings.options.bugDescPlaceholder"></textarea>
+                <div class="textarea-footer">
+                    <span id="load-failure-desc-error" class="input-error-msg"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="load-failure-attach-checkbox" checked>
+                    <span class="checkbox-label" data-i18n="views.settings.options.userDataAttachment"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="load-failure-actions">
+            <button type="button" id="load-failure-reset-btn" class="reject-button" onclick="window.resetApplication()" data-i18n="actions.reset">
+                Reset
+            </button>
+            <button type="button" id="load-failure-action-btn" class="accept-button" data-i18n="views.settings.bugReport.title">
+                Report Bug
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        function setupLoadFailureUI() {
+            var toggleBtn = document.getElementById('load-failure-details-toggle');
+            var detailsContainer = document.getElementById('load-failure-details');
+            if (toggleBtn && detailsContainer) {
+                toggleBtn.addEventListener('click', function () {
+                    var isHidden = detailsContainer.hidden || detailsContainer.style.display === 'none';
+                    detailsContainer.hidden = !isHidden;
+                    detailsContainer.style.display = isHidden ? 'block' : 'none';
+                    toggleBtn.classList.toggle('active', isHidden);
+                    var chevron = toggleBtn.querySelector('.chevron-icon');
+                    if (chevron) {
+                        chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+                    }
+                });
+            }
+
+            var actionBtn = document.getElementById('load-failure-action-btn');
+            var reportForm = document.getElementById('load-failure-report-form');
+            var resetBtn = document.getElementById('load-failure-reset-btn');
+            var formVisible = false;
+
+            if (actionBtn && reportForm) {
+                actionBtn.addEventListener('click', async function () {
+                    if (!formVisible) {
+                        reportForm.hidden = false;
+                        reportForm.style.display = 'flex';
+                        actionBtn.textContent = 'Submit Report';
+                        if (resetBtn) {
+                            resetBtn.textContent = 'Cancel';
+                            resetBtn.onclick = function (e) {
+                                e.preventDefault();
+                                reportForm.hidden = true;
+                                reportForm.style.display = 'none';
+                                actionBtn.textContent = 'Report Bug';
+                                resetBtn.textContent = 'Reset App';
+                                resetBtn.onclick = function () { window.resetApplication(); };
+                                formVisible = false;
+                            };
+                        }
+                        formVisible = true;
+                    } else {
+                        var emailInput = document.getElementById('load-failure-email');
+                        var descInput = document.getElementById('load-failure-desc');
+                        var errorEl = document.getElementById('load-failure-desc-error');
+
+                        var email = emailInput ? emailInput.value.trim() : '';
+                        var description = descInput ? descInput.value.trim() : '';
+
+                        if (errorEl) errorEl.textContent = '';
+                        if (descInput) descInput.classList.remove('input-error');
+
+                        var origText = actionBtn.textContent;
+                        actionBtn.disabled = true;
+                        actionBtn.textContent = 'Submitting...';
+                        if (resetBtn) resetBtn.disabled = true;
+
+                        try {
+                            var currentUserId = localStorage.getItem('clashCalc_userId') || localStorage.getItem('oreCalc_userId') || localStorage.getItem('oreCalcUserId') || 'unknown';
+                            var errorMsg = document.getElementById('load-failure-error-msg')?.textContent || 'Unknown Load Error';
+                            var errorStack = document.getElementById('load-failure-error-stack')?.textContent || '';
+
+                            var attachedData = null;
+                            var attachCheckbox = document.getElementById('load-failure-attach-checkbox');
+                            if (attachCheckbox && attachCheckbox.checked) {
+                                try {
+                                    var savedState = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalculatorState');
+                                    if (savedState) {
+                                        attachedData = JSON.parse(savedState);
+                                    }
+                                } catch (e) {
+                                    console.error('Failed to parse localStorage state for bug report:', e);
+                                }
+                            }
+
+                            var payload = {
+                                email: email,
+                                description: `[Catastrophic Load Failure]\nError: ${errorMsg}\n\nUser Description:\n${description}\n\nStack:\n${errorStack}`,
+                                attachData: attachedData,
+                                userId: currentUserId
+                            };
+
+                            var baseUrl = window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                            var response = await fetch(baseUrl + '/api/support/bug-report', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(payload)
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Server returned status ' + response.status);
+                            }
+
+                            alert('Bug report submitted successfully! Thank you.');
+                            location.reload();
+                        } catch (err) {
+                            console.error('Failed to submit load failure report:', err);
+                            alert('Failed to submit bug report. ' + err.message);
+                        } finally {
+                            actionBtn.disabled = false;
+                            actionBtn.textContent = origText;
+                            if (resetBtn) resetBtn.disabled = false;
+                        }
+                    }
+                });
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupLoadFailureUI);
+        } else {
+            setupLoadFailureUI();
+        }
+    })();
+</script>

@@ -38,7 +38,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 12px;
+        gap: $spacing-md;
 
         .load-failure-icon-container {
             width: 64px;
@@ -48,7 +48,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 8px;
+            margin-bottom: $spacing-sm;
 
             svg {
                 width: 32px;
@@ -82,10 +82,10 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            padding: 8px 0;
+            padding: $spacing-sm 0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: $spacing-sm;
             width: 100%;
             justify-content: space-between;
 
@@ -108,7 +108,7 @@
             background-color: $bg-surface-secondary;
             border: 1px solid $border-secondary;
             border-radius: 10px;
-            padding: 12px;
+            padding: $spacing-md;
             font-family: monospace;
             font-size: 12px;
             max-height: 150px;
@@ -117,7 +117,7 @@
             word-break: break-all;
 
             .error-meta {
-                margin-bottom: 8px;
+                margin-bottom: $spacing-sm;
                 color: $text-primary;
             }
 
@@ -132,17 +132,17 @@
         width: 100%;
         text-align: left;
         border-top: 1px solid $border-secondary;
-        padding-top: 16px;
+        padding-top: $spacing-lg;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: $spacing-md;
 
         h2,
         h3 {
             font-size: 16px;
             font-weight: 600;
             color: $text-primary;
-            margin: 0 0 4px 0;
+            margin: 0 0 $spacing-xs 0;
         }
 
         .form-group {
@@ -188,7 +188,7 @@
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: $spacing-sm;
             cursor: pointer;
             user-select: none;
             font-size: 12px;
@@ -205,13 +205,13 @@
 
     .load-failure-actions {
         display: flex;
-        gap: 12px;
+        gap: $spacing-md;
         width: 100%;
 
         button {
             flex: 1;
-            padding: 12px;
-            border-radius: 12px;
+            padding: $spacing-md;
+            border-radius: $shape-corner-medium;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;

@@ -4,7 +4,7 @@
                     <div id="inc-star-bonus-card" class="income-card card">
                         <h2 class="card-title daily">
                             <span data-i18n="views.income.starBonus.title"></span>
-                            <button class="info-btn" data-info="views.income.starBonus.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.starBonus.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -12,11 +12,12 @@
                             <div class="input-group-flex">
                                 <label for="inc-star-bonus-league-select" data-i18n="views.income.starBonus.league"></label>
                                 <select id="inc-star-bonus-league-select" class="dropdown-style updatable">
+                                    <!-- DYNAMIC INSERTION: Star bonus league select options -->
                                 </select>
                             </div>
                             <div class="input-group-flex">
                                 <label for="open-star-bonus-multiplier-btn" data-i18n="views.income.starBonus.eventManage"></label>
-                                <button id="open-star-bonus-multiplier-btn" class="animated-btn btn-accent">
+                                <button type="button" id="open-star-bonus-multiplier-btn" class="animated-btn btn-accent">
                                     <span class="animated-btn-icon-wrapper fill-dark">
                                         <orecalc-assets-svg name="settings-filled"></orecalc-assets-svg>
                                     </span>
@@ -30,18 +31,15 @@
                     <div id="inc-shop-offers-card" class="income-card card">
                         <h2 class="card-title">
                             <span data-i18n="views.income.shopOffers.title"></span>
-                            <button class="info-btn" data-info="views.income.shopOffers.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.shopOffers.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
                                 <label for="inc-shop-offers-select" data-i18n="views.income.shopOffers.monthEndLabel"></label>
-                                <select id="inc-shop-offers-select" class="updatable">
-                                    <option value="16" data-i18n="views.income.shopOffers.th16Set"></option>
-                                    <option value="14" data-i18n="views.income.shopOffers.th14Set"></option>
-                                    <option value="11" data-i18n="views.income.shopOffers.th11Set"></option>
-                                    <option value="8" data-i18n="views.income.shopOffers.th8Set"></option>
+                                <select id="inc-shop-offers-select" class="dropdown-style updatable">
+                                    <option value="newSet" data-i18n="views.income.shopOffers.newSet"></option>
                                     <option value="0" data-i18n="app.none"></option>
                                 </select>
                             </div>
@@ -52,7 +50,7 @@
                         <div class="timeframe-income">
                             <div class="four-col-grid">
                                 <div class="grid-row">
-                                    <div class="grid-label" data-i18n="views.income.shopOffers.cost"></div>
+                                    <div class="grid-label" data-i18n="views.equipment.cost"></div>
                                     <div class="grid-value-display"><span id="inc-shop-offers-eur-monthly-value" class="calculated"></span> <span class="currency-symbol">€</span></div>
                                     <div class="grid-value-display"><span id="inc-shop-offers-usd-monthly-value" class="calculated"></span> <span class="currency-symbol">$</span></div>
                                     <div class="grid-value-display"><span id="inc-shop-offers-dynamic-monthly-value" class="calculated"></span> <span id="inc-shop-offers-dynamic-currency-symbol" class="currency-symbol"></span></div>
@@ -65,7 +63,7 @@
                     <div id="inc-raid-medal-trader-card" class="income-card card">
                         <h2 class="card-title">
                             <span data-i18n="views.income.raidMedalTrader.title"></span>
-                            <button class="info-btn" data-info="views.income.raidMedalTrader.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.raidMedalTrader.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -96,7 +94,7 @@
                     <div id="inc-gem-trader-card" class="income-card card">
                         <h2 class="card-title">
                             <span data-i18n="views.income.gemTrader.title"></span>
-                            <button class="info-btn" data-info="views.income.gemTrader.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.gemTrader.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -110,7 +108,7 @@
                     <div id="inc-event-pass-card" class="income-card card">
                         <h2 class="card-title">
                             <span data-i18n="views.income.eventPass.title"></span>
-                            <button class="info-btn" data-info="views.income.eventPass.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.eventPass.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -132,7 +130,7 @@
                             <div class="input-group-flex">
                                 <label for="inc-bonus-track-medals-input" class="form-label-inline">
                                     <span data-i18n="views.income.eventPass.bonusTrackMedals"></span>
-                                    <button class="info-btn" data-info="views.income.eventPass.bonusTrackMedalsHelp" data-i18n-aria-label="actions.showInfo">
+                                    <button type="button" class="info-btn" data-info="views.income.eventPass.bonusTrackMedalsHelp" data-i18n-aria-label="actions.showInfo">
                                         <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                                     </button>
                                 </label>
@@ -154,7 +152,7 @@
                     <div id="inc-event-trader-card" class="income-card card">
                         <h2 class="card-title">
                             <span data-i18n="views.income.eventTrader.title"></span>
-                            <button class="info-btn" data-info="views.income.eventTrader.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.eventTrader.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -184,7 +182,7 @@
                     <div id="inc-clan-war-card" class="income-card card">
                         <h2 class="card-title">
                             <span data-i18n="views.income.clanWar.title"></span>
-                            <button class="info-btn" data-info="views.income.clanWar.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.clanWar.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -238,7 +236,7 @@
                     <div id="inc-cwl-card" class="income-card card">
                         <h2 class="card-title">
                             <span data-i18n="views.income.cwl.title"></span>
-                            <button class="info-btn" data-info="views.income.cwl.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.cwl.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -292,7 +290,7 @@
                     <div id="inc-supercell-events-card" class="income-card card">
                         <h2 class="card-title">
                             <span data-i18n="views.income.supercellEvents.title"></span>
-                            <button class="info-btn" data-info="views.income.supercellEvents.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.supercellEvents.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
@@ -316,13 +314,13 @@
                     <div id="inc-prospector-card" class="income-card card">
                         <h2 class="card-title">
                             <span data-i18n="views.income.prospector.title"></span>
-                            <button class="info-btn" data-info="views.income.prospector.help" data-i18n-aria-label="actions.showInfo">
+                            <button type="button" class="info-btn" data-info="views.income.prospector.help" data-i18n-aria-label="actions.showInfo">
                                 <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                             </button>
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
-                                <label for="inc-prospector-gold-pass" data-i18n="views.income.prospector.goldPass"></label>
+                                <label for="inc-prospector-gold-pass" data-i18n="entities.pricing.goldPass"></label>
                                 <div class="switch">
                                     <input type="checkbox" id="inc-prospector-gold-pass" class="updatable">
                                     <span class="slider round"></span>
@@ -331,7 +329,7 @@
                             <div class="input-group-flex">
                                 <label for="inc-prospector-assisted-conversion" class="form-label-inline">
                                     <span data-i18n="views.income.prospector.assistedConversion"></span>
-                                    <button class="info-btn" data-info="views.income.prospector.assistedConversionHelp" data-i18n-aria-label="actions.showInfo">
+                                    <button type="button" class="info-btn" data-info="views.income.prospector.assistedConversionHelp" data-i18n-aria-label="actions.showInfo">
                                         <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
                                     </button>
                                 </label>
@@ -367,7 +365,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="prospector-assisted-overlay" id="inc-prospector-assisted-overlay" style="display:none;">
+                            <div class="prospector-assisted-overlay" id="inc-prospector-assisted-overlay" hidden>
                                 <span data-i18n="views.income.prospector.assistedConversionActive"></span>
                             </div>
                         </div>

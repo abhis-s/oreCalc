@@ -1,4 +1,6 @@
 import { translate } from '../i18n/translator.js';
+import { openModal } from '../utils/modalHistoryManager.js';
+import { highlightElementWithSnake } from './elementHighlighter.js';
 
 let modal, titleElem, messageElem, cancelBtn, okBtn, overlay;
 
@@ -24,7 +26,7 @@ export function sanitizeHTML(html) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const allowedTags = new Set(['span', 'strong', 'em', 'code', 'br', 'p', 'b', 'i', 'a']);
-        const allowedClasses = new Set(['user-id-code', 'external-link']);
+        const allowedClasses = new Set(['user-id-code', 'external-link', 'theme-link']);
         const blockedTags = new Set(['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'svg', 'img', 'video', 'audio']);
 
         function cleanNode(node) {
@@ -93,12 +95,19 @@ export function sanitizeHTML(html) {
  */
 function showNotice(message, titleKey = 'status.notice', showCancel = false, okBtnKey = null, cancelBtnKey = 'actions.cancel') {
     return new Promise((resolve) => {
-        if (!modal) initializeNoticeModal();
+        if (!modal || (typeof modal.isConnected === 'boolean' && !modal.isConnected)) {
+            initializeNoticeModal();
+        }
+        if (!modal || !titleElem || !messageElem || !okBtn || !cancelBtn) {
+            resolve(false);
+            return;
+        }
 
         titleElem.textContent = translate(titleKey);
         titleElem.setAttribute('data-i18n', titleKey);
         messageElem.innerHTML = sanitizeHTML(message);
 
+        cancelBtn.hidden = !showCancel;
         cancelBtn.style.display = showCancel ? 'block' : 'none';
 
         const defaultOkKey = showCancel ? 'actions.confirm' : 'actions.ok';
@@ -119,9 +128,51 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
             resolve(false);
         };
 
+        const handleCancelEvent = (e) => {
+            e?.preventDefault?.();
+            handleCancel();
+        };
+
+        const handleBackdropClick = (e) => {
+            if (e.target === modal) {
+                handleCancel();
+            }
+        };
+
+        const handleMessageClick = (e) => {
+            const anchor = /** @type {HTMLElement | null} */ (e.target)?.closest('a');
+            if (!anchor) return;
+            const href = anchor.getAttribute('href');
+            if (href === '#open-data-management' || href === '#account-data-modal') {
+                e.preventDefault();
+                cleanup();
+                resolve(false);
+                const openDataBtn = document.getElementById('open-data-management-btn') || document.getElementById('open-account-management-btn');
+                if (openDataBtn) {
+                    openDataBtn.click();
+                } else {
+                    const accModal = document.getElementById('account-data-modal');
+                    if (accModal) {
+                        openModal(accModal);
+                    }
+                }
+
+                const targetSelector = anchor.getAttribute('data-highlight') || '#account-data-reset-data-tier';
+                setTimeout(() => {
+                    const targetEl = /** @type {HTMLElement | null} */ (document.querySelector(targetSelector));
+                    if (targetEl) {
+                        highlightElementWithSnake(targetEl);
+                    }
+                }, 100);
+            }
+        };
+
         const cleanup = () => {
             okBtn.removeEventListener('click', handleOk);
             cancelBtn.removeEventListener('click', handleCancel);
+            modal.removeEventListener('cancel', handleCancelEvent);
+            modal.removeEventListener('click', handleBackdropClick);
+            messageElem?.removeEventListener?.('click', handleMessageClick);
             modal.classList.remove('show');
             if (typeof modal.close === 'function' && modal.open) {
                 try {
@@ -133,6 +184,9 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
 
         okBtn.addEventListener('click', handleOk);
         cancelBtn.addEventListener('click', handleCancel);
+        modal.addEventListener('cancel', handleCancelEvent);
+        modal.addEventListener('click', handleBackdropClick);
+        messageElem?.addEventListener?.('click', handleMessageClick);
 
         if (typeof modal.showModal === 'function' && !modal.open) {
             try {
@@ -154,6 +208,6 @@ export async function showAlert(message, titleKey = 'status.notice', okBtnKey = 
 /**
  * Replaces window.confirm
  */
-export async function showConfirm(message, titleKey = 'status.confirm', okBtnKey = null, cancelBtnKey = 'actions.cancel') {
+export async function showConfirm(message, titleKey = 'actions.confirm', okBtnKey = null, cancelBtnKey = 'actions.cancel') {
     return showNotice(message, titleKey, true, okBtnKey, cancelBtnKey);
 }

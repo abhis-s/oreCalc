@@ -1,0 +1,369 @@
+@use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
+
+.guided-setup-step-title {
+    font-size: $font-size-md;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0;
+
+    &.wizard-step-title--inline {
+        display: inline;
+        vertical-align: middle;
+    }
+}
+
+.guided-setup-step-subtitle {
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.wizard-title-badge-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+}
+
+.recommended-badge {
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: $spacing-2xs $spacing-xs;
+    border-radius: $shape-corner-small;
+    background-color: $color-success-soft;
+    color: $color-success;
+    border: 1px solid color-mix(in srgb, $color-success 30%, transparent);
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    line-height: 1.2;
+}
+
+.guided-setup-step-header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+}
+
+.guided-setup-ores-vertical-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    .guided-setup-ore-input-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+        background: color-mix(in srgb, $bg-surface-primary 45%, transparent);
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-medium;
+        padding: $spacing-sm $spacing-md;
+        transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+
+        &:focus-within {
+            border-color: $accent-primary;
+            box-shadow: 0 0 0 3px $accent-primary-soft;
+        }
+
+        .ore-icon-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+
+            .ore-image {
+                width: 28px !important;
+                height: 28px !important;
+                object-fit: contain;
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+            }
+        }
+
+        .popover-wrapper {
+            flex: 1;
+        }
+
+        input[type='number'] {
+            width: 100%;
+            text-align: right;
+            border: none;
+            background: transparent;
+            color: $text-primary;
+            font-size: $font-size-lg;
+            font-weight: $font-weight-semibold;
+            padding: $spacing-xs $spacing-sm;
+            outline: none;
+            box-sizing: border-box;
+
+            &:focus,
+            &:focus-visible {
+                border: none;
+                box-shadow: none;
+                outline: none;
+            }
+
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+        }
+    }
+}
+
+.group-content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    background: color-mix(in srgb, $bg-surface-primary 25%, transparent);
+    padding: $spacing-md;
+    border-radius: $shape-corner-medium;
+    border: 1px solid color-mix(in srgb, $border-primary 50%, transparent);
+
+    hr {
+        border: none;
+        border-top: 1px solid color-mix(in srgb, $border-primary 30%, transparent);
+        margin: $spacing-xs 0;
+    }
+}
+
+.guided-setup-quick-setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $spacing-md;
+    width: 100%;
+
+    .quick-setting-details {
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+        flex: 1;
+
+        &.align-start {
+            align-items: flex-start;
+        }
+
+        .quick-setting-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            flex-shrink: 0;
+
+            &--push {
+                margin-top: $spacing-2xs;
+            }
+        }
+
+        .quick-setting-text {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-2xs;
+        }
+
+        .quick-setting-title {
+            font-size: $font-size-sm;
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+        }
+
+        .quick-setting-desc {
+            font-size: $font-size-2xs;
+            color: $text-secondary;
+            line-height: 1.35;
+        }
+    }
+}
+
+.guided-setup-quick-setting-subpanel {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding: $spacing-md;
+    border-radius: $shape-corner-small;
+    background-color: color-mix(in srgb, $bg-surface-primary 50%, transparent);
+    border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
+
+    &[style*="display: block"] {
+        display: flex !important;
+    }
+
+    .subpanel-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: $spacing-md;
+
+        .subpanel-label-group {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            color: $text-secondary;
+
+            .subpanel-label {
+                font-size: $font-size-xs;
+                font-weight: $font-weight-medium;
+                color: $text-secondary;
+            }
+        }
+
+        .subpanel-input {
+            width: 80px;
+            text-align: right;
+            padding: $spacing-xs $spacing-sm;
+            border: 1px solid $border-primary;
+            border-radius: $shape-corner-small;
+            background-color: $bg-surface-primary;
+            color: $text-primary;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-semibold;
+            @include input-focus-ring;
+
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+        }
+    }
+
+    .subpanel-vertical-group {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+
+        .subpanel-header {
+            font-size: $font-size-xs;
+            font-weight: $font-weight-semibold;
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    }
+}
+
+.guided-setup-select-input {
+    height: 36px;
+    border-radius: $shape-corner-small;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-primary;
+    color: $text-primary;
+    padding: 0 28px 0 $spacing-sm;
+    font-size: $font-size-sm;
+    box-sizing: border-box;
+    @include custom-select-chevron;
+    @include input-focus-ring;
+
+    &--compact {
+        width: 100%;
+        height: 28px;
+        padding: $spacing-2xs 20px;
+        text-align: center;
+        text-align-last: center;
+        background-position: right 8px center;
+        background-size: 10px 10px;
+        font-size: $font-size-xs;
+        cursor: pointer;
+    }
+}
+
+.guided-setup-trader-row {
+    display: grid;
+    grid-template-columns: minmax(70px, 1.2fr) minmax(75px, 1fr) minmax(55px, 0.8fr);
+    align-items: center;
+    gap: $spacing-sm;
+    background: color-mix(in srgb, $bg-surface-primary 15%, transparent);
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $shape-corner-medium;
+    border: 1px solid color-mix(in srgb, $border-primary 30%, transparent);
+
+    &__cost {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: $spacing-xs;
+        min-width: 0;
+
+        .cost-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .cost-value {
+            font-size: $font-size-xs;
+            color: $text-secondary;
+            font-weight: $font-weight-medium;
+            white-space: nowrap;
+            text-align: center;
+        }
+    }
+
+    &__ore {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        min-width: 0;
+
+        .ore-inner {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: $spacing-xs;
+            width: 100%;
+        }
+
+        .ore-count {
+            font-size: $font-size-xs;
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+            white-space: nowrap;
+        }
+
+        .ore-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+    }
+
+    &__badge {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        min-width: 24px;
+        flex-shrink: 0;
+
+        .ore-row-badge {
+            margin: 0;
+            padding: $spacing-2xs $spacing-xs;
+        }
+    }
+}
+
+.guided-setup-body.show-recommendations {
+    .guided-setup-trader-row {
+        grid-template-columns: minmax(70px, 1.2fr) minmax(75px, 1fr) 24px minmax(55px, 0.8fr);
+
+        &__badge {
+            display: flex;
+        }
+    }
+}
+
+.guided-setup-body:not(.show-recommendations) {
+    .recommended-badge {
+        display: none !important;
+    }
+}

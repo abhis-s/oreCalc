@@ -288,23 +288,31 @@ if (typeof globalThis.document === 'undefined') {
 const { state } = await import('../../js/core/state.js');
 const { dom } = await import('../../js/dom/domElements.js');
 const { loadTranslations } = await import('../../js/i18n/translator.js');
-const { renderPlayerDropdown, invalidatePlayerDropdownCache, toggleMainAppRecentCollapsed, getMainAppRecentCollapsed } = await import('../../js/components/player/playerDropdownDisplay.js');
+const { renderPlayerDropdown, invalidatePlayerDropdownCache, updateRefreshButtonVisibility } = await import('../../js/components/player/playerDropdownDisplay.js');
+const { getAddPlayerHelpContent } = await import('../../js/utils/cardHelpPopover.js');
 
 await loadTranslations('en');
 
 describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () => {
     let mockContainer;
     let mockLabel;
+    let mockRefreshButton;
 
     beforeEach(() => {
         invalidatePlayerDropdownCache();
 
         mockContainer = new MockDOMElement('div', 'player-items-container', 'player-dropdown-list-items');
         mockLabel = new MockDOMElement('span', 'selected-player-name', 'selected-player-name');
+        mockRefreshButton = new MockDOMElement('button', 'refresh-button', 'animated-btn btn-accent task-btn is-hidden');
 
         dom.player = {
             playerItemsContainer: mockContainer,
             selectedPlayerName: mockLabel
+        };
+
+        dom.controls = {
+            ...(dom.controls || {}),
+            refreshButton: mockRefreshButton
         };
 
         state.savedPlayerTags = ['TAG1', 'TAG2', 'TAG3'];
@@ -413,36 +421,18 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.equal(innerHtmlSetCount, 2);
     });
 
-    test('renders trash icon for saved profiles and cross icon for recent searches', () => {
-        globalThis.localStorage.setItem('oreCalc_recentSearches', JSON.stringify([
-            { tag: '#RECENT1', cleanTag: 'RECENT1', name: 'Recent Legend', townHallLevel: 16 }
-        ]));
-
+    test('renders trash icon for saved profiles', () => {
         invalidatePlayerDropdownCache();
         renderPlayerDropdown();
 
         assert.match(mockContainer.innerHTML, /#icon-trash/, 'Saved profiles must render trash icon');
-        assert.match(mockContainer.innerHTML, /player-dropdown-section-header--collapsible/, 'Recent searches header must be collapsible');
-
-        // Toggle to expanded to inspect dismiss button
-        toggleMainAppRecentCollapsed();
-        assert.equal(getMainAppRecentCollapsed(), false);
-        assert.match(mockContainer.innerHTML, /dismiss-recent-button/, 'Expanded recent searches must render dismiss button');
-        assert.match(mockContainer.innerHTML, /#icon-close/, 'Dismiss button must render close icon');
-
-        // Toggle back to collapsed
-        toggleMainAppRecentCollapsed();
-        assert.equal(getMainAppRecentCollapsed(), true);
     });
 
-    test('always renders Saved Profiles section at the top and Recent Searches below', () => {
+    test('always renders Saved Profiles section at the top with player items', () => {
         state.savedPlayerTags = ['#TAG1', '#TAG2'];
         state.allPlayersData['TAG1'] = { playerProfile: { name: 'Player 1', townHallLevel: 16 } };
         state.allPlayersData['TAG2'] = { playerProfile: { name: 'Player 2', townHallLevel: 15 } };
         globalThis.localStorage.setItem('oreCalc_playerTags', JSON.stringify(['TAG1', 'TAG2']));
-        globalThis.localStorage.setItem('oreCalc_recentSearches', JSON.stringify([
-            { tag: '#OTHERREC', cleanTag: 'OTHERREC', name: 'Other Recent', townHallLevel: 15 }
-        ]));
 
         invalidatePlayerDropdownCache();
         renderPlayerDropdown();
@@ -453,73 +443,63 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.ok(firstItem);
         assert.equal(firstItem.dataset.tag, 'TAG1');
         assert.ok(firstItem.classList.contains('active'));
-
-        // Bottom section must be collapsible Recent Searches
-        assert.match(mockContainer.innerHTML, /player-dropdown-section-header--collapsible/);
-    });
-
-    test('omits recent searches section when no standalone recent searches exist', () => {
-        state.savedPlayerTags = ['#TAG1'];
-        state.allPlayersData['TAG1'] = { playerProfile: { name: 'Single Saved', townHallLevel: 17 } };
-        globalThis.localStorage.setItem('oreCalc_playerTags', JSON.stringify(['TAG1']));
-        globalThis.localStorage.setItem('oreCalc_recentSearches', JSON.stringify([]));
-
-        invalidatePlayerDropdownCache();
-        renderPlayerDropdown();
-
-        // Saved profiles is present
-        assert.match(mockContainer.innerHTML, /TAG1/);
-
-        // Recent searches collapsible section must be omitted
-        assert.ok(!mockContainer.innerHTML.includes('player-dropdown-section-header--collapsible'), 'Recent searches must be omitted when empty');
-    });
-
-    test('collapsible recent searches toggle inverts state and renders correctly', () => {
-        state.savedPlayerTags = ['#TAG1'];
-        state.allPlayersData['#TAG1'] = { playerProfile: { name: 'Player 1', townHallLevel: 16 } };
-        globalThis.localStorage.setItem('oreCalc_playerTags', JSON.stringify(['#TAG1']));
-        globalThis.localStorage.setItem('oreCalc_recentSearches', JSON.stringify([
-            { tag: '#REC1', cleanTag: 'REC1', name: 'Recent 1', townHallLevel: 15 }
-        ]));
-
-        invalidatePlayerDropdownCache();
-        renderPlayerDropdown();
-
-        // Default: collapsed
-        assert.equal(getMainAppRecentCollapsed(), true);
-        assert.ok(!mockContainer.innerHTML.includes('Recent 1'));
-
-        // Toggle: expand
-        toggleMainAppRecentCollapsed();
-        assert.equal(getMainAppRecentCollapsed(), false);
-        assert.ok(mockContainer.innerHTML.includes('Recent 1'));
-
-        // Toggle: collapse again
-        toggleMainAppRecentCollapsed();
-        assert.equal(getMainAppRecentCollapsed(), true);
-        assert.ok(!mockContainer.innerHTML.includes('Recent 1'));
     });
 
     test('Add Player Modal layout, Guided Setup action and width invariants', () => {
         const addPlayerHtml = fs.readFileSync(path.join(projectRoot, 'partials/modals/add-player.html'), 'utf8');
-        const playerModalScss = fs.readFileSync(path.join(projectRoot, 'css/components/_player-modal.scss'), 'utf8');
         const deJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/de.json'), 'utf8'));
 
-        assert.equal(enJson.actions.guidedSetup, 'Guided Setup', 'en.json must define actions.guidedSetup');
-        assert.equal(deJson.actions.guidedSetup, 'Geführtes Setup', 'de.json must define actions.guidedSetup');
-        assert.match(enJson.player.addPlayerHelp, /Guided Setup/, 'en.json addPlayerHelp must mention Guided Setup');
-        assert.match(deJson.player.addPlayerHelp, /Geführtes Setup/, 'de.json addPlayerHelp must mention Geführtes Setup');
+        assert.equal(enJson.views.guidedSetup.title, 'Guided Setup', 'en.json must define views.guidedSetup.title');
+        assert.equal(deJson.views.guidedSetup.title, 'Geführtes Setup', 'de.json must define views.guidedSetup.title');
+        assert.match(enJson.player.addPlayerHelp, /To find your player tag/, 'en.json addPlayerHelp must provide tag discovery instructions');
+        assert.doesNotMatch(enJson.player.addPlayerHelp, /Guided Setup/, 'en.json addPlayerHelp must not mention Guided Setup');
+        assert.match(deJson.player.addPlayerHelp, /Spielerkürzel zu finden/, 'de.json addPlayerHelp must provide tag discovery instructions');
+        assert.doesNotMatch(deJson.player.addPlayerHelp, /Geführtes Setup/, 'de.json addPlayerHelp must not mention Geführtes Setup');
+        assert.match(enJson.player.addPlayerHelpGuided, /Guided Setup/, 'en.json addPlayerHelpGuided must mention Guided Setup');
+        assert.match(deJson.player.addPlayerHelpGuided, /Geführtes Setup/, 'de.json addPlayerHelpGuided must mention Geführtes Setup');
 
         assert.match(
             addPlayerHtml,
-            /id="add-player-guided-setup-btn"[\s\S]*?data-i18n="actions\.guidedSetup"/,
+            /id="add-player-guided-setup-btn"[\s\S]*?data-i18n="views\.guidedSetup\.title"/,
             'add-player.html must contain Guided Setup button'
         );
-        assert.match(
-            playerModalScss,
-            /#add-player-modal\s*\{[\s\S]*?max-width:\s*\$modal-width-expanded;/,
-            '#add-player-modal must use $modal-width-expanded for wider layout'
-        );
+    });
+
+    test('getAddPlayerHelpContent dynamically includes Guided Setup paragraph only when guided setup button is visible', () => {
+        const origGetById = globalThis.document?.getElementById;
+
+        // Scenario 1: Guided Setup button is absent
+        globalThis.document.getElementById = () => null;
+        const contentNoBtn = getAddPlayerHelpContent();
+        assert.match(contentNoBtn, /To find your player tag/);
+        assert.doesNotMatch(contentNoBtn, /Guided Setup/);
+
+        // Scenario 2: Guided Setup button is hidden
+        globalThis.document.getElementById = (id) => {
+            if (id === 'add-player-guided-setup-btn') {
+                return { style: { display: 'none' }, hidden: true, getAttribute: () => null };
+            }
+            return null;
+        };
+        const contentHiddenBtn = getAddPlayerHelpContent();
+        assert.match(contentHiddenBtn, /To find your player tag/);
+        assert.doesNotMatch(contentHiddenBtn, /Guided Setup/);
+
+        // Scenario 3: Guided Setup button is visible
+        globalThis.document.getElementById = (id) => {
+            if (id === 'add-player-guided-setup-btn') {
+                return { style: { display: '' }, hidden: false, getAttribute: () => null };
+            }
+            return null;
+        };
+        const contentVisibleBtn = getAddPlayerHelpContent();
+        assert.match(contentVisibleBtn, /To find your player tag/);
+        assert.match(contentVisibleBtn, /Guided Setup/);
+
+        // Restore
+        if (origGetById) {
+            globalThis.document.getElementById = origGetById;
+        }
     });
 
     test('cannotDeleteLastProfile and deleteProfile copy and formatting invariants', () => {
@@ -527,6 +507,10 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
 
         assert.match(enJson.alerts.cannotDeleteLastProfile, /<p>.*<\/p>/, 'cannotDeleteLastProfile must be formatted in paragraphs');
         assert.match(deJson.alerts.cannotDeleteLastProfile, /<p>.*<\/p>/, 'cannotDeleteLastProfile in German must be formatted in paragraphs');
+        assert.match(enJson.alerts.cannotDeleteLastProfile, /Account &amp; Cloud Sync.*Reset Village Data/, 'cannotDeleteLastProfile must reflect universal canonical path in English');
+        assert.match(deJson.alerts.cannotDeleteLastProfile, /Konto &amp; Cloud-Synchronisierung.*Dorfdaten zurücksetzen/, 'cannotDeleteLastProfile must reflect universal canonical path in German');
+        assert.match(enJson.alerts.cannotDeleteLastProfile, /<a href="#open-data-management" class="theme-link">/, 'cannotDeleteLastProfile must include theme-link action link');
+        assert.match(deJson.alerts.cannotDeleteLastProfile, /<a href="#open-data-management" class="theme-link">/, 'cannotDeleteLastProfile in German must include theme-link action link');
         assert.match(enJson.confirms.deleteProfile, /permanently remove all data/, 'deleteProfile must state permanent data removal');
         assert.match(deJson.confirms.deleteProfile, /dauerhaft/, 'deleteProfile in German must state permanent data removal');
     });
@@ -538,7 +522,7 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
     });
 
     test('keyboard navigation handles ArrowDown, ArrowUp, Home, End, Escape, and Delete', async () => {
-        const { initializePlayerDropdown, openDropdown, closeDropdown } = await import('../../js/components/player/playerDropdownInputs.js');
+        const { initializePlayerDropdown } = await import('../../js/components/player/playerDropdownInputs.js');
 
         const mockDropdownBtn = new MockDOMElement('button', 'player-selection-btn');
         const mockDropdownList = new MockDOMElement('div', 'player-dropdown-list');
@@ -566,8 +550,7 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.equal(items.length, 3);
 
         // ArrowDown on items[0]
-        let scrolled = false;
-        items[1].scrollIntoView = () => { scrolled = true; };
+        items[1].scrollIntoView = () => {};
 
         mockContainer.dispatchEvent({
             type: 'keydown',
@@ -600,5 +583,54 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         });
 
         assert.ok(!mockDropdownList.classList.contains('show'), 'Escape must close dropdown');
+    });
+
+    test('updateRefreshButtonVisibility hides refresh button when user only has guest tag DEFAULT0', () => {
+        state.savedPlayerTags = ['DEFAULT0'];
+        mockRefreshButton.classList.remove('is-hidden');
+
+        updateRefreshButtonVisibility();
+
+        assert.ok(mockRefreshButton.classList.contains('is-hidden'), 'Refresh button must be hidden for guest profile');
+    });
+
+    test('updateRefreshButtonVisibility shows refresh button when real player profile exists', () => {
+        state.savedPlayerTags = ['#8PJYGUJC'];
+        mockRefreshButton.classList.add('is-hidden');
+
+        updateRefreshButtonVisibility();
+
+        assert.ok(!mockRefreshButton.classList.contains('is-hidden'), 'Refresh button must be visible for real player profile');
+    });
+
+    test('updateRefreshButtonVisibility hides refresh button when tags array is empty or falsy', () => {
+        mockRefreshButton.classList.remove('is-hidden');
+        updateRefreshButtonVisibility([]);
+        assert.ok(mockRefreshButton.classList.contains('is-hidden'), 'Empty tags array must hide refresh button');
+
+        mockRefreshButton.classList.remove('is-hidden');
+        updateRefreshButtonVisibility(null);
+        assert.ok(mockRefreshButton.classList.contains('is-hidden'), 'Null tags parameter must hide refresh button');
+    });
+
+    test('renderPlayerDropdown automatically synchronizes refresh button visibility', () => {
+        state.savedPlayerTags = ['DEFAULT0'];
+        mockRefreshButton.classList.remove('is-hidden');
+
+        renderPlayerDropdown();
+        assert.ok(mockRefreshButton.classList.contains('is-hidden'), 'renderPlayerDropdown must hide refresh button for DEFAULT0');
+
+        state.savedPlayerTags = ['TAG1', 'TAG2'];
+        renderPlayerDropdown();
+        assert.ok(!mockRefreshButton.classList.contains('is-hidden'), 'renderPlayerDropdown must reveal refresh button for real players');
+    });
+
+    test('partials/header.html initializes refresh button with is-hidden class', () => {
+        const headerHtml = fs.readFileSync(path.join(projectRoot, 'partials/header.html'), 'utf8');
+        assert.match(
+            headerHtml,
+            /<button\s+id="refresh-button"\s+class="[^"]*\bis-hidden\b[^"]*"/,
+            'Template must include is-hidden to avoid initial flash before JS evaluation'
+        );
     });
 });

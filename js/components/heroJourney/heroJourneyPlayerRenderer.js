@@ -1,16 +1,15 @@
 import { translate } from '../../i18n/translator.js';
-import { safeJsonParse } from '../../utils/jsonUtils.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
-import { escapeHTML } from '../../utils/stringUtils.js';
-import { leagueTiers } from '../../data/leagueTiers.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
 import { getMaxCumulativeLevelsByTH, getNodeTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
 import { getQuestChestReward } from '../../domain/income/heroJourneyIncome.js';
 import { resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
-import { formatClanRole } from '../home/homeProfileCalculations.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
-import { normalizePlayerTag } from '../../core/localStorageManager.js';
+import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { hjState, buildStateFromPlayerData } from './heroJourneyState.js';
+import { renderProfileHeaderHtml } from '../common/profileHeaderRenderer.js';
+import { state as appGlobalState } from '../../core/state.js';
+import { getAppSettings } from '../common/appSettings.js';
 
 /**
  * Calculates total, claimed, and unclaimed ores across all Hero Journey milestones.
@@ -116,8 +115,13 @@ function applyHeroJourneyProgressDelta(container, prevProg, currProg) {
             if (currProg.isTrueMaxPlayer) {
                 animateValue(overallEl, prevOverall, currOverall, 1000, val => `${Math.round(val)}%`);
             } else {
+                const prevLvl = prevProg.cumulativeLevel || 0;
+                const targetLvl = currProg.cumulativeLevel;
                 animateValue(overallEl, prevOverall, currOverall, 1000, val => {
-                    const curLvl = Math.min(currProg.cumulativeLevel, Math.round((val / 100) * currProg.overallTrueMaxLevel));
+                    const ratio = (currOverall - prevOverall) !== 0
+                        ? Math.max(0, Math.min(1, (val - prevOverall) / (currOverall - prevOverall)))
+                        : 1;
+                    const curLvl = ratio >= 1 ? targetLvl : Math.round(prevLvl + (targetLvl - prevLvl) * ratio);
                     return `${curLvl}/${currProg.overallTrueMaxLevel} (${Math.round(val)}%)`;
                 });
             }
@@ -149,9 +153,22 @@ function applyHeroJourneyProgressDelta(container, prevProg, currProg) {
         const subEl = box?.querySelector('.stat-box-sub span');
         if (subEl) {
             subEl.textContent = unclaimed > 0
-                ? translate('views.heroJourneyPage.unclaimedCount', { count: formatNumber(Math.round(unclaimed)) })
-                : translate('views.heroJourneyPage.allClaimed');
+                ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimed)) })
+                : translate('views.heroJourney.page.allClaimed');
         }
+    }
+
+    const trophiesEl = container.querySelector('.player-trophies-mini span');
+    if (trophiesEl && hjState.playerData?.trophies !== undefined) {
+        const currentText = (trophiesEl.textContent || '').replace(/\D/g, '');
+        const prevTrophies = Number(currentText) || 0;
+        const targetTrophies = Number(hjState.playerData.trophies) || 0;
+        if (prevTrophies !== targetTrophies) {
+            animateValue(trophiesEl, prevTrophies, targetTrophies, 1800, val => formatNumber(Math.round(val)));
+        } else {
+            trophiesEl.textContent = formatNumber(targetTrophies);
+        }
+        trophiesEl.dataset.targetTrophies = String(targetTrophies);
     }
 }
 
@@ -165,9 +182,7 @@ export function renderPlayerSummary() {
     if (hjState.isLoading && !hjState.playerData) {
         hjRenderState.renderedTag = null;
         hjRenderState.lastProgress = null;
-        const isCollapsed = typeof sessionStorage !== 'undefined'
-            ? sessionStorage.getItem('orecalc_hj_profile_stats_collapsed') !== 'false'
-            : true;
+        const isCollapsed = Boolean(appGlobalState.uiSettings?.hideProfileStats ?? getAppSettings().hideProfileStats);
 
         if (isCollapsed) {
             card.classList.add('is-stats-collapsed');
@@ -175,54 +190,35 @@ export function renderPlayerSummary() {
             card.classList.remove('is-stats-collapsed');
         }
 
+        const actionsRowHtml = `
+            <a href="/" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
+                <orecalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
+                <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
+            </a>
+            <button id="hj-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
+                <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
+            </button>
+        `;
+
+        const headerHtml = renderProfileHeaderHtml({
+            profile: null,
+            isGuest: true,
+            thLevel: 16,
+            trophiesHtml: '<span>---</span>',
+            actionsRowHtml,
+            headerExtraClasses: 'hero-journey-page__player-header'
+        });
+
         card.style.display = 'flex';
         card.innerHTML = `
-            <div class="hero-journey-page__player-header home-profile-header">
-                <div class="profile-meta-left">
-                    <div class="th-badge-wrapper">
-                        <orecalc-assets-image class="th-badge-img" src="assets/th/th16.png" alt="Town Hall --" size="standard"></orecalc-assets-image>
-                        <span class="th-badge-level-overlay">--</span>
-                    </div>
-                    <div class="player-identity">
-                        <div class="player-identity-info">
-                            <h2 class="player-name">--</h2>
-                            <span class="player-tag">#--------</span>
-                        </div>
-                        <div class="player-clan-mini">
-                            <span class="clan-name-mini text-muted" data-i18n="views.welcome.noClan">${translate('views.welcome.noClan')}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-meta-right">
-                    <div class="league-details-mini" title="${translate('entities.leagues.unranked')}">
-                        <orecalc-assets-svg name="star-badge" height="24" width="24" class="league-default-icon"></orecalc-assets-svg>
-                        <div class="league-text-mini">
-                            <span class="league-name-mini" data-i18n="entities.leagues.unranked">${translate('entities.leagues.unranked')}</span>
-                            <div class="player-trophies-mini">
-                                <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
-                                <span>---</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="profile-meta-actions-row">
-                        <a href="/" class="hj-planner-bridge-btn" title="${translate('views.heroJourneyPage.backToPlannerHelp')}" aria-label="${translate('views.heroJourneyPage.backToPlanner')}">
-                            <orecalc-assets-svg name="planner-outline" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
-                            <span class="planner-bridge-label" data-i18n="views.heroJourneyPage.backToPlanner">${translate('views.heroJourneyPage.backToPlanner')}</span>
-                        </a>
-                        <button id="hj-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
-                            <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            ${headerHtml}
 
             <div class="home-profile-stats-container">
                 <div class="home-profile-overall-progress">
                     <div class="overall-progress-header">
                         <span class="overall-progress-label-wrapper">
-                            <orecalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('alts.crown')}"></orecalc-assets-image>
-                            <span class="overall-progress-label" data-i18n="views.heroJourneyPage.journeyProgress">${translate('views.heroJourneyPage.journeyProgress')}</span>
+                            <orecalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('app.alts.crown')}"></orecalc-assets-image>
+                            <span class="overall-progress-label" data-i18n="views.heroJourney.page.journeyProgress">${translate('views.heroJourney.page.journeyProgress')}</span>
                         </span>
                         <span class="overall-progress-value">--%</span>
                     </div>
@@ -244,7 +240,7 @@ export function renderPlayerSummary() {
                             <div class="progress-bar-fill shiny-fill" style="width: 0%;"></div>
                         </div>
                         <div class="stat-box-sub">
-                            <span>${translate('views.heroJourneyPage.unclaimedCount', { count: '--' })}</span>
+                            <span>${translate('views.heroJourney.page.unclaimedCount', { count: '--' })}</span>
                         </div>
                     </div>
                     <div class="profile-stat-box progress-box">
@@ -259,7 +255,7 @@ export function renderPlayerSummary() {
                             <div class="progress-bar-fill glowy-fill" style="width: 0%;"></div>
                         </div>
                         <div class="stat-box-sub">
-                            <span>${translate('views.heroJourneyPage.unclaimedCount', { count: '--' })}</span>
+                            <span>${translate('views.heroJourney.page.unclaimedCount', { count: '--' })}</span>
                         </div>
                     </div>
                     <div class="profile-stat-box progress-box">
@@ -274,7 +270,7 @@ export function renderPlayerSummary() {
                             <div class="progress-bar-fill starry-fill" style="width: 0%;"></div>
                         </div>
                         <div class="stat-box-sub">
-                            <span>${translate('views.heroJourneyPage.unclaimedCount', { count: '--' })}</span>
+                            <span>${translate('views.heroJourney.page.unclaimedCount', { count: '--' })}</span>
                         </div>
                     </div>
                 </div>
@@ -289,53 +285,29 @@ export function renderPlayerSummary() {
         hjRenderState.renderedTag = null;
         hjRenderState.lastProgress = null;
         card.classList.add('is-stats-collapsed');
-        const thLevel = hjState.thLevel || 18;
-        const thImgUrl = `assets/th/th${thLevel}.png`;
-        const leagueNameText = translate('entities.leagues.unranked');
-        const bridgeUrl = './';
+        const cleanTag = normalizePlayerTag(hjState.activeTag);
+        const lang = getLanguageFromPath();
+        const rootPath = (lang && lang !== 'en') ? `/${lang}/` : '/';
+        const bridgeUrl = cleanTag ? `${rootPath}?tag=${encodeURIComponent(cleanTag)}` : rootPath;
 
-        card.innerHTML = `
-            <div class="hero-journey-page__player-header home-profile-header">
-                <div class="profile-meta-left">
-                    <div class="th-badge-wrapper">
-                        <orecalc-assets-image class="th-badge-img is-silhouette" src="${thImgUrl}" alt="Town Hall ${thLevel}" size="standard"></orecalc-assets-image>
-                        <span class="th-badge-level-overlay">${thLevel}</span>
-                    </div>
-                    <div class="player-identity">
-                        <div class="player-identity-info">
-                            <h2 class="player-name" data-i18n="views.home.profile.noProfileTitle">${translate('views.home.profile.noProfileTitle')}</h2>
-                            <span class="player-tag-guest-badge" data-i18n="views.welcome.guestProfileTag">${translate('views.welcome.guestProfileTag')}</span>
-                        </div>
-                        <div class="player-clan-mini">
-                            <span class="clan-name-mini text-muted" data-i18n="views.welcome.noClan">${translate('views.welcome.noClan')}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-meta-right">
-                    <div class="league-details-mini" title="${leagueNameText}">
-                        <orecalc-assets-image class="league-badge-img-mini" src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" alt="${leagueNameText}" size="standard"></orecalc-assets-image>
-                        <div class="league-text-mini">
-                            <span class="league-name-mini" data-i18n="entities.leagues.unranked">${leagueNameText}</span>
-                            <div class="player-trophies-mini">
-                                <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
-                                <span>--</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="profile-meta-actions-row">
-                        <a href="${bridgeUrl}" class="hj-planner-bridge-btn" title="${translate('views.heroJourneyPage.backToPlannerHelp')}" aria-label="${translate('views.heroJourneyPage.backToPlanner')}">
-                            <orecalc-assets-svg name="planner-outline" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
-                            <span class="planner-bridge-label" data-i18n="views.heroJourneyPage.backToPlanner">${translate('views.heroJourneyPage.backToPlanner')}</span>
-                        </a>
-                        <button id="hj-unconnected-search-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="${translate('views.home.profile.connectBtn')}" title="${translate('views.home.profile.connectBtn')}">
-                            <orecalc-assets-svg name="search" height="14" width="14"></orecalc-assets-svg>
-                            <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+        const actionsRowHtml = `
+            <a href="${bridgeUrl}" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
+                <orecalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
+                <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
+            </a>
+            <button id="hj-unconnected-search-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="${translate('views.home.profile.connectBtn')}" title="${translate('views.home.profile.connectBtn')}">
+                <orecalc-assets-svg name="search" height="14" width="14"></orecalc-assets-svg>
+                <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
+            </button>
         `;
+
+        card.innerHTML = renderProfileHeaderHtml({
+            profile: null,
+            isGuest: true,
+            thLevel: hjState.thLevel || 18,
+            actionsRowHtml,
+            headerExtraClasses: 'hero-journey-page__player-header'
+        });
         return;
     }
     const player = hjState.playerData;
@@ -362,7 +334,7 @@ export function renderPlayerSummary() {
     const starryPct = totals.total.starry > 0 ? Math.min(100, Math.round((claimedStarry / totals.total.starry) * 100)) : 100;
 
     const currentTag = player.tag || hjState.activeTag;
-    const currentLang = typeof localStorage !== 'undefined' ? (safeJsonParse(localStorage.getItem('oreCalc_appSettings'), {})?.language || 'en') : 'en';
+    const currentLang = appGlobalState.uiSettings?.language || getAppSettings().language || 'en';
     const clanName = player.clan?.name || '';
     const leagueId = player.leagueTier?.id || player.league?.id || null;
 
@@ -401,42 +373,11 @@ export function renderPlayerSummary() {
     hjRenderState.renderedAccelerated = hjState.isAccelerated;
     hjRenderState.lastProgress = progress;
 
-    const thImgUrl = `assets/th/th${thLevel}.png`;
-
-    let clanHtml = '';
-    if (player.clan?.name) {
-        const badgeUrl = player.clan.badgeUrls?.small || '';
-        const safeBadgeUrl = escapeHTML(badgeUrl);
-        const badgeImg = badgeUrl ? `<orecalc-assets-image class="clan-badge-img-mini" src="${safeBadgeUrl}" alt="Clan Badge"></orecalc-assets-image>` : '';
-        const roleText = player.role ? `<span class="clan-role-mini">${formatClanRole(player.role)}</span>` : '';
-        clanHtml = `<div class="player-clan-mini">${badgeImg}<div class="clan-info-col"><span class="clan-name-mini">${escapeHTML(player.clan.name)}</span>${roleText}</div></div>`;
-    } else {
-        clanHtml = `<div class="player-clan-mini"><span class="clan-name-mini text-muted" data-i18n="views.welcome.noClan">${translate('views.welcome.noClan')}</span></div>`;
-    }
-
-    const leagueData = leagueTiers.items.find(l => l.id === leagueId) || (player.league?.name ? leagueTiers.items.find(l => l.name.toLowerCase() === player.league.name.toLowerCase()) : null);
-    let leagueIconHtml = `<orecalc-assets-svg name="star-badge" height="24" width="24" class="league-default-icon"></orecalc-assets-svg>`;
-    let leagueNameText = translate('entities.leagues.unranked');
-
-    if (leagueData) {
-        const leagueKey = 'entities.leagues.' + leagueData.name.toLowerCase()
-            .replace(/\./g, '')
-            .replace(/\s(i+)$/i, (_, p1) => p1.toUpperCase())
-            .replace(/\s/g, '_');
-        leagueNameText = translate(leagueKey);
-        const imgUrl = leagueData.iconUrls?.small || '';
-        if (imgUrl) leagueIconHtml = `<orecalc-assets-image class="league-badge-img-mini" src="${escapeHTML(imgUrl)}" alt="${escapeHTML(leagueNameText)}"></orecalc-assets-image>`;
-    }
-
-    const safeTag = escapeHTML(hjState.activeTag);
-    const safePlayerName = escapeHTML(player.name || 'Player');
     const cleanTag = normalizePlayerTag(hjState.activeTag);
     const lang = getLanguageFromPath();
     const rootPath = (lang && lang !== 'en') ? `/${lang}/` : '/';
     const bridgeUrl = cleanTag ? `${rootPath}?tag=${encodeURIComponent(cleanTag)}` : rootPath;
-    const isCollapsed = typeof sessionStorage !== 'undefined'
-        ? sessionStorage.getItem('orecalc_hj_profile_stats_collapsed') !== 'false'
-        : true;
+    const isCollapsed = Boolean(appGlobalState.uiSettings?.hideProfileStats ?? getAppSettings().hideProfileStats);
 
     if (isCollapsed) {
         card.classList.add('is-stats-collapsed');
@@ -444,51 +385,39 @@ export function renderPlayerSummary() {
         card.classList.remove('is-stats-collapsed');
     }
 
-    card.innerHTML = `
-        <div class="hero-journey-page__player-header home-profile-header">
-            <div class="profile-meta-left">
-                <div class="th-badge-wrapper">
-                    <orecalc-assets-image class="th-badge-img" src="${thImgUrl}" alt="Town Hall ${thLevel}" size="standard"></orecalc-assets-image>
-                    <span class="th-badge-level-overlay">${thLevel}</span>
-                </div>
-                <div class="player-identity">
-                    <div class="player-identity-info">
-                        <h2 class="player-name">${safePlayerName}</h2>
-                        <span class="player-tag">${safeTag}</span>
-                    </div>
-                    ${clanHtml}
-                </div>
-            </div>
+    const prevTrophies = Number((card.querySelector('.player-trophies-mini span')?.textContent || '').replace(/\D/g, '')) || 0;
+    const targetTrophies = Number(player.trophies) || 0;
 
-            <div class="profile-meta-right">
-                <div class="league-details-mini" title="${leagueNameText}">
-                    ${leagueIconHtml}
-                    <div class="league-text-mini">
-                        <span class="league-name-mini">${leagueNameText}</span>
-                        <div class="player-trophies-mini">
-                            <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
-                            <span>${formatNumber(player.trophies || 0)}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="profile-meta-actions-row">
-                    <a href="${bridgeUrl}" class="hj-planner-bridge-btn" title="${translate('views.heroJourneyPage.backToPlannerHelp')}" aria-label="${translate('views.heroJourneyPage.backToPlanner')}">
-                        <orecalc-assets-svg name="planner-outline" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
-                        <span class="planner-bridge-label" data-i18n="views.heroJourneyPage.backToPlanner">${translate('views.heroJourneyPage.backToPlanner')}</span>
-                    </a>
-                    <button id="hj-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
-                        <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
-                    </button>
-                </div>
-            </div>
-        </div>
+    const actionsRowHtml = `
+        <a href="${bridgeUrl}" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
+            <orecalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
+            <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
+        </a>
+        <button id="hj-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
+            <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
+        </button>
+    `;
+
+    const headerHtml = renderProfileHeaderHtml({
+        profile: player,
+        isGuest: false,
+        thLevel,
+        tag: currentTag,
+        trophies: targetTrophies,
+        prevTrophies,
+        actionsRowHtml,
+        headerExtraClasses: 'hero-journey-page__player-header'
+    });
+
+    card.innerHTML = `
+        ${headerHtml}
 
         <div class="home-profile-stats-container">
             <div class="home-profile-overall-progress${isTrueMaxPlayer ? ' fully-maxed' : ''}">
                 <div class="overall-progress-header">
                     <span class="overall-progress-label-wrapper">
-                        <orecalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('alts.crown')}"></orecalc-assets-image>
-                        <span class="overall-progress-label" data-i18n="views.heroJourneyPage.journeyProgress">${translate('views.heroJourneyPage.journeyProgress')}</span>
+                        <orecalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('app.alts.crown')}"></orecalc-assets-image>
+                        <span class="overall-progress-label" data-i18n="views.heroJourney.page.journeyProgress">${translate('views.heroJourney.page.journeyProgress')}</span>
                     </span>
                     <span class="overall-progress-value" data-ore-value="overall">0%</span>
                 </div>
@@ -511,7 +440,7 @@ export function renderPlayerSummary() {
                         <div class="progress-bar-fill shiny-fill ${shinyPct >= 100 ? 'maxed-fill' : ''}" data-bar-width="${shinyPct}%" style="width: 0%;"></div>
                     </div>
                     <div class="stat-box-sub">
-                        <span>${unclaimedShiny > 0 ? translate('views.heroJourneyPage.unclaimedCount', { count: formatNumber(Math.round(unclaimedShiny)) }) : translate('views.heroJourneyPage.allClaimed')}</span>
+                        <span>${unclaimedShiny > 0 ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimedShiny)) }) : translate('views.heroJourney.page.allClaimed')}</span>
                     </div>
                 </div>
 
@@ -527,7 +456,7 @@ export function renderPlayerSummary() {
                         <div class="progress-bar-fill glowy-fill ${glowyPct >= 100 ? 'maxed-fill' : ''}" data-bar-width="${glowyPct}%" style="width: 0%;"></div>
                     </div>
                     <div class="stat-box-sub">
-                        <span>${unclaimedGlowy > 0 ? translate('views.heroJourneyPage.unclaimedCount', { count: formatNumber(Math.round(unclaimedGlowy)) }) : translate('views.heroJourneyPage.allClaimed')}</span>
+                        <span>${unclaimedGlowy > 0 ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimedGlowy)) }) : translate('views.heroJourney.page.allClaimed')}</span>
                     </div>
                 </div>
 
@@ -543,7 +472,7 @@ export function renderPlayerSummary() {
                         <div class="progress-bar-fill starry-fill ${starryPct >= 100 ? 'maxed-fill' : ''}" data-bar-width="${starryPct}%" style="width: 0%;"></div>
                     </div>
                     <div class="stat-box-sub">
-                        <span>${unclaimedStarry > 0 ? translate('views.heroJourneyPage.unclaimedCount', { count: formatNumber(Math.round(unclaimedStarry)) }) : translate('views.heroJourneyPage.allClaimed')}</span>
+                        <span>${unclaimedStarry > 0 ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimedStarry)) }) : translate('views.heroJourney.page.allClaimed')}</span>
                     </div>
                 </div>
             </div>` : ''}
@@ -582,8 +511,10 @@ function triggerHeroJourneyFillAnimation(container, metrics) {
                 if (metrics.isTrueMaxPlayer) {
                     animateValue(overallEl, 0, targetOverall, 2000, val => `${Math.round(val)}%`);
                 } else {
+                    const targetLvl = metrics.cumulativeLevel;
                     animateValue(overallEl, 0, targetOverall, 2000, val => {
-                        const curLvl = Math.min(metrics.cumulativeLevel, Math.round((val / 100) * metrics.overallTrueMaxLevel));
+                        const ratio = targetOverall > 0 ? Math.max(0, Math.min(1, val / targetOverall)) : 1;
+                        const curLvl = ratio >= 1 ? targetLvl : Math.round(targetLvl * ratio);
                         return `${curLvl}/${metrics.overallTrueMaxLevel} (${Math.round(val)}%)`;
                     });
                 }
@@ -595,6 +526,15 @@ function triggerHeroJourneyFillAnimation(container, metrics) {
                 if (valEl) {
                     const targetVal = metrics[key] || 0;
                     animateValue(valEl, 0, targetVal, 1800, val => `${Math.round(val)}%`);
+                }
+            }
+
+            const trophiesEl = container.querySelector('.player-trophies-mini span');
+            if (trophiesEl && trophiesEl.dataset.targetTrophies !== undefined) {
+                const prev = Number(trophiesEl.dataset.prevTrophies) || 0;
+                const target = Number(trophiesEl.dataset.targetTrophies) || 0;
+                if (prev !== target || prev === 0) {
+                    animateValue(trophiesEl, prev, target, 1800, val => formatNumber(Math.round(val)));
                 }
             }
         });

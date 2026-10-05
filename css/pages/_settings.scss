@@ -1,4 +1,5 @@
 @use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 @use '../base/placeholder';
 
 .id-child-fields {
@@ -6,7 +7,7 @@
     border: 1px solid $border-primary;
     border-radius: 5px;
     color: $text-primary;
-    padding: 8px;
+    padding: $spacing-sm;
     font-size: var(--font-size-md);
     text-align: right;
     margin-top: 10px;
@@ -66,7 +67,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: $spacing-sm;
     flex: 1;
     min-width: 0;
 
@@ -99,7 +100,7 @@
 .flex-center-gap-8 {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: $spacing-sm;
 }
 
 .flex-column-gap-10 {
@@ -126,32 +127,9 @@
     margin-left: 5px;
 }
 
-.data-erasure-content {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.data-erasure-title {
-    margin: 0;
-    font-size: 1.1em;
-    color: $color-danger;
-}
-
-.data-erasure-description {
-    margin: 0;
-    font-size: 0.9em;
-    color: $text-secondary;
-}
-
-.settings-data-erasure {
-    margin-top: 10px !important;
-    border: none;
-}
-
 .global-pricing-grid-container {
     border: 1px solid $border-primary;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
     overflow: hidden;
     margin-top: 10px;
 }
@@ -174,7 +152,7 @@
 .global-pricing-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    padding: 12px 15px;
+    padding: $spacing-md 15px;
     align-items: center;
     border-bottom: 1px solid $border-primary;
 
@@ -191,30 +169,24 @@
     }
 
     input {
+        @include input-focus-ring;
         width: 100%;
         background-color: $bg-app;
         border: 1px solid $border-primary;
         color: $text-primary;
-        padding: 8px 12px;
-        border-radius: 8px;
+        padding: $spacing-sm $spacing-md;
+        border-radius: $shape-corner-small;
         text-align: right;
         font-family: 'Roboto Mono', monospace;
         font-size: 0.95rem;
-        transition: border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
 
         &::placeholder {
             color: $text-secondary;
             opacity: 0.5;
         }
 
-        &:focus {
-            outline: none;
-        }
-
+        &:focus,
         &:focus-visible {
-            border-color: $accent-primary;
-            box-shadow: 0 0 0 3px $accent-primary-soft;
-            outline: none;
             background-color: $bg-surface-primary;
         }
 
@@ -230,7 +202,7 @@
 
 .accent-color-picker {
     display: flex;
-    gap: 8px;
+    gap: $spacing-sm;
     align-items: center;
 
     @media (max-width: $breakpoint-modal) {
@@ -289,42 +261,6 @@
     &[data-color="red"] { background-color: $accent-option-red; }
     &[data-color="random"] {
         background: conic-gradient(from 0deg, $accent-option-gradient-blue, $accent-option-gradient-purple, $accent-option-gradient-red, $accent-option-gradient-gold, $accent-option-gradient-green, $accent-option-gradient-blue);
-    }
-}
-
-.random-swatch-wrapper {
-    display: inline-flex;
-    align-items: center;
-    position: relative;
-    vertical-align: middle;
-
-    .accent-swatch {
-        position: relative;
-        z-index: 2;
-        flex-shrink: 0;
-
-        &:hover ~ .random-label {
-            transform: translateX(4px);
-        }
-
-        &.active ~ .random-label {
-            transform: translateX(8px);
-        }
-    }
-
-    .random-label {
-        font-size: 10.5px;
-        font-weight: 600;
-        color: $text-secondary;
-        background: color-mix(in srgb, $bg-surface-primary 80%, $bg-surface-tertiary 20%);
-        border: 1px solid $border-primary;
-        border-radius: 12px;
-        padding: 3px 8px 3px 18px;
-        margin-left: -12px;
-        z-index: 1;
-        flex-shrink: 0;
-        white-space: nowrap;
-        transition: transform $duration-fast $ease-standard;
     }
 }
 
@@ -415,13 +351,13 @@
 .settings-info-box {
     background-color: $bg-surface-tertiary;
     padding: 15px;
-    border-radius: 12px;
+    border-radius: $shape-corner-medium;
     border-left: 4px solid $accent-primary;
     margin-top: 10px;
 
     h3 {
         font-size: 1rem;
-        margin-bottom: 8px;
+        margin-bottom: $spacing-sm;
         color: $text-primary;
     }
 
@@ -433,39 +369,6 @@
     }
 }
 
-.data-erasure-modal-content {
-    max-width: $modal-width-standard;
-}
-
-.data-erasure-info-text {
-    text-align: center;
-}
-
-.data-erasure-explanations {
-    padding: 0 24px 10px;
-    font-size: 0.85rem;
-    color: $text-secondary;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-
-    .data-erasure-explanation-item {
-        line-height: 1.45;
-
-        strong {
-            color: $color-danger;
-            display: inline;
-        }
-    }
-}
-
-.data-erasure-options {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 20px 24px;
-}
-
 .btn-extreme-danger {
     border-color: $color-danger;
 }
@@ -473,7 +376,7 @@
 .segmented-control {
     display: flex;
     background-color: $bg-surface-tertiary;
-    border-radius: 8px;
+    border-radius: $shape-corner-small;
     padding: 3px;
     border: 1px solid $border-primary;
 
@@ -530,11 +433,11 @@
     }
 }
 
-@container (max-width: 445px) {
+@media (max-width: $breakpoint-phone) {
     .settings-card {
-
         .animated-btn:not(.btn-danger-action) {
             min-width: 60px;
+
             .animated-btn-text {
                 display: none;
             }

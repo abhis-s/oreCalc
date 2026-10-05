@@ -23,7 +23,8 @@ if (typeof globalThis.window === 'undefined') {
 }
 
 const { state, getDefaultState } = await import('../../js/core/state.js');
-const { loadPlayerData, PLAYER_PREFIX, getPlayerStorageKey } = await import('../../js/core/localStorageManager.js');
+const { loadPlayerData } = await import('../../js/core/playerStorage.js');
+const { getPlayerStorageKey } = await import('../../js/core/storageKeys.js');
 const { syncPlayerToStorage } = await import('../../js/components/heroJourney/heroJourneyState.js');
 const { processPlayerDataResponse } = await import('../../js/services/serverResponseHandler.js');
 
@@ -174,7 +175,8 @@ test('adding new player initializes clean Hero Journey defaults and prevents sta
 });
 
 test('loadState sanitizes all stray keys from heroJourney across all player partitions in localStorage', async () => {
-    const { loadState, PLAYER_TAGS_KEY } = await import('../../js/core/localStorageManager.js');
+    const { loadState } = await import('../../js/core/localStorageManager.js');
+    const { PLAYER_TAGS_KEY } = await import('../../js/core/storageKeys.js');
 
     localStorage.setItem(PLAYER_TAGS_KEY, JSON.stringify(['DIRTYTAG']));
 
@@ -207,4 +209,53 @@ test('loadState sanitizes all stray keys from heroJourney across all player part
         revealBeyondTH: false,
         hidden: true
     });
+});
+
+test('normalizeStateSchema initializes newly added unowned equipment to checked: false while preserving user choices', async () => {
+    const { loadState } = await import('../../js/core/localStorageManager.js');
+    const { PLAYER_TAGS_KEY } = await import('../../js/core/storageKeys.js');
+    const stateModule = await import('../../js/core/state.js');
+
+    const testTag = 'UNOWNEDTEST';
+    const playerKey = getPlayerStorageKey(testTag);
+    const existingPartition = {
+        playerProfile: {
+            tag: '#UNOWNEDTEST',
+            name: 'UnownedTester',
+            townHallLevel: 16,
+            ownedEquipment: {
+                'Henchmen Puppet': 18,
+                'Dark Orb': 18
+            }
+        },
+        heroes: {
+            'Minion Prince': {
+                enabled: true,
+                equipment: {
+                    'Henchmen Puppet': { level: 18, checked: true },
+                    'Dark Orb': { level: 18, checked: false }
+                }
+            }
+        }
+    };
+    localStorage.setItem(PLAYER_TAGS_KEY, JSON.stringify([testTag]));
+    localStorage.setItem(playerKey, JSON.stringify(existingPartition));
+
+    const savedState = loadState();
+    stateModule.initializeState(savedState);
+
+    const normalized = stateModule.state.allPlayersData[testTag];
+    assert.ok(normalized, 'Partition must be loaded into state');
+
+    // Newly backfilled unowned equipment (Portal Pendant) MUST default to checked: false
+    const portalPendant = normalized.heroes['Minion Prince'].equipment['Portal Pendant'];
+    assert.ok(portalPendant, 'Portal Pendant should be backfilled into equipment');
+    assert.equal(portalPendant.checked, false, 'Unowned backfilled equipment must default to checked: false');
+    assert.equal(portalPendant.level, 1, 'Unowned backfilled equipment must default to level 1');
+
+    // Owned equipment that user previously disabled MUST remain checked: false
+    assert.equal(normalized.heroes['Minion Prince'].equipment['Dark Orb'].checked, false, 'User manual disable must be preserved');
+
+    // Owned equipment that was checked: true MUST remain checked: true
+    assert.equal(normalized.heroes['Minion Prince'].equipment['Henchmen Puppet'].checked, true, 'User checked: true must be preserved');
 });

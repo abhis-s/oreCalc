@@ -16,7 +16,7 @@ export const supercellEventsData = deepFreeze({
             { name: 'Monthly Finals', start: '2026-08-29T16:00:00Z', end: '2026-08-30T23:00:00Z', label: 'Aug 29, 30' },
             { name: 'Monthly Finals', start: '2026-09-26T16:00:00Z', end: '2026-09-27T23:00:00Z', label: 'Sep 26, 27' },
             { name: 'Last Chance Qualifier', start: '2026-10-10T16:00:00Z', end: '2026-10-11T23:00:00Z', label: 'Oct 10, 11' },
-            { name: 'World Finals', start: '2026-11-01T00:00:00Z', end: '2026-11-30T23:59:59Z', label: 'November' },
+            { name: 'World Finals', start: '2026-11-14T00:00:00Z', end: '2026-11-15T23:59:59Z', label: 'Nov 14, 15' },
         ]
     }
 });

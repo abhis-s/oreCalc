@@ -7,6 +7,7 @@
             if (msg.indexOf('CWL') !== -1 || msg.indexOf('clan war log') !== -1 || msg.indexOf('privateWarLog') !== -1) return true;
             if (msg.indexOf('SW registration failed') !== -1 || msg.indexOf('SW update check failed') !== -1) return true;
             if (msg.indexOf('ResizeObserver') !== -1) return true;
+            if (/clipboard|readText|NotAllowedError/i.test(msg)) return true;
             return false;
         }
 
@@ -38,7 +39,7 @@
                         var textEl = banner.querySelector('.compatibility-notice-text');
                         if (textEl) {
                             if (!isStorageAvailable) {
-                                textEl.textContent = 'Storage access is restricted in your browser settings. Please enable cookies and local storage for OreCalc to function properly.';
+                                textEl.textContent = 'Storage access is restricted in your browser settings. Please enable cookies and local storage for ClashCalc to function properly.';
                             } else {
                                 textEl.textContent = 'Your browser appears to be outdated. Please update your browser for the best experience.';
                             }
@@ -87,10 +88,10 @@
                 reportedErrors.add(errorKey);
                 setTimeout(function () { reportedErrors.delete(errorKey); }, 10000);
 
-                var baseUrl = window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                var baseUrl = window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
                 var userId = 'unknown';
                 try {
-                    userId = localStorage.getItem('oreCalc_userId') || localStorage.getItem('oreCalc_guestUserId') || 'unknown';
+                    userId = localStorage.getItem('clashCalc_userId') || localStorage.getItem('oreCalc_userId') || localStorage.getItem('oreCalc_guestUserId') || 'unknown';
                 } catch (storageErr) {}
 
                 var payload = {
@@ -218,17 +219,22 @@
         window.resetApplication = function () {
             try {
                 localStorage.removeItem('oreCalculatorState');
+                localStorage.removeItem('clashCalc_appSettings');
                 localStorage.removeItem('oreCalc_appSettings');
+                localStorage.removeItem('clashCalc_players');
                 localStorage.removeItem('oreCalc_players');
+                localStorage.removeItem('clashCalc_playerTags');
                 localStorage.removeItem('oreCalc_playerTags');
+                localStorage.removeItem('clashCalc_userId');
                 localStorage.removeItem('oreCalc_userId');
+                localStorage.removeItem('clashCalc_SWUpdatedTime');
                 localStorage.removeItem('oreCalc_SWUpdatedTime');
                 localStorage.removeItem('oreCalcSWUpdatedTime');
 
                 // Remove all player profile keys
                 for (var i = 0; i < localStorage.length; i++) {
                     var key = localStorage.key(i);
-                    if (key && key.indexOf('oreCalc_player_') === 0) {
+                    if (key && (key.indexOf('oreCalc_player_') === 0 || key.indexOf('clashCalc_player_') === 0)) {
                         localStorage.removeItem(key);
                         i--; // Adjust index as key removal shifts array
                     }
@@ -280,7 +286,8 @@
 
             // Self-healing recovery: If load failure screen was shown due to network latency, hide it when app finishes loading
             var screen = document.getElementById('load-failure-screen');
-            if (screen && screen.style.display !== 'none') {
+            if (screen && (screen.style.display !== 'none' || !screen.hidden)) {
+                screen.hidden = true;
                 screen.style.display = 'none';
                 console.info('Watchdog: Application successfully recovered and initialized in background.');
             }
@@ -314,6 +321,7 @@
                     if (stackEl) stackEl.textContent = stack || 'No stack trace available.';
 
                     if (preloader) preloader.style.display = 'none';
+                    screen.hidden = false;
                     screen.style.display = 'flex';
                 }
             }, 100);
@@ -323,7 +331,8 @@
         var backgroundPoller = setInterval(function () {
             if (appLoaded || window.__APP_LOADED_STATUS__) {
                 var screen = document.getElementById('load-failure-screen');
-                if (screen && screen.style.display !== 'none') {
+                if (screen && (screen.style.display !== 'none' || !screen.hidden)) {
+                    screen.hidden = true;
                     screen.style.display = 'none';
                 }
                 clearInterval(backgroundPoller);

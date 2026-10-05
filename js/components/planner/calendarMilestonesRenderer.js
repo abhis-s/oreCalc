@@ -30,7 +30,7 @@ export function handleEquipmentBadgeMouseEnter(e, item) {
     const rawEquipName = item.name || '';
     const translatedEquipName = translate(`entities.equipment.${toCamelCase(rawEquipName)}`);
     const targetLvl = item.targetLevel || 1;
-    const lvlPrefix = translate('views.equipment.lvlShort');
+    const lvlPrefix = translate('views.equipment.lvl');
     const bottleneckTrans = item.bottleneckOre ? translate(`entities.ores.${item.bottleneckOre}`) : '';
 
     let requiredHtml = '';
@@ -45,8 +45,8 @@ export function handleEquipmentBadgeMouseEnter(e, item) {
     }
 
     tooltip.innerHTML = `
-        <div class="tooltip-header" style="color: ${getHeroColor(item.heroName)}; font-weight: bold;">${translatedEquipName} (${lvlPrefix} ${targetLvl})</div>
-        ${item.message ? `<div class="tooltip-message" style="color: #ff7675;">${item.message}</div>` : ''}
+        <div class="tooltip-header" style="color: ${getHeroColor(item.heroName)};">${translatedEquipName} (${lvlPrefix} ${targetLvl})</div>
+        ${item.message ? `<div class="tooltip-message">${item.message}</div>` : ''}
         ${item.bottleneckOre ? `<div class="tooltip-bottleneck">${translate('views.income.ores.bottleneckLabel')}: ${bottleneckTrans}</div>` : ''}
         ${requiredHtml}
     `;
@@ -113,8 +113,9 @@ export function handleDayCellMouseEnter(e, activeEquipmentSchedule = { ranges: [
     const existingTooltip = document.getElementById('active-calendar-tooltip');
     if (existingTooltip) existingTooltip.remove();
 
+    const currentLang = state.uiSettings?.language || 'en';
     const cumulativeOres = calculateCumulativeOres(targetDate, state.storedOres);
-    const formattedDate = formatDate(targetDate, { month: 'short', day: 'numeric', weekday: 'short' });
+    const formattedDate = formatDate(targetDate, { month: 'short', day: 'numeric', weekday: 'short' }, currentLang);
 
     const cellTime = getMidnightUTCTime(targetDate);
     const activeRange = activeEquipmentSchedule.ranges ? activeEquipmentSchedule.ranges.find(r => cellTime >= r.start && cellTime <= r.end) : null;
@@ -122,10 +123,10 @@ export function handleDayCellMouseEnter(e, activeEquipmentSchedule = { ranges: [
 
     if (activeRange && activeRange.item) {
         const compDateObj = new Date(activeRange.end);
-        const compDateFormatted = formatDate(compDateObj, { month: 'short', day: 'numeric', weekday: 'short' });
+        const compDateFormatted = formatDate(compDateObj, { month: 'short', day: 'numeric', weekday: 'short' }, currentLang);
         const heroColor = getHeroColor(activeRange.item.heroName);
         const translatedItemName = translate(`entities.equipment.${toCamelCase(activeRange.item.name)}`);
-        const lvlPrefix = translate('views.equipment.lvlShort');
+        const lvlPrefix = translate('views.equipment.lvl');
 
         inProgressHtml = `
             <div class="tooltip-in-progress">

@@ -230,3 +230,16 @@ export function hasSyncedHeroInfo(state) {
     }
     return true;
 }
+
+/**
+ * Checks whether a cumulative hero level has reached true max (max hero levels allowed by max Town Hall).
+ *
+ * @param {number} cumulativeLevel - Total hero levels.
+ * @returns {boolean} Whether player has reached true max.
+ */
+export function isTrueMaxCumulativeLevel(cumulativeLevel) {
+    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
+    const allMax = Object.values(maxLevelsByTH);
+    const overallMax = allMax.length > 0 ? Math.max(...allMax) : 0;
+    return cumulativeLevel >= overallMax && overallMax > 0;
+}

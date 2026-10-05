@@ -70,33 +70,9 @@ export const STORAGE_KEY_MAP = Object.freeze({
         canonical: CANONICAL_PLAYER_PREFIX,
         legacy: LEGACY_PLAYER_PREFIX
     }),
-    recentSearches: Object.freeze({
-        canonical: 'clashCalc_recentSearches',
-        legacy: 'oreCalc_recentSearches'
-    }),
     domainNoticeDismissed: Object.freeze({
         canonical: 'clashCalc_domainNoticeDismissed',
         legacy: 'oreCalc_domainNoticeDismissed'
-    }),
-    pendingQrUserId: Object.freeze({
-        canonical: 'clashCalc_pendingQrUserId',
-        legacy: 'oreCalc_pendingQrUserId'
-    }),
-    justSyncedFromQr: Object.freeze({
-        canonical: 'clashCalc_justSyncedFromQr',
-        legacy: 'oreCalc_justSyncedFromQr'
-    }),
-    customChipDraft: Object.freeze({
-        canonical: 'clashCalc_custom_chip_draft',
-        legacy: 'oreCalc_custom_chip_draft'
-    }),
-    showChangelog: Object.freeze({
-        canonical: 'clashCalc_showChangelog',
-        legacy: 'oreCalc_showChangelog'
-    }),
-    crossTabSync: Object.freeze({
-        canonical: 'clashCalc_crossTabSync',
-        legacy: 'oreCalc_crossTabSync'
     })
 });
 
@@ -114,3 +90,27 @@ export const MOTION_DURATION_EXIT_MS = 180;
 export const MOTION_DURATION_BASE_MS = 250;
 export const MOTION_DURATION_MODERATE_MS = 300;
 export const MOTION_DURATION_SLOW_MS = 400;
+
+export const HEADER_BREAKPOINT_DESKTOP = 780;
+export const HEADER_DROPDOWN_COMFORTABLE_WIDTH = 140;
+export const HEADER_DROPDOWN_MIN_WIDTH = 76;
+
+export const COMING_SOON_EQUIPMENT_MAPPINGS = Object.freeze([
+    Object.freeze({
+        heroKeys: Object.freeze(['dragonDuke', 'Dragon Duke']),
+        sourceKeys: Object.freeze(['comingSoon', 'Coming Soon']),
+        targetName: 'Revenge Deck',
+        targetKey: 'revengeDeck'
+    })
+]);
+
+/**
+ * Checks whether an equipment identifier represents placeholder "Coming Soon" equipment.
+ * @param {string} equipKey - Equipment key or name to check.
+ * @returns {boolean} True if identifier represents coming soon equipment.
+ */
+export function isComingSoonEquipment(equipKey) {
+    if (!equipKey || typeof equipKey !== 'string') return false;
+    const normalized = equipKey.trim().toLowerCase().replace(/[\s_-]+/g, '');
+    return normalized === 'comingsoon';
+}

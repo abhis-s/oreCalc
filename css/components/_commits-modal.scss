@@ -19,7 +19,7 @@
     .commits-container {
         background-color: $bg-surface-primary;
         border: 1px solid $border-secondary;
-        border-radius: 12px;
+        border-radius: $shape-corner-medium;
         padding: 1.5rem;
     }
 
@@ -82,13 +82,19 @@
                     color: $color-info;
                     border: 1px solid rgba($color-info, 0.3);
                 }
+
+                &.type-milestone {
+                    background-color: color-mix(in srgb, $color-warning 15%, transparent);
+                    color: $color-warning;
+                    border: 1px solid color-mix(in srgb, $color-warning 30%, transparent);
+                }
             }
 
             .commit-hash {
                 background-color: rgba($accent-primary, 0.1);
                 color: $accent-primary;
                 padding: 0.2rem 0.4rem;
-                border-radius: 4px;
+                border-radius: $shape-corner-xs;
                 font-size: 0.8rem;
                 font-family: monospace;
                 font-weight: 600;
@@ -119,7 +125,7 @@
         margin-bottom: 1.5rem;
         background: linear-gradient(135deg, rgba($accent-primary, 0.08) 0%, rgba($color-success, 0.04) 50%, rgba($color-warning, 0.02) 100%);
         border: 1px solid rgba($accent-primary, 0.22);
-        border-radius: 12px;
+        border-radius: $shape-corner-medium;
         padding: 1.25rem;
         display: flex;
         flex-direction: column;
@@ -162,7 +168,7 @@
             gap: 0.65rem;
             background: rgba($bg-surface-primary, 0.45);
             border: 1px solid $border-secondary;
-            border-radius: 8px;
+            border-radius: $shape-corner-small;
             padding: 0.65rem 0.85rem;
             font-size: 0.925rem;
             color: $text-primary;
@@ -178,8 +184,8 @@
             .commit-scope {
                 background: rgba($accent-primary, 0.12);
                 color: $accent-primary;
-                padding: 2px 5px;
-                border-radius: 4px;
+                padding: $spacing-2xs 5px;
+                border-radius: $shape-corner-xs;
                 font-size: 0.725rem;
                 font-weight: 800;
                 text-transform: uppercase;
@@ -210,7 +216,7 @@
     .other-updates-details {
         margin-top: 1.5rem;
         border: 1px solid $border-secondary;
-        border-radius: 8px;
+        border-radius: $shape-corner-small;
         background-color: rgba($bg-surface-primary, 0.5);
         overflow: hidden;
 

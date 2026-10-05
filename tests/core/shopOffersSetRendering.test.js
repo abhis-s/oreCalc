@@ -314,10 +314,12 @@ if (typeof globalThis.document === 'undefined') {
     globalThis.document.createElement = (tagName) => new MockDOMElement(tagName);
 }
 
-const { state } = await import('../../js/core/state.js');
+const stateModule = await import('../../js/core/state.js');
+const { initializeState } = stateModule;
 const { dom } = await import('../../js/dom/domElements.js');
 const { loadTranslations } = await import('../../js/i18n/translator.js');
-const { renderShopOfferGrid, renderShopOfferRow, renderShopOfferSelector } = await import('../../js/components/income/shopOffersDisplay.js');
+const { renderShopOfferGrid, renderShopOfferSelector, renderShopOfferSelectorContent } = await import('../../js/components/income/shopOffersDisplay.js');
+const { resolveBestMatchShopOfferSet } = await import('../../js/data/incomeSources/shopOffers.js');
 
 await loadTranslations('en');
 
@@ -334,33 +336,48 @@ describe('Shop Offers TH Set Switching & Dynamic Grid Rendering Suite', () => {
         dom.income.shopOffers.checkboxes = mockContainer;
         dom.income.shopOffers.dropdown = mockDropdown;
 
-        state.savedPlayerTags = ['#PLAYER1'];
-        state.uiSettings = {
+        stateModule.state.savedPlayerTags = ['#PLAYER1'];
+        stateModule.state.uiSettings = {
             language: 'en',
             currency: { code: 'USD' }
         };
-        state.allPlayersData = {
+        stateModule.state.allPlayersData = {
             '#PLAYER1': {
-                playerProfile: { name: 'Test Player' },
+                playerProfile: { name: 'Test Player', townHallLevel: 16 },
                 currency: { globalPricing: {} }
             }
         };
-        state.income = {
+        stateModule.state.income = {
             shopOffers: {
-                selectedSet: 16,
-                '16': {},
-                '14': {},
-                '11': {},
-                '8': {},
+                selectedSet: 'newSet',
+                newSet: {},
                 '0': {}
             }
         };
     });
 
-    test('renders 4 rows with TH16 quantities, tier pricing, and dataset.renderedSet = "16"', () => {
-        renderShopOfferGrid(state.income.shopOffers);
+    test('renderShopOfferSelectorContent populates only active sets and filters out disabled TH sets', () => {
+        renderShopOfferSelectorContent();
+        const options = mockDropdown.children;
+        assert.equal(options.length, 2);
 
-        assert.equal(mockContainer.dataset.renderedSet, '16');
+        const optionValues = options.map(opt => opt.value);
+        assert.ok(optionValues.includes('0'));
+        assert.ok(optionValues.includes('newSet'));
+        assert.ok(!optionValues.includes('16'));
+        assert.ok(!optionValues.includes('14'));
+        assert.ok(!optionValues.includes('11'));
+        assert.ok(!optionValues.includes('8'));
+
+        const newSetOpt = options.find(opt => opt.value === 'newSet');
+        assert.equal(newSetOpt.dataset.i18n, 'views.income.shopOffers.newSet');
+        assert.equal(newSetOpt.textContent, 'New Set');
+    });
+
+    test('renders 4 rows with newSet quantities, tier pricing, and dataset.renderedSet = "newSet"', () => {
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
+
+        assert.equal(mockContainer.dataset.renderedSet, 'newSet');
         const rows = mockContainer.querySelectorAll('.offer-grid-row');
         assert.equal(rows.length, 4);
 
@@ -370,93 +387,29 @@ describe('Shop Offers TH Set Switching & Dynamic Grid Rendering Suite', () => {
             assert.ok(costEl.classList.contains('offer-cost-display'));
         });
 
-        assert.ok(rows[0].querySelector('.offer-ore-display').innerHTML.includes('12,000'));
+        // Row 0: shiny_large (15,000 ores, tier10 -> $9.99 USD)
+        assert.ok(rows[0].querySelector('.offer-ore-display').innerHTML.includes('15,000'));
         assert.ok(rows[0].querySelector('.offer-cost-display').innerHTML.includes('9.99'));
 
-        assert.ok(rows[1].querySelector('.offer-ore-display').innerHTML.includes('75'));
-        assert.ok(rows[1].querySelector('.offer-cost-display').innerHTML.includes('6.99'));
-
-        assert.ok(rows[2].querySelector('.offer-ore-display').innerHTML.includes('750'));
-        assert.ok(rows[2].querySelector('.offer-cost-display').innerHTML.includes('6.99'));
-
-        assert.ok(rows[3].querySelector('.offer-ore-display').innerHTML.includes('6,000'));
-        assert.ok(rows[3].querySelector('.offer-cost-display').innerHTML.includes('6.99'));
-    });
-
-    test('re-renders grid with updated quantities and Tier 6 pricing when switching from TH16 to TH14', () => {
-        renderShopOfferGrid(state.income.shopOffers);
-        assert.equal(mockContainer.dataset.renderedSet, '16');
-
-        state.income.shopOffers.selectedSet = 14;
-        renderShopOfferGrid(state.income.shopOffers);
-
-        assert.equal(mockContainer.dataset.renderedSet, '14');
-        const rows = mockContainer.querySelectorAll('.offer-grid-row');
-        assert.equal(rows.length, 4);
-
-        assert.ok(rows[0].querySelector('.offer-ore-display').innerHTML.includes('12,000'));
-        assert.ok(rows[0].querySelector('.offer-cost-display').innerHTML.includes('9.99'));
-
-        assert.ok(rows[1].querySelector('.offer-ore-display').innerHTML.includes('65'));
-        assert.ok(rows[1].querySelector('.offer-cost-display').innerHTML.includes('5.99'));
-
-        assert.ok(rows[2].querySelector('.offer-ore-display').innerHTML.includes('630'));
-        assert.ok(rows[2].querySelector('.offer-cost-display').innerHTML.includes('5.99'));
-
-        assert.ok(rows[3].querySelector('.offer-ore-display').innerHTML.includes('5,000'));
-        assert.ok(rows[3].querySelector('.offer-cost-display').innerHTML.includes('5.99'));
-    });
-
-    test('re-renders grid with updated quantities and Tier 5 pricing when switching to TH11', () => {
-        renderShopOfferGrid(state.income.shopOffers);
-
-        state.income.shopOffers.selectedSet = 11;
-        renderShopOfferGrid(state.income.shopOffers);
-
-        assert.equal(mockContainer.dataset.renderedSet, '11');
-        const rows = mockContainer.querySelectorAll('.offer-grid-row');
-        assert.equal(rows.length, 4);
-
-        assert.ok(rows[0].querySelector('.offer-ore-display').innerHTML.includes('12,000'));
-        assert.ok(rows[0].querySelector('.offer-cost-display').innerHTML.includes('9.99'));
-
-        assert.ok(rows[1].querySelector('.offer-ore-display').innerHTML.includes('55'));
+        // Row 1: starry (90 ores, tier5 -> $4.99 USD)
+        assert.ok(rows[1].querySelector('.offer-ore-display').innerHTML.includes('90'));
         assert.ok(rows[1].querySelector('.offer-cost-display').innerHTML.includes('4.99'));
 
-        assert.ok(rows[2].querySelector('.offer-ore-display').innerHTML.includes('500'));
+        // Row 2: glowy (900 ores, tier5 -> $4.99 USD)
+        assert.ok(rows[2].querySelector('.offer-ore-display').innerHTML.includes('900'));
         assert.ok(rows[2].querySelector('.offer-cost-display').innerHTML.includes('4.99'));
 
-        assert.ok(rows[3].querySelector('.offer-ore-display').innerHTML.includes('4,000'));
+        // Row 3: shiny_small (7,500 ores, tier5 -> $4.99 USD)
+        assert.ok(rows[3].querySelector('.offer-ore-display').innerHTML.includes('7,500'));
         assert.ok(rows[3].querySelector('.offer-cost-display').innerHTML.includes('4.99'));
     });
 
-    test('re-renders grid with exactly 3 offers and Tier 4 pricing when switching to TH8', () => {
-        renderShopOfferGrid(state.income.shopOffers);
-        assert.equal(mockContainer.querySelectorAll('.offer-grid-row').length, 4);
-
-        state.income.shopOffers.selectedSet = 8;
-        renderShopOfferGrid(state.income.shopOffers);
-
-        assert.equal(mockContainer.dataset.renderedSet, '8');
-        const rows = mockContainer.querySelectorAll('.offer-grid-row');
-        assert.equal(rows.length, 3);
-
-        assert.ok(rows[0].querySelector('.offer-ore-display').innerHTML.includes('40'));
-        assert.ok(rows[0].querySelector('.offer-cost-display').innerHTML.includes('3.99'));
-
-        assert.ok(rows[1].querySelector('.offer-ore-display').innerHTML.includes('400'));
-        assert.ok(rows[1].querySelector('.offer-cost-display').innerHTML.includes('3.99'));
-
-        assert.ok(rows[2].querySelector('.offer-ore-display').innerHTML.includes('3,000'));
-        assert.ok(rows[2].querySelector('.offer-cost-display').innerHTML.includes('3.99'));
-    });
-
     test('clears grid and updates dataset.renderedSet to "0" when switching to None (0)', async () => {
-        renderShopOfferGrid(state.income.shopOffers);
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
         assert.equal(mockContainer.querySelectorAll('.offer-grid-row').length, 4);
 
-        state.income.shopOffers.selectedSet = 0;
-        renderShopOfferGrid(state.income.shopOffers);
+        stateModule.state.income.shopOffers.selectedSet = 0;
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
 
         assert.equal(mockContainer.dataset.renderedSet, '0');
 
@@ -465,29 +418,40 @@ describe('Shop Offers TH Set Switching & Dynamic Grid Rendering Suite', () => {
         const rows = mockContainer.querySelectorAll('.offer-grid-row');
         assert.equal(rows.length, 0);
 
-        state.income.shopOffers.selectedSet = '0';
-        renderShopOfferGrid(state.income.shopOffers);
+        stateModule.state.income.shopOffers.selectedSet = '0';
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
         await new Promise(resolve => setTimeout(resolve, 250));
         assert.equal(mockContainer.querySelectorAll('.offer-grid-row').length, 0);
         assert.equal(mockContainer.innerHTML.includes('NaN'), false);
 
-        state.income.shopOffers.selectedSet = null;
-        renderShopOfferGrid(state.income.shopOffers);
+        stateModule.state.income.shopOffers.selectedSet = null;
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
         await new Promise(resolve => setTimeout(resolve, 250));
         assert.equal(mockContainer.innerHTML.includes('NaN'), false);
     });
 
-    test('performs fast in-place DOM updates when remaining in the same set', () => {
-        renderShopOfferGrid(state.income.shopOffers);
+    test('re-renders grid with 4 rows when switching from None back to newSet', () => {
+        stateModule.state.income.shopOffers.selectedSet = 0;
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
+        assert.equal(mockContainer.querySelectorAll('.offer-grid-row').length, 0);
+
+        stateModule.state.income.shopOffers.selectedSet = 'newSet';
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
+        assert.equal(mockContainer.dataset.renderedSet, 'newSet');
+        assert.equal(mockContainer.querySelectorAll('.offer-grid-row').length, 4);
+    });
+
+    test('performs fast in-place DOM updates when remaining in newSet', () => {
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
         const initialRows = mockContainer.querySelectorAll('.offer-grid-row');
         assert.equal(initialRows.length, 4);
 
-        state.income.shopOffers['16'] = {
+        stateModule.state.income.shopOffers['newSet'] = {
             glowy: 2,
             starry: 1
         };
 
-        renderShopOfferGrid(state.income.shopOffers);
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
 
         const currentRows = mockContainer.querySelectorAll('.offer-grid-row');
         assert.equal(currentRows.length, 4);
@@ -510,31 +474,87 @@ describe('Shop Offers TH Set Switching & Dynamic Grid Rendering Suite', () => {
         assert.equal(starrySelect.value, 1);
     });
 
-    test('updates cost displays in-place when currency changes within the same set', () => {
-        renderShopOfferGrid(state.income.shopOffers);
+    test('updates cost displays in-place when currency changes within newSet', () => {
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
         const rowsUSD = mockContainer.querySelectorAll('.offer-grid-row');
         assert.ok(rowsUSD[0].querySelector('.offer-cost-display').innerHTML.includes('$ 9.99'));
 
-        state.uiSettings.currency.code = 'EUR';
-        renderShopOfferGrid(state.income.shopOffers);
+        stateModule.state.uiSettings.currency.code = 'EUR';
+        renderShopOfferGrid(stateModule.state.income.shopOffers);
 
         const rowsEUR = mockContainer.querySelectorAll('.offer-grid-row');
         assert.strictEqual(rowsEUR[0], rowsUSD[0]);
+        // shiny_large tier10 in EUR is € 11.99, tier5 in EUR is € 5.99
         assert.ok(rowsEUR[0].querySelector('.offer-cost-display').innerHTML.includes('€ 11.99'));
-        assert.ok(rowsEUR[1].querySelector('.offer-cost-display').innerHTML.includes('€ 7.99'));
+        assert.ok(rowsEUR[1].querySelector('.offer-cost-display').innerHTML.includes('€ 5.99'));
+        assert.ok(rowsEUR[2].querySelector('.offer-cost-display').innerHTML.includes('€ 5.99'));
+        assert.ok(rowsEUR[3].querySelector('.offer-cost-display').innerHTML.includes('€ 5.99'));
     });
 
     test('renderShopOfferSelector syncs dropdown selector value accurately', () => {
-        state.income.shopOffers.selectedSet = 14;
-        renderShopOfferSelector(state.income.shopOffers);
-        assert.equal(mockDropdown.value, '14');
+        stateModule.state.income.shopOffers.selectedSet = 'newSet';
+        renderShopOfferSelector(stateModule.state.income.shopOffers);
+        assert.equal(mockDropdown.value, 'newSet');
 
-        state.income.shopOffers.selectedSet = 8;
-        renderShopOfferSelector(state.income.shopOffers);
-        assert.equal(mockDropdown.value, '8');
-
-        state.income.shopOffers.selectedSet = 0;
-        renderShopOfferSelector(state.income.shopOffers);
+        stateModule.state.income.shopOffers.selectedSet = 0;
+        renderShopOfferSelector(stateModule.state.income.shopOffers);
         assert.equal(mockDropdown.value, '0');
+
+        stateModule.state.income.shopOffers.selectedSet = '0';
+        renderShopOfferSelector(stateModule.state.income.shopOffers);
+        assert.equal(mockDropdown.value, '0');
+    });
+
+    test('resolveBestMatchShopOfferSet prioritizes newSet across all Town Halls', () => {
+        assert.equal(resolveBestMatchShopOfferSet(16), 'newSet');
+        assert.equal(resolveBestMatchShopOfferSet(14), 'newSet');
+        assert.equal(resolveBestMatchShopOfferSet(9), 'newSet');
+        assert.equal(resolveBestMatchShopOfferSet(1), 'newSet');
+        assert.equal(resolveBestMatchShopOfferSet(undefined), 'newSet');
+    });
+
+    test('initializeState automatically migrates disabled sets in localStorage to newSet', () => {
+        const persistedState = {
+            savedPlayerTags: ['#TAG_LEGACY'],
+            allPlayersData: {
+                '#TAG_LEGACY': {
+                    playerProfile: { name: 'Legacy Player', townHallLevel: 14 },
+                    income: {
+                        shopOffers: {
+                            selectedSet: 14,
+                            '14': { glowy: 1 }
+                        }
+                    }
+                }
+            }
+        };
+
+        initializeState(persistedState);
+
+        const legacyPlayer = stateModule.state.allPlayersData['#TAG_LEGACY'];
+        assert.equal(legacyPlayer.income.shopOffers.selectedSet, 'newSet');
+        assert.ok(legacyPlayer.income.shopOffers['newSet']);
+    });
+
+    test('initializeState preserves explicit None (0) selection from localStorage', () => {
+        const persistedState = {
+            savedPlayerTags: ['#TAG_NONE'],
+            allPlayersData: {
+                '#TAG_NONE': {
+                    playerProfile: { name: 'None Player', townHallLevel: 16 },
+                    income: {
+                        shopOffers: {
+                            selectedSet: '0',
+                            '0': {}
+                        }
+                    }
+                }
+            }
+        };
+
+        initializeState(persistedState);
+
+        const nonePlayer = stateModule.state.allPlayersData['#TAG_NONE'];
+        assert.equal(nonePlayer.income.shopOffers.selectedSet, '0');
     });
 });

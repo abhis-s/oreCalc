@@ -1,0 +1,213 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calc-cluster-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 360px;
+    padding: $spacing-xl;
+    text-align: left;
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-md;
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-lg;
+        width: 100%;
+        max-width: 540px;
+    }
+
+    &__hint {
+        margin: 0;
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        line-height: 1.45;
+        text-align: center;
+    }
+}
+
+.calc-cluster-hero {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-md;
+
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: $shape-corner-medium;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        color: $accent-primary;
+        flex-shrink: 0;
+        box-shadow: $elevation-1;
+    }
+
+    &__header {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2xs;
+    }
+
+    &__title {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        margin: 0;
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    &__subtitle {
+        margin: 0;
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        line-height: 1.45;
+    }
+}
+
+.calc-cluster-single-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.calc-cluster-single-progress {
+    display: inline-flex;
+    align-items: center;
+    padding: $spacing-2xs $spacing-sm;
+    background-color: $accent-primary-soft;
+    border: 1px solid $accent-primary;
+    border-radius: $shape-corner-full;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    color: $accent-primary;
+}
+
+.cluster-pair-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    width: 100%;
+    flex-wrap: wrap;
+
+    .cluster-target-card--preview,
+    .cluster-target-card--waiting {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1 1 0;
+        max-width: 200px;
+        min-width: 0;
+        min-height: 56px;
+        height: 56px;
+        padding: $spacing-xs $spacing-sm;
+        box-sizing: border-box;
+        background-color: $bg-surface-secondary;
+        border: 1px dashed $border-accent;
+        border-radius: $shape-corner-small;
+    }
+
+    .cluster-target-card--preview {
+        flex-direction: column;
+        pointer-events: none;
+
+        .cluster-target-card__header {
+            width: 100%;
+        }
+
+        .cluster-target-card__name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .cluster-target-card--waiting {
+        .cluster-target-card__waiting-inner {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: $spacing-xs;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-medium;
+            color: $text-secondary;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+.cluster-pair-connector {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: $shape-corner-full;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    color: $text-muted;
+    flex-shrink: 0;
+}
+
+.calc-cluster-suggestions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-2xs;
+    width: 100%;
+    padding-top: $spacing-2xs;
+
+    &__label {
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
+        color: $text-muted;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    &__list {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+}
+
+.calc-cluster-suggest-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px $spacing-xs;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-full;
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: border-color $transition-fast, background-color $transition-fast, color $transition-fast;
+
+    &:hover {
+        border-color: $border-accent;
+        background-color: $bg-surface-tertiary;
+        color: $text-primary;
+    }
+
+    orecalc-assets-image {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+    }
+}

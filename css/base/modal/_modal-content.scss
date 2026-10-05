@@ -18,8 +18,8 @@ dialog.modal,
         box-shadow: 0 6px 10px $palette-overlay-dark-10, 0 20px 30px $palette-overlay-dark-10;
         width: 100%;
         max-width: $modal-width-standard;
-        max-height: calc(100vh - 48px);
-        max-height: calc(100dvh - 48px);
+        max-height: $modal-max-height-fallback;
+        max-height: $modal-max-height;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -39,20 +39,20 @@ dialog.modal,
         &.modal-large {
             max-width: $modal-width-large;
             height: min(82dvh, 760px);
-            max-height: calc(100dvh - 48px);
+            max-height: $modal-max-height;
         }
 
         &.modal-workspace {
             max-width: $modal-width-workspace;
             width: 95%;
             height: min(88dvh, 880px);
-            max-height: calc(100dvh - 48px);
+            max-height: $modal-max-height;
             border-radius: $modal-radius-workspace;
         }
 
         > .privacy-notice {
-            padding-left: 24px;
-            padding-right: 24px;
+            padding-left: $spacing-xl;
+            padding-right: $spacing-xl;
         }
     }
 
@@ -75,7 +75,7 @@ dialog.modal,
     &.modal-large [class*="modal-content"] {
         max-width: $modal-width-large;
         height: min(82dvh, 760px);
-        max-height: calc(100dvh - 48px);
+        max-height: $modal-max-height;
     }
 
     &.modal-workspace .modal-content,
@@ -83,7 +83,7 @@ dialog.modal,
         max-width: $modal-width-workspace;
         width: 95%;
         height: min(88dvh, 880px);
-        max-height: calc(100dvh - 48px);
+        max-height: $modal-max-height;
         border-radius: $modal-radius-workspace;
     }
 }

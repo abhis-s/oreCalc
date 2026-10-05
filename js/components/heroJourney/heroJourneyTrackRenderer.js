@@ -9,7 +9,6 @@ import {
     getStoredFilterScrollPosition,
     saveCurrentFilterScrollPosition,
     setIsAutoScrolling,
-    isAutoScrolling,
     autoScrollToCompletedNode,
     updateCustomScrollbar,
     updateFilterRowLayout
@@ -65,9 +64,9 @@ export function renderTrackView(options = {}) {
         emptyCard.className = 'hero-journey-empty-filter-card';
         emptyCard.innerHTML = `
             <orecalc-assets-svg name="sliders" class="empty-filter-icon"></orecalc-assets-svg>
-            <div class="empty-filter-title">${translate('views.home.heroJourney.emptyFilterTitle')}</div>
-            <div class="empty-filter-desc">${translate('views.home.heroJourney.emptyFilterDesc')}</div>
-            <button type="button" class="th-limit-reveal-btn hero-journey-empty-filter-btn" id="hj-reset-filters-btn">${translate('views.home.heroJourney.clearFilter')}</button>
+            <div class="empty-filter-title">${translate('views.heroJourney.filters.emptyFilterTitle')}</div>
+            <div class="empty-filter-desc">${translate('views.heroJourney.filters.emptyFilterDesc')}</div>
+            <button type="button" class="th-limit-reveal-btn hero-journey-empty-filter-btn" id="hj-reset-filters-btn">${translate('views.heroJourney.filters.clearFilter')}</button>
         `;
         trackEl.appendChild(emptyCard);
         const state = buildStateFromPlayerData(hjState.playerData, hjState);
@@ -224,11 +223,15 @@ export function updateProgressBar() {
     if (!progressFill || !progressPercent || !progressText) return;
 
     const hasPlayer = Boolean(hjState.playerData);
+    const progressTracks = document.querySelectorAll('.hero-journey-progress-track');
     if (!hasPlayer) {
-        progressText.textContent = translate('views.heroJourneyPage.heroJourneyTitle');
-        progressPercent.textContent = 'Preview';
+        progressText.textContent = translate('views.heroJourney.page.heroJourneyTitle');
+        progressPercent.textContent = translate('views.heroJourney.nodes.preview');
         progressFill.style.width = '0%';
         progressFill.classList.remove('is-true-max');
+        progressTracks.forEach(track => {
+            /** @type {HTMLElement} */ (track).style.display = '';
+        });
         if (cumulativeBadge) {
             cumulativeBadge.textContent = `0 / ${overallMax}`;
             cumulativeBadge.classList.remove('badge-true-max');
@@ -242,13 +245,16 @@ export function updateProgressBar() {
     if (card) {
         card.classList.toggle('is-true-max', isTrueMaxPlayer);
     }
+    progressTracks.forEach(track => {
+        /** @type {HTMLElement} */ (track).style.display = isTrueMaxPlayer ? 'none' : '';
+    });
     if (cumulativeBadge) {
         cumulativeBadge.textContent = overallMax > 0 ? `${hjState.cumulativeLevel}/${overallMax}` : `${hjState.cumulativeLevel}`;
         cumulativeBadge.classList.toggle('badge-true-max', isTrueMaxPlayer);
     }
 
     if (isTrueMaxPlayer) {
-        progressText.textContent = translate('views.home.heroJourney.thMaxed', { th: thLevel, current: hjState.cumulativeLevel, target: overallMax });
+        progressText.textContent = translate('views.heroJourney.track.thMaxed', { th: thLevel, current: hjState.cumulativeLevel, target: overallMax });
         progressPercent.textContent = '100%';
         progressFill.style.width = '100%';
     } else if (thMaxLevel > 0) {
@@ -256,12 +262,12 @@ export function updateProgressBar() {
         const isTHMaxed = hjState.cumulativeLevel >= thMaxLevel;
 
         progressText.textContent = isTHMaxed
-            ? translate('views.home.heroJourney.thMaxed', { th: thLevel, current: hjState.cumulativeLevel, target: thMaxLevel })
-            : translate('views.home.heroJourney.thMaxProgress', { th: thLevel, current: hjState.cumulativeLevel, target: thMaxLevel });
+            ? translate('views.heroJourney.track.thMaxed', { th: thLevel, current: hjState.cumulativeLevel, target: thMaxLevel })
+            : translate('views.heroJourney.track.thMaxProgress', { th: thLevel, current: hjState.cumulativeLevel, target: thMaxLevel });
         progressPercent.textContent = `${pct}%`;
         progressFill.style.width = `${pct}%`;
     } else {
-        progressText.textContent = translate('views.home.heroJourney.title');
+        progressText.textContent = translate('views.heroJourney.widget.title');
         progressPercent.textContent = '0%';
         progressFill.style.width = '0%';
     }
@@ -281,19 +287,17 @@ export function syncClaimSwitchPill() {
     const isTrueMaxPlayer = hasPlayer && hjState.cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
 
     const shouldHide = !hasPlayer || isTrueMaxPlayer;
-    if (shouldHide && hjState.unclaimedOnly) {
-        hjState.unclaimedOnly = false;
-    }
+    const effectiveUnclaimed = shouldHide ? false : hjState.unclaimedOnly;
 
     claimSwitches.forEach(claimSwitch => {
-        /** @type {HTMLElement} */ (claimSwitch).style.display = shouldHide ? 'none' : 'flex';
+        claimSwitch.hidden = shouldHide;
         if (shouldHide) return;
 
         const claimPill = claimSwitch.querySelector('.hj-switch-pill');
         const btns = claimSwitch.querySelectorAll('.hj-switch-btn');
         btns.forEach(btn => {
             const isUnclaimed = btn.getAttribute('data-unclaimed-only') === 'true';
-            const isMatch = isUnclaimed === hjState.unclaimedOnly;
+            const isMatch = isUnclaimed === effectiveUnclaimed;
             btn.classList.toggle('active', isMatch);
             if (isMatch && claimPill) {
                 const btnEl = /** @type {HTMLElement} */ (btn);

@@ -1,6 +1,27 @@
 import { getLocale, getWeekStart } from '../data/languagesData.js';
 
 const dateTimeFormatCache = new Map();
+let defaultDateLocale = 'en';
+
+/**
+ * Sets the default date locale for formatting throughout the application.
+ *
+ * @param {string} locale - UI language or locale identifier.
+ */
+export function setDefaultDateLocale(locale) {
+    if (typeof locale === 'string' && locale.trim()) {
+        defaultDateLocale = locale.trim();
+    }
+}
+
+/**
+ * Returns the current default date locale.
+ *
+ * @returns {string} Current default date locale code.
+ */
+export function getDefaultDateLocale() {
+    return defaultDateLocale;
+}
 
 /**
  * Retrieves a cached Intl.DateTimeFormat instance.
@@ -19,33 +40,92 @@ function getCachedDateTimeFormat(locale, options) {
     return formatter;
 }
 
+const DEFAULT_DATE_FORMAT_OPTIONS = Object.freeze({
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+});
+
+/**
+ * Normalizes DateTimeFormat options to enforce unambiguous textual month formatting
+ * and strictly prevent numeric MM-DD or DD-MM representations.
+ *
+ * @param {Intl.DateTimeFormatOptions} [options] - Input formatting options.
+ * @returns {Intl.DateTimeFormatOptions} Normalized formatting options.
+ */
+function normalizeDateOptions(options) {
+    if (!options) {
+        return DEFAULT_DATE_FORMAT_OPTIONS;
+    }
+
+    const normalized = { ...options };
+
+    // Prevent locale-specific numeric dateStyle (e.g. de-DE outputting 25.09.2026 for medium)
+    if (normalized.dateStyle === 'short' || normalized.dateStyle === 'medium') {
+        const isShort = normalized.dateStyle === 'short';
+        delete normalized.dateStyle;
+        if (!normalized.month) normalized.month = 'short';
+        if (!normalized.day) normalized.day = 'numeric';
+        if (!normalized.year) normalized.year = isShort ? '2-digit' : 'numeric';
+    }
+
+    // If day is displayed, enforce textual month (short or long), never numeric or omitted
+    if (normalized.day) {
+        if (!normalized.month || normalized.month === 'numeric' || normalized.month === '2-digit') {
+            normalized.month = 'short';
+        }
+    }
+
+    return normalized;
+}
+
 /**
  * Formats a date using localized formatting options.
  *
  * @param {Date} date - Date to format.
  * @param {Intl.DateTimeFormatOptions} [options] - Formatting options.
- * @param {string} [locale='en'] - UI language locale.
+ * @param {string} [locale=defaultDateLocale] - UI language locale.
  * @returns {string} Formatted date string.
  */
-export function formatDate(date, options, locale = 'en') {
-    const effectiveLocale = getLocale(locale);
-    return getCachedDateTimeFormat(effectiveLocale, options).format(date);
+export function formatDate(date, options, locale = defaultDateLocale) {
+    const effectiveLocale = getLocale(locale || defaultDateLocale);
+    const effectiveOptions = normalizeDateOptions(options);
+    return getCachedDateTimeFormat(effectiveLocale, effectiveOptions).format(date);
+}
+
+/**
+ * Formats a date range using localized formatting options.
+ *
+ * @param {Date} startDate - Range start date.
+ * @param {Date} endDate - Range end date.
+ * @param {Intl.DateTimeFormatOptions} [options] - Formatting options.
+ * @param {string} [locale=defaultDateLocale] - UI language locale.
+ * @returns {string} Formatted date range string.
+ */
+export function formatDateRange(startDate, endDate, options, locale = defaultDateLocale) {
+    const effectiveLocale = getLocale(locale || defaultDateLocale);
+    const effectiveOptions = normalizeDateOptions(options);
+    const formatter = getCachedDateTimeFormat(effectiveLocale, effectiveOptions);
+    if (typeof formatter.formatRange === 'function') {
+        return formatter.formatRange(startDate, endDate);
+    }
+    return formatter.format(startDate);
 }
 
 /**
  * Returns localized short day names starting on the configured first day of week.
  *
  * @param {string} [startDaySetting='auto'] - First day preference ('auto' | 'monday' | 'sunday' | etc.).
- * @param {string} [locale='en'] - UI language code.
+ * @param {string} [locale=defaultDateLocale] - UI language code.
  * @returns {string[]} Ordered list of 7 short weekday names.
  */
-export function getShortDayNames(startDaySetting = 'auto', locale = 'en') {
-    const effectiveLocale = getLocale(locale);
+export function getShortDayNames(startDaySetting = 'auto', locale = defaultDateLocale) {
+    const effectiveLocale = getLocale(locale || defaultDateLocale);
     const formatter = getCachedDateTimeFormat(effectiveLocale, { weekday: 'short' });
 
     let effectiveStartDay = startDaySetting;
     if (effectiveStartDay === 'auto') {
-        effectiveStartDay = getWeekStart(locale);
+        effectiveStartDay = getWeekStart(locale || defaultDateLocale);
     }
 
     let startDayIndex = 0;
@@ -125,35 +205,6 @@ export function getDateOfWeek(week, year) {
     const dayOfWeek = (jan4.getUTCDay() + 6) % 7;
     const mondayWeek1Time = jan4.getTime() - dayOfWeek * 86400000;
     return new Date(mondayWeek1Time + (week - 1) * 7 * 86400000);
-}
-
-/**
- * Calculates the current maximum Town Hall level based on the date.
- * Supercell releases a new TH every 12 months in November.
- * Nov 2024: TH 17
- * Nov 2025: TH 18
- * Nov 2026: TH 19
- *
- * @param {Date} [date=new Date()] - Date to evaluate.
- * @returns {number} Maximum Town Hall level.
- */
-export function getMaxTownHall(date = new Date()) {
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth() + 1; // 1-12
-    let maxTH = 17 + (year - 2024);
-    if (month < 11) maxTH -= 1;
-    return maxTH;
-}
-
-/**
- * Returns the predicted release year for a given Town Hall level.
- *
- * @param {number} thLevel - Town Hall level.
- * @returns {number} Release year.
- */
-export function getTHReleaseDate(thLevel) {
-    if (thLevel <= 17) return 2024;
-    return 2024 + (thLevel - 17);
 }
 
 /**
@@ -297,130 +348,6 @@ export function getDateFromDayAndMonth(year, month, day) {
 }
 
 /**
- * Finds the last occurrence of a day of the week in a month.
- * @param {number} year - 4-digit calendar year.
- * @param {number} month - 0-indexed calendar month (0-11).
- * @param {number} dayOfWeek - Day of week (0=Sun, 1=Mon...).
- * @returns {Date | null} Matching date or null.
- */
-function findLastDayOfWeek(year, month, dayOfWeek) {
-    const lastDay = getDaysInMonth(year, month);
-    for (let day = lastDay; day >= 1; day--) {
-        const date = new Date(Date.UTC(year, month, day));
-        if (date.getUTCDay() === dayOfWeek) {
-            return date;
-        }
-    }
-    return null;
-}
-
-/**
- * Formats a date range for Supercell Events in a localized way.
- * @param {Date} startDate - Event start UTC date.
- * @param {Date} endDate - Event end UTC date.
- * @param {string} [locale='en'] - UI language locale.
- * @returns {string} Formatted range string.
- */
-export function formatSupercellEventsDate(startDate, endDate, locale = 'en') {
-    const effectiveLocale = getLocale(locale);
-
-    // Check if it's a full month event (like World Finals often are in the schedule)
-    const isFullMonth = startDate.getUTCDate() === 1 &&
-                       (endDate.getUTCDate() >= 28 || (endDate.getUTCMonth() !== startDate.getUTCMonth()));
-
-    if (isFullMonth) {
-        return getCachedDateTimeFormat(effectiveLocale, { month: 'long', timeZone: 'UTC' }).format(startDate);
-    }
-
-    const formatter = getCachedDateTimeFormat(effectiveLocale, { month: 'short', day: 'numeric', timeZone: 'UTC' });
-    if (typeof formatter.formatRange === 'function') {
-        return formatter.formatRange(startDate, endDate);
-    }
-
-    return getCachedDateTimeFormat(effectiveLocale, { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(startDate);
-}
-
-/**
- * Generates and formats official Supercell Championship events for a given year.
- *
- * @param {number} year - Year to evaluate.
- * @param {any} supercellEventsData - Source tournament schedule metadata.
- * @param {string} [locale='en'] - UI language code.
- * @returns {any[]} List of event objects with dates and localized labels.
- */
-export function getSupercellEventsForYear(year, supercellEventsData, locale = 'en') {
-    let events = [];
-    if (supercellEventsData.events && supercellEventsData.events[year]) {
-        events = supercellEventsData.events[year];
-    } else {
-        // Fallback logic
-        const availableYears = Object.keys(supercellEventsData.events).map(Number).sort((a, b) => b - a);
-        const lastYear = availableYears.find(y => y < year) || availableYears[0];
-        if (!lastYear) return [];
-
-        const lastYearEvents = supercellEventsData.events[lastYear];
-        const generatedEvents = [];
-
-        // Get the unique months and names from the previous year's schedule
-        const eventTemplates = lastYearEvents.reduce((acc, event) => {
-            const start = new Date(event.start);
-            if (!acc[event.name]) acc[event.name] = [];
-            const month = start.getUTCMonth();
-            if (!acc[event.name].includes(month)) {
-                acc[event.name].push(month);
-            }
-            return acc;
-        }, {});
-
-        /** @type {Date | null} */
-        let lastMonthlyFinalsDate = null;
-
-        if (eventTemplates['Monthly Finals']) {
-            for (const month of eventTemplates['Monthly Finals']) {
-                const lastSunday = findLastDayOfWeek(year, month, 0); // 0 = Sunday
-                if (lastSunday) {
-                    const lastSaturday = addDays(lastSunday, -1);
-                    const startStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastSaturday.getUTCDate()).padStart(2, '0')}T16:00:00Z`;
-                    const endStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastSunday.getUTCDate()).padStart(2, '0')}T23:00:00Z`;
-
-                    generatedEvents.push({ name: 'Monthly Finals', start: startStr, end: endStr });
-                    lastMonthlyFinalsDate = lastSunday;
-                }
-            }
-        }
-
-        if (eventTemplates['Last Chance Qualifier'] && lastMonthlyFinalsDate) {
-            const lcqSaturday = addDays(lastMonthlyFinalsDate, 13); // 2 weeks after (Sat is 13 days after the previous Sun)
-            const lcqSunday = addDays(lcqSaturday, 1);
-            const startStr = `${lcqSaturday.getUTCFullYear()}-${String(lcqSaturday.getUTCMonth() + 1).padStart(2, '0')}-${String(lcqSaturday.getUTCDate()).padStart(2, '0')}T16:00:00Z`;
-            const endStr = `${lcqSunday.getUTCFullYear()}-${String(lcqSunday.getUTCMonth() + 1).padStart(2, '0')}-${String(lcqSunday.getUTCDate()).padStart(2, '0')}T23:00:00Z`;
-
-            generatedEvents.push({ name: 'Last Chance Qualifier', start: startStr, end: endStr });
-        }
-
-        if (eventTemplates['World Finals'] && lastMonthlyFinalsDate) {
-            const lcqMonth = lastMonthlyFinalsDate.getUTCMonth();
-            const lcqYear = lastMonthlyFinalsDate.getUTCFullYear();
-            const targetDate = new Date(Date.UTC(lcqYear, lcqMonth + 2, 1, 0, 0, 0));
-            const wfYear = targetDate.getUTCFullYear();
-            const wfMonth = targetDate.getUTCMonth();
-            const lastDayOfWfMonth = new Date(Date.UTC(wfYear, wfMonth + 1, 0)).getUTCDate();
-            const wfStart = `${wfYear}-${String(wfMonth + 1).padStart(2, '0')}-01T00:00:00Z`;
-            const wfEnd = `${wfYear}-${String(wfMonth + 1).padStart(2, '0')}-${String(lastDayOfWfMonth).padStart(2, '0')}T23:59:59Z`;
-            generatedEvents.push({ name: 'World Finals', start: wfStart, end: wfEnd });
-        }
-
-        events = generatedEvents;
-    }
-
-    // Ensure all labels are translated/localized based on current language
-    return events.map(event => ({
-        ...event,
-        label: formatSupercellEventsDate(new Date(event.start), new Date(event.end), locale)
-    }));
-}
-
-/**
  * Resolves dates or date ranges matching an income schedule pattern within a given month.
  * @param {number} year - 4-digit calendar year.
  * @param {number} month - 0-indexed calendar month (0-11).
@@ -483,4 +410,63 @@ export function extractScheduleStartDate(dateOrRange) {
         return dateOrRange.startDate;
     }
     return dateOrRange;
+}
+
+/**
+ * Formats an ISO date string (YYYY-MM-DD) into a localized UTC date representation.
+ *
+ * @param {string} isoDateStr - ISO date string.
+ * @param {string} [language] - UI language locale code (defaults to current date locale).
+ * @returns {string} Formatted localized date string.
+ */
+export function formatRegionalDate(isoDateStr, language = defaultDateLocale) {
+    if (!isoDateStr) return '';
+    try {
+        const parts = isoDateStr.split('-');
+        if (parts.length !== 3) return isoDateStr;
+        const [year, month, day] = parts.map(Number);
+        const date = new Date(Date.UTC(year, month - 1, day));
+        return getCachedDateTimeFormat(language || defaultDateLocale || 'en', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            timeZone: 'UTC'
+        }).format(date);
+    } catch {
+        return isoDateStr;
+    }
+}
+
+/**
+ * Formats the application build or deployment timestamp according to the specified locale.
+ *
+ * @param {string} [locale=defaultDateLocale] - UI language or locale identifier.
+ * @returns {string} Formatted localized date string.
+ */
+export function getAppLastUpdatedDateFormatted(locale = defaultDateLocale) {
+    let dateObj;
+    const swUpdateTime = typeof localStorage !== 'undefined'
+        ? (localStorage.getItem('oreCalc_SWUpdatedTime') || localStorage.getItem('oreCalcSWUpdatedTime'))
+        : null;
+    if (swUpdateTime) {
+        dateObj = new Date(swUpdateTime);
+    }
+    if (!dateObj || isNaN(dateObj.getTime())) {
+        const buildTime = typeof window !== 'undefined'
+            ? window.__ENV__?.BUILD_TIME
+            : (typeof __ENV__ !== 'undefined' ? __ENV__.BUILD_TIME : null);
+        if (buildTime) {
+            dateObj = new Date(buildTime);
+        }
+    }
+    if (!dateObj || isNaN(dateObj.getTime())) {
+        dateObj = new Date();
+    }
+    return formatDate(dateObj, {
+        day: '2-digit',
+        month: 'short',
+        year: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    }, locale || defaultDateLocale || 'en');
 }

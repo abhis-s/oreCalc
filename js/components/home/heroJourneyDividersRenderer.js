@@ -22,8 +22,8 @@ export function createTHStartDivider(startTH, startLvl, isCurrentTH) {
     pill.innerHTML = `
         <orecalc-assets-image src="assets/th/th${startTH}.png" alt="TH${startTH}" class="th-max-img"></orecalc-assets-image>
         <div class="th-max-pill-content">
-            <span class="th-max-tag" data-i18n="views.home.heroJourney.thStartTag" data-i18n-args='{"th":${startTH}}'>${translate('views.home.heroJourney.thStartTag', { th: startTH })}</span>
-            <span class="th-max-lvl" data-i18n="views.home.heroJourney.thStartLvl" data-i18n-args='{"lvl":${startLvl}}'>${translate('views.home.heroJourney.thStartLvl', { lvl: startLvl })}</span>
+            <span class="th-max-tag" data-i18n="views.heroJourney.nodes.thStartTag" data-i18n-args='{"th":${startTH}}'>${translate('views.heroJourney.nodes.thStartTag', { th: startTH })}</span>
+            <span class="th-max-lvl" data-i18n="views.heroJourney.nodes.thStartLvl" data-i18n-args='{"lvl":${startLvl}}'>${translate('views.heroJourney.nodes.thStartLvl', { lvl: startLvl })}</span>
         </div>
     `;
     startDivider.appendChild(pill);
@@ -53,8 +53,8 @@ export function createTHBoundaryDivider(highestNextTH, startLvlVal, isCurrentTHD
     pill.innerHTML = `
         <orecalc-assets-image src="assets/th/th${highestNextTH}.png" alt="TH${highestNextTH}" class="th-max-img"></orecalc-assets-image>
         <div class="th-max-pill-content">
-            <span class="th-max-tag" data-i18n="views.home.heroJourney.thStartTag" data-i18n-args='{"th":${highestNextTH}}'>${translate('views.home.heroJourney.thStartTag', { th: highestNextTH })}</span>
-            <span class="th-max-lvl" data-i18n="views.home.heroJourney.thStartLvl" data-i18n-args='{"lvl":${startLvlVal}}'>${translate('views.home.heroJourney.thStartLvl', { lvl: startLvlVal })}</span>
+            <span class="th-max-tag" data-i18n="views.heroJourney.nodes.thStartTag" data-i18n-args='{"th":${highestNextTH}}'>${translate('views.heroJourney.nodes.thStartTag', { th: highestNextTH })}</span>
+            <span class="th-max-lvl" data-i18n="views.heroJourney.nodes.thStartLvl" data-i18n-args='{"lvl":${startLvlVal}}'>${translate('views.heroJourney.nodes.thStartLvl', { lvl: startLvlVal })}</span>
         </div>
     `;
     divider.appendChild(pill);
@@ -79,28 +79,28 @@ export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyo
     if (isTrueMax || (isGuest && thLevel >= 18)) {
         blockCard.className = 'th-limit-block-card true-max-card';
         const actionBtnHtml = isDedicatedPage
-            ? `<button class="th-limit-reveal-btn btn-active" id="hj-show-table-btn" data-i18n="views.heroJourneyPage.viewTable">${translate('views.heroJourneyPage.viewTable')}</button>`
-            : `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.home.heroJourney.hideTrack">${translate('views.home.heroJourney.hideTrack')}</button>`;
+            ? `<button class="th-limit-reveal-btn btn-active" id="hj-show-table-btn" data-i18n="views.heroJourney.page.viewTable">${translate('views.heroJourney.page.viewTable')}</button>`
+            : `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.heroJourney.track.hideTrack">${translate('views.heroJourney.track.hideTrack')}</button>`;
 
         blockCard.innerHTML = `
             <orecalc-assets-image src="assets/th/th18.png" alt="TH18" class="th-limit-img"></orecalc-assets-image>
-            <div class="th-limit-text"><span data-i18n="views.home.heroJourney.trueMaxTitle">${translate('views.home.heroJourney.trueMaxTitle')}</span><br><span data-i18n="views.home.heroJourney.trueMaxDesc">${translate('views.home.heroJourney.trueMaxDesc')}</span></div>
+            <div class="th-limit-text"><span data-i18n="views.heroJourney.nodes.trueMaxTitle">${translate('views.heroJourney.nodes.trueMaxTitle')}</span><br><span data-i18n="views.heroJourney.nodes.trueMaxDesc">${translate('views.heroJourney.nodes.trueMaxDesc')}</span></div>
             ${actionBtnHtml}
         `;
     } else {
         blockCard.className = 'th-limit-block-card';
 
-        const previewBtnI18n = !revealBeyondTH ? 'views.home.heroJourney.preview' : 'views.home.heroJourney.closePreview';
+        const previewBtnI18n = !revealBeyondTH ? 'views.heroJourney.nodes.preview' : 'views.heroJourney.nodes.closePreview';
         const previewBtnText = translate(previewBtnI18n);
         const previewBtnClass = !revealBeyondTH ? 'th-limit-reveal-btn' : 'th-limit-reveal-btn btn-active';
         const previewBtnHtml = `<button class="${previewBtnClass}" id="home-hj-reveal-btn" data-i18n="${previewBtnI18n}">${previewBtnText}</button>`;
 
-        const limitTextI18n = !revealBeyondTH ? 'views.home.heroJourney.thLimitLockedText' : 'views.home.heroJourney.thLimitUnlockedText';
+        const limitTextI18n = !revealBeyondTH ? 'views.heroJourney.track.thLimitLockedText' : 'views.heroJourney.track.thLimitUnlockedText';
         const limitTextArgs = !revealBeyondTH ? JSON.stringify({ th: nextTH, lvl: nextTHStartLvl }) : JSON.stringify({ th: nextTH });
         const limitText = translate(limitTextI18n, !revealBeyondTH ? { th: nextTH, lvl: nextTHStartLvl } : { th: nextTH });
 
         if (isGuest && !isDedicatedPage) {
-            const hideBtnHtml = `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.home.heroJourney.hideTrack">${translate('views.home.heroJourney.hideTrack')}</button>`;
+            const hideBtnHtml = `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.heroJourney.track.hideTrack">${translate('views.heroJourney.track.hideTrack')}</button>`;
             blockCard.innerHTML = `
                 <orecalc-assets-image src="assets/th/th${nextTH}.png" alt="TH${nextTH}" class="th-limit-img"></orecalc-assets-image>
                 <div class="th-limit-text" data-i18n="${limitTextI18n}" data-i18n-args='${limitTextArgs}'>${limitText}</div>

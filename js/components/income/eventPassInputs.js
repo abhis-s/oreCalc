@@ -75,7 +75,7 @@ export function initializeEventPassInputs() {
             max: 30000,
             showRecommended: () => getRecommendedPurchased() > 0,
             recommended: getRecommendedPurchased,
-            recommendedLabel: () => translate('actions.recommendPurchase'),
+            recommendedLabel: () => translate('views.income.prospector.recommendPurchase'),
             clickToFill: {
                 min: true,
                 max: true,

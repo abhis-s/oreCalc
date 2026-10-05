@@ -1,14 +1,14 @@
     <dialog id="notice-modal" class="modal" aria-labelledby="notice-modal-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="notice-modal-title">Notice</h2>
+                <h2 id="notice-modal-title" data-i18n="status.notice">Notice</h2>
             </div>
             <div id="notice-modal-body" class="modal-body">
                 <div id="notice-modal-message" class="notice-modal-message"></div>
             </div>
             <div class="modal-actions">
-                <button id="notice-modal-cancel-btn" class="btn-secondary" style="display: none;" data-i18n="actions.cancel"></button>
-                <button id="notice-modal-ok-btn" class="btn-primary" data-modal-autofocus>OK</button>
+                <button type="button" id="notice-modal-cancel-btn" class="btn-secondary" hidden data-i18n="actions.cancel"></button>
+                <button type="button" id="notice-modal-ok-btn" class="btn-primary" data-modal-autofocus data-i18n="actions.ok">OK</button>
             </div>
         </div>
     </dialog>
