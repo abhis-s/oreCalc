@@ -94,10 +94,6 @@ export function createNodeChipElement(node, ctx) {
         nodeAltText = translate(`entities.ores.${node.resourceType}`);
     }
 
-    const levelLabel = translate('views.heroJourney.nodes.nodeLevel', { level: node.level });
-    const statusLabel = isClaimed ? ` (${translate('views.heroJourney.nodes.owned')})` : '';
-    chip.setAttribute('aria-label', `${levelLabel}: ${nodeAltText}${statusLabel}`);
-
     const isEquipment = node.type === 'equipment';
     const mainImg = document.createElement('orecalc-assets-image');
     mainImg.setAttribute('src', displayIcon);
@@ -181,6 +177,11 @@ export function createNodeChipElement(node, ctx) {
     subElem.className = 'node-sub';
 
     const hasSub = updateNodeTitleAndSub(titleElem, subElem, node, resolvedNode, isClaimed, state, mode);
+
+    const levelLabel = translate('views.heroJourney.nodes.nodeLevel', { level: node.level });
+    const statusLabel = isClaimed ? ` (${translate('views.heroJourney.nodes.owned')})` : '';
+    const visibleTitle = (titleElem.textContent || nodeAltText || '').trim();
+    chip.setAttribute('aria-label', visibleTitle ? `${levelLabel} ${visibleTitle}${statusLabel}` : `${levelLabel}${statusLabel}`);
 
     chip.appendChild(levelPill);
     chip.appendChild(iconWrapper);

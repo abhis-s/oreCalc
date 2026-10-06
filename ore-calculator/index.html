@@ -61,6 +61,9 @@
                 } else {
                     document.documentElement.classList.add('dark-mode');
                 }
+                if (/[?&]tag=/.test(window.location.search) || localStorage.getItem('clashCalc_activePlayerTag') || localStorage.getItem('oreCalc_activePlayerTag') || localStorage.getItem('orecalc_activePlayerTag')) {
+                    document.documentElement.classList.add('has-player');
+                }
             } catch (e) {}
         })();
     </script>

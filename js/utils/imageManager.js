@@ -14,12 +14,16 @@
  * @param {string} alt - The alt text description.
  * @returns {string} The HTML <picture> markup.
  */
-function getImage(src, className = '', size = 'standard', alt = '') {
+function getImage(src, className = '', size = 'standard', alt = '', width = null, height = null) {
     if (!src) return '';
+
+    const defaultDimension = size === 'thumbnail' ? '100' : '200';
+    const imgWidth = width || defaultDimension;
+    const imgHeight = height || defaultDimension;
 
     // Handle external URLs or data URIs directly without optimization
     if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
-        return `<img src="${src}" alt="${alt}" class="${className}" loading="lazy" decoding="async" draggable="false">`;
+        return `<img src="${src}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" loading="lazy" decoding="async" draggable="false">`;
     }
 
     let base = src;
@@ -36,7 +40,7 @@ function getImage(src, className = '', size = 'standard', alt = '') {
     const isDev = typeof location !== 'undefined' && location.port === '8080';
     if (isDev) {
         const pngUrl = `${base}.png`;
-        return `<img src="${pngUrl}" alt="${alt}" class="${className}" loading="lazy" decoding="async" draggable="false">`;
+        return `<img src="${pngUrl}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" loading="lazy" decoding="async" draggable="false">`;
     }
 
     // Sub-folder assets (equipment, heroes, guardians, supercharge, etc.) are resized and get suffixes.
@@ -51,14 +55,14 @@ function getImage(src, className = '', size = 'standard', alt = '') {
     return `<picture class="${className}">
         <source srcset="${avifUrl}" type="image/avif">
         <source srcset="${webpUrl}" type="image/webp">
-        <img src="${webpUrl}" alt="${alt}" class="${className}" loading="lazy" decoding="async" draggable="false">
+        <img src="${webpUrl}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" loading="lazy" decoding="async" draggable="false">
     </picture>`;
 }
 
 if (typeof HTMLElement !== 'undefined') {
     class OrecalcAssetsImage extends HTMLElement {
         static get observedAttributes() {
-            return ['src', 'class', 'size', 'alt'];
+            return ['src', 'class', 'size', 'alt', 'width', 'height'];
         }
 
         get src() {
@@ -82,9 +86,11 @@ if (typeof HTMLElement !== 'undefined') {
             const className = this.getAttribute('class') || '';
             const size = this.getAttribute('size') || 'standard';
             const alt = this.getAttribute('alt') || '';
+            const width = this.getAttribute('width');
+            const height = this.getAttribute('height');
 
             if (src) {
-                this.innerHTML = getImage(src, className, size, alt);
+                this.innerHTML = getImage(src, className, size, alt, width, height);
             }
         }
     }

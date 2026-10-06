@@ -59,6 +59,9 @@
                 } else {
                     document.documentElement.classList.add('dark-mode');
                 }
+                if (/[?&]tag=/.test(window.location.search) || localStorage.getItem('clashCalc_activePlayerTag') || localStorage.getItem('oreCalc_activePlayerTag') || localStorage.getItem('orecalc_activePlayerTag')) {
+                    document.documentElement.classList.add('has-player');
+                }
             } catch (e) {}
         })();
     </script>
@@ -85,12 +88,12 @@
             </div>
 
             <div class="app-header__player-dropdown player-dropdown-container">
-                <button type="button" id="player-dropdown-button" class="player-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select Player" data-i18n-aria-label="player.selectPlaceholder">
+                <button type="button" id="player-dropdown-button" class="player-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select a Player">
                     <span id="selected-player-name"></span>
                     <orecalc-assets-svg name="chevron-down" class="dropdown-arrow"></orecalc-assets-svg>
                 </button>
-                <div id="player-dropdown-list" class="player-dropdown-list" role="listbox">
-                    <div id="player-items-container"></div>
+                <div id="player-dropdown-list" class="player-dropdown-list">
+                    <div id="player-items-container" role="listbox" aria-label="Select a Player" data-i18n-aria-label="player.selectPlaceholder"></div>
                     <button type="button" id="add-player-button" class="add-player-button" data-i18n="player.addPlus"></button>
                 </div>
             </div>
@@ -155,7 +158,7 @@
             </div>
         </section>
 
-        <div id="home-hj-card" class="card full-width-card hero-journey-card">
+        <div id="home-hj-card" class="card full-width-card hero-journey-card no-synced-heroes">
             <div class="hero-journey-header">
                 <div class="hero-journey-title-container">
                     <div class="hero-mountain-cluster" data-i18n-aria-label="views.heroJourney.nodes.heroEmblems">

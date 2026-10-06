@@ -65,6 +65,7 @@ import { initializePasskeysModal } from './components/auth/passkeysModalInputs.j
 import { initializeSettingsAccount } from './components/appSettings/settingsAccountInputs.js';
 import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
 import { initializePwaService } from './services/pwaService.js';
+import { markUserMigrated } from './services/apiService.js';
 
 const resetFilters = () => handleResetFilters(hjState, renderUI);
 
@@ -389,6 +390,9 @@ async function init() {
                 if (isClashCalcHost()) {
                     localStorage.removeItem(STORAGE_KEY_MAP.userId.legacy);
                 }
+            }
+            if (isClashCalcHost()) {
+                markUserMigrated(userIdFromUrl.trim()).catch(() => {});
             }
         } catch (_) {}
     }

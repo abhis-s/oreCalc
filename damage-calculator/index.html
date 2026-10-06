@@ -84,7 +84,7 @@
                 <span class="brand-page-pill" data-i18n="views.damageCalc.offense.equipmentDamageBadge">Equipment Damage</span>
             </div>
 
-            <div class="app-header__tabs tab-bar-container">
+            <div class="app-header__tabs tab-bar-container" role="tablist" aria-label="Calculator Views">
                 <button type="button" class="tab-button is-active active" data-tab="zapquake" id="tab-btn-zapquake"
                     role="tab" aria-selected="true" data-i18n="views.damageCalc.tabs.zapQuake">
                     ZapQuake Combos
@@ -96,12 +96,12 @@
             </div>
 
             <div class="app-header__player-dropdown player-dropdown-container">
-                <button type="button" id="player-dropdown-button" class="player-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select Player" data-i18n-aria-label="player.selectPlaceholder">
+                <button type="button" id="player-dropdown-button" class="player-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select a Player">
                     <span id="selected-player-name"></span>
                     <orecalc-assets-svg name="chevron-down" class="dropdown-arrow"></orecalc-assets-svg>
                 </button>
-                <div id="player-dropdown-list" class="player-dropdown-list" role="listbox">
-                    <div id="player-items-container"></div>
+                <div id="player-dropdown-list" class="player-dropdown-list">
+                    <div id="player-items-container" role="listbox" aria-label="Select a Player" data-i18n-aria-label="player.selectPlaceholder"></div>
                     <button type="button" id="add-player-button" class="add-player-button" data-i18n="player.addPlus">+ Add Player</button>
                 </div>
             </div>
@@ -114,6 +114,7 @@
     <div class="header-placeholder app-header-placeholder"></div>
 
     <main class="damage-calc-main" id="main-content">
+        <h2 class="sr-only" data-i18n="views.damageCalc.offense.equipmentDamageBadge">Equipment Damage</h2>
         <section id="calc-view-container" aria-live="polite">
             <!-- DYNAMIC INSERTION: Active calculator view panel -->
         </section>

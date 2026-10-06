@@ -60,6 +60,7 @@
 .hero-journey-track-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    min-height: 235px;
     padding: $spacing-lg $spacing-sm $spacing-sm $spacing-sm;
     margin: -14px -8px -4px -8px;
     scroll-behavior: smooth;

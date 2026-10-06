@@ -229,6 +229,11 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
             const subElem = chip.querySelector('.node-sub');
             const hasSub = updateNodeTitleAndSub(titleElem, subElem, node, resolvedNode, isClaimed, state, mode);
             chip.classList.toggle('has-sub', hasSub);
+
+            const levelLabel = translate('views.heroJourney.nodes.nodeLevel', { level: node.level });
+            const statusLabel = isClaimed ? ` (${translate('views.heroJourney.nodes.owned')})` : '';
+            const visibleTitle = (titleElem?.textContent || '').trim();
+            chip.setAttribute('aria-label', visibleTitle ? `${levelLabel} ${visibleTitle}${statusLabel}` : `${levelLabel}${statusLabel}`);
         });
 
         const startDivider = track.querySelector('.th-start-initial-divider');

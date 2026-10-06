@@ -261,6 +261,13 @@ clashcalc-assets-image {
             width: 53.3px;
         }
 
+        &.landing-ore-icon,
+        &.landing-hero-emblem,
+        &.landing-damage-icon {
+            height: 26px;
+            width: 26px;
+        }
+
         .resources-row & {
             height: 24px;
             width: 24px;

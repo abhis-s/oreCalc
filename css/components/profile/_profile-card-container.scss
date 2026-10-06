@@ -42,11 +42,24 @@
     overflow: hidden;
     padding: $spacing-xl;
     scroll-margin-top: calc(92px + env(safe-area-inset-top, 0px));
+    min-height: 126px;
+    contain-intrinsic-size: auto 126px;
 
     @media (max-width: $breakpoint-modal) {
         padding: $spacing-lg;
         gap: $spacing-lg;
         margin-bottom: 20px;
+        min-height: 126px;
+    }
+
+    html.has-player & {
+        min-height: 340px;
+        contain-intrinsic-size: auto 340px;
+
+        @media (max-width: $breakpoint-modal) {
+            min-height: 460px;
+            contain-intrinsic-size: auto 460px;
+        }
     }
 
     &.is-stats-collapsed {

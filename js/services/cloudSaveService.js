@@ -9,7 +9,7 @@ import { escapeHTML } from '../utils/stringUtils.js';
 import { compareVersions } from '../utils/versionUtils.js';
 import { sanitizePlayerProfile, stripAutoPlacedCalendarChips } from '../core/playerStorageSanitizer.js';
 
-import { loadUserData, saveSinglePlayerData, saveUserData, saveUserPreferences } from './apiService.js';
+import { loadUserData, markUserMigrated, saveSinglePlayerData, saveUserData, saveUserPreferences } from './apiService.js';
 import { isAuthenticated, purgeAccountDataOnLogout } from './authClientService.js';
 import { showAlert, showConfirm } from '../ui/noticeModal.js';
 
@@ -48,6 +48,10 @@ export function isJustSyncedFromQr() {
  */
 export async function initializeAppData() {
     let userId = getActiveUserId(true);
+
+    if (isClashCalcHost() && userId) {
+        markUserMigrated(userId).catch(() => {});
+    }
 
     const isAuthed = isAuthenticated();
     if (!isAuthed && state.uiSettings?.cloudSync === false) {
@@ -253,6 +257,9 @@ export async function importUserData(importId) {
                 localStorage.setItem(targetUserIdKey, importId);
                 if (!isClashCalcHost()) {
                     localStorage.setItem('oreCalc_userId', importId);
+                }
+                if (isClashCalcHost()) {
+                    markUserMigrated(importId).catch(() => {});
                 }
                 initializeState(importedData);
                 saveState(state, true);

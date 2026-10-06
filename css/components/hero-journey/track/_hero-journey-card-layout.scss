@@ -3,6 +3,8 @@
 .hero-journey-card {
     position: relative;
     width: 100%;
+    min-height: 330px;
+    contain-intrinsic-size: auto 330px;
     box-sizing: border-box;
     container-type: inline-size;
     container-name: hero-journey-card;
@@ -15,12 +17,17 @@
     box-shadow: $elevation-1;
     transition: padding $duration-base $ease-standard, $transition-card;
 
+    @media (max-width: $breakpoint-phone) {
+        min-height: 500px;
+    }
+
     &:hover {
         border-color: $border-card-hover;
         box-shadow: $elevation-card-hover;
     }
 
     &.is-collapsed {
+        min-height: auto;
         .hero-journey-header {
             margin-bottom: 0;
         }

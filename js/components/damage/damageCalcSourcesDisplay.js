@@ -113,7 +113,7 @@ export function getDamageSourcesGridHtml(state) {
                 class="calc-source-cc-pill ${(!isCcZapEnabled && !isCcEqEnabled) ? 'is-inactive' : ''}"
                 title="${escapeHTML(ccSpellsTitle)}: ${escapeHTML(ccZapName)} ${lvlShort} ${ccZapLvl}, ${escapeHTML(ccEqName)} ${lvlShort} ${ccEqLvl}"
                 data-calc-info="cc_spells"
-                aria-label="${escapeHTML(ccSpellsTitle)}">
+                aria-label="${escapeHTML(translate('views.damageCalc.offense.clanCastleAbbr'))}: ${escapeHTML(ccSpellsTitle)}">
                 <orecalc-assets-image
                     src="/assets/buildings/clan_castle/level_14.png"
                     alt="Clan Castle"
@@ -262,7 +262,7 @@ export function renderTownHallDropdownHtml(currentTH, {
     const safeThLabel = escapeHTML(translate('views.equipment.thShort', { level: safeTH }));
     return `
         <div class="calc-th-dropdown" id="${dropdownId}">
-            <button type="button" class="calc-th-dropdown-trigger" id="${triggerId}" aria-haspopup="listbox" aria-expanded="false" aria-label="${escapeHTML(translate('entities.defenses.townHall'))}">
+            <button type="button" class="calc-th-dropdown-trigger" id="${triggerId}" aria-haspopup="listbox" aria-expanded="false" aria-label="${escapeHTML(translate('entities.defenses.townHall'))}: ${safeThLabel}">
                 <orecalc-assets-image src="/assets/buildings/town_hall/level_${safeTH}.png" alt="${safeThLabel}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${safeTH}}' class="calc-th-dropdown-icon" size="thumbnail"></orecalc-assets-image>
                 <span data-i18n="views.equipment.thShort" data-i18n-args='{"level":${safeTH}}' class="calc-th-dropdown-value">${safeThLabel}</span>
                 <orecalc-assets-svg name="chevron-down" class="calc-th-dropdown-arrow"></orecalc-assets-svg>

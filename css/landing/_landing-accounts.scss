@@ -4,6 +4,12 @@
 .landing-active-profile {
     width: 100%;
     box-sizing: border-box;
+
+    html.has-player &[hidden],
+    html.has-player & {
+        display: block !important;
+        min-height: 120px;
+    }
 }
 
 .active-profile-card {
@@ -33,6 +39,12 @@
     flex-direction: column;
     gap: $spacing-sm;
     width: 100%;
+
+    html.has-player &[hidden],
+    html.has-player & {
+        display: flex !important;
+        min-height: 170px;
+    }
 }
 
 .landing-accounts-header {

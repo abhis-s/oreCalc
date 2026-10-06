@@ -177,8 +177,8 @@ export function renderTableView() {
 
         const claimedBadgeHtml = isClaimed
             ? (isUnownedEquipment
-                ? `<span class="table-claimed-badge table-unowned-badge" title="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}"><orecalc-assets-svg name="close" width="11" height="11"></orecalc-assets-svg></span>`
-                : `<span class="table-claimed-badge" title="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}"><orecalc-assets-svg name="check" width="11" height="11"></orecalc-assets-svg></span>`)
+                ? `<span class="table-claimed-badge table-unowned-badge" role="img" title="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}"><orecalc-assets-svg name="close" width="11" height="11"></orecalc-assets-svg></span>`
+                : `<span class="table-claimed-badge" role="img" title="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}"><orecalc-assets-svg name="check" width="11" height="11"></orecalc-assets-svg></span>`)
             : '';
 
         rowsHtml += `

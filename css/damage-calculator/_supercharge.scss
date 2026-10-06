@@ -100,6 +100,8 @@
     gap: $spacing-2xs;
     vertical-align: middle;
     line-height: 1;
+    min-height: 14px;
+    contain: layout;
 
     &--compact {
         gap: 1px;

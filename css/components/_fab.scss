@@ -16,6 +16,7 @@ body.open-fab {
     right: 30px;
     width: fit-content;
     z-index: $z-index-fab;
+    contain: layout paint;
 
     opacity: 0;
     pointer-events: none;

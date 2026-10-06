@@ -80,7 +80,6 @@ export function renderSavedProfilesList(onSelectProfile) {
         card.setAttribute('role', 'option');
         card.setAttribute('aria-selected', String(isActive));
         card.setAttribute('tabindex', '0');
-        card.setAttribute('aria-label', translate('views.landing.selectVillageAria', { name: profile.name, tag: displayTag }));
 
         card.innerHTML = `
             <div class="account-card-th">

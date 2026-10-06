@@ -383,7 +383,7 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.equal(items[1].dataset.tag, 'TAG2');
         assert.equal(items[2].dataset.tag, 'TAG3');
 
-        assert.match(mockContainer.innerHTML, /role="button"/);
+        assert.match(mockContainer.innerHTML, /role="option"/);
         assert.match(mockContainer.innerHTML, /tabindex="0"/);
     });
 

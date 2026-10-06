@@ -86,6 +86,11 @@ export function renderStandalonePlayerDropdown(activeCleanTag = '', options = {}
         } else {
             selectedPlayerName.textContent = translate('player.addPlayer');
         }
+
+        const dropdownButton = document.getElementById('player-dropdown-button');
+        if (dropdownButton) {
+            dropdownButton.setAttribute('aria-label', selectedPlayerName.textContent);
+        }
     }
 
     if (playerItemsContainer) {

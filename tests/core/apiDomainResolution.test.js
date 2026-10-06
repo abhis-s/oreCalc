@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getApiBaseUrl } from '../../js/services/apiService.js';
+import { getApiBaseUrl, markUserMigrated } from '../../js/services/apiService.js';
 
 test('getApiBaseUrl resolves api.clashcalc.com for clashcalc.com origins', () => {
     assert.equal(getApiBaseUrl('clashcalc.com'), 'https://api.clashcalc.com');
@@ -20,4 +20,10 @@ test('getApiBaseUrl falls back safely for localhost or empty hosts', () => {
     assert.equal(getApiBaseUrl('localhost'), 'https://api.orecalc.tech');
     assert.equal(getApiBaseUrl(''), 'https://api.orecalc.tech');
     assert.equal(getApiBaseUrl(undefined), 'https://api.orecalc.tech');
+});
+
+test('markUserMigrated returns null when userId is falsy without throwing', async () => {
+    assert.equal(await markUserMigrated(''), null);
+    assert.equal(await markUserMigrated(null), null);
+    assert.equal(await markUserMigrated(undefined), null);
 });

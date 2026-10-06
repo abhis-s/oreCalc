@@ -70,6 +70,10 @@ export function renderPlayerDropdown(handlers = {}) {
         selectedPlayerName.textContent = translate('player.addPlayer');
     }
 
+    if (dom.player?.dropdownButton) {
+        dom.player.dropdownButton.setAttribute('aria-label', selectedPlayerName.textContent);
+    }
+
     const savedPlayers = state.savedPlayerTags
         .map(normalizePlayerTag)
         .filter(t => t && t !== 'DEFAULT0');
@@ -98,7 +102,7 @@ export function renderPlayerDropdown(handlers = {}) {
         const thLevel = Math.min(Math.max(Number(playerState?.playerProfile?.townHallLevel) || 1, 1), 18);
         const thImg = `assets/th/th${thLevel}.png`;
 
-        return `<div class="player-dropdown-item ${isActive}" data-tag="${safeCleanTag}" tabindex="${isItemActive ? '0' : '-1'}" role="button">
+        return `<div class="player-dropdown-item ${isActive}" data-tag="${safeCleanTag}" tabindex="${isItemActive ? '0' : '-1'}" role="option" aria-selected="${Boolean(isItemActive)}">
                     <div class="player-dropdown-th-wrapper">
                         <orecalc-assets-image src="${thImg}" alt="TH ${thLevel}" class="player-dropdown-th"></orecalc-assets-image>
                         <span class="player-dropdown-th-badge">${thLevel}</span>

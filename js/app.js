@@ -44,6 +44,7 @@ import { getChangelogHtml } from './services/changelogService.js';
 import { initializePwaService } from './services/pwaService.js';
 import { setJustSyncedFromQr, importUserData, initializeAppData, isJustSyncedFromQr } from './services/cloudSaveService.js';
 import { showAddPlayerModal } from './components/player/playerModalInputs.js';
+import { markUserMigrated } from './services/apiService.js';
 import './console.js';
 
 setThemeRenderCallback(renderApp);
@@ -88,6 +89,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 localStorage.setItem(targetUserIdKey, userIdFromUrl);
                 if (!isClashCalcHost()) {
                     localStorage.setItem('oreCalc_userId', userIdFromUrl);
+                }
+                if (isClashCalcHost()) {
+                    markUserMigrated(userIdFromUrl).catch(() => {});
                 }
                 setJustSyncedFromQr(true);
                 window.history.replaceState({}, document.title, window.location.pathname + targetSearch);

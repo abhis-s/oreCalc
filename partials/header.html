@@ -19,12 +19,12 @@
                 <button type="button" class="tab-button" data-tab="settings" data-i18n="nav.settings"></button>
             </div>
             <div class="app-header__player-dropdown player-dropdown-container">
-                <button type="button" id="player-dropdown-button" class="player-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select Player" data-i18n-aria-label="player.selectPlaceholder">
+                <button type="button" id="player-dropdown-button" class="player-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select a Player">
                     <span id="selected-player-name"></span>
                     <orecalc-assets-svg name="chevron-down" class="dropdown-arrow"></orecalc-assets-svg>
                 </button>
                 <div id="player-dropdown-list" class="player-dropdown-list">
-                    <div id="player-items-container">
+                    <div id="player-items-container" role="listbox" aria-label="Select a Player" data-i18n-aria-label="player.selectPlaceholder">
                         <!-- DYNAMIC INSERTION: Header player selector items -->
                     </div>
                     <button type="button" id="add-player-button" class="add-player-button" data-i18n="player.addPlus"></button>

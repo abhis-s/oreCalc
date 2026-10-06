@@ -74,7 +74,7 @@ export function renderAccountsGrid(savedProfiles, activeTag, onSelectAccount, on
         card.setAttribute('role', 'option');
         card.setAttribute('aria-selected', isActive ? 'true' : 'false');
         const displayTag = formatDisplayTag(profile.tag || profile.cleanTag) || (profile.tag ? `#${profile.tag.replace(/^#+/, '')}` : '');
-        card.setAttribute('aria-label', translate('views.landing.selectVillageAria', { name: profile.name, tag: displayTag }));
+        card.title = translate('views.landing.selectVillageAria', { name: profile.name, tag: displayTag });
 
         card.innerHTML = `
             <div class="account-card-th">

@@ -43,6 +43,10 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
     transition: $transition-card;
     overflow: hidden;
 
+    @media (max-width: $breakpoint-phone) {
+        min-height: 370px;
+    }
+
     &::before {
         content: "";
         position: absolute;

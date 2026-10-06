@@ -281,6 +281,38 @@ export async function saveUserPreferences(userId, preferences) {
 }
 
 /**
+ * Explicitly marks a user ID as migrated to ClashCalc in Firestore.
+ *
+ * @param {string} userId - The unique identifier of the user.
+ * @returns {Promise<Object|null>} Server response or null on error.
+ */
+export async function markUserMigrated(userId) {
+    if (!userId) return null;
+    checkApiBlock();
+
+    const url = `${BASE_URL}/api/user-data/mark-migrated`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: getAuthHeaders({
+                'Content-Type': 'application/json',
+                'x-app-version': window.__ENV__?.APP_VERSION || '3.0.0'
+            }),
+            body: JSON.stringify({ userId })
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        return await response.json();
+    } catch (error) {
+        logger.warn('Failed to mark user migrated:', error);
+        return null;
+    }
+}
+
+/**
  * Loads/retrieves the user's previously saved progress or data from the server.
  * Gracefully handles 404 (user doesn't exist/no saved data yet) by returning null.
  *

@@ -390,7 +390,7 @@ async function showStep() {
 
     tooltipEl.innerHTML = `
         <div class="tour-tooltip-header">
-            <h4 class="tour-tooltip-title">${translate(titleKey)}</h4>
+            <h3 class="tour-tooltip-title">${translate(titleKey)}</h3>
             <button class="tour-close-btn" aria-label="${escapeHTML(translate('actions.close'))}">&times;</button>
         </div>
         <div class="tour-tooltip-body">

@@ -103,6 +103,7 @@
         "503": "Clash of Clans servers are temporarily unavailable due to maintenance.",
         "525": "SSL Handshake Failed. Connection between the server and Clash of Clans API failed.",
         "accessDenied": "Access denied. Missing or incorrect API token.",
+        "accountMigratedToClashCalc": "This account has been migrated to ClashCalc and cannot be accessed from OreCalc.",
         "badRequest": "Incorrect parameters provided.",
         "captchaFailed": "Security check failed. Please try again.",
         "captchaRequired": "Security check required. Please complete the CAPTCHA.",

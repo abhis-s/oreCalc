@@ -171,7 +171,7 @@ export function renderTargetLevelToolbar({
                 </div>
                 <div class="calc-target-toolbar__meta">
                     <div class="calc-target-toolbar__title-row">
-                        <h4 class="calc-target-toolbar__title">${escapeHTML(defDisplayName)}</h4>
+                        <h3 class="calc-target-toolbar__title">${escapeHTML(defDisplayName)}</h3>
                         ${currentDefense.subCategory === 'crafted' ? `
                             <span class="calc-crafted-pill" title="${escapeHTML(translate('views.damageCalc.filters.craftedDefenseTooltip'))}">
                                 <orecalc-assets-svg name="timer" width="12" height="12"></orecalc-assets-svg>
