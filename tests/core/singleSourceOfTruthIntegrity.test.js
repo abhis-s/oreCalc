@@ -266,10 +266,10 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             assert.equal(getEquipmentMaxLevel(), 18);
         });
 
-        test('All 42 equipment JSON definition files match rarity level caps', () => {
+        test('All 43 equipment JSON definition files match rarity level caps', () => {
             const equipmentDir = path.join(projectRoot, 'js', 'data', 'equipment');
             const files = fs.readdirSync(equipmentDir).filter(f => f.endsWith('.json'));
-            assert.equal(files.length, 42, 'Expected 42 equipment definition files');
+            assert.equal(files.length, 43, 'Expected 43 equipment definition files');
 
             for (const file of files) {
                 const filePath = path.join(equipmentDir, file);

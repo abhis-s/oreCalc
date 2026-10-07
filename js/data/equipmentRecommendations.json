@@ -146,6 +146,9 @@
       }
     }
   },
+  "portalPendant": {
+    "recStatus": "unreleased"
+  },
   "eternalTome": {
     "recommendedLevels": {
       "default": 9,

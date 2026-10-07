@@ -45,6 +45,7 @@ export const heroData = deepFreeze({
             { key: "nobleIron", name: "Noble Iron", type: "common", image: "assets/equipment/minion_prince/MP_noble_iron.png" },
             { key: "darkCrown", name: "Dark Crown", type: "epic", image: "assets/equipment/minion_prince/MP_dark_crown.png", heroJourneyNode: 99, inHeroJourneyPool: true },
             { key: "meteorStaff", name: "Meteor Staff", type: "epic", image: "assets/equipment/minion_prince/MP_meteor_staff.png", heroJourneyNode: 302, inHeroJourneyPool: true },
+            { key: "portalPendant", name: "Portal Pendant", type: "epic", image: "assets/equipment/minion_prince/MP_portal_pendant.png", inHeroJourneyPool: false },
         ],
     },
     grandWarden: {
