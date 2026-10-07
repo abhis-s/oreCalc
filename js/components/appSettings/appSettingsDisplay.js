@@ -265,6 +265,8 @@ export function renderGlobalPricingGrid(currencyCode) {
  * @param {import('../../core/types.js').UISettingsState} uiSettings - Active UI settings configuration.
  */
 export function renderAppSettings(uiSettings) {
+    if (!uiSettings) return;
+
     const currencySelect = dom.appSettings?.currencySelect;
     const languageSelect = dom.appSettings?.languageSelect;
     const enableLevelInputToggle = dom.equipment?.enableLevelInputToggle;

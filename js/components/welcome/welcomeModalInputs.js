@@ -114,8 +114,8 @@ export function showWelcomeModal(isVisible, options = null) {
             wizardView.classList.add('show-recommendations');
         }
 
-        const currentLang = state.uiSettings.language || 'en';
-        const currentTheme = state.uiSettings.theme || 'dark';
+        const currentLang = state.uiSettings?.language || 'en';
+        const currentTheme = state.uiSettings?.theme || 'dark';
 
         const langSelect = modal.querySelector('#welcome-language-select');
         if (langSelect) {

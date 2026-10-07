@@ -47,24 +47,7 @@
     <link rel="stylesheet" href="css/main.css">
     <style>
         #preloader {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #121212;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 1;
-            visibility: visible;
-            z-index: 110;
-            overflow: hidden;
-        }
-
-        @media (prefers-color-scheme: light) {
-            #preloader:not(.dark-mode-override) {
-                background-color: #ffffff;
-            }
+            display: none !important;
         }
 
         .modal {
@@ -163,7 +146,7 @@
     </div>
 
     <div id="overlay" class="overlay"></div>
-    <div id="preloader">
+    <div id="preloader" hidden>
         <script>
             (function () {
                 var accent = 'blue';

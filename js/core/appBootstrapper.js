@@ -105,7 +105,7 @@ export async function bootstrapUIComponents(initialLang) {
 
     autoDetectCurrency();
 
-    applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');
+    applyThemeSettings(state.uiSettings?.theme || 'dark', state.uiSettings?.accentColor || 'random');
     updateUIWithTranslations(true);
     updateResponsiveText();
 

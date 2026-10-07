@@ -292,7 +292,7 @@ export function applyTheme(theme, origin = null) {
  */
 export function animatePreloaderBackground(targetBgColor, durationMs = 1100) {
     const preloader = dom.preloader || document.getElementById('preloader');
-    if (!preloader) return;
+    if (!preloader || preloader.hidden || preloader.style.display === 'none') return;
 
     const isLight = preloader.getAttribute('data-theme') === 'light' ||
         document.documentElement.classList.contains('light-mode');

@@ -67,6 +67,15 @@ export function showMigrationBlockerModal(options = {}) {
     const ctaBtn = /** @type {HTMLAnchorElement|null} */ (modal.querySelector('#migrated-blocker-cta-btn'));
     if (ctaBtn) {
         ctaBtn.href = ctaUrl;
+        if (!ctaBtn.__boundSpaceAction) {
+            ctaBtn.__boundSpaceAction = true;
+            ctaBtn.addEventListener('keydown', (e) => {
+                if (e.key === ' ' || e.key === 'Spacebar') {
+                    e.preventDefault();
+                    ctaBtn.click();
+                }
+            });
+        }
     }
 
     const resetBtn = /** @type {HTMLButtonElement|null} */ (modal.querySelector('#migrated-blocker-reset-btn'));
@@ -93,10 +102,16 @@ export function showMigrationBlockerModal(options = {}) {
     if (resetTextEl && !resetTextEl.textContent) {
         resetTextEl.textContent = translate('views.migrationBlocker.resetAction');
     }
+    const noticeEl = modal.querySelector('#migrated-blocker-notice');
+    if (noticeEl && !noticeEl.textContent) {
+        noticeEl.textContent = translate('views.migrationBlocker.infoNotice');
+    }
     const ctaTextEl = modal.querySelector('#migrated-blocker-cta-btn');
     if (ctaTextEl && !ctaTextEl.textContent) {
         ctaTextEl.textContent = translate('views.migrationBlocker.cta');
     }
+
+    modal.classList?.add('show');
 
     if (!modal.open) {
         try {
@@ -104,6 +119,12 @@ export function showMigrationBlockerModal(options = {}) {
         } catch (_) {
             modal.setAttribute('open', '');
         }
+    }
+
+    try {
+        ctaBtn?.focus();
+    } catch (_) {
+        // Focus fallback
     }
 
     return modal;

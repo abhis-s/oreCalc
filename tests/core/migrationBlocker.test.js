@@ -81,11 +81,21 @@ describe('OreCalc Migration Blocker & Guest Reset Suite', () => {
         let cancelPrevented = false;
         let isOpened = false;
 
-        const fakeCta = { href: '' };
+        let ctaFocused = false;
+        const fakeCta = {
+            href: '',
+            addEventListener: () => {},
+            focus: () => { ctaFocused = true; }
+        };
         const fakeReset = { addEventListener: () => {} };
+        const classes = new Set();
         const fakeDialog = {
             id: 'migrated-blocker-modal',
             open: false,
+            classList: {
+                add: (c) => classes.add(c),
+                contains: (c) => classes.has(c)
+            },
             querySelector(sel) {
                 if (sel === '#migrated-blocker-cta-btn') return fakeCta;
                 if (sel === '#migrated-blocker-reset-btn') return fakeReset;
@@ -117,8 +127,10 @@ describe('OreCalc Migration Blocker & Guest Reset Suite', () => {
 
         assert.equal(result, fakeDialog);
         assert.equal(isOpened, true);
+        assert.equal(classes.has('show'), true);
         assert.equal(cancelPrevented, true);
         assert.ok(fakeCta.href.includes('https://clashcalc.com'));
         assert.ok(fakeCta.href.includes('userId=custom-migrated-user'));
+        assert.equal(ctaFocused, true);
     });
 });

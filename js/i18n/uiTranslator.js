@@ -93,10 +93,10 @@ export function updateUIWithTranslations(isInitialLoad = false) {
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) ogTitle.setAttribute('content', translate('app.title'));
 
-    if (!isInitialLoad) {
+    if (!isInitialLoad && state.uiSettings) {
         applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');
     }
 
-    document.documentElement.lang = state.uiSettings.language || 'auto';
+    document.documentElement.lang = state.uiSettings?.language || currentLang || 'auto';
     document.dispatchEvent(new CustomEvent('languageChanged'));
 }

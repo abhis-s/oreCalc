@@ -7,10 +7,20 @@
     }
 
     .modal-header {
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
+        border-bottom: none;
+        padding: 28px 24px 12px;
+        gap: 16px;
 
         h2 {
             text-align: center;
+            font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+            font-weight: 600;
+            color: $text-primary;
+            margin: 0;
+            line-height: 1.3;
         }
     }
 
@@ -18,18 +28,23 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 16px auto 20px;
-        width: 64px;
-        height: 64px;
+        margin: 0 auto;
+        width: 60px;
+        height: 60px;
         border-radius: $shape-corner-full;
-        background-color: $accent-primary-soft;
+        background-color: $bg-surface-tertiary;
+        border: 1px solid $border-primary;
         color: $accent-primary;
 
         svg,
         orecalc-assets-svg {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
         }
+    }
+
+    .modal-body {
+        padding: 4px 24px 20px;
     }
 
     .migrated-blocker-description {
@@ -42,9 +57,9 @@
     .migrated-blocker-notice-card {
         padding: 14px 16px;
         border-radius: $shape-corner-medium;
-        background-color: $bg-surface-secondary;
+        background-color: $bg-surface-tertiary;
         border: 1px solid $border-primary;
-        margin-bottom: 24px;
+        margin-bottom: 8px;
         text-align: left;
 
         p {
@@ -56,16 +71,20 @@
     }
 
     .migrated-blocker-actions {
-        display: flex;
-        flex-direction: row;
+        padding: 16px 24px 24px;
         gap: 12px;
-        justify-content: stretch;
 
         .reject-button,
         .accept-button {
             flex: 1;
+            min-height: 42px;
             text-align: center;
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
+            text-decoration: none;
+            box-sizing: border-box;
+            font-weight: 600;
         }
     }
 
