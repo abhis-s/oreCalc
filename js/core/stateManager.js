@@ -1,5 +1,5 @@
 import { MAX_SAVED_PLAYERS } from './constants.js';
-import { getResettingState, saveState, normalizePlayerTag, getPlayerStorageKey } from './localStorageManager.js';
+import { getResettingState, saveState, normalizePlayerTag, getPlayerStorageKey, getStorageItem, CANONICAL_PLAYER_TAGS_KEY, PLAYER_TAGS_KEY } from './localStorageManager.js';
 import { getDefaultPlayerState, state } from './state.js';
 import { getApiBaseUrl } from '../services/apiService.js';
 
@@ -112,7 +112,7 @@ if (typeof window !== 'undefined') {
             !Array.isArray(state.savedPlayerTags) ||
             state.savedPlayerTags.length === 0 ||
             !state.allPlayersData ||
-            localStorage.getItem('oreCalc_playerTags') === null
+            getStorageItem(CANONICAL_PLAYER_TAGS_KEY, PLAYER_TAGS_KEY) === null
         ) {
             return;
         }
@@ -123,7 +123,7 @@ if (typeof window !== 'undefined') {
             clearTimeout(cloudSaveTimeout);
             cloudSaveTimeout = null;
 
-            const currentUserId = localStorage.getItem('oreCalc_userId');
+            const currentUserId = getStorageItem('clashCalc_userId', 'oreCalc_userId');
             if (currentUserId) {
                 const currentPlayerTag = state.savedPlayerTags[0];
                 if (currentPlayerTag && state.allPlayersData[currentPlayerTag]) {

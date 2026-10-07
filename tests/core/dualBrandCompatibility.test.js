@@ -46,7 +46,9 @@ import {
     getActiveAppSettingsKey,
     isClashCalcHost,
     loadState,
-    loadPlayerData
+    loadPlayerData,
+    saveState,
+    updateAllPlayersData
 } from '../../js/core/localStorageManager.js';
 
 import { state } from '../../js/core/state.js';
@@ -90,14 +92,15 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         assert.equal(STORAGE_KEY_MAP.playerPrefix.legacy, 'oreCalc_player_');
     });
 
-    test('2. getStorageItem resolves canonical key when present and falls back to legacy', () => {
+    test('2. getStorageItem resolves host-prioritized key and falls back to opposing namespace', () => {
         assert.equal(getStorageItem('canonical_test', 'legacy_test'), null);
+
+        // In default test environment (!isClashCalcHost()), legacy_test is primary
+        localStorage.setItem('canonical_test', 'canonical_value');
+        assert.equal(getStorageItem('canonical_test', 'legacy_test'), 'canonical_value');
 
         localStorage.setItem('legacy_test', 'legacy_value');
         assert.equal(getStorageItem('canonical_test', 'legacy_test'), 'legacy_value');
-
-        localStorage.setItem('canonical_test', 'canonical_value');
-        assert.equal(getStorageItem('canonical_test', 'legacy_test'), 'canonical_value');
 
         assert.equal(getStorageItem('canonical_test'), 'canonical_value');
         assert.equal(getStorageItem('non_existent'), null);
@@ -110,7 +113,7 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         assert.equal(getActiveAppSettingsKey(), 'oreCalc_appSettings');
     });
 
-    test('4. loadState prioritizes clashCalc_appSettings and falls back to oreCalc_appSettings', () => {
+    test('4. loadState prioritizes host-appropriate appSettings and falls back to opposing namespace', () => {
         localStorage.setItem(PLAYER_TAGS_KEY, JSON.stringify(['DEFAULT0']));
         const legacySettings = { theme: 'light', accentColor: 'orange', appVersion: '2.2.0' };
         localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(legacySettings));
@@ -120,16 +123,24 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         assert.equal(loaded.uiSettings.theme, 'light');
         assert.equal(loaded.uiSettings.accentColor, 'orange');
 
+        // On OreCalc host, legacy settings take priority
         const canonicalSettings = { theme: 'dark', accentColor: 'emerald', appVersion: '2.2.0' };
         localStorage.setItem(CANONICAL_APP_SETTINGS_KEY, JSON.stringify(canonicalSettings));
 
+        loaded = loadState();
+        assert.ok(loaded);
+        assert.equal(loaded.uiSettings.theme, 'light');
+        assert.equal(loaded.uiSettings.accentColor, 'orange');
+
+        // When legacy is removed, falls back to canonical
+        localStorage.removeItem(APP_SETTINGS_KEY);
         loaded = loadState();
         assert.ok(loaded);
         assert.equal(loaded.uiSettings.theme, 'dark');
         assert.equal(loaded.uiSettings.accentColor, 'emerald');
     });
 
-    test('5. loadPlayerData resolves player data across canonical and legacy namespaces', () => {
+    test('5. loadPlayerData resolves player data with host priority and cleans up inactive shadow partition', () => {
         const testTag = '2PP';
         const mockPlayerState = {
             tag: '#2PP',
@@ -139,7 +150,7 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
             planner: {}
         };
 
-        // Case A: Stored under legacy prefix
+        // Case A: Stored under host-active legacy prefix
         localStorage.setItem(`oreCalc_player_${testTag}`, JSON.stringify(mockPlayerState));
         let player = loadPlayerData(testTag);
         assert.ok(player);
@@ -148,12 +159,19 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         // Clear in-memory cache to verify disk resolution
         delete state.allPlayersData[testTag];
 
-        // Case B: Stored under canonical prefix takes priority
+        // Case B: On OreCalc host, oreCalc_player_ takes priority even if clashCalc_player_ exists
         const updatedPlayerState = {
             ...mockPlayerState,
             storedOres: { shiny: 9999, glowy: 1200, starry: 150 }
         };
         localStorage.setItem(`clashCalc_player_${testTag}`, JSON.stringify(updatedPlayerState));
+        player = loadPlayerData(testTag);
+        assert.ok(player);
+        assert.equal(player.storedOres.shiny, 5000);
+
+        // Case C: When host-active key is missing, falls back to canonical prefix
+        delete state.allPlayersData[testTag];
+        localStorage.removeItem(`oreCalc_player_${testTag}`);
         player = loadPlayerData(testTag);
         assert.ok(player);
         assert.equal(player.storedOres.shiny, 9999);
@@ -213,5 +231,65 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         addRecentSearch({ tag: '#TAG2', name: 'Chief 2', townHallLevel: 16 });
         recents = getRecentSearches();
         assert.ok(recents.some(r => r.cleanTag === 'TAG2'));
+    });
+
+    test('9. saveState and updateAllPlayersData write to active host prefix and purge inactive shadow partition', () => {
+        const testTag = 'TAG99';
+        const mockPlayerState = {
+            tag: '#TAG99',
+            heroes: {},
+            storedOres: { shiny: 100, glowy: 20, starry: 5 },
+            income: {},
+            planner: {}
+        };
+
+        // Seed a stale inactive partition
+        localStorage.setItem(`clashCalc_player_${testTag}`, JSON.stringify({ stale: true }));
+        assert.ok(localStorage.getItem(`clashCalc_player_${testTag}`));
+
+        state.savedPlayerTags = [testTag];
+        state.allPlayersData[testTag] = mockPlayerState;
+
+        // Perform saveState
+        saveState(state, true);
+
+        // Host active prefix must be saved, inactive prefix must be purged
+        assert.ok(localStorage.getItem(`oreCalc_player_${testTag}`));
+        assert.equal(localStorage.getItem(`clashCalc_player_${testTag}`), null);
+
+        // Test updateAllPlayersData
+        localStorage.setItem(`clashCalc_player_${testTag}`, JSON.stringify({ stale: true }));
+        updateAllPlayersData(testTag, { ...mockPlayerState, storedOres: { shiny: 200 } });
+        assert.ok(localStorage.getItem(`oreCalc_player_${testTag}`));
+        assert.equal(localStorage.getItem(`clashCalc_player_${testTag}`), null);
+    });
+
+    test('10. Simulated ClashCalc host prioritizes canonical keys and falls back to legacy keys', () => {
+        const originalWindow = globalThis.window;
+        // @ts-expect-error Mocking window for ClashCalc simulation
+        globalThis.window = {
+            location: {
+                hostname: 'clashcalc.com'
+            }
+        };
+
+        try {
+            assert.equal(isClashCalcHost(), true);
+            assert.equal(getActivePlayerPrefix(), 'clashCalc_player_');
+            assert.equal(getActivePlayerTagsKey(), 'clashCalc_playerTags');
+            assert.equal(getActiveAppSettingsKey(), 'clashCalc_appSettings');
+
+            // getStorageItem prioritizes canonical key on ClashCalc host
+            localStorage.setItem('legacy_test', 'legacy_value');
+            localStorage.setItem('canonical_test', 'canonical_value');
+            assert.equal(getStorageItem('canonical_test', 'legacy_test'), 'canonical_value');
+
+            // Falls back to legacy when canonical is absent
+            localStorage.removeItem('canonical_test');
+            assert.equal(getStorageItem('canonical_test', 'legacy_test'), 'legacy_value');
+        } finally {
+            // @ts-expect-error Restoring original window
+            globalThis.window = originalWindow;
+        }
     });
 });

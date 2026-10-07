@@ -50,18 +50,21 @@ export function getActiveAppSettingsKey() {
 }
 
 /**
- * Resolves a storage item prioritizing canonical key with fallback to legacy key.
- * @param {string} canonicalKey - Primary key to inspect.
- * @param {string} [legacyKey] - Fallback key if canonical is null.
+ * Resolves a storage item prioritizing active host key with fallback to opposing key.
+ * @param {string} canonicalKey - Primary key under ClashCalc canonical namespace.
+ * @param {string} [legacyKey] - Fallback key under OreCalc legacy namespace.
  * @returns {string|null} Stored value or null.
  */
 export function getStorageItem(canonicalKey, legacyKey) {
     if (typeof localStorage === 'undefined') return null;
     try {
-        const canonicalVal = localStorage.getItem(canonicalKey);
-        if (canonicalVal !== null) return canonicalVal;
-        if (legacyKey && legacyKey !== canonicalKey) {
-            return localStorage.getItem(legacyKey);
+        const isClash = isClashCalcHost();
+        const primaryKey = isClash ? canonicalKey : (legacyKey || canonicalKey);
+        const fallbackKey = isClash ? (legacyKey || canonicalKey) : canonicalKey;
+        const primaryVal = localStorage.getItem(primaryKey);
+        if (primaryVal !== null) return primaryVal;
+        if (fallbackKey && fallbackKey !== primaryKey) {
+            return localStorage.getItem(fallbackKey);
         }
     } catch (_) {}
     return null;
@@ -218,7 +221,9 @@ export function saveState(state, immediate = false) {
                 }
 
                 const targetPrefix = getActivePlayerPrefix();
+                const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
                 localStorage.setItem(getPlayerStorageKey(cleanPlayerTag, targetPrefix), JSON.stringify(playerData));
+                localStorage.removeItem(getPlayerStorageKey(cleanPlayerTag, inactivePrefix));
                 if (cleanPlayerTag !== 'DEFAULT0') {
                     localStorage.removeItem(`${PLAYER_PREFIX}#${cleanPlayerTag}`);
                     localStorage.removeItem(`${CANONICAL_PLAYER_PREFIX}#${cleanPlayerTag}`);
@@ -329,19 +334,21 @@ export function loadState() {
         const globalWelcomeTimestamp = uiSettings?.uiTimestamps?.welcome;
         const isAppGloballyOnboarded = typeof globalWelcomeTimestamp === 'number' && globalWelcomeTimestamp >= EFFECTIVE_DATE_WELCOME;
 
+        const activePrefix = getActivePlayerPrefix();
+        const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
+
         for (const tag of savedPlayerTags) {
             const cleanKey = normalizePlayerTag(tag);
-            const canonicalKey = getPlayerStorageKey(cleanKey, CANONICAL_PLAYER_PREFIX);
-            const legacyKey = getPlayerStorageKey(cleanKey, PLAYER_PREFIX);
-            let playerStr = localStorage.getItem(canonicalKey) || localStorage.getItem(legacyKey);
+            const primaryKey = getPlayerStorageKey(cleanKey, activePrefix);
+            const fallbackKey = getPlayerStorageKey(cleanKey, inactivePrefix);
+            let playerStr = localStorage.getItem(primaryKey) || localStorage.getItem(fallbackKey);
             if (!playerStr && cleanKey !== 'DEFAULT0') {
-                const legacyKey1 = `${CANONICAL_PLAYER_PREFIX}#${cleanKey}`;
-                const legacyKey2 = `${PLAYER_PREFIX}#${cleanKey}`;
+                const legacyKey1 = `${activePrefix}#${cleanKey}`;
+                const legacyKey2 = `${inactivePrefix}#${cleanKey}`;
                 playerStr = localStorage.getItem(legacyKey1) || localStorage.getItem(legacyKey2);
                 if (playerStr) {
                     try {
-                        const targetKey = getPlayerStorageKey(cleanKey);
-                        localStorage.setItem(targetKey, playerStr);
+                        localStorage.setItem(primaryKey, playerStr);
                         localStorage.removeItem(legacyKey1);
                         localStorage.removeItem(legacyKey2);
                     } catch (e) {}
@@ -370,7 +377,10 @@ export function loadState() {
                 }
 
                 try {
-                    localStorage.setItem(canonicalKey, JSON.stringify(playerObj));
+                    localStorage.setItem(primaryKey, JSON.stringify(playerObj));
+                    if (localStorage.getItem(fallbackKey) !== null) {
+                        localStorage.removeItem(fallbackKey);
+                    }
                 } catch (e) {}
 
                 allPlayersData[cleanKey] = playerObj;
@@ -486,17 +496,18 @@ export function loadPlayerData(playerTag) {
     let playerState = (state.allPlayersData && (state.allPlayersData[cleanTag] || state.allPlayersData[playerTag])) || null;
 
     if (!playerState) {
-        const canonicalKey = getPlayerStorageKey(cleanTag, CANONICAL_PLAYER_PREFIX);
-        const legacyKey = getPlayerStorageKey(cleanTag, PLAYER_PREFIX);
-        let playerStr = localStorage.getItem(canonicalKey) || localStorage.getItem(legacyKey);
+        const activePrefix = getActivePlayerPrefix();
+        const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
+        const primaryKey = getPlayerStorageKey(cleanTag, activePrefix);
+        const fallbackKey = getPlayerStorageKey(cleanTag, inactivePrefix);
+        let playerStr = localStorage.getItem(primaryKey) || localStorage.getItem(fallbackKey);
         if (!playerStr && cleanTag !== 'DEFAULT0') {
-            const legacyKey1 = `${CANONICAL_PLAYER_PREFIX}#${cleanTag}`;
-            const legacyKey2 = `${PLAYER_PREFIX}#${cleanTag}`;
+            const legacyKey1 = `${activePrefix}#${cleanTag}`;
+            const legacyKey2 = `${inactivePrefix}#${cleanTag}`;
             playerStr = localStorage.getItem(legacyKey1) || localStorage.getItem(legacyKey2);
             if (playerStr) {
                 try {
-                    const targetKey = getPlayerStorageKey(cleanTag);
-                    localStorage.setItem(targetKey, playerStr);
+                    localStorage.setItem(primaryKey, playerStr);
                     localStorage.removeItem(legacyKey1);
                     localStorage.removeItem(legacyKey2);
                 } catch (e) {}
@@ -600,7 +611,9 @@ export function updateAllPlayersData(playerTag, playerState) {
     try {
         state.allPlayersData[cleanTag] = playerState;
         const targetPrefix = getActivePlayerPrefix();
+        const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
         localStorage.setItem(getPlayerStorageKey(cleanTag, targetPrefix), JSON.stringify(playerState));
+        localStorage.removeItem(getPlayerStorageKey(cleanTag, inactivePrefix));
         localStorage.removeItem(`${PLAYER_PREFIX}#${cleanTag}`);
         localStorage.removeItem(`${CANONICAL_PLAYER_PREFIX}#${cleanTag}`);
 

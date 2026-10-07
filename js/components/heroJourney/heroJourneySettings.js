@@ -341,7 +341,7 @@ export function initHjCrossTabSync(onStateChange) {
             if (onStateChange) onStateChange();
         }
 
-        if (event.key === 'oreCalc_playerTags' || event.key.startsWith('oreCalc_player_')) {
+        if (event.key === 'oreCalc_playerTags' || event.key === 'clashCalc_playerTags' || event.key?.startsWith('oreCalc_player_') || event.key?.startsWith('clashCalc_player_')) {
             if (onStateChange) onStateChange();
         }
     });
