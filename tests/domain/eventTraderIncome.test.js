@@ -34,8 +34,8 @@ test('calculateEventTraderIncome computes correct ores and medal costs for multi
     assert.equal(result.monthly.glowy, 90);
     assert.equal(result.monthly.starry, 5);
 
-    assert.equal(result.cost, 1810);
-    assert.equal(result.remaining, 3190);
+    assert.equal(result.cost, 1000);
+    assert.equal(result.remaining, 4000);
     assert.equal(result.totalMedalsEarned, 5000);
 });
 
@@ -48,8 +48,8 @@ test('calculateEventTraderIncome handles medal deficit gracefully with negative 
     const availableMedals = 1000;
     const result = calculateEventTraderIncome(eventTraderState, availableMedals);
 
-    assert.equal(result.cost, 2560);
-    assert.equal(result.remaining, -1560);
+    assert.equal(result.cost, 1480);
+    assert.equal(result.remaining, -480);
 });
 
 test('calculateEventTraderIncome handles single ore type pack purchases', () => {
@@ -57,6 +57,6 @@ test('calculateEventTraderIncome handles single ore type pack purchases', () => 
     assert.equal(glowyOnly.bimonthly.shiny, 0);
     assert.equal(glowyOnly.bimonthly.glowy, 300);
     assert.equal(glowyOnly.bimonthly.starry, 0);
-    assert.equal(glowyOnly.cost, 1400);
-    assert.equal(glowyOnly.remaining, 600);
+    assert.equal(glowyOnly.cost, 825);
+    assert.equal(glowyOnly.remaining, 1175);
 });

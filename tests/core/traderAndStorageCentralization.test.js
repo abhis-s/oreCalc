@@ -144,19 +144,19 @@ test('Trader datasets contain correct normalized IDs, costs, ores, and pack limi
 
     assert.ok(eventStarry);
     assert.equal(eventStarry.id, 'event_starry');
-    assert.equal(eventStarry.cost, 320);
+    assert.equal(eventStarry.cost, 185);
     assert.equal(eventStarry.starry, 10);
     assert.equal(eventStarry.maxPacks, 8);
 
     assert.ok(eventGlowy);
     assert.equal(eventGlowy.id, 'event_glowy');
-    assert.equal(eventGlowy.cost, 280);
+    assert.equal(eventGlowy.cost, 165);
     assert.equal(eventGlowy.glowy, 60);
     assert.equal(eventGlowy.maxPacks, 10);
 
     assert.ok(eventShiny);
     assert.equal(eventShiny.id, 'event_shiny');
-    assert.equal(eventShiny.cost, 325);
+    assert.equal(eventShiny.cost, 160);
     assert.equal(eventShiny.shiny, 350);
     assert.equal(eventShiny.maxPacks, 40);
     assert.deepEqual(eventTraderData.map(o => o.id), ['event_starry', 'event_glowy', 'event_shiny']);

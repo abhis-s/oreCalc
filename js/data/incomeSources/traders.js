@@ -13,7 +13,7 @@ export const gemTraderData = deepFreeze([
 ]);
 
 export const eventTraderData = deepFreeze([
-    { id: "event_starry", shiny: 0, glowy: 0, starry: 10, cost: 320, currency: "event_medals", maxPacks: 8 },
-    { id: "event_glowy", shiny: 0, glowy: 60, starry: 0, cost: 280, currency: "event_medals", maxPacks: 10 },
-    { id: "event_shiny", shiny: 350, glowy: 0, starry: 0, cost: 325, currency: "event_medals", maxPacks: 40 },
+    { id: "event_starry", shiny: 0, glowy: 0, starry: 10, cost: 185, currency: "event_medals", maxPacks: 8 },
+    { id: "event_glowy", shiny: 0, glowy: 60, starry: 0, cost: 165, currency: "event_medals", maxPacks: 10 },
+    { id: "event_shiny", shiny: 350, glowy: 0, starry: 0, cost: 160, currency: "event_medals", maxPacks: 40 },
 ]);
