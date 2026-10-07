@@ -8,7 +8,7 @@ test('calculateEventPassIncome returns free pass baseline rewards and zero costs
 
     assert.equal(result.type, 'free');
     assert.equal(result.eventPass, false);
-    assert.equal(result.availableMedals, 3100);
+    assert.equal(result.availableMedals, 3200);
 
     assert.equal(result.bimonthly.shiny, 5000);
     assert.equal(result.bimonthly.glowy, 400);
@@ -28,15 +28,15 @@ test('calculateEventPassIncome computes paid event pass rewards and currency pri
 
     assert.equal(result.type, 'event');
     assert.equal(result.eventPass, true);
-    assert.equal(result.availableMedals, 8600);
+    assert.equal(result.availableMedals, 8700);
 
     assert.equal(result.bimonthly.shiny, 5000);
-    assert.equal(result.bimonthly.glowy, 1000);
-    assert.equal(result.bimonthly.starry, 80);
+    assert.equal(result.bimonthly.glowy, 1280);
+    assert.equal(result.bimonthly.starry, 85);
 
     assert.equal(result.monthly.shiny, 2500);
-    assert.equal(result.monthly.glowy, 500);
-    assert.equal(result.monthly.starry, 40);
+    assert.equal(result.monthly.glowy, 640);
+    assert.equal(result.monthly.starry, 42.5);
 
     assert.ok(result.monthly.USD > 0);
     assert.ok(result.monthly.EUR > 0);
@@ -44,10 +44,10 @@ test('calculateEventPassIncome computes paid event pass rewards and currency pri
 
 test('calculateEventPassIncome subtracts equipment cost when includeEquipment is true', () => {
     const freeWithEquip = calculateEventPassIncome({ eventPass: false, includeEquipment: true });
-    assert.equal(freeWithEquip.availableMedals, 0);
+    assert.equal(freeWithEquip.availableMedals, 100);
 
     const paidWithEquip = calculateEventPassIncome({ eventPass: true, includeEquipment: true });
-    assert.equal(paidWithEquip.availableMedals, 5500);
+    assert.equal(paidWithEquip.availableMedals, 5600);
 });
 
 test('calculateEventPassIncome adds bonusTrackMedals and purchasedMedals', () => {
@@ -58,5 +58,5 @@ test('calculateEventPassIncome adds bonusTrackMedals and purchasedMedals', () =>
         includeEquipment: false
     });
 
-    assert.equal(result.availableMedals, 12160);
+    assert.equal(result.availableMedals, 12260);
 });
