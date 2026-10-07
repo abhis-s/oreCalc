@@ -123,6 +123,7 @@
         "503": "《部落冲突》服务器正在维护，暂时无法使用。",
         "525": "SSL 连接失败，无法连接《部落冲突》API。",
         "accessDenied": "访问被拒绝，API 令牌 缺失或无效。",
+        "accountMigratedToClashCalc": "该账户已迁移至 ClashCalc，无法再通过 OreCalc 访问。",
         "badRequest": "请求参数错误。",
         "default": "API 错误：{status}",
         "deletedUser": "此玩家账号已被永久删除。",
@@ -142,6 +143,11 @@
     "app": {
         "comingSoon": "敬请期待！",
         "description": "专业的《部落冲突》矿石计算与升级规划工具。预测矿石收入量，通过拖放日历规划英雄装备升级，并管理多个账号。支持完整的矿石收益追踪、升级优先级列表、离线使用（PWA）以及云端同步。",
+        "domainNotice": {
+            "cta": "切换到 ClashCalc",
+            "dismiss": "关闭提示",
+            "message": "OreCalc 已升级为 ClashCalc！前往新站点，体验更多功能并获取后续更新。"
+        },
         "latest": "最新",
         "madeIn": "德国精心打造",
         "none": "无",
@@ -905,6 +911,13 @@
             "totalTitle": "总收入",
             "winRate": "胜利",
             "winRatePct": "胜利率（%）"
+        },
+        "migrationBlocker": {
+            "cta": "继续前往 ClashCalc",
+            "description": "该账户已迁移至 ClashCalc，无法再在 OreCalc 上访问。您保存的进度已在新平台中可用。",
+            "infoNotice": "如需继续使用 OreCalc，您可以重置本地存储并以全新的访客账户开始。已迁移至 ClashCalc 的数据将保持不变。",
+            "resetAction": "重置并重新开始",
+            "title": "账户已迁移至 ClashCalc"
         },
         "planner": {
             "addPlan": "添加升级计划",

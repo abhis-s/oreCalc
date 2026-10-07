@@ -123,6 +123,7 @@
         "503": "Clash of Clans sunucuları bakım çalışmaları nedeniyle geçici olarak kullanılamıyor.",
         "525": "SSL el sıkışması başarısız oldu. Sunucu ile Clash of Clans API'si arasındaki bağlantı kesildi.",
         "accessDenied": "Erişim engellendi. API belirteci eksik veya hatalı.",
+        "accountMigratedToClashCalc": "Bu hesap ClashCalc'e taşındı ve artık OreCalc üzerinden erişilemez.",
         "badRequest": "Yanlış parametreler girildi.",
         "default": "API Hatası: {status}",
         "deletedUser": "Bu kullanıcı hesabı kalıcı olarak silindi.",
@@ -142,6 +143,11 @@
     "app": {
         "comingSoon": "Yakında gelecek!",
         "description": "En gelişmiş Clash of Clans Cevher Hesaplayıcısı ve Planlayıcısı. Cevher gelirinizi tahmin edin, sürükle-bırak takvimi ile kahraman ekipmanı yükseltmelerini planlayın ve birden fazla hesabı yönetin. Kapsamlı gelir takibi, yükseltme öncelik listeleri, çevrimdışı destek (PWA) ve bulut senkronizasyonu içerir.",
+        "domainNotice": {
+            "cta": "ClashCalc'e Geçiş Yap",
+            "dismiss": "Bildirimi kapat",
+            "message": "OreCalc, ClashCalc'e dönüştü! Gelişmiş özellikler ve yeni güncellemeler için yeni adresimizi ziyaret et."
+        },
         "latest": "En son",
         "madeIn": "Almanya'da hassas bir şekilde üretilmiştir",
         "none": "Hiçbiri",
@@ -905,6 +911,13 @@
             "totalTitle": "Toplam Gelir",
             "winRate": "Galibiyetler",
             "winRatePct": "Galibiyetler (%)"
+        },
+        "migrationBlocker": {
+            "cta": "ClashCalc'e Devam Et",
+            "description": "Bu hesap ClashCalc'e taşındı ve artık OreCalc üzerinde kullanılamaz. Kayıtlı ilerlemeniz yeni platformda kullanılabilir durumdadır.",
+            "infoNotice": "OreCalc'i kullanmaya devam etmek için yerel verilerinizi sıfırlayabilir ve yeni bir misafir hesapla başlayabilirsiniz. ClashCalc'e taşınan verileriniz bundan etkilenmeyecektir.",
+            "resetAction": "Sıfırla ve Yeniden Başla",
+            "title": "Hesap ClashCalc'e Taşındı"
         },
         "planner": {
             "addPlan": "Yükseltme planı ekle",
