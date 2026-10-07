@@ -103,6 +103,7 @@
     "503": "Clash of Clans sunucuları bakım çalışmaları nedeniyle geçici olarak kullanılamıyor.",
     "525": "SSL el sıkışması başarısız oldu. Sunucu ile Clash of Clans API'si arasındaki bağlantı kesildi.",
     "accessDenied": "Erişim engellendi. API belirteci eksik veya hatalı.",
+    "accountMigratedToClashCalc": "Bu hesap ClashCalc'e taşındı ve artık OreCalc üzerinden erişilemez.",
     "badRequest": "Yanlış parametreler girildi.",
     "default": "API Hatası: {status}",
     "deletedUser": "Bu kullanıcı hesabı kalıcı olarak silindi.",

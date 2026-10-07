@@ -103,6 +103,7 @@
     "503": "《部落冲突》服务器正在维护，暂时无法使用。",
     "525": "SSL 连接失败，无法连接《部落冲突》API。",
     "accessDenied": "访问被拒绝，API 令牌 缺失或无效。",
+    "accountMigratedToClashCalc": "该账户已迁移至 ClashCalc，无法再通过 OreCalc 访问。",
     "badRequest": "请求参数错误。",
     "default": "API 错误：{status}",
     "deletedUser": "此玩家账号已被永久删除。",
