@@ -3,6 +3,15 @@
  * Leverages short (4-12ms) LRA motor pulses for crisp, native-feeling tactile feedback.
  */
 
+let isGlobalHapticsInitialized = false;
+
+/**
+ * Resets the initialization state (used exclusively for isolated test harnesses).
+ */
+export function resetGlobalHapticsForTesting() {
+    isGlobalHapticsInitialized = false;
+}
+
 /**
  * Triggers an LRA micro-haptic vibration pulse tailored to interaction type.
  * @param {'click' | 'tap' | 'toggle' | 'select' | 'selection' | 'success' | 'warning' | 'error' | 'bump' | 'light' | 'medium'} [type='click'] - Haptic pattern type.
@@ -52,23 +61,33 @@ export function triggerHaptic(type = 'click') {
  * Attaches delegated pointer event listeners to trigger tactile micro-haptics across UI elements.
  */
 export function initializeGlobalHaptics() {
-    if (typeof window === 'undefined') return;
+    if (typeof document === 'undefined' || isGlobalHapticsInitialized) return;
+    isGlobalHapticsInitialized = true;
 
-    // Delegate instant pointerdown haptics to all buttons and interactive controls
+    // Delegate instant pointerdown haptics to all buttons, switches, tabs, and interactive controls
     document.addEventListener('pointerdown', (event) => {
-        const target = event.target.closest(
-            'button, [role="button"], .tab-button, .hamburger, .animated-btn, .fab-item-pill, .updatable, input[type="checkbox"], input[type="radio"], .switch'
-        );
+        const target = /** @type {HTMLElement|null} */ (event.target?.closest?.(
+            'button, summary, input[type="button"], input[type="submit"], input[type="reset"], input[type="checkbox"], input[type="radio"], [role="button"], [role="tab"], [role="switch"], [role="radio"], [role="checkbox"], [role="option"], [data-tab], [data-action], a.btn, a.button, a[class*="btn"], a[class*="button"], .tab-button, .nav-button, .switch, .updatable, .hamburger'
+        ));
 
         if (!target) return;
 
         // Skip disabled elements
-        if (target.disabled || target.classList.contains('disabled')) return;
+        if (/** @type {any} */ (target).disabled || target.classList?.contains('disabled') || target.getAttribute?.('aria-disabled') === 'true') return;
 
-        if (target.matches('.tab-button, [data-tab], .switch, input[type="checkbox"]')) {
+        if (target.matches?.('[role="tab"], [role="switch"], [role="checkbox"], [role="radio"], [data-tab], input[type="checkbox"], input[type="radio"], .switch, [class*="switch"], .tab-button, .nav-button')) {
             triggerHaptic('toggle');
         } else {
             triggerHaptic('click');
         }
     }, { passive: true });
+}
+
+// Auto-initialize globally in browser environments
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeGlobalHaptics, { once: true });
+    } else {
+        initializeGlobalHaptics();
+    }
 }

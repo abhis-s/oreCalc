@@ -8,6 +8,7 @@ import { showCommitsModal } from '../components/changelog/commitsModal.js';
 import { showAlert } from '../ui/noticeModal.js';
 import { showToast } from '../ui/toast.js';
 import { initExternalLinkCatcher } from '../components/common/externalLinkCatcher.js';
+import '../services/hapticService.js';
 
 /**
  * Handles module dynamic chunk loading errors with self-healing reload.

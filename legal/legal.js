@@ -103,4 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const yearRange = currentYear > 2025 ? `2025-${currentYear}` : '2025';
         copyrightEl.innerHTML = `&copy; ${yearRange} ClashCalc. All rights reserved.`;
     }
+
+    // Standalone tactile micro-haptics for legal pages
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        document.addEventListener('pointerdown', (e) => {
+            const target = e.target?.closest?.('button, summary, [role="button"], a.btn, a.button, a.back-link');
+            if (target && !target.disabled && !target.classList?.contains('disabled')) {
+                try {
+                    navigator.vibrate(6);
+                } catch (_) {}
+            }
+        }, { passive: true });
+    }
 });
