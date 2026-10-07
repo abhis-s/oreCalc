@@ -45,6 +45,14 @@ registerGlobalErrorBoundaries();
 if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
     window.__DOM_CONTENT_LOADED_REGISTERED__ = true;
     document.addEventListener('DOMContentLoaded', async () => {
+        if (localStorage.getItem('oreCalc_migratedToClashCalc') === 'true') {
+            await loadTranslations(detectLanguage());
+            updateUIWithTranslations();
+            const { showMigrationBlockerModal } = await import('./components/common/migrationBlocker.js');
+            showMigrationBlockerModal();
+            return;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         let userIdFromUrl = urlParams.get('userId');
         let tagFromUrl = urlParams.get('tag');

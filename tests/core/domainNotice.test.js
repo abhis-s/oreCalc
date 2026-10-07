@@ -3,26 +3,31 @@ import assert from 'node:assert/strict';
 
 import {
     shouldDisplayDomainNotice,
-    buildClashCalcTargetUrl,
     SEVEN_DAYS_MS,
-    IS_DOMAIN_NOTICE_ACTIVE
+    IS_DOMAIN_NOTICE_ACTIVE,
+    PERMANENT_NOTICE_TIMESTAMP
 } from '../../js/components/common/domainNotice.js';
+import { buildClashCalcTargetUrl } from '../../js/utils/clashCalcUrl.js';
 
-test('shouldDisplayDomainNotice is dormant by default on production domains unless query flag is present', () => {
+test('shouldDisplayDomainNotice is active by default and displays on legacy domains', () => {
     const now = 1757000000000;
 
-    assert.equal(IS_DOMAIN_NOTICE_ACTIVE, false);
+    assert.equal(IS_DOMAIN_NOTICE_ACTIVE, true);
+    assert.equal(PERMANENT_NOTICE_TIMESTAMP, Date.UTC(2026, 11, 1, 0, 0, 0));
 
-    // Default behavior on legacy domains is dormant
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.orecalc.tech', now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'beta.orecalc.tech', now }), false);
+    // Active behavior on legacy domains
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', now }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.orecalc.tech', now }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'beta.orecalc.tech', now }), true);
     assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', now }), false);
     assert.equal(shouldDisplayDomainNotice({ hostname: '', now }), false);
     assert.equal(shouldDisplayDomainNotice({ hostname: null, now }), false);
 
-    // Query overrides allow inspection even when dormant
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', search: '?domainNotice=true', now }), true);
+    // Dormant override suppresses unless query flag is present
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', isActive: false, now }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', isActive: false, search: '?domainNotice=true', now }), true);
+
+    // Query overrides allow inspection on localhost
     assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', search: '?domainNotice=true', now }), true);
     assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', search: '?testDomainNotice=true', now }), true);
 
@@ -47,33 +52,32 @@ test('shouldDisplayDomainNotice displays notice strictly on orecalc.tech domains
     assert.equal(shouldDisplayDomainNotice({ hostname: null, isActive: true, now }), false);
 });
 
-test('shouldDisplayDomainNotice respects 7-day suppression window after user dismissal', () => {
-    const now = 1757000000000;
-    const oneDayAgo = now - (1 * 24 * 60 * 60 * 1000);
-    const sixDaysAgo = now - (6 * 24 * 60 * 60 * 1000);
-    const eightDaysAgo = now - (8 * 24 * 60 * 60 * 1000);
-
-    assert.equal(SEVEN_DAYS_MS, 7 * 24 * 60 * 60 * 1000);
+test('shouldDisplayDomainNotice respects session dismissal before December 1, 2026', () => {
+    const beforeCutoff = Date.UTC(2026, 10, 15, 12, 0, 0); // Nov 15, 2026
+    const dismissedTimestamp = beforeCutoff - 1000;
 
     assert.equal(shouldDisplayDomainNotice({
         hostname: 'orecalc.tech',
-        dismissedTimestamp: oneDayAgo,
-        isActive: true,
-        now
+        dismissedTimestamp,
+        now: beforeCutoff
     }), false);
+});
+
+test('shouldDisplayDomainNotice becomes permanent starting December 1, 2026 regardless of dismissal', () => {
+    const atCutoff = PERMANENT_NOTICE_TIMESTAMP; // Dec 1, 2026 00:00:00 UTC
+    const afterCutoff = Date.UTC(2026, 11, 15, 12, 0, 0); // Dec 15, 2026
+    const dismissedTimestamp = atCutoff - 1000;
 
     assert.equal(shouldDisplayDomainNotice({
         hostname: 'orecalc.tech',
-        dismissedTimestamp: sixDaysAgo,
-        isActive: true,
-        now
-    }), false);
+        dismissedTimestamp,
+        now: atCutoff
+    }), true);
 
     assert.equal(shouldDisplayDomainNotice({
         hostname: 'orecalc.tech',
-        dismissedTimestamp: eightDaysAgo,
-        isActive: true,
-        now
+        dismissedTimestamp,
+        now: afterCutoff
     }), true);
 });
 

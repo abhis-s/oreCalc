@@ -123,6 +123,12 @@
             outline: 2px solid $outline-focus;
             outline-offset: 1px;
         }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
     }
 
     @media (max-width: $breakpoint-phone) {

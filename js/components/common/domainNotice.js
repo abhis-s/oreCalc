@@ -1,9 +1,11 @@
 import { translate } from '../../i18n/translator.js';
 import { STORAGE_KEYS } from '../../core/constants.js';
 import { getSVG } from '../../utils/svgManager.js';
+import { buildClashCalcTargetUrl } from '../../utils/clashCalcUrl.js';
 
 export const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-export const IS_DOMAIN_NOTICE_ACTIVE = false;
+export const IS_DOMAIN_NOTICE_ACTIVE = true;
+export const PERMANENT_NOTICE_TIMESTAMP = Date.UTC(2026, 11, 1, 0, 0, 0);
 
 /**
  * Determines whether the domain migration notice banner should be displayed.
@@ -53,59 +55,16 @@ export function shouldDisplayDomainNotice({
 
     if (!isLegacyDomain) return false;
 
-    if (dismissedTimestamp && (now - Number(dismissedTimestamp)) < suppressionMs) {
+    // Starting December 1, 2026, domain notice becomes permanent and cannot be dismissed
+    if (now >= PERMANENT_NOTICE_TIMESTAMP) {
+        return true;
+    }
+
+    if (dismissedTimestamp) {
         return false;
     }
 
     return true;
-}
-
-/**
- * Builds the destination ClashCalc URL carrying active identity and tag parameters.
- *
- * @param {Object} params - Target calculation parameters.
- * @param {string} [params.currentPath='/'] - Current window pathname.
- * @param {string} [params.currentSearch=''] - Current window search string.
- * @param {string|null} [params.userId=null] - Active local or synced user ID.
- * @param {string|null} [params.activePlayerTag=null] - Active player tag.
- * @param {string} [params.targetOrigin='https://clashcalc.com'] - Destination ClashCalc origin.
- * @returns {string} Fully qualified destination URL with carryover parameters.
- */
-export function buildClashCalcTargetUrl({
-    currentPath = '/',
-    currentSearch = '',
-    userId = null,
-    activePlayerTag = null,
-    targetOrigin = 'https://clashcalc.com'
-}) {
-    const url = new URL(targetOrigin);
-
-    const segments = currentPath.split('/').filter(Boolean);
-    const knownLocales = ['de', 'tr', 'zh'];
-    const hasLocale = segments.length > 0 && knownLocales.includes(segments[0].toLowerCase());
-    const langPrefix = hasLocale ? `/${segments[0].toLowerCase()}` : '';
-    const isHeroJourney = currentPath.includes('hero-journey');
-
-    url.pathname = `${langPrefix}${isHeroJourney ? '/hero-journey/' : '/ore-calculator/'}`;
-
-    const existingParams = new URLSearchParams(currentSearch);
-    const paramsToExclude = new Set(['userId', 'tag', 'domainNotice', 'testDomainNotice']);
-    existingParams.forEach((val, key) => {
-        if (!paramsToExclude.has(key)) {
-            url.searchParams.set(key, val);
-        }
-    });
-
-    if (userId && typeof userId === 'string' && userId.trim()) {
-        url.searchParams.set('userId', userId.trim());
-    }
-
-    const resolvedTag = activePlayerTag || existingParams.get('tag');
-    if (resolvedTag && resolvedTag !== 'DEFAULT0' && resolvedTag.trim()) {
-        url.searchParams.set('tag', resolvedTag.trim());
-    }
-
-    return url.toString();
 }
 
 /**
@@ -116,6 +75,7 @@ export function buildClashCalcTargetUrl({
  * @param {string|null} [options.userId=null] - Explicit user ID override.
  * @param {string|null} [options.activePlayerTag=null] - Explicit active tag override.
  * @param {boolean} [options.isActive=IS_DOMAIN_NOTICE_ACTIVE] - Production activation state flag.
+ * @param {number} [options.now=Date.now()] - Current epoch millisecond timestamp override.
  * @returns {HTMLElement|null} The mounted banner element or null if suppressed.
  */
 export function initDomainNotice(options = {}) {
@@ -123,11 +83,12 @@ export function initDomainNotice(options = {}) {
     if (document.querySelector('.domain-notice')) return null;
 
     const hostname = window.location.hostname;
+    const currentNow = options.now ?? Date.now();
     let rawDismissed = null;
     try {
-        rawDismissed = localStorage.getItem(STORAGE_KEYS.DOMAIN_NOTICE_DISMISSED);
+        rawDismissed = sessionStorage.getItem(STORAGE_KEYS.DOMAIN_NOTICE_DISMISSED);
     } catch {
-        // LocalStorage access may be restricted in third-party iframe contexts
+        // SessionStorage access may be restricted in third-party iframe contexts
     }
 
     const dismissedTimestamp = rawDismissed ? Number(rawDismissed) : null;
@@ -135,6 +96,7 @@ export function initDomainNotice(options = {}) {
         hostname,
         search: window.location.search,
         dismissedTimestamp,
+        now: currentNow,
         isActive: options.isActive ?? IS_DOMAIN_NOTICE_ACTIVE
     })) {
         return null;
@@ -184,8 +146,17 @@ export function initDomainNotice(options = {}) {
     ctaLink.setAttribute('data-i18n', 'app.domainNotice.cta');
     ctaLink.textContent = translate('app.domainNotice.cta');
 
-    // Flush pending cloud saves when user prepares to navigate to ClashCalc
+    // Flush pending cloud saves and mark account migrated when user navigates to ClashCalc
     ctaLink.addEventListener('pointerdown', () => {
+        if (resolvedUserId) {
+            try {
+                localStorage.setItem(STORAGE_KEYS.MIGRATED_TO_CLASHCALC, 'true');
+                localStorage.setItem(STORAGE_KEYS.MIGRATED_USER_ID, resolvedUserId);
+            } catch (_) {}
+            import('../../services/apiService.js')
+                .then(m => m.markUserMigrated?.(resolvedUserId))
+                .catch(() => {});
+        }
         import('../../services/cloudSaveService.js')
             .then(m => m.triggerCloudSave?.({ silent: true }))
             .catch(() => {});
@@ -207,6 +178,7 @@ export function initDomainNotice(options = {}) {
         banner.remove();
     };
 
+    const isPermanent = currentNow >= PERMANENT_NOTICE_TIMESTAMP;
     const dismissBtn = document.createElement('button');
     dismissBtn.type = 'button';
     dismissBtn.className = 'domain-notice-dismiss-btn';
@@ -214,17 +186,22 @@ export function initDomainNotice(options = {}) {
     dismissBtn.setAttribute('data-i18n-aria-label', 'app.domainNotice.dismiss');
     dismissBtn.innerHTML = getSVG('close', 'domain-notice-close-icon', 16, 16, 'currentColor');
 
-    dismissBtn.addEventListener('click', () => {
-        try {
-            localStorage.setItem(STORAGE_KEYS.DOMAIN_NOTICE_DISMISSED, String(Date.now()));
-        } catch {
-            // Storage quota or restriction fallback
-        }
-        banner.classList.add('domain-notice--exiting');
-        banner.addEventListener('transitionend', cleanup, { once: true });
-        // Fallback safety timeout if transition does not fire
-        setTimeout(cleanup, 400);
-    });
+    if (isPermanent) {
+        dismissBtn.disabled = true;
+        dismissBtn.setAttribute('aria-disabled', 'true');
+    } else {
+        dismissBtn.addEventListener('click', () => {
+            try {
+                sessionStorage.setItem(STORAGE_KEYS.DOMAIN_NOTICE_DISMISSED, String(Date.now()));
+            } catch {
+                // Storage quota or restriction fallback
+            }
+            banner.classList.add('domain-notice--exiting');
+            banner.addEventListener('transitionend', cleanup, { once: true });
+            // Fallback safety timeout if transition does not fire
+            setTimeout(cleanup, 400);
+        });
+    }
 
     innerWrapper.appendChild(iconBadge);
     innerWrapper.appendChild(textEl);

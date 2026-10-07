@@ -105,7 +105,9 @@ export const STORAGE_KEYS = Object.freeze({
     APP_VERSION: 'oreCalc_appVersion',
     USER_ID: 'oreCalc_userId',
     PLAYER_PREFIX: 'oreCalc_player_',
-    DOMAIN_NOTICE_DISMISSED: 'oreCalc_domainNoticeDismissed'
+    DOMAIN_NOTICE_DISMISSED: 'oreCalc_domainNoticeDismissed',
+    MIGRATED_TO_CLASHCALC: 'oreCalc_migratedToClashCalc',
+    MIGRATED_USER_ID: 'oreCalc_migratedUserId'
 });
 
 export const MOTION_DURATION_INSTANT_MS = 100;

@@ -177,7 +177,7 @@ export function initializeModalHistoryManager() {
 
         const modal = closeBtn.closest('.modal, dialog, .dialog-overlay');
         const isOpen = modal && (modal.classList.contains('show') || modal.open);
-        if (modal && modal.id !== 'welcome-modal' && isOpen && !modal.classList.contains('closing')) {
+        if (modal && modal.id !== 'welcome-modal' && modal.id !== 'migrated-blocker-modal' && isOpen && !modal.classList.contains('closing')) {
             closeModalAnimated(modal);
         }
     });
@@ -187,7 +187,7 @@ export function initializeModalHistoryManager() {
         if (e.key === 'Escape' || e.key === 'Esc') {
             if (modalStack.length > 0) {
                 const topModal = modalStack.at(-1);
-                if (topModal && topModal.element && topModal.element.id !== 'welcome-modal') {
+                if (topModal && topModal.element && topModal.element.id !== 'welcome-modal' && topModal.element.id !== 'migrated-blocker-modal') {
                     closeTargetModal(topModal);
                 }
             }
@@ -202,7 +202,11 @@ export function initializeModalHistoryManager() {
         }
 
         if (modalStack.length > 0) {
-            const topModal = modalStack.pop();
+            const topModal = modalStack.at(-1);
+            if (topModal && topModal.element && (topModal.element.id === 'welcome-modal' || topModal.element.id === 'migrated-blocker-modal')) {
+                return;
+            }
+            modalStack.pop();
             closeTargetModal(topModal);
         }
     });
@@ -236,14 +240,14 @@ export function initializeModalHistoryManager() {
         // Native cancel event listener (fired on Escape key in native dialogs)
         el.addEventListener('cancel', (e) => {
             e.preventDefault();
-            if (el.id === 'welcome-modal') return;
+            if (el.id === 'welcome-modal' || el.id === 'migrated-blocker-modal') return;
             closeModalAnimated(el);
         });
 
         // Native backdrop click listener: clicks on the <dialog> element itself (outside .modal-content)
         el.addEventListener('click', (e) => {
             if (e.target === el) {
-                if (el.id === 'welcome-modal') return;
+                if (el.id === 'welcome-modal' || el.id === 'migrated-blocker-modal') return;
                 closeModalAnimated(el);
             }
         });

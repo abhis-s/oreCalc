@@ -43,6 +43,15 @@ export async function initializeAppData() {
         cloudData = await loadUserData(userId);
     } catch (error) {
         logger.error('Failed to load data from cloud, falling back to local storage:', error);
+        if (error.message === 'apiErrors.accountMigratedToClashCalc') {
+            try {
+                localStorage.setItem('oreCalc_migratedToClashCalc', 'true');
+                localStorage.setItem('oreCalc_migratedUserId', userId);
+            } catch (_) {}
+            const { showMigrationBlockerModal } = await import('../components/common/migrationBlocker.js');
+            showMigrationBlockerModal({ userId });
+            return null;
+        }
         if (error.message === 'apiErrors.deletedUser') {
             await showAlert(translate('apiErrors.deletedUser'));
             if (window.resetApplication) {
@@ -201,6 +210,13 @@ export async function importUserData(importId) {
             }
         } catch (error) {
             logger.error('Error importing data:', error);
+            if (error.message === 'apiErrors.accountMigratedToClashCalc') {
+                await showAlert(translate('apiErrors.accountMigratedToClashCalc'));
+                if (welcomeWasVisible) {
+                    welcomeModal.classList.add('show');
+                }
+                return;
+            }
             await showAlert(translate('alerts.importFailed', { error: translate(error.message) }));
             if (welcomeWasVisible) {
                 welcomeModal.classList.add('show');
@@ -259,6 +275,15 @@ export async function triggerCloudSave(options = {}) {
             return true;
         } catch (error) {
             logger.error('Failed to save data to cloud:', error);
+            if (error.message === 'apiErrors.accountMigratedToClashCalc') {
+                try {
+                    localStorage.setItem('oreCalc_migratedToClashCalc', 'true');
+                    localStorage.setItem('oreCalc_migratedUserId', currentUserId);
+                } catch (_) {}
+                const { showMigrationBlockerModal } = await import('../components/common/migrationBlocker.js');
+                showMigrationBlockerModal({ userId: currentUserId });
+                return false;
+            }
             if (error.message === 'apiErrors.deletedUser') {
                 await showAlert(translate('apiErrors.deletedUser'));
                 if (window.resetApplication) {

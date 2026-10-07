@@ -8,6 +8,22 @@ const router = express.Router();
 // @ts-ignore
 const sensitiveLimiter = rateLimit(RATE_LIMIT_DEFAULTS.sensitive);
 
+/**
+ * Checks whether an account is restricted from being accessed or modified on OreCalc.
+ * OreCalc cannot access or alter accounts that have been migrated to ClashCalc,
+ * or accounts that belong to an auth/owner account.
+ * @param {Record<string, any>|null|undefined} docData
+ * @returns {boolean}
+ */
+function isRestrictedAccount(docData) {
+    if (!docData) return false;
+    return Boolean(
+        docData.isMigratedToClashCalc ||
+        docData.ownerAccount ||
+        docData.authRequired
+    );
+}
+
 router.post('/save', async (req, res) => {
     const { userId, data } = req.body;
 
@@ -36,6 +52,13 @@ router.post('/save', async (req, res) => {
         const doc = await userRef.get();
         if (doc.exists) {
             const existingData = doc.data();
+            if (isRestrictedAccount(existingData)) {
+                return res.status(423).json({
+                    reason: 'accountMigratedToClashCalc',
+                    message: 'This account has been migrated to ClashCalc and cannot be modified from OreCalc.',
+                    isMigratedToClashCalc: true
+                });
+            }
             const existingVersion = existingData.appVersion || '1.0.0';
             if (existingVersion.startsWith('2')) {
                 const clientVersion = String(req.headers['x-app-version'] || '');
@@ -107,6 +130,14 @@ router.post('/save-player', async (req, res) => {
 
         const cleanedTag = tag.startsWith('#') ? tag.substring(1) : tag;
         const userRef = db.collection('userStates').doc(userId);
+        const userDoc = await userRef.get();
+        if (userDoc.exists && isRestrictedAccount(userDoc.data())) {
+            return res.status(423).json({
+                reason: 'accountMigratedToClashCalc',
+                message: 'This account has been migrated to ClashCalc and cannot be modified from OreCalc.',
+                isMigratedToClashCalc: true
+            });
+        }
         const playerDocRef = userRef.collection('players').doc(cleanedTag);
 
         const batch = db.batch();
@@ -143,6 +174,14 @@ router.get('/load/:userId', async (req, res) => {
         }
 
         const mainData = doc.data();
+
+        if (isRestrictedAccount(mainData)) {
+            return res.status(423).json({
+                reason: 'accountMigratedToClashCalc',
+                message: 'This account has been migrated to ClashCalc and cannot be accessed from OreCalc.',
+                isMigratedToClashCalc: true
+            });
+        }
 
         const playersSnapshot = await userRef.collection('players').get();
         const allPlayersData = mainData.allPlayersData || {};
@@ -184,6 +223,15 @@ router.delete('/delete/:userId', sensitiveLimiter, async (req, res) => {
 
     try {
         const userRef = db.collection('userStates').doc(userId);
+        const userDoc = await userRef.get();
+        if (userDoc.exists && isRestrictedAccount(userDoc.data())) {
+            return res.status(423).json({
+                reason: 'accountMigratedToClashCalc',
+                message: 'This account has been migrated to ClashCalc and cannot be deleted from OreCalc.',
+                isMigratedToClashCalc: true
+            });
+        }
+
         const playersSnapshot = await userRef.collection('players').get();
         const deleteBatch = db.batch();
         playersSnapshot.forEach(pDoc => deleteBatch.delete(pDoc.ref));
@@ -238,6 +286,45 @@ router.post('/erase-tag', sensitiveLimiter, (req, res) => {
         reason: 'featureDisabled',
         message: 'This feature has been deactivated.'
     });
+});
+
+router.post('/mark-migrated', async (req, res) => {
+    const { userId } = req.body;
+
+    if (!isValidUserId(userId)) {
+        return res.status(400).json({ reason: 'invalidUserId', message: 'Invalid user ID format.' });
+    }
+
+    try {
+        if (await isUserDeleted(userId)) {
+            return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
+
+        const userRef = db.collection('userStates').doc(userId);
+        const doc = await userRef.get();
+        const nowIso = new Date().toISOString();
+
+        if (doc.exists) {
+            await userRef.set({
+                isMigratedToClashCalc: true,
+                migratedAt: doc.data()?.migratedAt || nowIso
+            }, { merge: true });
+        } else {
+            await userRef.set({
+                appVersion: '2.0.0',
+                savedPlayerTags: [],
+                isMigrated: true,
+                isMigratedToClashCalc: true,
+                migratedAt: nowIso,
+                timestamp: nowIso
+            }, { merge: true });
+        }
+
+        res.status(200).json({ message: 'Account marked as migrated to ClashCalc.' });
+    } catch (error) {
+        console.error('Error marking user migrated:', error);
+        res.status(500).json({ reason: 'internalError', message: 'Internal Server Error', error: error.message });
+    }
 });
 
 module.exports = router;

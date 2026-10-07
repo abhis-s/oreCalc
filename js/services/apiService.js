@@ -317,6 +317,38 @@ export async function deleteUserData(userId) {
 }
 
 /**
+ * Explicitly marks a user ID as migrated to ClashCalc in Firestore.
+ *
+ * @param {string} userId - The unique identifier of the user.
+ * @returns {Promise<Object|null>} Server response or null on error.
+ */
+export async function markUserMigrated(userId) {
+    if (!userId) return null;
+    checkApiBlock();
+
+    const url = `${BASE_URL}/api/user-data/mark-migrated`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+            },
+            body: JSON.stringify({ userId })
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        return await response.json();
+    } catch (error) {
+        logger.warn('Failed to mark user migrated:', error);
+        return null;
+    }
+}
+
+/**
  * Erases a player tag globally from all user document configurations in Firestore,
  * verifying ownership using a Clash of Clans API verification token.
  *

@@ -123,6 +123,7 @@
         "503": "Die Clash of Clans-Server sind aufgrund von Wartungsarbeiten vorübergehend nicht erreichbar.",
         "525": "SSL-Handshake fehlgeschlagen. Die Verbindung zwischen dem Server und der Clash of Clans-API ist fehlgeschlagen.",
         "accessDenied": "Zugriff verweigert. Fehlendes oder falsches API-Token.",
+        "accountMigratedToClashCalc": "Dieses Konto wurde zu ClashCalc migriert und kann nicht mehr über OreCalc aufgerufen werden.",
         "badRequest": "Falsche Parameter angegeben.",
         "default": "API-Fehler: {status}",
         "deletedUser": "Dieses Benutzerkonto wurde dauerhaft gelöscht.",
@@ -910,6 +911,13 @@
             "totalTitle": "Gesamteinkommen",
             "winRate": "Gewinn",
             "winRatePct": "Gewinn (%)"
+        },
+        "migrationBlocker": {
+            "cta": "Weiter zu ClashCalc",
+            "description": "Dieses Konto wurde zu ClashCalc migriert und kann nicht mehr über OreCalc aufgerufen werden. Dein gespeicherter Fortschritt ist auf der neuen Plattform verfügbar.",
+            "infoNotice": "Um OreCalc weiter zu nutzen, kannst du deinen lokalen Speicher zurücksetzen und mit einem neuen Gastkonto beginnen. Deine migrierten Daten auf ClashCalc bleiben unberührt.",
+            "resetAction": "Zurücksetzen & neu beginnen",
+            "title": "Konto zu ClashCalc migriert"
         },
         "planner": {
             "addPlan": "Füge einen Verbesserungsplan hinzu",

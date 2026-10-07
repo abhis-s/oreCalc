@@ -3,12 +3,14 @@
 @use 'base/animations';
 @use 'base/base';
 @use 'base/reset';
+@use 'base/modal';
 @use 'components/buttons';
 @use 'components/cards';
 @use 'components/icons';
 @use 'components/forms';
 @use 'components/notices';
 @use 'components/domain-notice';
+@use 'components/migrated-blocker';
 @use 'components/switch';
 @use 'components/toast';
 @use 'components/profile-card';

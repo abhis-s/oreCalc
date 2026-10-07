@@ -123,6 +123,7 @@
         "503": "Clash of Clans servers are temporarily unavailable due to maintenance.",
         "525": "SSL Handshake Failed. Connection between the server and Clash of Clans API failed.",
         "accessDenied": "Access denied. Missing or incorrect API token.",
+        "accountMigratedToClashCalc": "This account has been migrated to ClashCalc and cannot be accessed from OreCalc.",
         "badRequest": "Incorrect parameters provided.",
         "default": "API Error: {status}",
         "deletedUser": "This user account has been permanently deleted.",
@@ -910,6 +911,13 @@
             "totalTitle": "Total Income",
             "winRate": "Wins",
             "winRatePct": "Wins (%)"
+        },
+        "migrationBlocker": {
+            "cta": "Continue to ClashCalc",
+            "description": "This account has been migrated to ClashCalc and can no longer be accessed on OreCalc. Your saved progress is available on the new platform.",
+            "infoNotice": "To continue using OreCalc, you can reset your local storage and start with a fresh guest account. Your migrated data on ClashCalc will remain untouched.",
+            "resetAction": "Reset & Start Fresh",
+            "title": "Account Migrated to ClashCalc"
         },
         "planner": {
             "addPlan": "Add an upgrade plan",

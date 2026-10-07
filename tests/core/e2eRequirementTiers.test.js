@@ -563,11 +563,11 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
         });
 
         describe('Feature 10: Static Analyzers & Type Checks', () => {
-            test('10.1: Canonical en.json dictionary keys flatten to exactly 1149 keys', () => {
+            test('10.1: Canonical en.json dictionary keys flatten to exactly 1155 keys', () => {
                 const enJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/en.json'), 'utf8'));
                 const flattened = getFlattenedI18nKeys(enJson);
                 const keys = Object.keys(flattened);
-                assert.equal(keys.length, 1149);
+                assert.equal(keys.length, 1155);
             });
 
             test('10.2: Developer-managed localized dictionaries have 100% key parity with reference en.json', () => {
@@ -1303,8 +1303,8 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
             const zhDict = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/zh.json'), 'utf8'));
 
             const enKeyCount = Object.keys(getFlattenedI18nKeys(enDict)).length;
-            assert.equal(enKeyCount, 1149, 'Reference dictionary must have 1149 keys');
-            assert.equal(Object.keys(getFlattenedI18nKeys(deDict)).length, enKeyCount, 'de.json must have 1149 keys');
+            assert.equal(enKeyCount, 1155, 'Reference dictionary must have 1155 keys');
+            assert.equal(Object.keys(getFlattenedI18nKeys(deDict)).length, enKeyCount, 'de.json must have 1155 keys');
             assert.ok(Object.keys(getFlattenedI18nKeys(trDict)).length >= 1146, 'tr.json preserves community translation boundary');
             assert.ok(Object.keys(getFlattenedI18nKeys(zhDict)).length >= 1146, 'zh.json preserves community translation boundary');
 

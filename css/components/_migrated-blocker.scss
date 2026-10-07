@@ -1,0 +1,77 @@
+@use '../abstracts/variables' as *;
+
+#migrated-blocker-modal {
+    .modal-content {
+        max-width: $modal-width-compact;
+        text-align: center;
+    }
+
+    .modal-header {
+        justify-content: center;
+
+        h2 {
+            text-align: center;
+        }
+    }
+
+    .migrated-blocker-icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 16px auto 20px;
+        width: 64px;
+        height: 64px;
+        border-radius: $shape-corner-full;
+        background-color: $accent-primary-soft;
+        color: $accent-primary;
+
+        svg,
+        orecalc-assets-svg {
+            width: 32px;
+            height: 32px;
+        }
+    }
+
+    .migrated-blocker-description {
+        margin: 0 0 16px;
+        color: $text-primary;
+        font-size: var(--font-size-sm);
+        line-height: 1.5;
+    }
+
+    .migrated-blocker-notice-card {
+        padding: 14px 16px;
+        border-radius: $shape-corner-medium;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        margin-bottom: 24px;
+        text-align: left;
+
+        p {
+            margin: 0;
+            color: $text-secondary;
+            font-size: var(--font-size-xs);
+            line-height: 1.45;
+        }
+    }
+
+    .migrated-blocker-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        justify-content: stretch;
+
+        .reject-button,
+        .accept-button {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: $breakpoint-phone) {
+        .migrated-blocker-actions {
+            flex-direction: column-reverse;
+        }
+    }
+}

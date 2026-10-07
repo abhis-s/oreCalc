@@ -342,6 +342,16 @@ function initControls() {
  * Initializes the standalone Hero Journey app.
  */
 async function init() {
+    if (localStorage.getItem('oreCalc_migratedToClashCalc') === 'true') {
+        const currentSettings = getCurrentSettings();
+        const activeLang = currentSettings.language || 'en';
+        await loadTranslations(activeLang);
+        updateUIWithTranslations(true);
+        const { showMigrationBlockerModal } = await import('./components/common/migrationBlocker.js');
+        showMigrationBlockerModal();
+        return;
+    }
+
     const urlTag = getTagFromUrl();
     if (typeof sessionStorage !== 'undefined') {
         const sessionTableState = sessionStorage.getItem('orecalc_hj_table_expanded');
