@@ -52,7 +52,7 @@
         min-height: 126px;
     }
 
-    html.has-player & {
+    html.has-player &:not(.is-stats-collapsed) {
         min-height: 340px;
         contain-intrinsic-size: auto 340px;
 
@@ -63,6 +63,9 @@
     }
 
     &.is-stats-collapsed {
+        min-height: auto;
+        contain-intrinsic-size: auto;
+
         .home-profile-stats-container {
             display: none;
         }

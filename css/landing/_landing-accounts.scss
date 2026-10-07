@@ -5,9 +5,7 @@
     width: 100%;
     box-sizing: border-box;
 
-    html.has-player &[hidden],
-    html.has-player & {
-        display: block !important;
+    html.has-player &:not([hidden]) {
         min-height: 120px;
     }
 }
@@ -40,9 +38,7 @@
     gap: $spacing-sm;
     width: 100%;
 
-    html.has-player &[hidden],
-    html.has-player & {
-        display: flex !important;
+    html.has-player &:not([hidden]) {
         min-height: 170px;
     }
 }

@@ -47,6 +47,13 @@ export function removePlayerTag(playerTagToDelete) {
         if (Array.isArray(list)) {
             const pruned = list.map(normalizePlayerTag).filter(tag => tag && tag !== cleanTag && tag !== 'DEFAULT0');
             localStorage.setItem(tagsKey, JSON.stringify(pruned.length > 0 ? pruned : ['DEFAULT0']));
+            if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                if (pruned.length === 0) {
+                    document.documentElement.classList.remove('has-player');
+                } else {
+                    document.documentElement.classList.add('has-player');
+                }
+            }
         }
 
         if (state.allPlayersData) {
@@ -82,6 +89,9 @@ export function removePlayerTag(playerTagToDelete) {
             if (state.savedPlayerTags.length === 0) {
                 // Last remaining player deleted: re-seed DEFAULT0
                 state.savedPlayerTags = ['DEFAULT0'];
+                if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                    document.documentElement.classList.remove('has-player');
+                }
                 const defaultGuestState = initializeDefaultPlayerState();
                 state.allPlayersData['DEFAULT0'] = defaultGuestState;
                 state.heroes = defaultGuestState.heroes;
@@ -205,6 +215,9 @@ export function updateSavedPlayerTags(playerTag) {
     }
     try {
         if (cleanTag !== 'DEFAULT0') {
+            if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                document.documentElement.classList.add('has-player');
+            }
             state.savedPlayerTags = state.savedPlayerTags
                 .map(normalizePlayerTag)
                 .filter(tag => tag !== 'DEFAULT0');
@@ -473,6 +486,10 @@ export function savePlayerProfileToStorage(data, updateOrder = true) {
 export function setActivePlayerTag(playerTag) {
     const cleanTag = normalizePlayerTag(playerTag);
     if (!cleanTag || cleanTag === 'DEFAULT0') return;
+
+    if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+        document.documentElement.classList.add('has-player');
+    }
 
     const tagsKey = getActivePlayerTagsKey();
     const rawTags = localStorage.getItem(tagsKey);

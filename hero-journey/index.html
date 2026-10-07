@@ -59,7 +59,15 @@
                 } else {
                     document.documentElement.classList.add('dark-mode');
                 }
-                if (/[?&]tag=/.test(window.location.search) || localStorage.getItem('clashCalc_activePlayerTag') || localStorage.getItem('oreCalc_activePlayerTag') || localStorage.getItem('orecalc_activePlayerTag')) {
+                var rawTags = localStorage.getItem('clashCalc_playerTags') || localStorage.getItem('oreCalc_playerTags');
+                var hasValidTag = false;
+                if (rawTags && rawTags !== '[]' && rawTags !== '["DEFAULT0"]') {
+                    try {
+                        var parsedTags = JSON.parse(rawTags);
+                        hasValidTag = Array.isArray(parsedTags) && parsedTags.some(function(t) { return t && t !== 'DEFAULT0'; });
+                    } catch (_) {}
+                }
+                if (/[?&]tag=/.test(window.location.search) || hasValidTag) {
                     document.documentElement.classList.add('has-player');
                 }
             } catch (e) {}

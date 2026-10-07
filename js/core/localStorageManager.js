@@ -390,6 +390,9 @@ export function resetState() {
     try {
         localStorage.clear();
         sessionStorage.clear();
+        if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+            document.documentElement.classList.remove('has-player');
+        }
     } catch (error) {
         console.error("Could not reset state in localStorage", error);
     }

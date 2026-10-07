@@ -424,6 +424,9 @@ async function init() {
 
     const finalCleanTag = normalizePlayerTag(initialTag);
     if (finalCleanTag && finalCleanTag !== 'DEFAULT0') {
+        if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+            document.documentElement.classList.add('has-player');
+        }
         const loadResult = await loadPlayer(finalCleanTag);
         if (!loadResult || !loadResult.success) {
             const errorKey = loadResult?.message || 'apiErrors.notFound';
@@ -431,6 +434,9 @@ async function init() {
             updateUrlTag(hjState.activeTag || null);
         }
     } else {
+        if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+            document.documentElement.classList.remove('has-player');
+        }
         updateUrlTag(null);
         renderUI();
     }
@@ -538,6 +544,9 @@ function syncHjFromStorage() {
     const saved = getSavedProfiles();
     const active = normalizePlayerTag(hjState.activeTag);
     if (saved.length === 0) {
+        if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+            document.documentElement.classList.remove('has-player');
+        }
         if (hjState.playerData || hjState.activeTag) {
             hjState.playerData = null;
             hjState.activeTag = null;

@@ -277,6 +277,15 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             syncPlayerTagToUrl(state.savedPlayerTags[0]);
         }
 
+        const hasRealTags = Boolean(state.savedPlayerTags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0'));
+        if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+            if (hasRealTags) {
+                document.documentElement.classList.add('has-player');
+            } else {
+                document.documentElement.classList.remove('has-player');
+            }
+        }
+
         let renderFrameId = null;
 
         registerStateUpdateCallback(async (state, silent) => {

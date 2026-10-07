@@ -122,6 +122,17 @@ export function initLandingAccountsManager({
         activeTag = cleanTag;
         setActivePlayerTag(cleanTag);
 
+        if (typeof document !== 'undefined') {
+            if (document?.documentElement?.classList) {
+                document.documentElement.classList.add('has-player');
+            }
+            const showcaseSection = document.getElementById('landing-active-profile');
+            if (showcaseSection) {
+                showcaseSection.hidden = false;
+                showcaseSection.style.display = 'block';
+            }
+        }
+
         const allCards = document.querySelectorAll('.landing-account-card');
         allCards.forEach(c => {
             const isMatch = (/** @type {HTMLElement} */ (c)).dataset.tag === cleanTag;

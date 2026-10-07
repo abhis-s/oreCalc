@@ -197,7 +197,10 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
     const leagueNameText = leagueName || translate('entities.leagues.unranked');
 
     const existingCard = /** @type {HTMLElement | null} */ (showcaseSection.querySelector('.active-profile-card'));
-    const isAlreadyVisible = showcaseSection.style.display !== 'none';
+    const isAlreadyVisible = showcaseSection.style.display !== 'none' && !showcaseSection.hidden;
+
+    showcaseSection.hidden = false;
+    showcaseSection.style.display = 'block';
 
     if (existingCard && isAlreadyVisible) {
         // In-place delta update to prevent layout flash

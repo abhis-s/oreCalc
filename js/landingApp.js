@@ -164,12 +164,18 @@ async function initCommandCenter() {
 
     const accountsManager = initLandingAccountsManager({
         onActiveVillageChanged: (cleanTag, profile) => {
+            if (cleanTag && cleanTag !== 'DEFAULT0' && typeof document !== 'undefined' && document?.documentElement?.classList) {
+                document.documentElement.classList.add('has-player');
+            }
             activeLandingTag = cleanTag;
             activeLandingProfile = profile;
             updateToolLinks(cleanTag);
             updateLandingDrawer();
         },
         onAllVillagesDeleted: () => {
+            if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                document.documentElement.classList.remove('has-player');
+            }
             const accountsSection = document.getElementById('landing-saved-accounts');
             const accountsHeader = accountsSection?.querySelector('.landing-accounts-header');
             const accountsList = document.getElementById('landing-accounts-list');
@@ -261,6 +267,9 @@ function refreshLandingPortal() {
     if (!landingAccountsManager) return;
     const currentProfiles = getSavedProfiles();
     if (currentProfiles.length === 0) {
+        if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+            document.documentElement.classList.remove('has-player');
+        }
         updateToolLinks();
         renderGuestTeasers();
         updateLandingDrawer();
@@ -286,6 +295,9 @@ function refreshLandingPortal() {
             searchForm.style.display = 'flex';
         }
     } else {
+        if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+            document.documentElement.classList.add('has-player');
+        }
         const targetTag = currentProfiles[0].cleanTag;
         renderAccountsGrid(
             currentProfiles,
