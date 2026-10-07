@@ -12,6 +12,7 @@ export const EFFECTIVE_DATE_TERMS = 1780617600000; // June 5, 2026 (00:00 UTC)
 export const EFFECTIVE_DATE_PRIVACY = 1786060800000; // August 7, 2026 (00:00 UTC)
 export const EFFECTIVE_DATE_WELCOME = 1780617600000; // June 5, 2026 (00:00 UTC)
 export const EFFECTIVE_DATE_PROFILE_ONBOARDING = 1780617600000; // June 5, 2026 (00:00 UTC)
+const EFFECTIVE_DATE_DEFAULT_TIMESTAMPS = 1791590400000; // October 10, 2026 (00:00 UTC)
 
 export const DEFAULT_CUSTOM_CHIP_SETTINGS = Object.freeze({
     custom: Object.freeze({}),
@@ -53,10 +54,10 @@ export function getDefaultState() {
             hideProfileStats: false,
             cloudSync: true,
             uiTimestamps: {
-                privacy: null,
-                tos: null,
-                welcome: null,
-                tour: null
+                privacy: EFFECTIVE_DATE_DEFAULT_TIMESTAMPS,
+                tos: EFFECTIVE_DATE_DEFAULT_TIMESTAMPS,
+                welcome: EFFECTIVE_DATE_DEFAULT_TIMESTAMPS,
+                tour: EFFECTIVE_DATE_DEFAULT_TIMESTAMPS
             },
             summaryTimeframe: 'monthly',
             cardLayout: 'cozy'
@@ -304,6 +305,12 @@ export function initializeState(savedState) {
         }
 
         state.uiSettings = { ...defaultState.uiSettings, ...(savedState.uiSettings || {}) };
+        state.uiSettings.uiTimestamps = {
+            privacy: savedState.uiSettings?.uiTimestamps?.privacy ?? defaultState.uiSettings.uiTimestamps.privacy,
+            tos: savedState.uiSettings?.uiTimestamps?.tos ?? defaultState.uiSettings.uiTimestamps.tos,
+            welcome: savedState.uiSettings?.uiTimestamps?.welcome ?? defaultState.uiSettings.uiTimestamps.welcome,
+            tour: savedState.uiSettings?.uiTimestamps?.tour ?? defaultState.uiSettings.uiTimestamps.tour
+        };
 
         // Ensure currency is always an object, not a string (legacy/migration fix)
         if (typeof state.uiSettings.currency === 'string') {

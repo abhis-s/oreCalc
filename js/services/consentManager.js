@@ -1,12 +1,11 @@
 import { translate } from '../i18n/translator.js';
 
-import { EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_TERMS, EFFECTIVE_DATE_WELCOME, state } from '../core/state.js';
+import { EFFECTIVE_DATE_PRIVACY, EFFECTIVE_DATE_TERMS, state } from '../core/state.js';
 import { handleStateUpdate } from '../core/stateManager.js';
 
 import { closeModalAnimated, openModal } from '../utils/modalHistoryManager.js';
 
 import { openPrivacyModal, openTermsOfUseModal } from '../components/appSettings/settingsModals.js';
-import { showWelcomeModal } from '../components/welcome/welcomeModal.js';
 import { dom } from '../dom/domElements.js';
 
 let isConsentListenersBound = false;
@@ -73,15 +72,6 @@ export function checkLegalConsent() {
 
     const privacyTimestamp = state.uiSettings?.uiTimestamps?.privacy;
     const tosTimestamp = state.uiSettings?.uiTimestamps?.tos;
-    const welcomeTimestamp = state.uiSettings?.uiTimestamps?.welcome;
-
-    const isNewUser = !privacyTimestamp && !tosTimestamp;
-    const needsWelcome = !welcomeTimestamp || welcomeTimestamp < EFFECTIVE_DATE_WELCOME;
-
-    if (isNewUser || needsWelcome) {
-        showWelcomeModal(true);
-        return;
-    }
 
     const consentBanner = document.getElementById('consent-banner');
     const consentModal = document.getElementById('consent-modal');
