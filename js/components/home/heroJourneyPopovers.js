@@ -322,6 +322,9 @@ export function initHeroJourneyTooltips(getStateFn = null) {
     trackWrapper.dataset.tooltipBound = 'true';
 
     let activeChip = null;
+    let lastHoverChip = null;
+    let lastHoverTime = 0;
+    let isPinned = false;
     let lastScrollLeft = trackWrapper.scrollLeft;
 
     const resolveCurrentState = () => (typeof getStateFn === 'function' ? getStateFn() : globalState);
@@ -336,10 +339,19 @@ export function initHeroJourneyTooltips(getStateFn = null) {
             const isShowingCurrent = popover && popover.classList.contains('show') && (activeChip === chip || activeChip?.dataset?.nodeLevel === chip.dataset.nodeLevel);
 
             if (isShowingCurrent) {
+                const isHoverGrace = (chip === lastHoverChip && (Date.now() - lastHoverTime) < 800 && !isPinned);
+                if (isHoverGrace) {
+                    isPinned = true;
+                    return;
+                }
                 activeChip = null;
+                lastHoverChip = null;
+                isPinned = false;
                 hideNodeTooltip();
             } else {
                 activeChip = chip;
+                lastHoverChip = null;
+                isPinned = true;
                 showNodeTooltip(chip, resolveCurrentState());
             }
         }
@@ -352,6 +364,9 @@ export function initHeroJourneyTooltips(getStateFn = null) {
         const chip = e.target.closest('.hero-journey-node-chip');
         if (chip && chip !== activeChip) {
             activeChip = chip;
+            lastHoverChip = chip;
+            lastHoverTime = Date.now();
+            isPinned = false;
             showNodeTooltip(chip, resolveCurrentState());
         }
     });
@@ -363,8 +378,9 @@ export function initHeroJourneyTooltips(getStateFn = null) {
         if (chip) {
             const related = e.relatedTarget;
             if (!related || !chip.contains(related)) {
-                if (activeChip === chip) {
+                if (activeChip === chip && !isPinned) {
                     activeChip = null;
+                    lastHoverChip = null;
                     hideNodeTooltip();
                 }
             }
@@ -376,6 +392,8 @@ export function initHeroJourneyTooltips(getStateFn = null) {
         if (Math.abs(currentScrollLeft - lastScrollLeft) > 10) {
             lastScrollLeft = currentScrollLeft;
             activeChip = null;
+            lastHoverChip = null;
+            isPinned = false;
             hideNodeTooltip();
         }
     }, { passive: true });
@@ -391,6 +409,9 @@ export function initHeroJourneyTableTooltips(getStateFn = null) {
     tableContainer.dataset.tooltipBound = 'true';
 
     let activeBtn = null;
+    let lastHoverBtn = null;
+    let lastHoverTime = 0;
+    let isPinned = false;
     let lastScrollTop = tableContainer.scrollTop;
 
     const resolveCurrentState = () => (typeof getStateFn === 'function' ? getStateFn() : globalState);
@@ -405,10 +426,19 @@ export function initHeroJourneyTableTooltips(getStateFn = null) {
             const isShowingCurrent = popover && popover.classList.contains('show') && (activeBtn === btn || activeBtn?.dataset?.level === btn.dataset.level);
 
             if (isShowingCurrent) {
+                const isHoverGrace = (btn === lastHoverBtn && (Date.now() - lastHoverTime) < 800 && !isPinned);
+                if (isHoverGrace) {
+                    isPinned = true;
+                    return;
+                }
                 activeBtn = null;
+                lastHoverBtn = null;
+                isPinned = false;
                 hideNodeTooltip();
             } else {
                 activeBtn = btn;
+                lastHoverBtn = null;
+                isPinned = true;
                 showNodeTooltip(btn, resolveCurrentState());
             }
         }
@@ -421,6 +451,9 @@ export function initHeroJourneyTableTooltips(getStateFn = null) {
         const btn = e.target.closest('.hj-table-info-btn');
         if (btn && btn !== activeBtn) {
             activeBtn = btn;
+            lastHoverBtn = btn;
+            lastHoverTime = Date.now();
+            isPinned = false;
             showNodeTooltip(btn, resolveCurrentState());
         }
     });
@@ -432,8 +465,9 @@ export function initHeroJourneyTableTooltips(getStateFn = null) {
         if (btn) {
             const related = e.relatedTarget;
             if (!related || !btn.contains(related)) {
-                if (activeBtn === btn) {
+                if (activeBtn === btn && !isPinned) {
                     activeBtn = null;
+                    lastHoverBtn = null;
                     hideNodeTooltip();
                 }
             }
@@ -445,6 +479,8 @@ export function initHeroJourneyTableTooltips(getStateFn = null) {
         if (Math.abs(currentScrollTop - lastScrollTop) > 10) {
             lastScrollTop = currentScrollTop;
             activeBtn = null;
+            lastHoverBtn = null;
+            isPinned = false;
             hideNodeTooltip();
         }
     }, { passive: true });

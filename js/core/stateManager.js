@@ -22,20 +22,26 @@ export function registerStateUpdateCallback(callback) {
  * and debounced cloud saves.
  * @param {() => void} updateFn - Function that modifies state.
  * @param {boolean} [silent=false] - If true, skips UI rendering.
- * @param {{ skipSave?: boolean, preferencesOnly?: boolean }} [options={}] - Optional execution flags (e.g. skipSave for cross-tab sync, preferencesOnly for decoupled preferences).
+ * @param {{ skipSave?: boolean, preferencesOnly?: boolean, skipRecalculate?: boolean, isTabSwitch?: boolean }} [options={}] - Optional execution flags (e.g. skipSave for cross-tab sync, preferencesOnly for decoupled preferences, isTabSwitch/skipRecalculate for view updates).
  */
 export function handleStateUpdate(updateFn, silent = false, options = {}) {
-    if (!silent && state.planner?.calendar) {
+    if (!silent && !options.isTabSwitch && state.planner?.calendar) {
         state.planner.calendar.isDirty = true;
     }
-    state.timestamp = new Date().toISOString();
+    if (!options.isTabSwitch) {
+        state.timestamp = new Date().toISOString();
+    }
     updateFn();
 
     if (stateUpdateCallback) {
-        stateUpdateCallback(state, silent);
+        stateUpdateCallback(state, silent, options);
     }
-    if (!options.skipSave) {
+    if (!options.skipSave && !options.isTabSwitch) {
         saveState(state, Boolean(options.preferencesOnly));
+    }
+
+    if (options.isTabSwitch) {
+        return;
     }
 
     if (options.preferencesOnly) {

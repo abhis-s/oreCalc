@@ -8,6 +8,8 @@ import { translate } from '../i18n/translator.js';
 let helpPopover = null;
 let activeTargetElem = null;
 let isDismissBound = false;
+let lastHoverOpenTimestamp = 0;
+let isPinnedByClick = false;
 
 function bindOutsideDismissListener() {
     if (isDismissBound || typeof document === 'undefined') return;
@@ -38,6 +40,8 @@ function bindOutsideDismissListener() {
                     helpPopover.classList.remove('show');
                 }
                 activeTargetElem = null;
+                isPinnedByClick = false;
+                lastHoverOpenTimestamp = 0;
             }
         });
     }
@@ -74,16 +78,28 @@ function getOrCreateHelpPopover() {
         helpPopover.addEventListener('pointerleave', (event) => {
             const related = /** @type {Node | null} */ (event.relatedTarget);
             if (activeTargetElem && related && activeTargetElem.contains(related)) return;
-            hideCardHelpPopover();
+            if (!isPinnedByClick) {
+                hideCardHelpPopover();
+            }
         });
     }
     return helpPopover;
 }
 
 /**
+ * Checks whether the current card help popover is pinned via explicit click.
+ * @returns {boolean}
+ */
+export function isCardHelpPopoverPinned() {
+    return isPinnedByClick;
+}
+
+/**
  * Hides and dismisses the active card help tooltip popover element.
  */
 export function hideCardHelpPopover() {
+    isPinnedByClick = false;
+    lastHoverOpenTimestamp = 0;
     if (activeTargetElem) {
         activeTargetElem.removeAttribute('aria-describedby');
     }
@@ -119,9 +135,21 @@ export function showCardHelpPopover(targetElem, content, { isToggle = false } = 
 
     if (activeTargetElem === targetElem && popover.classList.contains('show')) {
         if (isToggle) {
+            const isFreshHover = !isPinnedByClick && (Date.now() - lastHoverOpenTimestamp < 800);
+            if (isFreshHover) {
+                isPinnedByClick = true;
+                return;
+            }
             hideCardHelpPopover();
         }
         return;
+    }
+
+    if (!isToggle) {
+        lastHoverOpenTimestamp = Date.now();
+        isPinnedByClick = false;
+    } else {
+        isPinnedByClick = true;
     }
 
     if (activeTargetElem && activeTargetElem !== targetElem) {

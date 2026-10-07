@@ -5,7 +5,6 @@
     .bottom-nav-bar { view-transition-name: bottom-nav; }
     .fab-container { view-transition-name: fab; }
     .floating-save-btn { view-transition-name: floating-save; }
-    .container { view-transition-name: main-container; }
 
     .tab-content.active {
         view-transition-name: tab-content;
@@ -20,9 +19,6 @@
 ::view-transition-group(fab),
 ::view-transition-group(floating-save) {
     z-index: 10;
-}
-::view-transition-group(main-container) {
-    z-index: 2;
 }
 ::view-transition-group(tab-content) {
     z-index: 3;

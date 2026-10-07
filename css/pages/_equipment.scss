@@ -40,9 +40,11 @@
     margin: 0 auto;
     box-sizing: border-box;
 
-    &:hover:not(.dragging) {
-        border-color: color-mix(in srgb, $accent-primary 35%, $border-primary);
-        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.22), 0 0 12px color-mix(in srgb, $accent-primary 8%, transparent);
+    @media (hover: hover) and (pointer: fine) {
+        &:hover:not(.dragging) {
+            border-color: color-mix(in srgb, $accent-primary 35%, $border-primary);
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.22), 0 0 12px color-mix(in srgb, $accent-primary 8%, transparent);
+        }
     }
 
     &.hero-hidden {
@@ -96,8 +98,10 @@
         width: 50px;
         transition: transform $duration-fast $ease-standard, filter $duration-moderate $ease-smooth;
 
-        &:hover {
-            transform: scale(1.08);
+        @media (hover: hover) and (pointer: fine) {
+            &:hover {
+                transform: scale(1.08);
+            }
         }
 
         &:active {
@@ -146,14 +150,16 @@
         cursor: pointer;
         height: 40px;
         margin-right: 10px;
-        transition: filter $duration-moderate $ease-smooth, transform $duration-fast $ease-standard;
+        transition: transform $duration-fast $ease-standard;
         width: 40px;
         aspect-ratio: 1 / 1;
         flex-shrink: 0;
         transform-origin: center;
 
-        &:hover {
-            transform: scale(1.1);
+        @media (hover: hover) and (pointer: fine) {
+            &:hover {
+                transform: scale(1.1);
+            }
         }
 
         &:active {
@@ -165,17 +171,17 @@
         }
 
         &.gold-glow {
-            filter: drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
+            filter: drop-shadow(0 0 6px $color-gold-glow-shadow);
 
             &.grayscale {
-                filter: grayscale(100%) drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
+                filter: grayscale(100%) drop-shadow(0 0 6px $color-gold-glow-shadow);
             }
         }
         &.over-leveled-glow {
-            filter: drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
+            filter: drop-shadow(0 0 6px $accent-primary-soft);
 
             &.grayscale {
-                filter: grayscale(100%) drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
+                filter: grayscale(100%) drop-shadow(0 0 6px $accent-primary-soft);
             }
         }
     }
@@ -192,8 +198,10 @@
 }
 
 .equipment-item[data-equip-type="epic"] {
-    &:hover .equipment-image:not(.grayscale):not(.gold-glow):not(.over-leveled-glow) {
-        filter: drop-shadow(0 0 6px rgba(186, 104, 200, 0.6));
+    @media (hover: hover) and (pointer: fine) {
+        &:hover .equipment-image:not(.grayscale):not(.gold-glow):not(.over-leveled-glow) {
+            filter: drop-shadow(0 0 6px rgba(186, 104, 200, 0.6));
+        }
     }
 }
 

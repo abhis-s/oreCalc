@@ -346,11 +346,9 @@
     right: auto;
     inset: unset;
     margin: 0;
-    isolation: isolate;
-    transform: translateZ(0);
     background-color: var(--bg-surface-popover);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: 1px solid $border-primary;
     border-radius: $shape-corner-medium;
     padding: $spacing-sm;
@@ -370,6 +368,9 @@
 
     &:popover-open,
     &.show {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        isolation: isolate;
         opacity: 1;
         pointer-events: auto;
         transform: none;

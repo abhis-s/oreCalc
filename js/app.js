@@ -288,7 +288,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
         let renderFrameId = null;
 
-        registerStateUpdateCallback(async (state, silent) => {
+        registerStateUpdateCallback(async (state, silent, options = {}) => {
             if (state.planner?.calendar && !state.planner.calendar.isHydrated) {
                 const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
                 const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
@@ -302,7 +302,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     const selStart = activeId ? activeEl.selectionStart : null;
                     const selEnd = activeId ? activeEl.selectionEnd : null;
 
-                    recalculateAll(state);
+                    if (!options.skipRecalculate) {
+                        recalculateAll(state);
+                    }
                     renderApp(state);
 
                     if (activeId && document.activeElement?.id !== activeId) {
@@ -316,7 +318,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                     }
                 };
 
-                if (window.__FORCE_SYNC_RENDER__) {
+                if (window.__FORCE_SYNC_RENDER__ || options.isTabSwitch) {
                     if (renderFrameId) {
                         cancelAnimationFrame(renderFrameId);
                         renderFrameId = null;

@@ -342,7 +342,14 @@ export function registerInputPopover(inputElement, options = {}) {
         trackPositionLoop();
     };
 
+    let blurTimeout = null;
+
     const hidePopover = () => {
+        if (blurTimeout) {
+            clearTimeout(blurTimeout);
+            blurTimeout = null;
+        }
+
         if (activePopoverInstance?.inputElement === inputElement) {
             activePopoverInstance = null;
         }
@@ -358,6 +365,10 @@ export function registerInputPopover(inputElement, options = {}) {
 
     popover.addEventListener('toggle', (event) => {
         if (event.newState === 'closed') {
+            if (blurTimeout) {
+                clearTimeout(blurTimeout);
+                blurTimeout = null;
+            }
             if (activePopoverInstance?.inputElement === inputElement) {
                 activePopoverInstance = null;
             }
@@ -369,14 +380,12 @@ export function registerInputPopover(inputElement, options = {}) {
         }
     });
 
-    let isInteractingWithPopover = false;
-
     const handleBlur = () => {
-        setTimeout(() => {
-            if (isInteractingWithPopover) {
-                isInteractingWithPopover = false;
-                return;
-            }
+        if (blurTimeout) {
+            clearTimeout(blurTimeout);
+        }
+        blurTimeout = setTimeout(() => {
+            blurTimeout = null;
             const active = document.activeElement;
             if (!active || (active !== inputElement && !popover.contains(active))) {
                 hidePopover();
@@ -384,22 +393,22 @@ export function registerInputPopover(inputElement, options = {}) {
         }, 150);
     };
 
-    inputElement.addEventListener('focus', showPopover);
+    inputElement.addEventListener('focus', () => {
+        if (blurTimeout) {
+            clearTimeout(blurTimeout);
+            blurTimeout = null;
+        }
+        showPopover();
+    });
     inputElement.addEventListener('input', updatePopover);
     inputElement.addEventListener('keydown', handleKeyDown);
     inputElement.addEventListener('blur', handleBlur);
-    inputElement.addEventListener('focusout', handleBlur);
 
     const preventInputBlur = (e) => {
-        isInteractingWithPopover = true;
-        e.stopPropagation();
-        if (e.target && typeof e.target.closest === 'function' && e.target.closest('.popover-opt-btn')) {
-            return;
-        }
+        // Prevent loss of focus on the input field so popover stays open during click interactions
         e.preventDefault();
     };
     popover.addEventListener('mousedown', preventInputBlur);
-    popover.addEventListener('pointerdown', preventInputBlur);
 
     const handleOptionSelect = (e) => {
         e.stopPropagation();

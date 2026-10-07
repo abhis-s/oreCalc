@@ -69,7 +69,7 @@ export function initializeTabs() {
     }
     handleStateUpdate(() => {
         state.activeTab = initialTab;
-    });
+    }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
 
     if (initialTab === 'planner-tab') {
         setTimeout(checkPlannerTabStoredOres, 100);
@@ -104,11 +104,12 @@ export function initializeTabs() {
             }
             handleStateUpdate(() => {
                 state.activeTab = tabId;
-            });
+            }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
             window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
         };
 
-        if (document.startViewTransition && !activeTransition) {
+        const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+        if (document.startViewTransition && !activeTransition && !prefersReducedMotion) {
             document.documentElement.dataset.transitionType = 'tab-switch';
             document.documentElement.dataset.transitionDirection = direction;
             activeTransition = document.startViewTransition(updateTab);
@@ -165,11 +166,12 @@ export function initializeTabs() {
             history.pushState(null, '', targetUrl);
             handleStateUpdate(() => {
                 state.activeTab = tabId;
-            });
+            }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
             window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
         };
 
-        if (document.startViewTransition && !activeTransition) {
+        const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+        if (document.startViewTransition && !activeTransition && !prefersReducedMotion) {
             document.documentElement.dataset.transitionType = 'tab-switch';
             document.documentElement.dataset.transitionDirection = direction;
             activeTransition = document.startViewTransition(updateTab);

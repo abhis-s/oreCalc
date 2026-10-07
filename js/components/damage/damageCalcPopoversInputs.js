@@ -3,7 +3,7 @@
  * Tier 4: User Inputs (Dedicated exclusively to event listener attachments).
  */
 
-import { showCardHelpPopover, hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import { showCardHelpPopover, hideCardHelpPopover, isCardHelpPopoverPinned } from '../../utils/cardHelpPopover.js';
 import {
     getGenericInfoPopoverContent,
     getActionInfoPopoverContent,
@@ -181,7 +181,9 @@ export function attachDamageCalcPopoverListeners(rootContainer, state) {
                 return;
             }
 
-            hideCardHelpPopover();
+            if (!isCardHelpPopoverPinned()) {
+                hideCardHelpPopover();
+            }
         });
 
         rootContainer.addEventListener('keydown', (e) => {
