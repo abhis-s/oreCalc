@@ -370,17 +370,17 @@ describe('Shop Offers TH Set Switching & Dynamic Grid Rendering Suite', () => {
             assert.ok(costEl.classList.contains('offer-cost-display'));
         });
 
-        assert.ok(rows[0].querySelector('.offer-ore-display').innerHTML.includes('12,000'));
+        assert.ok(rows[0].querySelector('.offer-ore-display').innerHTML.includes('15,000'));
         assert.ok(rows[0].querySelector('.offer-cost-display').innerHTML.includes('9.99'));
 
-        assert.ok(rows[1].querySelector('.offer-ore-display').innerHTML.includes('75'));
-        assert.ok(rows[1].querySelector('.offer-cost-display').innerHTML.includes('6.99'));
+        assert.ok(rows[1].querySelector('.offer-ore-display').innerHTML.includes('90'));
+        assert.ok(rows[1].querySelector('.offer-cost-display').innerHTML.includes('4.99'));
 
-        assert.ok(rows[2].querySelector('.offer-ore-display').innerHTML.includes('750'));
-        assert.ok(rows[2].querySelector('.offer-cost-display').innerHTML.includes('6.99'));
+        assert.ok(rows[2].querySelector('.offer-ore-display').innerHTML.includes('900'));
+        assert.ok(rows[2].querySelector('.offer-cost-display').innerHTML.includes('4.99'));
 
-        assert.ok(rows[3].querySelector('.offer-ore-display').innerHTML.includes('6,000'));
-        assert.ok(rows[3].querySelector('.offer-cost-display').innerHTML.includes('6.99'));
+        assert.ok(rows[3].querySelector('.offer-ore-display').innerHTML.includes('7,500'));
+        assert.ok(rows[3].querySelector('.offer-cost-display').innerHTML.includes('4.99'));
     });
 
     test('re-renders grid with updated quantities and Tier 6 pricing when switching from TH16 to TH14', () => {
@@ -521,7 +521,7 @@ describe('Shop Offers TH Set Switching & Dynamic Grid Rendering Suite', () => {
         const rowsEUR = mockContainer.querySelectorAll('.offer-grid-row');
         assert.strictEqual(rowsEUR[0], rowsUSD[0]);
         assert.ok(rowsEUR[0].querySelector('.offer-cost-display').innerHTML.includes('€ 11.99'));
-        assert.ok(rowsEUR[1].querySelector('.offer-cost-display').innerHTML.includes('€ 7.99'));
+        assert.ok(rowsEUR[1].querySelector('.offer-cost-display').innerHTML.includes('€ 5.99'));
     });
 
     test('renderShopOfferSelector syncs dropdown selector value accurately', () => {

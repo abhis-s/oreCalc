@@ -114,7 +114,7 @@ test('Trader datasets contain correct normalized IDs, costs, ores, and pack limi
 
     assert.ok(gemStarry);
     assert.equal(gemStarry.id, 'gem_starry');
-    assert.equal(gemStarry.cost, 115);
+    assert.equal(gemStarry.cost, 150);
     assert.equal(gemStarry.starry, 15);
     assert.equal(gemStarry.maxPacks, 10);
 

@@ -218,7 +218,7 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             const starry = gemTraderData.find(o => o.id === 'gem_starry');
             const glowy = gemTraderData.find(o => o.id === 'gem_glowy');
             const shiny = gemTraderData.find(o => o.id === 'gem_shiny');
-            assert.equal(starry.cost, 115);
+            assert.equal(starry.cost, 150);
             assert.equal(glowy.cost, 90);
             assert.equal(shiny.cost, 75);
         });

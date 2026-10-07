@@ -29,13 +29,13 @@ test('calculateShopOfferIncome calculates correct ores and multi-currency costs 
     };
     const result = calculateShopOfferIncome(shopOfferState);
 
-    assert.equal(result.monthly.shiny, 30000);
-    assert.equal(result.monthly.glowy, 750);
-    assert.equal(result.monthly.starry, 75);
+    assert.equal(result.monthly.shiny, 37500);
+    assert.equal(result.monthly.glowy, 900);
+    assert.equal(result.monthly.starry, 90);
 
-    assert.equal(result.daily.shiny, 30000 / 30);
-    assert.equal(result.weekly.shiny, (30000 / 30) * 7);
-    assert.equal(result.bimonthly.shiny, 30000 * 2);
+    assert.equal(result.daily.shiny, 37500 / 30);
+    assert.equal(result.weekly.shiny, (37500 / 30) * 7);
+    assert.equal(result.bimonthly.shiny, 37500 * 2);
 
     assert.ok(result.monthly.USD > 0);
     assert.ok(result.monthly.EUR > 0);

@@ -29,7 +29,7 @@ test('calculateGemTraderIncome computes correct ores and gem costs for pack purc
     assert.equal(result.weekly.shiny, 600);
     assert.equal(result.weekly.glowy, 70);
     assert.equal(result.weekly.starry, 30);
-    assert.equal(result.cost, 470);
+    assert.equal(result.cost, 540);
 
     assert.ok(result.monthly.shiny > 600);
     assert.ok(result.monthly.glowy > 70);

@@ -5,7 +5,7 @@ export const shopOfferData = deepFreeze({
     "16": {
         townHallLevel: 16,
         shiny_large: {
-            shiny: 12000,
+            shiny: 15000,
             glowy: 0,
             starry: 0,
             priceTier: 'tier10',
@@ -13,23 +13,23 @@ export const shopOfferData = deepFreeze({
         },
         glowy: {
             shiny: 0,
-            glowy: 750,
+            glowy: 900,
             starry: 0,
-            priceTier: 'tier7',
+            priceTier: 'tier5',
             maxPacks: 2,
         },
         starry: {
             shiny: 0,
             glowy: 0,
-            starry: 75,
-            priceTier: 'tier7',
+            starry: 90,
+            priceTier: 'tier5',
             maxPacks: 2,
         },
         shiny_small: {
-            shiny: 6000,
+            shiny: 7500,
             glowy: 0,
             starry: 0,
-            priceTier: 'tier7',
+            priceTier: 'tier5',
             maxPacks: 2,
         },
     },
