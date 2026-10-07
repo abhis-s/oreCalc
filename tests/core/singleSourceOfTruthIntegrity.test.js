@@ -109,9 +109,11 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             assert.equal(STORAGE_KEYS.USER_ID, 'oreCalc_userId');
             assert.equal(STORAGE_KEYS.PLAYER_PREFIX, 'oreCalc_player_');
             assert.equal(STORAGE_KEYS.DOMAIN_NOTICE_DISMISSED, 'oreCalc_domainNoticeDismissed');
+            assert.equal(STORAGE_KEYS.MIGRATED_TO_CLASHCALC, 'oreCalc_migratedToClashCalc');
+            assert.equal(STORAGE_KEYS.MIGRATED_USER_ID, 'oreCalc_migratedUserId');
             assert.equal(STORAGE_KEYS.SETTINGS, undefined);
             assert.equal(STORAGE_KEYS.SAVED_TAGS, undefined);
-            assert.equal(Object.keys(STORAGE_KEYS).length, 5);
+            assert.equal(Object.keys(STORAGE_KEYS).length, 7);
         });
 
         test('DEFAULT_CUSTOM_CHIP_SETTINGS is strictly frozen and defines canonical defaults for all chip types', () => {

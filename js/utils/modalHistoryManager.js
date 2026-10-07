@@ -449,7 +449,7 @@ export function getInitialModalFocusTarget(modal) {
  * @param {boolean} isOpen - True if opening, false if closing.
  * @param {object} [options={}] - Configuration options for close callbacks and focus restore targets.
  */
-export function handleModalStateChange(element, isOpen, options = {}) {
+function handleModalStateChange(element, isOpen, options = {}) {
     if (!element) return;
     if (element.id === 'guided-setup-modal') {
         // Guided setup modal is multi-step wizard, exempted from history back popping

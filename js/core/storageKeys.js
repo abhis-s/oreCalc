@@ -28,7 +28,11 @@ export const ALLOWED_STATIC_STORAGE_KEYS = Object.freeze(new Set([
     'oreCalc_playerTags',
     'oreCalc_userId',
     'oreCalc_SWUpdatedTime',
-    'oreCalc_domainNoticeDismissed'
+    'oreCalc_domainNoticeDismissed',
+    'oreCalc_migratedToClashCalc',
+    'oreCalc_migratedUserId',
+    'clashCalc_migratedToClashCalc',
+    'clashCalc_migratedUserId'
 ]));
 
 /**
@@ -83,18 +87,21 @@ export function getActiveUserIdKey() {
 }
 
 /**
- * Resolves a storage item prioritizing canonical key with fallback to legacy key.
- * @param {string} canonicalKey - Primary key to inspect.
- * @param {string} [legacyKey] - Fallback key if canonical is null.
+ * Resolves a storage item prioritizing active host key with fallback to opposing key.
+ * @param {string} canonicalKey - Primary key under ClashCalc canonical namespace.
+ * @param {string} [legacyKey] - Fallback key under OreCalc legacy namespace.
  * @returns {string|null} Stored value or null.
  */
 export function getStorageItem(canonicalKey, legacyKey) {
     if (typeof localStorage === 'undefined') return null;
     try {
-        const canonicalVal = localStorage.getItem(canonicalKey);
-        if (canonicalVal !== null) return canonicalVal;
-        if (legacyKey && legacyKey !== canonicalKey) {
-            return localStorage.getItem(legacyKey);
+        const isClash = isClashCalcHost();
+        const primaryKey = isClash ? canonicalKey : (legacyKey || canonicalKey);
+        const fallbackKey = isClash ? (legacyKey || canonicalKey) : canonicalKey;
+        const primaryVal = localStorage.getItem(primaryKey);
+        if (primaryVal !== null) return primaryVal;
+        if (fallbackKey && fallbackKey !== primaryKey) {
+            return localStorage.getItem(fallbackKey);
         }
     } catch (_) {}
     return null;

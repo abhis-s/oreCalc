@@ -606,6 +606,14 @@ router.delete('/delete/:userId', sensitiveLimiter, async (req, res) => {
 
     try {
         const userRef = db.collection('userStates').doc(userId);
+        const userDoc = await userRef.get();
+        if (userDoc.exists && isLegacyOreCalcOrigin(req) && isRestrictedFromOreCalc(userDoc.data())) {
+            return res.status(423).json({
+                reason: 'accountMigratedToClashCalc',
+                message: 'This account has been migrated to ClashCalc and cannot be deleted from OreCalc.',
+                isMigratedToClashCalc: true
+            });
+        }
         const playersSnapshot = await userRef.collection('players').get();
         const deleteBatch = db.batch();
         playersSnapshot.forEach(pDoc => deleteBatch.delete(pDoc.ref));

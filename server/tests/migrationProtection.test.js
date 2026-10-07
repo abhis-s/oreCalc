@@ -388,4 +388,46 @@ describe('Cross-Domain Migration Protection & Stamping Suite', () => {
         assert.equal(result.status, 423);
         assert.equal(result.body.reason, 'accountMigratedToClashCalc');
     });
+
+    test('DELETE /api/user-data/delete/:userId rejects legacy orecalc.tech origin for migrated account with HTTP 423', async () => {
+        const testUserId = 'locked-delete-uuid-5555';
+        mockUserStore.set(testUserId, {
+            appVersion: '3.0.0',
+            savedPlayerTags: ['8PJYGUJC'],
+            isMigratedToClashCalc: true,
+            uiSettings: {}
+        });
+
+        const responsePromise = new Promise((resolve, reject) => {
+            const req = {
+                method: 'DELETE',
+                url: `/delete/${testUserId}`,
+                params: { userId: testUserId },
+                ip: '127.0.0.1',
+                headers: {
+                    'origin': 'https://www.orecalc.tech'
+                }
+            };
+            const mockRes = {
+                statusCode: 200,
+                setHeader() {},
+                getHeader() { return undefined; },
+                status(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json(payload) {
+                    resolve({ status: this.statusCode, body: payload });
+                }
+            };
+            dispatchRoute(req, mockRes, (err) => {
+                if (err) reject(err);
+            });
+        });
+
+        const result = await responsePromise;
+        assert.equal(result.status, 423);
+        assert.equal(result.body.reason, 'accountMigratedToClashCalc');
+        assert.equal(result.body.isMigratedToClashCalc, true);
+    });
 });

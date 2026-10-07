@@ -135,17 +135,18 @@ export function loadPlayerData(playerTag) {
     let playerState = (state.allPlayersData && (state.allPlayersData[cleanTag] || state.allPlayersData[playerTag])) || null;
 
     if (!playerState) {
-        const canonicalKey = getPlayerStorageKey(cleanTag, CANONICAL_PLAYER_PREFIX);
-        const legacyKey = getPlayerStorageKey(cleanTag, PLAYER_PREFIX);
-        let playerStr = localStorage.getItem(canonicalKey) || localStorage.getItem(legacyKey);
+        const activePrefix = getActivePlayerPrefix();
+        const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
+        const primaryKey = getPlayerStorageKey(cleanTag, activePrefix);
+        const fallbackKey = getPlayerStorageKey(cleanTag, inactivePrefix);
+        let playerStr = localStorage.getItem(primaryKey) || localStorage.getItem(fallbackKey);
         if (!playerStr && cleanTag !== 'DEFAULT0') {
-            const legacyKey1 = `${CANONICAL_PLAYER_PREFIX}#${cleanTag}`;
-            const legacyKey2 = `${PLAYER_PREFIX}#${cleanTag}`;
+            const legacyKey1 = `${activePrefix}#${cleanTag}`;
+            const legacyKey2 = `${inactivePrefix}#${cleanTag}`;
             playerStr = localStorage.getItem(legacyKey1) || localStorage.getItem(legacyKey2);
             if (playerStr) {
                 try {
-                    const targetKey = getPlayerStorageKey(cleanTag);
-                    localStorage.setItem(targetKey, playerStr);
+                    localStorage.setItem(primaryKey, playerStr);
                     localStorage.removeItem(legacyKey1);
                     localStorage.removeItem(legacyKey2);
                 } catch (e) {}
@@ -254,7 +255,9 @@ export function updateAllPlayersData(playerTag, playerState) {
     try {
         state.allPlayersData[cleanTag] = playerState;
         const targetPrefix = getActivePlayerPrefix();
+        const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
         localStorage.setItem(getPlayerStorageKey(cleanTag, targetPrefix), JSON.stringify(playerState));
+        localStorage.removeItem(getPlayerStorageKey(cleanTag, inactivePrefix));
         localStorage.removeItem(`${PLAYER_PREFIX}#${cleanTag}`);
         localStorage.removeItem(`${CANONICAL_PLAYER_PREFIX}#${cleanTag}`);
 
