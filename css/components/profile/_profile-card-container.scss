@@ -60,6 +60,12 @@
             min-height: 460px;
             contain-intrinsic-size: auto 460px;
         }
+
+        &.is-max-progress,
+        &:has(.home-profile-overall-progress.fully-maxed) {
+            min-height: auto;
+            contain-intrinsic-size: auto;
+        }
     }
 
     &.is-stats-collapsed {

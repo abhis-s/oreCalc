@@ -13,7 +13,8 @@ import {
     autoScrollToCompletedNode,
     resetHeroJourneyScrollPositions,
     setHeroJourneyStateProvider,
-    updateFilterRowLayout
+    updateFilterRowLayout,
+    updateProgressBarContainerLayout
 } from './components/home/heroJourneyScrollManager.js';
 import {
     hjState,
@@ -32,7 +33,7 @@ import {
     normalizePlayerTag,
     PLAYER_PREFIX
 } from './core/storageKeys.js';
-import { getSavedProfiles, setActivePlayerTag } from './core/playerStorage.js';
+import { getSavedProfiles, setActivePlayerTag, savePlayerProfileToStorage } from './core/playerStorage.js';
 import { consolidateLocalStorageKeys } from './core/storageMigrations.js';
 import { initAppSettings, getAppSettings } from './components/common/appSettings.js';
 import { syncLanguageUrl } from './core/languageRouter.js';
@@ -217,6 +218,7 @@ function renderUI() {
     const isTrueMaxPlayer = hjState.cumulativeLevel >= overallMax && overallMax > 0;
     const card = document.getElementById('home-hj-card');
     if (card) {
+        card.classList.remove('no-synced-heroes');
         card.classList.toggle('is-true-max', isTrueMaxPlayer);
     }
     const progressTracks = document.querySelectorAll('.hero-journey-progress-track');
@@ -228,6 +230,11 @@ function renderUI() {
         /** @type {HTMLElement} */ (sw).style.display = (!hjState.playerData || isTrueMaxPlayer) ? 'none' : '';
     });
 
+    const acceleratedSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('home-hj-accelerated-switch'));
+    if (acceleratedSwitch) {
+        acceleratedSwitch.checked = Boolean(hjState.isAccelerated);
+    }
+
     renderPlayerSummary();
     updateProgressBar();
     renderTrackView();
@@ -235,6 +242,10 @@ function renderUI() {
     syncClaimSwitchPill();
     syncTypeFiltersUI(hjState);
     updateTableFilterRowLayout();
+
+    requestAnimationFrame(() => {
+        updateProgressBarContainerLayout();
+    });
 
     const tableWrapper = document.getElementById('hj-table-wrapper');
     const tableFiltersRow = /** @type {HTMLElement | null} */ (document.getElementById('hj-table-filters-row') || document.querySelector('.hero-journey-page__view-toggle-bar .hero-journey-filters-row'));
@@ -306,7 +317,14 @@ function clearActivePlayerToGuest() {
  */
 function initControls() {
     const modalControls = initHeroJourneyAddPlayerModal({
-        onLoadPlayer: loadPlayer
+        onLoadPlayer: async (cleanedTag) => {
+            const data = await fetchPlayerData(cleanedTag);
+            if (!data || !data.tag) {
+                throw new Error('apiErrors.notFound');
+            }
+            savePlayerProfileToStorage(data);
+            return loadPlayer(data.tag || cleanedTag);
+        }
     });
 
     initHeroJourneyPlayerDropdown({
@@ -443,7 +461,16 @@ async function init() {
         if (typeof document !== 'undefined' && document?.documentElement?.classList) {
             document.documentElement.classList.add('has-player');
         }
-        const loadResult = await loadPlayer(finalCleanTag);
+        let loadResult = await loadPlayer(finalCleanTag);
+        if ((!loadResult || !loadResult.success) && hasUrlTagParam) {
+            try {
+                const data = await fetchPlayerData(finalCleanTag);
+                if (data && data.tag) {
+                    savePlayerProfileToStorage(data);
+                    loadResult = await loadPlayer(data.tag || finalCleanTag);
+                }
+            } catch (_) {}
+        }
         if (!loadResult || !loadResult.success) {
             const errorKey = loadResult?.message || 'apiErrors.notFound';
             showApiErrorToast(errorKey);

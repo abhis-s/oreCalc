@@ -224,11 +224,16 @@ export function updateProgressBar() {
 
     const hasPlayer = Boolean(hjState.playerData);
     const progressTracks = document.querySelectorAll('.hero-journey-progress-track');
+    const card = document.getElementById('home-hj-card');
     if (!hasPlayer) {
         progressText.textContent = translate('views.heroJourney.page.heroJourneyTitle');
         progressPercent.textContent = translate('views.heroJourney.nodes.preview');
         progressFill.style.width = '0%';
         progressFill.classList.remove('is-true-max');
+        if (card) {
+            card.classList.remove('no-synced-heroes');
+            card.classList.remove('is-true-max');
+        }
         progressTracks.forEach(track => {
             /** @type {HTMLElement} */ (track).style.display = '';
         });
@@ -241,8 +246,8 @@ export function updateProgressBar() {
 
     const isTrueMaxPlayer = hjState.cumulativeLevel >= overallMax && overallMax > 0;
     progressFill.classList.toggle('is-true-max', isTrueMaxPlayer);
-    const card = document.getElementById('home-hj-card');
     if (card) {
+        card.classList.remove('no-synced-heroes');
         card.classList.toggle('is-true-max', isTrueMaxPlayer);
     }
     progressTracks.forEach(track => {
@@ -267,9 +272,9 @@ export function updateProgressBar() {
         progressPercent.textContent = `${pct}%`;
         progressFill.style.width = `${pct}%`;
     } else {
-        progressText.textContent = translate('views.heroJourney.widget.title');
-        progressPercent.textContent = '0%';
-        progressFill.style.width = '0%';
+        progressText.textContent = translate('views.heroJourney.track.levelProgress', { current: hjState.cumulativeLevel });
+        progressPercent.textContent = '100%';
+        progressFill.style.width = '100%';
     }
 }
 

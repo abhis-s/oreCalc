@@ -87,6 +87,8 @@ let activeLandingTag = '';
 let activeLandingProfile = null;
 /** @type {ReturnType<typeof initLandingAccountsManager> | null} */
 let landingAccountsManager = null;
+/** @type {ReturnType<typeof initLandingSearchForm> | null} */
+let landingSearchController = null;
 
 /**
  * Updates modular Option 2 Navigation Drawer content on the Landing Portal.
@@ -160,8 +162,6 @@ async function initCommandCenter() {
     if (launchCloseBtn) launchCloseBtn.addEventListener('click', closeLaunchModal);
     if (launchStayBtn) launchStayBtn.addEventListener('click', closeLaunchModal);
 
-    let searchController = /** @type {ReturnType<typeof initLandingSearchForm> | null} */ (null);
-
     const accountsManager = initLandingAccountsManager({
         onActiveVillageChanged: (cleanTag, profile) => {
             if (cleanTag && cleanTag !== 'DEFAULT0' && typeof document !== 'undefined' && document?.documentElement?.classList) {
@@ -208,20 +208,20 @@ async function initCommandCenter() {
                 cancelBtn.style.display = 'none';
             }
 
-            searchController?.updateToggleAddBtnState(false);
+            landingSearchController?.updateToggleAddBtnState(false);
             updateToolLinks();
             renderGuestTeasers();
             activeLandingTag = '';
             activeLandingProfile = null;
             updateLandingDrawer();
         },
-        isSearchFormOpen: () => Boolean(searchController?.isSearchFormOpen()),
-        setToggleAddBtnState: (isOpen) => searchController?.updateToggleAddBtnState(isOpen),
+        isSearchFormOpen: () => Boolean(landingSearchController?.isSearchFormOpen()),
+        setToggleAddBtnState: (isOpen) => landingSearchController?.updateToggleAddBtnState(isOpen),
         openLaunchModal
     });
     landingAccountsManager = accountsManager;
 
-    searchController = initLandingSearchForm({
+    landingSearchController = initLandingSearchForm({
         selectVillage: (cleanTag) => accountsManager.selectVillage(cleanTag),
         handleDeleteVillage: (cleanTag) => accountsManager.handleDeleteVillage(cleanTag),
         openLaunchModal
@@ -239,7 +239,7 @@ async function initCommandCenter() {
             cancelBtnEl.hidden = true;
             cancelBtnEl.style.display = 'none';
         }
-        searchController.updateToggleAddBtnState(false);
+        landingSearchController.updateToggleAddBtnState(false);
     }
 
     document.addEventListener('languageChanged', () => {
@@ -278,6 +278,7 @@ function refreshLandingPortal() {
         const accountsList = document.getElementById('landing-accounts-list');
         const showcaseSection = document.getElementById('landing-active-profile');
         const searchForm = document.getElementById('landing-search-form');
+        const cancelBtn = document.getElementById('landing-search-cancel-btn');
         if (accountsHeader) {
             /** @type {HTMLElement} */ (accountsHeader).hidden = true;
             /** @type {HTMLElement} */ (accountsHeader).style.display = 'none';
@@ -294,11 +295,32 @@ function refreshLandingPortal() {
             searchForm.hidden = false;
             searchForm.style.display = 'flex';
         }
+        if (cancelBtn) {
+            cancelBtn.hidden = true;
+            cancelBtn.style.display = 'none';
+        }
+        landingSearchController?.updateToggleAddBtnState(false);
     } else {
         if (typeof document !== 'undefined' && document?.documentElement?.classList) {
             document.documentElement.classList.add('has-player');
         }
-        const targetTag = currentProfiles[0].cleanTag;
+        landingSearchController?.closeSearchForm();
+        landingSearchController?.updateToggleAddBtnState(false);
+        const searchFormEl = document.getElementById('landing-search-form');
+        const cancelBtnEl = document.getElementById('landing-search-cancel-btn');
+        if (searchFormEl) {
+            searchFormEl.hidden = true;
+            searchFormEl.style.display = 'none';
+        }
+        if (cancelBtnEl) {
+            cancelBtnEl.hidden = true;
+            cancelBtnEl.style.display = 'none';
+        }
+
+        const currentActiveTag = landingAccountsManager.getActiveTag();
+        const stillExists = currentProfiles.some(p => p.cleanTag === currentActiveTag);
+        const targetTag = (stillExists && currentActiveTag) ? currentActiveTag : currentProfiles[0].cleanTag;
+
         renderAccountsGrid(
             currentProfiles,
             targetTag,

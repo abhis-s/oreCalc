@@ -54,6 +54,7 @@ export function renderHomeProfile(state) {
             </button>
         `;
 
+        cardContainer.classList.remove('is-max-progress');
         cardContainer.innerHTML = renderProfileHeaderHtml({
             profile: null,
             isGuest: true,
@@ -173,6 +174,7 @@ export function renderHomeProfile(state) {
     } else {
         cardContainer.classList.remove('is-stats-collapsed');
     }
+    cardContainer.classList.toggle('is-max-progress', progress.overall >= 100);
 
     const prevTrophies = Number((cardContainer.querySelector('.player-trophies-mini span')?.textContent || '').replace(/\D/g, '')) || 0;
     const prevMaxed = parseInt((cardContainer.querySelector('.maxed-count')?.textContent || '').split('/')[0], 10) || 0;

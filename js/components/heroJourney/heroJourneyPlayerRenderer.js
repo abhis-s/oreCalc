@@ -102,6 +102,7 @@ const hjRenderState = {
  * @param {any} currProg - Current progress metrics.
  */
 function applyHeroJourneyProgressDelta(container, prevProg, currProg) {
+    container.classList.toggle('is-max-progress', Boolean(currProg.isTrueMaxPlayer));
     const prevOverall = prevProg.overall || 0;
     const currOverall = currProg.overall || 0;
 
@@ -301,6 +302,7 @@ export function renderPlayerSummary() {
             </button>
         `;
 
+        card.classList.remove('is-max-progress');
         card.innerHTML = renderProfileHeaderHtml({
             profile: null,
             isGuest: true,
@@ -357,8 +359,9 @@ export function renderPlayerSummary() {
     const isSameTH = hjRenderState.renderedTH === thLevel;
     const isSameClan = hjRenderState.renderedClan === clanName;
     const isSameLeague = hjRenderState.renderedLeague === leagueId;
+    const isSameMax = Boolean(hjRenderState.lastProgress?.isTrueMaxPlayer) === isTrueMaxPlayer;
 
-    if (isSamePlayer && isSameLang && isSameTH && isSameClan && isSameLeague && hjRenderState.lastProgress) {
+    if (isSamePlayer && isSameLang && isSameTH && isSameClan && isSameLeague && isSameMax && hjRenderState.lastProgress) {
         applyHeroJourneyProgressDelta(card, hjRenderState.lastProgress, progress);
         hjRenderState.lastProgress = progress;
         hjRenderState.renderedAccelerated = hjState.isAccelerated;
@@ -384,6 +387,7 @@ export function renderPlayerSummary() {
     } else {
         card.classList.remove('is-stats-collapsed');
     }
+    card.classList.toggle('is-max-progress', isTrueMaxPlayer);
 
     const prevTrophies = Number((card.querySelector('.player-trophies-mini span')?.textContent || '').replace(/\D/g, '')) || 0;
     const targetTrophies = Number(player.trophies) || 0;

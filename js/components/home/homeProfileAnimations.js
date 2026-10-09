@@ -47,6 +47,7 @@ export const renderState = {
  */
 export function applyProgressDelta(container, prevProg, currProg, subData, state, maxedCount, totalCount, profile) {
     if ((prevProg.overall >= 100) !== (currProg.overall >= 100)) return false;
+    container.classList.toggle('is-max-progress', currProg.overall >= 100);
 
     if (maxedCount !== undefined && totalCount !== undefined) {
         const maxedCountEl = container.querySelector('.maxed-count');
