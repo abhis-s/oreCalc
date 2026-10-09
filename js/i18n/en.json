@@ -67,7 +67,6 @@
     "alerts": {
         "bugReportFailure": "Failed to submit bug report. Please try again later.",
         "bugReportSuccess": "Bug report submitted successfully! Thank you for your feedback.",
-        "cannotDeleteLastProfile": "<p>Deleting your only active player profile is not permitted.</p><p>To erase all stored data, go to <strong>Settings &gt; Account &amp; Cloud Sync &gt; Reset Village Data</strong> or <a href=\"#open-data-management\" class=\"theme-link\">open Data Management</a>.</p>",
         "clipboardUnsupported": "Clipboard API not supported or accessible in this browser/context.",
         "copiedFailed": "Failed to copy User ID.",
         "copyAndSaveSuccess": "User ID copied & progress saved!",

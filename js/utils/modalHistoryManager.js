@@ -180,7 +180,7 @@ export function initializeModalHistoryManager() {
 
         const modal = closeBtn.closest('.modal, dialog, .dialog-overlay');
         const isOpen = modal && (modal.classList.contains('show') || modal.open);
-        if (modal && modal.id !== 'guided-setup-modal' && isOpen && !modal.classList.contains('closing')) {
+        if (modal && modal.id !== 'guided-setup-modal' && modal.id !== 'notice-modal' && isOpen && !modal.classList.contains('closing')) {
             closeModalAnimated(modal);
         }
     });
@@ -190,7 +190,7 @@ export function initializeModalHistoryManager() {
         if (e.key === 'Escape' || e.key === 'Esc') {
             if (modalStack.length > 0) {
                 const topModal = modalStack.at(-1);
-                if (topModal && topModal.element && topModal.element.id !== 'guided-setup-modal') {
+                if (topModal && topModal.element && topModal.element.id !== 'guided-setup-modal' && topModal.element.id !== 'notice-modal') {
                     closeTargetModal(topModal);
                 }
             }
@@ -212,7 +212,7 @@ export function initializeModalHistoryManager() {
 
     // Observe specific modal & drawer elements for class and open attribute changes
     const observeModalTarget = (el) => {
-        if (!el || el.__historyObserverAttached) return;
+        if (!el || el.__historyObserverAttached || el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
         el.__historyObserverAttached = true;
 
         // Ensure ARIA semantics and accessible name
@@ -244,14 +244,14 @@ export function initializeModalHistoryManager() {
             // Native cancel event listener (fired on Escape key in native dialogs)
             el.addEventListener('cancel', (e) => {
                 e.preventDefault();
-                if (el.id === 'guided-setup-modal') return;
+                if (el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
                 closeModalAnimated(el);
             });
 
             // Native backdrop click listener: clicks on the <dialog> element itself (outside .modal-content)
             el.addEventListener('click', (e) => {
                 if (e.target === el) {
-                    if (el.id === 'guided-setup-modal') return;
+                    if (el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
                     closeModalAnimated(el);
                 }
             });
@@ -285,9 +285,8 @@ export function initializeModalHistoryManager() {
 
             const target = mutation.target;
 
-            // Target check: modals, dialog overlays, side drawer, FAB menu (excluding guided-setup-modal to prevent mobile back-gesture dismissal)
-            const isModal = (target.classList.contains('modal') && target.id !== 'guided-setup-modal') ||
-                            target.tagName === 'DIALOG' ||
+            // Target check: modals, dialog overlays, side drawer, FAB menu (excluding guided-setup-modal and notice-modal)
+            const isModal = ((target.classList.contains('modal') || target.tagName === 'DIALOG') && target.id !== 'guided-setup-modal' && target.id !== 'notice-modal') ||
                             target.classList.contains('dialog-overlay') ||
                             target.classList.contains('nav-drawer') ||
                             target.classList.contains('navigation-drawer') ||
@@ -302,7 +301,7 @@ export function initializeModalHistoryManager() {
 
             const isBodyDrawerOrFab = target === document.body && (mutation.attributeName === 'class');
 
-            if (isModal && target.id !== 'guided-setup-modal') {
+            if (isModal && target.id !== 'guided-setup-modal' && target.id !== 'notice-modal') {
                 const isOpen = target.classList.contains('show') ||
                                target.classList.contains('open') ||
                                target.classList.contains('active') ||
@@ -324,7 +323,7 @@ export function initializeModalHistoryManager() {
         });
     });
 
-    const initialTargets = document.querySelectorAll('dialog, .modal, .dialog-overlay, .nav-drawer, .navigation-drawer, #nav-drawer, #navigation-drawer, #fab-menu, #priority-list-modal, #equipment-details-modal, #changelog-modal, #commits-modal, #app-settings-modal, #star-bonus-multiplier-modal');
+    const initialTargets = document.querySelectorAll('dialog:not(#guided-setup-modal):not(#notice-modal), .modal:not(#guided-setup-modal):not(#notice-modal), .dialog-overlay, .nav-drawer, .navigation-drawer, #nav-drawer, #navigation-drawer, #fab-menu, #priority-list-modal, #equipment-details-modal, #changelog-modal, #commits-modal, #app-settings-modal, #star-bonus-multiplier-modal');
     initialTargets.forEach(observeModalTarget);
 
     // Observe body for drawer/fab classes and dynamically added modals
@@ -451,8 +450,8 @@ export function getInitialModalFocusTarget(modal) {
  */
 function handleModalStateChange(element, isOpen, options = {}) {
     if (!element) return;
-    if (element.id === 'guided-setup-modal') {
-        // Guided setup modal is multi-step wizard, exempted from history back popping
+    if (element.id === 'guided-setup-modal' || element.id === 'notice-modal') {
+        // Guided setup and notice modal (confirm/alert) are exempted from history back popping
         return;
     }
 

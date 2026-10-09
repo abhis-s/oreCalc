@@ -88,10 +88,11 @@ export async function revalidatePlayerData(tag, hadCachedData = false) {
         }
 
         const serverTag = normalizePlayerTag(data.tag);
-        // Guard against race conditions if user switched active player in the interim
-        if (damageCalcState.activeTag && damageCalcState.activeTag !== cleanTag && damageCalcState.activeTag !== serverTag) {
-            savePlayerProfileToStorage(data, false);
-            return true;
+        const saved = getSavedProfiles();
+        const isStillSaved = saved.some(p => p.cleanTag === serverTag || p.cleanTag === cleanTag);
+        if (!isStillSaved) {
+            // Profile was deleted while network request was in flight. Abort revalidation.
+            return false;
         }
 
         savePlayerProfileToStorage(data, false);
@@ -103,6 +104,12 @@ export async function revalidatePlayerData(tag, hadCachedData = false) {
                 saveSinglePlayerData(userId, serverTag, partition).catch(() => {});
             }
         }
+
+        // Guard against race conditions if user switched active player in the interim
+        if (damageCalcState.activeTag !== cleanTag && damageCalcState.activeTag !== serverTag) {
+            return true;
+        }
+
         damageCalcState.activeTag = serverTag;
         syncPlayerTagToUrl(serverTag);
         syncPlayerVillageData(data, { resetUI: false });
@@ -418,16 +425,16 @@ async function initDamageApp() {
         },
         onDeletePlayer: (tag) => {
             const remaining = getSavedProfiles();
-            const nextTag = remaining.length > 0 ? remaining[0].cleanTag : '';
+            if (remaining.length === 0) {
+                damageCalcState.activeTag = '';
+                syncPlayerTagToUrl('');
+                renderStandalonePlayerDropdown('');
+                renderActiveView();
+                return;
+            }
+            const nextTag = remaining[0].cleanTag;
             if (damageCalcState.activeTag === tag || getPlayerTagFromUrl() === tag) {
-                if (nextTag) {
-                    switchPlayer(nextTag);
-                } else {
-                    damageCalcState.activeTag = '';
-                    syncPlayerTagToUrl('');
-                    renderStandalonePlayerDropdown('');
-                    renderActiveView();
-                }
+                switchPlayer(nextTag);
             } else {
                 renderStandalonePlayerDropdown(damageCalcState.activeTag);
             }

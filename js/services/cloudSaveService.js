@@ -48,19 +48,20 @@ export function isJustSyncedFromQr() {
  */
 export async function initializeAppData() {
     let userId = getActiveUserId(true);
+    const isAuthed = isAuthenticated();
+    const localData = loadState();
+    const hasRealPlayer = Boolean(localData && Array.isArray(localData.savedPlayerTags) && localData.savedPlayerTags.some(t => t && t !== 'DEFAULT0'));
 
-    if (isClashCalcHost() && userId) {
+    if (isClashCalcHost() && userId && (isAuthed || hasRealPlayer || justSyncedFromQr)) {
         markUserMigrated(userId).catch(() => {});
     }
 
-    const isAuthed = isAuthenticated();
     if (!isAuthed && state.uiSettings?.cloudSync === false) {
         logger.log("Cloud sync is disabled in settings. Skipping initialization sync.");
         return null;
     }
 
-    const localData = loadState();
-    if (!isAuthed && !justSyncedFromQr && localData && Array.isArray(localData.savedPlayerTags) && !localData.savedPlayerTags.some(t => t && t !== 'DEFAULT0')) {
+    if (!isAuthed && !justSyncedFromQr && !hasRealPlayer) {
         logger.log("Skipping cloud sync: Only default player tag exists locally.");
         return null;
     }
@@ -165,6 +166,9 @@ export async function initializeAppData() {
                                      .map(normalizePlayerTag)
                                      .filter(t => t && t !== 'DEFAULT0');
                              }
+                             if (!isAuthed && (!Array.isArray(localToSave.savedPlayerTags) || localToSave.savedPlayerTags.length === 0)) {
+                                 return null;
+                             }
                              await saveUserData(userId, localToSave);
                              logger.log("Local data pushed to cloud.");
                          } catch (error) {
@@ -183,6 +187,9 @@ export async function initializeAppData() {
                             localToSave.savedPlayerTags = localToSave.savedPlayerTags
                                 .map(normalizePlayerTag)
                                 .filter(t => t && t !== 'DEFAULT0');
+                        }
+                        if (!isAuthed && (!Array.isArray(localToSave.savedPlayerTags) || localToSave.savedPlayerTags.length === 0)) {
+                            return null;
                         }
                         await saveUserData(userId, localToSave);
                         logger.log("Local data pushed to cloud.");
@@ -286,6 +293,16 @@ export async function importUserData(importId) {
 }
 
 let preferencesSaveTimeout = null;
+
+/**
+ * Cancels any active pending debounced preferences save timer.
+ */
+export function cancelPreferencesSaveTimer() {
+    if (preferencesSaveTimeout) {
+        clearTimeout(preferencesSaveTimeout);
+        preferencesSaveTimeout = null;
+    }
+}
 
 /**
  * Pushes decoupled user preferences to cloud without serializing or pushing player data.

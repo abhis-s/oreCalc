@@ -277,4 +277,50 @@ describe('cloudSaveService - Defensive State & Guest Profile Invariants', () => 
             globalThis.fetch = originalFetch;
         }
     });
+
+    test('initializeAppData does not invoke markUserMigrated for fresh unauthenticated visitor without real player tags', async () => {
+        let migrationPings = 0;
+        const originalFetch = globalThis.fetch;
+        globalThis.fetch = async (url) => {
+            if (String(url).includes('/api/user-data/mark-migrated')) {
+                migrationPings++;
+            }
+            return { ok: true, status: 200, json: async () => ({}) };
+        };
+
+        try {
+            globalThis.localStorage.setItem('clashCalc_playerTags', JSON.stringify(['DEFAULT0']));
+            const result = await initializeAppData();
+            assert.equal(result, null);
+            assert.equal(migrationPings, 0, 'Must not send mark-migrated ping for guest profile without real tags');
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('handleStateUpdate does not schedule cloud save when operating solely on guest DEFAULT0 profile', async () => {
+        let saveCalls = 0;
+        const originalFetch = globalThis.fetch;
+        globalThis.fetch = async (url) => {
+            if (String(url).includes('/api/user-data/save')) {
+                saveCalls++;
+            }
+            return { ok: true, status: 200, json: async () => ({}) };
+        };
+
+        try {
+            state.savedPlayerTags = ['DEFAULT0'];
+            state.allPlayersData = { DEFAULT0: { heroes: {} } };
+            state.uiSettings = { cloudSync: true };
+
+            handleStateUpdate(() => {
+                state.uiSettings.theme = 'dark';
+            });
+
+            await new Promise(r => setTimeout(r, 50));
+            assert.equal(saveCalls, 0);
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
 });

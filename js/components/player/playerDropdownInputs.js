@@ -12,7 +12,7 @@ import { getMaxDate, getMinDate } from '../../utils/dateUtils.js';
 import { invalidatePlayerDropdownCache, renderPlayerDropdown } from './playerDropdownDisplay.js';
 import { showAddPlayerModal } from './playerModalInputs.js';
 import { dom } from '../../dom/domElements.js';
-import { showAlert, showConfirm } from '../../ui/noticeModal.js';
+import { showConfirm } from '../../ui/noticeModal.js';
 import { showApiErrorToast } from '../../ui/toast.js';
 
 let lastTouchTime = 0;
@@ -114,18 +114,6 @@ export async function handlePlayerSelection(tag) {
  * @returns {Promise<void>}
  */
 export async function handleDeletePlayer(tagToDelete) {
-    const validSavedTags = state.savedPlayerTags
-        .map(normalizePlayerTag)
-        .filter(tag => tag && tag !== 'DEFAULT0');
-    if (validSavedTags.length <= 1) {
-        closeDropdown();
-        await showAlert(
-            translate('alerts.cannotDeleteLastProfile'),
-            'status.info'
-        );
-        return;
-    }
-
     const confirmed = await showConfirm(
         translate('confirms.deleteProfile'),
         'actions.confirm',
@@ -151,6 +139,13 @@ export async function handleDeletePlayer(tagToDelete) {
             }
         } else {
             handleStateUpdate(() => {}, false);
+        }
+
+        const remainingTags = state.savedPlayerTags
+            .map(normalizePlayerTag)
+            .filter(tag => tag && tag !== 'DEFAULT0');
+        if (remainingTags.length === 0) {
+            closeDropdown();
         }
 
         invalidatePlayerDropdownCache();

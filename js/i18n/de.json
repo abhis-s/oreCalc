@@ -67,7 +67,6 @@
     "alerts": {
         "bugReportFailure": "Fehlerbericht konnte nicht übermittelt werden. Bitte versuche es später noch einmal.",
         "bugReportSuccess": "Fehlerbericht erfolgreich übermittelt! Vielen Dank für dein Feedback.",
-        "cannotDeleteLastProfile": "<p>Das Löschen deines einzigen aktiven Spielerprofils ist nicht zulässig.</p><p>Um alle Daten zu löschen, gehe zu <strong>Einstellungen &gt; Konto &amp; Cloud-Synchronisierung &gt; Dorfdaten zurücksetzen</strong> oder <a href=\"#open-data-management\" class=\"theme-link\">Datenverwaltung öffnen</a>.</p>",
         "clipboardUnsupported": "Clipboard-API wird in diesem Browser/Kontext nicht unterstützt oder ist nicht zugänglich.",
         "copiedFailed": "Fehler beim Kopieren der Nutzer-ID.",
         "copyAndSaveSuccess": "Nutzer-ID kopiert & Fortschritt gespeichert!",

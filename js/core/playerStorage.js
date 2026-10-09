@@ -19,11 +19,16 @@ import {
     getStorageItem,
     normalizePlayerTag,
     formatDisplayTag,
-    isClashCalcHost
+    isClashCalcHost,
+    getActiveUserId,
+    rotateActiveUserId
 } from './storageKeys.js';
 import { sanitizePlayerProfile } from './playerStorageSanitizer.js';
 import { saveState } from './localStorageManager.js';
-import { triggerCloudSave } from '../services/cloudSaveService.js';
+import { cancelCloudSaveTimer } from './stateManager.js';
+import { cancelPreferencesSaveTimer, triggerCloudSave } from '../services/cloudSaveService.js';
+import { deleteUserData } from '../services/apiService.js';
+import { syncPlayerTagToUrl } from './playerUrlRouter.js';
 import { calculateEquipmentProgress } from '../domain/equipment/equipmentProgressDomain.js';
 import { getCumulativeHeroLevel } from '../domain/income/heroJourneyLevels.js';
 import { heroJourneyNodes } from '../data/heroJourneyData.js';
@@ -44,11 +49,13 @@ export function removePlayerTag(playerTagToDelete) {
         const tagsKey = getActivePlayerTagsKey();
         const rawTags = localStorage.getItem(tagsKey);
         const list = safeJsonParse(rawTags, []);
+        let isLastPlayer = false;
         if (Array.isArray(list)) {
             const pruned = list.map(normalizePlayerTag).filter(tag => tag && tag !== cleanTag && tag !== 'DEFAULT0');
-            localStorage.setItem(tagsKey, JSON.stringify(pruned.length > 0 ? pruned : ['DEFAULT0']));
+            isLastPlayer = pruned.length === 0;
+            localStorage.setItem(tagsKey, JSON.stringify(isLastPlayer ? ['DEFAULT0'] : pruned));
             if (typeof document !== 'undefined' && document?.documentElement?.classList) {
-                if (pruned.length === 0) {
+                if (isLastPlayer) {
                     document.documentElement.classList.remove('has-player');
                 } else {
                     document.documentElement.classList.add('has-player');
@@ -56,6 +63,35 @@ export function removePlayerTag(playerTagToDelete) {
             }
         }
 
+        // 1. Universally purge player partitions and sub-partitions from disk
+        localStorage.removeItem(getPlayerStorageKey(cleanTag, CANONICAL_PLAYER_PREFIX));
+        localStorage.removeItem(getPlayerStorageKey(cleanTag, PLAYER_PREFIX));
+        localStorage.removeItem(`${CANONICAL_PLAYER_PREFIX}#${cleanTag}`);
+        localStorage.removeItem(`${PLAYER_PREFIX}#${cleanTag}`);
+        localStorage.removeItem(`clashCalc_planner_${cleanTag}`);
+        localStorage.removeItem(`oreCalc_planner_${cleanTag}`);
+        localStorage.removeItem(`clashCalc_history_${cleanTag}`);
+        localStorage.removeItem(`oreCalc_history_${cleanTag}`);
+
+        try {
+            const dmgRaw = localStorage.getItem('clashCalc_damageCalcState');
+            if (dmgRaw) {
+                const dmgParsed = safeJsonParse(dmgRaw, null);
+                if (dmgParsed && dmgParsed.activeTag === cleanTag) {
+                    const fallbackTag = (Array.isArray(state?.savedPlayerTags) ? state.savedPlayerTags.find(t => {
+                        const n = normalizePlayerTag(t);
+                        return n && n !== cleanTag && n !== 'DEFAULT0';
+                    }) : null) || (Array.isArray(list) ? list.find(t => {
+                        const n = normalizePlayerTag(t);
+                        return n && n !== cleanTag && n !== 'DEFAULT0';
+                    }) : null) || null;
+                    dmgParsed.activeTag = fallbackTag ? normalizePlayerTag(fallbackTag) : null;
+                    localStorage.setItem('clashCalc_damageCalcState', JSON.stringify(dmgParsed));
+                }
+            }
+        } catch (_) {}
+
+        // 2. Synchronize in-memory monolithic state if present
         if (state.allPlayersData) {
             const wasActive = normalizePlayerTag(state.savedPlayerTags[0]) === cleanTag;
 
@@ -65,33 +101,9 @@ export function removePlayerTag(playerTagToDelete) {
                 .map(normalizePlayerTag)
                 .filter(tag => tag !== cleanTag);
 
-            localStorage.removeItem(getPlayerStorageKey(cleanTag, CANONICAL_PLAYER_PREFIX));
-            localStorage.removeItem(getPlayerStorageKey(cleanTag, PLAYER_PREFIX));
-            localStorage.removeItem(`${CANONICAL_PLAYER_PREFIX}#${cleanTag}`);
-            localStorage.removeItem(`${PLAYER_PREFIX}#${cleanTag}`);
-            localStorage.removeItem(`clashCalc_planner_${cleanTag}`);
-            localStorage.removeItem(`oreCalc_planner_${cleanTag}`);
-            localStorage.removeItem(`clashCalc_history_${cleanTag}`);
-            localStorage.removeItem(`oreCalc_history_${cleanTag}`);
-
-            try {
-                const dmgRaw = localStorage.getItem('clashCalc_damageCalcState');
-                if (dmgRaw) {
-                    const dmgParsed = safeJsonParse(dmgRaw, null);
-                    if (dmgParsed && dmgParsed.activeTag === cleanTag) {
-                        const fallbackTag = state.savedPlayerTags[0] && state.savedPlayerTags[0] !== 'DEFAULT0' ? state.savedPlayerTags[0] : null;
-                        dmgParsed.activeTag = fallbackTag;
-                        localStorage.setItem('clashCalc_damageCalcState', JSON.stringify(dmgParsed));
-                    }
-                }
-            } catch (_) {}
-
             if (state.savedPlayerTags.length === 0) {
                 // Last remaining player deleted: re-seed DEFAULT0
                 state.savedPlayerTags = ['DEFAULT0'];
-                if (typeof document !== 'undefined' && document?.documentElement?.classList) {
-                    document.documentElement.classList.remove('has-player');
-                }
                 const defaultGuestState = initializeDefaultPlayerState();
                 state.allPlayersData['DEFAULT0'] = defaultGuestState;
                 state.heroes = defaultGuestState.heroes;
@@ -122,7 +134,30 @@ export function removePlayerTag(playerTagToDelete) {
             }
 
             saveState(state, true);
+        } else if (isLastPlayer) {
+            const defaultKey = getPlayerStorageKey('DEFAULT0');
+            if (!localStorage.getItem(defaultKey)) {
+                localStorage.setItem(defaultKey, JSON.stringify(initializeDefaultPlayerState()));
+            }
+        }
 
+        // 3. Universally defuse cloud timers, rotate UUID, and strip URL when the last player is removed
+        if (isLastPlayer) {
+            cancelCloudSaveTimer();
+            cancelPreferencesSaveTimer();
+            syncPlayerTagToUrl(null);
+
+            const isAuthed = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('clashCalc_authToken') && localStorage.getItem('clashCalc_username'));
+            if (!isAuthed) {
+                const oldUserId = getActiveUserId(false);
+                if (oldUserId) {
+                    deleteUserData(oldUserId).catch(() => {});
+                }
+                rotateActiveUserId();
+            } else {
+                triggerCloudSave({ silent: true }).catch(() => {});
+            }
+        } else {
             const isAuthed = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('clashCalc_authToken') && localStorage.getItem('clashCalc_username'));
             const shouldSync = isAuthed || state.uiSettings?.cloudSync !== false;
             if (shouldSync) {

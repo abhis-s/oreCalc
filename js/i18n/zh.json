@@ -67,7 +67,6 @@
   "alerts": {
     "bugReportFailure": "提交问题反馈失败，请稍后再试。",
     "bugReportSuccess": "问题反馈提交成功！感谢你的反馈。",
-    "cannotDeleteLastProfile": "<p>无法删除唯一的活跃玩家资料。</p><p>如需清除所有已存储的数据，请前往<strong>设置 &gt; 账号与云端同步 &gt; 重置村庄数据</strong>，或<a href=\"#open-data-management\" class=\"theme-link\">打开数据管理</a>。</p>",
     "clipboardUnsupported": "当前浏览器或运行环境不支持访问剪贴板。",
     "copiedFailed": "复制用户 ID 失败。",
     "copyAndSaveSuccess": "用户 ID 已复制，进度已保存！",

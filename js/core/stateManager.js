@@ -9,6 +9,16 @@ let stateUpdateCallback = null;
 let cloudSaveTimeout = null;
 
 /**
+ * Cancels any active pending debounced cloud save timer.
+ */
+export function cancelCloudSaveTimer() {
+    if (cloudSaveTimeout) {
+        clearTimeout(cloudSaveTimeout);
+        cloudSaveTimeout = null;
+    }
+}
+
+/**
  * Registers the callback for updating UI elements on state change.
  * This decouples the state manager from calculator and renderer modules.
  * @param {(state: import('./types.js').AppState, silent: boolean) => void} callback - Callback function.
@@ -50,8 +60,9 @@ export function handleStateUpdate(updateFn, silent = false, options = {}) {
     }
 
     const hasPlayerState = Array.isArray(state.savedPlayerTags) && Boolean(state.allPlayersData);
+    const hasRealPlayer = hasPlayerState && state.savedPlayerTags.some(t => t && t !== 'DEFAULT0');
     const isAuthed = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('clashCalc_authToken') && localStorage.getItem('clashCalc_username'));
-    const shouldSync = isAuthed || state.uiSettings?.cloudSync !== false;
+    const shouldSync = isAuthed || (state.uiSettings?.cloudSync !== false && hasRealPlayer);
     if (shouldSync && !options.skipSave && hasPlayerState) {
         if (cloudSaveTimeout) {
             clearTimeout(cloudSaveTimeout);
@@ -138,6 +149,11 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
         saveState(state, true);
 
         const isAuthedBeforeUnload = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('clashCalc_authToken') && localStorage.getItem('clashCalc_username'));
+        const hasRealPlayer = Array.isArray(state.savedPlayerTags) && state.savedPlayerTags.some(t => t && t !== 'DEFAULT0');
+        if (!isAuthedBeforeUnload && !hasRealPlayer) {
+            return;
+        }
+
         if (cloudSaveTimeout && (isAuthedBeforeUnload || state.uiSettings?.cloudSync !== false)) {
             clearTimeout(cloudSaveTimeout);
             cloudSaveTimeout = null;
@@ -172,26 +188,23 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
                     timestamp: state.timestamp,
                 };
 
-                const isOnlyDefault = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
-                if (!isOnlyDefault) {
-                    const url = `${getApiBaseUrl()}/api/user-data/save`;
-                    const payload = JSON.stringify({ userId: currentUserId, data: stateToSave });
-                    const headers = { 'Content-Type': 'application/json' };
-                    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('clashCalc_authToken') : null;
-                    if (token) {
-                        headers['Authorization'] = `Bearer ${token}`;
-                    }
-                    if (typeof fetch === 'function') {
-                        fetch(url, {
-                            method: 'POST',
-                            headers,
-                            body: payload,
-                            keepalive: true
-                        }).catch(() => {});
-                    } else if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-                        const blob = new Blob([payload], { type: 'application/json' });
-                        navigator.sendBeacon(url, blob);
-                    }
+                const url = `${getApiBaseUrl()}/api/user-data/save`;
+                const payload = JSON.stringify({ userId: currentUserId, data: stateToSave });
+                const headers = { 'Content-Type': 'application/json' };
+                const token = typeof localStorage !== 'undefined' ? localStorage.getItem('clashCalc_authToken') : null;
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                if (typeof fetch === 'function') {
+                    fetch(url, {
+                        method: 'POST',
+                        headers,
+                        body: payload,
+                        keepalive: true
+                    }).catch(() => {});
+                } else if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+                    const blob = new Blob([payload], { type: 'application/json' });
+                    navigator.sendBeacon(url, blob);
                 }
             }
         }

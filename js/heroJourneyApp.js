@@ -129,6 +129,15 @@ async function loadPlayer(tag) {
     try {
         const data = await fetchPlayerData(cleanTag);
         const serverTag = formatDisplayTag(data.tag || cleanTag);
+        const normalizedServer = normalizePlayerTag(serverTag);
+        const saved = getSavedProfiles();
+        const isStillSaved = saved.some(p => p.cleanTag === normalizedServer || p.cleanTag === cleanTag);
+        if (!isStillSaved) {
+            return { success: false };
+        }
+        if (hjState.activeTag && normalizePlayerTag(hjState.activeTag) !== cleanTag && normalizePlayerTag(hjState.activeTag) !== normalizedServer) {
+            return { success: false };
+        }
         hjState.playerData = data;
         hjState.activeTag = serverTag;
         hjState.thLevel = Number(data.townHallLevel) || 16;
@@ -147,6 +156,11 @@ async function loadPlayer(tag) {
         loadResult = { success: true, data };
     } catch (err) {
         const errorKey = err.message || 'apiErrors.notFound';
+        const saved = getSavedProfiles();
+        const isStillSaved = saved.some(p => p.cleanTag === cleanTag);
+        if (!isStillSaved) {
+            return { success: false, message: errorKey };
+        }
         showApiErrorToast(errorKey);
         const hasMatchingCachedData = Boolean(hjState.playerData && normalizePlayerTag(hjState.activeTag) === cleanTag);
         if (hasMatchingCachedData) {
@@ -301,15 +315,17 @@ function initControls() {
             loadPlayer(tag);
         },
         onDeletePlayer: (tag) => {
+            const savedProfiles = getSavedProfiles();
+            if (savedProfiles.length === 0) {
+                clearActivePlayerToGuest();
+                return;
+            }
             const cleanTag = normalizePlayerTag(tag);
             const activeCleanTag = normalizePlayerTag(hjState.activeTag);
             if (cleanTag && cleanTag === activeCleanTag) {
-                const savedProfiles = getSavedProfiles();
-                if (savedProfiles.length > 0) {
-                    loadPlayer(savedProfiles[0].cleanTag || savedProfiles[0].tag);
-                } else {
-                    clearActivePlayerToGuest();
-                }
+                loadPlayer(savedProfiles[0].cleanTag || savedProfiles[0].tag);
+            } else {
+                renderHeroJourneyPlayerDropdown();
             }
         },
         onAddPlayer: () => {

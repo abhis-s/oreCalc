@@ -128,6 +128,24 @@ export function getActiveUserId(generateIfMissing = false) {
 }
 
 /**
+ * Rotates the active user ID to a fresh UUID, disconnecting the device from previous cloud records.
+ * @returns {string} New UUID or empty string.
+ */
+export function rotateActiveUserId() {
+    if (typeof localStorage === 'undefined') return '';
+    try {
+        const newId = generateUUID();
+        localStorage.setItem(getActiveUserIdKey(), newId);
+        if (isClashCalcHost()) {
+            localStorage.removeItem(STORAGE_KEY_MAP.userId.legacy);
+        }
+        return newId;
+    } catch (_) {
+        return '';
+    }
+}
+
+/**
  * Normalizes a player tag for storage and state (strips ALL hashes, trims, uppercases).
  * 'DEFAULT0' is preserved as 'DEFAULT0'.
  * @param {any} tag

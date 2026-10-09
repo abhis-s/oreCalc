@@ -502,15 +502,9 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         }
     });
 
-    test('cannotDeleteLastProfile and deleteProfile copy and formatting invariants', () => {
+    test('deleteProfile copy and formatting invariants', () => {
         const deJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/de.json'), 'utf8'));
 
-        assert.match(enJson.alerts.cannotDeleteLastProfile, /<p>.*<\/p>/, 'cannotDeleteLastProfile must be formatted in paragraphs');
-        assert.match(deJson.alerts.cannotDeleteLastProfile, /<p>.*<\/p>/, 'cannotDeleteLastProfile in German must be formatted in paragraphs');
-        assert.match(enJson.alerts.cannotDeleteLastProfile, /Account &amp; Cloud Sync.*Reset Village Data/, 'cannotDeleteLastProfile must reflect universal canonical path in English');
-        assert.match(deJson.alerts.cannotDeleteLastProfile, /Konto &amp; Cloud-Synchronisierung.*Dorfdaten zurücksetzen/, 'cannotDeleteLastProfile must reflect universal canonical path in German');
-        assert.match(enJson.alerts.cannotDeleteLastProfile, /<a href="#open-data-management" class="theme-link">/, 'cannotDeleteLastProfile must include theme-link action link');
-        assert.match(deJson.alerts.cannotDeleteLastProfile, /<a href="#open-data-management" class="theme-link">/, 'cannotDeleteLastProfile in German must include theme-link action link');
         assert.match(enJson.confirms.deleteProfile, /permanently remove all data/, 'deleteProfile must state permanent data removal');
         assert.match(deJson.confirms.deleteProfile, /dauerhaft/, 'deleteProfile in German must state permanent data removal');
     });

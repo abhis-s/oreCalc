@@ -262,11 +262,20 @@ router.post('/save', requireMinAppVersion, async (req, res) => {
         const uiSettings = (data.uiSettings && typeof data.uiSettings === 'object') ? { ...data.uiSettings } : {};
         delete uiSettings.saveError;
 
+        const validTags = (Array.isArray(data.savedPlayerTags) ? data.savedPlayerTags : [])
+            .map(t => normalizeTag(t))
+            .filter(t => isValidTag(t));
+
+        if (!doc.exists && !(/** @type {any} */ (req).authUser) && validTags.length === 0) {
+            return res.status(400).json({
+                reason: 'noPlayerTags',
+                message: 'Cannot initialize unauthenticated cloud state without valid player tags.'
+            });
+        }
+
         const globalData = {
             appVersion: data.appVersion || SERVER_CONSTANTS.MIN_SUPPORTED_APP_VERSION,
-            savedPlayerTags: (Array.isArray(data.savedPlayerTags) ? data.savedPlayerTags : [])
-                .map(t => normalizeTag(t))
-                .filter(t => isValidTag(t)),
+            savedPlayerTags: validTags,
             uiSettings,
             timestamp: data.timestamp || new Date().toISOString(),
             isMigrated: true,
@@ -447,13 +456,17 @@ async function handleUpdatePreferences(req, res) {
         };
 
         if (!doc.exists) {
+            if (!(/** @type {any} */ (req).authUser)) {
+                return res.status(404).json({
+                    reason: 'notFound',
+                    message: 'Cannot save preferences for non-existent unauthenticated user.'
+                });
+            }
             updateData.appVersion = req.headers['x-app-version'] || SERVER_CONSTANTS.MIN_SUPPORTED_APP_VERSION;
             updateData.savedPlayerTags = [];
             updateData.isMigrated = true;
-            if (/** @type {any} */ (req).authUser) {
-                updateData.ownerAccount = (/** @type {any} */ (req).authUser).username;
-                updateData.authRequired = true;
-            }
+            updateData.ownerAccount = (/** @type {any} */ (req).authUser).username;
+            updateData.authRequired = true;
         }
 
         await userRef.set(updateData, { merge: true });
@@ -684,18 +697,10 @@ router.post('/mark-migrated', async (req, res) => {
                 isMigratedToClashCalc: true,
                 migratedAt: doc.data()?.migratedAt || nowIso
             }, { merge: true });
+            res.status(200).json({ message: 'Account marked as migrated to ClashCalc.' });
         } else {
-            await userRef.set({
-                appVersion: SERVER_CONSTANTS.MIN_SUPPORTED_APP_VERSION,
-                savedPlayerTags: [],
-                isMigrated: true,
-                isMigratedToClashCalc: true,
-                migratedAt: nowIso,
-                timestamp: nowIso
-            }, { merge: true });
+            res.status(200).json({ message: 'User does not exist in cloud. No migration needed.', migrated: false });
         }
-
-        res.status(200).json({ message: 'Account marked as migrated to ClashCalc.' });
     } catch (error) {
         console.error('Error marking user migrated:', error);
         res.status(500).json({ reason: 'internalError', message: 'Internal Server Error', error: error.message });

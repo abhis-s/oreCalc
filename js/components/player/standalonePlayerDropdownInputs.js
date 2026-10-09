@@ -2,7 +2,7 @@ import { translate } from '../../i18n/translator.js';
 import { getSavedProfiles, removePlayerTag } from '../../core/playerStorage.js';
 import { renderStandalonePlayerDropdown } from './standalonePlayerDropdownDisplay.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
-import { showAlert, showConfirm } from '../../ui/noticeModal.js';
+import { showConfirm } from '../../ui/noticeModal.js';
 import { getAddPlayerHelpContent, hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { openPrivacyModal, openTermsOfUseModal } from '../appSettings/settingsLegalModals.js';
@@ -150,16 +150,6 @@ export function initStandalonePlayerDropdown({ onSelectPlayer, onDeletePlayer, o
             e.stopPropagation();
             const tag = deleteBtn.getAttribute('data-tag');
             if (tag) {
-                const savedProfiles = getSavedProfiles();
-                if (savedProfiles.length <= 1) {
-                    closeStandalonePlayerDropdown();
-                    await showAlert(
-                        translate('alerts.cannotDeleteLastProfile'),
-                        'status.info'
-                    );
-                    return;
-                }
-
                 const confirmed = await showConfirm(
                     translate('confirms.deleteProfile'),
                     'actions.confirm',
@@ -168,6 +158,10 @@ export function initStandalonePlayerDropdown({ onSelectPlayer, onDeletePlayer, o
                 if (confirmed) {
                     removePlayerTag(tag);
                     onDeletePlayer(tag);
+                    const remainingProfiles = getSavedProfiles();
+                    if (remainingProfiles.length === 0) {
+                        closeStandalonePlayerDropdown();
+                    }
                 }
             }
             return;

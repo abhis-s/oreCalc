@@ -67,7 +67,6 @@
   "alerts": {
     "bugReportFailure": "Hata raporu gönderilemedi. Lütfen daha sonra tekrar deneyin.",
     "bugReportSuccess": "Hata raporu başarıyla gönderildi! Geri bildiriminiz için teşekkür ederiz.",
-    "cannotDeleteLastProfile": "<p>Tek aktif oyuncu profilinizi silmenize izin verilmez.</p><p>Tüm kayıtlı verileri silmek için <strong>Ayarlar &gt; Hesap ve Bulut Senkronizasyonu &gt; Köy Verilerini Sıfırla</strong> bölümüne gidin veya <a href=\"#open-data-management\" class=\"theme-link\">Veri Yönetimini açın</a>.</p>",
     "clipboardUnsupported": "Bu tarayıcıda/bağlamda pano API'si desteklenmiyor veya erişilemiyor.",
     "copiedFailed": "Kullanıcı kimliği kopyalanamadı.",
     "copyAndSaveSuccess": "Kullanıcı kimliği kopyalandı ve ilerleme kaydedildi!",
