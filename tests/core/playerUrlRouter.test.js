@@ -78,7 +78,7 @@ describe('Player URL Router Suite', () => {
             let replacedUrl = null;
             globalThis.window = {
                 location: {
-                    href: 'https://orecalc.tech/de/?foo=bar#planner',
+                    href: 'https://clashcalc.com/de/?foo=bar#planner',
                     pathname: '/de/',
                     search: '?foo=bar',
                     hash: '#planner'
@@ -94,7 +94,7 @@ describe('Player URL Router Suite', () => {
             assert.equal(replacedUrl, '/de/?foo=bar&tag=8PJYGUJC#planner');
 
             // Remove tag when passing null or DEFAULT0
-            globalThis.window.location.href = 'https://orecalc.tech/de/?tag=8PJYGUJC#planner';
+            globalThis.window.location.href = 'https://clashcalc.com/de/?tag=8PJYGUJC#planner';
             globalThis.window.location.search = '?tag=8PJYGUJC';
 
             syncPlayerTagToUrl(null);

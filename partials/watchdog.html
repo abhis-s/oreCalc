@@ -120,7 +120,7 @@
                 reportedErrors.add(errorKey);
                 setTimeout(function () { reportedErrors.delete(errorKey); }, 10000);
 
-                var baseUrl = window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                var baseUrl = window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL || "https://api.clashcalc.com";
                 var userId = 'unknown';
                 try {
                     userId = localStorage.getItem('clashCalc_userId') || localStorage.getItem('oreCalc_userId') || localStorage.getItem('oreCalc_guestUserId') || 'unknown';

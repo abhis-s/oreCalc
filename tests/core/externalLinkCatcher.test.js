@@ -242,7 +242,7 @@ describe('External Link Catcher Domain Suite', () => {
         const handler = clickListeners[0];
 
         let defaultPrevented = false;
-        const target = createMockAnchor({ href: 'mailto:support@orecalc.tech' });
+        const target = createMockAnchor({ href: 'mailto:support@clashcalc.com' });
 
         const clickPromise = handler({
             target,
@@ -253,6 +253,6 @@ describe('External Link Catcher Domain Suite', () => {
         await clickPromise;
 
         assert.equal(defaultPrevented, true);
-        assert.equal(globalThis.window.location.href, 'mailto:support@orecalc.tech');
+        assert.equal(globalThis.window.location.href, 'mailto:support@clashcalc.com');
     });
 });

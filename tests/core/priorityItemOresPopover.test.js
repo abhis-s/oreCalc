@@ -321,7 +321,7 @@ if (typeof globalThis.window === 'undefined') {
     globalThis.window = {
         innerWidth: 1024,
         innerHeight: 768,
-        location: { hostname: 'localhost', origin: 'https://orecalc.tech', pathname: '/' },
+        location: { hostname: 'localhost', origin: 'https://clashcalc.com', pathname: '/' },
         addEventListener: () => {},
         removeEventListener: () => {},
         getComputedStyle: () => ({ display: 'block', marginTop: '5px', marginBottom: '5px' }),
@@ -332,7 +332,7 @@ if (typeof globalThis.window === 'undefined') {
 } else {
     if (!globalThis.window.innerWidth) globalThis.window.innerWidth = 1024;
     if (!globalThis.window.innerHeight) globalThis.window.innerHeight = 768;
-    if (!globalThis.window.location) globalThis.window.location = { hostname: 'localhost', origin: 'https://orecalc.tech', pathname: '/' };
+    if (!globalThis.window.location) globalThis.window.location = { hostname: 'localhost', origin: 'https://clashcalc.com', pathname: '/' };
     if (!globalThis.window.getComputedStyle) globalThis.window.getComputedStyle = () => ({ display: 'block', marginTop: '5px', marginBottom: '5px' });
     if (!globalThis.window.requestAnimationFrame) globalThis.window.requestAnimationFrame = (cb) => { cb(); return 1; };
     if (!globalThis.window.matchMedia) globalThis.window.matchMedia = () => ({ matches: true });

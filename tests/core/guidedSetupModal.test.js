@@ -269,7 +269,7 @@ if (typeof globalThis.window === 'undefined') {
         requestAnimationFrame: (cb) => { cb(); return 1; },
         cancelAnimationFrame: () => {},
         scrollTo: () => {},
-        location: { origin: 'https://orecalc.tech', pathname: '/' },
+        location: { origin: 'https://clashcalc.com', pathname: '/' },
         __ENV__: { APP_VERSION: '2.1.0' }
     };
 }

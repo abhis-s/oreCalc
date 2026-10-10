@@ -140,7 +140,7 @@ describe('Language Router Domain Suite', () => {
             assert.equal(replacedUrl, '/');
             assert.equal(pushedUrl, null);
             assert.equal(globalThis.document.documentElement.lang, 'en');
-            assert.equal(mockCanonical.href, 'https://orecalc.tech/');
+            assert.equal(mockCanonical.href, 'https://clashcalc.com/');
         });
 
         test('normalizes /en/#planner to /#planner without duplicating /en/', () => {
@@ -163,7 +163,7 @@ describe('Language Router Domain Suite', () => {
 
             assert.equal(replacedUrl, '/#planner');
             assert.equal(globalThis.document.documentElement.lang, 'en');
-            assert.equal(mockCanonical.href, 'https://orecalc.tech/');
+            assert.equal(mockCanonical.href, 'https://clashcalc.com/');
         });
 
         test('switches language from /de/#equipment to English /#equipment cleanly', () => {
@@ -186,7 +186,7 @@ describe('Language Router Domain Suite', () => {
 
             assert.equal(pushedUrl, '/#equipment');
             assert.equal(globalThis.document.documentElement.lang, 'en');
-            assert.equal(mockCanonical.href, 'https://orecalc.tech/');
+            assert.equal(mockCanonical.href, 'https://clashcalc.com/');
         });
 
         test('switches language from root /#planner to German /de/#planner', () => {
@@ -209,7 +209,7 @@ describe('Language Router Domain Suite', () => {
 
             assert.equal(pushedUrl, '/de/#planner');
             assert.equal(globalThis.document.documentElement.lang, 'de');
-            assert.equal(mockCanonical.href, 'https://orecalc.tech/de/');
+            assert.equal(mockCanonical.href, 'https://clashcalc.com/de/');
         });
 
         test('ignores unsupported language codes safely', () => {
@@ -243,7 +243,7 @@ describe('Language Router Domain Suite', () => {
 
             assert.equal(pushedUrl, '/de/hero-journey/?tag=8PJYGUJC');
             assert.equal(globalThis.document.documentElement.lang, 'de');
-            assert.equal(mockCanonical.href, 'https://orecalc.tech/de/hero-journey/');
+            assert.equal(mockCanonical.href, 'https://clashcalc.com/de/hero-journey/');
         });
 
         test('normalizes sub-route without trailing slash to include trailing slash', () => {
@@ -266,7 +266,7 @@ describe('Language Router Domain Suite', () => {
 
             assert.equal(replacedUrl, '/de/hero-journey/?tag=8PJYGUJC');
             assert.equal(globalThis.document.documentElement.lang, 'de');
-            assert.equal(mockCanonical.href, 'https://orecalc.tech/de/hero-journey/');
+            assert.equal(mockCanonical.href, 'https://clashcalc.com/de/hero-journey/');
         });
     });
 

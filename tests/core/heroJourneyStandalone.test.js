@@ -235,7 +235,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
             let replacedUrl = '';
             globalThis.window = {
                 location: {
-                    href: 'https://orecalc.tech/hero-journey?tag=%238PJYGUJC',
+                    href: 'https://clashcalc.com/hero-journey?tag=%238PJYGUJC',
                     pathname: '/hero-journey',
                     search: '?tag=%238PJYGUJC',
                     hash: ''

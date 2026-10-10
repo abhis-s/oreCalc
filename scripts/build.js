@@ -181,7 +181,7 @@ async function build() {
 
         const packageJson = require('../package.json');
         const { appVersion, commitsSinceTag } = await resolveBuildMetadata(packageJson);
-        const baseUrl = process.env.PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL || 'https://api.orecalc.tech';
+        const baseUrl = process.env.PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL || 'https://api.clashcalc.com';
         const turnstileSiteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY || process.env.VITE_TURNSTILE_SITE_KEY || '';
         const buildTime = process.env.BUILD_TIME || new Date().toISOString();
         const envScript = `<meta charset="UTF-8">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${baseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${turnstileSiteKey}", VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`;
@@ -345,7 +345,7 @@ async function build() {
             const srcPathEn = path.join(projectRoot, page.srcEn);
             if (fs.existsSync(srcPathEn)) {
                 let htmlEn = fs.readFileSync(srcPathEn, 'utf8');
-                const canonicalUrlEn = `https://orecalc.tech/${page.name}/`;
+                const canonicalUrlEn = `https://clashcalc.com/${page.name}/`;
                 if (htmlEn.includes('<link rel="canonical"')) {
                     htmlEn = htmlEn.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonicalUrlEn}">`);
                 } else {
@@ -361,7 +361,7 @@ async function build() {
                 const srcPathDe = path.join(projectRoot, page.srcDe);
                 if (fs.existsSync(srcPathDe)) {
                     let htmlDe = fs.readFileSync(srcPathDe, 'utf8');
-                    const canonicalUrlDe = `https://orecalc.tech/de/${page.name}/`;
+                    const canonicalUrlDe = `https://clashcalc.com/de/${page.name}/`;
                     if (htmlDe.includes('<link rel="canonical"')) {
                         htmlDe = htmlDe.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonicalUrlDe}">`);
                     } else {

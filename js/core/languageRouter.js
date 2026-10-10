@@ -112,7 +112,7 @@ export function syncLanguageUrl(lang, replace = false) {
 
     const baseOrigin = (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null')
         ? window.location.origin
-        : 'https://orecalc.tech';
+        : 'https://clashcalc.com';
 
     const canonicalHref = (lang === 'en')
         ? (formattedPath ? `${baseOrigin}/${formattedPath}` : `${baseOrigin}/`)

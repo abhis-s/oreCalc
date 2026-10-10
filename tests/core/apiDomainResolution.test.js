@@ -17,9 +17,9 @@ test('getApiBaseUrl resolves api.orecalc.tech for orecalc.tech origins', () => {
 });
 
 test('getApiBaseUrl falls back safely for localhost or empty hosts', () => {
-    assert.equal(getApiBaseUrl('localhost'), 'https://api.orecalc.tech');
-    assert.equal(getApiBaseUrl(''), 'https://api.orecalc.tech');
-    assert.equal(getApiBaseUrl(undefined), 'https://api.orecalc.tech');
+    assert.equal(getApiBaseUrl('localhost'), 'https://api.clashcalc.com');
+    assert.equal(getApiBaseUrl(''), 'https://api.clashcalc.com');
+    assert.equal(getApiBaseUrl(undefined), 'https://api.clashcalc.com');
 });
 
 test('markUserMigrated returns null when userId is falsy without throwing', async () => {

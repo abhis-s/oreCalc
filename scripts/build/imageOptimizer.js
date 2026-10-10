@@ -38,10 +38,13 @@ async function optimizeImages(distDir, verbose = false) {
         'app_icon_small.png',
         'app_icon_large.png',
         'app_og.png',
+        'damage_calc_og.png',
         'favicon.png',
         'hero_journey_icon.png',
         'hero_journey_favicon.png',
         'hero_journey_og.png',
+        'landing_og.png',
+        'ore_calc_og.png',
         'screenshot_desktop.png',
         'screenshot_mobile.png'
     ];

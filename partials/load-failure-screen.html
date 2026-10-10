@@ -152,7 +152,7 @@
                                 userId: currentUserId
                             };
 
-                            var baseUrl = window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL || "https://api.orecalc.tech";
+                            var baseUrl = window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL || "https://api.clashcalc.com";
                             var response = await fetch(baseUrl + '/api/support/bug-report', {
                                 method: 'POST',
                                 headers: {

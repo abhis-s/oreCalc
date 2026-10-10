@@ -20,19 +20,19 @@ describe('Static Build Routes Verification Suite', () => {
 
         const content = fs.readFileSync(rootIndex, 'utf8');
         assert.ok(content.includes('<html lang="en">'));
-        assert.ok(content.includes('<link rel="canonical" href="https://orecalc.tech/">'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="en" href="https://orecalc.tech/" />'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="x-default" href="https://orecalc.tech/" />'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="de" href="https://orecalc.tech/de/" />'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="tr" href="https://orecalc.tech/tr/" />'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="zh" href="https://orecalc.tech/zh/" />'));
+        assert.ok(content.includes('<link rel="canonical" href="https://clashcalc.com/">'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="en" href="https://clashcalc.com/" />'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="x-default" href="https://clashcalc.com/" />'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="de" href="https://clashcalc.com/de/" />'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="tr" href="https://clashcalc.com/tr/" />'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="zh" href="https://clashcalc.com/zh/" />'));
     });
 
     test('verifies non-English localized index.html routes exist with correct canonical URLs', () => {
         const languages = [
-            { code: 'de', canonical: 'https://orecalc.tech/de/' },
-            { code: 'tr', canonical: 'https://orecalc.tech/tr/' },
-            { code: 'zh', canonical: 'https://orecalc.tech/zh/' }
+            { code: 'de', canonical: 'https://clashcalc.com/de/' },
+            { code: 'tr', canonical: 'https://clashcalc.com/tr/' },
+            { code: 'zh', canonical: 'https://clashcalc.com/zh/' }
         ];
 
         for (const { code, canonical } of languages) {
@@ -50,23 +50,23 @@ describe('Static Build Routes Verification Suite', () => {
         assert.equal(fs.existsSync(sitemapPath), true);
 
         const content = fs.readFileSync(sitemapPath, 'utf8');
-        assert.ok(content.includes('<loc>https://orecalc.tech/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/de/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/tr/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/zh/</loc>'));
-        assert.equal(content.includes('<loc>https://orecalc.tech/en/</loc>'), false);
-        assert.equal(content.includes('<loc>https://orecalc.tech/en</loc>'), false);
-        assert.equal(content.includes('<loc>https://orecalc.tech/privacy/</loc>'), false);
-        assert.equal(content.includes('<loc>https://orecalc.tech/terms/</loc>'), false);
-        assert.equal(content.includes('<loc>https://orecalc.tech/licenses/</loc>'), false);
+        assert.ok(content.includes('<loc>https://clashcalc.com/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/de/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/tr/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/zh/</loc>'));
+        assert.equal(content.includes('<loc>https://clashcalc.com/en/</loc>'), false);
+        assert.equal(content.includes('<loc>https://clashcalc.com/en</loc>'), false);
+        assert.equal(content.includes('<loc>https://clashcalc.com/privacy/</loc>'), false);
+        assert.equal(content.includes('<loc>https://clashcalc.com/terms/</loc>'), false);
+        assert.equal(content.includes('<loc>https://clashcalc.com/licenses/</loc>'), false);
     });
 
     test('verifies standalone hero-journey routes exist across all supported locales', () => {
         const hjRoutes = [
-            { path: path.join(distDir, 'hero-journey', 'index.html'), lang: 'en', canonical: 'https://orecalc.tech/hero-journey/' },
-            { path: path.join(distDir, 'de', 'hero-journey', 'index.html'), lang: 'de', canonical: 'https://orecalc.tech/de/hero-journey/' },
-            { path: path.join(distDir, 'tr', 'hero-journey', 'index.html'), lang: 'tr', canonical: 'https://orecalc.tech/tr/hero-journey/' },
-            { path: path.join(distDir, 'zh', 'hero-journey', 'index.html'), lang: 'zh', canonical: 'https://orecalc.tech/zh/hero-journey/' }
+            { path: path.join(distDir, 'hero-journey', 'index.html'), lang: 'en', canonical: 'https://clashcalc.com/hero-journey/' },
+            { path: path.join(distDir, 'de', 'hero-journey', 'index.html'), lang: 'de', canonical: 'https://clashcalc.com/de/hero-journey/' },
+            { path: path.join(distDir, 'tr', 'hero-journey', 'index.html'), lang: 'tr', canonical: 'https://clashcalc.com/tr/hero-journey/' },
+            { path: path.join(distDir, 'zh', 'hero-journey', 'index.html'), lang: 'zh', canonical: 'https://clashcalc.com/zh/hero-journey/' }
         ];
 
         for (const { path: routePath, lang, canonical } of hjRoutes) {
@@ -81,18 +81,18 @@ describe('Static Build Routes Verification Suite', () => {
         const sitemapPath = path.join(distDir, 'sitemap.xml');
         const content = fs.readFileSync(sitemapPath, 'utf8');
 
-        assert.ok(content.includes('<loc>https://orecalc.tech/hero-journey/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/de/hero-journey/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/tr/hero-journey/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/zh/hero-journey/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/hero-journey/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/de/hero-journey/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/tr/hero-journey/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/zh/hero-journey/</loc>'));
     });
 
     test('verifies standalone ore-calculator routes exist across all supported locales', () => {
         const oreRoutes = [
-            { path: path.join(distDir, 'ore-calculator', 'index.html'), lang: 'en', canonical: 'https://orecalc.tech/ore-calculator/' },
-            { path: path.join(distDir, 'de', 'ore-calculator', 'index.html'), lang: 'de', canonical: 'https://orecalc.tech/de/ore-calculator/' },
-            { path: path.join(distDir, 'tr', 'ore-calculator', 'index.html'), lang: 'tr', canonical: 'https://orecalc.tech/tr/ore-calculator/' },
-            { path: path.join(distDir, 'zh', 'ore-calculator', 'index.html'), lang: 'zh', canonical: 'https://orecalc.tech/zh/ore-calculator/' }
+            { path: path.join(distDir, 'ore-calculator', 'index.html'), lang: 'en', canonical: 'https://clashcalc.com/ore-calculator/' },
+            { path: path.join(distDir, 'de', 'ore-calculator', 'index.html'), lang: 'de', canonical: 'https://clashcalc.com/de/ore-calculator/' },
+            { path: path.join(distDir, 'tr', 'ore-calculator', 'index.html'), lang: 'tr', canonical: 'https://clashcalc.com/tr/ore-calculator/' },
+            { path: path.join(distDir, 'zh', 'ore-calculator', 'index.html'), lang: 'zh', canonical: 'https://clashcalc.com/zh/ore-calculator/' }
         ];
 
         for (const { path: routePath, lang, canonical } of oreRoutes) {
@@ -107,18 +107,18 @@ describe('Static Build Routes Verification Suite', () => {
         const sitemapPath = path.join(distDir, 'sitemap.xml');
         const content = fs.readFileSync(sitemapPath, 'utf8');
 
-        assert.ok(content.includes('<loc>https://orecalc.tech/ore-calculator/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/de/ore-calculator/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/tr/ore-calculator/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/zh/ore-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/ore-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/de/ore-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/tr/ore-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/zh/ore-calculator/</loc>'));
     });
 
     test('verifies standalone damage-calculator routes exist across all supported locales', () => {
         const routes = [
-            { lang: 'en', path: path.join(distDir, 'damage-calculator', 'index.html'), canonical: 'https://orecalc.tech/damage-calculator/' },
-            { lang: 'de', path: path.join(distDir, 'de', 'damage-calculator', 'index.html'), canonical: 'https://orecalc.tech/de/damage-calculator/' },
-            { lang: 'tr', path: path.join(distDir, 'tr', 'damage-calculator', 'index.html'), canonical: 'https://orecalc.tech/tr/damage-calculator/' },
-            { lang: 'zh', path: path.join(distDir, 'zh', 'damage-calculator', 'index.html'), canonical: 'https://orecalc.tech/zh/damage-calculator/' }
+            { lang: 'en', path: path.join(distDir, 'damage-calculator', 'index.html'), canonical: 'https://clashcalc.com/damage-calculator/' },
+            { lang: 'de', path: path.join(distDir, 'de', 'damage-calculator', 'index.html'), canonical: 'https://clashcalc.com/de/damage-calculator/' },
+            { lang: 'tr', path: path.join(distDir, 'tr', 'damage-calculator', 'index.html'), canonical: 'https://clashcalc.com/tr/damage-calculator/' },
+            { lang: 'zh', path: path.join(distDir, 'zh', 'damage-calculator', 'index.html'), canonical: 'https://clashcalc.com/zh/damage-calculator/' }
         ];
 
         for (const { lang, path: routePath, canonical } of routes) {
@@ -133,10 +133,10 @@ describe('Static Build Routes Verification Suite', () => {
         const sitemapPath = path.join(distDir, 'sitemap.xml');
         const content = fs.readFileSync(sitemapPath, 'utf8');
 
-        assert.ok(content.includes('<loc>https://orecalc.tech/damage-calculator/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/de/damage-calculator/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/tr/damage-calculator/</loc>'));
-        assert.ok(content.includes('<loc>https://orecalc.tech/zh/damage-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/damage-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/de/damage-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/tr/damage-calculator/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/zh/damage-calculator/</loc>'));
     });
 
     test('verifies dist/_redirects exists and configures 301 redirects for legacy routes', () => {

@@ -56,9 +56,9 @@ describe('App Settings Language Synchronization Suite', () => {
             clear: () => storageMap.clear()
         }));
 
-        let locationHref = 'https://orecalc.tech/damage-calculator/';
+        let locationHref = 'https://clashcalc.com/damage-calculator/';
         const mockLocation = {
-            origin: 'https://orecalc.tech',
+            origin: 'https://clashcalc.com',
             pathname: '/damage-calculator/',
             search: '',
             hash: '',

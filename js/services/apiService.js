@@ -15,8 +15,13 @@ export function getApiBaseUrl(hostname) {
             currentHost.endsWith('.clashcalc.com')) {
             return 'https://api.clashcalc.com';
         }
+        if (currentHost === 'orecalc.tech' ||
+            currentHost === 'www.orecalc.tech' ||
+            currentHost.endsWith('.orecalc.tech')) {
+            return 'https://api.orecalc.tech';
+        }
     }
-    return (typeof window !== 'undefined' && (window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL)) || 'https://api.orecalc.tech';
+    return (typeof window !== 'undefined' && (window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL)) || 'https://api.clashcalc.com';
 }
 
 const BASE_URL = getApiBaseUrl();
