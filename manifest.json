@@ -35,30 +35,30 @@
     ],
     "screenshots": [
         {
-            "src": "assets/screenshot_desktop.png",
+            "src": "assets/screenshot_desktop.png?v=3.0.0",
             "sizes": "2880x1800",
             "type": "image/png",
             "form_factor": "wide"
         },
         {
-            "src": "assets/screenshot_mobile.png",
+            "src": "assets/screenshot_mobile.png?v=3.0.0",
             "sizes": "1000x1720",
             "type": "image/png"
         },
         {
-            "src": "assets/screenshot_ore_calc.png",
+            "src": "assets/screenshot_ore_calc.png?v=3.0.0",
             "sizes": "2880x1800",
             "type": "image/png",
             "form_factor": "wide"
         },
         {
-            "src": "assets/screenshot_hero_journey.png",
+            "src": "assets/screenshot_hero_journey.png?v=3.0.0",
             "sizes": "2880x1800",
             "type": "image/png",
             "form_factor": "wide"
         },
         {
-            "src": "assets/screenshot_damage_calc.png",
+            "src": "assets/screenshot_damage_calc.png?v=3.0.0",
             "sizes": "2880x1800",
             "type": "image/png",
             "form_factor": "wide"

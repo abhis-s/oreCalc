@@ -11,6 +11,9 @@
 /service-worker.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+
 /js/*.json
   Cache-Control: public, max-age=0, must-revalidate
 

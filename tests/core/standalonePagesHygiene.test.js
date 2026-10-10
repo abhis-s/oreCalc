@@ -39,6 +39,7 @@ describe('Standalone Pages & Legal Decoupling Invariants', () => {
         assert.match(headersContent, /\/assets\/\*[\s\S]*?Cache-Control:\s*public,\s*max-age=15552000,\s*immutable/, '_headers must set 6-month immutable cache for /assets/*');
         assert.match(headersContent, /\/\*\.html[\s\S]*?Cache-Control:\s*public,\s*max-age=0,\s*must-revalidate/, '_headers must revalidate HTML fresh');
         assert.match(headersContent, /\/service-worker\.js[\s\S]*?Cache-Control:\s*no-cache,\s*no-store,\s*must-revalidate/, '_headers must prevent caching service-worker.js');
+        assert.match(headersContent, /\/manifest\.json[\s\S]*?Cache-Control:\s*public,\s*max-age=0,\s*must-revalidate/, '_headers must revalidate manifest.json fresh');
     });
 
     test('modal partials configure lazy about:blank iframes to prevent startup preload leaks', () => {

@@ -35,18 +35,21 @@ async function optimizeImages(distDir, verbose = false) {
 
     // PNGs to keep for PWA/manifest support and OpenGraph/OG metadata (needs standard formats for OS/crawler compatibility)
     const keepPngs = [
-        'app_icon_small.png',
         'app_icon_large.png',
+        'app_icon_small.png',
         'app_og.png',
         'damage_calc_og.png',
         'favicon.png',
-        'hero_journey_icon.png',
         'hero_journey_favicon.png',
+        'hero_journey_icon.png',
         'hero_journey_og.png',
         'landing_og.png',
         'ore_calc_og.png',
+        'screenshot_damage_calc.png',
         'screenshot_desktop.png',
-        'screenshot_mobile.png'
+        'screenshot_hero_journey.png',
+        'screenshot_mobile.png',
+        'screenshot_ore_calc.png'
     ];
 
     let resizedCount = 0;

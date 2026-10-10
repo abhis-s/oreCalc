@@ -6,11 +6,14 @@ const assetsDir = path.resolve(__dirname, '../../assets');
 
 // Files that should not be resized (but can be optimized)
 const skipResizeList = [
-    'app_icon_small.png',
     'app_icon_large.png',
+    'app_icon_small.png',
     'favicon.png',
+    'screenshot_damage_calc.png',
     'screenshot_desktop.png',
-    'screenshot_mobile.png'
+    'screenshot_hero_journey.png',
+    'screenshot_mobile.png',
+    'screenshot_ore_calc.png'
 ];
 
 function getFiles(dir, files = []) {

@@ -192,6 +192,7 @@ async function build() {
         landingHtml = landingHtml.replace(/src="\/?js\/landingApp\.js(\?v=[^"]+)?"/g, `src="/js/landingApp.js?v=${encodeURIComponent(appVersion)}"`);
         landingHtml = landingHtml.replace(/href="\/?css\/landing(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/landing.min.css?v=${encodeURIComponent(appVersion)}"`);
         landingHtml = landingHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+        landingHtml = landingHtml.replace(/href="\/?manifest\.json(\?v=[^"]+)?"/g, `href="/manifest.json?v=${encodeURIComponent(appVersion)}"`);
 
         let oreCalcHtml = fs.readFileSync(path.join(projectRoot, 'ore-calculator/index.html'), 'utf8');
         oreCalcHtml = processHtmlIncludes(oreCalcHtml);
@@ -199,6 +200,7 @@ async function build() {
         oreCalcHtml = oreCalcHtml.replace(/src="js\/app\.js(\?v=[^"]+)?"/g, `src="js/app.js?v=${encodeURIComponent(appVersion)}"`);
         oreCalcHtml = oreCalcHtml.replace(/href="js\/app\.js(\?v=[^"]+)?"/g, `href="js/app.js?v=${encodeURIComponent(appVersion)}"`);
         oreCalcHtml = oreCalcHtml.replace(/href="css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+        oreCalcHtml = oreCalcHtml.replace(/href="(\/)?manifest\.json(\?v=[^"]+)?"/g, `href="/manifest.json?v=${encodeURIComponent(appVersion)}"`);
         oreCalcHtml = oreCalcHtml.replace(/<link rel="modulepreload" href="js\/(?!app\.js)[^"]+">\s*/g, '');
 
         let hjHtml = fs.readFileSync(path.join(projectRoot, 'hero-journey/index.html'), 'utf8');
@@ -226,7 +228,6 @@ async function build() {
             { src: 'assets', dest: 'assets' },
             { src: 'js/i18n', dest: 'js/i18n' },
             { src: 'js/data', dest: 'js/data' },
-            { src: 'manifest.json', dest: 'manifest.json' },
             { src: 'sitemap.xml', dest: 'sitemap.xml' },
             { src: 'robots.txt', dest: 'robots.txt' },
             { src: 'llms.txt', dest: 'llms.txt' },
@@ -247,6 +248,16 @@ async function build() {
                 if (verbose) {
                     console.log(`Copied: ${srcPath} -> ${destPath}`);
                 }
+            }
+        }
+
+        const manifestSrcPath = path.join(projectRoot, 'manifest.json');
+        if (fs.existsSync(manifestSrcPath)) {
+            let manifestRaw = fs.readFileSync(manifestSrcPath, 'utf8');
+            manifestRaw = manifestRaw.replace(/("src":\s*"assets\/screenshot_[^"]*?)(\?v=[^"]*)?(")/g, `$1?v=${encodeURIComponent(appVersion)}$3`);
+            fs.writeFileSync(path.join(distDir, 'manifest.json'), manifestRaw, 'utf8');
+            if (verbose) {
+                console.log(`Versioned manifest written to ${path.join(distDir, 'manifest.json')}`);
             }
         }
 
