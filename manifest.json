@@ -36,14 +36,32 @@
     "screenshots": [
         {
             "src": "assets/screenshot_desktop.png",
-            "sizes": "3420x2224",
+            "sizes": "2880x1800",
             "type": "image/png",
             "form_factor": "wide"
         },
         {
             "src": "assets/screenshot_mobile.png",
-            "sizes": "1080x2400",
+            "sizes": "1000x1720",
             "type": "image/png"
+        },
+        {
+            "src": "assets/screenshot_ore_calc.png",
+            "sizes": "2880x1800",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "assets/screenshot_hero_journey.png",
+            "sizes": "2880x1800",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "assets/screenshot_damage_calc.png",
+            "sizes": "2880x1800",
+            "type": "image/png",
+            "form_factor": "wide"
         }
     ],
     "shortcuts": [

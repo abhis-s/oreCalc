@@ -1,234 +1,214 @@
-# OreCalc — Clash of Clans Equipment Planner
+# ClashCalc — Clash of Clans Tactical & Progression Suite
 
-[**🚀 Live Application: https://orecalc.tech**](https://orecalc.tech)
+[**Live Application: https://clashcalc.com**](https://clashcalc.com)
 
-![OreCalc Desktop](assets/screenshot_desktop.png)
+> **Notice**: ClashCalc was previously hosted at `orecalc.tech`. All player profiles, stored data, and configurations migrate seamlessly to `clashcalc.com`.
 
-![OreCalc Mobile](assets/screenshot_mobile.png)
+![ClashCalc Suite Overview](assets/screenshot_desktop.png)
 
-Stop guessing, start upgrading. **OreCalc** is a comprehensive equipment planner and ore forecasting tool for Clash of Clans. Calculate exactly what you need, track every ore source, plan your upgrades on a visual calendar, and watch your progress in real time.
-
----
-
-## ✨ Features
-
-### 🏠 Home Dashboard
-
-- **Required Ores** — See exactly how many Shiny, Glowy, and Starry ores you need to reach your target levels
-- **Time Remaining** — Real-time estimates of when you'll have enough ores to complete each upgrade, based on your configured income
-- **Income Summary Table** — A dynamic table showing ore income per source at your chosen timeframe (daily / weekly / monthly / bimonthly), with totals
-- **Resource Overview** — At-a-glance display of your league, CWL participations, Clan War count, Raid Medals, Event Medals, Gems, and total real-money cost
-
-### 🔧 Equipment Tab
-
-- **All 6 heroes** — Barbarian King, Archer Queen, Grand Warden, Royal Champion, Minion Prince, and Dragon Duke with all Common and Epic equipment
-- **Per-equipment controls** — Enable or disable individual equipment to include or exclude it from ore calculations
-- **Per-hero toggle** — Enable or disable entire heroes at once
-- **Stored ores** — Input your currently stored Shiny, Glowy, and Starry ores so the calculator accounts for what you already have
-- **Custom max levels** — Set your own target max levels for Common (up to 18) and Epic (up to 27) equipment
-- **Hide maxed equipment** — Automatically hide equipment that has already reached the target level
-- **Hide locked equipment** — Hide equipment you haven't unlocked yet
-- **Level input mode** — Toggle a mode where you can quickly set levels via text input instead of the default selector
-
-### 💰 Income Tab (10 Sources)
-
-Each income source has its own dedicated card with inputs and a detailed breakdown of ore output per timeframe (daily / weekly / monthly / bimonthly).
-
-- **Star Bonus** — Select your league from every tier (Skeleton through Legend). Configure multiplier events (2x / 4x) with custom event frequency and duration. Plan for TH upgrades that change your league floor mid-timeline
-- **Clan Wars** — Set wars per month, win/draw/loss rates, and ores earned per attack. Inputs feature TH-based recommended values pulled from in-game data
-- **Clan War Leagues (CWL)** — Set hits per season with win/draw/loss rates and per-attack ore income
-- **Raid Medal Trader** — Configure how many packs of each ore type you buy weekly with your earned Raid Medals
-- **Gem Trader** — Configure weekly gem pack purchases for each ore type
-- **Event Pass** — Toggle between free and paid pass. Set claimable medals and bonus track medals. Optionally include equipment rewards in the calculation
-- **Event Trader** — Configure medal-based ore purchases. Dynamic recommendations show how many packs you can afford based on your remaining Event Medals after other purchases
-- **Shop Offers** — Select your TH-level offer set. Toggle individual offers on/off. Tracks the real-money cost in your chosen currency
-- **Supercell Events** — Toggle World Championship events. Dynamic schedule with auto-generated income chips based on the current season
-- **Prospector** — Configure ore conversion (e.g. Shiny → Glowy). Gold Pass vs. Silver Pass rates. A dynamic recommendation tip analyzes your bottleneck ore and suggests the optimal conversion to reach your next upgrade faster, with over-conversion warnings
-
-Every number input features a **contextual popover** with min/max ranges, TH-based recommended values, and click-to-fill buttons for quick setup.
-
-### 📅 Planner Tab
-
-- **Calendar** — Monthly and weekly views with swipe/drag navigation. Configurable first day of week (auto / Monday / Sunday)
-- **Income chips** — Each income source generates draggable chips placed on calendar days. Chips show ore amounts and source icons. Supports daily, weekly, monthly, and bimonthly schedules
-- **Auto-place** — One-click automatic distribution of all income chips across the visible month or entire year
-- **Custom chips** — Create your own chips via a full modal with 11 chip types (Star Bonus, Shop Offers, Gem Trader, Raid Medal Trader, Event Trader, Event Pass, Clan War, CWL, Supercell Events, Prospector, and a freeform "Extras" type). Custom chips support one-time or recurring schedules (weekly / monthly)
-- **Chip management** — Drag and drop chips between calendar days. Delete chips. Delete all chips for a month or globally
-- **Priority list** — Sortable upgrade queue that determines the order in which ores are allocated. Shows target level and estimated completion date for each item
-- **Priority list editor** — Full modal to add, remove, and reorder equipment in the priority queue. Includes smart ordering suggestions based on ore efficiency
-- **Efficiency interleaving** — The priority list suggests completing cheaper Common upgrades during Starry ore bottlenecks to keep your Shiny and Glowy ores productive
-- **Ore tooltips** — Hover over any priority item to see the exact ore cost breakdown and which ore type is the bottleneck
-- **Hide/show suggestions** — Dismiss or restore priority list suggestions as needed
-
-### 👤 Multi-Player & Sync
-
-- **Clash of Clans API** — Enter your player tag to fetch your profile, Town Hall level, heroes, and equipment levels directly from the game. Clan badge displayed in the UI
-- **Multi-account support** — Save multiple player tags and switch between them via a dropdown. Each account maintains its own heroes, income settings, planner, and currency preferences
-- **Real-time cloud sync** — Data is automatically synced to Firestore on every change. Load your data on any device by entering your User ID
-- **QR code sharing** — Generate a QR code for your User ID. Scan it on another device to instantly import your data
-- **Data download** — Export all your data as a downloadable file
-- **User ID import** — Import another player's data by pasting their User ID
-- **Tag verification** — Verify tag ownership via Clash of Clans API token for protected profiles
-- **Data erasure** — Reset all data or request global data erasure (GDPR-compliant deletion)
-
-### 🎨 Customization & Settings
-
-- **Accent color themes** — Choose from Blue, Gold, Purple, Green, Red, or Random. The entire UI adapts to your choice
-- **Dark / Light mode** — Toggle between dark and light themes
-- **9 currencies** — EUR, USD, GBP, AUD, CAD, CHF, INR, JPY, NZD. All real-money cost calculations (Shop Offers, Event Pass, Prospector) update to your chosen currency
-- **Global pricing** — Customize prices per currency if your region's pricing differs from defaults
-- **Localization** — English and German with automatic browser locale detection. All labels, dates, and number formatting adapt to your language
-- **Calendar settings** — First day of week, chip icon visibility, auto-place scope (month / year)
-- **Responsive design** — Fully optimized for desktop, tablet, and mobile
-- **Progressive Web App** — Install to your home screen, works fully offline after the first load
-- **Completely ad-free** — No ads, no tracking, no paywalls. Open source and free forever
-- **Changelog** — In-app changelog modal shows what's new after each update
+A high-performance, privacy-first web application suite engineered for Clash of Clans planning, upgrade forecasting, and tactical attack calculation. Completely ad-free, open-source, and fully functional offline as a Progressive Web App (PWA).
 
 ---
 
-## 🚀 Getting Started
+## Capabilities
+
+| Tool | Focus & Mechanics | Key Capabilities |
+| :--- | :--- | :--- |
+| **Landing Portal** | Multi-village hub & suite launchpad | Instant village switching, live progress metrics, Town Hall level and league tracking, and direct navigation across tools. |
+| **Ore Calculator** | Upgrade scheduling & inventory modeling | Exact ore requirements (Shiny, Glowy, Starry) across hero equipment, stored blacksmith inventory deductions, customizable target level caps, and time-to-max forecasts. |
+| **Income Engine** | Recurring & event resource modeling | 10 modeled income channels (Star Bonus multiplier events, Clan Wars, CWL, Raid Medals, Gem Trader, Event Pass, Event Trader, Shop Offers, Supercell Tournaments, Prospector conversion optimizer). |
+| **Calendar Planner** | Visual timeline & upgrade ordering | Draggable income chips across daily, weekly, monthly, and bimonthly schedules, one-click auto-placement across month or year, and a priority upgrade queue with bottleneck interleaving. |
+| **Damage Calculator** | ZapQuake & hero ability destruction solver | Minimal spell and active ability combinations required to destroy target structures, Pareto-optimal superset pruning, damage profiles for active abilities, building HP & supercharge tier modeling. |
+| **Cluster Planner** | Multi-target area tactical planning | Select 2 to 5 target defenses to calculate combined burst damage solutions and spell thresholds across defense clusters. |
+| **Hero's Journey** | Milestone progression & reward resolver | Milestone track visualization, quest chest yield models across Town Hall levels, and deterministic equipment unlock and Starry Ore fallback resolution. |
+
+---
+
+## Visual Showcase
+
+<details>
+<summary><strong>Expand Interface Gallery (Tool Previews & Mobile Layout)</strong></summary>
+<br>
+
+| Multi-Village Portal (Desktop) | Mobile Responsive Layout |
+| :---: | :---: |
+| ![ClashCalc Desktop Hub](assets/screenshot_desktop.png) | ![ClashCalc Mobile Overview](assets/screenshot_mobile.png) |
+
+| Ore Calculator & Upgrade Forecasting | Damage Calculator & Cluster Planner |
+| :---: | :---: |
+| ![Ore Calculator Interface](assets/screenshot_ore_calc.png) | ![Damage Calculator Interface](assets/screenshot_damage_calc.png) |
+
+| Hero's Journey Milestone Tracker |
+| :---: |
+| ![Hero's Journey Interface](assets/screenshot_hero_journey.png) |
+
+</details>
+
+---
+
+## Interface, Customization & Privacy
+
+- **Themes & Accent Colors**: Full Dark theme and Light theme support, paired with 5 cohesive accent color palettes (Blue, Gold, Purple, Green, Red) and an optional session Randomizer.
+- **Card Layout Modes**: Switch between Cozy and Compact display density depending on your device and preference.
+- **Multi-Currency Pricing**: Real-time cost calculations across 11 currencies (EUR, USD, GBP, AUD, CAD, CHF, CNY, INR, JPY, NZD, TRY) with custom regional price overrides.
+- **Multilingual Localization**: Native support for English, Deutsch, Türkçe, and Chinese (Simplified), with automatic browser locale detection.
+- **Privacy & Security**: Zero tracking cookies, 100% self-hosted zero-CDN UI assets, privacy-preserving cookie-free Cloudflare analytics & Turnstile bot defense, client-side DOM sanitization, Passkeys / WebAuthn passwordless authentication, Google Cloud Firestore cloud synchronization, QR code device linking, and self-service cloud data erasure and account deletion.
+
+---
+
+## Local Development
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (LTS version recommended)
-- [pnpm](https://pnpm.io/) (Performant NPM package manager)
+- [Node.js](https://nodejs.org/) (v22+ recommended)
+- [pnpm](https://pnpm.io/) (v11+ required)
 - [Git](https://git-scm.com/)
 
-### Local Development Setup
+### Setup Instructions
 
 1. **Clone the repository:**
 
-    ```bash
-    git clone https://github.com/abhis-s/oreCalc.git
-    cd oreCalc
-    ```
+   ```bash
+   git clone https://github.com/abhis-s/oreCalc.git
+   cd oreCalc
+   ```
 
-2. **Install dependencies:**
+2. **Install workspace dependencies:**
 
-    This is a pnpm workspace — one command installs both frontend and backend dependencies:
+   ClashCalc uses a `pnpm` monorepo workspace (`pnpm-workspace.yaml`). A single command installs all frontend and backend dependencies:
 
-    ```bash
-    pnpm install
-    ```
+   ```bash
+   pnpm install
+   ```
 
-3. **Set up environment variables:**
+3. **Configure environment variables:**
 
-    Copy the example env file and configure it:
+   Copy the template environment files:
 
-    ```bash
-    cp server/.env.example server/.env
-    ```
+   ```bash
+   cp .env.example .env
+   cp server/.env.example server/.env
+   ```
 
-    Edit `server/.env` and set:
-    - `CLASH_OF_CLANS_API_TOKEN` — Your API token from the [Clash of Clans Developer Portal](https://developer.clashofclans.com/)
-    - `FIRESTORE_SA_KEY` — *(Optional)* Google Cloud Firestore service account key for cloud sync
-    - `COC_API_BASE_URL` — *(Optional)* Override the API base URL. Defaults to the [RoyaleAPI proxy](https://cocproxy.royaleapi.dev) which removes the need for a static IP
+   Key configuration settings in `server/.env`:
+   - `CLASH_OF_CLANS_API_TOKEN`: Your API token from the [Clash of Clans Developer Portal](https://developer.clashofclans.com/).
+   - `COC_API_BASE_URL`: *(Optional)* API base URL override. Defaults to the [RoyaleAPI proxy](https://cocproxy.royaleapi.dev), which removes the need for a static IP address.
+   - `FIRESTORE_SA_KEY`: *(Optional)* Google Cloud Firestore service account JSON string for cross-device cloud sync.
 
-4. **Start the backend API server** (in a separate terminal):
+4. **Start the development servers:**
 
-    ```bash
-    cd server
-    node main.js
-    ```
+   - **Frontend & Watchers** (runs live dev server, SCSS compilation, and JS bundler on `http://localhost:8080`):
 
-    The server starts on `http://0.0.0.0:3000`. You can access it from other devices on the same network using your local IP.
+     ```bash
+     pnpm dev
+     ```
 
-5. **Start the frontend dev server:**
+   - **Backend API Server** (runs Express proxy on `http://localhost:3000`):
 
-    ```bash
-    pnpm dev
-    ```
+     ```bash
+     pnpm --filter orecalc-server start
+     ```
 
-    Opens at `http://0.0.0.0:8080` with hot-reload. Also accessible from other devices on the network.
+5. **Execute verification test suites:**
 
----
+   ```bash
+   pnpm test
+   ```
 
-## ☁️ Deployment
+6. **Build for production:**
 
-### Google Cloud Run
-
-This project is designed for deployment on Google Cloud Run with CI/CD via Cloud Build.
-
-#### Requirements
-
-- Google Cloud Project with billing enabled
-- `gcloud` CLI installed and authenticated
-- Enabled APIs: Cloud Run, Cloud Build, Artifact Registry, Serverless VPC Access, Cloud NAT, Secret Manager
-- Clash of Clans API token stored in Secret Manager (e.g., named `clash-of-clans-api-token`)
-
-#### Deploy Steps
-
-1. **Build frontend:**
-
-    ```bash
-    pnpm run build
-    ```
-
-2. **Deploy backend:**
-
-    ```bash
-    cd server
-    gcloud run deploy orecalc-api \
-      --source . \
-      --region europe-west1 \
-      --allow-unauthenticated \
-      --platform managed \
-      --port 8080 \
-      --update-secrets CLASH_OF_CLANS_API_TOKEN=clash-of-clans-api-token:latest
-    ```
-
-    > **Note:** If using the official Clash API directly (not the RoyaleAPI proxy), you need a static outbound IP via Serverless VPC Access + Cloud NAT.
-
-3. **Deploy frontend:**
-
-    ```bash
-    cd ..
-    gcloud run deploy orecalc-webapp \
-      --source . \
-      --region europe-west1 \
-      --allow-unauthenticated \
-      --platform managed \
-      --port 80
-    ```
-
-4. **Custom domains** *(recommended)* — Map `orecalc.tech` and `api.orecalc.tech` via Cloud Run's custom domain settings.
-
-5. **CI/CD** *(recommended)* — Connect your GitHub repository to Cloud Build using `cloudbuild.frontend.yaml` and `server/cloudbuild.backend.yaml`.
+   ```bash
+   pnpm run build
+   ```
 
 ---
 
-## 🏗️ Architecture
+## Deployment
+
+### Continuous Deployment (Google Cloud Run)
+
+ClashCalc is deployed to Google Cloud Run using automated commit-based triggers via Google Cloud Build.
+
+- **Frontend Service (`orecalc-webapp`)**: Triggered on repository commits, executes `cloudbuild.frontend.yaml` to build static assets, package the container, and deploy to Cloud Run. Mapped to `clashcalc.com`.
+- **Backend Service (`orecalc-api`)**: Triggered on changes in `server/`, executes `server/cloudbuild.backend.yaml` to containerize the Express API, inject secrets from Google Cloud Secret Manager, and deploy to Cloud Run. Mapped to `api.clashcalc.com`.
+- **Secret Manager Bindings**: Production deployments bind secrets dynamically (`CLASH_OF_CLANS_API_TOKEN`, `FIRESTORE_SA_KEY`, `JWT_SECRET`, `TURNSTILE_SECRET_KEY`, `SMTP_PASS`).
+
+### Manual CLI Deployment (Self-Hosting)
+
+For standalone environments or manual deployments without automated triggers:
+
+1. **Build frontend assets:**
+
+   ```bash
+   pnpm run build
+   ```
+
+2. **Deploy backend service:**
+
+   ```bash
+   cd server
+   gcloud run deploy orecalc-api \
+     --source . \
+     --region europe-west1 \
+     --allow-unauthenticated \
+     --platform managed \
+     --port 8080 \
+     --update-secrets CLASH_OF_CLANS_API_TOKEN=clash-of-clans-api-token:latest
+   ```
+
+3. **Deploy frontend service:**
+
+   ```bash
+   cd ..
+   gcloud run deploy orecalc-webapp \
+     --source . \
+     --region europe-west1 \
+     --allow-unauthenticated \
+     --platform managed \
+     --port 80
+   ```
+
+---
+
+## Architecture
+
+The application is structured into a 4-tier unidirectional dependency architecture (Data -> Domain -> Core -> UI):
 
 ```text
-oreCalc/
-├── assets/              # Hero images, ore icons, resource images
-├── css/                 # SCSS design system (palette, components, pages)
+OreCalc/
+├── assets/              # Optimized game assets (buildings, equipment, heroes, spells)
+├── css/                 # Sass design system (palette tokens, components, pages)
 ├── js/
-│   ├── app.js           # Entry point and initialization
-│   ├── components/      # UI components (equipment, income, planner, settings)
-│   ├── core/            # State management, calculator, renderer
-│   ├── data/            # Hero data, income source registry, pricing
-│   ├── dom/             # DOM element selectors
-│   ├── i18n/            # Translation files (en.json, de.json)
-│   ├── incomeCalculations/  # Income calculation logic per source
-│   ├── services/        # API services, cloud sync, changelog
-│   ├── ui/              # Toast, modals, saving indicator
-│   └── utils/           # Chip factory, validators, date utils, SVG manager
-├── partials/            # HTML templates (tabs, modals, navigation)
-├── server/              # Express.js API (player data, verification, sync)
+│   ├── landingApp.js    # Multi-tool landing portal and village switcher
+│   ├── app.js           # Ore Calculator single-page application
+│   ├── heroJourneyApp.js# Hero's Journey tracker
+│   ├── damageApp.js     # ZapQuake & damage solver
+│   ├── components/      # UI components (Display renderers & Input controllers)
+│   ├── core/            # State management, storage partitioning, migrations
+│   ├── domain/          # Pure calculation algorithms and combinatorial solvers
+│   ├── data/            # Static game metadata, levels, and pricing data
+│   ├── i18n/            # Localization dictionaries (en, de, tr, zh)
+│   ├── services/        # Clash API client, WebAuthn passkeys, Firestore sync
+│   └── utils/           # Shared utilities (math, dates, SVG sprites, popovers)
+├── partials/            # Compile-time HTML partials and modal templates
+├── server/              # Express API server (proxy, caching, rate limiting, auth)
+├── tests/               # Core and domain unit test suites
 └── pnpm-workspace.yaml  # Workspace configuration
 ```
 
 ---
 
-## 🤝 Contributing
+## Community & Contributing
 
-Contributions are welcome! Feel free to:
+Contributions, bug reports, and suggestions are welcome:
 
-- 🐛 [Open an issue](https://github.com/abhis-s/oreCalc/issues) for bugs or feature requests
-- 🌐 [Help translate on Crowdin](https://crowdin.com/project/orecalc) to add new languages
-- ☕ [Buy me a coffee](https://buymeacoffee.com/orecalc) to support development
+- [Open an Issue](https://github.com/abhis-s/oreCalc/issues) for bug reports and feature requests.
+- [Crowdin Project](https://crowdin.com/project/orecalc) to help translate the application into new languages.
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) for architectural guidelines, component conventions, and testing requirements.
+- Review [SECURITY.md](SECURITY.md) for vulnerability disclosure procedures and supported releases.
 
-## 📄 License
+---
+
+## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

@@ -230,6 +230,7 @@ async function build() {
             { src: 'sitemap.xml', dest: 'sitemap.xml' },
             { src: 'robots.txt', dest: 'robots.txt' },
             { src: 'llms.txt', dest: 'llms.txt' },
+            { src: 'llms-full.txt', dest: 'llms-full.txt' },
             { src: '404.html', dest: '404.html' },
             { src: 'legal/legal.js', dest: 'legal/legal.js' },
             { src: 'legal/licenses', dest: 'licenses' },
