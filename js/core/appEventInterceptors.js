@@ -31,14 +31,12 @@ function handleDynamicImportError(err) {
 /**
  * Returns true for errors originating from browser-injected scripts (crypto wallets,
  * content scripts, browser extensions) rather than the app codebase.
- * Detection is purely structural — no message content scanning.
  *
  * @param {ErrorEvent | PromiseRejectionEvent} event
  * @returns {boolean}
  */
 function isInjectedScriptError(event) {
-    // "Script error." is the browser's sanitized form of any cross-origin script error.
-    // It always indicates an external script — never app bundle code.
+    // "Script error." is the browser's sanitized form of any cross-origin script error
     const msg = String(
         /** @type {ErrorEvent} */ (event).message ||
         /** @type {PromiseRejectionEvent} */ (event).reason?.message ||
@@ -47,20 +45,43 @@ function isInjectedScriptError(event) {
     );
     if (msg === 'Script error.' || msg === 'Script error') return true;
 
-    // For ErrorEvent only — PromiseRejectionEvent has no filename/lineno.
+    const stack = String(
+        /** @type {ErrorEvent} */ (event).error?.stack ||
+        /** @type {PromiseRejectionEvent} */ (event).reason?.stack ||
+        ''
+    );
+
+    // Browser extension scripts (Chrome, Firefox, Safari, WebKit)
+    if (/(chrome|moz|safari|webkit)-extension:\/\//i.test(msg) ||
+        /(chrome|moz|safari|webkit)-extension:\/\//i.test(stack)) {
+        return true;
+    }
+
+    // Known browser and wallet injections (Brave Wallet, MetaMask, Phantom, Solana, Coinbase, native bridges)
+    if (/ethereum|solana|web3|phantom|trustwallet|coinbase|__gCrWeb/i.test(msg) ||
+        /ethereum|solana|web3|phantom|trustwallet|coinbase|__gCrWeb/i.test(stack)) {
+        return true;
+    }
+
+    // For ErrorEvent only — PromiseRejectionEvent has no filename/lineno
     if (event instanceof ErrorEvent) {
         const src = event.filename || '';
 
-        // Browser extension scripts (Chrome, Firefox, Safari)
+        // Browser extension scripts
         if (/^(chrome|moz|safari|webkit)-extension:\/\//i.test(src)) return true;
 
-        // No source file — injected anonymous/inline code. App bundles always have a filename.
+        // No source file — injected anonymous/inline code. App bundles always have a filename
         if (!src) return true;
 
-        // Line 1 of the page document itself — browser-injected code (crypto wallets,
-        // native app bridges, __gCrWeb, etc.) runs at document scope with the page URL as filename.
-        // App bundles are always loaded as separate JS files and never fire from line 1 of the page.
-        if (event.lineno === 1 && (src === window.location.href || src === window.location.origin + '/')) return true;
+        // Line 1 of the page document itself — browser-injected code runs at document scope with the page URL as filename
+        // App bundles are always loaded as separate JS files and never fire from line 1 of the page
+        if (event.lineno === 1) {
+            const currentBase = (window.location.origin + window.location.pathname).replace(/\/+$/, '');
+            const srcBase = src.split('?')[0].split('#')[0].replace(/\/+$/, '');
+            if (!srcBase || srcBase === currentBase || srcBase === window.location.origin) {
+                return true;
+            }
+        }
     }
 
     return false;

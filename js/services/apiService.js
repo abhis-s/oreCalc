@@ -194,25 +194,20 @@ export async function saveUserData(userId, data) {
     checkApiBlock();
 
     const url = `${BASE_URL}/api/user-data/save`;
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: getAuthHeaders({
-                'Content-Type': 'application/json',
-                'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
-            }),
-            body: JSON.stringify({ userId, data })
-        });
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: getAuthHeaders({
+            'Content-Type': 'application/json',
+            'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+        }),
+        body: JSON.stringify({ userId, data })
+    });
 
-        if (!response.ok) {
-            throw new Error(await handleResponseError(response));
-        }
-
-        return await response.json();
-    } catch (error) {
-        logger.error("Error saving user data:", error);
-        throw error;
+    if (!response.ok) {
+        throw new Error(await handleResponseError(response));
     }
+
+    return await response.json();
 }
 
 /**
@@ -227,25 +222,20 @@ export async function saveSinglePlayerData(userId, tag, playerData) {
     checkApiBlock();
 
     const url = `${BASE_URL}/api/user-data/save-player`;
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: getAuthHeaders({
-                'Content-Type': 'application/json',
-                'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
-            }),
-            body: JSON.stringify({ userId, tag, playerData })
-        });
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: getAuthHeaders({
+            'Content-Type': 'application/json',
+            'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+        }),
+        body: JSON.stringify({ userId, tag, playerData })
+    });
 
-        if (!response.ok) {
-            throw new Error(await handleResponseError(response));
-        }
-
-        return await response.json();
-    } catch (error) {
-        logger.error(`Error saving single player data for ${tag}:`, error);
-        throw error;
+    if (!response.ok) {
+        throw new Error(await handleResponseError(response));
     }
+
+    return await response.json();
 }
 
 /**
@@ -259,25 +249,20 @@ export async function saveUserPreferences(userId, preferences) {
     checkApiBlock();
 
     const url = `${BASE_URL}/api/user-data/preferences`;
-    try {
-        const response = await fetch(url, {
-            method: 'PATCH',
-            headers: getAuthHeaders({
-                'Content-Type': 'application/json',
-                'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
-            }),
-            body: JSON.stringify({ userId, preferences })
-        });
+    const response = await fetch(url, {
+        method: 'PATCH',
+        headers: getAuthHeaders({
+            'Content-Type': 'application/json',
+            'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+        }),
+        body: JSON.stringify({ userId, preferences })
+    });
 
-        if (!response.ok) {
-            throw new Error(await handleResponseError(response));
-        }
-
-        return await response.json();
-    } catch (error) {
-        logger.error("Error saving user preferences:", error);
-        throw error;
+    if (!response.ok) {
+        throw new Error(await handleResponseError(response));
     }
+
+    return await response.json();
 }
 
 /**
@@ -323,25 +308,20 @@ export async function loadUserData(userId) {
     checkApiBlock();
 
     const url = `${BASE_URL}/api/user-data/load/${userId}`;
-    try {
-        const response = await fetch(url, {
-            headers: getAuthHeaders({
-                'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
-            })
-        });
+    const response = await fetch(url, {
+        headers: getAuthHeaders({
+            'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+        })
+    });
 
-        if (!response.ok) {
-            if (response.status === 404) {
-                return null;
-            }
-            throw new Error(await handleResponseError(response));
+    if (!response.ok) {
+        if (response.status === 404) {
+            return null;
         }
-
-        return await response.json();
-    } catch (error) {
-        logger.error("Error loading user data:", error);
-        throw error;
+        throw new Error(await handleResponseError(response));
     }
+
+    return await response.json();
 }
 
 /**

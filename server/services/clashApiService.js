@@ -151,7 +151,7 @@ async function getClanWarLogInternal(clanTag, { userId = null, clientETag = null
         const url = `${baseUrl}/clans/${encodedTag}/warlog`;
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         let response;
         try {
@@ -165,7 +165,6 @@ async function getClanWarLogInternal(clanTag, { userId = null, clientETag = null
                 signal: controller.signal
             });
         } catch (fetchError) {
-            tripCircuitBreaker(503);
             const stale = getCachedData(cacheKey, true);
             if (stale) {
                 const actualStaleData = stale.isPrivateWarLog ? stale.data : (stale.data || stale);
@@ -180,16 +179,22 @@ async function getClanWarLogInternal(clanTag, { userId = null, clientETag = null
                     };
                 }
             }
+            const isTimeout = fetchError.name === 'AbortError';
             return {
-                status: 503,
-                body: { reason: 'inMaintenance', message: 'Clash of Clans API is currently in maintenance.' }
+                status: isTimeout ? 504 : 502,
+                body: {
+                    reason: isTimeout ? 'gatewayTimeout' : 'networkError',
+                    message: isTimeout
+                        ? 'Upstream Clash API gateway timed out. Please try again.'
+                        : 'Failed to reach upstream Clash API.'
+                }
             };
         } finally {
             clearTimeout(timeoutId);
         }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
-            markClashApiHealthy().catch(() => {});
+            markClashApiHealthy({ endpoint: '/api/proxy/clans/:clanTag/warlog' }).catch(() => {});
             const data = await response.json();
             setCachedData(cacheKey, data, 600);
             const cachedItem = getCachedData(cacheKey);
@@ -231,7 +236,11 @@ async function getClanWarLogInternal(clanTag, { userId = null, clientETag = null
             }
 
             if (response.status === 503) {
-                tripCircuitBreaker(503);
+                tripCircuitBreaker(503, {
+                    endpoint: '/api/proxy/clans/:clanTag/warlog',
+                    url,
+                    tag: cleanedTag
+                });
             }
 
             const stale = getCachedData(cacheKey, true);

@@ -68,11 +68,36 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
                     });
                 }
 
+                const domain = resolveEmailDomain(reportData.environment, req.headers.host, req.headers.referer);
+                const shortUserId = reportData.userId ? reportData.userId.substring(0, 8) : 'anon';
+                const briefTitle = description.replace(/[\r\n]+/g, ' ').trim().substring(0, 50);
+
                 const mailOptions = {
                     from: `"ClashCalc System" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
                     to: process.env.RECIPIENT_EMAIL_SUPPORT || 'support@clashcalc.com',
-                    subject: `[ClashCalc] Bug Report - ${docRef.id} (${reportData.userId})`,
-                    text: `Hello,\n\nA new bug report has been submitted.\n\nDetails:\n- Report ID: ${docRef.id}\n- User ID: ${reportData.userId}\n- Contact Email: ${reportData.email || 'none'}\n- Date: ${reportData.reportedAt}\n\nDescription:\n${description}\n\n${attachData ? 'User data is attached to this email.' : 'No user data was attached.'}\n\nRegards,\nClashCalc Support System`,
+                    subject: `[${domain}] Bug Report: "${briefTitle}" (User ${shortUserId})`,
+                    text: [
+                        '================================================================================',
+                        'USER BUG REPORT SUBMISSION',
+                        '================================================================================',
+                        '',
+                        'REPORT DETAILS',
+                        '--------------------------------------------------------------------------------',
+                        `Environment   : ${domain}`,
+                        `Report ID     : ${docRef.id}`,
+                        `User ID       : ${reportData.userId}`,
+                        `Contact Email : ${reportData.email || 'none'}`,
+                        `Submitted At  : ${reportData.reportedAt}`,
+                        '',
+                        'DESCRIPTION',
+                        '--------------------------------------------------------------------------------',
+                        description,
+                        '',
+                        attachData ? 'User data is attached to this email.' : 'No user data was attached.',
+                        '',
+                        '================================================================================',
+                        'Notification managed by ClashCalc Support System'
+                    ].join('\n'),
                     attachments
                 };
 
@@ -99,7 +124,11 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
     }
 });
 
-const { isIgnoredNoise, shouldSendAlertEmail, recordAlertSent, sendMailSafely } = require('../services/alertThrottle.js');
+const {
+    isIgnoredNoise,
+    resolveEmailDomain,
+    queueClientErrorAlert
+} = require('../services/alertThrottle.js');
 
 router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
     const { userId, environment, message, source, line, col, stack, url, userAgent } = req.body;
@@ -108,8 +137,8 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
         return res.status(400).json({ reason: 'invalidMessage', message: 'Error message is required.' });
     }
 
-    // Completely discard client noise (extension scripts, 404 tag typos, CWL/war log states)
-    if (isIgnoredNoise(message)) {
+    // Completely discard client noise (extension scripts, 404 tag typos, CWL/war log states, wallet/browser injections)
+    if (isIgnoredNoise(message, source, line, stack)) {
         return res.status(200).json({
             message: 'Ignored client noise error.',
             ignored: true,
@@ -142,36 +171,18 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
         };
 
         const docRef = await db.collection('clientErrors').add(errorData);
+        errorData.id = docRef.id;
         console.error(`[CLIENT ERROR] ${errorData.environment} | User: ${errorData.userId} | ${errorData.message} at ${errorData.source}:${errorData.line}`);
 
-        let emailSent = false;
-        const alertDecision = shouldSendAlertEmail(errorData);
-
-        if (alertDecision.shouldSend) {
-            const recipientEmail = process.env.RECIPIENT_EMAIL_ALERTS;
-            if (recipientEmail) {
-                const mailOptions = {
-                    from: `"ClashCalc Error Alert" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
-                    to: recipientEmail,
-                    subject: `[ClashCalc Error Alert] ${errorData.environment} - User ${errorData.userId}`,
-                    text: `Hello,\n\nAn automated client console error was reported on ${errorData.environment}.\n\nError Details:\n- Record ID: ${docRef.id}\n- User ID: ${errorData.userId}\n- Environment: ${errorData.environment}\n- Page URL: ${errorData.url}\n- Date: ${errorData.reportedAt}\n- Expires At (TTL): ${expireDate.toISOString()}\n- User Agent: ${errorData.userAgent}\n\nMessage:\n${errorData.message}\n\nSource: ${errorData.source}:${errorData.line}:${errorData.col}\n\nStack Trace:\n${errorData.stack || 'None provided'}\n\nRegards,\nClashCalc Error Monitoring`
-                };
-
-                emailSent = await sendMailSafely(mailOptions);
-                if (emailSent) {
-                    recordAlertSent(alertDecision.signature);
-                    console.log(`[CLIENT ERROR] Error email alert sent successfully to ${recipientEmail} for ${docRef.id}`);
-                }
-            }
-        } else {
-            console.log(`[CLIENT ERROR] Alert email suppressed for ${docRef.id} (Reason: ${alertDecision.reason})`);
-        }
+        const queueResult = queueClientErrorAlert(errorData);
+        console.log(`[CLIENT ERROR] Alert batching status for ${docRef.id}: Queued=${queueResult.queued} (Batch Size=${queueResult.batchSize || 0}, Reason=${queueResult.reason || 'batched'})`);
 
         res.status(200).json({
             message: 'Client error logged successfully.',
             errorId: docRef.id,
-            emailSent,
-            throttleReason: alertDecision.shouldSend ? undefined : alertDecision.reason
+            emailQueued: queueResult.queued,
+            batchSize: queueResult.batchSize,
+            throttleReason: queueResult.queued ? undefined : queueResult.reason
         });
     } catch (error) {
         console.error('Error handling client error submission:', error);

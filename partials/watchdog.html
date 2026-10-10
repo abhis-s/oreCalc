@@ -1,6 +1,37 @@
 <script>
     (function () {
-        function isClientNoise(msg) {
+        function isInjectedClientNoise(msg, source, line, col, stack) {
+            var sMsg = String(msg || '');
+            var sSrc = String(source || '');
+            var sStack = String(stack || '');
+
+            // Browser extension scripts (Chrome, Firefox, Safari, WebKit)
+            if (/^(chrome|moz|safari|webkit)-extension:\/\//i.test(sSrc) ||
+                /^(chrome|moz|safari|webkit)-extension:\/\//i.test(sStack) ||
+                /(chrome|moz|safari|webkit)-extension:\/\//i.test(sMsg)) {
+                return true;
+            }
+
+            // Known browser and wallet injections (Brave Wallet, MetaMask, Phantom, Solana, Coinbase, native bridges)
+            if (/ethereum|solana|web3|phantom|trustwallet|coinbase|__gCrWeb/i.test(sMsg) ||
+                /ethereum|solana|web3|phantom|trustwallet|coinbase|__gCrWeb/i.test(sStack)) {
+                return true;
+            }
+
+            // Line 1 of document scope — browser-injected scripts execute at document scope with page URL
+            // Application code is strictly loaded as separate JS modules, never inline at line 1 of HTML
+            if (line === 1) {
+                var currentBase = (window.location.origin + window.location.pathname).replace(/\/+$/, '');
+                var srcBase = sSrc.split('?')[0].split('#')[0].replace(/\/+$/, '');
+                if (!srcBase || srcBase === currentBase || srcBase === window.location.origin) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        function isClientNoise(msg, source, line, col, stack) {
             if (!msg || typeof msg !== 'string') return true;
             if (msg === 'Script error.' || msg.indexOf('Script error') !== -1) return true;
             if (msg.indexOf('apiErrors.notFound') !== -1 || msg.indexOf('Invalid Clash of Clans tag') !== -1) return true;
@@ -8,6 +39,7 @@
             if (msg.indexOf('SW registration failed') !== -1 || msg.indexOf('SW update check failed') !== -1) return true;
             if (msg.indexOf('ResizeObserver') !== -1) return true;
             if (/clipboard|readText|NotAllowedError/i.test(msg)) return true;
+            if (isInjectedClientNoise(msg, source, line, col, stack)) return true;
             return false;
         }
 
@@ -80,7 +112,7 @@
             try {
                 var hostname = window.location.hostname;
                 if (hostname === 'localhost' || hostname === '127.0.0.1') return; // Disabled on dev server
-                if (isClientNoise(msg)) return;
+                if (isClientNoise(msg, source, line, col, stack)) return;
                 if (isBotUserAgent(navigator.userAgent)) return;
 
                 var errorKey = (msg || '') + ':' + (source || '') + ':' + (line || 0);
@@ -383,6 +415,9 @@
             // Only trigger catastrophic failure screen for actual JS execution/runtime errors
             if (!appLoaded && (event.error || event.message) && (!target || (target.tagName !== 'LINK' && target.tagName !== 'SCRIPT'))) {
                 var errorStack = event.error ? event.error.stack : '';
+                if (isInjectedClientNoise(errorMsg, event.filename, event.lineno, event.colno, errorStack)) {
+                    return;
+                }
                 handleCatastrophicError(errorMsg, errorStack);
             }
         }, true);
@@ -408,6 +443,9 @@
 
             if (!appLoaded) {
                 var errorStack = event.reason ? event.reason.stack : '';
+                if (isInjectedClientNoise(errorMsg, '', 0, 0, errorStack)) {
+                    return;
+                }
                 handleCatastrophicError(errorMsg || 'Unhandled promise rejection', errorStack);
             }
         });

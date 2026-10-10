@@ -2,7 +2,7 @@ const express = require('express');
 const { isValidTag, isValidUserId } = require('../utils/validation.js');
 const { admin, db } = require('../services/firebase.js');
 const { getCachedData, setCachedData, getRemainingTTL } = require('../services/cacheService.js');
-const { checkCircuitBreaker, tripCircuitBreaker } = require('../services/circuitBreaker.js');
+const { checkCircuitBreaker, tripCircuitBreaker, markClashApiHealthy } = require('../services/circuitBreaker.js');
 const { httpsAgent, sendStandardizedUpstreamError } = require('../services/clashApiService.js');
 
 const router = express.Router();
@@ -126,7 +126,7 @@ router.get('/players/:playerTag', async (req, res) => {
         console.log(`[GET] Proceeding to fetch player data from: ${url}`);
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         let response;
         try {
@@ -139,7 +139,6 @@ router.get('/players/:playerTag', async (req, res) => {
                 signal: controller.signal
             });
         } catch (fetchError) {
-            tripCircuitBreaker(503);
             const stale = getCachedData(cacheKey, true);
             const isTimeout = fetchError.name === 'AbortError';
             const reason = isTimeout ? 'timeout' : 'fetch failed';
@@ -163,15 +162,18 @@ router.get('/players/:playerTag', async (req, res) => {
                 console.error(`[Firestore Cache] Failed to load snapshot for player ${cleanedTag}:`, dbError);
             }
 
-            return res.status(503).json({
-                reason: 'inMaintenance',
-                message: 'Clash of Clans API is currently in maintenance.'
+            return res.status(isTimeout ? 504 : 502).json({
+                reason: isTimeout ? 'gatewayTimeout' : 'networkError',
+                message: isTimeout
+                    ? 'Upstream Clash API gateway timed out. Please try again.'
+                    : 'Failed to reach upstream Clash API.'
             });
         } finally {
             clearTimeout(timeoutId);
         }
 
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+            markClashApiHealthy({ endpoint: '/api/proxy/players/:tag', host: req.headers.host }).catch(() => {});
             const data = await response.json();
             setCachedData(cacheKey, data, 60);
             const cachedItem = getCachedData(cacheKey);
@@ -189,7 +191,12 @@ router.get('/players/:playerTag', async (req, res) => {
             res.status(response.status).json(data);
         } else {
             if (response.status === 503) {
-                tripCircuitBreaker(503);
+                tripCircuitBreaker(503, {
+                    endpoint: '/api/proxy/players/:tag',
+                    url,
+                    tag: cleanedTag,
+                    host: req.headers.host
+                });
             }
             const stale = getCachedData(cacheKey, true);
             if (stale) {

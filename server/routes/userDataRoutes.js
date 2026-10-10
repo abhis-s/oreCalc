@@ -4,6 +4,7 @@ const { RATE_LIMIT_DEFAULTS, SERVER_CONSTANTS } = require('../constants.js');
 const { isValidUserId, isValidTag, normalizeTag, compareVersions } = require('../utils/validation.js');
 const { admin, db, isUserDeleted } = require('../services/firebase.js');
 const { extractAuthUser, isAuthorizedForUser } = require('../middleware/authMiddleware.js');
+const { resolveEmailDomain } = require('../services/alertThrottle.js');
 
 const router = express.Router();
 // @ts-ignore
@@ -654,11 +655,31 @@ router.delete('/delete/:userId', sensitiveLimiter, async (req, res) => {
                     }
                 });
 
+                const domain = resolveEmailDomain('', req.headers.host, req.headers.origin);
+                const shortUserId = userId ? userId.substring(0, 8) : 'anon';
+
                 const mailOptions = {
                     from: `"ClashCalc System" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
                     to: process.env.RECIPIENT_EMAIL_LEGAL || 'legal@clashcalc.com',
-                    subject: `[ClashCalc] Account Deletion Request - ${userId}`,
-                    text: `Hello,\n\nA user has requested permanent deletion of their account.\n\nDetails:\n- User ID: ${userId}\n- Time: ${new Date().toISOString()}\n\nThe user ID has been deleted from userStates and locked in the deletedUuids database.\n\nRegards,\nClashCalc System`
+                    subject: `[${domain}] Account Deletion: User ${shortUserId}`,
+                    text: [
+                        '================================================================================',
+                        'ACCOUNT DELETION CONFIRMATION',
+                        '================================================================================',
+                        '',
+                        'DELETION DETAILS',
+                        '--------------------------------------------------------------------------------',
+                        `Environment : ${domain}`,
+                        `User ID     : ${userId}`,
+                        `Time        : ${new Date().toISOString()}`,
+                        '',
+                        'SYSTEM ACTION',
+                        '--------------------------------------------------------------------------------',
+                        'The user ID has been deleted from userStates and locked in the deletedUuids registry.',
+                        '',
+                        '================================================================================',
+                        'Notification managed by ClashCalc Legal & Compliance'
+                    ].join('\n')
                 };
 
                 await transporter.sendMail(mailOptions);
