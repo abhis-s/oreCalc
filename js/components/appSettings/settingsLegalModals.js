@@ -75,7 +75,7 @@ export function openLicensesModal() {
             linkText.textContent = translate('views.settings.about.sourceLink');
             link.appendChild(linkText);
 
-            const svgIcon = document.createElement('orecalc-assets-svg');
+            const svgIcon = document.createElement('clashcalc-assets-svg');
             svgIcon.setAttribute('name', 'open-in-new');
             link.appendChild(svgIcon);
 
@@ -189,7 +189,7 @@ export function openPrivacyModal() {
 
     const updateThemeBtnIcon = (currentTheme) => {
         if (themeBtn) {
-            const svgIcon = themeBtn.querySelector('orecalc-assets-svg');
+            const svgIcon = themeBtn.querySelector('clashcalc-assets-svg, orecalc-assets-svg');
             if (svgIcon) {
                 if (currentTheme === 'light') {
                     svgIcon.setAttribute('name', 'dark-mode');
@@ -320,7 +320,7 @@ export function openTermsOfUseModal() {
 
     const updateThemeBtnIcon = (currentTheme) => {
         if (themeBtn) {
-            const svgIcon = themeBtn.querySelector('orecalc-assets-svg');
+            const svgIcon = themeBtn.querySelector('clashcalc-assets-svg, orecalc-assets-svg');
             if (svgIcon) {
                 if (currentTheme === 'light') {
                     svgIcon.setAttribute('name', 'dark-mode');

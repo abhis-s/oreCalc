@@ -36,7 +36,7 @@ export function getGenericInfoPopoverContent(infoKey) {
         ];
         return {
             header: `
-                <orecalc-assets-svg name="info" width="18" height="18" class="popover-img"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="info" width="18" height="18" class="popover-img"></clashcalc-assets-svg>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.modifierTitle') || 'Battle Modifiers & League Rules')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.offense.battleModifier') || 'Modifiers')}</span>
@@ -48,7 +48,7 @@ export function getGenericInfoPopoverContent(infoKey) {
     if (infoKey === 'supercharge') {
         return {
             header: `
-                <orecalc-assets-image src="/assets/supercharge/supercharge_bolt.png" alt="Supercharge" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/supercharge/supercharge_bolt.png" alt="Supercharge" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.superchargeTitle') || 'Supercharge')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.offense.superchargeLabel') || 'Supercharge')}</span>
@@ -60,7 +60,7 @@ export function getGenericInfoPopoverContent(infoKey) {
     if (infoKey === 'cc_spells') {
         return {
             header: `
-                <orecalc-assets-image src="/assets/buildings/clan_castle/level_14.png" alt="Clan Castle" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/buildings/clan_castle/level_14.png" alt="Clan Castle" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.offense.clanCastleDonatedSpellsTitle') || 'Clan Castle Spells')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.offense.donatedSpellBadge') || 'Donation')}</span>
@@ -77,7 +77,7 @@ export function getGenericInfoPopoverContent(infoKey) {
         ];
         return {
             header: `
-                <orecalc-assets-svg name="info" width="18" height="18" class="popover-img"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="info" width="18" height="18" class="popover-img"></clashcalc-assets-svg>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.clusterTitle') || 'Clustered ZapQuake Mechanics')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterModeToggle') || 'Cluster')}</span>
@@ -89,7 +89,7 @@ export function getGenericInfoPopoverContent(infoKey) {
     if (infoKey === 'spell_immunity') {
         return {
             header: `
-                <orecalc-assets-image src="/assets/buildings/town_hall/level_17.png" alt="Town Hall" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/buildings/town_hall/level_17.png" alt="Town Hall" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.spellImmunityTitle') || 'Spell Immunity')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.zapQuake.immune') || 'Immune')}</span>
@@ -125,7 +125,7 @@ export function getActionInfoPopoverContent(actionKey, state = null) {
 
         return {
             header: `
-                <orecalc-assets-image src="/assets/buildings/builders_hut/level_${currentHutLvl}.png" alt="${escapeHTML(title)}" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/buildings/builders_hut/level_${currentHutLvl}.png" alt="${escapeHTML(title)}" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(title)}</span>
                     <span class="popover-badge">${escapeHTML(buildingLabel)}</span>
@@ -159,7 +159,7 @@ export function getNoteCodePopoverContent(noteCode) {
     if (noteCode === 'giant_arrow_air_defense_2x') {
         return {
             header: `
-                <orecalc-assets-image src="${equipmentDamageData.giant_arrow?.icon ? '/' + equipmentDamageData.giant_arrow.icon : '/assets/equipment/giant_arrow.png'}" alt="Giant Arrow" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="${equipmentDamageData.giant_arrow?.icon ? '/' + equipmentDamageData.giant_arrow.icon : '/assets/equipment/giant_arrow.png'}" alt="Giant Arrow" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.giantArrowVulnerabilityTitle') || 'Giant Arrow (2x Damage)')}</span>
                     <span class="popover-badge">${escapeHTML(translate('entities.defenses.airDefense') || 'Air Defense')}</span>
@@ -171,7 +171,7 @@ export function getNoteCodePopoverContent(noteCode) {
     if (noteCode === 'target_immune_to_lightning' || noteCode === 'target_immune_to_earthquake') {
         return {
             header: `
-                <orecalc-assets-image src="/assets/buildings/town_hall/level_17.png" alt="Town Hall" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/buildings/town_hall/level_17.png" alt="Town Hall" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.spellImmunityTitle') || 'Spell Immunity Rules')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.zapQuake.immune') || 'Immune')}</span>
@@ -183,7 +183,7 @@ export function getNoteCodePopoverContent(noteCode) {
     if (noteCode === 'repair_ticks') {
         return {
             header: `
-                <orecalc-assets-image src="/assets/buildings/builders_hut/level_8.png" alt="Builder" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/buildings/builders_hut/level_8.png" alt="Builder" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.builderRepairTitle') || 'Builder Repair Mechanics')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.offense.builderRepairLabel') || 'Builder Repair')}</span>
@@ -194,7 +194,7 @@ export function getNoteCodePopoverContent(noteCode) {
     }
     return {
         header: `
-            <orecalc-assets-svg name="info" width="18" height="18" class="popover-img"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="info" width="18" height="18" class="popover-img"></clashcalc-assets-svg>
             <div class="popover-title-group">
                 <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.combatNoteTitle') || 'Combat Note')}</span>
                 <span class="popover-badge">${escapeHTML(translate('views.damageCalc.popovers.simulationBadge') || 'Simulation')}</span>
@@ -306,7 +306,7 @@ export function getEquipmentStatsPopoverContent(equipmentId, level, options = {}
 
     return {
         header: `
-            <orecalc-assets-image src="/${equip.icon}" alt="${escapeHTML(eqName)}" class="popover-img"></orecalc-assets-image>
+            <clashcalc-assets-image src="/${equip.icon}" alt="${escapeHTML(eqName)}" class="popover-img"></clashcalc-assets-image>
             <div class="popover-title-group">
                 <span class="popover-title">${headerTitle}</span>
                 <span class="popover-badge">${headerBadge}</span>
@@ -384,7 +384,7 @@ export function getEarthquakeStatsPopoverContent({ level = 8, count = 1, isCombo
 
         return {
             header: `
-                <orecalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${titleText}</span>
                     <span class="popover-badge">${escapeHTML(spellBadgeText)}</span>
@@ -496,7 +496,7 @@ export function getEarthquakeStatsPopoverContent({ level = 8, count = 1, isCombo
 
     return {
         header: `
-            <orecalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" class="popover-img"></orecalc-assets-image>
+            <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" class="popover-img"></clashcalc-assets-image>
             <div class="popover-title-group">
                 <span class="popover-title">${count}x ${escapeHTML(isCc ? ccSpellName : eqSpellName)}</span>
                 <span class="popover-badge">${escapeHTML(comboSpellBadgeText)}</span>
@@ -557,7 +557,7 @@ export function getLightningStatsPopoverContent({ level = 13, count = 1, isCombo
 
         return {
             header: `
-                <orecalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${titleText}</span>
                     <span class="popover-badge">${escapeHTML(spellBadgeText)}</span>
@@ -615,7 +615,7 @@ export function getLightningStatsPopoverContent({ level = 13, count = 1, isCombo
 
     return {
         header: `
-            <orecalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" class="popover-img"></orecalc-assets-image>
+            <clashcalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" class="popover-img"></clashcalc-assets-image>
             <div class="popover-title-group">
                 <span class="popover-title">${count}x ${escapeHTML(isCc ? ccZapName : zapSpellName)}</span>
                 <span class="popover-badge">${escapeHTML(spellBadgeText)}</span>

@@ -78,8 +78,8 @@ function buildDrawerMetricsHtml(statsList, profileSummary) {
         const positionClass = index === 0 ? 'navigation-drawer__context-metric--left' : 'navigation-drawer__context-metric--right';
 
         const iconHtml = iconType === 'image'
-            ? `<orecalc-assets-image class="navigation-drawer__context-metric-icon" src="${escapeHtml(iconSrc)}" alt="${escapeHtml(label)}" size="thumbnail"></orecalc-assets-image>`
-            : `<orecalc-assets-svg name="${escapeHtml(iconName)}" class="navigation-drawer__context-metric-icon"></orecalc-assets-svg>`;
+            ? `<clashcalc-assets-image class="navigation-drawer__context-metric-icon" src="${escapeHtml(iconSrc)}" alt="${escapeHtml(label)}" size="thumbnail"></clashcalc-assets-image>`
+            : `<clashcalc-assets-svg name="${escapeHtml(iconName)}" class="navigation-drawer__context-metric-icon"></clashcalc-assets-svg>`;
 
         const metricMarkup = `
             <div class="navigation-drawer__context-metric ${positionClass}">
@@ -175,7 +175,7 @@ export function renderNavigationDrawerContent(options = {}) {
                 soonBtn.dataset.tool = item.id;
                 soonBtn.innerHTML = `
                     <span class="navigation-drawer__dock-badge-soon">${escapeHtml(translate('views.settings.badges.comingSoon') || 'Soon')}</span>
-                    <orecalc-assets-svg name="${item.iconActive}"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="${item.iconActive}"></clashcalc-assets-svg>
                     <span>${escapeHtml(item.label)}</span>
                 `;
                 dockContainer.appendChild(soonBtn);
@@ -189,7 +189,7 @@ export function renderNavigationDrawerContent(options = {}) {
                 }
                 const iconName = item.isActive ? item.iconActive : item.iconInactive;
                 btn.innerHTML = `
-                    <orecalc-assets-svg name="${iconName}"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="${iconName}"></clashcalc-assets-svg>
                     <span>${escapeHtml(item.label)}</span>
                 `;
                 dockContainer.appendChild(btn);
@@ -209,7 +209,7 @@ export function renderNavigationDrawerContent(options = {}) {
             contextCard.innerHTML = `
                 <div class="navigation-drawer__context-guest-left">
                     <div class="navigation-drawer__context-guest-icon-wrapper">
-                        <orecalc-assets-svg name="search"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="search"></clashcalc-assets-svg>
                     </div>
                     <div class="navigation-drawer__context-guest-info">
                         <div class="navigation-drawer__context-guest-title">${escapeHtml(translate('nav.context.noVillage') || 'No Village Loaded')}</div>
@@ -250,7 +250,7 @@ export function renderNavigationDrawerContent(options = {}) {
                 <div class="navigation-drawer__context-header">
                     <div class="navigation-drawer__context-identity">
                         <div class="navigation-drawer__context-th-wrapper">
-                            <orecalc-assets-image class="navigation-drawer__context-th" src="assets/th/th${summary.thLevel}.png" alt="Town Hall ${summary.thLevel}" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image class="navigation-drawer__context-th" src="assets/th/th${summary.thLevel}.png" alt="Town Hall ${summary.thLevel}" size="standard"></clashcalc-assets-image>
                         </div>
                         <div class="navigation-drawer__context-player-info">
                             <div class="navigation-drawer__context-name-row">
@@ -261,7 +261,7 @@ export function renderNavigationDrawerContent(options = {}) {
                                 ${summary.leagueIcon ? `
                                     <span class="navigation-drawer__context-meta-bullet" aria-hidden="true">&bull;</span>
                                     <span class="navigation-drawer__context-trophies" title="${escapeHtml(summary.leagueName)}">
-                                        <orecalc-assets-image class="navigation-drawer__context-league-icon" src="${escapeHtml(summary.leagueIcon)}" alt="${escapeHtml(summary.leagueName)}" size="thumbnail"></orecalc-assets-image>
+                                        <clashcalc-assets-image class="navigation-drawer__context-league-icon" src="${escapeHtml(summary.leagueIcon)}" alt="${escapeHtml(summary.leagueName)}" size="thumbnail"></clashcalc-assets-image>
                                         ${summary.trophies > 0 ? `${escapeHtml(formatNumber(summary.trophies))}` : ''}
                                     </span>
                                 ` : ''}
@@ -270,7 +270,7 @@ export function renderNavigationDrawerContent(options = {}) {
                     </div>
                     ${hasMultipleAccounts ? `
                         <button type="button" class="navigation-drawer__context-switch-btn" aria-label="${escapeHtml(translate('nav.context.switchVillage') || 'Switch Village')}" aria-expanded="false" title="${escapeHtml(translate('nav.context.switchVillage') || 'Switch Village')}">
-                            <orecalc-assets-svg name="chevron-down"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="chevron-down"></clashcalc-assets-svg>
                         </button>
                     ` : ''}
                 </div>
@@ -282,7 +282,7 @@ export function renderNavigationDrawerContent(options = {}) {
                             return `
                                 <button type="button" class="navigation-drawer__context-switcher-item ${isCurrent ? 'is-active' : ''}" data-tag="${escapeHtml(p.cleanTag)}">
                                     <div class="navigation-drawer__context-switcher-item-left">
-                                        <orecalc-assets-image class="navigation-drawer__context-switcher-th" src="assets/th/th${pTh}.png" alt="TH${pTh}" size="thumbnail"></orecalc-assets-image>
+                                        <clashcalc-assets-image class="navigation-drawer__context-switcher-th" src="assets/th/th${pTh}.png" alt="TH${pTh}" size="thumbnail"></clashcalc-assets-image>
                                         <span class="navigation-drawer__context-switcher-name">${escapeHtml(p.name)}</span>
                                     </div>
                                     <span class="navigation-drawer__context-switcher-tag">${escapeHtml(p.tag)}</span>
@@ -376,7 +376,7 @@ export function renderNavigationDrawerContent(options = {}) {
                 }
 
                 el.innerHTML = `
-                    <orecalc-assets-svg name="${escapeHtml(currentIconName)}" fill="${isActive ? 'var(--accent-primary)' : 'var(--text-secondary)'}"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="${escapeHtml(currentIconName)}" fill="${isActive ? 'var(--accent-primary)' : 'var(--text-secondary)'}"></clashcalc-assets-svg>
                     <span ${item.labelKey ? `data-i18n="${item.labelKey}"` : (item.i18nKey ? `data-i18n="${item.i18nKey}"` : '')}>${escapeHtml(labelText)}</span>
                     ${item.badge ? `<span class="navigation-drawer__tab-badge">${escapeHtml(item.badge)}</span>` : ''}
                 `;
@@ -413,7 +413,7 @@ export function renderNavigationDrawerContent(options = {}) {
                 }
 
                 button.innerHTML = `
-                    <orecalc-assets-svg name="${currentIconName}" fill="${isActive ? 'var(--accent-primary)' : 'var(--text-secondary)'}"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="${currentIconName}" fill="${isActive ? 'var(--accent-primary)' : 'var(--text-secondary)'}"></clashcalc-assets-svg>
                     <span data-i18n="${tab.i18nKey}">${escapeHtml(translate(tab.i18nKey))}</span>
                 `;
 
@@ -454,7 +454,7 @@ export function renderNavigationDrawerContent(options = {}) {
                 }
 
                 button.innerHTML = `
-                    <orecalc-assets-svg name="${currentIcon}" fill="${isActive ? 'var(--accent-primary)' : 'var(--text-secondary)'}"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="${currentIcon}" fill="${isActive ? 'var(--accent-primary)' : 'var(--text-secondary)'}"></clashcalc-assets-svg>
                     <span>${escapeHtml(view.title)}</span>
                 `;
 
@@ -492,9 +492,9 @@ export function renderNavigationDrawerContent(options = {}) {
             el.dataset.actionId = item.id;
 
             el.innerHTML = `
-                <orecalc-assets-svg name="${item.icon}" fill="var(--text-secondary)"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="${item.icon}" fill="var(--text-secondary)"></clashcalc-assets-svg>
                 <span class="tab-label">${escapeHtml(item.title)}</span>
-                ${isModal ? '' : '<orecalc-assets-svg name="open-in-new" class="open-in-icon" fill="var(--text-secondary)"></orecalc-assets-svg>'}
+                ${isModal ? '' : '<clashcalc-assets-svg name="open-in-new" class="open-in-icon" fill="var(--text-secondary)"></clashcalc-assets-svg>'}
             `;
 
             if (isModal) {

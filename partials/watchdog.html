@@ -47,7 +47,7 @@
         try {
             var isStorageAvailable = false;
             try {
-                var testKey = '__orecalc_storage_test__';
+                var testKey = '__clashcalc_storage_test__';
                 localStorage.setItem(testKey, '1');
                 isStorageAvailable = localStorage.getItem(testKey) === '1';
                 localStorage.removeItem(testKey);

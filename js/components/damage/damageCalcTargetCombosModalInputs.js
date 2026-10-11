@@ -195,7 +195,7 @@ export function attachTargetCombosModalListeners(state, modalBody, onStateChange
             const hasCustomOverride = Boolean(listResult.selectedSig && listResult.selectedSig !== listResult.optimalSig);
             resetWrap.innerHTML = hasCustomOverride ? `
                 <button type="button" class="calc-target-combos-overview__reset-btn" data-action="reset-to-optimal" data-defense-key="${defenseKey}">
-                    <orecalc-assets-svg name="undo" width="12" height="12"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="undo" width="12" height="12"></clashcalc-assets-svg>
                     <span data-i18n="actions.reset">${translate('actions.reset')}</span>
                 </button>
             ` : '';

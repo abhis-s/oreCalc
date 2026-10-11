@@ -197,7 +197,7 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
         const activeRecRes = resolveModifierRecommendation(rec, activeModifierTab, userTH, calculatedMaxLevel);
         const activeTargetLevel = activeRecRes.targetRecLevel;
         const isRecTarget = !isEquipmentMaxed && activeTargetLevel && levelNumber === activeTargetLevel;
-        const recTargetIcon = isRecTarget ? `<orecalc-assets-svg name="thumbs-up" class="rec-level-icon" title="${escapeHTML(translate('views.equipment.targetLevel'))}"></orecalc-assets-svg>` : '';
+        const recTargetIcon = isRecTarget ? `<clashcalc-assets-svg name="thumbs-up" class="rec-level-icon" title="${escapeHTML(translate('views.equipment.targetLevel'))}"></clashcalc-assets-svg>` : '';
 
         const thText = translate('views.equipment.thShort', { level: reqTH });
 
@@ -210,7 +210,7 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
                 ${starryCellHTML}
                 <td>
                     <div class="th-req-cell">
-                        <orecalc-assets-image src="assets/th/th${reqTH}.png" alt="${thText}" class="th-cell-img"></orecalc-assets-image>
+                        <clashcalc-assets-image src="assets/th/th${reqTH}.png" alt="${thText}" class="th-cell-img"></clashcalc-assets-image>
                         <span>${thText}</span>
                     </div>
                 </td>

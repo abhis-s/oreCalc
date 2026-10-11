@@ -94,7 +94,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         infoBtn.dataset.info = 'views.planner.heroCarouselHelp';
         infoBtn.setAttribute('aria-label', translate('actions.showInfo'));
         infoBtn.dataset.i18nAriaLabel = 'actions.showInfo';
-        infoBtn.innerHTML = '<orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>';
+        infoBtn.innerHTML = '<clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>';
         infoAndName.appendChild(infoBtn);
 
         headerSection.appendChild(infoAndName);

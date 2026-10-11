@@ -113,7 +113,7 @@ export function renderSupercellEvents(referenceDate = new Date()) {
         })();
         let eventNameHtml = translatedEventName;
         if (event.name === 'World Finals') {
-            eventNameHtml = `<span class="world-finals-wrapper"><orecalc-assets-image src="assets/crown.png" alt="${translate('app.alts.crown')}" class="world-finals-crown"></orecalc-assets-image>${translatedEventName}</span>`;
+            eventNameHtml = `<span class="world-finals-wrapper"><clashcalc-assets-image src="assets/crown.png" alt="${translate('app.alts.crown')}" class="world-finals-crown"></clashcalc-assets-image>${translatedEventName}</span>`;
         }
 
         let labelHtml = event.label || 'TBD';

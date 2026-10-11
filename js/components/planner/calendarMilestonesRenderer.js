@@ -37,9 +37,9 @@ export function handleEquipmentBadgeMouseEnter(e, item) {
     if (item.requiredOres) {
         requiredHtml = `
             <div class="tooltip-req-ores">
-                ${item.requiredOres.shiny > 0 ? `<span>${formatNumber(item.requiredOres.shiny)} <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}"></orecalc-assets-image></span>` : ''}
-                ${item.requiredOres.glowy > 0 ? `<span>${formatNumber(item.requiredOres.glowy)} <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}"></orecalc-assets-image></span>` : ''}
-                ${item.requiredOres.starry > 0 ? `<span>${formatNumber(item.requiredOres.starry)} <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}"></orecalc-assets-image></span>` : ''}
+                ${item.requiredOres.shiny > 0 ? `<span>${formatNumber(item.requiredOres.shiny)} <clashcalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}"></clashcalc-assets-image></span>` : ''}
+                ${item.requiredOres.glowy > 0 ? `<span>${formatNumber(item.requiredOres.glowy)} <clashcalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}"></clashcalc-assets-image></span>` : ''}
+                ${item.requiredOres.starry > 0 ? `<span>${formatNumber(item.requiredOres.starry)} <clashcalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}"></clashcalc-assets-image></span>` : ''}
             </div>
         `;
     }
@@ -132,7 +132,7 @@ export function handleDayCellMouseEnter(e, activeEquipmentSchedule = { ranges: [
             <div class="tooltip-in-progress">
                 <div class="in-progress-title">${translate('views.income.ores.byLabel')}: ${compDateFormatted}</div>
                 <div class="in-progress-badge" style="--equip-color: ${heroColor}; border-color: ${heroColor};">
-                    ${activeRange.item.image ? `<orecalc-assets-image src="${activeRange.item.image}" class="in-progress-icon" alt="${translatedItemName}"></orecalc-assets-image>` : `<span class="in-progress-fallback">${activeRange.item.name.substring(0, 2).toUpperCase()}</span>`}
+                    ${activeRange.item.image ? `<clashcalc-assets-image src="${activeRange.item.image}" class="in-progress-icon" alt="${translatedItemName}"></clashcalc-assets-image>` : `<span class="in-progress-fallback">${activeRange.item.name.substring(0, 2).toUpperCase()}</span>`}
                     <span class="in-progress-level">${lvlPrefix} ${activeRange.item.targetLevel}</span>
                 </div>
             </div>
@@ -146,9 +146,9 @@ export function handleDayCellMouseEnter(e, activeEquipmentSchedule = { ranges: [
     dayCell.setAttribute('aria-describedby', 'active-calendar-tooltip');
     tooltip.innerHTML = `
         <div class="tooltip-header">${formattedDate}</div>
-        <div class="ore-count-item"><span>${formatNumber(cumulativeOres.shiny)}</span> <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" class="ore-icon-small"></orecalc-assets-image></div>
-        <div class="ore-count-item"><span>${formatNumber(cumulativeOres.glowy)}</span> <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" class="ore-icon-small"></orecalc-assets-image></div>
-        <div class="ore-count-item"><span>${formatNumber(cumulativeOres.starry)}</span> <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" class="ore-icon-small"></orecalc-assets-image></div>
+        <div class="ore-count-item"><span>${formatNumber(cumulativeOres.shiny)}</span> <clashcalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" class="ore-icon-small"></clashcalc-assets-image></div>
+        <div class="ore-count-item"><span>${formatNumber(cumulativeOres.glowy)}</span> <clashcalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" class="ore-icon-small"></clashcalc-assets-image></div>
+        <div class="ore-count-item"><span>${formatNumber(cumulativeOres.starry)}</span> <clashcalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" class="ore-icon-small"></clashcalc-assets-image></div>
         ${inProgressHtml}
     `;
 

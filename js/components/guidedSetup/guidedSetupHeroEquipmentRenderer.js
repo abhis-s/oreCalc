@@ -55,7 +55,7 @@ export function renderHeroEquipmentList(playerData, equipmentListContainer) {
             heroBadge.classList.add('max-level');
         }
 
-        const heroImg = document.createElement('orecalc-assets-image');
+        const heroImg = document.createElement('clashcalc-assets-image');
         heroImg.setAttribute('class', 'guided-setup-hero-img');
         heroImg.setAttribute('src', heroInfo.image);
         heroImg.setAttribute('alt', heroInfo.name);
@@ -100,7 +100,7 @@ export function renderHeroEquipmentList(playerData, equipmentListContainer) {
             const imgContainer = document.createElement('div');
             imgContainer.className = 'equipment-image-container';
 
-            const equipImg = document.createElement('orecalc-assets-image');
+            const equipImg = document.createElement('clashcalc-assets-image');
             equipImg.setAttribute('src', equip.image);
             equipImg.setAttribute('alt', equip.name);
             equipImg.setAttribute('class', 'equipment-image');

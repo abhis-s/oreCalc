@@ -79,7 +79,7 @@ export function renderLabeledActions(containerSelector, data) {
             infoBtn.dataset.info = item.i18nHelp;
             infoBtn.setAttribute('aria-label', translate('actions.showInfo'));
             infoBtn.dataset.i18nAriaLabel = 'actions.showInfo';
-            infoBtn.innerHTML = '<orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>';
+            infoBtn.innerHTML = '<clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>';
 
             label.style.display = 'flex';
             label.style.alignItems = 'center';

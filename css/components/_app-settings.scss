@@ -31,6 +31,7 @@
         fill: currentColor;
     }
 
+    clashcalc-assets-svg,
     orecalc-assets-svg {
         display: flex;
         align-items: center;
@@ -39,6 +40,7 @@
     }
 
     &:hover:not(:disabled) {
+        clashcalc-assets-svg,
         orecalc-assets-svg {
             transform: rotate(90deg);
         }
@@ -59,6 +61,7 @@
             transform: translateY(0);
         }
 
+        clashcalc-assets-svg,
         orecalc-assets-svg {
             transform: rotate(90deg);
         }
@@ -178,6 +181,7 @@
                     color: $text-secondary;
 
                     svg,
+                    clashcalc-assets-svg,
                     orecalc-assets-svg {
                         fill: currentColor;
                         display: block;
@@ -241,6 +245,7 @@
                     pointer-events: none;
 
                     svg,
+                    clashcalc-assets-svg,
                     orecalc-assets-svg {
                         fill: currentColor;
                         display: block;

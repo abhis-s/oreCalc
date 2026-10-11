@@ -21,14 +21,14 @@ export function renderGemTraderRow(offer, offerState) {
 
     const costDisplay = document.createElement('div');
     costDisplay.className = 'offer-cost-display';
-    costDisplay.innerHTML = `<orecalc-assets-image src="assets/resources/gem.png" alt="${translate('views.income.ores.gem')}" class="ore-image gem-icon" size="thumbnail"></orecalc-assets-image> ${formatNumber(offer.cost)}`;
+    costDisplay.innerHTML = `<clashcalc-assets-image src="assets/resources/gem.png" alt="${translate('views.income.ores.gem')}" class="ore-image gem-icon" size="thumbnail"></clashcalc-assets-image> ${formatNumber(offer.cost)}`;
 
     const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
     const oreValue = offer.shiny || offer.glowy || offer.starry;
     const oreImage = `assets/${oreType}_ore.png`;
     const oreDisplay = document.createElement('div');
     oreDisplay.className = 'offer-ore-display';
-    oreDisplay.innerHTML = `<span>${formatNumber(oreValue)}</span><orecalc-assets-image src="${oreImage}" alt="${translate('entities.ores.' + oreType)}" class="ore-image" size="thumbnail"></orecalc-assets-image>`;
+    oreDisplay.innerHTML = `<span>${formatNumber(oreValue)}</span><clashcalc-assets-image src="${oreImage}" alt="${translate('entities.ores.' + oreType)}" class="ore-image" size="thumbnail"></clashcalc-assets-image>`;
 
     const oreName = translate('entities.ores.' + oreType);
     const offerName = `${formatNumber(oreValue)} ${oreName}`;

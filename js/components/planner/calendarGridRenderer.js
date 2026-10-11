@@ -276,7 +276,7 @@ export function createDayCell(date, plannerState, activeEquipmentSchedule = { mi
                 badge.style.setProperty('--equip-color', getHeroColor(item.heroName));
 
                 if (item.image) {
-                    const img = document.createElement('orecalc-assets-image');
+                    const img = document.createElement('clashcalc-assets-image');
                     img.setAttribute('src', item.image);
                     img.classList.add('calendar-equipment-icon');
                     badge.appendChild(img);

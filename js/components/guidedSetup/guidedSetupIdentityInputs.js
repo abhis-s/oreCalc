@@ -83,7 +83,7 @@ export function renderSavedProfilesList(onSelectProfile) {
 
         card.innerHTML = `
             <div class="account-card-th">
-                <orecalc-assets-image class="th-mini-img" src="assets/th/th${thLevel}.png" alt="TH${thLevel}" size="standard"></orecalc-assets-image>
+                <clashcalc-assets-image class="th-mini-img" src="assets/th/th${thLevel}.png" alt="TH${thLevel}" size="standard"></clashcalc-assets-image>
                 <span class="th-mini-level">${thLevel}</span>
             </div>
             <div class="account-card-player">
@@ -92,16 +92,16 @@ export function renderSavedProfilesList(onSelectProfile) {
             </div>
             <div class="account-card-meta">
                 <div class="account-card-clan">
-                    ${clanBadge ? `<orecalc-assets-image class="clan-badge-img-tiny" src="${clanBadge}" alt="" size="standard"></orecalc-assets-image>` : ''}
+                    ${clanBadge ? `<clashcalc-assets-image class="clan-badge-img-tiny" src="${clanBadge}" alt="" size="standard"></clashcalc-assets-image>` : ''}
                     <span class="clan-name-text">${escapeHTML(clanName || translate('views.guidedSetup.noClan'))}</span>
                 </div>
                 <div class="account-card-stats">
                     <span class="account-card-trophies">
-                        <orecalc-assets-svg name="trophy" width="11" height="11" class="trophy-icon-mini trophy-icon-amber" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="trophy" width="11" height="11" class="trophy-icon-mini trophy-icon-amber" aria-hidden="true"></clashcalc-assets-svg>
                         <span>${trophies != null ? formatNumber(Number(trophies) || 0) : 0}</span>
                     </span>
                     <span class="account-card-league" title="${escapeHTML(leagueNameDisplay)}">
-                        <orecalc-assets-image class="league-badge-img-tiny" src="${leagueIcon}" alt="${escapeHTML(leagueNameDisplay)}" size="standard"></orecalc-assets-image>
+                        <clashcalc-assets-image class="league-badge-img-tiny" src="${leagueIcon}" alt="${escapeHTML(leagueNameDisplay)}" size="standard"></clashcalc-assets-image>
                     </span>
                 </div>
             </div>

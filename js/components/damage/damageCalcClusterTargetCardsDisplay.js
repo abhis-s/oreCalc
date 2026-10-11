@@ -95,12 +95,12 @@ export function renderClusterTargetCardsHtml({
                 flowStepsHtml.push(`
                     <div class="cluster-target-card__damage-step cluster-target-card__equip-stage">
                         <span class="cluster-target-card__equip-pill" title="${escapeHTML(equipName)}">
-                            <orecalc-assets-image
+                            <clashcalc-assets-image
                                 src="${equip?.icon || ''}"
                                 alt="${escapeHTML(equipName)}"
                                 class="cluster-target-card__spell-icon"
                                 size="thumbnail">
-                            </orecalc-assets-image>
+                            </clashcalc-assets-image>
                             <span>-${formatNumber(effectiveDmg)} ${hpUnit}</span>
                         </span>
                     </div>
@@ -128,12 +128,12 @@ export function renderClusterTargetCardsHtml({
                     <div class="cluster-target-card__damage-step cluster-target-card__eq-stage">
                         <span class="cluster-target-card__eq-pill" title="${neededEqCount}x ${escapeHTML(eqLabel)}">
                             <span class="cluster-target-card__spell-count">${neededEqCount}x</span>
-                            <orecalc-assets-image
+                            <clashcalc-assets-image
                                 src="/assets/spells/earthquake.png"
                                 alt="Earthquake"
                                 class="cluster-target-card__spell-icon"
                                 size="thumbnail">
-                            </orecalc-assets-image>
+                            </clashcalc-assets-image>
                             <span>-${formatNumber(effectiveEqDmg)} ${hpUnit}</span>
                         </span>
                     </div>
@@ -155,12 +155,12 @@ export function renderClusterTargetCardsHtml({
                     <div class="cluster-target-card__damage-step cluster-target-card__zap-stage">
                         <span class="cluster-target-card__zap-pill" title="${actualZapCount}x ${escapeHTML(zapLabel)}">
                             <span class="cluster-target-card__spell-count">${actualZapCount}x</span>
-                            <orecalc-assets-image
+                            <clashcalc-assets-image
                                 src="/assets/spells/lightning.png"
                                 alt="Lightning"
                                 class="cluster-target-card__spell-icon"
                                 size="thumbnail">
-                            </orecalc-assets-image>
+                            </clashcalc-assets-image>
                             <span>-${formatNumber(effectiveZapDmg)} ${hpUnit}</span>
                         </span>
                     </div>
@@ -194,7 +194,7 @@ export function renderClusterTargetCardsHtml({
                         data-pair="0-1"
                         role="switch"
                         aria-checked="${isLinked}">
-                        <orecalc-assets-svg name="zap-filled" width="13" height="13"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="zap-filled" width="13" height="13"></clashcalc-assets-svg>
                         <span>${escapeHTML(translate('views.damageCalc.zapQuake.sharedLightningToggle') || 'Shared Lightning')}</span>
                     </button>
                 </div>
@@ -217,8 +217,8 @@ export function renderClusterTargetCardsHtml({
                             aria-checked="${isLinked}"
                             aria-label="${escapeHTML(otherName)} (#${otherIdx + 1})"
                             title="${escapeHTML(otherName)}">
-                            <orecalc-assets-svg name="zap-filled" width="11" height="11" class="calc-adjacent-toggle__zap"></orecalc-assets-svg>
-                            <orecalc-assets-image src="${otherThumb}" alt="" size="thumbnail" class="calc-adjacent-toggle__thumb"></orecalc-assets-image>
+                            <clashcalc-assets-svg name="zap-filled" width="11" height="11" class="calc-adjacent-toggle__zap"></clashcalc-assets-svg>
+                            <clashcalc-assets-image src="${otherThumb}" alt="" size="thumbnail" class="calc-adjacent-toggle__thumb"></clashcalc-assets-image>
                             <span class="calc-adjacent-toggle__index">#${otherIdx + 1}</span>
                             <span class="calc-adjacent-toggle__name">${escapeHTML(otherName)}</span>
                         </button>
@@ -252,17 +252,17 @@ export function renderClusterTargetCardsHtml({
                 <div class="cluster-target-card__header">
                     <div class="cluster-target-card__identity">
                         <span class="cluster-target-card__index">#${idx + 1}</span>
-                        <orecalc-assets-image
+                        <clashcalc-assets-image
                             src="${getBuildingAssetUrl(tgt.defenseKey, defLvl)}"
                             alt="${escapeHTML(defName)}"
                             class="cluster-target-card__thumb"
                             size="thumbnail">
-                        </orecalc-assets-image>
+                        </clashcalc-assets-image>
                         <div class="cluster-target-card__meta">
                             <div class="cluster-target-card__name-row">
                                 <span class="cluster-target-card__name">${escapeHTML(defName)}</span>
                                 <button type="button" class="calc-info-btn" data-cluster-target-info="true" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
-                                    <orecalc-assets-svg name="info" width="12" height="12"></orecalc-assets-svg>
+                                    <clashcalc-assets-svg name="info" width="12" height="12"></clashcalc-assets-svg>
                                 </button>
                             </div>
                             <span class="cluster-target-card__level">

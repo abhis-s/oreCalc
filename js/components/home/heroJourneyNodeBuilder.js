@@ -95,7 +95,7 @@ export function createNodeChipElement(node, ctx) {
     }
 
     const isEquipment = node.type === 'equipment';
-    const mainImg = document.createElement('orecalc-assets-image');
+    const mainImg = document.createElement('clashcalc-assets-image');
     mainImg.setAttribute('src', displayIcon);
     mainImg.setAttribute('alt', nodeAltText);
     mainImg.className = isEquipment ? 'node-icon node-icon-primary' : 'node-icon';
@@ -121,7 +121,7 @@ export function createNodeChipElement(node, ctx) {
             compItem.className = `node-companion-item ${statusCls}`;
             compItem.title = compTitle;
 
-            const compImg = document.createElement('orecalc-assets-image');
+            const compImg = document.createElement('clashcalc-assets-image');
             compImg.setAttribute('src', comp.icon);
             compImg.setAttribute('alt', compTitle);
             compImg.className = 'node-companion-icon';
@@ -134,7 +134,7 @@ export function createNodeChipElement(node, ctx) {
         const questBadge = document.createElement('div');
         questBadge.className = 'node-quest-badge';
 
-        const badgeImg = document.createElement('orecalc-assets-image');
+        const badgeImg = document.createElement('clashcalc-assets-image');
         badgeImg.setAttribute('src', badgeIcon);
         badgeImg.setAttribute('alt', translate('views.heroJourney.nodes.questBadgeAlt'));
         badgeImg.dataset.i18nAlt = 'views.heroJourney.nodes.questBadgeAlt';
@@ -237,9 +237,9 @@ export function updateNodeTitleAndSub(titleElem, subElem, node, resolvedNode, is
                     boostIcon = getSVG('chevron-up', 'ore-th-boost-icon', 13, 13);
                 }
 
-                const shinyImg = `<orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" class="sub-ore-icon"></orecalc-assets-image>`;
-                const glowyImg = `<orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" class="sub-ore-icon"></orecalc-assets-image>`;
-                const starryImg = `<orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" class="sub-ore-icon"></orecalc-assets-image>`;
+                const shinyImg = `<clashcalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" class="sub-ore-icon"></clashcalc-assets-image>`;
+                const glowyImg = `<clashcalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" class="sub-ore-icon"></clashcalc-assets-image>`;
+                const starryImg = `<clashcalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" class="sub-ore-icon"></clashcalc-assets-image>`;
 
                 subElem.className = 'node-sub node-sub-ores';
                 subElem.innerHTML =

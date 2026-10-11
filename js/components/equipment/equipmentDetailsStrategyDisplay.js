@@ -30,31 +30,31 @@ export function renderRecommendationBadge(recBadge, data, equipmentName, rec, ac
 
     if (isUnreleased) {
         recBadge.style.display = 'inline-flex';
-        recBadge.innerHTML = `<orecalc-assets-svg name="experiment" class="badge-icon"></orecalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
+        recBadge.innerHTML = `<clashcalc-assets-svg name="experiment" class="badge-icon"></clashcalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
         recBadge.className = 'eq-badge badge-unreleased';
         recBadge.setAttribute('data-info', 'views.equipment.recUnreleasedHelp');
     } else if (isMustHave) {
         recBadge.style.display = 'inline-flex';
         const recText = levelDisplay ? `${translate('views.equipment.mustHave')}: ${levelDisplay}` : translate('views.equipment.mustHave');
-        recBadge.innerHTML = `<orecalc-assets-svg name="thumbs-double" class="badge-icon"></orecalc-assets-svg> <span>${recText}</span>`;
+        recBadge.innerHTML = `<clashcalc-assets-svg name="thumbs-double" class="badge-icon"></clashcalc-assets-svg> <span>${recText}</span>`;
         recBadge.className = 'eq-badge badge-must-have';
         recBadge.setAttribute('data-info', 'views.equipment.recMustHaveHelp');
     } else if (isNotRecommended) {
         recBadge.style.display = 'inline-flex';
         const notRecText = translate('views.equipment.notRecommended');
-        recBadge.innerHTML = `<orecalc-assets-svg name="thumbs-down" class="badge-icon"></orecalc-assets-svg> <span>${notRecText}</span>`;
+        recBadge.innerHTML = `<clashcalc-assets-svg name="thumbs-down" class="badge-icon"></clashcalc-assets-svg> <span>${notRecText}</span>`;
         recBadge.className = 'eq-badge badge-not-recommended';
         recBadge.setAttribute('data-info', 'views.equipment.recNotRecommendedHelp');
     } else if (isNiche) {
         recBadge.style.display = 'inline-flex';
         const recText = levelDisplay ? `${translate('views.equipment.niche')}: ${levelDisplay}` : translate('views.equipment.niche');
-        recBadge.innerHTML = `<orecalc-assets-svg name="extension" class="badge-icon"></orecalc-assets-svg> <span>${recText}</span>`;
+        recBadge.innerHTML = `<clashcalc-assets-svg name="extension" class="badge-icon"></clashcalc-assets-svg> <span>${recText}</span>`;
         recBadge.className = 'eq-badge badge-niche';
         recBadge.setAttribute('data-info', 'views.equipment.recNicheHelp');
     } else if (isRecommended) {
         recBadge.style.display = 'inline-flex';
         const recText = levelDisplay ? `${translate('validation.recommended')}: ${levelDisplay}` : translate('validation.recommended');
-        recBadge.innerHTML = `<orecalc-assets-svg name="thumbs-up" class="badge-icon"></orecalc-assets-svg> <span>${recText}</span>`;
+        recBadge.innerHTML = `<clashcalc-assets-svg name="thumbs-up" class="badge-icon"></clashcalc-assets-svg> <span>${recText}</span>`;
         recBadge.className = 'eq-badge badge-recommended';
         recBadge.setAttribute('data-info', 'views.equipment.recRecommendedHelp');
     } else {
@@ -130,7 +130,7 @@ export function renderStrategyBanner(recBannerContainer, unhideNoteBtn, equipId,
                 <div class="eq-details-desc-banner rec-banner-card app-message-box ${bannerThemeClass}">
                     <div class="banner-messages-wrapper app-message-box-content">
                         <div class="banner-message app-message-box-item">
-                            <orecalc-assets-svg name="${bannerIconName}" class="banner-icon"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="${bannerIconName}" class="banner-icon"></clashcalc-assets-svg>
                             <span class="banner-text">${noteText}</span>
                         </div>
                     </div>

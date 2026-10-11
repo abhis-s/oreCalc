@@ -146,16 +146,16 @@ export function renderBuildingGridCardsHtml({
                 aria-label="${escapeHTML(defDisplayName)} (${getLvlShort(d)} ${cardLevel})"
                 title="${escapeHTML(defDisplayName)}">
                 <div class="calc-building-card__img-wrapper">
-                    <orecalc-assets-image
+                    <clashcalc-assets-image
                         src="${getBuildingAssetUrl(k, cardLevel)}"
                         alt="${escapeHTML(defDisplayName)}"
                         class="calc-building-card__img"
                         size="standard">
-                    </orecalc-assets-image>
+                    </clashcalc-assets-image>
                     ${isInCluster ? `<span class="calc-building-card__cluster-badge">${clusterIndex + 1}</span>` : ''}
                     ${isCrafted ? `
                         <span class="calc-building-card__seasonal-badge" title="${escapeHTML(translate('views.damageCalc.filters.craftedDefenseTooltip'))}">
-                            <orecalc-assets-svg name="timer" width="14" height="14"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="timer" width="14" height="14"></clashcalc-assets-svg>
                         </span>
                     ` : ''}
                 </div>
@@ -243,11 +243,11 @@ export function renderBuildingSelectionGrid({
             chipItemsHtml += `
                 <div class="calc-cluster-chip ${isTargetActive}" data-cluster-index="${idx}" title="${escapeHTML(defName)} (${getLvlShort(target.defenseKey)} ${target.level})">
                     <span class="calc-cluster-chip__index">#${idx + 1}</span>
-                    <orecalc-assets-image src="${thumbUrl}" alt="${escapeHTML(defName)}" size="thumbnail" class="calc-cluster-chip__thumb"></orecalc-assets-image>
+                    <clashcalc-assets-image src="${thumbUrl}" alt="${escapeHTML(defName)}" size="thumbnail" class="calc-cluster-chip__thumb"></clashcalc-assets-image>
                     <span class="calc-cluster-chip__level">${getLvlShort(target.defenseKey)} ${target.level}</span>
                     ${superchargeHtml}
                     <button type="button" class="calc-cluster-chip__remove" data-cluster-remove="${idx}" aria-label="${escapeHTML(translate('actions.remove'))}: ${escapeHTML(defName)}">
-                        <orecalc-assets-svg name="close" width="10" height="10"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="close" width="10" height="10"></clashcalc-assets-svg>
                     </button>
                 </div>
             `;
@@ -257,7 +257,7 @@ export function renderBuildingSelectionGrid({
             chipItemsHtml = `
                 <div class="calc-cluster-toolbar__empty-hint">
                     <span class="calc-cluster-toolbar__empty-prompt">
-                        <orecalc-assets-svg name="plus" width="12" height="12" class="calc-cluster-toolbar__empty-icon"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="plus" width="12" height="12" class="calc-cluster-toolbar__empty-icon"></clashcalc-assets-svg>
                         <span data-i18n="views.damageCalc.clusterPlanner.clusterEmptyToolbarPrompt">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterEmptyToolbarPrompt') || 'Select defenses below to add to cluster (min. 2, max. 5)')}</span>
                     </span>
                     <div class="calc-cluster-ghost-slots" aria-hidden="true">
@@ -280,7 +280,7 @@ export function renderBuildingSelectionGrid({
 
         const noticeHtml = selectedCluster.length >= 2
             ? `<div class="calc-cluster-notice">
-                <orecalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}" data-i18n-alt="views.damageCalc.offense.spellEarthquake" size="thumbnail" class="calc-cluster-notice__icon"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}" data-i18n-alt="views.damageCalc.offense.spellEarthquake" size="thumbnail" class="calc-cluster-notice__icon"></clashcalc-assets-image>
                 <span data-i18n="views.damageCalc.clusterPlanner.clusterSharedNotice">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterSharedNotice') || 'Shared Earthquake damage applied across cluster')}</span>
             </div>`
             : '';
@@ -289,7 +289,7 @@ export function renderBuildingSelectionGrid({
             <div class="calc-cluster-toolbar${selectedCluster.length === 0 ? ' is-empty' : ''}">
                 <div class="calc-cluster-toolbar__header">
                     <span class="calc-cluster-toolbar__title">
-                        <orecalc-assets-svg name="swords-filled" width="16" height="16"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="swords-filled" width="16" height="16"></clashcalc-assets-svg>
                         <span data-i18n="views.damageCalc.clusterPlanner.clusterTitle">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterTitle') || 'Target Cluster')}</span>
                         ${countBadge}
                     </span>
@@ -318,7 +318,7 @@ export function renderBuildingSelectionGrid({
                 </span>
             </button>
             <button type="button" class="calc-info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
-                <orecalc-assets-svg name="info" width="14" height="14"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="info" width="14" height="14"></clashcalc-assets-svg>
             </button>
             ${multiSelectMode && selectedCluster.length > 1 ? `
                 <span class="calc-multi-counter-pill">${selectedCluster.length} Defenses</span>
@@ -338,7 +338,7 @@ export function renderBuildingSelectionGrid({
                             ${escapeHTML(translate('views.damageCalc.filters.noTargetsMatchFilter'))}
                         </p>
                         <button type="button" class="btn-secondary calc-empty-notice__btn" data-action="reset-cluster-filters">
-                            <orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
                             <span data-i18n="views.damageCalc.filters.resetFiltersBtn">${escapeHTML(translate('views.damageCalc.filters.resetFiltersBtn'))}</span>
                         </button>
                     </div>

@@ -96,19 +96,19 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
                     : translate('views.damageCalc.zapQuake.tierLabel', { tier });
 
                 const pipsHtml = tier === 0
-                    ? `<orecalc-assets-image
+                    ? `<clashcalc-assets-image
                         src="/assets/supercharge/supercharge_uncharged.png"
                         alt="${escapeHTML(tierLabel)}"
                         size="thumbnail"
                         class="calc-supercharge-pip is-uncharged">
-                    </orecalc-assets-image>`
+                    </clashcalc-assets-image>`
                     : Array.from({ length: tier }, () => `
-                        <orecalc-assets-image
+                        <clashcalc-assets-image
                             src="/assets/supercharge/supercharge_bolt.png"
                             alt="${escapeHTML(tierLabel)}"
                             size="thumbnail"
                             class="calc-supercharge-pip is-charged">
-                        </orecalc-assets-image>
+                        </clashcalc-assets-image>
                     `).join('');
 
                 scPills += `
@@ -141,12 +141,12 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
             <div class="calc-building-modal-row ${isUnavailable ? 'is-unavailable' : ''} ${isLevelSettingRestricted ? 'is-restricted' : ''}" data-building-key="${key}" data-building-name="${escapeHTML(defDisplayName.toLowerCase())}">
                 <div class="calc-building-modal-row__header">
                     <div class="calc-building-modal-row__identity">
-                        <orecalc-assets-image
+                        <clashcalc-assets-image
                             src="${assetSrc}"
                             alt="${escapeHTML(defDisplayName)}"
                             class="calc-building-modal-row__thumb"
                             size="thumbnail">
-                        </orecalc-assets-image>
+                        </clashcalc-assets-image>
                         <div class="calc-building-modal-row__meta">
                             <span class="calc-building-modal-row__name">${escapeHTML(defDisplayName)}</span>
                             ${statusBadge}
@@ -161,7 +161,7 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
                 <div class="calc-building-modal-row__controls">
                     <div class="calc-stepper-track">
                         <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="decrement" data-building-key="${key}" ${isLevelSettingRestricted || clampedLvl <= minLvl ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.decrease'))} ${escapeHTML(defDisplayName)} ${escapeHTML(translate('validation.level'))}">
-                            <orecalc-assets-svg name="minus"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="minus"></clashcalc-assets-svg>
                         </button>
                         ${renderSteppedSliderHtml({
                             min: minLvl,
@@ -179,7 +179,7 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
                             tickValues: heroTickValues
                         })}
                         <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="increment" data-building-key="${key}" ${isLevelSettingRestricted || isUnavailable || clampedLvl >= maxAllowedLevel ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.increase'))} ${escapeHTML(defDisplayName)} ${escapeHTML(translate('validation.level'))}">
-                            <orecalc-assets-svg name="plus"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="plus"></clashcalc-assets-svg>
                         </button>
                     </div>
                     ${superchargeHtml}
@@ -233,7 +233,7 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
                     <div class="calc-building-group__summary-actions">
                         ${toggleHtml}
                         ${toggleHtml ? '<span class="calc-building-group__divider" aria-hidden="true"></span>' : ''}
-                        <orecalc-assets-svg name="chevron-down" width="14" height="14" class="calc-building-group__chevron"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="calc-building-group__chevron"></clashcalc-assets-svg>
                     </div>
                 </summary>
                 <div class="calc-building-group__content">
@@ -254,19 +254,19 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
                 : translate('views.damageCalc.zapQuake.tierLabel', { tier });
 
             const pipsHtml = tier === 0
-                ? `<orecalc-assets-image
+                ? `<clashcalc-assets-image
                     src="/assets/supercharge/supercharge_uncharged.png"
                     alt="${escapeHTML(tierLabel)}"
                     size="thumbnail"
                     class="calc-supercharge-pip is-uncharged">
-                </orecalc-assets-image>`
+                </clashcalc-assets-image>`
                 : Array.from({ length: tier }, () => `
-                    <orecalc-assets-image
+                    <clashcalc-assets-image
                         src="/assets/supercharge/supercharge_bolt.png"
                         alt="${escapeHTML(tierLabel)}"
                         size="thumbnail"
                         class="calc-supercharge-pip is-charged">
-                    </orecalc-assets-image>
+                    </clashcalc-assets-image>
                 `).join('');
 
             scPillsHtml += `
@@ -312,10 +312,10 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
             </div>
         </div>
         <div class="calc-building-search-wrap">
-            <orecalc-assets-svg name="search" class="calc-search-icon" width="14" height="14" aria-hidden="true"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="search" class="calc-search-icon" width="14" height="14" aria-hidden="true"></clashcalc-assets-svg>
             <input type="search" id="calc-building-search" class="calc-building-search-input" placeholder="${escapeHTML(translate('views.damageCalc.filters.searchDefensesPlaceholder'))}" aria-label="${escapeHTML(translate('views.damageCalc.filters.searchDefensesPlaceholder'))}" autocomplete="off">
             <button type="button" class="calc-search-clear-btn is-hidden" id="calc-building-search-clear-btn" data-action="clear-defense-search-input" aria-label="${escapeHTML(translate('views.heroJourney.page.clearSearch'))}">
-                <orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
             </button>
         </div>
     `;
@@ -327,7 +327,7 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
         <div class="calc-building-empty-search is-hidden" id="calc-building-empty-search">
             <span data-i18n="views.damageCalc.filters.noDefensesFound">${escapeHTML(translate('views.damageCalc.filters.noDefensesFound'))}</span>
             <button type="button" class="btn-secondary calc-empty-notice__btn" id="calc-building-clear-search-btn" data-action="clear-defense-search">
-                <orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
                 <span data-i18n="views.heroJourney.page.clearSearch">${escapeHTML(translate('views.heroJourney.page.clearSearch'))}</span>
             </button>
         </div>

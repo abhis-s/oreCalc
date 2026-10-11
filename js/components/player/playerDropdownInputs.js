@@ -384,7 +384,7 @@ export function initializePlayerDropdown() {
                 const label = willBeCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats');
                 collapseBtn.setAttribute('aria-label', label);
                 collapseBtn.setAttribute('title', label);
-                const icon = collapseBtn.querySelector('.collapse-chevron-icon, orecalc-assets-svg');
+                const icon = collapseBtn.querySelector('.collapse-chevron-icon, clashcalc-assets-svg, orecalc-assets-svg');
                 if (icon) {
                     icon.setAttribute('name', willBeCollapsed ? 'chevron-down' : 'chevron-up');
                 }

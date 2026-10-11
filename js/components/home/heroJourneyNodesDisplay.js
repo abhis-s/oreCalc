@@ -188,7 +188,7 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
                         compItem.className = `node-companion-item ${statusCls}`;
                         compItem.title = compTitle;
 
-                        const compImg = document.createElement('orecalc-assets-image');
+                        const compImg = document.createElement('clashcalc-assets-image');
                         compImg.setAttribute('src', comp.icon);
                         compImg.setAttribute('alt', compTitle);
                         compImg.className = 'node-companion-icon';
@@ -326,7 +326,7 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
         const emptyCard = document.createElement('div');
         emptyCard.className = 'hero-journey-empty-filter-card';
         emptyCard.innerHTML = `
-            <orecalc-assets-svg name="sliders" class="empty-filter-icon"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="sliders" class="empty-filter-icon"></clashcalc-assets-svg>
             <div class="empty-filter-title">${translate('views.heroJourney.filters.emptyFilterTitle')}</div>
             <div class="empty-filter-desc">${translate('views.heroJourney.filters.emptyFilterDesc')}</div>
             <button class="th-limit-reveal-btn hero-journey-empty-filter-btn" id="home-hj-reset-filters-btn">${translate('views.heroJourney.filters.clearFilter')}</button>

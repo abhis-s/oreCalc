@@ -51,7 +51,7 @@ export function getHpUnit() {
 
 /**
  * Renders HTML markup for Supercharge level pips (charged blue bolts and uncharged dark pips).
- * Uses canonical <orecalc-assets-image> custom elements per Rule 17.
+ * Uses canonical <clashcalc-assets-image> custom elements per Rule 17.
  *
  * @param {number} currentTier - Currently active supercharge tier (0, 1, 2).
  * @param {number} [maxTiers=2] - Maximum available supercharge tiers for this structure.
@@ -71,12 +71,12 @@ export function renderSuperchargePipsHtml(currentTier, maxTiers = 2, options = {
         const src = isCharged ? chargedSrc : unchargedSrc;
         const altText = isCharged ? `${translate('views.damageCalc.offense.superchargeLabel')} · ${translate('views.damageCalc.zapQuake.tierLabel', { tier: i })}` : `${translate('views.damageCalc.offense.superchargeLabel')} (${translate('app.none')})`;
         pipsHtml += `
-            <orecalc-assets-image
+            <clashcalc-assets-image
                 src="${src}"
                 alt="${altText}"
                 size="thumbnail"
                 class="calc-supercharge-pip ${isCharged ? 'is-charged' : 'is-uncharged'}">
-            </orecalc-assets-image>
+            </clashcalc-assets-image>
         `;
     }
 
@@ -118,19 +118,19 @@ export function renderTargetLevelToolbar({
             const label = tier === 0 ? translate('app.none') : translate('views.damageCalc.zapQuake.tierLabel', { tier });
             const isActive = superchargeTier === tier;
             const pipsHtml = tier === 0
-                ? `<orecalc-assets-image
+                ? `<clashcalc-assets-image
                     src="/assets/supercharge/supercharge_uncharged.png"
                     alt="${escapeHTML(label)}"
                     size="thumbnail"
                     class="calc-supercharge-pip is-uncharged">
-                </orecalc-assets-image>`
+                </clashcalc-assets-image>`
                 : Array.from({ length: tier }, () => `
-                    <orecalc-assets-image
+                    <clashcalc-assets-image
                         src="/assets/supercharge/supercharge_bolt.png"
                         alt="${escapeHTML(label)}"
                         size="thumbnail"
                         class="calc-supercharge-pip is-charged">
-                    </orecalc-assets-image>
+                    </clashcalc-assets-image>
                 `).join('');
 
             pillsHtml += `
@@ -146,7 +146,7 @@ export function renderTargetLevelToolbar({
         superchargeHtml = `
             <div class="calc-supercharge-wrapper">
                 <button type="button" class="calc-info-btn" data-calc-info="supercharge" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
-                    <orecalc-assets-svg name="info" width="13" height="13"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="info" width="13" height="13"></clashcalc-assets-svg>
                 </button>
                 <div class="calc-supercharge-pills" role="radiogroup" aria-label="${escapeHTML(translate('views.damageCalc.offense.superchargeLabel'))}">
                     ${pillsHtml}
@@ -162,19 +162,19 @@ export function renderTargetLevelToolbar({
         <div class="calc-target-toolbar">
             <div class="calc-target-toolbar__info">
                 <div class="calc-target-toolbar__thumb-frame">
-                    <orecalc-assets-image
+                    <clashcalc-assets-image
                         src="${getBuildingAssetUrl(activeKey, currentLvl)}"
                         alt="${escapeHTML(defDisplayName)}"
                         class="calc-target-toolbar__thumb"
                         size="thumbnail">
-                    </orecalc-assets-image>
+                    </clashcalc-assets-image>
                 </div>
                 <div class="calc-target-toolbar__meta">
                     <div class="calc-target-toolbar__title-row">
                         <h3 class="calc-target-toolbar__title">${escapeHTML(defDisplayName)}</h3>
                         ${currentDefense.subCategory === 'crafted' ? `
                             <span class="calc-crafted-pill" title="${escapeHTML(translate('views.damageCalc.filters.craftedDefenseTooltip'))}">
-                                <orecalc-assets-svg name="timer" width="12" height="12"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="timer" width="12" height="12"></clashcalc-assets-svg>
                                 <span>${escapeHTML(translate('views.damageCalc.filters.craftedBadge'))}</span>
                             </span>
                         ` : ''}
@@ -200,7 +200,7 @@ export function renderTargetLevelToolbar({
                     <div class="calc-stepper-track">
                         <button type="button" class="calc-stepper-btn calc-stepper-btn--min" id="${prefix}-level-min" data-prefix="${prefix}" data-i18n="validation.min" ${currentLvl <= minLvl ? 'disabled' : ''}>${escapeHTML(translate('validation.min') || 'Min')}</button>
                         <button type="button" class="calc-stepper-btn calc-stepper-btn--step" id="${prefix}-level-dec" data-prefix="${prefix}" ${currentLvl <= minLvl ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.decrease'))} ${escapeHTML(translate('validation.level'))}">
-                            <orecalc-assets-svg name="minus" width="14" height="14"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="minus" width="14" height="14"></clashcalc-assets-svg>
                         </button>
                         ${renderSteppedSliderHtml({
                             min: minLvl,
@@ -216,7 +216,7 @@ export function renderTargetLevelToolbar({
                             tickValues: isHeroDefense(activeKey) ? getValidDefenseLevels(activeKey, maxLvl) : null
                         })}
                         <button type="button" class="calc-stepper-btn calc-stepper-btn--step" id="${prefix}-level-inc" data-prefix="${prefix}" ${currentLvl >= maxLvl ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.increase'))} ${escapeHTML(translate('validation.level'))}">
-                            <orecalc-assets-svg name="plus" width="14" height="14"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="plus" width="14" height="14"></clashcalc-assets-svg>
                         </button>
                         <button type="button" class="calc-stepper-btn calc-stepper-btn--max" id="${prefix}-level-max" data-prefix="${prefix}" data-i18n="validation.max" ${currentLvl >= maxLvl ? 'disabled' : ''}>${escapeHTML(translate('validation.max') || 'Max')}</button>
                     </div>

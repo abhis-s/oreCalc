@@ -43,7 +43,7 @@
         (function() {
             try {
                 var isLight = false;
-                var raw = localStorage.getItem('oreCalc_appSettings') || localStorage.getItem('orecalc_state');
+                var raw = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings') || localStorage.getItem('orecalc_state');
                 if (raw) {
                     var parsed = JSON.parse(raw);
                     isLight = (parsed && (parsed.theme === 'light' || (parsed.settings && parsed.settings.theme === 'light')));
@@ -75,7 +75,7 @@
             <div class="app-header__brand header-brand damage-calc-page__brand">
                 <button type="button" id="calc-hamburger-btn" class="app-header__hamburger hamburger"
                     aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
-                    <orecalc-assets-svg name="menu" class="menu-icon"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
                 <a href="/" class="brand-title-link" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
                     <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
@@ -98,7 +98,7 @@
             <div class="app-header__player-dropdown player-dropdown-container">
                 <button type="button" id="player-dropdown-button" class="player-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select a Player">
                     <span id="selected-player-name"></span>
-                    <orecalc-assets-svg name="chevron-down" class="dropdown-arrow"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="chevron-down" class="dropdown-arrow"></clashcalc-assets-svg>
                 </button>
                 <div id="player-dropdown-list" class="player-dropdown-list">
                     <div id="player-items-container" role="listbox" aria-label="Select a Player" data-i18n-aria-label="player.selectPlaceholder"></div>
@@ -125,7 +125,7 @@
             <div class="modal-header">
                 <h2 id="calc-offense-modal-title" class="modal-title" data-i18n="views.damageCalc.offense.editDamageSourceLevelsTitle">Edit Damage Source Levels</h2>
                 <button type="button" class="close-button" id="calc-offense-close-btn" aria-label="Close" data-i18n-aria-label="actions.close">
-                    <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                 </button>
             </div>
             <div class="modal-body calc-offense-modal-body" id="calc-offense-modal-body">
@@ -139,7 +139,7 @@
             <div class="modal-header">
                 <h2 id="calc-target-combos-modal-title" class="modal-title" data-i18n="views.damageCalc.zapQuake.targetCombosModalTitle">Target Combinations</h2>
                 <button type="button" class="close-button" id="calc-target-combos-close-btn" aria-label="Close" data-i18n-aria-label="actions.close">
-                    <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                 </button>
             </div>
             <div class="modal-body calc-target-combos-modal-body" id="calc-target-combos-modal-body">

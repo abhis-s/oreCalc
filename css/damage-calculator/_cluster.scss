@@ -211,7 +211,9 @@
     line-height: 1.2;
     transition: color $transition-fast, background-color $transition-fast;
 
-    svg, orecalc-assets-svg {
+    svg,
+    clashcalc-assets-svg,
+    orecalc-assets-svg {
         display: inline-flex;
         width: 12px;
         height: 12px;
@@ -321,7 +323,9 @@
         flex-shrink: 0;
         transition: background-color $transition-fast, color $transition-fast;
 
-        svg, orecalc-assets-svg {
+        svg,
+        clashcalc-assets-svg,
+        orecalc-assets-svg {
             display: inline-flex;
             width: 10px;
             height: 10px;

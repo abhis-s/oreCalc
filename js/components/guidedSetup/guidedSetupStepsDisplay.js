@@ -41,7 +41,7 @@ export function renderGuidedSetupTraderRows(containerId, offers, idPrefix, curre
         costDisplay.className = 'guided-setup-trader-row__cost';
         costDisplay.title = `${currencyAlt} Cost`;
 
-        const costImg = document.createElement('orecalc-assets-image');
+        const costImg = document.createElement('clashcalc-assets-image');
         costImg.setAttribute('src', `assets/resources/${currencyImg}.png`);
         costImg.setAttribute('alt', currencyAlt);
         costImg.setAttribute('class', 'cost-icon');
@@ -65,7 +65,7 @@ export function renderGuidedSetupTraderRows(containerId, offers, idPrefix, curre
         amountSpan.className = 'ore-count';
         amountSpan.textContent = formatNumber(oreValue);
 
-        const oreImg = document.createElement('orecalc-assets-image');
+        const oreImg = document.createElement('clashcalc-assets-image');
         oreImg.setAttribute('src', `assets/${oreType}_ore.png`);
         oreImg.setAttribute('alt', oreName);
         oreImg.setAttribute('class', 'ore-icon');
@@ -82,7 +82,7 @@ export function renderGuidedSetupTraderRows(containerId, offers, idPrefix, curre
         if (badgeType) {
             const badgeSpan = document.createElement('span');
             badgeSpan.className = 'recommended-badge ore-row-badge';
-            badgeSpan.innerHTML = `<orecalc-assets-svg name="${badgeType}" height="12" width="12" fill="currentColor"></orecalc-assets-svg>`;
+            badgeSpan.innerHTML = `<clashcalc-assets-svg name="${badgeType}" height="12" width="12" fill="currentColor"></clashcalc-assets-svg>`;
             badgeDisplay.appendChild(badgeSpan);
         }
         row.appendChild(badgeDisplay);
@@ -197,7 +197,7 @@ export function renderGuidedSetupShopOffers(thLevel, purchasedOffers = {}) {
             countSpan.className = 'ore-count';
             countSpan.textContent = formatNumber(oreValue);
 
-            const oreImg = document.createElement('orecalc-assets-image');
+            const oreImg = document.createElement('clashcalc-assets-image');
             oreImg.setAttribute('src', `assets/${oreType}_ore.png`);
             oreImg.setAttribute('alt', translate('entities.ores.' + oreType) || oreType);
             oreImg.setAttribute('class', 'ore-icon');
@@ -214,7 +214,7 @@ export function renderGuidedSetupShopOffers(thLevel, purchasedOffers = {}) {
             if (oreType === 'starry') {
                 const badge = document.createElement('span');
                 badge.className = 'recommended-badge ore-row-badge';
-                badge.innerHTML = '<orecalc-assets-svg name="thumbs-up" height="12" width="12" fill="currentColor"></orecalc-assets-svg>';
+                badge.innerHTML = '<clashcalc-assets-svg name="thumbs-up" height="12" width="12" fill="currentColor"></clashcalc-assets-svg>';
                 badgeDisplay.appendChild(badge);
             }
             row.appendChild(badgeDisplay);

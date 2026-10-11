@@ -30,7 +30,7 @@ function attachPriorityOresPopover(oresEl, item, startLevel, heroName, equipName
 
     const popoverContent = {
         header: `
-            <orecalc-assets-image src="${item.image}" alt="${equipmentName}" class="popover-img" size="thumbnail"></orecalc-assets-image>
+            <clashcalc-assets-image src="${item.image}" alt="${equipmentName}" class="popover-img" size="thumbnail"></clashcalc-assets-image>
             <div class="popover-title-group">
                 <span class="popover-title">${equipmentName} (${startLevel} &rarr; ${item.targetLevel})</span>
                 <span class="popover-badge">${translate('views.income.ores.bottleneckLabel')}: <span class="ore-text-${item.bottleneckOre}">${bottleneckTrans}</span></span>
@@ -44,16 +44,16 @@ function attachPriorityOresPopover(oresEl, item, startLevel, heroName, equipName
                 <div class="popover-chest-ranges-row popover-ores-ranges-row">
                     <div class="chest-ore-inline-chip popover-ore-inline-chip">
                         <span><strong>${formatNumber(item.requiredOres.shiny)}</strong></span>
-                        <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" data-i18n-alt="entities.ores.shiny" class="ore-mini-icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" data-i18n-alt="entities.ores.shiny" class="ore-mini-icon"></clashcalc-assets-image>
                     </div>
                     <div class="chest-ore-inline-chip popover-ore-inline-chip">
                         <span><strong>${formatNumber(item.requiredOres.glowy)}</strong></span>
-                        <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" data-i18n-alt="entities.ores.glowy" class="ore-mini-icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" data-i18n-alt="entities.ores.glowy" class="ore-mini-icon"></clashcalc-assets-image>
                     </div>
                     ${(item.requiredOres.starry > 0 || state.heroes[heroName]?.equipment[equipName]?.type === 'epic') ? `
                     <div class="chest-ore-inline-chip popover-ore-inline-chip">
                         <span><strong>${formatNumber(item.requiredOres.starry)}</strong></span>
-                        <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" data-i18n-alt="entities.ores.starry" class="ore-mini-icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" data-i18n-alt="entities.ores.starry" class="ore-mini-icon"></clashcalc-assets-image>
                     </div>` : ''}
                 </div>
             </div>
@@ -211,16 +211,16 @@ export function renderDraggableList(globalPriorityList, suggestions) {
 
             oresHtml = `
                 <div class="priority-item-ores" role="button" tabindex="0" aria-label="${translate('views.income.ores.storedTitle')}">
-                    <span><span class="shiny-val">${formatNumber(initialShiny)}</span> <orecalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
-                    <span><span class="glowy-val">${formatNumber(initialGlowy)}</span> <orecalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
-                    <span><span class="starry-val">${formatNumber(initialStarry)}</span> <orecalc-assets-image src="assets/starry_ore.png" class="ore-icon-small"></orecalc-assets-image></span>
+                    <span><span class="shiny-val">${formatNumber(initialShiny)}</span> <clashcalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small"></clashcalc-assets-image></span>
+                    <span><span class="glowy-val">${formatNumber(initialGlowy)}</span> <clashcalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small"></clashcalc-assets-image></span>
+                    <span><span class="starry-val">${formatNumber(initialStarry)}</span> <clashcalc-assets-image src="assets/starry_ore.png" class="ore-icon-small"></clashcalc-assets-image></span>
                 </div>
             `;
         }
 
         listItem.innerHTML = `
             <div class="drag-handle">${getSVG('drag-handle', '', 24, 24, 'currentColor')}</div>
-            <orecalc-assets-image src="${item.image}" alt="${translate('entities.equipment.' + toCamelCase(item.name))}" class="item-image" size="thumbnail"></orecalc-assets-image>
+            <clashcalc-assets-image src="${item.image}" alt="${translate('entities.equipment.' + toCamelCase(item.name))}" class="item-image" size="thumbnail"></clashcalc-assets-image>
             <div class="item-details">
                 <span class="item-name">${translate('views.planner.stepLevelRange', { n: item.step, x: startLevel, y: item.targetLevel })}</span>
                 ${oresHtml}

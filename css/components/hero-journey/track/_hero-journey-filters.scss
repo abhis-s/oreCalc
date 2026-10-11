@@ -115,7 +115,9 @@
             transition: background $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
             margin-left: $spacing-2xs;
 
-            orecalc-assets-svg, svg {
+            clashcalc-assets-svg,
+            orecalc-assets-svg,
+            svg {
                 display: flex;
                 align-items: center;
                 justify-content: center;

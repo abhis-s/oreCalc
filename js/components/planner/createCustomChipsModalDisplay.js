@@ -245,7 +245,7 @@ export function updateModalProspectorDropdowns() {
             toDropdown.dataset.value = toOreValue;
             const toSelected = toDropdown.querySelector('.dropdown-selected');
             if (toSelected) {
-                toSelected.innerHTML = `<orecalc-assets-image src="${oreTypes[toOreValue]}" alt="${toOreValue}" size="thumbnail"></orecalc-assets-image>`;
+                toSelected.innerHTML = `<clashcalc-assets-image src="${oreTypes[toOreValue]}" alt="${toOreValue}" size="thumbnail"></clashcalc-assets-image>`;
             }
             prospectorUIState.toOre = toOreValue;
         }
@@ -261,7 +261,7 @@ export function updateModalProspectorDropdowns() {
                 option.setAttribute('tabindex', '0');
                 option.setAttribute('role', 'option');
                 option.dataset.value = ore;
-                option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
+                option.innerHTML = `<clashcalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></clashcalc-assets-image>`;
                 fromOreOptions.appendChild(option);
             }
         });
@@ -277,7 +277,7 @@ export function updateModalProspectorDropdowns() {
                 option.setAttribute('tabindex', '0');
                 option.setAttribute('role', 'option');
                 option.dataset.value = ore;
-                option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
+                option.innerHTML = `<clashcalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></clashcalc-assets-image>`;
                 toOreOptions.appendChild(option);
             }
         });
@@ -421,7 +421,7 @@ export function prefillModalInputs(type) {
                 fromDropdown.dataset.value = prospectorUIState.fromOre;
                 const fromSelected = fromDropdown.querySelector('.dropdown-selected');
                 if (fromSelected) {
-                    fromSelected.innerHTML = `<orecalc-assets-image src="${oreTypes[prospectorUIState.fromOre]}" alt="${translate('entities.ores.' + prospectorUIState.fromOre)}" size="thumbnail"></orecalc-assets-image>`;
+                    fromSelected.innerHTML = `<clashcalc-assets-image src="${oreTypes[prospectorUIState.fromOre]}" alt="${translate('entities.ores.' + prospectorUIState.fromOre)}" size="thumbnail"></clashcalc-assets-image>`;
                 }
             }
 
@@ -429,7 +429,7 @@ export function prefillModalInputs(type) {
                 toDropdown.dataset.value = prospectorUIState.toOre;
                 const toSelected = toDropdown.querySelector('.dropdown-selected');
                 if (toSelected) {
-                    toSelected.innerHTML = `<orecalc-assets-image src="${oreTypes[prospectorUIState.toOre]}" alt="${translate('entities.ores.' + prospectorUIState.toOre)}" size="thumbnail"></orecalc-assets-image>`;
+                    toSelected.innerHTML = `<clashcalc-assets-image src="${oreTypes[prospectorUIState.toOre]}" alt="${translate('entities.ores.' + prospectorUIState.toOre)}" size="thumbnail"></clashcalc-assets-image>`;
                 }
             }
 

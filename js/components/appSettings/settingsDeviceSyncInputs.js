@@ -32,7 +32,7 @@ class Accordion {
         this.isExpanding = false;
         this.el.classList.toggle('is-open', this.el.open);
 
-        const icon = this.summary?.querySelector('orecalc-assets-svg.chevron');
+        const icon = this.summary?.querySelector('clashcalc-assets-svg.chevron, orecalc-assets-svg.chevron');
         if (icon) {
             icon.setAttribute('name', this.el.open ? 'chevron-up' : 'chevron-down');
         }
@@ -60,7 +60,7 @@ class Accordion {
                 } else {
                     otherEl.open = true;
                     otherEl.classList.add('is-open');
-                    const otherIcon = otherEl.querySelector('orecalc-assets-svg.chevron');
+                    const otherIcon = otherEl.querySelector('clashcalc-assets-svg.chevron, orecalc-assets-svg.chevron');
                     if (otherIcon) {
                         otherIcon.setAttribute('name', 'chevron-up');
                     }
@@ -76,7 +76,7 @@ class Accordion {
         this.isClosing = true;
         this.el.classList.remove('is-open');
 
-        const icon = this.summary?.querySelector('orecalc-assets-svg.chevron');
+        const icon = this.summary?.querySelector('clashcalc-assets-svg.chevron, orecalc-assets-svg.chevron');
         if (icon) {
             icon.setAttribute('name', 'chevron-down');
         }
@@ -112,7 +112,7 @@ class Accordion {
                 } else {
                     otherEl.open = false;
                     otherEl.classList.remove('is-open');
-                    const otherIcon = otherEl.querySelector('orecalc-assets-svg.chevron');
+                    const otherIcon = otherEl.querySelector('clashcalc-assets-svg.chevron, orecalc-assets-svg.chevron');
                     if (otherIcon) {
                         otherIcon.setAttribute('name', 'chevron-down');
                     }
@@ -124,7 +124,7 @@ class Accordion {
         this.el.open = true;
         this.el.classList.add('is-open');
 
-        const icon = this.summary?.querySelector('orecalc-assets-svg.chevron');
+        const icon = this.summary?.querySelector('clashcalc-assets-svg.chevron, orecalc-assets-svg.chevron');
         if (icon) {
             icon.setAttribute('name', 'chevron-up');
         }
@@ -247,7 +247,7 @@ export async function openDeviceSyncModal() {
         detailsEl.open = shouldOpenSecondSection ? (idx === 1) : (idx === 0);
         detailsEl.classList.toggle('is-open', detailsEl.open);
         detailsEl.style.height = '';
-        const icon = detailsEl.querySelector('orecalc-assets-svg.chevron');
+        const icon = detailsEl.querySelector('clashcalc-assets-svg.chevron, orecalc-assets-svg.chevron');
         if (icon) {
             icon.setAttribute('name', detailsEl.open ? 'chevron-up' : 'chevron-down');
         }

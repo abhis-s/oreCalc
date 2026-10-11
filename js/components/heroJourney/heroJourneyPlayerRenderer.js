@@ -193,11 +193,11 @@ export function renderPlayerSummary() {
 
         const actionsRowHtml = `
             <a href="/" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
-                <orecalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></clashcalc-assets-svg>
                 <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
             </a>
             <button id="hj-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
-                <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></clashcalc-assets-svg>
             </button>
         `;
 
@@ -218,7 +218,7 @@ export function renderPlayerSummary() {
                 <div class="home-profile-overall-progress">
                     <div class="overall-progress-header">
                         <span class="overall-progress-label-wrapper">
-                            <orecalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('app.alts.crown')}"></orecalc-assets-image>
+                            <clashcalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('app.alts.crown')}"></clashcalc-assets-image>
                             <span class="overall-progress-label" data-i18n="views.heroJourney.page.journeyProgress">${translate('views.heroJourney.page.journeyProgress')}</span>
                         </span>
                         <span class="overall-progress-value">--%</span>
@@ -232,7 +232,7 @@ export function renderPlayerSummary() {
                     <div class="profile-stat-box progress-box">
                         <div class="stat-box-header">
                             <span class="stat-box-label-wrapper">
-                                <orecalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></orecalc-assets-image>
+                                <clashcalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></clashcalc-assets-image>
                                 <span class="stat-box-label" data-i18n="entities.ores.shiny">${translate('entities.ores.shiny')}</span>
                             </span>
                             <span class="stat-box-value">--%</span>
@@ -247,7 +247,7 @@ export function renderPlayerSummary() {
                     <div class="profile-stat-box progress-box">
                         <div class="stat-box-header">
                             <span class="stat-box-label-wrapper">
-                                <orecalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></orecalc-assets-image>
+                                <clashcalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></clashcalc-assets-image>
                                 <span class="stat-box-label" data-i18n="entities.ores.glowy">${translate('entities.ores.glowy')}</span>
                             </span>
                             <span class="stat-box-value">--%</span>
@@ -262,7 +262,7 @@ export function renderPlayerSummary() {
                     <div class="profile-stat-box progress-box">
                         <div class="stat-box-header">
                             <span class="stat-box-label-wrapper">
-                                <orecalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></orecalc-assets-image>
+                                <clashcalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></clashcalc-assets-image>
                                 <span class="stat-box-label" data-i18n="entities.ores.starry">${translate('entities.ores.starry')}</span>
                             </span>
                             <span class="stat-box-value">--%</span>
@@ -293,11 +293,11 @@ export function renderPlayerSummary() {
 
         const actionsRowHtml = `
             <a href="${bridgeUrl}" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
-                <orecalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></clashcalc-assets-svg>
                 <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
             </a>
             <button id="hj-unconnected-search-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="${translate('views.home.profile.connectBtn')}" title="${translate('views.home.profile.connectBtn')}">
-                <orecalc-assets-svg name="search" height="14" width="14"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="search" height="14" width="14"></clashcalc-assets-svg>
                 <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
             </button>
         `;
@@ -394,11 +394,11 @@ export function renderPlayerSummary() {
 
     const actionsRowHtml = `
         <a href="${bridgeUrl}" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
-            <orecalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></clashcalc-assets-svg>
             <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
         </a>
         <button id="hj-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
-            <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></clashcalc-assets-svg>
         </button>
     `;
 
@@ -420,7 +420,7 @@ export function renderPlayerSummary() {
             <div class="home-profile-overall-progress${isTrueMaxPlayer ? ' fully-maxed' : ''}">
                 <div class="overall-progress-header">
                     <span class="overall-progress-label-wrapper">
-                        <orecalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('app.alts.crown')}"></orecalc-assets-image>
+                        <clashcalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('app.alts.crown')}"></clashcalc-assets-image>
                         <span class="overall-progress-label" data-i18n="views.heroJourney.page.journeyProgress">${translate('views.heroJourney.page.journeyProgress')}</span>
                     </span>
                     <span class="overall-progress-value" data-ore-value="overall">0%</span>
@@ -435,7 +435,7 @@ export function renderPlayerSummary() {
                 <div class="profile-stat-box progress-box">
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
-                            <orecalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></orecalc-assets-image>
+                            <clashcalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></clashcalc-assets-image>
                             <span class="stat-box-label" data-i18n="entities.ores.shiny">${translate('entities.ores.shiny')}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="shiny">0%</span>
@@ -451,7 +451,7 @@ export function renderPlayerSummary() {
                 <div class="profile-stat-box progress-box">
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
-                            <orecalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></orecalc-assets-image>
+                            <clashcalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></clashcalc-assets-image>
                             <span class="stat-box-label" data-i18n="entities.ores.glowy">${translate('entities.ores.glowy')}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="glowy">0%</span>
@@ -467,7 +467,7 @@ export function renderPlayerSummary() {
                 <div class="profile-stat-box progress-box">
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
-                            <orecalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></orecalc-assets-image>
+                            <clashcalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></clashcalc-assets-image>
                             <span class="stat-box-label" data-i18n="entities.ores.starry">${translate('entities.ores.starry')}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="starry">0%</span>

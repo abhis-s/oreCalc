@@ -167,7 +167,7 @@ export function applyProgressDelta(container, prevProg, currProg, subData, state
                         const el = document.createElement('div');
                         el.className = 'stat-box-maxed';
                         el.setAttribute('data-i18n', 'views.home.profile.maxed');
-                        el.innerHTML = `<orecalc-assets-svg name="check-simple" height="14" width="14"></orecalc-assets-svg> ${translate('views.home.profile.maxed')}`;
+                        el.innerHTML = `<clashcalc-assets-svg name="check-simple" height="14" width="14"></clashcalc-assets-svg> ${translate('views.home.profile.maxed')}`;
                         existing.replaceWith(el);
                     } else if (!isMaxed && wasMaxed) {
                         const { spent, total, remaining, time, col } = subData[key];

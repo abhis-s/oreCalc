@@ -181,7 +181,7 @@ export function initLandingAccountsManager({
             if (manageBtn) {
                 manageBtn.classList.remove('is-active');
                 manageBtn.innerHTML = `
-                    <orecalc-assets-svg name="edit" width="14" height="14"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="edit" width="14" height="14"></clashcalc-assets-svg>
                     <span data-i18n="actions.manage">${translate('actions.manage')}</span>
                 `;
             }
@@ -291,8 +291,8 @@ export function initLandingAccountsManager({
             isManagingAccounts = !isManagingAccounts;
             manageBtn.classList.toggle('is-active', isManagingAccounts);
             manageBtn.innerHTML = isManagingAccounts
-                ? `<orecalc-assets-svg name="check" width="14" height="14"></orecalc-assets-svg><span data-i18n="actions.done">${translate('actions.done')}</span>`
-                : `<orecalc-assets-svg name="edit" width="14" height="14"></orecalc-assets-svg><span data-i18n="actions.manage">${translate('actions.manage')}</span>`;
+                ? `<clashcalc-assets-svg name="check" width="14" height="14"></clashcalc-assets-svg><span data-i18n="actions.done">${translate('actions.done')}</span>`
+                : `<clashcalc-assets-svg name="edit" width="14" height="14"></clashcalc-assets-svg><span data-i18n="actions.manage">${translate('actions.manage')}</span>`;
 
             const cardsContainer = document.getElementById('landing-accounts-list');
             cardsContainer?.classList.toggle('is-managing', isManagingAccounts);

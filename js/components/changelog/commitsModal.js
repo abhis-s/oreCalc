@@ -98,7 +98,7 @@ export function showCommitsModal(commits) {
             html += `
                 <div class="milestones-section">
                     <div class="milestones-title-group">
-                        <orecalc-assets-svg name="star-shine" class="milestones-icon" height="20" width="20"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="star-shine" class="milestones-icon" height="20" width="20"></clashcalc-assets-svg>
                         <span data-i18n="views.commits.highlightsTitle">${translate('views.commits.highlightsTitle')}</span>
                     </div>
                     <ul class="milestones-list">
@@ -117,7 +117,7 @@ export function showCommitsModal(commits) {
                     <details class="other-updates-details">
                         <summary class="other-updates-summary">
                             <span data-i18n="views.commits.otherUpdatesTitle">${translate('views.commits.otherUpdatesTitle')}</span>
-                            <orecalc-assets-svg name="dropdown" class="summary-toggle-icon"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="dropdown" class="summary-toggle-icon"></clashcalc-assets-svg>
                         </summary>
                         <div class="other-updates-content">
                 `;

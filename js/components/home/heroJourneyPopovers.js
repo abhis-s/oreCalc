@@ -85,7 +85,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
 
         showCardHelpPopover(chip, {
             header: `
-                <orecalc-assets-image src="${node.icon}" alt="${itemNameText}" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="${node.icon}" alt="${itemNameText}" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${node.amount}x ${itemNameText}</span>
                     <span class="popover-badge">${translate('views.heroJourney.nodes.magicItemBadge')}</span>
@@ -103,7 +103,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
 
         showCardHelpPopover(chip, {
             header: `
-                <orecalc-assets-image src="${node.icon}" alt="${skinNameText}" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="${node.icon}" alt="${skinNameText}" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${popoverTitle}</span>
                     <span class="popover-badge">${translate('views.heroJourney.nodes.legendaryHeroSkinBadge')}</span>
@@ -171,7 +171,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
 
                 itemsHtml += `
                     <div class="pool-item-row ${isHighlighted ? 'is-awarded' : ''} ${isOwned ? 'is-owned' : ''} ${isEarlier ? 'is-earlier' : ''} ${isMissed ? 'is-missed' : ''}">
-                        <orecalc-assets-image src="${opt.icon}" alt="${optName}" class="pool-item-icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="${opt.icon}" alt="${optName}" class="pool-item-icon"></clashcalc-assets-image>
                         <div class="pool-item-info">
                             <span class="pool-item-name">${optName}</span>
                         </div>
@@ -199,7 +199,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
             unownedAlertHtml = `
                 <div class="popover-unowned-alert">
                     <div class="unowned-alert-title">
-                        <orecalc-assets-svg name="close" class="unowned-alert-icon" width="14" height="14"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="close" class="unowned-alert-icon" width="14" height="14"></clashcalc-assets-svg>
                         <span>${translate('views.heroJourney.nodes.equipmentMissingTitle')}</span>
                     </div>
                     <p class="unowned-alert-desc">${desc}</p>
@@ -209,7 +209,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
 
         showCardHelpPopover(chip, {
             header: `
-                <orecalc-assets-image src="${icon}" alt="${title}" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="${icon}" alt="${title}" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${title}</span>
                     <span class="popover-badge">${translate('views.heroJourney.nodes.epicEquipmentBadge')}</span>
@@ -248,15 +248,15 @@ export function showNodeTooltip(chip, stateOverride = null) {
                 <div class="popover-chest-ranges-row">
                     <div class="chest-ore-inline-chip">
                         <span><strong>${shinyRangeStr}</strong></span>
-                        <orecalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" class="ore-mini-icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" class="ore-mini-icon"></clashcalc-assets-image>
                     </div>
                     <div class="chest-ore-inline-chip">
                         <span><strong>${glowyRangeStr}</strong></span>
-                        <orecalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" class="ore-mini-icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" class="ore-mini-icon"></clashcalc-assets-image>
                     </div>
                     <div class="chest-ore-inline-chip">
                         <span><strong>${starryRangeStr}</strong></span>
-                        <orecalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" class="ore-mini-icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" class="ore-mini-icon"></clashcalc-assets-image>
                     </div>
                 </div>
             </div>
@@ -264,7 +264,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
 
         showCardHelpPopover(chip, {
             header: `
-                <orecalc-assets-image src="${node.icon}" alt="${questTitleText}" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="${node.icon}" alt="${questTitleText}" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${questTitleText}</span>
                     <span class="popover-badge">${translate('views.heroJourney.nodes.heroQuestBadge')}</span>
@@ -279,7 +279,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
 
         showCardHelpPopover(chip, {
             header: `
-                <orecalc-assets-image src="${node.icon}" alt="${oreNameText}" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="${node.icon}" alt="${oreNameText}" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${formattedAmount} ${oreNameText}</span>
                     <span class="popover-badge">${translate('views.heroJourney.nodes.oreRewardBadge')}</span>
@@ -294,7 +294,7 @@ export function showNodeTooltip(chip, stateOverride = null) {
 
         showCardHelpPopover(chip, {
             header: `
-                <orecalc-assets-image src="${node.icon}" alt="${resNameText}" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="${node.icon}" alt="${resNameText}" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${formattedAmount} ${resNameText}</span>
                     <span class="popover-badge">${translate('views.heroJourney.nodes.resourceRewardBadge')}</span>

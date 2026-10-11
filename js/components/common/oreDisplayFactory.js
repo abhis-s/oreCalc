@@ -5,7 +5,7 @@ function createOreDisplay(config, oreType) {
     const container = document.createElement('div');
     container.className = 'ore';
 
-    const img = document.createElement('orecalc-assets-image');
+    const img = document.createElement('clashcalc-assets-image');
     img.setAttribute('src', `assets/${oreType}_ore.png`);
     const capitalizedOre = oreType.charAt(0).toUpperCase() + oreType.slice(1);
     img.setAttribute('alt', `${capitalizedOre} Ore`);

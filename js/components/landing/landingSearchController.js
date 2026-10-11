@@ -86,13 +86,13 @@ export function initLandingSearchForm({
         toggleAddBtn.classList.toggle('is-active', isOpen);
         if (isOpen) {
             toggleAddBtn.innerHTML = `
-                <orecalc-assets-svg name="close" width="14" height="14"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="close" width="14" height="14"></clashcalc-assets-svg>
                 <span data-i18n="actions.close">${translate('actions.close')}</span>
             `;
             toggleAddBtn.setAttribute('aria-label', translate('actions.close'));
         } else {
             toggleAddBtn.innerHTML = `
-                <orecalc-assets-svg name="plus" width="14" height="14"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="plus" width="14" height="14"></clashcalc-assets-svg>
                 <span data-i18n="views.landing.addVillage">${translate('views.landing.addVillage')}</span>
             `;
             toggleAddBtn.setAttribute('aria-label', translate('views.landing.addVillage'));

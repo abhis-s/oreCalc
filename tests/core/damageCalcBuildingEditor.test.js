@@ -547,7 +547,7 @@ test('Building Group Visibility - Defenses invariant: defenses group has no swit
     );
     assert.match(
         html,
-        /<span class="calc-building-group__divider"[^>]*><\/span>\s*<orecalc-assets-svg name="chevron-down"/,
+        /<span class="calc-building-group__divider"[^>]*><\/span>\s*<(?:orecalc|clashcalc)-assets-svg name="chevron-down"/,
         'Divider must separate the switch from the chevron in summary-actions'
     );
 });

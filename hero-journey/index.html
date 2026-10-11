@@ -45,7 +45,7 @@
         (function() {
             try {
                 var isLight = false;
-                var raw = localStorage.getItem('oreCalc_appSettings') || localStorage.getItem('orecalc_state');
+                var raw = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings') || localStorage.getItem('orecalc_state');
                 if (raw) {
                     var parsed = JSON.parse(raw);
                     isLight = (parsed && (parsed.theme === 'light' || (parsed.settings && parsed.settings.theme === 'light')));
@@ -86,7 +86,7 @@
             <div class="app-header__brand hero-journey-page__brand">
                 <button type="button" id="hj-hamburger-btn" class="app-header__hamburger hamburger hj-hamburger"
                     aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
-                    <orecalc-assets-svg name="menu" class="menu-icon"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
                 <a href="/" class="brand-title-link" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
                     <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
@@ -98,7 +98,7 @@
             <div class="app-header__player-dropdown player-dropdown-container">
                 <button type="button" id="player-dropdown-button" class="player-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Select a Player">
                     <span id="selected-player-name"></span>
-                    <orecalc-assets-svg name="chevron-down" class="dropdown-arrow"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="chevron-down" class="dropdown-arrow"></clashcalc-assets-svg>
                 </button>
                 <div id="player-dropdown-list" class="player-dropdown-list">
                     <div id="player-items-container" role="listbox" aria-label="Select a Player" data-i18n-aria-label="player.selectPlaceholder"></div>
@@ -117,7 +117,7 @@
         <div id="hj-error-banner" class="app-message-box app-message-box--error hero-journey-page__error-banner" hidden role="alert">
             <div class="app-message-box-content">
                 <div class="app-message-box-item">
-                    <orecalc-assets-svg name="error" width="18" height="18" class="banner-icon"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="error" width="18" height="18" class="banner-icon"></clashcalc-assets-svg>
                     <span id="hj-error-banner-text" class="banner-text"></span>
                 </div>
             </div>
@@ -127,7 +127,7 @@
             <div class="hero-journey-page__player-header home-profile-header">
                 <div class="profile-meta-left">
                     <div class="th-badge-wrapper">
-                        <orecalc-assets-image class="th-badge-img is-silhouette" src="assets/th/th18.png" alt="Town Hall" data-i18n-alt="entities.defenses.townHall" size="standard"></orecalc-assets-image>
+                        <clashcalc-assets-image class="th-badge-img is-silhouette" src="assets/th/th18.png" alt="Town Hall" data-i18n-alt="entities.defenses.townHall" size="standard"></clashcalc-assets-image>
                         <span class="th-badge-level-overlay">18</span>
                     </div>
                     <div class="player-identity">
@@ -143,22 +143,22 @@
 
                 <div class="profile-meta-right">
                     <div class="league-details-mini" title="Unranked" data-i18n-title="entities.leagues.unranked">
-                        <orecalc-assets-image class="league-badge-img-mini" src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" alt="Unranked" data-i18n-alt="entities.leagues.unranked" size="standard"></orecalc-assets-image>
+                        <clashcalc-assets-image class="league-badge-img-mini" src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" alt="Unranked" data-i18n-alt="entities.leagues.unranked" size="standard"></clashcalc-assets-image>
                         <div class="league-text-mini">
                             <span class="league-name-mini" data-i18n="entities.leagues.unranked">Unranked</span>
                             <div class="player-trophies-mini">
-                                <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></clashcalc-assets-svg>
                                 <span>--</span>
                             </div>
                         </div>
                     </div>
                     <div class="profile-meta-actions-row">
                         <a href="/ore-calculator/" class="hj-planner-bridge-btn" title="Equipment Planner" aria-label="Equipment Planner" data-i18n-title="views.heroJourney.page.backToEquipmentPlanner" data-i18n-aria-label="views.heroJourney.page.backToEquipmentPlanner">
-                            <orecalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></clashcalc-assets-svg>
                             <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">Equipment Planner</span>
                         </a>
                         <button id="hj-unconnected-search-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="Connect Profile" title="Connect Profile" data-i18n-aria-label="views.home.profile.connectBtn" data-i18n-title="views.home.profile.connectBtn">
-                            <orecalc-assets-svg name="search" height="14" width="14"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="search" height="14" width="14"></clashcalc-assets-svg>
                             <span data-i18n="views.home.profile.connectBtn">Connect Profile</span>
                         </button>
                     </div>
@@ -171,22 +171,22 @@
                 <div class="hero-journey-title-container">
                     <div class="hero-mountain-cluster" data-i18n-aria-label="views.heroJourney.nodes.heroEmblems">
                         <div class="mountain-badge-slot pos-1">
-                            <orecalc-assets-image src="assets/heroes/emblemRoyalChampion.png" data-i18n-alt="entities.heroes.royalChampion" class="mountain-badge" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image src="assets/heroes/emblemRoyalChampion.png" data-i18n-alt="entities.heroes.royalChampion" class="mountain-badge" size="standard"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-2">
-                            <orecalc-assets-image src="assets/heroes/emblemMinionPrince.png" data-i18n-alt="entities.heroes.minionPrince" class="mountain-badge" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image src="assets/heroes/emblemMinionPrince.png" data-i18n-alt="entities.heroes.minionPrince" class="mountain-badge" size="standard"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-3">
-                            <orecalc-assets-image src="assets/heroes/emblemBarbarianKing.png" data-i18n-alt="entities.heroes.barbarianKing" class="mountain-badge" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image src="assets/heroes/emblemBarbarianKing.png" data-i18n-alt="entities.heroes.barbarianKing" class="mountain-badge" size="standard"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-4">
-                            <orecalc-assets-image src="assets/heroes/emblemArcherQueen.png" data-i18n-alt="entities.heroes.archerQueen" class="mountain-badge" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image src="assets/heroes/emblemArcherQueen.png" data-i18n-alt="entities.heroes.archerQueen" class="mountain-badge" size="standard"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-5">
-                            <orecalc-assets-image src="assets/heroes/emblemGrandWarden.png" data-i18n-alt="entities.heroes.grandWarden" class="mountain-badge" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image src="assets/heroes/emblemGrandWarden.png" data-i18n-alt="entities.heroes.grandWarden" class="mountain-badge" size="standard"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-6">
-                            <orecalc-assets-image src="assets/heroes/emblemDragonDuke.png" data-i18n-alt="entities.heroes.dragonDuke" class="mountain-badge" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image src="assets/heroes/emblemDragonDuke.png" data-i18n-alt="entities.heroes.dragonDuke" class="mountain-badge" size="standard"></clashcalc-assets-image>
                         </div>
                     </div>
                     <h2 id="home-hj-title" class="hero-journey-title">
@@ -210,7 +210,7 @@
                     <div class="hero-journey-accelerated-label-group">
                         <label for="home-hj-accelerated-switch" class="hero-journey-accelerated-label" data-i18n="views.heroJourney.track.acceleratedRewards">Accelerated Rewards</label>
                         <button type="button" class="info-btn hj-accelerated-info-btn" data-info="views.heroJourney.track.acceleratedInfoHelp" data-i18n-aria-label="actions.showInfo">
-                            <orecalc-assets-svg name="info" class="info-icon" height="14" width="14"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="info" class="info-icon" height="14" width="14"></clashcalc-assets-svg>
                         </button>
                     </div>
                     <label class="switch hero-journey-accelerated-switch">
@@ -241,38 +241,38 @@
                         <div class="hj-type-buttons">
                             <button type="button" class="hj-type-btn" data-type-filter="ores">
                                 <span data-i18n="views.heroJourney.filters.filterOres">Ores / Quests</span>
-                                <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><clashcalc-assets-svg name="close" height="12" width="12"></clashcalc-assets-svg></span>
                             </button>
                             <button type="button" class="hj-type-btn" data-type-filter="equipment">
                                 <span data-i18n="nav.equipment">Equipment</span>
-                                <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><clashcalc-assets-svg name="close" height="12" width="12"></clashcalc-assets-svg></span>
                             </button>
                             <button type="button" class="hj-type-btn" data-type-filter="skins">
                                 <span data-i18n="views.heroJourney.filters.filterSkins">Skins</span>
-                                <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><clashcalc-assets-svg name="close" height="12" width="12"></clashcalc-assets-svg></span>
                             </button>
                             <button type="button" class="hj-type-btn" data-type-filter="items">
                                 <span data-i18n="views.heroJourney.filters.filterItems">Items & Resources</span>
-                                <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                                <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><clashcalc-assets-svg name="close" height="12" width="12"></clashcalc-assets-svg></span>
                             </button>
                         </div>
                     </div>
                 </div>
                 <div class="hero-journey-scroll-controls">
                     <button type="button" id="home-hj-scroll-first" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollFirst" data-i18n-title="views.heroJourney.track.scrollFirst">
-                        <orecalc-assets-svg name="first-item" height="14" width="14"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="first-item" height="14" width="14"></clashcalc-assets-svg>
                     </button>
                     <button type="button" id="home-hj-scroll-left" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLeft" data-i18n-title="views.heroJourney.track.scrollLeft">
-                        <orecalc-assets-svg name="backward" height="14" width="14"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="backward" height="14" width="14"></clashcalc-assets-svg>
                     </button>
                     <button type="button" id="home-hj-scroll-current" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollToCurrentProgress" data-i18n-title="views.heroJourney.track.scrollToCurrentProgress">
-                        <orecalc-assets-svg name="trophy" height="14" width="14"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="trophy" height="14" width="14"></clashcalc-assets-svg>
                     </button>
                     <button type="button" id="home-hj-scroll-right" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollRight" data-i18n-title="views.heroJourney.track.scrollRight">
-                        <orecalc-assets-svg name="forward" height="14" width="14"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="forward" height="14" width="14"></clashcalc-assets-svg>
                     </button>
                     <button type="button" id="home-hj-scroll-last" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLast" data-i18n-title="views.heroJourney.track.scrollLast">
-                        <orecalc-assets-svg name="last-item" height="14" width="14"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="last-item" height="14" width="14"></clashcalc-assets-svg>
                     </button>
                 </div>
             </div>
@@ -309,19 +309,19 @@
                     <div class="hj-type-buttons">
                         <button type="button" class="hj-type-btn" data-type-filter="ores">
                             <span data-i18n="views.heroJourney.filters.filterOres">Ores / Quests</span>
-                            <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                            <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><clashcalc-assets-svg name="close" height="12" width="12"></clashcalc-assets-svg></span>
                         </button>
                         <button type="button" class="hj-type-btn" data-type-filter="equipment">
                             <span data-i18n="nav.equipment">Equipment</span>
-                            <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                            <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><clashcalc-assets-svg name="close" height="12" width="12"></clashcalc-assets-svg></span>
                         </button>
                         <button type="button" class="hj-type-btn" data-type-filter="skins">
                             <span data-i18n="views.heroJourney.filters.filterSkins">Skins</span>
-                            <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                            <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><clashcalc-assets-svg name="close" height="12" width="12"></clashcalc-assets-svg></span>
                         </button>
                         <button type="button" class="hj-type-btn" data-type-filter="items">
                             <span data-i18n="views.heroJourney.filters.filterItems">Items & Resources</span>
-                            <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><orecalc-assets-svg name="close" height="12" width="12"></orecalc-assets-svg></span>
+                            <span class="type-close-icon" data-i18n-aria-label="views.heroJourney.filters.clearFilter"><clashcalc-assets-svg name="close" height="12" width="12"></clashcalc-assets-svg></span>
                         </button>
                     </div>
                 </div>
@@ -336,7 +336,7 @@
 
         <section id="hj-table-wrapper" class="hero-journey-page__table-wrapper">
             <button type="button" id="expand-hj-table-btn" class="expand-table-btn" data-i18n-title="actions.expandTable" data-i18n-aria-label="actions.expandTable" title="Expand Table" aria-label="Expand Table">
-                <orecalc-assets-svg name="expand"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="expand"></clashcalc-assets-svg>
             </button>
             <div class="hero-journey-page__table-container">
                 <table class="hero-journey-page__table">

@@ -172,7 +172,7 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
         : `${langPrefix}/hero-journey/`;
 
     if (titleEl) {
-        titleEl.innerHTML = `<span class="hero-journey-title-wrapper"><span class="hero-journey-title-text" data-i18n="views.heroJourney.widget.title">${translatedTitle}</span><a id="home-hj-open-btn" href="${escapeHTML(openUrl)}" class="hj-open-btn" title="${escapeHTML(openTooltip)}" aria-label="${escapeHTML(openTooltip)}"><orecalc-assets-svg name="open-in-new" height="13" width="13"></orecalc-assets-svg></a></span>`;
+        titleEl.innerHTML = `<span class="hero-journey-title-wrapper"><span class="hero-journey-title-text" data-i18n="views.heroJourney.widget.title">${translatedTitle}</span><a id="home-hj-open-btn" href="${escapeHTML(openUrl)}" class="hj-open-btn" title="${escapeHTML(openTooltip)}" aria-label="${escapeHTML(openTooltip)}"><clashcalc-assets-svg name="open-in-new" height="13" width="13"></clashcalc-assets-svg></a></span>`;
     }
 
     const acceleratedSwitch = document.getElementById('home-hj-accelerated-switch');

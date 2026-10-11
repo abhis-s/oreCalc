@@ -189,7 +189,7 @@ export function renderDefenseBoardPanel(state, container) {
             const thumb = getBuildingAssetUrl(k, lvl);
             return `
                 <button type="button" class="calc-cluster-suggest-btn" data-action="add-cluster-neighbor" data-target-key="${k}" title="${escapeHTML(name)}">
-                    <orecalc-assets-image src="${thumb}" alt="${escapeHTML(name)}" size="thumbnail"></orecalc-assets-image>
+                    <clashcalc-assets-image src="${thumb}" alt="${escapeHTML(name)}" size="thumbnail"></clashcalc-assets-image>
                     <span>+ ${escapeHTML(name)}</span>
                 </button>
             `;
@@ -206,12 +206,12 @@ export function renderDefenseBoardPanel(state, container) {
                             <div class="cluster-target-card__header">
                                 <div class="cluster-target-card__identity">
                                     <span class="cluster-target-card__index">#1</span>
-                                    <orecalc-assets-image
+                                    <clashcalc-assets-image
                                         src="${singleThumb}"
                                         alt="${escapeHTML(singleDefName)}"
                                         class="cluster-target-card__thumb"
                                         size="thumbnail">
-                                    </orecalc-assets-image>
+                                    </clashcalc-assets-image>
                                     <div class="cluster-target-card__meta">
                                         <span class="cluster-target-card__name">${escapeHTML(singleDefName)}</span>
                                         <span class="cluster-target-card__level">
@@ -227,11 +227,11 @@ export function renderDefenseBoardPanel(state, container) {
                             </div>
                         </div>
                         <div class="cluster-pair-connector">
-                            <orecalc-assets-svg name="link" width="14" height="14"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="link" width="14" height="14"></clashcalc-assets-svg>
                         </div>
                         <div class="cluster-target-card cluster-target-card--waiting">
                             <div class="cluster-target-card__waiting-inner">
-                                <orecalc-assets-svg name="plus" width="16" height="16"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="plus" width="16" height="16"></clashcalc-assets-svg>
                                 <span data-i18n="views.damageCalc.clusterPlanner.clusterSelectNextTarget">${selectNextText}</span>
                             </div>
                         </div>
@@ -257,13 +257,13 @@ export function renderDefenseBoardPanel(state, container) {
                 <div class="calc-cluster-placeholder__content">
                     <div class="calc-cluster-hero">
                         <div class="calc-cluster-hero__badge">
-                            <orecalc-assets-svg name="bolt-planner" width="32" height="32"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="bolt-planner" width="32" height="32"></clashcalc-assets-svg>
                         </div>
                         <div class="calc-cluster-hero__header">
                             <h3 class="calc-cluster-hero__title">
                                 <span data-i18n="views.damageCalc.clusterPlanner.clusterTitle">${clusterTitleText}</span>
                                 <button type="button" class="calc-info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
-                                    <orecalc-assets-svg name="info" width="14" height="14"></orecalc-assets-svg>
+                                    <clashcalc-assets-svg name="info" width="14" height="14"></clashcalc-assets-svg>
                                 </button>
                             </h3>
                             <p class="calc-cluster-hero__subtitle" data-i18n="views.damageCalc.clusterPlanner.clusterPromptEmpty">${emptyPromptText}</p>
@@ -282,7 +282,7 @@ export function renderDefenseBoardPanel(state, container) {
         <div class="calc-card calc-card--inputs">
             <div class="calc-view-header">
                 <div class="calc-view-search-wrapper">
-                    <orecalc-assets-svg name="search" class="calc-search-icon" width="15" height="15" aria-hidden="true"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="search" class="calc-search-icon" width="15" height="15" aria-hidden="true"></clashcalc-assets-svg>
                     <input type="search"
                         id="zq-search-input"
                         class="calc-search-input"
@@ -292,7 +292,7 @@ export function renderDefenseBoardPanel(state, container) {
                         autocomplete="off">
                     ${zq.searchQuery ? `
                         <button type="button" class="calc-search-clear-btn" data-action="clear-zq-search" aria-label="${escapeHTML(translate('views.heroJourney.page.clearSearch'))}">
-                            <orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
                         </button>
                     ` : ''}
                 </div>
@@ -491,7 +491,7 @@ export function updateClusterBuildingGridForSearch(state, container) {
                 ${escapeHTML(translate('views.damageCalc.filters.noTargetsMatchFilter'))}
             </p>
             <button type="button" class="btn-secondary calc-empty-notice__btn" data-action="reset-cluster-filters">
-                <orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
                 <span data-i18n="views.damageCalc.filters.resetFiltersBtn">${escapeHTML(translate('views.damageCalc.filters.resetFiltersBtn'))}</span>
             </button>
         </div>

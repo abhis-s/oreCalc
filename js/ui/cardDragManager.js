@@ -421,7 +421,7 @@ export function initCardDragReordering(layout, currentMode, isCompact, onRepack)
 
         const dragHandle = document.createElement('div');
         dragHandle.className = 'card-drag-handle';
-        dragHandle.innerHTML = `<orecalc-assets-svg name="drag-indicator" fill="currentColor"></orecalc-assets-svg>`;
+        dragHandle.innerHTML = `<clashcalc-assets-svg name="drag-indicator" fill="currentColor"></clashcalc-assets-svg>`;
 
         handleTarget.appendChild(dragHandle);
 

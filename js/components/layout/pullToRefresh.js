@@ -20,7 +20,7 @@ export function initializePullToRefresh() {
     ptrContainer.innerHTML = `
         <div class="ptr-content">
             <div class="ptr-icon-wrapper">
-                <orecalc-assets-svg name="refresh" class="ptr-icon"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="refresh" class="ptr-icon"></clashcalc-assets-svg>
             </div>
             <span class="ptr-label">${translate('nav.pullToRefresh.pullToRefresh')}</span>
         </div>

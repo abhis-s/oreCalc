@@ -49,7 +49,7 @@
     <script>
         (function() {
             try {
-                var s = JSON.parse(localStorage.getItem('oreCalc_appSettings') || '{}');
+                var s = JSON.parse(localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings') || '{}');
                 var isLight = (s.theme === 'light');
                 var bg = isLight ? '#f8f9fa' : '#121212';
                 var m = document.querySelector('meta[name="theme-color"]:not([media])');
@@ -120,7 +120,7 @@
                 var accent = 'blue';
                 var isLight = false;
                 try {
-                    var settingsStr = localStorage.getItem('oreCalc_appSettings');
+                    var settingsStr = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings');
                     if (settingsStr) {
                         var parsed = JSON.parse(settingsStr);
                         if (parsed) {

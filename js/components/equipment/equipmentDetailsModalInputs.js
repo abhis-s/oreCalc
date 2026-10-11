@@ -73,7 +73,7 @@ export function initializeEquipmentDetailsModal() {
                     if (tableWrapper) tableWrapper.classList.remove('table-expanded');
                     modal.classList.remove('has-expanded-table');
                     if (expandBtn) {
-                        const iconSvg = expandBtn.querySelector('orecalc-assets-svg');
+                        const iconSvg = expandBtn.querySelector('clashcalc-assets-svg, orecalc-assets-svg');
                         if (iconSvg) iconSvg.setAttribute('name', 'expand');
                         expandBtn.setAttribute('title', translate('actions.expandTable'));
                     }
@@ -469,14 +469,14 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             unitStatsToggleBtn.style.display = 'inline-flex';
 
             if (currentViewMode === 'unitStats') {
-                unitStatsToggleBtn.innerHTML = `<orecalc-assets-svg name="group" class="toggle-btn-icon"></orecalc-assets-svg> <span>${overviewBtnLabel}</span>`;
+                unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${overviewBtnLabel}</span>`;
                 overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = 'none');
                 const effective = computeEffectiveLevels(currentLevel, calculatedMaxLevel, data.rarity || equipmentRarity, activeModifierTab);
                 renderUnitStatsView(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, effective.effectiveLevel, false);
                 if (unitStatsContent) unitStatsContent.style.display = 'block';
             } else {
                 currentViewMode = 'overview';
-                unitStatsToggleBtn.innerHTML = `<orecalc-assets-svg name="group" class="toggle-btn-icon"></orecalc-assets-svg> <span>${unitStatsBtnLabel}</span>`;
+                unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${unitStatsBtnLabel}</span>`;
                 if (unitStatsContent) unitStatsContent.style.display = 'none';
                 overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = '');
             }
@@ -488,7 +488,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
                 if (currentViewMode === 'overview') {
                     currentViewMode = 'unitStats';
                     setModalSessionState({ viewModePreference: 'unitStats' });
-                    unitStatsToggleBtn.innerHTML = `<orecalc-assets-svg name="group" class="toggle-btn-icon"></orecalc-assets-svg> <span>${overviewBtnLabel}</span>`;
+                    unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${overviewBtnLabel}</span>`;
                     overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = 'none');
                     const effective = computeEffectiveLevels(currentLevel, calculatedMaxLevel, data.rarity || equipmentRarity, activeModifierTab);
                     renderUnitStatsView(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, effective.effectiveLevel, true);
@@ -496,7 +496,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
                 } else {
                     currentViewMode = 'overview';
                     setModalSessionState({ viewModePreference: 'overview' });
-                    unitStatsToggleBtn.innerHTML = `<orecalc-assets-svg name="group" class="toggle-btn-icon"></orecalc-assets-svg> <span>${unitStatsBtnLabel}</span>`;
+                    unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${unitStatsBtnLabel}</span>`;
                     if (unitStatsContent) unitStatsContent.style.display = 'none';
                     overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = '');
                 }
@@ -530,7 +530,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
         const isCurrentlyExpanded = Boolean(getModalSessionState().tableExpanded);
         tableWrapper.classList.toggle('table-expanded', isCurrentlyExpanded);
         modal.classList.toggle('has-expanded-table', isCurrentlyExpanded);
-        const iconSvg = expandBtn.querySelector('orecalc-assets-svg');
+        const iconSvg = expandBtn.querySelector('clashcalc-assets-svg, orecalc-assets-svg');
         if (iconSvg) iconSvg.setAttribute('name', isCurrentlyExpanded ? 'compress' : 'expand');
         expandBtn.setAttribute(
             'title',

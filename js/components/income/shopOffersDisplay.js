@@ -68,7 +68,7 @@ export function renderShopOfferRow(offer, offerState) {
     const oreImage = `assets/${oreType}_ore.png`;
     const oreDisplay = document.createElement('div');
     oreDisplay.className = 'offer-ore-display';
-    oreDisplay.innerHTML = `<span>${formatNumber(Math.round(oreValue))}</span><orecalc-assets-image src="${oreImage}" alt="${translate('entities.ores.' + oreType)}" class="ore-image" size="thumbnail"></orecalc-assets-image>`;
+    oreDisplay.innerHTML = `<span>${formatNumber(Math.round(oreValue))}</span><clashcalc-assets-image src="${oreImage}" alt="${translate('entities.ores.' + oreType)}" class="ore-image" size="thumbnail"></clashcalc-assets-image>`;
 
     row.appendChild(costDisplay);
     row.appendChild(oreDisplay);
@@ -117,7 +117,7 @@ export function renderShopOfferRow(offer, offerState) {
 
             checkboxDiv.appendChild(checkbox);
 
-            const checkIcon = document.createElement('orecalc-assets-svg');
+            const checkIcon = document.createElement('clashcalc-assets-svg');
             checkIcon.setAttribute('name', 'check-simple');
             checkIcon.setAttribute('class', 'offer-checkbox-icon');
             checkIcon.setAttribute('width', '14');

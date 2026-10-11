@@ -96,20 +96,20 @@ function renderComboDefensesHtml(filteredDefenses, combo, viewMode, context) {
                     data-max-hp="${d.maxHp}"
                     title="${escapeHTML(cardTooltip)}">
                     <div class="calc-combo-defense-card__thumb-wrapper">
-                        <orecalc-assets-image
+                        <clashcalc-assets-image
                             src="${getBuildingAssetUrl(d.defenseKey, d.level)}"
                             alt="${escapeHTML(defDisplayName)}"
                             class="calc-combo-defense-card__thumb"
                             size="thumbnail">
-                        </orecalc-assets-image>
+                        </clashcalc-assets-image>
                         ${isCrafted ? `
                             <span class="calc-combo-defense-card__seasonal-badge" title="${escapeHTML(translate('views.damageCalc.filters.craftedDefenseTooltip'))}">
-                                <orecalc-assets-svg name="timer" width="10" height="10"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="timer" width="10" height="10"></clashcalc-assets-svg>
                             </span>
                         ` : ''}
                     </div>
                     <button type="button" class="calc-combo-defense-card__info-btn" data-combo-defense-info="true" aria-label="${escapeHTML(translate('views.damageCalc.zapQuake.combinationBreakdownAria') || 'Damage Breakdown')}">
-                        <orecalc-assets-svg name="info" width="12" height="12"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="info" width="12" height="12"></clashcalc-assets-svg>
                     </button>
                 </div>
             `;
@@ -138,15 +138,15 @@ function renderComboDefensesHtml(filteredDefenses, combo, viewMode, context) {
                     data-max-hp="${d.maxHp}"
                     title="${escapeHTML(cardTooltip)}">
                     <div class="calc-combo-defense-card__thumb-wrapper">
-                        <orecalc-assets-image
+                        <clashcalc-assets-image
                             src="${getBuildingAssetUrl(d.defenseKey, d.level)}"
                             alt="${escapeHTML(defDisplayName)}"
                             class="calc-combo-defense-card__thumb"
                             size="thumbnail">
-                        </orecalc-assets-image>
+                        </clashcalc-assets-image>
                         ${isCrafted ? `
                             <span class="calc-combo-defense-card__seasonal-badge" title="${escapeHTML(translate('views.damageCalc.filters.craftedDefenseTooltip'))}">
-                                <orecalc-assets-svg name="timer" width="10" height="10"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="timer" width="10" height="10"></clashcalc-assets-svg>
                             </span>
                         ` : ''}
                     </div>
@@ -166,7 +166,7 @@ function renderComboDefensesHtml(filteredDefenses, combo, viewMode, context) {
                         </div>
                     </div>
                     <button type="button" class="calc-combo-defense-card__info-btn" data-combo-defense-info="true" aria-label="${escapeHTML(translate('views.damageCalc.zapQuake.combinationBreakdownAria') || 'Damage Breakdown')}">
-                        <orecalc-assets-svg name="info" width="12" height="12"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="info" width="12" height="12"></clashcalc-assets-svg>
                     </button>
                 </div>
             `;
@@ -297,7 +297,7 @@ export function renderZapQuakePanel(state, container) {
                         role="button"
                         tabindex="0"
                         aria-label="${badgeAria}">
-                        <orecalc-assets-image src="${equip.icon}" alt="${escapeHTML(equip.name)}" size="thumbnail" class="calc-equip-badge__icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="${equip.icon}" alt="${escapeHTML(equip.name)}" size="thumbnail" class="calc-equip-badge__icon"></clashcalc-assets-image>
                     </div>
                 `);
             }
@@ -315,7 +315,7 @@ export function renderZapQuakePanel(state, container) {
                     tabindex="0"
                     aria-label="${regEqCount}x ${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}">
                     <span class="calc-spell-badge__multiplier">${regEqCount}x</span>
-                    <orecalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" size="thumbnail" class="calc-spell-badge__icon"></orecalc-assets-image>
+                    <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" size="thumbnail" class="calc-spell-badge__icon"></clashcalc-assets-image>
                 </div>
             `);
         }
@@ -332,7 +332,7 @@ export function renderZapQuakePanel(state, container) {
                     tabindex="0"
                     aria-label="${ccEqCount}x ${escapeHTML(ccEqName)}">
                     <span class="calc-spell-badge__multiplier">${ccEqCount}x</span>
-                    <orecalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(ccEqName)}" size="thumbnail" class="calc-spell-badge__icon"></orecalc-assets-image>
+                    <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(ccEqName)}" size="thumbnail" class="calc-spell-badge__icon"></clashcalc-assets-image>
                 </div>
             `);
         }
@@ -348,7 +348,7 @@ export function renderZapQuakePanel(state, container) {
                     tabindex="0"
                     aria-label="${regZapCount}x ${escapeHTML(translate('views.damageCalc.offense.spellLightning'))}">
                     <span class="calc-spell-badge__multiplier">${regZapCount}x</span>
-                    <orecalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" size="thumbnail" class="calc-spell-badge__icon"></orecalc-assets-image>
+                    <clashcalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" size="thumbnail" class="calc-spell-badge__icon"></clashcalc-assets-image>
                 </div>
             `);
         }
@@ -364,7 +364,7 @@ export function renderZapQuakePanel(state, container) {
                     tabindex="0"
                     aria-label="${ccZapCount}x ${escapeHTML(ccZapName)}">
                     <span class="calc-spell-badge__multiplier">${ccZapCount}x</span>
-                    <orecalc-assets-image src="/assets/spells/lightning.png" alt="${escapeHTML(ccZapName)}" size="thumbnail" class="calc-spell-badge__icon"></orecalc-assets-image>
+                    <clashcalc-assets-image src="/assets/spells/lightning.png" alt="${escapeHTML(ccZapName)}" size="thumbnail" class="calc-spell-badge__icon"></clashcalc-assets-image>
                 </div>
             `);
         }
@@ -404,7 +404,7 @@ export function renderZapQuakePanel(state, container) {
             <div class="calc-remaining-section ${isRemainingExpanded ? 'is-expanded' : ''}">
                 <button type="button" class="calc-remaining-header" data-action="toggle-remaining" aria-expanded="${isRemainingExpanded}">
                     <div class="calc-remaining-header__info">
-                        <orecalc-assets-svg name="shield-filled" width="16" height="16" class="calc-remaining-icon"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="shield-filled" width="16" height="16" class="calc-remaining-icon"></clashcalc-assets-svg>
                         <span class="calc-remaining-title">${filteredDefenses.length} ${escapeHTML(remainingTitle)}</span>
                     </div>
                     <span class="calc-remaining-action-text">${isRemainingExpanded ? escapeHTML(translate('views.damageCalc.filters.hideDetails') || 'Hide Details') : escapeHTML(translate('views.damageCalc.filters.showDetails') || 'Show Details')}</span>
@@ -436,7 +436,7 @@ export function renderZapQuakePanel(state, container) {
                 <div class="calc-empty-notice">
                     <p class="calc-empty-notice__text" data-i18n="views.damageCalc.filters.noTargetsMatchFilter">${escapeHTML(translate('views.damageCalc.filters.noTargetsMatchFilter'))}</p>
                     <button type="button" class="btn-secondary calc-empty-notice__btn" data-action="reset-zq-filters">
-                        <orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
                         <span data-i18n="views.damageCalc.filters.resetFiltersBtn">${escapeHTML(translate('views.damageCalc.filters.resetFiltersBtn'))}</span>
                     </button>
                 </div>
@@ -486,7 +486,7 @@ export function renderZapQuakePanel(state, container) {
                 clearBtn.className = 'calc-search-clear-btn';
                 clearBtn.setAttribute('data-action', 'clear-zq-search');
                 clearBtn.setAttribute('aria-label', translate('views.heroJourney.page.clearSearch'));
-                clearBtn.innerHTML = '<orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>';
+                clearBtn.innerHTML = '<clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>';
                 searchWrapper.appendChild(clearBtn);
             } else if (!zq.searchQuery && existingClearBtn) {
                 existingClearBtn.remove();
@@ -522,7 +522,7 @@ export function renderZapQuakePanel(state, container) {
 
             <div class="calc-view-header">
                 <div class="calc-view-search-wrapper">
-                    <orecalc-assets-svg name="search" class="calc-search-icon" width="15" height="15" aria-hidden="true"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="search" class="calc-search-icon" width="15" height="15" aria-hidden="true"></clashcalc-assets-svg>
                     <input type="search"
                         id="zq-search-input"
                         class="calc-search-input"
@@ -532,7 +532,7 @@ export function renderZapQuakePanel(state, container) {
                         autocomplete="off">
                     ${zq.searchQuery ? `
                         <button type="button" class="calc-search-clear-btn" data-action="clear-zq-search" aria-label="${escapeHTML(translate('views.heroJourney.page.clearSearch'))}">
-                            <orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
                         </button>
                     ` : ''}
                 </div>

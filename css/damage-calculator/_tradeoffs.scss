@@ -118,7 +118,9 @@
             border: 1px solid $accent-primary;
             border-radius: $shape-corner-full;
 
-            svg, orecalc-assets-svg {
+            svg,
+            clashcalc-assets-svg,
+            orecalc-assets-svg {
                 display: inline-flex;
                 width: 12px;
                 height: 12px;

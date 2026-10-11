@@ -491,7 +491,7 @@ describe('Project Running Costs Modal Breakdown & Accordion Recovery Suite', () 
             assert.equal(btnText.textContent, 'Show More');
             assert.equal(btnText.getAttribute('data-i18n'), 'actions.showMore');
 
-            const icon = toggleBtn.querySelector('orecalc-assets-svg');
+            const icon = toggleBtn.querySelector('clashcalc-assets-svg') || toggleBtn.querySelector('orecalc-assets-svg');
             assert.ok(icon);
             assert.equal(icon.getAttribute('name'), 'dropdown');
         });

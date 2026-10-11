@@ -47,7 +47,7 @@ export function renderStandaloneDropdownMarkup({
 
         return `<div id="${idPrefix}-${index}" class="player-dropdown-item ${isActive ? 'active is-active' : ''}" data-tag="${escapeHTML(cleanTag)}" tabindex="${isActive ? '0' : '-1'}" role="option" aria-selected="${isActive}">
             <div class="player-dropdown-th-wrapper">
-                <orecalc-assets-image src="${thImg}" alt="TH ${thLevel}" class="player-dropdown-th"></orecalc-assets-image>
+                <clashcalc-assets-image src="${thImg}" alt="TH ${thLevel}" class="player-dropdown-th"></clashcalc-assets-image>
                 <span class="player-dropdown-th-badge">${thLevel}</span>
             </div>
             <div class="player-info-text">

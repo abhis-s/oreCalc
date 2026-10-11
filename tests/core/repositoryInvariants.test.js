@@ -267,7 +267,7 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
         assert.equal(
             violations.length,
             0,
-            `Found prohibited raw <img> tags. Use <orecalc-assets-image> custom element instead:\n${violations.join('\n')}`
+            `Found prohibited raw <img> tags. Use <clashcalc-assets-image> custom element instead:\n${violations.join('\n')}`
         );
     });
 

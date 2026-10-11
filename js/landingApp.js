@@ -139,7 +139,7 @@ async function initCommandCenter() {
         const thLevel = Math.max(1, Math.min(18, Number(village.townHallLevel) || 18));
         if (launchThEl) {
             launchThEl.innerHTML = `
-                <orecalc-assets-image class="th-badge-img" src="assets/th/th${thLevel}.png" alt="Town Hall ${thLevel}" size="standard"></orecalc-assets-image>
+                <clashcalc-assets-image class="th-badge-img" src="assets/th/th${thLevel}.png" alt="Town Hall ${thLevel}" size="standard"></clashcalc-assets-image>
                 <span class="th-badge-level-overlay">${thLevel}</span>
             `;
         }

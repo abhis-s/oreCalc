@@ -47,7 +47,7 @@ export function renderTradeoffsBarHtml(combinations, activeIndex = 0) {
             spellItems.push(`
                 <span class="calc-tradeoff-spell-item">
                     <strong>${eqCount}</strong>
-                    <orecalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}" data-i18n-alt="views.damageCalc.offense.spellEarthquake" size="thumbnail" class="calc-tradeoff-pill__spell-icon"></orecalc-assets-image>
+                    <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}" data-i18n-alt="views.damageCalc.offense.spellEarthquake" size="thumbnail" class="calc-tradeoff-pill__spell-icon"></clashcalc-assets-image>
                 </span>
             `);
         }
@@ -55,7 +55,7 @@ export function renderTradeoffsBarHtml(combinations, activeIndex = 0) {
             spellItems.push(`
                 <span class="calc-tradeoff-spell-item">
                     <strong>${zapCount}</strong>
-                    <orecalc-assets-image src="/assets/spells/lightning.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellLightning'))}" data-i18n-alt="views.damageCalc.offense.spellLightning" size="thumbnail" class="calc-tradeoff-pill__spell-icon"></orecalc-assets-image>
+                    <clashcalc-assets-image src="/assets/spells/lightning.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellLightning'))}" data-i18n-alt="views.damageCalc.offense.spellLightning" size="thumbnail" class="calc-tradeoff-pill__spell-icon"></clashcalc-assets-image>
                 </span>
             `);
         }
@@ -75,7 +75,7 @@ export function renderTradeoffsBarHtml(combinations, activeIndex = 0) {
                 <span class="calc-tradeoff-pill__spells">
                     ${spellSummary}
                 </span>
-                ${isOptimal ? `<span class="calc-tradeoff-pill__tag calc-tradeoff-pill__tag--optimal" title="${optimalText}" aria-label="${optimalText}"><orecalc-assets-svg name="thumbs-up" width="12" height="12"></orecalc-assets-svg></span>` : ''}
+                ${isOptimal ? `<span class="calc-tradeoff-pill__tag calc-tradeoff-pill__tag--optimal" title="${optimalText}" aria-label="${optimalText}"><clashcalc-assets-svg name="thumbs-up" width="12" height="12"></clashcalc-assets-svg></span>` : ''}
             </button>
         `;
     }).join('');
@@ -141,7 +141,7 @@ export function renderMobileSpellDockHtml({
                 badgesHtml += `
                     <div class="calc-spell-badge calc-spell-badge--eq" aria-hidden="true">
                         <span class="calc-spell-badge__multiplier">${eqCount}x</span>
-                        <orecalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}" data-i18n-alt="views.damageCalc.offense.spellEarthquake" size="thumbnail" class="calc-spell-badge__icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}" data-i18n-alt="views.damageCalc.offense.spellEarthquake" size="thumbnail" class="calc-spell-badge__icon"></clashcalc-assets-image>
                     </div>
                 `;
             }
@@ -150,7 +150,7 @@ export function renderMobileSpellDockHtml({
                 badgesHtml += `
                     <div class="calc-spell-badge calc-spell-badge--zap" aria-hidden="true">
                         <span class="calc-spell-badge__multiplier">${zapCount}x</span>
-                        <orecalc-assets-image src="/assets/spells/lightning.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellLightning'))}" data-i18n-alt="views.damageCalc.offense.spellLightning" size="thumbnail" class="calc-spell-badge__icon"></orecalc-assets-image>
+                        <clashcalc-assets-image src="/assets/spells/lightning.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellLightning'))}" data-i18n-alt="views.damageCalc.offense.spellLightning" size="thumbnail" class="calc-spell-badge__icon"></clashcalc-assets-image>
                     </div>
                 `;
             }
@@ -171,7 +171,7 @@ export function renderMobileSpellDockHtml({
                     aria-expanded="${isExpanded}"
                     aria-controls="calc-mobile-dock-drawer"
                     aria-label="${toggleLabel}">
-                    <orecalc-assets-svg name="dropdown" class="calc-mobile-spell-dock__chevron ${isExpanded ? 'is-expanded' : ''}" width="14" height="14"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="dropdown" class="calc-mobile-spell-dock__chevron ${isExpanded ? 'is-expanded' : ''}" width="14" height="14"></clashcalc-assets-svg>
                 </button>
             </div>
             <div id="calc-mobile-dock-drawer" class="calc-mobile-spell-dock__drawer ${isExpanded ? 'is-expanded' : ''}">
@@ -220,7 +220,7 @@ export function renderClusterPresetsHtml(activeTh) {
             const thumb = getBuildingAssetUrl(tgtKey, lvl);
             return `
                 <span class="calc-cluster-preset-thumb" title="${escapeHTML(name)} (#${i + 1})">
-                    <orecalc-assets-image src="${thumb}" alt="${escapeHTML(name)}" size="thumbnail"></orecalc-assets-image>
+                    <clashcalc-assets-image src="${thumb}" alt="${escapeHTML(name)}" size="thumbnail"></clashcalc-assets-image>
                 </span>
             `;
         }).join('');
@@ -230,7 +230,7 @@ export function renderClusterPresetsHtml(activeTh) {
             const eqName = getEquipmentDisplayName(eqKey);
             return `
                 <span class="calc-cluster-preset-equip" title="${escapeHTML(eqName)}">
-                    <orecalc-assets-image src="${eqData?.icon || ''}" alt="${escapeHTML(eqName)}" size="thumbnail"></orecalc-assets-image>
+                    <clashcalc-assets-image src="${eqData?.icon || ''}" alt="${escapeHTML(eqName)}" size="thumbnail"></clashcalc-assets-image>
                 </span>
             `;
         }).join('');
@@ -291,21 +291,21 @@ export function renderClusterWorkflowHtml() {
             <div class="calc-cluster-steps-grid">
                 <div class="calc-cluster-step-card">
                     <div class="calc-cluster-step-card__icon-wrap">
-                        <orecalc-assets-svg name="swords-filled" width="18" height="18"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="swords-filled" width="18" height="18"></clashcalc-assets-svg>
                     </div>
                     <span class="calc-cluster-step-card__title" data-i18n="views.damageCalc.clusterPlanner.clusterStep1Title">${step1Title}</span>
                     <span class="calc-cluster-step-card__desc" data-i18n="views.damageCalc.clusterPlanner.clusterStep1Desc">${step1Desc}</span>
                 </div>
                 <div class="calc-cluster-step-card">
                     <div class="calc-cluster-step-card__icon-wrap">
-                        <orecalc-assets-svg name="zap-filled" width="18" height="18"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="zap-filled" width="18" height="18"></clashcalc-assets-svg>
                     </div>
                     <span class="calc-cluster-step-card__title" data-i18n="views.damageCalc.clusterPlanner.clusterStep2Title">${step2Title}</span>
                     <span class="calc-cluster-step-card__desc" data-i18n="views.damageCalc.clusterPlanner.clusterStep2Desc">${step2Desc}</span>
                 </div>
                 <div class="calc-cluster-step-card">
                     <div class="calc-cluster-step-card__icon-wrap">
-                        <orecalc-assets-svg name="check-circle-filled" width="18" height="18"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="check-circle-filled" width="18" height="18"></clashcalc-assets-svg>
                     </div>
                     <span class="calc-cluster-step-card__title" data-i18n="views.damageCalc.clusterPlanner.clusterStep3Title">${step3Title}</span>
                     <span class="calc-cluster-step-card__desc" data-i18n="views.damageCalc.clusterPlanner.clusterStep3Desc">${step3Desc}</span>

@@ -224,7 +224,7 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
                 if (clanBadgeImg) {
                     clanBadgeImg.setAttribute('src', clanBadge);
                 } else {
-                    const newBadge = document.createElement('orecalc-assets-image');
+                    const newBadge = document.createElement('clashcalc-assets-image');
                     newBadge.className = 'clan-badge-img-mini';
                     newBadge.setAttribute('src', clanBadge);
                     newBadge.setAttribute('alt', translate('player.clanBadge'));
@@ -298,7 +298,7 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
 
     const actionsRowHtml = `
         <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
-            <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini" aria-hidden="true"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini" aria-hidden="true"></clashcalc-assets-svg>
             <span><span class="maxed-count">0/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
         </div>
     `;

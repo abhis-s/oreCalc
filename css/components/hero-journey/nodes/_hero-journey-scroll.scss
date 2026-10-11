@@ -21,7 +21,9 @@
         transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
         user-select: none;
 
-        svg, orecalc-assets-svg {
+        svg,
+        clashcalc-assets-svg,
+        orecalc-assets-svg {
             display: flex;
             align-items: center;
             justify-content: center;

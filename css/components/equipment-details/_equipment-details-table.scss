@@ -40,6 +40,7 @@
             transform: scale(1.05);
         }
 
+        clashcalc-assets-svg,
         orecalc-assets-svg {
             width: 18px;
             height: 18px;
@@ -165,7 +166,9 @@
                 text-shadow: none;
             }
 
-            orecalc-assets-image, img {
+            clashcalc-assets-image,
+            orecalc-assets-image,
+            img {
                 filter: opacity(0.5) grayscale(40%);
             }
 
@@ -191,7 +194,9 @@
                 text-shadow: none;
             }
 
-            orecalc-assets-image, img {
+            clashcalc-assets-image,
+            orecalc-assets-image,
+            img {
                 filter: opacity(0.25) grayscale(90%);
             }
 
@@ -296,6 +301,7 @@
                 gap: $spacing-xs;
                 vertical-align: middle;
 
+                clashcalc-assets-image,
                 orecalc-assets-image {
                     display: inline-flex;
                     align-items: center;
@@ -337,6 +343,7 @@
                 gap: 6px;
                 vertical-align: middle;
 
+                clashcalc-assets-image,
                 orecalc-assets-image {
                     display: inline-flex;
                     align-items: center;

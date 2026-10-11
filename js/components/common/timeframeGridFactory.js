@@ -27,7 +27,7 @@ function createTimeframeGrid(timeframes, idPrefix) {
 
             valDisplay.appendChild(document.createTextNode(' '));
 
-            const img = document.createElement('orecalc-assets-image');
+            const img = document.createElement('clashcalc-assets-image');
             img.setAttribute('src', `assets/${ore}_ore.png`);
             const capitalizedOre = ore.charAt(0).toUpperCase() + ore.slice(1);
             img.setAttribute('alt', `${capitalizedOre} Ore`);

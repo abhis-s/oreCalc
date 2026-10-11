@@ -91,7 +91,7 @@ export function renderClusterSolutionCardHtml({
                 role="button"
                 tabindex="0"
                 aria-label="${badgeAria}">
-                <orecalc-assets-image src="${equip.icon}" alt="${escapeHTML(equipName)}" size="thumbnail" class="calc-equip-badge__icon"></orecalc-assets-image>
+                <clashcalc-assets-image src="${equip.icon}" alt="${escapeHTML(equipName)}" size="thumbnail" class="calc-equip-badge__icon"></clashcalc-assets-image>
             </div>
         `);
     }
@@ -106,7 +106,7 @@ export function renderClusterSolutionCardHtml({
                 tabindex="0"
                 aria-label="${activeCombo.sharedEqCount}x ${escapeHTML(translate('views.damageCalc.offense.spellEarthquake') || 'Earthquake')}">
                 <span class="calc-spell-badge__multiplier">${activeCombo.sharedEqCount}x</span>
-                <orecalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" size="thumbnail" class="calc-spell-badge__icon"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" size="thumbnail" class="calc-spell-badge__icon"></clashcalc-assets-image>
             </div>
         `);
     }
@@ -120,7 +120,7 @@ export function renderClusterSolutionCardHtml({
                 tabindex="0"
                 aria-label="${activeCombo.totalZaps}x ${escapeHTML(translate('views.damageCalc.offense.spellLightning') || 'Lightning')}">
                 <span class="calc-spell-badge__multiplier">${activeCombo.totalZaps}x</span>
-                <orecalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" size="thumbnail" class="calc-spell-badge__icon"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" size="thumbnail" class="calc-spell-badge__icon"></clashcalc-assets-image>
             </div>
         `);
     }
@@ -165,7 +165,7 @@ export function renderClusterSolutionCardHtml({
                 aria-checked="${isSelected}"
                 aria-label="${escapeHTML(equipName)} (${lvlShort} ${effectiveLvl})"
                 title="${escapeHTML(equipName)} (${lvlShort} ${effectiveLvl})">
-                <orecalc-assets-image src="${equip?.icon || ''}" alt="${escapeHTML(equipName)}" size="thumbnail" class="calc-cluster-equip-btn__icon"></orecalc-assets-image>
+                <clashcalc-assets-image src="${equip?.icon || ''}" alt="${escapeHTML(equipName)}" size="thumbnail" class="calc-cluster-equip-btn__icon"></clashcalc-assets-image>
                 <span class="calc-cluster-equip-btn__lvl ${isDowngraded ? 'calc-cluster-equip-btn__lvl--downgraded' : ''}">${effectiveLvl}</span>
             </button>
         `;
@@ -194,7 +194,7 @@ export function renderClusterSolutionCardHtml({
                         aria-label="${escapeHTML(defName)} (#${tIdx + 1})"
                         title="${escapeHTML(defName)} (#${tIdx + 1})">
                         <span class="calc-cluster-share-target__index">#${tIdx + 1}</span>
-                        <orecalc-assets-image src="${defThumb}" alt="${escapeHTML(defName)}" size="thumbnail" class="calc-cluster-share-target__thumb"></orecalc-assets-image>
+                        <clashcalc-assets-image src="${defThumb}" alt="${escapeHTML(defName)}" size="thumbnail" class="calc-cluster-share-target__thumb"></clashcalc-assets-image>
                     </button>
                 `;
             }).join('');
@@ -203,14 +203,14 @@ export function renderClusterSolutionCardHtml({
                 <div class="calc-cluster-sharing-row">
                     <div class="calc-cluster-sharing-row__header">
                         <span class="calc-cluster-sharing-row__label" title="${escapeHTML(equipName)}">
-                            <orecalc-assets-image src="${equip?.icon || ''}" alt="${escapeHTML(equipName)}" size="thumbnail" class="calc-cluster-sharing-row__icon"></orecalc-assets-image>
+                            <clashcalc-assets-image src="${equip?.icon || ''}" alt="${escapeHTML(equipName)}" size="thumbnail" class="calc-cluster-sharing-row__icon"></clashcalc-assets-image>
                             <strong>${hitsText}:</strong>
                         </span>
                         <button type="button"
                             class="calc-cluster-share-all-btn ${isAllTargets ? 'is-active' : ''}"
                             data-action="toggle-equipment-all-targets"
                             data-equipment-key="${key}">
-                            <orecalc-assets-svg name="check" width="12" height="12"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="check" width="12" height="12"></clashcalc-assets-svg>
                             <span>${allTargetsText}</span>
                         </button>
                     </div>
@@ -252,7 +252,7 @@ export function renderClusterSolutionCardHtml({
 
         indestructibleBannerHtml = `
             <div class="calc-cluster-indestructible-banner">
-                <orecalc-assets-svg name="info" width="16" height="16" class="calc-cluster-indestructible-banner__icon"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="info" width="16" height="16" class="calc-cluster-indestructible-banner__icon"></clashcalc-assets-svg>
                 <div class="calc-cluster-indestructible-banner__text">
                     <span class="calc-cluster-indestructible-banner__title">${noticeTitle}</span>
                     <p class="calc-cluster-indestructible-banner__desc">${noticeDesc}</p>
@@ -273,7 +273,7 @@ export function renderClusterSolutionCardHtml({
                             <span class="calc-capacity-warning">${escapeHTML(translate('views.damageCalc.offense.exceedsCapacity', { max: maxArmyCapacity }) || `Exceeds ${maxArmyCapacity} Capacity`)}</span>
                         ` : ''}
                         <button type="button" class="calc-info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
-                            <orecalc-assets-svg name="info" width="14" height="14"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="info" width="14" height="14"></clashcalc-assets-svg>
                         </button>
                     </div>
                 </div>

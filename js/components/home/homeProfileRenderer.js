@@ -45,11 +45,11 @@ export function renderHomeProfile(state) {
 
         const actionsRowHtml = `
             <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
-                <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></clashcalc-assets-svg>
                 <span><span class="maxed-count">--/--</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
             </div>
             <button id="home-profile-connect-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="${translate('views.home.profile.connectBtn')}" title="${translate('views.home.profile.connectBtn')}">
-                <orecalc-assets-svg name="plus" height="14" width="14"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="plus" height="14" width="14"></clashcalc-assets-svg>
                 <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
             </button>
         `;
@@ -182,11 +182,11 @@ export function renderHomeProfile(state) {
 
     const actionsRowHtml = `
         <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
-            <orecalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></clashcalc-assets-svg>
             <span><span class="maxed-count" data-target-maxed="${maxedCount}" data-prev-maxed="${prevMaxed}" data-total-equip="${totalCount}">${prevMaxed}/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
         </div>
         <button id="home-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
-            <orecalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></clashcalc-assets-svg>
         </button>
     `;
 
@@ -207,7 +207,7 @@ export function renderHomeProfile(state) {
             <div class="home-profile-overall-progress${progress.overall >= 100 ? ' fully-maxed' : ''}">
                 <div class="overall-progress-header">
                     <span class="overall-progress-label-wrapper">
-                        <orecalc-assets-image class="ore-icon-overall" src="assets/ore_icon.png" alt="Ore"></orecalc-assets-image>
+                        <clashcalc-assets-image class="ore-icon-overall" src="assets/ore_icon.png" alt="Ore"></clashcalc-assets-image>
                         <span class="overall-progress-label" data-i18n="views.home.profile.overallProgress">${translate('views.home.profile.overallProgress')}</span>
                     </span>
                     <span class="overall-progress-value" data-ore-value="overall">0%</span>
@@ -221,7 +221,7 @@ export function renderHomeProfile(state) {
                 <div class="profile-stat-box progress-box">
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
-                            <orecalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></orecalc-assets-image>
+                            <clashcalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></clashcalc-assets-image>
                             <span class="stat-box-label" data-i18n="entities.ores.shiny">${translate('entities.ores.shiny')}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="shiny">0%</span>
@@ -235,7 +235,7 @@ export function renderHomeProfile(state) {
                 <div class="profile-stat-box progress-box">
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
-                            <orecalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></orecalc-assets-image>
+                            <clashcalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></clashcalc-assets-image>
                             <span class="stat-box-label" data-i18n="entities.ores.glowy">${translate('entities.ores.glowy')}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="glowy">0%</span>
@@ -249,7 +249,7 @@ export function renderHomeProfile(state) {
                 <div class="profile-stat-box progress-box">
                     <div class="stat-box-header">
                         <span class="stat-box-label-wrapper">
-                            <orecalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></orecalc-assets-image>
+                            <clashcalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></clashcalc-assets-image>
                             <span class="stat-box-label" data-i18n="entities.ores.starry">${translate('entities.ores.starry')}</span>
                         </span>
                         <span class="stat-box-value" data-ore-value="starry">0%</span>
@@ -262,7 +262,7 @@ export function renderHomeProfile(state) {
                 </div>
             </div>` : ''}
             <div class="home-profile-sync-notice${isGuest ? ' guest-notice' : ''}">
-                <orecalc-assets-svg name="${isGuest ? 'info' : 'cloud-lock'}" class="sync-notice-icon" height="14" width="14"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="${isGuest ? 'info' : 'cloud-lock'}" class="sync-notice-icon" height="14" width="14"></clashcalc-assets-svg>
                 <span data-i18n="${isGuest ? 'views.home.profile.guestNotice' : 'views.home.profile.syncNotice'}">${isGuest ? translate('views.home.profile.guestNotice') : translate('views.home.profile.syncNotice')}</span>
             </div>
         </div>

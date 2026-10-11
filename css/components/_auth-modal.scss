@@ -148,6 +148,7 @@
         transform: scale(0.98);
     }
 
+    clashcalc-assets-svg,
     orecalc-assets-svg,
     .auth-btn-icon {
         width: 20px;
@@ -218,6 +219,7 @@
         pointer-events: none;
         fill: $text-muted;
 
+        clashcalc-assets-svg,
         orecalc-assets-svg {
             width: 18px;
             height: 18px;
@@ -265,6 +267,7 @@
             fill: $text-primary;
         }
 
+        clashcalc-assets-svg,
         orecalc-assets-svg {
             width: 20px;
             height: 20px;
@@ -422,6 +425,7 @@
             background-color: $color-danger-soft;
         }
 
+        clashcalc-assets-svg,
         orecalc-assets-svg {
             width: 18px;
             height: 18px;

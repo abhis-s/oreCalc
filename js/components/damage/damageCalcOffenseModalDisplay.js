@@ -101,12 +101,12 @@ export function renderOffenseEditModal(state, container) {
             <div class="calc-offense-modal-row" data-equipment-id="${eqId}">
                 <div class="calc-offense-modal-row__header">
                     <div class="calc-offense-modal-row__identity">
-                        <orecalc-assets-image
+                        <clashcalc-assets-image
                             src="${eqData.icon}"
                             alt="${escapeHTML(equipName)}"
                             class="calc-offense-modal-row__thumb"
                             size="thumbnail">
-                        </orecalc-assets-image>
+                        </clashcalc-assets-image>
                         <span class="calc-offense-modal-row__name">${escapeHTML(equipName)}</span>
                     </div>
                     <span class="calc-offense-modal-row__value" id="modal-val-${eqId}">${formatOffenseModalValue('equipment', eqId, eqLvl, { modifier: activeModifier })}</span>
@@ -114,7 +114,7 @@ export function renderOffenseEditModal(state, container) {
                 <div class="calc-offense-modal-row__controls">
                     <div class="calc-stepper-track">
                         <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="decrement" data-type="equipment" data-id="${eqId}" ${eqLvl <= 1 ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.decrease'))} ${escapeHTML(equipName)} ${escapeHTML(translate('validation.level'))}">
-                            <orecalc-assets-svg name="minus"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="minus"></clashcalc-assets-svg>
                         </button>
                         ${renderSteppedSliderHtml({
                             min: 1,
@@ -129,7 +129,7 @@ export function renderOffenseEditModal(state, container) {
                             withTicks: true
                         })}
                         <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="increment" data-type="equipment" data-id="${eqId}" ${eqLvl >= eqMaxLvl ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.increase'))} ${escapeHTML(equipName)} ${escapeHTML(translate('validation.level'))}">
-                            <orecalc-assets-svg name="plus"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="plus"></clashcalc-assets-svg>
                         </button>
                     </div>
                 </div>
@@ -145,12 +145,12 @@ export function renderOffenseEditModal(state, container) {
     container.innerHTML = `
         <div class="calc-offense-groups">
             <div class="calc-offense-modal-sync-notice">
-                <orecalc-assets-svg name="sync" width="14" height="14"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="sync" width="14" height="14"></clashcalc-assets-svg>
                 <span data-i18n="views.damageCalc.offense.offenseSyncNotice">${escapeHTML(syncNoticeText)}</span>
             </div>
             ${isEsports ? `
                 <div class="calc-offense-modal-esports-notice">
-                    <orecalc-assets-svg name="shield-filled" width="14" height="14"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="shield-filled" width="14" height="14"></clashcalc-assets-svg>
                     <span data-i18n="views.damageCalc.offense.esportsNotice">${escapeHTML(esportsNoticeText)}</span>
                 </div>
             ` : ''}
@@ -160,13 +160,13 @@ export function renderOffenseEditModal(state, container) {
                 <div class="calc-offense-modal-row" data-spell-id="lightning">
                     <div class="calc-offense-modal-row__header">
                         <div class="calc-offense-modal-row__identity">
-                            <orecalc-assets-image
+                            <clashcalc-assets-image
                                 src="/assets/spells/lightning.png"
                                 alt="${escapeHTML(translate('views.damageCalc.offense.spellLightning'))}"
                                 data-i18n-alt="views.damageCalc.offense.spellLightning"
                                 class="calc-offense-modal-row__thumb"
                                 size="thumbnail">
-                            </orecalc-assets-image>
+                            </clashcalc-assets-image>
                             <span class="calc-offense-modal-row__name" data-i18n="views.damageCalc.offense.spellLightning">${escapeHTML(translate('views.damageCalc.offense.spellLightning'))}</span>
                         </div>
                         <span class="calc-offense-modal-row__value" id="modal-val-lightning">${formatOffenseModalValue('spell', 'lightning', zapLvl)}</span>
@@ -174,7 +174,7 @@ export function renderOffenseEditModal(state, container) {
                     <div class="calc-offense-modal-row__controls">
                         <div class="calc-stepper-track">
                             <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="decrement" data-type="spell" data-id="lightning" ${zapLvl <= 1 ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.decrease'))} ${escapeHTML(translate('views.damageCalc.offense.spellLightning'))} ${escapeHTML(translate('validation.level'))}">
-                                <orecalc-assets-svg name="minus"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="minus"></clashcalc-assets-svg>
                             </button>
                             ${renderSteppedSliderHtml({
                                 min: 1,
@@ -189,7 +189,7 @@ export function renderOffenseEditModal(state, container) {
                                 withTicks: true
                             })}
                             <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="increment" data-type="spell" data-id="lightning" ${zapLvl >= 13 ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.increase'))} ${escapeHTML(translate('views.damageCalc.offense.spellLightning'))} ${escapeHTML(translate('validation.level'))}">
-                                <orecalc-assets-svg name="plus"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="plus"></clashcalc-assets-svg>
                             </button>
                         </div>
                     </div>
@@ -198,13 +198,13 @@ export function renderOffenseEditModal(state, container) {
                 <div class="calc-offense-modal-row" data-spell-id="earthquake">
                     <div class="calc-offense-modal-row__header">
                         <div class="calc-offense-modal-row__identity">
-                            <orecalc-assets-image
+                            <clashcalc-assets-image
                                 src="/assets/spells/earthquake.png"
                                 alt="${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}"
                                 data-i18n-alt="views.damageCalc.offense.spellEarthquake"
                                 class="calc-offense-modal-row__thumb"
                                 size="thumbnail">
-                            </orecalc-assets-image>
+                            </clashcalc-assets-image>
                             <span class="calc-offense-modal-row__name" data-i18n="views.damageCalc.offense.spellEarthquake">${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}</span>
                         </div>
                         <span class="calc-offense-modal-row__value" id="modal-val-earthquake">${formatOffenseModalValue('spell', 'earthquake', eqLvl)}</span>
@@ -212,7 +212,7 @@ export function renderOffenseEditModal(state, container) {
                     <div class="calc-offense-modal-row__controls">
                         <div class="calc-stepper-track">
                             <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="decrement" data-type="spell" data-id="earthquake" ${eqLvl <= 1 ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.decrease'))} ${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))} ${escapeHTML(translate('validation.level'))}">
-                                <orecalc-assets-svg name="minus"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="minus"></clashcalc-assets-svg>
                             </button>
                             ${renderSteppedSliderHtml({
                                 min: 1,
@@ -227,7 +227,7 @@ export function renderOffenseEditModal(state, container) {
                                 withTicks: true
                             })}
                             <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="increment" data-type="spell" data-id="earthquake" ${eqLvl >= 8 ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.increase'))} ${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))} ${escapeHTML(translate('validation.level'))}">
-                                <orecalc-assets-svg name="plus"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="plus"></clashcalc-assets-svg>
                             </button>
                         </div>
                     </div>
@@ -240,20 +240,20 @@ export function renderOffenseEditModal(state, container) {
                 <div class="calc-offense-modal-row" data-cc-spell-id="lightning">
                     <div class="calc-offense-modal-row__header">
                         <div class="calc-offense-modal-row__identity">
-                            <orecalc-assets-image
+                            <clashcalc-assets-image
                                 src="/assets/buildings/clan_castle/level_14.png"
                                 alt="${escapeHTML(translate('entities.defenses.clanCastle'))}"
                                 data-i18n-alt="entities.defenses.clanCastle"
                                 class="calc-offense-modal-row__thumb"
                                 size="thumbnail">
-                            </orecalc-assets-image>
-                            <orecalc-assets-image
+                            </clashcalc-assets-image>
+                            <clashcalc-assets-image
                                 src="/assets/spells/lightning.png"
                                 alt="${escapeHTML(translate('views.damageCalc.offense.donatedLightningLabel'))}"
                                 data-i18n-alt="views.damageCalc.offense.donatedLightningLabel"
                                 class="calc-offense-modal-row__thumb"
                                 size="thumbnail">
-                            </orecalc-assets-image>
+                            </clashcalc-assets-image>
                             <span class="calc-offense-modal-row__name" data-i18n="views.damageCalc.offense.donatedLightningLabel">${escapeHTML(translate('views.damageCalc.offense.donatedLightningLabel'))}</span>
                         </div>
                         <span class="calc-offense-modal-row__value" id="modal-val-cc-lightning">${formatOffenseModalValue('spell', 'lightning', ccZapLvl)}</span>
@@ -261,7 +261,7 @@ export function renderOffenseEditModal(state, container) {
                     <div class="calc-offense-modal-row__controls">
                         <div class="calc-stepper-track">
                             <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="decrement" data-type="cc_spell" data-id="lightning" ${ccZapLvl <= 1 ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.decrease'))} ${escapeHTML(translate('views.damageCalc.offense.donatedLightningLabel'))} ${escapeHTML(translate('validation.level'))}">
-                                <orecalc-assets-svg name="minus"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="minus"></clashcalc-assets-svg>
                             </button>
                             ${renderSteppedSliderHtml({
                                 min: 1,
@@ -276,7 +276,7 @@ export function renderOffenseEditModal(state, container) {
                                 withTicks: true
                             })}
                             <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="increment" data-type="cc_spell" data-id="lightning" ${ccZapLvl >= 13 ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.increase'))} ${escapeHTML(translate('views.damageCalc.offense.donatedLightningLabel'))} ${escapeHTML(translate('validation.level'))}">
-                                <orecalc-assets-svg name="plus"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="plus"></clashcalc-assets-svg>
                             </button>
                         </div>
                     </div>
@@ -285,20 +285,20 @@ export function renderOffenseEditModal(state, container) {
                 <div class="calc-offense-modal-row" data-cc-spell-id="earthquake">
                     <div class="calc-offense-modal-row__header">
                         <div class="calc-offense-modal-row__identity">
-                            <orecalc-assets-image
+                            <clashcalc-assets-image
                                 src="/assets/buildings/clan_castle/level_14.png"
                                 alt="${escapeHTML(translate('entities.defenses.clanCastle'))}"
                                 data-i18n-alt="entities.defenses.clanCastle"
                                 class="calc-offense-modal-row__thumb"
                                 size="thumbnail">
-                            </orecalc-assets-image>
-                            <orecalc-assets-image
+                            </clashcalc-assets-image>
+                            <clashcalc-assets-image
                                 src="/assets/spells/earthquake.png"
                                 alt="${escapeHTML(translate('views.damageCalc.offense.donatedEarthquakeLabel'))}"
                                 data-i18n-alt="views.damageCalc.offense.donatedEarthquakeLabel"
                                 class="calc-offense-modal-row__thumb"
                                 size="thumbnail">
-                            </orecalc-assets-image>
+                            </clashcalc-assets-image>
                             <span class="calc-offense-modal-row__name" data-i18n="views.damageCalc.offense.donatedEarthquakeLabel">${escapeHTML(translate('views.damageCalc.offense.donatedEarthquakeLabel'))}</span>
                         </div>
                         <span class="calc-offense-modal-row__value" id="modal-val-cc-earthquake">${formatOffenseModalValue('spell', 'earthquake', ccEqLvl)}</span>
@@ -306,7 +306,7 @@ export function renderOffenseEditModal(state, container) {
                     <div class="calc-offense-modal-row__controls">
                         <div class="calc-stepper-track">
                             <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="decrement" data-type="cc_spell" data-id="earthquake" ${ccEqLvl <= 1 ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.decrease'))} ${escapeHTML(translate('views.damageCalc.offense.donatedEarthquakeLabel'))} ${escapeHTML(translate('validation.level'))}">
-                                <orecalc-assets-svg name="minus"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="minus"></clashcalc-assets-svg>
                             </button>
                             ${renderSteppedSliderHtml({
                                 min: 1,
@@ -321,7 +321,7 @@ export function renderOffenseEditModal(state, container) {
                                 withTicks: true
                             })}
                             <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="increment" data-type="cc_spell" data-id="earthquake" ${ccEqLvl >= 8 ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.increase'))} ${escapeHTML(translate('views.damageCalc.offense.donatedEarthquakeLabel'))} ${escapeHTML(translate('validation.level'))}">
-                                <orecalc-assets-svg name="plus"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="plus"></clashcalc-assets-svg>
                             </button>
                         </div>
                     </div>

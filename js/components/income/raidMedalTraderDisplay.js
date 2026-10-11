@@ -20,12 +20,12 @@ export function renderRaidMedalTraderRow(offer, offerState) {
 
     const costDisplay = document.createElement('div');
     costDisplay.className = 'offer-cost-display';
-    costDisplay.innerHTML = `<orecalc-assets-image src="assets/resources/raidMedal.png" alt="${translate('views.income.ores.raidMedal')}" class="ore-image raid-medal-icon" size="thumbnail"></orecalc-assets-image> ${formatNumber(offer.cost)}`;
+    costDisplay.innerHTML = `<clashcalc-assets-image src="assets/resources/raidMedal.png" alt="${translate('views.income.ores.raidMedal')}" class="ore-image raid-medal-icon" size="thumbnail"></clashcalc-assets-image> ${formatNumber(offer.cost)}`;
     row.appendChild(costDisplay);
 
     const oreDisplay = document.createElement('div');
     oreDisplay.className = 'offer-ore-display';
-    oreDisplay.innerHTML = `<span>${formatNumber(oreValue)}</span><orecalc-assets-image src="assets/${oreType}_ore.png" alt="${translate('entities.ores.' + oreType)}" class="ore-image"></orecalc-assets-image>`;
+    oreDisplay.innerHTML = `<span>${formatNumber(oreValue)}</span><clashcalc-assets-image src="assets/${oreType}_ore.png" alt="${translate('entities.ores.' + oreType)}" class="ore-image"></clashcalc-assets-image>`;
     row.appendChild(oreDisplay);
 
     // Only checkboxes for Raid Medal Trader
@@ -50,7 +50,7 @@ export function renderRaidMedalTraderRow(offer, offerState) {
 
             checkboxDiv.appendChild(checkbox);
 
-            const checkIcon = document.createElement('orecalc-assets-svg');
+            const checkIcon = document.createElement('clashcalc-assets-svg');
             checkIcon.setAttribute('name', 'check-simple');
             checkIcon.setAttribute('class', 'offer-checkbox-icon');
             checkIcon.setAttribute('width', '14');

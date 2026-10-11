@@ -51,7 +51,7 @@ export function showToast(message, type = 'info') {
     const iconName = iconId.replace(/^icon-/, '');
     toast.innerHTML = `
         <span class="toast-icon">
-            <orecalc-assets-svg name="${iconName}" class="toast-icon-svg" aria-hidden="true"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="${iconName}" class="toast-icon-svg" aria-hidden="true"></clashcalc-assets-svg>
         </span>
         <span class="toast-message">${message}</span>
     `;

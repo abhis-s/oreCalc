@@ -54,7 +54,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
     };
 
     const infoKey = cardType === 'next' ? 'views.income.prospector.nextUpgradeHelp' : 'views.income.prospector.strategyModeHelp';
-    const infoBtnHtml = `<button class="info-btn" data-info="${infoKey}" aria-label="Show Information" data-i18n-aria-label="actions.showInfo"><orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg></button>`;
+    const infoBtnHtml = `<button class="info-btn" data-info="${infoKey}" aria-label="Show Information" data-i18n-aria-label="actions.showInfo"><clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg></button>`;
 
     if (missing.shiny === 0 && missing.glowy === 0 && missing.starry === 0) {
         return `
@@ -62,7 +62,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
                 <div class="prospector-rec-header">
                     <span class="prospector-rec-badge">
                         ${itemImage
-                            ? `<orecalc-assets-image src="${itemImage}" alt="${title}" class="prospector-rec-icon" size="thumbnail"></orecalc-assets-image>`
+                            ? `<clashcalc-assets-image src="${itemImage}" alt="${title}" class="prospector-rec-icon" size="thumbnail"></clashcalc-assets-image>`
                             : getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
                         ${subTitleInfo ? `<span class="prospector-upgrade-subtitle">${subTitleInfo}</span>` : `<span>${title}</span>`}
                         ${infoBtnHtml}
@@ -70,7 +70,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
                     <span class="prospector-rec-time"><span class="prospector-status-completed" data-i18n="views.planner.completed">${translate('views.planner.completed')}</span></span>
                 </div>
                 <div class="prospector-rec-empty">
-                    <span><orecalc-assets-svg name="check-simple" height="14" width="14"></orecalc-assets-svg> <span data-i18n="views.income.prospector.tips.optimal">${translate('views.income.prospector.tips.optimal')}</span></span>
+                    <span><clashcalc-assets-svg name="check-simple" height="14" width="14"></clashcalc-assets-svg> <span data-i18n="views.income.prospector.tips.optimal">${translate('views.income.prospector.tips.optimal')}</span></span>
                 </div>
             </div>
         `;
@@ -94,7 +94,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
 
         if (roundedNatural > roundedOptimal) {
             const naturalText = roundedNatural === Infinity ? '∞' : `${roundedNatural}${daysLabel}`;
-            const displayVal = `<span class="prospector-days-compare">${naturalText} <orecalc-assets-svg name="forward" width="12" height="12"></orecalc-assets-svg> ${roundedOptimal}</span>`;
+            const displayVal = `<span class="prospector-days-compare">${naturalText} <clashcalc-assets-svg name="forward" width="12" height="12"></clashcalc-assets-svg> ${roundedOptimal}</span>`;
             timeText = `${translate('views.income.prospector.tips.readyIn', { days: displayVal })}`.replace('~', '');
         } else {
             timeText = `${translate('views.income.prospector.tips.readyIn', { days: roundedOptimal })}`.replace('~', '');
@@ -105,7 +105,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
     if (opt.conversions.length === 0) {
         listHtml = `
             <div class="prospector-rec-empty">
-                <span class="prospector-status-success-icon"><orecalc-assets-svg name="check-simple" height="14" width="14"></orecalc-assets-svg></span> <span data-i18n="views.income.prospector.tips.noConversionNeeded">${translate('views.income.prospector.tips.noConversionNeeded')}</span>
+                <span class="prospector-status-success-icon"><clashcalc-assets-svg name="check-simple" height="14" width="14"></clashcalc-assets-svg></span> <span data-i18n="views.income.prospector.tips.noConversionNeeded">${translate('views.income.prospector.tips.noConversionNeeded')}</span>
             </div>
         `;
     } else {
@@ -119,7 +119,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
             const fromImg = `assets/${conv.from}_ore.png`;
             const toImg = `assets/${conv.to}_ore.png`;
 
-            const flowText = `<span>${formatNumber(fromRate)} <orecalc-assets-image src="${fromImg}" alt="${fromName}" data-i18n-alt="entities.ores.${conv.from}" size="thumbnail"></orecalc-assets-image></span> <orecalc-assets-svg name="forward" width="14" height="14" class="prospector-flow-arrow"></orecalc-assets-svg> <span>${formatNumber(toRate)} <orecalc-assets-image src="${toImg}" alt="${toName}" data-i18n-alt="entities.ores.${conv.to}" size="thumbnail"></orecalc-assets-image></span>`;
+            const flowText = `<span>${formatNumber(fromRate)} <clashcalc-assets-image src="${fromImg}" alt="${fromName}" data-i18n-alt="entities.ores.${conv.from}" size="thumbnail"></clashcalc-assets-image></span> <clashcalc-assets-svg name="forward" width="14" height="14" class="prospector-flow-arrow"></clashcalc-assets-svg> <span>${formatNumber(toRate)} <clashcalc-assets-image src="${toImg}" alt="${toName}" data-i18n-alt="entities.ores.${conv.to}" size="thumbnail"></clashcalc-assets-image></span>`;
             const daysLabel = translate('time.daysSuffix');
 
             let displayDays = conv.days;
@@ -142,7 +142,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
             <div class="prospector-rec-header">
                 <span class="prospector-rec-badge">
                     ${itemImage
-                        ? `<orecalc-assets-image src="${itemImage}" alt="${title}" class="prospector-rec-icon" size="thumbnail"></orecalc-assets-image>`
+                        ? `<clashcalc-assets-image src="${itemImage}" alt="${title}" class="prospector-rec-icon" size="thumbnail"></clashcalc-assets-image>`
                         : getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
                     ${subTitleInfo ? `<span class="prospector-upgrade-subtitle">${subTitleInfo}</span>` : `<span>${title}</span>`}
                     ${infoBtnHtml}
@@ -232,7 +232,7 @@ export function updateProspectorTip() {
                         ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
                         <span>${translate('views.income.prospector.tips.nextTitle')}</span>
                         <button class="info-btn" data-info="views.income.prospector.nextUpgradeHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
-                            <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
                         </button>
                     </span>
                 </div>
@@ -244,7 +244,7 @@ export function updateProspectorTip() {
     } else {
         const nextReq = getUpgradeRequirements(globalPriorityList, true, state);
         const currentLevel = state.heroes[firstItem.heroName]?.equipment[firstItem.name]?.level || 1;
-        const subTitleNext = `<span class="upgrade-levels">${currentLevel} <orecalc-assets-svg name="forward" width="12" height="12"></orecalc-assets-svg> ${firstItem.targetLevel}</span>`;
+        const subTitleNext = `<span class="upgrade-levels">${currentLevel} <clashcalc-assets-svg name="forward" width="12" height="12"></clashcalc-assets-svg> ${firstItem.targetLevel}</span>`;
 
         nextHtml = generateRecommendationHtml(
             translate('views.income.prospector.tips.nextTitle'),
@@ -280,7 +280,7 @@ export function updateProspectorTip() {
                             ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
                             <span>${translate('views.income.prospector.tips.plannerTitle')}</span>
                             <button class="info-btn" data-info="views.income.prospector.strategyModeHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
-                                <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
                             </button>
                         </span>
                     </div>

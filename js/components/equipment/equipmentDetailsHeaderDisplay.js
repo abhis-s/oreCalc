@@ -162,7 +162,7 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
     if (recBadge) {
         recBadge.style.display = 'inline-flex';
         recBadge.className = 'eq-badge badge-unreleased';
-        recBadge.innerHTML = `<orecalc-assets-svg name="experiment" class="badge-icon"></orecalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
+        recBadge.innerHTML = `<clashcalc-assets-svg name="experiment" class="badge-icon"></clashcalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
         recBadge.setAttribute('data-info', 'views.equipment.recUnreleasedHelp');
     }
 
@@ -243,7 +243,7 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
         emptyStateContainer.innerHTML = `
             <div class="eq-details-empty-state">
                 <div class="empty-state-icon">
-                    <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                 </div>
                 <h3 data-i18n="views.equipment.dataNotAvailable">${dataNotAvailableTitle}</h3>
                 <p data-i18n="views.equipment.detailsNotAvailableDesc">${dataNotAvailableDesc}</p>

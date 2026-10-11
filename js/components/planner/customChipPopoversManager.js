@@ -53,7 +53,7 @@ export function initializeModalCustomDropdown(dropdownElement, whichOre) {
             const htmlOption = /** @type {HTMLElement} */ (option);
             const value = htmlOption.dataset.value || 'shiny';
             const imgSrc = oreTypes[value];
-            selected.innerHTML = `<orecalc-assets-image src="${imgSrc}" alt="${translate('entities.ores.' + value)}" size="thumbnail"></orecalc-assets-image>`;
+            selected.innerHTML = `<clashcalc-assets-image src="${imgSrc}" alt="${translate('entities.ores.' + value)}" size="thumbnail"></clashcalc-assets-image>`;
             dropdownElement.dataset.value = value;
             if (whichOre === 'from') {
                 prospectorUIState.fromOre = value;

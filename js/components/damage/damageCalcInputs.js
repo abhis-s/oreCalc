@@ -465,7 +465,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
                     notice.innerHTML = `
                         <p class="calc-empty-notice__text">${translate('views.damageCalc.filters.noTargetsMatchFilter')}</p>
                         <button type="button" class="btn-secondary calc-empty-notice__btn" data-action="reset-zq-filters">
-                            <orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
                             <span>${translate('views.damageCalc.filters.resetFiltersBtn')}</span>
                         </button>
                     `;
@@ -486,7 +486,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
                 btn.className = 'calc-search-clear-btn';
                 btn.setAttribute('data-action', 'clear-zq-search');
                 btn.setAttribute('aria-label', translate('views.heroJourney.page.clearSearch'));
-                btn.innerHTML = '<orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>';
+                btn.innerHTML = '<clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>';
                 sw.appendChild(btn);
             } else if (!q && existingClearBtn) {
                 existingClearBtn.remove();
@@ -529,7 +529,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
                                 btn.className = 'calc-search-clear-btn';
                                 btn.setAttribute('data-action', 'clear-zq-search');
                                 btn.setAttribute('aria-label', translate('views.heroJourney.page.clearSearch'));
-                                btn.innerHTML = '<orecalc-assets-svg name="close" width="12" height="12"></orecalc-assets-svg>';
+                                btn.innerHTML = '<clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>';
                                 sw.appendChild(btn);
                             } else if (!query && existingClearBtn) {
                                 existingClearBtn.remove();

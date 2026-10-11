@@ -199,7 +199,9 @@
     box-sizing: border-box;
     transition: background-color $transition-fast, border-color $transition-fast, color $transition-fast;
 
-    svg, orecalc-assets-svg {
+    svg,
+    clashcalc-assets-svg,
+    orecalc-assets-svg {
         display: inline-flex;
         width: 12px;
         height: 12px;

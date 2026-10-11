@@ -29,7 +29,7 @@ export function initializePlannerCustomLevels() {
         <h3 class="custom-max-level-title">
             <span data-i18n="views.planner.customMaxLevel">${translate('views.planner.customMaxLevel')}</span>
             <button class="info-btn" data-info="views.planner.customMaxLevelHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
-                <orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
             </button>
         </h3>`;
 

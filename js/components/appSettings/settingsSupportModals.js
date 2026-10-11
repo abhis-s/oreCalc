@@ -188,7 +188,7 @@ export function renderRunningCostsData(modal, data, totalValue, historyContainer
                         btnText.textContent = translate('actions.showMore');
                         toggleBtn.appendChild(btnText);
 
-                        const icon = document.createElement('orecalc-assets-svg');
+                        const icon = document.createElement('clashcalc-assets-svg');
                         icon.setAttribute('name', 'dropdown');
                         icon.className = 'toggle-icon';
                         toggleBtn.appendChild(icon);

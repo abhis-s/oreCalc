@@ -32,8 +32,8 @@ describe('SVG Sprite Sheet Integrity & Symbol Completeness Suite', () => {
                 referencedIcons.get(iconName).push(relPath);
             }
 
-            // 1. Match static <orecalc-assets-svg name="icon-name">
-            for (const match of content.matchAll(/<orecalc-assets-svg[^>]+name=['"]([a-zA-Z0-9_-]+)['"]/g)) {
+            // 1. Match static <clashcalc-assets-svg name="icon-name"> or legacy <orecalc-assets-svg name="icon-name">
+            for (const match of content.matchAll(/<(?:orecalc|clashcalc)-assets-svg[^>]+name=['"]([a-zA-Z0-9_-]+)['"]/g)) {
                 recordIcon(match[1]);
             }
 

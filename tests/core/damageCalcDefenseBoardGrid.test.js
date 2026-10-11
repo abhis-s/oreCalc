@@ -143,10 +143,10 @@ test('Cluster Planner Panel - Renders visual building selection grid with search
         'Target in cluster must have is-selected class'
     );
 
-    // Must render <orecalc-assets-image> with canonical building asset URL
+    // Must render <clashcalc-assets-image> with canonical building asset URL
     assert.ok(
         html.includes('src="/assets/buildings/air_defense/level_16.png"'),
-        'Must reference canonical building asset path in orecalc-assets-image'
+        'Must reference canonical building asset path in clashcalc-assets-image'
     );
 
     // Must NOT render old submode navigation tabs (Single Defense vs Cluster Planner)
@@ -1693,9 +1693,9 @@ test('Cluster Planner - Workflow guide renders Step 3 with verified check circle
     const html = container.innerHTML;
 
     assert.ok(html.includes('calc-cluster-steps-grid'), 'Must render cluster steps grid');
-    assert.ok(html.includes('<orecalc-assets-svg name="swords-filled" width="18" height="18"></orecalc-assets-svg>'), 'Step 1 must render swords-filled');
-    assert.ok(html.includes('<orecalc-assets-svg name="zap-filled" width="18" height="18"></orecalc-assets-svg>'), 'Step 2 must render zap-filled');
-    assert.ok(html.includes('<orecalc-assets-svg name="check-circle-filled" width="18" height="18"></orecalc-assets-svg>'), 'Step 3 must render check-circle-filled');
+    assert.ok(html.includes('<clashcalc-assets-svg name="swords-filled" width="18" height="18"></clashcalc-assets-svg>'), 'Step 1 must render swords-filled');
+    assert.ok(html.includes('<clashcalc-assets-svg name="zap-filled" width="18" height="18"></clashcalc-assets-svg>'), 'Step 2 must render zap-filled');
+    assert.ok(html.includes('<clashcalc-assets-svg name="check-circle-filled" width="18" height="18"></clashcalc-assets-svg>'), 'Step 3 must render check-circle-filled');
 });
 
 test('Cluster Planner - Indestructible cluster nukes 0 Space and renders helpful guidance banner and immune indicators', () => {

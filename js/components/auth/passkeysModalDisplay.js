@@ -76,7 +76,7 @@ export function renderPasskeysList(passkeys) {
                     <span class="passkey-created-date">${escapeHTML(dateStr)}</span>
                 </div>
                 <button type="button" class="passkey-delete-btn" data-credential-id="${safeId}" aria-label="${escapeHTML(translate('auth.deletePasskey'))}" title="${escapeHTML(translate('auth.deletePasskey'))}" data-i18n-aria-label="auth.deletePasskey" data-i18n-title="auth.deletePasskey">
-                    <orecalc-assets-svg name="trash"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="trash"></clashcalc-assets-svg>
                 </button>
             </div>
         `;

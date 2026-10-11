@@ -52,7 +52,7 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
             }
             const value = option.dataset.value;
             const imgSrc = oreTypes[value];
-            selected.innerHTML = `<orecalc-assets-image src="${imgSrc}" alt="${translate('entities.ores.' + value)}" size="thumbnail"></orecalc-assets-image>`;
+            selected.innerHTML = `<clashcalc-assets-image src="${imgSrc}" alt="${translate('entities.ores.' + value)}" size="thumbnail"></clashcalc-assets-image>`;
             dropdownElement.dataset.value = value;
             if (whichOre === 'from') {
                 state.income.prospector.fromOre = value;
@@ -126,7 +126,7 @@ function updateProspectorDropdowns() {
             dom.income.prospector.toOre.dataset.value = toOreValue;
             const selectedEl = dom.income.prospector.toOre.querySelector('.dropdown-selected');
             if (selectedEl) {
-                selectedEl.innerHTML = `<orecalc-assets-image src="${oreTypes[toOreValue]}" alt="${toOreValue}" size="thumbnail"></orecalc-assets-image>`;
+                selectedEl.innerHTML = `<clashcalc-assets-image src="${oreTypes[toOreValue]}" alt="${toOreValue}" size="thumbnail"></clashcalc-assets-image>`;
             }
         }
     }
@@ -142,7 +142,7 @@ function updateProspectorDropdowns() {
                 option.setAttribute('tabindex', '0');
                 option.setAttribute('role', 'option');
                 option.dataset.value = ore;
-                option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
+                option.innerHTML = `<clashcalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></clashcalc-assets-image>`;
                 fromOreOptions.appendChild(option);
             }
         });
@@ -159,7 +159,7 @@ function updateProspectorDropdowns() {
                 option.setAttribute('tabindex', '0');
                 option.setAttribute('role', 'option');
                 option.dataset.value = ore;
-                option.innerHTML = `<orecalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></orecalc-assets-image>`;
+                option.innerHTML = `<clashcalc-assets-image src="${oreTypes[ore]}" alt="${translate('entities.ores.' + ore)}" size="thumbnail"></clashcalc-assets-image>`;
                 toOreOptions.appendChild(option);
             }
         });
@@ -295,7 +295,7 @@ export function renderProspector(prospectorState) {
         dom.income.prospector.fromOre.dataset.value = fromOre;
         const selected = dom.income.prospector.fromOre.querySelector('.dropdown-selected');
         if (selected) {
-            selected.innerHTML = `<orecalc-assets-image src="${oreTypes[fromOre]}" alt="${translate('entities.ores.' + fromOre)}" size="thumbnail"></orecalc-assets-image>`;
+            selected.innerHTML = `<clashcalc-assets-image src="${oreTypes[fromOre]}" alt="${translate('entities.ores.' + fromOre)}" size="thumbnail"></clashcalc-assets-image>`;
         }
     }
 
@@ -303,7 +303,7 @@ export function renderProspector(prospectorState) {
         dom.income.prospector.toOre.dataset.value = toOre;
         const selected = dom.income.prospector.toOre.querySelector('.dropdown-selected');
         if (selected) {
-            selected.innerHTML = `<orecalc-assets-image src="${oreTypes[toOre]}" alt="${translate('entities.ores.' + toOre)}" size="thumbnail"></orecalc-assets-image>`;
+            selected.innerHTML = `<clashcalc-assets-image src="${oreTypes[toOre]}" alt="${translate('entities.ores.' + toOre)}" size="thumbnail"></clashcalc-assets-image>`;
         }
     }
 
@@ -344,7 +344,7 @@ export function initializeProspector() {
             if (exceeds) {
                 return [
                     {
-                        label: () => `${translate('validation.recommended')} (${translate('views.income.prospector.tips.preferred')} <orecalc-assets-svg name="warning" width="14" height="14" class="prospector-warning-icon"></orecalc-assets-svg>)`,
+                        label: () => `${translate('validation.recommended')} (${translate('views.income.prospector.tips.preferred')} <clashcalc-assets-svg name="warning" width="14" height="14" class="prospector-warning-icon"></clashcalc-assets-svg>)`,
                         value: preferred,
                         className: 'exceeded-color',
                         clickToFill: true

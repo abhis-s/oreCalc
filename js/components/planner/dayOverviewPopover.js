@@ -271,7 +271,7 @@ export function showDayOverviewPopover(dayCell, date, plannerState, activeEquipm
                         const lvlPrefix = translate('views.equipment.lvl');
                         return `
                             <div class="day-overview-milestone-item" style="--equip-color: ${heroColor};">
-                                ${m.image ? `<orecalc-assets-image src="${m.image}" class="milestone-icon"></orecalc-assets-image>` : `<span class="milestone-fallback">${(m.name || '').substring(0, 2).toUpperCase()}</span>`}
+                                ${m.image ? `<clashcalc-assets-image src="${m.image}" class="milestone-icon"></clashcalc-assets-image>` : `<span class="milestone-fallback">${(m.name || '').substring(0, 2).toUpperCase()}</span>`}
                                 <div class="milestone-text-group">
                                     <div class="milestone-title">${transName} (${lvlPrefix} ${m.targetLevel})</div>
                                     ${m.bottleneckOre ? `<div class="milestone-bottleneck">${translate('views.income.ores.bottleneckLabel')}: ${translate(`entities.ores.${m.bottleneckOre}`)}</div>` : ''}
@@ -288,7 +288,7 @@ export function showDayOverviewPopover(dayCell, date, plannerState, activeEquipm
         <div class="day-overview-header">
             <h3 class="day-overview-date">${formattedDateHeader}</h3>
             <button class="day-overview-close-btn" data-action="close-popover" data-i18n-aria-label="actions.close">
-                <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
             </button>
         </div>
         <div class="day-overview-summary-card">
@@ -296,15 +296,15 @@ export function showDayOverviewPopover(dayCell, date, plannerState, activeEquipm
             <div class="day-overview-ores-grid">
                 <div class="day-ore-stat">
                     <span class="day-ore-val">${formatNumber(totalShiny)}</span>
-                    <orecalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small" alt="${translate('entities.ores.shiny')}" data-i18n-alt="entities.ores.shiny"></orecalc-assets-image>
+                    <clashcalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small" alt="${translate('entities.ores.shiny')}" data-i18n-alt="entities.ores.shiny"></clashcalc-assets-image>
                 </div>
                 <div class="day-ore-stat">
                     <span class="day-ore-val">${formatNumber(totalGlowy)}</span>
-                    <orecalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small" alt="${translate('entities.ores.glowy')}" data-i18n-alt="entities.ores.glowy"></orecalc-assets-image>
+                    <clashcalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small" alt="${translate('entities.ores.glowy')}" data-i18n-alt="entities.ores.glowy"></clashcalc-assets-image>
                 </div>
                 <div class="day-ore-stat">
                     <span class="day-ore-val">${formatNumber(totalStarry)}</span>
-                    <orecalc-assets-image src="assets/starry_ore.png" class="ore-icon-small" alt="${translate('entities.ores.starry')}" data-i18n-alt="entities.ores.starry"></orecalc-assets-image>
+                    <clashcalc-assets-image src="assets/starry_ore.png" class="ore-icon-small" alt="${translate('entities.ores.starry')}" data-i18n-alt="entities.ores.starry"></clashcalc-assets-image>
                 </div>
             </div>
         </div>
@@ -319,20 +319,20 @@ export function showDayOverviewPopover(dayCell, date, plannerState, activeEquipm
                             <div class="chip-row-info">
                                 <span class="chip-row-title">${item.name}</span>
                                 <div class="chip-row-ores">
-                                    ${item.shiny ? `<span>+${formatNumber(item.shiny)} <orecalc-assets-image src="assets/shiny_ore.png" class="ore-icon-tiny"></orecalc-assets-image></span>` : ''}
-                                    ${item.glowy ? `<span>+${formatNumber(item.glowy)} <orecalc-assets-image src="assets/glowy_ore.png" class="ore-icon-tiny"></orecalc-assets-image></span>` : ''}
-                                    ${item.starry ? `<span>+${formatNumber(item.starry)} <orecalc-assets-image src="assets/starry_ore.png" class="ore-icon-tiny"></orecalc-assets-image></span>` : ''}
+                                    ${item.shiny ? `<span>+${formatNumber(item.shiny)} <clashcalc-assets-image src="assets/shiny_ore.png" class="ore-icon-tiny"></clashcalc-assets-image></span>` : ''}
+                                    ${item.glowy ? `<span>+${formatNumber(item.glowy)} <clashcalc-assets-image src="assets/glowy_ore.png" class="ore-icon-tiny"></clashcalc-assets-image></span>` : ''}
+                                    ${item.starry ? `<span>+${formatNumber(item.starry)} <clashcalc-assets-image src="assets/starry_ore.png" class="ore-icon-tiny"></clashcalc-assets-image></span>` : ''}
                                 </div>
                             </div>
                             <div class="chip-row-actions">
                                 ${!item.isAuto ? `
                                     <button class="chip-action-btn btn-remove" data-action="return-chip" data-chip-id="${item.id}" data-chip-type="${item.type}" data-i18n-aria-label="views.planner.dayOverview.returnToPool" data-i18n-title="views.planner.dayOverview.returnToPool" title="${translate('views.planner.dayOverview.returnToPool')}">
-                                        <orecalc-assets-svg name="close"></orecalc-assets-svg>
+                                        <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                                     </button>
                                 ` : ''}
                                 ${item.isCustom ? `
                                     <button class="chip-action-btn btn-edit" data-action="edit-chip" data-chip-id="${item.id}" data-i18n-aria-label="views.planner.dayOverview.editCustom" data-i18n-title="views.planner.dayOverview.editCustom" title="${translate('views.planner.dayOverview.editCustom')}">
-                                        <orecalc-assets-svg name="edit"></orecalc-assets-svg>
+                                        <clashcalc-assets-svg name="edit"></clashcalc-assets-svg>
                                     </button>
                                 ` : ''}
                             </div>

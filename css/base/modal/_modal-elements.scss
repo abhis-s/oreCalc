@@ -64,8 +64,10 @@ dialog.modal,
                         color $duration-fast $ease-smooth,
                         transform $duration-fast $ease-smooth;
 
+            clashcalc-assets-svg,
             orecalc-assets-svg,
             svg,
+            clashcalc-assets-image,
             orecalc-assets-image,
             img {
                 width: 22px;
@@ -262,6 +264,7 @@ dialog.modal,
                     transform $duration-moderate $ease-smooth;
 
         svg,
+        clashcalc-assets-svg,
         orecalc-assets-svg {
             fill: currentColor;
             width: 22px;

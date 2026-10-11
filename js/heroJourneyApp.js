@@ -280,7 +280,7 @@ function renderUI() {
         pageContainer.classList.toggle('has-hidden-table', !hjState.showTable);
     }
     if (expandTableBtn) {
-        const iconSvg = expandTableBtn.querySelector('orecalc-assets-svg');
+        const iconSvg = expandTableBtn.querySelector('clashcalc-assets-svg, orecalc-assets-svg');
         if (iconSvg) {
             iconSvg.setAttribute('name', isMaximized ? 'compress' : 'expand');
         }

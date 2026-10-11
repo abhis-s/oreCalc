@@ -25,7 +25,7 @@ export function renderHeroEquipmentGrid(gridContainer, globalPriorityList) {
         const heroKeyStr = hero.key || heroKey;
         const heroDisplayName = translate(`entities.heroes.${heroKeyStr}`);
         heroChip.innerHTML = `
-            <orecalc-assets-image src="${hero.image}" alt="${heroDisplayName}" class="hero-chip-icon" size="thumbnail"></orecalc-assets-image>
+            <clashcalc-assets-image src="${hero.image}" alt="${heroDisplayName}" class="hero-chip-icon" size="thumbnail"></clashcalc-assets-image>
             <span>${heroDisplayName}</span>
         `;
         heroColumn.appendChild(heroChip);
@@ -58,7 +58,7 @@ export function renderHeroEquipmentGrid(gridContainer, globalPriorityList) {
                 chip.dataset.equipName = equip.name || eqKeyStr;
                 chip.dataset.equipKey = eqKeyStr;
                 chip.innerHTML = `
-                    <orecalc-assets-image src="${equip.image}" alt="${eqDisplayName}" class="chip-icon" size="thumbnail"></orecalc-assets-image>
+                    <clashcalc-assets-image src="${equip.image}" alt="${eqDisplayName}" class="chip-icon" size="thumbnail"></clashcalc-assets-image>
                     <span>${eqDisplayName}</span>
                 `;
 

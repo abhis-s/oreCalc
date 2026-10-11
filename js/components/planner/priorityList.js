@@ -53,7 +53,7 @@ export function initializePriorityList(options = {}) {
     infoBtn.dataset.info = 'views.planner.priorityListHelp';
     infoBtn.setAttribute('aria-label', translate('actions.showInfo'));
     infoBtn.dataset.i18nAriaLabel = 'actions.showInfo';
-    infoBtn.innerHTML = '<orecalc-assets-svg name="info" class="info-icon" height="16" width="16"></orecalc-assets-svg>';
+    infoBtn.innerHTML = '<clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>';
     title.appendChild(infoBtn);
 
     header.appendChild(title);
@@ -134,7 +134,7 @@ export function initializePriorityList(options = {}) {
         const imageContainer = document.createElement('div');
         imageContainer.classList.add('equipment-image-container');
 
-        const equipmentImage = document.createElement('orecalc-assets-image');
+        const equipmentImage = document.createElement('clashcalc-assets-image');
         equipmentImage.setAttribute('src', item.image);
         equipmentImage.setAttribute('alt', translate('entities.equipment.' + toCamelCase(item.name)));
         equipmentImage.setAttribute('class', 'equipment-image');

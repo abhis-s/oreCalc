@@ -22,9 +22,9 @@ function createLevelSelectModalHtml() {
                     <h2 id="level-select-modal-title"><span class="set-target-text" data-i18n="views.planner.setTargetFor">${translate('views.planner.setTargetFor')}</span> <span id="level-select-modal-equip-name"></span></h2>
                     <div class="modal-header-actions">
                         <button id="level-select-modal-info-btn" class="info-button" data-info="views.planner.levelSelectModalHelp" data-i18n-aria-label="actions.showInfo" aria-label="Show Information">
-                            <orecalc-assets-svg name="info" height="22" width="22"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="info" height="22" width="22"></clashcalc-assets-svg>
                         </button>
-                        <button id="close-level-select-modal-btn" class="close-button" aria-label="${translate('actions.close')}" data-i18n-aria-label="actions.close"><orecalc-assets-svg name="close"></orecalc-assets-svg></button>
+                        <button id="close-level-select-modal-btn" class="close-button" aria-label="${translate('actions.close')}" data-i18n-aria-label="actions.close"><clashcalc-assets-svg name="close"></clashcalc-assets-svg></button>
                     </div>
                 </div>
                 <div class="modal-body">

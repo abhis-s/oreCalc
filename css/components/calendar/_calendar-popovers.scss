@@ -72,7 +72,9 @@
             font-size: clamp(10px, 2.2vw, 12px) !important;
         }
 
-        orecalc-assets-image, img {
+        clashcalc-assets-image,
+        orecalc-assets-image,
+        img {
             width: clamp(10px, 2.2vw, 13px) !important;
             height: clamp(10px, 2.2vw, 13px) !important;
         }

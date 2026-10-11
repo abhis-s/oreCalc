@@ -87,7 +87,7 @@ function renderComboRowHtml(combo, options) {
         if (!equip) return '';
         return `
             <div class="calc-target-combo-badge calc-target-combo-badge--equip">
-                <orecalc-assets-image src="${equip.icon}" alt="${escapeHTML(getEquipmentDisplayName(eq.id))}" size="thumbnail" class="calc-target-combo-badge__icon"></orecalc-assets-image>
+                <clashcalc-assets-image src="${equip.icon}" alt="${escapeHTML(getEquipmentDisplayName(eq.id))}" size="thumbnail" class="calc-target-combo-badge__icon"></clashcalc-assets-image>
             </div>
         `;
     }).join('');
@@ -100,28 +100,28 @@ function renderComboRowHtml(combo, options) {
     const eqHtml = regEq > 0 ? `
         <div class="calc-target-combo-badge calc-target-combo-badge--eq">
             <span class="calc-target-combo-badge__multiplier">${regEq}x</span>
-            <orecalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" size="thumbnail" class="calc-target-combo-badge__icon"></orecalc-assets-image>
+            <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="Earthquake" size="thumbnail" class="calc-target-combo-badge__icon"></clashcalc-assets-image>
         </div>
     ` : '';
 
     const ccEqHtml = ccEq > 0 ? `
         <div class="calc-target-combo-badge calc-target-combo-badge--eq calc-target-combo-badge--cc">
             <span class="calc-target-combo-badge__multiplier">${ccEq}x</span>
-            <orecalc-assets-image src="/assets/spells/earthquake.png" alt="CC Earthquake" size="thumbnail" class="calc-target-combo-badge__icon"></orecalc-assets-image>
+            <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="CC Earthquake" size="thumbnail" class="calc-target-combo-badge__icon"></clashcalc-assets-image>
         </div>
     ` : '';
 
     const zapHtml = regZap > 0 ? `
         <div class="calc-target-combo-badge calc-target-combo-badge--zap">
             <span class="calc-target-combo-badge__multiplier">${regZap}x</span>
-            <orecalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" size="thumbnail" class="calc-target-combo-badge__icon"></orecalc-assets-image>
+            <clashcalc-assets-image src="/assets/spells/lightning.png" alt="Lightning" size="thumbnail" class="calc-target-combo-badge__icon"></clashcalc-assets-image>
         </div>
     ` : '';
 
     const ccZapHtml = ccZap > 0 ? `
         <div class="calc-target-combo-badge calc-target-combo-badge--zap calc-target-combo-badge--cc">
             <span class="calc-target-combo-badge__multiplier">${ccZap}x</span>
-            <orecalc-assets-image src="/assets/spells/lightning.png" alt="CC Lightning" size="thumbnail" class="calc-target-combo-badge__icon"></orecalc-assets-image>
+            <clashcalc-assets-image src="/assets/spells/lightning.png" alt="CC Lightning" size="thumbnail" class="calc-target-combo-badge__icon"></clashcalc-assets-image>
         </div>
     ` : '';
 
@@ -159,7 +159,7 @@ function renderComboRowHtml(combo, options) {
                         data-shared-combo-info="true"
                         data-shared-defenses="${escapeHTML(sharedDefKeys.join(','))}"
                         aria-label="${escapeHTML(translate('views.damageCalc.zapQuake.sharedCombo', { count: sharedCount }) || `Shared (${sharedCount})`)}">
-                        <orecalc-assets-svg name="link" width="12" height="12"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="link" width="12" height="12"></clashcalc-assets-svg>
                         <span data-i18n="views.damageCalc.zapQuake.sharedCombo" data-i18n-args='{"count":${sharedCount}}'>${escapeHTML(translate('views.damageCalc.zapQuake.sharedCombo', { count: sharedCount }) || `Shared (${sharedCount})`)}</span>
                     </button>
                 ` : ''}
@@ -171,11 +171,11 @@ function renderComboRowHtml(combo, options) {
                 <button type="button" class="calc-target-combo-row__info-btn calc-info-btn"
                     data-combo-defense-info="true"
                     aria-label="${escapeHTML(translate('views.damageCalc.zapQuake.combinationBreakdownAria') || 'Damage Breakdown')}">
-                    <orecalc-assets-svg name="info" width="14" height="14"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="info" width="14" height="14"></clashcalc-assets-svg>
                 </button>
                 ${isSelected ? `
                     <span class="calc-target-combo-row__selected-pill">
-                        <orecalc-assets-svg name="check" width="14" height="14"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="check" width="14" height="14"></clashcalc-assets-svg>
                         <span data-i18n="views.damageCalc.zapQuake.selectedCombo">${escapeHTML(translate('views.damageCalc.zapQuake.selectedCombo') || 'Selected')}</span>
                     </span>
                 ` : `
@@ -283,7 +283,7 @@ export function renderTargetCombosListHtml(state, defenseKey, currentLevel, acti
                         <span data-i18n="views.damageCalc.zapQuake.nonOptimalCombosTitle">${escapeHTML(translate('views.damageCalc.zapQuake.nonOptimalCombosTitle') || 'Non-Optimal Combinations (6+ spells)')}</span>
                         <span class="calc-target-combos-collapse__count">(${nonOptimalCombos.length})</span>
                     </span>
-                    <orecalc-assets-svg name="chevron-down" width="14" height="14" class="calc-target-combos-collapse__icon"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="calc-target-combos-collapse__icon"></clashcalc-assets-svg>
                 </summary>
                 <div class="calc-target-combos-collapse__content">
                     ${nonOptimalCombos.map(c => renderComboRowHtml(c, rowOpts)).join('')}
@@ -358,19 +358,19 @@ export function renderTargetCombosModal(state, container, defenseKey, level, sup
                 : (translate('views.damageCalc.zapQuake.tierLabel') || 'Tier {tier}').replace('{tier}', String(tier));
 
             const pipsHtml = tier === 0
-                ? `<orecalc-assets-image
+                ? `<clashcalc-assets-image
                     src="/assets/supercharge/supercharge_uncharged.png"
                     alt="${escapeHTML(tierLabel)}"
                     size="thumbnail"
                     class="calc-supercharge-pip is-uncharged">
-                </orecalc-assets-image>`
+                </clashcalc-assets-image>`
                 : Array.from({ length: tier }, () => `
-                    <orecalc-assets-image
+                    <clashcalc-assets-image
                         src="/assets/supercharge/supercharge_bolt.png"
                         alt="${escapeHTML(tierLabel)}"
                         size="thumbnail"
                         class="calc-supercharge-pip is-charged">
-                    </orecalc-assets-image>
+                    </clashcalc-assets-image>
                 `).join('');
 
             scPills += `
@@ -408,16 +408,16 @@ export function renderTargetCombosModal(state, container, defenseKey, level, sup
             <div class="calc-target-combos-sticky-header">
                 <div class="calc-target-combos-overview">
                     <div class="calc-target-combos-overview__thumb-wrapper">
-                        <orecalc-assets-image
+                        <clashcalc-assets-image
                             src="${getBuildingAssetUrl(defenseKey, currentLevel)}"
                             alt="${escapeHTML(modalDefenseName)}"
                             class="calc-target-combos-overview__thumb"
                             id="calc-target-modal-thumb"
                             size="card">
-                        </orecalc-assets-image>
+                        </clashcalc-assets-image>
                         ${isCrafted ? `
                             <span class="calc-target-combos-overview__seasonal-badge" title="${escapeHTML(translate('views.damageCalc.filters.craftedDefenseTooltip'))}">
-                                <orecalc-assets-svg name="timer" width="12" height="12"></orecalc-assets-svg>
+                                <clashcalc-assets-svg name="timer" width="12" height="12"></clashcalc-assets-svg>
                             </span>
                         ` : ''}
                     </div>
@@ -427,7 +427,7 @@ export function renderTargetCombosModal(state, container, defenseKey, level, sup
                             <div class="calc-target-combos-overview__actions" id="calc-target-modal-reset-wrap">
                                 ${selectedSig && selectedSig !== optimalSig ? `
                                     <button type="button" class="calc-target-combos-overview__reset-btn" data-action="reset-to-optimal" data-defense-key="${defenseKey}">
-                                        <orecalc-assets-svg name="undo" width="12" height="12"></orecalc-assets-svg>
+                                        <clashcalc-assets-svg name="undo" width="12" height="12"></clashcalc-assets-svg>
                                         <span data-i18n="actions.reset">${escapeHTML(translate('actions.reset') || 'Reset')}</span>
                                     </button>
                                 ` : ''}
@@ -449,7 +449,7 @@ export function renderTargetCombosModal(state, container, defenseKey, level, sup
                         <div class="calc-target-combos-overview__level-control">
                             <div class="calc-stepper-track">
                                 <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="target-level-dec" data-defense-key="${defenseKey}" ${currentLevel <= minLevel ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.decrease'))} ${escapeHTML(modalDefenseName)} ${escapeHTML(translate('validation.level'))}">
-                                    <orecalc-assets-svg name="minus"></orecalc-assets-svg>
+                                    <clashcalc-assets-svg name="minus"></clashcalc-assets-svg>
                                 </button>
                                 ${renderSteppedSliderHtml({
                                     min: minLevel,
@@ -469,7 +469,7 @@ export function renderTargetCombosModal(state, container, defenseKey, level, sup
                                     tickValues: heroTickValues
                                 })}
                                 <button type="button" class="calc-stepper-btn calc-stepper-btn--step" data-action="target-level-inc" data-defense-key="${defenseKey}" ${currentLevel >= maxAllowedLevel ? 'disabled' : ''} aria-label="${escapeHTML(translate('actions.increase'))} ${escapeHTML(modalDefenseName)} ${escapeHTML(translate('validation.level'))}">
-                                    <orecalc-assets-svg name="plus"></orecalc-assets-svg>
+                                    <clashcalc-assets-svg name="plus"></clashcalc-assets-svg>
                                 </button>
                             </div>
                             ${superchargeHtml}

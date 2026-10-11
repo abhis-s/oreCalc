@@ -63,7 +63,7 @@ export function renderTrackView(options = {}) {
         const emptyCard = document.createElement('div');
         emptyCard.className = 'hero-journey-empty-filter-card';
         emptyCard.innerHTML = `
-            <orecalc-assets-svg name="sliders" class="empty-filter-icon"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="sliders" class="empty-filter-icon"></clashcalc-assets-svg>
             <div class="empty-filter-title">${translate('views.heroJourney.filters.emptyFilterTitle')}</div>
             <div class="empty-filter-desc">${translate('views.heroJourney.filters.emptyFilterDesc')}</div>
             <button type="button" class="th-limit-reveal-btn hero-journey-empty-filter-btn" id="hj-reset-filters-btn">${translate('views.heroJourney.filters.clearFilter')}</button>

@@ -66,10 +66,10 @@ export function renderBottomNavBar({
             <div class="nav-item-content">
                 <div class="nav-icon-wrapper">
                     <span class="icon-outline">
-                        <orecalc-assets-svg name="${nameOutline}" fill="var(--text-secondary)"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="${nameOutline}" fill="var(--text-secondary)"></clashcalc-assets-svg>
                     </span>
                     <span class="icon-filled">
-                        <orecalc-assets-svg name="${nameFilled}" fill="var(--accent-primary)"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="${nameFilled}" fill="var(--accent-primary)"></clashcalc-assets-svg>
                     </span>
                 </div>
                 <span ${tab.i18nKey ? `data-i18n="${tab.i18nKey}"` : ''} title="${escapeHTML(labelText)}">${labelText}</span>

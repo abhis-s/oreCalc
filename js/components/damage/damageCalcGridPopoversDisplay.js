@@ -220,7 +220,7 @@ export function getComboBreakdownPopoverContent(elem, state) {
 
         return {
             header: `
-                <orecalc-assets-image src="${getBuildingAssetUrl(buildingKey, level)}" alt="${escapeHTML(defName)}" class="popover-img"></orecalc-assets-image>
+                <clashcalc-assets-image src="${getBuildingAssetUrl(buildingKey, level)}" alt="${escapeHTML(defName)}" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(defName)} (${escapeHTML(getLvlShort(buildingKey))} ${level})${superchargeHtml}</span>
                     <span class="popover-badge font-color-warning">${formatNumber(maxHp)} ${hpUnit}</span>
@@ -363,7 +363,7 @@ export function getComboBreakdownPopoverContent(elem, state) {
 
     return {
         header: `
-            <orecalc-assets-image src="${getBuildingAssetUrl(buildingKey, level)}" alt="${escapeHTML(defName)}" class="popover-img"></orecalc-assets-image>
+            <clashcalc-assets-image src="${getBuildingAssetUrl(buildingKey, level)}" alt="${escapeHTML(defName)}" class="popover-img"></clashcalc-assets-image>
             <div class="popover-title-group">
                 <span class="popover-title">${escapeHTML(defName)} (${escapeHTML(getLvlShort(buildingKey))} ${level})${superchargeHtml}</span>
                 <span class="popover-badge">${formatNumber(maxHp)} ${hpUnit}</span>
@@ -488,7 +488,7 @@ export function getClusterTargetPopoverContent(elem) {
 
     return {
         header: `
-            <orecalc-assets-image src="${getBuildingAssetUrl(buildingKey, level)}" alt="${escapeHTML(defName)}" class="popover-img"></orecalc-assets-image>
+            <clashcalc-assets-image src="${getBuildingAssetUrl(buildingKey, level)}" alt="${escapeHTML(defName)}" class="popover-img"></clashcalc-assets-image>
             <div class="popover-title-group">
                 <span class="popover-title">${escapeHTML(defName)} (${escapeHTML(lvlShort)} ${level})${superchargeHtml}</span>
                 <span class="popover-badge font-color-warning">${formatNumber(maxHp)} ${hpUnit}</span>
@@ -575,7 +575,7 @@ export function getCasualtyPopoverContent(elem, state) {
 
     return {
         header: `
-            <orecalc-assets-image src="${getBuildingAssetUrl(buildingKey, rec.level || 1)}" alt="${escapeHTML(defName)}" class="popover-img"></orecalc-assets-image>
+            <clashcalc-assets-image src="${getBuildingAssetUrl(buildingKey, rec.level || 1)}" alt="${escapeHTML(defName)}" class="popover-img"></clashcalc-assets-image>
             <div class="popover-title-group">
                 <span class="popover-title">${escapeHTML(defName)} (${escapeHTML(getLvlShort(buildingKey))} ${rec.level || 1})${superchargeHtml}</span>
                 <span class="popover-badge">${formatNumber(rec.initialHp)} ${hpUnit}</span>
@@ -673,7 +673,7 @@ export function getComboBadgePopoverContent(elem, badgeType, state) {
         const body = translate('views.damageCalc.popovers.remainingDefensesBody');
         return {
             header: `
-                <orecalc-assets-svg name="shield-filled" width="18" height="18" class="popover-img font-color-warning"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="shield-filled" width="18" height="18" class="popover-img font-color-warning"></clashcalc-assets-svg>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(title)}</span>
                     <span class="popover-badge">${escapeHTML(badge)}</span>
@@ -707,7 +707,7 @@ export function getSharedComboPopoverContent(defenseKeys, state) {
 
         return `
             <div class="calc-shared-defense-item">
-                <orecalc-assets-image src="${assetUrl}" alt="${escapeHTML(name)}" class="calc-shared-defense-item__img" size="thumbnail"></orecalc-assets-image>
+                <clashcalc-assets-image src="${assetUrl}" alt="${escapeHTML(name)}" class="calc-shared-defense-item__img" size="thumbnail"></clashcalc-assets-image>
                 <span class="calc-shared-defense-item__name">${escapeHTML(name)}</span>
             </div>
         `;
@@ -715,7 +715,7 @@ export function getSharedComboPopoverContent(defenseKeys, state) {
 
     return {
         header: `
-            <orecalc-assets-svg name="link" width="16" height="16" class="popover-img font-color-muted"></orecalc-assets-svg>
+            <clashcalc-assets-svg name="link" width="16" height="16" class="popover-img font-color-muted"></clashcalc-assets-svg>
             <div class="popover-title-group">
                 <span class="popover-title">${escapeHTML(title)}</span>
             </div>

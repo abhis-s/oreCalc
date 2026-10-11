@@ -113,7 +113,9 @@
         border-radius: $shape-corner-full;
         box-shadow: $elevation-1;
 
-        svg, orecalc-assets-svg {
+        svg,
+        clashcalc-assets-svg,
+        orecalc-assets-svg {
             display: inline-flex;
             width: 11px;
             height: 11px;
@@ -247,7 +249,9 @@
     white-space: nowrap;
     flex-shrink: 0;
 
-    svg, orecalc-assets-svg {
+    svg,
+    clashcalc-assets-svg,
+    orecalc-assets-svg {
         display: inline-flex;
         width: 12px;
         height: 12px;
@@ -353,7 +357,9 @@
             height: 26px;
         }
 
-        svg, orecalc-assets-svg {
+        svg,
+        clashcalc-assets-svg,
+        orecalc-assets-svg {
             display: inline-flex;
             width: 14px;
             height: 14px;

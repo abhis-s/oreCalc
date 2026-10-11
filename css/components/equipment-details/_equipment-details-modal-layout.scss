@@ -38,6 +38,7 @@
                         color: color-mix(in srgb, $text-secondary 40%, transparent) !important;
                         transform: none !important;
 
+                        clashcalc-assets-svg,
                         orecalc-assets-svg,
                         svg {
                             transform: none !important;
@@ -46,6 +47,7 @@
 
                     &.prev-eq-btn:hover,
                     &.prev-eq-btn:focus-visible {
+                        clashcalc-assets-svg,
                         orecalc-assets-svg,
                         svg {
                             transform: translateX(-3px);
@@ -54,6 +56,7 @@
 
                     &.next-eq-btn:hover,
                     &.next-eq-btn:focus-visible {
+                        clashcalc-assets-svg,
                         orecalc-assets-svg,
                         svg {
                             transform: translateX(3px);

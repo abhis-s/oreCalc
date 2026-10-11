@@ -48,17 +48,17 @@ function getTableNodeDetails(node, trackResolution = null, state = null) {
                 <span class="table-ore-item" title="${formatNumber(chest.shiny)} ${shinyLabel}">
                     <span class="ore-boost-icon-slot">${boostIcon}</span>
                     <span class="table-ore-amount">${formatNumber(chest.shiny)}</span>
-                    <orecalc-assets-image src="assets/shiny_ore.png" alt="${shinyLabel}" class="table-ore-icon" size="thumbnail"></orecalc-assets-image>
+                    <clashcalc-assets-image src="assets/shiny_ore.png" alt="${shinyLabel}" class="table-ore-icon" size="thumbnail"></clashcalc-assets-image>
                 </span>
                 <span class="table-ore-item" title="${formatNumber(chest.glowy)} ${glowyLabel}">
                     <span class="ore-boost-icon-slot">${boostIcon}</span>
                     <span class="table-ore-amount">${formatNumber(chest.glowy)}</span>
-                    <orecalc-assets-image src="assets/glowy_ore.png" alt="${glowyLabel}" class="table-ore-icon" size="thumbnail"></orecalc-assets-image>
+                    <clashcalc-assets-image src="assets/glowy_ore.png" alt="${glowyLabel}" class="table-ore-icon" size="thumbnail"></clashcalc-assets-image>
                 </span>
                 <span class="table-ore-item" title="${formatNumber(chest.starry)} ${starryLabel}">
                     <span class="ore-boost-icon-slot">${boostIcon}</span>
                     <span class="table-ore-amount">${formatNumber(chest.starry)}</span>
-                    <orecalc-assets-image src="assets/starry_ore.png" alt="${starryLabel}" class="table-ore-icon" size="thumbnail"></orecalc-assets-image>
+                    <clashcalc-assets-image src="assets/starry_ore.png" alt="${starryLabel}" class="table-ore-icon" size="thumbnail"></clashcalc-assets-image>
                 </span>
             </div>
         `.trim();
@@ -82,7 +82,7 @@ function getTableNodeDetails(node, trackResolution = null, state = null) {
                 <div class="table-ore-yield-group">
                     <span class="table-ore-item" title="${node.fallbackStarry || 50} ${starryLabel}">
                         <span class="table-ore-amount">${node.fallbackStarry || 50}</span>
-                        <orecalc-assets-image src="assets/starry_ore.png" alt="${starryLabel}" class="table-ore-icon" size="thumbnail"></orecalc-assets-image>
+                        <clashcalc-assets-image src="assets/starry_ore.png" alt="${starryLabel}" class="table-ore-icon" size="thumbnail"></clashcalc-assets-image>
                     </span>
                     <span class="table-fallback-label">(${fallbackLabel})</span>
                 </div>
@@ -134,7 +134,7 @@ export function renderTableView() {
             <tr>
                 <td colspan="3" class="table-empty-cell">
                     <div class="hero-journey-empty-filter-card">
-                        <orecalc-assets-svg name="sliders" class="empty-filter-icon"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="sliders" class="empty-filter-icon"></clashcalc-assets-svg>
                         <div class="empty-filter-title">${translate('views.heroJourney.filters.emptyFilterTitle')}</div>
                         <div class="empty-filter-desc">${translate('views.heroJourney.filters.emptyFilterDesc')}</div>
                         <button type="button" class="th-limit-reveal-btn hero-journey-empty-filter-btn" id="hj-table-clear-filters-btn">${translate('views.heroJourney.filters.clearFilter')}</button>
@@ -162,7 +162,7 @@ export function renderTableView() {
                 <tr class="th-header-row">
                     <td colspan="3">
                         <div class="th-header-cell">
-                            <orecalc-assets-image src="assets/th/th${nodeTH}.png" alt="TH ${nodeTH}" class="th-header-img" size="thumbnail"></orecalc-assets-image>
+                            <clashcalc-assets-image src="assets/th/th${nodeTH}.png" alt="TH ${nodeTH}" class="th-header-img" size="thumbnail"></clashcalc-assets-image>
                             <span data-i18n="views.heroJourney.page.thMilestonesHeader" data-i18n-th="${nodeTH}">${translate('views.heroJourney.page.thMilestonesHeader', { th: nodeTH })}</span>
                         </div>
                     </td>
@@ -177,8 +177,8 @@ export function renderTableView() {
 
         const claimedBadgeHtml = isClaimed
             ? (isUnownedEquipment
-                ? `<span class="table-claimed-badge table-unowned-badge" role="img" title="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}"><orecalc-assets-svg name="close" width="11" height="11"></orecalc-assets-svg></span>`
-                : `<span class="table-claimed-badge" role="img" title="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}"><orecalc-assets-svg name="check" width="11" height="11"></orecalc-assets-svg></span>`)
+                ? `<span class="table-claimed-badge table-unowned-badge" role="img" title="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.equipmentMissingTitle'))}"><clashcalc-assets-svg name="close" width="11" height="11"></clashcalc-assets-svg></span>`
+                : `<span class="table-claimed-badge" role="img" title="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}" aria-label="${escapeHTML(translate('views.heroJourney.nodes.claimed'))}"><clashcalc-assets-svg name="check" width="11" height="11"></clashcalc-assets-svg></span>`)
             : '';
 
         rowsHtml += `
@@ -191,7 +191,7 @@ export function renderTableView() {
                 </td>
                 <td>
                     <div class="hero-journey-page__reward-cell">
-                        <orecalc-assets-image src="${escapeHTML(details.icon)}" alt="${escapeHTML(details.name)}" class="reward-icon" size="thumbnail"></orecalc-assets-image>
+                        <clashcalc-assets-image src="${escapeHTML(details.icon)}" alt="${escapeHTML(details.name)}" class="reward-icon" size="thumbnail"></clashcalc-assets-image>
                         <span class="reward-name">${details.nameHtml || escapeHTML(details.name)}</span>
                     </div>
                 </td>
@@ -199,7 +199,7 @@ export function renderTableView() {
                     <div class="details-cell-content">
                         <div class="reward-yield-text">${details.yieldHtml}</div>
                         <button type="button" class="info-btn hj-table-info-btn" data-level="${node.level}" data-is-claimed="${isClaimed}" data-i18n-aria-label="actions.showInfo" title="${translate('actions.showInfo')}">
-                            <orecalc-assets-svg name="info" class="info-icon" height="14" width="14"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="info" class="info-icon" height="14" width="14"></clashcalc-assets-svg>
                         </button>
                     </div>
                 </td>

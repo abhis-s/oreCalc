@@ -230,21 +230,21 @@ export function renderLiveDashboards(oreProgress, hjProgress, thLevel = 18) {
                     </div>
                     <div class="live-stat-pills-row">
                         <div class="live-stat-pill" data-live-ore="shiny">
-                            <orecalc-assets-image class="stat-pill-icon" src="assets/shiny_ore.png" alt="${translate('entities.ores.shinyShort')}" data-i18n-alt="entities.ores.shinyShort" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image class="stat-pill-icon" src="assets/shiny_ore.png" alt="${translate('entities.ores.shinyShort')}" data-i18n-alt="entities.ores.shinyShort" size="standard"></clashcalc-assets-image>
                             <div class="stat-pill-text">
                                 <span class="stat-pill-name" data-i18n="entities.ores.shinyShort">${translate('entities.ores.shinyShort')}</span>
                                 <span class="stat-pill-val" data-live-ore-val="shiny">0%</span>
                             </div>
                         </div>
                         <div class="live-stat-pill" data-live-ore="glowy">
-                            <orecalc-assets-image class="stat-pill-icon" src="assets/glowy_ore.png" alt="${translate('entities.ores.glowyShort')}" data-i18n-alt="entities.ores.glowyShort" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image class="stat-pill-icon" src="assets/glowy_ore.png" alt="${translate('entities.ores.glowyShort')}" data-i18n-alt="entities.ores.glowyShort" size="standard"></clashcalc-assets-image>
                             <div class="stat-pill-text">
                                 <span class="stat-pill-name" data-i18n="entities.ores.glowyShort">${translate('entities.ores.glowyShort')}</span>
                                 <span class="stat-pill-val" data-live-ore-val="glowy">0%</span>
                             </div>
                         </div>
                         <div class="live-stat-pill" data-live-ore="starry">
-                            <orecalc-assets-image class="stat-pill-icon" src="assets/starry_ore.png" alt="${translate('entities.ores.starryShort')}" data-i18n-alt="entities.ores.starryShort" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image class="stat-pill-icon" src="assets/starry_ore.png" alt="${translate('entities.ores.starryShort')}" data-i18n-alt="entities.ores.starryShort" size="standard"></clashcalc-assets-image>
                             <div class="stat-pill-text">
                                 <span class="stat-pill-name" data-i18n="entities.ores.starryShort">${translate('entities.ores.starryShort')}</span>
                                 <span class="stat-pill-val" data-live-ore-val="starry">0%</span>
@@ -269,21 +269,21 @@ export function renderLiveDashboards(oreProgress, hjProgress, thLevel = 18) {
                     </div>
                     <div class="live-stat-pills-row">
                         <div class="live-stat-pill" data-live-hj="heroLevels">
-                            <orecalc-assets-image class="stat-pill-icon" src="assets/heroes/emblemBarbarianKing.png" alt="${translate('views.landing.heroLevelsShort')}" data-i18n-alt="views.landing.heroLevelsShort" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image class="stat-pill-icon" src="assets/heroes/emblemBarbarianKing.png" alt="${translate('views.landing.heroLevelsShort')}" data-i18n-alt="views.landing.heroLevelsShort" size="standard"></clashcalc-assets-image>
                             <div class="stat-pill-text">
                                 <span class="stat-pill-name" data-i18n="views.landing.heroLevelsShort">${translate('views.landing.heroLevelsShort')}</span>
                                 <span class="stat-pill-val" data-live-hj-val="heroLevels">0 / ${hjProgress.thCap}</span>
                             </div>
                         </div>
                         <div class="live-stat-pill" data-live-hj="trackProgress">
-                            <orecalc-assets-svg name="timeline" width="16" height="16" class="stat-pill-icon" aria-hidden="true"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="timeline" width="16" height="16" class="stat-pill-icon" aria-hidden="true"></clashcalc-assets-svg>
                             <div class="stat-pill-text">
                                 <span class="stat-pill-name" data-i18n="views.landing.trackProgressShort">${translate('views.landing.trackProgressShort')}</span>
                                 <span class="stat-pill-val" data-live-hj-val="trackProgress">0%</span>
                             </div>
                         </div>
                         <div class="live-stat-pill" data-live-hj="milestone">
-                            <orecalc-assets-image class="stat-pill-icon" src="assets/th/th${thLevel}.png" alt="${translate('views.equipment.thShort', { level: thLevel })}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${thLevel}}' size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image class="stat-pill-icon" src="assets/th/th${thLevel}.png" alt="${translate('views.equipment.thShort', { level: thLevel })}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${thLevel}}' size="standard"></clashcalc-assets-image>
                             <div class="stat-pill-text">
                                 <span class="stat-pill-name" data-i18n="views.landing.milestoneStatus">${translate('views.landing.milestoneStatus')}</span>
                                 <span class="stat-pill-val" data-live-hj-val="milestone" title="${milestoneText}">${compactMilestoneText}</span>
@@ -308,14 +308,14 @@ export function renderLiveDashboards(oreProgress, hjProgress, thLevel = 18) {
                     </div>
                     <div class="live-stat-pills-row">
                         <div class="live-stat-pill" data-live-damage="zapquake">
-                            <orecalc-assets-image class="stat-pill-icon" src="assets/spells/lightning.png" alt="${translate('views.landing.jumpZapQuake')}" data-i18n-alt="views.landing.jumpZapQuake" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image class="stat-pill-icon" src="assets/spells/lightning.png" alt="${translate('views.landing.jumpZapQuake')}" data-i18n-alt="views.landing.jumpZapQuake" size="standard"></clashcalc-assets-image>
                             <div class="stat-pill-text">
                                 <span class="stat-pill-name" data-i18n="views.landing.jumpZapQuake">${translate('views.landing.jumpZapQuake')}</span>
                                 <span class="stat-pill-val" data-i18n="views.landing.statOptimalSpells">${translate('views.landing.statOptimalSpells')}</span>
                             </div>
                         </div>
                         <div class="live-stat-pill" data-live-damage="equipment">
-                            <orecalc-assets-image class="stat-pill-icon" src="assets/equipment/archer_queen/AQ_giant_arrow.png" alt="${translate('views.damageCalc.offense.equipmentDamageBadge')}" data-i18n-alt="views.damageCalc.offense.equipmentDamageBadge" size="standard"></orecalc-assets-image>
+                            <clashcalc-assets-image class="stat-pill-icon" src="assets/equipment/archer_queen/AQ_giant_arrow.png" alt="${translate('views.damageCalc.offense.equipmentDamageBadge')}" data-i18n-alt="views.damageCalc.offense.equipmentDamageBadge" size="standard"></clashcalc-assets-image>
                             <div class="stat-pill-text">
                                 <span class="stat-pill-name" data-i18n="views.damageCalc.offense.equipmentDamageBadge">${translate('views.damageCalc.offense.equipmentDamageBadge')}</span>
                                 <span class="stat-pill-val" data-i18n="views.landing.statLiveThresholds">${translate('views.landing.statLiveThresholds')}</span>
@@ -419,20 +419,20 @@ export function renderGuestTeasers() {
         landingOreProgress.innerHTML = `
             <div class="landing-tool-card__guest-teaser">
                 <div class="landing-tool-card__guest-teaser-lead">
-                    <orecalc-assets-svg name="equipment-filled" width="16" height="16" class="teaser-icon" aria-hidden="true"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="equipment-filled" width="16" height="16" class="teaser-icon" aria-hidden="true"></clashcalc-assets-svg>
                     <span class="teaser-text" data-i18n="views.landing.oreGuestTeaser">${translate('views.landing.oreGuestTeaser')}</span>
                 </div>
                 <div class="landing-tool-card__guest-capabilities">
                     <span class="guest-capability-chip" data-i18n="views.landing.capEquipments" data-i18n-args='{"count":${totalEquipmentCount}}'>
-                        <orecalc-assets-svg name="equipment-filled" width="13" height="13" class="capability-icon" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="equipment-filled" width="13" height="13" class="capability-icon" aria-hidden="true"></clashcalc-assets-svg>
                         ${translate('views.landing.capEquipments', { count: totalEquipmentCount })}
                     </span>
                     <span class="guest-capability-chip" data-i18n="views.landing.capIncome">
-                        <orecalc-assets-svg name="income-filled" width="13" height="13" class="capability-icon" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="income-filled" width="13" height="13" class="capability-icon" aria-hidden="true"></clashcalc-assets-svg>
                         ${translate('views.landing.capIncome')}
                     </span>
                     <span class="guest-capability-chip" data-i18n="views.landing.capCalendar">
-                        <orecalc-assets-svg name="planner-filled" width="13" height="13" class="capability-icon" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="planner-filled" width="13" height="13" class="capability-icon" aria-hidden="true"></clashcalc-assets-svg>
                         ${translate('views.landing.capCalendar')}
                     </span>
                 </div>
@@ -446,20 +446,20 @@ export function renderGuestTeasers() {
         landingHjProgress.innerHTML = `
             <div class="landing-tool-card__guest-teaser">
                 <div class="landing-tool-card__guest-teaser-lead">
-                    <orecalc-assets-svg name="timeline" width="16" height="16" class="teaser-icon" aria-hidden="true"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="timeline" width="16" height="16" class="teaser-icon" aria-hidden="true"></clashcalc-assets-svg>
                     <span class="teaser-text" data-i18n="views.landing.hjGuestTeaser">${translate('views.landing.hjGuestTeaser')}</span>
                 </div>
                 <div class="landing-tool-card__guest-capabilities">
                     <span class="guest-capability-chip" data-i18n="views.landing.capMilestones" data-i18n-args='{"count":${totalMilestoneCount}}'>
-                        <orecalc-assets-svg name="timeline" width="13" height="13" class="capability-icon" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="timeline" width="13" height="13" class="capability-icon" aria-hidden="true"></clashcalc-assets-svg>
                         ${translate('views.landing.capMilestones', { count: totalMilestoneCount })}
                     </span>
                     <span class="guest-capability-chip" data-i18n="views.landing.capDropOdds">
-                        <orecalc-assets-svg name="redeem" width="13" height="13" class="capability-icon" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="redeem" width="13" height="13" class="capability-icon" aria-hidden="true"></clashcalc-assets-svg>
                         ${translate('views.landing.capDropOdds')}
                     </span>
                     <span class="guest-capability-chip" data-i18n="views.landing.capRewardFilters">
-                        <orecalc-assets-svg name="filter-alt" width="13" height="13" class="capability-icon" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="filter-alt" width="13" height="13" class="capability-icon" aria-hidden="true"></clashcalc-assets-svg>
                         ${translate('views.landing.capRewardFilters')}
                     </span>
                 </div>
@@ -473,20 +473,20 @@ export function renderGuestTeasers() {
         landingDamageProgress.innerHTML = `
             <div class="landing-tool-card__guest-teaser">
                 <div class="landing-tool-card__guest-teaser-lead">
-                    <orecalc-assets-svg name="bolt-planner" width="16" height="16" class="teaser-icon" aria-hidden="true"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="bolt-planner" width="16" height="16" class="teaser-icon" aria-hidden="true"></clashcalc-assets-svg>
                     <span class="teaser-text" data-i18n="views.landing.damageGuestTeaser">${translate('views.landing.damageGuestTeaser')}</span>
                 </div>
                 <div class="landing-tool-card__guest-capabilities">
                     <span class="guest-capability-chip" data-i18n="views.landing.capZapQuake">
-                        <orecalc-assets-svg name="bolt-planner" width="13" height="13" class="capability-icon" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="bolt-planner" width="13" height="13" class="capability-icon" aria-hidden="true"></clashcalc-assets-svg>
                         ${translate('views.landing.capZapQuake')}
                     </span>
                     <span class="guest-capability-chip" data-i18n="views.landing.jumpEquipmentSnipes">
-                        <orecalc-assets-svg name="equipment-filled" width="13" height="13" class="capability-icon" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="equipment-filled" width="13" height="13" class="capability-icon" aria-hidden="true"></clashcalc-assets-svg>
                         ${translate('views.landing.jumpEquipmentSnipes')}
                     </span>
                     <span class="guest-capability-chip" data-i18n="views.damageCalc.tabs.clusterPlanner">
-                        <orecalc-assets-svg name="timeline" width="13" height="13" class="capability-icon" aria-hidden="true"></orecalc-assets-svg>
+                        <clashcalc-assets-svg name="timeline" width="13" height="13" class="capability-icon" aria-hidden="true"></clashcalc-assets-svg>
                         ${translate('views.damageCalc.tabs.clusterPlanner')}
                     </span>
                 </div>

@@ -85,12 +85,12 @@ export function getDamageSourcesGridHtml(state) {
                 data-source-raw-level="${src.rawLevel || src.level}"
                 aria-label="${ariaLabel}"
                 aria-pressed="${isEnabled}">
-                <orecalc-assets-image
+                <clashcalc-assets-image
                     src="${src.icon}"
                     alt="${escapeHTML(src.name)}"
                     size="thumbnail"
                     class="calc-source-toggle-btn__icon">
-                </orecalc-assets-image>
+                </clashcalc-assets-image>
                 <span class="calc-source-toggle-btn__lvl ${isDowngraded ? 'calc-source-toggle-btn__lvl--downgraded' : ''}">${src.level}</span>
             </button>
         `;
@@ -114,12 +114,12 @@ export function getDamageSourcesGridHtml(state) {
                 title="${escapeHTML(ccSpellsTitle)}: ${escapeHTML(ccZapName)} ${lvlShort} ${ccZapLvl}, ${escapeHTML(ccEqName)} ${lvlShort} ${ccEqLvl}"
                 data-calc-info="cc_spells"
                 aria-label="${escapeHTML(translate('views.damageCalc.offense.clanCastleAbbr'))}: ${escapeHTML(ccSpellsTitle)}">
-                <orecalc-assets-image
+                <clashcalc-assets-image
                     src="/assets/buildings/clan_castle/level_14.png"
                     alt="Clan Castle"
                     size="thumbnail"
                     class="calc-source-toggle-btn__icon">
-                </orecalc-assets-image>
+                </clashcalc-assets-image>
                 <span class="calc-source-cc-badge">${escapeHTML(translate('views.damageCalc.offense.clanCastleAbbr'))}</span>
             </button>
             <button type="button"
@@ -130,12 +130,12 @@ export function getDamageSourcesGridHtml(state) {
                 data-source-level="${ccZapLvl}"
                 aria-label="${escapeHTML(ccZapName)} (${lvlShort} ${ccZapLvl})"
                 aria-pressed="${isCcZapEnabled}">
-                <orecalc-assets-image
+                <clashcalc-assets-image
                     src="/assets/spells/lightning.png"
                     alt="${escapeHTML(ccZapName)}"
                     size="thumbnail"
                     class="calc-source-toggle-btn__icon">
-                </orecalc-assets-image>
+                </clashcalc-assets-image>
                 <span class="calc-source-toggle-btn__lvl">${ccZapLvl}</span>
             </button>
             <button type="button"
@@ -146,12 +146,12 @@ export function getDamageSourcesGridHtml(state) {
                 data-source-level="${ccEqLvl}"
                 aria-label="${escapeHTML(ccEqName)} (${lvlShort} ${ccEqLvl})"
                 aria-pressed="${isCcEqEnabled}">
-                <orecalc-assets-image
+                <clashcalc-assets-image
                     src="/assets/spells/earthquake.png"
                     alt="${escapeHTML(ccEqName)}"
                     size="thumbnail"
                     class="calc-source-toggle-btn__icon">
-                </orecalc-assets-image>
+                </clashcalc-assets-image>
                 <span class="calc-source-toggle-btn__lvl">${ccEqLvl}</span>
             </button>
         </div>
@@ -167,19 +167,19 @@ export function getDamageSourcesGridHtml(state) {
             const label = tier === 0 ? translate('app.none') : translate('views.damageCalc.zapQuake.tierLabel', { tier });
             const isActive = zapSuperchargeTier === tier;
             const pipsHtml = tier === 0
-                ? `<orecalc-assets-image
+                ? `<clashcalc-assets-image
                     src="/assets/supercharge/supercharge_uncharged.png"
                     alt="${escapeHTML(label)}"
                     size="thumbnail"
                     class="calc-supercharge-pip is-uncharged">
-                </orecalc-assets-image>`
+                </clashcalc-assets-image>`
                 : Array.from({ length: tier }, () => `
-                    <orecalc-assets-image
+                    <clashcalc-assets-image
                         src="/assets/supercharge/supercharge_bolt.png"
                         alt="${escapeHTML(label)}"
                         size="thumbnail"
                         class="calc-supercharge-pip is-charged">
-                    </orecalc-assets-image>
+                    </clashcalc-assets-image>
                 `).join('');
             zapPillsHtml += `
                     <button type="button" class="calc-supercharge-pill ${isActive ? 'is-active active' : ''}" data-prefix="zq_combo" data-tier="${tier}" role="radio" aria-checked="${isActive}" title="${escapeHTML(label)}" aria-label="${escapeHTML(label)}">
@@ -190,7 +190,7 @@ export function getDamageSourcesGridHtml(state) {
         superchargeWrapperHtml = `
             <div class="calc-supercharge-wrapper calc-supercharge-wrapper--sources" title="${escapeHTML(translate('views.damageCalc.offense.superchargeLabel'))}">
                 <button type="button" class="calc-info-btn" data-calc-info="supercharge" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
-                    <orecalc-assets-svg name="info" width="13" height="13"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="info" width="13" height="13"></clashcalc-assets-svg>
                 </button>
                 <div class="calc-supercharge-pills" role="radiogroup" aria-label="${escapeHTML(translate('views.damageCalc.offense.superchargeLabel'))}">
                     ${zapPillsHtml}
@@ -247,7 +247,7 @@ export function renderTownHallDropdownHtml(currentTH, {
         }
         customThItemsHtml += `
             <button type="button" class="calc-th-dropdown-item ${isSelected ? 'is-selected' : ''}" role="option" aria-selected="${isSelected}" data-th="${th}">
-                <orecalc-assets-image src="/assets/buildings/town_hall/level_${th}.png" alt="${thLabel}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${th}}' class="calc-th-dropdown-item-icon" size="thumbnail"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/buildings/town_hall/level_${th}.png" alt="${thLabel}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${th}}' class="calc-th-dropdown-item-icon" size="thumbnail"></clashcalc-assets-image>
                 <span class="calc-th-dropdown-item-label" data-i18n="views.equipment.thShort" data-i18n-args='{"level":${th}}'>${thLabel}</span>
             </button>
         `;
@@ -263,9 +263,9 @@ export function renderTownHallDropdownHtml(currentTH, {
     return `
         <div class="calc-th-dropdown" id="${dropdownId}">
             <button type="button" class="calc-th-dropdown-trigger" id="${triggerId}" aria-haspopup="listbox" aria-expanded="false" aria-label="${escapeHTML(translate('entities.defenses.townHall'))}: ${safeThLabel}">
-                <orecalc-assets-image src="/assets/buildings/town_hall/level_${safeTH}.png" alt="${safeThLabel}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${safeTH}}' class="calc-th-dropdown-icon" size="thumbnail"></orecalc-assets-image>
+                <clashcalc-assets-image src="/assets/buildings/town_hall/level_${safeTH}.png" alt="${safeThLabel}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${safeTH}}' class="calc-th-dropdown-icon" size="thumbnail"></clashcalc-assets-image>
                 <span data-i18n="views.equipment.thShort" data-i18n-args='{"level":${safeTH}}' class="calc-th-dropdown-value">${safeThLabel}</span>
-                <orecalc-assets-svg name="chevron-down" class="calc-th-dropdown-arrow"></orecalc-assets-svg>
+                <clashcalc-assets-svg name="chevron-down" class="calc-th-dropdown-arrow"></clashcalc-assets-svg>
             </button>
             <div class="calc-th-dropdown-menu" id="${menuId}" role="listbox" aria-label="${escapeHTML(translate('entities.defenses.townHall'))}" hidden>
                 ${customThItemsHtml}
@@ -295,7 +295,7 @@ export function getDamageSourcesCardMarkup(state) {
                     <div class="calc-modifier-bar__label-group">
                         <span class="calc-modifier-bar__label" data-i18n="views.damageCalc.offense.battleModifier">${escapeHTML(translate('views.damageCalc.offense.battleModifier') || 'Modifier:')}</span>
                         <button type="button" class="calc-info-btn" data-calc-info="modifier" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
-                            <orecalc-assets-svg name="info" width="13" height="13"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="info" width="13" height="13"></clashcalc-assets-svg>
                         </button>
                     </div>
                     <div class="calc-modifier-bar__tabs-container">
@@ -310,7 +310,7 @@ export function getDamageSourcesCardMarkup(state) {
                     <span class="calc-sources-section__hint" data-i18n="views.damageCalc.offense.damageSourcesHint">${escapeHTML(translate('views.damageCalc.offense.damageSourcesHint') || 'Toggle spells & equipment to compute combos')}</span>
                 </div>
                 <button type="button" id="calc-edit-offense-btn" class="btn-secondary calc-sources-section__edit-btn" aria-haspopup="dialog" aria-controls="calc-offense-modal">
-                    <orecalc-assets-svg name="sliders" width="14" height="14"></orecalc-assets-svg>
+                    <clashcalc-assets-svg name="sliders" width="14" height="14"></clashcalc-assets-svg>
                     <span data-i18n="views.damageCalc.offense.editLevels">${escapeHTML(translate('views.damageCalc.offense.editLevels') || 'Edit Levels')}</span>
                 </button>
             </div>

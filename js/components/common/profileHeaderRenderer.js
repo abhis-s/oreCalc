@@ -81,7 +81,7 @@ export function renderProfileHeaderHtml({
 
     const leagueIconUrl = leagueData?.iconUrls?.small || unrankedLeague?.iconUrls?.small || 'https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png';
     const safeLeagueIconUrl = escapeHTML(leagueIconUrl);
-    const leagueIconHtml = `<orecalc-assets-image class="league-badge-img-mini" src="${safeLeagueIconUrl}" alt="${safeLeagueName}" size="standard"></orecalc-assets-image>`;
+    const leagueIconHtml = `<clashcalc-assets-image class="league-badge-img-mini" src="${safeLeagueIconUrl}" alt="${safeLeagueName}" size="standard"></clashcalc-assets-image>`;
 
     const targetTrophies = trophies !== null ? trophies : (Number(profile?.trophies) || 0);
     const resolvedTrophiesHtml = trophiesHtml || (isGuest
@@ -119,7 +119,7 @@ export function renderProfileHeaderHtml({
         if (profile.clan?.name) {
             const badgeUrl = profile.clan.badgeUrls?.small || '';
             const safeBadgeUrl = escapeHTML(badgeUrl);
-            const badgeImg = badgeUrl ? `<orecalc-assets-image class="clan-badge-img-mini" src="${safeBadgeUrl}" alt="${escapeHTML(translate('player.clanBadge'))}" data-i18n-alt="player.clanBadge"></orecalc-assets-image>` : '';
+            const badgeImg = badgeUrl ? `<clashcalc-assets-image class="clan-badge-img-mini" src="${safeBadgeUrl}" alt="${escapeHTML(translate('player.clanBadge'))}" data-i18n-alt="player.clanBadge"></clashcalc-assets-image>` : '';
 
             let roleHtml = '';
             if (profile.role) {
@@ -157,7 +157,7 @@ export function renderProfileHeaderHtml({
         <div class="home-profile-header${extraClassStr}${guestClassStr}">
             <div class="profile-meta-left">
                 <div class="th-badge-wrapper">
-                    <orecalc-assets-image class="th-badge-img${silhouetteClassStr}" src="${thImgUrl}" alt="Town Hall ${activeTh}" size="standard"></orecalc-assets-image>
+                    <clashcalc-assets-image class="th-badge-img${silhouetteClassStr}" src="${thImgUrl}" alt="Town Hall ${activeTh}" size="standard"></clashcalc-assets-image>
                     <span class="th-badge-level-overlay">${activeTh}</span>
                 </div>
                 <div class="player-identity">
@@ -172,7 +172,7 @@ export function renderProfileHeaderHtml({
                     <div class="league-text-mini">
                         <span class="league-name-mini" data-i18n="${leagueKey}">${safeLeagueName}</span>
                         <div class="player-trophies-mini">
-                            <orecalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></orecalc-assets-svg>
+                            <clashcalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></clashcalc-assets-svg>
                             ${resolvedTrophiesHtml}
                         </div>
                     </div>

@@ -5,13 +5,13 @@ import { toCamelCase } from '../../utils/stringUtils.js';
 import { getSVG } from '../../utils/svgManager.js';
 
 /**
- * Creates and returns a localized `<orecalc-assets-image>` hero avatar icon element.
+ * Creates and returns a localized `<clashcalc-assets-image>` hero avatar icon element.
  * @param {any} hero - Hero data model object.
  * @param {{ sizeClass?: string, action?: string }} [options={}] - Render options.
  * @returns {HTMLElement} Created hero icon element.
  */
 export function createHeroIcon(hero, { sizeClass = '', action = '' } = {}) {
-    const img = document.createElement('orecalc-assets-image');
+    const img = document.createElement('clashcalc-assets-image');
     const heroKey = toCamelCase(hero.name);
     img.setAttribute('src', hero.image);
     img.setAttribute('alt', translate('entities.heroes.' + heroKey));
@@ -51,7 +51,7 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
     const overLeveledGlowClass = isOverLeveled ? 'over-leveled-glow' : '';
     const equipTypeClass = equip.type === 'common' ? 'common-equip' : 'epic-equip';
 
-    const img = document.createElement('orecalc-assets-image');
+    const img = document.createElement('clashcalc-assets-image');
     const equipKey = toCamelCase(equip.name);
     img.setAttribute('src', equip.image);
     img.setAttribute('alt', translate('entities.equipment.' + equipKey));
