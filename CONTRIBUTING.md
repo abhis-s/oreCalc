@@ -25,7 +25,7 @@ We welcome contributions to ClashCalc (formerly OreCalc)! To maintain code quali
    To run the backend API server concurrently (at `http://localhost:3000`):
 
    ```bash
-   pnpm --filter orecalc-server start
+   pnpm --filter clashcalc-server start
    ```
 
 4. **Running Verification Suites**:

@@ -106,7 +106,7 @@ A high-performance, privacy-first web application suite engineered for Clash of 
    - **Backend API Server** (runs Express proxy on `http://localhost:3000`):
 
      ```bash
-     pnpm --filter orecalc-server start
+     pnpm --filter clashcalc-server start
      ```
 
 5. **Execute verification test suites:**
@@ -129,8 +129,8 @@ A high-performance, privacy-first web application suite engineered for Clash of 
 
 ClashCalc is deployed to Google Cloud Run using automated commit-based triggers via Google Cloud Build.
 
-- **Frontend Service (`orecalc-webapp`)**: Triggered on repository commits, executes `cloudbuild.frontend.yaml` to build static assets, package the container, and deploy to Cloud Run. Mapped to `clashcalc.com`.
-- **Backend Service (`orecalc-api`)**: Triggered on changes in `server/`, executes `server/cloudbuild.backend.yaml` to containerize the Express API, inject secrets from Google Cloud Secret Manager, and deploy to Cloud Run. Mapped to `api.clashcalc.com`.
+- **Frontend Service (`clashcalc-webapp`)**: Triggered on repository commits, executes `cloudbuild.frontend.yaml` to build static assets, package the container, and deploy to Cloud Run. Mapped to `clashcalc.com`.
+- **Backend Service (`clashcalc-api`)**: Triggered on changes in `server/`, executes `server/cloudbuild.backend.yaml` to containerize the Express API, inject secrets from Google Cloud Secret Manager, and deploy to Cloud Run. Mapped to `api.clashcalc.com`.
 - **Secret Manager Bindings**: Production deployments bind secrets dynamically (`CLASH_OF_CLANS_API_TOKEN`, `FIRESTORE_SA_KEY`, `JWT_SECRET`, `TURNSTILE_SECRET_KEY`, `SMTP_PASS`).
 
 ### Manual CLI Deployment (Self-Hosting)
@@ -147,7 +147,7 @@ For standalone environments or manual deployments without automated triggers:
 
    ```bash
    cd server
-   gcloud run deploy orecalc-api \
+   gcloud run deploy clashcalc-api \
      --source . \
      --region europe-west1 \
      --allow-unauthenticated \
@@ -160,7 +160,7 @@ For standalone environments or manual deployments without automated triggers:
 
    ```bash
    cd ..
-   gcloud run deploy orecalc-webapp \
+   gcloud run deploy clashcalc-webapp \
      --source . \
      --region europe-west1 \
      --allow-unauthenticated \

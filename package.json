@@ -6,7 +6,7 @@
     "workbox-window": "^7.4.1"
   },
   "packageManager": "pnpm@11.3.0",
-  "name": "orecalc-frontend",
+  "name": "clashcalc-frontend",
   "version": "3.0.0",
   "description": "",
   "main": "service-worker.js",

@@ -5,15 +5,15 @@ steps:
   dir: 'server'
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/$PROJECT_ID/orecalc-api:$COMMIT_SHA', '.']
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/clashcalc-api:$COMMIT_SHA', '.']
   dir: 'server'
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/$PROJECT_ID/orecalc-api:$COMMIT_SHA']
+  args: ['push', 'gcr.io/$PROJECT_ID/clashcalc-api:$COMMIT_SHA']
 
 - name: 'gcr.io/cloud-builders/gcloud'
-  args: ['run', 'deploy', 'orecalc-api',
-         '--image', 'gcr.io/$PROJECT_ID/orecalc-api:$COMMIT_SHA',
+  args: ['run', 'deploy', 'clashcalc-api',
+         '--image', 'gcr.io/$PROJECT_ID/clashcalc-api:$COMMIT_SHA',
          '--region', 'europe-west1',
          '--allow-unauthenticated',
          '--platform', 'managed',
@@ -27,4 +27,4 @@ steps:
   entrypoint: gcloud
 
 images:
-- 'gcr.io/$PROJECT_ID/orecalc-api:$COMMIT_SHA'
+- 'gcr.io/$PROJECT_ID/clashcalc-api:$COMMIT_SHA'
