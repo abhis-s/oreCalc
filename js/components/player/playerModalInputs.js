@@ -17,6 +17,7 @@ import {
 import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
 import { triggerCloudSave } from '../../services/cloudSaveService.js';
 import { showConfirm } from '../../ui/noticeModal.js';
+import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 
 let isPlayerModalInitialized = false;
 
@@ -109,6 +110,7 @@ export function initializePlayerModal() {
                     const result = await loadAndProcessPlayerData(cleanedTag);
 
                     if (result.success) {
+                        syncPlayerTagToUrl(result.cleanTag || cleanedTag);
                         renderPlayerModal(false, '', '', false);
                         navigateToHomeTab();
                         await checkAndPromptCloudSync();
@@ -153,6 +155,7 @@ export function initializePlayerModal() {
                 const loadResult = await loadAndProcessPlayerData(tag, { verifyToken: token });
 
                 if (loadResult.success) {
+                    syncPlayerTagToUrl(loadResult.cleanTag || tag);
                     setForcedVerification(false);
                     renderPlayerModal(false, '', '', false);
                     navigateToHomeTab();

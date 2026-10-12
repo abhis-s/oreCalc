@@ -47,7 +47,7 @@ test('Damage Calculator Sync Service Suite', async (t) => {
             townHallLevel: 17
         });
 
-        assert.equal(damageCalcState.activeTag, '#ABC123XYZ');
+        assert.equal(damageCalcState.activeTag, 'ABC123XYZ');
         assert.equal(damageCalcState.playerTownHall, 17);
     });
 

@@ -79,7 +79,7 @@ export async function handlePlayerSelection(tag) {
     } else {
         const result = await loadAndProcessPlayerData(cleanTag);
         if (result?.success) {
-            syncPlayerTagToUrl(cleanTag);
+            syncPlayerTagToUrl(result.cleanTag || cleanTag);
         } else {
             const errorKey = result?.message || 'apiErrors.notFound';
             showApiErrorToast(errorKey);

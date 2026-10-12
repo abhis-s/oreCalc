@@ -196,6 +196,7 @@ async function initCommandCenter() {
                 accountsList.style.display = 'none';
             }
             if (showcaseSection) {
+                showcaseSection.innerHTML = '';
                 showcaseSection.hidden = true;
                 showcaseSection.style.display = 'none';
             }
@@ -288,6 +289,7 @@ function refreshLandingPortal() {
             accountsList.style.display = 'none';
         }
         if (showcaseSection) {
+            showcaseSection.innerHTML = '';
             showcaseSection.hidden = true;
             showcaseSection.style.display = 'none';
         }

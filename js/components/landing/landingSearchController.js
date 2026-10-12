@@ -261,18 +261,19 @@ export function initLandingSearchForm({
                     return;
                 }
 
+                const canonicalTag = result.cleanTag || clean;
                 const refreshedProfiles = getSavedProfiles();
-                const newProfile = refreshedProfiles.find(p => p.cleanTag === clean) || {
-                    cleanTag: clean,
-                    name: clean,
-                    townHallLevel: 18
+                const newProfile = refreshedProfiles.find(p => p.cleanTag === canonicalTag) || {
+                    cleanTag: canonicalTag,
+                    name: result.playerData?.name || canonicalTag,
+                    townHallLevel: Number(result.playerData?.townHallLevel) || 18
                 };
 
                 const accountsSection = document.getElementById('landing-saved-accounts');
                 if (accountsSection) accountsSection.style.display = 'flex';
 
-                renderAccountsGrid(refreshedProfiles, clean, selectVillage, handleDeleteVillage);
-                selectVillage(clean);
+                renderAccountsGrid(refreshedProfiles, canonicalTag, selectVillage, handleDeleteVillage);
+                selectVillage(canonicalTag);
 
                 closeSearchForm();
                 if (typeof openLaunchModal === 'function') {

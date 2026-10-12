@@ -7,6 +7,7 @@
 import { safeJsonParse } from '../../utils/jsonUtils.js';
 import { getSavedProfiles, removePlayerTag, setActivePlayerTag } from '../../core/playerStorage.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
+import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import { calculateEquipmentProgress } from '../../domain/equipment/equipmentProgressDomain.js';
 import { translate } from '../../i18n/translator.js';
 import { showConfirm } from '../../ui/noticeModal.js';
@@ -119,6 +120,10 @@ export function initLandingAccountsManager({
      * @param {string} cleanTag
      */
     const selectVillage = (cleanTag) => {
+        const currentProfiles = getSavedProfiles();
+        const summary = currentProfiles.find(p => p.cleanTag === cleanTag);
+        if (!summary) return;
+
         activeTag = cleanTag;
         setActivePlayerTag(cleanTag);
 
@@ -139,10 +144,6 @@ export function initLandingAccountsManager({
             c.classList.toggle('is-active', isMatch);
             c.setAttribute('aria-selected', isMatch ? 'true' : 'false');
         });
-
-        const currentProfiles = getSavedProfiles();
-        const summary = currentProfiles.find(p => p.cleanTag === cleanTag);
-        if (!summary) return;
 
         activeProfile = summary;
 
@@ -189,6 +190,15 @@ export function initLandingAccountsManager({
             if (cardsContainer) {
                 cardsContainer.innerHTML = '';
                 cardsContainer.classList.remove('is-managing');
+            }
+            const showcaseSection = document.getElementById('landing-active-profile');
+            if (showcaseSection) {
+                showcaseSection.innerHTML = '';
+                showcaseSection.style.display = 'none';
+                showcaseSection.hidden = true;
+            }
+            if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                document.documentElement.classList.remove('has-player');
             }
             activeTag = null;
             activeProfile = null;
@@ -352,14 +362,20 @@ export function initLandingAccountsManager({
                     try {
                         const result = await loadAndProcessPlayerData(cleanUrlTag, { updateOrder: true });
                         if (result?.success) {
+                            const canonicalTag = result.cleanTag || cleanUrlTag;
                             savedProfiles = getSavedProfiles();
-                            activeTag = cleanUrlTag;
-                            const newProfile = savedProfiles.find(p => p.cleanTag === cleanUrlTag);
+                            activeTag = canonicalTag;
+                            const newProfile = savedProfiles.find(p => p.cleanTag === canonicalTag) || {
+                                cleanTag: canonicalTag,
+                                name: result.playerData?.name || canonicalTag,
+                                townHallLevel: Number(result.playerData?.townHallLevel) || 18
+                            };
+                            syncPlayerTagToUrl(canonicalTag);
                             const accountsSection = document.getElementById('landing-saved-accounts');
                             if (accountsSection) accountsSection.style.display = 'flex';
                             renderAccountsGrid(savedProfiles, activeTag, selectVillage, handleDeleteVillage);
-                            selectVillage(cleanUrlTag);
-                            if (newProfile && typeof openLaunchModal === 'function') {
+                            selectVillage(canonicalTag);
+                            if (typeof openLaunchModal === 'function') {
                                 openLaunchModal(newProfile);
                             }
                         } else {

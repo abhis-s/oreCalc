@@ -23,7 +23,9 @@ import {
 import { cleanupOrphanedPlayerPartitions } from '../../js/core/stateCleanup.js';
 import { state, getDefaultPlayerState } from '../../js/core/state.js';
 import { syncPlayerToStorage } from '../../js/components/heroJourney/heroJourneyState.js';
-import { processPlayerDataResponse } from '../../js/services/serverResponseHandler.js';
+import { processPlayerDataResponse, loadAndProcessPlayerData } from '../../js/services/serverResponseHandler.js';
+import { damageCalcState, resetDamageCalcState } from '../../js/components/damage/damageCalcState.js';
+import { syncPlayerVillageData } from '../../js/components/damage/damageCalcSyncService.js';
 
 describe('Player Storage Normalization & Anti-Hashed Keys Suite', () => {
     /** @type {Map<string, string>} */
@@ -682,6 +684,58 @@ describe('Player Storage Normalization & Anti-Hashed Keys Suite', () => {
             assert.equal(loadedPlayer.playerProfile.achievements, undefined);
             assert.deepEqual(loadedPlayer.playerProfile.spells, { lightning: 10, earthquake: 5 });
             assert.deepEqual(loadedPlayer.planner.calendar.dates, {});
+        });
+    });
+
+    describe('7. Server-Canonical Tag Auto-Correction & Anti-Zombie Invariants', () => {
+        it('loadAndProcessPlayerData returns canonical cleanTag and playerData on server auto-correction', async () => {
+            const originalFetch = globalThis.fetch;
+            try {
+                globalThis.fetch = async () => ({
+                    ok: true,
+                    status: 200,
+                    json: async () => ({
+                        tag: '#TEST0TAG',
+                        name: 'Canonical Chief',
+                        townHallLevel: 18,
+                        heroes: [],
+                        heroEquipment: [],
+                        spells: []
+                    })
+                });
+
+                const result = await loadAndProcessPlayerData('###TESTOTAG###');
+                assert.ok(result);
+                assert.equal(result.success, true);
+                assert.equal(result.cleanTag, 'TEST0TAG');
+                assert.ok(!result.cleanTag.includes('#'));
+                assert.equal(result.playerData.name, 'Canonical Chief');
+
+                assert.ok(state.savedPlayerTags.includes('TEST0TAG'));
+                assert.ok(!state.savedPlayerTags.includes('TESTOTAG'));
+                assert.ok(!state.savedPlayerTags.some(t => t.includes('#')));
+                assert.ok(state.allPlayersData.TEST0TAG);
+                assert.equal(state.allPlayersData.TEST0TAG.playerProfile.name, 'Canonical Chief');
+            } finally {
+                globalThis.fetch = originalFetch;
+            }
+        });
+
+        it('damageCalcState activeTag maintains zero hashes upon synchronization', () => {
+            resetDamageCalcState();
+            syncPlayerVillageData({
+                tag: '#8PJYGUJC',
+                townHallLevel: 17
+            });
+            assert.equal(damageCalcState.activeTag, '8PJYGUJC');
+            assert.ok(!damageCalcState.activeTag.includes('#'));
+        });
+
+        it('resetDamageCalcState resets state cleanly to default without active tag', () => {
+            damageCalcState.activeTag = '8PJYGUJC';
+            resetDamageCalcState();
+            assert.equal(damageCalcState.activeTag, null);
+            assert.equal(damageCalcState.playerTownHall, 18);
         });
     });
 });

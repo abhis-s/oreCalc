@@ -43,7 +43,7 @@ export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, 
             }
             processPlayerDataResponse(playerData, { updateOrder });
         });
-        return { success: true };
+        return { success: true, cleanTag: cleanedServerTag, playerData };
     } catch (error) {
         console.error('Failed to load player data:', error);
 

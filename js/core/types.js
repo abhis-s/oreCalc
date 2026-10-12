@@ -343,6 +343,8 @@
  * @property {string} [message] - Localized status or error message
  * @property {boolean} [isNetworkError] - Whether failure was due to network/server outage
  * @property {string} [errorType] - Error classification key
+ * @property {string} [cleanTag] - Normalized canonical player tag from Supercell
+ * @property {Record<string, any>} [playerData] - Raw remote player payload
  */
 
 export {};

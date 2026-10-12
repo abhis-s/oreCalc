@@ -8,6 +8,7 @@ import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getDefaultModifierKey } from '../../domain/equipment/modifierCalculator.js';
 import { getDefaultSuperchargeTier } from '../../domain/damage/defenseProgressionDomain.js';
 import { state as appGlobalState } from '../../core/state.js';
+import { normalizePlayerTag } from '../../core/storageKeys.js';
 import {
     damageCalcState,
     persistState,
@@ -38,7 +39,7 @@ export function syncPlayerVillageData(playerData, options = {}) {
     if (!playerData || typeof playerData !== 'object') return;
 
     if (playerData.tag) {
-        damageCalcState.activeTag = playerData.tag;
+        damageCalcState.activeTag = normalizePlayerTag(playerData.tag);
     }
 
     const prevTh = damageCalcState.playerTownHall;

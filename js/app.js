@@ -261,7 +261,7 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             } else {
                 const result = await loadAndProcessPlayerData(urlTag);
                 if (result?.success) {
-                    syncPlayerTagToUrl(urlTag);
+                    syncPlayerTagToUrl(result.cleanTag || urlTag);
                 } else {
                     showApiErrorToast(result || 'apiErrors.notFound');
                     if (state.savedPlayerTags?.[0] && state.savedPlayerTags[0] !== 'DEFAULT0') {

@@ -43,7 +43,8 @@ import {
 
 import {
     damageCalcState,
-    loadPersistedState
+    loadPersistedState,
+    resetDamageCalcState
 } from './components/damage/damageCalcState.js';
 import { syncPlayerVillageData } from './components/damage/damageCalcSyncService.js';
 
@@ -90,7 +91,7 @@ export async function revalidatePlayerData(tag, hadCachedData = false) {
         const serverTag = normalizePlayerTag(data.tag);
         const saved = getSavedProfiles();
         const isStillSaved = saved.some(p => p.cleanTag === serverTag || p.cleanTag === cleanTag);
-        if (!isStillSaved) {
+        if (!isStillSaved && hadCachedData) {
             // Profile was deleted while network request was in flight. Abort revalidation.
             return false;
         }
@@ -426,6 +427,7 @@ async function initDamageApp() {
         onDeletePlayer: (tag) => {
             const remaining = getSavedProfiles();
             if (remaining.length === 0) {
+                resetDamageCalcState();
                 damageCalcState.activeTag = '';
                 syncPlayerTagToUrl('');
                 renderStandalonePlayerDropdown('');

@@ -129,7 +129,7 @@ test('Damage Calculator State Management', async (t) => {
         };
 
         syncPlayerVillageData(playerData);
-        assert.equal(damageCalcState.activeTag, '#8PJYGUJC');
+        assert.equal(damageCalcState.activeTag, '8PJYGUJC');
         assert.equal(damageCalcState.playerTownHall, 15);
         assert.equal(damageCalcState.offense.equipment.giant_arrow, 17);
         assert.equal(damageCalcState.globalSuperchargeTier, 0);
@@ -143,7 +143,7 @@ test('Damage Calculator State Management', async (t) => {
         };
 
         syncPlayerVillageData(lowThData);
-        assert.equal(damageCalcState.activeTag, '#LOWTH7');
+        assert.equal(damageCalcState.activeTag, 'LOWTH7');
         assert.equal(damageCalcState.playerTownHall, 7, 'True playerTownHall must remain 7 without clamping to 9');
         assert.equal(getShownTownHall(damageCalcState), 9, 'Shown Town Hall for damage calculator must clamp to 9');
 
@@ -265,7 +265,7 @@ test('Damage Calculator State Management', async (t) => {
             heroEquipment: [{ name: 'Giant Arrow', level: 18 }]
         }, { resetUI: false });
 
-        assert.equal(damageCalcState.activeTag, '#PLAYER_B');
+        assert.equal(damageCalcState.activeTag, 'PLAYER_B');
         assert.equal(damageCalcState.playerTownHall, 18);
         assert.equal(damageCalcState.defenseLevelOverrides.air_defense, 15, 'Defense level override must be preserved');
         assert.equal(damageCalcState.defenseSuperchargeOverrides.scattershot, 1, 'Supercharge override must be preserved');
@@ -287,7 +287,7 @@ test('Damage Calculator State Management', async (t) => {
             heroEquipment: [{ name: 'Giant Arrow', level: 15 }]
         }); // resetUI defaults to (prevTh !== targetTh) === true
 
-        assert.equal(damageCalcState.activeTag, '#PLAYER_C');
+        assert.equal(damageCalcState.activeTag, 'PLAYER_C');
         assert.equal(damageCalcState.playerTownHall, 17);
         assert.deepEqual(damageCalcState.defenseLevelOverrides, {}, 'Defense level overrides must be wiped on TH change');
         assert.deepEqual(damageCalcState.defenseSuperchargeOverrides, {}, 'Supercharge overrides must be wiped on TH change');

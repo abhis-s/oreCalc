@@ -104,9 +104,9 @@ async function loadPlayer(tag) {
             const cached = safeJsonParse(cachedStr, null);
             const cachedProfile = cached?.playerProfile || cached?.playerData || null;
             if (cachedProfile && cachedProfile.tag && normalizePlayerTag(cachedProfile.tag) === cleanTag) {
-                const serverTag = formatDisplayTag(cachedProfile.tag);
+                const normalizedClean = normalizePlayerTag(cachedProfile.tag);
                 hjState.playerData = cachedProfile;
-                hjState.activeTag = serverTag;
+                hjState.activeTag = normalizedClean;
                 hjState.thLevel = Number(cachedProfile.townHallLevel) || 16;
                 hjState.cumulativeLevel = computePlayerCumulativeLevel(cachedProfile);
                 if (cached.heroJourney) {
@@ -115,7 +115,7 @@ async function loadPlayer(tag) {
                     if (cached.heroJourney.typeFilter) hjState.typeFilter = cached.heroJourney.typeFilter;
                     if (typeof cached.heroJourney.unclaimedOnly === 'boolean') hjState.unclaimedOnly = cached.heroJourney.unclaimedOnly;
                 }
-                updateUrlTag(serverTag);
+                updateUrlTag(normalizedClean);
                 renderUI();
             }
         } catch {}
@@ -140,10 +140,10 @@ async function loadPlayer(tag) {
             return { success: false };
         }
         hjState.playerData = data;
-        hjState.activeTag = serverTag;
+        hjState.activeTag = normalizedServer;
         hjState.thLevel = Number(data.townHallLevel) || 16;
         hjState.cumulativeLevel = computePlayerCumulativeLevel(data);
-        updateUrlTag(serverTag);
+        updateUrlTag(normalizedServer);
 
         const savedPartition = safeJsonParse(localStorage.getItem(canonicalKey) || localStorage.getItem(legacyKey), null);
         if (savedPartition?.heroJourney) {
@@ -153,7 +153,7 @@ async function loadPlayer(tag) {
 
         syncPlayerToStorage(data, hjState);
 
-        renderHeroJourneyPlayerDropdown(cleanTag);
+        renderHeroJourneyPlayerDropdown(normalizedServer);
         loadResult = { success: true, data };
     } catch (err) {
         const errorKey = err.message || 'apiErrors.notFound';
@@ -607,9 +607,9 @@ function syncHjFromStorage() {
         const cached = safeJsonParse(raw, null);
         const cachedProfile = cached?.playerProfile || cached?.playerData || null;
         if (cachedProfile && cachedProfile.tag && normalizePlayerTag(cachedProfile.tag) === active) {
-            const serverTag = formatDisplayTag(cachedProfile.tag);
+            const normalizedClean = normalizePlayerTag(cachedProfile.tag);
             hjState.playerData = cachedProfile;
-            hjState.activeTag = serverTag;
+            hjState.activeTag = normalizedClean;
             hjState.thLevel = Number(cachedProfile.townHallLevel) || 16;
             hjState.cumulativeLevel = computePlayerCumulativeLevel(cachedProfile);
             if (cached.heroJourney) {
@@ -618,7 +618,7 @@ function syncHjFromStorage() {
                 if (cached.heroJourney.typeFilter) hjState.typeFilter = cached.heroJourney.typeFilter;
                 if (typeof cached.heroJourney.unclaimedOnly === 'boolean') hjState.unclaimedOnly = cached.heroJourney.unclaimedOnly;
             }
-            updateUrlTag(serverTag);
+            updateUrlTag(normalizedClean);
         }
         renderUI();
     }
