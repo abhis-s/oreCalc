@@ -47,6 +47,9 @@ async function resolveBuildMetadata(packageJson) {
     let gitSuccess = false;
 
     try {
+        if (process.env.SIMULATE_NO_GIT === 'true') {
+            throw new Error('Simulated git unavailable');
+        }
         gitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
         if (process.env.TAG_NAME || process.env.STABLE === 'true') {
@@ -98,61 +101,75 @@ async function resolveBuildMetadata(packageJson) {
 
     if (!gitSuccess) {
         try {
-            const commitsResponse = await fetch('https://api.github.com/repos/abhis-s/oreCalc/commits?per_page=10', {
-                headers: { 'User-Agent': 'oreCalc-build-script' }
-            });
+            const commitsEndpoint = 'https://api.github.com/repos/abhis-s/oreCalc/commits';
+            const headers = { 'User-Agent': 'oreCalc-build-script' };
 
-            if (commitsResponse.ok) {
-                const ghCommits = await commitsResponse.json();
-                if (ghCommits && ghCommits.length > 0) {
-                    gitHash = ghCommits[0].sha.substring(0, 7);
-
-                    const parsedCommits = ghCommits.map(c => ({
-                        hash: c.sha.substring(0, 7),
-                        timestamp: new Date(c.commit.committer.date).getTime(),
-                        subject: c.commit.message.split('\n')[0]
-                    }));
-
-                    let latestTagSha = '';
-                    try {
-                        const tagsResponse = await fetch('https://api.github.com/repos/abhis-s/oreCalc/tags', {
-                            headers: { 'User-Agent': 'oreCalc-build-script' }
-                        });
-                        if (tagsResponse.ok) {
-                            const tags = await tagsResponse.json();
-                            if (tags && tags.length > 0) {
-                                latestTagSha = tags[0].commit.sha;
-                            }
-                        }
-                    } catch (tagError) {
-                        console.warn('Failed to fetch tags from GitHub API:', tagError);
-                    }
-
-                    let selectedCommits = [];
-                    if (latestTagSha) {
-                        const tagIndex = parsedCommits.findIndex(c => c.hash === latestTagSha.substring(0, 7));
-                        if (tagIndex !== -1) {
-                            selectedCommits = parsedCommits.slice(0, tagIndex);
-                        }
-                    }
-
-                    if (selectedCommits.length === 0) {
-                        const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-                        const commitsInLastWeek = parsedCommits.filter(c => c.timestamp >= oneWeekAgo);
-                        if (commitsInLastWeek.length >= 3) {
-                            selectedCommits = commitsInLastWeek;
-                        } else {
-                            selectedCommits = parsedCommits.slice(0, Math.min(3, parsedCommits.length));
-                        }
-                    }
-
-                    commitsSinceTag = selectedCommits.map(c => ({ hash: c.hash, subject: c.subject }));
+            let ghCommits = null;
+            const primaryResponse = await fetch(`${commitsEndpoint}?sha=clashcalc&per_page=10`, { headers });
+            if (primaryResponse.ok) {
+                const data = await primaryResponse.json().catch(() => null);
+                if (Array.isArray(data) && data.length > 0) {
+                    ghCommits = data;
                 }
-            } else {
-                console.warn(`GitHub API request failed with status: ${commitsResponse.status}`);
+            }
+
+            if (!ghCommits) {
+                console.log(`[INFO] Branch 'clashcalc' not found on remote (status: ${primaryResponse.status}), falling back to 'main'...`);
+                const fallbackResponse = await fetch(`${commitsEndpoint}?sha=main&per_page=10`, { headers });
+                if (fallbackResponse.ok) {
+                    const data = await fallbackResponse.json().catch(() => null);
+                    if (Array.isArray(data) && data.length > 0) {
+                        ghCommits = data;
+                    }
+                } else {
+                    console.warn(`[WARN] GitHub API fallback request for 'main' failed with status: ${fallbackResponse.status}`);
+                }
+            }
+
+            if (ghCommits && ghCommits.length > 0) {
+                gitHash = ghCommits[0].sha.substring(0, 7);
+
+                const parsedCommits = ghCommits.map(c => ({
+                    hash: c.sha.substring(0, 7),
+                    timestamp: new Date(c.commit.committer.date).getTime(),
+                    subject: c.commit.message.split('\n')[0]
+                }));
+
+                let latestTagSha = '';
+                try {
+                    const tagsResponse = await fetch('https://api.github.com/repos/abhis-s/oreCalc/tags', { headers });
+                    if (tagsResponse.ok) {
+                        const tags = await tagsResponse.json();
+                        if (tags && tags.length > 0) {
+                            latestTagSha = tags[0].commit.sha;
+                        }
+                    }
+                } catch (tagError) {
+                    console.warn('[WARN] Failed to fetch tags from GitHub API:', tagError);
+                }
+
+                let selectedCommits = [];
+                if (latestTagSha) {
+                    const tagIndex = parsedCommits.findIndex(c => c.hash === latestTagSha.substring(0, 7));
+                    if (tagIndex !== -1) {
+                        selectedCommits = parsedCommits.slice(0, tagIndex);
+                    }
+                }
+
+                if (selectedCommits.length === 0) {
+                    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                    const commitsInLastWeek = parsedCommits.filter(c => c.timestamp >= oneWeekAgo);
+                    if (commitsInLastWeek.length >= 3) {
+                        selectedCommits = commitsInLastWeek;
+                    } else {
+                        selectedCommits = parsedCommits.slice(0, Math.min(3, parsedCommits.length));
+                    }
+                }
+
+                commitsSinceTag = selectedCommits.map(c => ({ hash: c.hash, subject: c.subject }));
             }
         } catch (apiError) {
-            console.warn('Failed to fetch versioning and commit data from GitHub API:', apiError);
+            console.warn('[WARN] Failed to fetch versioning and commit data from GitHub API:', apiError);
         }
     }
 
@@ -441,4 +458,11 @@ async function build() {
     }
 }
 
-build();
+if (require.main === module) {
+    build();
+}
+
+module.exports = {
+    resolveBuildMetadata,
+    build
+};
