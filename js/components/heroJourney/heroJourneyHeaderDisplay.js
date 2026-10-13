@@ -1,8 +1,8 @@
 import { hjState } from './heroJourneyState.js';
 import {
-    renderStandaloneDropdownMarkup,
-    renderStandalonePlayerDropdown
-} from '../player/standalonePlayerDropdownDisplay.js';
+    renderPlayerDropdown,
+    renderStandaloneDropdownMarkup
+} from '../player/playerDropdownDisplay.js';
 
 import { initAppHeader } from '../common/appHeader.js';
 
@@ -36,7 +36,7 @@ export function renderHeroJourneyDropdownMarkup(params = {}) {
  * @param {string} [activeCleanTag=''] - Active normalized player tag.
  */
 export function renderHeroJourneyPlayerDropdown(activeCleanTag = '') {
-    renderStandalonePlayerDropdown(activeCleanTag || hjState.activeTag, {
+    renderPlayerDropdown(activeCleanTag || hjState.activeTag, {
         idPrefix: 'hj-dropdown-item',
         fallbackName: hjState.playerData?.name || hjState.playerData?.playerProfile?.name
     });

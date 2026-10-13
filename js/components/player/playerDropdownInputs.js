@@ -1,12 +1,10 @@
 import { translate } from '../../i18n/translator.js';
-
 import { normalizePlayerTag } from '../../core/storageKeys.js';
-import { loadPlayerData, removePlayerTag, updateSavedPlayerTags } from '../../core/playerStorage.js';
+import { getSavedProfiles, loadPlayerData, removePlayerTag, updateSavedPlayerTags } from '../../core/playerStorage.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate, switchActivePlayer } from '../../core/stateManager.js';
 import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
-
 import { autoPlaceIncomeChipsForRange } from '../../utils/autoPlaceChips.js';
 import { getMaxDate, getMinDate } from '../../utils/dateUtils.js';
 import { invalidatePlayerDropdownCache, renderPlayerDropdown } from './playerDropdownDisplay.js';
@@ -18,24 +16,48 @@ import { showApiErrorToast } from '../../ui/toast.js';
 let lastTouchTime = 0;
 let isPlayerDropdownInitialized = false;
 
+/** @type {(() => string) | null} */
+let activePlayerTagGetter = null;
+/** @type {((tag: string) => void | Promise<void>) | null} */
+let customSelectPlayerHandler = null;
+/** @type {((tag: string) => void | Promise<void>) | null} */
+let customDeletePlayerHandler = null;
+/** @type {(() => void) | null} */
+let customAddPlayerHandler = null;
+
+/**
+ * Resolves player dropdown DOM element references from dom cache or document.
+ */
+function getDropdownElements() {
+    return {
+        dropdownButton: dom.player?.dropdownButton || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-button') : null),
+        dropdownList: dom.player?.dropdownList || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-list') : null),
+        playerItemsContainer: dom.player?.playerItemsContainer || (typeof document !== 'undefined' ? document.getElementById('player-items-container') : null),
+        addPlayerButton: dom.player?.addPlayerButton || (typeof document !== 'undefined' ? document.getElementById('add-player-button') : null),
+        container: typeof document !== 'undefined' ? document.querySelector('.player-dropdown-container') : null
+    };
+}
+
 /**
  * Opens the player selection dropdown menu and flips chevron icon up.
  * @param {boolean} [shouldFocusItem=false] - Whether to focus active item.
  */
 export function openDropdown(shouldFocusItem = false) {
-    renderPlayerDropdown();
-    const dropdownList = dom.player?.dropdownList;
-    const dropdownButton = dom.player?.dropdownButton;
+    const { dropdownButton, dropdownList, playerItemsContainer } = getDropdownElements();
+    const activeTag = (typeof activePlayerTagGetter === 'function' ? activePlayerTagGetter() : state?.savedPlayerTags?.[0]) || '';
+    renderPlayerDropdown(activeTag);
+
     if (dropdownList) dropdownList.classList.add('show');
     if (dropdownButton) {
         dropdownButton.classList.add('open');
+        dropdownButton.setAttribute('aria-expanded', 'true');
         const arrow = dropdownButton.querySelector('.dropdown-arrow');
         if (arrow) arrow.setAttribute('name', 'chevron-up');
     }
-    if (shouldFocusItem && dom.player?.playerItemsContainer) {
-        const activeItem = dom.player.playerItemsContainer.querySelector('.player-dropdown-item.active')
-            || dom.player.playerItemsContainer.querySelector('.player-dropdown-item')
-            || dom.player.playerItemsContainer.querySelector('.player-dropdown-section-header--collapsible');
+    if (shouldFocusItem && playerItemsContainer) {
+        const activeItem = playerItemsContainer.querySelector('.player-dropdown-item.active')
+            || playerItemsContainer.querySelector('.player-dropdown-item')
+            || playerItemsContainer.querySelector('.player-dropdown-section-header--collapsible');
         if (activeItem) {
             /** @type {HTMLElement} */ (activeItem).focus();
         }
@@ -46,11 +68,11 @@ export function openDropdown(shouldFocusItem = false) {
  * Closes the player selection dropdown menu and resets chevron icon down.
  */
 export function closeDropdown() {
-    const dropdownList = dom.player?.dropdownList;
-    const dropdownButton = dom.player?.dropdownButton;
+    const { dropdownButton, dropdownList } = getDropdownElements();
     if (dropdownList) dropdownList.classList.remove('show');
     if (dropdownButton) {
         dropdownButton.classList.remove('open');
+        dropdownButton.setAttribute('aria-expanded', 'false');
         const arrow = dropdownButton.querySelector('.dropdown-arrow');
         if (arrow) arrow.setAttribute('name', 'chevron-down');
     }
@@ -64,7 +86,6 @@ export async function handlePlayerSelection(tag) {
     const cleanTag = normalizePlayerTag(tag);
     if (!cleanTag) return;
 
-    // If not yet in memory state, attempt to load cached partition
     if (!state.allPlayersData[cleanTag] || !state.allPlayersData[cleanTag].heroes) {
         const cached = loadPlayerData(cleanTag);
         if (cached && cached.heroes) {
@@ -94,7 +115,6 @@ export async function handlePlayerSelection(tag) {
         }
     }
 
-    // Auto place chips for the newly selected active player to keep the calendar fully up to date
     const { month: minMonth, year: minYear } = getMinDate();
     const { month: maxMonth, year: maxYear } = getMaxDate();
     autoPlaceIncomeChipsForRange(minMonth, minYear, maxMonth, maxYear, true);
@@ -164,19 +184,38 @@ export function renderDropdown() {
 }
 
 /**
- * Initializes player dropdown click listeners, touch handling, and keyboard interactions.
+ * Initializes universal player dropdown interactions, account switching, deletion, and keyboard navigation.
+ *
+ * @param {Object} [options={}]
+ * @param {(() => string) | null} [options.getActivePlayerTag] - Optional getter returning active normalized player tag.
+ * @param {((tag: string) => void | Promise<void>) | null} [options.onSelectPlayer] - Callback when profile is selected.
+ * @param {((tag: string) => void | Promise<void>) | null} [options.onDeletePlayer] - Callback when profile is deleted.
+ * @param {(() => void) | null} [options.onAddPlayer] - Callback when "+ Add Player" is clicked.
  */
-export function initializePlayerDropdown() {
+export function initPlayerDropdown(options = {}) {
+    if (options.getActivePlayerTag) {
+        activePlayerTagGetter = options.getActivePlayerTag;
+    }
+    if (options.onSelectPlayer) {
+        customSelectPlayerHandler = options.onSelectPlayer;
+    }
+    if (options.onDeletePlayer) {
+        customDeletePlayerHandler = options.onDeletePlayer;
+    }
+    if (options.onAddPlayer) {
+        customAddPlayerHandler = options.onAddPlayer;
+    }
+
     if (isPlayerDropdownInitialized) return;
     isPlayerDropdownInitialized = true;
 
-    document.addEventListener('touchstart', () => {
-        lastTouchTime = Date.now();
-    }, { passive: true });
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+        document.addEventListener('touchstart', () => {
+            lastTouchTime = Date.now();
+        }, { passive: true });
+    }
 
-    const dropdownButton = dom.player?.dropdownButton;
-    const addPlayerButton = dom.player?.addPlayerButton;
-    const playerItemsContainer = dom.player?.playerItemsContainer;
+    const { dropdownButton, dropdownList, playerItemsContainer, addPlayerButton, container } = getDropdownElements();
 
     if (playerItemsContainer) {
         const handleSectionHeaderInteraction = (event) => {
@@ -193,29 +232,55 @@ export function initializePlayerDropdown() {
             handleSectionHeaderInteraction(event);
         });
 
-        playerItemsContainer.addEventListener('click', (event) => {
+        playerItemsContainer.addEventListener('click', async (event) => {
             if (handleSectionHeaderInteraction(event)) return;
 
-            const deleteBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('.delete-player-button, .remove-player-button');
+            const target = /** @type {HTMLElement} */ (event.target);
+            const deleteBtn = target?.closest?.('.delete-player-button, .remove-player-button');
             if (deleteBtn) {
                 event.preventDefault();
                 event.stopPropagation();
-                const tagToDelete = deleteBtn.dataset.tag;
-                if (tagToDelete) handleDeletePlayer(tagToDelete);
+                const tagToDelete = deleteBtn.getAttribute('data-tag') || deleteBtn.dataset?.tag;
+                if (tagToDelete) {
+                    if (typeof customDeletePlayerHandler === 'function') {
+                        const confirmed = await showConfirm(
+                            translate('confirms.deleteProfile'),
+                            'actions.confirm',
+                            'actions.delete'
+                        );
+                        if (confirmed) {
+                            removePlayerTag(tagToDelete);
+                            customDeletePlayerHandler(tagToDelete);
+                            const remainingProfiles = getSavedProfiles();
+                            if (remainingProfiles.length === 0) {
+                                closeDropdown();
+                            }
+                        }
+                    } else {
+                        handleDeletePlayer(tagToDelete);
+                    }
+                }
                 return;
             }
-            const item = /** @type {HTMLElement} */ (event.target)?.closest?.('.player-dropdown-item');
+
+            const item = target?.closest?.('.player-dropdown-item');
             if (item) {
-                const tag = item.dataset.tag;
+                event.preventDefault();
+                const tag = item.getAttribute('data-tag') || item.dataset?.tag;
                 if (tag) {
-                    if (!state.allPlayersData[tag]) {
-                        const cached = loadPlayerData(tag);
-                        if (cached) {
-                            state.allPlayersData[tag] = cached;
-                        }
-                    }
-                    handlePlayerSelection(tag);
                     closeDropdown();
+                    if (typeof customSelectPlayerHandler === 'function') {
+                        customSelectPlayerHandler(tag);
+                    } else {
+                        if (!state.allPlayersData[tag]) {
+                            const cached = loadPlayerData(tag);
+                            if (cached) {
+                                state.allPlayersData[tag] = cached;
+                            }
+                        }
+                        handlePlayerSelection(tag);
+                        dom.player?.dropdownButton?.focus();
+                    }
                 }
             }
         });
@@ -228,7 +293,7 @@ export function initializePlayerDropdown() {
 
         const handleDropdownKeyNavigation = (event) => {
             const target = /** @type {HTMLElement} */ (event.target);
-            const currentRow = target?.closest?.('.player-dropdown-item, .player-dropdown-section-header--collapsible, #add-player-btn');
+            const currentRow = target?.closest?.('.player-dropdown-item, .player-dropdown-section-header--collapsible, #add-player-button, #add-player-btn');
             if (!currentRow) return;
 
             const rows = getNavigableRows();
@@ -249,7 +314,7 @@ export function initializePlayerDropdown() {
                 event.preventDefault();
                 if (currentIndex <= 0) {
                     closeDropdown();
-                    dom.player?.dropdownButton?.focus();
+                    dropdownButton?.focus();
                 } else {
                     const prevIndex = currentIndex - 1;
                     if (rows[prevIndex]) {
@@ -286,50 +351,17 @@ export function initializePlayerDropdown() {
                 event.preventDefault();
                 event.stopPropagation();
                 closeDropdown();
-                dom.player?.dropdownButton?.focus();
-            } else if (event.key === 'Delete' || event.key === 'Backspace') {
-                const deleteBtn = target?.closest?.('.player-dropdown-item')?.querySelector('.delete-player-button');
-                if (deleteBtn) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    const tagToDelete = deleteBtn.dataset.tag;
-                    if (tagToDelete && normalizePlayerTag(tagToDelete) !== 'DEFAULT0') {
-                        handleDeletePlayer(tagToDelete);
-                    }
-                    return;
-                }
+                dropdownButton?.focus();
             } else if (event.key === 'Enter' || event.key === ' ') {
-                const deleteBtn = target?.closest?.('.delete-player-button, .remove-player-button');
-                if (deleteBtn) return;
-
-                if (target?.closest?.('#add-player-btn')) {
+                const activeEl = /** @type {HTMLElement} */ (document.activeElement);
+                if (activeEl?.classList?.contains('player-dropdown-item') || activeEl?.id === 'add-player-button') {
                     event.preventDefault();
-                    showAddPlayerModal();
-                    closeDropdown();
-                    return;
-                }
-
-                const item = target?.closest?.('.player-dropdown-item');
-                if (item) {
-                    event.preventDefault();
-                    const tag = item.dataset.tag;
-                    if (tag) {
-                        if (!state.allPlayersData[tag]) {
-                            const cached = loadPlayerData(tag);
-                            if (cached) {
-                                state.allPlayersData[tag] = cached;
-                            }
-                        }
-                        handlePlayerSelection(tag);
-                        closeDropdown();
-                        dom.player?.dropdownButton?.focus();
-                    }
+                    activeEl.click();
                 }
             }
         };
 
         playerItemsContainer.addEventListener('keydown', handleDropdownKeyNavigation);
-        const dropdownList = dom.player?.dropdownList;
         if (dropdownList && dropdownList !== playerItemsContainer) {
             dropdownList.addEventListener('keydown', handleDropdownKeyNavigation);
         }
@@ -339,10 +371,10 @@ export function initializePlayerDropdown() {
         dropdownButton.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                const dropdownList = dom.player?.dropdownList;
-                if (dropdownList?.classList.contains('show')) {
-                    const activeItem = dom.player?.playerItemsContainer?.querySelector('.player-dropdown-item.active')
-                        || dom.player?.playerItemsContainer?.querySelector('.player-dropdown-item');
+                const list = dom.player?.dropdownList || document.getElementById('player-dropdown-list');
+                if (list?.classList.contains('show')) {
+                    const activeItem = playerItemsContainer?.querySelector('.player-dropdown-item.active')
+                        || playerItemsContainer?.querySelector('.player-dropdown-item');
                     if (activeItem) /** @type {HTMLElement} */ (activeItem).focus();
                 } else {
                     openDropdown(true);
@@ -350,109 +382,138 @@ export function initializePlayerDropdown() {
             }
         });
 
-        dropdownButton.addEventListener('click', () => {
-            const dropdownList = dom.player?.dropdownList;
-            if (dropdownList) {
-                if (dropdownList.classList.contains('show')) {
+        dropdownButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const list = dom.player?.dropdownList || document.getElementById('player-dropdown-list');
+            if (list) {
+                if (list.classList.contains('show')) {
                     closeDropdown();
                 } else {
-                    openDropdown();
+                    openDropdown(false);
                 }
             }
         });
     }
 
     if (addPlayerButton) {
-        addPlayerButton.addEventListener('click', () => {
-            showAddPlayerModal();
+        addPlayerButton.addEventListener('pointerdown', (e) => {
+            e.stopPropagation();
+        });
+
+        addPlayerButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof customAddPlayerHandler === 'function') {
+                customAddPlayerHandler();
+            } else {
+                showAddPlayerModal();
+            }
             closeDropdown();
         });
     }
 
-    document.addEventListener('click', (event) => {
-        if (/** @type {HTMLElement} */ (event.target)?.closest?.('#home-profile-connect-btn')) {
-            showAddPlayerModal();
-        }
-
-        const collapseBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('#home-profile-collapse-btn');
-        if (collapseBtn) {
-            const card = document.getElementById('home-player-profile-card');
-            if (card) {
-                const willBeCollapsed = !card.classList.contains('is-stats-collapsed');
-                card.classList.toggle('is-stats-collapsed', willBeCollapsed);
-                collapseBtn.setAttribute('aria-expanded', String(!willBeCollapsed));
-                const label = willBeCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats');
-                collapseBtn.setAttribute('aria-label', label);
-                collapseBtn.setAttribute('title', label);
-                const icon = collapseBtn.querySelector('.collapse-chevron-icon, clashcalc-assets-svg, orecalc-assets-svg');
-                if (icon) {
-                    icon.setAttribute('name', willBeCollapsed ? 'chevron-down' : 'chevron-up');
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+        document.addEventListener('click', (event) => {
+            if (/** @type {HTMLElement} */ (event.target)?.closest?.('#home-profile-connect-btn')) {
+                if (typeof customAddPlayerHandler === 'function') {
+                    customAddPlayerHandler();
+                } else {
+                    showAddPlayerModal();
                 }
-                handleStateUpdate(() => {
-                    if (!state.uiSettings) {
-                        state.uiSettings = /** @type {any} */ ({});
+            }
+
+            const collapseBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('#home-profile-collapse-btn');
+            if (collapseBtn) {
+                const card = document.getElementById('home-player-profile-card');
+                if (card) {
+                    const willBeCollapsed = !card.classList.contains('is-stats-collapsed');
+                    card.classList.toggle('is-stats-collapsed', willBeCollapsed);
+                    collapseBtn.setAttribute('aria-expanded', String(!willBeCollapsed));
+                    const label = willBeCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats');
+                    collapseBtn.setAttribute('aria-label', label);
+                    collapseBtn.setAttribute('title', label);
+                    const icon = collapseBtn.querySelector('.collapse-chevron-icon, clashcalc-assets-svg, orecalc-assets-svg');
+                    if (icon) {
+                        icon.setAttribute('name', willBeCollapsed ? 'chevron-down' : 'chevron-up');
                     }
-                    state.uiSettings.hideProfileStats = willBeCollapsed;
-                });
+                    handleStateUpdate(() => {
+                        if (!state.uiSettings) {
+                            state.uiSettings = /** @type {any} */ ({});
+                        }
+                        state.uiSettings.hideProfileStats = willBeCollapsed;
+                    });
+                }
             }
-        }
-    });
-
-    document.addEventListener('click', (event) => {
-        const dropdownList = dom.player?.dropdownList;
-        const dropdownButton = dom.player?.dropdownButton;
-        if (dropdownList && dropdownList.classList.contains('show')) {
-            const isClickInsideDropdownButton = dropdownButton && dropdownButton.contains(event.target);
-            const isClickInsideDropdownList = dropdownList.contains(event.target);
-            const isConnected = event.target?.isConnected;
-
-            if (!isConnected) return;
-
-            if (!isClickInsideDropdownButton && !isClickInsideDropdownList) {
-                closeDropdown();
-            }
-        }
-    });
-
-    document.addEventListener('app:playerDropdownSync', () => {
-        invalidatePlayerDropdownCache();
-        renderPlayerDropdown();
-    });
-
-    window.addEventListener('scroll', () => {
-        closeDropdown();
-    }, { passive: true });
-
-    const playerDropdownContainer = document.querySelector('.player-dropdown-container');
-    if (playerDropdownContainer) {
-        playerDropdownContainer.addEventListener('mouseenter', () => {
-            if (!window.matchMedia('(hover: hover)').matches) return;
-            if (document.body.classList.contains('tour-active')) return;
-            if (Date.now() - lastTouchTime < 1000) return;
-            if (document.querySelector('.modal.show')) return;
-            openDropdown();
         });
 
-        playerDropdownContainer.addEventListener('mouseleave', () => {
-            if (!window.matchMedia('(hover: hover)').matches) return;
-            if (document.body.classList.contains('tour-active')) return;
+        document.addEventListener('click', (event) => {
+            const list = dom.player?.dropdownList || document.getElementById('player-dropdown-list');
+            const btn = dom.player?.dropdownButton || document.getElementById('player-dropdown-button');
+            if (list && list.classList.contains('show')) {
+                const isClickInsideButton = btn && btn.contains(/** @type {Node} */ (event.target));
+                const isClickInsideList = list.contains(/** @type {Node} */ (event.target));
+                const isConnected = /** @type {HTMLElement} */ (event.target)?.isConnected;
+
+                if (!isConnected) return;
+
+                if (!isClickInsideButton && !isClickInsideList) {
+                    closeDropdown();
+                }
+            }
+        });
+
+        document.addEventListener('app:playerDropdownSync', () => {
+            invalidatePlayerDropdownCache();
+            renderPlayerDropdown();
+        });
+    }
+
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+        window.addEventListener('scroll', () => {
+            closeDropdown();
+        }, { passive: true });
+    }
+
+    if (container) {
+        container.addEventListener('mouseenter', () => {
+            if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(hover: hover)').matches) return;
+            if (typeof document !== 'undefined' && document.body?.classList?.contains('tour-active')) return;
+            if (Date.now() - lastTouchTime < 1000) return;
+            if (typeof document !== 'undefined' && document.querySelector('.modal.show')) return;
+            openDropdown(false);
+        });
+
+        container.addEventListener('mouseleave', () => {
+            if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(hover: hover)').matches) return;
+            if (typeof document !== 'undefined' && document.body?.classList?.contains('tour-active')) return;
             if (Date.now() - lastTouchTime < 1000) return;
             closeDropdown();
         });
 
-        playerDropdownContainer.addEventListener('focusin', () => {
-            if (document.body.classList.contains('tour-active')) return;
+        container.addEventListener('focusin', () => {
+            if (typeof document !== 'undefined' && document.body?.classList?.contains('tour-active')) return;
             if (Date.now() - lastTouchTime < 1000) return;
-            if (document.querySelector('.modal.show')) return;
-            openDropdown();
+            if (typeof document !== 'undefined' && document.querySelector('.modal.show')) return;
+            const list = dom.player?.dropdownList || document.getElementById('player-dropdown-list');
+            if (list && !list.classList.contains('show')) {
+                openDropdown(false);
+            }
         });
 
-        playerDropdownContainer.addEventListener('focusout', (event) => {
-            if (document.body.classList.contains('tour-active')) return;
+        container.addEventListener('focusout', (event) => {
+            if (typeof document !== 'undefined' && document.body?.classList?.contains('tour-active')) return;
             if (Date.now() - lastTouchTime < 1000) return;
-            if (event.relatedTarget && !playerDropdownContainer.contains(event.relatedTarget)) {
+            if (event.relatedTarget && !container.contains(/** @type {Node} */ (event.relatedTarget))) {
                 closeDropdown();
             }
         });
     }
 }
+
+/**
+ * Convenience entry point initializing player dropdown with default Ore Calculator handlers.
+ */
+export function initializePlayerDropdown() {
+    initPlayerDropdown();
+}
+
+export { initPlayerDropdown as initStandalonePlayerDropdown };

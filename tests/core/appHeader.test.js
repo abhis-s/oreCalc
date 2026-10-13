@@ -206,6 +206,31 @@ describe('Modular Application Header (appHeader.js)', () => {
 
             cleanup();
         });
+
+        test('does not dismiss open dropdown on touch focusout with null relatedTarget', () => {
+            const container = new MockElement('div', 'player-dropdown-container');
+            const button = new MockElement('button', 'player-dropdown-button');
+            const list = new MockElement('div', 'player-dropdown-list');
+            const arrow = new MockElement('span', 'dropdown-arrow');
+            container._children.push(button, list, arrow);
+
+            const cleanup = initAppHeaderPlayerDropdownInteractions(container);
+
+            container.dispatchEvent({ type: 'focusin' });
+            assert.strictEqual(list.classList.contains('show'), true);
+
+            // focusout with null relatedTarget (e.g. iOS touch blur) should NOT dismiss
+            container.dispatchEvent({ type: 'focusout', relatedTarget: null });
+            assert.strictEqual(list.classList.contains('show'), true);
+
+            // touchstart establishes recent touch window
+            container.dispatchEvent({ type: 'touchstart' });
+            const outsideEl = new MockElement('div');
+            container.dispatchEvent({ type: 'focusout', relatedTarget: outsideEl });
+            assert.strictEqual(list.classList.contains('show'), true);
+
+            cleanup();
+        });
     });
 
     describe('Master Initialization (initAppHeader)', () => {

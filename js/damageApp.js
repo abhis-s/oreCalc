@@ -35,11 +35,9 @@ import { fetchPlayerData, saveSinglePlayerData } from './services/apiService.js'
 import './utils/imageManager.js';
 import './console.js';
 import { preloadDefensesData } from './data/defenseTargetsData.js';
-import { renderStandalonePlayerDropdown } from './components/player/standalonePlayerDropdownDisplay.js';
-import {
-    initStandaloneAddPlayerModal,
-    initStandalonePlayerDropdown
-} from './components/player/standalonePlayerDropdownInputs.js';
+import { renderPlayerDropdown } from './components/player/playerDropdownDisplay.js';
+import { initPlayerDropdown } from './components/player/playerDropdownInputs.js';
+import { initStandaloneAddPlayerModal } from './components/player/standaloneAddPlayerModal.js';
 
 import {
     damageCalcState,
@@ -114,7 +112,7 @@ export async function revalidatePlayerData(tag, hadCachedData = false) {
         damageCalcState.activeTag = serverTag;
         syncPlayerTagToUrl(serverTag);
         syncPlayerVillageData(data, { resetUI: false });
-        renderStandalonePlayerDropdown(serverTag);
+        renderPlayerDropdown(serverTag);
         renderActiveView();
         return true;
     } catch (err) {
@@ -218,7 +216,7 @@ function switchPlayer(tag) {
         hadCachedData = Boolean(targetProfile.cachedData || targetProfile.name);
     }
 
-    renderStandalonePlayerDropdown(cleanTag);
+    renderPlayerDropdown(cleanTag);
     renderActiveView();
     void revalidatePlayerData(cleanTag, hadCachedData);
 }
@@ -317,7 +315,7 @@ function initDamageCrossTabSync() {
         if (saved.length === 0) {
             damageCalcState.activeTag = '';
             syncPlayerTagToUrl('');
-            renderStandalonePlayerDropdown('');
+            renderPlayerDropdown('');
             renderActiveView();
         } else if (saved[0].cleanTag !== active) {
             switchPlayer(saved[0].cleanTag);
@@ -327,7 +325,7 @@ function initDamageCrossTabSync() {
             if (fullData || currentProfile) {
                 syncPlayerVillageData(fullData || currentProfile.cachedData || currentProfile, { resetUI: false });
             }
-            renderStandalonePlayerDropdown(active);
+            renderPlayerDropdown(active);
             renderActiveView();
         }
     };
@@ -413,13 +411,13 @@ async function initDamageApp() {
             damageCalcState.activeTag = serverTag;
             syncPlayerTagToUrl(serverTag);
             syncPlayerVillageData(data, { resetUI: prevTh !== nextTh, isFirstPlayer });
-            renderStandalonePlayerDropdown(serverTag);
+            renderPlayerDropdown(serverTag);
             renderActiveView();
             return { success: true };
         }
     });
 
-    initStandalonePlayerDropdown({
+    initPlayerDropdown({
         getActivePlayerTag: () => damageCalcState.activeTag,
         onSelectPlayer: (tag) => {
             switchPlayer(tag);
@@ -430,7 +428,7 @@ async function initDamageApp() {
                 resetDamageCalcState();
                 damageCalcState.activeTag = '';
                 syncPlayerTagToUrl('');
-                renderStandalonePlayerDropdown('');
+                renderPlayerDropdown('');
                 renderActiveView();
                 return;
             }
@@ -438,7 +436,7 @@ async function initDamageApp() {
             if (damageCalcState.activeTag === tag || getPlayerTagFromUrl() === tag) {
                 switchPlayer(nextTag);
             } else {
-                renderStandalonePlayerDropdown(damageCalcState.activeTag);
+                renderPlayerDropdown(damageCalcState.activeTag);
             }
         },
         onAddPlayer: () => {
@@ -455,7 +453,7 @@ async function initDamageApp() {
     initializePasskeysModal();
     initializeSettingsAccount();
 
-    renderStandalonePlayerDropdown(damageCalcState.activeTag);
+    renderPlayerDropdown(damageCalcState.activeTag);
     initExternalLinkCatcher();
     initDamageCrossTabSync();
 
@@ -464,7 +462,7 @@ async function initDamageApp() {
 
     document.addEventListener('languageChanged', () => {
         renderActiveView();
-        renderStandalonePlayerDropdown(damageCalcState.activeTag);
+        renderPlayerDropdown(damageCalcState.activeTag);
     });
 
     if (typeof window.__APP_LOADED__ === 'function') {

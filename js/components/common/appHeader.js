@@ -67,6 +67,7 @@ export function initAppHeaderPlayerDropdownInteractions(dropdownContainer) {
     if (!dropdownButton || !dropdownList) return () => {};
 
     let closeTimer = null;
+    let lastTouchTime = 0;
 
     const openDropdown = () => {
         if (closeTimer) clearTimeout(closeTimer);
@@ -102,24 +103,34 @@ export function initAppHeaderPlayerDropdownInteractions(dropdownContainer) {
 
     const onMouseEnter = () => {
         if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+            if (Date.now() - lastTouchTime < 1000) return;
+            if (typeof document !== 'undefined' && document.querySelector('.modal.show')) return;
             openDropdown();
         }
     };
 
     const onMouseLeave = () => {
         if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+            if (Date.now() - lastTouchTime < 1000) return;
             scheduleClose();
         }
     };
 
     const onFocusIn = () => {
+        if (Date.now() - lastTouchTime < 1000) return;
+        if (typeof document !== 'undefined' && document.querySelector('.modal.show')) return;
         openDropdown();
     };
 
     const onFocusOut = (e) => {
-        if (!dropdownContainer.contains(/** @type {Node} */ (e.relatedTarget))) {
+        if (Date.now() - lastTouchTime < 1000) return;
+        if (e.relatedTarget && !dropdownContainer.contains(/** @type {Node} */ (e.relatedTarget))) {
             closeDropdown();
         }
+    };
+
+    const onTouchStart = () => {
+        lastTouchTime = Date.now();
     };
 
     const onScroll = () => {
@@ -128,6 +139,7 @@ export function initAppHeaderPlayerDropdownInteractions(dropdownContainer) {
         }
     };
 
+    dropdownContainer.addEventListener('touchstart', onTouchStart, { passive: true });
     dropdownContainer.addEventListener('mouseenter', onMouseEnter);
     dropdownContainer.addEventListener('mouseleave', onMouseLeave);
     dropdownContainer.addEventListener('focusin', onFocusIn);
@@ -139,6 +151,7 @@ export function initAppHeaderPlayerDropdownInteractions(dropdownContainer) {
 
     return () => {
         if (closeTimer) clearTimeout(closeTimer);
+        dropdownContainer.removeEventListener('touchstart', onTouchStart);
         dropdownContainer.removeEventListener('mouseenter', onMouseEnter);
         dropdownContainer.removeEventListener('mouseleave', onMouseLeave);
         dropdownContainer.removeEventListener('focusin', onFocusIn);
