@@ -132,6 +132,11 @@ export function addValidation(inputElement, options = {}) {
         const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
         const isShortcut = (event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase());
 
+        // Allow Android virtual keyboard and IME composition events without premature cancellation
+        if (event.key === 'Unidentified' || event.isComposing) {
+            return;
+        }
+
         if (!allowedKeys.includes(event.key) && !isShortcut && !/^[0-9]$/.test(event.key)) {
             event.preventDefault();
             return;

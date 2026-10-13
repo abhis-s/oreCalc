@@ -299,8 +299,15 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 const doRender = () => {
                     const activeEl = /** @type {HTMLInputElement|HTMLTextAreaElement|null} */ (document.activeElement);
                     const activeId = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') ? activeEl.id : null;
-                    const selStart = activeId ? activeEl.selectionStart : null;
-                    const selEnd = activeId ? activeEl.selectionEnd : null;
+                    let selStart = null;
+                    let selEnd = null;
+                    // Protect against DOMException: InvalidStateError on input types that do not support selection
+                    if (activeId && activeEl && !['number', 'range', 'checkbox', 'radio', 'button', 'submit'].includes(activeEl.type)) {
+                        try {
+                            selStart = activeEl.selectionStart;
+                            selEnd = activeEl.selectionEnd;
+                        } catch (_) {}
+                    }
 
                     if (!options.skipRecalculate) {
                         recalculateAll(state);
@@ -312,7 +319,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                         if (restoredEl) {
                             restoredEl.focus();
                             if (selStart !== null && selEnd !== null && typeof restoredEl.setSelectionRange === 'function') {
-                                restoredEl.setSelectionRange(selStart, selEnd);
+                                try {
+                                    restoredEl.setSelectionRange(selStart, selEnd);
+                                } catch (_) {}
                             }
                         }
                     }

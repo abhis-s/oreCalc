@@ -95,7 +95,27 @@ export function positionPopover(popover, inputElement, options = {}) {
     }
 
     left = Math.max(vvLeft + 8, Math.min(left, vvLeft + viewportWidth - popoverWidth - 8));
-    top = Math.max(vvTop + 8, Math.min(top, vvTop + viewportHeight - popoverHeight - 8));
+
+    if (finalPlacement === 'below') {
+        const minTopBelow = vvTop + inputRect.bottom + 4;
+        top = Math.max(minTopBelow, Math.min(top, vvTop + viewportHeight - popoverHeight - 8));
+        if (top < minTopBelow) {
+            top = minTopBelow;
+        }
+    } else if (finalPlacement === 'above') {
+        const maxTopAbove = vvTop + inputRect.top - popoverHeight - 4;
+        top = Math.max(vvTop + 8, Math.min(top, maxTopAbove));
+        if (top > maxTopAbove) {
+            top = maxTopAbove;
+        }
+    } else {
+        top = Math.max(vvTop + 8, Math.min(top, vvTop + viewportHeight - popoverHeight - 8));
+        if (finalPlacement === 'left' && left + popoverWidth > vvLeft + inputRect.left) {
+            left = Math.max(vvLeft + 8, vvLeft + inputRect.left - popoverWidth - 4);
+        } else if (finalPlacement === 'right' && left < vvLeft + inputRect.right) {
+            left = Math.min(vvLeft + viewportWidth - popoverWidth - 8, vvLeft + inputRect.right + 4);
+        }
+    }
 
     popover.style.top = `${top}px`;
     popover.style.left = `${left}px`;

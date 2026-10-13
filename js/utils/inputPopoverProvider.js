@@ -409,6 +409,8 @@ export function registerInputPopover(inputElement, options = {}) {
         e.preventDefault();
     };
     popover.addEventListener('mousedown', preventInputBlur);
+    popover.addEventListener('pointerdown', preventInputBlur);
+    popover.addEventListener('touchstart', preventInputBlur, { passive: false });
 
     const handleOptionSelect = (e) => {
         e.stopPropagation();
