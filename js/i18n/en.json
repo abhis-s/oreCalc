@@ -1199,7 +1199,7 @@
                 "bonusesUnknown": "Resource bonuses during events are currently unknown.",
                 "concluded": "This year's Supercell Events season has concluded. See you next year!",
                 "help": "Official Supercell events and tournaments. You can earn bonus ores by placing predictions and watching live streams on the <a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Event<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a> website.",
-                "inDays": "In {days} day(s)",
+                "inDays": "In {days} days",
                 "lcq": "Last Chance Qualifier",
                 "live": "LIVE",
                 "monthlyFinals": "Monthly Finals",

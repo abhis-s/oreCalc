@@ -10,6 +10,31 @@ import { toCamelCase } from '../../utils/stringUtils.js';
 
 import { dom } from '../../dom/domElements.js';
 
+let countdownInterval = null;
+
+/**
+ * Stops and clears any active sub-day countdown interval.
+ */
+function stopCountdownTimer() {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+}
+
+/**
+ * Formats a duration in milliseconds into zero-padded HH:MM:SS format.
+ * @param {number} durationMs - Duration in milliseconds.
+ * @returns {string} Formatted HH:MM:SS time string.
+ */
+function formatCountdownHms(durationMs) {
+    const totalSecs = Math.max(0, Math.floor(durationMs / 1000));
+    const hours = Math.floor(totalSecs / 3600);
+    const minutes = Math.floor((totalSecs % 3600) / 60);
+    const seconds = totalSecs % 60;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
 /**
  * Renders calculated Supercell Events ore income display and scheduled tournament list.
  * @param {import('../../core/types.js').IncomeResult} supercellEventsIncome - Calculated Supercell Events income results.
@@ -35,11 +60,14 @@ export function renderSupercellEventsDisplay(supercellEventsIncome, timeframe) {
  * Renders the tournament schedule table into the supercell-events-container element.
  * @param {Date} [referenceDate] - Optional reference date for time evaluation. Defaults to current date.
  */
-export function renderSupercellEvents(referenceDate = new Date()) {
+export function renderSupercellEvents(referenceDate) {
+    stopCountdownTimer();
+
     const container = document.getElementById('supercell-events-container');
     if (!container) return;
 
-    const now = referenceDate;
+    const isRealTime = !referenceDate;
+    const now = referenceDate || new Date();
     const currentYear = now.getUTCFullYear();
     const currentLang = state.uiSettings?.language || 'en';
     const events = getSupercellEventsForYear(currentYear, supercellEventsData, currentLang);
@@ -119,10 +147,17 @@ export function renderSupercellEvents(referenceDate = new Date()) {
         let labelHtml = event.label || 'TBD';
         if (isValidDates && startDate && !isPlaceholder) {
             const diffTime = startDate.getTime() - now.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const oneDayMs = 24 * 60 * 60 * 1000;
+            const sevenDaysMs = 7 * oneDayMs;
 
-            if (diffDays > 0 && diffDays <= 7) {
-                labelHtml = `<span class="countdown-text">${translate('views.income.supercellEvents.inDays', { days: diffDays })}</span> ${event.label}`;
+            if (diffTime > 0 && diffTime <= sevenDaysMs) {
+                if (diffTime < oneDayMs) {
+                    const hms = formatCountdownHms(diffTime);
+                    labelHtml = `<span class="countdown-text" data-countdown-target="${startDate.getTime()}">${hms}</span> ${event.label}`;
+                } else {
+                    const diffDays = Math.ceil(diffTime / oneDayMs);
+                    labelHtml = `<span class="countdown-text">${translate('views.income.supercellEvents.inDays', { days: diffDays })}</span> ${event.label}`;
+                }
             }
         }
 
@@ -148,4 +183,37 @@ export function renderSupercellEvents(referenceDate = new Date()) {
     `;
 
     container.innerHTML = html;
+
+    if (isRealTime && typeof container.querySelectorAll === 'function') {
+        const targetElements = container.querySelectorAll('[data-countdown-target]');
+        if (targetElements.length > 0 && typeof window !== 'undefined' && typeof setInterval === 'function') {
+            countdownInterval = setInterval(() => {
+                if (typeof document !== 'undefined' && document.body && !document.body.contains(container)) {
+                    stopCountdownTimer();
+                    return;
+                }
+                const incomeTab = document.getElementById('income-tab');
+                if (incomeTab && !incomeTab.classList.contains('active')) {
+                    stopCountdownTimer();
+                    return;
+                }
+                const currentTime = Date.now();
+                let hasActiveTarget = false;
+                targetElements.forEach(el => {
+                    const targetMs = parseInt(el.getAttribute('data-countdown-target') || '0', 10);
+                    const remainingMs = targetMs - currentTime;
+                    if (remainingMs > 0) {
+                        hasActiveTarget = true;
+                        el.textContent = formatCountdownHms(remainingMs);
+                    } else {
+                        stopCountdownTimer();
+                        renderSupercellEvents();
+                    }
+                });
+                if (!hasActiveTarget) {
+                    stopCountdownTimer();
+                }
+            }, 1000);
+        }
+    }
 }

@@ -1199,7 +1199,7 @@
                 "bonusesUnknown": "Ressourcen-Boni während Events sind derzeit unbekannt.",
                 "concluded": "Die Supercell-Events-Saison dieses Jahres ist abgeschlossen. Bis nächstes Jahr!",
                 "help": "Offizielle Supercell-Events und -Turniere. Du kannst zusätzliche Erze verdienen, indem du Vorhersagen abgibst und Live-Streams auf der <a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell-Event<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>-Website ansiehst.",
-                "inDays": "In {days} Tag(en)",
+                "inDays": "In {days} Tagen",
                 "lcq": "Letzte Chance Qualifier",
                 "live": "LIVE",
                 "monthlyFinals": "Monatliche Finals",

@@ -204,7 +204,7 @@ describe('Supercell Events Live Beacon and Placeholder Architecture', () => {
         assert.equal(container.innerHTML.includes('watch-live-btn'), true);
     });
 
-    test('views.income.supercellEvents.inDays does not have outer parentheses across locales', () => {
+    test('views.income.supercellEvents.inDays does not have outer parentheses or (s)/(en) across locales', () => {
         const locales = ['en', 'de', 'tr', 'zh'];
         locales.forEach(loc => {
             const dict = JSON.parse(fs.readFileSync(path.join(projectRoot, `js/i18n/${loc}.json`), 'utf8'));
@@ -213,6 +213,28 @@ describe('Supercell Events Live Beacon and Placeholder Architecture', () => {
             const hasEnclosingParens = (inDays.startsWith('(') && inDays.endsWith(')')) ||
                                        (inDays.startsWith('（') && inDays.endsWith('）'));
             assert.ok(!hasEnclosingParens, `${loc}.json inDays has outer parentheses: "${inDays}"`);
+            assert.ok(!inDays.includes('(s)'), `${loc}.json inDays has (s): "${inDays}"`);
+            assert.ok(!inDays.includes('(en)'), `${loc}.json inDays has (en): "${inDays}"`);
         });
+    });
+
+    test('renderSupercellEvents renders clean day count for events >= 1 day away and sub-day HH:MM:SS for events < 24 hours away', async () => {
+        await loadTranslations('en');
+
+        let container = { innerHTML: '' };
+        globalThis.document = {
+            getElementById: (id) => (id === 'supercell-events-container' ? container : null)
+        };
+
+        // 1. Reference date is 4 days before June 27, 2026 Monthly Finals (2026-06-23T16:00:00Z)
+        renderSupercellEvents(new Date('2026-06-23T16:00:00Z'));
+        assert.ok(container.innerHTML.includes('<span class="countdown-text">In 4 days</span>'));
+        assert.equal(container.innerHTML.includes('day(s)'), false);
+
+        // 2. Reference date is within 24 hours (5h 30m 10s before event: 2026-06-27T10:29:50Z)
+        renderSupercellEvents(new Date('2026-06-27T10:29:50Z'));
+        assert.ok(container.innerHTML.includes('<span class="countdown-text" data-countdown-target="1782576000000">05:30:10</span>'));
+        assert.equal(container.innerHTML.includes('day(s)'), false);
+        assert.equal(container.innerHTML.includes('In 1 day'), false);
     });
 });

@@ -154,6 +154,7 @@
 
         .countdown-text {
             color: $accent-primary;
+            font-variant-numeric: tabular-nums;
             margin-right: 5px;
         }
     }
