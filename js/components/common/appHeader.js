@@ -1,4 +1,5 @@
 import { initNavigationDrawer } from './navigationDrawer.js';
+import { getLanguageFromPath } from '../../core/languageRouter.js';
 import {
     HEADER_BREAKPOINT_DESKTOP,
     HEADER_DROPDOWN_COMFORTABLE_WIDTH,
@@ -364,6 +365,12 @@ export function initAppHeader(options = {}) {
 
     if (!header) {
         return { destroy: () => {}, updateLayout: () => {}, resetCache: () => {} };
+    }
+
+    const brandLink = /** @type {HTMLAnchorElement | null} */ (header.querySelector('.brand-title-link, .landing-brand'));
+    if (brandLink) {
+        const currentLang = getLanguageFromPath() || 'en';
+        brandLink.href = currentLang === 'en' ? '/' : `/${currentLang}/`;
     }
 
     const cleanups = [];

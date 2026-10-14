@@ -13,11 +13,12 @@ import { renderBottomNavBar } from './components/common/bottomNavBar.js';
 import { initExternalLinkCatcher } from './components/common/externalLinkCatcher.js';
 import { initializeCommitsModal } from './components/changelog/commitsModal.js';
 import { initializeChangelogModal } from './components/changelog/changelogModal.js';
-import { syncLanguageUrl } from './core/languageRouter.js';
+import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
 import { state } from './core/state.js';
 import {
     initAppSettings,
-    getAppSettings
+    getAppSettings,
+    persistAppSettings
 } from './components/common/appSettings.js';
 import {
     normalizePlayerTag,
@@ -362,15 +363,21 @@ async function initDamageApp() {
     registerGlobalErrorBoundaries();
     consolidateLocalStorageKeys();
     const defensesReady = preloadDefensesData();
+    const pathLang = getLanguageFromPath();
     const settings = getAppSettings();
+    const targetLang = pathLang || (settings.language && settings.language !== 'auto' ? settings.language : 'en');
     state.uiSettings = {
-        language: settings.language,
+        language: targetLang,
         theme: settings.theme,
         accentColor: settings.accentColor
     };
 
-    syncLanguageUrl(settings.language, true);
-    await Promise.all([loadTranslations(settings.language), defensesReady]);
+    if (pathLang) {
+        persistAppSettings({ language: pathLang });
+    } else if (targetLang !== 'en') {
+        syncLanguageUrl(targetLang, true);
+    }
+    await Promise.all([loadTranslations(targetLang), defensesReady]);
     updateUIWithTranslations(true);
 
     loadPersistedState();

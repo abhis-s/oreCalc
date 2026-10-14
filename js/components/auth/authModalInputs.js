@@ -15,6 +15,7 @@ import {
 } from '../../services/authClientService.js';
 import { initializeAppData, triggerCloudSave } from '../../services/cloudSaveService.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
+import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { showAddPlayerModal } from '../player/playerModalInputs.js';
 import { initializeState, state } from '../../core/state.js';
 import { saveState } from '../../core/localStorageManager.js';
@@ -141,7 +142,11 @@ async function ensureTurnstileWidget(mode) {
  * @param {any} syncedState
  */
 async function applySyncedAccountState(syncedState) {
+    const activeLanguage = getLanguageFromPath() || state.uiSettings?.language || 'en';
     initializeState(syncedState || null);
+    if (activeLanguage) {
+        state.uiSettings.language = activeLanguage;
+    }
     cleanupOrphanedPlayerPartitions(state);
     saveState(state, true);
 

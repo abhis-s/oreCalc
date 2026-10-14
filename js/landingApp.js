@@ -4,7 +4,7 @@
  * Tier 4: UI Application Entry.
  */
 
-import { getLanguageFromPath } from './core/languageRouter.js';
+import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
 import { loadState } from './core/localStorageManager.js';
 import { formatDisplayTag } from './core/storageKeys.js';
 import { getSavedProfiles } from './core/playerStorage.js';
@@ -22,7 +22,7 @@ import { initAppHeader } from './components/common/appHeader.js';
 import { initAppFooter } from './components/common/appFooter.js';
 import { initExternalLinkCatcher } from './components/common/externalLinkCatcher.js';
 import { initializeCommitsModal } from './components/changelog/commitsModal.js';
-import { initAppSettings } from './components/common/appSettings.js';
+import { getAppSettings, initAppSettings, persistAppSettings } from './components/common/appSettings.js';
 import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
 import { initializePwaService } from './services/pwaService.js';
 import {
@@ -43,7 +43,7 @@ import { initializeSettingsAccount } from './components/appSettings/settingsAcco
  * @param {string} [cleanTag]
  */
 function updateToolLinks(cleanTag) {
-    const currentLang = getLanguageFromPath() || 'en';
+    const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
     const langPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
     const oreCta = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-launch-ore'));
     const hjCta = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-launch-hj'));
@@ -412,13 +412,23 @@ if (typeof document !== 'undefined') {
         initializeState(savedState);
         initAppSettings();
         initHeaderScroll();
-        const currentLang = getLanguageFromPath() || 'en';
+        const pathLang = getLanguageFromPath();
+        const savedSettings = getAppSettings();
+        const targetLang = pathLang || (savedSettings.language && savedSettings.language !== 'auto' ? savedSettings.language : 'en');
         if (!state.uiSettings) {
             state.uiSettings = {};
         }
-        state.uiSettings.language = currentLang;
-        await loadTranslations(currentLang);
+        state.uiSettings.language = targetLang;
+
+        if (pathLang) {
+            persistAppSettings({ language: pathLang });
+        } else if (targetLang !== 'en') {
+            syncLanguageUrl(targetLang, true);
+        }
+
+        await loadTranslations(targetLang);
         updateUIWithTranslations(true);
+        updateToolLinks();
         await initCommandCenter();
         initAppFooter();
         initializePwaService();

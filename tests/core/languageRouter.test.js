@@ -1,5 +1,9 @@
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { generateLocalizedHtml } = require('../../scripts/build/htmlLocalizer.js');
 
 import {
     getLanguageFromPath,
@@ -96,6 +100,15 @@ describe('Language Router Domain Suite', () => {
             state.uiSettings = {};
 
             assert.equal(detectLanguage(), 'tr');
+        });
+
+        test('falls back to clashCalc_appSettings when path has no language prefix', () => {
+            cleanups.push(mockGlobal('window', { location: { pathname: '/' } }));
+            cleanups.push(mockGlobal('localStorage', { getItem: (key) => key === 'clashCalc_appSettings' ? JSON.stringify({ language: 'de' }) : null }));
+            cleanups.push(mockGlobal('navigator', { languages: ['en'] }));
+            state.uiSettings = {};
+
+            assert.equal(detectLanguage(), 'de');
         });
 
         test('falls back to navigator.languages when no saved preference exists', () => {
@@ -362,6 +375,62 @@ describe('Language Router Domain Suite', () => {
             assert.equal(isValidRoute('/zh/equipment'), false);
             assert.equal(isValidRoute('/fr/planner'), false);
             assert.equal(isValidRoute('/hero-journey/random'), false);
+        });
+    });
+
+    describe('Two-Tier Language Priority & SSR Brand Routing', () => {
+        test('URL path language takes absolute precedence over saved local storage language', () => {
+            cleanups.push(mockGlobal('window', { location: { pathname: '/tr/' } }));
+            cleanups.push(mockGlobal('localStorage', {
+                getItem: (key) => key === 'clashCalc_appSettings' ? JSON.stringify({ language: 'de' }) : null
+            }));
+            state.uiSettings = { language: 'en' };
+
+            assert.equal(detectLanguage(), 'tr');
+        });
+
+        test('root path without language prefix falls back to saved local storage language and synchronizes URL', () => {
+            let replacedUrl = null;
+            cleanups.push(mockGlobal('window', { location: { pathname: '/' } }));
+            cleanups.push(mockGlobal('localStorage', {
+                getItem: (key) => key === 'clashCalc_appSettings' ? JSON.stringify({ language: 'de' }) : null
+            }));
+            cleanups.push(mockGlobal('document', {
+                documentElement: { lang: '' },
+                querySelector: () => null
+            }));
+            cleanups.push(mockGlobal('history', {
+                replaceState: (_state, _title, url) => { replacedUrl = url; },
+                pushState: () => {}
+            }));
+            state.uiSettings = {};
+
+            const detected = detectLanguage();
+            assert.equal(detected, 'de');
+
+            syncLanguageUrl(detected, true);
+            assert.equal(replacedUrl, '/de/');
+        });
+
+        test('SSR generateLocalizedHtml rewrites brand logo links to localized paths for non-English locales', () => {
+            const rawHeaderHtml = [
+                '<div class="header">',
+                '    <a href="/" class="brand-title-link" aria-label="ClashCalc Home">ClashCalc</a>',
+                '    <a href="/" class="landing-brand">Brand</a>',
+                '</div>'
+            ].join('\n');
+
+            const deHtml = generateLocalizedHtml(rawHeaderHtml, 'de', ['en', 'de', 'tr', 'zh'], false);
+            assert.ok(deHtml.includes('href="/de/" class="brand-title-link"'), 'Must rewrite brand-title-link to /de/');
+            assert.ok(deHtml.includes('href="/de/" class="landing-brand"'), 'Must rewrite landing-brand to /de/');
+
+            const trHtml = generateLocalizedHtml(rawHeaderHtml, 'tr', ['en', 'de', 'tr', 'zh'], false);
+            assert.ok(trHtml.includes('href="/tr/" class="brand-title-link"'), 'Must rewrite brand-title-link to /tr/');
+            assert.ok(trHtml.includes('href="/tr/" class="landing-brand"'), 'Must rewrite landing-brand to /tr/');
+
+            const enHtml = generateLocalizedHtml(rawHeaderHtml, 'en', ['en', 'de', 'tr', 'zh'], true);
+            assert.ok(enHtml.includes('href="/" class="brand-title-link"'), 'English must preserve root / for brand-title-link');
+            assert.ok(enHtml.includes('href="/" class="landing-brand"'), 'English must preserve root / for landing-brand');
         });
     });
 });

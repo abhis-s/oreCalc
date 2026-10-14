@@ -32,7 +32,9 @@ export function detectLanguage() {
     const pathLang = getLanguageFromPath();
     if (pathLang) return pathLang;
 
-    const rawSettings = (typeof localStorage !== 'undefined') ? localStorage.getItem('oreCalc_appSettings') : null;
+    const rawSettings = (typeof localStorage !== 'undefined')
+        ? (localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings'))
+        : null;
     const settings = safeJsonParse(rawSettings, {});
     const savedLang = state.uiSettings?.language || settings?.language;
     if (savedLang && SUPPORTED_LANGUAGES.includes(savedLang) && savedLang !== 'auto') {

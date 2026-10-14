@@ -158,6 +158,11 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
     html = html.replace(/"description": "[^"]*"/, `"description": "${description.replace(/"/g, '\\"')}"`);
     html = html.replace(/"url": "[^"]*"/, `"url": "${url}"`);
 
+    if (lang !== 'en') {
+        html = html.replace(/(<a\s+[^>]*\bclass="[^"]*(?:brand-title-link|landing-brand)[^"]*"[^>]*\bhref=")\/(")/g, `$1/${lang}/$2`);
+        html = html.replace(/(<a\s+[^>]*\bhref=")\/("[^>]*\bclass="[^"]*(?:brand-title-link|landing-brand)[^"]*")/g, `$1/${lang}/$2`);
+    }
+
     // Pre-render static body elements marked with data-i18n
     html = html.replace(/<([a-z1-6]+)([^>]*?)\s+data-i18n="([^"]+)"([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tagName, attrsBefore, key, attrsAfter) => {
         const val = resolveTranslation(translations, key, lang, getDynamicTranslationArgs, enTranslations);

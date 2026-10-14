@@ -35,8 +35,8 @@ import {
 } from './core/storageKeys.js';
 import { getSavedProfiles, setActivePlayerTag, savePlayerProfileToStorage } from './core/playerStorage.js';
 import { consolidateLocalStorageKeys } from './core/storageMigrations.js';
-import { initAppSettings, getAppSettings } from './components/common/appSettings.js';
-import { syncLanguageUrl } from './core/languageRouter.js';
+import { initAppSettings, getAppSettings, persistAppSettings } from './components/common/appSettings.js';
+import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
 import { initHeaderLayoutObserver, renderHeroJourneyPlayerDropdown } from './components/heroJourney/heroJourneyHeaderDisplay.js';
 import { initHeroJourneyPlayerDropdown, initHeroJourneyAddPlayerModal } from './components/heroJourney/heroJourneyHeaderInputs.js';
 import { renderPlayerSummary } from './components/heroJourney/heroJourneyPlayerRenderer.js';
@@ -394,13 +394,18 @@ async function init() {
         hjState.showTable = true;
     }
     setHeroJourneyStateProvider(() => buildStateFromPlayerData(hjState.playerData, hjState));
+    const pathLang = getLanguageFromPath();
     const currentSettings = getAppSettings();
-    const activeLang = currentSettings.language || 'en';
+    const activeLang = pathLang || (currentSettings.language && currentSettings.language !== 'auto' ? currentSettings.language : 'en');
     if (!state.uiSettings) {
         state.uiSettings = {};
     }
     state.uiSettings.language = activeLang;
-    syncLanguageUrl(activeLang, true);
+    if (pathLang) {
+        persistAppSettings({ language: pathLang });
+    } else if (activeLang !== 'en') {
+        syncLanguageUrl(activeLang, true);
+    }
     await loadTranslations(activeLang);
     updateUIWithTranslations(true);
     initAppSettings();

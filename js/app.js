@@ -32,6 +32,7 @@ import { getPlayerTagFromUrl, syncPlayerTagToUrl } from './core/playerUrlRouter.
 import { showApiErrorToast, showToast } from './ui/toast.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
 import { initAppFooter } from './components/common/appFooter.js';
+import { persistAppSettings } from './components/common/appSettings.js';
 import { logger } from './utils/logger.js';
 import './utils/imageManager.js';
 import './utils/svgManager.js';
@@ -232,8 +233,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         }
 
         if (!state.uiSettings) state.uiSettings = {};
+        const pathLang = getLanguageFromPath();
         const initialLang = detectLanguage();
         state.uiSettings.language = initialLang;
+        if (pathLang) {
+            persistAppSettings({ language: pathLang });
+        }
         syncLanguageUrl(initialLang, true);
         try {
             await loadTranslations('en');
@@ -404,7 +409,12 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
                 const syncedState = await initializeAppData();
                 if (syncedState) {
                     const originalVersion = syncedState.appVersion || '1.0.0';
+                    const activeLanguage = getLanguageFromPath() || state.uiSettings?.language || 'en';
                     initializeState(syncedState);
+                    state.uiSettings.language = activeLanguage;
+                    if (activeLanguage !== 'en') {
+                        await loadTranslations(activeLanguage);
+                    }
                     if (state.planner?.calendar) {
                         const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
                         const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();

@@ -191,8 +191,11 @@ export function renderPlayerSummary() {
             card.classList.remove('is-stats-collapsed');
         }
 
+        const lang = getLanguageFromPath();
+        const rootPath = (lang && lang !== 'en') ? `/${lang}/` : '/';
+
         const actionsRowHtml = `
-            <a href="/" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
+            <a href="${rootPath}" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
                 <clashcalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></clashcalc-assets-svg>
                 <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
             </a>
