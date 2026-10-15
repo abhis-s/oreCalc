@@ -397,11 +397,12 @@ export async function erasePlayerTagFromAllUsers(playerTag, token) {
  * @param {string} email - Optional contact email of the user.
  * @param {string} description - The detailed description of the bug.
  * @param {Object} [attachData] - Optional serialized state data.
- * @param {string} [userId] - The user's ID.
+ * @param {string|null} [userId=null] - The user's ID.
+ * @param {'bug'|'feedback'} [type='bug'] - Submission type ('bug' or 'feedback').
  * @returns {Promise<Object>} The server response.
  * @throws {Error} If submission fails.
  */
-export async function submitBugReport(email, description, attachData = null, userId = null) {
+export async function submitBugReport(email, description, attachData = null, userId = null, type = 'bug') {
     checkApiBlock();
 
     const url = `${BASE_URL}/api/support/bug-report`;
@@ -411,7 +412,7 @@ export async function submitBugReport(email, description, attachData = null, use
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, description, attachData, userId })
+            body: JSON.stringify({ email, description, attachData, userId, type })
         });
 
         if (!response.ok) {
@@ -420,7 +421,7 @@ export async function submitBugReport(email, description, attachData = null, use
 
         return await response.json();
     } catch (error) {
-        logger.error("Error submitting bug report:", error);
+        logger.error("Error submitting support report:", error);
         throw error;
     }
 }

@@ -60,6 +60,7 @@ import { renderNavigationDrawerContent } from './components/common/navigationDra
 import { initExternalLinkCatcher } from './components/common/externalLinkCatcher.js';
 import { initializeCommitsModal } from './components/changelog/commitsModal.js';
 import { initializeChangelogModal } from './components/changelog/changelogModal.js';
+import { initSpotright } from './components/spotright/spotrightController.js';
 import { initializeModalHistoryManager } from './utils/modalHistoryManager.js';
 import { initializeAuthModal } from './components/auth/authModalInputs.js';
 import { initializePasskeysModal } from './components/auth/passkeysModalInputs.js';
@@ -412,6 +413,7 @@ async function init() {
     initializePwaService();
     initializeModalHistoryManager();
     initializeChangelogModal();
+    initSpotright();
     initializeAuthModal();
     initializePasskeysModal();
     initializeSettingsAccount();

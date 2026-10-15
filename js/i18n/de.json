@@ -75,6 +75,8 @@
         "deleteAccountFailed": "Konto konnte nicht gelöscht werden",
         "deleteCloudFailed": "Fehler beim Löschen des Cloud-Backups: <code>{error}</code>. Lokale Daten werden trotzdem gelöscht.",
         "enableCloudSyncPrompt": "Die Cloud-Synchronisation ist derzeit deaktiviert. Du musst sie aktivieren, um deine Daten über verschiedene Geräte hinweg zu synchronisieren. Möchtest du sie jetzt aktivieren?",
+        "feedbackFailure": "Feedback konnte nicht übermittelt werden. Bitte versuche es später noch einmal.",
+        "feedbackSuccess": "Feedback erfolgreich übermittelt! Vielen Dank für deine Unterstützung.",
         "globalErasureSuccess": "Spieler verifiziert! Dein Spielerkürzel wurde sofort in unseren Systemen gesperrt und fast alle Daten wurden gelöscht. Jeder Versuch, es in Zukunft hinzuzufügen, erfordert eine Verifizierung. Alle verbleibenden Restdaten zu dem angegebenen Kürzel werden in den nächsten 30 Tagen entfernt.",
         "importEmpty": "Bitte gib eine Nutzer-ID zum Importieren ein.",
         "importFailed": "Importieren der Daten fehlgeschlagen: <code>{error}</code>",
@@ -501,6 +503,7 @@
         "bugDescriptionRequired": "Bitte gib eine Beschreibung von mindestens 20 Zeichen ein.",
         "compatibilityNoticeFallback": "Der Speicherzugriff ist eingeschränkt oder Ihr Browser ist veraltet. Bitte aktivieren Sie Cookies/lokalen Speicher oder aktualisieren Sie Ihren Browser, damit ClashCalc ordnungsgemäß funktioniert.",
         "duplicateCustomType": "Ein eigener Chip dieses Typs existiert bereits.",
+        "feedbackDescriptionRequired": "Bitte gib ein Feedback von mindestens 10 Zeichen ein.",
         "fetchPlayerFailed": "Fehler beim Laden der Spielerdaten: <code>{error}</code>",
         "fixOrder": "Fehler: Reihenfolge korrigieren",
         "invalidChar": "Ungültiges Zeichen eingegeben: \"{char}\". Gültige Zeichen sind: {validChars}",
@@ -1424,6 +1427,13 @@
                 "filenameInfo": "Die Datei wird benannt: <b>ClashCalc-Data_{uuid}.json</b>",
                 "title": "Deine Daten herunterladen"
             },
+            "feedback": {
+                "descLabel": "Dein Feedback *",
+                "descPlaceholder": "Teile uns mit, was dir gefällt, was verbessert werden könnte oder schlage neue Funktionen vor...",
+                "info": "Hast du einen Vorschlag, eine Idee oder Feedback? Lass uns wissen, wie wir ClashCalc verbessern können!",
+                "privacyInfo": "Durch das Absenden von Feedback erklärst du dich damit einverstanden, dass dein Feedback und die angegebene E-Mail-Adresse gemäß unserer {link} verarbeitet werden.",
+                "title": "Feedback"
+            },
             "globalPricing": {
                 "desc": "Supercell nutzt regionale und personalisierte Preise, was bedeutet, dass sich die Paketkosten weltweit je nach Kaufkraft der Währung, Land oder Ausgabeverhalten des Kontos unterscheiden. Konfiguriere hier individuelle Preise, um sie an die tatsächlichen Kosten in deinem Shop anzupassen, damit die App deine Kosten genau erfassen kann.",
                 "modal": {
@@ -1496,6 +1506,14 @@
                 },
                 "title": "Projektkosten"
             }
+        },
+        "spotright": {
+            "noResults": "Keine passenden Ergebnisse gefunden",
+            "placeholder": "Tools, Ausrüstung, Helden durchsuchen...",
+            "scopes": {
+                "tools": "Tools"
+            },
+            "searchTrigger": "Suche & Befehlspalette"
         },
         "tour": {
             "backupSyncDesc": "Aktiviere die Cloud-Synchronisierung, um deine Daten zu sichern und automatisch auf mehreren Geräten synchron zu halten.",

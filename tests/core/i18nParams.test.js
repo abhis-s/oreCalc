@@ -6,6 +6,7 @@ test('I18N_DYNAMIC_PARAMS registers expected parameter resolvers', () => {
     assert.ok(typeof I18N_DYNAMIC_PARAMS['app.supercellDisclaimer'] === 'function');
     assert.ok(typeof I18N_DYNAMIC_PARAMS['views.settings.bugReport.info'] === 'function');
     assert.ok(typeof I18N_DYNAMIC_PARAMS['views.settings.bugReport.privacyInfo'] === 'function');
+    assert.ok(typeof I18N_DYNAMIC_PARAMS['views.settings.feedback.privacyInfo'] === 'function');
 });
 
 test('getDynamicTranslationArgs resolves supercellDisclaimer for various languages', () => {

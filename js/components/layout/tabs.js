@@ -61,7 +61,9 @@ export function constructTabUrl(tabKey, pathname, search) {
  */
 export function initializeTabs() {
     const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
-    let initialTab = window.location.hash ? `${window.location.hash.substring(1)}-tab` : 'home-tab';
+    const rawHash = window.location.hash ? window.location.hash.substring(1) : '';
+    const isDeepLink = rawHash.startsWith('equip-') || rawHash.startsWith('hero-');
+    let initialTab = isDeepLink ? 'equipment-tab' : (rawHash ? `${rawHash}-tab` : 'home-tab');
 
     if (!validTabs.includes(initialTab)) {
         history.replaceState(null, '', constructTabUrl('home'));
@@ -77,7 +79,9 @@ export function initializeTabs() {
 
     window.addEventListener('popstate', () => {
         const hash = window.location.hash;
-        let tabId = hash ? `${hash.substring(1)}-tab` : 'home-tab';
+        const rawHash = hash ? hash.substring(1) : '';
+        const isDeepLink = rawHash.startsWith('equip-') || rawHash.startsWith('hero-');
+        let tabId = isDeepLink ? 'equipment-tab' : (rawHash ? `${rawHash}-tab` : 'home-tab');
         if (tabId === state.activeTab) return;
 
         const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);

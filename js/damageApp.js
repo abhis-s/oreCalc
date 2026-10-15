@@ -13,6 +13,7 @@ import { renderBottomNavBar } from './components/common/bottomNavBar.js';
 import { initExternalLinkCatcher } from './components/common/externalLinkCatcher.js';
 import { initializeCommitsModal } from './components/changelog/commitsModal.js';
 import { initializeChangelogModal } from './components/changelog/changelogModal.js';
+import { initSpotright } from './components/spotright/spotrightController.js';
 import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
 import { state } from './core/state.js';
 import {
@@ -459,6 +460,7 @@ async function initDamageApp() {
     initializeModalHistoryManager();
     initializeCommitsModal();
     initializeChangelogModal();
+    initSpotright();
     initializeAuthModal();
     initializePasskeysModal();
     initializeSettingsAccount();

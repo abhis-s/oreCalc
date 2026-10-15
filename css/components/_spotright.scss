@@ -1,0 +1,571 @@
+@use '../abstracts/variables' as *;
+
+.spotright-dialog {
+    position: fixed;
+    top: calc(#{$header-height-desktop} + #{$spacing-xl});
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    overflow: visible;
+    max-width: $modal-width-expanded;
+    width: calc(100vw - #{$spacing-xl} * 2);
+    z-index: $z-index-high-priority-modal;
+
+    &::backdrop {
+        background: color-mix(in srgb, $bg-overlay 20%, transparent);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+}
+
+.spotright-card {
+    display: flex;
+    flex-direction: column;
+    background: color-mix(in srgb, $bg-surface-primary 36%, transparent);
+    backdrop-filter: blur(48px) saturate(220%) brightness(106%);
+    -webkit-backdrop-filter: blur(48px) saturate(220%) brightness(106%);
+    border: 1px solid color-mix(in srgb, $border-inverse 14%, transparent);
+    border-radius: $modal-radius-workspace;
+    box-shadow: inset 0 1px 0 0 color-mix(in srgb, $border-inverse 28%, transparent),
+        0 24px 60px -8px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+.spotright-search-bar {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-md $spacing-lg;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: $spacing-lg;
+        right: $spacing-lg;
+        border-bottom: 1px solid color-mix(in srgb, $border-inverse 8%, transparent);
+    }
+}
+
+.spotright-search-icon {
+    width: 18px;
+    height: 18px;
+    color: $palette-grey-500;
+    flex-shrink: 0;
+}
+
+.spotright-input-container {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    // Prevents flex child from overflowing when content is wider than container.
+    min-width: 0;
+    min-height: 36px;
+}
+
+.spotright-scope-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    height: 30px;
+    padding: 0 $spacing-xs 0 10px;
+    background-color: color-mix(in srgb, $accent-primary 22%, transparent);
+    border: 1px solid color-mix(in srgb, $accent-primary 38%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, $accent-primary 38%, transparent);
+    border-radius: $shape-corner-small;
+    flex-shrink: 0;
+    margin-right: $spacing-sm;
+    user-select: none;
+    z-index: 2;
+
+    &[hidden] {
+        display: none !important;
+    }
+}
+
+.spotright-scope-label {
+    font-size: 14px;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.spotright-scope-clear-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: $text-muted;
+    border-radius: $shape-corner-xs;
+    cursor: pointer;
+    transition: color $duration-fast $ease-smooth, background-color $duration-fast $ease-smooth;
+
+    &:hover {
+        color: $text-primary;
+        background-color: color-mix(in srgb, $accent-primary 35%, transparent);
+    }
+
+    &:focus-visible {
+        outline: 1px solid $accent-primary;
+    }
+}
+
+.spotright-input-field-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: 100%;
+}
+
+.spotright-input {
+    width: 100%;
+    border: none !important;
+    background: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+    font-size: $font-size-md;
+    line-height: 1.4;
+    color: $text-primary;
+    font-weight: $font-weight-regular;
+    font-family: inherit;
+    letter-spacing: normal;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    z-index: 2;
+
+    &:focus,
+    &:focus-visible {
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    &::placeholder {
+        color: $text-muted;
+    }
+}
+
+.spotright-ghost-autocomplete {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-size: $font-size-md;
+    line-height: 1.4;
+    font-family: inherit;
+    font-weight: $font-weight-regular;
+    letter-spacing: normal;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+    z-index: 1;
+    white-space: pre;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.spotright-ghost-prefix {
+    // Hidden visually while reserving layout space identical to typed query.
+    visibility: hidden;
+}
+
+.spotright-ghost-suffix {
+    color: $text-muted;
+    opacity: 0.6;
+}
+
+.spotright-action-hint {
+    font-size: $font-size-2xs;
+    color: $text-muted;
+    white-space: nowrap;
+    margin-inline: $spacing-xs;
+    font-style: italic;
+}
+
+.spotright-kbd-shortcut {
+    font-size: $font-size-2xs;
+    color: $text-secondary;
+    background: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
+    border: 1px solid color-mix(in srgb, $border-inverse 12%, transparent);
+    border-radius: $shape-corner-xs;
+    padding: $spacing-2xs $spacing-xs;
+    font-weight: $font-weight-semibold;
+    flex-shrink: 0;
+}
+
+.spotright-filter-track {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-lg $spacing-md $spacing-lg;
+    overflow-x: auto;
+    // Confines horizontal scrolling without rendering intrusive browser scrollbars.
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.spotright-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    font-size: 14px;
+    line-height: 1.25;
+    font-weight: $font-weight-medium;
+    color: $text-muted;
+    background-color: color-mix(in srgb, $bg-surface-secondary 40%, transparent);
+    border: 1px solid color-mix(in srgb, $border-inverse 8%, transparent);
+    border-radius: $shape-corner-small;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+    user-select: none;
+
+    &:hover:not(.is-active) {
+        color: $text-primary;
+        background-color: color-mix(in srgb, $accent-primary 12%, transparent);
+        border-color: color-mix(in srgb, $accent-primary 25%, transparent);
+    }
+
+    &:focus-visible {
+        outline: none;
+        border-color: $accent-primary;
+    }
+
+    &.is-active {
+        color: $text-primary;
+        background-color: color-mix(in srgb, $accent-primary 22%, transparent);
+        border-color: color-mix(in srgb, $accent-primary 38%, transparent);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, $accent-primary 38%, transparent);
+        font-weight: $font-weight-semibold;
+    }
+}
+
+.spotright-results {
+    max-height: 380px;
+    overflow-y: auto;
+    padding: $spacing-sm;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+    // Confines scrolling strictly to results pane to prevent parent viewport chaining.
+    overscroll-behavior: contain;
+}
+
+.spotright-category-heading {
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $text-muted;
+    padding: $spacing-sm $spacing-sm $spacing-2xs;
+    user-select: none;
+}
+
+.spotright-result-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $shape-corner-medium;
+    cursor: pointer;
+    transition: background $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+    user-select: none;
+
+    &:hover {
+        background: color-mix(in srgb, $accent-primary 12%, transparent);
+    }
+
+    &.selected {
+        background: color-mix(in srgb, $accent-primary 22%, transparent);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, $accent-primary 38%, transparent);
+    }
+}
+
+.spotright-item-icon-wrapper {
+    width: 28px;
+    height: 28px;
+    border-radius: $shape-corner-xs;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: transparent;
+    border: none;
+
+    &.spotright-item-icon--svg {
+        clashcalc-assets-svg svg {
+            width: 18px !important;
+            height: 18px !important;
+            color: $palette-grey-400;
+            transition: color $duration-instant $ease-smooth;
+        }
+    }
+
+    &.spotright-item-icon--image {
+        clashcalc-assets-image img {
+            width: 22px !important;
+            height: 22px !important;
+            object-fit: contain;
+            border-radius: $shape-corner-2xs;
+        }
+    }
+
+    .spotright-result-item:hover &,
+    .spotright-result-item.selected & {
+        &.spotright-item-icon--svg {
+            clashcalc-assets-svg svg {
+                color: $accent-primary;
+            }
+        }
+    }
+}
+
+.spotright-item-content {
+    flex: 1;
+    // Prevents nested flex items from expanding beyond parent boundaries.
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+}
+
+.spotright-item-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+}
+
+.spotright-item-title {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    .spotright-result-item.selected & {
+        font-weight: $font-weight-semibold;
+    }
+}
+
+.spotright-item-tag {
+    font-size: $font-size-3xs;
+    padding: 0 $spacing-xs;
+    border-radius: $shape-corner-2xs;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: $font-weight-semibold;
+    line-height: 1.4;
+
+    &.spotright-tag--epic {
+        background: color-mix(in srgb, $color-rarity-epic 18%, transparent);
+        color: $color-rarity-epic;
+    }
+
+    &.spotright-tag--common {
+        background: color-mix(in srgb, $color-rarity-common 18%, transparent);
+        color: $color-rarity-common;
+    }
+}
+
+.spotright-item-subtitle {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    .spotright-result-item.selected & {
+        color: $text-secondary;
+    }
+}
+
+.spotright-item-action {
+    display: none;
+    align-items: center;
+    gap: $spacing-xs;
+    flex-shrink: 0;
+
+    .spotright-result-item.selected & {
+        display: flex;
+    }
+}
+
+.spotright-action-label {
+    font-size: $font-size-2xs;
+    color: $text-muted;
+}
+
+.spotright-action-enter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 20px;
+    padding: 0;
+    color: $text-secondary;
+    background: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
+    border: 1px solid color-mix(in srgb, $border-inverse 14%, transparent);
+    border-radius: $shape-corner-2xs;
+
+    clashcalc-assets-svg {
+        width: 14px;
+        height: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: inherit;
+    }
+}
+
+.spotright-footer {
+    display: flex;
+    align-items: center;
+    padding: $spacing-xs $spacing-md;
+    border-top: 1px solid color-mix(in srgb, $border-inverse 6%, transparent);
+    background: color-mix(in srgb, $bg-surface-primary 15%, transparent);
+}
+
+.spotright-footer-feedback-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    background: transparent;
+    border: none;
+    padding: $spacing-2xs $spacing-xs;
+    border-radius: $shape-corner-2xs;
+    color: $text-muted;
+    font-size: $font-size-2xs;
+    font-family: inherit;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: color $duration-fast $ease-smooth, background-color $duration-fast $ease-smooth;
+
+    .spotright-footer-feedback-icon {
+        width: 14px;
+        height: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &:hover {
+        color: $text-primary;
+        background-color: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px $accent-primary-soft;
+    }
+}
+
+.spotright-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-2xl $spacing-xl;
+    gap: $spacing-sm;
+}
+
+.spotright-empty-icon {
+    width: 24px;
+    height: 24px;
+    color: $palette-grey-500;
+}
+
+.spotright-empty-text {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+}
+
+.spotright-target-pulse {
+    animation: spotrightPulse $duration-color-morph $ease-exit;
+}
+
+@keyframes spotrightPulse {
+    0% {
+        box-shadow: 0 0 0 0 $accent-primary;
+    }
+
+    50% {
+        box-shadow: 0 0 0 $shape-corner-small color-mix(in srgb, $accent-primary 40%, transparent);
+    }
+
+    100% {
+        box-shadow: 0 0 0 $card-radius transparent;
+    }
+}
+
+.header-spotright-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: $header-action-size;
+    min-width: $header-action-size;
+    max-width: $header-action-size;
+    height: $header-action-size;
+    min-height: $header-action-size;
+    max-height: $header-action-size;
+    padding: 0;
+    margin: 0;
+    border-radius: $shape-corner-full;
+    border: 1px solid $border-secondary;
+    background-color: $bg-surface-tertiary;
+    color: $text-secondary;
+    overflow: hidden;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast, color $transition-fast;
+
+    &:hover:not(:disabled) {
+        transform: scale(1.05);
+        border-color: $border-card-hover;
+        color: $text-primary;
+        background-color: $bg-surface-secondary;
+    }
+
+    &:focus-visible {
+        outline: none;
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 2px $accent-primary-soft;
+    }
+
+    &.is-open {
+        border-color: $accent-primary;
+        color: $accent-primary;
+    }
+
+    .header-spotright-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: $header-icon-size;
+        height: $header-icon-size;
+    }
+}

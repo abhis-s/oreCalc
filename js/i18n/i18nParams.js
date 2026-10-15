@@ -26,6 +26,12 @@ export const I18N_DYNAMIC_PARAMS = {
         return {
             link: `<a href="#" id="bug-report-privacy-link" class="theme-link">${privacyText}</a>`
         };
+    },
+    'views.settings.feedback.privacyInfo': (lang, getTranslation) => {
+        const privacyText = (typeof getTranslation === 'function' ? getTranslation('nav.privacy') : '') || 'Privacy Policy';
+        return {
+            link: `<a href="#" id="feedback-privacy-link" class="theme-link">${privacyText}</a>`
+        };
     }
 };
 

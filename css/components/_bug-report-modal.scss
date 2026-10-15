@@ -1,21 +1,74 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/mixins' as *;
 
-#bug-report-modal {
+#bug-report-modal,
+.support-modal {
     z-index: $z-index-welcome-modal + 1;
 
+    .support-modal-content,
     .modal-content {
         max-width: $modal-width-expanded;
     }
 
+    .support-modal-tabs {
+        display: flex;
+        background-color: $bg-surface-tertiary;
+        border-radius: $shape-corner-small;
+        padding: 3px;
+        border: 1px solid $border-primary;
+        margin: $spacing-sm $spacing-xl 0;
+
+        .segmented-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border: none;
+            background: transparent;
+            color: $text-secondary;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-semibold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+
+            clashcalc-assets-svg,
+            orecalc-assets-svg {
+                width: 14px;
+                height: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            &:hover {
+                color: $text-primary;
+            }
+
+            &.active {
+                background-color: $bg-surface-primary;
+                color: $accent-primary;
+                box-shadow: $elevation-1;
+            }
+        }
+    }
+
+    .modal-info-text {
+        margin-top: $spacing-sm;
+        padding: 0 $spacing-xl;
+    }
+
+    .support-modal-form,
     .bug-report-form {
-        padding: $spacing-lg $spacing-xl $spacing-xl;
+        padding: $spacing-md $spacing-xl $spacing-xl;
         flex: 1;
         overflow-y: auto;
         min-height: 0;
         display: flex;
         flex-direction: column;
-        gap: $spacing-lg;
+        gap: $spacing-md;
     }
 
     .form-group {
@@ -78,63 +131,6 @@
     .char-count {
         color: $text-muted;
         font-size: 12px;
-    }
-
-    .attachment-box {
-        display: flex;
-        align-items: center;
-        gap: $spacing-md;
-        flex-wrap: wrap;
-    }
-
-    .attachment-status {
-        display: flex;
-        align-items: center;
-        gap: $spacing-sm;
-        background-color: rgba($color-success, 0.08);
-        border: 1px solid rgba($color-success, 0.2);
-        padding: $spacing-sm $spacing-lg;
-        border-radius: $shape-corner-medium;
-        transition: opacity $duration-fast $ease-smooth;
-
-        &.hidden {
-            display: none !important;
-        }
-
-        .success-icon {
-            color: $color-success;
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .text-success {
-            color: $color-success;
-            font-weight: 500;
-            font-size: 14px;
-        }
-    }
-
-    .detach-button {
-        background: none;
-        border: none;
-        color: $color-danger;
-        font-size: 18px;
-        line-height: 1;
-        cursor: pointer;
-        padding: $spacing-2xs 6px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background-color $duration-fast $ease-smooth;
-
-        &:hover {
-            background-color: rgba($color-danger, 0.1);
-        }
     }
 
     .checkbox-group {
@@ -227,7 +223,7 @@
     .sw-troubleshoot-box {
         background: color-mix(in srgb, $bg-surface-primary 50%, transparent);
         padding: $spacing-md;
-        border-radius: 10px;
+        border-radius: $card-radius;
         border: 1px solid $border-primary;
 
         .sw-troubleshoot-content {
@@ -257,6 +253,7 @@
         }
     }
 
+    .support-sw-btn,
     .bug-report-sw-btn {
         display: inline-flex;
         align-items: center;
@@ -265,7 +262,7 @@
         padding: $spacing-sm 14px;
         background-color: $accent-primary;
         border: 1px solid $btn-border-blue;
-        border-radius: 10px;
+        border-radius: $card-radius;
         font-size: 12.5px;
         font-weight: 600;
         color: $text-on-accent;
@@ -285,9 +282,22 @@
     }
 
     @media (max-width: $breakpoint-modal) {
+        .support-modal-tabs {
+            margin: $spacing-sm 20px 0;
+        }
+
+        .modal-info-text {
+            padding: 0 20px;
+        }
+
+        .support-modal-form,
         .bug-report-form {
             padding: $spacing-md 20px 20px;
             gap: $spacing-md;
+        }
+
+        textarea.input-style {
+            min-height: 90px;
         }
 
         .input-style {
@@ -317,6 +327,7 @@
                 text-align: center;
             }
 
+            #support-reset-sw-btn,
             #bug-report-reset-sw-btn {
                 align-self: center;
                 margin: 0 auto;

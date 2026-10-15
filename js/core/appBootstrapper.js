@@ -49,6 +49,8 @@ import { initializePriorityListModal } from '../components/planner/priorityListM
 import { initializePlayerDropdown, updateRefreshButtonVisibility } from '../components/player/playerDropdown.js';
 import { initializePlayerModal, showAddPlayerModal } from '../components/player/playerModal.js';
 import { initializeGuidedSetupModal } from '../components/guidedSetup/guidedSetupModal.js';
+import { initSpotright } from '../components/spotright/spotrightController.js';
+import { handleSpotrightDeepLink } from '../components/spotright/spotrightRegistry.js';
 import { dom } from '../dom/domElements.js';
 import { initializeGlobalHaptics } from '../services/hapticService.js';
 import { initializeCloudSaveButtons } from '../services/cloudSaveService.js';
@@ -169,6 +171,7 @@ export async function bootstrapUIComponents(initialLang) {
     initializeProspector();
     initializeIncomeCardHandler();
     initCardLayoutManager();
+    initSpotright();
 
     let layoutMode = state.uiSettings.cardLayout;
     if (layoutMode === 'quilt') {
@@ -239,6 +242,7 @@ function finishStartupTeardown() {
     if (typeof window.__APP_LOADED__ === 'function') {
         window.__APP_LOADED__();
     }
+    handleSpotrightDeepLink();
 
     const tourTimestamp = state.uiSettings?.uiTimestamps?.tour;
 

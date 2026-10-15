@@ -75,6 +75,8 @@
         "deleteAccountFailed": "Failed to delete account",
         "deleteCloudFailed": "Failed to delete cloud backup: <code>{error}</code>. Local data will be cleared anyway.",
         "enableCloudSyncPrompt": "Cloud synchronization is currently disabled. You need to enable it to sync your data across devices. Would you like to enable it now?",
+        "feedbackFailure": "Failed to submit feedback. Please try again later.",
+        "feedbackSuccess": "Feedback submitted successfully! Thank you for helping us improve.",
         "globalErasureSuccess": "Player verified! Your player tag has been locked from our systems right away, and almost all data has been deleted. Any attempts to add it in the future will require verification. Any stray data left anywhere for the player tag provided will be removed in the next 30 days.",
         "importEmpty": "Please enter a User ID to import.",
         "importFailed": "Failed to import data: <code>{error}</code>",
@@ -501,6 +503,7 @@
         "bugDescriptionRequired": "Please enter a description of at least 20 characters.",
         "compatibilityNoticeFallback": "Storage access is restricted or your browser is outdated. Please enable cookies/local storage or update your browser for ClashCalc to function properly.",
         "duplicateCustomType": "A custom chip of this type already exists.",
+        "feedbackDescriptionRequired": "Please enter feedback of at least 10 characters.",
         "fetchPlayerFailed": "Failed to load player data: <code>{error}</code>",
         "fixOrder": "Error: Fix Order",
         "invalidChar": "Invalid character entered: \"{char}\". Valid characters are: {validChars}",
@@ -1424,6 +1427,13 @@
                 "filenameInfo": "The file will be named: <b>ClashCalc-Data_{uuid}.json</b>",
                 "title": "Download Your Data"
             },
+            "feedback": {
+                "descLabel": "Your Feedback *",
+                "descPlaceholder": "Tell us what you like, what could be improved, or suggest new features...",
+                "info": "Have a suggestion, idea, or feedback? Let us know how we can make ClashCalc better!",
+                "privacyInfo": "By submitting feedback, you agree that your feedback and the provided email address will be processed in accordance with our {link}.",
+                "title": "Feedback"
+            },
             "globalPricing": {
                 "desc": "Supercell implements regional and personalized pricing, meaning package costs differ globally based on currency purchasing power, country, or account spending patterns. Configure custom prices here to match the actual costs in your shop, allowing the app to track your costs accurately.",
                 "modal": {
@@ -1496,6 +1506,14 @@
                 },
                 "title": "Project Costs"
             }
+        },
+        "spotright": {
+            "noResults": "No matching results found",
+            "placeholder": "Search tools, equipment, heroes...",
+            "scopes": {
+                "tools": "Tools"
+            },
+            "searchTrigger": "Search & Command Palette"
         },
         "tour": {
             "backupSyncDesc": "Enable cloud sync to back up your data and keep it in sync across multiple devices automatically.",

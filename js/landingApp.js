@@ -22,6 +22,7 @@ import { initAppHeader } from './components/common/appHeader.js';
 import { initAppFooter } from './components/common/appFooter.js';
 import { initExternalLinkCatcher } from './components/common/externalLinkCatcher.js';
 import { initializeCommitsModal } from './components/changelog/commitsModal.js';
+import { initSpotright } from './components/spotright/spotrightController.js';
 import { getAppSettings, initAppSettings, persistAppSettings } from './components/common/appSettings.js';
 import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
 import { initializePwaService } from './services/pwaService.js';
@@ -438,6 +439,7 @@ if (typeof document !== 'undefined') {
         initializeAuthModal();
         initializePasskeysModal();
         initializeSettingsAccount();
+        initSpotright();
 
         if (typeof window.__APP_LOADED__ === 'function') {
             window.__APP_LOADED__();

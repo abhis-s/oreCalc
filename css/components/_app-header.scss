@@ -239,6 +239,7 @@
 
         @container header-shell (max-width: #{$container-header-collapse}) {
             > .animated-btn,
+            > .header-spotright-btn,
             > .app-account-wrapper > .header-account-btn {
                 @include header-action-btn-collapse;
             }
