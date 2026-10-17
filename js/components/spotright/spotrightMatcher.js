@@ -66,6 +66,29 @@ export function scoreSpotrightItem(query, item) {
         }
     }
 
+    // Searches both 'O' and '0' for saved village tags when query contains 'O'
+    if (item.isVillage && item.cleanTag) {
+        const cleanTagLower = item.cleanTag.toLowerCase();
+        const rawTagQuery = query.startsWith('#') ? query.slice(1) : query;
+        if (rawTagQuery) {
+            const tagQueryWithZero = rawTagQuery.includes('o') ? rawTagQuery.replace(/o/g, '0') : null;
+
+            if (cleanTagLower === rawTagQuery || (tagQueryWithZero && cleanTagLower === tagQueryWithZero)) {
+                return 150 + priority;
+            }
+            if (cleanTagLower.startsWith(rawTagQuery) || (tagQueryWithZero && cleanTagLower.startsWith(tagQueryWithZero))) {
+                const matchedLength = tagQueryWithZero && cleanTagLower.startsWith(tagQueryWithZero)
+                    ? tagQueryWithZero.length
+                    : rawTagQuery.length;
+                const lengthProportion = (matchedLength / cleanTagLower.length) * 15;
+                return 120 + lengthProportion + priority;
+            }
+            if (rawTagQuery.length >= 2 && (cleanTagLower.includes(rawTagQuery) || (tagQueryWithZero && cleanTagLower.includes(tagQueryWithZero)))) {
+                return 55 + priority;
+            }
+        }
+    }
+
     // 3. Exact Title Match
     if (item.normalizedTitle === query) {
         return 150 + priority;
@@ -107,11 +130,14 @@ export function scoreSpotrightItem(query, item) {
 
 /**
  * Scope identifier types.
- * @typedef {'all' | 'equipment' | 'hero' | 'tools' | 'settings'} SpotrightScope
+ * @typedef {'all' | 'villages' | 'equipment' | 'hero' | 'tools' | 'settings'} SpotrightScope
  */
 
 /** @type {Record<string, SpotrightScope>} */
 const PREFIX_TO_SCOPE = {
+    '/v': 'villages',
+    '/village': 'villages',
+    '/villages': 'villages',
     '/e': 'equipment',
     '/equip': 'equipment',
     '/equipment': 'equipment',
@@ -159,6 +185,11 @@ function filterRegistryByScope(registry, scope) {
     if (!scope || scope === 'all') return registry;
 
     switch (scope) {
+        case 'villages': {
+            const villages = registry.filter(item => item.isVillage);
+            const addAction = registry.filter(item => item.id === 'action-add-player');
+            return [...villages, ...addAction];
+        }
         case 'equipment':
             return registry.filter(item => item.entityType === 'epic' || item.entityType === 'common');
         case 'hero':
@@ -166,7 +197,7 @@ function filterRegistryByScope(registry, scope) {
         case 'tools':
             return registry.filter(item => item.entityType === 'nav');
         case 'settings':
-            return registry.filter(item => item.entityType === 'modal');
+            return registry.filter(item => item.entityType === 'modal' && !item.isVillage && item.id !== 'action-add-player');
         default:
             return registry;
     }
@@ -206,6 +237,12 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
                 autocomplete: null
             };
         }
+        if (scope === 'villages') {
+            return {
+                matches: targetItems,
+                autocomplete: null
+            };
+        }
         return {
             matches: scope === 'equipment' ? targetItems : targetItems.slice(0, Math.max(15, maxLimit)),
             autocomplete: null
@@ -225,11 +262,32 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
 
     scored.sort((a, b) => b.score - a.score);
 
+    // Demotes active village to rank lowest among matched villages so user switches profiles
+    const matchedVillages = scored.filter(entry => entry.item.isVillage);
+    if (matchedVillages.length > 1) {
+        const activeEntry = matchedVillages.find(entry => entry.item.isActiveVillage);
+        if (activeEntry) {
+            const inactiveVillages = matchedVillages.filter(entry => !entry.item.isActiveVillage);
+            if (inactiveVillages.length > 0) {
+                const lowestInactiveScore = Math.min(...inactiveVillages.map(e => e.score));
+                activeEntry.score = Math.max(1, lowestInactiveScore - 0.5);
+                scored.sort((a, b) => b.score - a.score);
+            }
+        }
+    }
+
     // Direct Player Tag Synthesis: when query matches a valid Clash of Clans tag pattern
     const cleanTagCandidate = query.startsWith('#') ? query.slice(1).toUpperCase() : query.toUpperCase();
     if (cleanTagCandidate.length >= 3 && cleanTagCandidate.length <= 12 && /^[0289CGJLOPQRUVY]+$/.test(cleanTagCandidate)) {
-        const alreadyMatched = scored.some(entry => entry.item.id === `village-${cleanTagCandidate}`);
-        if (!alreadyMatched) {
+        const canonicalCandidate = cleanTagCandidate.replace(/O/g, '0');
+        const exactSavedVillage = scored.find(entry =>
+            entry.item.isVillage && (
+                entry.item.cleanTag === cleanTagCandidate ||
+                entry.item.cleanTag === canonicalCandidate
+            )
+        );
+
+        if (!exactSavedVillage) {
             const directItem = {
                 id: `direct-tag-${cleanTagCandidate}`,
                 title: translate('views.spotright.loadDirectTag', { tag: cleanTagCandidate }),
@@ -245,7 +303,16 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
                 isAsyncAction: true,
                 execute: () => loadAndSwitchPlayerTag(cleanTagCandidate)
             };
-            scored.unshift({ item: directItem, score: 350 });
+
+            const villageEntries = scored.filter(entry => entry.item.isVillage);
+            if (villageEntries.length > 0) {
+                // Ranks direct action lower than all saved villages so Return switches profiles
+                const lowestVillageScore = Math.min(...villageEntries.map(e => e.score));
+                scored.push({ item: directItem, score: Math.max(1, lowestVillageScore - 0.5) });
+                scored.sort((a, b) => b.score - a.score);
+            } else {
+                scored.unshift({ item: directItem, score: 350 });
+            }
         }
     }
 

@@ -301,6 +301,50 @@
         background: color-mix(in srgb, $accent-primary 22%, transparent);
         box-shadow: inset 0 0 0 1px color-mix(in srgb, $accent-primary 38%, transparent);
     }
+
+    &.spotright-result-item--village {
+        &.is-active-village {
+            border-left: 2px solid $accent-primary;
+        }
+    }
+}
+
+.spotright-th-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+
+    .spotright-th-img,
+    .spotright-th-img img {
+        width: 36px;
+        height: 36px;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+    }
+
+    .spotright-th-badge {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-xs;
+        font-size: 10px;
+        font-weight: $font-weight-bold;
+        line-height: 1;
+        min-width: 15px;
+        height: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1px 2px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
 }
 
 .spotright-item-icon-wrapper {
@@ -389,6 +433,18 @@
         background: color-mix(in srgb, $color-rarity-common 18%, transparent);
         color: $color-rarity-common;
     }
+
+    &.spotright-tag--active {
+        background: color-mix(in srgb, $color-success 18%, transparent);
+        color: $color-success;
+        border: 1px solid color-mix(in srgb, $color-success 30%, transparent);
+    }
+}
+
+.spotright-village-tag {
+    font-size: $font-size-xs;
+    font-family: 'Roboto Mono', monospace;
+    color: $text-muted;
 }
 
 .spotright-item-subtitle {
@@ -423,6 +479,70 @@
     }
 }
 
+.spotright-village-meta {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: $font-size-xs;
+    color: $text-muted;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    .spotright-result-item.selected & {
+        color: $text-secondary;
+    }
+}
+
+.spotright-meta-clan {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2xs;
+    min-width: 0;
+}
+
+.spotright-meta-clan-badge,
+.spotright-meta-clan-badge img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.spotright-meta-clan-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.spotright-meta-divider {
+    color: $text-muted;
+    opacity: 0.6;
+    user-select: none;
+}
+
+.spotright-meta-trophies {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2xs;
+    flex-shrink: 0;
+}
+
+.spotright-trophy-icon {
+    width: 12px;
+    height: 12px;
+    color: $palette-amber-500;
+    flex-shrink: 0;
+}
+
+.spotright-meta-league-icon,
+.spotright-meta-league-icon img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
 .spotright-item-action {
     display: none;
     align-items: center;
@@ -433,6 +553,13 @@
     .spotright-result-item.is-loading & {
         display: flex;
     }
+}
+
+.spotright-action-active-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: $color-success;
 }
 
 .spotright-action-label {
@@ -484,12 +611,14 @@
 .spotright-footer {
     display: flex;
     align-items: center;
+    gap: $spacing-sm;
     padding: $spacing-xs $spacing-md;
     border-top: 1px solid color-mix(in srgb, $border-inverse 6%, transparent);
     background: color-mix(in srgb, $bg-surface-primary 15%, transparent);
 }
 
-.spotright-footer-feedback-btn {
+.spotright-footer-feedback-btn,
+.spotright-footer-shortcuts-btn {
     display: inline-flex;
     align-items: center;
     gap: $spacing-xs;
@@ -504,7 +633,8 @@
     cursor: pointer;
     transition: color $duration-fast $ease-smooth, background-color $duration-fast $ease-smooth;
 
-    .spotright-footer-feedback-icon {
+    .spotright-footer-feedback-icon,
+    .spotright-footer-shortcuts-icon {
         width: 14px;
         height: 14px;
         display: flex;
@@ -521,6 +651,17 @@
         outline: none;
         box-shadow: 0 0 0 2px $accent-primary-soft;
     }
+}
+
+.spotright-footer-kbd {
+    font-size: $font-size-2xs;
+    color: $text-muted;
+    background: color-mix(in srgb, $bg-surface-secondary 50%, transparent);
+    border: 1px solid color-mix(in srgb, $border-inverse 10%, transparent);
+    border-radius: $shape-corner-2xs;
+    padding: 0 $spacing-2xs;
+    line-height: 1.3;
+    font-weight: $font-weight-semibold;
 }
 
 .spotright-empty-state {

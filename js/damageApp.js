@@ -14,6 +14,7 @@ import { initExternalLinkCatcher } from './components/common/externalLinkCatcher
 import { initializeCommitsModal } from './components/changelog/commitsModal.js';
 import { initializeChangelogModal } from './components/changelog/changelogModal.js';
 import { initSpotright } from './components/spotright/spotrightController.js';
+import { initShortcutsModalListener } from './components/shortcuts/shortcutsModal.js';
 import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
 import { state } from './core/state.js';
 import {
@@ -461,6 +462,7 @@ async function initDamageApp() {
     initializeCommitsModal();
     initializeChangelogModal();
     initSpotright();
+    initShortcutsModalListener();
     initializeAuthModal();
     initializePasskeysModal();
     initializeSettingsAccount();

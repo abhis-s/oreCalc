@@ -6,6 +6,7 @@
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { sanitizeHTML } from '../../ui/noticeModal.js';
+import { formatNumber } from '../../utils/numberFormatter.js';
 
 /**
  * Creates and returns the modal dialog element for Spotright search.
@@ -46,6 +47,7 @@ export function createSpotrightDialog() {
             </div>
             <div id="spotright-filter-track" class="spotright-filter-track" role="tablist" aria-label="Filter scope">
                 <button type="button" class="spotright-filter-chip is-active" data-scope="all" role="tab" aria-selected="true" data-i18n="views.heroJourney.filters.filterAll">${escapeHTML(translate('views.heroJourney.filters.filterAll'))}</button>
+                <button type="button" class="spotright-filter-chip" data-scope="villages" role="tab" aria-selected="false" data-i18n="views.spotright.scopes.villages">${escapeHTML(translate('views.spotright.scopes.villages'))}</button>
                 <button type="button" class="spotright-filter-chip" data-scope="equipment" role="tab" aria-selected="false" data-i18n="nav.equipment">${escapeHTML(translate('nav.equipment'))}</button>
                 <button type="button" class="spotright-filter-chip" data-scope="hero" role="tab" aria-selected="false" data-i18n="views.damageCalc.filters.filterHeroes">${escapeHTML(translate('views.damageCalc.filters.filterHeroes'))}</button>
                 <button type="button" class="spotright-filter-chip" data-scope="tools" role="tab" aria-selected="false" data-i18n="views.spotright.scopes.tools">${escapeHTML(translate('views.spotright.scopes.tools'))}</button>
@@ -59,6 +61,14 @@ export function createSpotrightDialog() {
                     data-i18n-title="views.settings.feedback.title">
                     <clashcalc-assets-svg name="feedback" class="spotright-footer-feedback-icon"></clashcalc-assets-svg>
                     <span class="spotright-footer-feedback-label" data-i18n="views.settings.feedback.title">${escapeHTML(translate('views.settings.feedback.title'))}</span>
+                </button>
+                <button type="button" id="spotright-shortcuts-btn" class="spotright-footer-shortcuts-btn"
+                    aria-label="${escapeHTML(translate('views.shortcuts.title'))}"
+                    title="${escapeHTML(translate('views.shortcuts.title'))}"
+                    data-i18n-title="views.shortcuts.title">
+                    <clashcalc-assets-svg name="keyboard" class="spotright-footer-shortcuts-icon"></clashcalc-assets-svg>
+                    <span class="spotright-footer-shortcuts-label" data-i18n="views.shortcuts.title">${escapeHTML(translate('views.shortcuts.title'))}</span>
+                    <kbd class="spotright-footer-kbd">?</kbd>
                 </button>
             </div>
         </div>
@@ -101,26 +111,70 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
         }
 
         const isSelected = idx === selectedIndex;
-        const iconHtml = item.iconType === 'image'
-            ? `<clashcalc-assets-image src="${item.icon}" alt="${escapeHTML(item.title)}" class="spotright-item-icon"></clashcalc-assets-image>`
-            : `<clashcalc-assets-svg name="${item.icon}" class="spotright-item-icon"></clashcalc-assets-svg>`;
+        const iconHtml = item.isVillage
+            ? `<div class="spotright-th-wrapper"><clashcalc-assets-image src="${item.icon}" alt="TH${item.thLevel}" class="spotright-th-img" size="standard"></clashcalc-assets-image><span class="spotright-th-badge">${item.thLevel}</span></div>`
+            : `<div class="spotright-item-icon-wrapper ${item.iconType === 'image' ? 'spotright-item-icon--image' : 'spotright-item-icon--svg'}">${
+                item.iconType === 'image'
+                    ? `<clashcalc-assets-image src="${item.icon}" alt="${escapeHTML(item.title)}" class="spotright-item-icon"></clashcalc-assets-image>`
+                    : `<clashcalc-assets-svg name="${item.icon}" class="spotright-item-icon"></clashcalc-assets-svg>`
+            }</div>`;
 
         let tagHtml = '';
-        if (item.entityType === 'epic' || item.entityType === 'common') {
+        if (item.isVillage) {
+            const displayTag = item.displayTag || (item.cleanTag ? `#${item.cleanTag}` : '');
+            tagHtml = `<span class="spotright-village-tag">${escapeHTML(displayTag)}</span>`;
+            if (item.isActiveVillage) {
+                tagHtml += `<span class="spotright-item-tag spotright-tag--active">${escapeHTML(translate('views.spotright.activeVillage') || 'Active')}</span>`;
+            }
+        } else if (item.entityType === 'epic' || item.entityType === 'common') {
             tagHtml = `<span class="spotright-item-tag spotright-tag--${item.entityType}">${escapeHTML(item.entityType)}</span>`;
         }
 
         const isItemLoading = Boolean(item.isLoading);
         const hasItemError = Boolean(item.errorMessage);
-        const subtitleClass = hasItemError ? 'spotright-item-subtitle spotright-item-subtitle--error' : 'spotright-item-subtitle';
-        const displaySubtitle = item.errorMessage || item.subtitle;
-        const renderedSubtitle = hasItemError ? sanitizeHTML(displaySubtitle) : escapeHTML(displaySubtitle);
+        let subtitleHtml = '';
+        if (hasItemError) {
+            subtitleHtml = `<span class="spotright-item-subtitle spotright-item-subtitle--error">${sanitizeHTML(item.errorMessage)}</span>`;
+        } else if (item.isVillage) {
+            const clanBadgeHtml = item.clanBadge
+                ? `<clashcalc-assets-image src="${item.clanBadge}" alt="" class="spotright-meta-clan-badge" size="standard"></clashcalc-assets-image>`
+                : '';
+            const clanNameText = item.clanName || translate('views.guidedSetup.noClan') || 'No Clan';
+            const clanHtml = `<span class="spotright-meta-clan">${clanBadgeHtml}<span class="spotright-meta-clan-name">${escapeHTML(clanNameText)}</span></span>`;
+
+            const trophiesHtml = `
+                <span class="spotright-meta-trophies">
+                    <clashcalc-assets-svg name="trophy" width="12" height="12" class="spotright-trophy-icon" aria-hidden="true"></clashcalc-assets-svg>
+                    <span>${formatNumber(Number(item.trophies) || 0)}</span>
+                </span>
+            `;
+
+            const leagueHtml = item.leagueIcon
+                ? `<clashcalc-assets-image src="${item.leagueIcon}" alt="${escapeHTML(item.leagueName || '')}" class="spotright-meta-league-icon" size="standard" title="${escapeHTML(item.leagueName || '')}"></clashcalc-assets-image>`
+                : '';
+
+            subtitleHtml = `
+                <div class="spotright-village-meta">
+                    ${clanHtml}
+                    <span class="spotright-meta-divider">&bull;</span>
+                    ${trophiesHtml}
+                    ${leagueHtml}
+                </div>
+            `;
+        } else {
+            subtitleHtml = `<span class="spotright-item-subtitle">${escapeHTML(item.subtitle)}</span>`;
+        }
 
         let actionHtml = '';
         if (isItemLoading) {
             actionHtml = `
                 <clashcalc-assets-svg name="refresh" class="spotright-item-spinner" width="14" height="14"></clashcalc-assets-svg>
                 <span class="spotright-action-label">${escapeHTML(translate('actions.loading'))}</span>
+            `;
+        } else if (item.isActiveVillage) {
+            actionHtml = `
+                <span class="spotright-action-label">${escapeHTML(translate('views.spotright.activeVillage') || 'Active')}</span>
+                <span class="spotright-action-active-icon"><clashcalc-assets-svg name="check" width="14" height="14"></clashcalc-assets-svg></span>
             `;
         } else {
             const actionLabel = hasItemError ? (translate('actions.reload') || 'Retry') : item.actionCue;
@@ -130,23 +184,24 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
             `;
         }
 
+        const villageClass = item.isVillage ? 'spotright-result-item--village' : '';
+        const activeVillageClass = item.isActiveVillage ? 'is-active-village' : '';
+
         htmlChunks.push(`
             <div
-                class="spotright-result-item ${isSelected ? 'selected' : ''} ${isItemLoading ? 'is-loading' : ''} ${hasItemError ? 'has-error' : ''}"
+                class="spotright-result-item ${villageClass} ${activeVillageClass} ${isSelected ? 'selected' : ''} ${isItemLoading ? 'is-loading' : ''} ${hasItemError ? 'has-error' : ''}"
                 role="option"
                 aria-selected="${isSelected ? 'true' : 'false'}"
                 data-index="${idx}"
                 data-id="${escapeHTML(item.id)}"
             >
-                <div class="spotright-item-icon-wrapper ${item.iconType === 'image' ? 'spotright-item-icon--image' : 'spotright-item-icon--svg'}">
-                    ${iconHtml}
-                </div>
+                ${iconHtml}
                 <div class="spotright-item-content">
                     <div class="spotright-item-header">
                         <span class="spotright-item-title">${escapeHTML(item.title)}</span>
                         ${tagHtml}
                     </div>
-                    <span class="${subtitleClass}">${renderedSubtitle}</span>
+                    ${subtitleHtml}
                 </div>
                 <div class="spotright-item-action">
                     ${actionHtml}
@@ -233,6 +288,7 @@ export function updateTopHitHint(hintEl, autocomplete) {
 /** @type {Record<string, string>} Scope label translation keys */
 const SCOPE_TRANSLATION_KEYS = {
     all: 'views.heroJourney.filters.filterAll',
+    villages: 'views.spotright.scopes.villages',
     equipment: 'nav.equipment',
     hero: 'views.damageCalc.filters.filterHeroes',
     tools: 'views.spotright.scopes.tools',

@@ -1507,7 +1507,29 @@
                 "title": "Projektkosten"
             }
         },
+        "shortcuts": {
+            "categories": {
+                "dialogs": "Navigation & Dialoge",
+                "global": "Global",
+                "spotright": "Spotright-Suche"
+            },
+            "descriptions": {
+                "activateItem": "Button, Chip oder Listenelement aktivieren",
+                "closeActive": "Modal, Drawer oder Palette schließen",
+                "cycleFocus": "Fokus zwischen interaktiven Elementen wechseln",
+                "cycleResults": "Durch Suchergebnisse navigieren",
+                "executeAction": "Auswahl ausführen oder Dorf wechseln",
+                "horizontalNav": "Karten und horizontale Leisten navigieren",
+                "openCheatsheet": "Tastaturkürzel-Übersicht öffnen",
+                "openSpotright": "Spotright-Suche öffnen",
+                "scopePrefix": "Kategorie-Präfixe (/v, /e, /h, /t, /s)",
+                "spotrightAccept": "Inline-Autovervollständigung annehmen",
+                "spotrightClearScope": "Aktiven Filterbereich zurücksetzen (leere Eingabe)"
+            },
+            "title": "Tastaturkürzel"
+        },
         "spotright": {
+            "activeVillage": "Aktiv",
             "addPlayer": "Spielerkürzel hinzufügen",
             "addPlayerSubtitle": "Konten · Neues Clash of Clans Dorf verknüpfen",
             "clipboardSubtitle": "Zwischenablage · Clash of Clans Spielerkürzel",
@@ -1517,7 +1539,8 @@
             "noResults": "Keine passenden Ergebnisse gefunden",
             "placeholder": "Tools, Ausrüstung, Helden durchsuchen...",
             "scopes": {
-                "tools": "Tools"
+                "tools": "Tools",
+                "villages": "Dörfer"
             },
             "searchTrigger": "Suche & Befehlspalette",
             "villageSubtitle": "Dorf · #{tag} · RH{th}"

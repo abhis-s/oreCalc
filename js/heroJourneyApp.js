@@ -61,6 +61,7 @@ import { initExternalLinkCatcher } from './components/common/externalLinkCatcher
 import { initializeCommitsModal } from './components/changelog/commitsModal.js';
 import { initializeChangelogModal } from './components/changelog/changelogModal.js';
 import { initSpotright } from './components/spotright/spotrightController.js';
+import { initShortcutsModalListener } from './components/shortcuts/shortcutsModal.js';
 import { initializeModalHistoryManager } from './utils/modalHistoryManager.js';
 import { initializeAuthModal } from './components/auth/authModalInputs.js';
 import { initializePasskeysModal } from './components/auth/passkeysModalInputs.js';
@@ -414,6 +415,7 @@ async function init() {
     initializeModalHistoryManager();
     initializeChangelogModal();
     initSpotright();
+    initShortcutsModalListener();
     initializeAuthModal();
     initializePasskeysModal();
     initializeSettingsAccount();

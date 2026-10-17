@@ -1,0 +1,109 @@
+@use '../abstracts/variables' as *;
+
+.shortcuts-modal {
+    z-index: $z-index-high-priority-modal;
+
+    .shortcuts-modal-body {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+    }
+
+    .shortcuts-group {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+
+        &__title {
+            font-size: $font-size-xs;
+            font-weight: $font-weight-bold;
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0;
+        }
+    }
+
+    .shortcuts-card-table {
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-medium;
+        overflow: hidden;
+    }
+
+    .shortcuts-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: $spacing-sm $spacing-md;
+        gap: $spacing-md;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid $border-primary;
+        }
+
+        &__desc {
+            font-size: $font-size-sm;
+            color: $text-primary;
+        }
+
+        &__keys {
+            display: inline-flex;
+            align-items: center;
+            gap: $spacing-2xs;
+            flex-shrink: 0;
+        }
+    }
+
+    .shortcuts-kbd {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: inherit;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-xs;
+        padding: $spacing-2xs $spacing-xs;
+        min-width: 24px;
+        min-height: 24px;
+        gap: $spacing-xs;
+        box-sizing: border-box;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+        &--icon {
+            padding: 0;
+            width: 24px;
+            height: 24px;
+        }
+
+        &--code {
+            font-family: monospace;
+            letter-spacing: -0.5px;
+        }
+
+        clashcalc-assets-svg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: inherit;
+            flex-shrink: 0;
+
+            &.shortcuts-chevron--left {
+                transform: rotate(-90deg);
+            }
+
+            &.shortcuts-chevron--right {
+                transform: rotate(90deg);
+            }
+        }
+    }
+
+    .shortcuts-key-separator {
+        font-size: $font-size-xs;
+        color: $text-muted;
+        user-select: none;
+    }
+}

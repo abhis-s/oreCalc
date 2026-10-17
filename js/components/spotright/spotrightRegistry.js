@@ -8,7 +8,9 @@ import { heroData } from '../../data/heroData.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
-import { normalizePlayerTag } from '../../core/storageKeys.js';
+import { formatDisplayTag, normalizePlayerTag } from '../../core/storageKeys.js';
+import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
+import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
 import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
 
@@ -34,6 +36,17 @@ import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
  * @property {boolean} [isAsyncAction] - Whether the action performs an asynchronous lookup before closing.
  * @property {boolean} [isLoading] - True when action is currently in flight.
  * @property {string | null} [errorMessage] - Inline error feedback to render.
+ * @property {boolean} [isVillage] - Whether entity is a saved multi-account village.
+ * @property {boolean} [isActiveVillage] - Whether this village is the currently active player tag.
+ * @property {string} [cleanTag] - Normalized player tag without hash.
+ * @property {string} [displayTag] - Formatted player tag with leading hash.
+ * @property {number} [thLevel] - Town hall level (1-18).
+ * @property {number} [trophies] - Formatted player trophy count.
+ * @property {boolean} [hasTrophies] - Whether trophies are defined for this village.
+ * @property {string} [clanName] - Clan name if member of a clan.
+ * @property {string} [clanBadge] - URL of the small clan badge image.
+ * @property {string} [leagueName] - Localized name of current league.
+ * @property {string} [leagueIcon] - URL of the small league crest icon.
  * @property {() => void | Promise<any>} execute - Action callback executed on activation.
  */
 
@@ -589,22 +602,74 @@ export function buildSpotrightRegistry() {
     for (const profile of savedProfiles) {
         if (!profile?.cleanTag || profile.cleanTag === 'DEFAULT0') continue;
         const cleanTag = profile.cleanTag;
-        const villageName = profile.name || `#${cleanTag}`;
-        const thLevel = profile.townHallLevel || 1;
+        const displayTag = formatDisplayTag(profile.tag || cleanTag) || `#${cleanTag}`;
+        const villageName = profile.name || displayTag;
+        const thLevel = Math.max(1, Math.min(18, Number(profile.townHallLevel) || 18));
         const isActive = Boolean(activeUrlTag && normalizePlayerTag(activeUrlTag) === cleanTag);
+
+        const clanName = profile.cachedData?.clan?.name || '';
+        const clanBadge = profile.cachedData?.clan?.badgeUrls?.small || '';
+        const trophies = profile.trophies != null ? profile.trophies : profile.cachedData?.trophies;
+
+        const leagueId = Number(profile.cachedData?.leagueTier?.id || profile.cachedData?.league?.id);
+        const canonicalLeague = leagueTiers.items.find(l => l.id === leagueId);
+        const unrankedLeague = leagueTiers.items.find(l => l.id === UNRANKED_LEAGUE_ID) || leagueTiers.items[0];
+        const leagueIcon = canonicalLeague?.iconUrls?.small || profile.cachedData?.leagueTier?.iconUrls?.small || unrankedLeague?.iconUrls?.small || '';
+        let leagueName = canonicalLeague?.name || '';
+        if (canonicalLeague) {
+            const leagueKey = 'entities.leagues.' + canonicalLeague.name.toLowerCase()
+                .replace(/\./g, '')
+                .replace(/\s(i+)$/i, (_, p1) => p1.toUpperCase())
+                .replace(/\s/g, '_');
+            const translatedLeague = translate(leagueKey);
+            if (translatedLeague && translatedLeague !== leagueKey) {
+                leagueName = translatedLeague;
+            }
+        }
+        if (!leagueName) {
+            leagueName = translate('entities.leagues.unranked') || 'Unranked';
+        }
+
+        const normalizedParts = [
+            villageName.toLowerCase(),
+            displayTag.toLowerCase(),
+            cleanTag.toLowerCase(),
+            'village',
+            'account'
+        ];
+        if (clanName) {
+            normalizedParts.push(clanName.toLowerCase());
+        }
+        if (cleanTag.includes('0')) {
+            const oTag = cleanTag.replace(/0/g, 'O').toLowerCase();
+            normalizedParts.push(`#${oTag}`, oTag);
+        }
 
         items.push({
             id: `village-${cleanTag}`,
             title: villageName,
-            normalizedTitle: `${villageName.toLowerCase()} #${cleanTag.toLowerCase()} ${cleanTag.toLowerCase()} village account`,
+            normalizedTitle: normalizedParts.join(' '),
             category: 'Villages',
             subtitle: translate('views.spotright.villageSubtitle', { tag: cleanTag, th: thLevel }),
-            icon: 'user',
-            iconType: 'svg',
-            actionCue: translate('nav.context.switchVillage'),
+            icon: `assets/th/th${thLevel}.png`,
+            iconType: 'image',
+            actionCue: isActive
+                ? (translate('views.spotright.activeVillage') || 'Active')
+                : (translate('nav.context.switchVillage') || 'Switch Village'),
             acronym: villageName.slice(0, 2).toLowerCase(),
             entityType: 'modal',
             priorityTier: isActive ? 24 : 22,
+            isVillage: true,
+            isActiveVillage: isActive,
+            cleanTag,
+            displayTag,
+            thLevel,
+            trophies: Number(trophies) || 0,
+            hasTrophies: trophies != null,
+            clanName,
+            clanBadge,
+            leagueName,
+            leagueIcon,
             execute: () => switchOrLoadPlayerTag(cleanTag)
         });
     }

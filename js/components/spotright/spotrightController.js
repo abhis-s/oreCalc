@@ -16,6 +16,7 @@ import {
     triggerCardShake
 } from './spotrightDisplay.js';
 import { openFeedbackModal } from '../appSettings/settingsSupportModals.js';
+import { openShortcutsModal } from '../shortcuts/shortcutsModal.js';
 import { detectClipboardPlayerTag, createClipboardSpotrightItem } from './spotrightClipboard.js';
 import { translate } from '../../i18n/translator.js';
 
@@ -161,6 +162,17 @@ function ensureMounted() {
         closeSpotright();
         safeRaf(() => {
             openFeedbackModal();
+        });
+    });
+
+    // Shortcuts trigger in Spotright footer
+    const shortcutsBtn = dialogEl.querySelector('#spotright-shortcuts-btn');
+    shortcutsBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        closeSpotright();
+        safeRaf(() => {
+            openShortcutsModal();
         });
     });
 }

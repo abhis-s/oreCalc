@@ -16,7 +16,14 @@ import {
     buildSpotrightRegistry,
     getActiveUrlTag
 } from '../../js/components/spotright/spotrightRegistry.js';
-import { searchSpotright } from '../../js/components/spotright/spotrightMatcher.js';
+import {
+    createSpotrightDialog,
+    renderSpotrightResults
+} from '../../js/components/spotright/spotrightDisplay.js';
+import {
+    extractScopePrefix,
+    searchSpotright
+} from '../../js/components/spotright/spotrightMatcher.js';
 import { loadTranslations } from '../../js/i18n/translator.js';
 import { state } from '../../js/core/state.js';
 import { getActivePlayerTagsKey, getPlayerStorageKey } from '../../js/core/storageKeys.js';
@@ -379,8 +386,12 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             assert.ok(chiefItem, 'Must contain village-8PJYGUJC');
             assert.equal(chiefItem.title, 'Chief Goblin');
             assert.ok(chiefItem.subtitle.includes('8PJYGUJC'));
-            assert.ok(chiefItem.subtitle.includes('17'));
-            assert.equal(chiefItem.icon, 'user');
+            assert.equal(chiefItem.icon, 'assets/th/th17.png');
+            assert.equal(chiefItem.iconType, 'image');
+            assert.equal(chiefItem.isVillage, true);
+            assert.equal(chiefItem.thLevel, 17);
+            assert.equal(chiefItem.cleanTag, '8PJYGUJC');
+            assert.equal(chiefItem.displayTag, '#8PJYGUJC');
             assert.equal(chiefItem.entityType, 'modal');
             assert.equal(typeof chiefItem.execute, 'function');
         });
@@ -472,6 +483,332 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             const match = result.matches.find(i => i.id === 'village-8PJYGUJC');
             assert.ok(match, 'Must match Spartan Army by name');
             assert.equal(match.title, 'Spartan Army');
+        });
+
+        test('allows searching saved villages by clan name', () => {
+            const tagsKey = getActivePlayerTagsKey();
+            const mockStorage = {
+                [tagsKey]: JSON.stringify(['8PJYGUJC']),
+                [getPlayerStorageKey('8PJYGUJC')]: JSON.stringify({
+                    playerProfile: {
+                        tag: '#8PJYGUJC',
+                        name: 'Goblin King',
+                        townHallLevel: 18,
+                        clan: {
+                            name: 'Invincible Clan',
+                            tag: '#CLAN123',
+                            badgeUrls: { small: 'https://example.com/badge.png' }
+                        }
+                    }
+                })
+            };
+
+            globalThis.localStorage = /** @type {any} */ ({
+                getItem: (key) => mockStorage[key] || null,
+                setItem: (key, val) => { mockStorage[key] = val; }
+            });
+
+            const registry = buildSpotrightRegistry();
+            const result = searchSpotright('Invincible', registry, 'all');
+
+            assert.ok(result.matches.length > 0);
+            const match = result.matches.find(i => i.id === 'village-8PJYGUJC');
+            assert.ok(match, 'Must match village by clan name');
+            assert.equal(match.title, 'Goblin King');
+            assert.equal(match.clanName, 'Invincible Clan');
+            assert.equal(match.clanBadge, 'https://example.com/badge.png');
+        });
+
+        test('renders rich village card with Town Hall image, level badge, meta row, and active status', () => {
+            /** @type {any} */
+            const activeVillage = {
+                id: 'village-8PJYGUJC',
+                title: 'Chief Jeff',
+                category: 'Villages',
+                subtitle: 'Village · #8PJYGUJC · TH18',
+                icon: 'assets/th/th18.png',
+                iconType: 'image',
+                actionCue: 'Active',
+                acronym: 'cj',
+                isVillage: true,
+                isActiveVillage: true,
+                cleanTag: '8PJYGUJC',
+                displayTag: '#8PJYGUJC',
+                thLevel: 18,
+                trophies: 5240,
+                clanName: 'Elite Warriors',
+                clanBadge: 'https://example.com/clan.png',
+                leagueName: 'Titan League I',
+                leagueIcon: 'https://example.com/league.png',
+                execute: () => {}
+            };
+
+            /** @type {any} */
+            const container = { innerHTML: '' };
+            renderSpotrightResults(container, [activeVillage], 0);
+
+            const html = container.innerHTML;
+            assert.ok(html.includes('spotright-result-item--village'), 'Must apply village modifier class');
+            assert.ok(html.includes('is-active-village'), 'Must apply active village class');
+            assert.ok(html.includes('spotright-th-wrapper'), 'Must render Town Hall wrapper');
+            assert.ok(html.includes('assets/th/th18.png'), 'Must render Town Hall image asset');
+            assert.ok(html.includes('<span class="spotright-th-badge">18</span>'), 'Must render TH level badge');
+            assert.ok(html.includes('#8PJYGUJC'), 'Must render player tag');
+            assert.ok(html.includes('spotright-tag--active'), 'Must render active tag');
+            assert.ok(html.includes('Elite Warriors'), 'Must render clan name');
+            assert.ok(html.includes('https://example.com/clan.png'), 'Must render clan badge');
+            assert.ok(html.includes('5,240'), 'Must render formatted trophies');
+            assert.ok(html.includes('name="trophy"'), 'Must render trophy vector SVG');
+            assert.ok(html.includes('https://example.com/league.png'), 'Must render league icon');
+            assert.ok(html.includes('name="check"'), 'Must render check icon for active village action cue');
+        });
+
+        test('matches saved villages with 0 when searching with O across exact, prefix, and substring variations', () => {
+            const tagsKey = getActivePlayerTagsKey();
+            const mockStorage = {
+                [tagsKey]: JSON.stringify(['8PJY0UJC']),
+                [getPlayerStorageKey('8PJY0UJC')]: JSON.stringify({
+                    playerProfile: {
+                        tag: '#8PJY0UJC',
+                        name: 'Base Alpha',
+                        townHallLevel: 15
+                    }
+                })
+            };
+
+            globalThis.localStorage = /** @type {any} */ ({
+                getItem: (key) => mockStorage[key] || null,
+                setItem: (key, val) => { mockStorage[key] = val; }
+            });
+
+            const registry = buildSpotrightRegistry();
+
+            // Exact tag with O and with #
+            const resultExactWithHash = searchSpotright('#8PJYOUJC', registry, 'all');
+            assert.ok(resultExactWithHash.matches.length > 0);
+            assert.equal(resultExactWithHash.matches[0].id, 'village-8PJY0UJC');
+            assert.equal(resultExactWithHash.matches.some(i => i.id === 'direct-tag-8PJYOUJC'), false);
+
+            // Exact tag with O and without #
+            const resultExactNoHash = searchSpotright('8PJYOUJC', registry, 'all');
+            assert.ok(resultExactNoHash.matches.length > 0);
+            assert.equal(resultExactNoHash.matches[0].id, 'village-8PJY0UJC');
+
+            // Prefix with O and with #
+            const resultPrefixWithHash = searchSpotright('#8PJYO', registry, 'all');
+            assert.ok(resultPrefixWithHash.matches.length > 0);
+            assert.equal(resultPrefixWithHash.matches[0].id, 'village-8PJY0UJC');
+
+            // Prefix with O and without #
+            const resultPrefixNoHash = searchSpotright('8PJYO', registry, 'all');
+            assert.ok(resultPrefixNoHash.matches.length > 0);
+            assert.equal(resultPrefixNoHash.matches[0].id, 'village-8PJY0UJC');
+
+            // Substring with O
+            const resultSub = searchSpotright('jyou', registry, 'all');
+            assert.ok(resultSub.matches.some(i => i.id === 'village-8PJY0UJC'));
+        });
+
+        test('ranks Add Player direct action lower than saved villages on partial tag match', () => {
+            const tagsKey = getActivePlayerTagsKey();
+            const mockStorage = {
+                [tagsKey]: JSON.stringify(['8PJY0UJC']),
+                [getPlayerStorageKey('8PJY0UJC')]: JSON.stringify({
+                    playerProfile: {
+                        tag: '#8PJY0UJC',
+                        name: 'Mini Chief',
+                        townHallLevel: 14
+                    }
+                })
+            };
+
+            globalThis.localStorage = /** @type {any} */ ({
+                getItem: (key) => mockStorage[key] || null,
+                setItem: (key, val) => { mockStorage[key] = val; }
+            });
+
+            const registry = buildSpotrightRegistry();
+            const result = searchSpotright('#8PJ', registry, 'all');
+
+            assert.ok(result.matches.length >= 2);
+            assert.equal(result.matches[0].id, 'village-8PJY0UJC', 'Saved village must be #1 top hit');
+            assert.equal(result.matches[1].id, 'direct-tag-8PJ', 'Add player direct action must be ranked below saved village');
+        });
+
+        test('ranks active village lowest among villages when multiple saved villages match', () => {
+            const tagsKey = getActivePlayerTagsKey();
+            const mockStorage = {
+                [tagsKey]: JSON.stringify(['8PJY0UJC', '8PJY2XYZ']),
+                [getPlayerStorageKey('8PJY0UJC')]: JSON.stringify({
+                    playerProfile: {
+                        tag: '#8PJY0UJC',
+                        name: 'Inactive Base',
+                        townHallLevel: 16
+                    }
+                }),
+                [getPlayerStorageKey('8PJY2XYZ')]: JSON.stringify({
+                    playerProfile: {
+                        tag: '#8PJY2XYZ',
+                        name: 'Active Base',
+                        townHallLevel: 17
+                    }
+                })
+            };
+
+            globalThis.localStorage = /** @type {any} */ ({
+                getItem: (key) => mockStorage[key] || null,
+                setItem: (key, val) => { mockStorage[key] = val; }
+            });
+
+            // Set active URL tag to 8PJY2XYZ
+            globalThis.window = /** @type {any} */ ({
+                location: {
+                    pathname: '/ore-calculator/',
+                    search: '?tag=8PJY2XYZ'
+                }
+            });
+
+            const registry = buildSpotrightRegistry();
+            const result = searchSpotright('#8PJY', registry, 'all');
+
+            const villageMatches = result.matches.filter(i => i.isVillage);
+            assert.equal(villageMatches.length, 2);
+            assert.equal(villageMatches[0].id, 'village-8PJY0UJC', 'Inactive village must rank higher');
+            assert.equal(villageMatches[1].id, 'village-8PJY2XYZ', 'Active village must be ranked lowest among matched villages');
+
+            const directIndex = result.matches.findIndex(i => i.id === 'direct-tag-8PJY');
+            assert.ok(directIndex > 1, 'Add player direct action must rank below all matching saved villages');
+        });
+
+        test('isolates O and 0 matching strictly to player tags and preserves exact matching for player names and equipment', () => {
+            const tagsKey = getActivePlayerTagsKey();
+            const mockStorage = {
+                [tagsKey]: JSON.stringify(['8PJYGUJC']),
+                [getPlayerStorageKey('8PJYGUJC')]: JSON.stringify({
+                    playerProfile: {
+                        tag: '#8PJYGUJC',
+                        name: 'Oliver',
+                        townHallLevel: 16
+                    }
+                })
+            };
+
+            globalThis.localStorage = /** @type {any} */ ({
+                getItem: (key) => mockStorage[key] || null,
+                setItem: (key, val) => { mockStorage[key] = val; }
+            });
+
+            const registry = buildSpotrightRegistry();
+
+            // Player name matching
+            const oliverResult = searchSpotright('Oliver', registry, 'all');
+            assert.ok(oliverResult.matches.some(i => i.id === 'village-8PJYGUJC'));
+
+            const zeroLiverResult = searchSpotright('0liver', registry, 'all');
+            assert.equal(zeroLiverResult.matches.some(i => i.id === 'village-8PJYGUJC'), false, 'Searching 0liver must NOT match player name Oliver');
+
+            // Equipment matching
+            const arrowResult = searchSpotright('Giant Arrow', registry, 'equipment');
+            assert.ok(arrowResult.matches.some(i => i.title === 'Giant Arrow'));
+
+            const zeroArrowResult = searchSpotright('arr0w', registry, 'equipment');
+            assert.equal(zeroArrowResult.matches.some(i => i.title === 'Giant Arrow'), false, 'Searching arr0w must NOT match Giant Arrow');
+        });
+
+        test('renders villages filter chip at position 2 in spotright dialog', () => {
+            const originalDoc = globalThis.document;
+            try {
+                let innerHTMLVal = '';
+                globalThis.document = /** @type {any} */ ({
+                    createElement: () => ({
+                        id: '',
+                        className: '',
+                        setAttribute: () => {},
+                        set innerHTML(val) { innerHTMLVal = val; },
+                        get innerHTML() { return innerHTMLVal; },
+                        querySelector: (sel) => {
+                            if (sel === '#spotright-filter-track') {
+                                return {
+                                    querySelectorAll: () => {
+                                        const matches = Array.from(innerHTMLVal.matchAll(/data-scope="([^"]+)"/g));
+                                        return matches.map(m => ({
+                                            getAttribute: (attr) => attr === 'data-scope' ? m[1] : null
+                                        }));
+                                    }
+                                };
+                            }
+                            return null;
+                        }
+                    })
+                });
+
+                const dialog = createSpotrightDialog();
+                const track = dialog.querySelector('#spotright-filter-track');
+                assert.ok(track, 'Must contain spotright-filter-track');
+
+                const chips = Array.from(track.querySelectorAll('.spotright-filter-chip'));
+                assert.ok(chips.length >= 6, 'Must contain all 6 filter chips');
+
+                assert.equal(chips[0].getAttribute('data-scope'), 'all', 'Position 1 must be all');
+                assert.equal(chips[1].getAttribute('data-scope'), 'villages', 'Position 2 must be villages');
+                assert.equal(chips[2].getAttribute('data-scope'), 'equipment', 'Position 3 must be equipment');
+                assert.equal(chips[3].getAttribute('data-scope'), 'hero', 'Position 4 must be hero');
+                assert.equal(chips[4].getAttribute('data-scope'), 'tools', 'Position 5 must be tools');
+                assert.equal(chips[5].getAttribute('data-scope'), 'settings', 'Position 6 must be settings');
+            } finally {
+                globalThis.document = originalDoc;
+            }
+        });
+
+        test('scopes search results correctly when villages category filter is active', () => {
+            const tagsKey = getActivePlayerTagsKey();
+            const mockStorage = {
+                [tagsKey]: JSON.stringify(['8PJY0UJC', '9L0V9G9C9']),
+                [getPlayerStorageKey('8PJY0UJC')]: JSON.stringify({
+                    playerProfile: {
+                        tag: '#8PJY0UJC',
+                        name: 'Base Alpha',
+                        townHallLevel: 15
+                    }
+                }),
+                [getPlayerStorageKey('9L0V9G9C9')]: JSON.stringify({
+                    playerProfile: {
+                        tag: '#9L0V9G9C9',
+                        name: 'Base Beta',
+                        townHallLevel: 14
+                    }
+                })
+            };
+
+            globalThis.localStorage = /** @type {any} */ ({
+                getItem: (key) => mockStorage[key] || null,
+                setItem: (key, val) => { mockStorage[key] = val; }
+            });
+
+            const registry = buildSpotrightRegistry();
+
+            // 1. Empty query with villages scope returns saved villages followed by Add Player action
+            const emptyResult = searchSpotright('', registry, 'villages');
+            assert.equal(emptyResult.matches.length, 3, 'Must return both saved villages and add player action');
+            assert.equal(emptyResult.matches[0].id, 'village-8PJY0UJC');
+            assert.equal(emptyResult.matches[1].id, 'village-9L0V9G9C9');
+            assert.equal(emptyResult.matches[2].id, 'action-add-player');
+
+            // 2. Query search within villages scope matches specific village
+            const searchResult = searchSpotright('Beta', registry, 'villages');
+            assert.ok(searchResult.matches.length > 0);
+            assert.equal(searchResult.matches[0].id, 'village-9L0V9G9C9');
+            assert.equal(searchResult.matches.some(i => i.entityType === 'epic' || i.entityType === 'nav'), false, 'Must not return equipment or tools in villages scope');
+
+            // 3. Settings scope does not include villages or add-player action
+            const settingsResult = searchSpotright('', registry, 'settings');
+            assert.equal(settingsResult.matches.some(i => i.isVillage || i.id === 'action-add-player'), false, 'Settings scope must exclude villages');
+        });
+
+        test('extractScopePrefix resolves /v, /village, and /villages to villages scope', () => {
+            assert.deepEqual(extractScopePrefix('/v alpha'), { scope: 'villages', remainingQuery: 'alpha' });
+            assert.deepEqual(extractScopePrefix('/village beta'), { scope: 'villages', remainingQuery: 'beta' });
+            assert.deepEqual(extractScopePrefix('/villages gamma'), { scope: 'villages', remainingQuery: 'gamma' });
         });
     });
 });
