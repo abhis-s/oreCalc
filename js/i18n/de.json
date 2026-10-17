@@ -1538,6 +1538,7 @@
             "loadVillageTag": "Dorf #{tag} laden",
             "noResults": "Keine passenden Ergebnisse gefunden",
             "placeholder": "Tools, Ausrüstung, Helden durchsuchen...",
+            "recent": "Zuletzt verwendet",
             "scopes": {
                 "tools": "Tools",
                 "villages": "Dörfer"

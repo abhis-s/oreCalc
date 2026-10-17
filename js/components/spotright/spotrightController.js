@@ -18,6 +18,7 @@ import {
 import { openFeedbackModal } from '../appSettings/settingsSupportModals.js';
 import { openShortcutsModal } from '../shortcuts/shortcutsModal.js';
 import { detectClipboardPlayerTag, createClipboardSpotrightItem } from './spotrightClipboard.js';
+import { addRecentItem, removeRecentItem, clearRecentItems } from './spotrightRecents.js';
 import { translate } from '../../i18n/translator.js';
 
 /** @type {boolean} Guard preventing concurrent action execution while an async network lookup is in flight */
@@ -144,7 +145,32 @@ function ensureMounted() {
 
     // Results click delegation
     resultsEl?.addEventListener('click', (event) => {
-        const row = /** @type {HTMLElement | null} */ (event.target)?.closest('.spotright-result-item');
+        const target = /** @type {HTMLElement | null} */ (event.target);
+
+        // Individual recent item remove
+        const removeBtn = target?.closest('.spotright-recent-remove-btn');
+        if (removeBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            const itemId = /** @type {HTMLElement} */ (removeBtn).dataset.itemId;
+            if (itemId) {
+                removeRecentItem(itemId);
+                handleInputChange();
+            }
+            return;
+        }
+
+        // Clear all recent items
+        const clearBtn = target?.closest('.spotright-recent-clear-btn');
+        if (clearBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            clearRecentItems();
+            handleInputChange();
+            return;
+        }
+
+        const row = target?.closest('.spotright-result-item');
         if (!row) return;
 
         const index = Number(row.dataset.index);
@@ -307,6 +333,9 @@ async function executeCurrentSelection() {
 
     // Normal non-async items: close Spotright immediately and invoke action
     if (!selectedItem.isAsyncAction) {
+        if (selectedItem.id && !selectedItem.id.startsWith('direct-tag-')) {
+            addRecentItem(selectedItem.id);
+        }
         closeSpotright();
         safeRaf(() => {
             selectedItem.execute();
@@ -328,6 +357,9 @@ async function executeCurrentSelection() {
     try {
         const result = await selectedItem.execute();
         if (result && result.success) {
+            if (selectedItem.id && !selectedItem.id.startsWith('direct-tag-')) {
+                addRecentItem(selectedItem.id);
+            }
             isActionInFlight = false;
             closeSpotright();
             return;

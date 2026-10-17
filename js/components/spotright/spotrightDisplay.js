@@ -103,9 +103,16 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
     matches.forEach((item, idx) => {
         if (item.category && item.category !== lastCategory) {
             lastCategory = item.category;
+            const isRecentHeading = Boolean(item.isRecent);
+            const clearBtnHtml = isRecentHeading
+                ? `<button type="button" class="spotright-recent-clear-btn" aria-label="${escapeHTML(translate('actions.clear'))}" title="${escapeHTML(translate('actions.clear'))}">
+                    <clashcalc-assets-svg name="trash" width="16" height="16"></clashcalc-assets-svg>
+                </button>`
+                : '';
             htmlChunks.push(`
-                <div class="spotright-category-heading" role="presentation">
+                <div class="spotright-category-heading ${isRecentHeading ? 'spotright-category-heading--with-action' : ''}" role="presentation">
                     <span>${escapeHTML(item.category)}</span>
+                    ${clearBtnHtml}
                 </div>
             `);
         }
@@ -205,6 +212,11 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
                 </div>
                 <div class="spotright-item-action">
                     ${actionHtml}
+                    ${item.isRecent ? `
+                        <button type="button" class="spotright-recent-remove-btn" data-item-id="${escapeHTML(item.id)}" aria-label="${escapeHTML(translate('actions.remove'))}" title="${escapeHTML(translate('actions.remove'))}">
+                            <clashcalc-assets-svg name="close" width="16" height="16"></clashcalc-assets-svg>
+                        </button>
+                    ` : ''}
                 </div>
             </div>
         `);

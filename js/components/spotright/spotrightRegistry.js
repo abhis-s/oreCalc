@@ -47,6 +47,7 @@ import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
  * @property {string} [clanBadge] - URL of the small clan badge image.
  * @property {string} [leagueName] - Localized name of current league.
  * @property {string} [leagueIcon] - URL of the small league crest icon.
+ * @property {boolean} [isRecent] - Whether item is being rendered from recent searches history.
  * @property {() => void | Promise<any>} execute - Action callback executed on activation.
  */
 

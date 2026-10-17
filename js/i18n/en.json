@@ -1538,6 +1538,7 @@
             "loadVillageTag": "Load Village #{tag}",
             "noResults": "No matching results found",
             "placeholder": "Search tools, equipment, heroes...",
+            "recent": "Recent",
             "scopes": {
                 "tools": "Tools",
                 "villages": "Villages"

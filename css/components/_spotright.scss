@@ -281,6 +281,45 @@
     color: $text-muted;
     padding: $spacing-sm $spacing-sm $spacing-2xs;
     user-select: none;
+
+    &.spotright-category-heading--with-action {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.spotright-recent-clear-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    border-radius: $shape-corner-xs;
+    transition: color $duration-fast $ease-standard, background-color $duration-fast $ease-standard;
+
+    clashcalc-assets-svg {
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: inherit;
+    }
+
+    &:hover {
+        color: $text-primary;
+        background-color: color-mix(in srgb, $accent-primary 15%, transparent);
+    }
+
+    &:focus-visible {
+        outline: 1px solid $accent-primary;
+    }
 }
 
 .spotright-result-item {
@@ -550,8 +589,46 @@
     flex-shrink: 0;
 
     .spotright-result-item.selected &,
-    .spotright-result-item.is-loading & {
+    .spotright-result-item:hover &,
+    .spotright-result-item.is-loading &,
+    .spotright-result-item:has(.spotright-recent-remove-btn) & {
         display: flex;
+    }
+}
+
+.spotright-recent-remove-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    border-radius: $shape-corner-xs;
+    opacity: 0.6;
+    transition: color $duration-fast $ease-standard, background-color $duration-fast $ease-standard, opacity $duration-fast $ease-standard;
+
+    clashcalc-assets-svg {
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: inherit;
+    }
+
+    &:hover,
+    &:focus-visible {
+        opacity: 1;
+        color: $color-danger;
+        background-color: color-mix(in srgb, $color-danger 15%, transparent);
+    }
+
+    &:focus-visible {
+        outline: 1px solid $color-danger;
     }
 }
 
@@ -563,8 +640,15 @@
 }
 
 .spotright-action-label {
+    display: none;
     font-size: $font-size-2xs;
     color: $text-muted;
+
+    .spotright-result-item.selected &,
+    .spotright-result-item:hover &,
+    .spotright-result-item.is-loading & {
+        display: inline-flex;
+    }
 }
 
 .spotright-item-spinner {
@@ -587,7 +671,7 @@
 }
 
 .spotright-action-enter {
-    display: inline-flex;
+    display: none;
     align-items: center;
     justify-content: center;
     width: 22px;
@@ -597,6 +681,12 @@
     background: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
     border: 1px solid color-mix(in srgb, $border-inverse 14%, transparent);
     border-radius: $shape-corner-2xs;
+
+    .spotright-result-item.selected &,
+    .spotright-result-item:hover &,
+    .spotright-result-item.is-loading & {
+        display: inline-flex;
+    }
 
     clashcalc-assets-svg {
         width: 14px;

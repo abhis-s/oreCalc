@@ -4,6 +4,7 @@
  */
 
 import { loadAndSwitchPlayerTag } from './spotrightClipboard.js';
+import { resolveRecentItems } from './spotrightRecents.js';
 import { translate } from '../../i18n/translator.js';
 
 /**
@@ -229,6 +230,13 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
     // Empty state: return top tool navigation items or scoped collection
     if (!query) {
         if (scope === 'all') {
+            const recentItems = resolveRecentItems(registry);
+            if (recentItems.length > 0) {
+                return {
+                    matches: recentItems.slice(0, maxLimit),
+                    autocomplete: null
+                };
+            }
             const defaultTools = targetItems
                 .filter(item => item.entityType === 'nav')
                 .slice(0, maxLimit);
