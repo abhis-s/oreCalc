@@ -43,6 +43,7 @@
         "reset": "Zurücksetzen",
         "restore": "Wiederherstellen",
         "save": "Speichern",
+        "search": "Suchen",
         "showInfo": "Informationen anzeigen",
         "showLess": "Weniger anzeigen",
         "showMore": "Mehr anzeigen",
@@ -792,6 +793,7 @@
                 "clusterPlanner": "Cluster-Planer",
                 "zapQuake": "BlitzBeben-Kombos"
             },
+            "title": "Ausrüstungsschaden & ZapQuake",
             "zapQuake": {
                 "cannotDestroyBadge": "Nicht zerstörbar",
                 "combinationBreakdownAria": "Kombinationsaufschlüsselung",
@@ -1526,23 +1528,31 @@
                 "spotrightAccept": "Inline-Autovervollständigung annehmen",
                 "spotrightClearScope": "Aktiven Filterbereich zurücksetzen (leere Eingabe)"
             },
+            "keys": {
+                "keyboardBackspace": "Rücktaste",
+                "keyboardCommand": "Befehl",
+                "keyboardCtrl": "Strg",
+                "keyboardDown": "Ab",
+                "keyboardEnter": "Eingabe",
+                "keyboardEsc": "ESC",
+                "keyboardLeft": "Links",
+                "keyboardRight": "Rechts",
+                "keyboardShift": "Umschalt",
+                "keyboardSpace": "Leertaste",
+                "keyboardTab": "Tab",
+                "keyboardUp": "Auf"
+            },
             "title": "Tastaturkürzel"
         },
         "spotright": {
             "activeVillage": "Aktiv",
-            "addPlayer": "Spielerkürzel hinzufügen",
-            "addPlayerSubtitle": "Konten · Neues Clash of Clans Dorf verknüpfen",
-            "clipboardSubtitle": "Zwischenablage · Clash of Clans Spielerkürzel",
-            "loadDirectTag": "Spieler #{tag} laden",
-            "loadDirectTagSubtitle": "Spielerkürzel · Clash of Clans Profil abrufen und anzeigen",
+            "beta": "Beta",
+            "betaTooltip": "Spotright befindet sich derzeit in der Vorschau. Verwenden Sie die Feedback-Schaltfläche, um Vorschläge zu melden.",
             "loadVillageTag": "Dorf #{tag} laden",
             "noResults": "Keine passenden Ergebnisse gefunden",
             "placeholder": "Tools, Ausrüstung, Helden durchsuchen...",
             "recent": "Zuletzt verwendet",
-            "scopes": {
-                "tools": "Tools",
-                "villages": "Dörfer"
-            },
+            "scopesHeading": "Suchbereiche",
             "searchTrigger": "Suche & Befehlspalette",
             "villageSubtitle": "Dorf · #{tag} · RH{th}"
         },

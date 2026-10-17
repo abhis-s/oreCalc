@@ -18,12 +18,14 @@ import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
  * @typedef {Object} SpotrightItem
  * @property {string} id - Unique entity identifier.
  * @property {string} title - Human-readable display title.
+ * @property {string} [canonicalTitle] - Lowercase English canonical title for multilingual search.
+ * @property {string} [canonicalTokens] - Space-separated English fallback tokens for search.
  * @property {string} normalizedTitle - Lowercase normalized title for search.
  * @property {string} category - Category label (e.g. 'Equipment', 'Hero', 'Tools & Views', 'Modals').
- * @property {string} subtitle - Secondary descriptive text.
+ * @property {string} [subtitle] - Secondary descriptive text.
+ * @property {string} [parentContext] - Parent tool context for sub-tab items (e.g. 'OreCalc', heroJourneyContext).
  * @property {string} icon - Asset path or SVG symbol name.
  * @property {'image'|'svg'} iconType - Rendering type for the icon.
- * @property {string} actionCue - Action suffix verb (e.g. 'View Equipment', 'Jump to Tab').
  * @property {string} acronym - 2-letter canonical acronym.
  * @property {string} [heroKey] - Associated hero key if equipment.
  * @property {string} [heroName] - Associated hero display name if equipment.
@@ -31,6 +33,7 @@ import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
  * @property {string} [compositeAcronym] - Space-separated hero+equipment acronym (e.g. 'rc eb').
  * @property {string} [compactComposite] - Compact hero+equipment acronym (e.g. 'rceb').
  * @property {string} [compositeTitle] - Full hero + equipment name for multi-token search.
+ * @property {string} [canonicalCompositeTitle] - Full canonical hero + equipment name for multi-token search.
  * @property {'hero'|'epic'|'common'|'nav'|'modal'} entityType - Entity type for tiebreaking.
  * @property {number} priorityTier - Base priority score (Hero=30, Epic=20, Nav=25, Modal=15, Common=10).
  * @property {boolean} [isAsyncAction] - Whether the action performs an asynchronous lookup before closing.
@@ -48,6 +51,9 @@ import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
  * @property {string} [leagueName] - Localized name of current league.
  * @property {string} [leagueIcon] - URL of the small league crest icon.
  * @property {boolean} [isRecent] - Whether item is being rendered from recent searches history.
+ * @property {boolean} [isScopeSuggestion] - Whether item is a category scope suggestion.
+ * @property {import('./spotrightMatcher.js').SpotrightScope} [targetScope] - Target category domain scope to filter.
+ * @property {string} [command] - Scope command prefix string (e.g. '/equipment').
  * @property {() => void | Promise<any>} execute - Action callback executed on activation.
  */
 
@@ -250,6 +256,17 @@ export function getActiveUrlTag() {
 }
 
 /**
+ * Safely resolves translation with fallback if key is uninitialized or missing.
+ * @param {string} key
+ * @param {string} fallback
+ * @returns {string}
+ */
+function resolveI18nText(key, fallback) {
+    const val = translate(key);
+    return (val && val !== key) ? val : fallback;
+}
+
+/**
  * Builds the complete static pre-indexed Spotright registry.
  * @returns {SpotrightItem[]}
  */
@@ -257,18 +274,27 @@ export function buildSpotrightRegistry() {
     const items = [];
     const prefix = getRoutePrefix();
 
+    const toolsCategory = resolveI18nText('nav.drawerTitle', 'Tabs & Tools');
+    const settingsCategory = resolveI18nText('nav.settings', 'Settings');
+    const villagesCategory = resolveI18nText('nav.views.hub.villages', 'Saved Villages');
+    const heroesCategory = resolveI18nText('views.damageCalc.filters.filterHeroes', 'Heroes');
+    const equipmentCategory = resolveI18nText('nav.equipment', 'Equipment');
+    const heroJourneyContext = resolveI18nText('nav.context.heroJourney', 'Hero Journey');
+    const hubTitle = resolveI18nText('nav.views.hub.tools', 'Progression & Tactical Tools');
+    const damageCalcTitle = resolveI18nText('views.damageCalc.title', 'Equipment Damage & ZapQuake');
+
     // 1. Core Tools & Pages
     items.push(
         {
             id: 'tool-hub',
-            title: 'Progression Hub',
-            normalizedTitle: 'progression hub',
-            category: 'Tools & Views',
-            subtitle: 'Home · Clash of Clans Tool Portal',
+            title: hubTitle,
+            canonicalTitle: 'progression & tactical tools',
+            canonicalTokens: 'progression tactical tools hub home start overview dashboard portal',
+            normalizedTitle: `${hubTitle.toLowerCase()} progression tactical tools hub home start fortschritt taktik übersicht portal`,
+            category: toolsCategory,
             icon: 'home-filled',
             iconType: 'svg',
-            actionCue: 'Go to Hub',
-            acronym: 'ph',
+            acronym: 'pt',
             entityType: 'nav',
             priorityTier: 25,
             execute: () => {
@@ -283,11 +309,9 @@ export function buildSpotrightRegistry() {
             id: 'tool-ore-calc',
             title: 'Ore & Equipment Calculator',
             normalizedTitle: 'ore & equipment calculator',
-            category: 'Tools & Views',
-            subtitle: 'Tool · Ore upgrades, costs, & equipment levels',
+            category: toolsCategory,
             icon: 'equipment-filled',
             iconType: 'svg',
-            actionCue: 'Launch Calculator',
             acronym: 'oc',
             entityType: 'nav',
             priorityTier: 25,
@@ -304,11 +328,10 @@ export function buildSpotrightRegistry() {
             id: 'tool-planner',
             title: 'Upgrade Planner & Calendar',
             normalizedTitle: 'upgrade planner & calendar',
-            category: 'Tools & Views',
-            subtitle: 'OreCalc Tab · Schedule upgrades & time-to-max',
+            category: toolsCategory,
+            parentContext: 'OreCalc',
             icon: 'planner-filled',
             iconType: 'svg',
-            actionCue: 'Jump to Planner',
             acronym: 'up',
             entityType: 'nav',
             priorityTier: 25,
@@ -325,11 +348,10 @@ export function buildSpotrightRegistry() {
             id: 'tool-income',
             title: 'Daily Ore Income Simulator',
             normalizedTitle: 'daily ore income simulator',
-            category: 'Tools & Views',
-            subtitle: 'OreCalc Tab · Star Bonus, Clan Wars, CWL, Trader',
+            category: toolsCategory,
+            parentContext: 'OreCalc',
             icon: 'income-filled',
             iconType: 'svg',
-            actionCue: 'Jump to Income',
             acronym: 'di',
             entityType: 'nav',
             priorityTier: 25,
@@ -346,11 +368,9 @@ export function buildSpotrightRegistry() {
             id: 'tool-hero-journey',
             title: "Hero's Journey Tracker",
             normalizedTitle: "hero's journey tracker",
-            category: 'Tools & Views',
-            subtitle: 'Tool · Milestone track, chest odds & rewards',
+            category: toolsCategory,
             icon: 'timeline',
             iconType: 'svg',
-            actionCue: 'Explore Journey',
             acronym: 'hj',
             entityType: 'nav',
             priorityTier: 25,
@@ -366,11 +386,10 @@ export function buildSpotrightRegistry() {
             id: 'tool-hj-table',
             title: 'Hero Journey Rewards Table',
             normalizedTitle: 'hero journey rewards table',
-            category: 'Tools & Views',
-            subtitle: 'Journey View · Detailed tabular breakdown of all chests',
+            category: toolsCategory,
+            parentContext: heroJourneyContext,
             icon: 'table-view',
             iconType: 'svg',
-            actionCue: 'View Rewards Table',
             acronym: 'rt',
             entityType: 'nav',
             priorityTier: 25,
@@ -389,13 +408,13 @@ export function buildSpotrightRegistry() {
         },
         {
             id: 'tool-damage-calc',
-            title: 'Equipment Damage & ZapQuake',
-            normalizedTitle: 'equipment damage & zapquake',
-            category: 'Tools & Views',
-            subtitle: 'Tool · Defense sniping thresholds & spell combos',
+            title: damageCalcTitle,
+            canonicalTitle: 'equipment damage & zapquake',
+            canonicalTokens: 'equipment damage zapquake solver spells defense',
+            normalizedTitle: `${damageCalcTitle.toLowerCase()} equipment damage zapquake solver ausrüstung schaden zauber`,
+            category: toolsCategory,
             icon: 'swords-filled',
             iconType: 'svg',
-            actionCue: 'Launch Simulator',
             acronym: 'zq',
             entityType: 'nav',
             priorityTier: 25,
@@ -412,11 +431,9 @@ export function buildSpotrightRegistry() {
             id: 'tool-cluster-planner',
             title: 'Cluster Defense Planner',
             normalizedTitle: 'cluster defense planner',
-            category: 'Tools & Views',
-            subtitle: 'DamageCalc Tab · Multi-target snipe optimizer',
+            category: toolsCategory,
             icon: 'bolt-planner',
             iconType: 'svg',
-            actionCue: 'Jump to Cluster Planner',
             acronym: 'cp',
             entityType: 'nav',
             priorityTier: 25,
@@ -432,16 +449,25 @@ export function buildSpotrightRegistry() {
     );
 
     // 2. Primary Modals
+    const settingsTitle = resolveI18nText('nav.settings', 'Settings');
+    const manageVillagesTitle = resolveI18nText('views.landing.manageVillages', 'Manage Villages');
+    const addPlayerTitle = resolveI18nText('player.addPlayer', 'Add a player');
+    const refreshTitle = resolveI18nText('actions.refresh', 'Refresh');
+    const accountSyncTitle = resolveI18nText('views.settings.cards.accountAndSync', 'Account & Cloud Sync');
+    const priorityListTitle = resolveI18nText('views.planner.priorityList', 'Priority List');
+    const changelogTitle = resolveI18nText('views.changelog.title', 'Changelog');
+    const projectCostsTitle = resolveI18nText('views.settings.projectCosts.title', 'Project Costs');
+
     items.push(
         {
             id: 'modal-settings',
-            title: 'App Settings',
-            normalizedTitle: 'app settings',
-            category: 'Modals & Actions',
-            subtitle: 'Preferences · Card layout, leagues, backup & restore',
+            title: settingsTitle,
+            canonicalTitle: 'settings',
+            canonicalTokens: 'app settings options preferences',
+            normalizedTitle: `${settingsTitle.toLowerCase()} optionen einstellungen`,
+            category: settingsCategory,
             icon: 'settings-filled',
             iconType: 'svg',
-            actionCue: 'Open Modal',
             acronym: 'as',
             entityType: 'modal',
             priorityTier: 15,
@@ -456,13 +482,13 @@ export function buildSpotrightRegistry() {
         },
         {
             id: 'modal-player',
-            title: 'Player & Village Manager',
-            normalizedTitle: 'player & village manager',
-            category: 'Modals & Actions',
-            subtitle: 'Profiles · Switch, add or sync player tags',
+            title: manageVillagesTitle,
+            canonicalTitle: 'manage villages',
+            canonicalTokens: 'player & village manager accounts switch profiles',
+            normalizedTitle: `${manageVillagesTitle.toLowerCase()} dörfer verwalten dorf spieler konten`,
+            category: settingsCategory,
             icon: 'user',
             iconType: 'svg',
-            actionCue: 'Open Modal',
             acronym: 'pm',
             entityType: 'modal',
             priorityTier: 15,
@@ -484,13 +510,13 @@ export function buildSpotrightRegistry() {
         },
         {
             id: 'action-add-player',
-            title: translate('views.spotright.addPlayer') || 'Add Player Tag',
-            normalizedTitle: 'add player tag village link new account',
-            category: 'Modals & Actions',
-            subtitle: translate('views.spotright.addPlayerSubtitle') || 'Accounts · Link and track a new Clash of Clans village',
+            title: addPlayerTitle,
+            canonicalTitle: 'add a player',
+            canonicalTokens: 'add player tag village link new account',
+            normalizedTitle: [addPlayerTitle.toLowerCase(), 'spieler', 'spielerkürzel', 'hinzufügen'].join(' '),
+            category: settingsCategory,
             icon: 'plus',
             iconType: 'svg',
-            actionCue: translate('views.landing.addVillage') || 'Add Village',
             acronym: 'ap',
             entityType: 'modal',
             priorityTier: 18,
@@ -512,13 +538,13 @@ export function buildSpotrightRegistry() {
         },
         {
             id: 'action-refresh-village',
-            title: 'Refresh Village Data',
-            normalizedTitle: 'refresh village data sync player stats profile',
-            category: 'Modals & Actions',
-            subtitle: 'Player · Sync latest equipment and hero stats from Clash of Clans',
+            title: refreshTitle,
+            canonicalTitle: 'refresh',
+            canonicalTokens: 'refresh village data sync player stats profile',
+            normalizedTitle: [refreshTitle.toLowerCase(), 'aktualisieren', 'synchronisieren', 'neu laden'].join(' '),
+            category: settingsCategory,
             icon: 'refresh',
             iconType: 'svg',
-            actionCue: 'Sync',
             acronym: 'rf',
             entityType: 'modal',
             priorityTier: 22,
@@ -529,13 +555,13 @@ export function buildSpotrightRegistry() {
         },
         {
             id: 'modal-cloud-save',
-            title: 'Cloud Save & Passkeys Sync',
-            normalizedTitle: 'cloud save & passkeys sync',
-            category: 'Modals & Actions',
-            subtitle: 'Account · Cloud backup, passkeys, & cross-device link',
+            title: accountSyncTitle,
+            canonicalTitle: 'account & cloud sync',
+            canonicalTokens: 'cloud save passkeys sync backup security',
+            normalizedTitle: `${accountSyncTitle.toLowerCase()} cloud synchronisierung passkeys konto sicherung`,
+            category: settingsCategory,
             icon: 'sync-cloud',
             iconType: 'svg',
-            actionCue: 'Open Modal',
             acronym: 'cs',
             entityType: 'modal',
             priorityTier: 15,
@@ -546,13 +572,14 @@ export function buildSpotrightRegistry() {
         },
         {
             id: 'modal-priority-list',
-            title: 'Upgrade Priority List',
-            normalizedTitle: 'upgrade priority list',
-            category: 'Modals & Actions',
-            subtitle: 'Planner · Reorder and prioritize scheduled upgrades',
+            title: priorityListTitle,
+            canonicalTitle: 'priority list',
+            canonicalTokens: 'upgrade priority list planner ranking order',
+            normalizedTitle: `${priorityListTitle.toLowerCase()} upgrade prioritätenliste prioritäten-liste planner reihenfolge`,
+            category: settingsCategory,
+            parentContext: 'OreCalc',
             icon: 'planner-filled',
             iconType: 'svg',
-            actionCue: 'Open Modal',
             acronym: 'pl',
             entityType: 'modal',
             priorityTier: 15,
@@ -567,13 +594,13 @@ export function buildSpotrightRegistry() {
         },
         {
             id: 'modal-changelog',
-            title: 'Changelog & Recent Updates',
-            normalizedTitle: 'changelog & recent updates',
-            category: 'Modals & Actions',
-            subtitle: 'Version history · Recent balance changes & patch notes',
+            title: changelogTitle,
+            canonicalTitle: 'changelog',
+            canonicalTokens: 'recent updates patch notes version history',
+            normalizedTitle: `${changelogTitle.toLowerCase()} änderungsprotokoll updates patch notes versionen`,
+            category: settingsCategory,
             icon: 'changelog',
             iconType: 'svg',
-            actionCue: 'Open Modal',
             acronym: 'cl',
             entityType: 'modal',
             priorityTier: 15,
@@ -592,13 +619,13 @@ export function buildSpotrightRegistry() {
         },
         {
             id: 'modal-running-costs',
-            title: 'Project Running Costs & Transparency',
-            normalizedTitle: 'project running costs & transparency',
-            category: 'Modals & Actions',
-            subtitle: 'About · Hosting, API, and cloud infrastructure expenses',
+            title: projectCostsTitle,
+            canonicalTitle: 'project costs',
+            canonicalTokens: 'running costs transparency hosting expenses infrastructure',
+            normalizedTitle: `${projectCostsTitle.toLowerCase()} laufende kosten projektkosten transparenz server hosting`,
+            category: settingsCategory,
             icon: 'costs',
             iconType: 'svg',
-            actionCue: 'Open Modal',
             acronym: 'pr',
             entityType: 'modal',
             priorityTier: 15,
@@ -652,8 +679,9 @@ export function buildSpotrightRegistry() {
             villageName.toLowerCase(),
             displayTag.toLowerCase(),
             cleanTag.toLowerCase(),
-            'village',
-            'account'
+            'dorf',
+            'dörfer',
+            'konto'
         ];
         if (clanName) {
             normalizedParts.push(clanName.toLowerCase());
@@ -666,14 +694,13 @@ export function buildSpotrightRegistry() {
         items.push({
             id: `village-${cleanTag}`,
             title: villageName,
+            canonicalTitle: villageName.toLowerCase(),
+            canonicalTokens: 'village account saved villages',
             normalizedTitle: normalizedParts.join(' '),
-            category: 'Villages',
+            category: villagesCategory,
             subtitle: translate('views.spotright.villageSubtitle', { tag: cleanTag, th: thLevel }),
             icon: `assets/th/th${thLevel}.png`,
             iconType: 'image',
-            actionCue: isActive
-                ? (translate('views.spotright.activeVillage') || 'Active')
-                : (translate('nav.context.switchVillage') || 'Switch Village'),
             acronym: villageName.slice(0, 2).toLowerCase(),
             entityType: 'modal',
             priorityTier: isActive ? 24 : 22,
@@ -695,60 +722,71 @@ export function buildSpotrightRegistry() {
     // 4. Heroes & Equipment
     for (const heroKey in heroData) {
         const hero = heroData[heroKey];
-        const heroName = hero.name;
-        const heroAcronym = HERO_ACRONYMS[heroKey] || heroName.slice(0, 2).toLowerCase();
+        const canonicalHeroName = hero.name;
+        const heroKeyPath = `entities.heroes.${heroKey}`;
+        const translatedHero = translate(heroKeyPath);
+        const localizedHeroName = (translatedHero && translatedHero !== heroKeyPath) ? translatedHero : canonicalHeroName;
+        const heroAcronym = HERO_ACRONYMS[heroKey] || canonicalHeroName.slice(0, 2).toLowerCase();
+
+        const heroSearchTokens = [localizedHeroName.toLowerCase()];
 
         // Register Hero Entity
         items.push({
             id: `hero-${heroKey}`,
-            title: heroName,
-            normalizedTitle: heroName.toLowerCase(),
-            category: 'Heroes',
-            subtitle: `Hero · ${hero.equipment.length} equipment items`,
+            title: localizedHeroName,
+            canonicalTitle: canonicalHeroName.toLowerCase(),
+            canonicalTokens: canonicalHeroName.toLowerCase(),
+            normalizedTitle: heroSearchTokens.join(' '),
+            category: heroesCategory,
             icon: hero.image,
             iconType: 'image',
-            actionCue: 'View Hero Card',
             acronym: heroAcronym,
             heroKey,
-            heroName,
+            heroName: localizedHeroName,
             heroAcronym,
             entityType: 'hero',
             priorityTier: 30,
-            execute: () => navigateToHero(heroName, heroKey)
+            execute: () => navigateToHero(canonicalHeroName, heroKey)
         });
 
         // Register Hero Equipment Entities
         for (const equip of hero.equipment) {
             const equipKey = equip.key;
-            const equipName = equip.name;
-            const equipAcronym = EQUIPMENT_ACRONYMS[equipKey] || equipName.slice(0, 2).toLowerCase();
+            const canonicalEquipName = equip.name;
+            const equipKeyPath = `entities.equipment.${equipKey}`;
+            const translatedEquip = translate(equipKeyPath);
+            const localizedEquipName = (translatedEquip && translatedEquip !== equipKeyPath) ? translatedEquip : canonicalEquipName;
+            const equipAcronym = EQUIPMENT_ACRONYMS[equipKey] || canonicalEquipName.slice(0, 2).toLowerCase();
             const rarity = equip.type || 'common';
-            const rarityLabel = rarity === 'epic' ? 'Epic' : 'Common';
             const priorityTier = rarity === 'epic' ? 20 : 10;
 
             const compositeAcronym = `${heroAcronym} ${equipAcronym}`;
             const compactComposite = `${heroAcronym}${equipAcronym}`;
-            const compositeTitle = `${heroName.toLowerCase()} ${equipName.toLowerCase()}`;
+
+            const equipSearchTokens = [localizedEquipName.toLowerCase()];
+            const compositeTitle = `${localizedHeroName.toLowerCase()} ${localizedEquipName.toLowerCase()}`;
+            const canonicalCompositeTitle = `${canonicalHeroName.toLowerCase()} ${canonicalEquipName.toLowerCase()}`;
 
             items.push({
                 id: `equip-${heroKey}-${equipKey}`,
-                title: equipName,
-                normalizedTitle: equipName.toLowerCase(),
-                category: 'Equipment',
-                subtitle: `${heroName} · ${rarityLabel}`,
+                title: localizedEquipName,
+                canonicalTitle: canonicalEquipName.toLowerCase(),
+                canonicalTokens: canonicalEquipName.toLowerCase(),
+                normalizedTitle: equipSearchTokens.join(' '),
+                category: equipmentCategory,
                 icon: equip.image,
                 iconType: 'image',
-                actionCue: 'View Equipment',
                 acronym: equipAcronym,
                 heroKey,
-                heroName,
+                heroName: localizedHeroName,
                 heroAcronym,
                 compositeAcronym,
                 compactComposite,
                 compositeTitle,
+                canonicalCompositeTitle,
                 entityType: rarity === 'epic' ? 'epic' : 'common',
                 priorityTier,
-                execute: () => navigateToEquipment(heroName, equipName, equipKey)
+                execute: () => navigateToEquipment(canonicalHeroName, canonicalEquipName, equipKey)
             });
         }
     }

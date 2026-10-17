@@ -10,6 +10,7 @@ import {
 } from '../../js/components/spotright/spotrightRegistry.js';
 import {
     extractScopePrefix,
+    getScopeSuggestions,
     isSubsequence,
     scoreSpotrightItem,
     searchSpotright
@@ -20,7 +21,7 @@ import {
     toggleSpotright,
     initSpotright
 } from '../../js/components/spotright/spotrightController.js';
-import { createSpotrightDialog } from '../../js/components/spotright/spotrightDisplay.js';
+import { createSpotrightDialog, highlightMatch, renderSpotrightResults } from '../../js/components/spotright/spotrightDisplay.js';
 
 describe('Spotright Search Engine & Matcher', () => {
     const registry = buildSpotrightRegistry();
@@ -169,10 +170,14 @@ describe('Spotright Search Engine & Matcher', () => {
             assert.ok(item.title, 'Item must have a title');
             assert.ok(item.normalizedTitle, 'Item must have a normalizedTitle');
             assert.ok(item.category, 'Item must have a category');
-            assert.ok(item.subtitle, 'Item must have a subtitle');
+            if (item.subtitle) {
+                assert.equal(typeof item.subtitle, 'string', 'Item subtitle must be a string');
+            }
+            if (item.parentContext) {
+                assert.equal(typeof item.parentContext, 'string', 'Item parentContext must be a string');
+            }
             assert.ok(item.icon, 'Item must have an icon');
             assert.ok(item.iconType, 'Item must have an iconType');
-            assert.ok(item.actionCue, 'Item must have an actionCue');
             assert.ok(typeof item.priorityTier === 'number', 'Item must have numeric priorityTier');
             assert.equal(typeof item.execute, 'function', `Item ${item.id} must define an execute function`);
         }
@@ -354,14 +359,20 @@ describe('Spotright Search Engine & Matcher', () => {
     });
 
     test('extractScopePrefix parses trigger commands correctly', () => {
+        assert.deepEqual(extractScopePrefix('/v '), { scope: 'villages', remainingQuery: '' });
+        assert.deepEqual(extractScopePrefix('/village '), { scope: 'villages', remainingQuery: '' });
+        assert.deepEqual(extractScopePrefix('/villages main'), { scope: 'villages', remainingQuery: 'main' });
         assert.deepEqual(extractScopePrefix('/e '), { scope: 'equipment', remainingQuery: '' });
         assert.deepEqual(extractScopePrefix('/equip '), { scope: 'equipment', remainingQuery: '' });
         assert.deepEqual(extractScopePrefix('/e boots'), { scope: 'equipment', remainingQuery: 'boots' });
         assert.deepEqual(extractScopePrefix('/h '), { scope: 'hero', remainingQuery: '' });
         assert.deepEqual(extractScopePrefix('/hero queen'), { scope: 'hero', remainingQuery: 'queen' });
+        assert.deepEqual(extractScopePrefix('/heroes queen'), { scope: 'hero', remainingQuery: 'queen' });
         assert.deepEqual(extractScopePrefix('/t '), { scope: 'tools', remainingQuery: '' });
         assert.deepEqual(extractScopePrefix('/tool zap'), { scope: 'tools', remainingQuery: 'zap' });
+        assert.deepEqual(extractScopePrefix('/tools zap'), { scope: 'tools', remainingQuery: 'zap' });
         assert.deepEqual(extractScopePrefix('/s '), { scope: 'settings', remainingQuery: '' });
+        assert.deepEqual(extractScopePrefix('/setting '), { scope: 'settings', remainingQuery: '' });
         assert.deepEqual(extractScopePrefix('/settings audio'), { scope: 'settings', remainingQuery: 'audio' });
 
         assert.equal(extractScopePrefix('regular query'), null);
@@ -439,5 +450,199 @@ describe('Spotright Search Engine & Matcher', () => {
         } finally {
             globalThis.document = originalDoc;
         }
+    });
+
+    test('highlightMatch safely escapes and highlights substrings', () => {
+        // Empty query
+        assert.equal(highlightMatch('Progression Hub', ''), 'Progression Hub');
+        assert.equal(highlightMatch('Progression Hub', '   '), 'Progression Hub');
+
+        // Full exact match
+        assert.equal(
+            highlightMatch('Ore Calculator', 'ore'),
+            '<mark class="spotright-match-highlight">Ore</mark> Calculator'
+        );
+
+        // Substring match
+        assert.equal(
+            highlightMatch('Giant Gauntlet', 'gaunt'),
+            'Giant <mark class="spotright-match-highlight">Gaunt</mark>let'
+        );
+
+        // Multi-token match
+        assert.equal(
+            highlightMatch('Barbarian King', 'barb king'),
+            '<mark class="spotright-match-highlight">Barb</mark>arian <mark class="spotright-match-highlight">King</mark>'
+        );
+
+        // Special characters and XSS escaping
+        assert.equal(
+            highlightMatch('Test <tag> & "quote"', 'test'),
+            '<mark class="spotright-match-highlight">Test</mark> &lt;tag&gt; &amp; &quot;quote&quot;'
+        );
+
+        // Hash character in player tags
+        assert.equal(
+            highlightMatch('Load Player #8PJYGUJC', '#8pj'),
+            'Load Player <mark class="spotright-match-highlight">#8PJ</mark>YGUJC'
+        );
+
+        // Leading '/' command trigger stripping in highlightMatch
+        assert.equal(
+            highlightMatch('Hero Equipment', '/equip'),
+            'Hero <mark class="spotright-match-highlight">Equip</mark>ment'
+        );
+
+        // Leading '@' mention trigger stripping in highlightMatch
+        assert.equal(
+            highlightMatch('Chief Base', '@chief'),
+            '<mark class="spotright-match-highlight">Chief</mark> Base'
+        );
+    });
+
+    test('scope suggestions: typing "/" returns all 5 canonical scope suggestions in exact chip track order', () => {
+        const result = searchSpotright('/', registry);
+        assert.equal(result.autocomplete, null);
+        assert.equal(result.matches.length, 5, 'Must return all 5 scope suggestions');
+
+        const scopes = result.matches.map(m => m.targetScope);
+        assert.deepEqual(scopes, ['villages', 'equipment', 'hero', 'tools', 'settings'], 'Must match filter track chip order exactly');
+
+        for (const item of result.matches) {
+            assert.equal(item.isScopeSuggestion, true);
+            assert.ok(item.command.startsWith('/'));
+            assert.ok(item.title);
+            assert.equal(item.subtitle, undefined, 'Scope suggestions must have zero subtitle');
+            assert.ok(item.icon);
+        }
+
+        const heroItem = result.matches.find(m => m.targetScope === 'hero');
+        assert.ok(heroItem);
+        assert.equal(heroItem.command, '/heroes', 'Hero scope command must be /heroes');
+    });
+
+    test('scope suggestions: typing "/e" or "/eq" narrows down to equipment', () => {
+        const result = searchSpotright('/e', registry);
+        assert.ok(result.matches.length >= 1);
+        assert.equal(result.matches[0].targetScope, 'equipment');
+        assert.equal(result.matches[0].command, '/equipment');
+    });
+
+    test('scope suggestions: typing "/v", "/h", "/t", "/s" narrows to respective scopes', () => {
+        assert.equal(searchSpotright('/v', registry).matches[0].targetScope, 'villages');
+        assert.equal(searchSpotright('/h', registry).matches[0].targetScope, 'hero');
+        assert.equal(searchSpotright('/t', registry).matches[0].targetScope, 'tools');
+        assert.equal(searchSpotright('/s', registry).matches[0].targetScope, 'settings');
+    });
+
+    test('scope suggestions: typing "/hero" or "/heroes" resolves to hero scope', () => {
+        assert.equal(searchSpotright('/hero', registry).matches[0].targetScope, 'hero');
+        assert.equal(searchSpotright('/heroes', registry).matches[0].targetScope, 'hero');
+    });
+
+    test('scope suggestions: strict slash command isolation prevents non-command items from appearing', () => {
+        const unknownResult = searchSpotright('/xyz', registry);
+        assert.equal(unknownResult.matches.length, 0, 'Must return 0 results for unknown command');
+        assert.equal(unknownResult.autocomplete, null);
+
+        const unknownMultiWord = searchSpotright('/unknown command', registry);
+        assert.equal(unknownMultiWord.matches.length, 0, 'Must return 0 results for unhandled slash input');
+    });
+
+    test('instant village switcher: typing "@" returns saved villages and add-player action', () => {
+        const result = searchSpotright('@', registry);
+        assert.equal(result.autocomplete, null);
+        assert.ok(result.matches.length >= 1);
+
+        const hasVillageOrAdd = result.matches.every(m => m.isVillage || m.id === 'action-add-player');
+        assert.ok(hasVillageOrAdd, 'All results under @ must be villages or add-player action');
+    });
+
+    test('instant village switcher: typing "@#8PJYGUJC" synthesizes direct tag action', () => {
+        const result = searchSpotright('@#8PJYGUJC', registry);
+        assert.ok(result.matches.length >= 1);
+        const directTagItem = result.matches.find(m => m.id === 'direct-tag-8PJYGUJC');
+        assert.ok(directTagItem, 'Must synthesize direct tag candidate');
+    });
+
+    test('renderSpotrightResults renders command pill, Tab keycap, and zero subtitle for scope suggestions', () => {
+        const suggestions = getScopeSuggestions('/');
+        assert.ok(suggestions.length > 0);
+
+        const container = { innerHTML: '' };
+        // @ts-ignore
+        renderSpotrightResults(container, [suggestions[0]], 0, '/');
+
+        assert.ok(container.innerHTML.includes('spotright-command-pill'), 'Must render command pill');
+        assert.ok(container.innerHTML.includes('/villages'), 'Must contain villages command text');
+        assert.ok(container.innerHTML.includes('spotright-action-tab'), 'Must render Tab keycap');
+        assert.ok(container.innerHTML.includes('name="keyboard-tab"'), 'Must include keyboard-tab SVG');
+        assert.equal(container.innerHTML.includes('spotright-item-subtitle'), false, 'Scope suggestion must have zero subtitle');
+    });
+
+    test('scope suggestions: single suggestion space auto-complete resolution conditions', () => {
+        // 1. Single suggestion cases (eligible for space auto-complete)
+        const heMatches = searchSpotright('/he', registry).matches;
+        assert.equal(heMatches.length, 1, 'Query /he must have strictly 1 suggestion');
+        assert.equal(heMatches[0].targetScope, 'hero');
+
+        const toMatches = searchSpotright('/to', registry).matches;
+        assert.equal(toMatches.length, 1, 'Query /to must have strictly 1 suggestion');
+        assert.equal(toMatches[0].targetScope, 'tools');
+
+        const vMatches = searchSpotright('/v', registry).matches;
+        assert.equal(vMatches.length, 1, 'Query /v must have strictly 1 suggestion');
+        assert.equal(vMatches[0].targetScope, 'villages');
+
+        const tMatches = searchSpotright('/t', registry).matches;
+        assert.equal(tMatches.length, 1, 'Query /t must have strictly 1 suggestion');
+        assert.equal(tMatches[0].targetScope, 'tools');
+
+        const hMatches = searchSpotright('/h', registry).matches;
+        assert.equal(hMatches.length, 1, 'Query /h must have strictly 1 suggestion');
+        assert.equal(hMatches[0].targetScope, 'hero');
+
+        // 2. Multi-suggestion cases (strict guard: space auto-complete must NOT fire)
+        const rootMatches = searchSpotright('/', registry).matches;
+        assert.equal(rootMatches.length, 5, 'Query / has 5 suggestions (space must not auto-complete)');
+
+        const sMatches = searchSpotright('/s', registry).matches;
+        assert.equal(sMatches.length, 2, 'Query /s has 2 suggestions (settings and villages, space must not auto-complete)');
+    });
+
+    test('createSpotrightDialog includes search clear button with canonical i18n attribute', () => {
+        const originalDoc = globalThis.document;
+        try {
+            const attrs = new Map();
+            globalThis.document = /** @type {any} */ ({
+                createElement: (tag) => ({
+                    tagName: tag.toUpperCase(),
+                    id: '',
+                    className: '',
+                    innerHTML: '',
+                    setAttribute: (k, v) => attrs.set(k, String(v)),
+                    getAttribute: (k) => attrs.get(k) || null,
+                    querySelector: () => null
+                })
+            });
+
+            const dialog = createSpotrightDialog();
+            const html = dialog.innerHTML;
+            assert.match(html, /id="spotright-clear-btn"/, 'Must contain spotright-clear-btn');
+            assert.match(html, /data-i18n-aria-label="views\.heroJourney\.page\.clearSearch"/, 'Must use canonical clearSearch i18n key');
+            assert.match(html, /data-i18n-title="views\.heroJourney\.page\.clearSearch"/, 'Must bind title to canonical clearSearch');
+            assert.match(html, /<clashcalc-assets-svg name="close" width="12" height="12"/, 'Must render close SVG icon');
+        } finally {
+            globalThis.document = originalDoc;
+        }
+    });
+
+    test('renderSpotrightResults empty state renders reset filters button with canonical i18n key', () => {
+        const container = { innerHTML: '' };
+        // @ts-ignore
+        renderSpotrightResults(container, [], 0, 'xyzabc');
+        assert.match(container.innerHTML, /id="spotright-empty-reset-btn"/, 'Must contain spotright-empty-reset-btn');
+        assert.match(container.innerHTML, /data-i18n="views\.damageCalc\.filters\.resetFiltersBtn"/, 'Must use canonical resetFiltersBtn i18n key');
+        assert.match(container.innerHTML, /<clashcalc-assets-svg name="close" width="12" height="12"/, 'Must render close SVG icon');
     });
 });

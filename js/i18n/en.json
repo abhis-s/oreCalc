@@ -43,6 +43,7 @@
         "reset": "Reset",
         "restore": "Restore",
         "save": "Save",
+        "search": "Search",
         "showInfo": "Show Information",
         "showLess": "Show Less",
         "showMore": "Show More",
@@ -792,6 +793,7 @@
                 "clusterPlanner": "Cluster Planner",
                 "zapQuake": "ZapQuake Combos"
             },
+            "title": "Equipment Damage & ZapQuake",
             "zapQuake": {
                 "cannotDestroyBadge": "Cannot Destroy",
                 "combinationBreakdownAria": "Combination Breakdown",
@@ -1526,23 +1528,31 @@
                 "spotrightAccept": "Accept inline autocomplete suggestion",
                 "spotrightClearScope": "Clear active filter scope (empty input)"
             },
+            "keys": {
+                "keyboardBackspace": "Backspace",
+                "keyboardCommand": "Command",
+                "keyboardCtrl": "Ctrl",
+                "keyboardDown": "Down",
+                "keyboardEnter": "Enter",
+                "keyboardEsc": "ESC",
+                "keyboardLeft": "Left",
+                "keyboardRight": "Right",
+                "keyboardShift": "Shift",
+                "keyboardSpace": "Space",
+                "keyboardTab": "Tab",
+                "keyboardUp": "Up"
+            },
             "title": "Keyboard Shortcuts"
         },
         "spotright": {
             "activeVillage": "Active",
-            "addPlayer": "Add Player Tag",
-            "addPlayerSubtitle": "Accounts · Link and track a new Clash of Clans village",
-            "clipboardSubtitle": "Clipboard · Clash of Clans Player Tag",
-            "loadDirectTag": "Load Player #{tag}",
-            "loadDirectTagSubtitle": "Player Tag · Fetch and view Clash of Clans profile",
+            "beta": "Beta",
+            "betaTooltip": "Spotright is currently in preview. Use the Feedback button to report suggestions.",
             "loadVillageTag": "Load Village #{tag}",
             "noResults": "No matching results found",
             "placeholder": "Search tools, equipment, heroes...",
             "recent": "Recent",
-            "scopes": {
-                "tools": "Tools",
-                "villages": "Villages"
-            },
+            "scopesHeading": "Filter Scopes",
             "searchTrigger": "Search & Command Palette",
             "villageSubtitle": "Village · #{tag} · TH{th}"
         },

@@ -18,6 +18,9 @@ export function createSpotrightDialog() {
     dialog.className = 'spotright-dialog';
     dialog.setAttribute('aria-label', translate('views.spotright.placeholder'));
 
+    const rawEsc = translate('views.shortcuts.keys.keyboardEsc');
+    const escLabel = (rawEsc && rawEsc !== 'views.shortcuts.keys.keyboardEsc') ? rawEsc : 'ESC';
+
     dialog.innerHTML = `
         <div class="spotright-card" id="spotright-card">
             <div class="spotright-search-bar">
@@ -41,16 +44,18 @@ export function createSpotrightDialog() {
                         />
                         <div id="spotright-ghost-autocomplete" class="spotright-ghost-autocomplete" hidden aria-hidden="true"></div>
                     </div>
+                    <button type="button" id="spotright-clear-btn" class="spotright-clear-btn" aria-label="${escapeHTML(translate('views.heroJourney.page.clearSearch'))}" title="${escapeHTML(translate('views.heroJourney.page.clearSearch'))}" data-i18n-aria-label="views.heroJourney.page.clearSearch" data-i18n-title="views.heroJourney.page.clearSearch" hidden>
+                        <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
+                    </button>
                 </div>
-                <div id="spotright-action-hint" class="spotright-action-hint" hidden aria-hidden="true"></div>
-                <kbd class="spotright-kbd-shortcut">ESC</kbd>
+                <kbd class="spotright-kbd-shortcut" data-i18n="views.shortcuts.keys.keyboardEsc">${escapeHTML(escLabel)}</kbd>
             </div>
-            <div id="spotright-filter-track" class="spotright-filter-track" role="tablist" aria-label="Filter scope">
+            <div id="spotright-filter-track" class="spotright-filter-track" role="tablist" aria-label="${escapeHTML(translate('views.heroJourney.filters.filterByType'))}">
                 <button type="button" class="spotright-filter-chip is-active" data-scope="all" role="tab" aria-selected="true" data-i18n="views.heroJourney.filters.filterAll">${escapeHTML(translate('views.heroJourney.filters.filterAll'))}</button>
-                <button type="button" class="spotright-filter-chip" data-scope="villages" role="tab" aria-selected="false" data-i18n="views.spotright.scopes.villages">${escapeHTML(translate('views.spotright.scopes.villages'))}</button>
+                <button type="button" class="spotright-filter-chip" data-scope="villages" role="tab" aria-selected="false" data-i18n="nav.views.hub.villages">${escapeHTML(translate('nav.views.hub.villages'))}</button>
                 <button type="button" class="spotright-filter-chip" data-scope="equipment" role="tab" aria-selected="false" data-i18n="nav.equipment">${escapeHTML(translate('nav.equipment'))}</button>
                 <button type="button" class="spotright-filter-chip" data-scope="hero" role="tab" aria-selected="false" data-i18n="views.damageCalc.filters.filterHeroes">${escapeHTML(translate('views.damageCalc.filters.filterHeroes'))}</button>
-                <button type="button" class="spotright-filter-chip" data-scope="tools" role="tab" aria-selected="false" data-i18n="views.spotright.scopes.tools">${escapeHTML(translate('views.spotright.scopes.tools'))}</button>
+                <button type="button" class="spotright-filter-chip" data-scope="tools" role="tab" aria-selected="false" data-i18n="nav.drawerTitle">${escapeHTML(translate('nav.drawerTitle'))}</button>
                 <button type="button" class="spotright-filter-chip" data-scope="settings" role="tab" aria-selected="false" data-i18n="nav.settings">${escapeHTML(translate('nav.settings'))}</button>
             </div>
             <div id="spotright-results" class="spotright-results" role="listbox" aria-label="${escapeHTML(translate('views.spotright.placeholder'))}"></div>
@@ -70,6 +75,10 @@ export function createSpotrightDialog() {
                     <span class="spotright-footer-shortcuts-label" data-i18n="views.shortcuts.title">${escapeHTML(translate('views.shortcuts.title'))}</span>
                     <kbd class="spotright-footer-kbd">?</kbd>
                 </button>
+                <div class="spotright-footer-brand" title="${escapeHTML(translate('views.spotright.betaTooltip'))}" data-i18n-title="views.spotright.betaTooltip">
+                    <span class="spotright-footer-brand-name">Spotright</span>
+                    <span class="spotright-footer-beta-chip" data-i18n="views.spotright.beta">${escapeHTML(translate('views.spotright.beta'))}</span>
+                </div>
             </div>
         </div>
     `;
@@ -84,7 +93,84 @@ export function createSpotrightDialog() {
  * @param {import('./spotrightRegistry.js').SpotrightItem[]} matches - Scored match items.
  * @param {number} selectedIndex - Currently highlighted item index.
  */
-export function renderSpotrightResults(container, matches, selectedIndex) {
+/**
+ * Safely escapes HTML and wraps matching query substrings in highlight markup.
+ *
+ * @param {string} text - Raw string to display.
+ * @param {string} query - Raw user search query.
+ * @returns {string} Sanitized HTML string with matching substrings highlighted.
+ */
+export function highlightMatch(text, query) {
+    if (!text) return '';
+    if (!query || typeof query !== 'string') return escapeHTML(text);
+
+    let cleanQuery = query.trim().toLowerCase();
+    if (cleanQuery.startsWith('/') || cleanQuery.startsWith('@')) {
+        cleanQuery = cleanQuery.slice(1).trim();
+    }
+    if (!cleanQuery) return escapeHTML(text);
+
+    const lowerText = text.toLowerCase();
+
+    // 1. Try full exact query match first
+    const exactIdx = lowerText.indexOf(cleanQuery);
+    if (exactIdx !== -1) {
+        return (
+            escapeHTML(text.slice(0, exactIdx)) +
+            `<mark class="spotright-match-highlight">${escapeHTML(text.slice(exactIdx, exactIdx + cleanQuery.length))}</mark>` +
+            escapeHTML(text.slice(exactIdx + cleanQuery.length))
+        );
+    }
+
+    // 2. Multi-token match: highlight individual whitespace-separated tokens (>= 2 chars)
+    const tokens = cleanQuery.split(/\s+/).filter(t => t.length >= 2);
+    if (tokens.length === 0) return escapeHTML(text);
+
+    const ranges = [];
+    for (const token of tokens) {
+        let searchFrom = 0;
+        let matchIdx = lowerText.indexOf(token, searchFrom);
+        while (matchIdx !== -1) {
+            ranges.push([matchIdx, matchIdx + token.length]);
+            searchFrom = matchIdx + token.length;
+            matchIdx = lowerText.indexOf(token, searchFrom);
+        }
+    }
+
+    if (ranges.length === 0) return escapeHTML(text);
+
+    ranges.sort((a, b) => a[0] - b[0]);
+    const merged = [ranges[0]];
+    for (let i = 1; i < ranges.length; i++) {
+        const last = merged[merged.length - 1];
+        const curr = ranges[i];
+        if (curr[0] <= last[1]) {
+            last[1] = Math.max(last[1], curr[1]);
+        } else {
+            merged.push(curr);
+        }
+    }
+
+    let result = '';
+    let lastIndex = 0;
+    for (const [start, end] of merged) {
+        result += escapeHTML(text.slice(lastIndex, start));
+        result += `<mark class="spotright-match-highlight">${escapeHTML(text.slice(start, end))}</mark>`;
+        lastIndex = end;
+    }
+    result += escapeHTML(text.slice(lastIndex));
+    return result;
+}
+
+/**
+ * Renders the search results list into the container element.
+ *
+ * @param {HTMLElement} container - Results container element.
+ * @param {import('./spotrightRegistry.js').SpotrightItem[]} matches - Matched items.
+ * @param {number} selectedIndex - Currently highlighted item index.
+ * @param {string} [currentQuery=''] - Active user query for substring highlighting.
+ */
+export function renderSpotrightResults(container, matches, selectedIndex, currentQuery = '') {
     if (!container) return;
 
     if (matches.length === 0) {
@@ -92,6 +178,10 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
             <div class="spotright-empty-state">
                 <clashcalc-assets-svg name="search" class="spotright-empty-icon"></clashcalc-assets-svg>
                 <p class="spotright-empty-text" data-i18n="views.spotright.noResults">${escapeHTML(translate('views.spotright.noResults'))}</p>
+                <button type="button" id="spotright-empty-reset-btn" class="btn-secondary spotright-empty-reset-btn">
+                    <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
+                    <span data-i18n="views.damageCalc.filters.resetFiltersBtn">${escapeHTML(translate('views.damageCalc.filters.resetFiltersBtn'))}</span>
+                </button>
             </div>
         `;
         return;
@@ -119,7 +209,7 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
 
         const isSelected = idx === selectedIndex;
         const iconHtml = item.isVillage
-            ? `<div class="spotright-th-wrapper"><clashcalc-assets-image src="${item.icon}" alt="TH${item.thLevel}" class="spotright-th-img" size="standard"></clashcalc-assets-image><span class="spotright-th-badge">${item.thLevel}</span></div>`
+            ? `<div class="spotright-th-wrapper"><clashcalc-assets-image src="${item.icon}" alt="${escapeHTML(translate('entities.defenses.townHall'))} ${item.thLevel}" class="spotright-th-img" size="standard"></clashcalc-assets-image><span class="spotright-th-badge">${item.thLevel}</span></div>`
             : `<div class="spotright-item-icon-wrapper ${item.iconType === 'image' ? 'spotright-item-icon--image' : 'spotright-item-icon--svg'}">${
                 item.iconType === 'image'
                     ? `<clashcalc-assets-image src="${item.icon}" alt="${escapeHTML(item.title)}" class="spotright-item-icon"></clashcalc-assets-image>`
@@ -134,8 +224,19 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
                 tagHtml += `<span class="spotright-item-tag spotright-tag--active">${escapeHTML(translate('views.spotright.activeVillage') || 'Active')}</span>`;
             }
         } else if (item.entityType === 'epic' || item.entityType === 'common') {
-            tagHtml = `<span class="spotright-item-tag spotright-tag--${item.entityType}">${escapeHTML(item.entityType)}</span>`;
+            const rarityText = item.entityType === 'epic'
+                ? (translate('views.equipment.epic') || 'Epic')
+                : (translate('views.equipment.common') || 'Common');
+            tagHtml = `<span class="spotright-item-tag spotright-tag--${item.entityType}">${escapeHTML(rarityText)}</span>`;
         }
+
+        const breadcrumbHtml = item.parentContext
+            ? `<span class="spotright-item-breadcrumb">&bull; ${escapeHTML(item.parentContext)}</span>`
+            : '';
+
+        const heroContextHtml = item.heroName && (item.entityType === 'epic' || item.entityType === 'common')
+            ? `<span class="spotright-item-hero-context">${escapeHTML(item.heroName)}</span>`
+            : '';
 
         const isItemLoading = Boolean(item.isLoading);
         const hasItemError = Boolean(item.errorMessage);
@@ -168,7 +269,7 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
                     ${leagueHtml}
                 </div>
             `;
-        } else {
+        } else if (item.subtitle && !item.isScopeSuggestion) {
             subtitleHtml = `<span class="spotright-item-subtitle">${escapeHTML(item.subtitle)}</span>`;
         }
 
@@ -176,27 +277,35 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
         if (isItemLoading) {
             actionHtml = `
                 <clashcalc-assets-svg name="refresh" class="spotright-item-spinner" width="14" height="14"></clashcalc-assets-svg>
-                <span class="spotright-action-label">${escapeHTML(translate('actions.loading'))}</span>
             `;
         } else if (item.isActiveVillage) {
             actionHtml = `
-                <span class="spotright-action-label">${escapeHTML(translate('views.spotright.activeVillage') || 'Active')}</span>
                 <span class="spotright-action-active-icon"><clashcalc-assets-svg name="check" width="14" height="14"></clashcalc-assets-svg></span>
             `;
-        } else {
-            const actionLabel = hasItemError ? (translate('actions.reload') || 'Retry') : item.actionCue;
+        } else if (item.isScopeSuggestion) {
             actionHtml = `
-                <span class="spotright-action-label">${escapeHTML(actionLabel)}</span>
-                <kbd class="spotright-action-enter" aria-label="Enter"><clashcalc-assets-svg name="keyboard-return" width="14" height="14"></clashcalc-assets-svg></kbd>
+                <kbd class="spotright-action-tab" aria-label="${escapeHTML(translate('views.shortcuts.keys.keyboardTab'))}">
+                    <span class="spotright-tab-label">Tab</span>
+                    <clashcalc-assets-svg name="keyboard-tab" width="12" height="12"></clashcalc-assets-svg>
+                </kbd>
+            `;
+        } else {
+            actionHtml = `
+                <kbd class="spotright-action-enter" aria-label="${escapeHTML(translate('views.shortcuts.keys.keyboardEnter'))}"><clashcalc-assets-svg name="keyboard-return" width="14" height="14"></clashcalc-assets-svg></kbd>
             `;
         }
 
         const villageClass = item.isVillage ? 'spotright-result-item--village' : '';
         const activeVillageClass = item.isActiveVillage ? 'is-active-village' : '';
+        const scopeSuggestionClass = item.isScopeSuggestion ? 'spotright-result-item--scope-suggestion' : '';
+
+        const commandPillHtml = item.isScopeSuggestion && item.command
+            ? `<code class="spotright-command-pill">${highlightMatch(item.command, currentQuery)}</code>`
+            : '';
 
         htmlChunks.push(`
             <div
-                class="spotright-result-item ${villageClass} ${activeVillageClass} ${isSelected ? 'selected' : ''} ${isItemLoading ? 'is-loading' : ''} ${hasItemError ? 'has-error' : ''}"
+                class="spotright-result-item ${villageClass} ${activeVillageClass} ${scopeSuggestionClass} ${isSelected ? 'selected' : ''} ${isItemLoading ? 'is-loading' : ''} ${hasItemError ? 'has-error' : ''}"
                 role="option"
                 aria-selected="${isSelected ? 'true' : 'false'}"
                 data-index="${idx}"
@@ -205,7 +314,10 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
                 ${iconHtml}
                 <div class="spotright-item-content">
                     <div class="spotright-item-header">
-                        <span class="spotright-item-title">${escapeHTML(item.title)}</span>
+                        ${commandPillHtml}
+                        <span class="spotright-item-title">${highlightMatch(item.title, currentQuery)}</span>
+                        ${breadcrumbHtml}
+                        ${heroContextHtml}
                         ${tagHtml}
                     </div>
                     ${subtitleHtml}
@@ -279,31 +391,13 @@ export function updateGhostAutocomplete(ghostEl, inputVal, autocomplete) {
     }
 }
 
-/**
- * Updates top hit action cue suffix in the search bar.
- *
- * @param {HTMLElement|null} hintEl - The action hint container.
- * @param {{ actionCue: string } | null} autocomplete - Autocomplete descriptor.
- */
-export function updateTopHitHint(hintEl, autocomplete) {
-    if (!hintEl) return;
-
-    if (autocomplete && autocomplete.actionCue) {
-        hintEl.textContent = `${autocomplete.actionCue}`;
-        hintEl.hidden = false;
-    } else {
-        hintEl.textContent = '';
-        hintEl.hidden = true;
-    }
-}
-
 /** @type {Record<string, string>} Scope label translation keys */
-const SCOPE_TRANSLATION_KEYS = {
+export const SCOPE_TRANSLATION_KEYS = {
     all: 'views.heroJourney.filters.filterAll',
-    villages: 'views.spotright.scopes.villages',
+    villages: 'nav.views.hub.villages',
     equipment: 'nav.equipment',
     hero: 'views.damageCalc.filters.filterHeroes',
-    tools: 'views.spotright.scopes.tools',
+    tools: 'nav.drawerTitle',
     settings: 'nav.settings'
 };
 

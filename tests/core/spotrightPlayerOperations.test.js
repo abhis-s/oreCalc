@@ -24,7 +24,7 @@ import {
     extractScopePrefix,
     searchSpotright
 } from '../../js/components/spotright/spotrightMatcher.js';
-import { loadTranslations } from '../../js/i18n/translator.js';
+import { loadTranslations, translate } from '../../js/i18n/translator.js';
 import { state } from '../../js/core/state.js';
 import { getActivePlayerTagsKey, getPlayerStorageKey } from '../../js/core/storageKeys.js';
 
@@ -221,7 +221,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
         test('constructs valid Spotright item for clipboard detected player tag', () => {
             const item = createClipboardSpotrightItem('8PJYGUJC');
             assert.equal(item.id, 'clipboard-tag-8PJYGUJC');
-            assert.equal(item.category, 'Clipboard');
+            assert.equal(item.category, translate('player.tag') || 'Player Tag');
             assert.equal(item.icon, 'copy');
             assert.equal(item.iconType, 'svg');
             assert.equal(item.priorityTier, 100);
@@ -346,7 +346,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             const addPlayerItem = registry.find(i => i.id === 'action-add-player');
 
             assert.ok(addPlayerItem, 'action-add-player must be registered');
-            assert.equal(addPlayerItem.category, 'Modals & Actions');
+            assert.equal(addPlayerItem.category, translate('nav.settings') || 'Settings');
             assert.equal(addPlayerItem.icon, 'plus');
             assert.equal(addPlayerItem.entityType, 'modal');
             assert.equal(typeof addPlayerItem.execute, 'function');
@@ -378,9 +378,10 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             });
 
             const registry = buildSpotrightRegistry();
-            const villageItems = registry.filter(i => i.category === 'Villages');
+            const villageItems = registry.filter(i => i.isVillage);
 
             assert.equal(villageItems.length, 2, 'Must index both saved profiles');
+            assert.equal(villageItems[0].category, translate('nav.views.hub.villages') || 'Saved Villages');
 
             const chiefItem = villageItems.find(i => i.id === 'village-8PJYGUJC');
             assert.ok(chiefItem, 'Must contain village-8PJYGUJC');
@@ -422,7 +423,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             assert.ok(result.matches.length > 0);
             const topMatch = result.matches[0];
             assert.equal(topMatch.id, 'direct-tag-8PJYGUJC');
-            assert.equal(topMatch.category, 'Player Search');
+            assert.equal(topMatch.category, translate('player.tag') || 'Player Tag');
             assert.ok(topMatch.title.includes('8PJYGUJC'));
             assert.equal(topMatch.isAsyncAction, true);
             assert.equal(typeof topMatch.execute, 'function');
@@ -528,7 +529,6 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
                 subtitle: 'Village · #8PJYGUJC · TH18',
                 icon: 'assets/th/th18.png',
                 iconType: 'image',
-                actionCue: 'Active',
                 acronym: 'cj',
                 isVillage: true,
                 isActiveVillage: true,

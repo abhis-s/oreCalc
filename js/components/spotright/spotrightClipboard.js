@@ -200,15 +200,19 @@ export function switchOrLoadPlayerTag(cleanTag) {
  * @returns {import('./spotrightRegistry.js').SpotrightItem}
  */
 export function createClipboardSpotrightItem(cleanTag) {
+    const rawTitle = translate('views.spotright.loadVillageTag', { tag: cleanTag });
+    const title = (rawTitle && rawTitle !== 'views.spotright.loadVillageTag')
+        ? rawTitle
+        : `Load Village #${cleanTag}`;
     return {
         id: `clipboard-tag-${cleanTag}`,
-        title: translate('views.spotright.loadVillageTag', { tag: cleanTag }),
-        normalizedTitle: `load village #${cleanTag.toLowerCase()} ${cleanTag.toLowerCase()}`,
-        category: 'Clipboard',
-        subtitle: translate('views.spotright.clipboardSubtitle'),
+        title,
+        canonicalTitle: `load village #${cleanTag.toLowerCase()}`,
+        canonicalTokens: 'load village player tag',
+        normalizedTitle: `${title.toLowerCase()} ${cleanTag.toLowerCase()} dorf spieler`,
+        category: translate('player.tag') || 'Player Tag',
         icon: 'copy',
         iconType: 'svg',
-        actionCue: translate('views.landing.loadVillage') || 'Load Village',
         acronym: cleanTag.slice(0, 2).toLowerCase(),
         entityType: 'nav',
         priorityTier: 100,

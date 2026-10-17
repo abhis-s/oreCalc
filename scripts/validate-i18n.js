@@ -85,7 +85,11 @@ const ALLOWED_DUPLICATE_KEYS = {
 
     // 18. Linguistic/Domain: Equipment ability trigger mode (Chinese: 主动) vs Active village profile status (German: Aktiv; Chinese: 当前)
     'views.equipment.active': 'Linguistic/Domain: Equipment ability trigger mode (Chinese: 主动) vs Active village profile status (views.spotright.activeVillage)',
-    'views.spotright.activeVillage': 'Linguistic/Domain: Active village profile status badge (German: Aktiv; Chinese: 当前) vs Equipment ability trigger mode (views.equipment.active)'
+    'views.spotright.activeVillage': 'Linguistic/Domain: Active village profile status badge (German: Aktiv; Chinese: 当前) vs Equipment ability trigger mode (views.equipment.active)',
+
+    // 19. Linguistic: Keyboard spacebar key (German: Leertaste) vs spell housing space (German: Zauberplatz)
+    'views.damageCalc.clusterPlanner.spellSpaceLabel': 'Linguistic: Spell housing space (German: Zauberplatz) vs keyboard spacebar key (views.shortcuts.keys.keyboardSpace)',
+    'views.shortcuts.keys.keyboardSpace': 'Linguistic: Keyboard spacebar key (German: Leertaste) vs spell housing space (views.damageCalc.clusterPlanner.spellSpaceLabel)'
 };
 
 /**

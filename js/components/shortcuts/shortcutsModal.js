@@ -78,7 +78,7 @@ export function createShortcutsModalDialog(isMacOverride) {
                         <div class="shortcuts-row">
                             <span class="shortcuts-row__desc" data-i18n="views.shortcuts.descriptions.openSpotright">${escapeHTML(translate('views.shortcuts.descriptions.openSpotright'))}</span>
                             <span class="shortcuts-row__keys">
-                                ${isMac ? '<kbd class="shortcuts-kbd shortcuts-kbd--icon" aria-label="Command"><clashcalc-assets-svg name="keyboard-command" width="12" height="12"></clashcalc-assets-svg></kbd>' : '<kbd class="shortcuts-kbd">Ctrl</kbd>'}
+                                ${isMac ? `<kbd class="shortcuts-kbd shortcuts-kbd--icon" aria-label="${escapeHTML(translate('views.shortcuts.keys.keyboardCommand'))}"><clashcalc-assets-svg name="keyboard-command" width="12" height="12"></clashcalc-assets-svg></kbd>` : `<kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardCtrl">${escapeHTML(translate('views.shortcuts.keys.keyboardCtrl'))}</span></kbd>`}
                                 <kbd class="shortcuts-kbd">K</kbd>
                             </span>
                         </div>
@@ -91,7 +91,7 @@ export function createShortcutsModalDialog(isMacOverride) {
                         <div class="shortcuts-row">
                             <span class="shortcuts-row__desc" data-i18n="views.shortcuts.descriptions.closeActive">${escapeHTML(translate('views.shortcuts.descriptions.closeActive'))}</span>
                             <span class="shortcuts-row__keys">
-                                <kbd class="shortcuts-kbd">ESC</kbd>
+                                <kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardEsc">${escapeHTML(translate('views.shortcuts.keys.keyboardEsc'))}</span></kbd>
                             </span>
                         </div>
                     </div>
@@ -103,27 +103,27 @@ export function createShortcutsModalDialog(isMacOverride) {
                         <div class="shortcuts-row">
                             <span class="shortcuts-row__desc" data-i18n="views.shortcuts.descriptions.cycleResults">${escapeHTML(translate('views.shortcuts.descriptions.cycleResults'))}</span>
                             <span class="shortcuts-row__keys">
-                                <kbd class="shortcuts-kbd">Up <clashcalc-assets-svg name="chevron-up" width="12" height="12"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardUp">${escapeHTML(translate('views.shortcuts.keys.keyboardUp'))}</span> <clashcalc-assets-svg name="chevron-up" width="12" height="12" aria-hidden="true"></clashcalc-assets-svg></kbd>
                                 <span class="shortcuts-key-separator">/</span>
-                                <kbd class="shortcuts-kbd">Down <clashcalc-assets-svg name="chevron-down" width="12" height="12"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardDown">${escapeHTML(translate('views.shortcuts.keys.keyboardDown'))}</span> <clashcalc-assets-svg name="chevron-down" width="12" height="12" aria-hidden="true"></clashcalc-assets-svg></kbd>
                             </span>
                         </div>
                         <div class="shortcuts-row">
                             <span class="shortcuts-row__desc" data-i18n="views.shortcuts.descriptions.executeAction">${escapeHTML(translate('views.shortcuts.descriptions.executeAction'))}</span>
                             <span class="shortcuts-row__keys">
-                                <kbd class="shortcuts-kbd shortcuts-kbd--icon" aria-label="Enter"><clashcalc-assets-svg name="keyboard-return" width="12" height="12"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd shortcuts-kbd--icon" aria-label="${escapeHTML(translate('views.shortcuts.keys.keyboardEnter'))}"><clashcalc-assets-svg name="keyboard-return" width="12" height="12"></clashcalc-assets-svg></kbd>
                             </span>
                         </div>
                         <div class="shortcuts-row">
                             <span class="shortcuts-row__desc" data-i18n="views.shortcuts.descriptions.spotrightAccept">${escapeHTML(translate('views.shortcuts.descriptions.spotrightAccept'))}</span>
                             <span class="shortcuts-row__keys">
-                                <kbd class="shortcuts-kbd">Tab <clashcalc-assets-svg name="keyboard-tab" width="12" height="12"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardTab">${escapeHTML(translate('views.shortcuts.keys.keyboardTab'))}</span> <clashcalc-assets-svg name="keyboard-tab" width="12" height="12" aria-hidden="true"></clashcalc-assets-svg></kbd>
                             </span>
                         </div>
                         <div class="shortcuts-row">
                             <span class="shortcuts-row__desc" data-i18n="views.shortcuts.descriptions.spotrightClearScope">${escapeHTML(translate('views.shortcuts.descriptions.spotrightClearScope'))}</span>
                             <span class="shortcuts-row__keys">
-                                <kbd class="shortcuts-kbd shortcuts-kbd--icon" aria-label="Backspace"><clashcalc-assets-svg name="keyboard-backspace" width="14" height="14"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd shortcuts-kbd--icon" aria-label="${escapeHTML(translate('views.shortcuts.keys.keyboardBackspace'))}"><clashcalc-assets-svg name="keyboard-backspace" width="14" height="14"></clashcalc-assets-svg></kbd>
                             </span>
                         </div>
                         <div class="shortcuts-row">
@@ -145,26 +145,26 @@ export function createShortcutsModalDialog(isMacOverride) {
                         <div class="shortcuts-row">
                             <span class="shortcuts-row__desc" data-i18n="views.shortcuts.descriptions.cycleFocus">${escapeHTML(translate('views.shortcuts.descriptions.cycleFocus'))}</span>
                             <span class="shortcuts-row__keys">
-                                <kbd class="shortcuts-kbd">Tab <clashcalc-assets-svg name="keyboard-tab" width="12" height="12"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardTab">${escapeHTML(translate('views.shortcuts.keys.keyboardTab'))}</span> <clashcalc-assets-svg name="keyboard-tab" width="12" height="12" aria-hidden="true"></clashcalc-assets-svg></kbd>
                                 <span class="shortcuts-key-separator">/</span>
-                                <kbd class="shortcuts-kbd">Shift <clashcalc-assets-svg name="keyboard-shift" width="12" height="12"></clashcalc-assets-svg></kbd>
-                                <kbd class="shortcuts-kbd">Tab <clashcalc-assets-svg name="keyboard-tab" width="12" height="12"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardShift">${escapeHTML(translate('views.shortcuts.keys.keyboardShift'))}</span> <clashcalc-assets-svg name="keyboard-shift" width="12" height="12" aria-hidden="true"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardTab">${escapeHTML(translate('views.shortcuts.keys.keyboardTab'))}</span> <clashcalc-assets-svg name="keyboard-tab" width="12" height="12" aria-hidden="true"></clashcalc-assets-svg></kbd>
                             </span>
                         </div>
                         <div class="shortcuts-row">
                             <span class="shortcuts-row__desc" data-i18n="views.shortcuts.descriptions.activateItem">${escapeHTML(translate('views.shortcuts.descriptions.activateItem'))}</span>
                             <span class="shortcuts-row__keys">
-                                <kbd class="shortcuts-kbd shortcuts-kbd--icon" aria-label="Enter"><clashcalc-assets-svg name="keyboard-return" width="12" height="12"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd shortcuts-kbd--icon" aria-label="${escapeHTML(translate('views.shortcuts.keys.keyboardEnter'))}"><clashcalc-assets-svg name="keyboard-return" width="12" height="12"></clashcalc-assets-svg></kbd>
                                 <span class="shortcuts-key-separator">/</span>
-                                <kbd class="shortcuts-kbd">Space <clashcalc-assets-svg name="keyboard-space" width="12" height="12"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardSpace">${escapeHTML(translate('views.shortcuts.keys.keyboardSpace'))}</span> <clashcalc-assets-svg name="keyboard-space" width="12" height="12" aria-hidden="true"></clashcalc-assets-svg></kbd>
                             </span>
                         </div>
                         <div class="shortcuts-row">
                             <span class="shortcuts-row__desc" data-i18n="views.shortcuts.descriptions.horizontalNav">${escapeHTML(translate('views.shortcuts.descriptions.horizontalNav'))}</span>
                             <span class="shortcuts-row__keys">
-                                <kbd class="shortcuts-kbd"><clashcalc-assets-svg name="chevron-up" class="shortcuts-chevron--left" width="12" height="12"></clashcalc-assets-svg> Left</kbd>
+                                <kbd class="shortcuts-kbd"><clashcalc-assets-svg name="chevron-up" class="shortcuts-chevron--left" width="12" height="12" aria-hidden="true"></clashcalc-assets-svg> <span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardLeft">${escapeHTML(translate('views.shortcuts.keys.keyboardLeft'))}</span></kbd>
                                 <span class="shortcuts-key-separator">/</span>
-                                <kbd class="shortcuts-kbd">Right <clashcalc-assets-svg name="chevron-up" class="shortcuts-chevron--right" width="12" height="12"></clashcalc-assets-svg></kbd>
+                                <kbd class="shortcuts-kbd"><span class="shortcuts-kbd-text" data-i18n="views.shortcuts.keys.keyboardRight">${escapeHTML(translate('views.shortcuts.keys.keyboardRight'))}</span> <clashcalc-assets-svg name="chevron-up" class="shortcuts-chevron--right" width="12" height="12" aria-hidden="true"></clashcalc-assets-svg></kbd>
                             </span>
                         </div>
                     </div>

@@ -4,19 +4,18 @@
  */
 
 import { buildSpotrightRegistry, getActiveUrlTag } from './spotrightRegistry.js';
-import { extractScopePrefix, searchSpotright } from './spotrightMatcher.js';
+import { extractScopePrefix, getScopeSuggestions, searchSpotright } from './spotrightMatcher.js';
 import {
     createSpotrightDialog,
     renderSpotrightResults,
     updateSpotrightSelection,
     updateGhostAutocomplete,
-    updateTopHitHint,
     updateSpotrightScopeBadge,
     updateSpotrightFilterChips,
     triggerCardShake
 } from './spotrightDisplay.js';
 import { openFeedbackModal } from '../appSettings/settingsSupportModals.js';
-import { openShortcutsModal } from '../shortcuts/shortcutsModal.js';
+import { openShortcutsModal, isApplePlatform } from '../shortcuts/shortcutsModal.js';
 import { detectClipboardPlayerTag, createClipboardSpotrightItem } from './spotrightClipboard.js';
 import { addRecentItem, removeRecentItem, clearRecentItems } from './spotrightRecents.js';
 import { translate } from '../../i18n/translator.js';
@@ -43,13 +42,13 @@ let resultsEl = null;
 let ghostEl = null;
 
 /** @type {HTMLElement | null} */
-let hintEl = null;
-
-/** @type {HTMLElement | null} */
 let badgeEl = null;
 
 /** @type {HTMLElement | null} */
 let trackEl = null;
+
+/** @type {HTMLButtonElement | null} */
+let clearInputBtn = null;
 
 /** @type {import('./spotrightMatcher.js').SpotrightScope} */
 let currentScope = 'all';
@@ -60,7 +59,7 @@ let currentMatches = [];
 /** @type {number} */
 let currentSelectedIndex = 0;
 
-/** @type {{ completionText: string, fullTitle: string, actionCue: string } | null} */
+/** @type {{ completionText: string, fullTitle: string } | null} */
 let currentAutocomplete = null;
 
 /** @type {boolean} */
@@ -86,9 +85,20 @@ function ensureMounted() {
     inputEl = dialogEl.querySelector('#spotright-input');
     resultsEl = dialogEl.querySelector('#spotright-results');
     ghostEl = dialogEl.querySelector('#spotright-ghost-autocomplete');
-    hintEl = dialogEl.querySelector('#spotright-action-hint');
     badgeEl = dialogEl.querySelector('#spotright-scope-badge');
     trackEl = dialogEl.querySelector('#spotright-filter-track');
+    clearInputBtn = dialogEl.querySelector('#spotright-clear-btn');
+
+    // In-input search query clear button click
+    clearInputBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!inputEl) return;
+        inputEl.value = '';
+        if (clearInputBtn) clearInputBtn.hidden = true;
+        handleInputChange();
+        inputEl.focus();
+    });
 
     // In-input scope badge clear button click
     const clearBadgeBtn = dialogEl.querySelector('#spotright-scope-clear');
@@ -130,6 +140,11 @@ function ensureMounted() {
     inputEl?.addEventListener('input', handleInputChange);
     inputEl?.addEventListener('keydown', handleInputKeydown);
 
+    // Touch interaction reverts physical keyboard indicator
+    dialogEl.addEventListener('touchstart', () => {
+        dialogEl?.classList?.remove?.('has-physical-keyboard');
+    }, { passive: true });
+
     // Results hover synchronization
     resultsEl?.addEventListener('mousemove', (event) => {
         if (isActionInFlight) return;
@@ -167,6 +182,17 @@ function ensureMounted() {
             event.stopPropagation();
             clearRecentItems();
             handleInputChange();
+            return;
+        }
+
+        // Reset filters button in empty state
+        const emptyResetBtn = target?.closest('#spotright-empty-reset-btn');
+        if (emptyResetBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (inputEl) inputEl.value = '';
+            if (clearInputBtn) clearInputBtn.hidden = true;
+            setScope('all');
             return;
         }
 
@@ -224,6 +250,18 @@ function handleInputChange() {
     const card = dialogEl?.querySelector('#spotright-card');
     card?.classList?.remove?.('shake');
 
+    // Single-suggestion spacebar auto-complete for virtual or mobile keyboards
+    if (inputEl.value.startsWith('/') && inputEl.value.endsWith(' ')) {
+        const trimmed = inputEl.value.trim();
+        if (trimmed.length > 1) {
+            const suggestions = getScopeSuggestions(trimmed);
+            if (suggestions.length === 1 && suggestions[0].isScopeSuggestion) {
+                applyScopeSuggestion(suggestions[0]);
+                return;
+            }
+        }
+    }
+
     const prefixMatch = extractScopePrefix(inputEl.value);
     if (prefixMatch) {
         inputEl.value = prefixMatch.remainingQuery;
@@ -233,6 +271,9 @@ function handleInputChange() {
     }
 
     const query = inputEl.value;
+    if (clearInputBtn) {
+        clearInputBtn.hidden = !query;
+    }
 
     if (!registryCache) {
         registryCache = buildSpotrightRegistry();
@@ -251,9 +292,8 @@ function handleInputChange() {
         }
     }
 
-    renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
+    renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex, query);
     updateGhostAutocomplete(ghostEl, query, currentAutocomplete);
-    updateTopHitHint(hintEl, currentAutocomplete);
 }
 
 /**
@@ -268,7 +308,25 @@ function handleInputKeydown(event) {
         return;
     }
 
+    const isNavOrModKey = event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Tab' || event.key === 'Enter' || event.key === 'Escape' || event.altKey || event.metaKey || event.ctrlKey;
+    if (isNavOrModKey && dialogEl && !dialogEl.classList?.contains?.('has-physical-keyboard')) {
+        dialogEl.classList?.add?.('has-physical-keyboard');
+    }
+
     switch (event.key) {
+        case ' ':
+            if (
+                currentMatches.length === 1 &&
+                currentMatches[0]?.isScopeSuggestion &&
+                inputEl &&
+                inputEl.value.startsWith('/')
+            ) {
+                event.preventDefault();
+                applyScopeSuggestion(currentMatches[0]);
+                break;
+            }
+            break;
+
         case 'Backspace':
             if (inputEl && inputEl.value === '' && currentScope !== 'all') {
                 event.preventDefault();
@@ -293,6 +351,11 @@ function handleInputKeydown(event) {
             break;
 
         case 'Tab':
+            if (currentMatches.length > 0 && currentMatches[currentSelectedIndex]?.isScopeSuggestion) {
+                event.preventDefault();
+                applyScopeSuggestion(currentMatches[currentSelectedIndex]);
+                break;
+            }
             if (currentAutocomplete && currentAutocomplete.fullTitle && inputEl) {
                 event.preventDefault();
                 inputEl.value = currentAutocomplete.fullTitle;
@@ -321,6 +384,19 @@ function handleInputKeydown(event) {
 }
 
 /**
+ * Applies a selected scope suggestion, clearing user prefix and filtering to the target scope.
+ * @param {import('./spotrightRegistry.js').SpotrightItem} item
+ */
+function applyScopeSuggestion(item) {
+    if (!item?.targetScope) return;
+    if (inputEl) {
+        inputEl.value = '';
+    }
+    setScope(item.targetScope);
+    inputEl?.focus();
+}
+
+/**
  * Executes the currently selected match item.
  * Regular items close Spotright immediately.
  * Async items verify in-palette, retaining Spotright open on error to preserve input.
@@ -329,7 +405,15 @@ async function executeCurrentSelection() {
     if (isActionInFlight) return;
 
     const selectedItem = currentMatches[currentSelectedIndex];
-    if (!selectedItem || typeof selectedItem.execute !== 'function') return;
+    if (!selectedItem) return;
+
+    // Scope suggestions switch palette scope filter and keep Spotright open
+    if (selectedItem.isScopeSuggestion) {
+        applyScopeSuggestion(selectedItem);
+        return;
+    }
+
+    if (typeof selectedItem.execute !== 'function') return;
 
     // Normal non-async items: close Spotright immediately and invoke action
     if (!selectedItem.isAsyncAction) {
@@ -351,7 +435,7 @@ async function executeCurrentSelection() {
         inputEl.readOnly = true;
     }
     if (resultsEl) {
-        renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
+        renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex, inputEl?.value || '');
     }
 
     try {
@@ -378,7 +462,7 @@ async function executeCurrentSelection() {
         }
 
         if (resultsEl) {
-            renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
+            renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex, inputEl?.value || '');
         }
 
         triggerCardShake(dialogEl);
@@ -395,7 +479,7 @@ async function executeCurrentSelection() {
         }
 
         if (resultsEl) {
-            renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
+            renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex, inputEl?.value || '');
         }
 
         triggerCardShake(dialogEl);
@@ -414,6 +498,9 @@ function handleGlobalKeydown(event) {
 
     event.preventDefault();
     toggleSpotright();
+    if (dialogEl?.hasAttribute('open')) {
+        dialogEl.classList?.add?.('has-physical-keyboard');
+    }
 }
 
 /**
@@ -435,6 +522,9 @@ export function openSpotright() {
     updateSpotrightFilterChips(trackEl, currentScope);
 
     inputEl.value = '';
+    if (clearInputBtn) {
+        clearInputBtn.hidden = true;
+    }
     const initialResult = searchSpotright('', registryCache, currentScope);
     currentMatches = initialResult.matches;
     currentAutocomplete = null;
@@ -442,7 +532,6 @@ export function openSpotright() {
 
     renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
     updateGhostAutocomplete(ghostEl, '', null);
-    updateTopHitHint(hintEl, null);
 
     // Asynchronously detect clipboard player tag (strictly zero-prompt)
     detectClipboardPlayerTag().then((tag) => {
@@ -486,8 +575,10 @@ export function closeSpotright() {
 
     isActionInFlight = false;
     if (inputEl) inputEl.readOnly = false;
+    if (clearInputBtn) clearInputBtn.hidden = true;
     currentScope = 'all';
     currentClipboardTag = null;
+    dialogEl.classList?.remove?.('has-physical-keyboard');
     updateSpotrightScopeBadge(badgeEl, inputEl, currentScope);
     updateSpotrightFilterChips(trackEl, currentScope);
 
@@ -518,11 +609,45 @@ export function toggleSpotright() {
 }
 
 /**
+ * Adapts the header Spotright trigger button keycaps to match the client operating system.
+ * On macOS / Apple platforms, displays vector command icon [⌘] [K].
+ * On Windows / Linux, displays [Ctrl] [K].
+ *
+ * @param {boolean} [isMacOverride] - Optional override for unit testing OS adaptations.
+ */
+export function initSpotrightHeaderTrigger(isMacOverride) {
+    if (typeof document === 'undefined') return;
+    const isMac = typeof isMacOverride === 'boolean' ? isMacOverride : isApplePlatform();
+    const modKeyEl = document.getElementById('header-spotright-mod-key');
+    const triggerBtn = document.getElementById('header-spotright-btn');
+    const translatedCtrl = translate('views.shortcuts.keys.keyboardCtrl');
+    const ctrlLabel = (translatedCtrl && translatedCtrl !== 'views.shortcuts.keys.keyboardCtrl') ? translatedCtrl : 'Ctrl';
+
+    if (modKeyEl) {
+        if (isMac) {
+            modKeyEl.className = 'header-spotright-key';
+            modKeyEl.innerHTML = '<clashcalc-assets-svg name="keyboard-command" class="header-spotright-key-svg"></clashcalc-assets-svg>';
+        } else {
+            modKeyEl.className = 'header-spotright-key header-spotright-key--ctrl';
+            modKeyEl.textContent = ctrlLabel;
+        }
+    }
+
+    if (triggerBtn) {
+        const shortcutHint = isMac ? '⌘K' : `${ctrlLabel}+K`;
+        const translatedTitle = translate('views.spotright.searchTrigger');
+        const baseTitle = (translatedTitle && translatedTitle !== 'views.spotright.searchTrigger') ? translatedTitle : 'Search & Command Palette';
+        triggerBtn.title = `${baseTitle} (${shortcutHint})`;
+    }
+}
+
+/**
  * Initializes global Spotright keyboard shortcut and trigger button click listeners.
  */
 export function initSpotright() {
     if (isInitialized || typeof window === 'undefined') return;
     isInitialized = true;
+    initSpotrightHeaderTrigger();
     window.addEventListener('keydown', handleGlobalKeydown);
     document.addEventListener('click', (event) => {
         const trigger = /** @type {HTMLElement|null} */ (event.target)?.closest?.('#header-spotright-btn, [data-action="open-spotright"]');

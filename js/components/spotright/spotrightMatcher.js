@@ -6,6 +6,7 @@
 import { loadAndSwitchPlayerTag } from './spotrightClipboard.js';
 import { resolveRecentItems } from './spotrightRecents.js';
 import { translate } from '../../i18n/translator.js';
+import { state } from '../../core/state.js';
 
 /**
  * Checks whether sub sequence characters appear in target string in order.
@@ -40,6 +41,8 @@ export function isSubsequence(sub, target) {
 export function scoreSpotrightItem(query, item) {
     if (!query) return 0;
     const priority = item.priorityTier || 0;
+    const activeLang = state?.uiSettings?.language || 'en';
+    const isNonEnglish = activeLang !== 'en' && activeLang !== 'auto';
 
     // 1. Composite Multi-Token Exact Acronym Match (e.g. 'rc eb' -> Electro Boots)
     if (item.compositeAcronym && query === item.compositeAcronym) {
@@ -50,20 +53,32 @@ export function scoreSpotrightItem(query, item) {
     }
 
     // 2. Multi-Token Composite Words (e.g. 'rc boots', 'aq arrow', 'king boots')
-    if (query.includes(' ') && item.compositeTitle) {
+    if (query.includes(' ') && (item.compositeTitle || item.canonicalCompositeTitle)) {
         const tokens = query.split(/\s+/);
         let allTokensMatch = true;
+        let hasEquipMatch = false;
+        let matchedOnlyCanonical = false;
         for (const token of tokens) {
             if (!token) continue;
             const matchesHero = item.heroAcronym === token || (item.heroName && item.heroName.toLowerCase().includes(token));
             const matchesEquip = item.acronym === token || item.normalizedTitle.includes(token);
-            if (!matchesHero && !matchesEquip && !item.compositeTitle.includes(token)) {
+            const matchesCanonicalEquip = Boolean(item.canonicalTitle && item.canonicalTitle.includes(token));
+            if (matchesEquip) hasEquipMatch = true;
+            if (matchesCanonicalEquip) {
+                hasEquipMatch = true;
+                if (!matchesEquip) matchedOnlyCanonical = true;
+            }
+            const matchesComp = Boolean(item.compositeTitle && item.compositeTitle.includes(token));
+            const matchesCanonComp = Boolean(item.canonicalCompositeTitle && item.canonicalCompositeTitle.includes(token));
+            if (matchesCanonComp && !matchesComp) matchedOnlyCanonical = true;
+
+            if (!matchesHero && !matchesEquip && !matchesCanonicalEquip && !matchesComp && !matchesCanonComp) {
                 allTokensMatch = false;
                 break;
             }
         }
-        if (allTokensMatch) {
-            return 180 + priority;
+        if (allTokensMatch && hasEquipMatch) {
+            return (isNonEnglish && matchedOnlyCanonical ? 165 : 180) + priority;
         }
     }
 
@@ -91,14 +106,27 @@ export function scoreSpotrightItem(query, item) {
     }
 
     // 3. Exact Title Match
-    if (item.normalizedTitle === query) {
+    const isLocalizedExact = (item.title && item.title.toLowerCase() === query) || item.normalizedTitle === query;
+    if (isLocalizedExact) {
         return 150 + priority;
+    }
+    const isCanonicalExact = Boolean(item.canonicalTitle && item.canonicalTitle === query);
+    if (isCanonicalExact) {
+        return (isNonEnglish ? 135 : 150) + priority;
     }
 
     // 4. Exact Title Prefix Match (e.g. 'gia' -> 'Giant Arrow')
-    if (item.normalizedTitle.startsWith(query)) {
+    if (item.title && item.title.toLowerCase().startsWith(query)) {
+        const lengthProportion = (query.length / item.title.length) * 15;
+        return 120 + lengthProportion + priority;
+    }
+    if (item.normalizedTitle && item.normalizedTitle.startsWith(query)) {
         const lengthProportion = (query.length / item.normalizedTitle.length) * 15;
         return 120 + lengthProportion + priority;
+    }
+    if (item.canonicalTitle && item.canonicalTitle.startsWith(query)) {
+        const lengthProportion = (query.length / item.canonicalTitle.length) * 15;
+        return (isNonEnglish ? 105 : 120) + lengthProportion + priority;
     }
 
     // 5. Exact 2-Letter Acronym Match (e.g. 'sb', 'eb', 'fb', 'mp', 'ga')
@@ -111,19 +139,41 @@ export function scoreSpotrightItem(query, item) {
         return 65 + priority;
     }
 
-    // 7. Word Boundary Match (e.g. 'arrow' in 'giant arrow')
+    // 7. Word Boundary / Keywords Match (e.g. 'arrow' in 'giant arrow')
     if (item.normalizedTitle.includes(' ' + query)) {
         return 55 + priority;
+    }
+    if (item.canonicalTokens && (
+        item.canonicalTokens === query ||
+        item.canonicalTokens.startsWith(query + ' ') ||
+        item.canonicalTokens.includes(' ' + query) ||
+        item.canonicalTokens.endsWith(' ' + query)
+    )) {
+        return (isNonEnglish ? 40 : 55) + priority;
+    }
+    if (item.canonicalTitle && item.canonicalTitle.includes(' ' + query)) {
+        return (isNonEnglish ? 40 : 55) + priority;
     }
 
     // 8. Substring Match
     if (item.normalizedTitle.includes(query)) {
         return 40 + priority;
     }
+    if (
+        (item.canonicalTitle && item.canonicalTitle.includes(query)) ||
+        (item.canonicalTokens && item.canonicalTokens.includes(query))
+    ) {
+        return (isNonEnglish ? 28 : 40) + priority;
+    }
 
     // 9. In-Order Fuzzy Subsequence (e.g. 'spk' -> 'spiky ball')
-    if (query.length >= 2 && isSubsequence(query, item.normalizedTitle)) {
-        return 20 + priority;
+    if (query.length >= 2) {
+        if (isSubsequence(query, item.normalizedTitle)) {
+            return 20 + priority;
+        }
+        if (item.canonicalTitle && isSubsequence(query, item.canonicalTitle)) {
+            return (isNonEnglish ? 14 : 20) + priority;
+        }
     }
 
     return 0;
@@ -134,8 +184,8 @@ export function scoreSpotrightItem(query, item) {
  * @typedef {'all' | 'villages' | 'equipment' | 'hero' | 'tools' | 'settings'} SpotrightScope
  */
 
-/** @type {Record<string, SpotrightScope>} */
-const PREFIX_TO_SCOPE = {
+/** @type {Record<string, SpotrightScope>} Universal canonical English & single-letter commands */
+const CANONICAL_PREFIX_TO_SCOPE = {
     '/v': 'villages',
     '/village': 'villages',
     '/villages': 'villages',
@@ -154,6 +204,193 @@ const PREFIX_TO_SCOPE = {
 };
 
 /**
+ * Scope definitions for command suggestions when typing '/'.
+ * Follows the exact visual order of filter chips in #spotright-filter-track:
+ * villages -> equipment -> hero -> tools -> settings
+ *
+ * @type {Array<{
+ *   scope: SpotrightScope,
+ *   command: string,
+ *   titleKey: string,
+ *   icon: string,
+ *   canonicalAliases: string[],
+ *   fallbackTitle: string
+ * }>}
+ */
+const SCOPE_DEFINITIONS = [
+    {
+        scope: 'villages',
+        command: '/villages',
+        titleKey: 'nav.views.hub.villages',
+        fallbackTitle: 'Saved Villages',
+        icon: 'user',
+        canonicalAliases: ['villages', 'village', 'v']
+    },
+    {
+        scope: 'equipment',
+        command: '/equipment',
+        titleKey: 'nav.equipment',
+        fallbackTitle: 'Equipment',
+        icon: 'equipment-filled',
+        canonicalAliases: ['equipment', 'equip', 'e']
+    },
+    {
+        scope: 'hero',
+        command: '/heroes',
+        titleKey: 'views.damageCalc.filters.filterHeroes',
+        fallbackTitle: 'Heroes',
+        icon: 'shield-filled',
+        canonicalAliases: ['heroes', 'hero', 'h']
+    },
+    {
+        scope: 'tools',
+        command: '/tools',
+        titleKey: 'nav.drawerTitle',
+        fallbackTitle: 'Tabs & Tools',
+        icon: 'sliders',
+        canonicalAliases: ['tools', 'tool', 't']
+    },
+    {
+        scope: 'settings',
+        command: '/settings',
+        titleKey: 'nav.settings',
+        fallbackTitle: 'Settings',
+        icon: 'settings-filled',
+        canonicalAliases: ['settings', 'setting', 's']
+    }
+];
+
+/**
+ * Resolves localized scope title with safe canonical fallback.
+ * @param {typeof SCOPE_DEFINITIONS[0]} def
+ * @returns {string}
+ */
+function resolveScopeTitle(def) {
+    const raw = translate(def.titleKey);
+    return (raw && raw !== def.titleKey) ? raw : def.fallbackTitle;
+}
+
+/**
+ * Returns scope suggestions matching the current query (e.g. '/' or '/e').
+ * Ranks best localized matches so Tab/Space auto-selects the top recommendation.
+ *
+ * @param {string} rawQuery - Query starting with '/' and without spaces.
+ * @returns {import('./spotrightRegistry.js').SpotrightItem[]}
+ */
+export function getScopeSuggestions(rawQuery) {
+    const query = (rawQuery || '').slice(1).trim().toLowerCase();
+    const heading = translate('views.spotright.scopesHeading') || 'Filter Scopes';
+
+    if (!query) {
+        return SCOPE_DEFINITIONS.map((def, idx) => {
+            const title = resolveScopeTitle(def);
+            return {
+                id: `scope-suggestion-${def.scope}`,
+                title,
+                category: heading,
+                command: def.command,
+                icon: def.icon,
+                iconType: /** @type {'svg'} */ ('svg'),
+                acronym: def.command.slice(1, 3),
+                entityType: /** @type {'nav'} */ ('nav'),
+                isScopeSuggestion: true,
+                targetScope: def.scope,
+                priorityTier: 100 - idx * 5,
+                normalizedTitle: `${def.command} ${title.toLowerCase()}`,
+                execute: () => {}
+            };
+        });
+    }
+
+    const normalizedQuery = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const results = [];
+
+    for (let idx = 0; idx < SCOPE_DEFINITIONS.length; idx++) {
+        const def = SCOPE_DEFINITIONS[idx];
+        const title = resolveScopeTitle(def);
+        const lowerTitle = title.toLowerCase();
+        const normalizedTitle = lowerTitle.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const germanDeUmlautTitle = lowerTitle.replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+        const tokens = lowerTitle.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+        const normalizedTokens = normalizedTitle.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+        const germanTokens = germanDeUmlautTitle.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+
+        const cmd = def.command.slice(1);
+        const shortcut = def.canonicalAliases[def.canonicalAliases.length - 1];
+
+        let score = 0;
+
+        // 1. Exact single-letter shortcut match (e.g. /v, /e, /h, /t, /s)
+        if (query === shortcut) {
+            score = Math.max(score, 110);
+        }
+
+        // 2. Exact command or canonical alias match (e.g. /hero, /heroes, /equip, /equipment)
+        if (def.canonicalAliases.some(alias => alias === query)) {
+            score = Math.max(score, 105);
+        }
+
+        // 3. Localized title starts with query (e.g. German /aus -> Ausrüstung, /he -> Helden)
+        if (
+            lowerTitle.startsWith(query) ||
+            normalizedTitle.startsWith(normalizedQuery) ||
+            germanDeUmlautTitle.startsWith(query)
+        ) {
+            score = Math.max(score, 100);
+        }
+
+        // 4. Command or canonical alias starts with query (e.g. /to -> tools, /vil -> villages)
+        if (cmd.startsWith(query) || def.canonicalAliases.some(alias => alias.startsWith(query))) {
+            score = Math.max(score, 95);
+        }
+
+        // 5. Word boundary match in localized title (e.g. German /dorf -> Gespeicherte Dörfer, English /tools -> Tabs & Tools)
+        if (
+            tokens.some(t => t.startsWith(query)) ||
+            normalizedTokens.some(t => t.startsWith(normalizedQuery)) ||
+            germanTokens.some(t => t.startsWith(query))
+        ) {
+            score = Math.max(score, 90);
+        }
+
+        // 6. Substring match in localized title (only for queries >= 3 characters)
+        if (
+            query.length >= 3 && (
+                lowerTitle.includes(query) ||
+                normalizedTitle.includes(normalizedQuery) ||
+                germanDeUmlautTitle.includes(query)
+            )
+        ) {
+            score = Math.max(score, 60);
+        }
+
+        if (score > 0) {
+            results.push({
+                item: {
+                    id: `scope-suggestion-${def.scope}`,
+                    title,
+                    category: heading,
+                    command: def.command,
+                    icon: def.icon,
+                    iconType: /** @type {'svg'} */ ('svg'),
+                    acronym: def.command.slice(1, 3),
+                    entityType: /** @type {'nav'} */ ('nav'),
+                    isScopeSuggestion: true,
+                    targetScope: def.scope,
+                    priorityTier: score,
+                    normalizedTitle: `${def.command} ${lowerTitle}`,
+                    execute: () => {}
+                },
+                score: score - idx * 0.01
+            });
+        }
+    }
+
+    results.sort((a, b) => b.score - a.score);
+    return results.map(r => r.item);
+}
+
+/**
  * Extracts scope prefix command from user input if present.
  * e.g. '/e gauntlet' -> { scope: 'equipment', remainingQuery: 'gauntlet' }
  *
@@ -167,7 +404,7 @@ export function extractScopePrefix(rawInput) {
     if (spaceIndex === -1) return null;
 
     const prefix = rawInput.slice(0, spaceIndex).toLowerCase();
-    const targetScope = PREFIX_TO_SCOPE[prefix];
+    const targetScope = CANONICAL_PREFIX_TO_SCOPE[prefix];
     if (!targetScope) return null;
 
     return {
@@ -215,8 +452,7 @@ function filterRegistryByScope(registry, scope) {
  *   matches: import('./spotrightRegistry.js').SpotrightItem[],
  *   autocomplete: {
  *     completionText: string,
- *     fullTitle: string,
- *     actionCue: string
+ *     fullTitle: string
  *   } | null
  * }}
  */
@@ -225,6 +461,101 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
     let maxLimit = typeof activeScope === 'number' ? activeScope : (typeof limit === 'number' ? limit : 7);
 
     const query = (rawQuery || '').trim().toLowerCase();
+
+    // 1. Slash command suggestions & isolation: non-command items never appear when input begins with '/'
+    if (query.startsWith('/')) {
+        if (!rawQuery.includes(' ')) {
+            return {
+                matches: getScopeSuggestions(query),
+                autocomplete: null
+            };
+        }
+        return {
+            matches: [],
+            autocomplete: null
+        };
+    }
+
+    // 2. Instant Village / Account Switcher trigger when input starts with '@'
+    if (query.startsWith('@')) {
+        const villageQuery = query.slice(1).trim();
+        const villageItems = filterRegistryByScope(registry, 'villages');
+
+        if (!villageQuery) {
+            return {
+                matches: villageItems,
+                autocomplete: null
+            };
+        }
+
+        /** @type {Array<{ item: import('./spotrightRegistry.js').SpotrightItem, score: number }>} */
+        const scored = [];
+
+        for (let i = 0; i < villageItems.length; i++) {
+            const item = villageItems[i];
+            const score = scoreSpotrightItem(villageQuery, item);
+            if (score > 0) {
+                scored.push({ item, score });
+            }
+        }
+
+        scored.sort((a, b) => b.score - a.score);
+
+        const matchedVillages = scored.filter(entry => entry.item.isVillage);
+        if (matchedVillages.length > 1) {
+            const activeEntry = matchedVillages.find(entry => entry.item.isActiveVillage);
+            if (activeEntry) {
+                const inactiveVillages = matchedVillages.filter(entry => !entry.item.isActiveVillage);
+                if (inactiveVillages.length > 0) {
+                    const lowestInactiveScore = Math.min(...inactiveVillages.map(e => e.score));
+                    activeEntry.score = Math.max(1, lowestInactiveScore - 0.5);
+                    scored.sort((a, b) => b.score - a.score);
+                }
+            }
+        }
+
+        const cleanTagCandidate = villageQuery.startsWith('#') ? villageQuery.slice(1).toUpperCase() : villageQuery.toUpperCase();
+        if (cleanTagCandidate.length >= 3 && cleanTagCandidate.length <= 12 && /^[0289CGJLOPQRUVY]+$/.test(cleanTagCandidate)) {
+            const canonicalCandidate = cleanTagCandidate.replace(/O/g, '0');
+            const exactSavedVillage = scored.find(entry =>
+                entry.item.isVillage && (
+                    entry.item.cleanTag === cleanTagCandidate ||
+                    entry.item.cleanTag === canonicalCandidate
+                )
+            );
+
+            if (!exactSavedVillage) {
+                const directItem = {
+                    id: `direct-tag-${cleanTagCandidate}`,
+                    title: translate('views.spotright.loadVillageTag', { tag: cleanTagCandidate }),
+                    normalizedTitle: villageQuery,
+                    category: translate('player.tag') || 'Player Tag',
+                    icon: 'user',
+                    iconType: /** @type {'svg'} */ ('svg'),
+                    acronym: cleanTagCandidate.slice(0, 2).toLowerCase(),
+                    entityType: /** @type {'nav'} */ ('nav'),
+                    priorityTier: 250,
+                    isAsyncAction: true,
+                    execute: () => loadAndSwitchPlayerTag(cleanTagCandidate)
+                };
+
+                const vEntries = scored.filter(entry => entry.item.isVillage);
+                if (vEntries.length > 0) {
+                    const lowestVillageScore = Math.min(...vEntries.map(e => e.score));
+                    scored.push({ item: directItem, score: Math.max(1, lowestVillageScore - 0.5) });
+                    scored.sort((a, b) => b.score - a.score);
+                } else {
+                    scored.unshift({ item: directItem, score: 350 });
+                }
+            }
+        }
+
+        return {
+            matches: scored.slice(0, maxLimit).map(entry => entry.item),
+            autocomplete: null
+        };
+    }
+
     const targetItems = filterRegistryByScope(registry, scope);
 
     // Empty state: return top tool navigation items or scoped collection
@@ -298,13 +629,11 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
         if (!exactSavedVillage) {
             const directItem = {
                 id: `direct-tag-${cleanTagCandidate}`,
-                title: translate('views.spotright.loadDirectTag', { tag: cleanTagCandidate }),
+                title: translate('views.spotright.loadVillageTag', { tag: cleanTagCandidate }),
                 normalizedTitle: query,
-                category: 'Player Search',
-                subtitle: translate('views.spotright.loadDirectTagSubtitle'),
+                category: translate('player.tag') || 'Player Tag',
                 icon: 'user',
                 iconType: /** @type {'svg'} */ ('svg'),
-                actionCue: translate('views.landing.loadVillage'),
                 acronym: cleanTagCandidate.slice(0, 2).toLowerCase(),
                 entityType: /** @type {'nav'} */ ('nav'),
                 priorityTier: 250,
@@ -339,8 +668,7 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
             const completionText = topHit.title.slice(query.length);
             autocomplete = {
                 completionText,
-                fullTitle: topHit.title,
-                actionCue: topHit.actionCue
+                fullTitle: topHit.title
             };
         }
     }

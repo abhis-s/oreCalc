@@ -572,13 +572,14 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.ok(!mockDropdownList.classList.contains('show'), 'Escape must close dropdown');
     });
 
-    test('renderStandaloneDropdownMarkup renders sync/refresh button for saved player profiles', () => {
+    test('renderStandaloneDropdownMarkup renders sync/refresh button and localized TH alt text for saved player profiles', () => {
         const markup = renderStandaloneDropdownMarkup({
             savedProfiles: [{ cleanTag: 'TAG1', name: 'Chief Archer', townHallLevel: 16 }],
             activeCleanTag: 'TAG1'
         });
         assert.ok(markup.includes('refresh-player-button'), 'Dropdown item must include refresh button');
         assert.ok(markup.includes('data-tag="TAG1"'), 'Refresh button must contain target player tag');
+        assert.ok(markup.includes('alt="Town Hall 16"'), 'Dropdown item must render localized Town Hall alt text');
     });
 
     test('partials/header.html completely omits #refresh-button', () => {

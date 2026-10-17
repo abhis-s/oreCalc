@@ -57,10 +57,13 @@ export function renderStandaloneDropdownMarkup({
         const thLevel = Math.min(Math.max(Number(p.townHallLevel) || 1, 1), 18);
         const thImg = `assets/th/th${thLevel}.png`;
         const idAttr = idPrefix ? `id="${idPrefix}-${index}" ` : '';
+        const thDefense = translate('entities.defenses.townHall');
+        const thPrefix = (thDefense && thDefense !== 'entities.defenses.townHall') ? thDefense : 'Town Hall';
+        const thAlt = `${escapeHTML(thPrefix)} ${thLevel}`;
 
         return `<div ${idAttr}class="player-dropdown-item ${isActive ? 'active is-active' : ''}" data-tag="${escapeHTML(cleanTag)}" tabindex="${isActive ? '0' : '-1'}" role="option" aria-selected="${isActive}">
             <div class="player-dropdown-th-wrapper">
-                <clashcalc-assets-image src="${thImg}" alt="TH ${thLevel}" class="player-dropdown-th"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${thImg}" alt="${thAlt}" class="player-dropdown-th"></clashcalc-assets-image>
                 <span class="player-dropdown-th-badge">${thLevel}</span>
             </div>
             <div class="player-info-text">

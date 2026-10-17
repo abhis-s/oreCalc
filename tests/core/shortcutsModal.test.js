@@ -5,6 +5,26 @@
 
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { state } from '../../js/core/state.js';
+import { loadTranslations, translate } from '../../js/i18n/translator.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '../..');
+const enJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/en.json'), 'utf8'));
+const deJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/de.json'), 'utf8'));
+
+// @ts-ignore
+globalThis.fetch = async (url) => {
+    if (String(url).includes('/en.json')) return { ok: true, json: async () => enJson };
+    if (String(url).includes('/de.json')) return { ok: true, json: async () => deJson };
+    return { ok: false, status: 404 };
+};
+state.uiSettings = { language: 'en' };
+await loadTranslations('en');
 
 class MockClassList {
     constructor(className = '') {
@@ -137,13 +157,14 @@ class MockDOMElement {
             const matchName = selector.match(/name=["']([^"']+)["']/);
             if (matchName) {
                 const iconName = matchName[1];
-                const regex = new RegExp(`name=["']${iconName}["']`, 'g');
-                while (regex.exec(this._innerHTML) !== null) {
+                const regex = new RegExp(`(<kbd[^>]*aria-label=["']([^"']+)["'][^>]*>\\s*)?<clashcalc-assets-svg[^>]*name=["']${iconName}["']`, 'gi');
+                let match;
+                while ((match = regex.exec(this._innerHTML)) !== null) {
                     const el = new MockDOMElement('clashcalc-assets-svg');
                     el.setAttribute('name', iconName);
-                    if (iconName === 'keyboard-command') {
+                    if (match[2]) {
                         const kbdParent = new MockDOMElement('kbd');
-                        kbdParent.setAttribute('aria-label', 'Command');
+                        kbdParent.setAttribute('aria-label', match[2]);
                         kbdParent.appendChild(el);
                     }
                     results.push(el);
@@ -199,13 +220,13 @@ describe('Keyboard Shortcuts Cheatsheet Modal Domain Suite', () => {
         const macDialog = createShortcutsModalDialog(true);
         const macCmdSvg = macDialog.querySelector('clashcalc-assets-svg[name="keyboard-command"]');
         assert.ok(macCmdSvg, 'Expected Mac dialog to render keyboard-command SVG');
-        assert.equal(macCmdSvg.closest('kbd')?.getAttribute('aria-label'), 'Command');
+        assert.equal(macCmdSvg.closest('kbd')?.getAttribute('aria-label'), translate('views.shortcuts.keys.keyboardCommand'));
 
         // Non-macOS override: false
         const winDialog = createShortcutsModalDialog(false);
         const winCmdSvg = winDialog.querySelector('clashcalc-assets-svg[name="keyboard-command"]');
         assert.equal(winCmdSvg, null, 'Did not expect Windows dialog to render keyboard-command SVG');
-        const ctrlKbds = winDialog.querySelectorAll('.shortcuts-kbd').filter(k => k.textContent?.trim() === 'Ctrl');
+        const ctrlKbds = winDialog.querySelectorAll('.shortcuts-kbd').filter(k => k.textContent?.trim() === translate('views.shortcuts.keys.keyboardCtrl'));
         assert.ok(ctrlKbds.length > 0, 'Expected Windows dialog to render Ctrl text badge');
     });
 
@@ -233,15 +254,39 @@ describe('Keyboard Shortcuts Cheatsheet Modal Domain Suite', () => {
         assert.ok(chevronDownSvgs.length >= 1, 'Expected chevron-down SVG icon for Down key');
 
         const kbdTexts = dialog.querySelectorAll('.shortcuts-kbd').map(k => k.textContent?.trim());
-        assert.ok(kbdTexts.includes('Up'), 'Expected Up text badge');
-        assert.ok(kbdTexts.includes('Down'), 'Expected Down text badge');
-        assert.ok(kbdTexts.includes('Left'), 'Expected Left text badge');
-        assert.ok(kbdTexts.includes('Right'), 'Expected Right text badge');
+        assert.ok(kbdTexts.includes(translate('views.shortcuts.keys.keyboardUp')), 'Expected Up text badge');
+        assert.ok(kbdTexts.includes(translate('views.shortcuts.keys.keyboardDown')), 'Expected Down text badge');
+        assert.ok(kbdTexts.includes(translate('views.shortcuts.keys.keyboardLeft')), 'Expected Left text badge');
+        assert.ok(kbdTexts.includes(translate('views.shortcuts.keys.keyboardRight')), 'Expected Right text badge');
         assert.ok(!kbdTexts.includes('Backspace'), 'Expected Backspace text to be replaced by SVG');
 
         // Asserts zero prohibited raw arrows (\u2190-\u21FF) in dialog markup
         const rawArrowPattern = /[\u2190-\u21FF]/;
         assert.equal(rawArrowPattern.test(dialog.innerHTML), false, 'Prohibited raw Unicode arrow dingbats detected in modal HTML');
+    });
+
+    test('renders localized key badges and ARIA labels in German', async () => {
+        state.uiSettings.language = 'de';
+        await loadTranslations('de');
+
+        const deMacDialog = createShortcutsModalDialog(true);
+        const macCmdSvg = deMacDialog.querySelector('clashcalc-assets-svg[name="keyboard-command"]');
+        assert.ok(macCmdSvg);
+        assert.equal(macCmdSvg.closest('kbd')?.getAttribute('aria-label'), deJson.views.shortcuts.keys.keyboardCommand);
+
+        const deWinDialog = createShortcutsModalDialog(false);
+        const ctrlKbds = deWinDialog.querySelectorAll('.shortcuts-kbd').filter(k => k.textContent?.trim() === deJson.views.shortcuts.keys.keyboardCtrl);
+        assert.ok(ctrlKbds.length > 0, 'Expected Windows dialog to render Strg text badge in German');
+
+        const kbdTexts = deMacDialog.querySelectorAll('.shortcuts-kbd').map(k => k.textContent?.trim());
+        assert.ok(kbdTexts.includes(deJson.views.shortcuts.keys.keyboardUp), 'Expected Auf text badge');
+        assert.ok(kbdTexts.includes(deJson.views.shortcuts.keys.keyboardDown), 'Expected Ab text badge');
+        assert.ok(kbdTexts.includes(deJson.views.shortcuts.keys.keyboardLeft), 'Expected Links text badge');
+        assert.ok(kbdTexts.includes(deJson.views.shortcuts.keys.keyboardRight), 'Expected Rechts text badge');
+
+        // Restore English for any subsequent tests
+        state.uiSettings.language = 'en';
+        await loadTranslations('en');
     });
 
     test('isInputFocused accurately detects active input, textarea, and select elements', () => {
