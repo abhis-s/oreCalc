@@ -16,7 +16,6 @@ import { validateAllInputs, validateAllSelects } from '../utils/inputValidator.j
 import { logger } from '../utils/logger.js';
 import { initializeModalHistoryManager } from '../utils/modalHistoryManager.js';
 import { updateResponsiveText } from '../utils/responsiveTextHandler.js';
-import { finishTopProgressBar, startTopProgressBar } from '../utils/topProgressBar.js';
 import { initializeViewportHandler } from '../utils/viewportHandler.js';
 
 import { initializeAppSettings } from '../components/appSettings/appSettings.js';
@@ -46,18 +45,16 @@ import { initializePullToRefresh } from '../components/layout/pullToRefresh.js';
 import { initializeTabs } from '../components/layout/tabs.js';
 import { initializePlanner } from '../components/planner/planner.js';
 import { initializePriorityListModal } from '../components/planner/priorityListModal.js';
-import { initializePlayerDropdown, updateRefreshButtonVisibility } from '../components/player/playerDropdown.js';
-import { initializePlayerModal, showAddPlayerModal } from '../components/player/playerModal.js';
+import { initializePlayerDropdown } from '../components/player/playerDropdown.js';
+import { initializePlayerModal } from '../components/player/playerModal.js';
+import { initAutoRefreshTriggers, refreshActivePlayerData } from '../components/player/playerRefreshController.js';
 import { initializeGuidedSetupModal } from '../components/guidedSetup/guidedSetupModal.js';
 import { initSpotright } from '../components/spotright/spotrightController.js';
 import { initShortcutsModalListener } from '../components/shortcuts/shortcutsModal.js';
 import { handleSpotrightDeepLink } from '../components/spotright/spotrightRegistry.js';
-import { dom } from '../dom/domElements.js';
 import { initializeGlobalHaptics } from '../services/hapticService.js';
 import { initializeCloudSaveButtons } from '../services/cloudSaveService.js';
-import { loadAndProcessPlayerData } from '../services/serverResponseHandler.js';
 import { applyCardLayout, initCardLayoutManager } from '../ui/cardLayoutManager.js';
-import { showApiErrorToast } from '../ui/toast.js';
 
 /**
  * Detects currency from browser navigator languages if not explicitly configured.
@@ -191,48 +188,12 @@ export async function bootstrapUIComponents(initialLang) {
 
     initAppFooter({ version: state.appVersion });
 
-    const refreshButton = dom.controls.refreshButton;
-    if (refreshButton) {
-        updateRefreshButtonVisibility();
-        refreshButton.addEventListener('click', async () => {
-            const activeTag = state.savedPlayerTags[0];
-            if (activeTag && activeTag !== 'DEFAULT0') {
-                try {
-                    startTopProgressBar();
-                    refreshButton.classList.add('saving');
-                    const result = await loadAndProcessPlayerData(activeTag, { updateOrder: false });
+    initAutoRefreshTriggers();
 
-                    refreshButton.classList.remove('saving');
-                    finishTopProgressBar();
-                    if (result.success) {
-                        refreshButton.classList.add('success');
-                        setTimeout(() => refreshButton.classList.remove('success'), 2000);
-                    } else {
-                        refreshButton.classList.add('error');
-                        setTimeout(() => refreshButton.classList.remove('error'), 3000);
-                        if (result.errorType === 'apiErrors.protectedTag') {
-                            showAddPlayerModal(activeTag, true);
-                        } else {
-                            showApiErrorToast(result);
-                        }
-                    }
-                } catch (error) {
-                    finishTopProgressBar();
-                    if (window.handleChunkError && window.handleChunkError(error)) return;
-                    logger.error('Refresh failed:', error);
-                    refreshButton.classList.remove('saving');
-                    refreshButton.classList.add('error');
-                    setTimeout(() => refreshButton.classList.remove('error'), 3000);
-                    showApiErrorToast(error);
-                }
-            }
-        });
-
-        const activeTag = state.savedPlayerTags[0];
-        if (activeTag && activeTag !== 'DEFAULT0') {
-            if (isPlayerRefreshStale(activeTag)) {
-                refreshButton.click();
-            }
+    const activeTag = state.savedPlayerTags[0];
+    if (activeTag && activeTag !== 'DEFAULT0') {
+        if (isPlayerRefreshStale(activeTag)) {
+            void refreshActivePlayerData({ background: true });
         }
     }
 }

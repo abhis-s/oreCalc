@@ -203,33 +203,9 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-
-    #refresh-button {
-        min-height: 36px;
-        min-width: auto;
-        padding: 6px 14px;
-        border-radius: $shape-corner-full;
-        font-size: var(--font-size-xs);
-        font-weight: 600;
-
-        .animated-btn-icon-wrapper svg {
-            width: 15px;
-            height: 15px;
-        }
-    }
 }
 
 // --- 2. RESPONSIVE & MOBILE HEADER ---
-.data-buttons-container #refresh-button.is-icon-only {
-    @include header-action-btn-collapse;
-}
-
-@container header-shell (max-width: #{$container-header-wide}) {
-    .data-buttons-container #refresh-button {
-        @include header-action-btn-collapse;
-    }
-}
-
 @media (max-width: #{$breakpoint-desktop - 1px}) {
     .hamburger {
         display: flex;

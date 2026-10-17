@@ -2,9 +2,9 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 
-import { dom } from '../../dom/domElements.js';
 import { triggerHaptic } from '../../services/hapticService.js';
 import { showToast } from '../../ui/toast.js';
+import { refreshActivePlayerData } from '../player/playerRefreshController.js';
 
 let isRefreshing = false;
 
@@ -208,12 +208,7 @@ export function initializePullToRefresh() {
         if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.updating');
 
         try {
-            const refreshBtn = dom.controls?.refreshButton;
-            if (refreshBtn) {
-                refreshBtn.click();
-            }
-            await new Promise(resolve => setTimeout(resolve, 1200));
-
+            await refreshActivePlayerData({ force: true, background: false });
             ptrContainer.classList.remove('ptr-refreshing');
             ptrContainer.classList.add('ptr-success');
             if (ptrLabel) ptrLabel.textContent = translate('actions.synced');

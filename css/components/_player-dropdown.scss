@@ -302,6 +302,48 @@
     }
 }
 
+.refresh-player-button {
+    @extend %flex-center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    cursor: pointer;
+    margin-left: 6px;
+    padding: 0;
+    border-radius: 50%;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+    color: $text-secondary;
+
+    &:hover {
+        background-color: $accent-primary-soft;
+        border-color: color-mix(in srgb, $accent-primary 40%, transparent);
+        color: $accent-primary;
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+
+    &.is-spinning svg {
+        animation: spin 0.8s linear infinite;
+    }
+
+    svg {
+        fill: currentColor;
+        width: 13px;
+        height: 13px;
+        display: block;
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+
 .remove-player-button,
 .delete-player-button,
 .dismiss-recent-button {

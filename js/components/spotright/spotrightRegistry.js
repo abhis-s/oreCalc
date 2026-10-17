@@ -511,6 +511,23 @@ export function buildSpotrightRegistry() {
             }
         },
         {
+            id: 'action-refresh-village',
+            title: 'Refresh Village Data',
+            normalizedTitle: 'refresh village data sync player stats profile',
+            category: 'Modals & Actions',
+            subtitle: 'Player · Sync latest equipment and hero stats from Clash of Clans',
+            icon: 'refresh',
+            iconType: 'svg',
+            actionCue: 'Sync',
+            acronym: 'rf',
+            entityType: 'modal',
+            priorityTier: 22,
+            execute: async () => {
+                const { refreshActivePlayerData } = await import('../player/playerRefreshController.js');
+                await refreshActivePlayerData({ force: true, background: false });
+            }
+        },
+        {
             id: 'modal-cloud-save',
             title: 'Cloud Save & Passkeys Sync',
             normalizedTitle: 'cloud save & passkeys sync',

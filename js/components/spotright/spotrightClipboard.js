@@ -172,6 +172,9 @@ export function switchSavedVillage(cleanTag) {
                     switchActivePlayer(normalized);
                     updateSavedPlayerTags(normalized);
                     syncPlayerTagToUrl(normalized);
+                    import('../player/playerRefreshController.js').then(({ refreshActivePlayerData }) => {
+                        void refreshActivePlayerData({ background: true, targetTag: normalized });
+                    }).catch(() => {});
                 });
             });
         }).catch(() => {

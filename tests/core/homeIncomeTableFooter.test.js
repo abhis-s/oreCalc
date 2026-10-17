@@ -287,8 +287,7 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
 
         dom.controls = {
             saveButton,
-            resetDataButton: createMockElement('button', 'reset-data-btn'),
-            refreshButton: createMockElement('button', 'refresh-button')
+            resetDataButton: createMockElement('button', 'reset-data-btn')
         };
 
         dom.fab = {

@@ -58,7 +58,6 @@ export function initializeDOMElements() {
         controls: {
             saveButton: document.getElementById('floating-save-btn'),
             resetDataButton: document.getElementById('reset-data-btn'),
-            refreshButton: document.getElementById('refresh-button'),
         },
 
         header: {
