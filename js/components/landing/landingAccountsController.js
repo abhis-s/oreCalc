@@ -45,6 +45,23 @@ export function loadPlayerData(cleanTag) {
 export const ACCOUNT_REFRESH_DELAY_MS = 2000;
 
 /**
+ * Orders player tags for background sync, placing the active tag first.
+ *
+ * @param {string[]} tags - Saved profile tags.
+ * @param {string | null} [activeTag=null] - Currently active player tag.
+ * @returns {string[]} Ordered list of normalized player tags.
+ */
+export function orderTagsForRefresh(tags, activeTag = null) {
+    if (!Array.isArray(tags)) return [];
+    const validTags = tags.map(normalizePlayerTag).filter(t => t && t !== 'DEFAULT0');
+    const cleanActive = normalizePlayerTag(activeTag);
+    if (cleanActive && cleanActive !== 'DEFAULT0' && validTags.includes(cleanActive)) {
+        return [cleanActive, ...validTags.filter(t => t !== cleanActive)];
+    }
+    return validTags;
+}
+
+/**
  * Iterates through saved profiles sequentially and refreshes their data in the background.
  *
  * @param {string[]} tags - Normalized player tags to refresh.
@@ -225,74 +242,91 @@ export function initLandingAccountsManager({
     };
 
     const refreshBtn = document.getElementById('landing-refresh-accounts-btn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', async () => {
-            const btnEl = /** @type {HTMLButtonElement} */ (refreshBtn);
-            if (btnEl.classList.contains('is-refreshing') || btnEl.disabled) return;
-            const currentTags = getSavedProfiles().map(p => p.cleanTag).filter(t => t && t !== 'DEFAULT0');
-            if (currentTags.length === 0) return;
 
+    /**
+     * Executes account profile synchronization with button spinner, top progress bar,
+     * card animations, live showcase update, and completion toast.
+     *
+     * @param {string[]} tagsToRefresh - Ordered player tags to refresh.
+     * @returns {Promise<void>}
+     */
+    const executeAccountsRefresh = async (tagsToRefresh) => {
+        const currentTags = tagsToRefresh.filter(t => t && t !== 'DEFAULT0');
+        if (currentTags.length === 0) return;
+
+        const btnEl = /** @type {HTMLButtonElement | null} */ (refreshBtn);
+        if (btnEl) {
+            if (btnEl.classList.contains('is-refreshing') || btnEl.disabled) return;
             btnEl.disabled = true;
             btnEl.setAttribute('aria-busy', 'true');
             btnEl.classList.add('is-refreshing');
-            startTopProgressBar();
+        }
+        startTopProgressBar();
 
-            const btnTextSpan = btnEl.querySelector('span');
-            let completedCount = 0;
+        const btnTextSpan = btnEl?.querySelector('span');
+        let completedCount = 0;
 
-            let summary = { total: currentTags.length, successCount: 0, failedCount: 0 };
-            try {
-                summary = await refreshSavedProfilesSequentially(currentTags, {
-                    throttleMs: ACCOUNT_REFRESH_DELAY_MS,
-                    onTagStart: (tag) => {
-                        const targetCard = document.querySelector(`.landing-account-card[data-tag="${tag}"]`);
-                        if (targetCard) {
-                            targetCard.classList.add('is-refreshing');
-                        }
-                        if (btnTextSpan) {
-                            const index = completedCount + 1;
-                            btnTextSpan.textContent = currentTags.length > 1
-                                ? `${translate('actions.loading')} (${index}/${currentTags.length})`
-                                : translate('actions.loading');
-                        }
-                    },
-                    onProfileUpdated: (updatedTag) => {
-                        completedCount++;
-                        const refreshedProfiles = getSavedProfiles();
-                        renderAccountsGrid(refreshedProfiles, activeTag, selectVillage, handleDeleteVillage);
-                        if (isManagingAccounts) {
-                            const cardsContainer = document.getElementById('landing-accounts-list');
-                            cardsContainer?.classList.add('is-managing');
-                        }
-                        if (updatedTag === activeTag) {
-                            selectVillage(activeTag);
-                        }
-                        const updatedCard = document.querySelector(`.landing-account-card[data-tag="${updatedTag}"]`);
-                        if (updatedCard) {
-                            updatedCard.classList.add('is-pulse');
-                        }
+        let summary = { total: currentTags.length, successCount: 0, failedCount: 0 };
+        try {
+            summary = await refreshSavedProfilesSequentially(currentTags, {
+                throttleMs: ACCOUNT_REFRESH_DELAY_MS,
+                onTagStart: (tag) => {
+                    const targetCard = document.querySelector(`.landing-account-card[data-tag="${tag}"]`);
+                    if (targetCard) {
+                        targetCard.classList.add('is-refreshing');
                     }
-                });
-            } finally {
-                finishTopProgressBar();
+                    if (btnTextSpan) {
+                        const index = completedCount + 1;
+                        btnTextSpan.textContent = currentTags.length > 1
+                            ? `${translate('actions.loading')} (${index}/${currentTags.length})`
+                            : translate('actions.loading');
+                    }
+                },
+                onProfileUpdated: (updatedTag) => {
+                    completedCount++;
+                    const refreshedProfiles = getSavedProfiles();
+                    renderAccountsGrid(refreshedProfiles, activeTag, selectVillage, handleDeleteVillage);
+                    if (isManagingAccounts) {
+                        const cardsContainer = document.getElementById('landing-accounts-list');
+                        cardsContainer?.classList.add('is-managing');
+                    }
+                    if (updatedTag === activeTag) {
+                        selectVillage(activeTag);
+                    }
+                    const updatedCard = document.querySelector(`.landing-account-card[data-tag="${updatedTag}"]`);
+                    if (updatedCard) {
+                        updatedCard.classList.add('is-pulse');
+                    }
+                }
+            });
+        } finally {
+            finishTopProgressBar();
+            if (btnEl) {
                 btnEl.classList.remove('is-refreshing');
                 btnEl.removeAttribute('aria-busy');
                 btnEl.disabled = false;
                 if (btnTextSpan) {
                     btnTextSpan.textContent = translate('actions.refresh');
                 }
-                document.querySelectorAll('.landing-account-card.is-refreshing').forEach(c => c.classList.remove('is-refreshing'));
             }
+            document.querySelectorAll('.landing-account-card.is-refreshing').forEach(c => c.classList.remove('is-refreshing'));
+        }
 
-            if (summary.total > 0) {
-                if (summary.successCount === summary.total) {
-                    showToast(translate('views.landing.villagesRefreshed'), 'success');
-                } else if (summary.successCount > 0) {
-                    showToast(translate('views.landing.villagesRefreshPartial', { success: summary.successCount, total: summary.total }), 'warning');
-                } else {
-                    showApiErrorToast('apiErrors.500');
-                }
+        if (summary.total > 0) {
+            if (summary.successCount === summary.total) {
+                showToast(translate('views.landing.villagesRefreshed'), 'success');
+            } else if (summary.successCount > 0) {
+                showToast(translate('views.landing.villagesRefreshPartial', { success: summary.successCount, total: summary.total }), 'warning');
+            } else {
+                showApiErrorToast('apiErrors.500');
             }
+        }
+    };
+
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            const currentTags = orderTagsForRefresh(getSavedProfiles().map(p => p.cleanTag), activeTag);
+            void executeAccountsRefresh(currentTags);
         });
     }
 
@@ -389,19 +423,10 @@ export function initLandingAccountsManager({
         }
     }
 
-    // Background sync of saved accounts
-    if (savedProfiles.length > 1) {
-        const backgroundTags = savedProfiles.slice(1).map(p => p.cleanTag);
-        refreshSavedProfilesSequentially(backgroundTags, {
-            throttleMs: ACCOUNT_REFRESH_DELAY_MS,
-            onProfileUpdated: (updatedTag) => {
-                const refreshedProfiles = getSavedProfiles();
-                renderAccountsGrid(refreshedProfiles, activeTag, selectVillage, handleDeleteVillage);
-                if (updatedTag === activeTag) {
-                    selectVillage(activeTag);
-                }
-            }
-        });
+    // Background sync of all saved accounts (including active one) with full visual feedback
+    if (savedProfiles.length > 0) {
+        const backgroundTags = orderTagsForRefresh(savedProfiles.map(p => p.cleanTag), activeTag);
+        void executeAccountsRefresh(backgroundTags);
     }
 
     return {
