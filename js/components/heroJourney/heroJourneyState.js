@@ -286,6 +286,7 @@ export function syncPlayerToStorage(playerData, state = hjState) {
         const existingStr = localStorage.getItem(canonicalKey) || localStorage.getItem(legacyKey);
         const existing = safeJsonParse(existingStr, {});
 
+        existing.lastRefreshedAt = Date.now();
         existing.playerProfile = sanitizePlayerProfile(playerData);
         existing.heroJourney = {
             acceleratedRewards: Boolean(state.isAccelerated),

@@ -7,6 +7,7 @@ import { recalculateAll } from './calculator.js';
 import { renderApp } from './renderer.js';
 import { state } from './state.js';
 import { applyThemeSettings } from './themeManager.js';
+import { isPlayerRefreshStale } from './playerRefreshThrottler.js';
 
 import { autoPlaceIncomeChipsForRange } from '../utils/autoPlaceChips.js';
 import { checkAndGenerateRecurringChips } from '../utils/chipManager.js';
@@ -224,7 +225,9 @@ export async function bootstrapUIComponents(initialLang) {
 
         const activeTag = state.savedPlayerTags[0];
         if (activeTag && activeTag !== 'DEFAULT0') {
-            refreshButton.click();
+            if (isPlayerRefreshStale(activeTag)) {
+                refreshButton.click();
+            }
         }
     }
 }

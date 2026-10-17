@@ -368,6 +368,7 @@ export function getSavedPlayerTagsList() {
  * @property {number} trophies
  * @property {any} [cachedData]
  * @property {any} [heroJourney]
+ * @property {number} [lastRefreshedAt]
  */
 
 /**
@@ -427,7 +428,8 @@ export function getSavedProfiles() {
                 townHallLevel: Number(profile?.townHallLevel) || 1,
                 trophies: Number(profile?.trophies) || 0,
                 cachedData: profile || null,
-                heroJourney: playerData?.heroJourney || null
+                heroJourney: playerData?.heroJourney || null,
+                lastRefreshedAt: Number(playerData?.lastRefreshedAt) || 0
             });
         }
 
@@ -473,6 +475,7 @@ export function savePlayerProfileToStorage(data, updateOrder = true) {
 
     const homeHeroes = data.heroes?.filter(h => h.village === 'home' || !h.village) || [];
 
+    partition.lastRefreshedAt = Date.now();
     partition.playerProfile = sanitizePlayerProfile(data);
 
     if (partition.heroes && typeof partition.heroes === 'object') {

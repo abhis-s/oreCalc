@@ -28,6 +28,7 @@ import {
 } from './core/storageKeys.js';
 import { getPlayerTagFromUrl, syncPlayerTagToUrl } from './core/playerUrlRouter.js';
 import { getSavedProfiles, savePlayerProfileToStorage, setActivePlayerTag } from './core/playerStorage.js';
+import { isPlayerRefreshStale } from './core/playerRefreshThrottler.js';
 import { consolidateLocalStorageKeys } from './core/storageMigrations.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
 import { initializeModalHistoryManager } from './utils/modalHistoryManager.js';
@@ -187,7 +188,9 @@ function initializePlayerProfile() {
 
     const activeTag = damageCalcState.activeTag || urlTag;
     if (activeTag && activeTag !== 'DEFAULT0') {
-        void revalidatePlayerData(activeTag, hadCachedData);
+        if (!hadCachedData || isPlayerRefreshStale(activeTag)) {
+            void revalidatePlayerData(activeTag, hadCachedData);
+        }
     }
 }
 

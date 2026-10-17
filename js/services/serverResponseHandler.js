@@ -372,6 +372,8 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         }
     };
 
+    newPlayerState.lastRefreshedAt = Date.now();
+
     if (updateOrder) {
         state.heroes = newPlayerState.heroes;
         state.storedOres = newPlayerState.storedOres;

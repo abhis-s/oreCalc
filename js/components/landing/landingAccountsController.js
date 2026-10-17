@@ -6,6 +6,7 @@
 
 import { safeJsonParse } from '../../utils/jsonUtils.js';
 import { getSavedProfiles, removePlayerTag, setActivePlayerTag } from '../../core/playerStorage.js';
+import { getStaleTagsForRefresh } from '../../core/playerRefreshThrottler.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import { calculateEquipmentProgress } from '../../domain/equipment/equipmentProgressDomain.js';
@@ -423,10 +424,13 @@ export function initLandingAccountsManager({
         }
     }
 
-    // Background sync of all saved accounts (including active one) with full visual feedback
+    // Background sync of stale saved accounts (including active one) with full visual feedback
     if (savedProfiles.length > 0) {
         const backgroundTags = orderTagsForRefresh(savedProfiles.map(p => p.cleanTag), activeTag);
-        void executeAccountsRefresh(backgroundTags);
+        const staleTags = getStaleTagsForRefresh(backgroundTags);
+        if (staleTags.length > 0) {
+            void executeAccountsRefresh(staleTags);
+        }
     }
 
     return {
