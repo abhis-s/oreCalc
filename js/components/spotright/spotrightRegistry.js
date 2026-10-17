@@ -7,6 +7,10 @@
 import { heroData } from '../../data/heroData.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
+import { getSavedProfiles } from '../../core/playerStorage.js';
+import { normalizePlayerTag } from '../../core/storageKeys.js';
+import { translate } from '../../i18n/translator.js';
+import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
 
 /**
  * @typedef {Object} SpotrightItem
@@ -27,7 +31,10 @@ import { toCamelCase } from '../../utils/stringUtils.js';
  * @property {string} [compositeTitle] - Full hero + equipment name for multi-token search.
  * @property {'hero'|'epic'|'common'|'nav'|'modal'} entityType - Entity type for tiebreaking.
  * @property {number} priorityTier - Base priority score (Hero=30, Epic=20, Nav=25, Modal=15, Common=10).
- * @property {() => void | Promise<void>} execute - Action callback executed on activation.
+ * @property {boolean} [isAsyncAction] - Whether the action performs an asynchronous lookup before closing.
+ * @property {boolean} [isLoading] - True when action is currently in flight.
+ * @property {string | null} [errorMessage] - Inline error feedback to render.
+ * @property {() => void | Promise<any>} execute - Action callback executed on activation.
  */
 
 /** @type {Record<string, string>} Canonical 2-letter Hero Acronyms */
@@ -212,6 +219,20 @@ export function handleSpotrightDeepLink() {
             navigateToHero(hero.name, targetHeroKey);
         }
     }
+}
+
+/**
+ * Resolves active player tag from URL parameters.
+ * @returns {string}
+ */
+export function getActiveUrlTag() {
+    if (typeof window === 'undefined') return '';
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tagFromUrl = urlParams.get('tag');
+        if (tagFromUrl) return normalizePlayerTag(tagFromUrl);
+    } catch {}
+    return '';
 }
 
 /**
@@ -448,6 +469,34 @@ export function buildSpotrightRegistry() {
             }
         },
         {
+            id: 'action-add-player',
+            title: translate('views.spotright.addPlayer') || 'Add Player Tag',
+            normalizedTitle: 'add player tag village link new account',
+            category: 'Modals & Actions',
+            subtitle: translate('views.spotright.addPlayerSubtitle') || 'Accounts · Link and track a new Clash of Clans village',
+            icon: 'plus',
+            iconType: 'svg',
+            actionCue: translate('views.landing.addVillage') || 'Add Village',
+            acronym: 'ap',
+            entityType: 'modal',
+            priorityTier: 18,
+            execute: async () => {
+                if (typeof document === 'undefined') return;
+                const addPlayerBtn = document.getElementById('add-player-button') || document.querySelector('[data-action="add-player"]');
+                if (addPlayerBtn && typeof addPlayerBtn.click === 'function') {
+                    addPlayerBtn.click();
+                    return;
+                }
+                const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('add-player-modal'));
+                if (modal && typeof modal.showModal === 'function') {
+                    const { openModal } = await import('../../utils/modalHistoryManager.js');
+                    openModal(modal);
+                    return;
+                }
+                window.location.href = `${prefix}/ore-calculator/#player`;
+            }
+        },
+        {
             id: 'modal-cloud-save',
             title: 'Cloud Save & Passkeys Sync',
             normalizedTitle: 'cloud save & passkeys sync',
@@ -534,7 +583,33 @@ export function buildSpotrightRegistry() {
         }
     );
 
-    // 3. Heroes & Equipment
+    // 3. Saved Villages (Multi-Account Switcher)
+    const activeUrlTag = getActiveUrlTag();
+    const savedProfiles = typeof getSavedProfiles === 'function' ? getSavedProfiles() : [];
+    for (const profile of savedProfiles) {
+        if (!profile?.cleanTag || profile.cleanTag === 'DEFAULT0') continue;
+        const cleanTag = profile.cleanTag;
+        const villageName = profile.name || `#${cleanTag}`;
+        const thLevel = profile.townHallLevel || 1;
+        const isActive = Boolean(activeUrlTag && normalizePlayerTag(activeUrlTag) === cleanTag);
+
+        items.push({
+            id: `village-${cleanTag}`,
+            title: villageName,
+            normalizedTitle: `${villageName.toLowerCase()} #${cleanTag.toLowerCase()} ${cleanTag.toLowerCase()} village account`,
+            category: 'Villages',
+            subtitle: translate('views.spotright.villageSubtitle', { tag: cleanTag, th: thLevel }),
+            icon: 'user',
+            iconType: 'svg',
+            actionCue: translate('nav.context.switchVillage'),
+            acronym: villageName.slice(0, 2).toLowerCase(),
+            entityType: 'modal',
+            priorityTier: isActive ? 24 : 22,
+            execute: () => switchOrLoadPlayerTag(cleanTag)
+        });
+    }
+
+    // 4. Heroes & Equipment
     for (const heroKey in heroData) {
         const hero = heroData[heroKey];
         const heroName = hero.name;

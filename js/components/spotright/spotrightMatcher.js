@@ -3,6 +3,9 @@
  * Tier 4: Search Matcher Engine.
  */
 
+import { loadAndSwitchPlayerTag } from './spotrightClipboard.js';
+import { translate } from '../../i18n/translator.js';
+
 /**
  * Checks whether sub sequence characters appear in target string in order.
  * @param {string} sub
@@ -204,7 +207,7 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
             };
         }
         return {
-            matches: targetItems.slice(0, Math.max(15, maxLimit)),
+            matches: scope === 'equipment' ? targetItems : targetItems.slice(0, Math.max(15, maxLimit)),
             autocomplete: null
         };
     }
@@ -222,18 +225,42 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
 
     scored.sort((a, b) => b.score - a.score);
 
+    // Direct Player Tag Synthesis: when query matches a valid Clash of Clans tag pattern
+    const cleanTagCandidate = query.startsWith('#') ? query.slice(1).toUpperCase() : query.toUpperCase();
+    if (cleanTagCandidate.length >= 3 && cleanTagCandidate.length <= 12 && /^[0289CGJLOPQRUVY]+$/.test(cleanTagCandidate)) {
+        const alreadyMatched = scored.some(entry => entry.item.id === `village-${cleanTagCandidate}`);
+        if (!alreadyMatched) {
+            const directItem = {
+                id: `direct-tag-${cleanTagCandidate}`,
+                title: translate('views.spotright.loadDirectTag', { tag: cleanTagCandidate }),
+                normalizedTitle: query,
+                category: 'Player Search',
+                subtitle: translate('views.spotright.loadDirectTagSubtitle'),
+                icon: 'user',
+                iconType: /** @type {'svg'} */ ('svg'),
+                actionCue: translate('views.landing.loadVillage'),
+                acronym: cleanTagCandidate.slice(0, 2).toLowerCase(),
+                entityType: /** @type {'nav'} */ ('nav'),
+                priorityTier: 250,
+                isAsyncAction: true,
+                execute: () => loadAndSwitchPlayerTag(cleanTagCandidate)
+            };
+            scored.unshift({ item: directItem, score: 350 });
+        }
+    }
+
     const topMatches = scored.slice(0, maxLimit).map(entry => entry.item);
 
     // Determine inline autocomplete eligibility
     let autocomplete = null;
     const topHit = topMatches[0];
 
-    if (topHit && query.length >= 2 && topHit.normalizedTitle.startsWith(query)) {
+    if (topHit && query.length >= 2 && topHit.title.toLowerCase().startsWith(query)) {
         // Disambiguation check: ensure next item does not tie with identical score
         const nextScore = scored[1]?.score || 0;
         const topScore = scored[0].score;
 
-        if (topScore > nextScore || !scored[1]?.item.normalizedTitle.startsWith(query)) {
+        if (topScore > nextScore || !scored[1]?.item.title.toLowerCase().startsWith(query)) {
             const completionText = topHit.title.slice(query.length);
             autocomplete = {
                 completionText,

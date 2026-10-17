@@ -401,6 +401,26 @@
     .spotright-result-item.selected & {
         color: $text-secondary;
     }
+
+    &.spotright-item-subtitle--error {
+        color: $color-danger;
+        font-weight: $font-weight-medium;
+
+        .spotright-result-item.selected & {
+            color: $color-danger;
+        }
+
+        code {
+            font-family: 'Roboto Mono', monospace;
+            background-color: color-mix(in srgb, $color-danger 12%, transparent);
+            border: 1px solid color-mix(in srgb, $color-danger 24%, transparent);
+            padding: 1px $spacing-2xs;
+            border-radius: $shape-corner-2xs;
+            font-size: 0.85em;
+            color: $color-danger;
+            display: inline;
+        }
+    }
 }
 
 .spotright-item-action {
@@ -409,7 +429,8 @@
     gap: $spacing-xs;
     flex-shrink: 0;
 
-    .spotright-result-item.selected & {
+    .spotright-result-item.selected &,
+    .spotright-result-item.is-loading & {
         display: flex;
     }
 }
@@ -417,6 +438,25 @@
 .spotright-action-label {
     font-size: $font-size-2xs;
     color: $text-muted;
+}
+
+.spotright-item-spinner {
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    animation: spotright-spin 0.8s linear infinite;
+    color: $accent-primary;
+}
+
+@keyframes spotright-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .spotright-action-enter {

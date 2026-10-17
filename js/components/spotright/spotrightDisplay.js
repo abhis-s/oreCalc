@@ -5,6 +5,7 @@
 
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
+import { sanitizeHTML } from '../../ui/noticeModal.js';
 
 /**
  * Creates and returns the modal dialog element for Spotright search.
@@ -109,9 +110,29 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
             tagHtml = `<span class="spotright-item-tag spotright-tag--${item.entityType}">${escapeHTML(item.entityType)}</span>`;
         }
 
+        const isItemLoading = Boolean(item.isLoading);
+        const hasItemError = Boolean(item.errorMessage);
+        const subtitleClass = hasItemError ? 'spotright-item-subtitle spotright-item-subtitle--error' : 'spotright-item-subtitle';
+        const displaySubtitle = item.errorMessage || item.subtitle;
+        const renderedSubtitle = hasItemError ? sanitizeHTML(displaySubtitle) : escapeHTML(displaySubtitle);
+
+        let actionHtml = '';
+        if (isItemLoading) {
+            actionHtml = `
+                <clashcalc-assets-svg name="refresh" class="spotright-item-spinner" width="14" height="14"></clashcalc-assets-svg>
+                <span class="spotright-action-label">${escapeHTML(translate('actions.loading'))}</span>
+            `;
+        } else {
+            const actionLabel = hasItemError ? (translate('actions.reload') || 'Retry') : item.actionCue;
+            actionHtml = `
+                <span class="spotright-action-label">${escapeHTML(actionLabel)}</span>
+                <kbd class="spotright-action-enter" aria-label="Enter"><clashcalc-assets-svg name="keyboard-return" width="14" height="14"></clashcalc-assets-svg></kbd>
+            `;
+        }
+
         htmlChunks.push(`
             <div
-                class="spotright-result-item ${isSelected ? 'selected' : ''}"
+                class="spotright-result-item ${isSelected ? 'selected' : ''} ${isItemLoading ? 'is-loading' : ''} ${hasItemError ? 'has-error' : ''}"
                 role="option"
                 aria-selected="${isSelected ? 'true' : 'false'}"
                 data-index="${idx}"
@@ -125,17 +146,31 @@ export function renderSpotrightResults(container, matches, selectedIndex) {
                         <span class="spotright-item-title">${escapeHTML(item.title)}</span>
                         ${tagHtml}
                     </div>
-                    <span class="spotright-item-subtitle">${escapeHTML(item.subtitle)}</span>
+                    <span class="${subtitleClass}">${renderedSubtitle}</span>
                 </div>
                 <div class="spotright-item-action">
-                    <span class="spotright-action-label">${escapeHTML(item.actionCue)}</span>
-                    <kbd class="spotright-action-enter" aria-label="Enter"><clashcalc-assets-svg name="keyboard-return" width="14" height="14"></clashcalc-assets-svg></kbd>
+                    ${actionHtml}
                 </div>
             </div>
         `);
     });
 
     container.innerHTML = htmlChunks.join('');
+}
+
+/**
+ * Triggers standard shake feedback on the Spotright modal card.
+ *
+ * @param {HTMLElement | null} dialog
+ */
+export function triggerCardShake(dialog) {
+    if (!dialog) return;
+    const card = dialog.querySelector('#spotright-card');
+    if (!card) return;
+
+    card.classList.remove('shake');
+    void card.offsetWidth; // Force synchronous reflow to re-trigger CSS keyframe
+    card.classList.add('shake');
 }
 
 /**

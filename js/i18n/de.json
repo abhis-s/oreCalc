@@ -1508,12 +1508,19 @@
             }
         },
         "spotright": {
+            "addPlayer": "Spielerkürzel hinzufügen",
+            "addPlayerSubtitle": "Konten · Neues Clash of Clans Dorf verknüpfen",
+            "clipboardSubtitle": "Zwischenablage · Clash of Clans Spielerkürzel",
+            "loadDirectTag": "Spieler #{tag} laden",
+            "loadDirectTagSubtitle": "Spielerkürzel · Clash of Clans Profil abrufen und anzeigen",
+            "loadVillageTag": "Dorf #{tag} laden",
             "noResults": "Keine passenden Ergebnisse gefunden",
             "placeholder": "Tools, Ausrüstung, Helden durchsuchen...",
             "scopes": {
                 "tools": "Tools"
             },
-            "searchTrigger": "Suche & Befehlspalette"
+            "searchTrigger": "Suche & Befehlspalette",
+            "villageSubtitle": "Dorf · #{tag} · RH{th}"
         },
         "tour": {
             "backupSyncDesc": "Aktiviere die Cloud-Synchronisierung, um deine Daten zu sichern und automatisch auf mehreren Geräten synchron zu halten.",

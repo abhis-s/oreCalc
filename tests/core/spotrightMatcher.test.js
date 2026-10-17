@@ -388,7 +388,7 @@ describe('Spotright Search Engine & Matcher', () => {
         assert.equal(emptyHeroResult.matches.length, 6, 'Empty query in hero scope returns all 6 heroes');
 
         const emptyEquipResult = searchSpotright('', registry, 'equipment');
-        assert.ok(emptyEquipResult.matches.length > 0);
+        assert.equal(emptyEquipResult.matches.length, 43, 'Empty query in equipment scope returns all 43 equipment items');
         for (const item of emptyEquipResult.matches) {
             assert.ok(item.entityType === 'epic' || item.entityType === 'common');
         }

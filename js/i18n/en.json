@@ -1508,12 +1508,19 @@
             }
         },
         "spotright": {
+            "addPlayer": "Add Player Tag",
+            "addPlayerSubtitle": "Accounts · Link and track a new Clash of Clans village",
+            "clipboardSubtitle": "Clipboard · Clash of Clans Player Tag",
+            "loadDirectTag": "Load Player #{tag}",
+            "loadDirectTagSubtitle": "Player Tag · Fetch and view Clash of Clans profile",
+            "loadVillageTag": "Load Village #{tag}",
             "noResults": "No matching results found",
             "placeholder": "Search tools, equipment, heroes...",
             "scopes": {
                 "tools": "Tools"
             },
-            "searchTrigger": "Search & Command Palette"
+            "searchTrigger": "Search & Command Palette",
+            "villageSubtitle": "Village · #{tag} · TH{th}"
         },
         "tour": {
             "backupSyncDesc": "Enable cloud sync to back up your data and keep it in sync across multiple devices automatically.",

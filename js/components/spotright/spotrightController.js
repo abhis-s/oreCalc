@@ -3,7 +3,7 @@
  * Tier 4: Search Controller (Keyboard traps, selection cycling, action invocation).
  */
 
-import { buildSpotrightRegistry } from './spotrightRegistry.js';
+import { buildSpotrightRegistry, getActiveUrlTag } from './spotrightRegistry.js';
 import { extractScopePrefix, searchSpotright } from './spotrightMatcher.js';
 import {
     createSpotrightDialog,
@@ -12,12 +12,21 @@ import {
     updateGhostAutocomplete,
     updateTopHitHint,
     updateSpotrightScopeBadge,
-    updateSpotrightFilterChips
+    updateSpotrightFilterChips,
+    triggerCardShake
 } from './spotrightDisplay.js';
 import { openFeedbackModal } from '../appSettings/settingsSupportModals.js';
+import { detectClipboardPlayerTag, createClipboardSpotrightItem } from './spotrightClipboard.js';
+import { translate } from '../../i18n/translator.js';
+
+/** @type {boolean} Guard preventing concurrent action execution while an async network lookup is in flight */
+let isActionInFlight = false;
 
 /** @type {import('./spotrightRegistry.js').SpotrightItem[] | null} Cached pre-indexed registry */
 let registryCache = null;
+
+/** @type {string | null} Detected clipboard player tag when permission is granted */
+let currentClipboardTag = null;
 
 /** @type {HTMLDialogElement | null} */
 let dialogEl = null;
@@ -109,12 +118,19 @@ function ensureMounted() {
         closeSpotright();
     });
 
+    // Reset card shake animation state automatically upon completion
+    const card = dialogEl.querySelector('#spotright-card');
+    card?.addEventListener?.('animationend', () => {
+        card?.classList?.remove?.('shake');
+    });
+
     // Input events
     inputEl?.addEventListener('input', handleInputChange);
     inputEl?.addEventListener('keydown', handleInputKeydown);
 
     // Results hover synchronization
     resultsEl?.addEventListener('mousemove', (event) => {
+        if (isActionInFlight) return;
         const row = /** @type {HTMLElement | null} */ (event.target)?.closest('.spotright-result-item');
         if (!row) return;
 
@@ -167,6 +183,9 @@ function setScope(newScope) {
 function handleInputChange() {
     if (!inputEl || !resultsEl) return;
 
+    const card = dialogEl?.querySelector('#spotright-card');
+    card?.classList?.remove?.('shake');
+
     const prefixMatch = extractScopePrefix(inputEl.value);
     if (prefixMatch) {
         inputEl.value = prefixMatch.remainingQuery;
@@ -186,6 +205,14 @@ function handleInputChange() {
     currentAutocomplete = searchResult.autocomplete;
     currentSelectedIndex = 0;
 
+    // Smart clipboard tag suggestion when search input is empty in default scope
+    if (!query && currentScope === 'all' && currentClipboardTag) {
+        const activeTag = getActiveUrlTag();
+        if (!activeTag || activeTag !== currentClipboardTag) {
+            currentMatches.unshift(createClipboardSpotrightItem(currentClipboardTag));
+        }
+    }
+
     renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
     updateGhostAutocomplete(ghostEl, query, currentAutocomplete);
     updateTopHitHint(hintEl, currentAutocomplete);
@@ -197,6 +224,11 @@ function handleInputChange() {
  */
 function handleInputKeydown(event) {
     if (event.isComposing) return;
+
+    if (isActionInFlight && event.key !== 'Escape') {
+        event.preventDefault();
+        return;
+    }
 
     switch (event.key) {
         case 'Backspace':
@@ -251,16 +283,78 @@ function handleInputKeydown(event) {
 }
 
 /**
- * Executes the currently selected match item and closes Spotright.
+ * Executes the currently selected match item.
+ * Regular items close Spotright immediately.
+ * Async items verify in-palette, retaining Spotright open on error to preserve input.
  */
-function executeCurrentSelection() {
-    const selectedItem = currentMatches[currentSelectedIndex];
-    closeSpotright();
+async function executeCurrentSelection() {
+    if (isActionInFlight) return;
 
-    if (selectedItem && typeof selectedItem.execute === 'function') {
+    const selectedItem = currentMatches[currentSelectedIndex];
+    if (!selectedItem || typeof selectedItem.execute !== 'function') return;
+
+    // Normal non-async items: close Spotright immediately and invoke action
+    if (!selectedItem.isAsyncAction) {
+        closeSpotright();
         safeRaf(() => {
             selectedItem.execute();
         });
+        return;
+    }
+
+    isActionInFlight = true;
+    selectedItem.isLoading = true;
+    selectedItem.errorMessage = null;
+
+    if (inputEl) {
+        inputEl.readOnly = true;
+    }
+    if (resultsEl) {
+        renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
+    }
+
+    try {
+        const result = await selectedItem.execute();
+        if (result && result.success) {
+            isActionInFlight = false;
+            closeSpotright();
+            return;
+        }
+
+        // Action failed: preserve Spotright, preserve input, and display inline error
+        isActionInFlight = false;
+        selectedItem.isLoading = false;
+        selectedItem.errorMessage = result?.message || translate('apiErrors.notFound');
+
+        if (inputEl) {
+            inputEl.readOnly = false;
+            inputEl.focus();
+            const len = inputEl.value.length;
+            inputEl.setSelectionRange(len, len);
+        }
+
+        if (resultsEl) {
+            renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
+        }
+
+        triggerCardShake(dialogEl);
+    } catch (err) {
+        isActionInFlight = false;
+        selectedItem.isLoading = false;
+        selectedItem.errorMessage = err?.message ? translate(err.message) : translate('apiErrors.notFound');
+
+        if (inputEl) {
+            inputEl.readOnly = false;
+            inputEl.focus();
+            const len = inputEl.value.length;
+            inputEl.setSelectionRange(len, len);
+        }
+
+        if (resultsEl) {
+            renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
+        }
+
+        triggerCardShake(dialogEl);
     }
 }
 
@@ -285,11 +379,14 @@ export function openSpotright() {
     ensureMounted();
     if (!dialogEl || !inputEl || !resultsEl) return;
 
-    if (!registryCache) {
-        registryCache = buildSpotrightRegistry();
-    }
+    const card = dialogEl.querySelector('#spotright-card');
+    card?.classList?.remove?.('shake');
+
+    // Refresh dynamic registry so newly saved villages and profiles are indexed
+    registryCache = buildSpotrightRegistry();
 
     currentScope = 'all';
+    currentClipboardTag = null;
     updateSpotrightScopeBadge(badgeEl, inputEl, currentScope);
     updateSpotrightFilterChips(trackEl, currentScope);
 
@@ -302,6 +399,18 @@ export function openSpotright() {
     renderSpotrightResults(resultsEl, currentMatches, currentSelectedIndex);
     updateGhostAutocomplete(ghostEl, '', null);
     updateTopHitHint(hintEl, null);
+
+    // Asynchronously detect clipboard player tag (strictly zero-prompt)
+    detectClipboardPlayerTag().then((tag) => {
+        if (!tag) return;
+        const activeTag = getActiveUrlTag();
+        if (activeTag && activeTag === tag) return;
+
+        currentClipboardTag = tag;
+        if (dialogEl?.hasAttribute('open') && inputEl && inputEl.value === '' && currentScope === 'all') {
+            handleInputChange();
+        }
+    });
 
     const triggerBtn = document.getElementById('header-spotright-btn');
     if (triggerBtn) {
@@ -328,7 +437,13 @@ export function openSpotright() {
 export function closeSpotright() {
     if (!dialogEl) return;
 
+    const card = dialogEl.querySelector('#spotright-card');
+    card?.classList?.remove?.('shake');
+
+    isActionInFlight = false;
+    if (inputEl) inputEl.readOnly = false;
     currentScope = 'all';
+    currentClipboardTag = null;
     updateSpotrightScopeBadge(badgeEl, inputEl, currentScope);
     updateSpotrightFilterChips(trackEl, currentScope);
 
