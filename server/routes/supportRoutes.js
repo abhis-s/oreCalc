@@ -8,10 +8,12 @@ const router = express.Router();
 const sensitiveLimiter = rateLimit(RATE_LIMIT_DEFAULTS.sensitive);
 
 router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
-    const { email, description, attachData, userId } = req.body;
+    const { email, description, attachData, userId, type } = req.body;
+    const reportType = type === 'feedback' ? 'feedback' : 'bug';
+    const minLength = reportType === 'feedback' ? 10 : 20;
 
-    if (!description || typeof description !== 'string' || description.trim().length < 20 || description.length > 5000) {
-        return res.status(400).json({ reason: 'invalidDescription', message: 'Description must be between 20 and 5000 characters.' });
+    if (!description || typeof description !== 'string' || description.trim().length < minLength || description.length > 5000) {
+        return res.status(400).json({ reason: 'invalidDescription', message: `Description must be between ${minLength} and 5000 characters.` });
     }
 
     if (email && (typeof email !== 'string' || email.length > 100)) {
@@ -22,7 +24,7 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
         return res.status(400).json({ reason: 'invalidUserId', message: 'User ID must be 64 characters or fewer.' });
     }
 
-    if (attachData) {
+    if (attachData && reportType === 'bug') {
         const attachSize = Buffer.byteLength(JSON.stringify(attachData), 'utf8');
         if (attachSize > 1040000) {
             return res.status(413).json({ reason: 'payloadTooLarge', message: 'Attached data exceeds the maximum 1MB storage limit.' });
@@ -31,6 +33,7 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
 
     try {
         const reportData = {
+            type: reportType,
             description: description.trim().substring(0, 5000),
             email: email ? email.trim().substring(0, 100) : '',
             userId: userId ? userId.trim().substring(0, 64) : 'unknown',
@@ -38,12 +41,12 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
             status: 'new'
         };
 
-        if (attachData) {
+        if (attachData && reportType === 'bug') {
             reportData.attachedState = attachData;
         }
 
         const docRef = await db.collection('bugReports').add(reportData);
-        console.log(`[BUG REPORT] Saved report ${docRef.id} for UserID: ${reportData.userId}`);
+        console.log(`[${reportType.toUpperCase()}] Saved report ${docRef.id} for UserID: ${reportData.userId}`);
 
         let emailSent = false;
         if (process.env.SMTP_USER && process.env.SMTP_HOST) {
@@ -60,7 +63,7 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
                 });
 
                 const attachments = [];
-                if (attachData) {
+                if (attachData && reportType === 'bug') {
                     attachments.push({
                         filename: `user-data-${reportData.userId}.json`,
                         content: JSON.stringify(attachData, null, 2),
@@ -71,19 +74,21 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
                 const domain = resolveEmailDomain(reportData.environment, req.headers.host, req.headers.referer);
                 const shortUserId = reportData.userId ? reportData.userId.substring(0, 8) : 'anon';
                 const briefTitle = description.replace(/[\r\n]+/g, ' ').trim().substring(0, 50);
+                const typeLabel = reportType === 'feedback' ? 'Feedback' : 'Bug Report';
 
                 const mailOptions = {
                     from: `"ClashCalc System" <${process.env.EMAIL_FROM || 'noreply@clashcalc.com'}>`,
                     to: process.env.RECIPIENT_EMAIL_SUPPORT || 'support@clashcalc.com',
-                    subject: `[${domain}] Bug Report: "${briefTitle}" (User ${shortUserId})`,
+                    subject: `[${domain}] ${typeLabel}: "${briefTitle}" (User ${shortUserId})`,
                     text: [
                         '================================================================================',
-                        'USER BUG REPORT SUBMISSION',
+                        `USER ${typeLabel.toUpperCase()} SUBMISSION`,
                         '================================================================================',
                         '',
                         'REPORT DETAILS',
                         '--------------------------------------------------------------------------------',
                         `Environment   : ${domain}`,
+                        `Report Type   : ${typeLabel}`,
                         `Report ID     : ${docRef.id}`,
                         `User ID       : ${reportData.userId}`,
                         `Contact Email : ${reportData.email || 'none'}`,
@@ -93,7 +98,7 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
                         '--------------------------------------------------------------------------------',
                         description,
                         '',
-                        attachData ? 'User data is attached to this email.' : 'No user data was attached.',
+                        (attachData && reportType === 'bug') ? 'User data is attached to this email.' : 'No user data was attached.',
                         '',
                         '================================================================================',
                         'Notification managed by ClashCalc Support System'
@@ -107,14 +112,14 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
 
                 await transporter.sendMail(mailOptions);
                 emailSent = true;
-                console.log(`[BUG REPORT] Support email notification sent successfully.`);
+                console.log(`[${reportType.toUpperCase()}] Support email notification sent successfully.`);
             } catch (mailError) {
-                console.error(`[BUG REPORT] Failed to send support email:`, mailError);
+                console.error(`[${reportType.toUpperCase()}] Failed to send support email:`, mailError);
             }
         }
 
         res.status(200).json({
-            message: 'Bug report submitted successfully.',
+            message: `${reportType === 'feedback' ? 'Feedback' : 'Bug report'} submitted successfully.`,
             reportId: docRef.id,
             emailSent
         });

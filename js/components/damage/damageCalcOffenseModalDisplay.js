@@ -88,7 +88,7 @@ export function renderOffenseEditModal(state, container) {
 
     const activeModifier = getActiveModifier(state);
 
-    const equipOrder = ['spiky_ball', 'giant_gauntlet', 'fireball', 'seeking_shield', 'rocket_spear'];
+    const equipOrder = ['spiky_ball', 'giant_arrow', 'fireball', 'seeking_shield', 'earthquake_boots', 'flame_blower', 'rocket_backpack'];
     const equipRowsHtml = equipOrder.map(eqId => {
         const eqData = equipmentDamageData[eqId];
         if (!eqData) return '';

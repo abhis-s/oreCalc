@@ -345,6 +345,7 @@
  * @property {string} [errorType] - Error classification key
  * @property {string} [cleanTag] - Normalized canonical player tag from Supercell
  * @property {Record<string, any>} [playerData] - Raw remote player payload
+ * @property {boolean} [skipped] - Whether operation was skipped due to fresh cache
  */
 
 export {};

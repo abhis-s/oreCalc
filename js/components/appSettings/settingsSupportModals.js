@@ -274,25 +274,109 @@ export async function openRunningCostsModal() {
 }
 
 /**
- * Opens the Bug Report / Inaccuracy modal dialog with pre-filled telemetry and character limit bindings.
+ * Opens the unified Bug Report & Feedback modal dialog.
+ *
+ * @param {'bug'|'feedback'} [initialMode='bug'] - The initial mode to open the modal in.
  */
-export function openBugReportModal() {
+export function openBugReportModal(initialMode = 'bug') {
     const modal = document.getElementById('bug-report-modal');
     if (!modal) return;
 
     if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
 
-    const emailInput = document.getElementById('bug-report-email');
-    const emailError = document.getElementById('bug-report-email-error');
-    const descTextarea = document.getElementById('bug-report-desc');
-    const descError = document.getElementById('bug-report-desc-error');
-    const charCount = document.getElementById('bug-report-char-count');
+    const modalTitle = /** @type {HTMLElement | null} */ (document.getElementById('support-modal-title') || document.getElementById('bug-report-modal-title'));
+    const tabBug = /** @type {HTMLButtonElement | null} */ (document.getElementById('support-tab-bug'));
+    const tabFeedback = /** @type {HTMLButtonElement | null} */ (document.getElementById('support-tab-feedback'));
+    const infoBug = /** @type {HTMLElement | null} */ (document.getElementById('support-modal-info-bug'));
+    const infoFeedback = /** @type {HTMLElement | null} */ (document.getElementById('support-modal-info-feedback'));
+    const descLabel = /** @type {HTMLLabelElement | null} */ (document.getElementById('support-desc-label'));
+    const attachGroup = /** @type {HTMLElement | null} */ (document.getElementById('support-attach-group'));
+    const swTroubleshootBox = /** @type {HTMLElement | null} */ (document.getElementById('support-sw-troubleshoot-box'));
+    const privacyBug = /** @type {HTMLElement | null} */ (document.getElementById('support-privacy-bug'));
+    const privacyFeedback = /** @type {HTMLElement | null} */ (document.getElementById('support-privacy-feedback'));
 
-    const attachCheckbox = document.getElementById('bug-report-attach-checkbox');
-    const submitBtn = document.getElementById('submit-bug-report-btn');
-    const closeHeaderBtn = document.getElementById('close-bug-report-header-btn');
-    const closeBtn = document.getElementById('close-bug-report-modal-btn');
+    const emailInput = /** @type {HTMLInputElement | null} */ (document.getElementById('support-email') || document.getElementById('bug-report-email'));
+    const emailError = /** @type {HTMLElement | null} */ (document.getElementById('support-email-error') || document.getElementById('bug-report-email-error'));
+    const descTextarea = /** @type {HTMLTextAreaElement | null} */ (document.getElementById('support-desc') || document.getElementById('bug-report-desc'));
+    const descError = /** @type {HTMLElement | null} */ (document.getElementById('support-desc-error') || document.getElementById('bug-report-desc-error'));
+    const charCount = /** @type {HTMLElement | null} */ (document.getElementById('support-char-count') || document.getElementById('bug-report-char-count'));
+
+    const attachCheckbox = /** @type {HTMLInputElement | null} */ (document.getElementById('support-attach-checkbox') || document.getElementById('bug-report-attach-checkbox'));
+    const submitBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('submit-support-btn') || document.getElementById('submit-bug-report-btn'));
+    const closeHeaderBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('close-support-header-btn') || document.getElementById('close-bug-report-header-btn'));
+    const closeBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('close-support-modal-btn') || document.getElementById('close-bug-report-modal-btn'));
+
+    /** @type {'bug'|'feedback'} */
+    let currentMode = initialMode === 'feedback' ? 'feedback' : 'bug';
+
+    /**
+     * @param {'bug'|'feedback'} mode
+     */
+    const setSupportMode = (mode) => {
+        currentMode = mode;
+        const isBug = mode === 'bug';
+
+        if (tabBug) {
+            tabBug.classList.toggle('active', isBug);
+            tabBug.setAttribute('aria-selected', String(isBug));
+        }
+        if (tabFeedback) {
+            tabFeedback.classList.toggle('active', !isBug);
+            tabFeedback.setAttribute('aria-selected', String(!isBug));
+        }
+
+        if (modalTitle) {
+            modalTitle.textContent = isBug
+                ? translate('views.settings.bugReport.title')
+                : translate('views.settings.feedback.title');
+            modalTitle.setAttribute('data-i18n', isBug ? 'views.settings.bugReport.title' : 'views.settings.feedback.title');
+        }
+
+        if (infoBug) infoBug.hidden = !isBug;
+        if (infoFeedback) infoFeedback.hidden = isBug;
+
+        if (descLabel) {
+            descLabel.textContent = isBug
+                ? translate('views.settings.options.bugDescription')
+                : translate('views.settings.feedback.descLabel');
+            descLabel.setAttribute('data-i18n', isBug ? 'views.settings.options.bugDescription' : 'views.settings.feedback.descLabel');
+        }
+
+        if (descTextarea) {
+            const placeholderKey = isBug ? 'views.settings.options.bugDescPlaceholder' : 'views.settings.feedback.descPlaceholder';
+            descTextarea.placeholder = translate(placeholderKey);
+            descTextarea.setAttribute('data-i18n-placeholder', placeholderKey);
+            descTextarea.classList.remove('input-error');
+        }
+
+        if (descError) {
+            descError.textContent = '';
+            descError.classList.remove('show');
+        }
+
+        if (attachGroup) attachGroup.hidden = !isBug;
+        if (swTroubleshootBox) swTroubleshootBox.hidden = !isBug;
+
+        if (privacyBug) privacyBug.hidden = !isBug;
+        if (privacyFeedback) privacyFeedback.hidden = isBug;
+    };
+
+    if (tabBug) {
+        tabBug.onclick = (e) => {
+            e.preventDefault();
+            setSupportMode('bug');
+        };
+    }
+
+    if (tabFeedback) {
+        tabFeedback.onclick = (e) => {
+            e.preventDefault();
+            setSupportMode('feedback');
+        };
+    }
+
+    setSupportMode(currentMode);
 
     if (emailInput) {
         emailInput.value = '';
@@ -321,7 +405,8 @@ export function openBugReportModal() {
         descTextarea.oninput = () => {
             const len = descTextarea.value.length;
             charCount.textContent = `${len}/1000`;
-            if (len >= 20) {
+            const minLen = currentMode === 'bug' ? 20 : 10;
+            if (len >= minLen) {
                 descTextarea.classList.remove('input-error');
                 if (descError) {
                     descError.textContent = '';
@@ -357,7 +442,7 @@ export function openBugReportModal() {
         };
     }
 
-    const resetSWBtn = document.getElementById('bug-report-reset-sw-btn');
+    const resetSWBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('support-reset-sw-btn') || document.getElementById('bug-report-reset-sw-btn'));
     if (resetSWBtn) {
         resetSWBtn.onclick = async (e) => {
             e.preventDefault();
@@ -393,12 +478,16 @@ export function openBugReportModal() {
         submitBtn.onclick = async (e) => {
             e.preventDefault();
 
+            const isBug = currentMode === 'bug';
+            const minLength = isBug ? 20 : 10;
             const email = emailInput ? emailInput.value.trim() : '';
             const description = descTextarea ? descTextarea.value.trim() : '';
 
-            if (description.length < 20) {
+            if (description.length < minLength) {
                 if (descError) {
-                    descError.textContent = translate('errors.bugDescriptionRequired');
+                    descError.textContent = isBug
+                        ? translate('errors.bugDescriptionRequired')
+                        : translate('errors.feedbackDescriptionRequired');
                     descError.classList.add('show');
                 }
                 if (descTextarea) {
@@ -436,7 +525,7 @@ export function openBugReportModal() {
                 const currentUserId = getActiveUserId() || 'unknown';
 
                 let attachedData = null;
-                if (attachCheckbox && attachCheckbox.checked) {
+                if (isBug && attachCheckbox && attachCheckbox.checked) {
                     const stateClone = structuredClone(state);
                     attachedData = {
                         ...stateClone,
@@ -444,13 +533,15 @@ export function openBugReportModal() {
                     };
                 }
 
-                await submitBugReport(email, description, attachedData, currentUserId);
+                await submitBugReport(email, description, attachedData, currentUserId, currentMode);
 
                 closeModal();
-                await showAlert(translate('alerts.bugReportSuccess'), 'status.success');
+                const successAlertKey = isBug ? 'alerts.bugReportSuccess' : 'alerts.feedbackSuccess';
+                await showAlert(translate(successAlertKey), 'status.success');
             } catch (err) {
-                logger.error('Error submitting bug report:', err);
-                let errMsg = translate('alerts.bugReportFailure');
+                logger.error('Error submitting support report:', err);
+                const failAlertKey = isBug ? 'alerts.bugReportFailure' : 'alerts.feedbackFailure';
+                let errMsg = translate(failAlertKey);
                 if (err.message && err.message.startsWith('apiErrors.')) {
                     errMsg = translate(err.message);
                 } else if (err.message) {
@@ -465,15 +556,22 @@ export function openBugReportModal() {
         };
     }
 
-    const privacyLink = modal.querySelector('#bug-report-privacy-link');
-    if (privacyLink) {
-        privacyLink.onclick = (e) => {
+    const privacyLinks = modal.querySelectorAll('#bug-report-privacy-link, #feedback-privacy-link');
+    privacyLinks.forEach(link => {
+        link.onclick = (e) => {
             e.preventDefault();
             openPrivacyModal();
         };
-    }
+    });
 
     openModal(modal);
+}
+
+/**
+ * Opens the Support & Feedback modal dialog directly in Feedback mode.
+ */
+export function openFeedbackModal() {
+    openBugReportModal('feedback');
 }
 
 /**

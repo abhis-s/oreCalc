@@ -288,7 +288,7 @@ if (typeof globalThis.document === 'undefined') {
 const { state } = await import('../../js/core/state.js');
 const { dom } = await import('../../js/dom/domElements.js');
 const { loadTranslations } = await import('../../js/i18n/translator.js');
-const { renderPlayerDropdown, invalidatePlayerDropdownCache, updateRefreshButtonVisibility } = await import('../../js/components/player/playerDropdownDisplay.js');
+const { renderPlayerDropdown, invalidatePlayerDropdownCache, renderStandaloneDropdownMarkup } = await import('../../js/components/player/playerDropdownDisplay.js');
 const { getAddPlayerHelpContent } = await import('../../js/utils/cardHelpPopover.js');
 
 await loadTranslations('en');
@@ -296,23 +296,16 @@ await loadTranslations('en');
 describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () => {
     let mockContainer;
     let mockLabel;
-    let mockRefreshButton;
 
     beforeEach(() => {
         invalidatePlayerDropdownCache();
 
         mockContainer = new MockDOMElement('div', 'player-items-container', 'player-dropdown-list-items');
         mockLabel = new MockDOMElement('span', 'selected-player-name', 'selected-player-name');
-        mockRefreshButton = new MockDOMElement('button', 'refresh-button', 'animated-btn btn-accent task-btn is-hidden');
 
         dom.player = {
             playerItemsContainer: mockContainer,
             selectedPlayerName: mockLabel
-        };
-
-        dom.controls = {
-            ...(dom.controls || {}),
-            refreshButton: mockRefreshButton
         };
 
         state.savedPlayerTags = ['TAG1', 'TAG2', 'TAG3'];
@@ -579,52 +572,21 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.ok(!mockDropdownList.classList.contains('show'), 'Escape must close dropdown');
     });
 
-    test('updateRefreshButtonVisibility hides refresh button when user only has guest tag DEFAULT0', () => {
-        state.savedPlayerTags = ['DEFAULT0'];
-        mockRefreshButton.classList.remove('is-hidden');
-
-        updateRefreshButtonVisibility();
-
-        assert.ok(mockRefreshButton.classList.contains('is-hidden'), 'Refresh button must be hidden for guest profile');
+    test('renderStandaloneDropdownMarkup renders sync/refresh button and localized TH alt text for saved player profiles', () => {
+        const markup = renderStandaloneDropdownMarkup({
+            savedProfiles: [{ cleanTag: 'TAG1', name: 'Chief Archer', townHallLevel: 16 }],
+            activeCleanTag: 'TAG1'
+        });
+        assert.ok(markup.includes('refresh-player-button'), 'Dropdown item must include refresh button');
+        assert.ok(markup.includes('data-tag="TAG1"'), 'Refresh button must contain target player tag');
+        assert.ok(markup.includes('alt="Town Hall 16"'), 'Dropdown item must render localized Town Hall alt text');
     });
 
-    test('updateRefreshButtonVisibility shows refresh button when real player profile exists', () => {
-        state.savedPlayerTags = ['#8PJYGUJC'];
-        mockRefreshButton.classList.add('is-hidden');
-
-        updateRefreshButtonVisibility();
-
-        assert.ok(!mockRefreshButton.classList.contains('is-hidden'), 'Refresh button must be visible for real player profile');
-    });
-
-    test('updateRefreshButtonVisibility hides refresh button when tags array is empty or falsy', () => {
-        mockRefreshButton.classList.remove('is-hidden');
-        updateRefreshButtonVisibility([]);
-        assert.ok(mockRefreshButton.classList.contains('is-hidden'), 'Empty tags array must hide refresh button');
-
-        mockRefreshButton.classList.remove('is-hidden');
-        updateRefreshButtonVisibility(null);
-        assert.ok(mockRefreshButton.classList.contains('is-hidden'), 'Null tags parameter must hide refresh button');
-    });
-
-    test('renderPlayerDropdown automatically synchronizes refresh button visibility', () => {
-        state.savedPlayerTags = ['DEFAULT0'];
-        mockRefreshButton.classList.remove('is-hidden');
-
-        renderPlayerDropdown();
-        assert.ok(mockRefreshButton.classList.contains('is-hidden'), 'renderPlayerDropdown must hide refresh button for DEFAULT0');
-
-        state.savedPlayerTags = ['TAG1', 'TAG2'];
-        renderPlayerDropdown();
-        assert.ok(!mockRefreshButton.classList.contains('is-hidden'), 'renderPlayerDropdown must reveal refresh button for real players');
-    });
-
-    test('partials/header.html initializes refresh button with is-hidden class', () => {
+    test('partials/header.html completely omits #refresh-button', () => {
         const headerHtml = fs.readFileSync(path.join(projectRoot, 'partials/header.html'), 'utf8');
-        assert.match(
-            headerHtml,
-            /<button\s+id="refresh-button"\s+class="[^"]*\bis-hidden\b[^"]*"/,
-            'Template must include is-hidden to avoid initial flash before JS evaluation'
+        assert.ok(
+            !headerHtml.includes('id="refresh-button"'),
+            'Header partial must not contain #refresh-button to maintain parity across tools'
         );
     });
 });

@@ -43,6 +43,7 @@
         "reset": "Zurücksetzen",
         "restore": "Wiederherstellen",
         "save": "Speichern",
+        "search": "Suchen",
         "showInfo": "Informationen anzeigen",
         "showLess": "Weniger anzeigen",
         "showMore": "Mehr anzeigen",
@@ -75,6 +76,8 @@
         "deleteAccountFailed": "Konto konnte nicht gelöscht werden",
         "deleteCloudFailed": "Fehler beim Löschen des Cloud-Backups: <code>{error}</code>. Lokale Daten werden trotzdem gelöscht.",
         "enableCloudSyncPrompt": "Die Cloud-Synchronisation ist derzeit deaktiviert. Du musst sie aktivieren, um deine Daten über verschiedene Geräte hinweg zu synchronisieren. Möchtest du sie jetzt aktivieren?",
+        "feedbackFailure": "Feedback konnte nicht übermittelt werden. Bitte versuche es später noch einmal.",
+        "feedbackSuccess": "Feedback erfolgreich übermittelt! Vielen Dank für deine Unterstützung.",
         "globalErasureSuccess": "Spieler verifiziert! Dein Spielerkürzel wurde sofort in unseren Systemen gesperrt und fast alle Daten wurden gelöscht. Jeder Versuch, es in Zukunft hinzuzufügen, erfordert eine Verifizierung. Alle verbleibenden Restdaten zu dem angegebenen Kürzel werden in den nächsten 30 Tagen entfernt.",
         "importEmpty": "Bitte gib eine Nutzer-ID zum Importieren ein.",
         "importFailed": "Importieren der Daten fehlgeschlagen: <code>{error}</code>",
@@ -501,6 +504,7 @@
         "bugDescriptionRequired": "Bitte gib eine Beschreibung von mindestens 20 Zeichen ein.",
         "compatibilityNoticeFallback": "Der Speicherzugriff ist eingeschränkt oder Ihr Browser ist veraltet. Bitte aktivieren Sie Cookies/lokalen Speicher oder aktualisieren Sie Ihren Browser, damit ClashCalc ordnungsgemäß funktioniert.",
         "duplicateCustomType": "Ein eigener Chip dieses Typs existiert bereits.",
+        "feedbackDescriptionRequired": "Bitte gib ein Feedback von mindestens 10 Zeichen ein.",
         "fetchPlayerFailed": "Fehler beim Laden der Spielerdaten: <code>{error}</code>",
         "fixOrder": "Fehler: Reihenfolge korrigieren",
         "invalidChar": "Ungültiges Zeichen eingegeben: \"{char}\". Gültige Zeichen sind: {validChars}",
@@ -789,6 +793,7 @@
                 "clusterPlanner": "Cluster-Planer",
                 "zapQuake": "BlitzBeben-Kombos"
             },
+            "title": "Ausrüstungsschaden & ZapQuake",
             "zapQuake": {
                 "cannotDestroyBadge": "Nicht zerstörbar",
                 "combinationBreakdownAria": "Kombinationsaufschlüsselung",
@@ -1424,6 +1429,13 @@
                 "filenameInfo": "Die Datei wird benannt: <b>ClashCalc-Data_{uuid}.json</b>",
                 "title": "Deine Daten herunterladen"
             },
+            "feedback": {
+                "descLabel": "Dein Feedback *",
+                "descPlaceholder": "Teile uns mit, was dir gefällt, was verbessert werden könnte oder schlage neue Funktionen vor...",
+                "info": "Hast du einen Vorschlag, eine Idee oder Feedback? Lass uns wissen, wie wir ClashCalc verbessern können!",
+                "privacyInfo": "Durch das Absenden von Feedback erklärst du dich damit einverstanden, dass dein Feedback und die angegebene E-Mail-Adresse gemäß unserer {link} verarbeitet werden.",
+                "title": "Feedback"
+            },
             "globalPricing": {
                 "desc": "Supercell nutzt regionale und personalisierte Preise, was bedeutet, dass sich die Paketkosten weltweit je nach Kaufkraft der Währung, Land oder Ausgabeverhalten des Kontos unterscheiden. Konfiguriere hier individuelle Preise, um sie an die tatsächlichen Kosten in deinem Shop anzupassen, damit die App deine Kosten genau erfassen kann.",
                 "modal": {
@@ -1496,6 +1508,53 @@
                 },
                 "title": "Projektkosten"
             }
+        },
+        "shortcuts": {
+            "categories": {
+                "dialogs": "Navigation & Dialoge",
+                "global": "Global",
+                "spotright": "Spotright-Suche"
+            },
+            "descriptions": {
+                "activateItem": "Button, Chip oder Listenelement aktivieren",
+                "closeActive": "Modal, Drawer oder Palette schließen",
+                "cycleFocus": "Fokus zwischen interaktiven Elementen wechseln",
+                "cycleResults": "Durch Suchergebnisse navigieren",
+                "executeAction": "Auswahl ausführen oder Dorf wechseln",
+                "horizontalNav": "Karten und horizontale Leisten navigieren",
+                "openCheatsheet": "Tastaturkürzel-Übersicht öffnen",
+                "openSpotright": "Spotright-Suche öffnen",
+                "scopePrefix": "Kategorie-Präfixe (/v, /e, /h, /t, /s)",
+                "spotrightAccept": "Inline-Autovervollständigung annehmen",
+                "spotrightClearScope": "Aktiven Filterbereich zurücksetzen (leere Eingabe)"
+            },
+            "keys": {
+                "keyboardBackspace": "Rücktaste",
+                "keyboardCommand": "Befehl",
+                "keyboardCtrl": "Strg",
+                "keyboardDown": "Ab",
+                "keyboardEnter": "Eingabe",
+                "keyboardEsc": "ESC",
+                "keyboardLeft": "Links",
+                "keyboardRight": "Rechts",
+                "keyboardShift": "Umschalt",
+                "keyboardSpace": "Leertaste",
+                "keyboardTab": "Tab",
+                "keyboardUp": "Auf"
+            },
+            "title": "Tastaturkürzel"
+        },
+        "spotright": {
+            "activeVillage": "Aktiv",
+            "beta": "Beta",
+            "betaTooltip": "Spotright befindet sich derzeit in der Vorschau. Verwenden Sie die Feedback-Schaltfläche, um Vorschläge zu melden.",
+            "loadVillageTag": "Dorf #{tag} laden",
+            "noResults": "Keine passenden Ergebnisse gefunden",
+            "placeholder": "Tools, Ausrüstung, Helden durchsuchen...",
+            "recent": "Zuletzt verwendet",
+            "scopesHeading": "Suchbereiche",
+            "searchTrigger": "Suche & Befehlspalette",
+            "villageSubtitle": "Dorf · #{tag} · RH{th}"
         },
         "tour": {
             "backupSyncDesc": "Aktiviere die Cloud-Synchronisierung, um deine Daten zu sichern und automatisch auf mehreren Geräten synchron zu halten.",

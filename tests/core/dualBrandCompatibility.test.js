@@ -470,6 +470,7 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_appSettings'));
         assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_playerTags'));
         assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_userId'));
+        assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_spotrightRecentSearches'));
         assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_migratedToClashCalc'));
         assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_migratedUserId'));
         assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('oreCalc_appSettings'));

@@ -12,6 +12,8 @@ import { showAddPlayerModal } from './playerModalInputs.js';
 import { dom } from '../../dom/domElements.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 import { showApiErrorToast } from '../../ui/toast.js';
+import { isPlayerRefreshStale } from '../../core/playerRefreshThrottler.js';
+import { refreshActivePlayerData } from './playerRefreshController.js';
 
 let lastTouchTime = 0;
 let isPlayerDropdownInitialized = false;
@@ -97,6 +99,9 @@ export async function handlePlayerSelection(tag) {
         switchActivePlayer(cleanTag);
         updateSavedPlayerTags(cleanTag);
         syncPlayerTagToUrl(cleanTag);
+        if (isPlayerRefreshStale(cleanTag)) {
+            void refreshActivePlayerData({ background: true, targetTag: cleanTag });
+        }
     } else {
         const result = await loadAndProcessPlayerData(cleanTag);
         if (result?.success) {
@@ -236,6 +241,24 @@ export function initPlayerDropdown(options = {}) {
             if (handleSectionHeaderInteraction(event)) return;
 
             const target = /** @type {HTMLElement} */ (event.target);
+            const refreshBtn = target?.closest?.('.refresh-player-button');
+            if (refreshBtn) {
+                event.preventDefault();
+                event.stopPropagation();
+                const tagToRefresh = refreshBtn.getAttribute('data-tag') || refreshBtn.dataset?.tag;
+                if (tagToRefresh && tagToRefresh !== 'DEFAULT0') {
+                    refreshBtn.classList.add('is-spinning');
+                    refreshBtn.setAttribute('disabled', 'true');
+                    try {
+                        await refreshActivePlayerData({ force: true, targetTag: tagToRefresh });
+                    } finally {
+                        refreshBtn.classList.remove('is-spinning');
+                        refreshBtn.removeAttribute('disabled');
+                    }
+                }
+                return;
+            }
+
             const deleteBtn = target?.closest?.('.delete-player-button, .remove-player-button');
             if (deleteBtn) {
                 event.preventDefault();

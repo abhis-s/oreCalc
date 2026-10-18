@@ -8,6 +8,9 @@
 @use 'components/bottom-nav';
 @use 'components/footer';
 @use 'components/element-highlighter';
+@use 'components/bug-report-modal';
+@use 'components/spotright';
+@use 'components/shortcuts-modal';
 
 @use 'damage-calculator/layout';
 @use 'damage-calculator/solution-card';

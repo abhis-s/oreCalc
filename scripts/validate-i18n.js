@@ -81,7 +81,15 @@ const ALLOWED_DUPLICATE_KEYS = {
 
     // 17. Linguistic: Income revenue origin vs Source code repository link (Chinese: 来源 vs 源码)
     'views.income.source': 'Linguistic: Income revenue stream (Chinese: 来源) vs Source code repository link (Chinese: 源码)',
-    'views.settings.about.sourceLink': 'Linguistic: Income revenue stream (Chinese: 来源) vs Source code repository link (Chinese: 源码)'
+    'views.settings.about.sourceLink': 'Linguistic: Income revenue stream (Chinese: 来源) vs Source code repository link (Chinese: 源码)',
+
+    // 18. Linguistic/Domain: Equipment ability trigger mode (Chinese: 主动) vs Active village profile status (German: Aktiv; Chinese: 当前)
+    'views.equipment.active': 'Linguistic/Domain: Equipment ability trigger mode (Chinese: 主动) vs Active village profile status (views.spotright.activeVillage)',
+    'views.spotright.activeVillage': 'Linguistic/Domain: Active village profile status badge (German: Aktiv; Chinese: 当前) vs Equipment ability trigger mode (views.equipment.active)',
+
+    // 19. Linguistic: Keyboard spacebar key (German: Leertaste) vs spell housing space (German: Zauberplatz)
+    'views.damageCalc.clusterPlanner.spellSpaceLabel': 'Linguistic: Spell housing space (German: Zauberplatz) vs keyboard spacebar key (views.shortcuts.keys.keyboardSpace)',
+    'views.shortcuts.keys.keyboardSpace': 'Linguistic: Keyboard spacebar key (German: Leertaste) vs spell housing space (views.damageCalc.clusterPlanner.spellSpaceLabel)'
 };
 
 /**

@@ -4,6 +4,7 @@
  */
 
 export const MAX_SAVED_PLAYERS = 12;
+export const MAX_RECENT_SEARCHES = 5;
 export const UNRANKED_LEAGUE_ID = 105000000;
 export const LEGENDS_LEAGUE_ID = 105000036;
 

@@ -16,28 +16,6 @@ export function invalidatePlayerDropdownCache() {
 }
 
 /**
- * Updates refresh button visibility based on whether real saved player profiles exist.
- * Hides the button if the user only has guest tags (e.g. DEFAULT0) or no profiles.
- *
- * @param {string[]} [tags] - List of saved player tags.
- */
-export function updateRefreshButtonVisibility(tags = state?.savedPlayerTags) {
-    const refreshButton = dom.controls?.refreshButton || (typeof document !== 'undefined' ? document.getElementById('refresh-button') : null);
-    if (!refreshButton) return;
-
-    const hasRealPlayer = Array.isArray(tags) && tags.some(tag => {
-        const cleanTag = normalizePlayerTag(tag);
-        return Boolean(cleanTag && cleanTag !== 'DEFAULT0');
-    });
-
-    if (hasRealPlayer) {
-        refreshButton.classList.remove('is-hidden');
-    } else {
-        refreshButton.classList.add('is-hidden');
-    }
-}
-
-/**
  * Renders HTML markup for player dropdown list items.
  *
  * @param {Object} [params={}]
@@ -79,16 +57,22 @@ export function renderStandaloneDropdownMarkup({
         const thLevel = Math.min(Math.max(Number(p.townHallLevel) || 1, 1), 18);
         const thImg = `assets/th/th${thLevel}.png`;
         const idAttr = idPrefix ? `id="${idPrefix}-${index}" ` : '';
+        const thDefense = translate('entities.defenses.townHall');
+        const thPrefix = (thDefense && thDefense !== 'entities.defenses.townHall') ? thDefense : 'Town Hall';
+        const thAlt = `${escapeHTML(thPrefix)} ${thLevel}`;
 
         return `<div ${idAttr}class="player-dropdown-item ${isActive ? 'active is-active' : ''}" data-tag="${escapeHTML(cleanTag)}" tabindex="${isActive ? '0' : '-1'}" role="option" aria-selected="${isActive}">
             <div class="player-dropdown-th-wrapper">
-                <clashcalc-assets-image src="${thImg}" alt="TH ${thLevel}" class="player-dropdown-th"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${thImg}" alt="${thAlt}" class="player-dropdown-th"></clashcalc-assets-image>
                 <span class="player-dropdown-th-badge">${thLevel}</span>
             </div>
             <div class="player-info-text">
                 <span>${playerName}</span>
                 <span class="player-tag-text">${escapeHTML(displayTag)}</span>
             </div>
+            <button class="refresh-player-button" data-tag="${escapeHTML(cleanTag)}" ${isDefaultTag ? 'disabled' : ''} tabindex="-1" aria-label="${escapeHTML(translate('actions.refresh'))}: ${playerName}" title="${escapeHTML(translate('actions.refresh'))}">
+                ${getSVG('refresh', '', 14, 14, 'currentColor')}
+            </button>
             <button class="remove-player-button delete-player-button" data-tag="${escapeHTML(cleanTag)}" ${isDefaultTag ? 'disabled' : ''} tabindex="-1" aria-label="${escapeHTML(translate('player.removePlayer'))}: ${playerName}" title="${escapeHTML(translate('player.removePlayer'))}">
                 ${getSVG('trash', '', 16, 16, 'currentColor')}
             </button>
@@ -107,8 +91,6 @@ export function renderStandaloneDropdownMarkup({
  * @param {string} [options.fallbackName=''] - Fallback name if active profile summary is missing.
  */
 export function renderPlayerDropdown(activeTagOrOptions = '', options = {}) {
-    updateRefreshButtonVisibility();
-
     const playerItemsContainer = dom.player?.playerItemsContainer || (typeof document !== 'undefined' ? document.getElementById('player-items-container') : null);
     const selectedPlayerName = dom.player?.selectedPlayerName || (typeof document !== 'undefined' ? document.getElementById('selected-player-name') : null);
     const dropdownButton = dom.player?.dropdownButton || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-button') : null);

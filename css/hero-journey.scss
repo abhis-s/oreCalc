@@ -24,6 +24,9 @@
 @use 'components/player-modal';
 @use 'components/changelog-modal';
 @use 'components/commits-modal';
+@use 'components/bug-report-modal';
+@use 'components/spotright';
+@use 'components/shortcuts-modal';
 @use 'hero-journey/hero-journey-header';
 @use 'hero-journey/hero-journey-table-filters';
 @use 'hero-journey/hero-journey-table';

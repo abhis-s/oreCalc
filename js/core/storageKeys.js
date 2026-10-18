@@ -13,6 +13,8 @@ export const CANONICAL_PLAYER_TAGS_KEY = 'clashCalc_playerTags';
 export const PLAYER_PREFIX = 'oreCalc_player_';
 export const CANONICAL_PLAYER_PREFIX = 'clashCalc_player_';
 
+export const SPOTRIGHT_RECENTS_KEY = 'clashCalc_spotrightRecentSearches';
+
 export const ALLOWED_STATIC_STORAGE_KEYS = Object.freeze(new Set([
     'clashCalc_appSettings',
     'clashCalc_playerTags',
@@ -24,6 +26,7 @@ export const ALLOWED_STATIC_STORAGE_KEYS = Object.freeze(new Set([
     'clashCalc_username',
     'clashCalc_avatar',
     'clashCalc_damageCalcState',
+    'clashCalc_spotrightRecentSearches',
     'oreCalc_appSettings',
     'oreCalc_playerTags',
     'oreCalc_userId',
