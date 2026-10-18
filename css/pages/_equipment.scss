@@ -124,6 +124,13 @@
         display: none !important;
     }
 
+    &.spotright-target-pulse {
+        border-radius: $shape-corner-small;
+        padding: $spacing-2xs $spacing-xs;
+        margin-left: -$spacing-xs;
+        margin-right: -$spacing-xs;
+    }
+
     label {
         flex-grow: 1;
         flex-shrink: 1;

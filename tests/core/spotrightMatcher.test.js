@@ -4,10 +4,18 @@ import {
     buildSpotrightRegistry,
     HERO_ACRONYMS,
     EQUIPMENT_ACRONYMS,
-    handleSpotrightDeepLink,
-    navigateToEquipment,
-    navigateToHero
+    DAMAGE_EQUIPMENT_MAP
 } from '../../js/components/spotright/spotrightRegistry.js';
+import {
+    buildSpotrightUrl,
+    getCurrentRouteContext,
+    getRoutePrefix,
+    handleSpotrightDeepLink,
+    isSelfTarget,
+    navigateToEquipment,
+    navigateToHero,
+    openDamageCalcEquipment
+} from '../../js/components/spotright/spotrightNavigator.js';
 import {
     extractScopePrefix,
     getScopeSuggestions,
@@ -34,16 +42,17 @@ describe('Spotright Search Engine & Matcher', () => {
         assert.equal(isSubsequence('bs', 'spiky ball'), false);
     });
 
-    test('pre-indexed registry contains all 6 heroes and 43 equipment items', () => {
-        const heroes = registry.filter(i => i.entityType === 'hero');
-        const equipment = registry.filter(i => i.entityType === 'epic' || i.entityType === 'common');
-        const tools = registry.filter(i => i.entityType === 'nav');
-        const modals = registry.filter(i => i.entityType === 'modal');
+    test('pre-indexed registry contains all 6 heroes and 43 equipment items with orthogonal taxonomy', () => {
+        const heroes = registry.filter(i => i.type === 'hero');
+        const equipment = registry.filter(i => i.type === 'equipment' && (i.rarity === 'epic' || i.rarity === 'common'));
+        const tools = registry.filter(i => i.scopes?.includes('tools'));
+        const settingsAndModals = registry.filter(i => i.scopes?.includes('settings'));
 
         assert.equal(heroes.length, 6, 'Must contain 6 Clash heroes');
         assert.equal(equipment.length, 43, 'Must contain all 43 equipment pieces');
-        assert.ok(tools.length >= 8, 'Must contain core tools and navigation views');
-        assert.ok(modals.length >= 5, 'Must contain primary modals');
+        assert.ok(tools.length >= 7, 'Must contain core tools and navigation views');
+        assert.ok(settingsAndModals.length >= 5, 'Must contain primary settings actions and modals');
+        assert.equal(Object.keys(DAMAGE_EQUIPMENT_MAP).length, 7, 'Must map all 7 damaging equipment pieces');
     });
 
     test('acronym registry maps all heroes to valid 2-letter codes', () => {
@@ -100,8 +109,8 @@ describe('Spotright Search Engine & Matcher', () => {
     test('collision tiebreaker: SB ranks Spiky Ball & Snake Bracelet (Epics) > Stun Blaster (Common)', () => {
         const result = searchSpotright('sb', registry);
         assert.ok(result.matches.length >= 3);
-        const topTwoTypes = [result.matches[0].entityType, result.matches[1].entityType];
-        assert.deepEqual(topTwoTypes, ['epic', 'epic'], 'Epics must take top two slots over common');
+        const topTwoRarities = [result.matches[0].rarity, result.matches[1].rarity];
+        assert.deepEqual(topTwoRarities, ['epic', 'epic'], 'Epics must take top two slots over common');
         assert.equal(result.matches[2].id, 'equip-dragonDuke-stunBlaster');
     });
 
@@ -161,12 +170,15 @@ describe('Spotright Search Engine & Matcher', () => {
         const result = searchSpotright('', registry);
         assert.equal(result.autocomplete, null);
         assert.ok(result.matches.length > 0);
-        assert.equal(result.matches[0].entityType, 'nav');
+        assert.equal(result.matches[0].scopes?.includes('tools'), true);
     });
 
     test('all registry items define executable actions and valid metadata', () => {
         for (const item of registry) {
             assert.ok(item.id, 'Item must have an id');
+            assert.ok(item.type, 'Item must have a type');
+            assert.ok(Array.isArray(item.scopes), 'Item must have a scopes array');
+            assert.ok(item.parent, 'Item must have a parent');
             assert.ok(item.title, 'Item must have a title');
             assert.ok(item.normalizedTitle, 'Item must have a normalizedTitle');
             assert.ok(item.category, 'Item must have a category');
@@ -187,6 +199,8 @@ describe('Spotright Search Engine & Matcher', () => {
         assert.doesNotThrow(() => navigateToEquipment('Royal Champion', 'Electro Boots', 'electroBoots'));
         assert.doesNotThrow(() => navigateToHero('Barbarian King', 'barbarianKing'));
         assert.doesNotThrow(() => handleSpotrightDeepLink());
+        assert.doesNotThrow(() => openDamageCalcEquipment('fireball'));
+        assert.equal(getRoutePrefix(), '');
     });
 
     test('handleSpotrightDeepLink parses #equip- and #hero- hashes safely', () => {
@@ -384,14 +398,15 @@ describe('Spotright Search Engine & Matcher', () => {
         const equipResult = searchSpotright('boots', registry, 'equipment');
         assert.ok(equipResult.matches.length > 0);
         for (const item of equipResult.matches) {
-            assert.ok(item.entityType === 'epic' || item.entityType === 'common');
+            assert.equal(item.type, 'equipment');
+            assert.ok(item.rarity === 'epic' || item.rarity === 'common');
         }
 
         // Hero scope
         const heroResult = searchSpotright('king', registry, 'hero');
         assert.ok(heroResult.matches.length > 0);
         for (const item of heroResult.matches) {
-            assert.equal(item.entityType, 'hero');
+            assert.equal(item.type, 'hero');
         }
 
         // Empty query with active scope returns domain items
@@ -401,21 +416,22 @@ describe('Spotright Search Engine & Matcher', () => {
         const emptyEquipResult = searchSpotright('', registry, 'equipment');
         assert.equal(emptyEquipResult.matches.length, 43, 'Empty query in equipment scope returns all 43 equipment items');
         for (const item of emptyEquipResult.matches) {
-            assert.ok(item.entityType === 'epic' || item.entityType === 'common');
+            assert.equal(item.type, 'equipment');
+            assert.ok(item.rarity === 'epic' || item.rarity === 'common');
         }
 
         // Tools scope
         const toolsResult = searchSpotright('', registry, 'tools');
         assert.ok(toolsResult.matches.length > 0);
         for (const item of toolsResult.matches) {
-            assert.equal(item.entityType, 'nav');
+            assert.equal(item.scopes?.includes('tools'), true);
         }
 
         // Settings scope
         const settingsResult = searchSpotright('', registry, 'settings');
         assert.ok(settingsResult.matches.length > 0);
         for (const item of settingsResult.matches) {
-            assert.equal(item.entityType, 'modal');
+            assert.equal(item.scopes?.includes('settings'), true);
         }
     });
 
@@ -561,13 +577,16 @@ describe('Spotright Search Engine & Matcher', () => {
     test('instant village switcher: typing "@#8PJYGUJC" synthesizes direct tag action', () => {
         const result = searchSpotright('@#8PJYGUJC', registry);
         assert.ok(result.matches.length >= 1);
-        const directTagItem = result.matches.find(m => m.id === 'direct-tag-8PJYGUJC');
+        const directTagItem = result.matches.find(m => m.id === 'action-direct-tag-8PJYGUJC');
         assert.ok(directTagItem, 'Must synthesize direct tag candidate');
+        assert.equal(directTagItem.type, 'action');
     });
 
     test('renderSpotrightResults renders command pill, Tab keycap, and zero subtitle for scope suggestions', () => {
         const suggestions = getScopeSuggestions('/');
         assert.ok(suggestions.length > 0);
+        assert.equal(suggestions[0].id, 'scope-villages');
+        assert.equal(suggestions[0].type, 'scope');
 
         const container = { innerHTML: '' };
         // @ts-ignore
@@ -644,5 +663,277 @@ describe('Spotright Search Engine & Matcher', () => {
         assert.match(container.innerHTML, /id="spotright-empty-reset-btn"/, 'Must contain spotright-empty-reset-btn');
         assert.match(container.innerHTML, /data-i18n="views\.damageCalc\.filters\.resetFiltersBtn"/, 'Must use canonical resetFiltersBtn i18n key');
         assert.match(container.innerHTML, /<clashcalc-assets-svg name="close" width="12" height="12"/, 'Must render close SVG icon');
+    });
+
+    test('page-hub is omitted on landing page and included on tool pages', () => {
+        const originalWindow = globalThis.window;
+        try {
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/', search: '' } });
+            const hubRegistry = buildSpotrightRegistry();
+            assert.equal(hubRegistry.some(i => i.id === 'page-hub'), false, 'page-hub must be omitted on Landing page');
+
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/ore-calculator/', search: '' } });
+            const oreCalcRegistry = buildSpotrightRegistry();
+            assert.equal(oreCalcRegistry.some(i => i.id === 'page-hub'), true, 'page-hub must be included on OreCalc page');
+        } finally {
+            globalThis.window = originalWindow;
+        }
+    });
+
+    test('modal-priority-list is only included on ore-calculator page via parent-only visibility', () => {
+        const originalWindow = globalThis.window;
+        try {
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/', search: '' } });
+            const hubRegistry = buildSpotrightRegistry();
+            assert.equal(hubRegistry.some(i => i.id === 'modal-priority-list'), false, 'modal-priority-list must be omitted on Hub');
+
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/hero-journey/', search: '' } });
+            const hjRegistry = buildSpotrightRegistry();
+            assert.equal(hjRegistry.some(i => i.id === 'modal-priority-list'), false, 'modal-priority-list must be omitted on Hero Journey');
+
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/ore-calculator/', search: '' } });
+            const ocRegistry = buildSpotrightRegistry();
+            const priorityItem = ocRegistry.find(i => i.id === 'modal-priority-list');
+            assert.ok(priorityItem, 'modal-priority-list must be included on OreCalc');
+            assert.equal(priorityItem.type, 'modal');
+            assert.equal(priorityItem.parent, 'orecalc');
+            assert.equal(priorityItem.visibility, 'parent-only');
+            assert.deepEqual(priorityItem.scopes, ['tools']);
+
+            const toolsScoped = searchSpotright('', ocRegistry, 'tools');
+            assert.equal(toolsScoped.matches.some(i => i.id === 'modal-priority-list'), true, 'modal-priority-list must be included in tools scope');
+
+            const settingsScoped = searchSpotright('', ocRegistry, 'settings');
+            assert.equal(settingsScoped.matches.some(i => i.id === 'modal-priority-list'), false, 'modal-priority-list must be strictly excluded from settings scope');
+        } finally {
+            globalThis.window = originalWindow;
+        }
+    });
+
+    test('action-toggle-theme is registered across all pages and uses canonical i18n title', () => {
+        const originalWindow = globalThis.window;
+        try {
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/', search: '' } });
+            const reg = buildSpotrightRegistry();
+            const themeItem = reg.find(i => i.id === 'action-toggle-theme');
+            assert.ok(themeItem, 'Must register action-toggle-theme');
+            assert.equal(themeItem.type, 'action');
+            assert.equal(themeItem.canonicalTitle, 'toggle theme');
+            assert.equal(typeof themeItem.execute, 'function');
+        } finally {
+            globalThis.window = originalWindow;
+        }
+    });
+
+    test('unified page and tab topology: isSelfTarget hides active tab and surfaces default home tab when on sub-tab', () => {
+        const originalWindow = globalThis.window;
+        try {
+            // 1. On OreCalc default tab (#home or no hash): page-orecalc is hidden, tab-planner & tab-income are shown
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/ore-calculator/', search: '', hash: '' } });
+            assert.deepEqual(getCurrentRouteContext(), { page: 'orecalc', activeTab: 'home' });
+            const ocHomeReg = buildSpotrightRegistry();
+            assert.equal(ocHomeReg.some(i => i.id === 'page-orecalc'), false, 'page-orecalc must be hidden on OreCalc home tab');
+            assert.equal(ocHomeReg.some(i => i.id === 'tab-planner'), true, 'tab-planner must be shown on OreCalc home tab');
+            assert.equal(ocHomeReg.some(i => i.id === 'tab-income'), true, 'tab-income must be shown on OreCalc home tab');
+
+            // 2. On OreCalc #planner tab: tab-planner is hidden, page-orecalc is shown to return to Equipment view
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/ore-calculator/', search: '', hash: '#planner' } });
+            assert.deepEqual(getCurrentRouteContext(), { page: 'orecalc', activeTab: 'planner' });
+            const ocPlannerReg = buildSpotrightRegistry();
+            assert.equal(ocPlannerReg.some(i => i.id === 'tab-planner'), false, 'tab-planner must be hidden when already on #planner');
+            assert.equal(ocPlannerReg.some(i => i.id === 'page-orecalc'), true, 'page-orecalc must be shown when on #planner sub-tab');
+            assert.equal(ocPlannerReg.some(i => i.id === 'tab-income'), true, 'tab-income must be shown when on #planner');
+
+            // 3. On DamageCalc default tab (#zapquake or no hash): page-damagecalc is hidden, tab-cluster-planner is shown
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/damage-calculator/', search: '', hash: '' } });
+            assert.deepEqual(getCurrentRouteContext(), { page: 'damagecalc', activeTab: 'zapquake' });
+            const dcZapReg = buildSpotrightRegistry();
+            assert.equal(dcZapReg.some(i => i.id === 'page-damagecalc'), false, 'page-damagecalc must be hidden on ZapQuake default tab');
+            assert.equal(dcZapReg.some(i => i.id === 'tab-cluster-planner'), true, 'tab-cluster-planner must be shown on ZapQuake tab');
+
+            // 4. On DamageCalc #cluster_planner tab: tab-cluster-planner is hidden, page-damagecalc is shown
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/damage-calculator/', search: '', hash: '#cluster_planner' } });
+            assert.deepEqual(getCurrentRouteContext(), { page: 'damagecalc', activeTab: 'cluster_planner' });
+            const dcClusterReg = buildSpotrightRegistry();
+            assert.equal(dcClusterReg.some(i => i.id === 'tab-cluster-planner'), false, 'tab-cluster-planner must be hidden when already on #cluster_planner');
+            assert.equal(dcClusterReg.some(i => i.id === 'page-damagecalc'), true, 'page-damagecalc must be shown when on #cluster_planner sub-tab');
+            assert.equal(isSelfTarget(null), false);
+        } finally {
+            globalThis.window = originalWindow;
+        }
+    });
+
+    test('multi-parent equipment ranking: DamageCalc registered equipment ranks higher on /damage-calculator/', () => {
+        const originalWindow = globalThis.window;
+        try {
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/damage-calculator/', search: '', hash: '' } });
+            const dcReg = buildSpotrightRegistry();
+
+            const fireball = dcReg.find(i => i.id === 'equip-grandWarden-fireball');
+            const eternalTome = dcReg.find(i => i.id === 'equip-grandWarden-eternalTome');
+            assert.ok(fireball && eternalTome);
+            assert.deepEqual(fireball.parents, ['damagecalc', 'orecalc']);
+            assert.deepEqual(eternalTome.parents, ['orecalc']);
+            assert.equal(fireball.priorityTier, 35, 'Registered epic on DamageCalc receives priorityTier 35');
+            assert.equal(eternalTome.priorityTier, 10, 'Unregistered common on DamageCalc retains priorityTier 10');
+
+            // Acronym collision on DamageCalc: 'eb' ranks Earthquake Boots (DamageCalc-registered, 32) above Electro Boots (OreCalc-only, 20)
+            const ebSearch = searchSpotright('eb', dcReg);
+            assert.equal(ebSearch.matches[0].id, 'equip-barbarianKing-earthquakeBoots', 'Registered Earthquake Boots must rank #1 for eb on DamageCalc');
+
+            // Empty query in equipment scope on DamageCalc surfaces all 7 DamageCalc equipment items first
+            const emptyEquipOnDc = searchSpotright('', dcReg, 'equipment');
+            const topSeven = emptyEquipOnDc.matches.slice(0, 7);
+            for (const item of topSeven) {
+                assert.equal(item.parents?.includes('damagecalc'), true, `Top 7 equipment on DamageCalc must be registered on DamageCalc (${item.id})`);
+            }
+        } finally {
+            globalThis.window = originalWindow;
+        }
+    });
+
+    test('page-hub and buildSpotrightUrl preserve active tag on navigation', () => {
+        const originalWindow = globalThis.window;
+        try {
+            globalThis.window = /** @type {any} */ ({
+                location: {
+                    pathname: '/ore-calculator/',
+                    search: '?tag=9L0V9G9C9',
+                    href: ''
+                }
+            });
+            assert.equal(buildSpotrightUrl('hub'), '/?tag=9L0V9G9C9');
+            assert.equal(buildSpotrightUrl('damagecalc', { hash: 'cluster_planner' }), '/damage-calculator/?tag=9L0V9G9C9#cluster_planner');
+
+            const reg = buildSpotrightRegistry();
+            const hubItem = reg.find(i => i.id === 'page-hub');
+            assert.ok(hubItem);
+            hubItem.execute();
+            assert.equal(globalThis.window.location.href, '/?tag=9L0V9G9C9');
+        } finally {
+            globalThis.window = originalWindow;
+        }
+    });
+
+    test('action-settings triggers header account popover directly without navigation', () => {
+        const originalDocument = globalThis.document;
+        const originalWindow = globalThis.window;
+        try {
+            let accountBtnClicked = false;
+            const fakePrefs = { open: false };
+            const fakeAccountBtn = {
+                click: () => { accountBtnClicked = true; }
+            };
+            globalThis.document = /** @type {any} */ ({
+                getElementById: (id) => {
+                    if (id === 'header-account-btn') return fakeAccountBtn;
+                    if (id === 'account-popover-prefs-details') return fakePrefs;
+                    return null;
+                }
+            });
+            globalThis.window = /** @type {any} */ ({
+                location: { pathname: '/ore-calculator/', search: '' }
+            });
+            const reg = buildSpotrightRegistry();
+            const settingsItem = reg.find(i => i.id === 'action-settings');
+            assert.ok(settingsItem);
+            settingsItem.execute();
+            assert.equal(accountBtnClicked, true);
+            assert.equal(fakePrefs.open, true);
+        } finally {
+            globalThis.document = originalDocument;
+            globalThis.window = originalWindow;
+        }
+    });
+
+    test('action-manage-villages triggers player-dropdown-button on non-landing pages', async () => {
+        const originalDocument = globalThis.document;
+        const originalWindow = globalThis.window;
+        try {
+            let dropdownClicked = false;
+            const fakeDropdownBtn = {
+                click: () => { dropdownClicked = true; }
+            };
+            globalThis.document = /** @type {any} */ ({
+                getElementById: (id) => {
+                    if (id === 'player-dropdown-button') return fakeDropdownBtn;
+                    return null;
+                }
+            });
+            globalThis.window = /** @type {any} */ ({
+                location: { pathname: '/ore-calculator/', search: '' }
+            });
+            const reg = buildSpotrightRegistry();
+            const playerItem = reg.find(i => i.id === 'action-manage-villages');
+            assert.ok(playerItem);
+            await playerItem.execute();
+            assert.equal(dropdownClicked, true);
+        } finally {
+            globalThis.document = originalDocument;
+            globalThis.window = originalWindow;
+        }
+    });
+
+    test('modal-account-sync opens header account popover when signed in and auth-modal when logged out', async () => {
+        const originalDocument = globalThis.document;
+        const originalWindow = globalThis.window;
+        const originalLocalStorage = globalThis.localStorage;
+        try {
+            let accountBtnClicked = false;
+            let authModalOpened = false;
+            const fakePrefs = { open: true };
+            const fakeAccountBtn = {
+                classList: { contains: () => false },
+                click: () => { accountBtnClicked = true; }
+            };
+            const fakeAuthModal = {
+                open: false,
+                classList: { add: () => {}, remove: () => {}, contains: () => false },
+                showModal: () => { authModalOpened = true; },
+                querySelector: () => null,
+                querySelectorAll: () => [],
+                addEventListener: () => {}
+            };
+            const store = new Map();
+            globalThis.localStorage = /** @type {any} */ ({
+                getItem: (k) => store.get(k) || null,
+                setItem: (k, v) => store.set(k, String(v)),
+                removeItem: (k) => store.delete(k)
+            });
+            globalThis.document = /** @type {any} */ ({
+                getElementById: (id) => {
+                    if (id === 'header-account-btn') return fakeAccountBtn;
+                    if (id === 'account-popover-prefs-details') return fakePrefs;
+                    if (id === 'auth-modal') return fakeAuthModal;
+                    return null;
+                },
+                querySelectorAll: () => []
+            });
+            globalThis.window = /** @type {any} */ ({
+                location: { pathname: '/ore-calculator/', search: '' }
+            });
+
+            const reg = buildSpotrightRegistry();
+            const syncItem = reg.find(i => i.id === 'modal-account-sync');
+            assert.ok(syncItem);
+
+            // 1. Logged out -> opens #auth-modal
+            await syncItem.execute();
+            assert.equal(accountBtnClicked, false);
+            assert.equal(authModalOpened, true);
+
+            // 2. Signed in -> opens #header-account-btn with prefs collapsed
+            authModalOpened = false;
+            store.set('clashCalc_authToken', 'mock-token');
+            store.set('clashCalc_username', 'Chief');
+            await syncItem.execute();
+            assert.equal(accountBtnClicked, true);
+            assert.equal(fakePrefs.open, false);
+            assert.equal(authModalOpened, false);
+        } finally {
+            globalThis.document = originalDocument;
+            globalThis.window = originalWindow;
+            globalThis.localStorage = originalLocalStorage;
+        }
     });
 });

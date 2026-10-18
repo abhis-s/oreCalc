@@ -5,21 +5,16 @@
  */
 
 import { normalizePlayerTag } from '../../core/storageKeys.js';
-import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { translate } from '../../i18n/translator.js';
+import { setActivePlayerTag, updateSavedPlayerTags } from '../../core/playerStorage.js';
+import {
+    buildSpotrightUrl,
+    focusAndHighlightTarget,
+    getCurrentRouteContext
+} from './spotrightNavigator.js';
 
 /** Base32 character set used for official Supercell player tags */
 const VALID_TAG_PATTERN = /^[0289CGJLOPQRUVY]{3,12}$/;
-
-/**
- * Returns localized route prefix based on active URL path.
- * @returns {string}
- */
-function getRoutePrefix() {
-    if (typeof window === 'undefined') return '';
-    const lang = getLanguageFromPath() || 'en';
-    return lang === 'en' ? '' : `/${lang}`;
-}
 
 /**
  * Extracts and validates a Clash of Clans player tag from raw text or profile URL.
@@ -120,12 +115,11 @@ export async function loadAndSwitchPlayerTag(cleanTag) {
         }
 
         const validTag = result.cleanTag || normalized;
-        const prefix = getRoutePrefix();
-        const path = window.location.pathname;
+        const ctx = getCurrentRouteContext();
 
         // On landing portal without tool engines loaded, perform clean navigation
-        if (path === '/' || path === `${prefix}` || path === `${prefix}/`) {
-            window.location.href = `${prefix}/ore-calculator/?tag=${validTag}`;
+        if (ctx.page === 'hub') {
+            window.location.href = buildSpotrightUrl('orecalc', { tag: validTag });
             return { success: true, cleanTag: validTag };
         }
 
@@ -144,7 +138,7 @@ export async function loadAndSwitchPlayerTag(cleanTag) {
 
 /**
  * Switches the active player profile to an already saved village.
- * Uses in-memory state switching on Ore Calculator, or clean navigation on landing/other pages.
+ * Smoothly activates and highlights on the Hub (landing page), or navigates to the Hub from other pages.
  *
  * @param {string} cleanTag
  */
@@ -153,34 +147,27 @@ export function switchSavedVillage(cleanTag) {
     const normalized = normalizePlayerTag(cleanTag);
     if (!normalized) return;
 
-    const prefix = getRoutePrefix();
-    const path = window.location.pathname;
+    const ctx = getCurrentRouteContext();
 
-    if (path === '/' || path === `${prefix}` || path === `${prefix}/`) {
-        window.location.href = `${prefix}/ore-calculator/?tag=${normalized}`;
+    try {
+        setActivePlayerTag(normalized);
+        updateSavedPlayerTags(normalized);
+    } catch {}
+
+    if (ctx.page === 'hub') {
+        if (typeof document !== 'undefined') {
+            const card = /** @type {HTMLElement | null} */ (document.querySelector(`.landing-account-card[data-tag="${normalized}"]`));
+            if (card) {
+                if (typeof card.click === 'function') {
+                    card.click();
+                }
+                focusAndHighlightTarget(card, { pulseClass: 'is-pulse', durationMs: 1500 });
+            }
+        }
         return;
     }
 
-    if (path.includes('/damage-calculator')) {
-        window.location.href = `${prefix}/damage-calculator/?tag=${normalized}`;
-    } else if (path.includes('/hero-journey')) {
-        window.location.href = `${prefix}/hero-journey/?tag=${normalized}`;
-    } else {
-        import('../../core/stateManager.js').then(({ switchActivePlayer }) => {
-            import('../../core/playerStorage.js').then(({ updateSavedPlayerTags }) => {
-                import('../../core/playerUrlRouter.js').then(({ syncPlayerTagToUrl }) => {
-                    switchActivePlayer(normalized);
-                    updateSavedPlayerTags(normalized);
-                    syncPlayerTagToUrl(normalized);
-                    import('../player/playerRefreshController.js').then(({ refreshActivePlayerData }) => {
-                        void refreshActivePlayerData({ background: true, targetTag: normalized });
-                    }).catch(() => {});
-                });
-            });
-        }).catch(() => {
-            window.location.href = `${prefix}/ore-calculator/?tag=${normalized}`;
-        });
-    }
+    window.location.href = buildSpotrightUrl('hub', { tag: normalized });
 }
 
 /**
@@ -205,7 +192,10 @@ export function createClipboardSpotrightItem(cleanTag) {
         ? rawTitle
         : `Load Village #${cleanTag}`;
     return {
-        id: `clipboard-tag-${cleanTag}`,
+        id: `action-clipboard-tag-${cleanTag}`,
+        type: 'action',
+        scopes: ['villages'],
+        parent: 'global',
         title,
         canonicalTitle: `load village #${cleanTag.toLowerCase()}`,
         canonicalTokens: 'load village player tag',
@@ -214,7 +204,6 @@ export function createClipboardSpotrightItem(cleanTag) {
         icon: 'copy',
         iconType: 'svg',
         acronym: cleanTag.slice(0, 2).toLowerCase(),
-        entityType: 'nav',
         priorityTier: 100,
         isAsyncAction: true,
         execute: () => loadAndSwitchPlayerTag(cleanTag)

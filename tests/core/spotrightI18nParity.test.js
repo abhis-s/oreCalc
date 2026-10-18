@@ -23,10 +23,13 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
     let originalFetch;
     /** @type {any} */
     let originalDocument;
+    /** @type {any} */
+    let originalWindow;
 
     beforeEach(async () => {
         originalFetch = globalThis.fetch;
         originalDocument = globalThis.document;
+        originalWindow = globalThis.window;
 
         // @ts-ignore
         globalThis.fetch = async (url) => {
@@ -36,6 +39,13 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
             return { ok: false, status: 404 };
         };
 
+        globalThis.window = /** @type {any} */ ({
+            location: {
+                pathname: '/ore-calculator/',
+                search: ''
+            }
+        });
+
         state.uiSettings = { language: 'en' };
         await loadTranslations('en');
     });
@@ -43,6 +53,7 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
     afterEach(() => {
         globalThis.fetch = originalFetch;
         globalThis.document = originalDocument;
+        globalThis.window = originalWindow;
     });
 
     test('verifies redundant Spotright keys are completely pruned and canonical keys exist', () => {
@@ -106,15 +117,15 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         const enItems = buildSpotrightRegistry();
         const enAddPlayer = enItems.find((item) => item.id === 'action-add-player');
         const enRefresh = enItems.find((item) => item.id === 'action-refresh-village');
-        const enHub = enItems.find((item) => item.id === 'tool-hub');
+        const enHub = enItems.find((item) => item.id === 'page-hub');
         const enHero = enItems.find((item) => item.id === 'hero-barbarianKing');
         const enEquip = enItems.find((item) => item.id === 'equip-barbarianKing-giantGauntlet');
-        const enHjTable = enItems.find((item) => item.id === 'tool-hj-table');
+        const enHjTable = enItems.find((item) => item.id === 'section-hero-journey-table');
 
-        const enDamageCalc = enItems.find((item) => item.id === 'tool-damage-calc');
-        const enClusterPlanner = enItems.find((item) => item.id === 'tool-cluster-planner');
-        const enPlanner = enItems.find((item) => item.id === 'tool-planner');
-        const enIncome = enItems.find((item) => item.id === 'tool-income');
+        const enDamageCalc = enItems.find((item) => item.id === 'page-damagecalc');
+        const enClusterPlanner = enItems.find((item) => item.id === 'tab-cluster-planner');
+        const enPlanner = enItems.find((item) => item.id === 'tab-planner');
+        const enIncome = enItems.find((item) => item.id === 'tab-income');
         const enPriorityList = enItems.find((item) => item.id === 'modal-priority-list');
 
         assert.ok(enAddPlayer, 'action-add-player item must exist');
@@ -125,24 +136,28 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         assert.equal(enRefresh.title, 'Refresh');
         assert.equal(enRefresh.category, 'Settings');
 
-        assert.ok(enHub, 'tool-hub item must exist');
-        assert.equal(enHub.title, 'Progression & Tactical Tools', 'tool-hub title in English must resolve nav.views.hub.tools');
+        assert.ok(enHub, 'page-hub item must exist');
+        assert.equal(enHub.title, 'Progression & Tactical Tools', 'page-hub title in English must resolve nav.views.hub.tools');
         assert.equal(enHub.category, 'Tabs & Tools');
 
-        assert.ok(enDamageCalc, 'tool-damage-calc item must exist');
-        assert.equal(enDamageCalc.title, 'Equipment Damage & ZapQuake', 'tool-damage-calc title in English must resolve views.damageCalc.title');
+        assert.ok(enDamageCalc, 'page-damagecalc item must exist');
+        assert.equal(enDamageCalc.title, 'Equipment Damage & ZapQuake', 'page-damagecalc title in English must resolve views.damageCalc.title');
+        assert.equal(enDamageCalc.parentContext, 'DamageCalc', 'DamageCalc breadcrumb must be set on page-damagecalc');
 
-        assert.ok(enClusterPlanner, 'tool-cluster-planner item must exist');
-        assert.equal(enClusterPlanner.parentContext, undefined, 'DamageCalc breadcrumb must be removed from tool-cluster-planner');
+        assert.ok(enClusterPlanner, 'tab-cluster-planner item must exist');
+        assert.equal(enClusterPlanner.parentContext, 'DamageCalc', 'DamageCalc breadcrumb must be set on tab-cluster-planner');
 
         assert.ok(enPlanner);
-        assert.equal(enPlanner.parentContext, 'OreCalc', 'tool-planner must retain untranslated OreCalc branding');
+        assert.equal(enPlanner.parentContext, 'OreCalc', 'tab-planner must retain untranslated OreCalc branding');
         assert.ok(enIncome);
-        assert.equal(enIncome.parentContext, 'OreCalc', 'tool-income must retain untranslated OreCalc branding');
+        assert.equal(enIncome.parentContext, 'OreCalc', 'tab-income must retain untranslated OreCalc branding');
         assert.ok(enPriorityList);
+        assert.equal(enPriorityList.category, 'Tabs & Tools', 'modal-priority-list category in English must resolve to Tabs & Tools');
         assert.equal(enPriorityList.parentContext, 'OreCalc', 'modal-priority-list must retain untranslated OreCalc branding');
+        assert.equal(enPriorityList.type, 'modal', 'modal-priority-list must have type modal');
+        assert.deepEqual(enPriorityList.scopes, ['tools'], 'modal-priority-list must belong to tools scope');
 
-        assert.ok(enHjTable, 'tool-hj-table item must exist');
+        assert.ok(enHjTable, 'section-hero-journey-table item must exist');
         assert.equal(enHjTable.parentContext, 'Hero Journey', 'parentContext in English must resolve to Hero Journey');
 
         assert.ok(enHero, 'hero item must exist');
@@ -160,15 +175,15 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         const deItems = buildSpotrightRegistry();
         const deAddPlayer = deItems.find((item) => item.id === 'action-add-player');
         const deRefresh = deItems.find((item) => item.id === 'action-refresh-village');
-        const deHub = deItems.find((item) => item.id === 'tool-hub');
-        const deDamageCalc = deItems.find((item) => item.id === 'tool-damage-calc');
-        const deClusterPlanner = deItems.find((item) => item.id === 'tool-cluster-planner');
-        const dePlanner = deItems.find((item) => item.id === 'tool-planner');
-        const deIncome = deItems.find((item) => item.id === 'tool-income');
+        const deHub = deItems.find((item) => item.id === 'page-hub');
+        const deDamageCalc = deItems.find((item) => item.id === 'page-damagecalc');
+        const deClusterPlanner = deItems.find((item) => item.id === 'tab-cluster-planner');
+        const dePlanner = deItems.find((item) => item.id === 'tab-planner');
+        const deIncome = deItems.find((item) => item.id === 'tab-income');
         const dePriorityList = deItems.find((item) => item.id === 'modal-priority-list');
         const deHero = deItems.find((item) => item.id === 'hero-barbarianKing');
         const deEquip = deItems.find((item) => item.id === 'equip-barbarianKing-giantGauntlet');
-        const deHjTable = deItems.find((item) => item.id === 'tool-hj-table');
+        const deHjTable = deItems.find((item) => item.id === 'section-hero-journey-table');
 
         assert.ok(deAddPlayer);
         assert.equal(deAddPlayer.title, 'Spieler hinzufügen');
@@ -179,21 +194,25 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         assert.equal(deRefresh.category, 'Einstellungen');
 
         assert.ok(deHub);
-        assert.equal(deHub.title, 'Fortschritts- & Taktik-Tools', 'tool-hub title in German must resolve nav.views.hub.tools');
+        assert.equal(deHub.title, 'Fortschritts- & Taktik-Tools', 'page-hub title in German must resolve nav.views.hub.tools');
         assert.equal(deHub.category, 'Tabs & Tools');
 
         assert.ok(deDamageCalc);
-        assert.equal(deDamageCalc.title, 'Ausrüstungsschaden & ZapQuake', 'tool-damage-calc title in German must resolve views.damageCalc.title');
+        assert.equal(deDamageCalc.title, 'Ausrüstungsschaden & ZapQuake', 'page-damagecalc title in German must resolve views.damageCalc.title');
+        assert.equal(deDamageCalc.parentContext, 'DamageCalc', 'DamageCalc breadcrumb must be set on page-damagecalc in German');
 
         assert.ok(deClusterPlanner);
-        assert.equal(deClusterPlanner.parentContext, undefined, 'DamageCalc breadcrumb must be removed from tool-cluster-planner');
+        assert.equal(deClusterPlanner.parentContext, 'DamageCalc', 'DamageCalc breadcrumb must be set on tab-cluster-planner in German');
 
         assert.ok(dePlanner);
-        assert.equal(dePlanner.parentContext, 'OreCalc', 'tool-planner must retain untranslated OreCalc branding in German');
+        assert.equal(dePlanner.parentContext, 'OreCalc', 'tab-planner must retain untranslated OreCalc branding in German');
         assert.ok(deIncome);
-        assert.equal(deIncome.parentContext, 'OreCalc', 'tool-income must retain untranslated OreCalc branding in German');
+        assert.equal(deIncome.parentContext, 'OreCalc', 'tab-income must retain untranslated OreCalc branding in German');
         assert.ok(dePriorityList);
+        assert.equal(dePriorityList.category, 'Tabs & Tools', 'modal-priority-list category in German must resolve to Tabs & Tools');
         assert.equal(dePriorityList.parentContext, 'OreCalc', 'modal-priority-list must retain untranslated OreCalc branding in German');
+        assert.equal(dePriorityList.type, 'modal', 'modal-priority-list must have type modal in German');
+        assert.deepEqual(dePriorityList.scopes, ['tools'], 'modal-priority-list must belong to tools scope in German');
 
         assert.ok(deHjTable);
         assert.equal(deHjTable.parentContext, 'Heldenreise', 'parentContext in German must resolve to Heldenreise');
@@ -213,11 +232,12 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         await loadTranslations('en');
 
         const clipboardItemEn = createClipboardSpotrightItem('88LV892');
+        assert.equal(clipboardItemEn.id, 'action-clipboard-tag-88LV892');
         assert.equal(clipboardItemEn.title, 'Load Village #88LV892');
         assert.equal(clipboardItemEn.category, 'Player Tag');
 
-        const searchResultsEn = searchSpotright('88LV892', { activeTag: null });
-        const directItemEn = searchResultsEn.matches.find((item) => item.id === 'direct-tag-88LV892');
+        const searchResultsEn = searchSpotright('88LV892', /** @type {any} */ ({ activeTag: null }));
+        const directItemEn = searchResultsEn.matches.find((item) => item.id === 'action-direct-tag-88LV892');
         assert.ok(directItemEn);
         assert.equal(directItemEn.title, 'Load Village #88LV892');
         assert.equal(directItemEn.category, 'Player Tag');
@@ -227,11 +247,12 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         await loadTranslations('de');
 
         const clipboardItemDe = createClipboardSpotrightItem('88LV892');
+        assert.equal(clipboardItemDe.id, 'action-clipboard-tag-88LV892');
         assert.equal(clipboardItemDe.title, 'Dorf #88LV892 laden');
         assert.equal(clipboardItemDe.category, 'Spielerkürzel');
 
-        const searchResultsDe = searchSpotright('88LV892', { activeTag: null });
-        const directItemDe = searchResultsDe.matches.find((item) => item.id === 'direct-tag-88LV892');
+        const searchResultsDe = searchSpotright('88LV892', /** @type {any} */ ({ activeTag: null }));
+        const directItemDe = searchResultsDe.matches.find((item) => item.id === 'action-direct-tag-88LV892');
         assert.ok(directItemDe);
         assert.equal(directItemDe.title, 'Dorf #88LV892 laden');
         assert.equal(directItemDe.category, 'Spielerkürzel');
@@ -393,12 +414,12 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         await loadTranslations('en');
 
         const enItems = buildSpotrightRegistry();
-        const enSettings = enItems.find(i => i.id === 'modal-settings');
-        const enPlayer = enItems.find(i => i.id === 'modal-player');
-        const enCloud = enItems.find(i => i.id === 'modal-cloud-save');
+        const enSettings = enItems.find(i => i.id === 'action-settings');
+        const enPlayer = enItems.find(i => i.id === 'action-manage-villages');
+        const enCloud = enItems.find(i => i.id === 'modal-account-sync');
         const enPriority = enItems.find(i => i.id === 'modal-priority-list');
         const enChangelog = enItems.find(i => i.id === 'modal-changelog');
-        const enCosts = enItems.find(i => i.id === 'modal-running-costs');
+        const enCosts = enItems.find(i => i.id === 'modal-project-costs');
 
         assert.ok(enSettings && enPlayer && enCloud && enPriority && enChangelog && enCosts);
         assert.equal(enSettings.title, 'Settings');
@@ -417,12 +438,12 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         await loadTranslations('de');
 
         const deItems = buildSpotrightRegistry();
-        const deSettings = deItems.find(i => i.id === 'modal-settings');
-        const dePlayer = deItems.find(i => i.id === 'modal-player');
-        const deCloud = deItems.find(i => i.id === 'modal-cloud-save');
+        const deSettings = deItems.find(i => i.id === 'action-settings');
+        const dePlayer = deItems.find(i => i.id === 'action-manage-villages');
+        const deCloud = deItems.find(i => i.id === 'modal-account-sync');
         const dePriority = deItems.find(i => i.id === 'modal-priority-list');
         const deChangelog = deItems.find(i => i.id === 'modal-changelog');
-        const deCosts = deItems.find(i => i.id === 'modal-running-costs');
+        const deCosts = deItems.find(i => i.id === 'modal-project-costs');
 
         assert.ok(deSettings && dePlayer && deCloud && dePriority && deChangelog && deCosts);
         assert.equal(deSettings.title, 'Einstellungen');

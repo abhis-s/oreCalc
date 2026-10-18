@@ -30,7 +30,7 @@ function positionSettingsPopover(popover, _btn) {
  * Toggles or sets the open state of the settings popover.
  * @param {boolean} [forceState]
  */
-function toggleSettingsPopover(forceState) {
+export function toggleSettingsPopover(forceState) {
     const popover = /** @type {HTMLElement | null} */ (document.getElementById('app-settings-popover'));
     const btn = /** @type {HTMLElement | null} */ (document.getElementById('app-settings-btn'));
     if (!popover || !btn) return;
@@ -187,6 +187,22 @@ function applyAppTheme(theme, accentColor, isInteraction = false, isSwatchClick 
     });
 
     persistAppSettings({ theme, accentColor });
+}
+
+/**
+ * Toggles application theme between dark and light modes immediately.
+ * @returns {'dark' | 'light'} The newly applied theme.
+ */
+export function toggleAppTheme() {
+    const current = getAppSettings();
+    const targetTheme = current.theme === 'light' ? 'dark' : 'light';
+    applyAppTheme(targetTheme, current.accentColor, true, false);
+    if (typeof document !== 'undefined') {
+        document.dispatchEvent(new CustomEvent('app:theme-change', {
+            detail: { theme: targetTheme, origin: null }
+        }));
+    }
+    return targetTheme;
 }
 
 /**

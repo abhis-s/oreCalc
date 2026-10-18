@@ -66,6 +66,16 @@ export function clearEquipmentTemporarilyVisible(heroName, equipName) {
 }
 
 /**
+ * Reveals an equipment item temporarily even if hidden by maxed or locked filter.
+ * @param {string} heroName
+ * @param {string} equipName
+ */
+export function revealEquipmentTemporarily(heroName, equipName) {
+    markEquipmentManuallyMaxed(heroName, equipName);
+    handleStateUpdate(() => {});
+}
+
+/**
  * Initializes Hero Cards into DOM and attaches input popovers, validation, and action events.
  *
  * @param {Record<string, any>} heroesState

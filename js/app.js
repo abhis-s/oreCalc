@@ -222,7 +222,9 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
         }
 
         if (window.location.hash) {
-            const initialTab = `${window.location.hash.substring(1)}-tab`;
+            const rawHash = window.location.hash.substring(1);
+            const isDeepLink = rawHash.startsWith('equip-') || rawHash.startsWith('hero-');
+            const initialTab = isDeepLink ? 'equipment-tab' : `${rawHash}-tab`;
             const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
             if (validTabs.includes(initialTab)) {
                 state.activeTab = initialTab;

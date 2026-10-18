@@ -72,6 +72,18 @@ export function clearRecentItems() {
     } catch (_) {}
 }
 
+/** Canonical contextual IDs that may be temporarily hidden by isSelfTarget on their own page/tab */
+const KNOWN_CONTEXTUAL_IDS = new Set([
+    'page-hub',
+    'page-orecalc',
+    'page-hero-journey',
+    'page-damagecalc',
+    'tab-planner',
+    'tab-income',
+    'tab-cluster-planner',
+    'modal-priority-list'
+]);
+
 /**
  * Resolves stored recent IDs against the current live registry.
  * Decorates matches with recent category metadata and self-heals orphan IDs.
@@ -99,10 +111,12 @@ export function resolveRecentItems(registry) {
                 isRecent: true
             });
             validIds.push(targetId);
+        } else if (KNOWN_CONTEXTUAL_IDS.has(targetId)) {
+            validIds.push(targetId);
         }
     }
 
-    // Self-healing: purge orphan IDs (e.g. deleted village tags) from storage
+    // Self-healing: purge orphan IDs (e.g. deleted village tags or legacy renamed IDs) from storage
     if (validIds.length !== ids.length && typeof localStorage !== 'undefined') {
         try {
             if (validIds.length === 0) {

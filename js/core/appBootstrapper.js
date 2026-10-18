@@ -51,7 +51,7 @@ import { initAutoRefreshTriggers, refreshActivePlayerData } from '../components/
 import { initializeGuidedSetupModal } from '../components/guidedSetup/guidedSetupModal.js';
 import { initSpotright } from '../components/spotright/spotrightController.js';
 import { initShortcutsModalListener } from '../components/shortcuts/shortcutsModal.js';
-import { handleSpotrightDeepLink } from '../components/spotright/spotrightRegistry.js';
+import { handleSpotrightDeepLink } from '../components/spotright/spotrightNavigator.js';
 import { initializeGlobalHaptics } from '../services/hapticService.js';
 import { initializeCloudSaveButtons } from '../services/cloudSaveService.js';
 import { applyCardLayout, initCardLayoutManager } from '../ui/cardLayoutManager.js';
@@ -171,6 +171,11 @@ export async function bootstrapUIComponents(initialLang) {
     initCardLayoutManager();
     initSpotright();
     initShortcutsModalListener();
+
+    handleSpotrightDeepLink();
+    if (typeof window !== 'undefined') {
+        window.addEventListener('hashchange', handleSpotrightDeepLink);
+    }
 
     let layoutMode = state.uiSettings.cardLayout;
     if (layoutMode === 'quilt') {

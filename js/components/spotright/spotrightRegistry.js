@@ -1,29 +1,51 @@
 /**
  * Spotright Pre-Indexed Search Registry for ClashCalc.
- * Pre-computes normalized titles, 2-letter acronyms, composite keys, and execution handlers.
+ * Pre-computes normalized titles, 2-letter acronyms, composite keys, and declarative item definitions.
  * Tier 4: Search Component Registry.
  */
 
 import { heroData } from '../../data/heroData.js';
-import { getLanguageFromPath } from '../../core/languageRouter.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
 import { formatDisplayTag, normalizePlayerTag } from '../../core/storageKeys.js';
 import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
 import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
+import {
+    dispatchEquipmentAction,
+    executeAccountSyncAction,
+    executeAddPlayerAction,
+    executeManageVillagesAction,
+    executeRefreshVillageAction,
+    executeSettingsAction,
+    getActiveUrlTag,
+    getCurrentRouteContext,
+    isSelfTarget,
+    navigateToHero,
+    navigateToTarget
+} from './spotrightNavigator.js';
 
 /**
  * @typedef {Object} SpotrightItem
- * @property {string} id - Unique entity identifier.
+ * @property {string} id - Canonical '<type>-<canonical-name>' entity identifier.
+ * @property {import('./spotrightNavigator.js').SpotrightItemType} type - Structural archetype of the item.
+ * @property {import('./spotrightMatcher.js').SpotrightScope[]} [scopes] - Filter scopes where this item is included.
+ * @property {import('./spotrightNavigator.js').SpotrightParent} [parent] - Primary owning parent context.
+ * @property {import('./spotrightNavigator.js').SpotrightParent[]} [parents] - Ordered list of owning parent contexts for multi-parent items.
+ * @property {'epic' | 'common'} [rarity] - Equipment rarity tier (strictly for type === 'equipment').
+ * @property {string} [defaultTab] - Default active tab identifier for a parent page item.
+ * @property {string[]} [defaultTabs] - Set of tab identifiers considered equivalent to the home view of a parent page.
+ * @property {string} [tabId] - Target sub-tab identifier for type === 'tab'.
+ * @property {string} [sectionId] - Target DOM section ID for type === 'section'.
+ * @property {'always' | 'parent-only'} [visibility] - Visibility rule across parent pages.
+ * @property {string} [damageEquipKey] - Mapped snake_case key in Damage Calculator if registered.
  * @property {string} title - Human-readable display title.
  * @property {string} [canonicalTitle] - Lowercase English canonical title for multilingual search.
  * @property {string} [canonicalTokens] - Space-separated English fallback tokens for search.
  * @property {string} normalizedTitle - Lowercase normalized title for search.
- * @property {string} category - Category label (e.g. 'Equipment', 'Hero', 'Tools & Views', 'Modals').
+ * @property {string} category - Category label (e.g. 'Equipment', 'Heroes', 'Tabs & Tools', 'Settings').
  * @property {string} [subtitle] - Secondary descriptive text.
- * @property {string} [parentContext] - Parent tool context for sub-tab items (e.g. 'OreCalc', heroJourneyContext).
+ * @property {string} [parentContext] - Parent tool context badge (e.g. 'OreCalc', 'DamageCalc', heroJourneyContext).
  * @property {string} icon - Asset path or SVG symbol name.
  * @property {'image'|'svg'} iconType - Rendering type for the icon.
  * @property {string} acronym - 2-letter canonical acronym.
@@ -34,8 +56,7 @@ import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
  * @property {string} [compactComposite] - Compact hero+equipment acronym (e.g. 'rceb').
  * @property {string} [compositeTitle] - Full hero + equipment name for multi-token search.
  * @property {string} [canonicalCompositeTitle] - Full canonical hero + equipment name for multi-token search.
- * @property {'hero'|'epic'|'common'|'nav'|'modal'} entityType - Entity type for tiebreaking.
- * @property {number} priorityTier - Base priority score (Hero=30, Epic=20, Nav=25, Modal=15, Common=10).
+ * @property {number} priorityTier - Base priority score (Hero=30, Nav=25, Epic=20, Modal/Action=15-22, Common=10).
  * @property {boolean} [isAsyncAction] - Whether the action performs an asynchronous lookup before closing.
  * @property {boolean} [isLoading] - True when action is currently in flight.
  * @property {string | null} [errorMessage] - Inline error feedback to render.
@@ -69,191 +90,30 @@ export const HERO_ACRONYMS = {
 
 /** @type {Record<string, string>} Canonical 2-letter Equipment Acronyms */
 export const EQUIPMENT_ACRONYMS = {
-    // Barbarian King
-    barbarianPuppet: 'bp',
-    rageVial: 'rv',
-    earthquakeBoots: 'eb',
-    vampstache: 'va',
-    giantGauntlet: 'gg',
-    spikyBall: 'sb',
-    snakeBracelet: 'sb',
-    stickHorse: 'sh',
-
-    // Archer Queen
-    archerPuppet: 'ap',
-    invisibilityVial: 'iv',
-    giantArrow: 'ga',
-    healerPuppet: 'hp',
-    frozenArrow: 'fa',
-    magicMirror: 'mm',
-    actionFigure: 'af',
-    monolithArrow: 'ma',
-
-    // Minion Prince
-    henchmenPuppet: 'hp',
-    darkOrb: 'do',
-    metalPants: 'mp',
-    nobleIron: 'ni',
-    darkCrown: 'dc',
-    meteorStaff: 'ms',
-    portalPendant: 'pp',
-
-    // Grand Warden
-    eternalTome: 'et',
-    lifeGem: 'lg',
-    rageGem: 'rg',
-    healingTome: 'ht',
-    fireball: 'fb',
-    lavaloonPuppet: 'lp',
-    heroicTorch: 'ht',
-
-    // Royal Champion
-    royalGem: 'rg',
-    seekingShield: 'ss',
-    hogRiderPuppet: 'hr',
-    hasteVial: 'hv',
-    rocketSpear: 'rs',
-    electroBoots: 'eb',
-    frostFlake: 'ff',
-
-    // Dragon Duke
-    fireHeart: 'fh',
-    flameBlower: 'fb',
-    stunBlaster: 'sb',
-    electroFangs: 'ef',
-    rocketBackpack: 'rb',
-    revengeDeck: 'rd'
+    barbarianPuppet: 'bp', rageVial: 'rv', earthquakeBoots: 'eb', vampstache: 'va',
+    giantGauntlet: 'gg', spikyBall: 'sb', snakeBracelet: 'sb', stickHorse: 'sh',
+    archerPuppet: 'ap', invisibilityVial: 'iv', giantArrow: 'ga', healerPuppet: 'hp',
+    frozenArrow: 'fa', magicMirror: 'mm', actionFigure: 'af', monolithArrow: 'ma',
+    henchmenPuppet: 'hp', darkOrb: 'do', metalPants: 'mp', nobleIron: 'ni',
+    darkCrown: 'dc', meteorStaff: 'ms', portalPendant: 'pp',
+    eternalTome: 'et', lifeGem: 'lg', rageGem: 'rg', healingTome: 'ht',
+    fireball: 'fb', lavaloonPuppet: 'lp', heroicTorch: 'ht',
+    royalGem: 'rg', seekingShield: 'ss', hogRiderPuppet: 'hr', hasteVial: 'hv',
+    rocketSpear: 'rs', electroBoots: 'eb', frostFlake: 'ff',
+    fireHeart: 'fh', flameBlower: 'fb', stunBlaster: 'sb', electroFangs: 'ef',
+    rocketBackpack: 'rb', revengeDeck: 'rd'
 };
 
-/**
- * Returns localized route prefix based on active URL path.
- * @returns {string}
- */
-function getRoutePrefix() {
-    if (typeof window === 'undefined') return '';
-    const lang = getLanguageFromPath() || 'en';
-    return lang === 'en' ? '' : `/${lang}`;
-}
-
-/**
- * Handles smooth scrolling and temporary pulsing highlight on equipment card.
- * @param {string} heroName
- * @param {string} equipName
- * @param {string} equipKey
- */
-export function navigateToEquipment(heroName, equipName, equipKey) {
-    if (typeof window === 'undefined') return;
-    const isOreCalcPage = window.location.pathname.includes('/ore-calculator');
-    const prefix = getRoutePrefix();
-
-    if (isOreCalcPage) {
-        const raf = typeof window.requestAnimationFrame === 'function' ? window.requestAnimationFrame.bind(window) : (cb) => cb();
-        const equipTabBtn = document.querySelector('.tab-button[data-tab="equipment"], .nav-button[data-tab="equipment"]');
-        if (equipTabBtn && typeof equipTabBtn.click === 'function' && !equipTabBtn.classList?.contains('active')) {
-            equipTabBtn.click();
-        }
-
-        raf(() => {
-            const heroCard = document.querySelector(`[data-hero-name="${heroName}"]`);
-            const equipRow = heroCard?.querySelector(`[data-equip-name="${equipName}"]`);
-            const targetEl = equipRow || heroCard;
-
-            if (targetEl && typeof targetEl.scrollIntoView === 'function') {
-                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                targetEl.classList?.remove('spotright-target-pulse');
-                raf(() => {
-                    targetEl.classList?.add('spotright-target-pulse');
-                });
-                setTimeout(() => targetEl.classList?.remove('spotright-target-pulse'), 1800);
-
-                raf(() => {
-                    const input = equipRow?.querySelector('input[type="number"]');
-                    if (input && typeof input.focus === 'function' && input.offsetParent !== null) {
-                        input.focus();
-                        if (typeof input.select === 'function') input.select();
-                    }
-                });
-            }
-        });
-        return;
-    }
-
-    window.location.href = `${prefix}/ore-calculator/#equip-${equipKey}`;
-}
-
-/**
- * Handles smooth scrolling to target hero card.
- * @param {string} heroName
- * @param {string} heroKey
- */
-export function navigateToHero(heroName, heroKey) {
-    if (typeof window === 'undefined') return;
-    const isOreCalcPage = window.location.pathname.includes('/ore-calculator');
-    const prefix = getRoutePrefix();
-
-    if (isOreCalcPage) {
-        const raf = typeof window.requestAnimationFrame === 'function' ? window.requestAnimationFrame.bind(window) : (cb) => cb();
-        const equipTabBtn = document.querySelector('.tab-button[data-tab="equipment"], .nav-button[data-tab="equipment"]');
-        if (equipTabBtn && typeof equipTabBtn.click === 'function' && !equipTabBtn.classList?.contains('active')) {
-            equipTabBtn.click();
-        }
-
-        raf(() => {
-            const heroCard = document.querySelector(`[data-hero-name="${heroName}"]`);
-            if (heroCard && typeof heroCard.scrollIntoView === 'function') {
-                heroCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                heroCard.classList?.remove('spotright-target-pulse');
-                raf(() => {
-                    heroCard.classList?.add('spotright-target-pulse');
-                });
-                setTimeout(() => heroCard.classList?.remove('spotright-target-pulse'), 1800);
-            }
-        });
-        return;
-    }
-
-    window.location.href = `${prefix}/ore-calculator/#hero-${heroKey}`;
-}
-
-/**
- * Resolves incoming Spotright deep-link hash on page load.
- */
-export function handleSpotrightDeepLink() {
-    if (typeof window === 'undefined' || !window.location.hash) return;
-    const hash = window.location.hash;
-
-    if (hash.startsWith('#equip-')) {
-        const targetKey = hash.substring(7);
-        for (const heroKey in heroData) {
-            const hero = heroData[heroKey];
-            const equip = hero.equipment.find(e => toCamelCase(e.name) === targetKey || e.key === targetKey);
-            if (equip) {
-                navigateToEquipment(hero.name, equip.name, targetKey);
-                break;
-            }
-        }
-    } else if (hash.startsWith('#hero-')) {
-        const targetHeroKey = hash.substring(6);
-        const hero = heroData[targetHeroKey];
-        if (hero) {
-            navigateToHero(hero.name, targetHeroKey);
-        }
-    }
-}
-
-/**
- * Resolves active player tag from URL parameters.
- * @returns {string}
- */
-export function getActiveUrlTag() {
-    if (typeof window === 'undefined') return '';
-    try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const tagFromUrl = urlParams.get('tag');
-        if (tagFromUrl) return normalizePlayerTag(tagFromUrl);
-    } catch {}
-    return '';
-}
+/** @type {Readonly<Record<string, string>>} Mapping of heroData equipment keys to equipmentDamageData keys */
+export const DAMAGE_EQUIPMENT_MAP = Object.freeze({
+    giantArrow: 'giant_arrow',
+    fireball: 'fireball',
+    spikyBall: 'spiky_ball',
+    seekingShield: 'seeking_shield',
+    earthquakeBoots: 'earthquake_boots',
+    flameBlower: 'flame_blower',
+    rocketBackpack: 'rocket_backpack'
+});
 
 /**
  * Safely resolves translation with fallback if key is uninitialized or missing.
@@ -267,383 +127,16 @@ function resolveI18nText(key, fallback) {
 }
 
 /**
- * Builds the complete static pre-indexed Spotright registry.
+ * Builds the saved village items from local storage profiles.
+ * @param {string} villagesCategory
  * @returns {SpotrightItem[]}
  */
-export function buildSpotrightRegistry() {
-    const items = [];
-    const prefix = getRoutePrefix();
-
-    const toolsCategory = resolveI18nText('nav.drawerTitle', 'Tabs & Tools');
-    const settingsCategory = resolveI18nText('nav.settings', 'Settings');
-    const villagesCategory = resolveI18nText('nav.views.hub.villages', 'Saved Villages');
-    const heroesCategory = resolveI18nText('views.damageCalc.filters.filterHeroes', 'Heroes');
-    const equipmentCategory = resolveI18nText('nav.equipment', 'Equipment');
-    const heroJourneyContext = resolveI18nText('nav.context.heroJourney', 'Hero Journey');
-    const hubTitle = resolveI18nText('nav.views.hub.tools', 'Progression & Tactical Tools');
-    const damageCalcTitle = resolveI18nText('views.damageCalc.title', 'Equipment Damage & ZapQuake');
-
-    // 1. Core Tools & Pages
-    items.push(
-        {
-            id: 'tool-hub',
-            title: hubTitle,
-            canonicalTitle: 'progression & tactical tools',
-            canonicalTokens: 'progression tactical tools hub home start overview dashboard portal',
-            normalizedTitle: `${hubTitle.toLowerCase()} progression tactical tools hub home start fortschritt taktik übersicht portal`,
-            category: toolsCategory,
-            icon: 'home-filled',
-            iconType: 'svg',
-            acronym: 'pt',
-            entityType: 'nav',
-            priorityTier: 25,
-            execute: () => {
-                if (typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === `${prefix}/`)) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/`;
-                }
-            }
-        },
-        {
-            id: 'tool-ore-calc',
-            title: 'Ore & Equipment Calculator',
-            normalizedTitle: 'ore & equipment calculator',
-            category: toolsCategory,
-            icon: 'equipment-filled',
-            iconType: 'svg',
-            acronym: 'oc',
-            entityType: 'nav',
-            priorityTier: 25,
-            execute: () => {
-                if (typeof window !== 'undefined' && window.location.pathname.includes('/ore-calculator')) {
-                    const btn = document.querySelector('.tab-button[data-tab="equipment"], .nav-button[data-tab="equipment"]');
-                    if (btn && typeof btn.click === 'function') btn.click();
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/ore-calculator/`;
-                }
-            }
-        },
-        {
-            id: 'tool-planner',
-            title: 'Upgrade Planner & Calendar',
-            normalizedTitle: 'upgrade planner & calendar',
-            category: toolsCategory,
-            parentContext: 'OreCalc',
-            icon: 'planner-filled',
-            iconType: 'svg',
-            acronym: 'up',
-            entityType: 'nav',
-            priorityTier: 25,
-            execute: () => {
-                if (typeof window !== 'undefined' && window.location.pathname.includes('/ore-calculator')) {
-                    const btn = document.querySelector('.tab-button[data-tab="planner"], .nav-button[data-tab="planner"]');
-                    if (btn && typeof btn.click === 'function') btn.click();
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/ore-calculator/#planner`;
-                }
-            }
-        },
-        {
-            id: 'tool-income',
-            title: 'Daily Ore Income Simulator',
-            normalizedTitle: 'daily ore income simulator',
-            category: toolsCategory,
-            parentContext: 'OreCalc',
-            icon: 'income-filled',
-            iconType: 'svg',
-            acronym: 'di',
-            entityType: 'nav',
-            priorityTier: 25,
-            execute: () => {
-                if (typeof window !== 'undefined' && window.location.pathname.includes('/ore-calculator')) {
-                    const btn = document.querySelector('.tab-button[data-tab="income"], .nav-button[data-tab="income"]');
-                    if (btn && typeof btn.click === 'function') btn.click();
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/ore-calculator/#income`;
-                }
-            }
-        },
-        {
-            id: 'tool-hero-journey',
-            title: "Hero's Journey Tracker",
-            normalizedTitle: "hero's journey tracker",
-            category: toolsCategory,
-            icon: 'timeline',
-            iconType: 'svg',
-            acronym: 'hj',
-            entityType: 'nav',
-            priorityTier: 25,
-            execute: () => {
-                if (typeof window !== 'undefined' && window.location.pathname.includes('/hero-journey')) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/hero-journey/`;
-                }
-            }
-        },
-        {
-            id: 'tool-hj-table',
-            title: 'Hero Journey Rewards Table',
-            normalizedTitle: 'hero journey rewards table',
-            category: toolsCategory,
-            parentContext: heroJourneyContext,
-            icon: 'table-view',
-            iconType: 'svg',
-            acronym: 'rt',
-            entityType: 'nav',
-            priorityTier: 25,
-            execute: () => {
-                if (typeof window !== 'undefined' && window.location.pathname.includes('/hero-journey')) {
-                    const tableContainer = document.getElementById('hero-journey-table');
-                    if (tableContainer) {
-                        tableContainer.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                        window.location.hash = '#hero-journey-table';
-                    }
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/hero-journey/#hero-journey-table`;
-                }
-            }
-        },
-        {
-            id: 'tool-damage-calc',
-            title: damageCalcTitle,
-            canonicalTitle: 'equipment damage & zapquake',
-            canonicalTokens: 'equipment damage zapquake solver spells defense',
-            normalizedTitle: `${damageCalcTitle.toLowerCase()} equipment damage zapquake solver ausrüstung schaden zauber`,
-            category: toolsCategory,
-            icon: 'swords-filled',
-            iconType: 'svg',
-            acronym: 'zq',
-            entityType: 'nav',
-            priorityTier: 25,
-            execute: () => {
-                if (typeof window !== 'undefined' && window.location.pathname.includes('/damage-calculator')) {
-                    const btn = document.querySelector('[data-tab="zapquake"]');
-                    if (btn && typeof btn.click === 'function') btn.click();
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/damage-calculator/`;
-                }
-            }
-        },
-        {
-            id: 'tool-cluster-planner',
-            title: 'Cluster Defense Planner',
-            normalizedTitle: 'cluster defense planner',
-            category: toolsCategory,
-            icon: 'bolt-planner',
-            iconType: 'svg',
-            acronym: 'cp',
-            entityType: 'nav',
-            priorityTier: 25,
-            execute: () => {
-                if (typeof window !== 'undefined' && window.location.pathname.includes('/damage-calculator')) {
-                    const btn = document.querySelector('[data-tab="cluster_planner"]');
-                    if (btn && typeof btn.click === 'function') btn.click();
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/damage-calculator/#cluster_planner`;
-                }
-            }
-        }
-    );
-
-    // 2. Primary Modals
-    const settingsTitle = resolveI18nText('nav.settings', 'Settings');
-    const manageVillagesTitle = resolveI18nText('views.landing.manageVillages', 'Manage Villages');
-    const addPlayerTitle = resolveI18nText('player.addPlayer', 'Add a player');
-    const refreshTitle = resolveI18nText('actions.refresh', 'Refresh');
-    const accountSyncTitle = resolveI18nText('views.settings.cards.accountAndSync', 'Account & Cloud Sync');
-    const priorityListTitle = resolveI18nText('views.planner.priorityList', 'Priority List');
-    const changelogTitle = resolveI18nText('views.changelog.title', 'Changelog');
-    const projectCostsTitle = resolveI18nText('views.settings.projectCosts.title', 'Project Costs');
-
-    items.push(
-        {
-            id: 'modal-settings',
-            title: settingsTitle,
-            canonicalTitle: 'settings',
-            canonicalTokens: 'app settings options preferences',
-            normalizedTitle: `${settingsTitle.toLowerCase()} optionen einstellungen`,
-            category: settingsCategory,
-            icon: 'settings-filled',
-            iconType: 'svg',
-            acronym: 'as',
-            entityType: 'modal',
-            priorityTier: 15,
-            execute: () => {
-                const tabBtn = document.querySelector('.tab-button[data-tab="settings"], .nav-button[data-tab="settings"]');
-                if (tabBtn && typeof tabBtn.click === 'function') {
-                    tabBtn.click();
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/ore-calculator/#settings`;
-                }
-            }
-        },
-        {
-            id: 'modal-player',
-            title: manageVillagesTitle,
-            canonicalTitle: 'manage villages',
-            canonicalTokens: 'player & village manager accounts switch profiles',
-            normalizedTitle: `${manageVillagesTitle.toLowerCase()} dörfer verwalten dorf spieler konten`,
-            category: settingsCategory,
-            icon: 'user',
-            iconType: 'svg',
-            acronym: 'pm',
-            entityType: 'modal',
-            priorityTier: 15,
-            execute: async () => {
-                if (typeof document === 'undefined') return;
-                const addPlayerBtn = document.getElementById('add-player-button') || document.querySelector('[data-action="add-player"]');
-                if (addPlayerBtn && typeof addPlayerBtn.click === 'function') {
-                    addPlayerBtn.click();
-                    return;
-                }
-                const isOreCalc = window.location.pathname.includes('/ore-calculator');
-                if (isOreCalc) {
-                    const { showAddPlayerModal } = await import('../player/playerModal.js');
-                    showAddPlayerModal();
-                } else {
-                    window.location.href = `${prefix}/ore-calculator/#player`;
-                }
-            }
-        },
-        {
-            id: 'action-add-player',
-            title: addPlayerTitle,
-            canonicalTitle: 'add a player',
-            canonicalTokens: 'add player tag village link new account',
-            normalizedTitle: [addPlayerTitle.toLowerCase(), 'spieler', 'spielerkürzel', 'hinzufügen'].join(' '),
-            category: settingsCategory,
-            icon: 'plus',
-            iconType: 'svg',
-            acronym: 'ap',
-            entityType: 'modal',
-            priorityTier: 18,
-            execute: async () => {
-                if (typeof document === 'undefined') return;
-                const addPlayerBtn = document.getElementById('add-player-button') || document.querySelector('[data-action="add-player"]');
-                if (addPlayerBtn && typeof addPlayerBtn.click === 'function') {
-                    addPlayerBtn.click();
-                    return;
-                }
-                const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('add-player-modal'));
-                if (modal && typeof modal.showModal === 'function') {
-                    const { openModal } = await import('../../utils/modalHistoryManager.js');
-                    openModal(modal);
-                    return;
-                }
-                window.location.href = `${prefix}/ore-calculator/#player`;
-            }
-        },
-        {
-            id: 'action-refresh-village',
-            title: refreshTitle,
-            canonicalTitle: 'refresh',
-            canonicalTokens: 'refresh village data sync player stats profile',
-            normalizedTitle: [refreshTitle.toLowerCase(), 'aktualisieren', 'synchronisieren', 'neu laden'].join(' '),
-            category: settingsCategory,
-            icon: 'refresh',
-            iconType: 'svg',
-            acronym: 'rf',
-            entityType: 'modal',
-            priorityTier: 22,
-            execute: async () => {
-                const { refreshActivePlayerData } = await import('../player/playerRefreshController.js');
-                await refreshActivePlayerData({ force: true, background: false });
-            }
-        },
-        {
-            id: 'modal-cloud-save',
-            title: accountSyncTitle,
-            canonicalTitle: 'account & cloud sync',
-            canonicalTokens: 'cloud save passkeys sync backup security',
-            normalizedTitle: `${accountSyncTitle.toLowerCase()} cloud synchronisierung passkeys konto sicherung`,
-            category: settingsCategory,
-            icon: 'sync-cloud',
-            iconType: 'svg',
-            acronym: 'cs',
-            entityType: 'modal',
-            priorityTier: 15,
-            execute: async () => {
-                const { openAuthModal } = await import('../auth/authModalInputs.js');
-                openAuthModal();
-            }
-        },
-        {
-            id: 'modal-priority-list',
-            title: priorityListTitle,
-            canonicalTitle: 'priority list',
-            canonicalTokens: 'upgrade priority list planner ranking order',
-            normalizedTitle: `${priorityListTitle.toLowerCase()} upgrade prioritätenliste prioritäten-liste planner reihenfolge`,
-            category: settingsCategory,
-            parentContext: 'OreCalc',
-            icon: 'planner-filled',
-            iconType: 'svg',
-            acronym: 'pl',
-            entityType: 'modal',
-            priorityTier: 15,
-            execute: async () => {
-                if (typeof window !== 'undefined' && window.location.pathname.includes('/ore-calculator')) {
-                    const { openPriorityListModal } = await import('../planner/priorityListModal.js');
-                    openPriorityListModal();
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/ore-calculator/#planner`;
-                }
-            }
-        },
-        {
-            id: 'modal-changelog',
-            title: changelogTitle,
-            canonicalTitle: 'changelog',
-            canonicalTokens: 'recent updates patch notes version history',
-            normalizedTitle: `${changelogTitle.toLowerCase()} änderungsprotokoll updates patch notes versionen`,
-            category: settingsCategory,
-            icon: 'changelog',
-            iconType: 'svg',
-            acronym: 'cl',
-            entityType: 'modal',
-            priorityTier: 15,
-            execute: async () => {
-                if (typeof document === 'undefined') return;
-                const link = document.querySelector('[data-modal-target="changelog-modal"]');
-                if (link && typeof link.click === 'function') {
-                    link.click();
-                } else {
-                    const { getChangelogHtml } = await import('../../services/changelogService.js');
-                    const { showChangelogModal } = await import('../changelog/changelogModal.js');
-                    const html = await getChangelogHtml();
-                    showChangelogModal(html);
-                }
-            }
-        },
-        {
-            id: 'modal-running-costs',
-            title: projectCostsTitle,
-            canonicalTitle: 'project costs',
-            canonicalTokens: 'running costs transparency hosting expenses infrastructure',
-            normalizedTitle: `${projectCostsTitle.toLowerCase()} laufende kosten projektkosten transparenz server hosting`,
-            category: settingsCategory,
-            icon: 'costs',
-            iconType: 'svg',
-            acronym: 'pr',
-            entityType: 'modal',
-            priorityTier: 15,
-            execute: () => {
-                if (typeof document === 'undefined') return;
-                const link = document.querySelector('[data-modal-target="running-costs-modal"]');
-                if (link && typeof link.click === 'function') {
-                    link.click();
-                } else if (typeof window !== 'undefined') {
-                    window.location.href = `${prefix}/ore-calculator/#settings`;
-                }
-            }
-        }
-    );
-
-    // 3. Saved Villages (Multi-Account Switcher)
+function buildSavedVillageItems(villagesCategory) {
+    /** @type {SpotrightItem[]} */
+    const villageItems = [];
     const activeUrlTag = getActiveUrlTag();
     const savedProfiles = typeof getSavedProfiles === 'function' ? getSavedProfiles() : [];
+
     for (const profile of savedProfiles) {
         if (!profile?.cleanTag || profile.cleanTag === 'DEFAULT0') continue;
         const cleanTag = profile.cleanTag;
@@ -667,13 +160,9 @@ export function buildSpotrightRegistry() {
                 .replace(/\s(i+)$/i, (_, p1) => p1.toUpperCase())
                 .replace(/\s/g, '_');
             const translatedLeague = translate(leagueKey);
-            if (translatedLeague && translatedLeague !== leagueKey) {
-                leagueName = translatedLeague;
-            }
+            if (translatedLeague && translatedLeague !== leagueKey) leagueName = translatedLeague;
         }
-        if (!leagueName) {
-            leagueName = translate('entities.leagues.unranked') || 'Unranked';
-        }
+        if (!leagueName) leagueName = translate('entities.leagues.unranked') || 'Unranked';
 
         const normalizedParts = [
             villageName.toLowerCase(),
@@ -683,16 +172,17 @@ export function buildSpotrightRegistry() {
             'dörfer',
             'konto'
         ];
-        if (clanName) {
-            normalizedParts.push(clanName.toLowerCase());
-        }
+        if (clanName) normalizedParts.push(clanName.toLowerCase());
         if (cleanTag.includes('0')) {
             const oTag = cleanTag.replace(/0/g, 'O').toLowerCase();
             normalizedParts.push(`#${oTag}`, oTag);
         }
 
-        items.push({
+        villageItems.push({
             id: `village-${cleanTag}`,
+            type: 'village',
+            scopes: ['villages'],
+            parent: 'global',
             title: villageName,
             canonicalTitle: villageName.toLowerCase(),
             canonicalTokens: 'village account saved villages',
@@ -702,7 +192,6 @@ export function buildSpotrightRegistry() {
             icon: `assets/th/th${thLevel}.png`,
             iconType: 'image',
             acronym: villageName.slice(0, 2).toLowerCase(),
-            entityType: 'modal',
             priorityTier: isActive ? 24 : 22,
             isVillage: true,
             isActiveVillage: isActive,
@@ -719,7 +208,185 @@ export function buildSpotrightRegistry() {
         });
     }
 
-    // 4. Heroes & Equipment
+    return villageItems;
+}
+
+/**
+ * Builds the complete pre-indexed Spotright registry filtered for the active route topology.
+ * @returns {SpotrightItem[]}
+ */
+export function buildSpotrightRegistry() {
+    const routeCtx = getCurrentRouteContext();
+
+    const toolsCategory = resolveI18nText('nav.drawerTitle', 'Tabs & Tools');
+    const settingsCategory = resolveI18nText('nav.settings', 'Settings');
+    const villagesCategory = resolveI18nText('nav.views.hub.villages', 'Saved Villages');
+    const heroesCategory = resolveI18nText('views.damageCalc.filters.filterHeroes', 'Heroes');
+    const equipmentCategory = resolveI18nText('nav.equipment', 'Equipment');
+    const heroJourneyContext = resolveI18nText('nav.context.heroJourney', 'Hero Journey');
+    const hubTitle = resolveI18nText('nav.views.hub.tools', 'Progression & Tactical Tools');
+    const damageCalcTitle = resolveI18nText('views.damageCalc.title', 'Equipment Damage & ZapQuake');
+    const priorityListTitle = resolveI18nText('views.planner.priorityList', 'Priority List');
+    const settingsTitle = resolveI18nText('nav.settings', 'Settings');
+    const manageVillagesTitle = resolveI18nText('views.landing.manageVillages', 'Manage Villages');
+    const addPlayerTitle = resolveI18nText('player.addPlayer', 'Add a player');
+    const refreshTitle = resolveI18nText('actions.refresh', 'Refresh');
+    const accountSyncTitle = resolveI18nText('views.settings.cards.accountAndSync', 'Account & Cloud Sync');
+    const changelogTitle = resolveI18nText('views.changelog.title', 'Changelog');
+    const projectCostsTitle = resolveI18nText('views.settings.projectCosts.title', 'Project Costs');
+    const toggleThemeTitle = resolveI18nText('actions.toggleTheme', 'Toggle Theme');
+
+    /** @type {SpotrightItem[]} */
+    const items = [
+        {
+            id: 'page-hub', type: 'page', parent: 'hub', scopes: ['tools'],
+            title: hubTitle, canonicalTitle: 'progression & tactical tools',
+            canonicalTokens: 'progression tactical tools hub home start overview dashboard portal',
+            normalizedTitle: `${hubTitle.toLowerCase()} progression tactical tools hub home start fortschritt taktik übersicht portal`,
+            category: toolsCategory, icon: 'home-filled', iconType: 'svg', acronym: 'pt', priorityTier: 25,
+            execute: () => navigateToTarget({ parent: 'hub' })
+        },
+        {
+            id: 'page-orecalc', type: 'page', parent: 'orecalc', defaultTab: 'home', defaultTabs: ['home', 'equipment'], scopes: ['tools'],
+            title: 'Ore & Equipment Calculator', normalizedTitle: 'ore & equipment calculator',
+            category: toolsCategory, icon: 'equipment-filled', iconType: 'svg', acronym: 'oc', priorityTier: 25,
+            execute: () => navigateToTarget({ parent: 'orecalc', defaultTab: 'home' })
+        },
+        {
+            id: 'tab-planner', type: 'tab', parent: 'orecalc', defaultTab: 'home', tabId: 'planner', scopes: ['tools'],
+            parentContext: 'OreCalc', title: 'Upgrade Planner & Calendar', normalizedTitle: 'upgrade planner & calendar',
+            category: toolsCategory, icon: 'planner-filled', iconType: 'svg', acronym: 'up', priorityTier: 25,
+            execute: () => navigateToTarget({ parent: 'orecalc', defaultTab: 'home', tabId: 'planner' })
+        },
+        {
+            id: 'modal-priority-list', type: 'modal', parent: 'orecalc', visibility: 'parent-only', scopes: ['tools'],
+            parentContext: 'OreCalc', title: priorityListTitle, canonicalTitle: 'priority list',
+            canonicalTokens: 'upgrade priority list planner ranking order',
+            normalizedTitle: `${priorityListTitle.toLowerCase()} upgrade prioritätenliste prioritäten-liste planner reihenfolge`,
+            category: toolsCategory, icon: 'planner-filled', iconType: 'svg', acronym: 'pl', priorityTier: 22,
+            execute: async () => {
+                const { openPriorityListModal } = await import('../planner/priorityListModal.js');
+                openPriorityListModal();
+            }
+        },
+        {
+            id: 'tab-income', type: 'tab', parent: 'orecalc', defaultTab: 'home', tabId: 'income', scopes: ['tools'],
+            parentContext: 'OreCalc', title: 'Daily Ore Income Simulator', normalizedTitle: 'daily ore income simulator',
+            category: toolsCategory, icon: 'income-filled', iconType: 'svg', acronym: 'di', priorityTier: 25,
+            execute: () => navigateToTarget({ parent: 'orecalc', defaultTab: 'home', tabId: 'income' })
+        },
+        {
+            id: 'page-hero-journey', type: 'page', parent: 'hero-journey', scopes: ['tools'],
+            title: "Hero's Journey Tracker", normalizedTitle: "hero's journey tracker",
+            category: toolsCategory, icon: 'timeline', iconType: 'svg', acronym: 'hj', priorityTier: 25,
+            execute: () => navigateToTarget({ parent: 'hero-journey' })
+        },
+        {
+            id: 'section-hero-journey-table', type: 'section', parent: 'hero-journey', sectionId: 'hero-journey-table', scopes: ['tools'],
+            parentContext: heroJourneyContext, title: 'Hero Journey Rewards Table', normalizedTitle: 'hero journey rewards table',
+            category: toolsCategory, icon: 'table-view', iconType: 'svg', acronym: 'rt', priorityTier: 25,
+            execute: () => navigateToTarget({ parent: 'hero-journey', sectionId: 'hero-journey-table' })
+        },
+        {
+            id: 'page-damagecalc', type: 'page', parent: 'damagecalc', defaultTab: 'zapquake', scopes: ['tools'],
+            parentContext: 'DamageCalc', title: damageCalcTitle, canonicalTitle: 'equipment damage & zapquake',
+            canonicalTokens: 'equipment damage zapquake solver spells defense',
+            normalizedTitle: `${damageCalcTitle.toLowerCase()} equipment damage zapquake solver ausrüstung schaden zauber`,
+            category: toolsCategory, icon: 'swords-filled', iconType: 'svg', acronym: 'zq', priorityTier: 25,
+            execute: () => navigateToTarget({ parent: 'damagecalc', defaultTab: 'zapquake' })
+        },
+        {
+            id: 'tab-cluster-planner', type: 'tab', parent: 'damagecalc', defaultTab: 'zapquake', tabId: 'cluster_planner', scopes: ['tools'],
+            parentContext: 'DamageCalc', title: 'Cluster Defense Planner', normalizedTitle: 'cluster defense planner',
+            category: toolsCategory, icon: 'bolt-planner', iconType: 'svg', acronym: 'cp', priorityTier: 25,
+            execute: () => navigateToTarget({ parent: 'damagecalc', defaultTab: 'zapquake', tabId: 'cluster_planner' })
+        },
+        {
+            id: 'action-settings', type: 'action', parent: 'global', scopes: ['settings'],
+            title: settingsTitle, canonicalTitle: 'settings', canonicalTokens: 'app settings options preferences',
+            normalizedTitle: `${settingsTitle.toLowerCase()} optionen einstellungen`,
+            category: settingsCategory, icon: 'settings-filled', iconType: 'svg', acronym: 'as', priorityTier: 15,
+            execute: executeSettingsAction
+        },
+        {
+            id: 'action-manage-villages', type: 'action', parent: 'global', scopes: ['settings'],
+            title: manageVillagesTitle, canonicalTitle: 'manage villages',
+            canonicalTokens: 'player & village manager accounts switch profiles',
+            normalizedTitle: `${manageVillagesTitle.toLowerCase()} dörfer verwalten dorf spieler konten`,
+            category: settingsCategory, icon: 'user', iconType: 'svg', acronym: 'pm', priorityTier: 15,
+            execute: executeManageVillagesAction
+        },
+        {
+            id: 'action-add-player', type: 'action', parent: 'global', scopes: ['villages'],
+            title: addPlayerTitle, canonicalTitle: 'add a player',
+            canonicalTokens: 'add player tag village link new account',
+            normalizedTitle: [addPlayerTitle.toLowerCase(), 'spieler', 'spielerkürzel', 'hinzufügen'].join(' '),
+            category: settingsCategory, icon: 'plus', iconType: 'svg', acronym: 'ap', priorityTier: 18,
+            execute: executeAddPlayerAction
+        },
+        {
+            id: 'action-toggle-theme', type: 'action', parent: 'global', scopes: ['settings'],
+            title: toggleThemeTitle, canonicalTitle: 'toggle theme',
+            canonicalTokens: 'toggle theme dark light mode appearance color scheme farbschema umschalten',
+            normalizedTitle: `${toggleThemeTitle.toLowerCase()} toggle theme dark light mode appearance farbschema umschalten hell dunkel farbmodus`,
+            category: settingsCategory,
+            icon: (typeof document !== 'undefined' && (document.documentElement?.classList?.contains('light-mode') || document.body?.classList?.contains('light-mode')))
+                ? 'dark-mode'
+                : 'light-mode',
+            iconType: 'svg', acronym: 'tt', priorityTier: 21,
+            execute: () => {
+                import('../common/appSettings.js').then(({ toggleAppTheme }) => toggleAppTheme()).catch(() => {});
+            }
+        },
+        {
+            id: 'action-refresh-village', type: 'action', parent: 'global', scopes: ['settings'],
+            title: refreshTitle, canonicalTitle: 'refresh',
+            canonicalTokens: 'refresh village data sync player stats profile',
+            normalizedTitle: [refreshTitle.toLowerCase(), 'aktualisieren', 'synchronisieren', 'neu laden'].join(' '),
+            category: settingsCategory, icon: 'refresh', iconType: 'svg', acronym: 'rf', priorityTier: 22,
+            execute: executeRefreshVillageAction
+        },
+        {
+            id: 'modal-account-sync', type: 'modal', parent: 'global', scopes: ['settings'],
+            title: accountSyncTitle, canonicalTitle: 'account & cloud sync',
+            canonicalTokens: 'cloud save passkeys sync backup security',
+            normalizedTitle: `${accountSyncTitle.toLowerCase()} cloud synchronisierung passkeys konto sicherung`,
+            category: settingsCategory, icon: 'sync-cloud', iconType: 'svg', acronym: 'cs', priorityTier: 15,
+            execute: executeAccountSyncAction
+        },
+        {
+            id: 'modal-changelog', type: 'modal', parent: 'global', scopes: ['settings'],
+            title: changelogTitle, canonicalTitle: 'changelog',
+            canonicalTokens: 'recent updates patch notes version history',
+            normalizedTitle: `${changelogTitle.toLowerCase()} änderungsprotokoll updates patch notes versionen`,
+            category: settingsCategory, icon: 'changelog', iconType: 'svg', acronym: 'cl', priorityTier: 15,
+            execute: async () => {
+                if (typeof document === 'undefined') return;
+                const link = /** @type {HTMLElement | null} */ (document.querySelector('[data-modal-target="changelog-modal"]'));
+                if (link && typeof link.click === 'function') {
+                    link.click();
+                } else {
+                    const { getChangelogHtml } = await import('../../services/changelogService.js');
+                    const { showChangelogModal } = await import('../changelog/changelogModal.js');
+                    showChangelogModal(await getChangelogHtml());
+                }
+            }
+        },
+        {
+            id: 'modal-project-costs', type: 'modal', parent: 'global', scopes: ['settings'],
+            title: projectCostsTitle, canonicalTitle: 'project costs',
+            canonicalTokens: 'running costs transparency hosting expenses infrastructure',
+            normalizedTitle: `${projectCostsTitle.toLowerCase()} laufende kosten projektkosten transparenz server hosting`,
+            category: settingsCategory, icon: 'costs', iconType: 'svg', acronym: 'pr', priorityTier: 15,
+            execute: async () => {
+                if (typeof document === 'undefined') return;
+                const { openRunningCostsModal } = await import('../appSettings/settingsSupportModals.js');
+                openRunningCostsModal();
+            }
+        },
+        ...buildSavedVillageItems(villagesCategory)
+    ];
+
     for (const heroKey in heroData) {
         const hero = heroData[heroKey];
         const canonicalHeroName = hero.name;
@@ -728,15 +395,16 @@ export function buildSpotrightRegistry() {
         const localizedHeroName = (translatedHero && translatedHero !== heroKeyPath) ? translatedHero : canonicalHeroName;
         const heroAcronym = HERO_ACRONYMS[heroKey] || canonicalHeroName.slice(0, 2).toLowerCase();
 
-        const heroSearchTokens = [localizedHeroName.toLowerCase()];
-
-        // Register Hero Entity
         items.push({
             id: `hero-${heroKey}`,
+            type: 'hero',
+            scopes: ['hero'],
+            parent: 'orecalc',
+            parents: ['orecalc'],
             title: localizedHeroName,
             canonicalTitle: canonicalHeroName.toLowerCase(),
             canonicalTokens: canonicalHeroName.toLowerCase(),
-            normalizedTitle: heroSearchTokens.join(' '),
+            normalizedTitle: localizedHeroName.toLowerCase(),
             category: heroesCategory,
             icon: hero.image,
             iconType: 'image',
@@ -744,12 +412,10 @@ export function buildSpotrightRegistry() {
             heroKey,
             heroName: localizedHeroName,
             heroAcronym,
-            entityType: 'hero',
             priorityTier: 30,
             execute: () => navigateToHero(canonicalHeroName, heroKey)
         });
 
-        // Register Hero Equipment Entities
         for (const equip of hero.equipment) {
             const equipKey = equip.key;
             const canonicalEquipName = equip.name;
@@ -757,22 +423,26 @@ export function buildSpotrightRegistry() {
             const translatedEquip = translate(equipKeyPath);
             const localizedEquipName = (translatedEquip && translatedEquip !== equipKeyPath) ? translatedEquip : canonicalEquipName;
             const equipAcronym = EQUIPMENT_ACRONYMS[equipKey] || canonicalEquipName.slice(0, 2).toLowerCase();
-            const rarity = equip.type || 'common';
-            const priorityTier = rarity === 'epic' ? 20 : 10;
-
-            const compositeAcronym = `${heroAcronym} ${equipAcronym}`;
-            const compactComposite = `${heroAcronym}${equipAcronym}`;
-
-            const equipSearchTokens = [localizedEquipName.toLowerCase()];
-            const compositeTitle = `${localizedHeroName.toLowerCase()} ${localizedEquipName.toLowerCase()}`;
-            const canonicalCompositeTitle = `${canonicalHeroName.toLowerCase()} ${canonicalEquipName.toLowerCase()}`;
+            const rarity = equip.type === 'epic' ? 'epic' : 'common';
+            const damageEquipKey = DAMAGE_EQUIPMENT_MAP[equipKey];
+            /** @type {import('./spotrightNavigator.js').SpotrightParent[]} */
+            const parents = damageEquipKey ? ['damagecalc', 'orecalc'] : ['orecalc'];
+            const priorityTier = (routeCtx.page === 'damagecalc' && damageEquipKey)
+                ? (rarity === 'epic' ? 35 : 32)
+                : (rarity === 'epic' ? 20 : 10);
 
             items.push({
                 id: `equip-${heroKey}-${equipKey}`,
+                type: 'equipment',
+                rarity,
+                scopes: ['equipment'],
+                parent: parents[0],
+                parents,
+                damageEquipKey,
                 title: localizedEquipName,
                 canonicalTitle: canonicalEquipName.toLowerCase(),
                 canonicalTokens: canonicalEquipName.toLowerCase(),
-                normalizedTitle: equipSearchTokens.join(' '),
+                normalizedTitle: localizedEquipName.toLowerCase(),
                 category: equipmentCategory,
                 icon: equip.image,
                 iconType: 'image',
@@ -780,16 +450,21 @@ export function buildSpotrightRegistry() {
                 heroKey,
                 heroName: localizedHeroName,
                 heroAcronym,
-                compositeAcronym,
-                compactComposite,
-                compositeTitle,
-                canonicalCompositeTitle,
-                entityType: rarity === 'epic' ? 'epic' : 'common',
+                compositeAcronym: `${heroAcronym} ${equipAcronym}`,
+                compactComposite: `${heroAcronym}${equipAcronym}`,
+                compositeTitle: `${localizedHeroName.toLowerCase()} ${localizedEquipName.toLowerCase()}`,
+                canonicalCompositeTitle: `${canonicalHeroName.toLowerCase()} ${canonicalEquipName.toLowerCase()}`,
                 priorityTier,
-                execute: () => navigateToEquipment(canonicalHeroName, canonicalEquipName, equipKey)
+                execute: () => dispatchEquipmentAction({
+                    heroName: canonicalHeroName,
+                    equipName: canonicalEquipName,
+                    equipKey,
+                    damageEquipKey,
+                    parents
+                })
             });
         }
     }
 
-    return items;
+    return items.filter(item => !isSelfTarget(item, routeCtx));
 }

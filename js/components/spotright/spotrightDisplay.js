@@ -223,18 +223,18 @@ export function renderSpotrightResults(container, matches, selectedIndex, curren
             if (item.isActiveVillage) {
                 tagHtml += `<span class="spotright-item-tag spotright-tag--active">${escapeHTML(translate('views.spotright.activeVillage') || 'Active')}</span>`;
             }
-        } else if (item.entityType === 'epic' || item.entityType === 'common') {
-            const rarityText = item.entityType === 'epic'
+        } else if (item.type === 'equipment' && (item.rarity === 'epic' || item.rarity === 'common')) {
+            const rarityText = item.rarity === 'epic'
                 ? (translate('views.equipment.epic') || 'Epic')
                 : (translate('views.equipment.common') || 'Common');
-            tagHtml = `<span class="spotright-item-tag spotright-tag--${item.entityType}">${escapeHTML(rarityText)}</span>`;
+            tagHtml = `<span class="spotright-item-tag spotright-tag--${item.rarity}">${escapeHTML(rarityText)}</span>`;
         }
 
         const breadcrumbHtml = item.parentContext
             ? `<span class="spotright-item-breadcrumb">&bull; ${escapeHTML(item.parentContext)}</span>`
             : '';
 
-        const heroContextHtml = item.heroName && (item.entityType === 'epic' || item.entityType === 'common')
+        const heroContextHtml = item.heroName && item.type === 'equipment'
             ? `<span class="spotright-item-hero-context">${escapeHTML(item.heroName)}</span>`
             : '';
 

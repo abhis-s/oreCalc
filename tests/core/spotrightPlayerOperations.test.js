@@ -13,9 +13,11 @@ import {
     createClipboardSpotrightItem
 } from '../../js/components/spotright/spotrightClipboard.js';
 import {
-    buildSpotrightRegistry,
-    getActiveUrlTag
+    buildSpotrightRegistry
 } from '../../js/components/spotright/spotrightRegistry.js';
+import {
+    getActiveUrlTag
+} from '../../js/components/spotright/spotrightNavigator.js';
 import {
     createSpotrightDialog,
     renderSpotrightResults
@@ -220,7 +222,8 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
     describe('createClipboardSpotrightItem', () => {
         test('constructs valid Spotright item for clipboard detected player tag', () => {
             const item = createClipboardSpotrightItem('8PJYGUJC');
-            assert.equal(item.id, 'clipboard-tag-8PJYGUJC');
+            assert.equal(item.id, 'action-clipboard-tag-8PJYGUJC');
+            assert.equal(item.type, 'action');
             assert.equal(item.category, translate('player.tag') || 'Player Tag');
             assert.equal(item.icon, 'copy');
             assert.equal(item.iconType, 'svg');
@@ -232,7 +235,15 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
     });
 
     describe('switchSavedVillage & switchOrLoadPlayerTag', () => {
-        test('navigates to appropriate tool route with clean tag parameter', () => {
+        test('activates in-place on Hub and navigates to Hub from other tool pages', () => {
+            const store = new Map();
+            globalThis.localStorage = /** @type {any} */ ({
+                getItem: (k) => store.get(k) || null,
+                setItem: (k, v) => store.set(k, String(v)),
+                removeItem: (k) => store.delete(k),
+                clear: () => store.clear()
+            });
+
             globalThis.window = /** @type {any} */ ({
                 location: {
                     pathname: '/',
@@ -242,18 +253,19 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             });
 
             switchSavedVillage('#8PJYGUJC');
-            assert.equal(globalThis.window.location.href, '/ore-calculator/?tag=8PJYGUJC');
+            assert.equal(globalThis.window.location.href, '');
 
             globalThis.window.location.pathname = '/damage-calculator/';
             switchSavedVillage('2PP09');
-            assert.equal(globalThis.window.location.href, '/damage-calculator/?tag=2PP09');
+            assert.equal(globalThis.window.location.href, '/?tag=2PP09');
 
             globalThis.window.location.pathname = '/hero-journey/';
             switchSavedVillage('9L0V9G9C9');
-            assert.equal(globalThis.window.location.href, '/hero-journey/?tag=9L0V9G9C9');
+            assert.equal(globalThis.window.location.href, '/?tag=9L0V9G9C9');
 
+            globalThis.window.location.pathname = '/ore-calculator/';
             switchOrLoadPlayerTag('2PP09');
-            assert.equal(globalThis.window.location.href, '/hero-journey/?tag=2PP09');
+            assert.equal(globalThis.window.location.href, '/?tag=2PP09');
         });
     });
 
@@ -348,7 +360,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             assert.ok(addPlayerItem, 'action-add-player must be registered');
             assert.equal(addPlayerItem.category, translate('nav.settings') || 'Settings');
             assert.equal(addPlayerItem.icon, 'plus');
-            assert.equal(addPlayerItem.entityType, 'modal');
+            assert.equal(addPlayerItem.type, 'action');
             assert.equal(typeof addPlayerItem.execute, 'function');
         });
 
@@ -393,7 +405,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             assert.equal(chiefItem.thLevel, 17);
             assert.equal(chiefItem.cleanTag, '8PJYGUJC');
             assert.equal(chiefItem.displayTag, '#8PJYGUJC');
-            assert.equal(chiefItem.entityType, 'modal');
+            assert.equal(chiefItem.type, 'village');
             assert.equal(typeof chiefItem.execute, 'function');
         });
 
@@ -422,7 +434,8 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
 
             assert.ok(result.matches.length > 0);
             const topMatch = result.matches[0];
-            assert.equal(topMatch.id, 'direct-tag-8PJYGUJC');
+            assert.equal(topMatch.id, 'action-direct-tag-8PJYGUJC');
+            assert.equal(topMatch.type, 'action');
             assert.equal(topMatch.category, translate('player.tag') || 'Player Tag');
             assert.ok(topMatch.title.includes('8PJYGUJC'));
             assert.equal(topMatch.isAsyncAction, true);
@@ -455,7 +468,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             assert.ok(matchedVillage, 'Must find saved village-8PJYGUJC');
             assert.equal(matchedVillage.title, 'Dragon Master');
 
-            const hasDirectTag = result.matches.some(i => i.id === 'direct-tag-8PJYGUJC');
+            const hasDirectTag = result.matches.some(i => i.id === 'action-direct-tag-8PJYGUJC');
             assert.equal(hasDirectTag, false, 'Must not synthesize duplicate direct tag when village already exists');
         });
 
@@ -587,7 +600,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             const resultExactWithHash = searchSpotright('#8PJYOUJC', registry, 'all');
             assert.ok(resultExactWithHash.matches.length > 0);
             assert.equal(resultExactWithHash.matches[0].id, 'village-8PJY0UJC');
-            assert.equal(resultExactWithHash.matches.some(i => i.id === 'direct-tag-8PJYOUJC'), false);
+            assert.equal(resultExactWithHash.matches.some(i => i.id === 'action-direct-tag-8PJYOUJC'), false);
 
             // Exact tag with O and without #
             const resultExactNoHash = searchSpotright('8PJYOUJC', registry, 'all');
@@ -632,7 +645,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
 
             assert.ok(result.matches.length >= 2);
             assert.equal(result.matches[0].id, 'village-8PJY0UJC', 'Saved village must be #1 top hit');
-            assert.equal(result.matches[1].id, 'direct-tag-8PJ', 'Add player direct action must be ranked below saved village');
+            assert.equal(result.matches[1].id, 'action-direct-tag-8PJ', 'Add player direct action must be ranked below saved village');
         });
 
         test('ranks active village lowest among villages when multiple saved villages match', () => {
@@ -676,7 +689,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             assert.equal(villageMatches[0].id, 'village-8PJY0UJC', 'Inactive village must rank higher');
             assert.equal(villageMatches[1].id, 'village-8PJY2XYZ', 'Active village must be ranked lowest among matched villages');
 
-            const directIndex = result.matches.findIndex(i => i.id === 'direct-tag-8PJY');
+            const directIndex = result.matches.findIndex(i => i.id === 'action-direct-tag-8PJY');
             assert.ok(directIndex > 1, 'Add player direct action must rank below all matching saved villages');
         });
 
@@ -798,7 +811,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             const searchResult = searchSpotright('Beta', registry, 'villages');
             assert.ok(searchResult.matches.length > 0);
             assert.equal(searchResult.matches[0].id, 'village-9L0V9G9C9');
-            assert.equal(searchResult.matches.some(i => i.entityType === 'epic' || i.entityType === 'nav'), false, 'Must not return equipment or tools in villages scope');
+            assert.equal(searchResult.matches.some(i => i.type === 'equipment' || i.type === 'page'), false, 'Must not return equipment or tools in villages scope');
 
             // 3. Settings scope does not include villages or add-player action
             const settingsResult = searchSpotright('', registry, 'settings');

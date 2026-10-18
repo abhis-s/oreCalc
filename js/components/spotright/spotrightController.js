@@ -3,7 +3,8 @@
  * Tier 4: Search Controller (Keyboard traps, selection cycling, action invocation).
  */
 
-import { buildSpotrightRegistry, getActiveUrlTag } from './spotrightRegistry.js';
+import { buildSpotrightRegistry } from './spotrightRegistry.js';
+import { getActiveUrlTag } from './spotrightNavigator.js';
 import { extractScopePrefix, getScopeSuggestions, searchSpotright } from './spotrightMatcher.js';
 import {
     createSpotrightDialog,
@@ -417,7 +418,7 @@ async function executeCurrentSelection() {
 
     // Normal non-async items: close Spotright immediately and invoke action
     if (!selectedItem.isAsyncAction) {
-        if (selectedItem.id && !selectedItem.id.startsWith('direct-tag-')) {
+        if (selectedItem.id && !selectedItem.id.startsWith('action-direct-tag-') && !selectedItem.id.startsWith('action-clipboard-tag-')) {
             addRecentItem(selectedItem.id);
         }
         closeSpotright();
@@ -441,7 +442,7 @@ async function executeCurrentSelection() {
     try {
         const result = await selectedItem.execute();
         if (result && result.success) {
-            if (selectedItem.id && !selectedItem.id.startsWith('direct-tag-')) {
+            if (selectedItem.id && !selectedItem.id.startsWith('action-direct-tag-') && !selectedItem.id.startsWith('action-clipboard-tag-')) {
                 addRecentItem(selectedItem.id);
             }
             isActionInFlight = false;

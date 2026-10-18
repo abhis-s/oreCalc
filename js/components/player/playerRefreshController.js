@@ -6,6 +6,7 @@
 
 import { state } from '../../core/state.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
+import { getSavedProfiles } from '../../core/playerStorage.js';
 import { isPlayerRefreshStale, setPlayerLastRefreshed } from '../../core/playerRefreshThrottler.js';
 import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
 import { startTopProgressBar, finishTopProgressBar } from '../../utils/topProgressBar.js';
@@ -28,7 +29,22 @@ let isAutoRefreshInitialized = false;
  * @returns {Promise<import('../../core/types.js').ServerResponseResult>}
  */
 export async function refreshActivePlayerData({ background = false, force = false, targetTag = null } = {}) {
-    const rawTag = targetTag || state.savedPlayerTags?.[0];
+    let rawTag = targetTag;
+    if (!rawTag) {
+        if (typeof window !== 'undefined') {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                rawTag = urlParams.get('tag');
+            } catch {}
+        }
+        if (!rawTag && state?.savedPlayerTags && state.savedPlayerTags.length > 0) {
+            rawTag = state.savedPlayerTags[0];
+        }
+        if (!rawTag) {
+            const saved = typeof getSavedProfiles === 'function' ? getSavedProfiles() : [];
+            rawTag = saved[0]?.cleanTag;
+        }
+    }
     const cleanTag = normalizePlayerTag(rawTag);
 
     if (!cleanTag || cleanTag === 'DEFAULT0') {
@@ -51,6 +67,9 @@ export async function refreshActivePlayerData({ background = false, force = fals
 
             if (result.success) {
                 setPlayerLastRefreshed(cleanTag, Date.now());
+                if (typeof document !== 'undefined') {
+                    document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
+                }
                 if (!background) {
                     showToast(translate('actions.synced'), 'success');
                 }
