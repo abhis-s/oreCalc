@@ -112,16 +112,26 @@ export function initializeTabs() {
             window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
         };
 
+        if (activeTransition) {
+            try {
+                activeTransition.skipTransition();
+            } catch (_) {}
+            activeTransition = null;
+        }
+
         const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-        if (document.startViewTransition && !activeTransition && !prefersReducedMotion) {
+        if (document.startViewTransition && !prefersReducedMotion) {
             document.documentElement.dataset.transitionType = 'tab-switch';
             document.documentElement.dataset.transitionDirection = direction;
-            activeTransition = document.startViewTransition(updateTab);
+            const transition = document.startViewTransition(updateTab);
+            activeTransition = transition;
 
-            activeTransition.ready.catch(() => {});
-            activeTransition.finished.catch(() => {}).finally(() => {
-                delete document.documentElement.dataset.transitionType;
-                activeTransition = null;
+            transition.ready.catch(() => {});
+            transition.finished.catch(() => {}).finally(() => {
+                if (activeTransition === transition) {
+                    delete document.documentElement.dataset.transitionType;
+                    activeTransition = null;
+                }
             });
         } else {
             document.documentElement.dataset.transitionDirection = direction;
@@ -174,16 +184,26 @@ export function initializeTabs() {
             window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
         };
 
+        if (activeTransition) {
+            try {
+                activeTransition.skipTransition();
+            } catch (_) {}
+            activeTransition = null;
+        }
+
         const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-        if (document.startViewTransition && !activeTransition && !prefersReducedMotion) {
+        if (document.startViewTransition && !prefersReducedMotion) {
             document.documentElement.dataset.transitionType = 'tab-switch';
             document.documentElement.dataset.transitionDirection = direction;
-            activeTransition = document.startViewTransition(updateTab);
+            const transition = document.startViewTransition(updateTab);
+            activeTransition = transition;
 
-            activeTransition.ready.catch(() => {});
-            activeTransition.finished.catch(() => {}).finally(() => {
-                delete document.documentElement.dataset.transitionType;
-                activeTransition = null;
+            transition.ready.catch(() => {});
+            transition.finished.catch(() => {}).finally(() => {
+                if (activeTransition === transition) {
+                    delete document.documentElement.dataset.transitionType;
+                    activeTransition = null;
+                }
             });
         } else {
             document.documentElement.dataset.transitionDirection = direction;

@@ -4,6 +4,7 @@
     position: relative;
     width: 100%;
     min-height: 330px;
+    contain: paint;
     contain-intrinsic-size: auto 330px;
     box-sizing: border-box;
     container-type: inline-size;

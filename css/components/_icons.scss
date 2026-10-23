@@ -36,10 +36,12 @@ clashcalc-assets-image {
     align-items: center;
     justify-content: center;
     vertical-align: middle;
+    aspect-ratio: 1 / 1;
 
     img, picture, picture img {
         width: 100% !important;
         height: 100% !important;
+        aspect-ratio: 1 / 1;
         object-fit: inherit;
         display: block;
         margin: 0 !important;

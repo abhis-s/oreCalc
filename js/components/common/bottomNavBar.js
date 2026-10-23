@@ -29,6 +29,21 @@ export function renderBottomNavBar({
 }) {
     if (!container || !Array.isArray(items)) return;
 
+    const existingButtons = container.querySelectorAll('.nav-button');
+    if (existingButtons.length === items.length) {
+        existingButtons.forEach(button => {
+            const tabId = button.getAttribute('data-tab');
+            const isActive = activeTabId === `${tabId}-tab` || activeTabId === tabId;
+            button.classList.toggle('active', isActive);
+            if (isActive) {
+                button.setAttribute('aria-current', 'page');
+            } else {
+                button.removeAttribute('aria-current');
+            }
+        });
+        return;
+    }
+
     container.innerHTML = '';
 
     items.forEach(tab => {

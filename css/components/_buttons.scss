@@ -112,6 +112,10 @@
         .button-loader {
             opacity: 1;
             visibility: visible;
+
+            span {
+                animation-play-state: running;
+            }
         }
     }
 
@@ -163,10 +167,16 @@
         background-color: currentColor;
         border-radius: 50%;
         animation: dot-jump 1.4s infinite ease-in-out both;
+        animation-play-state: paused;
 
         &:nth-child(1) { animation-delay: -0.32s; }
         &:nth-child(2) { animation-delay: -0.16s; }
     }
+}
+
+.passkeys-loader .button-loader span,
+.priority-list-loader .button-loader span {
+    animation-play-state: running;
 }
 
 .button-error-icon,

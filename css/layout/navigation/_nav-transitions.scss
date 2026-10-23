@@ -11,14 +11,12 @@
     }
 }
 
-::view-transition-group(header) {
-    z-index: 10;
-    animation-duration: 0s !important;
-}
+::view-transition-group(header),
 ::view-transition-group(bottom-nav),
 ::view-transition-group(fab),
 ::view-transition-group(floating-save) {
     z-index: 10;
+    animation-duration: 0s !important;
 }
 ::view-transition-group(tab-content) {
     z-index: 3;
