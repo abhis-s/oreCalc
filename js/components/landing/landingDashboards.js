@@ -29,31 +29,63 @@ export function initToolCardsLayoutObserver() {
 
 /**
  * Evaluates available horizontal space on tool cards and toggles compact header and pills modes.
+ * Synchronizes 2-row layout across sibling cards sharing the same grid row for consistent heights.
  */
 function updateToolCardsLayout() {
     const cards = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.landing-tool-card'));
     if (cards.length === 0) return;
 
-    // Batch Read Phase: Calculate layout requirements without mutating the DOM
-    const layoutDecisions = [];
-    for (const card of cards) {
-        // Evaluate stat pills row space constraint (each pill needs >= 100px for unclipped localized text)
-        const pillsRow = card.querySelector('.live-stat-pills-row');
-        let shouldBeCompactPills = false;
-        let hasPillsRow = false;
-        if (pillsRow) {
-            hasPillsRow = true;
-            const requiredPillsWidth = 330;
-            const isCurrentlyCompactPills = card.classList.contains('is-compact-pills');
-            const pillsThreshold = isCurrentlyCompactPills ? requiredPillsWidth + 16 : requiredPillsWidth;
-            shouldBeCompactPills = card.clientWidth < pillsThreshold;
-        }
+    // Batch Read Phase: Read geometry and determine row grouping without mutating DOM
+    /** @type {Map<number, Array<{ card: HTMLElement, hasPillsRow: boolean, pillCount: number, clientWidth: number, isCurrentlyCompact: boolean }>>} */
+    const rowGroups = new Map();
 
-        layoutDecisions.push({
+    for (const card of cards) {
+        const pillsRow = card.querySelector('.live-stat-pills-row');
+        const pillCount = pillsRow ? pillsRow.children.length : 0;
+        const isCurrentlyCompact = card.classList.contains('is-compact-pills');
+        const top = card.offsetTop;
+        const clientWidth = card.clientWidth;
+
+        let matchedRowKey = null;
+        for (const key of rowGroups.keys()) {
+            if (Math.abs(key - top) <= 8) {
+                matchedRowKey = key;
+                break;
+            }
+        }
+        const rowKey = matchedRowKey !== null ? matchedRowKey : top;
+        if (!rowGroups.has(rowKey)) {
+            rowGroups.set(rowKey, []);
+        }
+        rowGroups.get(rowKey)?.push({
             card,
-            hasPillsRow,
-            shouldBeCompactPills
+            hasPillsRow: Boolean(pillsRow),
+            pillCount,
+            clientWidth,
+            isCurrentlyCompact
         });
+    }
+
+    // Determine compact decision per row
+    const layoutDecisions = [];
+    for (const [, group] of rowGroups) {
+        // A row needs compact pills if any card in the row lacks space for a single row
+        // (>=3 pills needs 330px, 2 pills needs 220px, with 16px hysteresis)
+        const rowNeedsCompact = group.some(item => {
+            if (!item.hasPillsRow) return false;
+            const threshold = item.isCurrentlyCompact
+                ? (item.pillCount >= 3 ? 346 : 236)
+                : (item.pillCount >= 3 ? 330 : 220);
+            return item.clientWidth < threshold;
+        });
+
+        for (const item of group) {
+            layoutDecisions.push({
+                card: item.card,
+                hasPillsRow: item.hasPillsRow,
+                shouldBeCompactPills: item.hasPillsRow && rowNeedsCompact
+            });
+        }
     }
 
     // Batch Write Phase: Apply layout class updates without interleaving DOM measurements

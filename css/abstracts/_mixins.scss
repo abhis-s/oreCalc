@@ -121,6 +121,25 @@
     }
 }
 
+@mixin app-layout-container {
+    width: 100%;
+    max-width: $container-max-width;
+    margin-inline: auto;
+    padding-inline: $spacing-lg;
+    padding-block: $spacing-lg $spacing-2xl;
+    box-sizing: border-box;
+
+    @media (max-width: $breakpoint-phone) {
+        padding-inline: $spacing-md;
+        padding-block: $spacing-md $spacing-xl;
+    }
+
+    @media (max-width: $breakpoint-micro) {
+        padding-inline: $spacing-xs;
+        padding-block: $spacing-sm $spacing-lg;
+    }
+}
+
 @mixin header-action-btn-collapse {
     width: 36px;
     min-width: 36px;

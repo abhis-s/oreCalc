@@ -1,4 +1,4 @@
-@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 
 html {
     overflow-x: clip;
@@ -125,7 +125,6 @@ textarea,
     transition: none !important;
 }
 
-.container,
 .card,
 .inner-card,
 .income-card,
@@ -181,12 +180,7 @@ code {
 }
 
 .container {
-	background-color: $bg-surface-primary;
-	border-radius: $shape-corner-large;
-	box-shadow: $elevation-2;
-	margin: 0 auto $spacing-2xl;
-	max-width: $container-max-width;
-	padding: 20px;
+    @include app-layout-container;
 }
 
 .negative-value {

@@ -79,17 +79,12 @@
 
 .landing-main {
     flex: 1;
-    width: 100%;
-    max-width: $container-max-width;
-    margin-inline: auto;
-    padding: $spacing-md $spacing-lg $spacing-2xl;
     display: flex;
     flex-direction: column;
     gap: $spacing-lg;
-    box-sizing: border-box;
+    @include app-layout-container;
 
     @media (max-width: $breakpoint-phone) {
-        padding: $spacing-sm $spacing-md $spacing-md;
         gap: $spacing-md;
     }
 }

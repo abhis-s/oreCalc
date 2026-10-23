@@ -1,4 +1,4 @@
-@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 
 .hero-journey-page {
     min-height: 100vh;
@@ -9,11 +9,7 @@
 
     &__main {
         flex: 1;
-        max-width: $container-max-width;
-        width: 100%;
-        margin: 0 auto $spacing-2xl;
-        padding: 20px;
-        box-sizing: border-box;
+        @include app-layout-container;
     }
 
     &__player-card {

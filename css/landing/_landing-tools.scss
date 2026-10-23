@@ -43,10 +43,6 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
     transition: $transition-card;
     overflow: hidden;
 
-    @media (max-width: $breakpoint-phone) {
-        min-height: 370px;
-    }
-
     &::before {
         content: "";
         position: absolute;
@@ -132,9 +128,17 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
         font-size: $font-size-md;
         font-weight: $font-weight-bold;
         color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     &__title-link {
+        display: block;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         color: inherit;
         text-decoration: none;
         transition: color $duration-fast $ease-smooth;
@@ -363,9 +367,19 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
         .live-stat-pills-row {
             grid-template-columns: repeat(2, 1fr);
         }
+
+        &.is-compact-pills {
+            .live-stat-pills-row {
+                grid-template-columns: 1fr;
+            }
+
+            .live-stat-pill {
+                grid-column: 1 / -1;
+            }
+        }
     }
 
-    &.is-compact-pills {
+    &.is-compact-pills:not(&--damage) {
         .live-stat-pills-row {
             grid-template-columns: repeat(2, 1fr);
         }
@@ -386,6 +400,7 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: $spacing-xs;
 
     .live-progress-title {
         font-size: $font-size-2xs;
@@ -393,6 +408,10 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         color: $text-muted;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .live-progress-pct {
