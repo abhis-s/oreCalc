@@ -1,4 +1,5 @@
-export const EQUIPMENT_STATS_LAST_UPDATED = "2026-08-01";
+export const EQUIPMENT_STATS_LAST_UPDATED = "2026-10-31";
+export const EQUIPMENT_RECOMMENDATIONS_LAST_UPDATED = "2026-10-31";
 
 export const upgradeCosts = {
     2: { shiny: 120, glowy: 0, starry: 0 }, 3: { shiny: 240, glowy: 20, starry: 0 },

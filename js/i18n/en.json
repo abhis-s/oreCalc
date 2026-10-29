@@ -885,6 +885,7 @@
             "generalStats": "General Stats",
             "heroBoost": "Hero Boost",
             "heroEquipment": "Hero Equipment",
+            "heroJourneyPreLevelInfo": "Unlocks from Hero's Journey at Town Hall {th} (Node {node}), already upgraded to Level {level}.",
             "lvl": "Lvl",
             "maxLevel": "Max Level",
             "modifiers": {

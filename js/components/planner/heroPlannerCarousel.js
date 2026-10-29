@@ -17,9 +17,9 @@ function updateExistingHeroSwitches(heroesState) {
 
     const heroPages = carouselContent.querySelectorAll('.hero-page');
     heroPages.forEach(heroPage => {
-        const heroName = heroPage.dataset.heroName;
-        const heroState = heroesState[heroName] || { equipment: {} };
-        const heroKey = toCamelCase(heroName);
+        const heroKey = heroPage.dataset.heroKey || toCamelCase(heroPage.dataset.heroName || '');
+        const heroName = heroPage.dataset.heroName || heroData[heroKey]?.name;
+        const heroState = heroesState[heroName] || heroesState[heroKey] || { equipment: {} };
 
         const heroToggle = heroPage.querySelector(`#planner-${heroKey}-toggle`);
         if (heroToggle) {
@@ -33,8 +33,9 @@ function updateExistingHeroSwitches(heroesState) {
 
         const equipmentItems = heroPage.querySelectorAll('.equipment-item-planner');
         equipmentItems.forEach(item => {
+            const equipKey = item.dataset.equipKey || toCamelCase(item.dataset.equipName || '');
             const equipName = item.dataset.equipName;
-            const equipState = heroState.equipment?.[equipName] || {};
+            const equipState = heroState.equipment?.[equipName] || heroState.equipment?.[equipKey] || {};
             const equipToggle = item.querySelector('input[type="checkbox"]');
             if (equipToggle) {
                 equipToggle.checked = equipState.checked !== false;
@@ -42,7 +43,7 @@ function updateExistingHeroSwitches(heroesState) {
 
             const equipLabel = item.querySelector('span');
             if (equipLabel) {
-                equipLabel.textContent = translate(`entities.equipment.${toCamelCase(equipName)}`);
+                equipLabel.textContent = translate(`entities.equipment.${equipKey}`);
             }
         });
     });
@@ -74,6 +75,7 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
 
         const heroPage = document.createElement('div');
         heroPage.className = 'hero-page';
+        heroPage.dataset.heroKey = hero.key || heroKey;
         heroPage.dataset.heroName = hero.name;
 
         const headerSection = document.createElement('div');

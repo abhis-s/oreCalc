@@ -15,6 +15,7 @@ import {
 import { saveSinglePlayerData } from '../../services/apiService.js';
 import { getPlayerTagFromUrl, syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import { getMaxTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
+import { heroData } from '../../data/heroData.js';
 
 /**
  * @typedef {Object} StandaloneHJState
@@ -60,12 +61,19 @@ export const hjState = {
  */
 export function computePlayerCumulativeLevel(playerData) {
     if (!playerData || typeof playerData !== 'object') return 0;
-    const activeHeroes = ['Barbarian King', 'Archer Queen', 'Grand Warden', 'Royal Champion', 'Minion Prince', 'Dragon Duke'];
+    const activeHeroes = [
+        { key: 'barbarianKing', name: 'Barbarian King' },
+        { key: 'archerQueen', name: 'Archer Queen' },
+        { key: 'grandWarden', name: 'Grand Warden' },
+        { key: 'royalChampion', name: 'Royal Champion' },
+        { key: 'minionPrince', name: 'Minion Prince' },
+        { key: 'dragonDuke', name: 'Dragon Duke' }
+    ];
     let total = 0;
 
     if (Array.isArray(playerData.heroes)) {
         for (const hero of playerData.heroes) {
-            if (hero && activeHeroes.includes(hero.name) && Number.isFinite(hero.level)) {
+            if (hero && activeHeroes.some(h => h.name === hero.name || h.key === hero.name) && Number.isFinite(hero.level)) {
                 total += Number(hero.level) || 0;
             }
         }
@@ -74,8 +82,8 @@ export function computePlayerCumulativeLevel(playerData) {
 
     const ownedMap = playerData.ownedHeroes || playerData.playerProfile?.ownedHeroes;
     if (ownedMap && typeof ownedMap === 'object' && !Array.isArray(ownedMap)) {
-        for (const heroName of activeHeroes) {
-            const h = ownedMap[heroName];
+        for (const hero of activeHeroes) {
+            const h = ownedMap[hero.key] ?? ownedMap[hero.name];
             if (h !== undefined && h !== null) {
                 const lvl = typeof h === 'object' ? Number(h.level) : Number(h);
                 if (Number.isFinite(lvl)) {
@@ -87,8 +95,8 @@ export function computePlayerCumulativeLevel(playerData) {
     }
 
     if (playerData.heroes && typeof playerData.heroes === 'object' && !Array.isArray(playerData.heroes)) {
-        for (const heroName of activeHeroes) {
-            const h = playerData.heroes[heroName];
+        for (const hero of activeHeroes) {
+            const h = playerData.heroes[hero.key] ?? playerData.heroes[hero.name];
             if (h !== undefined && h !== null) {
                 const lvl = typeof h === 'object' ? Number(h.level) : Number(h);
                 if (Number.isFinite(lvl)) {
@@ -220,12 +228,17 @@ export function buildStateFromPlayerData(playerData, state) {
         ownedEquipment = savedPartition.playerProfile.ownedEquipment;
     } else if (savedPartition?.heroes && typeof savedPartition.heroes === 'object') {
         const extracted = {};
-        for (const heroName in savedPartition.heroes) {
-            const h = savedPartition.heroes[heroName];
+        for (const heroKey in heroData) {
+            const heroInfo = heroData[heroKey];
+            const h = savedPartition.heroes[heroKey] || savedPartition.heroes[heroInfo.name];
             if (h?.equipment && typeof h.equipment === 'object') {
-                for (const eqName in h.equipment) {
-                    const eq = h.equipment[eqName];
-                    extracted[eqName] = typeof eq === 'object' ? (eq.level || 1) : (eq || 1);
+                for (const eq of heroInfo.equipment) {
+                    const eqState = h.equipment[eq.key] || h.equipment[eq.name];
+                    if (eqState) {
+                        const lvl = typeof eqState === 'object' ? (eqState.level || 1) : (eqState || 1);
+                        extracted[eq.key] = lvl;
+                        extracted[eq.name] = lvl;
+                    }
                 }
             }
         }

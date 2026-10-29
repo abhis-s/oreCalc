@@ -1,4 +1,5 @@
 import { translate } from '../../i18n/translator.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
 
 import { getSVG } from '../../utils/svgManager.js';
 
@@ -117,11 +118,13 @@ export function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
                 const items = itemsToMove || (itemToMove ? [itemToMove] : []);
 
                 items.forEach(itm => {
+                    const itmHeroKey = toCamelCase(itm.heroName || '');
+                    const itmEquipKey = toCamelCase(itm.name || '');
                     const itemToMoveElement = Array.from(listItems).find(el => {
                         const htmlEl = /** @type {HTMLElement} */ (el);
-                        return htmlEl.dataset.heroName === itm.heroName &&
-                            htmlEl.dataset.equipName === itm.name &&
-                            htmlEl.dataset.step == itm.step;
+                        const matchHero = htmlEl.dataset.heroKey === itmHeroKey || htmlEl.dataset.heroName === itm.heroName;
+                        const matchEquip = htmlEl.dataset.equipKey === itmEquipKey || htmlEl.dataset.equipName === itm.name;
+                        return matchHero && matchEquip && htmlEl.dataset.step == itm.step;
                     });
                     if (itemToMoveElement) {
                         itemToMoveElement.classList.add('suggestion');
@@ -129,11 +132,13 @@ export function renderSuggestionsAndErrors(globalPriorityList, suggestions) {
                 });
 
                 if (moveBefore) {
+                    const beforeHeroKey = toCamelCase(moveBefore.heroName || '');
+                    const beforeEquipKey = toCamelCase(moveBefore.name || '');
                     const moveBeforeElement = Array.from(listItems).find(el => {
                         const htmlEl = /** @type {HTMLElement} */ (el);
-                        return htmlEl.dataset.heroName === moveBefore.heroName &&
-                            htmlEl.dataset.equipName === moveBefore.name &&
-                            htmlEl.dataset.step == moveBefore.step;
+                        const matchHero = htmlEl.dataset.heroKey === beforeHeroKey || htmlEl.dataset.heroName === moveBefore.heroName;
+                        const matchEquip = htmlEl.dataset.equipKey === beforeEquipKey || htmlEl.dataset.equipName === moveBefore.name;
+                        return matchHero && matchEquip && htmlEl.dataset.step == moveBefore.step;
                     });
                     if (moveBeforeElement) {
                         if (!moveBeforeElement.previousElementSibling?.classList.contains('suggestion-bar')) {

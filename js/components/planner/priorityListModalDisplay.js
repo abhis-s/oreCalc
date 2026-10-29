@@ -195,7 +195,9 @@ export function renderDraggableList(globalPriorityList, suggestions) {
         listItem.dataset.draggable = isDraggingAllowed ? 'true' : 'false';
         listItem.dataset.index = String(index);
 
+        listItem.dataset.heroKey = toCamelCase(heroName);
         listItem.dataset.heroName = heroName;
+        listItem.dataset.equipKey = toCamelCase(equipName);
         listItem.dataset.equipName = equipName;
         listItem.dataset.step = item.step;
         listItem.dataset.startLevel = String(startLevel);

@@ -13,6 +13,7 @@ import { escapeHTML } from '../../utils/stringUtils.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 import { closeFabMenu } from '../fab/fab.js';
 import { openEquipmentDetailsModal } from '../equipment/equipmentDetailsModalInputs.js';
+import { getEquipLevel } from '../equipment/equipmentDetailsModalData.js';
 import { setAnimateNextRender } from '../planner/calendarDisplay.js';
 import { closeStoredOresModal } from '../planner/priorityListModal.js';
 import { closeDropdown, openDropdown } from '../player/playerDropdownInputs.js';
@@ -283,8 +284,8 @@ async function executeStepEnter(step) {
             }
         }
     } else if (step.id === 'eq-details-modal') {
-        const playerLevel = state.heroes?.['Dragon Duke']?.equipment?.['Fire Heart']?.level || 1;
-        await openEquipmentDetailsModal('Fire Heart', playerLevel);
+        const playerLevel = getEquipLevel('fireHeart', 'Dragon Duke', 'dragonDuke');
+        await openEquipmentDetailsModal('fireHeart', playerLevel);
         await new Promise(resolve => setTimeout(resolve, 300));
     } else if (step.id === 'nav-income') {
         document.querySelectorAll('.income-card .card-title').forEach(el => {

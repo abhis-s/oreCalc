@@ -94,14 +94,18 @@ export function undismissNote(equipId) {
 }
 
 /**
- * Converts equipment display name to filename slug.
+ * Converts equipment identifier or display name to filename slug.
  *
- * @param {string} equipmentName
+ * @param {string} equipmentIdentifier
  * @returns {string}
  */
-function getEquipmentSlug(equipmentName) {
-    if (!equipmentName) return '';
-    return equipmentName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+function getEquipmentSlug(equipmentIdentifier) {
+    if (!equipmentIdentifier) return '';
+    return equipmentIdentifier
+        .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
 }
 
 /**
@@ -116,7 +120,7 @@ function hasEquipmentData(equipmentName) {
     if (equipmentDataCache.has(slug)) {
         return Promise.resolve(Boolean(equipmentDataCache.get(slug)));
     }
-    return fetch(`js/data/equipment/${slug}.json`)
+    return fetch(`/js/data/equipment/${slug}.json`)
         .then(response => {
             const contentType = response.headers.get('content-type');
             if (response.ok && contentType && contentType.includes('application/json')) {
@@ -147,7 +151,7 @@ export function fetchEquipmentData(equipmentName) {
     if (equipmentDataCache.has(slug)) {
         return Promise.resolve(equipmentDataCache.get(slug));
     }
-    return fetch(`js/data/equipment/${slug}.json`)
+    return fetch(`/js/data/equipment/${slug}.json`)
         .then(response => {
             const contentType = response.headers.get('content-type');
             if (response.ok && contentType && contentType.includes('application/json')) {
@@ -174,7 +178,7 @@ export function fetchEquipmentData(equipmentName) {
  */
 export function getRecommendationsData() {
     if (recommendationsCache) return Promise.resolve(recommendationsCache);
-    return fetch('js/data/equipmentRecommendations.json')
+    return fetch('/js/data/equipmentRecommendations.json')
         .then(response => {
             if (response.ok) {
                 return response.json().then(data => {
@@ -203,11 +207,11 @@ export function getRecommendationsData() {
 export async function findValidEquipmentIndex(list, currentIdx, direction) {
     if (direction === 'next') {
         for (let i = currentIdx + 1; i < list.length; i++) {
-            if (await hasEquipmentData(list[i].name)) return i;
+            if (await hasEquipmentData(list[i].key || list[i].name)) return i;
         }
     } else if (direction === 'prev') {
         for (let i = currentIdx - 1; i >= 0; i--) {
-            if (await hasEquipmentData(list[i].name)) return i;
+            if (await hasEquipmentData(list[i].key || list[i].name)) return i;
         }
     }
     return -1;
@@ -252,20 +256,23 @@ export function computeStatDelta(currentVal, prevVal, deltaType, valueUnit = 'nu
 /**
  * Returns a flattened array of all equipment items with hero ownership info.
  *
- * @returns {Array<{key: string, name: string, id: string, heroKey: string, heroName: string}>}
+ * @returns {Array<{key: string, name: string, displayName: string, id: string, heroKey: string, heroName: string, heroDisplayName: string}>}
  */
 export function getFlatEquipmentsList() {
     const list = [];
     for (const hKey in heroData) {
-        const heroName = translate(`entities.heroes.${hKey}`);
+        const heroName = heroData[hKey].name;
+        const heroDisplayName = translate(`entities.heroes.${hKey}`) || heroName;
         const equips = heroData[hKey].equipment || heroData[hKey].equipments || [];
         equips.forEach(eq => {
             list.push({
                 key: eq.key,
-                name: translate(`entities.equipment.${eq.key}`),
+                name: eq.name,
+                displayName: translate(`entities.equipment.${eq.key}`) || eq.name,
                 id: eq.key || eq.id,
                 heroKey: hKey,
-                heroName: heroName
+                heroName: heroName,
+                heroDisplayName: heroDisplayName
             });
         });
     }
@@ -281,11 +288,32 @@ export function getFlatEquipmentsList() {
  * @returns {number}
  */
 export function getEquipLevel(equipName, heroName = null, heroKey = null) {
+    if (!equipName) return 1;
+    const targetNorm = equipName.replace(/[^a-z0-9]/gi, '').toLowerCase();
+
     if (state && state.heroes) {
         const keysToTry = [heroName, heroKey].filter(Boolean);
         for (const k of keysToTry) {
-            const level = state.heroes[k]?.equipment?.[equipName]?.level;
-            if (typeof level === 'number') return level;
+            let heroObj = state.heroes[k];
+            if (!heroObj) {
+                const kNorm = k.replace(/[^a-z0-9]/gi, '').toLowerCase();
+                for (const stateHero in state.heroes) {
+                    if (stateHero.replace(/[^a-z0-9]/gi, '').toLowerCase() === kNorm) {
+                        heroObj = state.heroes[stateHero];
+                        break;
+                    }
+                }
+            }
+            const eqMap = heroObj?.equipment;
+            if (eqMap) {
+                const directLevel = eqMap[equipName]?.level;
+                if (typeof directLevel === 'number') return directLevel;
+                for (const eqKey in eqMap) {
+                    if (eqKey.replace(/[^a-z0-9]/gi, '').toLowerCase() === targetNorm && typeof eqMap[eqKey]?.level === 'number') {
+                        return eqMap[eqKey].level;
+                    }
+                }
+            }
         }
 
         for (const h in state.heroes) {
@@ -295,7 +323,7 @@ export function getEquipLevel(equipName, heroName = null, heroKey = null) {
                     return eqMap[equipName].level;
                 }
                 for (const eqKey in eqMap) {
-                    if (eqKey.toLowerCase() === equipName.toLowerCase() && typeof eqMap[eqKey]?.level === 'number') {
+                    if (eqKey.replace(/[^a-z0-9]/gi, '').toLowerCase() === targetNorm && typeof eqMap[eqKey]?.level === 'number') {
                         return eqMap[eqKey].level;
                     }
                 }

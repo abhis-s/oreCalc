@@ -1,8 +1,16 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
+import { state } from '../../js/core/state.js';
 import { translate } from '../../js/i18n/translator.js';
 import { renderRecommendationBadge, renderStrategyBanner } from '../../js/components/equipment/equipmentDetailsStrategyDisplay.js';
-import { getModalSessionState, setModalSessionState, resetModalSessionState } from '../../js/components/equipment/equipmentDetailsModalData.js';
+import {
+    findValidEquipmentIndex,
+    getEquipLevel,
+    getFlatEquipmentsList,
+    getModalSessionState,
+    resetModalSessionState,
+    setModalSessionState
+} from '../../js/components/equipment/equipmentDetailsModalData.js';
 
 class MockElement {
     constructor() {
@@ -108,5 +116,78 @@ describe('Equipment Details Recommendations Display Suite', () => {
 
         resetModalSessionState();
         assert.equal(getModalSessionState().recommendationHidden, null, 'recommendationHidden must reset to null on close');
+    });
+
+    test('getFlatEquipmentsList returns invariant keys, canonical names, and localized displayNames', () => {
+        const list = getFlatEquipmentsList();
+        assert.ok(Array.isArray(list) && list.length > 0, 'Equipment list must not be empty');
+
+        for (const item of list) {
+            assert.ok(typeof item.key === 'string' && item.key.length > 0, 'Each item must have a non-empty key');
+            assert.ok(typeof item.name === 'string' && item.name.length > 0, 'Each item must have a non-empty canonical name');
+            assert.ok(typeof item.displayName === 'string' && item.displayName.length > 0, 'Each item must have a non-empty displayName');
+            assert.ok(typeof item.heroKey === 'string' && item.heroKey.length > 0, 'Each item must have a heroKey');
+        }
+
+        const gauntlet = list.find(item => item.key === 'giantGauntlet');
+        assert.ok(gauntlet, 'Giant Gauntlet item must be present');
+        assert.equal(gauntlet.name, 'Giant Gauntlet');
+        assert.equal(gauntlet.heroKey, 'barbarianKing');
+    });
+
+    test('findValidEquipmentIndex navigates adjacent equipment items by invariant key', async () => {
+        const originalFetch = globalThis.fetch;
+        try {
+            globalThis.fetch = async (url) => {
+                const urlStr = String(url);
+                if (urlStr.includes('/js/data/equipment/spiky_ball.json') || urlStr.includes('/js/data/equipment/giant_gauntlet.json')) {
+                    return {
+                        ok: true,
+                        headers: { get: () => 'application/json' },
+                        json: async () => ({ id: 'mock', levels: [1] })
+                    };
+                }
+                return {
+                    ok: false,
+                    headers: { get: () => null }
+                };
+            };
+
+            const sampleList = [
+                { key: 'giantGauntlet', name: 'Giant Gauntlet' },
+                { key: 'unavailableGear', name: 'Unavailable Gear' },
+                { key: 'spikyBall', name: 'Spiky Ball' }
+            ];
+
+            const nextIdx = await findValidEquipmentIndex(sampleList, 0, 'next');
+            assert.equal(nextIdx, 2, 'Must skip index 1 and find spikyBall at index 2');
+
+            const prevIdx = await findValidEquipmentIndex(sampleList, 2, 'prev');
+            assert.equal(prevIdx, 0, 'Must skip index 1 and find giantGauntlet at index 0');
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('getEquipLevel resolves levels by canonical name or camelCase key', () => {
+        const prevHeroesState = state.heroes;
+        try {
+            state.heroes = {
+                'Barbarian King': {
+                    equipment: {
+                        'Giant Gauntlet': { level: 27 },
+                        'Spiky Ball': { level: 18 }
+                    }
+                }
+            };
+
+            assert.equal(getEquipLevel('Giant Gauntlet', 'Barbarian King'), 27, 'Direct canonical name match');
+            assert.equal(getEquipLevel('giantGauntlet', 'Barbarian King'), 27, 'CamelCase key match with hero specified');
+            assert.equal(getEquipLevel('giantGauntlet', null, 'barbarianKing'), 27, 'CamelCase key match with heroKey specified');
+            assert.equal(getEquipLevel('spikyBall'), 18, 'CamelCase key match across global heroes fallback');
+            assert.equal(getEquipLevel('unknownEquipment'), 1, 'Non-existent equipment falls back to 1');
+        } finally {
+            state.heroes = prevHeroesState;
+        }
     });
 });

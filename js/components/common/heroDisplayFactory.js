@@ -12,7 +12,7 @@ import { getSVG } from '../../utils/svgManager.js';
  */
 export function createHeroIcon(hero, { sizeClass = '', action = '' } = {}) {
     const img = document.createElement('clashcalc-assets-image');
-    const heroKey = toCamelCase(hero.name);
+    const heroKey = hero.key || toCamelCase(hero.name);
     img.setAttribute('src', hero.image);
     img.setAttribute('alt', translate('entities.heroes.' + heroKey));
     img.dataset.i18nAlt = 'entities.heroes.' + heroKey;
@@ -30,6 +30,8 @@ export function createHeroIcon(hero, { sizeClass = '', action = '' } = {}) {
 export function createEquipmentItem({ equip, equipState, plannerState, idPrefix = 'planner', mode = 'planner', uiSettings = {} }) {
     const container = document.createElement('div');
     container.className = mode === 'planner' ? 'equipment-item-planner' : 'equipment-item';
+    const equipKey = equip.key || toCamelCase(equip.name);
+    container.dataset.equipKey = equipKey;
     container.dataset.equipName = equip.name;
     container.dataset.equipType = equip.type;
 
@@ -52,7 +54,6 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
     const equipTypeClass = equip.type === 'common' ? 'common-equip' : 'epic-equip';
 
     const img = document.createElement('clashcalc-assets-image');
-    const equipKey = toCamelCase(equip.name);
     img.setAttribute('src', equip.image);
     img.setAttribute('alt', translate('entities.equipment.' + equipKey));
     img.dataset.i18nAlt = 'entities.equipment.' + equipKey;
@@ -87,8 +88,8 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `${idPrefix}-${toCamelCase(equip.name)}-toggle`;
-        checkbox.name = `${idPrefix}-${toCamelCase(equip.name)}-toggle`;
+        checkbox.id = `${idPrefix}-${equipKey}-toggle`;
+        checkbox.name = `${idPrefix}-${equipKey}-toggle`;
         checkbox.checked = isChecked;
         checkbox.setAttribute('aria-label', translate('views.planner.toggleEquipment', {
             name: translate('entities.equipment.' + equipKey) || equip.name
@@ -107,6 +108,18 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
 
         const isLevelInputEnabled = (/** @type {any} */ (uiSettings)).enableLevelInput === true;
         const levelDisplayId = `${inputId}-display`;
+
+        const levelControls = document.createElement('div');
+        levelControls.className = 'equipment-level-controls';
+
+        const prelevelInfoBtn = document.createElement('button');
+        prelevelInfoBtn.type = 'button';
+        prelevelInfoBtn.className = 'info-btn equipment-prelevel-info-btn';
+        prelevelInfoBtn.setAttribute('aria-label', translate('actions.showInfo'));
+        prelevelInfoBtn.dataset.i18nAriaLabel = 'actions.showInfo';
+        prelevelInfoBtn.innerHTML = getSVG('info', 'info-icon', 14, 14, 'currentColor');
+        prelevelInfoBtn.hidden = true;
+        levelControls.appendChild(prelevelInfoBtn);
 
         const displayContainer = document.createElement('div');
         displayContainer.className = 'level-display-container';
@@ -130,7 +143,7 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         }));
         upgradeBtn.innerHTML = getSVG('arrow-up');
         displayContainer.appendChild(upgradeBtn);
-        container.appendChild(displayContainer);
+        levelControls.appendChild(displayContainer);
 
         const inputContainer = document.createElement('div');
         inputContainer.className = 'level-input-container';
@@ -148,7 +161,9 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         levelInput.max = String(maxLevel);
         levelInput.value = currentLevel;
         inputContainer.appendChild(levelInput);
-        container.appendChild(inputContainer);
+        levelControls.appendChild(inputContainer);
+
+        container.appendChild(levelControls);
     }
 
     return container;
@@ -163,6 +178,8 @@ export function createHeroCard({ hero, heroState, heroKey, mode = 'interactive',
     const card = document.createElement('div');
     const heroDisabledClass = (heroState.enabled === false) ? 'hero-disabled' : '';
     card.className = `hero-card card ${heroDisabledClass}`;
+    const resolvedHeroKey = heroKey || hero.key || toCamelCase(hero.name);
+    card.dataset.heroKey = resolvedHeroKey;
     card.dataset.heroName = hero.name;
 
     const titleDiv = document.createElement('div');
@@ -175,9 +192,8 @@ export function createHeroCard({ hero, heroState, heroKey, mode = 'interactive',
     titleDiv.appendChild(icon);
 
     const h3 = document.createElement('h3');
-    const heroKeyInternal = toCamelCase(hero.name);
-    h3.textContent = translate('entities.heroes.' + heroKeyInternal);
-    h3.dataset.i18n = 'entities.heroes.' + heroKeyInternal;
+    h3.textContent = translate('entities.heroes.' + resolvedHeroKey);
+    h3.dataset.i18n = 'entities.heroes.' + resolvedHeroKey;
     titleDiv.appendChild(h3);
     card.appendChild(titleDiv);
 

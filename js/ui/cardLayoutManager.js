@@ -87,22 +87,28 @@ export function initCardLayoutManager() {
             const containers = Array.from(gridEl.querySelectorAll(':scope > ' + layout.config.containerSelector));
 
             containers.forEach(container => {
-                const key = layout.config.useHeroNameForId ? container.dataset.heroName : container.id;
-                if (key) {
-                    containerMap.set(key, container);
+                if (layout.config.useHeroNameForId) {
+                    if (container.dataset.heroKey) containerMap.set(container.dataset.heroKey, container);
+                    if (container.dataset.heroName) containerMap.set(container.dataset.heroName, container);
+                } else if (container.id) {
+                    containerMap.set(container.id, container);
                 }
             });
 
+            const placed = new Set();
             savedOrder.forEach(id => {
                 const container = containerMap.get(id);
-                if (container) {
+                if (container && !placed.has(container)) {
                     gridEl.appendChild(container);
-                    containerMap.delete(id);
+                    placed.add(container);
                 }
             });
 
-            containerMap.forEach(container => {
-                gridEl.appendChild(container);
+            containers.forEach(container => {
+                if (!placed.has(container)) {
+                    gridEl.appendChild(container);
+                    placed.add(container);
+                }
             });
         }
 
@@ -162,22 +168,28 @@ export function refreshLayout(name) {
         const containers = Array.from(gridEl.querySelectorAll(':scope > ' + layout.config.containerSelector));
 
         containers.forEach(container => {
-            const key = layout.config.useHeroNameForId ? container.dataset.heroName : container.id;
-            if (key) {
-                containerMap.set(key, container);
+            if (layout.config.useHeroNameForId) {
+                if (container.dataset.heroKey) containerMap.set(container.dataset.heroKey, container);
+                if (container.dataset.heroName) containerMap.set(container.dataset.heroName, container);
+            } else if (container.id) {
+                containerMap.set(container.id, container);
             }
         });
 
+        const placed = new Set();
         savedOrder.forEach(id => {
             const container = containerMap.get(id);
-            if (container) {
+            if (container && !placed.has(container)) {
                 gridEl.appendChild(container);
-                containerMap.delete(id);
+                placed.add(container);
             }
         });
 
-        containerMap.forEach(container => {
-            gridEl.appendChild(container);
+        containers.forEach(container => {
+            if (!placed.has(container)) {
+                gridEl.appendChild(container);
+                placed.add(container);
+            }
         });
     }
 

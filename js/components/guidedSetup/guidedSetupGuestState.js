@@ -3,6 +3,7 @@ import { heroData } from '../../data/heroData.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
 import { getDefaultPlayerState, state } from '../../core/state.js';
+import { attachHeroStateAliases } from '../../core/stateCleanup.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 import { guidedSetupState } from './guidedSetupState.js';
 
@@ -90,16 +91,18 @@ export function initializeGuestHeroesState(guestPlayerState) {
             const availableEquipment = heroInfo.equipment || [];
             availableEquipment.forEach(equip => {
                 const maxLevel = getEquipmentMaxLevel(equip.type);
-                heroState.equipment[equip.name] = {
+                const equipKey = equip.key || equip.name;
+                heroState.equipment[equipKey] = {
                     level: 1,
                     checked: true,
                     targetLevel: maxLevel
                 };
             });
 
-            guestPlayerState.heroes[heroInfo.name] = heroState;
+            guestPlayerState.heroes[heroKey] = heroState;
         }
     });
+    attachHeroStateAliases(guestPlayerState.heroes);
 }
 
 /**

@@ -11,6 +11,7 @@ import { cleanupUpgradePlan, reindexGlobalPriority } from '../../utils/plannerUt
 import { createHeroCard } from '../common/heroDisplayFactory.js';
 import { dom } from '../../dom/domElements.js';
 import { initializeEquipmentDetailsModal, openEquipmentDetailsModal } from './equipmentDetailsModalInputs.js';
+import { getEquipLevel } from './equipmentDetailsModalData.js';
 import { refreshLayout } from '../../ui/cardLayoutManager.js';
 
 const temporarilyVisibleMaxed = new Set();
@@ -131,34 +132,34 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
                 hotkey: 'd',
                 label: () => {
                     const heroCard = /** @type {HTMLElement | null} */ (input.closest('.hero-card'));
-                    const heroName = heroCard?.dataset.heroName;
+                    const heroLookup = heroCard?.dataset.heroKey || heroCard?.dataset.heroName;
                     const equipItem = /** @type {HTMLElement | null} */ (input.closest('.equipment-item'));
-                    const equipName = equipItem?.dataset.equipName;
-                    const isChecked = (heroName && equipName) ? state.heroes[heroName]?.equipment?.[equipName]?.checked !== false : true;
+                    const equipLookup = equipItem?.dataset.equipKey || equipItem?.dataset.equipName;
+                    const isChecked = (heroLookup && equipLookup) ? (state.heroes[heroLookup]?.equipment?.[equipLookup]?.checked !== false) : true;
                     return isChecked ? translate('actions.disable') : translate('actions.enable');
                 },
                 clickToFill: false,
                 className: () => {
                     const heroCard = /** @type {HTMLElement | null} */ (input.closest('.hero-card'));
-                    const heroName = heroCard?.dataset.heroName;
+                    const heroLookup = heroCard?.dataset.heroKey || heroCard?.dataset.heroName;
                     const equipItem = /** @type {HTMLElement | null} */ (input.closest('.equipment-item'));
-                    const equipName = equipItem?.dataset.equipName;
-                    const isChecked = (heroName && equipName) ? state.heroes[heroName]?.equipment?.[equipName]?.checked !== false : true;
+                    const equipLookup = equipItem?.dataset.equipKey || equipItem?.dataset.equipName;
+                    const isChecked = (heroLookup && equipLookup) ? (state.heroes[heroLookup]?.equipment?.[equipLookup]?.checked !== false) : true;
                     return isChecked ? 'popover-btn-disable' : 'popover-btn-enable';
                 },
                 action: (inputElement) => {
                     const heroCard = /** @type {HTMLElement | null} */ (inputElement.closest('.hero-card'));
-                    const heroName = heroCard?.dataset.heroName;
+                    const heroLookup = heroCard?.dataset.heroKey || heroCard?.dataset.heroName;
                     const equipItem = /** @type {HTMLElement | null} */ (inputElement.closest('.equipment-item'));
-                    const equipName = equipItem?.dataset.equipName;
-                    if (!heroName || !equipName) return;
+                    const equipLookup = equipItem?.dataset.equipKey || equipItem?.dataset.equipName;
+                    if (!heroLookup || !equipLookup) return;
 
                     handleStateUpdate(() => {
-                        if (!state.heroes[heroName]) state.heroes[heroName] = { equipment: {} };
-                        if (!state.heroes[heroName].equipment[equipName]) state.heroes[heroName].equipment[equipName] = {};
+                        if (!state.heroes[heroLookup]) state.heroes[heroLookup] = { equipment: {} };
+                        if (!state.heroes[heroLookup].equipment[equipLookup]) state.heroes[heroLookup].equipment[equipLookup] = {};
 
-                        const currentlyChecked = state.heroes[heroName].equipment[equipName].checked !== false;
-                        state.heroes[heroName].equipment[equipName].checked = !currentlyChecked;
+                        const currentlyChecked = state.heroes[heroLookup].equipment[equipLookup].checked !== false;
+                        state.heroes[heroLookup].equipment[equipLookup].checked = !currentlyChecked;
                     });
                 }
             }
@@ -195,12 +196,14 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
         if (equipClickable) {
             const equipItem = /** @type {HTMLElement | null} */ (equipClickable.closest('.equipment-item'));
             const heroCard = /** @type {HTMLElement | null} */ (equipClickable.closest('.hero-card'));
+            const equipKey = equipItem ? (equipItem.dataset.equipKey || equipItem.dataset.equipName) : null;
             const equipName = equipItem ? equipItem.dataset.equipName : null;
+            const heroKey = heroCard ? (heroCard.dataset.heroKey || heroCard.dataset.heroName) : null;
             const heroName = heroCard ? heroCard.dataset.heroName : null;
 
-            if (equipName) {
-                const currentLevel = (heroName && state.heroes[heroName]?.equipment?.[equipName]?.level) || 1;
-                openEquipmentDetailsModal(equipName, currentLevel);
+            if (equipKey) {
+                const currentLevel = (heroName && (state.heroes[heroName]?.equipment?.[equipName]?.level || state.heroes[heroName]?.equipment?.[equipKey]?.level)) || getEquipLevel(equipKey, heroName, heroKey);
+                openEquipmentDetailsModal(equipKey, currentLevel);
             }
             return;
         }
@@ -211,27 +214,29 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
         const action = actionElement.dataset.action;
         const heroCard = /** @type {HTMLElement | null} */ (actionElement.closest('.hero-card'));
         if (!heroCard) return;
+        const heroLookup = heroCard.dataset.heroKey || heroCard.dataset.heroName;
         const heroName = heroCard.dataset.heroName;
-        if (!heroName) return;
+        if (!heroLookup) return;
 
         switch(action) {
             case 'increment-level': {
                 const equipItem = /** @type {HTMLElement | null} */ (actionElement.closest('.equipment-item'));
+                const equipLookup = equipItem ? (equipItem.dataset.equipKey || equipItem.dataset.equipName) : null;
                 const equipName = equipItem ? equipItem.dataset.equipName : null;
-                if (!equipName) break;
+                if (!equipLookup) break;
 
-                const currentLevel = state.heroes[heroName]?.equipment?.[equipName]?.level || 1;
+                const currentLevel = (state.heroes[heroLookup]?.equipment?.[equipLookup]?.level) || 1;
                 const maxLevel = Number(actionElement.dataset.maxLevel) || 18;
                 if (currentLevel < maxLevel) {
                     const nextLevel = currentLevel + 1;
                     handleStateUpdate(() => {
-                        if (!state.heroes[heroName]) state.heroes[heroName] = { equipment: {} };
-                        if (!state.heroes[heroName].equipment[equipName]) state.heroes[heroName].equipment[equipName] = {};
-                        state.heroes[heroName].equipment[equipName].level = nextLevel;
-                        cleanupUpgradePlan(state.heroes[heroName].equipment[equipName]);
+                        if (!state.heroes[heroLookup]) state.heroes[heroLookup] = { equipment: {} };
+                        if (!state.heroes[heroLookup].equipment[equipLookup]) state.heroes[heroLookup].equipment[equipLookup] = {};
+                        state.heroes[heroLookup].equipment[equipLookup].level = nextLevel;
+                        cleanupUpgradePlan(state.heroes[heroLookup].equipment[equipLookup]);
                         reindexGlobalPriority();
                     });
-                    if (nextLevel >= maxLevel) {
+                    if (nextLevel >= maxLevel && heroName && equipName) {
                         markEquipmentManuallyMaxed(heroName, equipName);
                     }
                 }
@@ -250,12 +255,14 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
                 event.preventDefault();
                 const equipItem = /** @type {HTMLElement | null} */ (equipClickable.closest('.equipment-item'));
                 const heroCard = /** @type {HTMLElement | null} */ (equipClickable.closest('.hero-card'));
+                const equipKey = equipItem ? (equipItem.dataset.equipKey || equipItem.dataset.equipName) : null;
                 const equipName = equipItem ? equipItem.dataset.equipName : null;
+                const heroKey = heroCard ? (heroCard.dataset.heroKey || heroCard.dataset.heroName) : null;
                 const heroName = heroCard ? heroCard.dataset.heroName : null;
 
-                if (equipName) {
-                    const currentLevel = (heroName && state.heroes[heroName]?.equipment?.[equipName]?.level) || 1;
-                    openEquipmentDetailsModal(equipName, currentLevel);
+                if (equipKey) {
+                    const currentLevel = (heroName && (state.heroes[heroName]?.equipment?.[equipName]?.level || state.heroes[heroName]?.equipment?.[equipKey]?.level)) || getEquipLevel(equipKey, heroName, heroKey);
+                    openEquipmentDetailsModal(equipKey, currentLevel);
                 }
             }
         }
@@ -267,11 +274,13 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
 
         const heroCard = /** @type {HTMLElement | null} */ (input.closest('.hero-card'));
         if (!heroCard) return;
+        const heroLookup = heroCard.dataset.heroKey || heroCard.dataset.heroName;
         const heroName = heroCard.dataset.heroName;
 
         const equipItem = /** @type {HTMLElement | null} */ (input.closest('.equipment-item'));
+        const equipLookup = equipItem ? (equipItem.dataset.equipKey || equipItem.dataset.equipName) : null;
         const equipName = equipItem ? equipItem.dataset.equipName : null;
-        if (!heroName || !equipName) return;
+        if (!heroLookup || !equipLookup) return;
 
         const maxLevel = parseInt(input.max, 10);
         let value = parseInt(input.value, 10);
@@ -279,15 +288,15 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
         value = Math.max(1, Math.min(value, maxLevel));
 
         handleStateUpdate(() => {
-            if (!state.heroes[heroName]) state.heroes[heroName] = { equipment: {} };
-            if (!state.heroes[heroName].equipment[equipName]) state.heroes[heroName].equipment[equipName] = {};
+            if (!state.heroes[heroLookup]) state.heroes[heroLookup] = { equipment: {} };
+            if (!state.heroes[heroLookup].equipment[equipLookup]) state.heroes[heroLookup].equipment[equipLookup] = {};
 
-            state.heroes[heroName].equipment[equipName].level = value;
-            cleanupUpgradePlan(state.heroes[heroName].equipment[equipName]);
+            state.heroes[heroLookup].equipment[equipLookup].level = value;
+            cleanupUpgradePlan(state.heroes[heroLookup].equipment[equipLookup]);
             reindexGlobalPriority();
         });
 
-        if (value >= maxLevel) {
+        if (value >= maxLevel && heroName && equipName) {
             markEquipmentManuallyMaxed(heroName, equipName);
         }
     });

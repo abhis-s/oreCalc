@@ -33,6 +33,8 @@ import { calculateEquipmentProgress } from '../domain/equipment/equipmentProgres
 import { getCumulativeHeroLevel } from '../domain/income/heroJourneyLevels.js';
 import { heroJourneyNodes } from '../data/heroJourneyData.js';
 import { leagueTiers } from '../data/leagueTiers.js';
+import { heroData } from '../data/heroData.js';
+import { normalizeHeroesState, migrateHeroesToKeys } from './stateCleanup.js';
 
 /**
  * Deletes a player profile partition from memory and localStorage disk.
@@ -219,6 +221,10 @@ export function loadPlayerData(playerTag) {
         const isProfileMatch = !rawProfile?.tag || isGuest || normalizePlayerTag(rawProfile.tag) === cleanTag;
         const resolvedProfile = isProfileMatch ? rawProfile : null;
 
+        if (playerState.heroes) {
+            normalizeHeroesState(playerState.heroes);
+        }
+
         return {
             heroes: playerState.heroes || (isGuest ? defaultState.heroes : undefined),
             storedOres: playerState.storedOres || (isGuest ? defaultState.storedOres : undefined),
@@ -382,11 +388,11 @@ export function inferTownHallLevel(playerData) {
     if (!playerData) return 18;
     const heroes = playerData.heroes;
     if (heroes && typeof heroes === 'object') {
-        if (heroes['Dragon Duke']) return 18;
-        if (heroes['Royal Champion']) return Math.max(13, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 13);
-        if (heroes['Grand Warden']) return Math.max(11, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 11);
-        if (heroes['Archer Queen'] || heroes['Minion Prince']) return Math.max(9, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 9);
-        if (heroes['Barbarian King']) return Math.max(7, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 7);
+        if (heroes.dragonDuke || heroes['Dragon Duke']) return 18;
+        if (heroes.royalChampion || heroes['Royal Champion']) return Math.max(13, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 13);
+        if (heroes.grandWarden || heroes['Grand Warden']) return Math.max(11, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 11);
+        if (heroes.archerQueen || heroes['Archer Queen'] || heroes.minionPrince || heroes['Minion Prince']) return Math.max(9, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 9);
+        if (heroes.barbarianKing || heroes['Barbarian King']) return Math.max(7, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 7);
     }
     const warTh = Number(playerData.income?.clanWar?.warPerformance?.thLevel);
     if (warTh >= 1 && warTh <= 18) return warTh;
@@ -501,15 +507,18 @@ export function savePlayerProfileToStorage(data, updateOrder = true) {
     partition.playerProfile = sanitizePlayerProfile(data);
 
     if (partition.heroes && typeof partition.heroes === 'object') {
+        normalizeHeroesState(partition.heroes);
         for (const hero of homeHeroes) {
-            if (partition.heroes[hero.name]?.equipment && Array.isArray(hero.equipment)) {
+            const heroState = partition.heroes[hero.name];
+            if (heroState?.equipment && Array.isArray(hero.equipment)) {
                 for (const eq of hero.equipment) {
-                    if (partition.heroes[hero.name].equipment[eq.name]) {
-                        partition.heroes[hero.name].equipment[eq.name].level = eq.level;
+                    if (heroState.equipment[eq.name]) {
+                        heroState.equipment[eq.name].level = eq.level;
                     }
                 }
             }
         }
+        migrateHeroesToKeys(partition.heroes);
     }
 
     localStorage.setItem(canonicalKey, JSON.stringify(partition));
@@ -658,15 +667,20 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
                 } catch {}
             }
             if (partition?.heroes && typeof partition.heroes === 'object') {
-                for (const heroName in partition.heroes) {
-                    const heroState = partition.heroes[heroName];
+                for (const heroKey in heroData) {
+                    const hero = heroData[heroKey];
+                    const heroState = partition.heroes[heroKey] || partition.heroes[hero.name];
                     if (heroState?.enabled !== false) {
-                        ownedHeroes[heroName] = { level: heroState?.level || 1, maxLevel: 95 };
+                        const hInfo = { level: heroState?.level || 1, maxLevel: 95 };
+                        ownedHeroes[heroKey] = hInfo;
+                        ownedHeroes[hero.name] = hInfo;
                         if (heroState?.equipment) {
-                            for (const equipName in heroState.equipment) {
-                                const eqState = heroState.equipment[equipName];
+                            for (const eq of hero.equipment) {
+                                const eqState = heroState.equipment[eq.key] || heroState.equipment[eq.name];
                                 if (eqState && eqState.checked !== false) {
-                                    ownedEquipment[equipName] = eqState.level || 1;
+                                    const lvl = eqState.level || 1;
+                                    ownedEquipment[eq.key] = lvl;
+                                    ownedEquipment[eq.name] = lvl;
                                 }
                             }
                         }

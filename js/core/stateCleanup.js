@@ -1,4 +1,5 @@
 import { safeJsonParse } from '../utils/jsonUtils.js';
+import { heroData } from '../data/heroData.js';
 import {
     CANONICAL_PLAYER_PREFIX,
     COMING_SOON_EQUIPMENT_MAPPINGS,
@@ -111,6 +112,128 @@ export function migrateComingSoonEquipment(heroes) {
     }
 
     return modified;
+}
+
+/**
+ * Migrates a heroes state object from legacy display names ('Barbarian King', 'Giant Gauntlet')
+ * to canonical programmatic keys ('barbarianKing', 'giantGauntlet').
+ * Preserves all levels, checked states, and upgrade plans. Idempotent.
+ *
+ * @param {Record<string, any>} heroes - Heroes state slice to migrate in-place.
+ * @returns {Record<string, any>} The mutated heroes object for convenience.
+ */
+export function migrateHeroesToKeys(heroes) {
+    if (!heroes || typeof heroes !== 'object') return heroes;
+
+    for (const heroKey in heroData) {
+        const hero = heroData[heroKey];
+        const heroName = hero.name;
+
+        // Check if legacy name exists as an own value property (not an accessor getter)
+        if (heroName !== heroKey) {
+            const desc = Object.getOwnPropertyDescriptor(heroes, heroName);
+            if (desc && !desc.get && desc.value !== undefined) {
+                const legacyVal = desc.value;
+                if (!heroes[heroKey]) {
+                    heroes[heroKey] = legacyVal;
+                } else if (typeof heroes[heroKey] === 'object' && typeof legacyVal === 'object') {
+                    heroes[heroKey] = { ...legacyVal, ...heroes[heroKey] };
+                }
+                delete heroes[heroName];
+            }
+        }
+
+        const heroObj = heroes[heroKey];
+        if (heroObj && heroObj.equipment && typeof heroObj.equipment === 'object') {
+            const eqMap = heroObj.equipment;
+            if (hero.equipment && Array.isArray(hero.equipment)) {
+                for (const eq of hero.equipment) {
+                    const eqKey = eq.key;
+                    const eqName = eq.name;
+                    if (eqName !== eqKey) {
+                        const eqDesc = Object.getOwnPropertyDescriptor(eqMap, eqName);
+                        if (eqDesc && !eqDesc.get && eqDesc.value !== undefined) {
+                            const legacyEq = eqDesc.value;
+                            if (!eqMap[eqKey]) {
+                                eqMap[eqKey] = legacyEq;
+                            } else if (typeof eqMap[eqKey] === 'object' && typeof legacyEq === 'object') {
+                                eqMap[eqKey] = { ...legacyEq, ...eqMap[eqKey] };
+                            }
+                            delete eqMap[eqName];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return heroes;
+}
+
+/**
+ * Attaches non-enumerable fallback getters and setters to a heroes state object
+ * so that legacy display names resolve transparently to canonical keys.
+ *
+ * @param {Record<string, any>} heroes - Heroes state slice to augment in-place.
+ * @returns {Record<string, any>} The augmented heroes object.
+ */
+export function attachHeroStateAliases(heroes) {
+    if (!heroes || typeof heroes !== 'object') return heroes;
+
+    for (const heroKey in heroData) {
+        const hero = heroData[heroKey];
+        const heroName = hero.name;
+
+        if (heroName !== heroKey && heroes[heroKey]) {
+            const desc = Object.getOwnPropertyDescriptor(heroes, heroName);
+            if (!desc || (desc.configurable && !desc.get)) {
+                Object.defineProperty(heroes, heroName, {
+                    get() { return this[heroKey]; },
+                    set(val) { this[heroKey] = val; },
+                    enumerable: false,
+                    configurable: true
+                });
+            }
+        }
+
+        const heroObj = heroes[heroKey];
+        if (heroObj && heroObj.equipment && typeof heroObj.equipment === 'object') {
+            const eqMap = heroObj.equipment;
+            if (hero.equipment && Array.isArray(hero.equipment)) {
+                for (const eq of hero.equipment) {
+                    const eqKey = eq.key;
+                    const eqName = eq.name;
+                    if (eqName !== eqKey && eqMap[eqKey]) {
+                        const eqDesc = Object.getOwnPropertyDescriptor(eqMap, eqName);
+                        if (!eqDesc || (eqDesc.configurable && !eqDesc.get)) {
+                            Object.defineProperty(eqMap, eqName, {
+                                get() { return this[eqKey]; },
+                                set(val) { this[eqKey] = val; },
+                                enumerable: false,
+                                configurable: true
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return heroes;
+}
+
+/**
+ * Normalizes and secures a heroes state slice by migrating legacy names to canonical keys
+ * and attaching non-enumerable backward-compatibility accessors.
+ *
+ * @param {Record<string, any>} heroes - Heroes state slice.
+ * @returns {Record<string, any>} The normalized heroes state slice.
+ */
+export function normalizeHeroesState(heroes) {
+    if (!heroes || typeof heroes !== 'object') return heroes;
+    migrateHeroesToKeys(heroes);
+    attachHeroStateAliases(heroes);
+    return heroes;
 }
 
 /**

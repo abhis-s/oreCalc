@@ -1,3 +1,4 @@
+import { EQUIPMENT_RECOMMENDATIONS_LAST_UPDATED } from '../../data/equipmentCommonData.js';
 import { getSupercellEventUrl } from '../../data/languagesData.js';
 import { currencyData } from '../../data/pricingData.js';
 import { translate } from '../../i18n/translator.js';
@@ -46,6 +47,11 @@ export function initializeIncomeCardHandler() {
         } else if (infoKey === 'views.equipment.badgeRarityHelp' && typeof btnOrKey === 'object' && btnOrKey) {
             const rarity = btnOrKey.getAttribute('data-info-rarity') || btnOrKey.textContent.trim();
             body = translate('views.equipment.badgeRarityHelp', { rarity });
+        } else if (infoKey === 'views.equipment.heroJourneyPreLevelInfo' && typeof btnOrKey === 'object' && btnOrKey) {
+            const th = btnOrKey.getAttribute('data-info-th') || '';
+            const node = btnOrKey.getAttribute('data-info-node') || '';
+            const level = btnOrKey.getAttribute('data-info-level') || '';
+            body = translate('views.equipment.heroJourneyPreLevelInfo', { th, node, level });
         } else {
             body = translate(infoKey);
         }
@@ -63,8 +69,7 @@ export function initializeIncomeCardHandler() {
 
         // Automatic recommendation last updated date footer for rec badges
         if (!footer && infoKey && infoKey.startsWith('views.equipment.rec')) {
-            const recDate = '2026-08-01';
-            const formattedDate = formatRegionalDate(recDate);
+            const formattedDate = formatRegionalDate(EQUIPMENT_RECOMMENDATIONS_LAST_UPDATED);
             footer = translate('views.equipment.recommendationsLastUpdated', { date: formattedDate });
         }
 

@@ -252,6 +252,7 @@ export function resolveHeroJourneyTrack(state) {
 
             resolutionMap[node.level] = {
                 node,
+                nodeTH,
                 bestGuess,
                 resolvedName: bestGuess.name,
                 resolvedKey: bestGuess.key,
@@ -265,7 +266,7 @@ export function resolveHeroJourneyTrack(state) {
         });
 
         // Assemble future node resolution map with poolOptions
-        futureResolutions.forEach(({ node, unlockLevel, bestGuess, targetEquipment, isFallbackStarry, isOwned }) => {
+        futureResolutions.forEach(({ node, nodeTH, unlockLevel, bestGuess, targetEquipment, isFallbackStarry, isOwned }) => {
             const poolOptions = pool.map(item => {
                 let status = 'queued';
                 let awardedAtLevel = null;
@@ -304,6 +305,7 @@ export function resolveHeroJourneyTrack(state) {
 
             resolutionMap[node.level] = {
                 node,
+                nodeTH,
                 bestGuess,
                 resolvedName: bestGuess.name,
                 resolvedKey: bestGuess.key,
@@ -352,7 +354,7 @@ export function getResolvedEquipmentReward(node, state, trackResolution = null) 
  * @param {import('../../core/types.js').AppState | any} [state=null] - Application state.
  * @returns {any | null} The resolved node entry from trackResolution, or null.
  */
-function getAssignedEquipmentTrackNode(eqKey, eqName, trackResolution, state = null) {
+export function getAssignedEquipmentTrackNode(eqKey, eqName, trackResolution, state = null) {
     if (!trackResolution) return null;
 
     const cumulativeLevel = state ? getCumulativeHeroLevel(state) : 0;
@@ -394,10 +396,14 @@ function getAssignedEquipmentTrackNode(eqKey, eqName, trackResolution, state = n
         return trackResolution[awardedLevel];
     }
 
-    // Fallback: any matching node in resolution map
+    // Fallback: any matching node in resolution map, excluding missed awards
     const fallbackLevel = Object.keys(trackResolution).find(lvl => {
         const res = trackResolution[lvl];
-        return res && !res.isFallbackStarry && (res.resolvedKey === eqKey || res.resolvedName === eqName);
+        if (!res || res.isFallbackStarry) return false;
+        if (res.resolvedKey !== eqKey && res.resolvedName !== eqName) return false;
+        const opt = res.poolOptions?.find(o => o.key === eqKey || o.name === eqName);
+        if (opt && opt.status === 'missed') return false;
+        return true;
     });
 
     if (fallbackLevel) {
@@ -428,6 +434,10 @@ export function getDefaultEquipmentUnlockLevel(heroNameOrKey, equipNameOrKey, st
 
         if (assignedNode?.equipmentLevel) {
             return assignedNode.equipmentLevel;
+        }
+
+        if (state) {
+            return 1;
         }
     }
 
@@ -461,7 +471,7 @@ export function getDefaultEquipmentUnlockLevel(heroNameOrKey, equipNameOrKey, st
  * @param {import('../../core/types.js').AppState | any} state - Application state.
  * @returns {boolean} Whether equipment is unowned on server.
  */
-function isEquipmentServerUnowned(equipNameOrKey, state) {
+export function isEquipmentServerUnowned(equipNameOrKey, state) {
     if (!state?.playerProfile) {
         return true;
     }

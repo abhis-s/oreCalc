@@ -885,6 +885,7 @@
             "generalStats": "Allgemeine Werte",
             "heroBoost": "Helden-Boost",
             "heroEquipment": "Heldenausrüstung",
+            "heroJourneyPreLevelInfo": "Wird auf der Heldenreise bei Rathaus {th} (Knoten {node}) freigeschaltet, bereits auf Level {level} aufgewertet.",
             "lvl": "Lvl",
             "maxLevel": "Max. Level",
             "modifiers": {

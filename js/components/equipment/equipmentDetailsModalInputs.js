@@ -133,14 +133,19 @@ export function initializeEquipmentDetailsModal() {
 
         const list = getFlatEquipmentsList();
         if (list.length === 0) return;
-        const currentIdx = list.findIndex(e => e.name.toLowerCase() === session.activeEquipmentName.toLowerCase());
+        const targetIdLower = session.activeEquipmentName.toLowerCase();
+        const currentIdx = list.findIndex(e =>
+            (e.key && e.key.toLowerCase() === targetIdLower) ||
+            (e.name && e.name.toLowerCase() === targetIdLower) ||
+            (e.displayName && e.displayName.toLowerCase() === targetIdLower)
+        );
         if (currentIdx === -1) return;
 
         const targetIdx = await findValidEquipmentIndex(list, currentIdx, direction);
         if (targetIdx !== -1) {
             const targetEquip = list[targetIdx];
-            const targetLevel = getEquipLevel(targetEquip.name, targetEquip.heroName, targetEquip.heroKey);
-            openEquipmentDetailsModal(targetEquip.name, targetLevel);
+            const targetLevel = getEquipLevel(targetEquip.key || targetEquip.name, targetEquip.heroName, targetEquip.heroKey);
+            openEquipmentDetailsModal(targetEquip.key, targetLevel);
         }
     };
 
@@ -190,15 +195,21 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const modal = document.getElementById('equipment-details-modal');
     if (!modal) return;
 
-    setModalSessionState({ activeEquipmentName: equipmentName });
+    const equipList = getFlatEquipmentsList();
+    const targetIdLower = equipmentName.toLowerCase();
+    const currentEquipIdx = equipList.findIndex(e =>
+        (e.key && e.key.toLowerCase() === targetIdLower) ||
+        (e.name && e.name.toLowerCase() === targetIdLower) ||
+        (e.displayName && e.displayName.toLowerCase() === targetIdLower)
+    );
 
-    const data = await fetchEquipmentData(equipmentName);
+    const activeKey = currentEquipIdx !== -1 ? (equipList[currentEquipIdx].key || equipList[currentEquipIdx].name) : equipmentName;
+    setModalSessionState({ activeEquipmentName: activeKey });
+
+    const data = await fetchEquipmentData(activeKey);
 
     const prevBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-prev-btn'));
     const nextBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-next-btn'));
-
-    const equipList = getFlatEquipmentsList();
-    const currentEquipIdx = equipList.findIndex(e => e.name.toLowerCase() === equipmentName.toLowerCase());
 
     const setBtnState = (btn, isEnabled) => {
         if (!btn) return;
@@ -229,7 +240,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     let heroInfo = null;
     let equipInfo = null;
 
-    const targetEqKey = toCamelCase(equipmentName);
+    const targetEqKey = toCamelCase(activeKey);
     for (const hKey in heroData) {
         const equip = heroData[hKey].equipment.find(e => e.key === targetEqKey || (e.key && e.key.toLowerCase() === targetEqKey.toLowerCase()));
         if (equip) {
@@ -243,17 +254,17 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const equipmentType = data?.type || (equipInfo ? equipInfo.type : 'Common');
     const equipmentRarity = data?.rarity || (equipInfo ? equipInfo.type : 'Common');
 
-    renderModalHeader(modal, data, equipmentName, heroInfo, equipInfo, equipmentRarity, equipmentType);
+    renderModalHeader(modal, data, activeKey, heroInfo, equipInfo, equipmentRarity, equipmentType);
 
     if (!data) {
-        renderEmptyState(modal, equipmentName, equipmentRarity, equipmentType, currentLevel, null);
+        renderEmptyState(modal, activeKey, equipmentRarity, equipmentType, currentLevel, null);
         return;
     }
 
     const allRecs = await getRecommendationsData();
-    const camelKey = toCamelCase(data.id || equipmentName);
-    const slug = data.id || equipmentName;
-    const isEquipUnreleased = Boolean(data?.isUnreleased || (data?.id || equipmentName).toLowerCase().includes('coming_soon'));
+    const camelKey = toCamelCase(data.id || activeKey);
+    const slug = data.id || activeKey;
+    const isEquipUnreleased = Boolean(data?.isUnreleased || (data?.id || activeKey).toLowerCase().includes('coming_soon'));
     data.recommendation = allRecs[camelKey] || allRecs[slug] || (isEquipUnreleased ? { recStatus: 'unreleased' } : null);
 
     const itemImg = document.getElementById('eq-details-item-img');
@@ -290,11 +301,11 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
 
     const hasValidLevels = levelsArray.length > 0;
     if (!hasValidLevels) {
-        renderEmptyState(modal, equipmentName, equipmentRarity, equipmentType, currentLevel, data);
+        renderEmptyState(modal, activeKey, equipmentRarity, equipmentType, currentLevel, data);
         return;
     }
 
-    renderModalHeader(modal, data, equipmentName, heroInfo, equipInfo, equipmentRarity, equipmentType);
+    renderModalHeader(modal, data, activeKey, heroInfo, equipInfo, equipmentRarity, equipmentType);
 
     const activeTag = state.savedPlayerTags?.[0] || 'DEFAULT0';
     const playerData = state.allPlayersData?.[activeTag];
@@ -316,7 +327,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     let activeModifierTab = session.activeModifierTab || state.uiSettings?.leagueModifier || getDefaultModifierKey(currentLeagueId, currentLeagueName) || 'standard';
     setModalSessionState({ activeModifierTab });
 
-    const equipId = data.id || equipmentName;
+    const equipId = data.id || activeKey;
     const rec = data.recommendation;
     const hasUnitStatsView = Boolean(data.hasSpawnedUnits && data.spawnedUnits);
     let currentViewMode = session.viewModePreference || 'overview';
@@ -367,7 +378,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             updateTabIndicator(modifierTabsContainer, activeModifierTab, false);
         }
 
-        renderRecommendationBadge(recBadge, data, equipmentName, rec, activeModifierTab, userTH, calculatedMaxLevel, isEquipmentMaxed);
+        renderRecommendationBadge(recBadge, data, activeKey, rec, activeModifierTab, userTH, calculatedMaxLevel, isEquipmentMaxed);
 
         const currentSession = getModalSessionState();
         const isTableExpanded = Boolean(currentSession.tableExpanded || (modal && modal.classList.contains('has-expanded-table')));

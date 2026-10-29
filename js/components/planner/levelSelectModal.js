@@ -72,7 +72,10 @@ export function getEquipmentRecommendedLevel(stepIndex) {
     if (!currentEquipment || !currentHero) return 0;
 
     const maxLevel = getEquipmentMaxLevel(currentEquipment.type);
-    const currentLevel = state.heroes[currentHero.name]?.equipment[currentEquipment.name]?.level || 1;
+    const heroKey = currentHero.key || currentHero.name;
+    const equipKey = currentEquipment.key || currentEquipment.name;
+    const heroState = state.heroes[heroKey] || state.heroes[currentHero.name];
+    const currentLevel = (heroState?.equipment?.[equipKey] || heroState?.equipment?.[currentEquipment.name])?.level || 1;
     const lowerBound = getPrecedingLevelLowerBound(stepIndex, currentLevel);
 
     return calculateStepRecommendation(stepIndex, lowerBound, currentLevel, maxLevel, currentEquipment.type);
@@ -85,7 +88,7 @@ function syncRows() {
     syncTableRecommendationsAndBounds(
         currentEquipment,
         currentHero,
-        currentHero ? state.heroes[currentHero.name] : null,
+        currentHero ? (state.heroes[currentHero.key] || state.heroes[currentHero.name]) : null,
         getEquipmentRecommendedLevel
     );
 }
@@ -128,8 +131,10 @@ function savePrioritySteps() {
     const rows = document.querySelectorAll('#level-select-table tbody tr');
 
     let heroNameForCurrentEquipment = null;
+    const targetEquipKey = currentEquipment.key || currentEquipment.name;
     for (const heroKey in state.heroes) {
-        if (state.heroes[heroKey].equipment && Object.hasOwn(state.heroes[heroKey].equipment, currentEquipment.name)) {
+        const heroState = state.heroes[heroKey];
+        if (heroState?.equipment && (targetEquipKey in heroState.equipment || currentEquipment.name in heroState.equipment)) {
             heroNameForCurrentEquipment = heroKey;
             break;
         }
@@ -137,7 +142,8 @@ function savePrioritySteps() {
 
     if (heroNameForCurrentEquipment) {
         handleStateUpdate(() => {
-            const equipmentInState = state.heroes[heroNameForCurrentEquipment].equipment[currentEquipment.name];
+            const heroObj = state.heroes[heroNameForCurrentEquipment];
+            const equipmentInState = heroObj.equipment[targetEquipKey] || heroObj.equipment[currentEquipment.name];
             const oldUpgradePlan = equipmentInState.upgradePlan || {};
 
             let maxPriority = 0;
@@ -350,11 +356,15 @@ export function openLevelSelectModal(hero, equipment) {
     const modal = document.getElementById('level-select-modal');
     const rows = document.querySelectorAll('#level-select-table tbody tr');
     const maxLevel = getEquipmentMaxLevel(equipment.type);
-    const currentLevel = state.heroes[hero.name]?.equipment[equipment.name]?.level || 1;
+    const heroKey = hero.key || hero.name;
+    const equipKey = equipment.key || equipment.name;
+    const heroState = state.heroes[heroKey] || state.heroes[hero.name];
+    const equipState = heroState?.equipment?.[equipKey] || heroState?.equipment?.[equipment.name];
+    const currentLevel = equipState?.level || 1;
 
     updateModalHeaderDisplay(equipment.name, currentLevel);
 
-    const equipmentUpgradePlan = state.heroes[hero.name]?.equipment[equipment.name]?.upgradePlan || {};
+    const equipmentUpgradePlan = equipState?.upgradePlan || {};
     const minLevel = Math.max(9, currentLevel + 1);
 
     const stepsToFill = [];

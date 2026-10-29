@@ -1,6 +1,6 @@
 {
   "_comment": "Supported recStatus types: 'must_have', 'recommended', 'niche', 'not_recommended', 'unreleased'. Note: Modifiers (modifiers.esports, modifiers.legend1, modifiers.default, etc.) support overriding recStatus for different modifiers, but do not support recommended levels.",
-  "_lastUpdated": "2026-08-01",
+  "_lastUpdated": "2026-10-31",
   "barbarianPuppet": {
     "recStatus": "not_recommended"
   },

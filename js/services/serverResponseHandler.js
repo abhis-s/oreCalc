@@ -9,6 +9,7 @@ import { normalizePlayerTag } from '../core/storageKeys.js';
 import { updateAllPlayersData, updateSavedPlayerTags } from '../core/playerStorage.js';
 import { sanitizePlayerProfile } from '../core/playerStorageSanitizer.js';
 import { getDefaultPlayerState, state } from '../core/state.js';
+import { attachHeroStateAliases } from '../core/stateCleanup.js';
 import { handleStateUpdate } from '../core/stateManager.js';
 
 import { getDefaultEquipmentUnlockLevel, isHeroJourneyFutureOrUnclaimedEquipment } from '../domain/income/heroJourneyResolution.js';
@@ -206,10 +207,10 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         const serverHero = serverHeroMap.get(heroName);
         const wasHeroPreviouslySynced = previousSyncedHeroes.has(heroName);
 
-        if (!newPlayerState.heroes[heroName]) {
-            newPlayerState.heroes[heroName] = { equipment: {} };
+        if (!newPlayerState.heroes[heroKey]) {
+            newPlayerState.heroes[heroKey] = { equipment: {} };
         }
-        const heroState = newPlayerState.heroes[heroName];
+        const heroState = newPlayerState.heroes[heroKey];
 
         if (serverHero) {
             heroState.level = serverHero.level;
@@ -217,21 +218,22 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
             if (isInitialLoadForBase || !wasHeroPreviouslySynced) {
                 heroState.enabled = true;
             } else {
-                heroState.enabled = basePlayerState.heroes[heroName]?.enabled ?? true;
+                heroState.enabled = basePlayerState.heroes?.[heroKey]?.enabled ?? basePlayerState.heroes?.[heroName]?.enabled ?? true;
             }
         } else {
             if (isInitialLoadForBase) {
                 heroState.enabled = false;
             } else {
-                heroState.enabled = basePlayerState.heroes[heroName]?.enabled ?? false;
+                heroState.enabled = basePlayerState.heroes?.[heroKey]?.enabled ?? basePlayerState.heroes?.[heroName]?.enabled ?? false;
             }
         }
 
         const heroInfo = heroData[heroKey];
         for (const equip of heroInfo.equipment) {
-            const equipKey = equip.name;
-            const serverEquip = serverEquipMap.get(equipKey);
-            const wasEquipPreviouslySynced = previousSyncedEquipment.has(equipKey);
+            const equipKey = equip.key;
+            const equipName = equip.name;
+            const serverEquip = serverEquipMap.get(equipName) || serverEquipMap.get(equipKey);
+            const wasEquipPreviouslySynced = previousSyncedEquipment.has(equipName) || previousSyncedEquipment.has(equipKey);
 
             if (!heroState.equipment[equipKey]) {
                 heroState.equipment[equipKey] = {};
@@ -244,26 +246,31 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                 if (isInitialLoadForBase || !wasEquipPreviouslySynced) {
                     equipState.checked = true;
                 } else {
-                    equipState.checked = basePlayerState.heroes[heroName]?.equipment[equipKey]?.checked ?? true;
+                    equipState.checked = basePlayerState.heroes?.[heroKey]?.equipment?.[equipKey]?.checked
+                        ?? basePlayerState.heroes?.[heroName]?.equipment?.[equipName]?.checked
+                        ?? true;
                 }
             } else {
-                const wasChecked = basePlayerState.heroes?.[heroName]?.equipment?.[equipKey]?.checked;
+                const wasChecked = basePlayerState.heroes?.[heroKey]?.equipment?.[equipKey]?.checked
+                    ?? basePlayerState.heroes?.[heroName]?.equipment?.[equipName]?.checked;
                 equipState.checked = isInitialLoadForBase ? false : (wasChecked ?? false);
 
-                const isFutureOrUnclaimed = isHeroJourneyFutureOrUnclaimedEquipment(heroKey, equipKey, newPlayerState);
+                const isFutureOrUnclaimed = isHeroJourneyFutureOrUnclaimedEquipment(heroKey, equipName, newPlayerState)
+                    || isHeroJourneyFutureOrUnclaimedEquipment(heroKey, equipKey, newPlayerState);
                 if (isFutureOrUnclaimed) {
-                    equipState.level = getDefaultEquipmentUnlockLevel(heroKey, equipKey, newPlayerState);
+                    equipState.level = getDefaultEquipmentUnlockLevel(heroKey, equipName, newPlayerState);
                 } else {
-                    const savedLevel = basePlayerState.heroes[heroName]?.equipment[equipKey]?.level;
-                    equipState.level = savedLevel ?? 1;
+                    equipState.level = 1;
                 }
             }
         }
 
-        for (const equipKey in heroState.equipment) {
-            cleanupUpgradePlan(heroState.equipment[equipKey]);
+        for (const eKey in heroState.equipment) {
+            cleanupUpgradePlan(heroState.equipment[eKey]);
         }
     }
+
+    attachHeroStateAliases(newPlayerState.heroes);
 
     const targetLeagueId = playerData.leagueTier?.id;
     if (targetLeagueId) {

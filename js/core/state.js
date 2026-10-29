@@ -5,7 +5,7 @@ import { compareVersions } from '../utils/versionUtils.js';
 
 import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolveHeroJourneyTrack } from '../domain/income/heroJourneyResolution.js';
 import { getISOWeekNumber } from '../utils/dateUtils.js';
-import { migrateComingSoonEquipment } from './stateCleanup.js';
+import { migrateComingSoonEquipment, attachHeroStateAliases, normalizeHeroesState } from './stateCleanup.js';
 
 /** @type {import('./types.js').AppState | any} */
 export let state = {};
@@ -75,22 +75,21 @@ function getDefaultHeroesState() {
     const heroes = {};
     for (const heroKey in heroData) {
         const hero = heroData[heroKey];
-        const heroName = hero.name;
-        heroes[heroName] = {
+        heroes[heroKey] = {
             enabled: true,
             equipment: {}
         };
         if (hero.equipment && Array.isArray(hero.equipment)) {
             hero.equipment.forEach(eq => {
                 const defaultLevel = getDefaultEquipmentUnlockLevel(heroKey, eq.name);
-                heroes[heroName].equipment[eq.name] = {
+                heroes[heroKey].equipment[eq.key] = {
                     level: defaultLevel,
                     checked: true
                 };
             });
         }
     }
-    return heroes;
+    return attachHeroStateAliases(heroes);
 }
 
 function getDefaultPlayerStateProperties() {
@@ -346,40 +345,45 @@ function ensureStateDefaults(s) {
             if (!ps.heroes || Object.keys(ps.heroes).length === 0) {
                 ps.heroes = getDefaultHeroesState();
             } else {
+                normalizeHeroesState(ps.heroes);
                 const trackResolution = resolveHeroJourneyTrack(ps);
                 for (const heroKey in heroData) {
                     const hero = heroData[heroKey];
                     const heroName = hero.name;
-                    if (!ps.heroes[heroName]) {
-                        ps.heroes[heroName] = { enabled: true, equipment: {} };
+                    if (!ps.heroes[heroKey]) {
+                        ps.heroes[heroKey] = { enabled: true, equipment: {} };
                     }
-                    if (!ps.heroes[heroName].equipment) {
-                        ps.heroes[heroName].equipment = {};
+                    if (!ps.heroes[heroKey].equipment) {
+                        ps.heroes[heroKey].equipment = {};
                     }
                     if (hero.equipment && Array.isArray(hero.equipment)) {
                         hero.equipment.forEach(eq => {
+                            const equipKey = eq.key;
                             const equipName = eq.name;
                             const defaultLevel = getDefaultEquipmentUnlockLevel(heroKey, equipName, ps, trackResolution);
-                            if (!ps.heroes[heroName].equipment[equipName]) {
-                                const hasOwnedEquipment = ps.playerProfile && ps.playerProfile.ownedEquipment && typeof ps.playerProfile.ownedEquipment === 'object';
-                                const isOwned = hasOwnedEquipment
-                                    ? (Array.isArray(ps.playerProfile.ownedEquipment)
-                                        ? ps.playerProfile.ownedEquipment.includes(equipName)
-                                        : (equipName in ps.playerProfile.ownedEquipment))
-                                    : true;
+                            const hasOwnedEquipment = ps.playerProfile && ps.playerProfile.ownedEquipment && typeof ps.playerProfile.ownedEquipment === 'object';
+                            const isOwned = hasOwnedEquipment
+                                ? (Array.isArray(ps.playerProfile.ownedEquipment)
+                                    ? (ps.playerProfile.ownedEquipment.includes(equipKey) || ps.playerProfile.ownedEquipment.includes(equipName))
+                                    : (equipKey in ps.playerProfile.ownedEquipment || equipName in ps.playerProfile.ownedEquipment))
+                                : true;
 
+                            if (!ps.heroes[heroKey].equipment[equipKey]) {
                                 const isChecked = isOwned;
                                 const initialLevel = isOwned ? defaultLevel : 1;
-                                ps.heroes[heroName].equipment[equipName] = { level: initialLevel, checked: isChecked };
+                                ps.heroes[heroKey].equipment[equipKey] = { level: initialLevel, checked: isChecked };
                             } else {
-                                const eqState = ps.heroes[heroName].equipment[equipName];
+                                const eqState = ps.heroes[heroKey].equipment[equipKey];
                                 if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, ps, trackResolution)) {
                                     eqState.level = defaultLevel;
+                                } else if (hasOwnedEquipment && !isOwned && eqState.level > 1) {
+                                    eqState.level = 1;
                                 }
                             }
                         });
                     }
                 }
+                attachHeroStateAliases(ps.heroes);
                 if (migrateComingSoonEquipment(ps.heroes)) {
                     hasMigrationOccurred = true;
                 }

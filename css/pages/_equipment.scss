@@ -216,11 +216,30 @@
     color: $color-gold-glow;
 }
 
+.equipment-level-controls {
+    align-items: center;
+    display: inline-flex;
+    gap: $spacing-xs;
+    margin-left: auto;
+}
+
+.equipment-prelevel-info-btn {
+    align-items: center;
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 24px;
+    justify-content: center;
+    width: 24px;
+
+    &[hidden] {
+        display: none !important;
+    }
+}
+
 .level-display-container {
     align-items: center;
     display: flex;
     gap: 10px;
-    margin-left: auto;
 }
 
 .level-display {
@@ -238,7 +257,6 @@
 
 .level-input-container {
     position: relative;
-    margin-left: auto;
 }
 
 #orecalc-equipment-settings-card {

@@ -78,7 +78,9 @@ test('savePlayerProfileToStorage writes complete canonical partition preserving 
     assert.equal(partition.playerProfile.townHallLevel, 17);
     assert.equal(partition.playerProfile.trophies, 5250);
     assert.equal(partition.playerProfile.clan?.name, 'Clash Legends');
-    assert.equal(partition.heroes['Barbarian King']?.equipment['Giant Gauntlet']?.level, 27);
+    const bk = partition.heroes.barbarianKing || partition.heroes['Barbarian King'];
+    const gg = bk?.equipment?.giantGauntlet || bk?.equipment?.['Giant Gauntlet'];
+    assert.equal(gg?.level, 27);
 });
 
 test('loadState loads damage calc partition without wiping playerProfile or reverting to TH1 defaults', () => {

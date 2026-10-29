@@ -67,15 +67,18 @@ export function calculateEquipmentProgress(ownedEquipmentOrPlayerData = {}, owne
         // If explicit ownedHeroes object is passed, filter to only unlocked heroes.
         // If ownedHeroes is null/undefined, evaluate across all heroes in heroData.
         if (heroesFilter !== null) {
-            if (!heroesFilter[heroInfo.name]) continue;
+            if (!heroesFilter[heroInfo.name] && !heroesFilter[heroKey]) continue;
         }
 
         for (const equip of heroInfo.equipment) {
             const isEpic = equip.type === 'epic';
-            const currentLevel = ownedEquip[equip.name] !== undefined ? ownedEquip[equip.name] : 1;
+            const equipKey = equip.key;
+            const currentLevel = ownedEquip[equipKey] !== undefined
+                ? ownedEquip[equipKey]
+                : (ownedEquip[equip.name] !== undefined ? ownedEquip[equip.name] : 1);
             const maxLevel = getEquipmentMaxLevel(equip.type);
 
-            if (ownedEquip[equip.name] !== undefined || heroesFilter === null) {
+            if (ownedEquip[equipKey] !== undefined || ownedEquip[equip.name] !== undefined || heroesFilter === null) {
                 for (let lvl = 2; lvl <= currentLevel; lvl++) {
                     const cost = upgradeCosts[lvl];
                     if (cost) {

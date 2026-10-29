@@ -1,5 +1,5 @@
 import { getDefaultPlayerState as initializeDefaultPlayerState, state } from './state.js';
-import { cleanupOrphanedPlayerPartitions } from './stateCleanup.js';
+import { cleanupOrphanedPlayerPartitions, migrateHeroesToKeys } from './stateCleanup.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
 
 import {
@@ -129,6 +129,10 @@ export function saveState(state, immediate = false) {
                     playerData.playerProfile = sanitizePlayerProfile(playerData.playerProfile);
                 }
 
+                if (playerData.heroes) {
+                    migrateHeroesToKeys(playerData.heroes);
+                }
+
                 state.allPlayersData[cleanPlayerTag] = playerData;
                 if (cleanPlayerTag !== currentPlayerTag && state.allPlayersData[currentPlayerTag]) {
                     delete state.allPlayersData[currentPlayerTag];
@@ -149,6 +153,9 @@ export function saveState(state, immediate = false) {
                     if (!cleanOther || cleanOther === cleanPlayerTag) continue;
                     const otherData = state.allPlayersData[cleanOther];
                     if (otherData && typeof otherData === 'object') {
+                        if (otherData.heroes) {
+                            migrateHeroesToKeys(otherData.heroes);
+                        }
                         const otherKey = getPlayerStorageKey(cleanOther, targetPrefix);
                         if (immediate || localStorage.getItem(otherKey) === null) {
                             localStorage.setItem(otherKey, JSON.stringify(otherData));

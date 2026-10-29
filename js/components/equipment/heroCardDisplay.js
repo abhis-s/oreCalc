@@ -4,7 +4,8 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 
-import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
+import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolveHeroJourneyTrack, getAssignedEquipmentTrackNode, isEquipmentServerUnowned } from '../../domain/income/heroJourneyResolution.js';
+import { getNodeTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
 import { dom } from '../../dom/domElements.js';
@@ -91,8 +92,8 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
     for (const heroKey in heroData) {
         const currentHeroData = heroData[heroKey];
         const heroName = currentHeroData.name;
-        const heroState = heroesState[heroName] || { equipment: {} };
-        const heroCard = container.querySelector(`[data-hero-name="${heroName}"]`);
+        const heroState = heroesState[heroName] || heroesState[heroKey] || { equipment: {} };
+        const heroCard = container.querySelector(`[data-hero-key="${heroKey}"]`) || container.querySelector(`[data-hero-name="${heroName}"]`);
         if (!heroCard) continue;
 
         heroCard.classList.toggle('hero-disabled', heroState.enabled === false);
@@ -104,14 +105,18 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
         let heroAllHidden = true;
 
         for (const equip of currentHeroData.equipment) {
+            const equipKey = equip.key || toCamelCase(equip.name);
             const equipName = equip.name;
-            const equipState = heroState.equipment?.[equipName] || {};
-            const equipItem = /** @type {HTMLElement | null} */ (heroCard.querySelector(`[data-equip-name="${equipName}"]`));
+            const equipState = heroState.equipment?.[equipName] || heroState.equipment?.[equipKey] || {};
+            const equipItem = /** @type {HTMLElement | null} */ (
+                heroCard.querySelector(`[data-equip-key="${equipKey}"]`) ||
+                heroCard.querySelector(`[data-equip-name="${equipName}"]`)
+            );
             if (!equipItem) continue;
 
             const equipLabel = equipItem.querySelector('label');
             if (equipLabel) {
-                equipLabel.textContent = translate(`entities.equipment.${toCamelCase(equipName)}`);
+                equipLabel.textContent = translate(`entities.equipment.${equipKey}`);
             }
 
             const upgradeBtnDisplay = /** @type {HTMLElement | null} */ (equipItem.querySelector('[data-mode="input-disabled"]'));
@@ -126,12 +131,44 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
                 equipmentImage.classList.toggle('grayscale', equipState.checked === false);
             }
 
+            const isUnowned = isEquipmentServerUnowned(equipName, state);
+            const isAutoLevel = shouldApplyHeroJourneyAutoLevel(heroName, equipName, state, trackResolution);
+
             let currentLevel = equipState.level;
-            if (shouldApplyHeroJourneyAutoLevel(heroName, equipName, state, trackResolution)) {
+            if (isAutoLevel) {
                 currentLevel = getDefaultEquipmentUnlockLevel(heroName, equipName, state, trackResolution);
                 equipState.level = currentLevel;
+            } else if (isUnowned && state.playerProfile && equipState.level > 1) {
+                currentLevel = 1;
+                equipState.level = 1;
             } else if (!currentLevel) {
                 currentLevel = 1;
+            }
+
+            const prelevelInfoBtn = /** @type {HTMLElement | null} */ (equipItem.querySelector('.equipment-prelevel-info-btn'));
+            if (prelevelInfoBtn) {
+                const activeTag = state.savedPlayerTags?.[0] || 'DEFAULT0';
+                const isDefaultTag = !activeTag || activeTag === 'DEFAULT0';
+                const shouldShowInfo = !isDefaultTag && isUnowned && isAutoLevel;
+
+                if (shouldShowInfo) {
+                    const assignedNode = getAssignedEquipmentTrackNode(equipKey, equipName, trackResolution, state);
+                    const nodeTH = assignedNode ? (assignedNode.nodeTH || getNodeTownHallLevel(assignedNode.node.level)) : null;
+                    const nodeLevel = assignedNode ? assignedNode.node.level : null;
+                    const unlockLevel = currentLevel;
+
+                    if (nodeTH !== null && nodeLevel !== null) {
+                        prelevelInfoBtn.hidden = false;
+                        prelevelInfoBtn.setAttribute('data-info', 'views.equipment.heroJourneyPreLevelInfo');
+                        prelevelInfoBtn.setAttribute('data-info-th', String(nodeTH));
+                        prelevelInfoBtn.setAttribute('data-info-node', String(nodeLevel));
+                        prelevelInfoBtn.setAttribute('data-info-level', String(unlockLevel));
+                    } else {
+                        prelevelInfoBtn.hidden = true;
+                    }
+                } else {
+                    prelevelInfoBtn.hidden = true;
+                }
             }
 
             if (levelDisplay && levelDisplay.textContent !== String(currentLevel)) {
@@ -154,7 +191,6 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
 
             if (upgradeButton) {
                 upgradeButton.style.visibility = isMaxLevel ? 'hidden' : 'visible';
-                const equipKey = toCamelCase(equipName);
                 upgradeButton.setAttribute('aria-label', translate('actions.upgradeToLevel', {
                     name: translate('entities.equipment.' + equipKey) || equipName,
                     level: currentLevel + 1

@@ -9,6 +9,7 @@ import { escapeHTML } from '../utils/stringUtils.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
 import { compareVersions } from '../utils/versionUtils.js';
 import { sanitizePlayerProfile, stripAutoPlacedCalendarChips } from '../core/playerStorageSanitizer.js';
+import { normalizeHeroesState, migrateHeroesToKeys } from '../core/stateCleanup.js';
 
 import { loadUserData, markUserMigrated, saveSinglePlayerData, saveUserData, saveUserPreferences } from './apiService.js';
 import { isAuthenticated, purgeAccountDataOnLogout } from './authClientService.js';
@@ -142,6 +143,9 @@ export async function initializeAppData() {
             const activePrefix = getActivePlayerPrefix();
             for (const [tag, cPlayerData] of Object.entries(cloudData.allPlayersData)) {
                 if (!tag || tag === 'DEFAULT0') continue;
+                if (cPlayerData?.heroes) {
+                    normalizeHeroesState(cPlayerData.heroes);
+                }
                 const clean = normalizePlayerTag(tag);
                 const localKey = getPlayerStorageKey(clean, activePrefix);
                 const localStr = typeof localStorage !== 'undefined' ? localStorage.getItem(localKey) : null;
@@ -428,6 +432,9 @@ export async function triggerCloudSave(options = {}) {
             if (targetTag && state.allPlayersData[targetTag]) {
                 const rawPlayer = state.allPlayersData[targetTag];
                 const sanitizedPlayer = { ...rawPlayer };
+                if (sanitizedPlayer.heroes) {
+                    migrateHeroesToKeys(sanitizedPlayer.heroes);
+                }
                 if (sanitizedPlayer.playerProfile) {
                     sanitizedPlayer.playerProfile = sanitizePlayerProfile(sanitizedPlayer.playerProfile);
                 }
@@ -450,6 +457,9 @@ export async function triggerCloudSave(options = {}) {
                         continue;
                     }
                     const cleanP = { ...pData };
+                    if (cleanP.heroes) {
+                        migrateHeroesToKeys(cleanP.heroes);
+                    }
                     if (cleanP.playerProfile) {
                         cleanP.playerProfile = sanitizePlayerProfile(cleanP.playerProfile);
                     }
