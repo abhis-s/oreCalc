@@ -106,19 +106,19 @@ function bindDrawerDelegatedEvents(drawer) {
                     try {
                         initializeChangelogModal();
                         const content = getChangelogHtml();
-                        showChangelogModal(content);
+                        showChangelogModal(content, { replace: true });
                     } catch (err) {
                         console.error('Failed to open in-app changelog modal:', err);
                     }
                 } else if (actionId === 'bug-report') {
                     try {
-                        openBugReportModal();
+                        openBugReportModal('bug', { replace: true });
                     } catch (err) {
                         console.error('Failed to open in-app bug report modal:', err);
                     }
                 } else if (actionId === 'contact') {
                     try {
-                        openContactModal();
+                        openContactModal({ replace: true });
                     } catch (err) {
                         console.error('Failed to open in-app contact modal:', err);
                     }

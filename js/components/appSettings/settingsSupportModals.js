@@ -224,16 +224,17 @@ export function renderRunningCostsData(modal, data, totalValue, historyContainer
 
 /**
  * Opens the Running Costs transparency dialog and fetches live hosting/infrastructure expenses.
+ * @param {Record<string, any>} [options={}] - Optional modal display configuration.
  * @returns {Promise<void>}
  */
-export async function openRunningCostsModal() {
+export async function openRunningCostsModal(options = {}) {
     const modal = document.getElementById('running-costs-modal');
     if (!modal) return;
 
     if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
 
-    openModal(modal);
+    openModal(modal, options);
 
     const closeBtn = document.getElementById('close-running-costs-modal-btn');
     const closeActionBtn = document.getElementById('running-costs-close-btn');
@@ -277,8 +278,9 @@ export async function openRunningCostsModal() {
  * Opens the unified Bug Report & Feedback modal dialog.
  *
  * @param {'bug'|'feedback'} [initialMode='bug'] - The initial mode to open the modal in.
+ * @param {Record<string, any>} [options={}] - Optional modal display configuration.
  */
-export function openBugReportModal(initialMode = 'bug') {
+export function openBugReportModal(initialMode = 'bug', options = {}) {
     const modal = document.getElementById('bug-report-modal');
     if (!modal) return;
 
@@ -564,7 +566,7 @@ export function openBugReportModal(initialMode = 'bug') {
         };
     });
 
-    openModal(modal);
+    openModal(modal, options);
 }
 
 /**
@@ -576,8 +578,9 @@ export function openFeedbackModal() {
 
 /**
  * Opens the Contact modal dialog.
+ * @param {Record<string, any>} [options={}] - Optional modal display configuration.
  */
-export function openContactModal() {
+export function openContactModal(options = {}) {
     const modal = document.getElementById('contact-modal');
     if (!modal) return;
 
@@ -613,5 +616,5 @@ export function openContactModal() {
         };
     }
 
-    openModal(modal);
+    openModal(modal, options);
 }

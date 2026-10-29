@@ -5,6 +5,8 @@
  * Tier 3: Core Routing & Lifecycle Engine.
  */
 
+import { isModalHistoryPopping } from '../utils/modalHistoryManager.js';
+
 /**
  * @typedef {Object} NavigatorUiHooks
  * @property {() => void} [onResetPlayerDropdown]
@@ -137,7 +139,15 @@ export function isNavigableLink(anchor, event) {
         return { isNavigable: false, route: null, url: null };
     }
 
-    if (anchor.hasAttribute('download') || anchor.hasAttribute('data-modal-target')) {
+    const hasModalTarget = Boolean(
+        (typeof anchor.hasAttribute === 'function' && (
+            anchor.hasAttribute('data-modal-target') ||
+            anchor.hasAttribute('data-dialog-target') ||
+            anchor.hasAttribute('data-modal-dismiss')
+        )) ||
+        (typeof anchor.closest === 'function' && anchor.closest('[data-modal-target], [data-dialog-target], [data-modal-dismiss]'))
+    );
+    if ((typeof anchor.hasAttribute === 'function' && anchor.hasAttribute('download')) || hasModalTarget) {
         return { isNavigable: false, route: null, url: null };
     }
 
@@ -359,17 +369,27 @@ function syncModalsForRoute(newDoc) {
  */
 async function navigateTo(targetUrl, options = {}) {
     if (typeof window === 'undefined' || typeof document === 'undefined') return false;
-    if (isTransitioning) {
-        pendingNavigation = { targetUrl, options };
-        return false;
-    }
 
     const url = new URL(targetUrl, window.location.href);
     const targetRoute = resolveAppRoute(url.pathname);
     if (!targetRoute) return false;
 
-    // Guard against redundant forward navigation when already on target URL
-    if (!options.isPopState && url.pathname === window.location.pathname && url.search === window.location.search && !url.hash) {
+    // Guard against redundant navigation when already on target URL and route
+    if (options.isPopState) {
+        if (targetRoute === currentActiveRoute &&
+            url.pathname === window.location.pathname &&
+            url.search === window.location.search &&
+            !url.hash) {
+            return false;
+        }
+    } else {
+        if (url.pathname === window.location.pathname && url.search === window.location.search && !url.hash) {
+            return false;
+        }
+    }
+
+    if (isTransitioning) {
+        pendingNavigation = { targetUrl, options };
         return false;
     }
 
@@ -566,7 +586,25 @@ export function initAppShellNavigator() {
         void navigateTo(check.url.href, { isPopState: false, fromDrawer });
     });
 
-    window.addEventListener('popstate', () => {
+    window.addEventListener('popstate', (event) => {
+        if (typeof isModalHistoryPopping === 'function' && isModalHistoryPopping()) {
+            return;
+        }
+        if (event?.state && event.state.modalStateId) {
+            return;
+        }
+
+        const targetUrl = new URL(window.location.href);
+        const targetRoute = resolveAppRoute(targetUrl.pathname);
+        if (!targetRoute) return;
+
+        if (targetRoute === currentActiveRoute &&
+            targetUrl.pathname === window.location.pathname &&
+            targetUrl.search === window.location.search &&
+            !targetUrl.hash) {
+            return;
+        }
+
         void navigateTo(window.location.href, { isPopState: true });
     });
 }

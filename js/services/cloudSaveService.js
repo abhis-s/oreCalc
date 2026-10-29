@@ -1,11 +1,12 @@
 import { translate } from '../i18n/translator.js';
 
 import { loadState, saveState } from '../core/localStorageManager.js';
-import { getActiveUserId, isClashCalcHost, normalizePlayerTag } from '../core/storageKeys.js';
+import { getActivePlayerPrefix, getActiveUserId, getPlayerStorageKey, isClashCalcHost, normalizePlayerTag } from '../core/storageKeys.js';
 import { initializeState, state } from '../core/state.js';
 
 import { logger } from '../utils/logger.js';
 import { escapeHTML } from '../utils/stringUtils.js';
+import { safeJsonParse } from '../utils/jsonUtils.js';
 import { compareVersions } from '../utils/versionUtils.js';
 import { sanitizePlayerProfile, stripAutoPlacedCalendarChips } from '../core/playerStorageSanitizer.js';
 
@@ -134,6 +135,29 @@ export async function initializeAppData() {
             if (!cloudData.uiSettings) cloudData.uiSettings = {};
             cloudData.uiSettings.stateResetEpoch = cloudResetEpoch;
             return cloudData;
+        }
+
+        // Ensure any player partitions present in cloud but missing locally are hydrated to local storage
+        if (cloudData.allPlayersData && typeof cloudData.allPlayersData === 'object') {
+            const activePrefix = getActivePlayerPrefix();
+            for (const [tag, cPlayerData] of Object.entries(cloudData.allPlayersData)) {
+                if (!tag || tag === 'DEFAULT0') continue;
+                const clean = normalizePlayerTag(tag);
+                const localKey = getPlayerStorageKey(clean, activePrefix);
+                const localStr = typeof localStorage !== 'undefined' ? localStorage.getItem(localKey) : null;
+                const localObj = localStr ? safeJsonParse(localStr, null) : null;
+                if (!localObj || (!localObj.playerProfile && cPlayerData?.playerProfile)) {
+                    try {
+                        const mergedObj = localObj ? { ...localObj, playerProfile: cPlayerData.playerProfile } : cPlayerData;
+                        if (typeof localStorage !== 'undefined') {
+                            localStorage.setItem(localKey, JSON.stringify(mergedObj));
+                        }
+                        if (state?.allPlayersData) {
+                            state.allPlayersData[clean] = mergedObj;
+                        }
+                    } catch (_) {}
+                }
+            }
         }
 
         if (localData) {

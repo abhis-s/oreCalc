@@ -12,6 +12,15 @@ import { hideCardHelpPopover } from './cardHelpPopover.js';
 
 let modalStack = [];
 let isPoppingForClose = false;
+let isModalPopping = false;
+
+/**
+ * Indicates whether a popstate event was triggered by modal/drawer closure or trapped by an active modal.
+ * @returns {boolean}
+ */
+export function isModalHistoryPopping() {
+    return isPoppingForClose || isModalPopping;
+}
 
 const FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])';
 
@@ -200,11 +209,17 @@ export function initializeModalHistoryManager() {
     // Intercept back navigation gestures & buttons
     window.addEventListener('popstate', () => {
         if (isPoppingForClose) {
-            isPoppingForClose = false;
+            queueMicrotask(() => {
+                isPoppingForClose = false;
+            });
             return;
         }
 
         if (modalStack.length > 0) {
+            isModalPopping = true;
+            queueMicrotask(() => {
+                isModalPopping = false;
+            });
             const topModal = modalStack.pop();
             closeTargetModal(topModal);
         }
@@ -309,11 +324,6 @@ export function initializeModalHistoryManager() {
 
                 handleModalStateChange(target, isOpen);
             } else if (isBodyDrawerOrFab) {
-                const navDrawer = document.getElementById('nav-drawer') || document.getElementById('navigation-drawer');
-                if (navDrawer) {
-                    const isDrawerOpen = document.body.classList.contains('open-drawer');
-                    handleModalStateChange(navDrawer, isDrawerOpen);
-                }
                 const fabMenu = document.getElementById('fab-menu');
                 if (fabMenu) {
                     const isFabOpen = document.body.classList.contains('open-fab');
@@ -446,7 +456,7 @@ export function getInitialModalFocusTarget(modal) {
  * Synchronizes browser history stack entries and focus trapping when a modal opens or closes.
  * @param {HTMLElement|HTMLDialogElement|any} element - Modal dialog DOM element.
  * @param {boolean} isOpen - True if opening, false if closing.
- * @param {object} [options={}] - Configuration options for close callbacks and focus restore targets.
+ * @param {Record<string, any>} [options={}] - Configuration options for close callbacks and focus restore targets.
  */
 function handleModalStateChange(element, isOpen, options = {}) {
     if (!element) return;
@@ -500,11 +510,34 @@ function handleModalStateChange(element, isOpen, options = {}) {
                 }
             }, 50);
 
-            // Push history state entry for back-gesture trapping
+            // Push or replace history state entry for back-gesture trapping
             const stateId = `modal_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-            modalStack.push({ element, stateId, previousActiveElement, trapHandler, options });
-            if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
-                window.history.pushState({ modalStateId: stateId }, '');
+            const topModal = modalStack.at(-1);
+            const topEl = topModal?.element;
+            const topId = topEl?.id || '';
+            const hasClass = (cls) => Boolean(topEl?.classList && typeof topEl.classList.contains === 'function' && topEl.classList.contains(cls));
+            const isReplacingDrawer = Boolean(topModal && (
+                topId === 'navigation-drawer' ||
+                topId === 'nav-drawer' ||
+                hasClass('navigation-drawer') ||
+                hasClass('nav-drawer')
+            ));
+            const shouldReplace = Boolean(options.replace) || isReplacingDrawer;
+
+            if (shouldReplace && modalStack.length > 0) {
+                const replaced = modalStack.pop();
+                if (replaced && replaced.trapHandler && typeof replaced.element?.removeEventListener === 'function') {
+                    replaced.element.removeEventListener('keydown', replaced.trapHandler);
+                }
+                modalStack.push({ element, stateId, previousActiveElement, trapHandler, options });
+                if (typeof window !== 'undefined' && window.history && typeof window.history.replaceState === 'function') {
+                    window.history.replaceState({ modalStateId: stateId }, '');
+                }
+            } else {
+                modalStack.push({ element, stateId, previousActiveElement, trapHandler, options });
+                if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
+                    window.history.pushState({ modalStateId: stateId }, '');
+                }
             }
         }
     } else {

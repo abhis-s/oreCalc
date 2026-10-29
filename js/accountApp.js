@@ -18,7 +18,8 @@ import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
 import { initializeState, state } from './core/state.js';
 import { handleStateUpdate } from './core/stateManager.js';
 import { getSavedProfiles } from './core/playerStorage.js';
-import { loadState } from './core/localStorageManager.js';
+import { loadState, saveState } from './core/localStorageManager.js';
+import { cleanupOrphanedPlayerPartitions } from './core/stateCleanup.js';
 import { consolidateLocalStorageKeys } from './core/storageMigrations.js';
 import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
 import { initAppSettings, getAppSettings, persistAppSettings } from './components/common/appSettings.js';
@@ -145,9 +146,16 @@ async function initAccountApp() {
         loadAndRenderSessions();
         initializeAppData().then((cloudData) => {
             if (cloudData) {
-                renderAccountPageShell(true, getAuthenticatedUser());
-                renderDrawer();
+                const activeLanguage = getLanguageFromPath() || state.uiSettings?.language || 'en';
+                initializeState(cloudData);
+                if (activeLanguage) {
+                    state.uiSettings.language = activeLanguage;
+                }
+                cleanupOrphanedPlayerPartitions(state);
+                saveState(state, true);
             }
+            renderAccountPageShell(true, getAuthenticatedUser());
+            renderDrawer();
         }).catch(() => {});
     }
 
@@ -159,6 +167,7 @@ async function initAccountApp() {
             if (authed) {
                 loadAndRenderSessions();
             }
+            renderDrawer();
         });
 
         document.addEventListener('languageChanged', () => {

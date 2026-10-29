@@ -148,6 +148,26 @@ describe('Persistent App Shell Navigator Suite', () => {
             const anchorTerms = createMockAnchor({ href: '/terms/' });
             assert.equal(isNavigableLink(anchorTerms).isNavigable, false);
         });
+
+        test('rejects modal target triggers and modal dismissal links', () => {
+            const anchorModal = createMockAnchor({
+                href: '/about/',
+                'data-modal-target': 'running-costs-modal'
+            });
+            assert.equal(isNavigableLink(anchorModal).isNavigable, false);
+
+            const anchorDialog = createMockAnchor({
+                href: '/about/',
+                'data-dialog-target': 'changelog-modal'
+            });
+            assert.equal(isNavigableLink(anchorDialog).isNavigable, false);
+
+            const anchorDismiss = createMockAnchor({
+                href: '#',
+                'data-modal-dismiss': 'true'
+            });
+            assert.equal(isNavigableLink(anchorDismiss).isNavigable, false);
+        });
     });
 
     describe('Synchronized Body Class Calculations', () => {

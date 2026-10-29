@@ -64,8 +64,9 @@ function isInterruptionRestricted() {
 /**
  * Displays the Changelog modal dialog with parsed release notes HTML markup.
  * @param {string} content - HTML string of release changelog notes.
+ * @param {Record<string, any>} [options={}] - Optional modal display configuration.
  */
-export function showChangelogModal(content) {
+export function showChangelogModal(content, options = {}) {
     if (isInterruptionRestricted()) {
         return;
     }
@@ -85,6 +86,6 @@ export function showChangelogModal(content) {
         }
 
         initializeChangelogModal();
-        openModal(modal);
+        openModal(modal, options);
     }
 }
