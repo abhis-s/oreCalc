@@ -177,11 +177,11 @@ export function renderAccountVillagesSummary(customProfiles = null) {
 
     if (count > 0) {
         // Sort descending by townHallLevel (highest level first) and cap at top 5
-        const sorted = [...profiles].sort((a, b) => (Number(b.townHallLevel) || 1) - (Number(a.townHallLevel) || 1));
+        const sorted = [...profiles].sort((a, b) => (Number(b.townHallLevel) || 18) - (Number(a.townHallLevel) || 18));
         const topFive = sorted.slice(0, 5);
 
         stackEl.innerHTML = topFive.map((p) => {
-            const th = Math.max(1, Math.min(18, Number(p.townHallLevel) || 1));
+            const th = Math.max(1, Math.min(18, Number(p.townHallLevel) || 18));
             return `<clashcalc-assets-image src="/assets/th/th${th}.png" alt="TH${th}" class="account-village-stack-th" size="thumbnail"></clashcalc-assets-image>`;
         }).join('');
     }

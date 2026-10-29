@@ -14,7 +14,9 @@ import {
 import {
     loadPlayerData,
     removePlayerTag,
-    getSavedProfiles
+    getSavedProfiles,
+    inferTownHallLevel,
+    resolvePlayerSummaryStats
 } from '../../js/core/playerStorage.js';
 import {
     sanitizePlayerProfile,
@@ -736,6 +738,42 @@ describe('Player Storage Normalization & Anti-Hashed Keys Suite', () => {
             resetDamageCalcState();
             assert.equal(damageCalcState.activeTag, null);
             assert.equal(damageCalcState.playerTownHall, 18);
+        });
+    });
+
+    describe('14. League Icon Resolution & Town Hall Level Inference', () => {
+        it('inferTownHallLevel resolves correct thresholds from hero and war performance data', () => {
+            assert.equal(inferTownHallLevel(null), 18);
+            assert.equal(inferTownHallLevel({}), 18);
+            assert.equal(inferTownHallLevel({ heroes: { 'Dragon Duke': { level: 1 } } }), 18);
+            assert.equal(inferTownHallLevel({ heroes: { 'Royal Champion': { level: 1 } } }), 13);
+            assert.equal(inferTownHallLevel({ heroes: { 'Grand Warden': { level: 1 } } }), 11);
+            assert.equal(inferTownHallLevel({ heroes: { 'Archer Queen': { level: 1 } } }), 9);
+            assert.equal(inferTownHallLevel({ heroes: { 'Minion Prince': { level: 1 } } }), 9);
+            assert.equal(inferTownHallLevel({ heroes: { 'Barbarian King': { level: 1 } } }), 7);
+            assert.equal(inferTownHallLevel({ income: { clanWar: { warPerformance: { thLevel: 14 } } } }), 14);
+        });
+
+        it('resolvePlayerSummaryStats resolves unranked Supercell CDN badge and never returns nonexistent assets/leagues paths', () => {
+            const stats = resolvePlayerSummaryStats('UNRANKEDTAG', null);
+            assert.ok(stats.leagueIcon.startsWith('https://api-assets.clashofclans.com/leaguetiers/'));
+            assert.ok(!stats.leagueIcon.includes('assets/leagues/'));
+        });
+
+        it('getSavedProfiles infers Town Hall level when playerProfile is null but hero data exists in partition', () => {
+            localStorage.setItem(PLAYER_TAGS_KEY, JSON.stringify(['INFERRED18']));
+            localStorage.setItem('clashCalc_player_INFERRED18', JSON.stringify({
+                playerProfile: null,
+                heroes: {
+                    'Dragon Duke': { level: 25 },
+                    'Barbarian King': { level: 95 }
+                }
+            }));
+
+            const profiles = getSavedProfiles();
+            assert.equal(profiles.length, 1);
+            assert.equal(profiles[0].cleanTag, 'INFERRED18');
+            assert.equal(profiles[0].townHallLevel, 18);
         });
     });
 });

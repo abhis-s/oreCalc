@@ -315,6 +315,7 @@ router.post('/save', requireMinAppVersion, async (req, res) => {
         const playersCollection = userRef.collection('players');
         const existingPlayersSnapshot = await playersCollection.get();
         const incomingCleanTags = new Set();
+        const incomingSavedTags = new Set(Array.isArray(globalData.savedPlayerTags) ? globalData.savedPlayerTags.map(t => normalizeTag(t)) : []);
 
         for (const [tag, playerData] of Object.entries(allPlayers)) {
             if (isValidTag(tag) && playerData && typeof playerData === 'object') {
@@ -322,15 +323,39 @@ router.post('/save', requireMinAppVersion, async (req, res) => {
                 incomingCleanTags.add(cleanedDocTag);
                 const playerDocRef = playersCollection.doc(cleanedDocTag);
                 const sanitizedPlayer = sanitizePlayerData(playerData);
+
+                // Save protection: do not clobber existing valid playerProfile with null/missing
+                if (!sanitizedPlayer.playerProfile || !sanitizedPlayer.playerProfile.townHallLevel) {
+                    const existingDoc = existingPlayersSnapshot.docs.find(d => d.id === cleanedDocTag);
+                    if (existingDoc && existingDoc.data()?.playerProfile) {
+                        sanitizedPlayer.playerProfile = existingDoc.data().playerProfile;
+                    } else {
+                        try {
+                            const cacheDoc = await db.collection('playersCache').doc(cleanedDocTag.toUpperCase()).get();
+                            if (cacheDoc.exists) {
+                                const cached = cacheDoc.data();
+                                if (cached && cached.playerData) {
+                                    const healed = sanitizePlayerData({ playerProfile: cached.playerData });
+                                    if (healed && healed.playerProfile) {
+                                        sanitizedPlayer.playerProfile = healed.playerProfile;
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            console.error(`[UserData Save] Failed to hydrate playerProfile for ${cleanedDocTag}:`, e);
+                        }
+                    }
+                }
+
                 // Atomic overwrite without merge: true to purge obsolete fields (achievements/troops bloat)
                 batch.set(playerDocRef, sanitizedPlayer);
             }
         }
 
-        // Prune subcollection documents no longer present in incoming payload
+        // Prune subcollection documents no longer present in incoming payload or savedPlayerTags
         if (!existingPlayersSnapshot.empty) {
             existingPlayersSnapshot.forEach(docSnap => {
-                if (!incomingCleanTags.has(docSnap.id)) {
+                if (!incomingCleanTags.has(docSnap.id) && !incomingSavedTags.has(docSnap.id)) {
                     batch.delete(docSnap.ref);
                 }
             });
@@ -552,10 +577,34 @@ router.post('/save-player', requireMinAppVersion, async (req, res) => {
             });
         }
         const playerDocRef = userRef.collection('players').doc(cleanedTag);
+        const sanitizedPlayer = sanitizePlayerData(playerData);
+
+        // Save protection: do not clobber existing valid playerProfile with null/missing
+        if (!sanitizedPlayer.playerProfile || !sanitizedPlayer.playerProfile.townHallLevel) {
+            const existingDoc = await playerDocRef.get();
+            if (existingDoc.exists && existingDoc.data()?.playerProfile) {
+                sanitizedPlayer.playerProfile = existingDoc.data().playerProfile;
+            } else {
+                try {
+                    const cacheDoc = await db.collection('playersCache').doc(cleanedTag.toUpperCase()).get();
+                    if (cacheDoc.exists) {
+                        const cached = cacheDoc.data();
+                        if (cached && cached.playerData) {
+                            const healed = sanitizePlayerData({ playerProfile: cached.playerData });
+                            if (healed && healed.playerProfile) {
+                                sanitizedPlayer.playerProfile = healed.playerProfile;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error(`[UserData SaveSingle] Failed to hydrate playerProfile for ${cleanedTag}:`, e);
+                }
+            }
+        }
 
         const batch = db.batch();
         // Atomic overwrite without merge: true to prevent trapping deleted or obsolete properties
-        batch.set(playerDocRef, sanitizePlayerData(playerData));
+        batch.set(playerDocRef, sanitizedPlayer);
         batch.set(userRef, {
             timestamp: new Date().toISOString(),
             isMigrated: true,
@@ -615,9 +664,54 @@ router.get('/load/:userId', async (req, res) => {
         const allPlayersData = mainData.allPlayersData || {};
 
         if (!playersSnapshot.empty) {
-            playersSnapshot.forEach(playerDoc => {
-                allPlayersData[playerDoc.id] = sanitizePlayerData(playerDoc.data());
-            });
+            for (const playerDoc of playersSnapshot.docs) {
+                const pData = sanitizePlayerData(playerDoc.data());
+                // Auto-healing: If playerProfile is missing or null, attempt hydration from playersCache
+                if (!pData.playerProfile || !pData.playerProfile.townHallLevel) {
+                    try {
+                        const cacheDoc = await db.collection('playersCache').doc(playerDoc.id.toUpperCase()).get();
+                        if (cacheDoc.exists) {
+                            const cached = cacheDoc.data();
+                            if (cached && cached.playerData) {
+                                const healed = sanitizePlayerData({ playerProfile: cached.playerData });
+                                if (healed && healed.playerProfile) {
+                                    pData.playerProfile = healed.playerProfile;
+                                    playerDoc.ref.set({ playerProfile: healed.playerProfile }, { merge: true }).catch(() => {});
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error(`[UserData Load] Failed to hydrate playerProfile for ${playerDoc.id}:`, e);
+                    }
+                }
+                allPlayersData[playerDoc.id] = pData;
+            }
+        }
+
+        // Restore any missing player subcollection documents that are present in savedPlayerTags
+        if (Array.isArray(mainData.savedPlayerTags)) {
+            for (const rawTag of mainData.savedPlayerTags) {
+                const cleanTag = normalizeTag(rawTag);
+                if (cleanTag && cleanTag !== 'DEFAULT0' && !allPlayersData[cleanTag]) {
+                    try {
+                        const cacheDoc = await db.collection('playersCache').doc(cleanTag.toUpperCase()).get();
+                        if (cacheDoc.exists) {
+                            const cached = cacheDoc.data();
+                            if (cached && cached.playerData) {
+                                const healed = sanitizePlayerData({ playerProfile: cached.playerData });
+                                const restoredDoc = {
+                                    playerProfile: healed.playerProfile,
+                                    currency: { code: 'USD', globalPricing: {} }
+                                };
+                                allPlayersData[cleanTag] = restoredDoc;
+                                userRef.collection('players').doc(cleanTag).set(restoredDoc, { merge: true }).catch(() => {});
+                            }
+                        }
+                    } catch (e) {
+                        console.error(`[UserData Load] Failed to restore missing player subcollection for ${cleanTag}:`, e);
+                    }
+                }
+            }
         }
 
         const assembledData = /** @type {any} */ ({

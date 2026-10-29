@@ -372,6 +372,28 @@ export function getSavedPlayerTagsList() {
  */
 
 /**
+ * Infers a reasonable Town Hall level fallback from partition heroes or war settings
+ * when a structured player profile snapshot is absent or missing townHallLevel.
+ *
+ * @param {Record<string, any> | null} playerData
+ * @returns {number} Inferred Town Hall level (defaults to 18).
+ */
+export function inferTownHallLevel(playerData) {
+    if (!playerData) return 18;
+    const heroes = playerData.heroes;
+    if (heroes && typeof heroes === 'object') {
+        if (heroes['Dragon Duke']) return 18;
+        if (heroes['Royal Champion']) return Math.max(13, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 13);
+        if (heroes['Grand Warden']) return Math.max(11, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 11);
+        if (heroes['Archer Queen'] || heroes['Minion Prince']) return Math.max(9, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 9);
+        if (heroes['Barbarian King']) return Math.max(7, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 7);
+    }
+    const warTh = Number(playerData.income?.clanWar?.warPerformance?.thLevel);
+    if (warTh >= 1 && warTh <= 18) return warTh;
+    return 18;
+}
+
+/**
  * Retrieves list of saved player profile summaries from localStorage or in-memory state.
  * @returns {SavedProfileSummary[]} Array of saved profiles.
  */
@@ -425,7 +447,7 @@ export function getSavedProfiles() {
                 tag: formatDisplayTag(cleanTag),
                 cleanTag,
                 name: profile?.name || formatDisplayTag(cleanTag),
-                townHallLevel: Number(profile?.townHallLevel) || 1,
+                townHallLevel: Number(profile?.townHallLevel) || inferTownHallLevel(playerData),
                 trophies: Number(profile?.trophies) || 0,
                 cachedData: profile || null,
                 heroJourney: playerData?.heroJourney || null,
@@ -713,12 +735,11 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
     const canonicalLeague = leagueTiers.items.find(l => l.id === leagueId);
     const unrankedLeague = leagueTiers.items.find(l => l.id === UNRANKED_LEAGUE_ID) || leagueTiers.items[0];
     const leagueIcon = explicitProfile?.leagueIcon ||
-        canonicalLeague?.icon ||
         canonicalLeague?.iconUrls?.small ||
         rawLeague?.iconUrls?.small ||
         rawLeague?.iconUrls?.medium ||
-        unrankedLeague?.icon ||
-        'assets/leagues/unranked.png';
+        unrankedLeague?.iconUrls?.small ||
+        '';
     const leagueAlt = explicitProfile?.leagueAlt || canonicalLeague?.name || rawLeague?.name || unrankedLeague?.name || 'League Icon';
 
     let leagueName = explicitProfile?.leagueName || canonicalLeague?.name || rawLeague?.name || '';

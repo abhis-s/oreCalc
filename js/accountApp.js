@@ -18,6 +18,7 @@ import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
 import { initializeState, state } from './core/state.js';
 import { handleStateUpdate } from './core/stateManager.js';
 import { getSavedProfiles } from './core/playerStorage.js';
+import { loadState } from './core/localStorageManager.js';
 import { consolidateLocalStorageKeys } from './core/storageMigrations.js';
 import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
 import { initAppSettings, getAppSettings, persistAppSettings } from './components/common/appSettings.js';
@@ -27,6 +28,7 @@ import { initializePlayerModal } from './components/player/playerModal.js';
 import { initializeSettingsAccount } from './components/appSettings/settingsAccountInputs.js';
 import { fetchAccountDetails, getAuthenticatedUser, isAuthenticated, initCrossTabAuthSync } from './services/authClientService.js';
 import { initializePwaService } from './services/pwaService.js';
+import { initializeAppData } from './services/cloudSaveService.js';
 import { renderAccountPageShell } from './components/account/accountPageDisplay.js';
 import { initAccountPageInputs } from './components/account/accountPageInputs.js';
 import { loadAndRenderSessions } from './components/account/accountPageSessions.js';
@@ -42,10 +44,18 @@ let hasAttachedAccountListeners = false;
  */
 function renderDrawer() {
     const savedProfiles = getSavedProfiles();
+    const activeProfile = savedProfiles[0];
     renderNavigationDrawerContent({
         drawerEl: document.getElementById('navigation-drawer'),
         activeTool: 'account',
-        playerTag: savedProfiles[0]?.cleanTag || ''
+        playerTag: activeProfile?.cleanTag || '',
+        profileData: activeProfile ? {
+            name: activeProfile.name,
+            tag: activeProfile.tag,
+            townHallLevel: activeProfile.townHallLevel,
+            trophies: activeProfile.trophies,
+            cachedData: activeProfile.cachedData
+        } : null
     });
 }
 
@@ -57,17 +67,20 @@ async function initAccountApp() {
     registerGlobalErrorBoundaries();
     consolidateLocalStorageKeys();
 
+    const savedState = loadState();
     const savedProfiles = getSavedProfiles();
     const savedTags = Array.isArray(savedProfiles) && savedProfiles.length > 0
         ? savedProfiles.map(p => p.cleanTag)
-        : [];
+        : (savedState?.savedPlayerTags || []);
 
     const pathLang = getLanguageFromPath();
     const appSettings = getAppSettings();
     const targetLang = pathLang || (appSettings.language && appSettings.language !== 'auto' ? appSettings.language : 'en');
     initializeState({
+        ...savedState,
         savedPlayerTags: savedTags,
         uiSettings: {
+            ...(savedState?.uiSettings || {}),
             language: targetLang,
             theme: appSettings.theme,
             accentColor: appSettings.accentColor
@@ -130,6 +143,12 @@ async function initAccountApp() {
             }
         }).catch(() => {});
         loadAndRenderSessions();
+        initializeAppData().then((cloudData) => {
+            if (cloudData) {
+                renderAccountPageShell(true, getAuthenticatedUser());
+                renderDrawer();
+            }
+        }).catch(() => {});
     }
 
     if (!hasAttachedAccountListeners) {
