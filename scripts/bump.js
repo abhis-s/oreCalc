@@ -55,6 +55,18 @@ packageJson.version = newVersion;
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8');
 console.log('[OK] Updated package.json');
 
+const serverPackageJsonPath = path.join(projectRoot, 'server', 'package.json');
+if (fs.existsSync(serverPackageJsonPath)) {
+    try {
+        const serverPackageJson = JSON.parse(fs.readFileSync(serverPackageJsonPath, 'utf8'));
+        serverPackageJson.version = newVersion;
+        fs.writeFileSync(serverPackageJsonPath, JSON.stringify(serverPackageJson, null, 2) + '\n', 'utf8');
+        console.log('[OK] Updated server/package.json');
+    } catch (e) {
+        console.warn('[WARN] Failed to update server/package.json:', e);
+    }
+}
+
 console.log(`\nSuccessfully bumped version to ${newVersion}!`);
 
 console.log('\nRecommended Release Commands:');

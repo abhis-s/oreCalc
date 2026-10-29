@@ -1,6 +1,6 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const packageJson = require('../../package.json');
+const packageJson = require('../package.json');
 const { RATE_LIMIT_DEFAULTS } = require('../constants.js');
 const { db, Timestamp } = require('../services/firebase.js');
 
