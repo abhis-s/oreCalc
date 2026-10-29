@@ -61,6 +61,7 @@
 .app-footer {
     width: 100%;
     margin-top: auto;
+    flex-shrink: 0;
     background-color: $bg-surface-secondary;
     border-top: 1px solid $border-secondary;
     box-sizing: border-box;
@@ -76,10 +77,14 @@
 
     &__grid {
         display: grid;
-        grid-template-columns: minmax(260px, 1.4fr) minmax(220px, 1.2fr) repeat(2, minmax(140px, 1fr));
-        gap: $spacing-xl;
+        grid-template-columns: minmax(0, 1.35fr) minmax(0, 1.2fr) repeat(2, minmax(0, 1fr));
+        gap: $spacing-md;
         margin-bottom: $spacing-lg;
         text-align: left;
+
+        @media (min-width: #{$container-header-wide}) {
+            gap: $spacing-xl;
+        }
     }
 
     &__col--brand {
@@ -225,6 +230,11 @@
         line-height: 1.5;
         margin: 0 auto;
         padding: 0;
+        text-wrap: pretty;
+
+        @media (min-width: #{$breakpoint-desktop}) {
+            font-size: clamp(0.625rem, 0.48rem + 0.3vw, 0.6875rem);
+        }
 
         p {
             margin: 0;
@@ -308,12 +318,18 @@
                 align-items: center;
 
                 & + li:not(.app-footer__item--costs)::before {
-                    content: "\2022";
+                    content: '\00B7';
                     color: $text-muted;
                     margin-right: $spacing-sm;
                     font-size: 0.75em;
                     user-select: none;
                     pointer-events: none;
+                }
+
+                &.is-row-start::before {
+                    content: none !important;
+                    display: none !important;
+                    margin-right: 0 !important;
                 }
             }
         }

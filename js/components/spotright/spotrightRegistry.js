@@ -265,7 +265,7 @@ export function buildSpotrightRegistry() {
             normalizedTitle: `${priorityListTitle.toLowerCase()} upgrade prioritätenliste prioritäten-liste planner reihenfolge`,
             category: toolsCategory, icon: 'planner-filled', iconType: 'svg', acronym: 'pl', priorityTier: 22,
             execute: async () => {
-                const { openPriorityListModal } = await import('../planner/priorityListModal.js');
+                const { openPriorityListModal } = await import('../planner/priorityListModalInputs.js');
                 openPriorityListModal();
             }
         },
@@ -296,10 +296,10 @@ export function buildSpotrightRegistry() {
             execute: () => navigateToTarget({ parent: 'damagecalc', defaultTab: 'zapquake' })
         },
         {
-            id: 'tab-cluster-planner', type: 'tab', parent: 'damagecalc', defaultTab: 'zapquake', tabId: 'cluster_planner', scopes: ['tools'],
+            id: 'tab-cluster-planner', type: 'tab', parent: 'damagecalc', defaultTab: 'zapquake', tabId: 'cluster-planner', scopes: ['tools'],
             parentContext: 'DamageCalc', title: 'Cluster Defense Planner', normalizedTitle: 'cluster defense planner',
             category: toolsCategory, icon: 'bolt-planner', iconType: 'svg', acronym: 'cp', priorityTier: 25,
-            execute: () => navigateToTarget({ parent: 'damagecalc', defaultTab: 'zapquake', tabId: 'cluster_planner' })
+            execute: () => navigateToTarget({ parent: 'damagecalc', defaultTab: 'zapquake', tabId: 'cluster-planner' })
         },
         {
             id: 'action-settings', type: 'action', parent: 'global', scopes: ['settings'],
@@ -313,7 +313,7 @@ export function buildSpotrightRegistry() {
             title: manageVillagesTitle, canonicalTitle: 'manage villages',
             canonicalTokens: 'player & village manager accounts switch profiles',
             normalizedTitle: `${manageVillagesTitle.toLowerCase()} dörfer verwalten dorf spieler konten`,
-            category: settingsCategory, icon: 'user', iconType: 'svg', acronym: 'pm', priorityTier: 15,
+            category: settingsCategory, icon: 'user-filled', iconType: 'svg', acronym: 'pm', priorityTier: 15,
             execute: executeManageVillagesAction
         },
         {

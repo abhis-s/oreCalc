@@ -11,6 +11,14 @@ const router = express.Router();
 const sensitiveLimiter = rateLimit(RATE_LIMIT_DEFAULTS.sensitive);
 
 router.use(extractAuthUser);
+router.use((_req, res, next) => {
+    if (typeof res.setHeader === 'function') {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+    next();
+});
 
 /**
  * Strips auto-placed calendar chips from dates.
@@ -226,6 +234,13 @@ router.post('/save', requireMinAppVersion, async (req, res) => {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
         }
 
+        if (/** @type {any} */ (req).authUser && /** @type {any} */ (req).authUser.userId !== userId) {
+            return res.status(403).json({
+                reason: 'unauthorizedAccess',
+                message: 'Authenticated users can only access their own user ID.'
+            });
+        }
+
         const userRef = db.collection('userStates').doc(userId);
 
         // Prevent older clients from overwriting newer version data in Firestore
@@ -428,6 +443,13 @@ async function handleUpdatePreferences(req, res) {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
         }
 
+        if (/** @type {any} */ (req).authUser && /** @type {any} */ (req).authUser.userId !== userId) {
+            return res.status(403).json({
+                reason: 'unauthorizedAccess',
+                message: 'Authenticated users can only access their own user ID.'
+            });
+        }
+
         const userRef = db.collection('userStates').doc(userId);
         const doc = await userRef.get();
         let existingData = null;
@@ -506,6 +528,13 @@ router.post('/save-player', requireMinAppVersion, async (req, res) => {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
         }
 
+        if (/** @type {any} */ (req).authUser && /** @type {any} */ (req).authUser.userId !== userId) {
+            return res.status(403).json({
+                reason: 'unauthorizedAccess',
+                message: 'Authenticated users can only access their own user ID.'
+            });
+        }
+
         const cleanedTag = tag.startsWith('#') ? tag.substring(1) : tag;
         const userRef = db.collection('userStates').doc(userId);
         const userDoc = await userRef.get();
@@ -553,6 +582,13 @@ router.get('/load/:userId', async (req, res) => {
     try {
         if (await isUserDeleted(userId)) {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
+
+        if (/** @type {any} */ (req).authUser && /** @type {any} */ (req).authUser.userId !== userId) {
+            return res.status(403).json({
+                reason: 'unauthorizedAccess',
+                message: 'Authenticated users can only access their own user ID.'
+            });
         }
 
         const userRef = db.collection('userStates').doc(userId);
@@ -616,6 +652,13 @@ router.delete('/delete/:userId', sensitiveLimiter, async (req, res) => {
 
     if (!isValidUserId(userId)) {
         return res.status(400).json({ reason: 'invalidUserId', message: 'Invalid user ID format.' });
+    }
+
+    if (/** @type {any} */ (req).authUser && /** @type {any} */ (req).authUser.userId !== userId) {
+        return res.status(403).json({
+            reason: 'unauthorizedAccess',
+            message: 'Authenticated users can only access their own user ID.'
+        });
     }
 
     try {
@@ -707,6 +750,13 @@ router.post('/mark-migrated', async (req, res) => {
     try {
         if (await isUserDeleted(userId)) {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
+
+        if (/** @type {any} */ (req).authUser && /** @type {any} */ (req).authUser.userId !== userId) {
+            return res.status(403).json({
+                reason: 'unauthorizedAccess',
+                message: 'Authenticated users can only access their own user ID.'
+            });
         }
 
         const userRef = db.collection('userStates').doc(userId);

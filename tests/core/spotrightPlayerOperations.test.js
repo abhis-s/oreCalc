@@ -5,18 +5,20 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import {
-    extractPlayerTag,
     detectClipboardPlayerTag,
     switchOrLoadPlayerTag,
     switchSavedVillage,
     loadAndSwitchPlayerTag,
     createClipboardSpotrightItem
 } from '../../js/components/spotright/spotrightClipboard.js';
+import { extractPlayerTag } from '../../js/utils/playerTagValidator.js';
 import {
     buildSpotrightRegistry
 } from '../../js/components/spotright/spotrightRegistry.js';
 import {
-    getActiveUrlTag
+    getActiveUrlTag,
+    executeManageVillagesAction,
+    executeAddPlayerAction
 } from '../../js/components/spotright/spotrightNavigator.js';
 import {
     createSpotrightDialog,
@@ -92,8 +94,8 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
         test('extracts and normalizes clean player tags with or without leading hash', () => {
             assert.equal(extractPlayerTag('#8PJYGUJC'), '8PJYGUJC');
             assert.equal(extractPlayerTag('8PJYGUJC'), '8PJYGUJC');
-            assert.equal(extractPlayerTag('#2PP'), '2PP');
-            assert.equal(extractPlayerTag('9L0V9G9C9'), '9L0V9G9C9');
+            assert.equal(extractPlayerTag('#8PJY0UJC'), '8PJY0UJC');
+            assert.equal(extractPlayerTag('9V8UYQ'), '9V8UYQ');
             assert.equal(extractPlayerTag('  #8pjygujc  '), '8PJYGUJC');
         });
 
@@ -101,8 +103,8 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             const urlEncoded = 'https://link.clashofclans.com/en?action=OpenPlayerProfile&tag=%238PJYGUJC';
             assert.equal(extractPlayerTag(urlEncoded), '8PJYGUJC');
 
-            const urlPlain = 'https://link.clashofclans.com/?action=OpenPlayerProfile&tag=2PP09';
-            assert.equal(extractPlayerTag(urlPlain), '2PP09');
+            const urlPlain = 'https://link.clashofclans.com/?action=OpenPlayerProfile&tag=8PJY0UJC';
+            assert.equal(extractPlayerTag(urlPlain), '8PJY0UJC');
         });
 
         test('returns null for empty, non-string, or invalid player tags', () => {
@@ -256,16 +258,16 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             assert.equal(globalThis.window.location.href, '');
 
             globalThis.window.location.pathname = '/damage-calculator/';
-            switchSavedVillage('2PP09');
-            assert.equal(globalThis.window.location.href, '/?tag=2PP09');
+            switchSavedVillage('8PJY0UJC');
+            assert.equal(globalThis.window.location.href, '/?tag=8PJY0UJC');
 
             globalThis.window.location.pathname = '/hero-journey/';
-            switchSavedVillage('9L0V9G9C9');
-            assert.equal(globalThis.window.location.href, '/?tag=9L0V9G9C9');
+            switchSavedVillage('9V8UYQ');
+            assert.equal(globalThis.window.location.href, '/?tag=9V8UYQ');
 
             globalThis.window.location.pathname = '/ore-calculator/';
-            switchOrLoadPlayerTag('2PP09');
-            assert.equal(globalThis.window.location.href, '/?tag=2PP09');
+            switchOrLoadPlayerTag('8PJY0UJC');
+            assert.equal(globalThis.window.location.href, '/?tag=8PJY0UJC');
         });
     });
 
@@ -367,7 +369,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
         test('indexes saved player profiles as switchable village items', () => {
             const tagsKey = getActivePlayerTagsKey();
             const mockStorage = {
-                [tagsKey]: JSON.stringify(['8PJYGUJC', '9L0V9G9C9']),
+                [tagsKey]: JSON.stringify(['8PJYGUJC', '9V8UYQ']),
                 [getPlayerStorageKey('8PJYGUJC')]: JSON.stringify({
                     playerProfile: {
                         tag: '#8PJYGUJC',
@@ -375,9 +377,9 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
                         townHallLevel: 17
                     }
                 }),
-                [getPlayerStorageKey('9L0V9G9C9')]: JSON.stringify({
+                [getPlayerStorageKey('9V8UYQ')]: JSON.stringify({
                     playerProfile: {
-                        tag: '#9L0V9G9C9',
+                        tag: '#9V8UYQ',
                         name: 'Mini Chief',
                         townHallLevel: 14
                     }
@@ -776,7 +778,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
         test('scopes search results correctly when villages category filter is active', () => {
             const tagsKey = getActivePlayerTagsKey();
             const mockStorage = {
-                [tagsKey]: JSON.stringify(['8PJY0UJC', '9L0V9G9C9']),
+                [tagsKey]: JSON.stringify(['8PJY0UJC', '9V8UYQ']),
                 [getPlayerStorageKey('8PJY0UJC')]: JSON.stringify({
                     playerProfile: {
                         tag: '#8PJY0UJC',
@@ -784,9 +786,9 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
                         townHallLevel: 15
                     }
                 }),
-                [getPlayerStorageKey('9L0V9G9C9')]: JSON.stringify({
+                [getPlayerStorageKey('9V8UYQ')]: JSON.stringify({
                     playerProfile: {
-                        tag: '#9L0V9G9C9',
+                        tag: '#9V8UYQ',
                         name: 'Base Beta',
                         townHallLevel: 14
                     }
@@ -800,20 +802,17 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
 
             const registry = buildSpotrightRegistry();
 
-            // 1. Empty query with villages scope returns saved villages followed by Add Player action
             const emptyResult = searchSpotright('', registry, 'villages');
             assert.equal(emptyResult.matches.length, 3, 'Must return both saved villages and add player action');
             assert.equal(emptyResult.matches[0].id, 'village-8PJY0UJC');
-            assert.equal(emptyResult.matches[1].id, 'village-9L0V9G9C9');
+            assert.equal(emptyResult.matches[1].id, 'village-9V8UYQ');
             assert.equal(emptyResult.matches[2].id, 'action-add-player');
 
-            // 2. Query search within villages scope matches specific village
             const searchResult = searchSpotright('Beta', registry, 'villages');
             assert.ok(searchResult.matches.length > 0);
-            assert.equal(searchResult.matches[0].id, 'village-9L0V9G9C9');
+            assert.equal(searchResult.matches[0].id, 'village-9V8UYQ');
             assert.equal(searchResult.matches.some(i => i.type === 'equipment' || i.type === 'page'), false, 'Must not return equipment or tools in villages scope');
 
-            // 3. Settings scope does not include villages or add-player action
             const settingsResult = searchSpotright('', registry, 'settings');
             assert.equal(settingsResult.matches.some(i => i.isVillage || i.id === 'action-add-player'), false, 'Settings scope must exclude villages');
         });
@@ -822,6 +821,88 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             assert.deepEqual(extractScopePrefix('/v alpha'), { scope: 'villages', remainingQuery: 'alpha' });
             assert.deepEqual(extractScopePrefix('/village beta'), { scope: 'villages', remainingQuery: 'beta' });
             assert.deepEqual(extractScopePrefix('/villages gamma'), { scope: 'villages', remainingQuery: 'gamma' });
+        });
+    });
+
+    describe('In-Place Spotright Village & Player Actions Across Routes', () => {
+        /** @type {any} */
+        let originalDoc;
+        /** @type {any} */
+        let originalWin;
+
+        beforeEach(() => {
+            originalDoc = globalThis.document;
+            originalWin = globalThis.window;
+        });
+
+        afterEach(() => {
+            globalThis.document = originalDoc;
+            globalThis.window = originalWin;
+        });
+
+        test('executeManageVillagesAction on /account/ highlights village stack if authenticated without redirecting', async () => {
+            globalThis.window = /** @type {any} */ ({
+                location: { pathname: '/account/', search: '', href: 'http://localhost:8080/account/' }
+            });
+
+            const mockVillagesRow = {
+                id: 'account-profile-villages-row',
+                offsetParent: {},
+                scrollIntoView: () => {},
+                classList: { add: () => {}, remove: () => {} }
+            };
+
+            globalThis.document = /** @type {any} */ ({
+                getElementById: (id) => id === 'account-profile-villages-row' ? mockVillagesRow : null,
+                querySelector: () => null
+            });
+
+            await executeManageVillagesAction();
+            assert.strictEqual(globalThis.window.location.href, 'http://localhost:8080/account/');
+        });
+
+        test('executeManageVillagesAction on /account/ opens add-player modal in-place when unauthenticated', async () => {
+            globalThis.window = /** @type {any} */ ({
+                location: { pathname: '/account/', search: '', href: 'http://localhost:8080/account/' }
+            });
+
+            let modalOpened = false;
+            const mockModal = {
+                id: 'add-player-modal',
+                showModal: () => { modalOpened = true; },
+                classList: { add: () => {}, remove: () => {} }
+            };
+
+            globalThis.document = /** @type {any} */ ({
+                getElementById: (id) => id === 'add-player-modal' ? mockModal : null,
+                querySelector: () => null
+            });
+
+            await executeManageVillagesAction();
+            assert.strictEqual(modalOpened, true);
+            assert.strictEqual(globalThis.window.location.href, 'http://localhost:8080/account/');
+        });
+
+        test('executeAddPlayerAction opens modal in-place on /account/ without redirecting', async () => {
+            globalThis.window = /** @type {any} */ ({
+                location: { pathname: '/account/', search: '', href: 'http://localhost:8080/account/' }
+            });
+
+            let modalOpened = false;
+            const mockModal = {
+                id: 'add-player-modal',
+                showModal: () => { modalOpened = true; },
+                classList: { add: () => {}, remove: () => {} }
+            };
+
+            globalThis.document = /** @type {any} */ ({
+                getElementById: (id) => id === 'add-player-modal' ? mockModal : null,
+                querySelector: () => null
+            });
+
+            await executeAddPlayerAction();
+            assert.strictEqual(modalOpened, true);
+            assert.strictEqual(globalThis.window.location.href, 'http://localhost:8080/account/');
         });
     });
 });

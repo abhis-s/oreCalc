@@ -18,7 +18,7 @@ let activeEquipmentName = null;
 
 let sessionActiveModifierTab = null;
 let sessionViewModePreference = 'overview';
-let sessionRecommendationHidden = true;
+let sessionRecommendationHidden = null;
 let sessionTableExpanded = false;
 
 /**
@@ -27,7 +27,7 @@ let sessionTableExpanded = false;
 export function resetModalSessionState() {
     sessionActiveModifierTab = null;
     sessionViewModePreference = 'overview';
-    sessionRecommendationHidden = true;
+    sessionRecommendationHidden = null;
     sessionTableExpanded = false;
 }
 
@@ -37,7 +37,7 @@ export function resetModalSessionState() {
  * @returns {{
  *   activeModifierTab: string | null,
  *   viewModePreference: string,
- *   recommendationHidden: boolean,
+ *   recommendationHidden: boolean | null,
  *   tableExpanded: boolean,
  *   activeEquipmentName: string | null
  * }}
@@ -58,7 +58,7 @@ export function getModalSessionState() {
  * @param {Object} updates
  * @param {string} [updates.activeModifierTab]
  * @param {string} [updates.viewModePreference]
- * @param {boolean} [updates.recommendationHidden]
+ * @param {boolean | null} [updates.recommendationHidden]
  * @param {boolean} [updates.tableExpanded]
  * @param {string} [updates.activeEquipmentName]
  */

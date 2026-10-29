@@ -1,0 +1,75 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.clipboard-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+
+    input {
+        width: 100%;
+        padding-right: 38px !important;
+    }
+
+    .clipboard-paste-btn {
+        position: absolute;
+        right: $spacing-xs;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        background: transparent;
+        border: none;
+        border-radius: $shape-corner-xs;
+        color: $text-muted;
+        cursor: pointer;
+        z-index: $z-index-interactive;
+        transition: color $duration-fast $ease-smooth, background-color $duration-fast $ease-smooth;
+
+        &:hover:not(:disabled) {
+            color: $text-primary;
+            background-color: $bg-surface-secondary;
+        }
+
+        &:focus-visible {
+            outline: 2px solid $outline-focus;
+            outline-offset: 1px;
+        }
+
+        &.is-error {
+            color: $color-danger !important;
+            animation: clipboard-shake $duration-slow $ease-standard;
+        }
+
+        clashcalc-assets-svg,
+        orecalc-assets-svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            pointer-events: none;
+        }
+    }
+}
+
+// Elevated stacking prevents opaque input backgrounds from occluding leading icons
+.input-with-icon .input-icon {
+    z-index: $z-index-interactive;
+}
+
+@keyframes clipboard-shake {
+    0%, 100% {
+        transform: translateY(-50%) translateX(0);
+    }
+    20%, 60% {
+        transform: translateY(-50%) translateX(-4px);
+    }
+    40%, 80% {
+        transform: translateY(-50%) translateX(4px);
+    }
+}

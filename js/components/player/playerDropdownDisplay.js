@@ -91,9 +91,10 @@ export function renderStandaloneDropdownMarkup({
  * @param {string} [options.fallbackName=''] - Fallback name if active profile summary is missing.
  */
 export function renderPlayerDropdown(activeTagOrOptions = '', options = {}) {
-    const playerItemsContainer = dom.player?.playerItemsContainer || (typeof document !== 'undefined' ? document.getElementById('player-items-container') : null);
-    const selectedPlayerName = dom.player?.selectedPlayerName || (typeof document !== 'undefined' ? document.getElementById('selected-player-name') : null);
-    const dropdownButton = dom.player?.dropdownButton || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-button') : null);
+    const isElementAttached = (el) => Boolean(el && el.isConnected !== false);
+    const playerItemsContainer = (isElementAttached(dom.player?.playerItemsContainer) ? dom.player.playerItemsContainer : null) || (typeof document !== 'undefined' ? document.getElementById('player-items-container') : null);
+    const selectedPlayerName = (isElementAttached(dom.player?.selectedPlayerName) ? dom.player.selectedPlayerName : null) || (typeof document !== 'undefined' ? document.getElementById('selected-player-name') : null);
+    const dropdownButton = (isElementAttached(dom.player?.dropdownButton) ? dom.player.dropdownButton : null) || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-button') : null);
 
     if (!playerItemsContainer || !selectedPlayerName) return;
 

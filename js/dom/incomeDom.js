@@ -5,7 +5,7 @@ export function getIncomeDOMElements() {
     return {
         home: {
             incomeCard: {
-                container: document.getElementById('home-ore-income-card'),
+                container: document.getElementById('orecalc-home-income-card'),
                 timeframe: document.getElementById('home-income-timeframe-select'),
                 tableContainer: document.querySelector('.income-content'),
                 table: {

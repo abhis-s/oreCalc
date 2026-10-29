@@ -31,6 +31,21 @@ export const renderState = {
 };
 
 /**
+ * Resets cached profile render snapshots across view navigation or tool destruction.
+ */
+export function resetRenderState() {
+    renderState.renderedTag = null;
+    renderState.renderedLang = null;
+    renderState.renderedTH = null;
+    renderState.renderedClan = null;
+    renderState.renderedLeague = null;
+    renderState.lastProgress = null;
+    renderState.isAnimating = false;
+    renderState.pendingSnapshot = null;
+    renderState.initialProgress = null;
+}
+
+/**
  * Applies a delta update to already-rendered bars without rebuilding innerHTML.
  * Shows a green overlay for gains and a red overlay for losses.
  * Returns false if a full rebuild is needed (e.g. overall maxed state toggled).
@@ -46,6 +61,7 @@ export const renderState = {
  * @returns {boolean} True if successfully patched incrementally, false if full rebuild is required.
  */
 export function applyProgressDelta(container, prevProg, currProg, subData, state, maxedCount, totalCount, profile) {
+    if (!container || !container.querySelector('.home-profile-header')) return false;
     if ((prevProg.overall >= 100) !== (currProg.overall >= 100)) return false;
     container.classList.toggle('is-max-progress', currProg.overall >= 100);
 

@@ -5,12 +5,12 @@
 .animated-btn {
     @extend %flex-center;
     border: 1px solid transparent;
-    border-radius: 20px;
+    border-radius: $btn-radius;
     color: $text-primary;
     cursor: pointer;
     font-size: var(--font-size-sm);
-    min-height: 40px;
-    min-width: 100px;
+    min-height: $btn-min-height;
+    min-width: $btn-min-width;
     overflow: hidden;
     padding: 10px 20px;
     position: relative;
@@ -77,16 +77,18 @@
         cursor: not-allowed;
         opacity: 0.6;
 
-        .animated-btn-text {
-            display: none;
-        }
+        &:has(.animated-btn-icon-disabled) {
+            .animated-btn-text {
+                display: none;
+            }
 
-        .animated-btn-icon-wrapper {
-            display: none;
-        }
+            .animated-btn-icon-wrapper {
+                display: none;
+            }
 
-        .animated-btn-icon-disabled {
-            opacity: 1;
+            .animated-btn-icon-disabled {
+                opacity: 1;
+            }
         }
     }
 }
@@ -174,7 +176,6 @@
     }
 }
 
-.passkeys-loader .button-loader span,
 .priority-list-loader .button-loader span {
     animation-play-state: running;
 }
@@ -250,34 +251,6 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-.reset-data-button {
-    background-color: $btn-bg-red-soft;
-    color: $btn-color-red;
-    border: 1px solid $btn-border-red;
-    box-shadow: none;
-    outline: none;
-    -webkit-tap-highlight-color: transparent;
-
-    &:hover {
-        background-color: $btn-bg-red-soft-hover;
-        border-color: $btn-border-red-hover;
-    }
-}
-
-.transparent-svg-button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    display: none;
-    margin-right: 5px;
-    padding: 0 5px 0 0;
-    transition: transform 500ms $ease-smooth;
-
-    &:hover {
-        transform: rotate(-360deg);
-    }
-}
-
 .upgrade-btn {
     @extend %flex-center;
     background-color: $accent-primary-soft;
@@ -338,12 +311,12 @@
 .secondary-button,
 .btn-secondary {
     padding: 10px 18px;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
     color: $text-secondary;
     background-color: $bg-surface-tertiary;
     border: 1px solid $border-primary;
-    border-radius: 20px;
+    border-radius: $btn-radius;
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
@@ -363,16 +336,15 @@
 
 .accept-button,
 .confirm-button,
-.primary-button,
 .btn-primary {
     padding: 10px 18px;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
 
     color: $accent-primary;
     background-color: $accent-primary-soft;
     border: 1px solid $btn-border-blue;
-    border-radius: 20px;
+    border-radius: $btn-radius;
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
@@ -439,80 +411,6 @@
     }
 }
 
-.btn-privacy {
-    background-color: var(--btn-bg-cyan);
-    color: var(--btn-color-cyan);
-    border: 1px solid var(--btn-border-cyan);
-    &:hover {
-        background-color: var(--btn-bg-cyan-hover);
-        border-color: var(--btn-border-cyan-hover);
-    }
-}
-
-.btn-terms-of-use {
-    background-color: var(--btn-bg-purple);
-    color: var(--btn-color-purple);
-    border: 1px solid var(--btn-border-purple);
-    &:hover {
-        background-color: var(--btn-bg-purple-hover);
-        border-color: var(--btn-border-purple-hover);
-    }
-}
-
-.btn-policy {
-    background-color: var(--btn-bg-red);
-    color: var(--btn-color-red);
-    border: 1px solid var(--btn-border-red);
-    &:hover {
-        background-color: var(--btn-bg-red-hover);
-        border-color: var(--btn-border-red-hover);
-    }
-}
-
-.btn-data-info {
-    background-color: var(--btn-bg-teal);
-    color: var(--btn-color-teal);
-    border: 1px solid var(--btn-border-teal);
-    &:hover {
-        background-color: var(--btn-bg-teal-hover);
-        border-color: var(--btn-border-teal-hover);
-    }
-}
-
-.btn-licenses {
-    background-color: var(--btn-bg-pink);
-    color: var(--btn-color-pink);
-    border: 1px solid var(--btn-border-pink);
-    &:hover {
-        background-color: var(--btn-bg-pink-hover);
-        border-color: var(--btn-border-pink-hover);
-    }
-}
-
-.btn-download {
-    @include btn-accent-style;
-}
-
-.btn-danger-action {
-    background-color: var(--btn-bg-red);
-    color: var(--btn-color-red);
-    border: 1px solid var(--btn-border-red);
-    &:hover {
-        background-color: var(--btn-bg-red-hover);
-        border-color: var(--btn-border-red-hover);
-    }
-}
-
-.btn-version {
-    background-color: $bg-surface-tertiary;
-    color: $text-secondary;
-    border: 1px solid $border-primary;
-    &:hover {
-        background-color: $btn-bg-grey-soft-hover;
-        border-color: $btn-border-grey-hover;
-    }
-}
-
 .btn-bug {
     background-color: var(--btn-bg-red);
     color: var(--btn-color-red);
@@ -535,14 +433,4 @@
 
 .btn-pricing {
     @include btn-accent-style;
-}
-
-.btn-costs {
-    background-color: var(--btn-bg-emerald);
-    color: var(--btn-color-emerald);
-    border: 1px solid var(--btn-border-emerald);
-    &:hover {
-        background-color: var(--btn-bg-emerald-hover);
-        border-color: var(--btn-border-emerald-hover);
-    }
 }

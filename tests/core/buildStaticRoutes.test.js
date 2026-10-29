@@ -139,6 +139,32 @@ describe('Static Build Routes Verification Suite', () => {
         assert.ok(content.includes('<loc>https://clashcalc.com/zh/damage-calculator/</loc>'));
     });
 
+    test('verifies standalone account routes exist across all supported locales', () => {
+        const routes = [
+            { lang: 'en', path: path.join(distDir, 'account', 'index.html'), canonical: 'https://clashcalc.com/account/' },
+            { lang: 'de', path: path.join(distDir, 'de', 'account', 'index.html'), canonical: 'https://clashcalc.com/de/account/' },
+            { lang: 'tr', path: path.join(distDir, 'tr', 'account', 'index.html'), canonical: 'https://clashcalc.com/tr/account/' },
+            { lang: 'zh', path: path.join(distDir, 'zh', 'account', 'index.html'), canonical: 'https://clashcalc.com/zh/account/' }
+        ];
+
+        for (const { lang, path: routePath, canonical } of routes) {
+            assert.equal(fs.existsSync(routePath), true, `Route must exist: ${routePath}`);
+            const content = fs.readFileSync(routePath, 'utf8');
+            assert.ok(content.includes(`<html lang="${lang}">`), `Should declare lang="${lang}"`);
+            assert.ok(content.includes(`<link rel="canonical" href="${canonical}">`), `Canonical must be ${canonical}`);
+        }
+    });
+
+    test('verifies dist/sitemap.xml contains all canonical account routes', () => {
+        const sitemapPath = path.join(distDir, 'sitemap.xml');
+        const content = fs.readFileSync(sitemapPath, 'utf8');
+
+        assert.ok(content.includes('<loc>https://clashcalc.com/account/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/de/account/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/tr/account/</loc>'));
+        assert.ok(content.includes('<loc>https://clashcalc.com/zh/account/</loc>'));
+    });
+
     test('verifies dist/_redirects exists and configures 301 redirects for legacy routes', () => {
         const redirectsPath = path.join(distDir, '_redirects');
         assert.equal(fs.existsSync(redirectsPath), true);
@@ -148,6 +174,7 @@ describe('Static Build Routes Verification Suite', () => {
         assert.ok(content.includes('/en      /          301') || content.includes('/en /'));
         assert.ok(content.includes('/ore-calculator   /ore-calculator/        301'));
         assert.ok(content.includes('/damage-calculator /damage-calculator/    301'));
+        assert.ok(content.includes('/account          /account/               301'));
     });
 
     test('verifies legal routes and static legal stylesheet/script assets exist with noindex meta in dist', () => {

@@ -43,7 +43,7 @@ function isInjectedScriptError(event) {
         /** @type {PromiseRejectionEvent} */ (event).reason ||
         ''
     );
-    if (msg === 'Script error.' || msg === 'Script error') return true;
+    if (msg === 'Script error.' || msg === 'Script error' || /ResizeObserver loop/i.test(msg)) return true;
 
     const stack = String(
         /** @type {ErrorEvent} */ (event).error?.stack ||

@@ -7,54 +7,13 @@
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { translate } from '../../i18n/translator.js';
 import { setActivePlayerTag, updateSavedPlayerTags } from '../../core/playerStorage.js';
+import { extractPlayerTag } from '../../utils/playerTagValidator.js';
+import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import {
     buildSpotrightUrl,
     focusAndHighlightTarget,
     getCurrentRouteContext
 } from './spotrightNavigator.js';
-
-/** Base32 character set used for official Supercell player tags */
-const VALID_TAG_PATTERN = /^[0289CGJLOPQRUVY]{3,12}$/;
-
-/**
- * Extracts and validates a Clash of Clans player tag from raw text or profile URL.
- *
- * @param {string} rawText
- * @returns {string | null} Normalized clean player tag (e.g. '8PJYGUJC') or null.
- */
-export function extractPlayerTag(rawText) {
-    if (!rawText || typeof rawText !== 'string') return null;
-
-    let candidate = rawText.trim();
-    if (!candidate) return null;
-
-    // Detect and extract tag parameter from official Clash of Clans profile share URLs
-    if (candidate.includes('link.clashofclans.com') || candidate.includes('tag=')) {
-        try {
-            const match = candidate.match(/[?&]tag=([^&#\s]+)/i);
-            if (match && match[1]) {
-                candidate = decodeURIComponent(match[1]);
-            }
-        } catch {
-            return null;
-        }
-    }
-
-    // Extract tag if embedded in text with a hash (e.g. "Tag: #8PJYGUJC")
-    const hashMatch = candidate.match(/#([0289CGJLOPQRUVY]{3,12})\b/i);
-    if (hashMatch && hashMatch[1]) {
-        candidate = hashMatch[1];
-    }
-
-    const cleanTag = normalizePlayerTag(candidate);
-    if (!cleanTag || cleanTag === 'DEFAULT0') return null;
-
-    if (VALID_TAG_PATTERN.test(cleanTag)) {
-        return cleanTag;
-    }
-
-    return null;
-}
 
 /**
  * Detects whether a valid player tag is present on the clipboard.
@@ -124,8 +83,10 @@ export async function loadAndSwitchPlayerTag(cleanTag) {
         }
 
         // On active tool pages, sync player tag to URL without full-page reload
-        const { syncPlayerTagToUrl } = await import('../../core/playerUrlRouter.js');
         syncPlayerTagToUrl(validTag);
+        if (typeof document !== 'undefined') {
+            document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
+        }
 
         return { success: true, cleanTag: validTag };
     } catch (err) {

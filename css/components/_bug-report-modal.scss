@@ -11,48 +11,8 @@
     }
 
     .support-modal-tabs {
-        display: flex;
-        background-color: $bg-surface-tertiary;
-        border-radius: $shape-corner-small;
-        padding: 3px;
-        border: 1px solid $border-primary;
+        display: grid;
         margin: $spacing-sm $spacing-xl 0;
-
-        .segmented-btn {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 7px 12px;
-            border: none;
-            background: transparent;
-            color: $text-secondary;
-            font-size: $font-size-xs;
-            font-weight: $font-weight-semibold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
-
-            clashcalc-assets-svg,
-            orecalc-assets-svg {
-                width: 14px;
-                height: 14px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            &:hover {
-                color: $text-primary;
-            }
-
-            &.active {
-                background-color: $bg-surface-primary;
-                color: $accent-primary;
-                box-shadow: $elevation-1;
-            }
-        }
     }
 
     .modal-info-text {
@@ -60,8 +20,7 @@
         padding: 0 $spacing-xl;
     }
 
-    .support-modal-form,
-    .bug-report-form {
+    .support-modal-form {
         padding: $spacing-md $spacing-xl $spacing-xl;
         flex: 1;
         overflow-y: auto;
@@ -253,8 +212,7 @@
         }
     }
 
-    .support-sw-btn,
-    .bug-report-sw-btn {
+    .support-sw-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -290,8 +248,7 @@
             padding: 0 20px;
         }
 
-        .support-modal-form,
-        .bug-report-form {
+        .support-modal-form {
             padding: $spacing-md 20px 20px;
             gap: $spacing-md;
         }

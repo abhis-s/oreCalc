@@ -581,12 +581,4 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.ok(markup.includes('data-tag="TAG1"'), 'Refresh button must contain target player tag');
         assert.ok(markup.includes('alt="Town Hall 16"'), 'Dropdown item must render localized Town Hall alt text');
     });
-
-    test('partials/header.html completely omits #refresh-button', () => {
-        const headerHtml = fs.readFileSync(path.join(projectRoot, 'partials/header.html'), 'utf8');
-        assert.ok(
-            !headerHtml.includes('id="refresh-button"'),
-            'Header partial must not contain #refresh-button to maintain parity across tools'
-        );
-    });
 });

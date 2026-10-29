@@ -450,6 +450,13 @@ async function showStep() {
  * @returns {Promise<boolean>} True if tour started, false if no pending steps.
  */
 export async function startTour(setId) {
+    const isTourEnabled = false; // Tour is temporarily disabled
+    if (!isTourEnabled) {
+        window.isTourRunning = false;
+        window.isTourPending = false;
+        return false;
+    }
+
     currentStepIndex = 0;
     lastStepIndex = -1;
 

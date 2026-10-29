@@ -140,9 +140,9 @@ export const AUTHORIZED_COMPONENT_FACADES = new Set([
 /**
  * Finds unauthorized or redundant pass-through re-exports.
  *
- * Rules:
- * 1. ZERO re-exports in js/utils/, js/domain/, js/data/, js/core/, and server/.
- * 2. In js/components/, only AUTHORIZED_COMPONENT_FACADES may re-export.
+ * Architecture constraints:
+ * - Zero re-exports in js/utils/, js/domain/, js/data/, js/core/, and server/.
+ * - In js/components/, only AUTHORIZED_COMPONENT_FACADES may re-export.
  *
  * @param {string[]} files
  * @returns {Array<{ file: string, symbol: string, source: string, reason: string }>}
@@ -292,7 +292,7 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
         assert.equal(violations.length, 0);
     });
 
-    test('Rule 12: pure domain calculation modules in js/domain/ have zero DOM or Tier 3/4 imports', () => {
+    test('pure domain calculation modules in js/domain/ have zero DOM or Tier 3/4 imports', () => {
         const domainFiles = scanJsFiles('js/domain');
         assert.ok(domainFiles.length > 0, 'Must find domain modules to test');
         const violations = [];
@@ -339,7 +339,7 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
         assert.equal(violations.length, 0);
     });
 
-    test('Rule 12: Tier 1 (data) and Tier 2 (utils) never import Tier 4 (components/ui/apps)', () => {
+    test('Tier 1 (data) and Tier 2 (utils) never import Tier 4 (components/ui/apps)', () => {
         const lowerTierFiles = [
             ...scanJsFiles('js/data'),
             ...scanJsFiles('js/utils')
@@ -389,7 +389,7 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
         assert.equal(violations.length, 0);
     });
 
-    test('Rule 13: Display and Renderer modules have zero state mutations and zero interactive event listeners', () => {
+    test('Display and Renderer modules have zero state mutations and zero interactive event listeners', () => {
         const allSourceFiles = scanJsFiles('js');
         const displayAndRendererFiles = allSourceFiles.filter(file => {
             const name = path.basename(file);
@@ -439,7 +439,7 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
         }
 
         if (violations.length > 0) {
-            const formatted = violations.map(v => `  - [RULE 13 VIOLATION] ${v.file}: ${v.reason}`).join('\n');
+            const formatted = violations.map(v => `  - [DISPLAY/RENDERER VIOLATION] ${v.file}: ${v.reason}`).join('\n');
             assert.fail(`Found ${violations.length} Display/Renderer purity violation(s):\n${formatted}`);
         }
         assert.equal(violations.length, 0);

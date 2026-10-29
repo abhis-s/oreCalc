@@ -13,10 +13,10 @@ const damageTabScrollPositions = {
 /**
  * Constructs canonical URL for damage calculator tabs, preserving pathname and search parameters.
  *
- * @param {string} tabKey - Tab key (e.g. 'zapquake', 'cluster_planner').
+ * @param {string} tabKey - Tab key (e.g. 'zapquake', 'cluster-planner', 'cluster_planner').
  * @param {string} [pathname] - Pathname override (defaults to window.location.pathname).
  * @param {string} [search] - Search query override (defaults to window.location.search).
- * @returns {string} Canonical URL with preserved query parameters and appropriate hash.
+ * @returns {string} Canonical URL with preserved query parameters and clean tab search param.
  */
 export function constructDamageTabUrl(tabKey, pathname, search) {
     const basePath = pathname !== undefined
@@ -25,13 +25,21 @@ export function constructDamageTabUrl(tabKey, pathname, search) {
     const baseSearch = search !== undefined
         ? search
         : (typeof window !== 'undefined' && window.location ? window.location.search : '');
-    const cleanTab = tabKey ? tabKey.replace(/-tab$/, '') : '';
-    const hash = (!cleanTab || cleanTab === 'zapquake') ? '' : `#${cleanTab}`;
-    return `${basePath}${baseSearch}${hash}`;
+    const cleanTab = tabKey ? tabKey.replace(/-tab$/, '').replace('_', '-') : '';
+
+    const searchParams = new URLSearchParams(baseSearch.startsWith('?') ? baseSearch.substring(1) : baseSearch);
+    if (!cleanTab || cleanTab === 'zapquake') {
+        searchParams.delete('tab');
+    } else if (cleanTab === 'cluster-planner') {
+        searchParams.set('tab', 'cluster-planner');
+    }
+
+    const query = searchParams.toString();
+    return `${basePath}${query ? `?${query}` : ''}`;
 }
 
 /**
- * Resolves active tab from URL hash and search query string.
+ * Resolves active tab from URL search query string and legacy hash.
  *
  * @param {string} [hash] - URL hash override (defaults to window.location.hash).
  * @param {string} [search] - URL search override (defaults to window.location.search).
@@ -45,21 +53,21 @@ export function resolveDamageTabFromUrl(hash, search) {
         ? search
         : (typeof window !== 'undefined' && window.location ? window.location.search : '');
 
-    const cleanHash = currentHash ? currentHash.replace(/^#/, '').trim().toLowerCase() : '';
-    if (cleanHash) {
-        if (cleanHash === 'cluster_planner') return 'cluster_planner';
-        if (cleanHash === 'zapquake') return 'zapquake';
-    }
-
     if (currentSearch) {
         try {
-            const params = new URLSearchParams(currentSearch);
+            const params = new URLSearchParams(currentSearch.startsWith('?') ? currentSearch.substring(1) : currentSearch);
             const tabParam = params.get('tab')?.trim().toLowerCase();
             if (tabParam) {
-                if (tabParam === 'cluster_planner') return 'cluster_planner';
+                if (tabParam === 'cluster-planner' || tabParam === 'cluster_planner') return 'cluster_planner';
                 if (tabParam === 'zapquake') return 'zapquake';
             }
         } catch {}
+    }
+
+    const cleanHash = currentHash ? currentHash.replace(/^#/, '').trim().toLowerCase() : '';
+    if (cleanHash) {
+        if (cleanHash === 'cluster-planner' || cleanHash === 'cluster_planner') return 'cluster_planner';
+        if (cleanHash === 'zapquake') return 'zapquake';
     }
 
     return null;
@@ -116,8 +124,13 @@ export function initDamageCalcTabNav(state, onStateChange) {
     window.addEventListener('popstate', () => {
         const resolved = resolveDamageTabFromUrl();
         const targetTab = resolved || 'zapquake';
-        if (!resolved && typeof window !== 'undefined' && window.location.hash) {
-            window.history.replaceState(null, '', constructDamageTabUrl('zapquake'));
+        if (typeof window !== 'undefined' && window.location.hash) {
+            const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase();
+            if (cleanHash === 'cluster_planner' || cleanHash === 'cluster-planner' || cleanHash === 'zapquake') {
+                window.history.replaceState(null, '', constructDamageTabUrl(targetTab));
+            } else if (!resolved) {
+                window.history.replaceState(null, '', constructDamageTabUrl('zapquake'));
+            }
         }
         if (targetTab === state.activeTab) return;
 

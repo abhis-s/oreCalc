@@ -6,9 +6,29 @@
     right: 24px;
     width: 320px;
     height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow: visible;
     z-index: $z-index-toast;
     pointer-events: none;
     transition: bottom $duration-fast $ease-smooth;
+
+    &[popover],
+    &:popover-open {
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        overflow: visible;
+        inset: auto 24px calc(24px + var(--toast-keyboard-offset, 0px)) auto;
+    }
+
+    &::backdrop {
+        display: none;
+        background: transparent;
+    }
 }
 
 .toast-notification {
@@ -83,6 +103,14 @@
         max-width: 340px;
         bottom: calc(74px + var(--toast-keyboard-offset, 0px));
         transition: bottom $duration-fast $ease-smooth;
+
+        &[popover],
+        &:popover-open {
+            left: 50%;
+            right: auto;
+            inset: auto auto calc(74px + var(--toast-keyboard-offset, 0px)) 50%;
+            transform: translateX(-50%);
+        }
     }
 
     .toast-notification {

@@ -29,35 +29,41 @@ export function renderRecommendationBadge(recBadge, data, equipmentName, rec, ac
     const levelDisplay = (showLevelInBadge && isAutoMax) ? `${translate('validation.max')} (${formattedLevel})` : formattedLevel;
 
     if (isUnreleased) {
+        recBadge.hidden = false;
         recBadge.style.display = 'inline-flex';
         recBadge.innerHTML = `<clashcalc-assets-svg name="experiment" class="badge-icon"></clashcalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
         recBadge.className = 'eq-badge badge-unreleased';
         recBadge.setAttribute('data-info', 'views.equipment.recUnreleasedHelp');
     } else if (isMustHave) {
+        recBadge.hidden = false;
         recBadge.style.display = 'inline-flex';
         const recText = levelDisplay ? `${translate('views.equipment.mustHave')}: ${levelDisplay}` : translate('views.equipment.mustHave');
         recBadge.innerHTML = `<clashcalc-assets-svg name="thumbs-double" class="badge-icon"></clashcalc-assets-svg> <span>${recText}</span>`;
         recBadge.className = 'eq-badge badge-must-have';
         recBadge.setAttribute('data-info', 'views.equipment.recMustHaveHelp');
     } else if (isNotRecommended) {
+        recBadge.hidden = false;
         recBadge.style.display = 'inline-flex';
         const notRecText = translate('views.equipment.notRecommended');
         recBadge.innerHTML = `<clashcalc-assets-svg name="thumbs-down" class="badge-icon"></clashcalc-assets-svg> <span>${notRecText}</span>`;
         recBadge.className = 'eq-badge badge-not-recommended';
         recBadge.setAttribute('data-info', 'views.equipment.recNotRecommendedHelp');
     } else if (isNiche) {
+        recBadge.hidden = false;
         recBadge.style.display = 'inline-flex';
         const recText = levelDisplay ? `${translate('views.equipment.niche')}: ${levelDisplay}` : translate('views.equipment.niche');
         recBadge.innerHTML = `<clashcalc-assets-svg name="extension" class="badge-icon"></clashcalc-assets-svg> <span>${recText}</span>`;
         recBadge.className = 'eq-badge badge-niche';
         recBadge.setAttribute('data-info', 'views.equipment.recNicheHelp');
     } else if (isRecommended) {
+        recBadge.hidden = false;
         recBadge.style.display = 'inline-flex';
         const recText = levelDisplay ? `${translate('validation.recommended')}: ${levelDisplay}` : translate('validation.recommended');
         recBadge.innerHTML = `<clashcalc-assets-svg name="thumbs-up" class="badge-icon"></clashcalc-assets-svg> <span>${recText}</span>`;
         recBadge.className = 'eq-badge badge-recommended';
         recBadge.setAttribute('data-info', 'views.equipment.recRecommendedHelp');
     } else {
+        recBadge.hidden = true;
         recBadge.style.display = 'none';
         recBadge.removeAttribute('data-info');
     }
@@ -101,14 +107,21 @@ export function renderStrategyBanner(recBannerContainer, unhideNoteBtn, equipId,
 
     if (!noteText) {
         if (recBannerContainer) recBannerContainer.innerHTML = '';
-        if (unhideNoteBtn) unhideNoteBtn.style.display = 'none';
+        if (unhideNoteBtn) {
+            unhideNoteBtn.hidden = true;
+            unhideNoteBtn.style.display = 'none';
+        }
     } else if (isNoteHidden) {
         if (recBannerContainer) recBannerContainer.innerHTML = '';
         if (unhideNoteBtn) {
+            unhideNoteBtn.hidden = false;
             unhideNoteBtn.style.display = 'inline-flex';
         }
     } else {
-        if (unhideNoteBtn) unhideNoteBtn.style.display = 'none';
+        if (unhideNoteBtn) {
+            unhideNoteBtn.hidden = true;
+            unhideNoteBtn.style.display = 'none';
+        }
         if (recBannerContainer) {
             let bannerThemeClass = 'banner-recommended';
             let bannerIconName = 'thumbs-up';

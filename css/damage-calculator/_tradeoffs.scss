@@ -49,13 +49,12 @@
     cursor: pointer;
     min-height: 44px;
     box-sizing: border-box;
-    transition: background-color $transition-fast, border-color $transition-fast, color $transition-fast, transform $transition-fast;
+    transition: background-color $transition-fast, border-color $transition-fast, color $transition-fast;
 
     &:hover {
         background-color: $bg-surface-tertiary;
         border-color: $border-card-hover;
         color: $text-primary;
-        transform: translateY(-1px);
     }
 
     &:focus-visible {
@@ -127,13 +126,6 @@
                 fill: currentColor;
             }
         }
-    }
-
-    &__equip-icon {
-        width: 18px;
-        height: 18px;
-        border-radius: $shape-corner-2xs;
-        object-fit: contain;
     }
 
     &__spell-icon {

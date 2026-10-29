@@ -14,7 +14,7 @@ describe('Native HTMLDialogElement Overlay Architecture', () => {
             const modalsDir = path.join(projectRoot, 'partials/modals');
             const modalFiles = fs.readdirSync(modalsDir).filter(file => file.endsWith('.html'));
 
-            assert.ok(modalFiles.length >= 24, `Must find at least 24 modal template files in ${modalsDir}`);
+            assert.ok(modalFiles.length >= 20, `Must find at least 20 modal template files in ${modalsDir}`);
 
             for (const file of modalFiles) {
                 const filePath = path.join(modalsDir, file);

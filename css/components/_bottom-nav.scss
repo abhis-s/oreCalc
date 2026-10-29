@@ -51,15 +51,9 @@
         flex-shrink: 0;
     }
 
-    &:hover {
-        .nav-icon-wrapper {
-            transform: scale(1.1) translateY(-2px);
-        }
-    }
-
     &:active {
         .nav-icon-wrapper {
-            transform: scale(0.95) translateY(0);
+            transform: scale(0.95);
         }
     }
 

@@ -59,6 +59,17 @@ function generateSitemapXml(supportedLanguages, legalPages = []) {
         sitemapXml += `  <url>\n    <loc>https://clashcalc.com/${lang}/damage-calculator/</loc>\n${damageCalcAlternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n\n`;
     }
 
+    const accountAlternateLinks = supportedLanguages.map(l =>
+        `    <xhtml:link rel="alternate" hreflang="${l}" href="https://clashcalc.com/${l === 'en' ? '' : l + '/'}account/" />`
+    ).concat(['    <xhtml:link rel="alternate" hreflang="x-default" href="https://clashcalc.com/account/" />']).join('\n');
+
+    sitemapXml += `  <url>\n    <loc>https://clashcalc.com/account/</loc>\n${accountAlternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n\n`;
+
+    for (const lang of supportedLanguages) {
+        if (lang === 'en') continue;
+        sitemapXml += `  <url>\n    <loc>https://clashcalc.com/${lang}/account/</loc>\n${accountAlternateLinks}\n    <lastmod>${sitemapDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n\n`;
+    }
+
     if (Array.isArray(legalPages) && legalPages.length > 0) {
         for (const page of legalPages) {
             let altLinks = '';

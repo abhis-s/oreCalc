@@ -22,19 +22,66 @@ function updateToastPositions() {
 }
 
 /**
+ * Retrieves or creates the singleton toast notification container element,
+ * initializing it with popover="manual" for browser Top Layer promotion.
+ *
+ * @returns {HTMLElement} The toast container element.
+ */
+export function getOrCreateToastContainer() {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        if (typeof container.setAttribute === 'function') {
+            container.setAttribute('popover', 'manual');
+        }
+        document.body.appendChild(container);
+    } else if (typeof container.setAttribute === 'function' && !container.getAttribute('popover')) {
+        container.setAttribute('popover', 'manual');
+    }
+    return container;
+}
+
+/**
+ * Promotes the toast container into the browser's Top Layer so that notifications
+ * reliably render above active native dialog modals.
+ *
+ * @param {HTMLElement} container
+ */
+export function ensureToastContainerInTopLayer(container) {
+    if (!container || typeof container.showPopover !== 'function') {
+        return;
+    }
+    try {
+        const isAlreadyOpen = typeof container.matches === 'function' ? container.matches(':popover-open') : false;
+        const hasOpenDialog = Boolean(document.querySelector?.('dialog[open], .modal.show'));
+
+        // Re-promote container if an open modal dialog exists to guarantee top layer apex
+        if (hasOpenDialog && isAlreadyOpen && typeof container.hidePopover === 'function') {
+            container.hidePopover();
+        }
+
+        if (!container.matches || !container.matches(':popover-open')) {
+            container.showPopover();
+        }
+    } catch {
+        // Fallback for non-standard or mock environments
+    }
+}
+
+/**
  * Displays a non-blocking toast notification banner with stacked positioning and screen reader announcements.
  * @param {string} message - Notification text message.
  * @param {'info'|'success'|'warning'|'error'} [type='info'] - Semantic toast theme type.
  */
 export function showToast(message, type = 'info') {
+    if (typeof document === 'undefined') {
+        return null;
+    }
     announce(message, type === 'error' ? 'assertive' : 'polite');
 
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        document.body.appendChild(container);
-    }
+    const container = getOrCreateToastContainer();
+    ensureToastContainerInTopLayer(container);
 
     const toast = document.createElement('div');
     toast.className = `toast-notification toast-${type}`;
@@ -95,9 +142,27 @@ export function showToast(message, type = 'info') {
             updateToastPositions();
         }
 
-        toast.addEventListener('transitionend', () => {
+        const removeToastAndCleanContainer = () => {
             toast.remove();
-        });
+            if (activeToasts.length === 0 && typeof container.hidePopover === 'function') {
+                try {
+                    const isOpen = typeof container.matches === 'function' ? container.matches(':popover-open') : true;
+                    if (isOpen) {
+                        container.hidePopover();
+                    }
+                } catch {
+                    // Fallback for non-standard environments
+                }
+            }
+        };
+
+        toast.addEventListener('transitionend', removeToastAndCleanContainer);
+        // Fallback removal if transition doesn't fire
+        setTimeout(() => {
+            if (toast.parentElement) {
+                removeToastAndCleanContainer();
+            }
+        }, 500);
     }, 4000);
 
     return toast;

@@ -2,15 +2,9 @@
 @use '../abstracts/mixins' as *;
 
 .calc-modal-tabs {
+    display: grid;
     margin-bottom: 0;
     width: 100%;
-    justify-content: center;
-
-    .segmented-btn {
-        flex: 1;
-        justify-content: center;
-        padding: $spacing-xs $spacing-sm;
-    }
 }
 
 .calc-building-toolbar {

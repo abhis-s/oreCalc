@@ -459,15 +459,7 @@ h3.income-chips-title {
     font-size: 0.85em;
     font-weight: 600;
     cursor: pointer;
-    transition: transform $duration-fast $ease-smooth, background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
-
-    &:hover {
-        transform: translateY(-1px);
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
 }
 
 .placeholder-text {

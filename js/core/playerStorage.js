@@ -63,7 +63,7 @@ export function removePlayerTag(playerTagToDelete) {
             }
         }
 
-        // 1. Universally purge player partitions and sub-partitions from disk
+        // Purge player partitions and sub-partitions from disk
         localStorage.removeItem(getPlayerStorageKey(cleanTag, CANONICAL_PLAYER_PREFIX));
         localStorage.removeItem(getPlayerStorageKey(cleanTag, PLAYER_PREFIX));
         localStorage.removeItem(`${CANONICAL_PLAYER_PREFIX}#${cleanTag}`);
@@ -91,7 +91,7 @@ export function removePlayerTag(playerTagToDelete) {
             }
         } catch (_) {}
 
-        // 2. Synchronize in-memory monolithic state if present
+        // Synchronize in-memory monolithic state if present
         if (state.allPlayersData) {
             const wasActive = normalizePlayerTag(state.savedPlayerTags[0]) === cleanTag;
 
@@ -141,7 +141,7 @@ export function removePlayerTag(playerTagToDelete) {
             }
         }
 
-        // 3. Universally defuse cloud timers, rotate UUID, and strip URL when the last player is removed
+        // Defuse cloud timers, rotate UUID, and strip URL when the last player is removed
         if (isLastPlayer) {
             cancelCloudSaveTimer();
             cancelPreferencesSaveTimer();

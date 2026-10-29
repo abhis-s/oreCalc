@@ -51,7 +51,7 @@ export function getHpUnit() {
 
 /**
  * Renders HTML markup for Supercharge level pips (charged blue bolts and uncharged dark pips).
- * Uses canonical <clashcalc-assets-image> custom elements per Rule 17.
+ * Uses canonical <clashcalc-assets-image> custom elements.
  *
  * @param {number} currentTier - Currently active supercharge tier (0, 1, 2).
  * @param {number} [maxTiers=2] - Maximum available supercharge tiers for this structure.

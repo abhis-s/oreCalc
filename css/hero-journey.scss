@@ -12,6 +12,7 @@
 @use 'components/footer';
 @use 'components/domain-notice';
 @use 'components/switch';
+@use 'components/segmented-control';
 @use 'components/toast';
 @use 'components/profile-card';
 @use 'components/navigation-drawer';
@@ -27,6 +28,7 @@
 @use 'components/bug-report-modal';
 @use 'components/spotright';
 @use 'components/shortcuts-modal';
+@use 'components/route-transition-loader';
 @use 'hero-journey/hero-journey-header';
 @use 'hero-journey/hero-journey-table-filters';
 @use 'hero-journey/hero-journey-table';

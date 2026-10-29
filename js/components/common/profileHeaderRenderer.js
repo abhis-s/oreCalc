@@ -4,6 +4,7 @@ import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { formatDisplayTag } from '../../core/storageKeys.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
+import { getMaxTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
 
 /**
  * js/components/common/profileHeaderRenderer.js
@@ -41,6 +42,26 @@ export function getLeagueI18nKey(leagueData) {
 }
 
 /**
+ * Renders the standardized Connect Profile button markup.
+ *
+ * @param {Object} [options]
+ * @param {string} [options.id='home-profile-connect-btn'] - Button element ID.
+ * @param {string} [options.extraClass=''] - Additional class names.
+ * @returns {string} Rendered button HTML.
+ */
+export function renderConnectProfileButtonHtml({ id = 'home-profile-connect-btn', extraClass = '' } = {}) {
+    const connectLabel = translate('views.home.profile.connectBtn');
+    const safeId = escapeHTML(id);
+    const extraClassStr = extraClass ? ` ${escapeHTML(extraClass)}` : '';
+    return `
+        <button id="${safeId}" class="unconnected-connect-btn${extraClassStr}" type="button" aria-label="${connectLabel}" title="${connectLabel}" data-i18n-aria-label="views.home.profile.connectBtn" data-i18n-title="views.home.profile.connectBtn">
+            <clashcalc-assets-svg name="plus" height="14" width="14"></clashcalc-assets-svg>
+            <span data-i18n="views.home.profile.connectBtn">${connectLabel}</span>
+        </button>
+    `.trim();
+}
+
+/**
  * Renders the standardized .home-profile-header HTML markup.
  *
  * @param {Object} options
@@ -51,22 +72,30 @@ export function getLeagueI18nKey(leagueData) {
  * @param {number|null} [options.trophies] - Target trophies count.
  * @param {number} [options.prevTrophies=0] - Previous trophies count for animations.
  * @param {string} [options.trophiesHtml] - Optional custom HTML for trophies counter.
- * @param {string} [options.actionsRowHtml=''] - Page-specific action controls injected into the right metadata column.
+ * @param {Object|boolean|null} [options.maxEquipment=null] - Programmatic max equipment count options ({ current, total, prev }).
+ * @param {Object|string|boolean|null} [options.plannerBridge=null] - Programmatic bridge link options ({ url }).
+ * @param {boolean} [options.hasCollapsibleStats=false] - Whether this card supports collapsible stats (renders chevron if connected).
+ * @param {boolean} [options.isCollapsed=false] - Initial state for the collapse chevron button.
+ * @param {string} [options.actionsRowHtml=''] - Optional supplementary action controls.
  * @param {string} [options.headerExtraClasses=''] - Additional CSS classes for the header container.
  * @returns {string} Rendered HTML string.
  */
 export function renderProfileHeaderHtml({
     profile = null,
     isGuest = false,
-    thLevel = 18,
+    thLevel = null,
     tag = '',
     trophies = null,
     prevTrophies = 0,
     trophiesHtml = '',
+    maxEquipment = null,
+    plannerBridge = null,
+    hasCollapsibleStats = false,
+    isCollapsed = false,
     actionsRowHtml = '',
     headerExtraClasses = ''
 } = {}) {
-    const activeTh = Number(thLevel || profile?.townHallLevel || 18);
+    const activeTh = Number(thLevel || profile?.townHallLevel || getMaxTownHallLevel());
     const thImgUrl = `assets/th/th${activeTh}.png`;
 
     const leagueId = Number(profile?.leagueTier?.id || profile?.league?.id || UNRANKED_LEAGUE_ID);
@@ -146,6 +175,57 @@ export function renderProfileHeaderHtml({
         }
     }
 
+    let resolvedActionsHtml = '';
+
+    if (maxEquipment) {
+        const isGuestMode = isGuest || !profile;
+        const totalCount = isGuestMode ? '--' : (maxEquipment.total !== undefined ? maxEquipment.total : '--');
+        const displayCount = isGuestMode ? '--' : (maxEquipment.prev !== undefined ? maxEquipment.prev : (maxEquipment.current !== undefined ? maxEquipment.current : '--'));
+        const targetAttr = !isGuestMode && maxEquipment.current !== undefined ? ` data-target-maxed="${maxEquipment.current}"` : '';
+        const prevAttr = !isGuestMode && maxEquipment.prev !== undefined ? ` data-prev-maxed="${maxEquipment.prev}"` : '';
+        const totalAttr = !isGuestMode && maxEquipment.total !== undefined ? ` data-total-equip="${maxEquipment.total}"` : '';
+
+        resolvedActionsHtml += `
+            <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
+                <clashcalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini" aria-hidden="true"></clashcalc-assets-svg>
+                <span><span class="maxed-count"${targetAttr}${prevAttr}${totalAttr}>${displayCount}/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
+            </div>
+        `;
+    }
+
+    if (plannerBridge) {
+        const bridgeUrl = typeof plannerBridge === 'string' ? plannerBridge : (plannerBridge.url || '/ore-calculator/');
+        const safeBridgeUrl = escapeHTML(bridgeUrl);
+        const bridgeTitle = translate('views.heroJourney.page.backToPlannerHelp');
+        const bridgeLabel = translate('views.heroJourney.page.backToEquipmentPlanner');
+        resolvedActionsHtml += `
+            <a href="${safeBridgeUrl}" class="hj-planner-bridge-btn" title="${bridgeTitle}" aria-label="${bridgeLabel}" data-i18n-title="views.heroJourney.page.backToPlannerHelp" data-i18n-aria-label="views.heroJourney.page.backToEquipmentPlanner">
+                <clashcalc-assets-svg name="planner-filled" height="14" width="14" class="planner-bridge-icon"></clashcalc-assets-svg>
+                <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${bridgeLabel}</span>
+            </a>
+        `;
+    }
+
+    if (actionsRowHtml) {
+        resolvedActionsHtml += actionsRowHtml;
+    }
+
+    if (isGuest || !profile || profile.tag === 'DEFAULT0') {
+        if (!resolvedActionsHtml.includes('unconnected-connect-btn')) {
+            resolvedActionsHtml += renderConnectProfileButtonHtml();
+        }
+    } else if (hasCollapsibleStats) {
+        if (!resolvedActionsHtml.includes('profile-collapse-toggle-btn')) {
+            const collapseLabel = isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats');
+            const chevronIcon = isCollapsed ? 'chevron-down' : 'chevron-up';
+            resolvedActionsHtml += `
+                <button id="home-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${collapseLabel}" title="${collapseLabel}">
+                    <clashcalc-assets-svg name="${chevronIcon}" height="16" width="16" class="collapse-chevron-icon"></clashcalc-assets-svg>
+                </button>
+            `;
+        }
+    }
+
     const extraClassStr = headerExtraClasses ? ` ${headerExtraClasses}` : '';
     const guestClassStr = isGuest ? ' is-guest' : '';
     const silhouetteClassStr = isGuest ? ' is-silhouette' : '';
@@ -177,9 +257,9 @@ export function renderProfileHeaderHtml({
                         </div>
                     </div>
                 </div>
-                ${actionsRowHtml ? `
+                ${resolvedActionsHtml ? `
                     <div class="profile-meta-actions-row">
-                        ${actionsRowHtml}
+                        ${resolvedActionsHtml}
                     </div>
                 ` : ''}
             </div>

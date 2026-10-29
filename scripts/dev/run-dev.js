@@ -10,7 +10,6 @@ const noBrowser = args.includes('--no-browser') ||
 
 // Run prerequisite tasks synchronously
 try {
-    execSync('node scripts/dev/copy-workbox.js', { stdio: 'inherit' });
     execSync('node scripts/fetch-billing-costs.js', { stdio: 'inherit' });
 } catch (error) {
     console.error('[Dev Runner] Failed to initialize dev prerequisites:', error.message);

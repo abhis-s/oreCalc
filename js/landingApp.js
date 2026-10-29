@@ -37,8 +37,9 @@ import {
 } from './components/landing/landingAccountsController.js';
 import { initLandingSearchForm } from './components/landing/landingSearchController.js';
 import { initializeAuthModal } from './components/auth/authModalInputs.js';
-import { initializePasskeysModal } from './components/auth/passkeysModalInputs.js';
 import { initializeSettingsAccount } from './components/appSettings/settingsAccountInputs.js';
+import { initAppShellNavigator, registerAppRoute } from './core/appShellNavigator.js';
+import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHooks.js';
 
 /**
  * Updates tool CTA, title link, and quick-jump shortcut hrefs to include the active player tag and language prefix.
@@ -74,12 +75,16 @@ function updateToolLinks(cleanTag) {
     const jumpZapQuake = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-jump-zapquake'));
     const jumpEquipmentSnipes = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-jump-eq-snipes'));
 
-    if (jumpPlanner) jumpPlanner.href = `${langPrefix}/ore-calculator/${query}#planner`;
-    if (jumpIncome) jumpIncome.href = `${langPrefix}/ore-calculator/${query}#income`;
-    if (jumpTrack) jumpTrack.href = `${langPrefix}/hero-journey/${query}#home-hj-card`;
+    const plannerQuery = query ? `${query}&tab=planner` : '?tab=planner';
+    const incomeQuery = query ? `${query}&tab=income` : '?tab=income';
+    const clusterQuery = query ? `${query}&tab=cluster-planner` : '?tab=cluster-planner';
+
+    if (jumpPlanner) jumpPlanner.href = `${langPrefix}/ore-calculator/${plannerQuery}`;
+    if (jumpIncome) jumpIncome.href = `${langPrefix}/ore-calculator/${incomeQuery}`;
+    if (jumpTrack) jumpTrack.href = `${langPrefix}/hero-journey/${query}#hero-journey-track-card`;
     if (jumpTable) jumpTable.href = `${langPrefix}/hero-journey/${query}#hero-journey-table`;
     if (jumpZapQuake) jumpZapQuake.href = `${langPrefix}/damage-calculator/${query}`;
-    if (jumpEquipmentSnipes) jumpEquipmentSnipes.href = `${langPrefix}/damage-calculator/${query}#cluster_planner`;
+    if (jumpEquipmentSnipes) jumpEquipmentSnipes.href = `${langPrefix}/damage-calculator/${clusterQuery}`;
 }
 
 /** @type {ReturnType<typeof initNavigationDrawer> | null} */
@@ -369,7 +374,7 @@ function initLandingCrossTabSync() {
 function initHeaderScroll() {
     initAppHeader({
         headerElement: '.landing-header',
-        hasPill: false,
+        hasPill: true,
         hasPlayerDropdown: false,
         hasTabs: false
     });
@@ -399,53 +404,84 @@ function initLandingDrawer() {
     });
 }
 
+let isMounted = false;
+
+/**
+ * Mounts the Landing Portal application.
+ * @returns {Promise<void>}
+ */
+export async function mount() {
+    if (isMounted) return;
+    isMounted = true;
+
+    registerGlobalErrorBoundaries();
+    consolidateLocalStorageKeys();
+    initializeModalHistoryManager();
+    initializeCommitsModal();
+    let savedState = null;
+    try {
+        savedState = loadState();
+    } catch (e) {
+        console.error('Failed to load saved state:', e);
+    }
+    initializeState(savedState);
+    initHeaderScroll();
+    const pathLang = getLanguageFromPath();
+    const savedSettings = getAppSettings();
+    const targetLang = pathLang || (savedSettings.language && savedSettings.language !== 'auto' ? savedSettings.language : 'en');
+    if (!state.uiSettings) {
+        state.uiSettings = {};
+    }
+    state.uiSettings.language = targetLang;
+
+    if (pathLang) {
+        persistAppSettings({ language: pathLang });
+    } else if (targetLang !== 'en') {
+        syncLanguageUrl(targetLang, true);
+    }
+
+    await loadTranslations(targetLang);
+    updateUIWithTranslations(true);
+    initAppSettings();
+    updateToolLinks();
+    await initCommandCenter();
+    initAppFooter();
+    initializePwaService();
+    initLandingDrawer();
+    initLandingCrossTabSync();
+    initExternalLinkCatcher();
+    initializeAuthModal();
+    initializeSettingsAccount();
+    initSpotright();
+    initShortcutsModalListener();
+
+    setupNavigatorUiHooks();
+    initAppShellNavigator();
+    registerAppRoute('hub', { mount, destroy });
+
+    if (typeof window.__APP_LOADED__ === 'function') {
+        window.__APP_LOADED__();
+    }
+    window.isAppStartingUp = false;
+}
+
+/**
+ * Destroys and cleans up active Landing Portal controllers and observers.
+ */
+export function destroy() {
+    if (!isMounted) return;
+    isMounted = false;
+
+    landingDrawerInstance?.destroy?.();
+    landingAccountsManager = null;
+    landingSearchController = null;
+    landingDrawerInstance = null;
+}
+
 if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', async () => {
-        registerGlobalErrorBoundaries();
-        consolidateLocalStorageKeys();
-        initializeModalHistoryManager();
-        initializeCommitsModal();
-        let savedState = null;
-        try {
-            savedState = loadState();
-        } catch (e) {
-            console.error('Failed to load saved state:', e);
-        }
-        initializeState(savedState);
-        initAppSettings();
-        initHeaderScroll();
-        const pathLang = getLanguageFromPath();
-        const savedSettings = getAppSettings();
-        const targetLang = pathLang || (savedSettings.language && savedSettings.language !== 'auto' ? savedSettings.language : 'en');
-        if (!state.uiSettings) {
-            state.uiSettings = {};
-        }
-        state.uiSettings.language = targetLang;
-
-        if (pathLang) {
-            persistAppSettings({ language: pathLang });
-        } else if (targetLang !== 'en') {
-            syncLanguageUrl(targetLang, true);
-        }
-
-        await loadTranslations(targetLang);
-        updateUIWithTranslations(true);
-        updateToolLinks();
-        await initCommandCenter();
-        initAppFooter();
-        initializePwaService();
-        initLandingDrawer();
-        initLandingCrossTabSync();
-        initExternalLinkCatcher();
-        initializeAuthModal();
-        initializePasskeysModal();
-        initializeSettingsAccount();
-        initSpotright();
-        initShortcutsModalListener();
-
-        if (typeof window.__APP_LOADED__ === 'function') {
-            window.__APP_LOADED__();
-        }
-        window.isAppStartingUp = false;
-    });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => void mount());
+    } else {
+        void mount();
+    }
 }

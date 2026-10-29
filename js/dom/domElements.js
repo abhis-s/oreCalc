@@ -17,37 +17,37 @@ export const dom = {};
  * Dynamically populates reusable ore displays and initializes global DOM element cache tree.
  */
 export function initializeDOMElements() {
-    populateOreContainer('home-result-quantity-card', {
+    populateOreContainer('orecalc-home-quantity-card', {
         type: 'value',
         idFormat: (oreType) => `home-result-quantity-${oreType}`
     });
 
-    populateOreContainer('home-result-time-card', {
+    populateOreContainer('orecalc-home-time-card', {
         type: 'time',
         timeIdFormat: (oreType, unit) => `home-result-time-${oreType}-${unit}`,
         dateIdFormat: (oreType) => `home-result-date-${oreType}`
     });
 
-    populateOreContainer('eq-results-container-card', {
+    populateOreContainer('orecalc-equipment-results-card', {
         type: 'value',
         idFormat: (oreType) => `eq-${oreType}-ore-result`
     });
 
-    populateOreContainer('eq-storage-container-card', {
+    populateOreContainer('orecalc-equipment-storage-card', {
         type: 'input',
         idFormat: (oreType) => `eq-${oreType}-ore-storage`
     });
 
-    populateTimeframeGrid('inc-star-bonus-card', ['daily', 'monthly'], 'star-bonus');
-    populateTimeframeGrid('inc-shop-offers-card', ['monthly'], 'shop-offers');
-    populateTimeframeGrid('inc-raid-medal-trader-card', ['weekly', 'monthly'], 'raid-medal');
-    populateTimeframeGrid('inc-gem-trader-card', ['weekly', 'monthly'], 'gem');
-    populateTimeframeGrid('inc-event-pass-card', ['bimonthly', 'monthly'], 'event-pass');
-    populateTimeframeGrid('inc-event-trader-card', ['bimonthly', 'monthly'], 'event-trader');
-    populateTimeframeGrid('inc-clan-war-card', ['perWar', 'monthly'], 'clan-war');
-    populateTimeframeGrid('inc-cwl-card', ['perHit', 'monthly'], 'cwl');
-    populateTimeframeGrid('inc-supercell-events-card', ['perEvent', 'monthly'], 'supercell-events');
-    populateTimeframeGrid('inc-prospector-card', ['daily', 'monthly'], 'prospector');
+    populateTimeframeGrid('orecalc-income-star-bonus-card', ['daily', 'monthly'], 'star-bonus');
+    populateTimeframeGrid('orecalc-income-shop-offers-card', ['monthly'], 'shop-offers');
+    populateTimeframeGrid('orecalc-income-raid-medal-card', ['weekly', 'monthly'], 'raid-medal');
+    populateTimeframeGrid('orecalc-income-gem-card', ['weekly', 'monthly'], 'gem');
+    populateTimeframeGrid('orecalc-income-event-pass-card', ['bimonthly', 'monthly'], 'event-pass');
+    populateTimeframeGrid('orecalc-income-event-trader-card', ['bimonthly', 'monthly'], 'event-trader');
+    populateTimeframeGrid('orecalc-income-clan-war-card', ['perWar', 'monthly'], 'clan-war');
+    populateTimeframeGrid('orecalc-income-cwl-card', ['perHit', 'monthly'], 'cwl');
+    populateTimeframeGrid('orecalc-income-supercell-events-card', ['perEvent', 'monthly'], 'supercell-events');
+    populateTimeframeGrid('orecalc-income-prospector-card', ['daily', 'monthly'], 'prospector');
 
     const { drawer, tabs, fab } = getNavigationDOMElements();
 

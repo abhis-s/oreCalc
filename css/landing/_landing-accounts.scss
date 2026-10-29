@@ -158,7 +158,6 @@
         border-color: $border-card-hover;
         background-color: color-mix(in srgb, $accent-primary 8%, transparent);
         box-shadow: $elevation-card-hover;
-        transform: translateY(-1px);
     }
 
     &.is-active {
@@ -169,7 +168,6 @@
         &:hover {
             background-color: color-mix(in srgb, $accent-primary 14%, $bg-surface-secondary);
             box-shadow: 0 0 0 1px $accent-primary, $elevation-card-hover;
-            transform: translateY(-1px);
         }
     }
 

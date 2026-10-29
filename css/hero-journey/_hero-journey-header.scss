@@ -39,6 +39,7 @@
 
         &.is-compact {
             .brand-separator,
+            .brand-page-pill-wrapper,
             .brand-page-pill {
                 display: none;
             }
@@ -52,6 +53,7 @@
 
         @media (max-width: $breakpoint-phone) {
             .brand-separator,
+            .brand-page-pill-wrapper,
             .brand-page-pill {
                 display: none;
             }
@@ -61,16 +63,26 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            min-height: 40px;
             cursor: pointer;
+            border-radius: $shape-corner-small;
+            padding: 2px $spacing-xs;
+            margin: -2px (-$spacing-xs);
+            transition: opacity $duration-base $ease-smooth;
 
             &:hover .brand-title {
                 opacity: 0.85;
             }
+
+            &:focus-visible {
+                outline: 2px solid $outline-focus;
+                outline-offset: 2px;
+            }
         }
 
         .brand-title {
-            font-size: 20px;
-            font-weight: 800;
+            font-size: $font-size-2xl;
+            font-weight: $font-weight-extrabold;
             margin: 0;
             letter-spacing: -0.5px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -79,37 +91,19 @@
             @include brand-gradient-split;
 
             @media (max-width: $breakpoint-phone) {
-                font-size: 18px;
+                font-size: $font-size-xl;
             }
         }
 
         .brand-separator {
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-size: $font-size-xl;
+            font-weight: $font-weight-bold;
             color: $text-muted;
             margin: 0;
             line-height: 1;
             user-select: none;
             opacity: 0.7;
             pointer-events: none;
-        }
-
-        .brand-page-pill {
-            display: inline-flex;
-            align-items: center;
-            flex-shrink: 0;
-            padding: 3px $spacing-sm;
-            font-size: 0.72rem;
-            font-weight: 700;
-            border-radius: $shape-corner-full;
-            background: color-mix(in srgb, $accent-primary 15%, $bg-surface-secondary);
-            color: $accent-primary;
-            border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
-            cursor: default;
-            user-select: none;
-            pointer-events: none;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
         }
     }
 
@@ -119,7 +113,7 @@
         gap: $spacing-sm;
         flex-shrink: 0;
         position: relative;
-        z-index: 10;
+        z-index: $z-index-overlay;
 
         @media (max-width: $breakpoint-compact) {
             gap: 6px;
@@ -127,7 +121,7 @@
 
         &:has(.is-open),
         &:focus-within {
-            z-index: 30;
+            z-index: $z-index-layout;
         }
     }
 }

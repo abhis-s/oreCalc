@@ -6,6 +6,7 @@ allowBuilds:
   '@firebase/util': true
   '@parcel/watcher': true
   'core-js': true
+  'esbuild': true
   'fsevents': true
   'protobufjs': true
   'sharp': true

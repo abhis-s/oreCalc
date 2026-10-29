@@ -71,16 +71,14 @@
         text-decoration: none;
         box-sizing: border-box;
         white-space: nowrap;
-        transition: background-color $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
+        transition: background-color $duration-fast $ease-smooth;
 
         &:hover {
             background-color: $accent-primary-hover;
-            transform: translateY(-1px);
         }
 
         &:active {
             background-color: $accent-primary-active;
-            transform: translateY(0);
         }
     }
 

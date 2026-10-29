@@ -39,14 +39,14 @@ import { initAppSettings, getAppSettings, persistAppSettings } from './component
 import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
 import { initHeaderLayoutObserver, renderHeroJourneyPlayerDropdown } from './components/heroJourney/heroJourneyHeaderDisplay.js';
 import { initHeroJourneyPlayerDropdown, initHeroJourneyAddPlayerModal } from './components/heroJourney/heroJourneyHeaderInputs.js';
-import { renderPlayerSummary } from './components/heroJourney/heroJourneyPlayerRenderer.js';
+import { renderPlayerSummary, resetHjRenderState } from './components/heroJourney/heroJourneyPlayerRenderer.js';
 import { renderTableView, updateTableFilterRowLayout, syncTableTheadHeight } from './components/heroJourney/heroJourneyTableRenderer.js';
 import {
     renderTrackView,
     updateProgressBar,
     syncClaimSwitchPill
 } from './components/heroJourney/heroJourneyTrackRenderer.js';
-import { getMaxCumulativeLevelsByTH } from './domain/income/heroJourneyLevels.js';
+import { getMaxCumulativeLevelsByTH, getMaxTownHallLevel } from './domain/income/heroJourneyLevels.js';
 import {
     initHeroJourneyControls,
     initCustomScrollbar,
@@ -64,11 +64,12 @@ import { initSpotright } from './components/spotright/spotrightController.js';
 import { initShortcutsModalListener } from './components/shortcuts/shortcutsModal.js';
 import { initializeModalHistoryManager } from './utils/modalHistoryManager.js';
 import { initializeAuthModal } from './components/auth/authModalInputs.js';
-import { initializePasskeysModal } from './components/auth/passkeysModalInputs.js';
 import { initializeSettingsAccount } from './components/appSettings/settingsAccountInputs.js';
 import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
 import { initializePwaService } from './services/pwaService.js';
 import { markUserMigrated } from './services/apiService.js';
+import { initAppShellNavigator, registerAppRoute } from './core/appShellNavigator.js';
+import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHooks.js';
 
 const resetFilters = () => handleResetFilters(hjState, renderUI);
 
@@ -109,7 +110,7 @@ async function loadPlayer(tag) {
                 const normalizedClean = normalizePlayerTag(cachedProfile.tag);
                 hjState.playerData = cachedProfile;
                 hjState.activeTag = normalizedClean;
-                hjState.thLevel = Number(cachedProfile.townHallLevel) || 16;
+                hjState.thLevel = Number(cachedProfile.townHallLevel) || getMaxTownHallLevel();
                 hjState.cumulativeLevel = computePlayerCumulativeLevel(cachedProfile);
                 if (cached.heroJourney) {
                     hjState.isAccelerated = Boolean(cached.heroJourney.acceleratedRewards ?? cached.heroJourney.accelerated ?? (cached.heroJourney.rewardMode === 'accelerated'));
@@ -143,7 +144,7 @@ async function loadPlayer(tag) {
         }
         hjState.playerData = data;
         hjState.activeTag = normalizedServer;
-        hjState.thLevel = Number(data.townHallLevel) || 16;
+        hjState.thLevel = Number(data.townHallLevel) || getMaxTownHallLevel();
         hjState.cumulativeLevel = computePlayerCumulativeLevel(data);
         updateUrlTag(normalizedServer);
 
@@ -218,9 +219,10 @@ function renderUI() {
     const maxMap = getMaxCumulativeLevelsByTH();
     const overallMax = Math.max(...Object.values(maxMap));
     const isTrueMaxPlayer = hjState.cumulativeLevel >= overallMax && overallMax > 0;
-    const card = document.getElementById('home-hj-card');
+    const card = document.getElementById('hero-journey-track-card');
+    const isGuest = !hjState.playerData;
     if (card) {
-        card.classList.remove('no-synced-heroes');
+        card.classList.toggle('no-synced-heroes', isGuest);
         card.classList.toggle('is-true-max', isTrueMaxPlayer);
     }
     const progressTracks = document.querySelectorAll('.hero-journey-progress-track');
@@ -302,7 +304,7 @@ function renderUI() {
 function clearActivePlayerToGuest() {
     hjState.playerData = null;
     hjState.activeTag = null;
-    hjState.thLevel = 18;
+    hjState.thLevel = getMaxTownHallLevel();
     hjState.cumulativeLevel = 0;
     hjState.isAccelerated = false;
     hjState.unclaimedOnly = false;
@@ -417,7 +419,6 @@ async function init() {
     initSpotright();
     initShortcutsModalListener();
     initializeAuthModal();
-    initializePasskeysModal();
     initializeSettingsAccount();
 
     initAppFooter({ version: state.appVersion });
@@ -577,16 +578,48 @@ function initHeroJourneyDrawer() {
     });
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        init().catch((err) => {
+let isMounted = false;
+
+/**
+ * Mounts the Hero's Journey application.
+ * @param {Object} [options={}]
+ * @param {boolean} [options.force=false]
+ * @returns {Promise<void>}
+ */
+export async function mount(options = {}) {
+    if (isMounted && !options.force) return;
+    isMounted = true;
+
+    await init();
+    setupNavigatorUiHooks();
+    initAppShellNavigator();
+    registerAppRoute('hero-journey', { mount, destroy });
+}
+
+/**
+ * Destroys and cleans up active Hero's Journey controllers and drawer.
+ */
+export function destroy() {
+    if (!isMounted) return;
+    isMounted = false;
+
+    resetHjRenderState();
+    hjDrawerInstance?.destroy?.();
+    hjDrawerInstance = null;
+}
+
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            mount().catch((err) => {
+                console.error('Error bootstrapping Hero Journey app:', err);
+            });
+        });
+    } else {
+        mount().catch((err) => {
             console.error('Error bootstrapping Hero Journey app:', err);
         });
-    });
-} else {
-    init().catch((err) => {
-        console.error('Error bootstrapping Hero Journey app:', err);
-    });
+    }
 }
 
 /**

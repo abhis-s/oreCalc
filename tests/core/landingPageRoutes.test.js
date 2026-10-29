@@ -26,6 +26,9 @@ describe('Landing Page Routes & Multi-Tool Domain Integrity', () => {
         assert.ok(content.includes('id="app-account-popover"'), 'Must contain landing account popover');
         assert.ok(content.includes('id="app-accent-picker"'), 'Must contain accent picker');
         assert.ok(content.includes('class="header-placeholder"'), 'Must contain header placeholder');
+        assert.ok(content.includes('id="main-content"'), 'Must contain main-content ID for universal navigation');
+        assert.ok(content.includes('class="brand-page-pill"'), 'Must contain brand-page-pill tool indicator');
+        assert.ok(content.includes('data-i18n="nav.dock.hub"'), 'Must bind brand-page-pill to nav.dock.hub');
         assert.ok(content.includes('landing-tool-card--damage'), 'Must contain equipment damage calculator card');
         assert.ok(content.includes('id="landing-launch-damage"'), 'Must contain launch damage calculator button');
         assert.ok(content.includes('href="/damage-calculator/"'), 'Must link to damage calculator tool');
@@ -65,5 +68,29 @@ describe('Landing Page Routes & Multi-Tool Domain Integrity', () => {
 
         assert.ok(oreContent.includes('js/app.js'), 'Ore calculator must load app.js');
         assert.ok(hjContent.includes('js/heroJourneyApp.js'), 'Hero journey must load heroJourneyApp.js');
+    });
+
+    test('verifies all primary tool HTML templates define canonical main-content ID', () => {
+        const toolTemplates = [
+            'index.html',
+            'ore-calculator/index.html',
+            'hero-journey/index.html',
+            'damage-calculator/index.html',
+            'account/index.html'
+        ];
+
+        for (const relPath of toolTemplates) {
+            const fullPath = path.join(projectRoot, relPath);
+            assert.equal(fs.existsSync(fullPath), true, `${relPath} must exist in source tree`);
+            const html = fs.readFileSync(fullPath, 'utf8');
+            assert.ok(
+                html.includes('id="main-content"'),
+                `${relPath} must define id="main-content" on its <main> element`
+            );
+            assert.ok(
+                html.includes('id="tool-extras"'),
+                `${relPath} must define id="tool-extras" container for modular view swapping`
+            );
+        }
     });
 });

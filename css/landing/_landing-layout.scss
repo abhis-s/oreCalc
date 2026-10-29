@@ -10,14 +10,13 @@
 
 .landing-header {
     @include app-header-shell;
-    padding: 0 $spacing-xl;
 
     &__inner {
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: $spacing-lg;
+        gap: $spacing-md;
 
         @media (max-width: $breakpoint-phone) {
             gap: $spacing-sm;
@@ -29,14 +28,6 @@
         align-items: center;
         gap: $spacing-xs;
     }
-
-    @media (max-width: $breakpoint-desktop) {
-        padding: 0 $spacing-md;
-    }
-
-    @media (max-width: $breakpoint-compact) {
-        padding: 0 $spacing-sm;
-    }
 }
 
 .header-placeholder {
@@ -46,6 +37,7 @@
 .landing-brand {
     display: inline-flex;
     align-items: center;
+    min-height: 40px;
     gap: $spacing-xs;
     text-decoration: none;
     color: $text-primary;
@@ -56,12 +48,12 @@
     }
 
     &__name {
-        font-size: 20px;
+        font-size: $font-size-2xl;
         font-weight: $font-weight-extrabold;
         letter-spacing: -0.5px;
 
-        @media (max-width: $breakpoint-modal) {
-            font-size: 18px;
+        @media (max-width: $breakpoint-phone) {
+            font-size: $font-size-xl;
         }
 
         @include brand-gradient-split;

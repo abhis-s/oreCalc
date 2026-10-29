@@ -140,28 +140,6 @@
         &:focus-visible {
             outline-offset: -2px !important;
         }
-
-        .section-header-chevron {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform $duration-base $ease-standard;
-
-            svg {
-                fill: currentColor;
-                width: 12px;
-                height: 12px;
-                display: block;
-            }
-        }
-
-        &[aria-expanded="false"] .section-header-chevron {
-            transform: rotate(-90deg);
-        }
-
-        &[aria-expanded="true"] .section-header-chevron {
-            transform: rotate(0deg);
-        }
     }
 }
 
@@ -345,8 +323,7 @@
 }
 
 .remove-player-button,
-.delete-player-button,
-.dismiss-recent-button {
+.delete-player-button {
     @extend %flex-center;
     flex-shrink: 0;
     width: 24px;

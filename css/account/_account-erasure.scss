@@ -1,0 +1,129 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.account-erasure-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+}
+
+.account-erasure-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+    padding-top: $spacing-md;
+    border-top: 1px solid $border-secondary;
+
+    &:first-child {
+        border-top: none;
+        padding-top: 0;
+    }
+
+    @media (max-width: $breakpoint-phone) {
+        flex-direction: column;
+        align-items: flex-start;
+
+        button {
+            width: 100%;
+        }
+    }
+}
+
+.account-erasure-info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    flex: 1;
+    min-width: 0;
+}
+
+.account-erasure-label {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin: 0;
+}
+
+.account-erasure-desc {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.account-erasure-row--delete {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-md;
+}
+
+.account-erasure-row__main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+
+    @media (max-width: $breakpoint-phone) {
+        flex-direction: column;
+        align-items: flex-start;
+
+        button {
+            width: 100%;
+        }
+    }
+}
+
+.account-delete-stepup {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding: $spacing-md;
+    background-color: color-mix(in srgb, $color-danger 8%, $bg-surface-secondary);
+    border: 1px solid color-mix(in srgb, $color-danger 30%, $border-card);
+    border-radius: $shape-corner-medium;
+
+    &[hidden] {
+        display: none;
+    }
+
+    &__desc {
+        font-size: $font-size-sm;
+        color: $color-danger;
+        margin: 0;
+        font-weight: $font-weight-medium;
+    }
+
+    &__controls {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+
+        @media (max-width: $breakpoint-phone) {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+
+        @media (max-width: $breakpoint-phone) {
+            width: 100%;
+
+            button {
+                flex: 1;
+            }
+        }
+    }
+}
+
+.account-delete-input {
+    flex: 1;
+
+    @media (max-width: $breakpoint-phone) {
+        width: 100%;
+    }
+}

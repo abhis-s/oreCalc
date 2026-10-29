@@ -153,6 +153,7 @@ registerRoute(
         !url.pathname.includes('/api/') &&
         !url.pathname.includes('/hero-journey') &&
         !url.pathname.includes('/damage-calculator') &&
+        !url.pathname.includes('/account') &&
         !url.pathname.includes('/privacy') &&
         !url.pathname.includes('/terms') &&
         !url.pathname.includes('/licenses') &&

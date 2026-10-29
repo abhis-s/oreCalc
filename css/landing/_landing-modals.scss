@@ -1,242 +1,181 @@
-@use '../abstracts/mixins' as *;
-
-dialog.landing-modal {
-    border: none;
-    padding: $spacing-md;
-    background: transparent;
-    color: inherit;
-    max-width: none;
-    max-height: none;
-    overflow: visible;
-    margin: auto;
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    z-index: $z-index-modal;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    -webkit-user-select: none;
-
-    &[open],
-    &.show {
-        display: flex;
-
-        .modal-content {
-            transform: translate3d(0, 0, 0) scale(1);
-            opacity: 1;
-        }
-    }
-
-    &::backdrop {
-        background-color: $bg-overlay;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-    }
-
-    &.closing {
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity $duration-exit $ease-exit;
-
-        .modal-content {
-            transform: translate3d(0, 48px, 0) scale(0.95);
-            transition: transform $duration-exit $ease-exit;
-        }
-    }
-}
+@use '../abstracts/variables' as *;
+@use '../abstracts/palette' as *;
 
 .landing-modal-content {
-    position: relative;
-    width: 100%;
     max-width: $modal-width-standard;
-    background-color: $bg-surface-secondary;
-    border: 1px solid $border-primary;
     border-radius: $modal-radius-standard;
-    box-shadow: $elevation-4;
-    padding: $spacing-xl;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-lg;
     overflow: hidden;
-    transform: translate3d(0, 30px, 0) scale(0.96);
-    transition: transform $duration-base $ease-enter, opacity $duration-base $ease-enter;
 
     @media (max-width: $breakpoint-phone) {
-        padding: $spacing-lg $spacing-md;
         border-radius: $modal-radius-workspace;
-    }
-}
-
-.landing-modal-close {
-    position: absolute;
-    top: $spacing-md;
-    right: $spacing-md;
-    width: 36px;
-    height: 36px;
-    border-radius: $shape-corner-medium;
-    border: 1px solid $border-primary;
-    background-color: $bg-surface-secondary;
-    color: $text-secondary;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 0;
-    box-sizing: border-box;
-    transition: background-color $duration-fast $ease-smooth,
-                border-color $duration-fast $ease-smooth,
-                color $duration-fast $ease-smooth,
-                transform $duration-fast $ease-smooth;
-
-    clashcalc-assets-svg,
-    orecalc-assets-svg {
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    &:hover,
-    &:focus-visible {
-        background-color: $bg-surface-tertiary;
-        border-color: $accent-primary;
-        color: $text-primary;
-        transform: scale(1.08) rotate(90deg);
-        outline: none;
-    }
-
-    &:active {
-        transform: scale(0.94);
     }
 }
 
 .landing-modal-header {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    gap: $spacing-xs;
-
-    .landing-modal-th {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 64px;
-        height: 64px;
-        flex-shrink: 0;
-        margin-bottom: $spacing-2xs;
-
-        .th-badge-img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            max-width: 64px;
-            max-height: 64px;
-            object-fit: contain;
-            filter: drop-shadow(0 3px 6px $shadow-overlay-dark);
-
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                display: block;
-            }
-        }
-
-        .th-badge-level-overlay {
-            position: absolute;
-            bottom: -3px;
-            right: -3px;
-            background-color: $accent-primary;
-            color: $text-on-accent;
-            font-size: $font-size-2xs;
-            font-weight: $font-weight-extrabold;
-            padding: $spacing-2xs 6px;
-            border-radius: $shape-corner-small;
-            border: 1.5px solid $border-primary;
-            box-shadow: $elevation-1;
-        }
-    }
+    justify-content: space-between;
+    padding: $spacing-xl $spacing-xl $spacing-md;
+    border-bottom: 1px solid $border-primary;
 }
 
 .landing-modal-title {
     margin: 0;
-    font-size: $font-size-xl;
-    font-weight: $font-weight-extrabold;
+    font-size: clamp(1.1rem, 2.5vw, 1.25rem);
+    font-weight: $font-weight-bold;
     color: $text-primary;
     letter-spacing: 0.01em;
+    line-height: 1.3;
 }
 
-.landing-modal-identity {
+.landing-modal-body {
+    padding: $spacing-lg $spacing-xl;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}
+
+.landing-launch-village-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-card;
+    border-radius: $card-radius;
+    box-shadow: $elevation-1;
+}
+
+.landing-modal-th {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: $spacing-xs;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
 
-    .landing-launch-name {
-        font-size: $font-size-md;
-        font-weight: $font-weight-bold;
-        color: $text-primary;
+    .th-badge-img {
+        width: 44px;
+        height: 44px;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
     }
 
-    .landing-launch-tag {
-        font-size: $font-size-xs;
-        font-weight: $font-weight-medium;
-        color: $text-secondary;
-        letter-spacing: 0.05em;
+    .th-badge-level-overlay {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        border: 1.5px solid $border-primary;
+        border-radius: $shape-corner-xs;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-extrabold;
+        line-height: 1;
+        min-width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1px 3px;
+        box-shadow: $elevation-1;
     }
+}
+
+.landing-launch-village-info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+    min-width: 0;
+    flex: 1;
+}
+
+.landing-launch-name {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-sm;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.landing-launch-tag {
+    font-family: monospace;
+    font-size: $font-size-2xs;
+    color: $text-muted;
+    line-height: 1.2;
 }
 
 .landing-modal-prompt {
     margin: 0;
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
     color: $text-secondary;
     line-height: 1.4;
 }
 
 .landing-modal-tools {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: $spacing-md;
-
-    @media (min-width: $breakpoint-compact) {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
 }
 
 .landing-modal-tool-card {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    text-align: center;
-    gap: $spacing-sm;
-    height: 100%;
-    padding: $spacing-lg $spacing-md;
+    padding: $spacing-md;
+    gap: $spacing-md;
     border-radius: $card-radius;
     background-color: $bg-surface-primary;
     border: 1px solid $border-card;
-    box-shadow: $elevation-1;
+    position: relative;
+    overflow: hidden;
     text-decoration: none;
-    box-sizing: border-box;
-    transition: border-color $duration-fast $ease-smooth,
-                box-shadow $duration-fast $ease-smooth,
-                transform $duration-fast $ease-smooth,
-                background-color $duration-fast $ease-smooth;
+    box-shadow: $elevation-1;
+    transition: transform $duration-fast $ease-smooth,
+                border-color $duration-fast $ease-smooth,
+                background-color $duration-fast $ease-smooth,
+                box-shadow $duration-fast $ease-smooth;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        opacity: 0.85;
+        transition: opacity $duration-fast $ease-smooth, height $duration-fast $ease-smooth;
+    }
+
+    &--ore::before {
+        background: linear-gradient(90deg, $shiny-ore 0%, $glowy-ore 50%, $starry-ore 100%);
+    }
+
+    &--hj::before {
+        background: linear-gradient(90deg, $hero-bk 0%, $hero-gw 50%, $hero-rc 100%);
+    }
+
+    &--damage::before {
+        background: linear-gradient(90deg, $damage-arrow 0%, $damage-overload 28%, $damage-zap 65%, $damage-quake 100%);
+    }
 
     &:hover {
         border-color: $accent-primary;
-        box-shadow: $elevation-card-hover;
-        transform: translateY(-2px);
+        background-color: color-mix(in srgb, $accent-primary 8%, $bg-surface-primary);
 
         .tool-card-action {
-            background-color: $btn-hover-blue-bg;
-            border-color: $btn-border-blue-hover;
+            background-color: $accent-primary;
+            border-color: $accent-primary;
+            color: $text-on-accent;
         }
     }
 
@@ -246,74 +185,89 @@ dialog.landing-modal {
     }
 
     .tool-card-icon-cluster {
+        height: 38px;
+        flex-shrink: 0;
         display: inline-flex;
         align-items: center;
-        gap: $spacing-xs;
-        height: 32px;
-        flex-shrink: 0;
+        background-color: $bg-surface-secondary;
+        padding: $spacing-2xs $spacing-xs;
+        border-radius: $shape-corner-small;
+        border: 1px solid $border-primary;
+    }
+
+    .landing-tool-icon {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        pointer-events: none;
+        transform: none !important;
+        transition: none !important;
+
+        &:not(:first-child) {
+            margin-left: -6px;
+        }
     }
 
     .tool-card-info {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        gap: $spacing-2xs;
         flex: 1;
-        width: 100%;
-        gap: $spacing-xs;
+        min-width: 0;
+        text-align: left;
     }
 
     .tool-card-title {
-        margin: 0;
-        font-size: $font-size-xs;
+        font-size: $font-size-sm;
         font-weight: $font-weight-bold;
         color: $text-primary;
+        line-height: 1.25;
+        margin: 0;
+    }
+
+    .tool-card-desc {
+        font-size: $font-size-2xs;
+        color: $text-secondary;
         line-height: 1.3;
-        min-height: 2.6em;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .tool-card-action {
-        width: 100%;
-        height: 32px;
-        margin-top: auto;
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
-        font-size: $font-size-2xs;
-        font-weight: $font-weight-semibold;
-        border-radius: $shape-corner-small;
-        box-sizing: border-box;
-        pointer-events: none;
+        width: 32px;
+        height: 32px;
+        border-radius: $shape-corner-full;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        color: $text-secondary;
+        flex-shrink: 0;
         transition: background-color $duration-fast $ease-smooth,
-                    border-color $duration-fast $ease-smooth;
+                    border-color $duration-fast $ease-smooth,
+                    color $duration-fast $ease-smooth;
+
+        clashcalc-assets-svg,
+        orecalc-assets-svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-90deg);
+
+            svg {
+                transform: none;
+            }
+        }
     }
 }
 
 .landing-modal-actions {
-    display: flex;
-    justify-content: center;
-    margin-top: $spacing-2xs;
-}
-
-.landing-modal-stay-btn {
-    min-height: 32px;
-    padding: $spacing-xs $spacing-lg;
-    border-radius: $shape-corner-medium;
-    font-size: $font-size-xs;
-    font-weight: $font-weight-medium;
-    color: $text-secondary;
-    background-color: $bg-surface-tertiary;
-    border: 1px solid $border-primary;
-    cursor: pointer;
-    transition: background-color $duration-fast $ease-smooth,
-                color $duration-fast $ease-smooth,
-                border-color $duration-fast $ease-smooth;
-
-    &:hover {
-        background-color: $btn-bg-grey-soft-hover;
-        color: $text-primary;
-        border-color: $border-secondary;
-    }
+    border-top: 1px solid $border-primary;
 }

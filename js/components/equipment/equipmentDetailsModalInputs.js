@@ -3,7 +3,7 @@ import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
-import { saveState } from '../../core/localStorageManager.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { computeEffectiveLevels, getDefaultModifierKey, resolveModifierRecommendation } from '../../domain/equipment/modifierCalculator.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
@@ -443,11 +443,12 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             const prevUnitMap = getCurrentUnitStatsStateMap(data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab);
             activeModifierTab = newKey;
             setModalSessionState({ activeModifierTab: newKey });
-            if (!state.uiSettings) {
-                state.uiSettings = {};
-            }
-            state.uiSettings.leagueModifier = newKey;
-            saveState(state);
+            handleStateUpdate(() => {
+                if (!state.uiSettings) {
+                    state.uiSettings = {};
+                }
+                state.uiSettings.leagueModifier = newKey;
+            }, true, { preferencesOnly: true });
             if (modifierTabsContainer) {
                 modifierTabsContainer.querySelectorAll('.mod-tab-btn').forEach(b => b.classList.toggle('active', /** @type {HTMLElement} */ (b).dataset.modKey === activeModifierTab));
                 const activeBtn = modifierTabsContainer.querySelector(`.mod-tab-btn[data-mod-key="${activeModifierTab}"]`);

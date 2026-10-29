@@ -22,7 +22,7 @@ export function createSpotrightDialog() {
     const escLabel = (rawEsc && rawEsc !== 'views.shortcuts.keys.keyboardEsc') ? rawEsc : 'ESC';
 
     dialog.innerHTML = `
-        <div class="spotright-card" id="spotright-card">
+        <div class="spotright-card" id="modal-spotright-card">
             <div class="spotright-search-bar">
                 <clashcalc-assets-svg name="search" class="spotright-search-icon"></clashcalc-assets-svg>
                 <div class="spotright-input-container">
@@ -112,7 +112,7 @@ export function highlightMatch(text, query) {
 
     const lowerText = text.toLowerCase();
 
-    // 1. Try full exact query match first
+    // Exact query match takes precedence
     const exactIdx = lowerText.indexOf(cleanQuery);
     if (exactIdx !== -1) {
         return (
@@ -122,7 +122,7 @@ export function highlightMatch(text, query) {
         );
     }
 
-    // 2. Multi-token match: highlight individual whitespace-separated tokens (>= 2 chars)
+    // Multi-token match: highlight individual whitespace-separated tokens (>= 2 chars)
     const tokens = cleanQuery.split(/\s+/).filter(t => t.length >= 2);
     if (tokens.length === 0) return escapeHTML(text);
 
@@ -344,7 +344,7 @@ export function renderSpotrightResults(container, matches, selectedIndex, curren
  */
 export function triggerCardShake(dialog) {
     if (!dialog) return;
-    const card = dialog.querySelector('#spotright-card');
+    const card = dialog.querySelector('#modal-spotright-card');
     if (!card) return;
 
     card.classList.remove('shake');

@@ -1,11 +1,11 @@
         <div class="tab-content" id="planner-tab">
             <div class="planner-cards-grid">
-                <div id="planner-max-levels-card" class="planner-card card full-width-card">
+                <div id="orecalc-planner-max-levels-card" class="planner-card card full-width-card">
                     <div class="max-level-card-header">
                         <!-- DYNAMIC INSERTION: Custom max level controls -->
                     </div>
                 </div>
-                <div id="planner-hero-carousel-card" class="planner-card card planner-hero-carousel">
+                <div id="orecalc-planner-hero-carousel-card" class="planner-card card planner-hero-carousel">
                     <div class="carousel-content" id="planner-hero-carousel-content">
                         <!-- DYNAMIC INSERTION: Hero carousel pages -->
                     </div>
@@ -13,10 +13,10 @@
                         <!-- DYNAMIC INSERTION: Carousel pagination dots -->
                     </div>
                 </div>
-                <div class="planner-card card" id="priority-list-card">
+                <div id="orecalc-planner-priority-list-card" class="planner-card card">
                     <!-- DYNAMIC INSERTION: Upgrade priority list items -->
                 </div>
-                <div id="planner-calendar-card" class="full-width-planner-section card">
+                <div id="orecalc-planner-calendar-card" class="full-width-planner-section card">
                     <h2 class="calendar-planner-title">
                         <span data-i18n="views.planner.calendarTitle"></span>
                         <button type="button" class="info-btn" data-info="views.planner.calendarHelp" data-i18n-aria-label="actions.showInfo">
@@ -26,7 +26,7 @@
                     <div class="inner-card">
                         <div class="calendar-header">
                             <div class="calendar-nav">
-                                <h2 id="current-month-year"></h2>
+                                <h2 id="current-month-year" class="current-month-year"></h2>
                             </div>
 
                             <div class="calendar-action-buttons">
@@ -52,7 +52,7 @@
                             <!-- DYNAMIC INSERTION: Calendar month chip items -->
                         </div>
                     </div>
-                    <div class="inner-card" id="income-chips-card">
+                    <div class="inner-card" id="orecalc-planner-income-chips-card">
                         <div class="income-chips-header">
                             <h3 class="income-chips-title">
                                 <span class="full-title" data-i18n="views.income.chipsTitle"></span>

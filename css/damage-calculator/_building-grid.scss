@@ -37,7 +37,7 @@
     border: 1px solid $border-primary;
     border-radius: $shape-corner-small;
     cursor: pointer;
-    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast, box-shadow $transition-fast;
+    transition: border-color $transition-fast, background-color $transition-fast, box-shadow $transition-fast;
     position: relative;
     min-width: 0;
     box-sizing: border-box;
@@ -49,7 +49,6 @@
     &:hover {
         background-color: $bg-surface-tertiary;
         border-color: $border-accent;
-        transform: translateY(-1px);
     }
 
     &.is-selected {

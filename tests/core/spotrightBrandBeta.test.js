@@ -48,7 +48,7 @@ describe('Spotright Brand & Beta Indicator Suite', () => {
         assert.match(html, /class="spotright-footer-beta-chip"[^>]*data-i18n="views\.spotright\.beta"/, 'Beta chip must bind to views.spotright.beta');
         assert.match(html, /data-i18n-title="views\.spotright\.betaTooltip"/, 'Brand lockup must bind to views.spotright.betaTooltip');
 
-        // Rule 3: Zero prohibited dingbats or emojis
+        // Zero prohibited dingbats or emojis
         const prohibitedPattern = /[\u2190-\u21FF\u2500-\u257F\u25A0-\u25FF\u2600-\u26FF\u2700-\u27BF\u2022]/u;
         assert.equal(prohibitedPattern.test(html), false, 'Spotright dialog markup must contain zero prohibited dingbats');
     });

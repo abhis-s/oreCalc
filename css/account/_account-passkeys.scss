@@ -1,0 +1,157 @@
+@use '../abstracts/variables' as *;
+
+.account-item-row--block {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-md;
+}
+
+.account-item-row__header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+
+    @media (max-width: $breakpoint-phone) {
+        flex-wrap: wrap;
+
+        .account-item-info {
+            flex: 1 1 calc(100% - 40px - #{$spacing-md});
+        }
+
+        .account-item-actions {
+            width: 100%;
+
+            button {
+                width: 100%;
+            }
+        }
+    }
+}
+
+.account-passkeys-hub {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    border-top: 1px solid $border-secondary;
+    padding-top: $spacing-md;
+}
+
+.account-passkeys-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    &:empty {
+        display: none;
+    }
+}
+
+.account-passkey-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-secondary;
+    border-radius: $shape-corner-medium;
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2xs;
+        min-width: 0;
+    }
+
+    &__name {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__date {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+    }
+
+    &__delete-btn {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: $shape-corner-medium;
+        background: transparent;
+        border: none;
+        color: $text-secondary;
+        cursor: pointer;
+        padding: 0;
+        transition: color $transition-fast, background-color $transition-fast;
+
+        clashcalc-assets-svg,
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover {
+            color: $color-danger;
+            background-color: color-mix(in srgb, $color-danger 12%, transparent);
+        }
+    }
+}
+
+.account-passkeys-empty {
+    padding: $spacing-md;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    background-color: $bg-surface-primary;
+    border: 1px dashed $border-secondary;
+    border-radius: $shape-corner-medium;
+
+    &.is-hidden {
+        display: none;
+    }
+}
+
+.account-add-passkey-form {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (max-width: $breakpoint-phone) {
+        flex-direction: column;
+        align-items: stretch;
+
+        button {
+            width: 100%;
+        }
+    }
+}
+
+.account-add-passkey-input-wrap {
+    flex: 1;
+}
+
+.account-passkey-input {
+    width: 100%;
+    height: 40px;
+    min-height: 40px;
+    padding: 0 $spacing-sm;
+    font-size: $font-size-sm;
+    color: $text-primary;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-secondary;
+    border-radius: $shape-corner-medium;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color $transition-fast;
+
+    &:focus {
+        border-color: $accent-primary;
+    }
+}

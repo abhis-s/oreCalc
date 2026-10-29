@@ -3,6 +3,7 @@ import { translate } from '../../i18n/translator.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 import { sanitizeHTML } from '../../ui/noticeModal.js';
+import { enhanceClipboardInput, triggerAutoPaste } from '../common/clipboardInputController.js';
 
 let errorTimeout;
 let isForcedVerification = false;
@@ -105,13 +106,21 @@ export function renderPlayerModal(isVisible, currentTag, message, isError, error
         tokenInput
     } = getPlayerModalElements();
 
-    if (!modal || !playerTagInput || !errorMessageElement || !loadButton) {
+    if (!modal) {
+        return;
+    }
+
+    if (!playerTagInput || !errorMessageElement || !loadButton) {
         console.error('Modal DOM elements not found for rendering.');
         return;
     }
 
     if (isVisible) {
         openModal(modal);
+        enhanceClipboardInput(playerTagInput);
+        if (!currentTag) {
+            void triggerAutoPaste(playerTagInput);
+        }
         playerTagInput.focus();
     } else {
         if (modal.classList.contains('show') || modal.open) {

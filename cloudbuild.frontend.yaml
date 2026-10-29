@@ -1,11 +1,19 @@
 steps:
 - name: 'node:22-slim'
-  entrypoint: 'npx'
-  args: ['pnpm', 'install', '--frozen-lockfile']
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    corepack enable && corepack prepare pnpm@11.3.0 --activate
+    pnpm install --frozen-lockfile
 
 - name: 'node:22-slim'
-  entrypoint: 'npx'
-  args: ['pnpm', 'run', 'build']
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    corepack enable && corepack prepare pnpm@11.3.0 --activate
+    pnpm run build
   env:
   - 'VERBOSE=true'
   - 'TAG_NAME=$TAG_NAME'

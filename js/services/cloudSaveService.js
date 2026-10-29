@@ -72,6 +72,11 @@ export async function initializeAppData() {
     } catch (error) {
         logger.error('Failed to load data from cloud, falling back to local storage:', error);
         if (error.message === 'apiErrors.deletedUser') {
+            const currentActiveId = getActiveUserId(false);
+            if (currentActiveId && currentActiveId !== userId) {
+                logger.warn('Ignoring stale 410 deletedUser for previous session userId.');
+                return null;
+            }
             await showAlert(translate('apiErrors.deletedUser'));
             if (window.resetApplication) {
                 window.resetApplication();
@@ -79,7 +84,7 @@ export async function initializeAppData() {
                 localStorage.clear();
                 location.reload();
             }
-            return;
+            return null;
         }
         if (error.message === 'apiErrors.unauthorizedAccess') {
             if (!isAuthenticated()) {
@@ -304,6 +309,12 @@ export function cancelPreferencesSaveTimer() {
     }
 }
 
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('auth:state-change', () => {
+        cancelPreferencesSaveTimer();
+    });
+}
+
 /**
  * Pushes decoupled user preferences to cloud without serializing or pushing player data.
  * Respects strict invariant: non-signed in users with only DEFAULT0 never touch the network.
@@ -452,6 +463,11 @@ export async function triggerCloudSave(options = {}) {
         } catch (error) {
             logger.error('Failed to save data to cloud:', error);
             if (error.message === 'apiErrors.deletedUser') {
+                const currentActiveId = getActiveUserId(false);
+                if (currentActiveId && currentActiveId !== currentUserId) {
+                    logger.warn('Ignoring stale 410 deletedUser for previous session userId.');
+                    return false;
+                }
                 await showAlert(translate('apiErrors.deletedUser'));
                 if (window.resetApplication) {
                     window.resetApplication();

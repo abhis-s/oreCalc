@@ -14,6 +14,7 @@ import {
 } from '../../core/storageKeys.js';
 import { saveSinglePlayerData } from '../../services/apiService.js';
 import { getPlayerTagFromUrl, syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
+import { getMaxTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
 
 /**
  * @typedef {Object} StandaloneHJState
@@ -40,7 +41,7 @@ export const hjState = {
     activeTag: '',
     playerData: null,
     cumulativeLevel: 0,
-    thLevel: 18,
+    thLevel: getMaxTownHallLevel(),
     unclaimedOnly: false,
     typeFilter: 'all',
     searchQuery: '',

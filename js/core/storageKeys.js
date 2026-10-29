@@ -5,6 +5,7 @@
 
 import { STORAGE_KEY_MAP } from './constants.js';
 import { generateUUID } from '../utils/uuidGenerator.js';
+import { safeJsonParse } from '../utils/jsonUtils.js';
 
 export const APP_SETTINGS_KEY = 'oreCalc_appSettings';
 export const CANONICAL_APP_SETTINGS_KEY = 'clashCalc_appSettings';
@@ -14,6 +15,7 @@ export const PLAYER_PREFIX = 'oreCalc_player_';
 export const CANONICAL_PLAYER_PREFIX = 'clashCalc_player_';
 
 export const SPOTRIGHT_RECENTS_KEY = 'clashCalc_spotrightRecentSearches';
+export const CANONICAL_HAS_PASSWORD_KEY = 'clashCalc_hasPassword';
 
 export const ALLOWED_STATIC_STORAGE_KEYS = Object.freeze(new Set([
     'clashCalc_appSettings',
@@ -25,6 +27,7 @@ export const ALLOWED_STATIC_STORAGE_KEYS = Object.freeze(new Set([
     'clashCalc_authToken',
     'clashCalc_username',
     'clashCalc_avatar',
+    'clashCalc_hasPassword',
     'clashCalc_damageCalcState',
     'clashCalc_spotrightRecentSearches',
     'oreCalc_appSettings',
@@ -111,14 +114,44 @@ export function getStorageItem(canonicalKey, legacyKey) {
 }
 
 /**
+ * Resolves the authenticated user ID from the active auth token payload if present.
+ * @returns {string|null} Authenticated user ID or null.
+ */
+function getAuthTokenUserId() {
+    if (typeof localStorage === 'undefined') return null;
+    try {
+        const token = localStorage.getItem('clashCalc_authToken');
+        if (!token) return null;
+        const parts = token.split('.');
+        if (parts.length !== 3) return null;
+        const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const json = atob(payloadBase64);
+        const data = safeJsonParse(json, null);
+        return data && typeof data.userId === 'string' ? data.userId : null;
+    } catch (_) {
+        return null;
+    }
+}
+
+/**
  * Resolves active user ID from canonical or legacy localStorage keys.
  * If generateIfMissing is true and no ID exists in storage, generates and persists a new UUID.
+ * When authenticated, strictly returns the user ID from the active auth token, healing storage drift.
  * @param {boolean} [generateIfMissing=false] - Whether to generate a new UUID if none is found.
  * @returns {string} User ID or empty string.
  */
 export function getActiveUserId(generateIfMissing = false) {
     if (typeof localStorage === 'undefined') return '';
     try {
+        const authUserId = getAuthTokenUserId();
+        if (authUserId) {
+            const currentStored = getStorageItem(STORAGE_KEY_MAP.userId.canonical, STORAGE_KEY_MAP.userId.legacy);
+            if (currentStored !== authUserId) {
+                localStorage.setItem(getActiveUserIdKey(), authUserId);
+            }
+            return authUserId;
+        }
+
         let userId = getStorageItem(STORAGE_KEY_MAP.userId.canonical, STORAGE_KEY_MAP.userId.legacy) || '';
         if (!userId && generateIfMissing) {
             userId = generateUUID();
@@ -132,10 +165,12 @@ export function getActiveUserId(generateIfMissing = false) {
 
 /**
  * Rotates the active user ID to a fresh UUID, disconnecting the device from previous cloud records.
+ * Prevented when an authenticated session is active.
  * @returns {string} New UUID or empty string.
  */
 export function rotateActiveUserId() {
     if (typeof localStorage === 'undefined') return '';
+    if (getAuthTokenUserId()) return getActiveUserId();
     try {
         const newId = generateUUID();
         localStorage.setItem(getActiveUserIdKey(), newId);

@@ -173,13 +173,6 @@
             font-size: 0.925rem;
             color: $text-primary;
             line-height: 1.45;
-            transition: transform $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
-
-            &:hover {
-                transform: translateY(-1px);
-                border-color: rgba($accent-primary, 0.35);
-                box-shadow: 0 4px 12px rgba($accent-primary, 0.08);
-            }
 
             .commit-scope {
                 background: rgba($accent-primary, 0.12);

@@ -1,76 +1,67 @@
 @use '../../abstracts/variables' as *;
 
-[data-transition-type="tab-switch"] {
-    .header-container { view-transition-name: header; }
-    .bottom-nav-bar { view-transition-name: bottom-nav; }
-    .fab-container { view-transition-name: fab; }
-    .floating-save-btn { view-transition-name: floating-save; }
+[data-transition-type="page-switch"] {
+    .app-header {
+        view-transition-name: app-header;
+    }
 
-    .tab-content.active {
-        view-transition-name: tab-content;
+    .app-footer {
+        view-transition-name: app-footer;
+    }
+
+    .navigation-drawer {
+        view-transition-name: none;
+    }
+
+    #main-content {
+        view-transition-name: main-content;
     }
 }
 
-::view-transition-group(header),
-::view-transition-group(bottom-nav),
-::view-transition-group(fab),
-::view-transition-group(floating-save) {
-    z-index: 10;
+::view-transition-group(app-header),
+::view-transition-group(app-footer) {
+    z-index: $z-index-overlay;
     animation-duration: 0s !important;
 }
-::view-transition-group(tab-content) {
-    z-index: 3;
+
+::view-transition-group(main-content) {
+    z-index: $z-index-base;
 }
 
-::view-transition-old(tab-content) {
-    animation: 0.3s ease both slide-out-to-left;
-}
-::view-transition-new(tab-content) {
-    animation: 0.3s ease both slide-in-from-right;
+::view-transition-old(main-content) {
+    animation: $duration-exit $ease-standard both cc-fade-out;
 }
 
-[data-transition-direction="forward"] {
-    &::view-transition-old(tab-content) {
-        animation-name: slide-out-to-left;
-    }
-    &::view-transition-new(tab-content) {
-        animation-name: slide-in-from-right;
-    }
+::view-transition-new(main-content) {
+    animation: $duration-exit $ease-standard both cc-fade-in;
 }
 
-[data-transition-direction="backward"] {
-    &::view-transition-old(tab-content) {
-        animation-name: slide-out-to-right;
+@keyframes cc-fade-out {
+    from {
+        opacity: 1;
     }
-    &::view-transition-new(tab-content) {
-        animation-name: slide-in-from-left;
+    to {
+        opacity: 0;
     }
 }
 
-@supports not (view-transition-name: tab-content) {
-    [data-transition-direction="forward"] .tab-content.active {
-        animation: slide-in-from-right 0.3s ease forwards;
+@keyframes cc-fade-in {
+    from {
+        opacity: 0;
     }
-    [data-transition-direction="backward"] .tab-content.active {
-        animation: slide-in-from-left 0.3s ease forwards;
+    to {
+        opacity: 1;
     }
 }
 
-@keyframes slide-out-to-left {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(-30px); opacity: 0; }
-}
-@keyframes slide-in-from-right {
-    from { transform: translateX(30px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-@keyframes slide-out-to-right {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(30px); opacity: 0; }
-}
-@keyframes slide-in-from-left {
-    from { transform: translateX(-30px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+    [data-transition-type="page-switch"] {
+        ::view-transition-group(*),
+        ::view-transition-old(*),
+        ::view-transition-new(*) {
+            animation: none !important;
+        }
+    }
 }
 
 .tab-button.update-pending {

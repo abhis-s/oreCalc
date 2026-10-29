@@ -1,33 +1,6 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/mixins' as *;
 
-#account-card {
-    scroll-margin-top: calc(96px + env(safe-area-inset-top, 0px));
-
-    @media (max-width: #{$breakpoint-desktop - 1px}) {
-        scroll-margin-top: calc(84px + env(safe-area-inset-top, 0px));
-    }
-}
-
-.account-state-section {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-md;
-}
-
-#account-guest-section {
-    .form-setting-text {
-        font-size: $font-size-xs;
-        line-height: 1.35;
-    }
-}
-
-.guest-only-item {
-    &.is-hidden {
-        display: none !important;
-    }
-}
-
 .account-user-profile-card {
     display: flex;
     flex-wrap: wrap;
@@ -38,21 +11,17 @@
     border: 1px solid $border-primary;
     border-radius: $shape-corner-medium;
 
-    .account-user-profile-actions {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: $spacing-xs;
-        margin-left: auto;
-        flex-shrink: 0;
-    }
-
     .account-user-profile-avatar {
         display: flex;
         align-items: center;
         justify-content: center;
         width: 44px;
+        min-width: 44px;
+        max-width: 44px;
         height: 44px;
+        min-height: 44px;
+        max-height: 44px;
+        flex: 0 0 44px;
         border-radius: $shape-corner-full;
         border: 1px solid $border-secondary;
         background-color: $bg-surface-tertiary;
@@ -65,6 +34,18 @@
         &:hover {
             transform: scale(1.06);
             border-color: $border-card-hover;
+        }
+
+        &.is-static,
+        &.is-disabled {
+            pointer-events: none;
+            cursor: default;
+
+            &:hover {
+                transform: none;
+                border-color: $border-secondary;
+                box-shadow: none;
+            }
         }
 
         &:focus-visible {
@@ -103,11 +84,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-
-    .account-user-profile-status {
-        font-size: $font-size-xs;
-        color: $text-secondary;
     }
 }
 
@@ -238,114 +214,6 @@
     }
 }
 
-.account-backup-actions {
-    display: flex;
-    align-items: center;
-    gap: $spacing-xs;
-    width: 100%;
-
-    .animated-btn {
-        flex: 1;
-        justify-content: center;
-    }
-}
-
-.guest-only-tier,
-.auth-only-tier {
-    &.is-hidden {
-        display: none !important;
-    }
-}
-
-.account-data-modal-content,
-.account-management-modal-content {
-    max-width: $modal-width-standard;
-
-    .sync-account-callout {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: $spacing-md;
-        padding: $spacing-md;
-        margin-bottom: $spacing-md;
-        border-radius: $card-radius;
-        background-color: $bg-surface-tertiary;
-        border: 1px solid $border-primary;
-
-        &.is-hidden {
-            display: none !important;
-        }
-
-        .sync-account-callout-content {
-            display: flex;
-            align-items: center;
-            gap: $spacing-sm;
-            font-size: $font-size-sm;
-            color: $text-secondary;
-            line-height: 1.4;
-
-            .sync-account-icon {
-                width: 20px;
-                height: 20px;
-                flex-shrink: 0;
-                fill: $accent-primary;
-            }
-        }
-
-        #modal-guest-signin-btn {
-            margin: 0;
-            min-height: 0;
-            height: 34px;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
-        @media (max-width: $breakpoint-compact) {
-            flex-direction: column;
-            align-items: stretch;
-
-            #modal-guest-signin-btn {
-                width: 100%;
-            }
-        }
-    }
-
-    .account-lifecycle-options {
-        display: flex;
-        flex-direction: column;
-        gap: $spacing-md;
-    }
-
-    .lifecycle-tier-item {
-        display: flex;
-        flex-direction: column;
-        gap: $spacing-md;
-        padding: $spacing-md;
-        background-color: $bg-surface-secondary;
-        border: 1px solid $border-primary;
-        border-radius: $shape-corner-medium;
-
-        .lifecycle-tier-info {
-            strong {
-                font-size: $font-size-sm;
-                color: $text-primary;
-            }
-
-            p {
-                margin-top: $spacing-xs;
-                font-size: $font-size-xs;
-                color: $text-secondary;
-                line-height: 1.35;
-            }
-        }
-
-        &.lifecycle-danger-zone {
-            border-color: color-mix(in srgb, $color-danger 30%, transparent);
-            background-color: color-mix(in srgb, $color-danger 5%, transparent);
-        }
-    }
-}
-
 .app-account-popover {
     gap: $spacing-sm;
 
@@ -392,66 +260,75 @@
         }
     }
 
-    .account-popover-subactions {
+    .account-popover-menu {
         display: flex;
         flex-direction: column;
-        gap: $spacing-md;
-        padding: $spacing-md;
-        background-color: color-mix(in srgb, $bg-surface-primary 40%, transparent);
-        border: 1px solid $border-primary;
-        border-radius: $shape-corner-medium;
-
-        .account-popover-item {
-            background-color: transparent;
-            border: none;
-            padding: $spacing-2xs 0;
-            border-radius: 0;
-
-            &:not(:last-child) {
-                padding-bottom: $spacing-md;
-                border-bottom: 1px solid $border-secondary;
-            }
-        }
+        gap: $spacing-xs;
     }
 
-    .account-popover-item {
+    .account-popover-nav-item {
         display: flex;
         align-items: center;
-        justify-content: space-between;
         gap: $spacing-sm;
+        width: 100%;
         padding: $spacing-sm $spacing-md;
+        border-radius: $shape-corner-medium;
         background-color: $bg-surface-secondary;
         border: 1px solid $border-primary;
-        border-radius: $shape-corner-medium;
+        color: $text-primary;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color $transition-fast, border-color $transition-fast, color $transition-fast;
 
-        .field-descriptor-group {
-            display: flex;
-            flex-direction: column;
-            gap: $spacing-2xs;
-            flex: 1;
-            min-width: 0;
-
-            .settings-item-label {
-                font-size: $font-size-xs;
-                font-weight: $font-weight-bold;
-                color: $text-primary;
-            }
-
-            .form-setting-text {
-                font-size: 11px;
-                color: $text-secondary;
-                margin: 0;
-                line-height: 1.3;
-            }
+        &:hover {
+            background-color: $bg-surface-tertiary;
+            border-color: $border-card-hover;
         }
 
-        .task-btn {
-            height: 32px;
-            min-height: 32px;
-            padding: 0 $spacing-md;
-            border-radius: $shape-corner-full;
+        &:focus-visible {
+            outline: 2px solid $outline-focus;
+            outline-offset: 2px;
+        }
+
+        .account-popover-nav-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            color: $text-secondary;
             flex-shrink: 0;
-            font-size: $font-size-xs;
+        }
+
+        .account-popover-nav-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .account-popover-nav-arrow {
+            color: $text-muted;
+            transform: rotate(-90deg);
+            flex-shrink: 0;
+            transition: color $transition-fast;
+        }
+
+        &:hover .account-popover-nav-arrow {
+            color: $text-primary;
+        }
+
+        &--danger {
+            color: $color-danger;
+
+            .account-popover-nav-icon {
+                color: $color-danger;
+            }
+
+            &:hover {
+                background-color: color-mix(in srgb, $color-danger 12%, transparent);
+                border-color: color-mix(in srgb, $color-danger 40%, transparent);
+            }
         }
     }
 
@@ -482,6 +359,14 @@
             border-radius: $shape-corner-full;
             background-color: color-mix(in srgb, $accent-primary 15%, transparent);
             flex-shrink: 0;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color $transition-fast, transform $transition-fast;
+
+            &:hover,
+            &:focus-visible {
+                background-color: color-mix(in srgb, $accent-primary 25%, transparent);
+            }
 
             .account-popover-guest-icon {
                 width: 18px;
@@ -526,11 +411,18 @@
         border-top: 1px solid $border-secondary;
     }
 
+    .account-popover-panels {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    .account-popover-panel,
     .account-popover-preferences {
         display: flex;
         flex-direction: column;
 
-        .account-popover-prefs-summary {
+        .account-popover-panel-summary {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -539,7 +431,9 @@
             box-sizing: border-box;
             cursor: pointer;
             user-select: none;
-            list-style: none;
+            background: transparent;
+            border: none;
+            width: 100%;
             border-radius: $shape-corner-small;
             transition: background-color $transition-fast;
 
@@ -577,12 +471,53 @@
             }
         }
 
+        .account-popover-panel-body {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows $duration-base $ease-standard;
+
+            .account-popover-panel-inner {
+                min-height: 0;
+                overflow: hidden;
+                visibility: hidden;
+                opacity: 0;
+                padding-top: 0;
+                transition: visibility $duration-fast, opacity $duration-fast $ease-standard, padding-top $duration-base $ease-standard;
+            }
+        }
+
+        &.is-expanded,
         &[open] {
-            .account-popover-prefs-summary {
+            .account-popover-panel-summary {
                 .account-popover-prefs-chevron {
                     transform: rotate(180deg);
                 }
             }
+
+            .account-popover-panel-body {
+                grid-template-rows: 1fr;
+
+                .account-popover-panel-inner {
+                    visibility: visible;
+                    opacity: 1;
+                    padding-top: $spacing-sm;
+                }
+            }
         }
+    }
+}
+
+.account-page .app-account-popover {
+    #account-popover-manage-btn,
+    #account-popover-guest-manage-btn,
+    [data-popover-option="account-sync"] {
+        display: none !important;
+    }
+}
+
+@media all and (display-mode: standalone), (display-mode: window-controls-overlay) {
+    #account-popover-install-btn,
+    #account-popover-guest-install-btn {
+        display: none !important;
     }
 }

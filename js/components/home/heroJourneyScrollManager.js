@@ -211,7 +211,7 @@ export function updateFilterRowLayout() {
         }
     }
 
-    const card = document.getElementById('home-hj-card') || filterContainer.closest?.('.hero-journey-card');
+    const card = document.getElementById('orecalc-home-hero-journey-card') || document.getElementById('hero-journey-track-card') || filterContainer.closest?.('.hero-journey-card');
     let containerWidth = 0;
     if (card) {
         const cardStyle = window.getComputedStyle(card);
@@ -258,7 +258,7 @@ export function updateFilterRowLayout() {
  * Toggles responsive stacked layout for progress info and switches when container width is constrained.
  */
 export function updateProgressBarContainerLayout() {
-    const card = document.getElementById('home-hj-card') || document.querySelector('.hero-journey-card');
+    const card = document.getElementById('orecalc-home-hero-journey-card') || document.getElementById('hero-journey-track-card') || document.querySelector('.hero-journey-card');
     const container = document.querySelector('.hero-journey-progress-bar-container');
     const noProfileInfo = document.querySelector('.hero-journey-no-profile-info');
     const switchContainer = document.querySelector('.hero-journey-accelerated-switch-container');
@@ -326,7 +326,7 @@ export function updateCollapsedNoteLayout() {
  * Initializes ResizeObserver for the Hero's Journey summary card.
  */
 export function initFilterRowResizeObserver() {
-    const card = document.getElementById('home-hj-card');
+    const card = document.getElementById('orecalc-home-hero-journey-card') || document.getElementById('hero-journey-track-card') || document.querySelector('.hero-journey-card');
     if (!card) return;
 
     if (filterResizeObserver) {

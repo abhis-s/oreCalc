@@ -11,10 +11,9 @@
     border: 1px solid $accent-primary;
     border-radius: $shape-corner-small;
     cursor: pointer;
-    transition: transform $transition-fast, box-shadow $transition-fast, filter $transition-fast;
+    transition: box-shadow $transition-fast, filter $transition-fast;
 
     &:hover {
-        transform: translateY(-1px);
         filter: brightness(1.08);
         box-shadow: $elevation-1;
     }
@@ -58,10 +57,9 @@
     padding-inline-end: $spacing-2xs;
     border-radius: $shape-corner-small;
     cursor: pointer;
-    transition: transform $transition-fast, box-shadow $transition-fast, filter $transition-fast;
+    transition: box-shadow $transition-fast, filter $transition-fast;
 
     &:hover {
-        transform: translateY(-1px);
         filter: brightness(1.08);
         box-shadow: $elevation-1;
     }
@@ -83,24 +81,9 @@
         border: 1px solid $accent-secondary;
     }
 
-    &--equipment {
-        background-color: var(--btn-bg-purple);
-        color: var(--btn-color-purple);
-        border: 1px solid var(--btn-border-purple);
-    }
-
     &--cc {
         border-style: dashed;
         border-width: 1.5px;
-    }
-
-    &--remaining {
-        background-color: $color-warning-soft;
-        color: $color-warning;
-        border: 1px solid $color-warning;
-        padding-inline-end: $spacing-sm;
-        min-height: 38px;
-        box-sizing: border-box;
     }
 
     &--indestructible {
@@ -117,36 +100,6 @@
             filter: none;
             box-shadow: none;
         }
-    }
-
-    &__icon-svg {
-        display: inline-flex;
-        width: 16px;
-        height: 16px;
-        fill: currentColor;
-    }
-
-    &__label {
-        font-size: $font-size-xs;
-        font-weight: $font-weight-bold;
-        line-height: 1;
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-    }
-
-    &__cc-tag {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding-block: 1px;
-        padding-inline: $spacing-xs;
-        font-size: $font-size-2xs;
-        font-weight: $font-weight-bold;
-        line-height: 1;
-        border-radius: $shape-corner-full;
-        background-color: $accent-primary;
-        color: $text-on-accent;
-        box-shadow: $elevation-1;
     }
 
     &__multiplier {

@@ -1,4 +1,5 @@
 import { initNavigationDrawer } from './navigationDrawer.js';
+import { initBrandToolsDropdown } from './brandToolsDropdown.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import {
     HEADER_BREAKPOINT_DESKTOP,
@@ -208,8 +209,9 @@ function observeAppHeaderLayout(header, options = {}) {
     let cachedNormalTabsWidth = 0;
     let cachedCompactTabsWidth = 0;
 
-    const dropdownComfortable = options.dropdownComfortableWidth || HEADER_DROPDOWN_COMFORTABLE_WIDTH;
-    const dropdownMin = options.dropdownMin || HEADER_DROPDOWN_MIN_WIDTH;
+    const hasDropdown = Boolean(options.hasPlayerDropdown !== false && playerDropdown);
+    const dropdownComfortable = hasDropdown ? (options.dropdownComfortableWidth || HEADER_DROPDOWN_COMFORTABLE_WIDTH) : 0;
+    const dropdownMin = hasDropdown ? (options.dropdownMin || HEADER_DROPDOWN_MIN_WIDTH) : 0;
     const hasTabs = Boolean(options.hasTabs || tabBar);
     const hasPill = options.hasPill !== false;
 
@@ -278,8 +280,8 @@ function observeAppHeaderLayout(header, options = {}) {
             const fallbackCompact = isGerman ? 397 : 328;
             const normalTabsWidth = cachedNormalTabsWidth || (cachedCompactTabsWidth ? cachedCompactTabsWidth + tabDelta : fallbackNormal);
             const compactTabsWidth = cachedCompactTabsWidth || (cachedNormalTabsWidth ? Math.max(0, cachedNormalTabsWidth - tabDelta) : fallbackCompact);
-            const dropdownWidth = playerDropdown?.offsetWidth || dropdownComfortable;
-            const rightControlsWidth = dropdownWidth + actionsWidth + 24;
+            const dropdownWidth = hasDropdown ? (playerDropdown?.offsetWidth || dropdownComfortable) : 0;
+            const rightControlsWidth = dropdownWidth + actionsWidth + (hasDropdown ? 24 : 12);
             const desktopMargin = 16;
             const minCompactMargin = 8;
 
@@ -304,8 +306,9 @@ function observeAppHeaderLayout(header, options = {}) {
             }
         } else {
             const gap = 12;
-            const singleRowFullWidth = fullBrandWidth + dropdownComfortable + actionsWidth + (2 * gap);
-            const singleRowCompactWidth = compactBrandWidth + dropdownMin + actionsWidth + (2 * gap);
+            const numGaps = hasDropdown ? 2 : 1;
+            const singleRowFullWidth = fullBrandWidth + dropdownComfortable + actionsWidth + (numGaps * gap);
+            const singleRowCompactWidth = compactBrandWidth + dropdownMin + actionsWidth + (numGaps * gap);
 
             const nextCompact = containerWidth < singleRowFullWidth;
             const nextMinimal = containerWidth < singleRowCompactWidth;
@@ -397,6 +400,12 @@ export function initAppHeader(options = {}) {
             const drawerInstance = initNavigationDrawer({ buttonEl: /** @type {HTMLElement} */ (hamburger) });
             cleanups.push(() => drawerInstance.destroy());
         }
+    }
+
+    // Brand tools dropdown menu binding
+    if (options.hasPill !== false) {
+        const cleanupDropdown = initBrandToolsDropdown({ container: /** @type {HTMLElement} */ (header) });
+        cleanups.push(cleanupDropdown);
     }
 
     const instance = {

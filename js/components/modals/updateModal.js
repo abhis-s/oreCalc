@@ -41,7 +41,7 @@ export function updateNavigationBadges() {
 
     // Also hide the settings page update card if update is no longer pending
     if (!hasPending) {
-        const card = document.getElementById('settings-update-card');
+        const card = document.getElementById('orecalc-settings-update-card');
         if (card) {
             card.hidden = true;
             card.style.display = 'none';
@@ -56,7 +56,7 @@ export function updateNavigationBadges() {
 function initSettingsUpdateCard(wb) {
     if (wb) activeWorkboxInstance = wb;
     const currentWb = wb || activeWorkboxInstance;
-    const card = document.getElementById('settings-update-card');
+    const card = document.getElementById('orecalc-settings-update-card');
     const countdownText = document.getElementById('settings-update-countdown');
     const reloadBtn = document.getElementById('settings-update-now-btn');
 
@@ -339,7 +339,7 @@ export function showUpdateModal(wb) {
 
 if (typeof document !== 'undefined') {
     document.addEventListener('app:translate', () => {
-        const card = document.getElementById('settings-update-card');
+        const card = document.getElementById('orecalc-settings-update-card');
         if (card && card.style.display !== 'none') {
             initSettingsUpdateCard();
         }

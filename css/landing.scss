@@ -19,9 +19,11 @@
 @use 'components/footer';
 @use 'components/toast';
 @use 'components/top-progress-bar';
+@use 'components/segmented-control';
 @use 'components/bug-report-modal';
 @use 'components/spotright';
 @use 'components/shortcuts-modal';
+@use 'components/route-transition-loader';
 
 @use 'landing/landing-layout';
 @use 'landing/landing-accounts';

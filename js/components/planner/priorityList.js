@@ -29,7 +29,7 @@ function renderPriorityListLoader(container) {
  * @param {any} [options={}] - Configuration options.
  */
 export function initializePriorityList(options = {}) {
-    const priorityListCard = document.getElementById('priority-list-card');
+    const priorityListCard = document.getElementById('orecalc-planner-priority-list-card');
     if (!priorityListCard) return;
 
     priorityListCard.innerHTML = '';

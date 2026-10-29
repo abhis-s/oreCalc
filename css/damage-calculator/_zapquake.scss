@@ -49,10 +49,6 @@
         border-color: $border-card-hover;
     }
 
-    &--remaining {
-        border-color: color-mix(in srgb, $color-warning 30%, $border-card);
-    }
-
     &--full-width {
         grid-column: 1 / -1;
     }
@@ -149,14 +145,13 @@
     border: 1px solid $border-primary;
     border-radius: $shape-corner-small;
     cursor: pointer;
-    transition: transform $transition-fast, background-color $transition-fast, border-color $transition-fast;
+    transition: background-color $transition-fast, border-color $transition-fast;
     min-width: 0;
     box-sizing: border-box;
 
     &:hover {
         background-color: $bg-surface-tertiary;
         border-color: $border-accent;
-        transform: translateY(-1px);
     }
 
     &--compact {
@@ -359,17 +354,5 @@
         background-color: $accent-primary;
         color: $text-on-accent;
         border-color: $accent-primary;
-    }
-}
-
-.calc-view-mode-switch {
-    display: inline-flex;
-
-    .segmented-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-        flex: 1 1 auto;
     }
 }

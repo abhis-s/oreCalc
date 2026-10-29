@@ -71,8 +71,8 @@ ClashCalc natively supports 4 locales with clean subpath routing:
 - **Simplified Chinese (`zh` / 中文简体)**: `https://clashcalc.com/zh/` (Community translation in active progression, ~77% coverage with English fallbacks)
 
 Localized tool URLs preserve query parameters and hashes:
-- German Ore Calculator: `https://clashcalc.com/de/ore-calculator/?tag=92GJJ99L`
-- Chinese Damage Calculator: `https://clashcalc.com/zh/damage-calculator/?tag=92GJJ99L#cluster_planner`
+- German Ore Calculator: `https://clashcalc.com/de/ore-calculator/?tag=8PJYGUJC`
+- Chinese Damage Calculator: `https://clashcalc.com/zh/damage-calculator/?tag=8PJYGUJC#cluster_planner`
 
 ---
 

@@ -38,16 +38,6 @@
         right: 30px;
     }
 
-    #home-total-income-header {
-        font-size: var(--font-size-em-md);
-        justify-content: flex-start;
-
-        .ore-text {
-            padding: 0 $spacing-2xs;
-            width: 60px;
-        }
-    }
-
     #income-tab .income-cards-grid {
         grid-template-columns: 1fr;
     }
@@ -77,14 +67,6 @@
         .ore-time,
         .ore-date {
             font-size: var(--font-size-xs);
-        }
-    }
-
-    .player-tag-controls-container {
-        margin-left: 0;
-
-        .player-tag-input {
-            width: 135px;
         }
     }
 
@@ -125,7 +107,7 @@
         }
     }
 
-    #home-result-quantity-card {
+    #orecalc-home-quantity-card {
         margin-top: 0;
     }
 
@@ -157,14 +139,6 @@
 
     #income-tab .income-cards-grid.layout-compact {
         align-items: start;
-    }
-
-    .income-header {
-        &:not(.collapsed) {
-            #home-total-income-header {
-                display: none;
-            }
-        }
     }
 
     .left-panel {

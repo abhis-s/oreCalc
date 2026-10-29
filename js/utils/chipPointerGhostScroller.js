@@ -104,7 +104,7 @@ export function startBoundaryAutoScroll(getActiveDragState, getAutoScrollRafId, 
         const viewportHeight = window.innerHeight;
         const currentScrollY = window.scrollY;
 
-        const calendarCard = document.getElementById('planner-calendar-card');
+        const calendarCard = document.getElementById('orecalc-planner-calendar-card');
         if (calendarCard) {
             const cardRect = calendarCard.getBoundingClientRect();
             const minScrollY = Math.max(0, cardRect.top + currentScrollY - 20);

@@ -68,7 +68,7 @@ describe('CSS Architecture Quality & Style Invariants', () => {
             ...scanDir(path.join(projectRoot, 'partials'), f => f.endsWith('.html'))
         ];
 
-        test('verifies that zero style attributes exist across all HTML partials and templates (Rule 8)', () => {
+        test('verifies that zero style attributes exist across all HTML partials and templates', () => {
             const staticStyleViolations = [];
 
             for (const file of htmlFiles) {
@@ -197,7 +197,7 @@ describe('CSS Architecture Quality & Style Invariants', () => {
 
             for (const file of candidateFiles) {
                 const relPath = path.relative(projectRoot, file);
-                if (relPath === 'js/data/languagesData.js') continue; // Country flags in language picker metadata
+                if (relPath === 'js/data/languagesData.js') continue; // Authorized exception: flag emojis strictly permitted only in languagesData.js
                 const content = fs.readFileSync(file, 'utf8');
                 const lines = content.split('\n');
 

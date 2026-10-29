@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <title data-i18n="views.account.meta.title">Account &amp; Security | Clash of Clans | ClashCalc</title>
+    <meta name="description" content="Manage your ClashCalc cloud account, passkeys, passwords, and security settings." data-i18n-content="views.account.meta.description">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#121824">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f9fa">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121824">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ClashCalc">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://clashcalc.com/account/">
+    <meta property="og:title" content="Account &amp; Security | Clash of Clans | ClashCalc">
+    <meta property="og:description" content="Manage your ClashCalc cloud account, passkeys, passwords, and security settings.">
+    <meta property="og:image" content="https://clashcalc.com/assets/og_image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://clashcalc.com/account/">
+    <meta property="twitter:title" content="Account &amp; Security | Clash of Clans | ClashCalc">
+    <meta property="twitter:description" content="Manage your ClashCalc cloud account, passkeys, passwords, and security settings.">
+    <meta property="twitter:image" content="https://clashcalc.com/assets/og_image.png">
+
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="apple-touch-icon" href="/assets/hero_journey_icon.png">
+    <link rel="canonical" href="https://clashcalc.com/account/">
+    <link rel="alternate" hreflang="en" href="https://clashcalc.com/account/" />
+    <link rel="alternate" hreflang="de" href="https://clashcalc.com/de/account/" />
+    <link rel="alternate" hreflang="tr" href="https://clashcalc.com/tr/account/" />
+    <link rel="alternate" hreflang="zh" href="https://clashcalc.com/zh/account/" />
+    <link rel="alternate" hreflang="x-default" href="https://clashcalc.com/account/" />
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/account.css">
+    <script>
+        (function() {
+            try {
+                var isLight = false;
+                var raw = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings') || localStorage.getItem('orecalc_state');
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    isLight = (parsed && (parsed.theme === 'light' || (parsed.settings && parsed.settings.theme === 'light')));
+                    var accent = parsed.accentColor || (parsed.settings && parsed.settings.accentColor);
+                    if (accent) {
+                        document.documentElement.setAttribute('data-accent', accent);
+                    }
+                }
+                if (isLight) {
+                    document.documentElement.classList.add('light-mode');
+                } else {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <!-- include: partials/head/importmap.html -->
+</head>
+
+<body class="dark-mode account-page">
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <!-- include: partials/watchdog.html -->
+
+    <!-- include: partials/svg-sprites.html -->
+    <!-- include: partials/load-failure-screen.html -->
+
+    <header class="app-header account-page__header">
+        <div class="app-header__inner account-page__header-inner">
+            <div class="app-header__brand account-page__brand">
+                <button type="button" id="account-hamburger-btn" class="app-header__hamburger hamburger account-hamburger"
+                    aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
+                    <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
+                </button>
+                <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
+                    <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
+                </a>
+                <span class="brand-separator" aria-hidden="true">&middot;</span>
+                <div class="brand-page-pill-wrapper">
+                    <button type="button" class="brand-page-pill" id="brand-page-pill-btn" aria-haspopup="menu" aria-expanded="false" data-i18n="auth.account">Account</button>
+                    <div id="brand-tools-dropdown" class="brand-tools-dropdown" role="menu" aria-labelledby="brand-page-pill-btn" hidden>
+                        <!-- DYNAMIC INSERTION: Brand tool dropdown items -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-header__actions account-page__header-actions">
+                <!-- include: partials/header-spotright.html -->
+                <!-- include: partials/header-account.html -->
+            </div>
+        </div>
+    </header>
+    <div class="header-placeholder app-header-placeholder"></div>
+
+    <main class="account-main" id="main-content">
+        <h2 class="sr-only" data-i18n="views.account.title">Account &amp; Security</h2>
+
+        <!-- DYNAMIC INSERTION: Account Page View Containers -->
+        <div class="account-layout">
+            <!-- Guest State UI Shell -->
+            <section id="account-guest-view" class="account-view" hidden>
+                <div class="account-grid">
+                    <div class="account-card account-card--hero">
+                        <div class="account-hero-badge">
+                            <clashcalc-assets-svg name="user-filled" class="account-hero-icon" width="32" height="32"></clashcalc-assets-svg>
+                        </div>
+                        <h3 class="account-hero-title" data-i18n="auth.accountAndDataManagement">Account &amp; Data Management</h3>
+                        <p class="account-hero-desc" data-i18n="views.account.guestSubtitle">Sign in or create an account to synchronize your progression and settings across devices.</p>
+                        <div class="account-hero-actions">
+                            <button type="button" class="btn btn-primary" id="account-guest-signin-btn" data-i18n="auth.signIn">Sign In</button>
+                            <button type="button" class="btn btn-secondary" id="account-guest-create-btn" data-i18n="auth.createAccount">Create Account</button>
+                        </div>
+                    </div>
+
+                    <div class="account-card" id="account-guest-sync-card">
+                        <div class="account-card__header">
+                            <div class="account-card__title-group">
+                                <h3 class="account-card__title" data-i18n="auth.pairDevice">Link Another Device</h3>
+                                <p class="account-card__desc" data-i18n="views.settings.cloudSync.deviceInfo">Link and sync your progress across multiple devices.</p>
+                            </div>
+                            <div class="account-card__actions">
+                                <button type="button" class="btn btn-secondary" id="account-guest-btn-toggle-pairing" data-i18n="actions.link">Link</button>
+                            </div>
+                        </div>
+
+                        <div id="account-guest-pairing-drawer" class="account-pairing-drawer" hidden aria-expanded="false">
+                            <div class="account-pairing-tabs segmented-control" role="tablist">
+                                <button type="button" id="account-guest-tab-qr" class="segmented-btn active" role="tab" aria-selected="true" data-i18n="views.settings.cloudSync.yourSyncCode">Your Sync Code</button>
+                                <button type="button" id="account-guest-tab-input" class="segmented-btn" role="tab" aria-selected="false" data-i18n="views.settings.cloudSync.tabEnterCode">Enter Sync Code</button>
+                            </div>
+
+                            <!-- Pane 1: Your Sync Code -->
+                            <div id="account-guest-pane-qr" class="account-guest-pairing-pane" role="tabpanel">
+                                <div class="account-pairing-body">
+                                    <div class="account-pairing-qr-wrap">
+                                        <div id="account-guest-qr-canvas" class="account-pairing-qr-canvas"></div>
+                                        <div id="account-guest-qr-overlay" class="account-pairing-qr-overlay is-hidden" aria-live="polite">
+                                            <div class="account-pairing-qr-overlay__icon" aria-hidden="true">
+                                                <clashcalc-assets-svg name="cloud-off" width="28" height="28"></clashcalc-assets-svg>
+                                            </div>
+                                            <span class="account-pairing-qr-overlay__title" data-i18n="views.settings.cloudSync.syncDisabledTitle">Sync Disabled</span>
+                                            <span class="account-pairing-qr-overlay__desc" data-i18n="views.settings.cloudSync.guestSyncDisabledDesc">Add a player tag to sync this device. To link this device to an existing village, enter the sync code from your other device.</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="account-pairing-info">
+                                        <!-- Shown when user has player tags -->
+                                        <div id="account-guest-code-container" class="account-guest-code-container is-hidden">
+                                            <span class="qr-user-id" id="account-guest-user-id" data-i18n-title="actions.clickToCopy"></span>
+                                            <button type="button" class="btn btn-secondary btn-sm" id="account-guest-copy-btn" data-i18n="actions.copy">Copy</button>
+                                        </div>
+                                        <p class="account-item-desc" id="account-guest-sync-instruction" data-i18n="player.qrDisplayInstruction" hidden>Click the Sync Code below to copy it to your clipboard, or scan the QR code with another device's camera to link them instantly.</p>
+
+                                        <!-- Subcard shown for pure guest without player tags -->
+                                        <div id="account-guest-hint-subcard" class="account-guest-hint-subcard">
+                                            <div class="account-guest-hint-subcard__header">
+                                                <clashcalc-assets-svg name="sync-cloud" width="18" height="18"></clashcalc-assets-svg>
+                                                <h4 class="account-guest-hint-subcard__title" data-i18n="views.settings.cloudSync.hintAlreadyUsing">Already using ClashCalc on another device?</h4>
+                                            </div>
+                                            <p class="account-guest-hint-subcard__desc" data-i18n="views.settings.cloudSync.hintAlreadyUsingDesc">If you already tracked village upgrades on another phone, tablet, or PC, you can enter that device's Sync Code to link them together.</p>
+                                            <button type="button" class="btn btn-secondary" id="account-guest-btn-goto-input">
+                                                <span data-i18n="views.settings.cloudSync.tabEnterCode">Enter Sync Code</span>
+                                                <clashcalc-assets-svg name="forward" width="14" height="14"></clashcalc-assets-svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pane 2: Enter Sync Code -->
+                            <div id="account-guest-pane-input" class="account-guest-pairing-pane is-hidden" role="tabpanel" hidden>
+                                <div class="account-guest-input-hub">
+                                    <div class="account-guest-input-group">
+                                        <label for="account-guest-sync-input" class="account-form-label" data-i18n="views.settings.cloudSync.enterCodePrompt">Enter the 36-character Sync Code from your other device:</label>
+                                        <div class="input-with-icon">
+                                            <span class="input-icon"><clashcalc-assets-svg name="link"></clashcalc-assets-svg></span>
+                                            <input type="text" id="account-guest-sync-input" class="account-input" placeholder="e.g. 12345678-abcd-1234-abcd-1234567890ab" data-i18n-placeholder="views.settings.cloudSync.placeholderSyncCode" maxlength="120" data-clipboard-paste="uuid" data-clipboard-auto="true" autocomplete="off" spellcheck="false">
+                                        </div>
+                                        <span id="account-guest-sync-status" class="account-input-status-pill is-hidden"></span>
+                                    </div>
+
+                                    <div class="account-drawer-actions">
+                                        <button type="button" id="account-guest-btn-cancel-input" class="btn btn-secondary" data-i18n="actions.cancel">Cancel</button>
+                                        <button type="button" id="account-guest-btn-confirm-sync" class="btn btn-primary" data-i18n="actions.linkDevice" disabled>Link Device</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="account-card" id="account-guest-data-card">
+                        <div class="account-card__header">
+                            <div class="account-card__title-group">
+                                <h3 class="account-card__title" data-i18n="auth.dataBackupAndRestore">Data Backup &amp; Restore</h3>
+                                <p class="account-card__desc" data-i18n="auth.dataBackupAndRestoreDesc">Export a local JSON archive or restore your data from a backup file.</p>
+                            </div>
+                            <div class="account-card__actions">
+                                <button type="button" class="btn btn-primary" id="account-guest-export-backup" data-i18n="actions.download">Download</button>
+                                <button type="button" class="btn btn-secondary" id="account-guest-restore-backup" data-i18n="actions.restore">Restore</button>
+                                <input type="file" id="account-guest-restore-file-input" accept=".json" class="is-hidden" aria-hidden="true">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="account-card account-card--erasure" id="account-guest-erasure-card">
+                        <div class="account-card__header">
+                            <div class="account-card__title-group">
+                                <h3 class="account-card__title account-card__title--erasure" id="account-guest-erasure-title" data-i18n="views.account.guestDataErasure">Data Erasure</h3>
+                            </div>
+                        </div>
+                        <div class="account-erasure-list">
+                            <div class="account-erasure-row" id="account-guest-reset-data-row">
+                                <div class="account-erasure-info">
+                                    <h4 class="account-erasure-label" data-i18n="auth.resetVillageData">Reset Village Data</h4>
+                                    <p class="account-erasure-desc" id="account-guest-reset-data-desc"></p>
+                                </div>
+                                <button type="button" class="btn btn-danger-outline" id="account-guest-reset-data-btn" data-i18n="actions.reset">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Authenticated State UI Shell -->
+            <section id="account-auth-view" class="account-view" hidden>
+                <div class="account-grid">
+                    <!-- Profile Identity Card -->
+                    <div class="account-card" id="account-profile-card">
+                        <div class="account-profile-header">
+                            <button type="button" id="account-profile-avatar-btn" class="account-profile-avatar-btn" aria-label="Change Avatar" data-i18n-aria-label="auth.changeAvatar" title="Change Avatar">
+                                <clashcalc-assets-image id="account-profile-avatar-img" class="account-profile-avatar" src="assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt" size="standard"></clashcalc-assets-image>
+                                <span class="account-profile-avatar-overlay" aria-hidden="true">
+                                    <clashcalc-assets-svg name="edit"></clashcalc-assets-svg>
+                                </span>
+                            </button>
+                            <div class="account-profile-info">
+                                <div class="account-profile-title-row">
+                                    <h3 id="account-profile-username" class="account-profile-username">User</h3>
+                                </div>
+                                <div class="account-profile-villages-row" id="account-profile-villages-row">
+                                    <div class="account-village-stack" id="account-village-stack" aria-hidden="true">
+                                        <!-- DYNAMIC INSERTION: Account Village Town Hall Stack -->
+                                    </div>
+                                    <span class="account-village-count-text" id="account-village-count-badge"></span>
+                                </div>
+                            </div>
+                            <div class="account-profile-header-action">
+                                <button type="button" class="btn btn-danger-outline btn-sm" id="account-btn-signout" data-i18n="auth.signOut">Sign Out</button>
+                            </div>
+                        </div>
+                        <div id="account-avatar-tray" class="account-avatar-tray" hidden aria-expanded="false">
+                            <div class="account-avatar-tray__header">
+                                <h4 class="account-avatar-tray__title" data-i18n="auth.chooseAvatar">Choose Avatar</h4>
+                                <button type="button" id="account-btn-avatar-done" class="btn btn-secondary" data-i18n="actions.done">Done</button>
+                            </div>
+                            <div class="avatar-options-grid" role="group" aria-label="Avatar options">
+                                <button type="button" class="avatar-option-btn" data-avatar="archer" aria-label="Archer" data-i18n-aria-label="entities.unitTypes.archer">
+                                    <clashcalc-assets-image src="/assets/avatars/archer.png" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="builder" aria-label="Builder" data-i18n-aria-label="auth.avatars.builder">
+                                    <clashcalc-assets-image src="/assets/avatars/builder.png" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="giant" aria-label="Giant" data-i18n-aria-label="auth.avatars.giant">
+                                    <clashcalc-assets-image src="/assets/avatars/giant.png" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="goblin" aria-label="Goblin" data-i18n-aria-label="auth.avatars.goblin">
+                                    <clashcalc-assets-image src="/assets/avatars/goblin.png" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="golem" aria-label="Golem" data-i18n-aria-label="auth.avatars.golem">
+                                    <clashcalc-assets-image src="/assets/avatars/golem.png" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="hogRider" aria-label="Hog Rider" data-i18n-aria-label="entities.unitTypes.hogRider">
+                                    <clashcalc-assets-image src="/assets/avatars/hogRider.png" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="hog" aria-label="Hog" data-i18n-aria-label="auth.avatars.hog">
+                                    <clashcalc-assets-image src="/assets/avatars/hog.png" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="skeleton" aria-label="Skeleton" data-i18n-aria-label="auth.avatars.skeleton">
+                                    <clashcalc-assets-image src="/assets/avatars/skeleton.png" alt=""></clashcalc-assets-image>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security & Authentication Card -->
+                    <div class="account-card" id="account-security-card">
+                        <div class="account-card__header">
+                            <div class="account-card__title-group">
+                                <h3 class="account-card__title" data-i18n="views.account.security">Security &amp; Authentication</h3>
+                            </div>
+                        </div>
+                        <div class="account-item-list">
+                            <!-- In-Page Passkeys Section -->
+                            <div class="account-item-row account-item-row--block">
+                                <div class="account-item-row__header">
+                                    <div class="account-item-icon-box">
+                                        <clashcalc-assets-svg name="passkey" width="20" height="20"></clashcalc-assets-svg>
+                                    </div>
+                                    <div class="account-item-info">
+                                        <div class="account-item-heading-row">
+                                            <span class="account-item-title" data-i18n="auth.passkeys">Passkeys</span>
+                                        </div>
+                                        <p class="account-item-desc" data-i18n="auth.passkeysDesc">Sign in securely without a password.</p>
+                                    </div>
+                                </div>
+
+                                <div class="account-passkeys-hub">
+                                    <div id="account-passkeys-items-list" class="account-passkeys-list">
+                                        <!-- DYNAMIC INSERTION: Passkey credential items -->
+                                    </div>
+                                    <div id="account-passkeys-empty" class="account-passkeys-empty is-hidden">
+                                        <p data-i18n="auth.noPasskeysRegistered">No passkeys registered yet.</p>
+                                    </div>
+
+                                    <div class="account-add-passkey-form">
+                                        <div class="account-add-passkey-input-wrap">
+                                            <input type="text" id="account-add-passkey-name" class="account-input account-passkey-input" maxlength="30" spellcheck="false" placeholder="e.g. iCloud Keychain, Google Passwords, Security Key" data-i18n-placeholder="auth.passkeyNamePlaceholder">
+                                        </div>
+                                        <button type="button" id="account-btn-add-passkey" class="btn btn-secondary" data-i18n="auth.addPasskey">Add Passkey</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- In-Page Password Section -->
+                            <div class="account-item-row account-item-row--block">
+                                <div class="account-item-row__header">
+                                    <div class="account-item-icon-box">
+                                        <clashcalc-assets-svg name="password" width="20" height="20"></clashcalc-assets-svg>
+                                    </div>
+                                    <div class="account-item-info">
+                                        <div class="account-item-heading-row">
+                                            <span class="account-item-title" data-i18n="auth.password">Password</span>
+                                        </div>
+                                        <p id="account-password-desc" class="account-item-desc" data-i18n="views.account.passwordConfiguredDesc">Your account has a password configured. You can use it to sign in on any device.</p>
+                                    </div>
+                                    <div class="account-item-actions">
+                                        <button type="button" id="account-btn-toggle-password-drawer" class="btn btn-secondary" data-i18n="auth.changePassword">Change Password</button>
+                                    </div>
+                                </div>
+
+                                <!-- Collapsible Password Drawer -->
+                                <div id="account-password-drawer" class="account-password-drawer" hidden aria-expanded="false">
+                                    <form id="account-password-form" class="account-password-form" novalidate autocomplete="off">
+                                        <!-- Current Password (only shown if user has password) -->
+                                        <div id="account-password-current-group" class="form-group">
+                                            <label for="account-input-current-password" class="account-form-label" data-i18n="auth.currentPassword">Current Password</label>
+                                            <div class="input-with-icon">
+                                                <span class="input-icon"><clashcalc-assets-svg name="password"></clashcalc-assets-svg></span>
+                                                <input type="password" id="account-input-current-password" class="account-input" autocomplete="current-password" maxlength="72" placeholder="Enter current password" data-i18n-placeholder="auth.currentPasswordPlaceholder">
+                                                <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-i18n-aria-label="auth.togglePasswordVisibility">
+                                                    <clashcalc-assets-svg name="visibility-on" class="icon-vis-on"></clashcalc-assets-svg>
+                                                    <clashcalc-assets-svg name="visibility-off" class="icon-vis-off is-hidden"></clashcalc-assets-svg>
+                                                </button>
+                                            </div>
+                                            <div id="account-error-current-password" class="account-field-error" role="alert" hidden>
+                                                <clashcalc-assets-svg name="error" class="account-field-error__icon"></clashcalc-assets-svg>
+                                                <span id="account-error-current-password-text" class="account-field-error__text"></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- New Password -->
+                                        <div class="form-group">
+                                            <label for="account-input-new-password" class="account-form-label" data-i18n="auth.newPassword">New Password</label>
+                                            <div class="input-with-icon">
+                                                <span class="input-icon"><clashcalc-assets-svg name="password"></clashcalc-assets-svg></span>
+                                                <input type="password" id="account-input-new-password" class="account-input" autocomplete="new-password" maxlength="72" placeholder="At least 6 characters" data-i18n-placeholder="auth.passwordPlaceholder">
+                                                <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-i18n-aria-label="auth.togglePasswordVisibility">
+                                                    <clashcalc-assets-svg name="visibility-on" class="icon-vis-on"></clashcalc-assets-svg>
+                                                    <clashcalc-assets-svg name="visibility-off" class="icon-vis-off is-hidden"></clashcalc-assets-svg>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Confirm New Password -->
+                                        <div class="form-group">
+                                            <label for="account-input-confirm-password" class="account-form-label" data-i18n="auth.confirmPassword">Confirm Password</label>
+                                            <div class="input-with-icon">
+                                                <span class="input-icon"><clashcalc-assets-svg name="password"></clashcalc-assets-svg></span>
+                                                <input type="password" id="account-input-confirm-password" class="account-input" autocomplete="new-password" maxlength="72" placeholder="Re-enter new password" data-i18n-placeholder="auth.confirmPasswordPlaceholder">
+                                                <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-i18n-aria-label="auth.togglePasswordVisibility">
+                                                    <clashcalc-assets-svg name="visibility-on" class="icon-vis-on"></clashcalc-assets-svg>
+                                                    <clashcalc-assets-svg name="visibility-off" class="icon-vis-off is-hidden"></clashcalc-assets-svg>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Password Rules Checklist -->
+                                        <div class="account-password-rules" id="account-password-rules">
+                                            <div class="account-password-rule" id="rule-length">
+                                                <span class="account-rule-bullet" aria-hidden="true"></span>
+                                                <span class="rule-text" data-i18n="auth.ruleMinLength">Minimum 6 characters</span>
+                                            </div>
+                                            <div class="account-password-rule" id="rule-match">
+                                                <span class="account-rule-bullet" aria-hidden="true"></span>
+                                                <span class="rule-text" data-i18n="auth.ruleMatch">Passwords match</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Actions -->
+                                        <div class="account-drawer-actions">
+                                            <button type="button" id="account-btn-cancel-password" class="btn btn-secondary" data-i18n="actions.cancel">Cancel</button>
+                                            <button type="submit" id="account-btn-submit-password" class="btn btn-primary" data-i18n="actions.save" disabled>Save</button>
+                                        </div>
+                                    </form>
+
+                                    <div id="account-password-remove-section" class="account-password-remove-section" hidden>
+                                        <div class="account-password-remove-section__info">
+                                            <span class="account-password-remove-section__title" data-i18n="auth.removePassword">Remove Password</span>
+                                            <p class="account-password-remove-section__desc" data-i18n="auth.removePasswordDesc">Switch to secure passwordless sign-in with your passkeys. You can configure a new password anytime.</p>
+                                        </div>
+                                        <button type="button" id="account-btn-remove-password" class="btn btn-danger-outline" data-i18n="actions.remove">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Sessions Card -->
+                    <div class="account-card" id="account-sessions-card">
+                        <div class="account-card__header">
+                            <div class="account-card__title-group">
+                                <h3 class="account-card__title" id="account-sessions-title" data-i18n="views.account.sessions">Active Sessions</h3>
+                            </div>
+                            <div class="account-card__actions" id="account-sessions-header-actions">
+                                <button type="button" class="btn btn-secondary is-hidden" id="account-btn-revoke-other-sessions" data-i18n="auth.signOutOthers" hidden>Sign Out Other Sessions</button>
+                            </div>
+                        </div>
+                        <div class="account-sessions-hub">
+                            <div id="account-sessions-list" class="account-sessions-list">
+                                <div class="account-item-row" id="account-session-current-row">
+                                    <div class="account-item-icon-box">
+                                        <clashcalc-assets-svg name="laptop" width="20" height="20"></clashcalc-assets-svg>
+                                    </div>
+                                    <div class="account-item-info">
+                                        <div class="account-item-heading-row">
+                                            <span class="account-item-title" data-i18n="views.account.currentDevice">Current Device</span>
+                                        </div>
+                                        <p class="account-item-desc" data-i18n="views.account.currentDevice">This Device</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cross-Device Linking / Pairing Card -->
+                    <div class="account-card" id="account-pairing-card">
+                        <div class="account-card__header">
+                            <div class="account-card__title-group">
+                                <h3 class="account-card__title" data-i18n="auth.pairDevice">Link Another Device</h3>
+                                <p class="account-card__desc" data-i18n="auth.pairDeviceDesc">Scan this QR code from your phone or tablet camera to instantly sign in without typing your credentials.</p>
+                            </div>
+                            <div class="account-card__actions">
+                                <button type="button" class="btn btn-secondary" id="account-btn-toggle-pairing" data-i18n="actions.link">Link</button>
+                            </div>
+                        </div>
+                        <div id="account-pairing-drawer" class="account-pairing-drawer" hidden aria-expanded="false">
+                            <div class="account-pairing-body">
+                                <div class="account-pairing-qr-wrap">
+                                    <div id="account-pairing-qr-canvas" class="account-pairing-qr-canvas"></div>
+                                    <div id="account-pairing-qr-overlay" class="account-pairing-qr-overlay is-hidden" aria-live="polite">
+                                        <div class="account-pairing-qr-overlay__icon" aria-hidden="true">
+                                            <clashcalc-assets-svg name="timer" width="28" height="28"></clashcalc-assets-svg>
+                                        </div>
+                                        <span id="account-pairing-qr-overlay-title" class="account-pairing-qr-overlay__title"></span>
+                                        <span id="account-pairing-qr-overlay-desc" class="account-pairing-qr-overlay__desc"></span>
+                                    </div>
+                                </div>
+                                <div class="account-pairing-info">
+                                    <div class="account-pairing-timer-row">
+                                        <clashcalc-assets-svg name="timer" width="16" height="16"></clashcalc-assets-svg>
+                                        <span id="account-pairing-timer" class="account-pairing-timer">Pairing code expires in 1:30</span>
+                                    </div>
+                                    <div class="account-pairing-actions">
+                                        <button type="button" id="account-btn-refresh-pairing" class="btn btn-secondary" data-i18n="actions.refresh">Refresh</button>
+                                        <button type="button" id="account-btn-close-pairing" class="btn btn-secondary is-hidden" data-i18n="actions.done">Done</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Backup & Restore Card -->
+                    <div class="account-card" id="account-data-card">
+                        <div class="account-card__header">
+                            <div class="account-card__title-group">
+                                <h3 class="account-card__title" data-i18n="auth.dataBackupAndRestore">Data Backup &amp; Restore</h3>
+                                <p class="account-card__desc" data-i18n="auth.dataBackupAndRestoreDesc">Export a local JSON archive or restore your data from a backup file.</p>
+                            </div>
+                            <div class="account-card__actions">
+                                <button type="button" class="btn btn-primary" id="account-btn-export-backup" data-i18n="actions.download">Download</button>
+                                <button type="button" class="btn btn-secondary" id="account-btn-restore-backup" data-i18n="actions.restore">Restore</button>
+                                <input type="file" id="account-restore-file-input" accept=".json" class="is-hidden" aria-hidden="true">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="account-card account-card--erasure" id="account-erasure-card">
+                        <div class="account-card__header">
+                            <div class="account-card__title-group">
+                                <h3 class="account-card__title account-card__title--erasure" data-i18n="views.account.dataErasure">Data &amp; Account Erasure</h3>
+                            </div>
+                        </div>
+                        <div class="account-erasure-list">
+                            <div class="account-erasure-row" id="account-auth-reset-data-row">
+                                <div class="account-erasure-info">
+                                    <h4 class="account-erasure-label" data-i18n="auth.resetVillageData">Reset Village Data</h4>
+                                    <p class="account-erasure-desc" id="account-auth-reset-data-desc"></p>
+                                </div>
+                                <button type="button" class="btn btn-danger-outline" id="account-btn-reset-data" data-i18n="actions.reset">Reset</button>
+                            </div>
+
+                            <div class="account-erasure-row account-erasure-row--delete" id="account-auth-delete-row">
+                                <div class="account-erasure-row__main">
+                                    <div class="account-erasure-info">
+                                        <h4 class="account-erasure-label" data-i18n="auth.deleteAccount">Delete Account</h4>
+                                        <p class="account-erasure-desc" data-i18n="auth.explanations.deleteAccount">Permanently deletes your account, username, passkeys, and all associated cloud data.</p>
+                                    </div>
+                                    <button type="button" class="btn btn-danger" id="account-btn-delete-account" data-i18n="actions.delete">Delete</button>
+                                </div>
+                                <div id="account-delete-stepup-panel" class="account-delete-stepup" hidden>
+                                    <p id="account-delete-stepup-desc" class="account-delete-stepup__desc"></p>
+                                    <div class="account-delete-stepup__controls">
+                                        <input type="text" id="account-delete-confirm-input" class="account-input account-input--danger account-delete-input" autocomplete="off" spellcheck="false" placeholder="">
+                                        <div class="account-delete-stepup__actions">
+                                            <button type="button" id="account-delete-cancel-btn" class="btn btn-secondary" data-i18n="actions.cancel">Cancel</button>
+                                            <button type="button" id="account-delete-execute-btn" class="btn btn-danger" data-i18n="actions.delete" disabled>Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="tool-extras"></div>
+
+    <!-- include: partials/footer.html -->
+    <!-- include: partials/navigation-drawer.html -->
+    <!-- include: partials/modals/add-player.html -->
+    <!-- include: partials/modals/changelog.html -->
+    <!-- include: partials/modals/commits.html -->
+    <!-- include: partials/modals/privacy.html -->
+    <!-- include: partials/modals/terms.html -->
+    <!-- include: partials/modals/licenses.html -->
+    <!-- include: partials/modals/notice.html -->
+    <!-- include: partials/modals/auth-modal.html -->
+    <!-- include: partials/modals/update-available.html -->
+    <!-- include: partials/modals/bug-report.html -->
+    <!-- include: partials/modals/contact.html -->
+    <!-- include: partials/modals/running-costs.html -->
+
+    <script src="/js/qr-code-styling.js" defer></script>
+    <script src="/js/workbox-window.js" defer></script>
+    <script type="module" src="/js/accountApp.js"></script>
+</body>
+</html>

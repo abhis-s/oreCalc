@@ -58,20 +58,31 @@ export function getMaxCumulativeLevelsByTH() {
 }
 
 /**
- * Get Town Hall level from state (or profile). Default to 16 if not set.
+ * Resolves maximum Town Hall level currently defined in Hero Journey data.
+ * @returns {number} Maximum Town Hall level.
+ */
+export function getMaxTownHallLevel() {
+    const levelsMap = getMaxCumulativeLevelsByTH();
+    const thKeys = Object.keys(levelsMap).map(Number);
+    return thKeys.length > 0 ? Math.max(...thKeys) : 18;
+}
+
+/**
+ * Get Town Hall level from state (or profile). Defaults dynamically to the maximum Town Hall level if not set.
  *
  * @param {import('../../core/types.js').AppState | any} state - Application state.
  * @returns {number} Active Town Hall level.
  */
 export function getTownHallLevel(state) {
+    const maxTH = getMaxTownHallLevel();
     if (state?.playerProfile?.townHallLevel || state?.playerProfile?.townHall) {
-        return Number(state.playerProfile.townHallLevel || state.playerProfile.townHall) || 16;
+        return Number(state.playerProfile.townHallLevel || state.playerProfile.townHall) || maxTH;
     }
     if (state?.income?.starBonus?.thUpgrades) {
         const ths = Object.keys(state.income.starBonus.thUpgrades).map(Number);
         if (ths.length > 0) return Math.max(...ths);
     }
-    return 16;
+    return maxTH;
 }
 
 /**

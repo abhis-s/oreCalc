@@ -571,11 +571,11 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         globalThis.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
         globalThis.document = {
             getElementById(id) {
-                if (id === 'home-hj-card') return cardElement;
+                if (id === 'hero-journey-track-card' || id === 'orecalc-home-hero-journey-card') return cardElement;
                 return null;
             },
             querySelector(sel) {
-                if (sel === '.hero-journey-card' || sel === '#home-hj-card') return cardElement;
+                if (sel === '.hero-journey-card' || sel === '#hero-journey-track-card' || sel === '#orecalc-home-hero-journey-card') return cardElement;
                 if (sel === '.hero-journey-progress-track') return trackElement;
                 return null;
             },

@@ -58,7 +58,7 @@ export const LAYOUT_CONFIGS = [
     {
         name: 'planner',
         gridSelector: '#planner-tab .planner-cards-grid',
-        containerSelector: '.planner-card, #priority-list-card, .full-width-planner-section',
+        containerSelector: '.planner-card, #orecalc-planner-priority-list-card, .full-width-planner-section',
         dragHandleSelector: 'h2, .max-level-card-header, .priority-list-header h3',
         orderKey: 'plannerCardOrder',
         prefix: 'planner',
@@ -137,8 +137,8 @@ export function clearColumns(layout) {
  */
 export function enforcePlannerHalfWidthAdjacency(gridEl) {
     if (!gridEl) return;
-    const carousel = gridEl.querySelector('#planner-hero-carousel-card');
-    const priority = gridEl.querySelector('#priority-list-card');
+    const carousel = gridEl.querySelector('#orecalc-planner-hero-carousel-card');
+    const priority = gridEl.querySelector('#orecalc-planner-priority-list-card');
     if (!carousel || !priority) return;
 
     if (carousel.nextElementSibling !== priority) {

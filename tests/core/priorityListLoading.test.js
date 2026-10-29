@@ -104,8 +104,8 @@ describe('Priority List Hydration & Jumping Dots Loader Suite', () => {
         state.timestamp = ++testTimestamp;
 
         mockCard = new MockElement('div');
-        mockCard.id = 'priority-list-card';
-        mockDomElements.set('priority-list-card', mockCard);
+        mockCard.id = 'orecalc-planner-priority-list-card';
+        mockDomElements.set('orecalc-planner-priority-list-card', mockCard);
 
         state.heroes = {
             barbarianKing: {

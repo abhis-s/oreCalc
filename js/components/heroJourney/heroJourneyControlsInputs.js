@@ -13,8 +13,6 @@ import { hjState, buildStateFromPlayerData, syncPlayerToStorage } from './heroJo
 import { renderTrackView, syncClaimSwitchPill } from './heroJourneyTrackRenderer.js';
 import { renderTableView } from './heroJourneyTableRenderer.js';
 import { renderPlayerSummary } from './heroJourneyPlayerRenderer.js';
-import { state } from '../../core/state.js';
-import { persistAppSettings } from '../common/appSettings.js';
 
 /**
  * Synchronizes type filter buttons and select dropdowns across all filter bars.
@@ -249,40 +247,6 @@ export function initHeroJourneyControls(hjState, renderUI, resetFiltersFn) {
         if (clearFilterBtn) {
             resetFiltersFn();
             return;
-        }
-
-        const searchBtn = target.closest('#hj-unconnected-search-btn');
-        if (searchBtn) {
-            const input = document.getElementById('hj-search-input');
-            if (input) {
-                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                input.focus();
-            }
-            return;
-        }
-
-        const collapseBtn = target.closest('#hj-profile-collapse-btn');
-        if (collapseBtn) {
-            const card = document.getElementById('hj-player-card');
-            if (card) {
-                const willBeCollapsed = !card.classList.contains('is-stats-collapsed');
-                card.classList.toggle('is-stats-collapsed', willBeCollapsed);
-                collapseBtn.setAttribute('aria-expanded', String(!willBeCollapsed));
-                const label = willBeCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats');
-                collapseBtn.setAttribute('aria-label', label);
-                collapseBtn.setAttribute('title', label);
-                const icon = collapseBtn.querySelector('.collapse-chevron-icon, clashcalc-assets-svg, orecalc-assets-svg');
-                if (icon) {
-                    icon.setAttribute('name', willBeCollapsed ? 'chevron-down' : 'chevron-up');
-                }
-                if (typeof sessionStorage !== 'undefined') {
-                    sessionStorage.removeItem('orecalc_hj_profile_stats_collapsed');
-                }
-                persistAppSettings({ hideProfileStats: willBeCollapsed });
-                if (state.uiSettings) {
-                    state.uiSettings.hideProfileStats = willBeCollapsed;
-                }
-            }
         }
     });
 

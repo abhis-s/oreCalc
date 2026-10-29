@@ -219,14 +219,14 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
                 const equipItem = /** @type {HTMLElement | null} */ (actionElement.closest('.equipment-item'));
                 const equipName = equipItem ? equipItem.dataset.equipName : null;
                 if (!equipName) break;
-                if (!state.heroes[heroName]) state.heroes[heroName] = { equipment: {} };
-                if (!state.heroes[heroName].equipment[equipName]) state.heroes[heroName].equipment[equipName] = {};
 
-                const currentLevel = state.heroes[heroName].equipment[equipName].level || 1;
-                const maxLevel = parseInt(actionElement.dataset.maxLevel || '18', 10);
+                const currentLevel = state.heroes[heroName]?.equipment?.[equipName]?.level || 1;
+                const maxLevel = Number(actionElement.dataset.maxLevel) || 18;
                 if (currentLevel < maxLevel) {
                     const nextLevel = currentLevel + 1;
                     handleStateUpdate(() => {
+                        if (!state.heroes[heroName]) state.heroes[heroName] = { equipment: {} };
+                        if (!state.heroes[heroName].equipment[equipName]) state.heroes[heroName].equipment[equipName] = {};
                         state.heroes[heroName].equipment[equipName].level = nextLevel;
                         cleanupUpgradePlan(state.heroes[heroName].equipment[equipName]);
                         reindexGlobalPriority();

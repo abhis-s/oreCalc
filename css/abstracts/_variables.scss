@@ -66,6 +66,15 @@ $shape-corner-extra-large: 28px;
 $shape-corner-full: 9999px;
 $card-radius: 10px;
 $card-radius-inner: $shape-corner-small;
+$segmented-radius-track: $shape-corner-small;
+$segmented-radius-btn: 6px;
+
+$btn-min-width: 100px;
+$btn-min-width-compact: 80px;
+$btn-min-height: 40px;
+$btn-min-height-compact: 32px;
+$btn-radius: 20px;
+$btn-radius-compact: 17px;
 
 $modal-width-compact: 420px;
 $modal-width-standard: 480px;
@@ -121,6 +130,7 @@ $font-weight-black: 900;
 
 $z-index-below: -1;
 $z-index-base: 1;
+$z-index-interactive: 2;
 $z-index-component: 5;
 $z-index-overlay: 10;
 $z-index-fab: 20;
@@ -296,8 +306,7 @@ $transition-card: border-color $duration-moderate $ease-smooth,
 }
 
 @mixin brand-gradient-split {
-    .brand-clash,
-    .brand-ore {
+    .brand-clash {
         background: $brand-gradient-primary;
         -webkit-background-clip: text;
         background-clip: text;

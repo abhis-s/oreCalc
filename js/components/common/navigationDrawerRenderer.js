@@ -18,6 +18,142 @@ import { formatNumber } from '../../utils/numberFormatter.js';
 
 const escapeHtml = escapeHTML;
 
+/** @type {any} */
+let activeDrawerOptions = null;
+
+/**
+ * Attaches a single delegated click listener to the drawer element.
+ * @param {HTMLElement} drawer
+ */
+function bindDrawerDelegatedEvents(drawer) {
+    if (!drawer || drawer.dataset.hasDelegatedClicks === 'true') return;
+    drawer.dataset.hasDelegatedClicks = 'true';
+
+    drawer.addEventListener('click', (e) => {
+        const target = /** @type {HTMLElement | null} */ (e.target);
+        if (!target) return;
+
+        const guestBtn = target.closest('.navigation-drawer__context-guest-btn');
+        if (guestBtn) {
+            e.stopPropagation();
+            closeDrawerInternal(drawer);
+            const activeTool = activeDrawerOptions?.activeTool;
+            if (typeof activeDrawerOptions?.onGuestLoad === 'function') {
+                activeDrawerOptions.onGuestLoad();
+            } else if (activeTool === 'hub') {
+                const searchInput = document.getElementById('landing-search-input');
+                const searchSection = document.getElementById('landing-search-form');
+                searchSection?.scrollIntoView({ behavior: 'smooth' });
+                searchInput?.focus();
+            } else if (activeTool === 'hero-journey') {
+                const searchInput = document.getElementById('hj-search-input');
+                searchInput?.focus();
+            } else {
+                const playerBtn = document.getElementById('player-dropdown-button');
+                if (playerBtn) playerBtn.click();
+            }
+            return;
+        }
+
+        const switchBtn = target.closest('.navigation-drawer__context-switch-btn');
+        if (switchBtn) {
+            e.stopPropagation();
+            const switcherMenu = drawer.querySelector('.navigation-drawer__context-switcher-menu');
+            const isExpanded = switchBtn.getAttribute('aria-expanded') === 'true';
+            switchBtn.setAttribute('aria-expanded', String(!isExpanded));
+            switchBtn.classList.toggle('is-expanded', !isExpanded);
+            if (switcherMenu) {
+                switcherMenu.hidden = isExpanded;
+            }
+            return;
+        }
+
+        const switchItem = target.closest('.navigation-drawer__context-switcher-item');
+        if (switchItem) {
+            e.stopPropagation();
+            const targetTag = switchItem.getAttribute('data-tag');
+            const currentTag = activeDrawerOptions?.cleanTag || '';
+            const switchBtnEl = drawer.querySelector('.navigation-drawer__context-switch-btn');
+            const switcherMenu = drawer.querySelector('.navigation-drawer__context-switcher-menu');
+
+            if (!targetTag || targetTag === currentTag) {
+                if (switchBtnEl) {
+                    switchBtnEl.setAttribute('aria-expanded', 'false');
+                    switchBtnEl.classList.remove('is-expanded');
+                }
+                if (switcherMenu) switcherMenu.hidden = true;
+                return;
+            }
+
+            closeDrawerInternal(drawer);
+            if (typeof activeDrawerOptions?.onAccountSwitch === 'function') {
+                activeDrawerOptions.onAccountSwitch(targetTag);
+            } else {
+                const url = new URL(window.location.href);
+                url.searchParams.set('tag', targetTag);
+                window.location.href = url.toString();
+            }
+            return;
+        }
+
+        const secondaryTab = target.closest('.secondary-tab');
+        if (secondaryTab) {
+            const actionId = /** @type {HTMLElement} */ (secondaryTab).dataset.actionId;
+            if (actionId === 'changelog' || actionId === 'bug-report' || actionId === 'contact') {
+                e.preventDefault();
+                closeDrawerInternal(drawer);
+                if (actionId === 'changelog') {
+                    try {
+                        initializeChangelogModal();
+                        const content = getChangelogHtml();
+                        showChangelogModal(content);
+                    } catch (err) {
+                        console.error('Failed to open in-app changelog modal:', err);
+                    }
+                } else if (actionId === 'bug-report') {
+                    try {
+                        openBugReportModal();
+                    } catch (err) {
+                        console.error('Failed to open in-app bug report modal:', err);
+                    }
+                } else if (actionId === 'contact') {
+                    try {
+                        openContactModal();
+                    } catch (err) {
+                        console.error('Failed to open in-app contact modal:', err);
+                    }
+                }
+            } else {
+                closeDrawerInternal(drawer);
+            }
+            return;
+        }
+
+        const tabBtn = target.closest('.navigation-drawer__tab');
+        if (tabBtn) {
+            closeDrawerInternal(drawer);
+            const tabId = /** @type {HTMLElement} */ (tabBtn).dataset.tab || /** @type {HTMLElement} */ (tabBtn).dataset.view;
+            if (!tabId) return;
+
+            if (Array.isArray(activeDrawerOptions?.tabs)) {
+                const matched = activeDrawerOptions.tabs.find((/** @type {any} */ t) => t.id === tabId);
+                if (typeof matched?.onSelect === 'function') {
+                    matched.onSelect(tabId, e);
+                    return;
+                }
+            }
+
+            if (typeof activeDrawerOptions?.onViewSelect === 'function') {
+                activeDrawerOptions.onViewSelect(tabId, e);
+            } else if (activeDrawerOptions?.activeTool === 'damage-calculator') {
+                const targetTabBtn = document.getElementById(`tab-btn-${tabId}`);
+                if (targetTabBtn) targetTabBtn.click();
+            }
+            return;
+        }
+    });
+}
+
 /**
  * Resolves drawer profile summary and progression metrics from cached player state or explicit overrides.
  *
@@ -108,7 +244,7 @@ function buildDrawerMetricsHtml(statsList, profileSummary) {
  * @param {import('./navigationDrawer.js').DrawerContentOptions} [options]
  */
 export function renderNavigationDrawerContent(options = {}) {
-    const drawer = options.drawerEl || document.getElementById('navigation-drawer') || document.querySelector('.navigation-drawer');
+    const drawer = /** @type {HTMLElement | null} */ (options.drawerEl || document.getElementById('navigation-drawer') || document.querySelector('.navigation-drawer'));
     if (!drawer) return;
 
     let activeTool = options.activeTool;
@@ -117,6 +253,7 @@ export function renderNavigationDrawerContent(options = {}) {
         if (path.includes('/damage-calculator')) activeTool = 'damage-calculator';
         else if (path.includes('/hero-journey')) activeTool = 'hero-journey';
         else if (path.includes('/ore-calculator')) activeTool = 'ore-calculator';
+        else if (path.includes('/account')) activeTool = 'account';
         else if (path === '/' || /^\/[a-z-]+\/?$/.test(path)) activeTool = 'hub';
         else activeTool = 'ore-calculator';
     }
@@ -125,6 +262,9 @@ export function renderNavigationDrawerContent(options = {}) {
     const langPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
     const cleanTag = options.playerTag ? options.playerTag.replace(/^#/, '').trim() : '';
     const tagQuery = cleanTag ? `?tag=${encodeURIComponent(cleanTag)}` : '';
+
+    activeDrawerOptions = { ...options, activeTool, cleanTag };
+    bindDrawerDelegatedEvents(drawer);
 
     // Render pinned tool dock
     const dockContainer = drawer.querySelector('.navigation-drawer__dock');
@@ -218,28 +358,6 @@ export function renderNavigationDrawerContent(options = {}) {
                 </div>
                 <button type="button" class="navigation-drawer__context-guest-btn">${escapeHtml(translate('actions.load') || 'Load')}</button>
             `;
-
-            const guestBtn = contextCard.querySelector('.navigation-drawer__context-guest-btn');
-            if (guestBtn) {
-                guestBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    closeDrawerInternal(drawer);
-                    if (typeof options.onGuestLoad === 'function') {
-                        options.onGuestLoad();
-                    } else if (activeTool === 'hub') {
-                        const searchInput = document.getElementById('landing-search-input');
-                        const searchSection = document.getElementById('landing-search-form');
-                        searchSection?.scrollIntoView({ behavior: 'smooth' });
-                        searchInput?.focus();
-                    } else if (activeTool === 'hero-journey') {
-                        const searchInput = document.getElementById('hj-search-input');
-                        searchInput?.focus();
-                    } else {
-                        const playerBtn = document.getElementById('player-dropdown-button');
-                        if (playerBtn) playerBtn.click();
-                    }
-                });
-            }
         } else {
             contextCard.className = 'navigation-drawer__context-card';
 
@@ -295,43 +413,6 @@ export function renderNavigationDrawerContent(options = {}) {
                     ${buildDrawerMetricsHtml(options.stats, summary)}
                 </div>
             `;
-
-            if (hasMultipleAccounts) {
-                const switchBtn = contextCard.querySelector('.navigation-drawer__context-switch-btn');
-                const switcherMenu = contextCard.querySelector('.navigation-drawer__context-switcher-menu');
-                if (switchBtn) {
-                    switchBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const isExpanded = switchBtn.getAttribute('aria-expanded') === 'true';
-                        switchBtn.setAttribute('aria-expanded', String(!isExpanded));
-                        switchBtn.classList.toggle('is-expanded', !isExpanded);
-                        if (switcherMenu) {
-                            switcherMenu.hidden = isExpanded;
-                        }
-                    });
-
-                    contextCard.querySelectorAll('.navigation-drawer__context-switcher-item').forEach(item => {
-                        item.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            const targetTag = item.getAttribute('data-tag');
-                            if (!targetTag || targetTag === cleanTag) {
-                                switchBtn.setAttribute('aria-expanded', 'false');
-                                switchBtn.classList.remove('is-expanded');
-                                if (switcherMenu) switcherMenu.hidden = true;
-                                return;
-                            }
-                            closeDrawerInternal(drawer);
-                            if (typeof options.onAccountSwitch === 'function') {
-                                options.onAccountSwitch(targetTag);
-                            } else {
-                                const url = new URL(window.location.href);
-                                url.searchParams.set('tag', targetTag);
-                                window.location.href = url.toString();
-                            }
-                        });
-                    });
-                }
-            }
         }
     }
 
@@ -381,15 +462,6 @@ export function renderNavigationDrawerContent(options = {}) {
                     ${item.badge ? `<span class="navigation-drawer__tab-badge">${escapeHtml(item.badge)}</span>` : ''}
                 `;
 
-                el.addEventListener('click', (e) => {
-                    closeDrawerInternal(drawer);
-                    if (typeof item.onSelect === 'function') {
-                        item.onSelect(item.id, e);
-                    } else if (typeof options.onViewSelect === 'function') {
-                        options.onViewSelect(item.id, e);
-                    }
-                });
-
                 tabsContainer.appendChild(el);
             });
         } else if (activeTool === 'ore-calculator') {
@@ -416,13 +488,6 @@ export function renderNavigationDrawerContent(options = {}) {
                     <clashcalc-assets-svg name="${currentIconName}" fill="${isActive ? 'var(--accent-primary)' : 'var(--text-secondary)'}"></clashcalc-assets-svg>
                     <span data-i18n="${tab.i18nKey}">${escapeHtml(translate(tab.i18nKey))}</span>
                 `;
-
-                button.addEventListener('click', (e) => {
-                    closeDrawerInternal(drawer);
-                    if (typeof options.onViewSelect === 'function') {
-                        options.onViewSelect(tab.id, e);
-                    }
-                });
 
                 tabsContainer.appendChild(button);
             });
@@ -458,16 +523,6 @@ export function renderNavigationDrawerContent(options = {}) {
                     <span>${escapeHtml(view.title)}</span>
                 `;
 
-                button.addEventListener('click', (e) => {
-                    closeDrawerInternal(drawer);
-                    if (typeof options.onViewSelect === 'function') {
-                        options.onViewSelect(view.id, e);
-                    } else {
-                        const tabBtn = document.getElementById(`tab-btn-${view.id}`);
-                        if (tabBtn) tabBtn.click();
-                    }
-                });
-
                 tabsContainer.appendChild(button);
             });
         }
@@ -496,38 +551,6 @@ export function renderNavigationDrawerContent(options = {}) {
                 <span class="tab-label">${escapeHtml(item.title)}</span>
                 ${isModal ? '' : '<clashcalc-assets-svg name="open-in-new" class="open-in-icon" fill="var(--text-secondary)"></clashcalc-assets-svg>'}
             `;
-
-            if (isModal) {
-                el.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    closeDrawerInternal(drawer);
-                    if (item.action === 'changelog') {
-                        try {
-                            initializeChangelogModal();
-                            const content = getChangelogHtml();
-                            showChangelogModal(content);
-                        } catch (err) {
-                            console.error('Failed to open in-app changelog modal:', err);
-                        }
-                    } else if (item.action === 'bug-report') {
-                        try {
-                            openBugReportModal();
-                        } catch (err) {
-                            console.error('Failed to open in-app bug report modal:', err);
-                        }
-                    } else if (item.action === 'contact') {
-                        try {
-                            openContactModal();
-                        } catch (err) {
-                            console.error('Failed to open in-app contact modal:', err);
-                        }
-                    }
-                });
-            } else {
-                el.addEventListener('click', () => {
-                    closeDrawerInternal(drawer);
-                });
-            }
 
             return el;
         };
@@ -571,6 +594,8 @@ export function renderNavigationDrawerContent(options = {}) {
             subtitleEl.textContent = translate('views.heroJourney.widget.title') || "Hero's Journey";
         } else if (activeTool === 'damage-calculator') {
             subtitleEl.textContent = translate('views.damageCalc.offense.equipmentDamageBadge') || 'Equipment Damage';
+        } else if (activeTool === 'account') {
+            subtitleEl.textContent = translate('views.account.title') || 'Account & Security';
         } else {
             subtitleEl.textContent = translate('views.landing.drawerSubtitle') || 'Clash of Clans Toolkit';
         }

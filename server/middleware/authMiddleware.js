@@ -17,7 +17,8 @@ function extractAuthUser(req, res, next) {
             const decoded = verifyToken(token);
             /** @type {any} */ (req).authUser = {
                 username: decoded.sub,
-                userId: decoded.userId
+                userId: decoded.userId,
+                sid: decoded.sid || null
             };
         } catch (_) {
             /** @type {any} */ (req).authUser = null;

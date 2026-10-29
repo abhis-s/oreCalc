@@ -73,46 +73,6 @@
         padding: $spacing-sm;
         gap: $spacing-sm;
     }
-
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: $spacing-xs;
-    }
-
-    &__title {
-        font-size: $font-size-lg;
-        font-weight: $font-weight-bold;
-        color: $text-primary;
-        margin: 0;
-
-        @media (max-width: $breakpoint-micro) {
-            font-size: $font-size-md;
-        }
-    }
-
-    &__clear-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: $spacing-2xs;
-        padding-block: $spacing-2xs;
-        padding-inline: $spacing-sm;
-        border-radius: $shape-corner-full;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-semibold;
-        color: $text-secondary;
-        background-color: $bg-surface-tertiary;
-        border: 1px solid $border-primary;
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
-
-        &:hover {
-            background-color: $btn-bg-grey-soft-hover;
-            color: $text-primary;
-        }
-    }
 }
 
 .calc-select {
@@ -129,11 +89,6 @@
     &:focus {
         border-color: $border-accent;
     }
-}
-
-.calc-slider {
-    width: 100%;
-    accent-color: $accent-primary;
 }
 
 .calc-view-header {

@@ -27,6 +27,8 @@ module.exports = {
         '**/js/heroJourneyApp.js',
         '**/damage-calculator/**',
         '**/js/damageApp.js',
+        '**/account/**',
+        '**/js/accountApp.js',
         '**/privacy/**',
         '**/terms/**',
         '**/licenses/**',

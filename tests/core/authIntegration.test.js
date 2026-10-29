@@ -3,35 +3,86 @@ import assert from 'node:assert/strict';
 
 // Mock localStorage for Node.js environment
 const store = new Map();
-if (typeof globalThis.localStorage === 'undefined') {
-    globalThis.localStorage = {
-        getItem: (key) => store.get(key) ?? null,
-        setItem: (key, val) => store.set(key, String(val)),
-        removeItem: (key) => store.delete(key),
-        clear: () => store.clear(),
-        key: (index) => Array.from(store.keys())[index] ?? null,
-        get length() { return store.size; }
-    };
-}
+globalThis.localStorage = {
+    getItem: (key) => store.get(key) ?? null,
+    setItem: (key, val) => store.set(key, String(val)),
+    removeItem: (key) => store.delete(key),
+    clear: () => store.clear(),
+    key: (index) => Array.from(store.keys())[index] ?? null,
+    get length() { return store.size; }
+};
 
 // Mock sessionStorage for Node.js environment
 const sessionStore = new Map();
-if (typeof globalThis.sessionStorage === 'undefined') {
-    globalThis.sessionStorage = {
-        getItem: (key) => sessionStore.get(key) ?? null,
-        setItem: (key, val) => sessionStore.set(key, String(val)),
-        removeItem: (key) => sessionStore.delete(key),
-        clear: () => sessionStore.clear(),
-        key: (index) => Array.from(sessionStore.keys())[index] ?? null,
-        get length() { return sessionStore.size; }
+globalThis.sessionStorage = {
+    getItem: (key) => sessionStore.get(key) ?? null,
+    setItem: (key, val) => sessionStore.set(key, String(val)),
+    removeItem: (key) => sessionStore.delete(key),
+    clear: () => sessionStore.clear(),
+    key: (index) => Array.from(sessionStore.keys())[index] ?? null,
+    get length() { return sessionStore.size; }
+};
+
+// Mock window and document if running in Node.js
+if (typeof globalThis.history === 'undefined') {
+    globalThis.history = {
+        replaceState: (_data, _unused, url) => {
+            if (url && typeof url === 'string') {
+                if (url.startsWith('/')) {
+                    globalThis.window.location.pathname = url.split('?')[0].split('#')[0];
+                    globalThis.window.location.search = url.includes('?') ? '?' + url.split('?')[1].split('#')[0] : '';
+                    globalThis.window.location.hash = url.includes('#') ? '#' + url.split('#')[1] : '';
+                }
+            }
+        }
     };
 }
 
-// Mock window and document if running in Node.js
 if (typeof globalThis.window === 'undefined') {
     globalThis.window = {
-        location: { hostname: 'localhost', origin: 'http://localhost:8080' },
+        location: {
+            hostname: 'localhost',
+            origin: 'http://localhost:8080',
+            pathname: '/ore-calculator/',
+            search: '',
+            hash: '',
+            href: 'http://localhost:8080/ore-calculator/'
+        },
+        history: globalThis.history,
         __ENV__: { APP_VERSION: '2.2.0', PUBLIC_API_BASE_URL: 'http://localhost:3000', VITE_API_BASE_URL: 'http://localhost:3000' }
+    };
+} else {
+    if (!globalThis.window.location) {
+        globalThis.window.location = {
+            hostname: 'localhost',
+            origin: 'http://localhost:8080',
+            pathname: '/ore-calculator/',
+            search: '',
+            hash: '',
+            href: 'http://localhost:8080/ore-calculator/'
+        };
+    }
+    if (!globalThis.window.history) {
+        globalThis.window.history = globalThis.history;
+    }
+}
+
+if (!globalThis.window.addEventListener) {
+    /** @type {Map<string, Function[]>} */
+    const winListeners = new Map();
+    globalThis.window.addEventListener = (event, cb) => {
+        if (!winListeners.has(event)) winListeners.set(event, []);
+        winListeners.get(event).push(cb);
+    };
+    globalThis.window.removeEventListener = (event, cb) => {
+        const arr = winListeners.get(event) || [];
+        const idx = arr.indexOf(cb);
+        if (idx >= 0) arr.splice(idx, 1);
+    };
+    globalThis.window.dispatchEvent = (event) => {
+        const arr = winListeners.get(event.type) || [];
+        arr.forEach(cb => cb(event));
+        return true;
     };
 }
 
@@ -82,28 +133,38 @@ globalThis.fetch = async (url) => {
     return { ok: false, status: 404 };
 };
 
-import { ALLOWED_STATIC_STORAGE_KEYS, normalizePlayerTag } from '../../js/core/storageKeys.js';
+import { ALLOWED_STATIC_STORAGE_KEYS, normalizePlayerTag, getActiveUserId, rotateActiveUserId } from '../../js/core/storageKeys.js';
 import { loadTranslations } from '../../js/i18n/translator.js';
 await loadTranslations('en');
-import {
+const {
     getAuthenticatedUser,
     isAuthenticated,
     logout,
     purgeLocalDataOnLogin,
+    resetApplication,
+    initCrossTabAuthSync,
+    resetCrossTabAuthSyncForTesting
+} = await import('../../js/services/authClientService.js');
+const {
     normalizeWebAuthnError,
     isPasskeyAutofillSupported,
     getSuggestedPasskeyName,
     resolveUniquePasskeyName
-} from '../../js/services/authClientService.js';
+} = await import('../../js/services/authPasskeyClientService.js');
 import { getResettingState, saveState, setResettingState } from '../../js/core/localStorageManager.js';
 import { state } from '../../js/core/state.js';
-import { handleDeletePasskey } from '../../js/components/auth/passkeysModalInputs.js';
 
 describe('Auth Client Integration & Session Invariants Suite', () => {
     beforeEach(() => {
         store.clear();
         sessionStore.clear();
         setResettingState(false);
+        if (globalThis.window?.location) {
+            globalThis.window.location.pathname = '/ore-calculator/';
+            globalThis.window.location.search = '';
+            globalThis.window.location.hash = '';
+            globalThis.window.location.href = 'http://localhost:8080/ore-calculator/';
+        }
     });
 
     test('ALLOWED_STATIC_STORAGE_KEYS whitelist retains auth token, username, and avatar', () => {
@@ -196,8 +257,8 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         };
 
         const ids = [
-            'account-guest-section', 'account-auth-section', 'account-profile-username',
-            'account-profile-avatar-img',
+            'account-popover-guest-section', 'account-popover-auth-section', 'account-popover-username',
+            'account-popover-avatar-img',
             'header-account-btn', 'header-account-icon-wrapper', 'header-account-avatar-img'
         ];
         ids.forEach(createEl);
@@ -206,128 +267,27 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
 
         // Authenticated user with custom avatar
         updateAccountUI({ username: 'layout_user_1', avatar: 'golem' });
-        assert.equal(elements.get('account-profile-username').textContent, 'layout_user_1');
-        assert.equal(elements.get('account-profile-avatar-img').getAttribute('src'), 'assets/avatars/golem.png');
+        assert.equal(elements.get('account-popover-username').textContent, 'layout_user_1');
+        assert.equal(elements.get('account-popover-avatar-img').getAttribute('src'), 'assets/avatars/golem.png');
         assert.equal(elements.get('header-account-avatar-img').getAttribute('src'), 'assets/avatars/golem.png');
         assert.ok(elements.get('header-account-btn').classList.contains('is-authenticated'));
         assert.ok(elements.get('header-account-icon-wrapper').classList.contains('is-hidden'));
         assert.ok(!elements.get('header-account-avatar-img').classList.contains('is-hidden'));
-        assert.ok(elements.get('account-guest-section').classList.contains('is-hidden'));
-        assert.ok(!elements.get('account-auth-section').classList.contains('is-hidden'));
-        assert.equal(elements.get('account-guest-section').style.display, 'none');
-        assert.equal(elements.get('account-auth-section').style.display, '');
+        assert.ok(elements.get('account-popover-guest-section').classList.contains('is-hidden'));
+        assert.ok(!elements.get('account-popover-auth-section').classList.contains('is-hidden'));
+        assert.equal(elements.get('account-popover-guest-section').style.display, 'none');
+        assert.equal(elements.get('account-popover-auth-section').style.display, '');
 
         // Guest user (null)
         updateAccountUI(null);
-        assert.equal(elements.get('account-profile-username').textContent, '');
+        assert.equal(elements.get('account-popover-username').textContent, '');
         assert.ok(!elements.get('header-account-btn').classList.contains('is-authenticated'));
         assert.ok(!elements.get('header-account-icon-wrapper').classList.contains('is-hidden'));
         assert.ok(elements.get('header-account-avatar-img').classList.contains('is-hidden'));
-        assert.ok(!elements.get('account-guest-section').classList.contains('is-hidden'));
-        assert.ok(elements.get('account-auth-section').classList.contains('is-hidden'));
-        assert.equal(elements.get('account-guest-section').style.display, '');
-        assert.equal(elements.get('account-auth-section').style.display, 'none');
-    });
-
-    test('renderPasskeysList cleanly switches between empty state and device items', async () => {
-        const { renderPasskeysList } = await import('../../js/components/auth/passkeysModalDisplay.js');
-        const elements = new Map();
-        const createEl = (id) => {
-            const classList = new Set();
-            const el = {
-                id,
-                classList: {
-                    add: (cls) => classList.add(cls),
-                    remove: (cls) => classList.delete(cls),
-                    contains: (cls) => classList.has(cls)
-                },
-                style: {},
-                innerHTML: '',
-                textContent: ''
-            };
-            elements.set(id, el);
-            return el;
-        };
-
-        createEl('passkeys-items-list');
-        createEl('passkeys-empty-state');
-
-        globalThis.document.getElementById = (id) => elements.get(id) || null;
-
-        // Empty state
-        renderPasskeysList([]);
-        assert.ok(elements.get('passkeys-items-list').classList.contains('is-hidden'));
-        assert.equal(elements.get('passkeys-items-list').style.display, 'none');
-        assert.ok(!elements.get('passkeys-empty-state').classList.contains('is-hidden'));
-        assert.equal(elements.get('passkeys-empty-state').style.display, '');
-
-        // Populated state — no Active Session badge should ever appear
-        renderPasskeysList([
-            { credentialID: 'cred_1', deviceName: 'iCloud Keychain', createdAt: Date.now() },
-            { credentialID: 'cred_2', deviceName: 'Security Key', createdAt: Date.now() }
-        ]);
-        assert.ok(!elements.get('passkeys-items-list').classList.contains('is-hidden'));
-        assert.equal(elements.get('passkeys-items-list').style.display, '');
-        assert.ok(elements.get('passkeys-empty-state').classList.contains('is-hidden'));
-        assert.equal(elements.get('passkeys-empty-state').style.display, 'none');
-        assert.ok(elements.get('passkeys-items-list').innerHTML.includes('iCloud Keychain'));
-        assert.ok(elements.get('passkeys-items-list').innerHTML.includes('Security Key'));
-        assert.equal(elements.get('passkeys-items-list').innerHTML.includes('Active Session'), false);
-        assert.equal(elements.get('passkeys-items-list').innerHTML.includes('passkey-badge-current'), false);
-    });
-
-    test('openAvatarModal and highlightActiveAvatar select and highlight avatar options accurately', async () => {
-        const { openAvatarModal } = await import('../../js/components/appSettings/settingsAccountInputs.js');
-        const { highlightActiveAvatar } = await import('../../js/components/appSettings/settingsAccountDisplay.js');
-
-        const options = ['archer', 'builder', 'giant', 'goblin', 'golem', 'hogRider', 'hog', 'skeleton'].map(avatar => {
-            const classList = new Set();
-            return {
-                getAttribute: (attr) => attr === 'data-avatar' ? avatar : null,
-                setAttribute: () => {},
-                removeAttribute: () => {},
-                focus: () => {},
-                classList: {
-                    add: (cls) => classList.add(cls),
-                    remove: (cls) => classList.delete(cls),
-                    toggle: (cls, force) => force ? classList.add(cls) : classList.delete(cls),
-                    contains: (cls) => classList.has(cls)
-                }
-            };
-        });
-
-        globalThis.document.querySelectorAll = (selector) => {
-            if (selector === '.avatar-option-btn') return options;
-            return [];
-        };
-
-        globalThis.document.querySelector = (selector) => {
-            const match = typeof selector === 'string' ? selector.match(/\[data-avatar="([^"]+)"\]/) : null;
-            if (match) {
-                return options.find(s => s.getAttribute('data-avatar') === match[1]) || null;
-            }
-            return null;
-        };
-
-        highlightActiveAvatar('golem');
-        assert.equal(options.find(s => s.getAttribute('data-avatar') === 'golem')?.classList.contains('is-selected'), true);
-        assert.equal(options.find(s => s.getAttribute('data-avatar') === 'archer')?.classList.contains('is-selected'), false);
-
-        // Test openAvatarModal integration
-        store.set('clashCalc_authToken', 'jwt.test.token');
-        store.set('clashCalc_username', 'clash_master');
-        store.set('clashCalc_avatar', 'skeleton');
-
-        const modalEl = {
-            id: 'avatar-modal',
-            classList: { add: () => {}, remove: () => {} },
-            showModal: () => {},
-            querySelectorAll: () => []
-        };
-        globalThis.document.getElementById = (id) => id === 'avatar-modal' ? modalEl : null;
-
-        openAvatarModal();
-        assert.equal(options.find(s => s.getAttribute('data-avatar') === 'skeleton')?.classList.contains('is-selected'), true);
+        assert.ok(!elements.get('account-popover-guest-section').classList.contains('is-hidden'));
+        assert.ok(elements.get('account-popover-auth-section').classList.contains('is-hidden'));
+        assert.equal(elements.get('account-popover-guest-section').style.display, '');
+        assert.equal(elements.get('account-popover-auth-section').style.display, 'none');
     });
 
     test('normalizeWebAuthnError normalizes WebAuthn errors and DOMExceptions accurately', () => {
@@ -428,16 +388,16 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.equal(getSuggestedPasskeyName('Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)', 'iPad'), 'iCloud Keychain');
 
         // Pixel
-        assert.equal(getSuggestedPasskeyName('Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro Build/UD1A.230803.041)', 'Linux armv8l'), 'Google Password Manager');
+        assert.equal(getSuggestedPasskeyName('Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro Build/UD1A.230803.041)', 'Linux armv8l'), 'Google Passwords');
 
         // Windows
         assert.equal(getSuggestedPasskeyName('Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'Win32'), 'Windows Hello');
 
         // Chromebook
-        assert.equal(getSuggestedPasskeyName('Mozilla/5.0 (X11; CrOS x86_64 14541.0.0)', 'Linux x86_64'), 'Google Password Manager');
+        assert.equal(getSuggestedPasskeyName('Mozilla/5.0 (X11; CrOS x86_64 14541.0.0)', 'Linux x86_64'), 'Google Passwords');
 
         // Generic Android
-        assert.equal(getSuggestedPasskeyName('Mozilla/5.0 (Linux; Android 13; K)', 'Linux armv8l'), 'Google Password Manager');
+        assert.equal(getSuggestedPasskeyName('Mozilla/5.0 (Linux; Android 13; K)', 'Linux armv8l'), 'Google Passwords');
 
         // Linux PC
         assert.equal(getSuggestedPasskeyName('Mozilla/5.0 (X11; Linux x86_64)', 'Linux x86_64'), 'Passkey');
@@ -469,73 +429,6 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         // Fallback default name deduplication
         assert.equal(resolveUniquePasskeyName('Passkey', [{ deviceName: 'Passkey' }]), 'Passkey #2');
         assert.equal(resolveUniquePasskeyName('Passkey', [{ deviceName: 'Passkey' }, { deviceName: 'Passkey #2' }]), 'Passkey #3');
-    });
-
-    test('handleDeletePasskey gracefully self-heals on passkeyNotFound without error banner', async () => {
-        const statusEl = {
-            textContent: '',
-            classList: {
-                classes: new Set(),
-                toggle(cls, force) {
-                    if (force) this.classes.add(cls);
-                    else this.classes.delete(cls);
-                },
-                contains(cls) { return this.classes.has(cls); }
-            }
-        };
-        const listEl = {
-            innerHTML: '',
-            style: {},
-            classList: { add: () => {}, remove: () => {} }
-        };
-        const emptyEl = {
-            style: {},
-            classList: { add: () => {}, remove: () => {} }
-        };
-
-        const prevGetElementById = globalThis.document.getElementById;
-        globalThis.document.getElementById = (id) => {
-            if (id === 'passkeys-status') return statusEl;
-            if (id === 'passkeys-items-list') return listEl;
-            if (id === 'passkeys-empty-state') return emptyEl;
-            return prevGetElementById ? prevGetElementById(id) : null;
-        };
-
-        const originalFetch = globalThis.fetch;
-        let deleteCalled = false;
-        let fetchPasskeysCalled = false;
-
-        globalThis.fetch = async (url, options = {}) => {
-            const method = options?.method || 'GET';
-            if (method === 'DELETE' && String(url).includes('/api/auth/passkeys/ghost-cred-id')) {
-                deleteCalled = true;
-                return {
-                    ok: false,
-                    status: 404,
-                    json: async () => ({ reason: 'passkeyNotFound', message: 'Passkey not found.' })
-                };
-            }
-            if (method === 'GET' && String(url).includes('/api/auth/passkeys')) {
-                fetchPasskeysCalled = true;
-                return {
-                    ok: true,
-                    json: async () => ({ passkeys: [] })
-                };
-            }
-            return originalFetch(url, options);
-        };
-
-        try {
-            await handleDeletePasskey('ghost-cred-id');
-
-            assert.equal(deleteCalled, true, 'DELETE request should be sent');
-            assert.equal(fetchPasskeysCalled, true, 'loadPasskeysList should be invoked on passkeyNotFound');
-            assert.equal(statusEl.textContent, '', 'Status banner should be clear of error text');
-            assert.equal(statusEl.classList.contains('error'), false, 'Error class should not be active');
-        } finally {
-            globalThis.fetch = originalFetch;
-            globalThis.document.getElementById = prevGetElementById;
-        }
     });
 
     test('logout and purgeAccountDataOnLogout surgically clear player data, reset tags, and preserve device preferences', () => {
@@ -725,5 +618,131 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.ok(deJson.auth.disclaimer, 'de.json must contain auth.disclaimer');
         assert.ok(deJson.auth.disclaimer.includes('id="auth-terms-link"'), 'de.json disclaimer must include auth-terms-link');
         assert.ok(deJson.auth.disclaimer.includes('id="auth-privacy-link"'), 'de.json disclaimer must include auth-privacy-link');
+    });
+
+    test('getActiveUserId enforces authenticated token userId and self-heals local storage', () => {
+        const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+        const payload = Buffer.from(JSON.stringify({ username: 'bob', userId: 'uid_canonical_123', exp: 9999999999 })).toString('base64url');
+        const mockJwt = `${header}.${payload}.signature`;
+
+        store.set('clashCalc_authToken', mockJwt);
+        store.set('clashCalc_userId', 'tampered_uuid_456');
+
+        const resolved = getActiveUserId();
+        assert.equal(resolved, 'uid_canonical_123');
+        assert.equal(store.get('clashCalc_userId'), 'uid_canonical_123');
+
+        const rotated = rotateActiveUserId();
+        assert.equal(rotated, 'uid_canonical_123');
+        assert.equal(store.get('clashCalc_userId'), 'uid_canonical_123');
+    });
+
+    test('resetApplication universally purges credentials, player data, and rotates UUID while preserving theme and language', () => {
+        store.set('clashCalc_authToken', 'jwt.test.token');
+        store.set('clashCalc_username', 'clash_master_99');
+        store.set('clashCalc_avatar', 'golem');
+        store.set('clashCalc_hasPassword', 'true');
+        store.set('clashCalc_player_DEFAULT0', JSON.stringify({ name: 'Player 1' }));
+        store.set('clashCalc_player_8PJYGUJC', JSON.stringify({ name: 'Player 2' }));
+        store.set('clashCalc_planner_DEFAULT0', JSON.stringify({ plan: [] }));
+        store.set('clashCalc_history_DEFAULT0', JSON.stringify({ history: [] }));
+        store.set('clashCalc_playerTags', JSON.stringify(['DEFAULT0', '8PJYGUJC']));
+        store.set('clashCalc_activePlayerTag', '8PJYGUJC');
+        store.set('clashCalc_userId', 'original_user_uuid_123');
+        store.set('clashCalc_appSettings', JSON.stringify({
+            theme: 'light',
+            accentColor: 'emerald',
+            language: 'de',
+            uiTimestamps: { tour: 123456789 }
+        }));
+        sessionStore.set('transientSessionKey', 'transientVal');
+
+        globalThis.window.location.pathname = '/ore-calculator/';
+        globalThis.window.location.search = '?tag=8PJYGUJC';
+        globalThis.window.location.hash = '#defense';
+        globalThis.window.location.href = 'http://localhost:8080/ore-calculator/?tag=8PJYGUJC#defense';
+
+        assert.equal(typeof globalThis.window.resetApplication, 'function', 'window.resetApplication must be globally bound');
+        assert.equal(globalThis.window.resetApplication, resetApplication);
+        resetApplication();
+
+        assert.equal(getResettingState(), true, 'Resetting state flag must be active');
+
+        assert.equal(store.has('clashCalc_authToken'), false, 'clashCalc_authToken must be removed');
+        assert.equal(store.has('clashCalc_username'), false, 'clashCalc_username must be removed');
+        assert.equal(store.has('clashCalc_avatar'), false, 'clashCalc_avatar must be removed');
+        assert.equal(store.has('clashCalc_hasPassword'), false, 'clashCalc_hasPassword must be removed');
+
+        assert.equal(store.has('clashCalc_player_DEFAULT0'), false, 'DEFAULT0 player partition purged');
+        assert.equal(store.has('clashCalc_player_8PJYGUJC'), false, '8PJYGUJC player partition purged');
+        assert.equal(store.has('clashCalc_planner_DEFAULT0'), false, 'planner partition purged');
+        assert.equal(store.has('clashCalc_history_DEFAULT0'), false, 'history partition purged');
+        assert.equal(store.has('clashCalc_activePlayerTag'), false, 'active player tag removed');
+        assert.equal(store.get('clashCalc_playerTags'), JSON.stringify(['DEFAULT0']), 'Tags reset to DEFAULT0');
+
+        const rotatedUserId = store.get('clashCalc_userId');
+        assert.ok(rotatedUserId, 'A guest UUID must be set');
+        assert.notEqual(rotatedUserId, 'original_user_uuid_123', 'Guest UUID must be newly generated');
+
+        const preservedSettings = JSON.parse(store.get('clashCalc_appSettings') || '{}');
+        assert.equal(preservedSettings.theme, 'light', 'Theme preference preserved');
+        assert.equal(preservedSettings.accentColor, 'emerald', 'Accent color preserved');
+        assert.equal(preservedSettings.language, 'de', 'Language preference preserved');
+        assert.equal(preservedSettings.uiTimestamps?.tour, 123456789, 'Tour timestamp preserved');
+
+        assert.equal(sessionStore.size, 0, 'sessionStorage must be completely cleared');
+
+        assert.equal(globalThis.window.location.href, 'http://localhost:8080/ore-calculator/', 'Location reloads to clean pathname');
+    });
+
+    test('initCrossTabAuthSync reacts to storage events across tabs for logout, login, and profile updates', () => {
+        resetCrossTabAuthSyncForTesting();
+        initCrossTabAuthSync();
+
+        /** @type {any[]} */
+        const eventsReceived = [];
+        /** @param {any} e */
+        const handler = (e) => eventsReceived.push(e.detail);
+        globalThis.document.addEventListener('auth:state-change', handler);
+
+        store.set('clashCalc_authToken', 'new.cross.tab.jwt');
+        store.set('clashCalc_username', 'cross_tab_user');
+        globalThis.window.dispatchEvent({
+            type: 'storage',
+            key: 'clashCalc_authToken',
+            newValue: 'new.cross.tab.jwt',
+            oldValue: null
+        });
+
+        assert.equal(eventsReceived.length, 1);
+        assert.equal(eventsReceived[0].action, 'login');
+        assert.equal(eventsReceived[0].user?.username, 'cross_tab_user');
+
+        store.delete('clashCalc_authToken');
+        store.delete('clashCalc_username');
+        globalThis.window.dispatchEvent({
+            type: 'storage',
+            key: 'clashCalc_authToken',
+            newValue: null,
+            oldValue: 'new.cross.tab.jwt'
+        });
+
+        assert.equal(eventsReceived.length, 2);
+        assert.equal(eventsReceived[1].action, 'logout');
+        assert.equal(state.playerProfile, null);
+        assert.deepEqual(state.savedPlayerTags, ['DEFAULT0']);
+
+        store.set('clashCalc_avatar', 'giant');
+        globalThis.window.dispatchEvent({
+            type: 'storage',
+            key: 'clashCalc_avatar',
+            newValue: 'giant',
+            oldValue: 'archer'
+        });
+
+        assert.equal(eventsReceived.length, 3);
+        assert.equal(eventsReceived[2].action, 'profile-update');
+
+        globalThis.document.removeEventListener('auth:state-change', handler);
     });
 });

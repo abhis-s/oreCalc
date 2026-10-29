@@ -287,39 +287,6 @@ export function renderAppSettings(uiSettings) {
         });
     }
 
-    const cloudSyncToggle = dom.appSettings?.cloudSyncToggle || document.getElementById('settings-cloud-sync-toggle');
-    const cloudSyncInfo = dom.appSettings?.cloudSyncInfo || document.getElementById('settings-cloud-sync-info');
-    const addPlayerLink = dom.appSettings?.addPlayerLink || document.getElementById('settings-add-player-link');
-    const hasOnlyDefaultPlayer = state.savedPlayerTags.length === 1 && state.savedPlayerTags[0] === 'DEFAULT0';
-
-    if (cloudSyncToggle) {
-        if (hasOnlyDefaultPlayer) {
-            cloudSyncToggle.disabled = true;
-            cloudSyncToggle.checked = false;
-        } else {
-            cloudSyncToggle.disabled = false;
-            cloudSyncToggle.checked = uiSettings.cloudSync !== false;
-        }
-    }
-
-    if (cloudSyncInfo) {
-        if (hasOnlyDefaultPlayer) {
-            cloudSyncInfo.textContent = translate('views.settings.cloudSync.cloudSyncDisabledNoPlayer');
-            cloudSyncInfo.setAttribute('data-i18n', 'views.settings.cloudSync.cloudSyncDisabledNoPlayer');
-        } else {
-            cloudSyncInfo.textContent = translate('views.settings.cloudSync.cloudSyncInfo');
-            cloudSyncInfo.setAttribute('data-i18n', 'views.settings.cloudSync.cloudSyncInfo');
-        }
-    }
-
-    if (addPlayerLink) {
-        if (hasOnlyDefaultPlayer) {
-            addPlayerLink.classList.remove('hidden');
-        } else {
-            addPlayerLink.classList.add('hidden');
-        }
-    }
-
     const cozyQuiltToggle = document.getElementById('settings-cozy-quilt-toggle');
     const layoutBtns = document.querySelectorAll('.layout-segmented-control .segmented-btn');
 

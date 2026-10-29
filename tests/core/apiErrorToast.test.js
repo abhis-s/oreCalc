@@ -115,6 +115,23 @@ class MockElement {
         if (el === this) return true;
         return this.children.some(c => c.contains(el));
     }
+
+    matches(selector) {
+        if (selector === ':popover-open') {
+            return Boolean(this._popoverOpen);
+        }
+        return false;
+    }
+
+    showPopover() {
+        this._popoverOpen = true;
+        this._showPopoverCalls = (this._showPopoverCalls || 0) + 1;
+    }
+
+    hidePopover() {
+        this._popoverOpen = false;
+        this._hidePopoverCalls = (this._hidePopoverCalls || 0) + 1;
+    }
 }
 
 globalThis.window = {
@@ -126,6 +143,12 @@ globalThis.window = {
 globalThis.document = {
     body: new MockElement('body'),
     createElement: (tag) => new MockElement(tag),
+    querySelector: (selector) => {
+        if (selector?.includes('dialog[open]') && globalThis.__mockOpenDialog) {
+            return globalThis.__mockOpenDialog;
+        }
+        return null;
+    },
     getElementById: (id) => {
         const find = (el) => {
             if (el.id === id) return el;
@@ -152,6 +175,8 @@ const {
     showApiErrorToast,
     formatApiErrorMessage,
     resetApiErrorCooldown,
+    getOrCreateToastContainer,
+    ensureToastContainerInTopLayer,
     API_ERROR_COOLDOWN_MS
 } = await import('../../js/ui/toast.js');
 
@@ -273,5 +298,41 @@ describe('API Error Toast System & Mute Cooldown Suite', () => {
 
         const retryToast = showApiErrorToast('apiErrors.500');
         assert.ok(retryToast);
+    });
+
+    test('getOrCreateToastContainer initializes popover attribute as manual', () => {
+        const container = getOrCreateToastContainer();
+        assert.ok(container);
+        assert.equal(container.id, 'toast-container');
+        assert.equal(container.getAttribute('popover'), 'manual');
+    });
+
+    test('ensureToastContainerInTopLayer promotes container and re-promotes when dialog is active', () => {
+        const container = getOrCreateToastContainer();
+        container._showPopoverCalls = 0;
+        container._hidePopoverCalls = 0;
+        container._popoverOpen = false;
+        globalThis.__mockOpenDialog = null;
+
+        ensureToastContainerInTopLayer(container);
+        assert.equal(container._showPopoverCalls, 1);
+        assert.equal(container._popoverOpen, true);
+
+        // When dialog is active and container is already open, it re-promotes to apex
+        globalThis.__mockOpenDialog = new MockElement('dialog');
+        ensureToastContainerInTopLayer(container);
+        assert.equal(container._hidePopoverCalls, 1);
+        assert.equal(container._showPopoverCalls, 2);
+        assert.equal(container._popoverOpen, true);
+
+        globalThis.__mockOpenDialog = null;
+    });
+
+    test('showToast activates popover and cleans up container when queue clears', () => {
+        const toast = showToast('Test popover promotion', 'info');
+        assert.ok(toast);
+        const container = globalThis.document.getElementById('toast-container');
+        assert.ok(container);
+        assert.equal(container.matches(':popover-open'), true);
     });
 });

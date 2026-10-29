@@ -160,6 +160,7 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
 
     const recBadge = document.getElementById('eq-details-rec-badge');
     if (recBadge) {
+        recBadge.hidden = false;
         recBadge.style.display = 'inline-flex';
         recBadge.className = 'eq-badge badge-unreleased';
         recBadge.innerHTML = `<clashcalc-assets-svg name="experiment" class="badge-icon"></clashcalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;

@@ -6,14 +6,11 @@ import { handleStateUpdate } from '../../core/stateManager.js';
 import { populateDropdowns } from './appSettingsDisplay.js';
 import { showChangelogModal } from '../changelog/changelogModal.js';
 import { showAddPlayerModal } from '../player/playerModalInputs.js';
-import { openLicensesModal, openPrivacyModal, openTermsOfUseModal } from './settingsLegalModals.js';
-import { openBugReportModal, openContactModal, openRunningCostsModal } from './settingsSupportModals.js';
+import { openBugReportModal, openContactModal } from './settingsSupportModals.js';
 import { initializeSettingsAppearance } from './settingsAppearanceInputs.js';
 import { initializeSettingsAccount } from './settingsAccountInputs.js';
 import { initializeAuthModal } from '../auth/authModalInputs.js';
-import { initializePasskeysModal } from '../auth/passkeysModalInputs.js';
 import { initializeSettingsDataManagement } from './settingsDataManagementInputs.js';
-import { initializeDeviceSyncInputs } from './settingsDeviceSyncInputs.js';
 import { initializeSettingsPricing } from './settingsPricingInputs.js';
 import { dom } from '../../dom/domElements.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
@@ -33,10 +30,8 @@ export function initializeAppSettings() {
     populateDropdowns();
     initializeSettingsAccount();
     initializeAuthModal();
-    initializePasskeysModal();
     initializeSettingsAppearance();
     initializeSettingsDataManagement();
-    initializeDeviceSyncInputs();
     initializeSettingsPricing();
 
     const {
@@ -142,14 +137,6 @@ export function initializeAppSettings() {
                     openBugReportModal();
                 } else if (itemId === 'contact') {
                     openContactModal();
-                } else if (itemId === 'privacy') {
-                    openPrivacyModal();
-                } else if (itemId === 'termsOfUse') {
-                    openTermsOfUseModal();
-                } else if (itemId === 'licenses') {
-                    openLicensesModal();
-                } else if (itemId === 'runningCosts') {
-                    openRunningCostsModal();
                 }
                 return;
             }

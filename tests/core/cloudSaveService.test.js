@@ -323,4 +323,58 @@ describe('cloudSaveService - Defensive State & Guest Profile Invariants', () => 
             globalThis.fetch = originalFetch;
         }
     });
+
+    test('initializeAppData discards stale 410 deletedUser when active userId has already changed', async () => {
+        const originalFetch = globalThis.fetch;
+
+        globalThis.fetch = async (url) => {
+            if (String(url).includes('/api/user-data/load/')) {
+                // Simulate that while load request was in-flight, a new user authenticated
+                globalThis.localStorage.setItem('clashCalc_userId', 'new-auth-user-5678');
+                return {
+                    ok: false,
+                    status: 410,
+                    json: async () => ({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' })
+                };
+            }
+            return { ok: true, status: 200, json: async () => ({}) };
+        };
+
+        try {
+            globalThis.localStorage.setItem('clashCalc_userId', 'stale-deleted-user-1234');
+            globalThis.localStorage.setItem('clashCalc_playerTags', JSON.stringify(['8PJYGUJC']));
+            const result = await initializeAppData();
+            assert.equal(result, null, 'Stale 410 load must return null gracefully');
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('triggerCloudSave discards stale 410 deletedUser when active session has changed', async () => {
+        const originalFetch = globalThis.fetch;
+        globalThis.fetch = async (url) => {
+            if (String(url).includes('/api/user-data/save')) {
+                // Simulate that session rotated or logged in while save was in flight
+                globalThis.localStorage.setItem('clashCalc_userId', 'new-session-user-9999');
+                return {
+                    ok: false,
+                    status: 410,
+                    json: async () => ({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' })
+                };
+            }
+            return { ok: true, status: 200, json: async () => ({}) };
+        };
+
+        try {
+            globalThis.localStorage.setItem('clashCalc_userId', 'old-deleted-user-0000');
+            state.savedPlayerTags = ['8PJYGUJC'];
+            state.allPlayersData = { '8PJYGUJC': { heroes: {} } };
+            state.uiSettings = { cloudSync: true };
+
+            const result = await triggerCloudSave({ silent: true });
+            assert.equal(result, false, 'Stale 410 save must return false gracefully without throwing');
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
 });

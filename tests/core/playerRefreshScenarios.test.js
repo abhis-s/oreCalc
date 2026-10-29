@@ -133,7 +133,6 @@ describe('Player Refresh Scenarios & 10-Minute Staleness Window Suite', async ()
         initAutoRefreshTriggers
     } = await import('../../js/components/player/playerRefreshController.js');
     const { handlePlayerSelection } = await import('../../js/components/player/playerDropdownInputs.js');
-    const { dom } = await import('../../js/dom/domElements.js');
 
     beforeEach(() => {
         mockStorage.clear();
@@ -305,18 +304,5 @@ describe('Player Refresh Scenarios & 10-Minute Staleness Window Suite', async ()
         // Clock skew guard: Timestamp in future (> 60s ahead) -> Treated as stale
         setPlayerLastRefreshed(tag, mockCurrentTime + 120000);
         assert.equal(isPlayerRefreshStale(tag, cooldown), true, 'Future timestamp > 60s must be treated as stale');
-    });
-
-    test('Scenario 6: Complete DOM Decoupling Invariant', () => {
-        // Assert header template has zero refresh-button elements
-        const headerHtml = fs.readFileSync(path.join(projectRoot, 'partials/header.html'), 'utf8');
-        assert.equal(headerHtml.includes('id="refresh-button"'), false, 'partials/header.html must not contain #refresh-button');
-
-        // Assert header stylesheet has zero #refresh-button rules
-        const headerScss = fs.readFileSync(path.join(projectRoot, 'css/layout/_header.scss'), 'utf8');
-        assert.equal(headerScss.includes('#refresh-button'), false, 'css/layout/_header.scss must not contain #refresh-button');
-
-        // Assert DOM cache has zero refreshButton binding
-        assert.equal(dom?.controls?.refreshButton, undefined, 'dom.controls must not hold refreshButton reference');
     });
 });

@@ -9,6 +9,7 @@ import { initializeGuidedSetupStepsInputs } from './guidedSetupStepsInputs.js';
 import { syncGuidedSetupQuickSettings } from './guidedSetupStepsDisplay.js';
 import { renderProfilePreviewCard } from './guidedSetupProfileDisplay.js';
 import { goToNextStep, goToPrevStep, goToStep, skipSetup } from './guidedSetupNavigation.js';
+import { enhanceClipboardInput, triggerAutoPaste } from '../common/clipboardInputController.js';
 
 let isGuidedSetupInitialized = false;
 
@@ -31,10 +32,14 @@ export function openGuidedSetupModal(options = {}) {
     const startStep = options.startStep || 1;
     const initialTag = options.initialTag ? normalizePlayerTag(options.initialTag) : null;
 
+    const tagInput = /** @type {HTMLInputElement|null} */ (document.getElementById('guided-setup-player-tag-input'));
+    if (tagInput) {
+        enhanceClipboardInput(tagInput);
+    }
+
     if (initialTag) {
         guidedSetupState.activeTag = initialTag;
-        const input = /** @type {HTMLInputElement|null} */ (document.getElementById('guided-setup-player-tag-input'));
-        if (input) input.value = initialTag;
+        if (tagInput) tagInput.value = initialTag;
 
         const existingPlayer = state.allPlayersData?.[initialTag];
         if (existingPlayer) {
@@ -50,8 +55,10 @@ export function openGuidedSetupModal(options = {}) {
         const savedContainer = document.getElementById('guided-setup-saved-profiles-container');
         if (savedContainer) savedContainer.style.display = 'none';
     } else {
-        const input = /** @type {HTMLInputElement|null} */ (document.getElementById('guided-setup-player-tag-input'));
-        if (input) input.value = '';
+        if (tagInput) {
+            tagInput.value = '';
+            void triggerAutoPaste(tagInput);
+        }
         const previewContainer = document.getElementById('guided-setup-profile-preview-container');
         if (previewContainer) previewContainer.style.display = 'none';
         renderSavedProfilesList();

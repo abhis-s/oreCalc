@@ -89,32 +89,6 @@
             padding-inline: $spacing-xs;
         }
     }
-
-    &__header-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: $spacing-sm;
-        width: 100%;
-        margin-block-end: $spacing-sm;
-
-        .calc-sources-section__modifier-row {
-            flex: 1 1 auto;
-            min-width: 0;
-        }
-
-        .calc-sources-section__edit-btn {
-            flex-shrink: 0;
-        }
-    }
-}
-
-.calc-card__header-actions {
-    display: flex;
-    align-items: center;
-    gap: $spacing-xs;
-    flex-wrap: wrap;
 }
 
 .calc-damage-sources-grid {
@@ -145,7 +119,7 @@
     border: 1px solid $border-primary;
     border-radius: $shape-corner-small;
     cursor: pointer;
-    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast, opacity $transition-fast;
+    transition: border-color $transition-fast, background-color $transition-fast, opacity $transition-fast;
     flex-shrink: 0;
 
     @media (max-width: $breakpoint-micro) {
@@ -155,7 +129,6 @@
 
     &:hover {
         border-color: $border-accent;
-        transform: translateY(-1px);
     }
 
     &.is-active {
@@ -265,7 +238,7 @@
     border: 1px dashed $border-accent;
     border-radius: $shape-corner-small;
     cursor: pointer;
-    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast;
+    transition: border-color $transition-fast, background-color $transition-fast;
     flex-shrink: 0;
 
     @media (max-width: $breakpoint-micro) {
@@ -277,7 +250,6 @@
         border-style: solid;
         border-color: $accent-primary;
         background-color: $accent-primary-soft;
-        transform: translateY(-1px);
     }
 
     &.is-inactive {
@@ -344,8 +316,7 @@
         flex-shrink: 0;
     }
 
-    &__label,
-    &__mod-label {
+    &__label {
         font-size: $font-size-xs;
         font-weight: $font-weight-semibold;
         color: $text-secondary;

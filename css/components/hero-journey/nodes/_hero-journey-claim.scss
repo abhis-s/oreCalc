@@ -90,16 +90,3 @@
         }
     }
 }
-
-.cumulative-badge {
-    background: $color-success-soft !important;
-    color: $color-success !important;
-    border: 1px solid color-mix(in srgb, $color-success 30%, transparent) !important;
-    font-size: clamp(0.7rem, 0.4vw + 0.62rem, 0.75rem) !important;
-    font-weight: 700 !important;
-    padding: $spacing-2xs $spacing-sm !important;
-    border-radius: $shape-corner-xs !important;
-    margin-left: $spacing-sm !important;
-    display: inline-flex !important;
-    align-items: center !important;
-}

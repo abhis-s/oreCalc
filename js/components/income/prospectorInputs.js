@@ -410,7 +410,7 @@ export function initializeProspector() {
         }
     });
 
-    const card = document.getElementById('prospector-card');
+    const card = document.getElementById('orecalc-income-prospector-card');
     if (card) {
         card.addEventListener('click', (e) => {
             const link = /** @type {HTMLElement} */ (e.target)?.closest?.('.prospector-priority-link');

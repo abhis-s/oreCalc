@@ -252,7 +252,7 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
         mockMoneySymbol = createMockElement('span', 'home-money-symbol');
         mockTableBody = createMockElement('div', 'home-income-table-body');
 
-        createMockElement('div', 'home-ore-income-card');
+        createMockElement('div', 'orecalc-home-income-card');
         createMockElement('img', 'home-display-league-icon');
         createMockElement('span', 'home-display-league-requirement');
         createMockElement('span', 'home-display-cwl-participations');
@@ -320,7 +320,7 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
         dom.income = {
             home: {
                 incomeCard: {
-                    container: domElementsStore.get('home-ore-income-card'),
+                    container: domElementsStore.get('orecalc-home-income-card'),
                     timeframe: mockTimeframeSelect,
                     table: {
                         body: mockTableBody,

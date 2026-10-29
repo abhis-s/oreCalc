@@ -157,13 +157,13 @@ export function isValidRoute(pathName) {
         if (pathSegments.length === 1) return true;
         if (pathSegments.length === 2) {
             const subRoute = pathSegments[1].toLowerCase();
-            const validLocalizedSubRoutes = ['ore-calculator', 'hero-journey', 'damage-calculator', 'privacy', 'terms', '404'];
+            const validLocalizedSubRoutes = ['ore-calculator', 'hero-journey', 'damage-calculator', 'account', 'privacy', 'terms', '404'];
             if (validLocalizedSubRoutes.includes(subRoute)) return true;
         }
         return false;
     }
 
-    const validRootRoutes = ['ore-calculator', 'hero-journey', 'damage-calculator', 'privacy', 'terms', 'licenses', '404'];
+    const validRootRoutes = ['ore-calculator', 'hero-journey', 'damage-calculator', 'account', 'privacy', 'terms', 'licenses', '404'];
     if (pathSegments.length === 1 && validRootRoutes.includes(firstSegment)) {
         return true;
     }

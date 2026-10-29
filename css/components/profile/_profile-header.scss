@@ -346,11 +346,6 @@
                 filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
             }
 
-            .league-default-icon {
-                color: $accent-primary;
-                opacity: 0.75;
-            }
-
             .league-text-mini {
                 display: flex;
                 flex-direction: column;
@@ -429,10 +424,6 @@
             height: 32px;
             box-sizing: border-box;
             @include motion-interactive;
-
-            &:hover {
-                transform: translateY(-1px);
-            }
 
             .planner-bridge-icon {
                 color: $accent-primary;

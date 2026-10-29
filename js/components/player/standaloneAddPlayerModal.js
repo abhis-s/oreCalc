@@ -3,6 +3,7 @@ import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 import { getAddPlayerHelpContent, hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { openPrivacyModal, openTermsOfUseModal } from '../appSettings/settingsLegalModals.js';
+import { enhanceClipboardInput, triggerAutoPaste } from '../common/clipboardInputController.js';
 
 let isStandaloneAddPlayerModalInitialized = false;
 
@@ -42,6 +43,10 @@ export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
             loadBtn.textContent = translate('actions.load') || 'Load';
         }
         openModal(modal);
+        if (tagInput) {
+            enhanceClipboardInput(tagInput);
+            void triggerAutoPaste(tagInput);
+        }
         tagInput?.focus();
     };
 

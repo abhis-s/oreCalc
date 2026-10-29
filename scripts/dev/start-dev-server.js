@@ -205,6 +205,18 @@ function getCompiledDamageCalcHtml(lang = 'en') {
     return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'damage-calculator');
 }
 
+function getCompiledAccountHtml(lang = 'en') {
+    const accountPath = path.join(process.cwd(), 'account/index.html');
+    if (!fs.existsSync(accountPath)) return '';
+    let content = fs.readFileSync(accountPath, 'utf8');
+    content = processHtmlIncludes(content, process.cwd());
+
+    const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
+    content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
+
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'account');
+}
+
 /**
  * Constructs the configuration parameters for live-server.
  *
@@ -320,6 +332,23 @@ function createDevServerParams(overrides = {}) {
                 return res.end(html);
             }
 
+            if (['/account', '/de/account', '/tr/account', '/zh/account'].includes(pathname)) {
+                res.writeHead(301, { Location: `${pathname}/${query}` });
+                return res.end();
+            }
+
+            if (pathname === '/account/') {
+                const html = getCompiledAccountHtml('en');
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+            const accountLangMatch = pathname.match(/^\/([a-z-]+)\/account\/$/);
+            if (accountLangMatch && supportedLanguages.includes(accountLangMatch[1])) {
+                const html = getCompiledAccountHtml(accountLangMatch[1]);
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+
             if (pathname === '/css/hero-journey.css' || pathname === '/hero-journey/css/hero-journey.css') {
                 const scssPath = path.join(process.cwd(), 'css/hero-journey.scss');
                 if (fs.existsSync(scssPath)) {
@@ -348,6 +377,20 @@ function createDevServerParams(overrides = {}) {
                 }
             }
 
+            if (pathname === '/css/account.css' || pathname === '/account/css/account.css') {
+                const scssPath = path.join(process.cwd(), 'css/account.scss');
+                if (fs.existsSync(scssPath)) {
+                    try {
+                        const sass = require('sass');
+                        const result = sass.compile(scssPath);
+                        res.setHeader('Content-Type', 'text/css');
+                        return res.end(result.css);
+                    } catch (e) {
+                        return next();
+                    }
+                }
+            }
+
             if (pathname === '/css/landing.css') {
                 const scssPath = path.join(process.cwd(), 'css/landing.scss');
                 if (fs.existsSync(scssPath)) {
@@ -359,6 +402,22 @@ function createDevServerParams(overrides = {}) {
                     } catch (e) {
                         return next();
                     }
+                }
+            }
+
+            if (pathname === '/js/workbox-window.js') {
+                const workboxPath = path.join(process.cwd(), 'node_modules/workbox-window/build/workbox-window.prod.umd.js');
+                if (fs.existsSync(workboxPath)) {
+                    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                    return res.end(fs.readFileSync(workboxPath));
+                }
+            }
+
+            if (pathname === '/js/workbox-window.prod.umd.js.map') {
+                const mapPath = path.join(process.cwd(), 'node_modules/workbox-window/build/workbox-window.prod.umd.js.map');
+                if (fs.existsSync(mapPath)) {
+                    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                    return res.end(fs.readFileSync(mapPath));
                 }
             }
 

@@ -100,7 +100,7 @@ function downloadLanguages(langCodes) {
     console.log(`\n[OK] Downloading translations for eligible languages: ${langCodes.join(', ')} (Crowdin codes: ${crowdinCodes.join(', ')})`);
     const langFlags = crowdinCodes.map(c => `-l ${c}`).join(' ');
     const branchFlag = branch ? `-b ${branch}` : '';
-    const cmd = `npx @crowdin/cli download ${branchFlag} ${langFlags}`.trim().replace(/\s+/g, ' ');
+    const cmd = `pnpm exec crowdin download ${branchFlag} ${langFlags}`.trim().replace(/\s+/g, ' ');
 
     try {
         execSync(cmd, { cwd: projectRoot, stdio: 'inherit' });

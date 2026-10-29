@@ -276,7 +276,7 @@ describe('WAI-ARIA Modal Initial Focus Target Resolver', () => {
     });
 
     test('resolves primary confirm/accept button in modal-actions for confirmation dialogs', () => {
-        const modal = new MockDOMElement('div', { class: 'modal', id: 'download-data-modal' });
+        const modal = new MockDOMElement('div', { class: 'modal', id: 'generic-confirm-modal' });
         const header = modal.appendChild(new MockDOMElement('div', { class: 'modal-header' }));
         header.appendChild(new MockDOMElement('button', { class: 'close-button' }));
 

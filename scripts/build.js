@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const esbuild = require('esbuild');
 const { replaceInFile } = require('replace-in-file');
 
 const { optimizeImages } = require('./build/imageOptimizer.js');
@@ -234,10 +235,18 @@ async function build() {
         damageCalcHtml = damageCalcHtml.replace(/href="\/?css\/damage-calculator(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/damage-calculator.min.css?v=${encodeURIComponent(appVersion)}"`);
         damageCalcHtml = damageCalcHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
 
+        let accountHtml = fs.readFileSync(path.join(projectRoot, 'account/index.html'), 'utf8');
+        accountHtml = processHtmlIncludes(accountHtml);
+        accountHtml = accountHtml.replace('<meta charset="UTF-8">', envScript);
+        accountHtml = accountHtml.replace(/src="\/?js\/accountApp\.js(\?v=[^"]+)?"/g, `src="/js/accountApp.js?v=${encodeURIComponent(appVersion)}"`);
+        accountHtml = accountHtml.replace(/href="\/?css\/account(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/account.min.css?v=${encodeURIComponent(appVersion)}"`);
+        accountHtml = accountHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+
         landingHtml = landingHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
         oreCalcHtml = oreCalcHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
         hjHtml = hjHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
         damageCalcHtml = damageCalcHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
+        accountHtml = accountHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
 
         console.log(`[OK] Injected build parameters (v${appVersion}, commits: ${commitsSinceTag.length}) into HTML heads.`);
 
@@ -284,11 +293,28 @@ async function build() {
         }
 
         console.log('--- Bundling JS with esbuild ---');
-        const esbuildBundleCmd = `npx esbuild "${path.join(projectRoot, 'js/app.js')}" "${path.join(projectRoot, 'js/heroJourneyApp.js')}" "${path.join(projectRoot, 'js/damageApp.js')}" "${path.join(projectRoot, 'js/landingApp.js')}" --bundle --outdir="${jsDestDir}" --format=esm --splitting --minify`;
-        execSync(esbuildBundleCmd, { stdio: verbose ? 'inherit' : 'ignore' });
+        await esbuild.build({
+            entryPoints: [
+                path.join(projectRoot, 'js/app.js'),
+                path.join(projectRoot, 'js/heroJourneyApp.js'),
+                path.join(projectRoot, 'js/damageApp.js'),
+                path.join(projectRoot, 'js/landingApp.js'),
+                path.join(projectRoot, 'js/accountApp.js')
+            ],
+            bundle: true,
+            outdir: jsDestDir,
+            format: 'esm',
+            splitting: true,
+            minify: true,
+            logLevel: verbose ? 'info' : 'warning'
+        });
 
-        const esbuildQrCmd = `npx esbuild "${path.join(projectRoot, 'js/qr-code-styling.js')}" --minify --outfile="${path.join(jsDestDir, 'qr-code-styling.js')}"`;
-        execSync(esbuildQrCmd, { stdio: verbose ? 'inherit' : 'ignore' });
+        await esbuild.build({
+            entryPoints: [path.join(projectRoot, 'js/qr-code-styling.js')],
+            minify: true,
+            outfile: path.join(jsDestDir, 'qr-code-styling.js'),
+            logLevel: verbose ? 'info' : 'warning'
+        });
 
         const { getDynamicTranslationArgs } = await import('../js/i18n/i18nParams.js');
 
@@ -361,6 +387,21 @@ async function build() {
             const localizedDamageCalcHtml = generateLocalizedHtml(damageCalcHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'damage-calculator');
             fs.writeFileSync(path.join(langDamageCalcDir, 'index.html'), localizedDamageCalcHtml, 'utf8');
             console.log(`Generated localized tool route: dist/${lang}/damage-calculator/index.html`);
+        }
+
+        const accountDestDir = path.join(distDir, 'account');
+        fs.mkdirSync(accountDestDir, { recursive: true });
+        const defaultAccountHtml = generateLocalizedHtml(accountHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'account');
+        fs.writeFileSync(path.join(accountDestDir, 'index.html'), defaultAccountHtml, 'utf8');
+        console.log('Generated root tool route: dist/account/index.html');
+
+        for (const lang of supportedLanguages) {
+            if (lang === 'en') continue;
+            const langAccountDir = path.join(distDir, lang, 'account');
+            fs.mkdirSync(langAccountDir, { recursive: true });
+            const localizedAccountHtml = generateLocalizedHtml(accountHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'account');
+            fs.writeFileSync(path.join(langAccountDir, 'index.html'), localizedAccountHtml, 'utf8');
+            console.log(`Generated localized tool route: dist/${lang}/account/index.html`);
         }
 
         const legalPages = [

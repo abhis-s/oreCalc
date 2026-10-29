@@ -1,5 +1,6 @@
 @use '../abstracts/mixins' as *;
 @use '../base/placeholder';
+@use 'brand-tools-dropdown';
 
 .app-header {
     @include app-header-shell;
@@ -73,10 +74,20 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            min-height: $btn-min-height;
             cursor: pointer;
+            border-radius: $shape-corner-small;
+            padding: $spacing-2xs $spacing-xs;
+            margin: (-$spacing-2xs) (-$spacing-xs);
+            transition: opacity $duration-base $ease-smooth;
 
             &:hover .brand-title {
                 opacity: 0.85;
+            }
+
+            &:focus-visible {
+                outline: 2px solid $outline-focus;
+                outline-offset: 2px;
             }
         }
 
@@ -106,26 +117,9 @@
             pointer-events: none;
         }
 
-        .brand-page-pill {
-            display: inline-flex;
-            align-items: center;
-            flex-shrink: 0;
-            padding: 3px $spacing-sm;
-            font-size: $font-size-2xs;
-            font-weight: $font-weight-bold;
-            border-radius: $shape-corner-full;
-            background: color-mix(in srgb, $accent-primary 15%, $bg-surface-secondary);
-            color: $accent-primary;
-            border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
-            cursor: default;
-            user-select: none;
-            pointer-events: none;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-        }
-
         &.is-compact {
             .brand-separator,
+            .brand-page-pill-wrapper,
             .brand-page-pill {
                 display: none;
             }
@@ -139,6 +133,7 @@
 
         @media (max-width: $breakpoint-phone) {
             .brand-separator,
+            .brand-page-pill-wrapper,
             .brand-page-pill {
                 display: none;
             }
@@ -210,6 +205,10 @@
         @media (max-width: #{$breakpoint-desktop - 1px}) {
             display: none !important;
         }
+
+        &:empty {
+            display: none !important;
+        }
     }
 
     &__player-dropdown,
@@ -218,6 +217,10 @@
         flex: 0 1 auto;
         min-width: 76px;
         max-width: 180px;
+
+        &:empty {
+            display: none !important;
+        }
     }
 
     &__actions {

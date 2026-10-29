@@ -296,13 +296,6 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
         return;
     }
 
-    const actionsRowHtml = `
-        <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
-            <clashcalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini" aria-hidden="true"></clashcalc-assets-svg>
-            <span><span class="maxed-count">0/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
-        </div>
-    `;
-
     const profileData = {
         name,
         tag,
@@ -322,7 +315,8 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
         tag,
         trophies: trophies != null ? trophies : 0,
         prevTrophies: 0,
-        actionsRowHtml,
+        maxEquipment: { current: 0, total: totalCount },
+        hasCollapsibleStats: false,
         headerExtraClasses: 'active-profile-card'
     });
     showcaseSection.hidden = false;

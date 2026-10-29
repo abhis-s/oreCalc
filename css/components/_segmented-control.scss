@@ -1,0 +1,86 @@
+@use '../abstracts/variables' as *;
+
+.segmented-control {
+    position: relative;
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    align-items: stretch;
+    background-color: $bg-surface-tertiary;
+    border: 1px solid $border-primary;
+    border-radius: $segmented-radius-track;
+    padding: $spacing-2xs;
+    box-sizing: border-box;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: $spacing-2xs;
+        bottom: $spacing-2xs;
+        left: $spacing-2xs;
+        width: calc((100% - (#{$spacing-2xs} * 2)) / 2);
+        background-color: $bg-surface-primary;
+        border-radius: $segmented-radius-btn;
+        box-shadow: $elevation-1;
+        transition: transform $duration-base $ease-spring;
+        pointer-events: none;
+        z-index: $z-index-base;
+    }
+
+    &:has(> .segmented-btn:nth-child(1).active)::before,
+    &:has(> .segmented-btn:nth-child(1).is-active)::before {
+        transform: translateX(0);
+    }
+
+    &:has(> .segmented-btn:nth-child(2).active)::before,
+    &:has(> .segmented-btn:nth-child(2).is-active)::before {
+        transform: translateX(100%);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &::before {
+            transition: none;
+        }
+    }
+
+    .segmented-btn {
+        position: relative;
+        z-index: $z-index-interactive;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-xs;
+        padding: $spacing-xs $spacing-sm;
+        border: none;
+        background: transparent;
+        color: $text-secondary;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        border-radius: $segmented-radius-btn;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: color $transition-fast;
+
+        clashcalc-assets-svg,
+        orecalc-assets-svg,
+        svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            fill: currentColor;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        &:hover {
+            color: $text-primary;
+        }
+
+        &.active,
+        &.is-active {
+            color: $accent-primary;
+            background: transparent;
+        }
+    }
+}

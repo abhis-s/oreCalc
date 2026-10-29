@@ -18,12 +18,6 @@
         background-color: $color-white-const;
     }
 
-    @media (prefers-color-scheme: light) {
-        &:not(.dark-mode-override) {
-            background-color: $color-white-const;
-        }
-    }
-
     &.hidden {
         opacity: 0;
         visibility: hidden;

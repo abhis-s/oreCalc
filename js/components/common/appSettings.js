@@ -7,94 +7,10 @@ import { isClashCalcHost } from '../../core/storageKeys.js';
 import { STORAGE_KEY_MAP } from '../../core/constants.js';
 import { applyThemeSettings } from '../../core/themeManager.js';
 import { state } from '../../core/state.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 import { setDefaultDateLocale } from '../../utils/dateUtils.js';
 
-let activeSettingsDismissListener = null;
-let activeSettingsEscapeListener = null;
-let activeSettingsResizeListener = null;
 let isGlobalListenersInitialized = false;
-
-/**
- * Positions the settings popover relative to its trigger button.
- * Native CSS handles boundary containment via right alignment and max-width.
- * @param {HTMLElement} popover
- * @param {HTMLElement} [_btn]
- */
-function positionSettingsPopover(popover, _btn) {
-    if (!popover) return;
-    popover.style.right = '0';
-    popover.style.maxWidth = 'calc(100vw - 24px)';
-}
-
-/**
- * Toggles or sets the open state of the settings popover.
- * @param {boolean} [forceState]
- */
-export function toggleSettingsPopover(forceState) {
-    const popover = /** @type {HTMLElement | null} */ (document.getElementById('app-settings-popover'));
-    const btn = /** @type {HTMLElement | null} */ (document.getElementById('app-settings-btn'));
-    if (!popover || !btn) return;
-
-    const isOpen = forceState !== undefined ? forceState : !popover.classList.contains('is-open');
-
-    if (isOpen) {
-        popover.style.display = 'flex';
-        // Force reflow for smooth enter transition
-        void popover.offsetHeight;
-        positionSettingsPopover(popover, btn);
-        popover.classList.add('is-open');
-        btn.classList.add('is-open');
-        btn.setAttribute('aria-expanded', 'true');
-
-        if (!activeSettingsDismissListener) {
-            activeSettingsDismissListener = (e) => {
-                const target = /** @type {HTMLElement} */ (e.target);
-                if (!popover.contains(target) && !btn.contains(target)) {
-                    toggleSettingsPopover(false);
-                }
-            };
-            document.addEventListener('pointerdown', activeSettingsDismissListener, { passive: true });
-        }
-
-        if (!activeSettingsEscapeListener) {
-            activeSettingsEscapeListener = (e) => {
-                if (e.key === 'Escape') {
-                    toggleSettingsPopover(false);
-                    btn.focus();
-                }
-            };
-            document.addEventListener('keydown', activeSettingsEscapeListener);
-        }
-
-        if (!activeSettingsResizeListener) {
-            activeSettingsResizeListener = () => positionSettingsPopover(popover, btn);
-            window.addEventListener('resize', activeSettingsResizeListener, { passive: true });
-        }
-    } else {
-        popover.classList.remove('is-open');
-        btn.classList.remove('is-open');
-        btn.setAttribute('aria-expanded', 'false');
-
-        setTimeout(() => {
-            if (!popover.classList.contains('is-open')) {
-                popover.style.display = 'none';
-            }
-        }, 150);
-
-        if (activeSettingsDismissListener) {
-            document.removeEventListener('pointerdown', activeSettingsDismissListener);
-            activeSettingsDismissListener = null;
-        }
-        if (activeSettingsEscapeListener) {
-            document.removeEventListener('keydown', activeSettingsEscapeListener);
-            activeSettingsEscapeListener = null;
-        }
-        if (activeSettingsResizeListener) {
-            window.removeEventListener('resize', activeSettingsResizeListener);
-            activeSettingsResizeListener = null;
-        }
-    }
-}
 
 /**
  * Reads settings from localStorage with defensive fallbacks.
@@ -148,11 +64,17 @@ export function persistAppSettings(patch) {
  * @param {boolean} [isSwatchClick=false]
  */
 function applyAppTheme(theme, accentColor, isInteraction = false, isSwatchClick = false) {
-    if (!state.uiSettings) {
-        state.uiSettings = {};
-    }
-    state.uiSettings.theme = theme;
-    state.uiSettings.accentColor = accentColor;
+    handleStateUpdate(() => {
+        if (!state.uiSettings) {
+            state.uiSettings = {};
+        }
+        state.uiSettings.theme = theme;
+        state.uiSettings.accentColor = accentColor;
+        if (!state.uiSettings.language) {
+            const stored = getAppSettings();
+            state.uiSettings.language = stored.language && stored.language !== 'auto' ? stored.language : 'en';
+        }
+    }, true, { preferencesOnly: true });
 
     const origin = isInteraction ? { isSwatchClick } : null;
     applyThemeSettings(theme, accentColor, origin);
@@ -218,10 +140,12 @@ export async function applyAppLanguage(targetLang, replaceUrl = false) {
 
     await loadTranslations(targetLang);
 
-    if (!state.uiSettings) {
-        state.uiSettings = {};
-    }
-    state.uiSettings.language = targetLang;
+    handleStateUpdate(() => {
+        if (!state.uiSettings) {
+            state.uiSettings = {};
+        }
+        state.uiSettings.language = targetLang;
+    }, true, { preferencesOnly: true });
     setDefaultDateLocale(targetLang);
     persistAppSettings({ language: targetLang });
     syncLanguageUrl(targetLang, replaceUrl);
@@ -273,14 +197,6 @@ function populateLanguageDropdown(selectEl, currentLang) {
 export function initAppSettings() {
     const settings = getAppSettings();
     applyAppTheme(settings.theme, settings.accentColor);
-
-    const settingsBtn = document.getElementById('app-settings-btn');
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleSettingsPopover();
-        });
-    }
 
     const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-toggle'));
     if (appThemeToggle) {

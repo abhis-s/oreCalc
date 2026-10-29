@@ -1,7 +1,9 @@
 import { translate } from '../i18n/translator.js';
+import { normalizePlayerTag } from '../core/storageKeys.js';
 
 const tagValidChars = "CGJLOPQRUVY0289";
 const MAX_TAG_LENGTH = 12;
+const VALID_TAG_PATTERN = /^[0289CGJLOPQRUVY]{3,12}$/;
 let validationErrorTimeout;
 
 /**
@@ -80,4 +82,44 @@ export function validatePlayerTagInput(inputElement, errorElement) {
     }
 
     return { cleanedTag, isValid };
+}
+
+/**
+ * Extracts and validates a Clash of Clans player tag from raw text or profile URL.
+ *
+ * @param {string} rawText
+ * @returns {string | null} Normalized clean player tag (e.g. '8PJYGUJC') or null.
+ */
+export function extractPlayerTag(rawText) {
+    if (!rawText || typeof rawText !== 'string') return null;
+
+    let candidate = rawText.trim();
+    if (!candidate) return null;
+
+    // Detect and extract tag parameter from official Clash of Clans profile share URLs
+    if (candidate.includes('link.clashofclans.com') || candidate.includes('tag=')) {
+        try {
+            const match = candidate.match(/[?&]tag=([^&#\s]+)/i);
+            if (match && match[1]) {
+                candidate = decodeURIComponent(match[1]);
+            }
+        } catch {
+            return null;
+        }
+    }
+
+    // Extract tag if embedded in text with a hash (e.g. "Tag: #8PJYGUJC")
+    const hashMatch = candidate.match(/#([0289CGJLOPQRUVY]{3,12})\b/i);
+    if (hashMatch && hashMatch[1]) {
+        candidate = hashMatch[1];
+    }
+
+    const cleanTag = normalizePlayerTag(candidate);
+    if (!cleanTag || cleanTag === 'DEFAULT0') return null;
+
+    if (VALID_TAG_PATTERN.test(cleanTag)) {
+        return cleanTag;
+    }
+
+    return null;
 }

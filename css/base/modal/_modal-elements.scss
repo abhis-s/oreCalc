@@ -25,9 +25,7 @@ dialog.modal,
             line-height: 1.3;
         }
 
-        .modal-header-actions,
-        .header-actions,
-        .button-group {
+        .modal-header-actions {
             display: flex;
             align-items: center;
             gap: $spacing-sm;
@@ -36,9 +34,7 @@ dialog.modal,
 
         .close-button,
         .modal-header-btn,
-        .modal-header-actions > *,
-        .header-actions > *,
-        .button-group > * {
+        .modal-header-actions > * {
             width: 36px;
             min-width: 36px;
             max-width: 36px;
@@ -217,22 +213,20 @@ dialog.modal,
         background-color: $bg-surface-secondary;
         flex-shrink: 0;
 
-        &.modal-actions-stretch {
-            justify-content: stretch;
-
-            > * {
-                flex: 1;
-                min-width: 0;
-            }
-        }
-
-        &.modal-actions-center {
-            justify-content: center;
-        }
-
         &.modal-actions-between {
             justify-content: space-between;
             align-items: center;
+        }
+
+        button,
+        a,
+        .btn,
+        .btn-primary,
+        .btn-secondary,
+        .accept-button,
+        .reject-button {
+            min-width: $btn-min-width;
+            min-height: $btn-min-height;
         }
     }
 
@@ -304,24 +298,5 @@ dialog.modal,
 
     .info-button {
         @extend %flex-center;
-    }
-
-    &.modal-centered {
-        .modal-header {
-            justify-content: center;
-            border-bottom: none;
-            padding-bottom: $spacing-sm;
-        }
-
-        .modal-body {
-            text-align: center;
-            padding-top: $spacing-sm;
-        }
-
-        .modal-actions {
-            justify-content: center;
-            padding-top: $spacing-sm;
-            background-color: transparent;
-        }
     }
 }

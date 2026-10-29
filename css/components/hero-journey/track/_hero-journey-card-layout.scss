@@ -4,8 +4,8 @@
     position: relative;
     width: 100%;
     min-height: 330px;
-    contain: paint;
-    contain-intrinsic-size: auto 330px;
+    // Layout containment isolates internal reflows without clipping header emblems or pop shadows
+    contain: layout;
     box-sizing: border-box;
     container-type: inline-size;
     container-name: hero-journey-card;
@@ -222,7 +222,7 @@
     box-shadow: 0 2px 10px color-mix(in srgb, $accent-primary 45%, transparent);
 
     &:hover {
-        transform: translateY(-1px) scale(1.05);
+        background: color-mix(in srgb, $accent-primary 90%, white);
         box-shadow: 0 4px 16px color-mix(in srgb, $accent-primary 70%, transparent);
     }
 

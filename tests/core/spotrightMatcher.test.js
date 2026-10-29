@@ -600,7 +600,6 @@ describe('Spotright Search Engine & Matcher', () => {
     });
 
     test('scope suggestions: single suggestion space auto-complete resolution conditions', () => {
-        // 1. Single suggestion cases (eligible for space auto-complete)
         const heMatches = searchSpotright('/he', registry).matches;
         assert.equal(heMatches.length, 1, 'Query /he must have strictly 1 suggestion');
         assert.equal(heMatches[0].targetScope, 'hero');
@@ -621,7 +620,6 @@ describe('Spotright Search Engine & Matcher', () => {
         assert.equal(hMatches.length, 1, 'Query /h must have strictly 1 suggestion');
         assert.equal(hMatches[0].targetScope, 'hero');
 
-        // 2. Multi-suggestion cases (strict guard: space auto-complete must NOT fire)
         const rootMatches = searchSpotright('/', registry).matches;
         assert.equal(rootMatches.length, 5, 'Query / has 5 suggestions (space must not auto-complete)');
 
@@ -728,7 +726,6 @@ describe('Spotright Search Engine & Matcher', () => {
     test('unified page and tab topology: isSelfTarget hides active tab and surfaces default home tab when on sub-tab', () => {
         const originalWindow = globalThis.window;
         try {
-            // 1. On OreCalc default tab (#home or no hash): page-orecalc is hidden, tab-planner & tab-income are shown
             globalThis.window = /** @type {any} */ ({ location: { pathname: '/ore-calculator/', search: '', hash: '' } });
             assert.deepEqual(getCurrentRouteContext(), { page: 'orecalc', activeTab: 'home' });
             const ocHomeReg = buildSpotrightRegistry();
@@ -736,27 +733,32 @@ describe('Spotright Search Engine & Matcher', () => {
             assert.equal(ocHomeReg.some(i => i.id === 'tab-planner'), true, 'tab-planner must be shown on OreCalc home tab');
             assert.equal(ocHomeReg.some(i => i.id === 'tab-income'), true, 'tab-income must be shown on OreCalc home tab');
 
-            // 2. On OreCalc #planner tab: tab-planner is hidden, page-orecalc is shown to return to Equipment view
-            globalThis.window = /** @type {any} */ ({ location: { pathname: '/ore-calculator/', search: '', hash: '#planner' } });
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/ore-calculator/', search: '?tab=planner', hash: '' } });
             assert.deepEqual(getCurrentRouteContext(), { page: 'orecalc', activeTab: 'planner' });
             const ocPlannerReg = buildSpotrightRegistry();
-            assert.equal(ocPlannerReg.some(i => i.id === 'tab-planner'), false, 'tab-planner must be hidden when already on #planner');
-            assert.equal(ocPlannerReg.some(i => i.id === 'page-orecalc'), true, 'page-orecalc must be shown when on #planner sub-tab');
-            assert.equal(ocPlannerReg.some(i => i.id === 'tab-income'), true, 'tab-income must be shown when on #planner');
+            assert.equal(ocPlannerReg.some(i => i.id === 'tab-planner'), false, 'tab-planner must be hidden when already on ?tab=planner');
+            assert.equal(ocPlannerReg.some(i => i.id === 'page-orecalc'), true, 'page-orecalc must be shown when on ?tab=planner sub-tab');
+            assert.equal(ocPlannerReg.some(i => i.id === 'tab-income'), true, 'tab-income must be shown when on ?tab=planner');
 
-            // 3. On DamageCalc default tab (#zapquake or no hash): page-damagecalc is hidden, tab-cluster-planner is shown
+            // Legacy hash check
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/ore-calculator/', search: '', hash: '#planner' } });
+            assert.deepEqual(getCurrentRouteContext(), { page: 'orecalc', activeTab: 'planner' });
+
             globalThis.window = /** @type {any} */ ({ location: { pathname: '/damage-calculator/', search: '', hash: '' } });
             assert.deepEqual(getCurrentRouteContext(), { page: 'damagecalc', activeTab: 'zapquake' });
             const dcZapReg = buildSpotrightRegistry();
             assert.equal(dcZapReg.some(i => i.id === 'page-damagecalc'), false, 'page-damagecalc must be hidden on ZapQuake default tab');
             assert.equal(dcZapReg.some(i => i.id === 'tab-cluster-planner'), true, 'tab-cluster-planner must be shown on ZapQuake tab');
 
-            // 4. On DamageCalc #cluster_planner tab: tab-cluster-planner is hidden, page-damagecalc is shown
-            globalThis.window = /** @type {any} */ ({ location: { pathname: '/damage-calculator/', search: '', hash: '#cluster_planner' } });
-            assert.deepEqual(getCurrentRouteContext(), { page: 'damagecalc', activeTab: 'cluster_planner' });
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/damage-calculator/', search: '?tab=cluster-planner', hash: '' } });
+            assert.deepEqual(getCurrentRouteContext(), { page: 'damagecalc', activeTab: 'cluster-planner' });
             const dcClusterReg = buildSpotrightRegistry();
-            assert.equal(dcClusterReg.some(i => i.id === 'tab-cluster-planner'), false, 'tab-cluster-planner must be hidden when already on #cluster_planner');
-            assert.equal(dcClusterReg.some(i => i.id === 'page-damagecalc'), true, 'page-damagecalc must be shown when on #cluster_planner sub-tab');
+            assert.equal(dcClusterReg.some(i => i.id === 'tab-cluster-planner'), false, 'tab-cluster-planner must be hidden when already on ?tab=cluster-planner');
+            assert.equal(dcClusterReg.some(i => i.id === 'page-damagecalc'), true, 'page-damagecalc must be shown when on ?tab=cluster-planner sub-tab');
+
+            // Legacy hash check
+            globalThis.window = /** @type {any} */ ({ location: { pathname: '/damage-calculator/', search: '', hash: '#cluster_planner' } });
+            assert.deepEqual(getCurrentRouteContext(), { page: 'damagecalc', activeTab: 'cluster-planner' });
             assert.equal(isSelfTarget(null), false);
         } finally {
             globalThis.window = originalWindow;
@@ -798,18 +800,19 @@ describe('Spotright Search Engine & Matcher', () => {
             globalThis.window = /** @type {any} */ ({
                 location: {
                     pathname: '/ore-calculator/',
-                    search: '?tag=9L0V9G9C9',
+                    search: '?tag=8PJYGUJC',
                     href: ''
                 }
             });
-            assert.equal(buildSpotrightUrl('hub'), '/?tag=9L0V9G9C9');
-            assert.equal(buildSpotrightUrl('damagecalc', { hash: 'cluster_planner' }), '/damage-calculator/?tag=9L0V9G9C9#cluster_planner');
+            assert.equal(buildSpotrightUrl('hub'), '/?tag=8PJYGUJC');
+            assert.equal(buildSpotrightUrl('damagecalc', { tab: 'cluster-planner' }), '/damage-calculator/?tag=8PJYGUJC&tab=cluster-planner');
+            assert.equal(buildSpotrightUrl('damagecalc', { hash: 'custom-anchor' }), '/damage-calculator/?tag=8PJYGUJC#custom-anchor');
 
             const reg = buildSpotrightRegistry();
             const hubItem = reg.find(i => i.id === 'page-hub');
             assert.ok(hubItem);
             hubItem.execute();
-            assert.equal(globalThis.window.location.href, '/?tag=9L0V9G9C9');
+            assert.equal(globalThis.window.location.href, '/?tag=8PJYGUJC');
         } finally {
             globalThis.window = originalWindow;
         }
@@ -917,12 +920,10 @@ describe('Spotright Search Engine & Matcher', () => {
             const syncItem = reg.find(i => i.id === 'modal-account-sync');
             assert.ok(syncItem);
 
-            // 1. Logged out -> opens #auth-modal
             await syncItem.execute();
             assert.equal(accountBtnClicked, false);
             assert.equal(authModalOpened, true);
 
-            // 2. Signed in -> opens #header-account-btn with prefs collapsed
             authModalOpened = false;
             store.set('clashCalc_authToken', 'mock-token');
             store.set('clashCalc_username', 'Chief');

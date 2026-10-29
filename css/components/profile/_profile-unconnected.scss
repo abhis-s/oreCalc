@@ -13,4 +13,6 @@
     white-space: nowrap;
     box-sizing: border-box;
     cursor: pointer;
+    @include btn-accent-style;
+    @include motion-interactive;
 }

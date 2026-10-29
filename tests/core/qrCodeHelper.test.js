@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderSyncQRCode } from '../../js/utils/qrCodeHelper.js';
+import { renderSyncQRCode, renderPairingQRCode } from '../../js/utils/qrCodeHelper.js';
 
 describe('QR Code Helper & Absolute Asset Resolution Suite', () => {
     let originalQRCodeStyling;
@@ -105,5 +105,40 @@ describe('QR Code Helper & Absolute Asset Resolution Suite', () => {
         assert.equal(capturedOptions.data, '?userId=user-id-xyz');
         assert.equal(capturedOptions.image, '/assets/favicon.png');
         assert.equal(capturedOptions.dotsOptions.color, '#000000');
+    });
+
+    it('renders pairing QR code with account pair URL', () => {
+        let capturedOptions = null;
+        let appendTarget = null;
+
+        class MockQRCodeStyling {
+            constructor(options) {
+                capturedOptions = options;
+            }
+
+            append(target) {
+                appendTarget = target;
+            }
+        }
+
+        globalThis.QRCodeStyling = MockQRCodeStyling;
+        globalThis.window = {
+            location: {
+                origin: 'https://clashcalc.com'
+            }
+        };
+
+        const container = { innerHTML: '' };
+        const result = renderPairingQRCode(container, 'ptk_12345', 200);
+
+        assert.ok(result);
+        assert.equal(appendTarget, container);
+        assert.equal(capturedOptions.width, 200);
+        assert.equal(capturedOptions.height, 200);
+        assert.equal(capturedOptions.data, 'https://clashcalc.com/account/?pair=ptk_12345');
+
+        // Falsy checks
+        assert.equal(renderPairingQRCode(null, 'ptk_12345'), null);
+        assert.equal(renderPairingQRCode(container, ''), null);
     });
 });

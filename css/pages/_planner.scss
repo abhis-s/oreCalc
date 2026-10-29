@@ -8,7 +8,7 @@
 }
 
 .planner-card,
-#priority-list-card,
+#orecalc-planner-priority-list-card,
 .full-width-planner-section {
     .card-drag-handle {
         display: none !important;
@@ -289,14 +289,6 @@
     &:active {
         transform: scale(0.95);
     }
-}
-
-.priority-list-card {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    text-align: center;
-    overflow: hidden;
 }
 
 .priority-list-content {

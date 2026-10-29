@@ -62,7 +62,7 @@ export function createShortcutsModalDialog(isMacOverride) {
     dialog.setAttribute('aria-modal', 'true');
 
     dialog.innerHTML = `
-        <div class="modal-content modal-expanded shortcuts-modal-content" id="shortcuts-card" role="document">
+        <div class="modal-content modal-expanded shortcuts-modal-content" id="modal-shortcuts-card" role="document">
             <div class="modal-header">
                 <h2 id="shortcuts-modal-title" data-i18n="views.shortcuts.title">${escapeHTML(translate('views.shortcuts.title'))}</h2>
                 <div class="modal-header-actions">
@@ -201,7 +201,7 @@ function ensureMounted() {
     });
 
     modalEl.addEventListener('click', (event) => {
-        const card = modalEl?.querySelector('#shortcuts-card');
+        const card = modalEl?.querySelector('#modal-shortcuts-card');
         if (card && !card.contains(/** @type {Node} */ (event.target))) {
             closeShortcutsModal();
         }

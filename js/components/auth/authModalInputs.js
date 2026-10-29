@@ -7,20 +7,24 @@ import { translate } from '../../i18n/translator.js';
 import { openModal, closeModalAnimated } from '../../utils/modalHistoryManager.js';
 import {
     loginWithPassword,
-    loginWithPasskey,
-    registerWithPassword,
-    registerWithPasskey,
-    authenticateWithPasskeyAutofill,
-    cancelWebAuthnCeremony
+    registerWithPassword
 } from '../../services/authClientService.js';
+import {
+    authenticateWithPasskeyAutofill,
+    cancelWebAuthnCeremony,
+    loginWithPasskey,
+    registerWithPasskey
+} from '../../services/authPasskeyClientService.js';
 import { initializeAppData, triggerCloudSave } from '../../services/cloudSaveService.js';
+import { cancelCloudSaveTimer } from '../../core/stateManager.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { showAddPlayerModal } from '../player/playerModalInputs.js';
 import { initializeState, state } from '../../core/state.js';
 import { saveState } from '../../core/localStorageManager.js';
 import { cleanupOrphanedPlayerPartitions } from '../../core/stateCleanup.js';
-import { normalizePlayerTag } from '../../core/storageKeys.js';
+import { CANONICAL_PLAYER_TAGS_KEY, PLAYER_TAGS_KEY, getStorageItem, normalizePlayerTag } from '../../core/storageKeys.js';
+import { safeJsonParse } from '../../utils/jsonUtils.js';
 import {
     setAuthMode,
     setSignInStatus,
@@ -166,6 +170,7 @@ async function initConditionalAutofill() {
     try {
         const user = await authenticateWithPasskeyAutofill();
         if (user) {
+            cancelCloudSaveTimer();
             const modal = document.getElementById('auth-modal');
             if (modal) closeModalAnimated(modal);
             const syncedState = await initializeAppData();
@@ -243,6 +248,7 @@ async function handleSignInSubmit(e) {
     setSignInStatus(translate('actions.loading'), false);
 
     try {
+        cancelCloudSaveTimer();
         await loginWithPassword(username, password, token);
         cleanupTurnstileWidgets();
         const modal = document.getElementById('auth-modal');
@@ -271,6 +277,7 @@ async function handlePasskeyLoginClick() {
     setSignInStatus(translate('actions.loading'), false);
 
     try {
+        cancelCloudSaveTimer();
         await loginWithPasskey(username);
         const modal = document.getElementById('auth-modal');
         if (modal) closeModalAnimated(modal);
@@ -285,6 +292,20 @@ async function handlePasskeyLoginClick() {
     } finally {
         isSubmitting = false;
     }
+}
+
+/**
+ * Determines whether real player tags are currently stored in memory or on disk.
+ *
+ * @returns {boolean} True if at least one non-default tag exists.
+ */
+function hasSavedPlayerTags() {
+    if (state.savedPlayerTags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0')) {
+        return true;
+    }
+    const rawTags = getStorageItem(CANONICAL_PLAYER_TAGS_KEY, PLAYER_TAGS_KEY);
+    const parsed = safeJsonParse(rawTags, []);
+    return Array.isArray(parsed) && parsed.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0');
 }
 
 /**
@@ -312,7 +333,7 @@ async function handlePasskeyRegisterClick() {
     setRegisterStatus(translate('actions.loading'), false);
 
     try {
-        const hadRealTags = Boolean(state.savedPlayerTags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0'));
+        const hadRealTags = hasSavedPlayerTags();
         await registerWithPasskey(username, '', token);
         cleanupTurnstileWidgets();
         const modal = document.getElementById('auth-modal');
@@ -370,7 +391,7 @@ async function handlePasswordRegisterSubmit(e) {
     setRegisterStatus(translate('actions.loading'), false);
 
     try {
-        const hadRealTags = Boolean(state.savedPlayerTags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0'));
+        const hadRealTags = hasSavedPlayerTags();
         await registerWithPassword(username, password, token);
         cleanupTurnstileWidgets();
         const modal = document.getElementById('auth-modal');

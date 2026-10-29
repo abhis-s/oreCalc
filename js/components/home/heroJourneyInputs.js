@@ -370,7 +370,7 @@ export function setupHeroJourneyInputs(state) {
         });
     }
 
-    const card = document.getElementById('home-hj-card') || document.querySelector('.hero-journey-card');
+    const card = document.getElementById('orecalc-home-hero-journey-card') || document.getElementById('hero-journey-track-card') || document.querySelector('.hero-journey-card');
     if (card) {
         card.addEventListener('click', (e) => {
             const target = /** @type {HTMLElement} */ (e.target);

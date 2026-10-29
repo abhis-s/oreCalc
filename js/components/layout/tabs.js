@@ -26,8 +26,6 @@ function checkPlannerTabStoredOres() {
     }
 }
 
-let activeTransition = null;
-
 const tabScrollPositions = {
     'home-tab': 0,
     'equipment-tab': 0,
@@ -42,28 +40,84 @@ const tabScrollPositions = {
  * @param {string} tabKey - Tab key or ID (e.g. 'home', 'equipment', 'income', 'planner', 'settings', or 'home-tab').
  * @param {string} [pathname] - Pathname override (defaults to window.location.pathname).
  * @param {string} [search] - Search query override (defaults to window.location.search).
- * @returns {string} Relative URL with preserved pathname, query params, and appropriate hash.
+ * @param {string} [hash] - Hash override (defaults to empty string).
+ * @returns {string} Relative URL with preserved pathname, query params, and optional hash.
  */
-export function constructTabUrl(tabKey, pathname, search) {
+export function constructTabUrl(tabKey, pathname, search, hash = '') {
     const basePath = pathname !== undefined
         ? pathname
         : (typeof window !== 'undefined' && window.location ? window.location.pathname : '/');
     const baseSearch = search !== undefined
         ? search
         : (typeof window !== 'undefined' && window.location ? window.location.search : '');
+
     const cleanTab = tabKey ? tabKey.replace(/-tab$/, '') : '';
-    const hash = (!cleanTab || cleanTab === 'home') ? '' : `#${cleanTab}`;
-    return `${basePath}${baseSearch}${hash}`;
+    const searchParams = new URLSearchParams(baseSearch.startsWith('?') ? baseSearch.substring(1) : baseSearch);
+
+    if (!cleanTab || cleanTab === 'home') {
+        searchParams.delete('tab');
+    } else {
+        searchParams.set('tab', cleanTab);
+    }
+
+    const query = searchParams.toString();
+    const queryPart = query ? `?${query}` : '';
+    const cleanHash = hash ? (hash.startsWith('#') ? hash : `#${hash}`) : '';
+    return `${basePath}${queryPart}${cleanHash}`;
 }
 
 /**
- * Initializes hash routing, tab switching click listeners, popstate listeners, and scroll state preservation.
+ * Resolves active tab from URL search parameters and legacy hash.
+ *
+ * @param {string} [search] - URL search query override (defaults to window.location.search).
+ * @param {string} [hash] - URL hash override (defaults to window.location.hash).
+ * @returns {string} Canonical tab ID (e.g. 'equipment-tab').
+ */
+export function resolveTabFromUrl(search, hash) {
+    const validTabKeys = ['home', 'equipment', 'income', 'planner', 'settings'];
+    const currentSearch = search !== undefined
+        ? search
+        : (typeof window !== 'undefined' && window.location ? window.location.search : '');
+    const currentHash = hash !== undefined
+        ? hash
+        : (typeof window !== 'undefined' && window.location ? window.location.hash : '');
+
+    if (currentSearch) {
+        try {
+            const params = new URLSearchParams(currentSearch.startsWith('?') ? currentSearch.substring(1) : currentSearch);
+            const tabParam = params.get('tab')?.trim().toLowerCase().replace(/-tab$/, '');
+            if (tabParam && validTabKeys.includes(tabParam)) {
+                return `${tabParam}-tab`;
+            }
+        } catch {}
+    }
+
+    const cleanHash = currentHash ? currentHash.replace(/^#/, '').trim() : '';
+    if (cleanHash.startsWith('equip-') || cleanHash.startsWith('hero-')) {
+        return 'equipment-tab';
+    }
+
+    const lowerHash = cleanHash.toLowerCase().replace(/-tab$/, '');
+    if (validTabKeys.includes(lowerHash)) {
+        return `${lowerHash}-tab`;
+    }
+
+    return 'home-tab';
+}
+
+/**
+ * Initializes query/hash routing, tab switching click listeners, popstate listeners, and scroll state preservation.
  */
 export function initializeTabs() {
     const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
-    const rawHash = window.location.hash ? window.location.hash.substring(1) : '';
-    const isDeepLink = rawHash.startsWith('equip-') || rawHash.startsWith('hero-');
-    let initialTab = isDeepLink ? 'equipment-tab' : (rawHash ? `${rawHash}-tab` : 'home-tab');
+    let initialTab = resolveTabFromUrl();
+
+    if (typeof window !== 'undefined' && window.location?.hash) {
+        const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase().replace(/-tab$/, '');
+        if (['home', 'equipment', 'income', 'planner', 'settings'].includes(cleanHash)) {
+            history.replaceState(null, '', constructTabUrl(cleanHash));
+        }
+    }
 
     if (!validTabs.includes(initialTab)) {
         history.replaceState(null, '', constructTabUrl('home'));
@@ -78,10 +132,13 @@ export function initializeTabs() {
     }
 
     window.addEventListener('popstate', () => {
-        const hash = window.location.hash;
-        const rawHash = hash ? hash.substring(1) : '';
-        const isDeepLink = rawHash.startsWith('equip-') || rawHash.startsWith('hero-');
-        let tabId = isDeepLink ? 'equipment-tab' : (rawHash ? `${rawHash}-tab` : 'home-tab');
+        let tabId = resolveTabFromUrl();
+        if (typeof window !== 'undefined' && window.location?.hash) {
+            const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase().replace(/-tab$/, '');
+            if (['home', 'equipment', 'income', 'planner', 'settings'].includes(cleanHash)) {
+                history.replaceState(null, '', constructTabUrl(cleanHash));
+            }
+        }
         if (tabId === state.activeTab) return;
 
         const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
@@ -95,48 +152,16 @@ export function initializeTabs() {
             tabScrollPositions[state.activeTab] = window.scrollY;
         }
 
-        const currentIndex = tabOrder.indexOf(state.activeTab);
-        const nextIndex = tabOrder.indexOf(tabId);
-        const direction = nextIndex > currentIndex ? 'forward' : 'backward';
-
-        const updateTab = () => {
-            if (tabId === 'planner-tab' && state.activeTab !== 'planner-tab') {
-                setAnimateNextRender('all');
-                setTimeout(() => {
-                    checkPlannerTabStoredOres();
-                }, 100);
-            }
-            handleStateUpdate(() => {
-                state.activeTab = tabId;
-            }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
-            window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
-        };
-
-        if (activeTransition) {
-            try {
-                activeTransition.skipTransition();
-            } catch (_) {}
-            activeTransition = null;
+        if (tabId === 'planner-tab' && state.activeTab !== 'planner-tab') {
+            setAnimateNextRender('all');
+            setTimeout(() => {
+                checkPlannerTabStoredOres();
+            }, 100);
         }
-
-        const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-        if (document.startViewTransition && !prefersReducedMotion) {
-            document.documentElement.dataset.transitionType = 'tab-switch';
-            document.documentElement.dataset.transitionDirection = direction;
-            const transition = document.startViewTransition(updateTab);
-            activeTransition = transition;
-
-            transition.ready.catch(() => {});
-            transition.finished.catch(() => {}).finally(() => {
-                if (activeTransition === transition) {
-                    delete document.documentElement.dataset.transitionType;
-                    activeTransition = null;
-                }
-            });
-        } else {
-            document.documentElement.dataset.transitionDirection = direction;
-            updateTab();
-        }
+        handleStateUpdate(() => {
+            state.activeTab = tabId;
+        }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
+        window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
     });
 
     document.body.addEventListener('click', (event) => {
@@ -163,52 +188,19 @@ export function initializeTabs() {
             tabScrollPositions[state.activeTab] = window.scrollY;
         }
 
-        const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
-        const currentIndex = tabOrder.indexOf(state.activeTab);
-        const nextIndex = tabOrder.indexOf(tabId);
-        const direction = nextIndex > currentIndex ? 'forward' : 'backward';
-
-        const updateTab = () => {
-            if (tabId === 'planner-tab' && state.activeTab !== 'planner-tab') {
-                setAnimateNextRender('all');
-                setTimeout(() => {
-                    checkPlannerTabStoredOres();
-                }, 100);
-            }
-
-            const targetUrl = constructTabUrl(button.dataset.tab);
-            history.pushState(null, '', targetUrl);
-            handleStateUpdate(() => {
-                state.activeTab = tabId;
-            }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
-            window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
-        };
-
-        if (activeTransition) {
-            try {
-                activeTransition.skipTransition();
-            } catch (_) {}
-            activeTransition = null;
+        if (tabId === 'planner-tab' && state.activeTab !== 'planner-tab') {
+            setAnimateNextRender('all');
+            setTimeout(() => {
+                checkPlannerTabStoredOres();
+            }, 100);
         }
 
-        const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-        if (document.startViewTransition && !prefersReducedMotion) {
-            document.documentElement.dataset.transitionType = 'tab-switch';
-            document.documentElement.dataset.transitionDirection = direction;
-            const transition = document.startViewTransition(updateTab);
-            activeTransition = transition;
-
-            transition.ready.catch(() => {});
-            transition.finished.catch(() => {}).finally(() => {
-                if (activeTransition === transition) {
-                    delete document.documentElement.dataset.transitionType;
-                    activeTransition = null;
-                }
-            });
-        } else {
-            document.documentElement.dataset.transitionDirection = direction;
-            updateTab();
-        }
+        const targetUrl = constructTabUrl(button.dataset.tab);
+        history.pushState(null, '', targetUrl);
+        handleStateUpdate(() => {
+            state.activeTab = tabId;
+        }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
+        window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
     });
 }
 

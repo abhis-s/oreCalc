@@ -174,7 +174,7 @@ const CANONICAL_PREFIX_TO_SCOPE = {
  * @type {Array<{ scope: SpotrightScope, command: string, titleKey: string, icon: string, canonicalAliases: string[], fallbackTitle: string }>}
  */
 const SCOPE_DEFINITIONS = [
-    { scope: 'villages', command: '/villages', titleKey: 'nav.views.hub.villages', fallbackTitle: 'Saved Villages', icon: 'user', canonicalAliases: ['villages', 'village', 'v'] },
+    { scope: 'villages', command: '/villages', titleKey: 'nav.views.hub.villages', fallbackTitle: 'Saved Villages', icon: 'user-filled', canonicalAliases: ['villages', 'village', 'v'] },
     { scope: 'equipment', command: '/equipment', titleKey: 'nav.equipment', fallbackTitle: 'Equipment', icon: 'equipment-filled', canonicalAliases: ['equipment', 'equip', 'e'] },
     { scope: 'hero', command: '/heroes', titleKey: 'views.damageCalc.filters.filterHeroes', fallbackTitle: 'Heroes', icon: 'shield-filled', canonicalAliases: ['heroes', 'hero', 'h'] },
     { scope: 'tools', command: '/tools', titleKey: 'nav.drawerTitle', fallbackTitle: 'Tabs & Tools', icon: 'sliders', canonicalAliases: ['tools', 'tool', 't'] },
@@ -428,7 +428,7 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
                     title: translate('views.spotright.loadVillageTag', { tag: cleanTagCandidate }),
                     normalizedTitle: query,
                     category: translate('player.tag') || 'Player Tag',
-                    icon: 'user',
+                    icon: 'user-filled',
                     iconType: 'svg',
                     acronym: cleanTagCandidate.slice(0, 2).toLowerCase(),
                     priorityTier: 250,

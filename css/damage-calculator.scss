@@ -4,6 +4,7 @@
 @use 'components/stepped-slider';
 @use 'components/app-settings';
 @use 'components/switch';
+@use 'components/segmented-control';
 @use 'components/equipment-details/equipment-details-tabs-empty';
 @use 'components/bottom-nav';
 @use 'components/footer';
@@ -11,6 +12,7 @@
 @use 'components/bug-report-modal';
 @use 'components/spotright';
 @use 'components/shortcuts-modal';
+@use 'components/route-transition-loader';
 
 @use 'damage-calculator/layout';
 @use 'damage-calculator/solution-card';

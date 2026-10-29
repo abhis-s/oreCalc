@@ -3,7 +3,7 @@
         aria-haspopup="dialog" aria-expanded="false" aria-controls="app-account-popover"
         data-i18n-title="auth.account" aria-label="Account" data-i18n-aria-label="auth.account">
         <span class="header-account-icon-wrapper fill-current" id="header-account-icon-wrapper">
-            <clashcalc-assets-svg name="user" id="header-account-icon"></clashcalc-assets-svg>
+            <clashcalc-assets-svg name="user-filled" id="header-account-icon"></clashcalc-assets-svg>
         </span>
         <clashcalc-assets-image id="header-account-avatar-img" class="header-account-avatar-img is-hidden" src="assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt"></clashcalc-assets-image>
     </button>
@@ -13,62 +13,44 @@
 
         <div id="account-popover-auth-section" class="account-popover-section is-hidden">
             <div class="account-user-profile-card">
-                <button type="button" id="account-popover-avatar-btn" class="account-user-profile-avatar" aria-label="Change Avatar" data-i18n-aria-label="auth.changeAvatar">
+                <a href="/account/" id="account-popover-avatar-btn" class="account-user-profile-avatar" aria-label="Account Profile" data-i18n-aria-label="auth.account">
                     <clashcalc-assets-image id="account-popover-avatar-img" src="assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt"></clashcalc-assets-image>
-                </button>
+                </a>
                 <div class="account-user-profile-details">
                     <span id="account-popover-username" class="account-user-profile-name"></span>
-                    <span class="account-user-profile-status" data-i18n="auth.signedInStatus"></span>
-                </div>
-                <div class="account-user-profile-actions">
-                    <button type="button" id="account-popover-logout-btn" class="animated-btn btn-danger-action task-btn">
-                        <span class="animated-btn-icon-wrapper fill-current">
-                            <clashcalc-assets-svg name="logout"></clashcalc-assets-svg>
-                        </span>
-                        <span class="animated-btn-text" data-i18n="auth.signOut"></span>
-                    </button>
                 </div>
             </div>
 
-            <div class="account-popover-subactions">
-                <div class="account-popover-item">
-                    <div class="field-descriptor-group">
-                        <div class="settings-item-label-wrapper">
-                            <span class="settings-item-label" data-i18n="auth.passkeys"></span>
-                        </div>
-                        <p class="form-setting-text" data-i18n="auth.passkeysDesc"></p>
-                    </div>
-                    <button type="button" id="account-popover-passkeys-btn" class="animated-btn btn-secondary task-btn">
-                        <span class="animated-btn-icon-wrapper fill-current">
-                            <clashcalc-assets-svg name="passkey"></clashcalc-assets-svg>
-                        </span>
-                        <span class="animated-btn-text" data-i18n="actions.manage"></span>
-                    </button>
-                </div>
-
-                <div class="account-popover-item">
-                    <div class="field-descriptor-group">
-                        <div class="settings-item-label-wrapper">
-                            <span class="settings-item-label" data-i18n="views.settings.dataManagement.title"></span>
-                        </div>
-                        <p class="form-setting-text" data-i18n="views.settings.dataManagement.cardDesc"></p>
-                    </div>
-                    <button type="button" id="account-popover-data-btn" class="animated-btn btn-secondary task-btn">
-                        <span class="animated-btn-icon-wrapper fill-current">
-                            <clashcalc-assets-svg name="manage-account"></clashcalc-assets-svg>
-                        </span>
-                        <span class="animated-btn-text" data-i18n="actions.manage"></span>
-                    </button>
-                </div>
+            <div class="account-popover-menu">
+                <a href="/account/" id="account-popover-manage-btn" class="account-popover-nav-item" data-popover-option="account-sync">
+                    <span class="account-popover-nav-icon fill-current">
+                        <clashcalc-assets-svg name="manage-account" width="18" height="18"></clashcalc-assets-svg>
+                    </span>
+                    <span class="account-popover-nav-text" data-i18n="views.settings.cards.accountAndSync"></span>
+                    <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-nav-arrow"></clashcalc-assets-svg>
+                </a>
+                <button type="button" id="account-popover-install-btn" class="account-popover-nav-item is-hidden" data-i18n-title="actions.installApp" aria-label="Install App" data-i18n-aria-label="actions.installApp" hidden>
+                    <span class="account-popover-nav-icon fill-current">
+                        <clashcalc-assets-svg name="install-app" width="18" height="18"></clashcalc-assets-svg>
+                    </span>
+                    <span class="account-popover-nav-text" data-i18n="actions.installApp">Install App</span>
+                    <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-nav-arrow"></clashcalc-assets-svg>
+                </button>
+                <button type="button" id="account-popover-logout-btn" class="account-popover-nav-item account-popover-nav-item--danger">
+                    <span class="account-popover-nav-icon fill-current">
+                        <clashcalc-assets-svg name="logout" width="18" height="18"></clashcalc-assets-svg>
+                    </span>
+                    <span class="account-popover-nav-text" data-i18n="auth.signOut"></span>
+                </button>
             </div>
         </div>
 
         <div id="account-popover-guest-section" class="account-popover-section">
             <div class="account-popover-guest-card">
                 <div class="account-popover-guest-content">
-                    <div class="account-popover-guest-icon-wrapper">
-                        <clashcalc-assets-svg name="user" class="account-popover-guest-icon"></clashcalc-assets-svg>
-                    </div>
+                    <a href="/account/" id="account-popover-guest-avatar-btn" class="account-popover-guest-icon-wrapper" aria-label="Account" data-i18n-aria-label="auth.account" title="Account" data-i18n-title="auth.account">
+                        <clashcalc-assets-svg name="user-filled" class="account-popover-guest-icon"></clashcalc-assets-svg>
+                    </a>
                     <div class="account-popover-guest-details">
                         <span class="account-popover-guest-title" data-i18n="auth.account"></span>
                         <p class="form-setting-text" data-i18n="auth.accountCardDesc"></p>
@@ -76,98 +58,90 @@
                 </div>
                 <button type="button" id="account-popover-signin-btn" class="animated-btn btn-accent task-btn">
                     <span class="animated-btn-icon-wrapper fill-dark">
-                        <clashcalc-assets-svg name="user"></clashcalc-assets-svg>
+                        <clashcalc-assets-svg name="user-filled"></clashcalc-assets-svg>
                     </span>
                     <span class="animated-btn-text" data-i18n="auth.signIn"></span>
                 </button>
             </div>
 
-            <div class="account-popover-subactions">
-                <div class="account-popover-item">
-                    <div class="field-descriptor-group">
-                        <div class="settings-item-label-wrapper">
-                            <span class="settings-item-label" data-i18n="views.settings.options.deviceSync"></span>
-                        </div>
-                        <p class="form-setting-text" data-i18n="views.settings.cloudSync.deviceInfo"></p>
-                    </div>
-                    <button type="button" id="account-popover-guest-sync-btn" class="animated-btn btn-secondary task-btn">
-                        <span class="animated-btn-icon-wrapper fill-current">
-                            <clashcalc-assets-svg name="sync"></clashcalc-assets-svg>
-                        </span>
-                        <span class="animated-btn-text" data-i18n="actions.sync"></span>
-                    </button>
-                </div>
-
-                <div class="account-popover-item">
-                    <div class="field-descriptor-group">
-                        <div class="settings-item-label-wrapper">
-                            <span class="settings-item-label" data-i18n="views.settings.dataManagement.title"></span>
-                        </div>
-                        <p class="form-setting-text" data-i18n="views.settings.dataManagement.cardDesc"></p>
-                    </div>
-                    <button type="button" id="account-popover-guest-data-btn" class="animated-btn btn-secondary task-btn">
-                        <span class="animated-btn-icon-wrapper fill-current">
-                            <clashcalc-assets-svg name="manage-account"></clashcalc-assets-svg>
-                        </span>
-                        <span class="animated-btn-text" data-i18n="actions.manage"></span>
-                    </button>
-                </div>
+            <div class="account-popover-menu">
+                <a href="/account/" id="account-popover-guest-manage-btn" class="account-popover-nav-item" data-popover-option="account-sync">
+                    <span class="account-popover-nav-icon fill-current">
+                        <clashcalc-assets-svg name="manage-account" width="18" height="18"></clashcalc-assets-svg>
+                    </span>
+                    <span class="account-popover-nav-text" data-i18n="views.settings.cards.accountAndSync"></span>
+                    <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-nav-arrow"></clashcalc-assets-svg>
+                </a>
+                <button type="button" id="account-popover-guest-install-btn" class="account-popover-nav-item is-hidden" data-i18n-title="actions.installApp" aria-label="Install App" data-i18n-aria-label="actions.installApp" hidden>
+                    <span class="account-popover-nav-icon fill-current">
+                        <clashcalc-assets-svg name="install-app" width="18" height="18"></clashcalc-assets-svg>
+                    </span>
+                    <span class="account-popover-nav-text" data-i18n="actions.installApp">Install App</span>
+                    <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-nav-arrow"></clashcalc-assets-svg>
+                </button>
             </div>
         </div>
 
-        <hr class="account-popover-divider">
+        <hr class="account-popover-divider" id="account-popover-panel-divider">
 
-        <details id="account-popover-prefs-details" class="account-popover-preferences">
-            <summary class="account-popover-prefs-summary">
-                <span class="account-popover-prefs-title">
-                    <clashcalc-assets-svg name="settings-filled" width="16" height="16" class="pref-label-icon"></clashcalc-assets-svg>
-                    <span data-i18n="nav.settings"></span>
-                </span>
-                <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-prefs-chevron"></clashcalc-assets-svg>
-            </summary>
-            <div class="welcome-preferences app-preferences push-top-10">
-                <div class="preference-item">
-                    <span class="preference-label">
-                        <clashcalc-assets-svg name="translate" height="18" width="18" class="pref-label-icon"></clashcalc-assets-svg>
-                        <span data-i18n="views.settings.options.language"></span>
+        <div class="account-popover-panels" id="account-popover-panels">
+            <div id="account-popover-prefs-details" class="account-popover-panel account-popover-preferences" data-popover-panel="settings">
+                <button type="button" class="account-popover-panel-summary" id="account-popover-prefs-summary"
+                    aria-expanded="false" aria-controls="account-popover-prefs-body">
+                    <span class="account-popover-prefs-title">
+                        <clashcalc-assets-svg name="settings-filled" width="16" height="16" class="pref-label-icon"></clashcalc-assets-svg>
+                        <span data-i18n="nav.settings"></span>
                     </span>
-                    <div class="preference-select-wrapper language-select-wrapper">
-                        <select class="preference-select language-select" id="app-language-select" aria-label="Select Language" data-i18n-aria-label="views.settings.options.language">
-                            <!-- DYNAMIC INSERTION: Language select options -->
-                        </select>
-                        <span class="select-arrow"><clashcalc-assets-svg name="chevron-down" height="14" width="14"></clashcalc-assets-svg></span>
-                    </div>
-                </div>
+                    <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-prefs-chevron"></clashcalc-assets-svg>
+                </button>
+                <div id="account-popover-prefs-body" class="account-popover-panel-body" role="region" aria-labelledby="account-popover-prefs-summary">
+                    <div class="account-popover-panel-inner">
+                        <div class="welcome-preferences app-preferences">
+                            <div class="preference-item">
+                                <span class="preference-label">
+                                    <clashcalc-assets-svg name="translate" height="18" width="18" class="pref-label-icon"></clashcalc-assets-svg>
+                                    <span data-i18n="views.settings.options.language"></span>
+                                </span>
+                                <div class="preference-select-wrapper language-select-wrapper">
+                                    <select class="preference-select language-select" id="app-language-select" aria-label="Select Language" data-i18n-aria-label="views.settings.options.language">
+                                        <!-- DYNAMIC INSERTION: Language select options -->
+                                    </select>
+                                    <span class="select-arrow"><clashcalc-assets-svg name="chevron-down" height="14" width="14"></clashcalc-assets-svg></span>
+                                </div>
+                            </div>
 
-                <div class="preference-item">
-                    <label for="app-theme-toggle" class="preference-label">
-                        <clashcalc-assets-svg name="routine" height="18" width="18" class="pref-label-icon"></clashcalc-assets-svg>
-                        <span id="app-theme-label" data-i18n="views.settings.options.themeLight"></span>
-                    </label>
-                    <div class="switch theme-switch">
-                        <input type="checkbox" id="app-theme-toggle">
-                        <span class="slider round">
-                            <clashcalc-assets-svg name="dark-mode" class="switch-icon icon-dark"></clashcalc-assets-svg>
-                            <clashcalc-assets-svg name="light-mode" class="switch-icon icon-light"></clashcalc-assets-svg>
-                        </span>
-                    </div>
-                </div>
+                            <div class="preference-item">
+                                <label for="app-theme-toggle" class="preference-label">
+                                    <clashcalc-assets-svg name="routine" height="18" width="18" class="pref-label-icon"></clashcalc-assets-svg>
+                                    <span id="app-theme-label" data-i18n="views.settings.options.themeLight"></span>
+                                </label>
+                                <div class="switch theme-switch">
+                                    <input type="checkbox" id="app-theme-toggle">
+                                    <span class="slider round">
+                                        <clashcalc-assets-svg name="dark-mode" class="switch-icon icon-dark"></clashcalc-assets-svg>
+                                        <clashcalc-assets-svg name="light-mode" class="switch-icon icon-light"></clashcalc-assets-svg>
+                                    </span>
+                                </div>
+                            </div>
 
-                <div class="preference-item">
-                    <span class="preference-label">
-                        <clashcalc-assets-svg name="palette" height="18" width="18" class="pref-label-icon"></clashcalc-assets-svg>
-                        <span data-i18n="views.settings.options.accentColor"></span>
-                    </span>
-                    <div class="welcome-accent-picker" id="app-accent-picker">
-                        <button type="button" class="accent-swatch" data-color="blue" data-i18n-aria-label="colors.blue"></button>
-                        <button type="button" class="accent-swatch" data-color="gold" data-i18n-aria-label="colors.gold"></button>
-                        <button type="button" class="accent-swatch" data-color="purple" data-i18n-aria-label="colors.purple"></button>
-                        <button type="button" class="accent-swatch" data-color="green" data-i18n-aria-label="colors.green"></button>
-                        <button type="button" class="accent-swatch" data-color="red" data-i18n-aria-label="colors.red"></button>
-                        <button type="button" class="accent-swatch" data-color="random" data-i18n-aria-label="colors.random" title="Random" data-i18n-title="colors.random"></button>
+                            <div class="preference-item">
+                                <span class="preference-label">
+                                    <clashcalc-assets-svg name="palette" height="18" width="18" class="pref-label-icon"></clashcalc-assets-svg>
+                                    <span data-i18n="views.settings.options.accentColor"></span>
+                                </span>
+                                <div class="welcome-accent-picker" id="app-accent-picker">
+                                    <button type="button" class="accent-swatch" data-color="blue" data-i18n-aria-label="colors.blue"></button>
+                                    <button type="button" class="accent-swatch" data-color="gold" data-i18n-aria-label="colors.gold"></button>
+                                    <button type="button" class="accent-swatch" data-color="purple" data-i18n-aria-label="colors.purple"></button>
+                                    <button type="button" class="accent-swatch" data-color="green" data-i18n-aria-label="colors.green"></button>
+                                    <button type="button" class="accent-swatch" data-color="red" data-i18n-aria-label="colors.red"></button>
+                                    <button type="button" class="accent-swatch" data-color="random" data-i18n-aria-label="colors.random" title="Random" data-i18n-title="colors.random"></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </details>
+        </div>
     </div>
 </div>

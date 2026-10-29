@@ -1,82 +1,16 @@
 @use '../abstracts/mixins' as *;
 
-.app-settings-wrapper,
 .app-account-wrapper {
     position: relative;
     display: inline-flex;
     align-items: center;
 
-    &:has(.app-settings-popover.is-open),
     &:has(.app-account-popover.is-open),
     &:has(.is-open) {
         z-index: $z-index-popover;
     }
 }
 
-.app-settings-btn {
-    @include btn-accent-style;
-    min-height: 36px;
-    height: 36px;
-    min-width: auto;
-    padding: 6px 14px;
-    border-radius: $shape-corner-full;
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    box-sizing: border-box;
-
-    .animated-btn-icon-wrapper svg {
-        width: 15px;
-        height: 15px;
-        display: block;
-        fill: currentColor;
-    }
-
-    clashcalc-assets-svg,
-    orecalc-assets-svg {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform $duration-moderate $ease-smooth;
-    }
-
-    &:hover:not(:disabled) {
-        clashcalc-assets-svg,
-        orecalc-assets-svg {
-            transform: rotate(90deg);
-        }
-    }
-
-    &.is-open {
-        background-color: color-mix(in srgb, $accent-primary 25%, transparent);
-        border-color: $accent-primary;
-        color: $accent-primary;
-
-        .animated-btn-text {
-            opacity: 0;
-            transform: translateY(-100%);
-        }
-
-        .animated-btn-icon-wrapper {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        clashcalc-assets-svg,
-        orecalc-assets-svg {
-            transform: rotate(90deg);
-        }
-    }
-
-    @container header-shell (max-width: #{$container-header-collapse}) {
-        @include header-action-btn-collapse;
-    }
-
-    &.is-icon-only {
-        @include header-action-btn-collapse;
-    }
-}
-
-.app-settings-popover,
 .app-account-popover {
     position: absolute;
     top: calc(100% + 8px);
@@ -109,34 +43,6 @@
         opacity: 1;
         transform: translateY(0) scale(1);
         pointer-events: auto;
-    }
-
-    &__header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-bottom: $spacing-sm;
-        border-bottom: 1px solid $border-secondary;
-    }
-
-    &__title {
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: $text-primary;
-        margin: 0;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .app-settings-injections {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 0 $spacing-xs;
-
-        &:empty {
-            display: none;
-        }
     }
 
     .welcome-preferences.app-preferences {

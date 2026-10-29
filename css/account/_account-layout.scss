@@ -1,0 +1,42 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.account-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: $bg-app;
+
+    &__header {
+        @include app-header-shell;
+    }
+}
+
+.account-main {
+    flex: 1;
+    @include app-layout-container;
+}
+
+.account-layout {
+    width: 100%;
+}
+
+.account-view {
+    width: 100%;
+
+    &[hidden] {
+        display: none !important;
+    }
+}
+
+.account-grid {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+    max-width: 720px;
+    margin-inline: auto;
+
+    @media (max-width: $breakpoint-phone) {
+        gap: $spacing-lg;
+    }
+}

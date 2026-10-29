@@ -138,7 +138,7 @@ function syncPriorityListHeight() {
         isSyncPriorityHeightPending = false;
 
         const carousel = document.querySelector('.planner-hero-carousel');
-        const priorityCard = document.getElementById('priority-list-card');
+        const priorityCard = document.getElementById('orecalc-planner-priority-list-card');
         const priorityContent = document.getElementById('priority-list-container');
 
         if (!carousel || !priorityCard || !priorityContent) return;

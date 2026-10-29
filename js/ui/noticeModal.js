@@ -1,6 +1,4 @@
 import { translate } from '../i18n/translator.js';
-import { openModal } from '../utils/modalHistoryManager.js';
-import { highlightElementWithSnake } from './elementHighlighter.js';
 
 let modal, titleElem, messageElem, cancelBtn, okBtn, overlay;
 
@@ -143,27 +141,13 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
             const anchor = /** @type {HTMLElement | null} */ (e.target)?.closest('a');
             if (!anchor) return;
             const href = anchor.getAttribute('href');
-            if (href === '#open-data-management' || href === '#account-data-modal') {
+            if (href === '#open-data-management') {
                 e.preventDefault();
                 cleanup();
                 resolve(false);
-                const openDataBtn = document.getElementById('open-data-management-btn') || document.getElementById('open-account-management-btn');
-                if (openDataBtn) {
-                    openDataBtn.click();
-                } else {
-                    const accModal = document.getElementById('account-data-modal');
-                    if (accModal) {
-                        openModal(accModal);
-                    }
+                if (typeof window !== 'undefined' && window.location) {
+                    window.location.href = '/account/';
                 }
-
-                const targetSelector = anchor.getAttribute('data-highlight') || '#account-data-reset-data-tier';
-                setTimeout(() => {
-                    const targetEl = /** @type {HTMLElement | null} */ (document.querySelector(targetSelector));
-                    if (targetEl) {
-                        highlightElementWithSnake(targetEl);
-                    }
-                }, 100);
             }
         };
 

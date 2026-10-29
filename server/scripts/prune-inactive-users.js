@@ -2,6 +2,7 @@ const path = require('path');
 const admin = require('firebase-admin');
 const { safeJsonParse } = require('../utils/jsonUtils.js');
 const { SERVER_CONSTANTS } = require('../constants.js');
+const { pruneExpiredAuthChallenges } = require('../services/authService.js');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
@@ -95,6 +96,14 @@ async function pruneInactiveUsers() {
             console.log(`[PRUNE] Successfully pruned user ${doc.id} (deleted ${playersSnapshot.size} subcollection player docs).`);
         }
 
+        let challengesPruned = 0;
+        try {
+            const challengePruneResult = await pruneExpiredAuthChallenges(db);
+            challengesPruned = challengePruneResult.firestorePurged;
+        } catch (err) {
+            console.error('[PRUNE] Failed to prune auth challenges:', err);
+        }
+
         // Persist audit record in pruneAuditLogs collection
         const auditLogRef = await db.collection('pruneAuditLogs').add({
             executedAt: new Date().toISOString(),
@@ -103,11 +112,12 @@ async function pruneInactiveUsers() {
             inactiveDaysThreshold: SERVER_CONSTANTS.INACTIVE_USER_DAYS_THRESHOLD,
             prunedCount,
             subcollectionDocsDeleted,
-            prunedUserIds
+            prunedUserIds,
+            challengesPruned
         });
 
-        console.log(`[PRUNE] Successfully pruned a total of ${prunedCount} inactive userStates documents (${subcollectionDocsDeleted} player subcollection docs wiped). Audit log ID: ${auditLogRef.id}`);
-        return { prunedCount, subcollectionDocsDeleted, prunedUserIds, auditLogId: auditLogRef.id };
+        console.log(`[PRUNE] Successfully pruned a total of ${prunedCount} inactive userStates documents (${subcollectionDocsDeleted} player subcollection docs wiped) and ${challengesPruned} expired challenges. Audit log ID: ${auditLogRef.id}`);
+        return { prunedCount, subcollectionDocsDeleted, prunedUserIds, challengesPruned, auditLogId: auditLogRef.id };
     } catch (error) {
         console.error('[PRUNE] Error during inactive data pruning:', error);
         throw error;

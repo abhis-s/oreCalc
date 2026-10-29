@@ -4,11 +4,16 @@
                 <button type="button" id="hamburger-button" class="app-header__hamburger hamburger" aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
                     <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
-                <a href="/" class="brand-title-link" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
+                <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
                     <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
                 </a>
                 <span class="brand-separator" aria-hidden="true">&middot;</span>
-                <span class="brand-page-pill" data-i18n="app.brandToolName">OreCalc</span>
+                <div class="brand-page-pill-wrapper">
+                    <button type="button" class="brand-page-pill" id="brand-page-pill-btn" aria-haspopup="menu" aria-expanded="false" data-i18n="app.brandToolName">OreCalc</button>
+                    <div id="brand-tools-dropdown" class="brand-tools-dropdown" role="menu" aria-labelledby="brand-page-pill-btn" hidden>
+                        <!-- DYNAMIC INSERTION: Brand tool dropdown items -->
+                    </div>
+                </div>
             </div>
 
             <div class="app-header__tabs tab-bar-container">

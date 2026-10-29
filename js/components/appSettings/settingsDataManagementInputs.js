@@ -1,30 +1,16 @@
 import { translate } from '../../i18n/translator.js';
-
-import { getActiveUserId, normalizePlayerTag } from '../../core/storageKeys.js';
-import { state } from '../../core/state.js';
-
-import { logger } from '../../utils/logger.js';
-import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
+import { normalizePlayerTag } from '../../core/storageKeys.js';
+import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
-
 import { dom } from '../../dom/domElements.js';
-import { deleteUserData, erasePlayerTagFromAllUsers, fetchPlayerData } from '../../services/apiService.js';
-import { showAlert, showConfirm } from '../../ui/noticeModal.js';
+import { erasePlayerTagFromAllUsers, fetchPlayerData } from '../../services/apiService.js';
+import { showAlert } from '../../ui/noticeModal.js';
 
 /**
- * Initializes data management settings: download, import, data erasure, and account reset.
+ * Initializes player deletion and exclusion from service modal.
  */
 export function initializeSettingsDataManagement() {
     const {
-        resetLocalBtn,
-        resetCloudBtn,
-        completeDeleteBtn,
-        downloadUserDataBtn,
-        userIdDisplayLabel,
-        openDataErasureBtn,
-        dataErasureModal,
-        closeDataErasureModalBtn,
-        importModal,
         deleteModal,
         deleteTokenContainer,
         deleteTagInput,
@@ -39,94 +25,7 @@ export function initializeSettingsDataManagement() {
         verifyDeletePlayerBtn
     } = dom.appSettings || {};
 
-    const downloadDataModal = dom.appSettings?.downloadDataModal;
-    const closeDownloadDataModalBtn = dom.appSettings?.closeDownloadDataModalBtn;
-    const confirmDownloadDataBtn = dom.appSettings?.confirmDownloadDataBtn;
-    const cancelDownloadDataBtn = dom.appSettings?.cancelDownloadDataBtn;
-    const downloadFilenamePreview = dom.appSettings?.downloadFilenamePreview;
-
-    if (downloadUserDataBtn && downloadDataModal) {
-        const closeDownloadModal = () => {
-            closeModalAnimated(downloadDataModal);
-            if (confirmDownloadDataBtn) {
-                confirmDownloadDataBtn.disabled = false;
-                confirmDownloadDataBtn.textContent = translate('actions.download');
-            }
-        };
-
-        downloadUserDataBtn.addEventListener('click', () => {
-            const currentUserId = getActiveUserId() || 'unknown';
-            if (downloadFilenamePreview) {
-                downloadFilenamePreview.innerHTML = translate('views.settings.download.filenameInfo', { uuid: currentUserId });
-            }
-            openModal(downloadDataModal);
-        });
-
-        closeDownloadDataModalBtn?.addEventListener('click', closeDownloadModal);
-        cancelDownloadDataBtn?.addEventListener('click', closeDownloadModal);
-
-        confirmDownloadDataBtn?.addEventListener('click', () => {
-            const originalText = confirmDownloadDataBtn.textContent;
-            confirmDownloadDataBtn.disabled = true;
-            confirmDownloadDataBtn.textContent = translate('actions.processing');
-
-            const currentUserId = getActiveUserId() || 'unknown';
-            const dataToExport = {
-                ...state,
-                userId: currentUserId
-            };
-            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute('href', dataStr);
-            downloadAnchorNode.setAttribute('download', `ClashCalc-Data_${currentUserId}.json`);
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-
-            setTimeout(() => {
-                confirmDownloadDataBtn.disabled = false;
-                confirmDownloadDataBtn.textContent = originalText;
-                closeDownloadModal();
-            }, 500);
-        });
-    }
-
-    if (resetLocalBtn) {
-        resetLocalBtn.addEventListener('click', async () => {
-            if (dom.appSettings?.dataErasureModal) closeModalAnimated(dom.appSettings.dataErasureModal);
-            if (await showConfirm(translate('confirms.resetLocal'), 'actions.confirm', 'actions.reset')) {
-                if (typeof window.resetApplication === 'function') {
-                    window.resetApplication();
-                }
-            } else {
-                if (dom.appSettings?.dataErasureModal) openModal(dom.appSettings.dataErasureModal);
-            }
-        });
-    }
-
-    if (resetCloudBtn) {
-        resetCloudBtn.addEventListener('click', async () => {
-            if (dom.appSettings?.dataErasureModal) closeModalAnimated(dom.appSettings.dataErasureModal);
-            if (await showConfirm(translate('confirms.resetCloud'), 'actions.confirm', 'actions.reset')) {
-                const currentUserId = getActiveUserId();
-                if (currentUserId) {
-                    try {
-                        await deleteUserData(currentUserId);
-                    } catch (error) {
-                        logger.error('Failed to delete cloud data:', error);
-                        await showAlert(translate('alerts.deleteCloudFailed', { error: error.message || error }));
-                    }
-                }
-                if (typeof window.resetApplication === 'function') {
-                    window.resetApplication();
-                }
-            } else {
-                if (dom.appSettings?.dataErasureModal) openModal(dom.appSettings.dataErasureModal);
-            }
-        });
-    }
-
-    if (completeDeleteBtn && deleteModal) {
+    if (deleteModal) {
         const closeDeleteModal = () => {
             closeModalAnimated(deleteModal);
             if (deleteTagInput) deleteTagInput.value = '';
@@ -146,13 +45,6 @@ export function initializeSettingsDataManagement() {
                 verifyDeletePlayerBtn.textContent = translate('actions.verify');
             }
         };
-
-        completeDeleteBtn.addEventListener('click', () => {
-            if (dom.appSettings?.dataErasureModal) {
-                closeModalAnimated(dom.appSettings.dataErasureModal);
-            }
-            openModal(deleteModal);
-        });
 
         cancelDeletePlayerBtn?.addEventListener('click', closeDeleteModal);
         cancelDeleteVerifyBtn?.addEventListener('click', closeDeleteModal);
@@ -261,42 +153,9 @@ export function initializeSettingsDataManagement() {
         });
     }
 
-    if (userIdDisplayLabel) {
-        const currentUserId = getActiveUserId();
-        if (currentUserId) {
-            const maskedId = currentUserId.length > 8 ? currentUserId.substring(0, 8) + '...' : currentUserId;
-            userIdDisplayLabel.textContent = `${translate('player.userId')}: ${maskedId}`;
-            userIdDisplayLabel.dataset.fullId = currentUserId;
-        }
-    }
-
-    if (openDataErasureBtn && dataErasureModal) {
-        openDataErasureBtn.addEventListener('click', () => {
-            openModal(dataErasureModal);
-        });
-    }
-
-    if (closeDataErasureModalBtn && dataErasureModal) {
-        closeDataErasureModalBtn.addEventListener('click', () => {
-            closeModalAnimated(dataErasureModal);
-        });
-    }
-
-    if (dom.appSettings?.closeDataErasureHeaderBtn && dataErasureModal) {
-        dom.appSettings.closeDataErasureHeaderBtn.addEventListener('click', () => {
-            closeModalAnimated(dataErasureModal);
-        });
-    }
-
     if (dom.appSettings?.closeDeletePlayerModalBtn && deleteModal) {
         dom.appSettings.closeDeletePlayerModalBtn.addEventListener('click', () => {
             closeModalAnimated(deleteModal);
-        });
-    }
-
-    if (dom.appSettings?.closeImportDataModalBtn && importModal) {
-        dom.appSettings.closeImportDataModalBtn.addEventListener('click', () => {
-            closeModalAnimated(importModal);
         });
     }
 }

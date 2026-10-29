@@ -1,56 +1,239 @@
 /**
- * Pure DOM rendering for Settings Tab Account Card and Header Account Button.
+ * Pure DOM rendering for Header Account Button and Modular Account Popover.
  * Tier 4: UI Renderer.
  */
 
-import { translate } from '../../i18n/translator.js';
+import { getLanguageFromPath } from '../../core/languageRouter.js';
+import { state } from '../../core/state.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
+import { isPwaInstallSupported } from '../../services/pwaService.js';
 
 /**
- * Updates a card title element's text content while strictly preserving child elements (such as .card-drag-handle).
- *
- * @param {HTMLElement|null} element
- * @param {string} text
- * @param {string} i18nKey
+ * Returns localized route prefix based on active URL path or uiSettings.
+ * @returns {string}
  */
-function updateCardTitlePreservingHandle(element, text, i18nKey) {
-    if (!element) return;
-    element.setAttribute?.('data-i18n', i18nKey);
-
-    if (element.childNodes && typeof element.childNodes[Symbol.iterator] === 'function') {
-        for (const child of element.childNodes) {
-            if (child.nodeType === 3) {
-                child.textContent = text;
-                return;
-            }
-        }
-
-        if (typeof document !== 'undefined' && typeof document.createTextNode === 'function') {
-            const textNode = document.createTextNode(text);
-            if (element.firstChild) {
-                element.insertBefore(textNode, element.firstChild);
-            } else {
-                element.appendChild(textNode);
-            }
-            return;
-        }
-    }
-
-    element.textContent = text;
+function getActiveRoutePrefix() {
+    const lang = getLanguageFromPath() || state.uiSettings?.language || 'en';
+    return lang === 'en' ? '' : `/${lang}`;
 }
 
 /**
- * Updates all account identity UI elements across settings and header.
+ * Updates an anchor tag href to preserve the current language prefix.
+ * @param {HTMLElement|null} el
+ * @param {string} subPath - Subpath starting with '/' (e.g. '/account/').
+ */
+function updateLocalizedHref(el, subPath) {
+    if (!el || typeof el.setAttribute !== 'function') return;
+    const prefix = getActiveRoutePrefix();
+    el.setAttribute('href', `${prefix}${subPath}`);
+}
+
+/**
+ * @typedef {Object} AccountPopoverCustomPanel
+ * @property {string} id - Unique panel identifier.
+ * @property {string} [title] - Fallback title string.
+ * @property {string} [i18nKey] - Translation key for summary title.
+ * @property {string} [icon] - SVG asset name.
+ * @property {string} [contentHtml] - HTML string to render in panel body.
+ * @property {(bodyEl: HTMLElement) => void} [onRender] - Custom lifecycle hook.
+ */
+
+/**
+ * @typedef {Object} AccountPopoverOptions
+ * @property {boolean} [hasAccountSync=true] - Whether "Account & Cloud Sync" menu option is present.
+ * @property {boolean} [hasClickableAvatar=true] - Whether avatar links to /account/ or is non-clickable.
+ * @property {boolean} [hasSettingsPanel=true] - Whether the built-in settings panel is present.
+ * @property {string[]} [expandedPanels=[]] - Panel IDs explicitly requested to start expanded.
+ * @property {AccountPopoverCustomPanel[]} [customPanels=[]] - Extra panels provided by the page.
+ */
+
+/** @type {AccountPopoverOptions} */
+let currentPopoverOptions = {
+    hasAccountSync: true,
+    hasClickableAvatar: true,
+    hasSettingsPanel: true,
+    expandedPanels: [],
+    customPanels: []
+};
+
+/**
+ * Toggles a popover panel's expanded state.
+ * @param {string} panelId
+ * @param {boolean} [forceState]
+ */
+export function togglePopoverPanel(panelId, forceState) {
+    const panel = document.querySelector(`[data-popover-panel="${panelId}"]`);
+    if (!panel) return;
+
+    const summaryBtn = panel.querySelector('.account-popover-panel-summary');
+    const isExpanded = forceState !== undefined ? forceState : !panel.classList.contains('is-expanded');
+
+    panel.classList.toggle('is-expanded', isExpanded);
+    if (summaryBtn) {
+        summaryBtn.setAttribute('aria-expanded', String(isExpanded));
+    }
+}
+
+/**
+ * Configures the modular account popover based on page-provided options.
+ * @param {AccountPopoverOptions} [options={}]
+ */
+export function configureAccountPopover(options = {}) {
+    currentPopoverOptions = {
+        hasAccountSync: options.hasAccountSync !== false,
+        hasClickableAvatar: options.hasClickableAvatar !== false,
+        hasSettingsPanel: options.hasSettingsPanel !== false,
+        expandedPanels: Array.isArray(options.expandedPanels) ? [...options.expandedPanels] : [],
+        customPanels: Array.isArray(options.customPanels) ? [...options.customPanels] : []
+    };
+
+    applyPopoverConfiguration();
+}
+
+/**
+ * Applies the current popover configuration to the DOM.
+ */
+function applyPopoverConfiguration() {
+    const popover = document.getElementById('app-account-popover');
+    if (!popover) return;
+
+    const manageBtn = document.getElementById('account-popover-manage-btn');
+    if (manageBtn) {
+        if (currentPopoverOptions.hasAccountSync) {
+            manageBtn.classList.remove('is-hidden');
+            manageBtn.removeAttribute('hidden');
+        } else {
+            manageBtn.classList.add('is-hidden');
+            manageBtn.setAttribute('hidden', '');
+        }
+    }
+
+    const canInstall = isPwaInstallSupported();
+    const installBtn = document.getElementById('account-popover-install-btn');
+    if (installBtn) {
+        if (canInstall) {
+            installBtn.classList.remove('is-hidden');
+            installBtn.removeAttribute('hidden');
+        } else {
+            installBtn.classList.add('is-hidden');
+            installBtn.setAttribute('hidden', '');
+        }
+    }
+    const guestInstallBtn = document.getElementById('account-popover-guest-install-btn');
+    if (guestInstallBtn) {
+        if (canInstall) {
+            guestInstallBtn.classList.remove('is-hidden');
+            guestInstallBtn.removeAttribute('hidden');
+        } else {
+            guestInstallBtn.classList.add('is-hidden');
+            guestInstallBtn.setAttribute('hidden', '');
+        }
+    }
+
+    const avatarBtn = document.getElementById('account-popover-avatar-btn');
+    if (avatarBtn) {
+        if (currentPopoverOptions.hasClickableAvatar) {
+            updateLocalizedHref(avatarBtn, '/account/');
+            avatarBtn.removeAttribute('role');
+            avatarBtn.removeAttribute('tabindex');
+            avatarBtn.removeAttribute('aria-disabled');
+            avatarBtn.classList.remove('is-static');
+        } else {
+            avatarBtn.removeAttribute('href');
+            avatarBtn.setAttribute('role', 'img');
+            avatarBtn.setAttribute('tabindex', '-1');
+            avatarBtn.setAttribute('aria-disabled', 'true');
+            avatarBtn.classList.add('is-static');
+        }
+    }
+
+    const settingsPanel = document.querySelector('[data-popover-panel="settings"]');
+    if (settingsPanel) {
+        if (currentPopoverOptions.hasSettingsPanel) {
+            settingsPanel.classList.remove('is-hidden');
+            settingsPanel.removeAttribute('hidden');
+            if (!Object.hasOwn(settingsPanel, 'open')) {
+                Object.defineProperty(settingsPanel, 'open', {
+                    get() { return settingsPanel.classList.contains('is-expanded'); },
+                    set(val) { togglePopoverPanel('settings', Boolean(val)); },
+                    configurable: true
+                });
+            }
+        } else {
+            settingsPanel.classList.add('is-hidden');
+            settingsPanel.setAttribute('hidden', '');
+        }
+    }
+
+    const panelsContainer = document.getElementById('account-popover-panels');
+    if (panelsContainer && currentPopoverOptions.customPanels.length > 0) {
+        for (const customDef of currentPopoverOptions.customPanels) {
+            let customPanel = panelsContainer.querySelector(`[data-popover-panel="${customDef.id}"]`);
+            if (!customPanel) {
+                customPanel = document.createElement('div');
+                customPanel.className = 'account-popover-panel';
+                customPanel.setAttribute('data-popover-panel', customDef.id);
+                customPanel.id = `account-popover-panel-${customDef.id}`;
+
+                const icon = customDef.icon || 'settings-filled';
+                const i18nAttr = customDef.i18nKey ? ` data-i18n="${customDef.i18nKey}"` : '';
+                const titleText = escapeHTML(customDef.title || customDef.id);
+
+                customPanel.innerHTML = `
+                    <button type="button" class="account-popover-panel-summary" id="account-popover-panel-${customDef.id}-summary"
+                        aria-expanded="false" aria-controls="account-popover-panel-${customDef.id}-body">
+                        <span class="account-popover-prefs-title">
+                            <clashcalc-assets-svg name="${icon}" width="16" height="16" class="pref-label-icon"></clashcalc-assets-svg>
+                            <span${i18nAttr}>${titleText}</span>
+                        </span>
+                        <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-prefs-chevron"></clashcalc-assets-svg>
+                    </button>
+                    <div id="account-popover-panel-${customDef.id}-body" class="account-popover-panel-body" role="region" aria-labelledby="account-popover-panel-${customDef.id}-summary">
+                        <div class="account-popover-panel-inner">
+                            ${customDef.contentHtml || ''}
+                        </div>
+                    </div>
+                `;
+                panelsContainer.appendChild(customPanel);
+
+                if (typeof customDef.onRender === 'function') {
+                    const bodyInner = customPanel.querySelector('.account-popover-panel-inner');
+                    if (bodyInner) customDef.onRender(/** @type {HTMLElement} */ (bodyInner));
+                }
+            }
+        }
+    }
+
+    const allPanels = popover.querySelectorAll('[data-popover-panel]');
+    let hasVisiblePanels = false;
+    allPanels.forEach(p => {
+        const pId = p.getAttribute('data-popover-panel');
+        const isHidden = p.classList.contains('is-hidden') || p.hasAttribute('hidden');
+        if (!isHidden) hasVisiblePanels = true;
+        if (pId) {
+            const shouldExpand = currentPopoverOptions.expandedPanels.includes(pId);
+            togglePopoverPanel(pId, shouldExpand);
+        }
+    });
+
+    const divider = document.getElementById('account-popover-panel-divider');
+    if (divider) {
+        if (hasVisiblePanels) {
+            divider.classList.remove('is-hidden');
+            divider.removeAttribute('hidden');
+        } else {
+            divider.classList.add('is-hidden');
+            divider.setAttribute('hidden', '');
+        }
+    }
+}
+
+/**
+ * Updates all account identity UI elements across header and modular popover.
  *
  * @param {{ username: string, avatar?: string }|null} authUser
  */
 export function updateAccountUI(authUser) {
-    const guestSection = document.getElementById('account-guest-section');
-    const authSection = document.getElementById('account-auth-section');
-    const accountCardTitle = document.getElementById('account-card-title');
-    const profileUsername = document.getElementById('account-profile-username');
-    const profileAvatarImg = document.getElementById('account-profile-avatar-img');
-
     const headerBtn = document.getElementById('header-account-btn');
     const headerIconWrapper = document.getElementById('header-account-icon-wrapper');
     const headerAvatarImg = document.getElementById('header-account-avatar-img');
@@ -60,19 +243,14 @@ export function updateAccountUI(authUser) {
     const popoverUsername = document.getElementById('account-popover-username');
     const popoverAvatarImg = document.getElementById('account-popover-avatar-img');
 
+    updateLocalizedHref(document.getElementById('account-popover-avatar-btn'), '/account/');
+    updateLocalizedHref(document.getElementById('account-popover-manage-btn'), '/account/');
+    updateLocalizedHref(document.getElementById('account-popover-guest-data-btn'), '/account/');
+
     if (authUser && authUser.username) {
         const safeName = escapeHTML(authUser.username);
         const avatar = authUser.avatar || 'archer';
 
-        // Settings Profile Card
-        if (profileUsername) {
-            profileUsername.textContent = safeName;
-        }
-        if (profileAvatarImg) {
-            profileAvatarImg.setAttribute('src', `assets/avatars/${avatar}.png`);
-        }
-
-        // Popover Profile Card
         if (popoverUsername) {
             popoverUsername.textContent = safeName;
         }
@@ -84,78 +262,13 @@ export function updateAccountUI(authUser) {
         popoverAuthSection?.classList.remove('is-hidden');
         if (popoverAuthSection) popoverAuthSection.style.display = '';
 
-        // Toggle Account Card Sections
-        guestSection?.classList.add('is-hidden');
-        if (guestSection) guestSection.style.display = 'none';
-        authSection?.classList.remove('is-hidden');
-        if (authSection) authSection.style.display = '';
-
-        if (accountCardTitle) {
-            updateCardTitlePreservingHandle(accountCardTitle, translate('auth.account'), 'auth.account');
-        }
-
-        // Header Button
         headerBtn?.classList.add('is-authenticated');
         if (headerAvatarImg) {
             headerAvatarImg.setAttribute('src', `assets/avatars/${avatar}.png`);
             headerAvatarImg.classList.remove('is-hidden');
         }
         headerIconWrapper?.classList.add('is-hidden');
-
-        // Account Data Modal (Authenticated Mode)
-        const accountDataModalTitle = document.getElementById('account-data-modal-title');
-        const accountDataSignInTier = document.getElementById('account-data-signin-tier');
-        const accountDataDeleteAccountTier = document.getElementById('account-data-delete-account-tier');
-        const tierClearCacheLabel = document.getElementById('tier-clear-cache-label');
-        const tierClearCacheDesc = document.getElementById('tier-clear-cache-desc');
-        const modalClearCacheBtnText = document.getElementById('modal-clear-cache-btn-text');
-        const tierResetDataLabel = document.getElementById('tier-reset-data-label');
-        const tierResetDataDesc = document.getElementById('tier-reset-data-desc');
-        const modalResetDataBtnText = document.getElementById('modal-reset-data-btn-text');
-
-        if (accountDataModalTitle) {
-            accountDataModalTitle.setAttribute('data-i18n', 'auth.accountAndDataManagement');
-            accountDataModalTitle.textContent = translate('auth.accountAndDataManagement');
-        }
-        if (accountDataSignInTier) {
-            accountDataSignInTier.classList.add('is-hidden');
-            accountDataSignInTier.style.display = 'none';
-        }
-        if (accountDataDeleteAccountTier) {
-            accountDataDeleteAccountTier.classList.remove('is-hidden');
-            accountDataDeleteAccountTier.style.display = '';
-        }
-        if (tierClearCacheLabel) {
-            tierClearCacheLabel.setAttribute('data-i18n', 'auth.clearDeviceCache');
-            tierClearCacheLabel.textContent = translate('auth.clearDeviceCache');
-        }
-        if (tierClearCacheDesc) {
-            tierClearCacheDesc.setAttribute('data-i18n', 'auth.explanations.clearCache');
-            tierClearCacheDesc.textContent = translate('auth.explanations.clearCache');
-        }
-        if (modalClearCacheBtnText) {
-            modalClearCacheBtnText.setAttribute('data-i18n', 'auth.clearDeviceCache');
-            modalClearCacheBtnText.textContent = translate('auth.clearDeviceCache');
-        }
-        if (tierResetDataLabel) {
-            tierResetDataLabel.setAttribute('data-i18n', 'auth.resetVillageData');
-            tierResetDataLabel.textContent = translate('auth.resetVillageData');
-        }
-        if (tierResetDataDesc) {
-            tierResetDataDesc.setAttribute('data-i18n', 'auth.explanations.resetData');
-            tierResetDataDesc.textContent = translate('auth.explanations.resetData');
-        }
-        if (modalResetDataBtnText) {
-            modalResetDataBtnText.setAttribute('data-i18n', 'auth.resetVillageData');
-            modalResetDataBtnText.textContent = translate('auth.resetVillageData');
-        }
     } else {
-        // Settings Profile Card
-        if (profileUsername) {
-            profileUsername.textContent = '';
-        }
-
-        // Popover Profile Card
         if (popoverUsername) {
             popoverUsername.textContent = '';
         }
@@ -164,88 +277,10 @@ export function updateAccountUI(authUser) {
         popoverGuestSection?.classList.remove('is-hidden');
         if (popoverGuestSection) popoverGuestSection.style.display = '';
 
-        // Toggle Account Card Sections
-        authSection?.classList.add('is-hidden');
-        if (authSection) authSection.style.display = 'none';
-        guestSection?.classList.remove('is-hidden');
-        if (guestSection) guestSection.style.display = '';
-
-        if (accountCardTitle) {
-            updateCardTitlePreservingHandle(accountCardTitle, translate('views.settings.cards.accountAndSync'), 'views.settings.cards.accountAndSync');
-        }
-
-        // Header Button
         headerBtn?.classList.remove('is-authenticated');
         headerAvatarImg?.classList.add('is-hidden');
         headerIconWrapper?.classList.remove('is-hidden');
-
-        // Account Data Modal (Guest Mode)
-        const accountDataModalTitle = document.getElementById('account-data-modal-title');
-        const accountDataSignInTier = document.getElementById('account-data-signin-tier');
-        const accountDataDeleteAccountTier = document.getElementById('account-data-delete-account-tier');
-        const tierClearCacheLabel = document.getElementById('tier-clear-cache-label');
-        const tierClearCacheDesc = document.getElementById('tier-clear-cache-desc');
-        const modalClearCacheBtnText = document.getElementById('modal-clear-cache-btn-text');
-        const tierResetDataLabel = document.getElementById('tier-reset-data-label');
-        const tierResetDataDesc = document.getElementById('tier-reset-data-desc');
-        const modalResetDataBtnText = document.getElementById('modal-reset-data-btn-text');
-
-        if (accountDataModalTitle) {
-            accountDataModalTitle.setAttribute('data-i18n', 'auth.accountAndDataManagement');
-            accountDataModalTitle.textContent = translate('auth.accountAndDataManagement');
-        }
-        if (accountDataSignInTier) {
-            accountDataSignInTier.classList.remove('is-hidden');
-            accountDataSignInTier.style.display = '';
-        }
-        if (accountDataDeleteAccountTier) {
-            accountDataDeleteAccountTier.classList.add('is-hidden');
-            accountDataDeleteAccountTier.style.display = 'none';
-        }
-        if (tierClearCacheLabel) {
-            tierClearCacheLabel.setAttribute('data-i18n', 'auth.clearDeviceCache');
-            tierClearCacheLabel.textContent = translate('auth.clearDeviceCache');
-        }
-        if (tierClearCacheDesc) {
-            tierClearCacheDesc.setAttribute('data-i18n', 'auth.explanations.clearCache');
-            tierClearCacheDesc.textContent = translate('auth.explanations.clearCache');
-        }
-        if (modalClearCacheBtnText) {
-            modalClearCacheBtnText.setAttribute('data-i18n', 'auth.clearDeviceCache');
-            modalClearCacheBtnText.textContent = translate('auth.clearDeviceCache');
-        }
-        if (tierResetDataLabel) {
-            tierResetDataLabel.setAttribute('data-i18n', 'auth.resetVillageData');
-            tierResetDataLabel.textContent = translate('auth.resetVillageData');
-        }
-        if (tierResetDataDesc) {
-            tierResetDataDesc.setAttribute('data-i18n', 'auth.explanations.resetData');
-            tierResetDataDesc.textContent = translate('auth.explanations.resetData');
-        }
-        if (modalResetDataBtnText) {
-            modalResetDataBtnText.setAttribute('data-i18n', 'auth.resetVillageData');
-            modalResetDataBtnText.textContent = translate('auth.resetVillageData');
-        }
     }
-}
 
-/**
- * Highlights the active avatar button in the avatar selection modal.
- *
- * @param {string} activeAvatar
- */
-export function highlightActiveAvatar(activeAvatar) {
-    const options = document.querySelectorAll('.avatar-option-btn');
-    options.forEach(opt => {
-        const avatar = opt.getAttribute('data-avatar');
-        const isMatch = avatar === activeAvatar;
-        opt.classList.toggle('is-selected', isMatch);
-        if (typeof opt.setAttribute === 'function' && typeof opt.removeAttribute === 'function') {
-            if (isMatch) {
-                opt.setAttribute('data-modal-autofocus', 'true');
-            } else {
-                opt.removeAttribute('data-modal-autofocus');
-            }
-        }
-    });
+    applyPopoverConfiguration();
 }

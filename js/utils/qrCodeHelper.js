@@ -50,3 +50,51 @@ export function renderSyncQRCode(container, userId, size = 250) {
     qrCode.append(container);
     return qrCode;
 }
+
+/**
+ * Renders a styled device pairing QR Code into the specified container element.
+ *
+ * @param {HTMLElement|null} container - Target DOM container element.
+ * @param {string} pairingToken - Ephemeral pairing token.
+ * @param {number} [size=200] - Pixel width/height of the generated QR canvas.
+ * @returns {any|null} The QRCodeStyling instance or null if invalid container/token.
+ */
+export function renderPairingQRCode(container, pairingToken, size = 200) {
+    if (!container || !pairingToken || typeof QRCodeStyling === 'undefined') return null;
+
+    container.innerHTML = '';
+    const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : '';
+    const data = `${origin}/account/?pair=${encodeURIComponent(pairingToken)}`;
+    const textPrimaryColor = (typeof getComputedStyle !== 'undefined' && typeof document !== 'undefined' && document.body)
+        ? getComputedStyle(document.body).getPropertyValue('--text-primary').trim()
+        : '';
+
+    const qrCode = new QRCodeStyling({
+        width: size,
+        height: size,
+        data: data,
+        image: '/assets/favicon.png',
+        dotsOptions: {
+            color: textPrimaryColor || '#000000',
+            type: 'rounded'
+        },
+        backgroundOptions: {
+            color: 'transparent'
+        },
+        imageOptions: {
+            crossOrigin: 'anonymous',
+            margin: Math.round(size * 0.03)
+        },
+        cornersSquareOptions: {
+            type: 'extra-rounded',
+            color: textPrimaryColor || '#000000'
+        },
+        cornersDotOptions: {
+            type: 'dot',
+            color: textPrimaryColor || '#000000'
+        }
+    });
+
+    qrCode.append(container);
+    return qrCode;
+}

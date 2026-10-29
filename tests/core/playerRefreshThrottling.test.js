@@ -53,12 +53,12 @@ describe('Player Refresh Throttling Domain Suite', () => {
     });
 
     test('getPlayerLastRefreshed reads timestamp from in-memory partition or localStorage partition', () => {
-        const tag = '2PP';
+        const tag = '8PJYGUJC';
         const now = 1700000000000;
 
         // In-memory state partition
         state.allPlayersData = {
-            '2PP': { lastRefreshedAt: now }
+            '8PJYGUJC': { lastRefreshedAt: now }
         };
         assert.equal(getPlayerLastRefreshed(tag), now);
 
@@ -73,20 +73,20 @@ describe('Player Refresh Throttling Domain Suite', () => {
     });
 
     test('setPlayerLastRefreshed updates both in-memory state and localStorage partition', () => {
-        const tag = '2PP';
+        const tag = '8PJYGUJC';
         const key = getPlayerStorageKey(tag);
         mockStorage.set(key, JSON.stringify({
             heroes: {},
             playerProfile: { name: 'Chief' }
         }));
         state.allPlayersData = {
-            '2PP': { heroes: {} }
+            '8PJYGUJC': { heroes: {} }
         };
 
         const targetTime = 1710000000000;
         setPlayerLastRefreshed(tag, targetTime);
 
-        assert.equal(state.allPlayersData['2PP'].lastRefreshedAt, targetTime);
+        assert.equal(state.allPlayersData['8PJYGUJC'].lastRefreshedAt, targetTime);
         const stored = JSON.parse(mockStorage.get(key) || '{}');
         assert.equal(stored.lastRefreshedAt, targetTime);
     });
@@ -94,30 +94,24 @@ describe('Player Refresh Throttling Domain Suite', () => {
     test('isPlayerRefreshStale accurately classifies fresh, expired, missing, and anomalous timestamps', () => {
         const tag = '9V8UYQ';
 
-        // 1. DEFAULT0 is never considered stale
         assert.equal(isPlayerRefreshStale('DEFAULT0'), false);
         assert.equal(isPlayerRefreshStale(''), false);
 
-        // 2. Uninitialized / missing timestamp is always stale
         assert.equal(isPlayerRefreshStale(tag), true);
 
-        // 3. Recently refreshed (3 minutes ago) is fresh (not stale)
         const now = Date.now();
         setPlayerLastRefreshed(tag, now - (3 * 60 * 1000));
         assert.equal(isPlayerRefreshStale(tag), false);
 
-        // 4. Exactly at 10-minute boundary or older is stale
         setPlayerLastRefreshed(tag, now - (10 * 60 * 1000));
         assert.equal(isPlayerRefreshStale(tag), true);
 
         setPlayerLastRefreshed(tag, now - (25 * 60 * 1000));
         assert.equal(isPlayerRefreshStale(tag), true);
 
-        // 5. Future clock skew (> 60s ahead) is treated as stale to recover gracefully
         setPlayerLastRefreshed(tag, now + 120000);
         assert.equal(isPlayerRefreshStale(tag), true);
 
-        // 6. Custom cooldown duration override
         setPlayerLastRefreshed(tag, now - 5000);
         assert.equal(isPlayerRefreshStale(tag, 3000), true);
         assert.equal(isPlayerRefreshStale(tag, 10000), false);

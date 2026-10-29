@@ -214,7 +214,7 @@ function findUnusedExports(options = {}) {
     const jsDir = path.join(root, 'js');
     const sourceFiles = options.sourceFiles || findFiles(jsDir, ['.js', '.mjs']).filter(f => {
         const base = path.basename(f);
-        return base !== 'qr-code-styling.js' && base !== 'workbox-window.js';
+        return base !== 'qr-code-styling.js';
     });
 
     const consumerFiles = options.consumerFiles || [

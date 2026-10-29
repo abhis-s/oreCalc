@@ -250,6 +250,10 @@
 
         window.resetApplication = function () {
             try {
+                localStorage.removeItem('clashCalc_authToken');
+                localStorage.removeItem('clashCalc_username');
+                localStorage.removeItem('clashCalc_avatar');
+                localStorage.removeItem('clashCalc_hasPassword');
                 localStorage.removeItem('oreCalculatorState');
                 localStorage.removeItem('clashCalc_appSettings');
                 localStorage.removeItem('oreCalc_appSettings');
@@ -262,6 +266,9 @@
                 localStorage.removeItem('clashCalc_SWUpdatedTime');
                 localStorage.removeItem('oreCalc_SWUpdatedTime');
                 localStorage.removeItem('oreCalcSWUpdatedTime');
+                if (typeof sessionStorage !== 'undefined') {
+                    sessionStorage.clear();
+                }
 
                 // Remove all player profile keys
                 for (var i = 0; i < localStorage.length; i++) {

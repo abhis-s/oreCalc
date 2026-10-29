@@ -18,6 +18,12 @@ export function cancelCloudSaveTimer() {
     }
 }
 
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('auth:state-change', () => {
+        cancelCloudSaveTimer();
+    });
+}
+
 /**
  * Registers the callback for updating UI elements on state change.
  * This decouples the state manager from calculator and renderer modules.

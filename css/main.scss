@@ -18,9 +18,11 @@
 @use 'components/player-dropdown';
 @use 'components/player-modal';
 @use 'components/preloader';
+@use 'components/route-transition-loader';
 @use 'components/pull-to-refresh';
 @use 'components/load-failure';
 @use 'components/switch';
+@use 'components/segmented-control';
 @use 'components/income-chips';
 @use 'components/priority-list-modal';
 @use 'components/level-select-modal';
@@ -28,7 +30,6 @@
 @use 'components/update-modal';
 @use 'components/changelog-modal';
 @use 'components/commits-modal';
-@use 'components/device-sync-modal';
 @use 'components/bug-report-modal';
 @use 'components/licenses-modal';
 @use 'components/running-costs-modal';
@@ -43,6 +44,7 @@
 @use 'components/navigation-drawer';
 @use 'components/notice-modal';
 @use 'components/app-header';
+@use 'components/brand-tools-dropdown';
 @use 'components/app-settings';
 @use 'components/modifier-tabs';
 @use 'components/bottom-nav';
@@ -51,6 +53,7 @@
 @use 'components/element-highlighter';
 @use 'components/spotright';
 @use 'components/shortcuts-modal';
+@use 'components/clipboard-input';
 
 @use 'layout/grid';
 @use 'layout/header';

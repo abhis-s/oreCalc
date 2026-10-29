@@ -53,6 +53,7 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
 
         const sourceFiles = candidateFiles.filter(f => {
             const rel = path.relative(projectRoot, f).replace(/\\/g, '/');
+            // Authorized exception: flag emojis strictly permitted only in languagesData.js
             if (rel === 'js/data/languagesData.js') return false;
             if (rel.endsWith('.md')) return false;
             if (rel.startsWith('scratch/')) return false;
@@ -80,7 +81,7 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
 
     test('zero Unicode dingbats and raw symbols across production source files, templates, and dictionaries', () => {
         // Barred: raw arrows, box drawing, geometric symbols, dingbats, and raw bullet dingbats (\u2022).
-        // Note: Middle dot '\u00B7' (· / &middot;) is a permitted typographic separator (Rule 3) and must NOT be barred.
+        // Note: Middle dot '\u00B7' (· / &middot;) is a permitted typographic separator and must NOT be barred.
         const prohibitedSymbols = /[\u2190-\u21FF\u2500-\u257F\u25A0-\u25FF\u2600-\u26FF\u2700-\u27BF\u2022]/u;
         const violations = [];
 
@@ -271,7 +272,7 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
         );
     });
 
-    test('zero image assets placed outside assets/ directory (Rule 17 isolation)', () => {
+    test('zero image assets placed outside assets/ directory', () => {
         const imageExtensionRegex = /\.(png|jpg|jpeg|webp|avif|gif|ico)$/i;
         const allImageFiles = scanDir(projectRoot, f => {
             const rel = path.relative(projectRoot, f).replace(/\\/g, '/');
@@ -290,11 +291,11 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
         assert.equal(
             misplacedImages.length,
             0,
-            `Found image files outside the assets/ directory violating Rule 17:\n${misplacedImages.map(f => path.relative(projectRoot, f)).join('\n')}`
+            `Found image files outside the assets/ directory:\n${misplacedImages.map(f => path.relative(projectRoot, f)).join('\n')}`
         );
     });
 
-    test('zero AI-generated, SynthID-watermarked, C2PA-manifested, or generative AI metadata in image assets (Rule 17)', () => {
+    test('zero AI-generated, SynthID-watermarked, C2PA-manifested, or generative AI metadata in image assets', () => {
         const assetsDir = path.join(projectRoot, 'assets');
         const assetFiles = scanDir(assetsDir, f => /\.(png|jpg|jpeg|webp|avif|gif|ico)$/i.test(f));
         const violations = [];
@@ -362,11 +363,11 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
         assert.equal(
             violations.length,
             0,
-            `Found AI-generated, SynthID, or C2PA metadata violating Rule 17:\n${violations.join('\n')}`
+            `Found AI-generated, SynthID, or C2PA metadata:\n${violations.join('\n')}`
         );
     });
 
-    test('zero orphaned image assets in assets/ directory (Rule 17 reference check)', () => {
+    test('zero orphaned image assets in assets/ directory', () => {
         const assetsDir = path.join(projectRoot, 'assets');
         const assetFiles = scanDir(assetsDir, f => /\.(png|jpg|jpeg|webp|avif|gif|ico)$/i.test(f));
 

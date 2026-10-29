@@ -45,7 +45,7 @@
     <link rel="alternate" hreflang="zh" href="https://clashcalc.com/zh/ore-calculator/" />
     <link rel="alternate" hreflang="x-default" href="https://clashcalc.com/ore-calculator/" />
 
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="/css/main.css">
     <script>
         (function() {
             try {
@@ -149,10 +149,10 @@
     </div>
 
     <!-- include: partials/header.html -->
-    <div class="header-placeholder"></div>
+    <div class="header-placeholder app-header-placeholder"></div>
     <!-- include: partials/navigation-drawer.html -->
 
-    <main class="container">
+    <main class="container" id="main-content">
 
         <!-- include: partials/tabs/home.html -->
         <!-- include: partials/tabs/equipment.html -->
@@ -161,13 +161,21 @@
         <!-- include: partials/tabs/settings.html -->
     </main>
 
-    <!-- include: partials/floating-save-button.html -->
-    <!-- include: partials/fab.html -->
-
-    <script src="js/workbox-window.js" defer></script>
-    <script type="module" src="js/app.js"></script>
-
-    <!-- include: partials/bottom-nav.html -->
+    <div id="tool-extras">
+        <!-- include: partials/floating-save-button.html -->
+        <!-- include: partials/fab.html -->
+        <!-- include: partials/bottom-nav.html -->
+        <!-- include: partials/modals/guided-setup-modal.html -->
+        <!-- include: partials/modals/priority-list.html -->
+        <!-- include: partials/modals/stored-ores-modal.html -->
+        <!-- include: partials/modals/accent-picker.html -->
+        <!-- include: partials/modals/delete-player-modal.html -->
+        <!-- include: partials/modals/star-bonus-multiplier.html -->
+        <!-- include: partials/modals/global-pricing.html -->
+        <!-- include: partials/modals/calendar-settings.html -->
+        <!-- include: partials/modals/create-custom-chips.html -->
+        <!-- include: partials/modals/equipment-details-modal.html -->
+    </div>
 
     <!-- include: partials/footer.html -->
 
@@ -176,30 +184,16 @@
     <!-- include: partials/modals/contact.html -->
     <!-- include: partials/modals/privacy.html -->
     <!-- include: partials/modals/terms.html -->
-    <!-- include: partials/modals/guided-setup-modal.html -->
-    <!-- include: partials/modals/priority-list.html -->
-    <!-- include: partials/modals/stored-ores-modal.html -->
     <!-- include: partials/modals/update-available.html -->
     <!-- include: partials/modals/changelog.html -->
     <!-- include: partials/modals/commits.html -->
-    <!-- include: partials/modals/accent-picker.html -->
-    <!-- include: partials/modals/download-data.html -->
     <!-- include: partials/modals/notice.html -->
-    <!-- include: partials/modals/device-sync.html -->
     <!-- include: partials/modals/auth-modal.html -->
-    <!-- include: partials/modals/passkeys-modal.html -->
-    <!-- include: partials/modals/avatar-modal.html -->
-    <!-- include: partials/modals/delete-player-modal.html -->
-    <!-- include: partials/modals/account-data-modal.html -->
-
-    <!-- include: partials/modals/star-bonus-multiplier.html -->
-    <!-- include: partials/modals/global-pricing.html -->
-    <!-- include: partials/modals/calendar-settings.html -->
-    <!-- include: partials/modals/create-custom-chips.html -->
-    <!-- include: partials/modals/equipment-details-modal.html -->
     <!-- include: partials/modals/licenses.html -->
     <!-- include: partials/modals/running-costs.html -->
-    <script src="js/qr-code-styling.js" defer></script>
+    <script src="/js/qr-code-styling.js" defer></script>
+    <script src="/js/workbox-window.js" defer></script>
+    <script type="module" src="/js/app.js"></script>
 </body>
 
 </html>

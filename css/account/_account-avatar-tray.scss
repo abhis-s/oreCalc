@@ -1,0 +1,82 @@
+@use '../abstracts/variables' as *;
+
+.account-avatar-tray {
+    padding: $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+    border-radius: $shape-corner-medium;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    &[hidden] {
+        display: none;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+    }
+
+    &__title {
+        font-size: $font-size-md;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        margin: 0;
+    }
+}
+
+.avatar-options-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-md;
+    padding: $spacing-xs 0;
+    justify-items: center;
+
+    @media (max-width: $breakpoint-phone) {
+        grid-template-columns: repeat(4, 1fr);
+        gap: $spacing-sm;
+    }
+}
+
+.avatar-option-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: $shape-corner-full;
+    border: 2px solid $border-secondary;
+    background-color: $bg-surface-primary;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform $transition-fast, box-shadow $transition-fast, border-color $transition-fast;
+
+    clashcalc-assets-image,
+    img {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &:hover {
+        transform: scale(1.08);
+        border-color: $border-accent;
+    }
+
+    &.is-selected {
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 2px $accent-primary;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $accent-primary;
+        outline-offset: 2px;
+    }
+}

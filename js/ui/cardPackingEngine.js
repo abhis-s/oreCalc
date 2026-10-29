@@ -390,7 +390,7 @@ export function observeContainers(layout) {
     if (!layout.resizeObserver) return;
 
     for (const el of layout.originalCards) {
-        if (el.id === 'priority-list-card' || el.id === 'planner-calendar-card') {
+        if (el.id === 'orecalc-planner-priority-list-card' || el.id === 'orecalc-planner-calendar-card') {
             continue;
         }
         layout.resizeObserver.observe(el);

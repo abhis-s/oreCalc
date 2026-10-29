@@ -41,7 +41,7 @@
     border: 1px solid $border-primary;
     border-radius: $shape-corner-small;
     cursor: pointer;
-    transition: transform $transition-fast, border-color $transition-fast, background-color $transition-fast, opacity $transition-fast;
+    transition: border-color $transition-fast, background-color $transition-fast, opacity $transition-fast;
     flex-shrink: 0;
 
     @media (max-width: $breakpoint-micro) {
@@ -51,7 +51,6 @@
 
     &:hover {
         border-color: $border-accent;
-        transform: translateY(-1px);
     }
 
     &.is-active {

@@ -40,15 +40,14 @@
     }
 }
 
-#delete-player-modal, #import-data-modal {
+#delete-player-modal {
     .modal-content {
         max-width: $modal-width-compact;
     }
 }
 
-#add-player-modal, #delete-player-modal, #import-data-modal {
-    .player-name-input-container,
-    .import-data-input-container {
+#add-player-modal, #delete-player-modal {
+    .player-name-input-container {
         padding: 0 $spacing-xl;
         margin: 20px 0;
         position: relative;
@@ -79,7 +78,7 @@
     }
 }
 
-#add-player-modal, #delete-player-modal, #import-data-modal {
+#add-player-modal, #delete-player-modal {
     .error-message {
         color: $color-danger;
         font-size: 12px;
@@ -94,7 +93,7 @@
     }
 
     @media (max-width: $breakpoint-modal) {
-        .player-name-input-container, .import-data-input-container {
+        .player-name-input-container {
             padding: 0 20px;
             margin: 15px 0;
 

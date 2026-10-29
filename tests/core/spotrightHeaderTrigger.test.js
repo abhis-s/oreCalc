@@ -32,10 +32,10 @@ describe('Spotright Header Trigger Button Suite', () => {
         assert.match(content, /data-i18n="actions\.search"/, 'Label must bind to canonical actions.search translation key');
         assert.match(content, /class="header-spotright-keys"[^>]*aria-hidden="true"/, 'Keys container must be aria-hidden for screen reader cleanliness');
         assert.match(content, /id="header-spotright-mod-key"/, 'Modifier key must have id header-spotright-mod-key');
-        assert.match(content, /<clashcalc-assets-svg name="keyboard-command"/, 'Default template must use vector SVG command icon adhering to Rule 3');
+        assert.match(content, /<clashcalc-assets-svg name="keyboard-command"/, 'Default template must use vector SVG command icon');
         assert.match(content, /class="[^"]*header-spotright-key--letter[^"]*">K<\/kbd>/, 'Letter keycap must render K');
 
-        // Rule 3: Zero prohibited dingbats or emojis
+        // Zero prohibited dingbats or emojis
         const prohibitedPattern = /[\u2190-\u21FF\u2500-\u257F\u25A0-\u25FF\u2600-\u26FF\u2700-\u27BF\u2022]/u;
         assert.equal(prohibitedPattern.test(content), false, 'header-spotright.html must contain zero prohibited dingbats');
     });

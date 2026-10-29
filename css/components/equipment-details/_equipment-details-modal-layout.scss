@@ -23,8 +23,7 @@
         }
 
         .modal-header {
-            .modal-header-actions,
-            .header-actions {
+            .modal-header-actions {
                 .modal-header-btn,
                 .close-button,
                 .unhide-note-btn {
@@ -94,10 +93,6 @@
             padding: $spacing-md $spacing-lg $spacing-lg;
         }
 
-        .eq-details-fallback-desc {
-            font-size: 0.82rem;
-        }
-
         .eq-details-avatars {
             padding: 5px 10px;
             gap: $spacing-sm;
@@ -132,18 +127,6 @@
         .eq-details-props-grid {
             gap: 10px;
             padding: $spacing-md;
-
-            .prop-card-header {
-                font-size: 0.72rem;
-            }
-
-            .prop-card-value {
-                font-size: 0.88rem;
-            }
-
-            .prop-card-label {
-                font-size: 0.72rem;
-            }
         }
 
         .eq-details-static-stats-box,
@@ -210,10 +193,6 @@
             margin-bottom: $spacing-sm;
         }
 
-        .eq-details-fallback-desc {
-            font-size: 0.78rem;
-        }
-
         .eq-details-avatars {
             padding: $spacing-xs $spacing-sm;
             gap: 6px;
@@ -244,18 +223,6 @@
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: $spacing-sm;
             padding: 10px;
-
-            .prop-card-header {
-                font-size: 0.68rem;
-            }
-
-            .prop-card-value {
-                font-size: 0.82rem;
-            }
-
-            .prop-card-label {
-                font-size: 0.68rem;
-            }
         }
 
         .eq-details-static-stats-box,

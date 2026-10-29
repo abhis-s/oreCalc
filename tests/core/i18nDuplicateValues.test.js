@@ -31,7 +31,7 @@ describe('en.json Canonical Duplicate String Value Prevention', () => {
 
             assert.fail(
                 `Detected ${unauthorizedDuplicates.length} unauthorized duplicate string value(s) in en.json:\n${errorDetails}\n\n` +
-                'Rule: Never add duplicate strings to en.json. Reuse the existing canonical key.\n' +
+                'Never add duplicate strings to en.json. Reuse the existing canonical key.\n' +
                 'If this is a verified cross-lingual false friend (e.g. noun vs verb, different words in German/Turkish/Chinese), ' +
                 'register the key in ALLOWED_DUPLICATE_KEYS in scripts/validate-i18n.js with linguistic justification.'
             );

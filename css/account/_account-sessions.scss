@@ -1,0 +1,430 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.account-sessions-hub {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+}
+
+.account-sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+}
+
+.account-session-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+    border-radius: $shape-corner-medium;
+    transition: background-color $transition-fast;
+
+    &:hover {
+        background-color: $bg-surface-tertiary;
+    }
+
+    &--current {
+        border-color: color-mix(in srgb, $accent-primary 40%, $border-secondary);
+        background-color: color-mix(in srgb, $accent-primary 6%, $bg-surface-secondary);
+
+        &:hover {
+            background-color: color-mix(in srgb, $accent-primary 10%, $bg-surface-secondary);
+        }
+    }
+
+    &--new {
+        border-color: color-mix(in srgb, $color-success 45%, $border-secondary);
+        background-color: color-mix(in srgb, $color-success 8%, $bg-surface-secondary);
+        animation: sessionItemEntrance $duration-moderate $ease-enter forwards;
+
+        &:hover {
+            background-color: color-mix(in srgb, $color-success 12%, $bg-surface-secondary);
+        }
+    }
+}
+
+@keyframes sessionItemEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.account-session-item__main {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    min-width: 0;
+}
+
+.account-session-item__info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+    min-width: 0;
+}
+
+.account-session-item__title-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    flex-wrap: wrap;
+}
+
+.account-session-item__title {
+    font-size: $font-size-md;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-session-item__meta {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+}
+
+.account-session-item__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    flex-shrink: 0;
+}
+
+.account-pairing-drawer {
+    padding-top: $spacing-md;
+    border-top: 1px solid $border-secondary;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    &[hidden] {
+        display: none !important;
+    }
+}
+
+.account-pairing-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-lg;
+    padding: $spacing-md;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+    border-radius: $shape-corner-medium;
+
+    @media (min-width: $breakpoint-modal) {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.account-pairing-qr-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-md;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-secondary;
+    border-radius: $shape-corner-medium;
+    flex-shrink: 0;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.account-pairing-qr-canvas {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    height: 200px;
+    transition: filter $transition-smooth, opacity $transition-smooth;
+
+    &.is-blurred {
+        filter: blur(8px) grayscale(30%);
+        opacity: 0.25;
+        pointer-events: none;
+    }
+
+    canvas,
+    svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+.account-pairing-qr-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-md;
+    text-align: center;
+    gap: $spacing-xs;
+    border-radius: inherit;
+    background-color: color-mix(in srgb, $bg-surface-primary 75%, transparent);
+    z-index: $z-index-interactive;
+
+    &.is-hidden {
+        display: none !important;
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: $shape-corner-full;
+        margin-bottom: $spacing-2xs;
+    }
+
+    &__title {
+        font-size: $font-size-md;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        line-height: 1.3;
+    }
+
+    &__desc {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        line-height: 1.4;
+        max-width: 180px;
+        word-break: break-word;
+    }
+
+    &--expired {
+        .account-pairing-qr-overlay__icon {
+            background-color: color-mix(in srgb, $color-danger 15%, transparent);
+            color: $color-danger;
+        }
+
+        .account-pairing-qr-overlay__title {
+            color: $color-danger;
+        }
+    }
+
+    &--success {
+        .account-pairing-qr-overlay__icon {
+            background-color: color-mix(in srgb, $color-success 15%, transparent);
+            color: $color-success;
+        }
+
+        .account-pairing-qr-overlay__title {
+            color: $color-success;
+        }
+    }
+}
+
+.account-pairing-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: $accent-primary;
+
+    .button-loader span {
+        animation-play-state: running;
+        width: 8px;
+        height: 8px;
+    }
+}
+
+.account-pairing-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-sm;
+    max-width: 360px;
+    width: 100%;
+}
+
+.account-pairing-timer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xs;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    text-align: center;
+    transition: color $transition-fast;
+
+    clashcalc-assets-svg {
+        color: inherit;
+        flex-shrink: 0;
+    }
+
+    &.is-expired {
+        color: $color-danger;
+    }
+
+    &.is-success {
+        color: $color-success;
+    }
+}
+
+.account-pairing-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    margin-top: $spacing-2xs;
+    width: 100%;
+
+    @media (max-width: $breakpoint-phone) {
+        .btn {
+            flex: 1;
+        }
+    }
+}
+
+.account-pairing-tabs {
+    display: grid;
+    width: 100%;
+    margin-bottom: $spacing-md;
+}
+
+.account-guest-pairing-pane {
+    width: 100%;
+
+    &.is-hidden {
+        display: none !important;
+    }
+}
+
+.account-guest-code-container {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    width: 100%;
+    margin-bottom: $spacing-xs;
+
+    .qr-user-id {
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+        margin: 0;
+        display: block;
+        font-family: monospace;
+        background-color: $bg-surface-tertiary;
+        padding: $spacing-xs $spacing-sm;
+        border-radius: $shape-corner-small;
+        font-size: $font-size-xs;
+        word-break: break-all;
+        cursor: pointer;
+        transition: background-color $transition-fast, border-color $transition-fast;
+        border: 1px solid transparent;
+
+        &:hover {
+            background-color: $bg-surface-secondary;
+            border-color: $border-secondary;
+        }
+    }
+
+    .btn {
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    &.is-hidden {
+        display: none !important;
+    }
+}
+
+.account-guest-hint-subcard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-xs;
+    padding: $spacing-md;
+    border-radius: $shape-corner-medium;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+    width: 100%;
+
+    &.is-hidden {
+        display: none !important;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        color: $accent-primary;
+    }
+
+    &__title {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        margin: 0;
+    }
+
+    &__desc {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        line-height: 1.4;
+        margin: 0;
+        max-width: 320px;
+    }
+
+    .btn {
+        margin-top: $spacing-2xs;
+        max-width: 100%;
+        white-space: normal;
+        text-align: center;
+    }
+}
+
+.account-guest-input-hub {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+}
+
+.account-guest-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+}
+
+.account-input-status-pill {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    display: none;
+
+    &.show {
+        display: block;
+    }
+
+    &.error {
+        color: $color-danger;
+    }
+
+    &.success {
+        color: $color-success;
+    }
+}

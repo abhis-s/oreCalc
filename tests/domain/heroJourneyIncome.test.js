@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
     getMaxCumulativeLevelsByTH,
+    getMaxTownHallLevel,
     getCumulativeHeroLevel,
     getTownHallLevel
 } from '../../js/domain/income/heroJourneyLevels.js';
@@ -34,9 +35,9 @@ test('getCumulativeHeroLevel computes sum of active hero levels correctly', () =
     assert.equal(totalLevel, 150);
 });
 
-test('getTownHallLevel extracts TH correctly with fallback to 16', () => {
+test('getTownHallLevel extracts TH correctly with dynamic max TH fallback', () => {
     assert.equal(getTownHallLevel({ playerProfile: { townHallLevel: 15 } }), 15);
-    assert.equal(getTownHallLevel({}), 16);
+    assert.equal(getTownHallLevel({}), getMaxTownHallLevel());
 });
 
 test('getQuestChestReward returns valid non-zero rewards for valid Town Hall', () => {

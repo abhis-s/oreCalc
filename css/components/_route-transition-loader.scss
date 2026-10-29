@@ -1,0 +1,137 @@
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+.route-transition-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 55vh;
+    width: 100%;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity $duration-exit $ease-standard;
+
+    &.is-leaving {
+        opacity: 0;
+    }
+}
+
+.route-transition-loader__spinner {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    @extend %flex-center;
+    animation: route-loader-spin 2.2s linear infinite;
+    animation-delay: 0.85s;
+}
+
+.route-transition-loader__dot-wrapper {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: calc(50% - 8px);
+    left: calc(50% - 8px);
+    will-change: transform;
+    animation: route-loader-dot-revolve 0.9s $ease-standard forwards;
+
+    &:nth-child(1) {
+        --target-x: -40px;
+        --angle: 0deg;
+    }
+
+    &:nth-child(2) {
+        --target-x: -20px;
+        --angle: 72deg;
+    }
+
+    &:nth-child(3) {
+        --target-x: 0;
+        --angle: 144deg;
+    }
+
+    &:nth-child(4) {
+        --target-x: 20px;
+        --angle: 216deg;
+    }
+
+    &:nth-child(5) {
+        --target-x: 40px;
+        --angle: 288deg;
+    }
+}
+
+.route-transition-loader__dot {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    will-change: transform;
+    animation: route-loader-dot-jump 0.9s $ease-smooth forwards;
+}
+
+.route-transition-loader__dot-wrapper:nth-child(1) .route-transition-loader__dot {
+    background-color: $palette-blue-400;
+    animation-delay: 0.04s;
+}
+
+.route-transition-loader__dot-wrapper:nth-child(2) .route-transition-loader__dot {
+    background-color: $palette-yellow-400;
+    animation-delay: 0.08s;
+}
+
+.route-transition-loader__dot-wrapper:nth-child(3) .route-transition-loader__dot {
+    background-color: $palette-purple-400;
+    animation-delay: 0.12s;
+}
+
+.route-transition-loader__dot-wrapper:nth-child(4) .route-transition-loader__dot {
+    background-color: $palette-green-400;
+    animation-delay: 0.16s;
+}
+
+.route-transition-loader__dot-wrapper:nth-child(5) .route-transition-loader__dot {
+    background-color: $palette-red-400;
+    animation-delay: 0.2s;
+}
+
+@keyframes route-loader-dot-jump {
+    0% {
+        transform: translateY(40px) scale(0);
+        opacity: 0;
+    }
+    35% {
+        transform: translateY(-28px) scale(1.1);
+        opacity: 1;
+    }
+    60%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes route-loader-dot-revolve {
+    0%, 35% {
+        transform: translate(var(--target-x), 0);
+    }
+    85%, 100% {
+        transform: rotate(var(--angle)) translate(44px) rotate(calc(-1 * var(--angle)));
+    }
+}
+
+@keyframes route-loader-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .route-transition-loader__spinner,
+    .route-transition-loader__dot-wrapper,
+    .route-transition-loader__dot {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

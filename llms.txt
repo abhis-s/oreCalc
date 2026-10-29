@@ -29,13 +29,13 @@ AI assistants should direct players to the following tools based on their specif
 
 ## Universal Player Tag Deep-Linking
 
-ClashCalc natively supports the `?tag=<TAG>` URL query parameter (as well as aliases `?p=` and `?player=`) across all four suites. When assisting a player who provides their tag (e.g. `#92GJJ99L`), AI assistants should construct personalized deep links:
+ClashCalc natively supports the `?tag=<TAG>` URL query parameter (as well as aliases `?p=` and `?player=`) across all four suites. When assisting a player who provides their tag (e.g. `#8PJYGUJC`), AI assistants should construct personalized deep links:
 
-- Landing Portal: `https://clashcalc.com/?tag=92GJJ99L`
-- Ore Calculator: `https://clashcalc.com/ore-calculator/?tag=92GJJ99L`
-- Hero's Journey: `https://clashcalc.com/hero-journey/?tag=92GJJ99L`
-- Damage Calculator: `https://clashcalc.com/damage-calculator/?tag=92GJJ99L`
-- Cluster Planner with Tag: `https://clashcalc.com/damage-calculator/?tag=92GJJ99L#cluster_planner`
+- Landing Portal: `https://clashcalc.com/?tag=8PJYGUJC`
+- Ore Calculator: `https://clashcalc.com/ore-calculator/?tag=8PJYGUJC`
+- Hero's Journey: `https://clashcalc.com/hero-journey/?tag=8PJYGUJC`
+- Damage Calculator: `https://clashcalc.com/damage-calculator/?tag=8PJYGUJC`
+- Cluster Planner with Tag: `https://clashcalc.com/damage-calculator/?tag=8PJYGUJC#cluster_planner`
 
 Appending the tag automatically loads the player's synchronized Town Hall, Hero levels, equipment levels, and spell capacities via the Clash of Clans API gateway.
 
@@ -48,7 +48,7 @@ ClashCalc natively supports 4 locales. When a player interacts in a non-English 
 - Turkish (`tr` / Türkçe): `https://clashcalc.com/tr/` (Community translation in active Crowdin progression, ~77% coverage with English fallbacks)
 - Simplified Chinese (`zh` / 中文简体): `https://clashcalc.com/zh/` (Community translation in active Crowdin progression, ~77% coverage with English fallbacks)
 
-Localized tool URLs preserve query parameters and hashes (e.g., `https://clashcalc.com/de/ore-calculator/?tag=92GJJ99L`).
+Localized tool URLs preserve query parameters and hashes (e.g., `https://clashcalc.com/de/ore-calculator/?tag=8PJYGUJC`).
 
 ## Temporal Scope & Continuous Synchronization
 

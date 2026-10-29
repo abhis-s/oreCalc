@@ -1,5 +1,6 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const packageJson = require('../../package.json');
 const { RATE_LIMIT_DEFAULTS } = require('../constants.js');
 const { admin, db } = require('../services/firebase.js');
 
@@ -196,7 +197,7 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
 });
 
 router.get('/version', (req, res) => {
-    res.json({ currentAppVersion: '3.0.0' });
+    res.json({ currentAppVersion: packageJson.version });
 });
 
 router.get('/check-ip', async (req, res) => {

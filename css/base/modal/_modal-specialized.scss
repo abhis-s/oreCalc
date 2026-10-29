@@ -17,22 +17,6 @@
     vertical-align: middle;
 }
 
-.high-priority-modal {
-    z-index: $z-index-high-priority-modal !important;
-
-    &.warning {
-        z-index: ($z-index-high-priority-modal - 1) !important;
-    }
-
-    &.error {
-        z-index: $z-index-high-priority-modal !important;
-    }
-
-    &.critical {
-        z-index: ($z-index-high-priority-modal + 1) !important;
-    }
-}
-
 .policy-modal-body {
     padding: 0;
     overflow: hidden;
@@ -51,12 +35,6 @@
     background: transparent;
     overflow: hidden;
     border-radius: $shape-corner-large;
-}
-
-#download-filename-preview {
-    margin-top: 15px;
-    font-size: 0.9em;
-    color: $text-secondary;
 }
 
 .stored-ores-prompt {

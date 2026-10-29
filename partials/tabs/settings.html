@@ -1,5 +1,5 @@
         <div class="tab-content" id="settings-tab">
-            <div id="settings-update-card" class="settings-update-banner" hidden>
+            <div id="orecalc-settings-update-card" class="settings-update-banner" hidden>
                 <div class="settings-card card">
                     <div class="update-card-content">
                         <div class="update-card-left">
@@ -18,7 +18,7 @@
             </div>
             <div class="settings-cards-grid">
                 <div class="card-container">
-                    <div id="preferences-card" class="settings-card card">
+                    <div id="orecalc-settings-preferences-card" class="settings-card card">
                         <h2 class="card-title" data-i18n="views.settings.cards.preferences"></h2>
                         <div class="app-settings-options flex-column-gap-15">
                             <div class="settings-item">
@@ -112,130 +112,10 @@
                 </div>
 
                 <div class="card-container">
-                    <div id="account-card" class="settings-card card">
-                        <h2 id="account-card-title" class="card-title" data-i18n="views.settings.cards.accountAndSync"></h2>
-                        <div class="account-options flex-column-gap-15">
-                            <div id="account-guest-section" class="account-state-section flex-column-gap-15">
-                                <div class="settings-item">
-                                    <div class="field-descriptor-group">
-                                        <div class="settings-item-label-wrapper">
-                                            <span class="settings-item-label" data-i18n="auth.account"></span>
-                                        </div>
-                                        <p class="form-setting-text" data-i18n="auth.accountCardDesc"></p>
-                                    </div>
-                                    <button type="button" id="settings-open-auth-btn" class="animated-btn btn-accent task-btn">
-                                        <span class="animated-btn-icon-wrapper fill-dark">
-                                            <clashcalc-assets-svg name="user"></clashcalc-assets-svg>
-                                        </span>
-                                        <span class="animated-btn-text" data-i18n="auth.signIn"></span>
-                                    </button>
-                                </div>
-
-                                <hr class="settings-divider">
-
-                                <div class="settings-item">
-                                    <div class="field-descriptor-group">
-                                        <div class="settings-item-label-wrapper">
-                                            <label for="settings-cloud-sync-toggle" data-i18n="views.settings.options.cloudSync"></label>
-                                        </div>
-                                        <p id="settings-cloud-sync-info" class="form-setting-text" data-i18n="views.settings.cloudSync.cloudSyncInfo"></p>
-                                        <a href="#" id="settings-add-player-link" class="theme-link hidden" data-i18n="player.addPlayer"></a>
-                                    </div>
-                                    <div class="switch">
-                                        <input type="checkbox" id="settings-cloud-sync-toggle" checked>
-                                        <span class="slider round"></span>
-                                    </div>
-                                </div>
-
-                                <div id="settings-device-sync-item" class="settings-item">
-                                    <div class="field-descriptor-group">
-                                        <div class="settings-item-label-wrapper">
-                                            <label for="device-sync-btn" data-i18n="views.settings.options.deviceSync"></label>
-                                        </div>
-                                        <p class="form-setting-text" data-i18n="views.settings.cloudSync.deviceInfo"></p>
-                                    </div>
-                                    <button type="button" id="device-sync-btn" class="animated-btn btn-accent task-btn">
-                                        <span class="animated-btn-icon-wrapper fill-dark">
-                                            <clashcalc-assets-svg name="sync"></clashcalc-assets-svg>
-                                        </span>
-                                        <span class="animated-btn-text" data-i18n="actions.sync"></span>
-                                    </button>
-                                </div>
-
-                                <div id="settings-data-management-item" class="settings-item">
-                                    <div class="field-descriptor-group">
-                                        <div class="settings-item-label-wrapper">
-                                            <label for="open-data-management-btn" data-i18n="views.settings.dataManagement.title"></label>
-                                        </div>
-                                        <p class="form-setting-text" data-i18n="views.settings.dataManagement.cardDesc"></p>
-                                    </div>
-                                    <button type="button" id="open-data-management-btn" class="animated-btn btn-secondary task-btn">
-                                        <span class="animated-btn-icon-wrapper fill-current">
-                                            <clashcalc-assets-svg name="manage-account"></clashcalc-assets-svg>
-                                        </span>
-                                        <span class="animated-btn-text" data-i18n="actions.manage"></span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="account-auth-section" class="account-state-section flex-column-gap-15 is-hidden">
-                                <div class="account-user-profile-card">
-                                    <button type="button" id="account-avatar-btn" class="account-user-profile-avatar" aria-label="Change Avatar" data-i18n-aria-label="auth.changeAvatar">
-                                        <clashcalc-assets-image id="account-profile-avatar-img" src="assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt"></clashcalc-assets-image>
-                                    </button>
-                                    <div class="account-user-profile-details">
-                                        <span id="account-profile-username" class="account-user-profile-name"></span>
-                                        <span class="account-user-profile-status" data-i18n="auth.signedInStatus"></span>
-                                    </div>
-                                    <div class="account-user-profile-actions">
-                                        <button type="button" id="open-account-management-btn" class="animated-btn btn-secondary task-btn">
-                                            <span class="animated-btn-icon-wrapper fill-current">
-                                                <clashcalc-assets-svg name="manage-account"></clashcalc-assets-svg>
-                                            </span>
-                                            <span class="animated-btn-text" data-i18n="actions.manage"></span>
-                                        </button>
-                                        <button type="button" id="settings-logout-btn" class="animated-btn btn-danger-action task-btn">
-                                            <span class="animated-btn-icon-wrapper fill-current">
-                                                <clashcalc-assets-svg name="logout"></clashcalc-assets-svg>
-                                            </span>
-                                            <span class="animated-btn-text" data-i18n="auth.signOut"></span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="settings-item">
-                                    <div class="field-descriptor-group">
-                                        <div class="settings-item-label-wrapper">
-                                            <span class="settings-item-label" data-i18n="auth.passkeys"></span>
-                                        </div>
-                                        <p class="form-setting-text" data-i18n="auth.passkeysDesc"></p>
-                                    </div>
-                                    <button type="button" id="settings-manage-passkeys-btn" class="animated-btn btn-secondary task-btn">
-                                        <span class="animated-btn-icon-wrapper fill-current">
-                                            <clashcalc-assets-svg name="passkey"></clashcalc-assets-svg>
-                                        </span>
-                                        <span class="animated-btn-text" data-i18n="actions.manage"></span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-container">
-                    <div id="development-card" class="settings-card card">
+                    <div id="orecalc-settings-development-card" class="settings-card card">
                         <h2 class="card-title" data-i18n="views.settings.cards.developmentSupport"></h2>
                         <div class="development-list settings-list">
                             <!-- DYNAMIC INSERTION: Development and support links -->
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-container">
-                    <div id="transparency-card" class="settings-card card">
-                        <h2 class="card-title" data-i18n="views.settings.cards.transparency"></h2>
-                        <div class="transparency-list settings-list">
-                            <!-- DYNAMIC INSERTION: Transparency and legal links -->
                         </div>
                     </div>
                 </div>

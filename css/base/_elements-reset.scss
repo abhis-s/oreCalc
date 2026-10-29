@@ -91,11 +91,30 @@ dialog,
 }
 
 body {
+    display: flex;
+    flex-direction: column;
     overflow-x: clip;
     color: $text-primary;
     transition: background-color $duration-slow $ease-smooth, color $duration-slow $ease-smooth;
     font-family: $font-family-sans;
     -webkit-tap-highlight-color: transparent;
+}
+
+main,
+#main-content {
+    flex: 1 0 auto;
+
+    &:focus,
+    &:focus-visible {
+        outline: none !important;
+    }
+}
+
+[tabindex="-1"] {
+    &:focus,
+    &:focus-visible {
+        outline: none !important;
+    }
 }
 
 img,
@@ -115,14 +134,9 @@ textarea,
     -webkit-tap-highlight-color: transparent;
 }
 
-*:focus-visible:not(input):not(select):not(textarea):not(.dropdown-style):not(.custom-dropdown) {
+*:focus-visible:not(input):not(select):not(textarea):not(.dropdown-style):not(.custom-dropdown):not([tabindex="-1"]):not(#main-content):not(main) {
     outline: 2px solid $outline-focus !important;
     outline-offset: 2px;
-}
-
-.no-transition,
-.no-transition * {
-    transition: none !important;
 }
 
 .card,
@@ -153,8 +167,7 @@ textarea,
 
 #player-tag-input-modal,
 #welcome-player-tag-input,
-#delete-player-tag-input,
-.player-tag-input {
+#delete-player-tag-input {
     text-transform: uppercase;
 }
 
@@ -255,10 +268,7 @@ clashcalc-assets-image {
             width: 53.3px;
         }
 
-        &.landing-tool-icon,
-        &.landing-ore-icon,
-        &.landing-hero-emblem,
-        &.landing-damage-icon {
+        &.landing-tool-icon {
             height: 26px;
             width: 26px;
         }
@@ -312,20 +322,6 @@ clashcalc-assets-image {
     box-sizing: border-box;
 }
 
-.beta-badge {
-    @extend .badge;
-    background-color: $accent-primary-soft;
-    color: $accent-primary;
-    border-color: color-mix(in srgb, $accent-primary 30%, transparent);
-}
-
-.new-badge {
-    @extend .badge;
-    background-color: $color-success-soft;
-    color: $color-success;
-    border-color: color-mix(in srgb, $color-success 30%, transparent);
-}
-
 .coming-soon-badge {
     @extend .badge;
     background-color: $bg-surface-secondary;
@@ -371,10 +367,6 @@ clashcalc-assets-image {
 
 .push-top-10 {
     margin-top: 10px;
-}
-
-.push-top-15 {
-    margin-top: 15px;
 }
 
 @media (prefers-reduced-motion: reduce) {

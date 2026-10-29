@@ -1,0 +1,65 @@
+@use '../abstracts/variables' as *;
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xs;
+    font-family: inherit;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    border-radius: $btn-radius;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: $btn-min-height;
+    min-width: $btn-min-width;
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
+
+    &:active:not(:disabled) {
+        transform: scale(0.96);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
+
+.btn-danger {
+    min-width: $btn-min-width;
+    background-color: $color-danger;
+    color: $text-on-accent;
+    border-color: $color-danger;
+
+    &:hover:not(:disabled) {
+        background-color: color-mix(in srgb, $color-danger 85%, black);
+        border-color: color-mix(in srgb, $color-danger 85%, black);
+    }
+}
+
+.btn-danger-outline {
+    min-width: $btn-min-width;
+    background-color: var(--btn-bg-red);
+    color: var(--btn-color-red);
+    border-color: var(--btn-border-red);
+
+    &:hover:not(:disabled) {
+        background-color: var(--btn-bg-red-hover);
+        border-color: var(--btn-border-red-hover);
+    }
+}
+
+.btn-sm {
+    min-height: $btn-min-height-compact;
+    height: $btn-min-height-compact;
+    min-width: 0;
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-size-xs;
+    border-radius: $btn-radius-compact;
+    white-space: nowrap;
+}

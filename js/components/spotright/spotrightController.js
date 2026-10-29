@@ -119,7 +119,7 @@ function ensureMounted() {
 
     // Dialog Backdrop Click Dismissal
     dialogEl.addEventListener('click', (event) => {
-        const card = dialogEl?.querySelector('#spotright-card');
+        const card = dialogEl?.querySelector('#modal-spotright-card');
         if (card && !card.contains(/** @type {Node} */ (event.target))) {
             closeSpotright();
         }
@@ -132,7 +132,7 @@ function ensureMounted() {
     });
 
     // Reset card shake animation state automatically upon completion
-    const card = dialogEl.querySelector('#spotright-card');
+    const card = dialogEl.querySelector('#modal-spotright-card');
     card?.addEventListener?.('animationend', () => {
         card?.classList?.remove?.('shake');
     });
@@ -248,7 +248,7 @@ function setScope(newScope) {
 function handleInputChange() {
     if (!inputEl || !resultsEl) return;
 
-    const card = dialogEl?.querySelector('#spotright-card');
+    const card = dialogEl?.querySelector('#modal-spotright-card');
     card?.classList?.remove?.('shake');
 
     // Single-suggestion spacebar auto-complete for virtual or mobile keyboards
@@ -511,7 +511,7 @@ export function openSpotright() {
     ensureMounted();
     if (!dialogEl || !inputEl || !resultsEl) return;
 
-    const card = dialogEl.querySelector('#spotright-card');
+    const card = dialogEl.querySelector('#modal-spotright-card');
     card?.classList?.remove?.('shake');
 
     // Refresh dynamic registry so newly saved villages and profiles are indexed
@@ -571,7 +571,7 @@ export function openSpotright() {
 export function closeSpotright() {
     if (!dialogEl) return;
 
-    const card = dialogEl.querySelector('#spotright-card');
+    const card = dialogEl.querySelector('#modal-spotright-card');
     card?.classList?.remove?.('shake');
 
     isActionInFlight = false;

@@ -2,28 +2,6 @@
 @use '../abstracts/mixins' as *;
 @use '../base/placeholder';
 
-.id-child-fields {
-    background-color: $bg-surface-primary;
-    border: 1px solid $border-primary;
-    border-radius: 5px;
-    color: $text-primary;
-    padding: $spacing-sm;
-    font-size: var(--font-size-md);
-    text-align: right;
-    margin-top: 10px;
-    box-sizing: border-box;
-
-    &:focus {
-        outline: none;
-    }
-
-    &:focus-visible {
-        border-color: $accent-primary;
-        box-shadow: 0 0 0 3px $accent-primary-soft;
-        outline: none;
-    }
-}
-
 .settings-cards-grid {
     align-items: stretch;
     display: grid;
@@ -369,52 +347,7 @@
     }
 }
 
-.btn-extreme-danger {
-    border-color: $color-danger;
-}
-
-.segmented-control {
-    display: flex;
-    background-color: $bg-surface-tertiary;
-    border-radius: $shape-corner-small;
-    padding: 3px;
-    border: 1px solid $border-primary;
-
-    .segmented-btn {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 10px;
-        border: none;
-        background: transparent;
-        color: $text-secondary;
-        font-size: 0.8em;
-        font-weight: 600;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
-
-        clashcalc-assets-svg,
-        orecalc-assets-svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        &:hover {
-            color: $text-primary;
-        }
-
-        &.active {
-            background-color: $bg-surface-primary;
-            color: $accent-primary;
-            box-shadow: $elevation-1;
-        }
-    }
-}
-
 .layout-segmented-control {
-    display: flex;
-
     @media (max-width: $breakpoint-modal) {
         display: none;
     }
@@ -436,7 +369,7 @@
 
 @media (max-width: $breakpoint-phone) {
     .settings-card {
-        .animated-btn:not(.btn-danger-action) {
+        .animated-btn {
             min-width: 60px;
 
             .animated-btn-text {
@@ -450,12 +383,6 @@
             }
         }
     }
-}
-
-#settings-add-player-link {
-    display: inline-block;
-    margin-top: 5px;
-    font-size: 0.85rem;
 }
 
 .settings-pricing-label {

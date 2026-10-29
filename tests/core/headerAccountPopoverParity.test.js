@@ -29,7 +29,6 @@ describe('Header Account Popover & Modal Parity Suite', () => {
     it('ensures all entrypoints include the complete set of support, sync, and legal modals', () => {
         const requiredModals = [
             'partials/modals/licenses.html',
-            'partials/modals/device-sync.html',
             'partials/modals/bug-report.html',
             'partials/modals/contact.html',
             'partials/modals/running-costs.html'
@@ -43,12 +42,13 @@ describe('Header Account Popover & Modal Parity Suite', () => {
         }
     });
 
-    it('verifies header-account.html structure has guest sync and no contact accordion', () => {
+    it('verifies header-account.html structure has modular guest nav and no contact accordion', () => {
         const popoverHtml = fs.readFileSync(path.join(projectRoot, 'partials/header-account.html'), 'utf8');
 
-        // Direct device sync inside guest section
-        assert.ok(popoverHtml.includes('id="account-popover-guest-sync-btn"'), 'Must have #account-popover-guest-sync-btn');
-        assert.ok(popoverHtml.indexOf('account-popover-guest-sync-btn') < popoverHtml.indexOf('account-popover-guest-data-btn'), 'Guest sync must be positioned above data management');
+        // Modular guest avatar and management navigation
+        assert.ok(popoverHtml.includes('id="account-popover-guest-avatar-btn"'), 'Must have clickable #account-popover-guest-avatar-btn');
+        assert.ok(popoverHtml.includes('id="account-popover-guest-manage-btn"'), 'Must have #account-popover-guest-manage-btn');
+        assert.ok(popoverHtml.includes('id="account-popover-signin-btn"'), 'Must have #account-popover-signin-btn');
 
         // Header account button structure (unified circular icon button)
         assert.ok(popoverHtml.includes('id="header-account-btn"'), 'Must have #header-account-btn');
@@ -62,6 +62,12 @@ describe('Header Account Popover & Modal Parity Suite', () => {
             /<div\s+id="app-account-popover"[^>]*\bhidden\b/,
             '#app-account-popover must declare initial hidden attribute for accessible visibility control'
         );
+
+        // Popover modular panels container and settings panel
+        assert.ok(popoverHtml.includes('id="account-popover-panels"'), 'Must have #account-popover-panels');
+        assert.ok(popoverHtml.includes('data-popover-panel="settings"'), 'Must have data-popover-panel="settings"');
+        assert.ok(popoverHtml.includes('data-popover-option="account-sync"'), 'Must have data-popover-option="account-sync"');
+        assert.ok(popoverHtml.includes('id="account-popover-logout-btn"'), 'Must have non-removable #account-popover-logout-btn');
     });
 
     it('verifies landing accounts actions has the refresh button ordered before manage', () => {

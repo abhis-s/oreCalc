@@ -77,11 +77,16 @@
                     aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
                     <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
-                <a href="/" class="brand-title-link" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
+                <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
                     <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
                 </a>
                 <span class="brand-separator" aria-hidden="true">&middot;</span>
-                <span class="brand-page-pill" data-i18n="views.damageCalc.offense.equipmentDamageBadge">Equipment Damage</span>
+                <div class="brand-page-pill-wrapper">
+                    <button type="button" class="brand-page-pill" id="brand-page-pill-btn" aria-haspopup="menu" aria-expanded="false" data-i18n="views.damageCalc.offense.equipmentDamageBadge">Equipment Damage</button>
+                    <div id="brand-tools-dropdown" class="brand-tools-dropdown" role="menu" aria-labelledby="brand-page-pill-btn" hidden>
+                        <!-- DYNAMIC INSERTION: Brand tool dropdown items -->
+                    </div>
+                </div>
             </div>
 
             <div class="app-header__tabs tab-bar-container" role="tablist" aria-label="Calculator Views">
@@ -121,35 +126,38 @@
         </section>
     </main>
 
-    <dialog id="calc-offense-modal" class="modal calc-offense-modal modal-sheet-mobile" aria-labelledby="calc-offense-modal-title">
-        <div class="modal-content calc-offense-modal-content">
-            <div class="modal-header">
-                <h2 id="calc-offense-modal-title" class="modal-title" data-i18n="views.damageCalc.offense.editDamageSourceLevelsTitle">Edit Damage Source Levels</h2>
-                <button type="button" class="close-button" id="calc-offense-close-btn" aria-label="Close" data-i18n-aria-label="actions.close">
-                    <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
-                </button>
+    <div id="tool-extras">
+        <dialog id="calc-offense-modal" class="modal calc-offense-modal modal-sheet-mobile" aria-labelledby="calc-offense-modal-title">
+            <div class="modal-content calc-offense-modal-content">
+                <div class="modal-header">
+                    <h2 id="calc-offense-modal-title" class="modal-title" data-i18n="views.damageCalc.offense.editDamageSourceLevelsTitle">Edit Damage Source Levels</h2>
+                    <button type="button" class="close-button" id="calc-offense-close-btn" aria-label="Close" data-i18n-aria-label="actions.close">
+                        <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
+                    </button>
+                </div>
+                <div class="modal-body calc-offense-modal-body" id="calc-offense-modal-body">
+                    <!-- DYNAMIC INSERTION: Offense levels editor form -->
+                </div>
             </div>
-            <div class="modal-body calc-offense-modal-body" id="calc-offense-modal-body">
-                <!-- DYNAMIC INSERTION: Offense levels editor form -->
-            </div>
-        </div>
-    </dialog>
+        </dialog>
 
-    <dialog id="calc-target-combos-modal" class="modal calc-target-combos-modal modal-sheet-mobile" aria-labelledby="calc-target-combos-modal-title">
-        <div class="modal-content calc-target-combos-modal-content">
-            <div class="modal-header">
-                <h2 id="calc-target-combos-modal-title" class="modal-title" data-i18n="views.damageCalc.zapQuake.targetCombosModalTitle">Target Combinations</h2>
-                <button type="button" class="close-button" id="calc-target-combos-close-btn" aria-label="Close" data-i18n-aria-label="actions.close">
-                    <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
-                </button>
+        <dialog id="calc-target-combos-modal" class="modal calc-target-combos-modal modal-sheet-mobile" aria-labelledby="calc-target-combos-modal-title">
+            <div class="modal-content calc-target-combos-modal-content">
+                <div class="modal-header">
+                    <h2 id="calc-target-combos-modal-title" class="modal-title" data-i18n="views.damageCalc.zapQuake.targetCombosModalTitle">Target Combinations</h2>
+                    <button type="button" class="close-button" id="calc-target-combos-close-btn" aria-label="Close" data-i18n-aria-label="actions.close">
+                        <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
+                    </button>
+                </div>
+                <div class="modal-body calc-target-combos-modal-body" id="calc-target-combos-modal-body">
+                    <!-- DYNAMIC INSERTION: Target combinations viewer -->
+                </div>
             </div>
-            <div class="modal-body calc-target-combos-modal-body" id="calc-target-combos-modal-body">
-                <!-- DYNAMIC INSERTION: Target combinations viewer -->
-            </div>
-        </div>
-    </dialog>
+        </dialog>
 
-    <!-- include: partials/bottom-nav.html -->
+        <!-- include: partials/bottom-nav.html -->
+    </div>
+
     <!-- include: partials/footer.html -->
     <!-- include: partials/navigation-drawer.html -->
     <!-- include: partials/modals/add-player.html -->
@@ -160,11 +168,7 @@
     <!-- include: partials/modals/licenses.html -->
     <!-- include: partials/modals/notice.html -->
     <!-- include: partials/modals/auth-modal.html -->
-    <!-- include: partials/modals/passkeys-modal.html -->
-    <!-- include: partials/modals/avatar-modal.html -->
-    <!-- include: partials/modals/account-data-modal.html -->
     <!-- include: partials/modals/update-available.html -->
-    <!-- include: partials/modals/device-sync.html -->
     <!-- include: partials/modals/bug-report.html -->
     <!-- include: partials/modals/contact.html -->
     <!-- include: partials/modals/running-costs.html -->

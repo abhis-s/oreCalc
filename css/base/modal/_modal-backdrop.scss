@@ -44,9 +44,7 @@ dialog.modal,
 
     .modal-content,
     .eq-details-modal-content,
-    .welcome-modal-content,
     .accent-picker-modal-content,
-    .data-erasure-modal-content,
     [class*="modal-content"],
     [class*="-modal-content"] {
         transform: translate3d(0, 30px, 0) scale(0.96);
@@ -62,9 +60,7 @@ dialog.modal,
 
         .modal-content,
         .eq-details-modal-content,
-        .welcome-modal-content,
         .accent-picker-modal-content,
-        .data-erasure-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             transform: translate3d(0, 0, 0) scale(1);
@@ -75,9 +71,7 @@ dialog.modal,
 
             .modal-content,
             .eq-details-modal-content,
-            .welcome-modal-content,
             .accent-picker-modal-content,
-            .data-erasure-modal-content,
             [class*="modal-content"],
             [class*="-modal-content"] {
                 transform: translate3d(0, 30px, 0) scale(0.96);
@@ -124,9 +118,7 @@ dialog.modal,
 
         .modal-content,
         .eq-details-modal-content,
-        .welcome-modal-content,
         .accent-picker-modal-content,
-        .data-erasure-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             transform: translate3d(0, 48px, 0) scale(0.95);
@@ -139,9 +131,7 @@ dialog.modal,
 
         .modal-content,
         .eq-details-modal-content,
-        .welcome-modal-content,
         .accent-picker-modal-content,
-        .data-erasure-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             transition: none !important;

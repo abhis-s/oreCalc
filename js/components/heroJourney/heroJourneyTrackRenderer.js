@@ -1,6 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
-import { getMaxCumulativeLevelsByTH, getNodeTownHallLevel, getTownHallStartLevel } from '../../domain/income/heroJourneyLevels.js';
+import { getMaxCumulativeLevelsByTH, getMaxTownHallLevel, getNodeTownHallLevel, getTownHallStartLevel } from '../../domain/income/heroJourneyLevels.js';
 import { resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
 import { createNodeChipElement } from '../home/heroJourneyNodeBuilder.js';
 import { createTHStartDivider, createTHBoundaryDivider, createTHLimitBlockCard } from '../home/heroJourneyDividersRenderer.js';
@@ -123,11 +123,12 @@ export function renderTrackView(options = {}) {
 
     updateHeroJourneyRovingTabindex(trackEl, hjState.cumulativeLevel);
 
-    const isTrueMax = isTrueMaxPlayer || (!isUserSynced && hjState.thLevel >= 18);
+    const maxTH = getMaxTownHallLevel();
+    const isTrueMax = isTrueMaxPlayer || (!isUserSynced && hjState.thLevel >= maxTH);
     const hasNodesBeyond = filtered.some(node => node.level > playerMaxLevel);
 
     if (isTrueMax || hasNodesBeyond) {
-        const nextTH = Math.min(18, hjState.thLevel + 1);
+        const nextTH = Math.min(maxTH, hjState.thLevel + 1);
         const nextTHStartLvl = playerMaxLevel + 1;
 
         const blockCard = createTHLimitBlockCard({
@@ -210,7 +211,8 @@ export function renderTrackView(options = {}) {
  */
 export function updateProgressBar() {
     const maxLevelsByTH = getMaxCumulativeLevelsByTH();
-    const thLevel = hjState.thLevel || 18;
+    const maxTH = getMaxTownHallLevel();
+    const thLevel = hjState.thLevel || maxTH;
     const thMaxLevel = maxLevelsByTH[thLevel] || 0;
     const allMax = Object.values(maxLevelsByTH);
     const overallMax = allMax.length > 0 ? Math.max(...allMax) : 485;
@@ -224,22 +226,21 @@ export function updateProgressBar() {
 
     const hasPlayer = Boolean(hjState.playerData);
     const progressTracks = document.querySelectorAll('.hero-journey-progress-track');
-    const card = document.getElementById('home-hj-card');
+    const card = document.getElementById('hero-journey-track-card') || document.getElementById('orecalc-home-hero-journey-card') || document.querySelector('.hero-journey-card');
     if (!hasPlayer) {
         progressText.textContent = translate('views.heroJourney.page.heroJourneyTitle');
         progressPercent.textContent = translate('views.heroJourney.nodes.preview');
         progressFill.style.width = '0%';
         progressFill.classList.remove('is-true-max');
         if (card) {
-            card.classList.remove('no-synced-heroes');
+            card.classList.add('no-synced-heroes');
             card.classList.remove('is-true-max');
         }
         progressTracks.forEach(track => {
-            /** @type {HTMLElement} */ (track).style.display = '';
+            /** @type {HTMLElement} */ (track).style.display = 'none';
         });
         if (cumulativeBadge) {
-            cumulativeBadge.textContent = `0 / ${overallMax}`;
-            cumulativeBadge.classList.remove('badge-true-max');
+            cumulativeBadge.style.display = 'none';
         }
         return;
     }
@@ -254,6 +255,7 @@ export function updateProgressBar() {
         /** @type {HTMLElement} */ (track).style.display = isTrueMaxPlayer ? 'none' : '';
     });
     if (cumulativeBadge) {
+        cumulativeBadge.style.display = '';
         cumulativeBadge.textContent = overallMax > 0 ? `${hjState.cumulativeLevel}/${overallMax}` : `${hjState.cumulativeLevel}`;
         cumulativeBadge.classList.toggle('badge-true-max', isTrueMaxPlayer);
     }

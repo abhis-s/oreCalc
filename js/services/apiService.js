@@ -314,6 +314,7 @@ export async function loadUserData(userId) {
 
     const url = `${BASE_URL}/api/user-data/load/${userId}`;
     const response = await fetch(url, {
+        cache: 'no-store',
         headers: getAuthHeaders({
             'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
         })

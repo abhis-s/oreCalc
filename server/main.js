@@ -33,6 +33,7 @@ const billingRoutes = require('./routes/billingRoutes.js');
 const { pruneInactiveUsers } = require('./scripts/prune-inactive-users.js');
 const { startCwlBackgroundScraper } = require('./services/warScraperService.js');
 const { getOrUpdateBillingCache } = require('./services/billingService.js');
+const { pruneExpiredAuthChallenges } = require('./services/authService.js');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -77,6 +78,10 @@ app.use('/api', supportRoutes);
 app.use('/api/billing', billingRoutes);
 
 // Background schedulers
+setTimeout(() => {
+    pruneExpiredAuthChallenges().catch(err => console.error('[CHALLENGE PRUNE] Initial run failed:', err));
+}, 30 * 1000);
+
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 setTimeout(() => {
     pruneInactiveUsers().catch(err => console.error('[SCHEDULED PRUNE] Initial run failed:', err));

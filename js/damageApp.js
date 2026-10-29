@@ -63,10 +63,11 @@ import {
     switchDamageTab
 } from './components/damage/damageCalcTabNav.js';
 import { initializeAuthModal } from './components/auth/authModalInputs.js';
-import { initializePasskeysModal } from './components/auth/passkeysModalInputs.js';
 import { initializeSettingsAccount } from './components/appSettings/settingsAccountInputs.js';
 import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
 import { initializePwaService } from './services/pwaService.js';
+import { initAppShellNavigator, registerAppRoute } from './core/appShellNavigator.js';
+import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHooks.js';
 
 /** @type {{ openAddPlayerModal: () => void, closeAddPlayerModal: () => void } | null} */
 let activeAddPlayerModalControls = null;
@@ -390,8 +391,13 @@ async function initDamageApp() {
 
     const urlTab = resolveDamageTabFromUrl();
     damageCalcState.activeTab = urlTab || 'zapquake';
-    if (!urlTab && typeof window !== 'undefined' && window.location.hash) {
-        window.history.replaceState(null, '', constructDamageTabUrl('zapquake'));
+    if (typeof window !== 'undefined' && window.location.hash) {
+        const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase();
+        if (cleanHash === 'cluster_planner' || cleanHash === 'cluster-planner' || cleanHash === 'zapquake') {
+            window.history.replaceState(null, '', constructDamageTabUrl(damageCalcState.activeTab));
+        } else if (!urlTab) {
+            window.history.replaceState(null, '', constructDamageTabUrl('zapquake'));
+        }
     }
 
     initDomainNotice();
@@ -464,7 +470,6 @@ async function initDamageApp() {
     initSpotright();
     initShortcutsModalListener();
     initializeAuthModal();
-    initializePasskeysModal();
     initializeSettingsAccount();
 
     renderPlayerDropdown(damageCalcState.activeTag);
@@ -485,10 +490,36 @@ async function initDamageApp() {
     window.isAppStartingUp = false;
 }
 
+let isMounted = false;
+
+/**
+ * Mounts the Equipment Damage & ZapQuake application.
+ * @param {Object} [options={}]
+ * @param {boolean} [options.force=false]
+ * @returns {Promise<void>}
+ */
+export async function mount(options = {}) {
+    if (isMounted && !options.force) return;
+    isMounted = true;
+
+    await initDamageApp();
+    setupNavigatorUiHooks();
+    initAppShellNavigator();
+    registerAppRoute('damage-calculator', { mount, destroy });
+}
+
+/**
+ * Destroys and cleans up active Damage Calculator controllers.
+ */
+export function destroy() {
+    if (!isMounted) return;
+    isMounted = false;
+}
+
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initDamageApp);
+        document.addEventListener('DOMContentLoaded', () => void mount());
     } else {
-        initDamageApp();
+        void mount();
     }
 }

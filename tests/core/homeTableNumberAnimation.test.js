@@ -323,12 +323,12 @@ describe('Home Income Table & Number Animation Suite', () => {
         createMockElement('span', 'home-display-league-requirement');
         createMockElement('img', 'home-display-clan-icon');
         createMockElement('select', 'home-income-timeframe-select');
-        createMockElement('div', 'home-ore-income-card');
+        createMockElement('div', 'orecalc-home-income-card');
 
         dom.income = {
             home: {
                 incomeCard: {
-                    container: domStore.get('home-ore-income-card'),
+                    container: domStore.get('orecalc-home-income-card'),
                     timeframe: domStore.get('home-income-timeframe-select'),
                     table: {
                         body: mockTableBody,

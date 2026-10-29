@@ -10,7 +10,7 @@ import {
 } from './core/appEventInterceptors.js';
 import { recalculateAll } from './core/calculator.js';
 import { detectLanguage, getLanguageFromPath, isValidRoute, syncLanguageUrl } from './core/languageRouter.js';
-import { loadState, resetState, saveState, setResettingState } from './core/localStorageManager.js';
+import { loadState, saveState } from './core/localStorageManager.js';
 import { getStorageItem, isClashCalcHost, normalizePlayerTag } from './core/storageKeys.js';
 import { loadPlayerData, updateSavedPlayerTags } from './core/playerStorage.js';
 import { renderApp } from './core/renderer.js';
@@ -28,6 +28,7 @@ import {
     setThemeRenderCallback
 } from './core/themeManager.js';
 import { initMainAppCrossTabSync } from './core/crossTabSync.js';
+import { initCrossTabAuthSync } from './services/authClientService.js';
 import { getPlayerTagFromUrl, syncPlayerTagToUrl } from './core/playerUrlRouter.js';
 import { showApiErrorToast, showToast } from './ui/toast.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
@@ -45,16 +46,30 @@ import { getChangelogHtml } from './services/changelogService.js';
 import { initializePwaService } from './services/pwaService.js';
 import { setJustSyncedFromQr, importUserData, initializeAppData, isJustSyncedFromQr } from './services/cloudSaveService.js';
 import { showAddPlayerModal } from './components/player/playerModalInputs.js';
+import { resetPlayerDropdownState } from './components/player/playerDropdownInputs.js';
 import { markUserMigrated } from './services/apiService.js';
+import { initAppShellNavigator, registerAppRoute } from './core/appShellNavigator.js';
+import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHooks.js';
+import { resetRenderState } from './components/home/homeProfileAnimations.js';
 import './console.js';
 
 setThemeRenderCallback(renderApp);
 registerGlobalErrorBoundaries();
 
-if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
-    window.__DOM_CONTENT_LOADED_REGISTERED__ = true;
-    document.addEventListener('DOMContentLoaded', async () => {
-        const urlParams = new URLSearchParams(window.location.search);
+let isMounted = false;
+let hasAttachedAppListeners = false;
+
+/**
+ * Mounts the Ore & Equipment Calculator application.
+ * @param {Object} [options={}]
+ * @param {boolean} [options.force=false]
+ * @returns {Promise<void>}
+ */
+export async function mount(options = {}) {
+    if (isMounted && !options.force) return;
+    isMounted = true;
+
+    const urlParams = new URLSearchParams(window.location.search);
         let userIdFromUrl = urlParams.get('userId');
         let tagFromUrl = urlParams.get('tag');
         let pendingQrUserId = null;
@@ -352,21 +367,36 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             }
         });
 
-        document.addEventListener('app:theme-change', (e) => {
-            const customEvent = /** @type {CustomEvent} */ (e);
-            applyTheme(customEvent.detail.theme, customEvent.detail.origin);
-        });
+        if (!hasAttachedAppListeners) {
+            hasAttachedAppListeners = true;
 
-        document.addEventListener('app:translate', () => {
-            updateUIWithTranslations();
-        });
+            document.addEventListener('app:theme-change', (e) => {
+                const customEvent = /** @type {CustomEvent} */ (e);
+                applyTheme(customEvent.detail.theme, customEvent.detail.origin);
+            });
 
-        document.addEventListener('tour:close', () => {
-            triggerPendingModals();
-        });
+            document.addEventListener('app:translate', () => {
+                updateUIWithTranslations();
+            });
+
+            document.addEventListener('tour:close', () => {
+                triggerPendingModals();
+            });
+
+            document.addEventListener('app:accountSynced', async () => {
+                recalculateAll(state);
+                renderApp(state);
+
+                const hasRealTags = Boolean(state.savedPlayerTags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0'));
+                if (!hasRealTags) {
+                    showAddPlayerModal();
+                }
+            });
+        }
 
         initializeDOMElements();
         initMainAppCrossTabSync();
+        initCrossTabAuthSync();
 
         const preloader = dom.preloader;
         const isPreloaderEnabled = false; // Preloader disabled in place; set to true to re-enable
@@ -393,10 +423,13 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
             }, 650);
         }
 
-        const bootstrapDelay = isPreloaderEnabled ? 1900 : 0;
-        setTimeout(async () => {
+        if (isPreloaderEnabled) {
+            setTimeout(async () => {
+                await bootstrapUIComponents(initialLang);
+            }, 1900);
+        } else {
             await bootstrapUIComponents(initialLang);
-        }, bootstrapDelay);
+        }
 
         handlePreloaderTeardown(isPreloaderEnabled ? preloader : null);
         initializePwaService();
@@ -447,24 +480,25 @@ if (!window.__DOM_CONTENT_LOADED_REGISTERED__) {
 
         initializeGlobalInterceptors();
 
-        document.addEventListener('app:accountSynced', async () => {
-            recalculateAll(state);
-            renderApp(state);
-
-            const hasRealTags = Boolean(state.savedPlayerTags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0'));
-            if (!hasRealTags) {
-                showAddPlayerModal();
-            }
-        });
-    });
+        setupNavigatorUiHooks();
+        initAppShellNavigator();
+        registerAppRoute('ore-calculator', { mount, destroy });
 }
 
-window.resetApplication = () => {
-    setResettingState(true);
-    syncPlayerTagToUrl(null);
-    resetState();
-    if (window.location.hash || window.location.search) {
-        history.replaceState(null, '', window.location.pathname);
+/**
+ * Destroys and cleans up active Ore Calculator controllers.
+ */
+export function destroy() {
+    if (!isMounted) return;
+    isMounted = false;
+    resetRenderState();
+    resetPlayerDropdownState();
+}
+
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => void mount());
+    } else {
+        void mount();
     }
-    window.location.href = window.location.origin + window.location.pathname;
-};
+}

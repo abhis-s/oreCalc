@@ -7,7 +7,6 @@ dialog.modal,
         .eq-details-modal-content,
         .guided-setup-modal-content,
         .accent-picker-modal-content,
-        .data-erasure-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             max-width: calc(100vw - 24px);
@@ -24,16 +23,12 @@ dialog.modal,
                 font-size: clamp(1.05rem, 3.5vw, 1.15rem);
             }
 
-            .modal-header-actions,
-            .header-actions,
-            .button-group {
+            .modal-header-actions {
                 gap: 6px;
             }
 
             .close-button,
-            .modal-header-actions > *,
-            .header-actions > *,
-            .button-group > * {
+            .modal-header-actions > * {
                 width: 32px;
                 min-width: 32px;
                 max-width: 32px;
@@ -76,7 +71,6 @@ dialog.modal,
             .eq-details-modal-content,
             .guided-setup-modal-content,
             .accent-picker-modal-content,
-            .data-erasure-modal-content,
             [class*="modal-content"],
             [class*="-modal-content"] {
                 width: 100% !important;
@@ -101,8 +95,6 @@ dialog.modal,
 #create-custom-chips-modal,
 #changelog-modal,
 #commits-modal,
-#device-sync-modal,
-#account-data-modal,
 #global-pricing-modal,
 #calc-offense-modal,
 #calc-target-combos-modal,
@@ -114,7 +106,6 @@ dialog.modal,
         .eq-details-modal-content,
         .guided-setup-modal-content,
         .accent-picker-modal-content,
-        .data-erasure-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             width: 100% !important;

@@ -48,21 +48,6 @@
     }
 }
 
-.eq-details-title-group {
-    h2 {
-        margin: 0 0 $spacing-xs;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: $text-primary;
-    }
-
-    .eq-details-desc {
-        margin: 0 0 10px;
-        font-size: 0.9rem;
-        color: $text-secondary;
-    }
-}
-
 .stat-val-modified {
     color: $color-warning !important;
     font-weight: 700 !important;
@@ -89,13 +74,7 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
         white-space: nowrap;
-        transition: transform $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
         cursor: default;
-
-        &:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 4px 10px color-mix(in srgb, currentColor 20%, transparent);
-        }
 
         &.badge-active {
             background-color: color-mix(in srgb, $color-success 15%, transparent);

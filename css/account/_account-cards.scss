@@ -1,0 +1,469 @@
+@use '../abstracts/variables' as *;
+
+.account-card {
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-large;
+    box-shadow: $elevation-1;
+    padding: $spacing-xl;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    transition: $transition-card;
+
+    &:hover {
+        border-color: $border-card-hover;
+        box-shadow: $elevation-card-hover;
+    }
+
+    &:has(> .account-pairing-drawer),
+    &:has(> .account-avatar-tray) {
+        gap: $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-lg;
+        gap: $spacing-md;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+        flex-wrap: wrap;
+
+        @media (max-width: $breakpoint-phone) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: $spacing-sm;
+
+            .account-card__title-group {
+                flex: none;
+                width: 100%;
+            }
+
+            .account-card__actions {
+                width: 100%;
+
+                .btn {
+                    width: 100%;
+                }
+            }
+        }
+    }
+
+    &__title-group {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+        flex: 1 1 260px;
+        min-width: 0;
+    }
+
+    &__title {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin: 0;
+
+        &--erasure {
+            color: $color-danger;
+        }
+    }
+
+    &__desc {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        margin: 0;
+        line-height: 1.45;
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-md;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    &--hero {
+        text-align: center;
+        align-items: center;
+        padding-block: $spacing-2xl;
+        background: linear-gradient(180deg, color-mix(in srgb, $accent-primary 8%, $bg-surface-primary), $bg-surface-primary);
+        border-color: color-mix(in srgb, $accent-primary 25%, $border-card);
+
+        &:hover {
+            border-color: color-mix(in srgb, $accent-primary 45%, $border-card);
+        }
+    }
+
+    &--erasure {
+        border-color: color-mix(in srgb, $color-danger 30%, $border-card);
+
+        &:hover {
+            border-color: color-mix(in srgb, $color-danger 50%, $border-card);
+        }
+    }
+}
+
+.account-hero-badge {
+    width: 64px;
+    height: 64px;
+    border-radius: $shape-corner-full;
+    background-color: $accent-primary-soft;
+    color: $accent-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-sm;
+
+    .account-hero-icon,
+    .account-hero-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+.account-hero-title {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0;
+}
+
+.account-hero-desc {
+    font-size: $font-size-md;
+    color: $text-secondary;
+    max-width: 480px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.account-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+    justify-content: center;
+    margin-top: $spacing-sm;
+}
+
+.account-profile-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+
+    @media (max-width: $breakpoint-phone) {
+        display: grid;
+        grid-template-columns: 50px 1fr auto;
+        align-items: center;
+        gap: $spacing-md;
+        text-align: start;
+    }
+}
+
+.account-profile-avatar-btn {
+    width: 76px;
+    height: 76px;
+    border-radius: $shape-corner-full;
+    background-color: $bg-surface-secondary;
+    border: 2px solid $border-accent;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: border-color $transition-fast, box-shadow $transition-fast;
+
+    @media (max-width: $breakpoint-phone) {
+        grid-column: 1;
+        grid-row: 1;
+        width: 50px;
+        height: 50px;
+        margin: 0;
+    }
+
+    &:hover,
+    &:focus-visible {
+        border-color: $accent-primary;
+        box-shadow: 0 0 0 3px color-mix(in srgb, $accent-primary 25%, transparent);
+        outline: none;
+
+        .account-profile-avatar-overlay {
+            opacity: 1;
+        }
+    }
+
+    &:active {
+        transform: scale(0.96);
+    }
+}
+
+.account-profile-avatar-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: $bg-overlay;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-on-accent;
+    opacity: 0;
+    transition: opacity $transition-fast;
+    pointer-events: none;
+
+    svg,
+    clashcalc-assets-svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+.account-profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.account-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+    flex: 1;
+    min-width: 0;
+
+    @media (max-width: $breakpoint-phone) {
+        display: contents;
+    }
+}
+
+.account-profile-title-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (max-width: $breakpoint-phone) {
+        grid-column: 2;
+        grid-row: 1;
+        justify-content: flex-start;
+        min-width: 0;
+    }
+}
+
+.account-profile-username {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @media (max-width: $breakpoint-phone) {
+        font-size: $font-size-lg;
+        line-height: 1.2;
+    }
+}
+
+.account-profile-villages-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-top: $spacing-2xs;
+
+    @media (max-width: $breakpoint-phone) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        margin-top: $spacing-2xs;
+        justify-content: flex-start;
+        padding-top: $spacing-md;
+        border-top: 1px solid $border-secondary;
+
+        #account-profile-card:has(#account-avatar-tray:not([hidden])) & {
+            display: none;
+        }
+    }
+}
+
+.account-village-stack {
+    display: inline-flex;
+    align-items: center;
+
+    &:empty {
+        display: none;
+    }
+}
+
+.account-village-stack-th {
+    width: 26px;
+    height: 26px;
+    border-radius: $shape-corner-full;
+    background-color: color-mix(in srgb, $bg-surface-secondary 50%, transparent);
+    border: 1px solid color-mix(in srgb, $border-secondary 50%, transparent);
+    padding: 1.5px;
+    margin-inline-end: -$spacing-sm;
+    position: relative;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    @media (max-width: $breakpoint-phone) {
+        width: 26px;
+        height: 26px;
+        margin-inline-end: -$spacing-xs;
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    &:nth-child(1) { z-index: $z-index-component; }
+    &:nth-child(2) { z-index: $z-index-component - 1; }
+    &:nth-child(3) { z-index: $z-index-component - 2; }
+    &:nth-child(4) { z-index: $z-index-interactive; }
+    &:nth-child(5) { z-index: $z-index-base; }
+}
+
+.account-village-count-text {
+    display: inline-flex;
+    align-items: center;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    line-height: 1.3;
+    margin-inline-start: $spacing-xs;
+
+    @media (max-width: $breakpoint-phone) {
+        font-size: $font-size-sm;
+        margin-inline-start: $spacing-xs;
+    }
+
+    .account-village-stack:empty + & {
+        margin-inline-start: 0;
+    }
+}
+
+.account-profile-header-action {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    @media (max-width: $breakpoint-phone) {
+        grid-column: 3;
+        grid-row: 1;
+        width: auto;
+        margin-top: 0;
+    }
+}
+
+.account-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: $spacing-2xs $spacing-sm;
+    border-radius: $shape-corner-full;
+    font-size: $font-size-2xs;
+    font-weight: $font-weight-medium;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-secondary;
+    color: $text-secondary;
+    line-height: 1.2;
+    box-sizing: border-box;
+
+    &--new {
+        background-color: $color-success-soft;
+        border-color: color-mix(in srgb, $color-success 30%, transparent);
+        color: $color-success;
+    }
+}
+
+.account-item-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}
+
+.account-item-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    border-radius: $shape-corner-medium;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+
+    @media (max-width: $breakpoint-phone) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.account-item-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: $shape-corner-medium;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-secondary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: $text-secondary;
+
+    clashcalc-assets-svg,
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.account-item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+}
+
+.account-item-heading-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+}
+
+.account-item-title {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+}
+
+.account-item-desc {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.account-item-actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-shrink: 0;
+
+    @media (max-width: $breakpoint-phone) {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

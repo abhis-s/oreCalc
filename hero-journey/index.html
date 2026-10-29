@@ -88,11 +88,16 @@
                     aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
                     <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
-                <a href="/" class="brand-title-link" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
+                <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
                     <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
                 </a>
                 <span class="brand-separator" aria-hidden="true">&middot;</span>
-                <span class="brand-page-pill" data-i18n="views.heroJourney.widget.title">Hero's Journey</span>
+                <div class="brand-page-pill-wrapper">
+                    <button type="button" class="brand-page-pill" id="brand-page-pill-btn" aria-haspopup="menu" aria-expanded="false" data-i18n="views.heroJourney.widget.title">Hero's Journey</button>
+                    <div id="brand-tools-dropdown" class="brand-tools-dropdown" role="menu" aria-labelledby="brand-page-pill-btn" hidden>
+                        <!-- DYNAMIC INSERTION: Brand tool dropdown items -->
+                    </div>
+                </div>
             </div>
 
             <div class="app-header__player-dropdown player-dropdown-container">
@@ -112,9 +117,9 @@
             </div>
         </div>
     </header>
-    <div class="header-placeholder"></div>
+    <div class="header-placeholder app-header-placeholder"></div>
 
-    <main class="container hero-journey-page__main">
+    <main class="container hero-journey-page__main" id="main-content">
         <div id="hj-error-banner" class="app-message-box app-message-box--error hero-journey-page__error-banner" hidden role="alert">
             <div class="app-message-box-content">
                 <div class="app-message-box-item">
@@ -124,7 +129,7 @@
             </div>
         </div>
 
-        <section id="hj-player-card" class="card home-profile-card hero-journey-page__player-card is-stats-collapsed" aria-label="Player Summary" data-i18n-aria-label="views.home.playerSummary">
+        <section id="hero-journey-player-card" class="card home-profile-card hero-journey-page__player-card is-stats-collapsed" aria-label="Player Summary" data-i18n-aria-label="views.home.playerSummary">
             <div class="hero-journey-page__player-header home-profile-header">
                 <div class="profile-meta-left">
                     <div class="th-badge-wrapper">
@@ -155,11 +160,11 @@
                     </div>
                     <div class="profile-meta-actions-row">
                         <a href="/ore-calculator/" class="hj-planner-bridge-btn" title="Equipment Planner" aria-label="Equipment Planner" data-i18n-title="views.heroJourney.page.backToEquipmentPlanner" data-i18n-aria-label="views.heroJourney.page.backToEquipmentPlanner">
-                            <clashcalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></clashcalc-assets-svg>
+                            <clashcalc-assets-svg name="planner-filled" height="14" width="14" class="planner-bridge-icon"></clashcalc-assets-svg>
                             <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">Equipment Planner</span>
                         </a>
-                        <button id="hj-unconnected-search-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="Connect Profile" title="Connect Profile" data-i18n-aria-label="views.home.profile.connectBtn" data-i18n-title="views.home.profile.connectBtn">
-                            <clashcalc-assets-svg name="search" height="14" width="14"></clashcalc-assets-svg>
+                        <button id="home-profile-connect-btn" class="unconnected-connect-btn" type="button" aria-label="Connect Profile" title="Connect Profile" data-i18n-aria-label="views.home.profile.connectBtn" data-i18n-title="views.home.profile.connectBtn">
+                            <clashcalc-assets-svg name="plus" height="14" width="14"></clashcalc-assets-svg>
                             <span data-i18n="views.home.profile.connectBtn">Connect Profile</span>
                         </button>
                     </div>
@@ -167,7 +172,7 @@
             </div>
         </section>
 
-        <div id="home-hj-card" class="card full-width-card hero-journey-card">
+        <div id="hero-journey-track-card" class="card full-width-card hero-journey-card">
             <div class="hero-journey-header">
                 <div class="hero-journey-title-container">
                     <div class="hero-mountain-cluster" data-i18n-aria-label="views.heroJourney.nodes.heroEmblems">
@@ -290,6 +295,11 @@
                     <div id="home-hj-scrub-tooltip" class="hero-journey-scrub-tooltip"></div>
                 </div>
             </div>
+
+            <div id="home-hj-no-profile-notice" class="hero-journey-no-profile-notice">
+                <clashcalc-assets-svg name="sync-problem" class="sync-notice-icon" height="14" width="14"></clashcalc-assets-svg>
+                <span data-i18n="views.heroJourney.widget.noProfileNotice">Note: Connect a player tag to track your Hero's Journey progress and view milestone rewards.</span>
+            </div>
         </div>
 
         <section id="hero-journey-table" class="hero-journey-page__view-toggle-bar">
@@ -357,6 +367,8 @@
 
     </main>
 
+    <div id="tool-extras"></div>
+
     <!-- include: partials/footer.html -->
     <!-- include: partials/navigation-drawer.html -->
     <!-- include: partials/modals/changelog.html -->
@@ -367,11 +379,7 @@
     <!-- include: partials/modals/add-player.html -->
     <!-- include: partials/modals/notice.html -->
     <!-- include: partials/modals/auth-modal.html -->
-    <!-- include: partials/modals/passkeys-modal.html -->
-    <!-- include: partials/modals/avatar-modal.html -->
-    <!-- include: partials/modals/account-data-modal.html -->
     <!-- include: partials/modals/update-available.html -->
-    <!-- include: partials/modals/device-sync.html -->
     <!-- include: partials/modals/bug-report.html -->
     <!-- include: partials/modals/contact.html -->
     <!-- include: partials/modals/running-costs.html -->

@@ -85,13 +85,19 @@ export function updateUIWithTranslations(isInitialLoad = false) {
     });
 
     const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) metaDescription.setAttribute('content', translate('app.description'));
+    const metaDescKey = metaDescription?.getAttribute('data-i18n-content') || 'app.description';
+    const translatedDesc = translate(metaDescKey);
+    if (metaDescription) metaDescription.setAttribute('content', translatedDesc);
 
     const ogDescription = document.querySelector('meta[property="og:description"]');
-    if (ogDescription) ogDescription.setAttribute('content', translate('app.description'));
+    if (ogDescription) ogDescription.setAttribute('content', translatedDesc);
+
+    const titleEl = document.querySelector('title[data-i18n]');
+    const pageTitleKey = titleEl?.getAttribute('data-i18n') || 'app.title';
+    const translatedTitle = translate(pageTitleKey);
 
     const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) ogTitle.setAttribute('content', translate('app.title'));
+    if (ogTitle) ogTitle.setAttribute('content', translatedTitle);
 
     if (!isInitialLoad && state.uiSettings) {
         applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');

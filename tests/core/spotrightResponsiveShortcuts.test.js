@@ -72,7 +72,7 @@ describe('Spotright Responsive Shortcuts & Touch Behavior Suite', () => {
         assert.match(html, /<span class="spotright-action-active-icon">/, 'Active village must render checkmark container');
         assert.doesNotMatch(html, /<span class="spotright-action-label">Active<\/span>/, 'Active village must not render action label');
 
-        // Invariant Rule 3: Zero prohibited dingbats or emojis
+        // Invariant: Zero prohibited dingbats or emojis
         const prohibitedPattern = /[\u2190-\u21FF\u2500-\u257F\u25A0-\u25FF\u2600-\u26FF\u2700-\u27BF\u2022]/u;
         assert.equal(prohibitedPattern.test(html), false, 'Spotright results markup must contain zero prohibited dingbats');
     });

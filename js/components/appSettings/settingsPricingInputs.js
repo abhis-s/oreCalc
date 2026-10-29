@@ -1,5 +1,5 @@
 import { currencyData } from '../../data/pricingData.js';
-import { developmentSupportData, transparencyData } from '../../data/supportData.js';
+import { developmentSupportData } from '../../data/supportData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
@@ -16,7 +16,6 @@ import { showConfirm } from '../../ui/noticeModal.js';
  */
 export function initializeSettingsPricing() {
     renderLabeledActions('.development-list', developmentSupportData);
-    renderLabeledActions('.transparency-list', transparencyData);
 
     const currencySelect = dom.appSettings?.currencySelect;
     const openGlobalPricingBtn = dom.appSettings?.openGlobalPricingBtn;

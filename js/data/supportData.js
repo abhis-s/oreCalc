@@ -55,39 +55,3 @@ export const developmentSupportData = [
         actionType: 'modal'
     }
 ];
-
-export const transparencyData = [
-    {
-        id: 'privacy',
-        icon: 'shield',
-        i18nLabel: 'nav.privacy',
-        i18nAction: 'actions.view',
-        colorClass: 'btn-privacy',
-        actionType: 'modal'
-    },
-    {
-        id: 'termsOfUse',
-        icon: 'article',
-        i18nLabel: 'nav.tos',
-        i18nAction: 'actions.view',
-        colorClass: 'btn-terms-of-use',
-        actionType: 'modal'
-    },
-    {
-        id: 'licenses',
-        icon: 'library',
-        i18nLabel: 'nav.licenses',
-        i18nAction: 'actions.view',
-        colorClass: 'btn-licenses',
-        actionType: 'modal'
-    },
-    {
-        id: 'runningCosts',
-        icon: 'costs',
-        i18nLabel: 'views.settings.projectCosts.title',
-        i18nAction: 'actions.view',
-        i18nHelp: 'views.settings.projectCosts.help',
-        colorClass: 'btn-costs',
-        actionType: 'modal'
-    }
-];

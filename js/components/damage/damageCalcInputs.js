@@ -35,7 +35,7 @@ import {
 } from '../../domain/damage/defenseProgressionDomain.js';
 import { renderBattleModifierSwitcher } from '../common/battleModifierSwitcher.js';
 import { state as appGlobalState } from '../../core/state.js';
-import { saveState } from '../../core/localStorageManager.js';
+import { handleStateUpdate } from '../../core/stateManager.js';
 import {
     attachEditLevelsModalListeners
 } from './damageCalcModalsInputs.js';
@@ -105,10 +105,11 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
             if (modKey && currentMod !== modKey) {
                 state.modifier = modKey;
                 state.isModifierExplicit = true;
-                if (appGlobalState.uiSettings) {
-                    appGlobalState.uiSettings.leagueModifier = modKey;
-                    saveState(appGlobalState);
-                }
+                handleStateUpdate(() => {
+                    if (appGlobalState.uiSettings) {
+                        appGlobalState.uiSettings.leagueModifier = modKey;
+                    }
+                }, true, { preferencesOnly: true });
                 persistState();
                 renderBattleModifierSwitcher(modifierTabs, modKey, {
                     includePercentages: true,

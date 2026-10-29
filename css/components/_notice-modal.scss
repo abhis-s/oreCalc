@@ -169,7 +169,7 @@ dialog#notice-modal,
         flex-shrink: 0;
 
         button {
-            min-width: 96px;
+            min-width: $btn-min-width;
         }
     }
 }

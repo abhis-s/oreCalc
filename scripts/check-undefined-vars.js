@@ -46,7 +46,7 @@ function checkModuleImportBindings() {
     let errors = 0;
 
     for (const file of jsFiles) {
-        if (file.endsWith('qr-code-styling.js') || file.endsWith('workbox-window.js') || file.endsWith('check-undefined-vars.js')) {
+        if (file.endsWith('qr-code-styling.js') || file.endsWith('check-undefined-vars.js')) {
             continue;
         }
 

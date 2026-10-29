@@ -53,12 +53,11 @@
     border-radius: 6px;
     padding: 3px 6px;
     cursor: help;
-    transition: transform $duration-fast $ease-spring, background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
     backdrop-filter: blur(4px);
 
     &:hover {
-        transform: translateY(-2px) scale(1.05);
         background: rgba(45, 52, 54, 0.7);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25), 0 0 10px color-mix(in srgb, var(--equip-color) 50%, transparent);
         border-color: var(--equip-color);

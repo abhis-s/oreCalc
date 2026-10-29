@@ -8,6 +8,7 @@ import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { hjState, buildStateFromPlayerData } from './heroJourneyState.js';
 import { renderProfileHeaderHtml } from '../common/profileHeaderRenderer.js';
+import { renderProfileStatsHtml } from '../common/profileStatsRenderer.js';
 import { state as appGlobalState } from '../../core/state.js';
 import { getAppSettings } from '../common/appSettings.js';
 
@@ -96,12 +97,28 @@ const hjRenderState = {
 };
 
 /**
+ * Resets cached Hero Journey profile render snapshots across view navigation or tool destruction.
+ */
+export function resetHjRenderState() {
+    hjRenderState.renderedTag = null;
+    hjRenderState.renderedLang = null;
+    hjRenderState.renderedTH = null;
+    hjRenderState.renderedClan = null;
+    hjRenderState.renderedLeague = null;
+    hjRenderState.renderedAccelerated = null;
+    hjRenderState.lastProgress = null;
+}
+
+/**
  * Applies incremental delta updates to the Hero Journey player card without rebuilding DOM.
  * @param {HTMLElement} container - Card element.
  * @param {any} prevProg - Previous progress metrics.
  * @param {any} currProg - Current progress metrics.
  */
 function applyHeroJourneyProgressDelta(container, prevProg, currProg) {
+    if (!container || !container.querySelector('.home-profile-header')) {
+        return;
+    }
     container.classList.toggle('is-max-progress', Boolean(currProg.isTrueMaxPlayer));
     const prevOverall = prevProg.overall || 0;
     const currOverall = currProg.overall || 0;
@@ -177,7 +194,7 @@ function applyHeroJourneyProgressDelta(container, prevProg, currProg) {
  * Renders the top player summary card when player data is loaded.
  */
 export function renderPlayerSummary() {
-    const card = document.getElementById('hj-player-card');
+    const card = document.getElementById('hero-journey-player-card');
     if (!card) return;
 
     if (hjState.isLoading && !hjState.playerData) {
@@ -194,91 +211,62 @@ export function renderPlayerSummary() {
         const lang = getLanguageFromPath();
         const rootPath = (lang && lang !== 'en') ? `/${lang}/` : '/';
 
-        const actionsRowHtml = `
-            <a href="${rootPath}" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
-                <clashcalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></clashcalc-assets-svg>
-                <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
-            </a>
-            <button id="hj-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
-                <clashcalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></clashcalc-assets-svg>
-            </button>
-        `;
-
         const headerHtml = renderProfileHeaderHtml({
             profile: null,
             isGuest: true,
             thLevel: 16,
             trophiesHtml: '<span>---</span>',
-            actionsRowHtml,
+            plannerBridge: { url: rootPath },
             headerExtraClasses: 'hero-journey-page__player-header'
+        });
+
+        const statsHtml = renderProfileStatsHtml({
+            overall: {
+                label: translate('views.heroJourney.page.journeyProgress'),
+                labelKey: 'views.heroJourney.page.journeyProgress',
+                icon: 'assets/crown.png',
+                alt: translate('app.alts.crown'),
+                percentage: 0,
+                percentageText: '--%'
+            },
+            ores: [
+                {
+                    type: 'shiny',
+                    label: translate('entities.ores.shiny'),
+                    labelKey: 'entities.ores.shiny',
+                    icon: 'assets/shiny_ore.png',
+                    alt: 'Shiny',
+                    percentage: 0,
+                    percentageText: '--%',
+                    subtextHtml: `<div class="stat-box-sub"><span>${translate('views.heroJourney.page.unclaimedCount', { count: '--' })}</span></div>`
+                },
+                {
+                    type: 'glowy',
+                    label: translate('entities.ores.glowy'),
+                    labelKey: 'entities.ores.glowy',
+                    icon: 'assets/glowy_ore.png',
+                    alt: 'Glowy',
+                    percentage: 0,
+                    percentageText: '--%',
+                    subtextHtml: `<div class="stat-box-sub"><span>${translate('views.heroJourney.page.unclaimedCount', { count: '--' })}</span></div>`
+                },
+                {
+                    type: 'starry',
+                    label: translate('entities.ores.starry'),
+                    labelKey: 'entities.ores.starry',
+                    icon: 'assets/starry_ore.png',
+                    alt: 'Starry',
+                    percentage: 0,
+                    percentageText: '--%',
+                    subtextHtml: `<div class="stat-box-sub"><span>${translate('views.heroJourney.page.unclaimedCount', { count: '--' })}</span></div>`
+                }
+            ]
         });
 
         card.style.display = 'flex';
         card.innerHTML = `
             ${headerHtml}
-
-            <div class="home-profile-stats-container">
-                <div class="home-profile-overall-progress">
-                    <div class="overall-progress-header">
-                        <span class="overall-progress-label-wrapper">
-                            <clashcalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('app.alts.crown')}"></clashcalc-assets-image>
-                            <span class="overall-progress-label" data-i18n="views.heroJourney.page.journeyProgress">${translate('views.heroJourney.page.journeyProgress')}</span>
-                        </span>
-                        <span class="overall-progress-value">--%</span>
-                    </div>
-                    <div class="progress-bar-overall">
-                        <div class="progress-bar-fill overall-fill" style="width: 0%;"></div>
-                    </div>
-                </div>
-
-                <div class="home-profile-stats-row">
-                    <div class="profile-stat-box progress-box">
-                        <div class="stat-box-header">
-                            <span class="stat-box-label-wrapper">
-                                <clashcalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></clashcalc-assets-image>
-                                <span class="stat-box-label" data-i18n="entities.ores.shiny">${translate('entities.ores.shiny')}</span>
-                            </span>
-                            <span class="stat-box-value">--%</span>
-                        </div>
-                        <div class="progress-bar-mini">
-                            <div class="progress-bar-fill shiny-fill" style="width: 0%;"></div>
-                        </div>
-                        <div class="stat-box-sub">
-                            <span>${translate('views.heroJourney.page.unclaimedCount', { count: '--' })}</span>
-                        </div>
-                    </div>
-                    <div class="profile-stat-box progress-box">
-                        <div class="stat-box-header">
-                            <span class="stat-box-label-wrapper">
-                                <clashcalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></clashcalc-assets-image>
-                                <span class="stat-box-label" data-i18n="entities.ores.glowy">${translate('entities.ores.glowy')}</span>
-                            </span>
-                            <span class="stat-box-value">--%</span>
-                        </div>
-                        <div class="progress-bar-mini">
-                            <div class="progress-bar-fill glowy-fill" style="width: 0%;"></div>
-                        </div>
-                        <div class="stat-box-sub">
-                            <span>${translate('views.heroJourney.page.unclaimedCount', { count: '--' })}</span>
-                        </div>
-                    </div>
-                    <div class="profile-stat-box progress-box">
-                        <div class="stat-box-header">
-                            <span class="stat-box-label-wrapper">
-                                <clashcalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></clashcalc-assets-image>
-                                <span class="stat-box-label" data-i18n="entities.ores.starry">${translate('entities.ores.starry')}</span>
-                            </span>
-                            <span class="stat-box-value">--%</span>
-                        </div>
-                        <div class="progress-bar-mini">
-                            <div class="progress-bar-fill starry-fill" style="width: 0%;"></div>
-                        </div>
-                        <div class="stat-box-sub">
-                            <span>${translate('views.heroJourney.page.unclaimedCount', { count: '--' })}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            ${statsHtml}
         `;
         return;
     }
@@ -294,23 +282,12 @@ export function renderPlayerSummary() {
         const rootPath = (lang && lang !== 'en') ? `/${lang}/` : '/';
         const bridgeUrl = cleanTag ? `${rootPath}?tag=${encodeURIComponent(cleanTag)}` : rootPath;
 
-        const actionsRowHtml = `
-            <a href="${bridgeUrl}" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
-                <clashcalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></clashcalc-assets-svg>
-                <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
-            </a>
-            <button id="hj-unconnected-search-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="${translate('views.home.profile.connectBtn')}" title="${translate('views.home.profile.connectBtn')}">
-                <clashcalc-assets-svg name="search" height="14" width="14"></clashcalc-assets-svg>
-                <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
-            </button>
-        `;
-
         card.classList.remove('is-max-progress');
         card.innerHTML = renderProfileHeaderHtml({
             profile: null,
             isGuest: true,
             thLevel: hjState.thLevel || 18,
-            actionsRowHtml,
+            plannerBridge: { url: bridgeUrl },
             headerExtraClasses: 'hero-journey-page__player-header'
         });
         return;
@@ -357,6 +334,7 @@ export function renderPlayerSummary() {
     };
 
     // Incremental delta check: avoid full DOM tear-down if player and core metadata have not changed
+    const hasHeader = Boolean(card.querySelector('.home-profile-header'));
     const isSamePlayer = hjRenderState.renderedTag === currentTag;
     const isSameLang = hjRenderState.renderedLang === currentLang;
     const isSameTH = hjRenderState.renderedTH === thLevel;
@@ -364,7 +342,7 @@ export function renderPlayerSummary() {
     const isSameLeague = hjRenderState.renderedLeague === leagueId;
     const isSameMax = Boolean(hjRenderState.lastProgress?.isTrueMaxPlayer) === isTrueMaxPlayer;
 
-    if (isSamePlayer && isSameLang && isSameTH && isSameClan && isSameLeague && isSameMax && hjRenderState.lastProgress) {
+    if (hasHeader && isSamePlayer && isSameLang && isSameTH && isSameClan && isSameLeague && isSameMax && hjRenderState.lastProgress) {
         applyHeroJourneyProgressDelta(card, hjRenderState.lastProgress, progress);
         hjRenderState.lastProgress = progress;
         hjRenderState.renderedAccelerated = hjState.isAccelerated;
@@ -395,16 +373,6 @@ export function renderPlayerSummary() {
     const prevTrophies = Number((card.querySelector('.player-trophies-mini span')?.textContent || '').replace(/\D/g, '')) || 0;
     const targetTrophies = Number(player.trophies) || 0;
 
-    const actionsRowHtml = `
-        <a href="${bridgeUrl}" class="hj-planner-bridge-btn" title="${translate('views.heroJourney.page.backToPlannerHelp')}" aria-label="${translate('views.heroJourney.page.backToEquipmentPlanner')}">
-            <clashcalc-assets-svg name="planner-filled" height="13" width="13" class="planner-bridge-icon"></clashcalc-assets-svg>
-            <span class="planner-bridge-label" data-i18n="views.heroJourney.page.backToEquipmentPlanner">${translate('views.heroJourney.page.backToEquipmentPlanner')}</span>
-        </a>
-        <button id="hj-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
-            <clashcalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></clashcalc-assets-svg>
-        </button>
-    `;
-
     const headerHtml = renderProfileHeaderHtml({
         profile: player,
         isGuest: false,
@@ -412,78 +380,59 @@ export function renderPlayerSummary() {
         tag: currentTag,
         trophies: targetTrophies,
         prevTrophies,
-        actionsRowHtml,
+        plannerBridge: { url: bridgeUrl },
+        hasCollapsibleStats: true,
+        isCollapsed,
         headerExtraClasses: 'hero-journey-page__player-header'
+    });
+
+    const statsHtml = renderProfileStatsHtml({
+        overall: {
+            label: translate('views.heroJourney.page.journeyProgress'),
+            labelKey: 'views.heroJourney.page.journeyProgress',
+            icon: 'assets/crown.png',
+            alt: translate('app.alts.crown'),
+            percentage: overallPct,
+            percentageText: '0%',
+            isMaxed: isTrueMaxPlayer
+        },
+        ores: [
+            {
+                type: 'shiny',
+                label: translate('entities.ores.shiny'),
+                labelKey: 'entities.ores.shiny',
+                icon: 'assets/shiny_ore.png',
+                alt: 'Shiny',
+                percentage: shinyPct,
+                percentageText: '0%',
+                subtextHtml: `<div class="stat-box-sub"><span>${unclaimedShiny > 0 ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimedShiny)) }) : translate('views.heroJourney.page.allClaimed')}</span></div>`
+            },
+            {
+                type: 'glowy',
+                label: translate('entities.ores.glowy'),
+                labelKey: 'entities.ores.glowy',
+                icon: 'assets/glowy_ore.png',
+                alt: 'Glowy',
+                percentage: glowyPct,
+                percentageText: '0%',
+                subtextHtml: `<div class="stat-box-sub"><span>${unclaimedGlowy > 0 ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimedGlowy)) }) : translate('views.heroJourney.page.allClaimed')}</span></div>`
+            },
+            {
+                type: 'starry',
+                label: translate('entities.ores.starry'),
+                labelKey: 'entities.ores.starry',
+                icon: 'assets/starry_ore.png',
+                alt: 'Starry',
+                percentage: starryPct,
+                percentageText: '0%',
+                subtextHtml: `<div class="stat-box-sub"><span>${unclaimedStarry > 0 ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimedStarry)) }) : translate('views.heroJourney.page.allClaimed')}</span></div>`
+            }
+        ]
     });
 
     card.innerHTML = `
         ${headerHtml}
-
-        <div class="home-profile-stats-container">
-            <div class="home-profile-overall-progress${isTrueMaxPlayer ? ' fully-maxed' : ''}">
-                <div class="overall-progress-header">
-                    <span class="overall-progress-label-wrapper">
-                        <clashcalc-assets-image class="ore-icon-overall" src="assets/crown.png" alt="${translate('app.alts.crown')}"></clashcalc-assets-image>
-                        <span class="overall-progress-label" data-i18n="views.heroJourney.page.journeyProgress">${translate('views.heroJourney.page.journeyProgress')}</span>
-                    </span>
-                    <span class="overall-progress-value" data-ore-value="overall">0%</span>
-                </div>
-                <div class="progress-bar-overall" data-ore="overall">
-                    <div class="progress-bar-fill overall-fill ${isTrueMaxPlayer ? 'maxed-fill' : ''}" data-bar-width="${overallPct}%" style="width: 0%;"></div>
-                </div>
-            </div>
-
-            ${!isTrueMaxPlayer ? `
-            <div class="home-profile-stats-row">
-                <div class="profile-stat-box progress-box">
-                    <div class="stat-box-header">
-                        <span class="stat-box-label-wrapper">
-                            <clashcalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></clashcalc-assets-image>
-                            <span class="stat-box-label" data-i18n="entities.ores.shiny">${translate('entities.ores.shiny')}</span>
-                        </span>
-                        <span class="stat-box-value" data-ore-value="shiny">0%</span>
-                    </div>
-                    <div class="progress-bar-mini" data-ore="shiny">
-                        <div class="progress-bar-fill shiny-fill ${shinyPct >= 100 ? 'maxed-fill' : ''}" data-bar-width="${shinyPct}%" style="width: 0%;"></div>
-                    </div>
-                    <div class="stat-box-sub">
-                        <span>${unclaimedShiny > 0 ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimedShiny)) }) : translate('views.heroJourney.page.allClaimed')}</span>
-                    </div>
-                </div>
-
-                <div class="profile-stat-box progress-box">
-                    <div class="stat-box-header">
-                        <span class="stat-box-label-wrapper">
-                            <clashcalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></clashcalc-assets-image>
-                            <span class="stat-box-label" data-i18n="entities.ores.glowy">${translate('entities.ores.glowy')}</span>
-                        </span>
-                        <span class="stat-box-value" data-ore-value="glowy">0%</span>
-                    </div>
-                    <div class="progress-bar-mini" data-ore="glowy">
-                        <div class="progress-bar-fill glowy-fill ${glowyPct >= 100 ? 'maxed-fill' : ''}" data-bar-width="${glowyPct}%" style="width: 0%;"></div>
-                    </div>
-                    <div class="stat-box-sub">
-                        <span>${unclaimedGlowy > 0 ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimedGlowy)) }) : translate('views.heroJourney.page.allClaimed')}</span>
-                    </div>
-                </div>
-
-                <div class="profile-stat-box progress-box">
-                    <div class="stat-box-header">
-                        <span class="stat-box-label-wrapper">
-                            <clashcalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></clashcalc-assets-image>
-                            <span class="stat-box-label" data-i18n="entities.ores.starry">${translate('entities.ores.starry')}</span>
-                        </span>
-                        <span class="stat-box-value" data-ore-value="starry">0%</span>
-                    </div>
-                    <div class="progress-bar-mini" data-ore="starry">
-                        <div class="progress-bar-fill starry-fill ${starryPct >= 100 ? 'maxed-fill' : ''}" data-bar-width="${starryPct}%" style="width: 0%;"></div>
-                    </div>
-                    <div class="stat-box-sub">
-                        <span>${unclaimedStarry > 0 ? translate('views.heroJourney.page.unclaimedCount', { count: formatNumber(Math.round(unclaimedStarry)) }) : translate('views.heroJourney.page.allClaimed')}</span>
-                    </div>
-                </div>
-            </div>` : ''}
-        </div>
+        ${statsHtml}
     `;
 
     triggerHeroJourneyFillAnimation(card, {

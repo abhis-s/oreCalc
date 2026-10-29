@@ -1,4 +1,5 @@
 import { translate } from '../../i18n/translator.js';
+import { getMaxTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
 
 /**
  * Creates the initial Town Hall start divider at the beginning of the track.
@@ -75,15 +76,16 @@ export function createTHBoundaryDivider(highestNextTH, startLvlVal, isCurrentTHD
  */
 export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyondTH, nextTH, nextTHStartLvl, isDedicatedPage = false }) {
     const blockCard = document.createElement('div');
+    const maxTH = getMaxTownHallLevel();
 
-    if (isTrueMax || (isGuest && thLevel >= 18)) {
+    if (isTrueMax || (isGuest && thLevel >= maxTH)) {
         blockCard.className = 'th-limit-block-card true-max-card';
         const actionBtnHtml = isDedicatedPage
             ? `<button class="th-limit-reveal-btn btn-active" id="hj-show-table-btn" data-i18n="views.heroJourney.page.viewTable">${translate('views.heroJourney.page.viewTable')}</button>`
             : `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.heroJourney.track.hideTrack">${translate('views.heroJourney.track.hideTrack')}</button>`;
 
         blockCard.innerHTML = `
-            <clashcalc-assets-image src="assets/th/th18.png" alt="TH18" class="th-limit-img"></clashcalc-assets-image>
+            <clashcalc-assets-image src="assets/th/th${maxTH}.png" alt="TH${maxTH}" class="th-limit-img"></clashcalc-assets-image>
             <div class="th-limit-text"><span data-i18n="views.heroJourney.nodes.trueMaxTitle">${translate('views.heroJourney.nodes.trueMaxTitle')}</span><br><span data-i18n="views.heroJourney.nodes.trueMaxDesc">${translate('views.heroJourney.nodes.trueMaxDesc')}</span></div>
             ${actionBtnHtml}
         `;
@@ -95,14 +97,15 @@ export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyo
         const previewBtnClass = !revealBeyondTH ? 'th-limit-reveal-btn' : 'th-limit-reveal-btn btn-active';
         const previewBtnHtml = `<button class="${previewBtnClass}" id="home-hj-reveal-btn" data-i18n="${previewBtnI18n}">${previewBtnText}</button>`;
 
+        const displayNextTH = Math.min(maxTH, nextTH);
         const limitTextI18n = !revealBeyondTH ? 'views.heroJourney.track.thLimitLockedText' : 'views.heroJourney.track.thLimitUnlockedText';
-        const limitTextArgs = !revealBeyondTH ? JSON.stringify({ th: nextTH, lvl: nextTHStartLvl }) : JSON.stringify({ th: nextTH });
-        const limitText = translate(limitTextI18n, !revealBeyondTH ? { th: nextTH, lvl: nextTHStartLvl } : { th: nextTH });
+        const limitTextArgs = !revealBeyondTH ? JSON.stringify({ th: displayNextTH, lvl: nextTHStartLvl }) : JSON.stringify({ th: displayNextTH });
+        const limitText = translate(limitTextI18n, !revealBeyondTH ? { th: displayNextTH, lvl: nextTHStartLvl } : { th: displayNextTH });
 
         if (isGuest && !isDedicatedPage) {
             const hideBtnHtml = `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.heroJourney.track.hideTrack">${translate('views.heroJourney.track.hideTrack')}</button>`;
             blockCard.innerHTML = `
-                <clashcalc-assets-image src="assets/th/th${nextTH}.png" alt="TH${nextTH}" class="th-limit-img"></clashcalc-assets-image>
+                <clashcalc-assets-image src="assets/th/th${displayNextTH}.png" alt="TH${displayNextTH}" class="th-limit-img"></clashcalc-assets-image>
                 <div class="th-limit-text" data-i18n="${limitTextI18n}" data-i18n-args='${limitTextArgs}'>${limitText}</div>
                 <div class="th-limit-buttons-group">
                     ${previewBtnHtml}
@@ -111,7 +114,7 @@ export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyo
             `;
         } else {
             blockCard.innerHTML = `
-                <clashcalc-assets-image src="assets/th/th${nextTH}.png" alt="TH${nextTH}" class="th-limit-img"></clashcalc-assets-image>
+                <clashcalc-assets-image src="assets/th/th${displayNextTH}.png" alt="TH${displayNextTH}" class="th-limit-img"></clashcalc-assets-image>
                 <div class="th-limit-text" data-i18n="${limitTextI18n}" data-i18n-args='${limitTextArgs}'>${limitText}</div>
                 ${previewBtnHtml}
             `;

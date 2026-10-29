@@ -22,6 +22,13 @@ import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 let isPlayerModalInitialized = false;
 
 /**
+ * Resets player modal initialization state so event listeners can rebind on newly mounted dialogs.
+ */
+export function resetPlayerModalState() {
+    isPlayerModalInitialized = false;
+}
+
+/**
  * Programmatically switches to the Home tab if tab navigation exists in current DOM.
  */
 function navigateToHomeTab() {
@@ -70,6 +77,10 @@ export function initializePlayerModal() {
     const closeBtn = document.getElementById('close-add-player-modal-btn');
 
     if (modal && cancelButton && loadButton && playerTagInput) {
+        if (guidedSetupButton && !document.getElementById('guided-setup-modal')) {
+            guidedSetupButton.style.display = 'none';
+        }
+
         updateLoadButtonState(playerTagInput, loadButton);
 
         const closeHandler = () => {
@@ -93,7 +104,7 @@ export function initializePlayerModal() {
         guidedSetupButton?.addEventListener('click', () => {
             const currentTag = playerTagInput.value.trim();
             renderPlayerModal(false, '', '', false);
-            import('../guidedSetup/guidedSetupModal.js').then(({ openGuidedSetupModal }) => {
+            import('../guidedSetup/guidedSetupModalInputs.js').then(({ openGuidedSetupModal }) => {
                 openGuidedSetupModal({ initialTag: currentTag });
             });
         });
@@ -113,6 +124,7 @@ export function initializePlayerModal() {
                         syncPlayerTagToUrl(result.cleanTag || cleanedTag);
                         renderPlayerModal(false, '', '', false);
                         navigateToHomeTab();
+                        document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
                         await checkAndPromptCloudSync();
                     } else {
                         renderPlayerModal(true, cleanedTag, result.message, true, result.errorType);
@@ -159,6 +171,7 @@ export function initializePlayerModal() {
                     setForcedVerification(false);
                     renderPlayerModal(false, '', '', false);
                     navigateToHomeTab();
+                    document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
                     await checkAndPromptCloudSync();
                 } else {
 
@@ -208,9 +221,9 @@ export function initializePlayerModal() {
         playerTagInput?.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                if (loadButton && loadButton.style.display !== 'none') {
+                if (loadButton && loadButton.style.display !== 'none' && !loadButton.disabled) {
                     loadButton.click();
-                } else if (verifyButton && verifyButton.style.display !== 'none') {
+                } else if (verifyButton && verifyButton.style.display !== 'none' && !verifyButton.disabled) {
                     verifyButton.click();
                 }
             }
@@ -258,6 +271,17 @@ export function initializePlayerModal() {
  * @param {boolean} [forced=false] - True if API token verification is required.
  */
 export function showAddPlayerModal(tag = '', forced = false) {
+    if (typeof document !== 'undefined') {
+        const modal = document.getElementById('add-player-modal');
+        if (!modal) {
+            const landingInput = /** @type {HTMLInputElement | null} */ (document.getElementById('landing-search-input'));
+            if (landingInput) {
+                landingInput.focus();
+                landingInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+    }
     setForcedVerification(forced);
     if (tag) {
         renderPlayerModal(true, tag, translate('apiErrors.protectedTag'), true, 'apiErrors.protectedTag');

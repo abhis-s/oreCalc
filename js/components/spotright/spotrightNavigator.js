@@ -10,7 +10,7 @@ import { heroData } from '../../data/heroData.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
 /**
- * @typedef {'global' | 'hub' | 'orecalc' | 'hero-journey' | 'damagecalc'} SpotrightParent
+ * @typedef {'global' | 'hub' | 'orecalc' | 'hero-journey' | 'damagecalc' | 'account'} SpotrightParent
  */
 
 /**
@@ -22,7 +22,8 @@ const PARENT_ROUTE_MAP = Object.freeze({
     hub: '/',
     orecalc: '/ore-calculator/',
     'hero-journey': '/hero-journey/',
-    damagecalc: '/damage-calculator/'
+    damagecalc: '/damage-calculator/',
+    account: '/account/'
 });
 
 /**
@@ -64,6 +65,7 @@ export function getCurrentRouteContext() {
     if (cleanPath.startsWith('/ore-calculator')) page = 'orecalc';
     else if (cleanPath.startsWith('/hero-journey')) page = 'hero-journey';
     else if (cleanPath.startsWith('/damage-calculator')) page = 'damagecalc';
+    else if (cleanPath.startsWith('/account')) page = 'account';
 
     const rawHash = (typeof window !== 'undefined' && window.location?.hash)
         ? window.location.hash.replace(/^#/, '')
@@ -75,6 +77,15 @@ export function getCurrentRouteContext() {
             const domTab = activeBtn?.getAttribute?.('data-tab') || /** @type {HTMLElement | null} */ (activeBtn)?.dataset?.tab;
             if (domTab) return { page, activeTab: domTab.replace(/-tab$/, '') };
         }
+        if (typeof window !== 'undefined' && window.location?.search) {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const tabParam = params.get('tab');
+                if (tabParam && ['planner', 'income', 'equipment', 'home', 'settings'].includes(tabParam)) {
+                    return { page, activeTab: tabParam };
+                }
+            } catch {}
+        }
         if (['planner', 'income', 'equipment', 'home', 'settings'].includes(rawHash)) {
             return { page, activeTab: rawHash };
         }
@@ -85,10 +96,22 @@ export function getCurrentRouteContext() {
         if (typeof document !== 'undefined' && typeof document.querySelector === 'function') {
             const activeBtn = document.querySelector('[data-tab].active, [data-tab].is-active');
             const domTab = activeBtn?.getAttribute?.('data-tab') || /** @type {HTMLElement | null} */ (activeBtn)?.dataset?.tab;
-            if (domTab) return { page, activeTab: domTab };
+            if (domTab) return { page, activeTab: domTab.replace(/-tab$/, '').replace('_', '-') };
         }
-        if (rawHash === 'cluster_planner' || rawHash === 'zapquake') {
-            return { page, activeTab: rawHash };
+        if (typeof window !== 'undefined' && window.location?.search) {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const tabParam = params.get('tab');
+                if (tabParam === 'cluster-planner' || tabParam === 'cluster_planner') {
+                    return { page, activeTab: 'cluster-planner' };
+                }
+                if (tabParam === 'zapquake') {
+                    return { page, activeTab: 'zapquake' };
+                }
+            } catch {}
+        }
+        if (rawHash === 'cluster_planner' || rawHash === 'cluster-planner') {
+            return { page, activeTab: 'cluster-planner' };
         }
         return { page, activeTab: 'zapquake' };
     }
@@ -127,7 +150,9 @@ export function isSelfTarget(item, ctx = getCurrentRouteContext()) {
         return true;
     }
     if (item.type === 'tab') {
-        return ctx.page === item.parent && Boolean(item.tabId) && ctx.activeTab === item.tabId;
+        const normActive = ctx.activeTab?.replace('_', '-');
+        const normItemTab = item.tabId?.replace('_', '-');
+        return ctx.page === item.parent && Boolean(normItemTab) && normActive === normItemTab;
     }
     return false;
 }
@@ -136,7 +161,7 @@ export function isSelfTarget(item, ctx = getCurrentRouteContext()) {
  * Builds a localized, player-tag-preserving URL for any parent page, tab, or deep-link hash.
  *
  * @param {Exclude<SpotrightParent, 'global'>} targetParent
- * @param {{ tag?: string | null, hash?: string, preserveTag?: boolean }} [options]
+ * @param {{ tag?: string | null, tab?: string, hash?: string, preserveTag?: boolean }} [options]
  * @returns {string}
  */
 export function buildSpotrightUrl(targetParent, options = {}) {
@@ -145,7 +170,21 @@ export function buildSpotrightUrl(targetParent, options = {}) {
     const resolvedTag = options.tag !== undefined
         ? options.tag
         : (options.preserveTag !== false ? getActiveUrlTag() : '');
-    const query = resolvedTag ? `?tag=${encodeURIComponent(resolvedTag)}` : '';
+
+    const params = new URLSearchParams();
+    if (resolvedTag) {
+        params.set('tag', resolvedTag);
+    }
+    if (options.tab) {
+        const cleanTab = options.tab.replace(/-tab$/, '').replace('_', '-');
+        if (targetParent === 'orecalc' && cleanTab !== 'home') {
+            params.set('tab', cleanTab);
+        } else if (targetParent === 'damagecalc' && cleanTab !== 'zapquake') {
+            params.set('tab', cleanTab);
+        }
+    }
+
+    const query = params.toString() ? `?${params.toString()}` : '';
     const cleanHash = options.hash ? `#${options.hash.replace(/^#/, '')}` : '';
     return `${prefix}${baseRoute}${query}${cleanHash}`;
 }
@@ -245,8 +284,10 @@ export function navigateToTarget(target) {
         }
     }
 
-    const hash = target.sectionId || (target.tabId && target.tabId !== target.defaultTab ? target.tabId : '');
-    window.location.href = buildSpotrightUrl(target.parent, { hash });
+    const desiredTab = target.tabId || target.defaultTab;
+    const tab = (desiredTab && desiredTab !== target.defaultTab) ? desiredTab : undefined;
+    const hash = target.sectionId || '';
+    window.location.href = buildSpotrightUrl(target.parent, { tab, hash });
 }
 
 /**
@@ -345,7 +386,7 @@ export function navigateToEquipment(heroName, equipName, equipKey) {
         return;
     }
 
-    window.location.href = buildSpotrightUrl('orecalc', { hash: `equip-${equipKey}` });
+    window.location.href = buildSpotrightUrl('orecalc', { tab: 'equipment', hash: `equip-${equipKey}` });
 }
 
 /**
@@ -392,7 +433,7 @@ export function navigateToHero(heroName, heroKey) {
         return;
     }
 
-    window.location.href = buildSpotrightUrl('orecalc', { hash: `hero-${heroKey}` });
+    window.location.href = buildSpotrightUrl('orecalc', { tab: 'equipment', hash: `hero-${heroKey}` });
 }
 
 /**
@@ -424,7 +465,7 @@ export function handleSpotrightDeepLink() {
  */
 export function executeSettingsAction() {
     if (typeof document === 'undefined') return;
-    const headerAccountBtn = document.getElementById('header-account-btn') || document.getElementById('app-settings-btn');
+    const headerAccountBtn = document.getElementById('header-account-btn');
     if (headerAccountBtn && typeof headerAccountBtn.click === 'function') {
         const popover = document.getElementById('app-account-popover');
         if (!popover?.classList?.contains?.('is-open')) {
@@ -432,11 +473,7 @@ export function executeSettingsAction() {
         }
         const prefsDetails = /** @type {HTMLDetailsElement | null} */ (document.getElementById('account-popover-prefs-details'));
         if (prefsDetails) prefsDetails.open = true;
-        return;
     }
-    import('../common/appSettings.js').then(({ toggleSettingsPopover }) => {
-        toggleSettingsPopover(true);
-    }).catch(() => {});
 }
 
 /**
@@ -487,8 +524,21 @@ export async function executeManageVillagesAction() {
         addPlayerBtn.click();
         return;
     }
+    if (ctx.page === 'account') {
+        const villagesRow = document.getElementById('account-profile-villages-row');
+        if (villagesRow && villagesRow.offsetParent !== null) {
+            focusAndHighlightTarget(villagesRow, { pulseClass: 'is-pulse', durationMs: 1500 });
+            return;
+        }
+    }
+    const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('add-player-modal'));
+    if (modal && typeof modal.showModal === 'function') {
+        const { openModal } = await import('../../utils/modalHistoryManager.js');
+        openModal(modal);
+        return;
+    }
     if (ctx.page === 'orecalc') {
-        const { showAddPlayerModal } = await import('../player/playerModal.js');
+        const { showAddPlayerModal } = await import('../player/playerModalInputs.js');
         showAddPlayerModal();
     } else {
         window.location.href = buildSpotrightUrl('orecalc', { hash: 'player', preserveTag: false });

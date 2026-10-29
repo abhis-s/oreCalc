@@ -173,5 +173,91 @@ export function initAppFooter(options = {}) {
         htmlList.addEventListener('click', handleLegalLinkClick);
     });
 
+    // Observe flex-wrapped footer links to suppress orphan line-break separators
+    const wrapSeparatedLists = document.querySelectorAll('.app-footer__col--legal .app-footer__list, .footer__links');
+    wrapSeparatedLists.forEach(list => {
+        const htmlList = /** @type {HTMLElement} */ (list);
+        if (htmlList.dataset.separatorsObserved) return;
+        htmlList.dataset.separatorsObserved = 'true';
+        observeWrappedSeparators(htmlList);
+    });
+
+    if (typeof document !== 'undefined' && document.fonts && typeof document.fonts.ready?.then === 'function') {
+        document.fonts.ready.then(() => {
+            wrapSeparatedLists.forEach(list => {
+                updateWrappedSeparators(/** @type {HTMLElement} */ (list));
+            });
+        }).catch(() => {});
+    }
+
     syncActiveFooterLinks();
+}
+
+/**
+ * Detects wrapped items in a flex-wrap container and marks row-starting elements
+ * with the `is-row-start` class so that leading/trailing separators are cleanly suppressed.
+ * @param {HTMLElement} [container]
+ * @returns {void}
+ */
+export function updateWrappedSeparators(container) {
+    if (!container || !container.children) return;
+
+    /** @type {Array<{ item: HTMLElement, top: number }>} */
+    const visibleEntries = [];
+    const childrenCount = container.children.length;
+    for (let i = 0; i < childrenCount; i++) {
+        const item = /** @type {HTMLElement} */ (container.children[i]);
+        if (item.offsetParent === null && item.offsetWidth === 0 && item.offsetHeight === 0) {
+            continue;
+        }
+        visibleEntries.push({ item, top: item.offsetTop });
+    }
+
+    let lastTop = -1;
+    for (let i = 0; i < visibleEntries.length; i++) {
+        const { item, top } = visibleEntries[i];
+        if (lastTop === -1 || Math.abs(top - lastTop) > 2) {
+            item.classList.add('is-row-start');
+            lastTop = top;
+        } else {
+            item.classList.remove('is-row-start');
+        }
+    }
+}
+
+/**
+ * Observes container width changes via ResizeObserver and updates wrapped separators.
+ * @param {HTMLElement} [container]
+ * @returns {() => void} Cleanup disconnect callback
+ */
+export function observeWrappedSeparators(container) {
+    if (!container) return () => {};
+
+    updateWrappedSeparators(container);
+
+    if (typeof window === 'undefined' || typeof ResizeObserver === 'undefined') {
+        return () => {};
+    }
+
+    let rafId = null;
+    const observer = new ResizeObserver(() => {
+        if (typeof cancelAnimationFrame === 'function' && rafId) {
+            cancelAnimationFrame(rafId);
+        }
+        if (typeof requestAnimationFrame === 'function') {
+            rafId = requestAnimationFrame(() => {
+                updateWrappedSeparators(container);
+            });
+        } else {
+            updateWrappedSeparators(container);
+        }
+    });
+
+    observer.observe(container);
+    return () => {
+        if (typeof cancelAnimationFrame === 'function' && rafId) {
+            cancelAnimationFrame(rafId);
+        }
+        observer.disconnect();
+    };
 }

@@ -23,18 +23,16 @@ body.open-drawer {
     &:hover:not(.active) {
         background-color: $accent-primary-soft;
         color: $accent-primary;
-        transform: translateY(-1px);
     }
 
     &:active {
-        transform: translateY(1px) scale(0.96);
+        transform: scale(0.97);
     }
 
     &.active {
         background-color: $accent-primary;
         color: $text-on-accent;
         box-shadow: 0 4px 12px $accent-primary-soft;
-        transform: translateY(0) scale(1);
     }
 
     &:focus-visible {
@@ -46,7 +44,7 @@ body.open-drawer {
         color: $accent-primary !important;
         border: 1px solid color-mix(in srgb, $accent-primary 50%, transparent) !important;
         box-shadow: 0 4px 16px color-mix(in srgb, $accent-primary 40%, transparent), 0 0 24px color-mix(in srgb, $accent-primary 25%, transparent) !important;
-        transform: scale(1.06) translateY(-2px) !important;
+        transform: scale(1.04) !important;
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
         transition: transform $duration-fast $ease-enter, background-color $duration-fast $ease-standard, box-shadow $duration-fast $ease-standard !important;

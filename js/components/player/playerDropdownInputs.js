@@ -13,10 +13,19 @@ import { dom } from '../../dom/domElements.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 import { showApiErrorToast } from '../../ui/toast.js';
 import { isPlayerRefreshStale } from '../../core/playerRefreshThrottler.js';
+import { persistAppSettings } from '../common/appSettings.js';
 import { refreshActivePlayerData } from './playerRefreshController.js';
 
 let lastTouchTime = 0;
 let isPlayerDropdownInitialized = false;
+
+/**
+ * Resets player dropdown initialization state and invalidates render cache.
+ */
+export function resetPlayerDropdownState() {
+    isPlayerDropdownInitialized = false;
+    invalidatePlayerDropdownCache();
+}
 
 /** @type {(() => string) | null} */
 let activePlayerTagGetter = null;
@@ -31,11 +40,12 @@ let customAddPlayerHandler = null;
  * Resolves player dropdown DOM element references from dom cache or document.
  */
 function getDropdownElements() {
+    const isElementAttached = (el) => Boolean(el && el.isConnected !== false);
     return {
-        dropdownButton: dom.player?.dropdownButton || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-button') : null),
-        dropdownList: dom.player?.dropdownList || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-list') : null),
-        playerItemsContainer: dom.player?.playerItemsContainer || (typeof document !== 'undefined' ? document.getElementById('player-items-container') : null),
-        addPlayerButton: dom.player?.addPlayerButton || (typeof document !== 'undefined' ? document.getElementById('add-player-button') : null),
+        dropdownButton: (isElementAttached(dom.player?.dropdownButton) ? dom.player.dropdownButton : null) || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-button') : null),
+        dropdownList: (isElementAttached(dom.player?.dropdownList) ? dom.player.dropdownList : null) || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-list') : null),
+        playerItemsContainer: (isElementAttached(dom.player?.playerItemsContainer) ? dom.player.playerItemsContainer : null) || (typeof document !== 'undefined' ? document.getElementById('player-items-container') : null),
+        addPlayerButton: (isElementAttached(dom.player?.addPlayerButton) ? dom.player.addPlayerButton : null) || (typeof document !== 'undefined' ? document.getElementById('add-player-button') : null),
         container: typeof document !== 'undefined' ? document.querySelector('.player-dropdown-container') : null
     };
 }
@@ -436,7 +446,7 @@ export function initPlayerDropdown(options = {}) {
 
     if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
         document.addEventListener('click', (event) => {
-            if (/** @type {HTMLElement} */ (event.target)?.closest?.('#home-profile-connect-btn')) {
+            if (/** @type {HTMLElement} */ (event.target)?.closest?.('.unconnected-connect-btn, #home-profile-connect-btn')) {
                 if (typeof customAddPlayerHandler === 'function') {
                     customAddPlayerHandler();
                 } else {
@@ -444,9 +454,9 @@ export function initPlayerDropdown(options = {}) {
                 }
             }
 
-            const collapseBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('#home-profile-collapse-btn');
+            const collapseBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('.profile-collapse-toggle-btn, #home-profile-collapse-btn');
             if (collapseBtn) {
-                const card = document.getElementById('home-player-profile-card');
+                const card = collapseBtn.closest('.card, .home-profile-card, .hero-journey-card') || document.getElementById('orecalc-home-player-card') || document.getElementById('hero-journey-player-card');
                 if (card) {
                     const willBeCollapsed = !card.classList.contains('is-stats-collapsed');
                     card.classList.toggle('is-stats-collapsed', willBeCollapsed);
@@ -458,6 +468,7 @@ export function initPlayerDropdown(options = {}) {
                     if (icon) {
                         icon.setAttribute('name', willBeCollapsed ? 'chevron-down' : 'chevron-up');
                     }
+                    persistAppSettings({ hideProfileStats: willBeCollapsed });
                     handleStateUpdate(() => {
                         if (!state.uiSettings) {
                             state.uiSettings = /** @type {any} */ ({});

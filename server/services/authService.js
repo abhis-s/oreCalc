@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {
@@ -8,6 +9,8 @@ const {
 } = require('@simplewebauthn/server');
 const { isoBase64URL } = require('@simplewebauthn/server/helpers');
 const { AUTH_CONSTANTS } = require('../constants.js');
+const { isValidUserId } = require('../utils/validation.js');
+const { db, isUserDeleted } = require('./firebase.js');
 
 /**
  * Normalizes and validates a username.
@@ -114,18 +117,40 @@ function getWebAuthnConfig(reqOrOrigin = null) {
 }
 
 /**
+ * Resolves the JWT secret key, strictly enforcing presence in production environments.
+ *
+ * @returns {string} JWT secret key.
+ */
+function getJwtSecret() {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error('JWT_SECRET environment variable is required in production');
+        }
+        return 'dev_insecure_jwt_secret_change_me_min_32_chars';
+    }
+    return secret;
+}
+
+/**
  * Signs a session JWT token for an authenticated user account.
  *
  * @param {{ username: string, userId: string }} account - Account identity.
+ * @param {string|null} [sessionId] - Unique session identifier.
  * @returns {string} Signed JWT.
  */
-function generateToken(account) {
-    const secret = process.env.JWT_SECRET || 'dev_insecure_jwt_secret_change_me_min_32_chars';
+function generateToken(account, sessionId = null) {
+    const secret = getJwtSecret();
+    /** @type {Record<string, any>} */
+    const payload = {
+        sub: account.username,
+        userId: account.userId
+    };
+    if (sessionId) {
+        payload.sid = sessionId;
+    }
     return jwt.sign(
-        {
-            sub: account.username,
-            userId: account.userId
-        },
+        payload,
         secret,
         /** @type {any} */ ({
             expiresIn: AUTH_CONSTANTS.TOKEN_EXPIRY
@@ -137,10 +162,10 @@ function generateToken(account) {
  * Verifies and decodes an authentication token.
  *
  * @param {string} token - Bearer JWT token.
- * @returns {{ sub: string, userId: string, iat: number, exp: number }} Decoded payload.
+ * @returns {{ sub: string, userId: string, sid?: string, iat: number, exp: number }} Decoded payload.
  */
 function verifyToken(token) {
-    const secret = process.env.JWT_SECRET || 'dev_insecure_jwt_secret_change_me_min_32_chars';
+    const secret = getJwtSecret();
     return /** @type {any} */ (jwt.verify(token, secret));
 }
 
@@ -262,6 +287,139 @@ async function verifyPasskeyLogin(response, expectedChallenge, storedPasskey, re
     return verification.authenticationInfo.newCounter;
 }
 
+/**
+ * Resolves a safe, non-colliding UUID for a newly registering account.
+ * If candidateUserId is invalid, deleted, already owned by another account,
+ * or already referenced by an existing account, a fresh UUID is allocated.
+ *
+ * @param {string|null|undefined} candidateUserId - Candidate user ID from client.
+ * @param {string} cleanUsername - Normalized target username.
+ * @returns {Promise<string>} Clean UUID for registration.
+ */
+async function resolveCleanRegistrationUserId(candidateUserId, cleanUsername) {
+    if (!candidateUserId || !isValidUserId(candidateUserId)) {
+        return crypto.randomUUID();
+    }
+
+    if (await isUserDeleted(candidateUserId)) {
+        return crypto.randomUUID();
+    }
+
+    try {
+        const userDoc = await db.collection('userStates').doc(candidateUserId).get();
+        if (userDoc.exists) {
+            const owner = userDoc.data()?.ownerAccount;
+            if (owner && owner !== cleanUsername) {
+                return crypto.randomUUID();
+            }
+        }
+    } catch (_) {
+        return crypto.randomUUID();
+    }
+
+    try {
+        const accQuery = await db.collection('accounts').where('userId', '==', candidateUserId).limit(1).get();
+        if (!accQuery.empty && accQuery.docs[0].id !== cleanUsername) {
+            return crypto.randomUUID();
+        }
+    } catch (_) {
+        return crypto.randomUUID();
+    }
+
+    return candidateUserId;
+}
+
+/** @type {Map<string, { challenge: string, userId?: string, username?: string, expiresAt: number }>} */
+const ephemeralChallenges = new Map();
+
+/**
+ * Persists an ephemeral authentication challenge with a TTL to Firestore and local memory.
+ *
+ * @param {string} key - Unique challenge lookup key.
+ * @param {{ challenge: string, userId?: string, username?: string, expiresAt: number }} data - Challenge payload.
+ * @param {any} [firestoreInstance] - Optional Firestore database instance.
+ * @returns {Promise<void>}
+ */
+async function setEphemeralChallenge(key, data, firestoreInstance = db) {
+    ephemeralChallenges.set(key, data);
+    try {
+        if (firestoreInstance) {
+            await firestoreInstance.collection('authChallenges').doc(key).set(data);
+        }
+    } catch (_) {}
+}
+
+/**
+ * Retrieves and atomically consumes (deletes) an authentication challenge by key.
+ *
+ * @param {string} key - Unique challenge lookup key.
+ * @param {any} [firestoreInstance] - Optional Firestore database instance.
+ * @returns {Promise<{ challenge: string, userId?: string, username?: string, expiresAt: number }|null>}
+ */
+async function consumeEphemeralChallenge(key, firestoreInstance = db) {
+    let result = ephemeralChallenges.get(key) || null;
+    ephemeralChallenges.delete(key);
+
+    try {
+        if (firestoreInstance) {
+            const ref = firestoreInstance.collection('authChallenges').doc(key);
+            const doc = await ref.get();
+            if (doc.exists) {
+                const firestoreData = /** @type {any} */ (doc.data());
+                await ref.delete().catch(() => {});
+                if (firestoreData && (!result || firestoreData.expiresAt > (result.expiresAt || 0))) {
+                    result = firestoreData;
+                }
+            }
+        }
+    } catch (_) {}
+
+    if (result && result.expiresAt <= Date.now()) {
+        return null;
+    }
+    return result;
+}
+
+/**
+ * Prunes expired authentication challenges from memory and Firestore.
+ *
+ * @param {any} [firestoreInstance] - Optional Firestore database instance.
+ * @returns {Promise<{ inMemoryPurged: number, firestorePurged: number }>}
+ */
+async function pruneExpiredAuthChallenges(firestoreInstance = db) {
+    const now = Date.now();
+    let inMemoryPurged = 0;
+    for (const [key, value] of ephemeralChallenges.entries()) {
+        if (value.expiresAt <= now) {
+            ephemeralChallenges.delete(key);
+            inMemoryPurged++;
+        }
+    }
+
+    let firestorePurged = 0;
+    if (firestoreInstance) {
+        try {
+            const snapshot = await firestoreInstance
+                .collection('authChallenges')
+                .where('expiresAt', '<=', now)
+                .limit(500)
+                .get();
+
+            if (!snapshot.empty) {
+                const batch = firestoreInstance.batch();
+                snapshot.docs.forEach((/** @type {any} */ doc) => batch.delete(doc.ref));
+                await batch.commit();
+                firestorePurged = snapshot.size;
+                console.log(`[Auth] Pruned ${firestorePurged} expired authChallenges from Firestore.`);
+            }
+        } catch (err) {
+            console.error('[Auth] Failed to prune expired authChallenges:', err);
+        }
+    }
+
+    return { inMemoryPurged, firestorePurged };
+}
+
 module.exports = {
     normalizeUsername,
     hashPassword,
@@ -272,5 +430,9 @@ module.exports = {
     generatePasskeyRegisterOptions,
     verifyPasskeyRegister,
     generatePasskeyLoginOptions,
-    verifyPasskeyLogin
+    verifyPasskeyLogin,
+    resolveCleanRegistrationUserId,
+    setEphemeralChallenge,
+    consumeEphemeralChallenge,
+    pruneExpiredAuthChallenges
 };

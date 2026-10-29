@@ -51,6 +51,7 @@ import { initAutoRefreshTriggers, refreshActivePlayerData } from '../components/
 import { initializeGuidedSetupModal } from '../components/guidedSetup/guidedSetupModal.js';
 import { initSpotright } from '../components/spotright/spotrightController.js';
 import { initShortcutsModalListener } from '../components/shortcuts/shortcutsModal.js';
+import { initClipboardInputs } from '../components/common/clipboardInputController.js';
 import { handleSpotrightDeepLink } from '../components/spotright/spotrightNavigator.js';
 import { initializeGlobalHaptics } from '../services/hapticService.js';
 import { initializeCloudSaveButtons } from '../services/cloudSaveService.js';
@@ -171,6 +172,7 @@ export async function bootstrapUIComponents(initialLang) {
     initCardLayoutManager();
     initSpotright();
     initShortcutsModalListener();
+    initClipboardInputs();
 
     handleSpotrightDeepLink();
     if (typeof window !== 'undefined') {
@@ -212,25 +214,11 @@ function finishStartupTeardown() {
     }
     handleSpotrightDeepLink();
 
-    const tourTimestamp = state.uiSettings?.uiTimestamps?.tour;
-
-    if (!tourTimestamp) {
-        window.isTourPending = true;
-        setTimeout(() => {
-            import('../components/tour/appTour.js').then(module => {
-                module.startTour().then(started => {
-                    window.isAppStartingUp = false;
-                    if (!started) {
-                        window.isTourPending = false;
-                        triggerPendingModals();
-                    }
-                });
-            });
-        }, 100);
-    } else {
-        window.isAppStartingUp = false;
-        triggerPendingModals();
-    }
+    // Tour is temporarily disabled
+    window.isTourPending = false;
+    window.isTourRunning = false;
+    window.isAppStartingUp = false;
+    triggerPendingModals();
 }
 
 /**
@@ -242,7 +230,7 @@ export function handlePreloaderTeardown(preloader) {
         setTimeout(() => {
             preloader.classList.add('hidden');
 
-            const cardContainer = document.getElementById('home-player-profile-card');
+            const cardContainer = document.getElementById('orecalc-home-player-card');
             if (cardContainer && renderState.initialProgress) {
                 const initialProg = renderState.initialProgress;
                 renderState.initialProgress = null;
@@ -258,7 +246,7 @@ export function handlePreloaderTeardown(preloader) {
             }, 600);
 
             if (state.activeTab === 'planner-tab') {
-                import('../components/planner/calendar.js').then(module => {
+                import('../components/planner/calendarDisplay.js').then(module => {
                     module.setAnimateNextRender('all', 0.6);
                     renderApp(state);
                 });

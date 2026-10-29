@@ -27,7 +27,7 @@ app.use((req, res, next) => {
     }
 
     // Explicit 301 redirects for legacy non-trailing-slash routes
-    if (['/privacy', '/terms', '/licenses', '/de/privacy', '/de/terms', '/hero-journey', '/de/hero-journey', '/tr/hero-journey', '/zh/hero-journey'].includes(req.path)) {
+    if (['/privacy', '/terms', '/licenses', '/de/privacy', '/de/terms', '/hero-journey', '/de/hero-journey', '/tr/hero-journey', '/zh/hero-journey', '/account', '/de/account', '/tr/account', '/zh/account'].includes(req.path)) {
         const query = req.url.substring(req.path.length);
         return res.redirect(301, req.path + '/' + query);
     }

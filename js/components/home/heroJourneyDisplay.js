@@ -97,7 +97,7 @@ let lastRenderedPlayerTag = null;
  * @param {{ skipAutoScroll?: boolean, targetScrollLeft?: number, scrollToTrackEnd?: boolean }} [options={}] - Rendering options.
  */
 export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, targetScrollLeft, scrollToTrackEnd = false } = {}) {
-    const container = document.getElementById('home-hj-card');
+    const container = document.getElementById('orecalc-home-hero-journey-card') || document.getElementById('hero-journey-track-card') || document.querySelector('.hero-journey-card');
     if (!container) return;
 
     const currentTag = state?.savedPlayerTags?.[0] || 'DEFAULT0';
@@ -124,7 +124,7 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
     const hasSyncedHeroes = hasSyncedHeroInfo(state);
 
     const isHidden = Boolean(isEligibleToHide && state?.heroJourney?.hidden);
-    const card = document.getElementById('home-hj-card') || document.querySelector('.hero-journey-card');
+    const card = document.getElementById('orecalc-home-hero-journey-card') || document.getElementById('hero-journey-track-card') || document.querySelector('.hero-journey-card');
     const collapsedNote = document.getElementById('home-hj-collapsed-note');
 
     if (card) {

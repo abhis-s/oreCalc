@@ -1,5 +1,137 @@
 import { logger } from '../utils/logger.js';
+import { translate } from '../i18n/translator.js';
+import { showAlert } from '../ui/noticeModal.js';
 import { showUpdateModal, updateNavigationBadges } from '../components/modals/updateModal.js';
+
+/** @type {any} */
+let deferredInstallPrompt = null;
+
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        if (typeof document !== 'undefined' && typeof document.dispatchEvent === 'function') {
+            document.dispatchEvent(new CustomEvent('pwa:installable'));
+        }
+    });
+
+    window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        if (typeof document !== 'undefined' && typeof document.dispatchEvent === 'function') {
+            document.dispatchEvent(new CustomEvent('pwa:installed'));
+        }
+    });
+}
+
+/**
+ * Returns true if the application is running in a standalone PWA display mode.
+ * @returns {boolean}
+ */
+function isRunningStandalone() {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+
+    const isStandalone = Boolean(window.matchMedia('(display-mode: standalone)')?.matches);
+    const isWco = Boolean(window.matchMedia('(display-mode: window-controls-overlay)')?.matches);
+    const isMinimalUi = Boolean(window.matchMedia('(display-mode: minimal-ui)')?.matches);
+    const isFullscreen = Boolean(window.matchMedia('(display-mode: fullscreen)')?.matches);
+    const isIosStandalone = Boolean(typeof navigator !== 'undefined' && (/** @type {any} */ (navigator).standalone));
+    const isAndroidTwa = typeof document !== 'undefined' && Boolean(document.referrer?.startsWith('android-app://'));
+
+    return isStandalone || isWco || isMinimalUi || isFullscreen || isIosStandalone || isAndroidTwa;
+}
+
+/**
+ * Detects iOS and iPadOS browsers that support "Add to Home Screen" (Safari, Chrome CriOS, Firefox FxiOS, Edge),
+ * while filtering out browsers that strip it (Brave for iOS) and in-app WebViews.
+ *
+ * @returns {boolean}
+ */
+function isSupportedIosOrIpadBrowser() {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || '';
+    const isIos = /iphone|ipod/i.test(ua);
+    const isIpad = /ipad/i.test(ua) || (/macintosh/i.test(ua) && typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 1);
+    if (!isIos && !isIpad) return false;
+
+    // Filter out Brave for iOS and in-app social WebViews that strip Home Screen actions
+    const isUnsupported = /brave|fb_iab|fban|instagram|twitter|bytedance|micromessenger/i.test(ua);
+    return !isUnsupported;
+}
+
+/**
+ * Detects macOS Safari desktop browsers (Safari 17+) that support "Add to Dock".
+ *
+ * @returns {boolean}
+ */
+function isSupportedMacSafari() {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || '';
+    const isMacDesktop = /macintosh/i.test(ua) && !(typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 1);
+    if (!isMacDesktop) return false;
+
+    // Must be Safari and not Chromium, Firefox, Edge, Opera, Vivaldi, or Brave
+    const isSafari = /safari/i.test(ua) && !/chrome|chromium|crios|fxios|edg|firefox|opr|vivaldi|brave/i.test(ua);
+    if (!isSafari) return false;
+
+    // Safari 17+ on macOS Sonoma/Sequoia introduced "Add to Dock"
+    const versionMatch = ua.match(/version\/(\d+)/i);
+    if (versionMatch) {
+        const safariVersion = Number(versionMatch[1]) || 0;
+        return safariVersion >= 17;
+    }
+
+    return true;
+}
+
+/**
+ * Checks whether PWA installation is currently supported and available in this browser session.
+ * Returns true if:
+ * 1. Not currently running in standalone PWA mode, AND
+ * 2. Either native `beforeinstallprompt` has fired (Chromium on Android / Desktop), OR
+ * 3. Running in a supported iOS / iPadOS browser (Safari, Chrome CriOS, Firefox FxiOS, Edge), OR
+ * 4. Running in macOS Safari (Safari 17+ supporting "Add to Dock").
+ *
+ * @returns {boolean}
+ */
+export function isPwaInstallSupported() {
+    if (isRunningStandalone()) return false;
+    if (deferredInstallPrompt !== null) return true;
+    return isSupportedIosOrIpadBrowser() || isSupportedMacSafari();
+}
+
+/**
+ * Triggers the native browser PWA installation prompt or displays platform installation guidance.
+ * @returns {Promise<'accepted'|'dismissed'|'ios-guidance'|'macos-safari-guidance'|'unsupported'|'already-installed'>}
+ */
+export async function promptPwaInstall() {
+    if (isRunningStandalone()) {
+        return 'already-installed';
+    }
+
+    if (deferredInstallPrompt) {
+        try {
+            await deferredInstallPrompt.prompt();
+            const choice = await deferredInstallPrompt.userChoice;
+            deferredInstallPrompt = null;
+            return choice.outcome === 'accepted' ? 'accepted' : 'dismissed';
+        } catch (err) {
+            logger.warn('Failed to invoke native PWA install prompt:', err);
+        }
+    }
+
+    if (isSupportedMacSafari()) {
+        await showAlert(translate('auth.installPromptMacSafari'), 'actions.installApp');
+        return 'macos-safari-guidance';
+    }
+
+    if (isSupportedIosOrIpadBrowser()) {
+        await showAlert(translate('auth.installPromptIos'), 'actions.installApp');
+        return 'ios-guidance';
+    }
+
+    await showAlert(translate('auth.installPromptIos'), 'actions.installApp');
+    return 'unsupported';
+}
 
 /**
  * Service Worker & PWA Lifecycle Manager

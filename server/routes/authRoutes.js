@@ -1,8 +1,7 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const { RATE_LIMIT_DEFAULTS, AUTH_CONSTANTS, getRandomAvatar } = require('../constants.js');
-const { isValidUserId } = require('../utils/validation.js');
-const { db } = require('../services/firebase.js');
+const { db, isUserDeleted } = require('../services/firebase.js');
 const {
     normalizeUsername,
     hashPassword,
@@ -11,9 +10,18 @@ const {
     generatePasskeyRegisterOptions,
     verifyPasskeyRegister,
     generatePasskeyLoginOptions,
-    verifyPasskeyLogin
+    verifyPasskeyLogin,
+    resolveCleanRegistrationUserId,
+    setEphemeralChallenge,
+    consumeEphemeralChallenge,
+    pruneExpiredAuthChallenges
 } = require('../services/authService.js');
 const { extractAuthUser, requireAuth } = require('../middleware/authMiddleware.js');
+const {
+    generateSessionId,
+    createSessionRecord,
+    appendSession
+} = require('../services/sessionService.js');
 const {
     isTurnstileEnabled,
     getTurnstileSiteKey,
@@ -23,10 +31,21 @@ const {
 
 const router = express.Router();
 // @ts-ignore
-const authLimiter = rateLimit(RATE_LIMIT_DEFAULTS.auth);
+const authLimiter = rateLimit({
+    ...RATE_LIMIT_DEFAULTS.auth,
+    skip: (req) => process.env.NODE_ENV === 'development' || req.method === 'GET'
+});
 
 router.use(authLimiter);
 router.use(extractAuthUser);
+router.use((_req, res, next) => {
+    if (typeof res.setHeader === 'function') {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+    next();
+});
 
 router.get('/turnstile-config', (req, res) => {
     const isAllowlisted = isIpAllowlisted(req.ip);
@@ -37,66 +56,18 @@ router.get('/turnstile-config', (req, res) => {
     });
 });
 
-/** @type {Map<string, { challenge: string, userId?: string, username?: string, expiresAt: number }>} */
-const ephemeralChallenges = new Map();
-
-/**
- * Periodically purges expired ephemeral challenges from memory.
- */
+// Periodic in-memory expired challenge purge every 60 seconds
 setInterval(() => {
-    const now = Date.now();
-    for (const [key, value] of ephemeralChallenges.entries()) {
-        if (value.expiresAt <= now) {
-            ephemeralChallenges.delete(key);
-        }
-    }
+    pruneExpiredAuthChallenges(null).catch(() => {});
 }, 60 * 1000);
 
-/**
- * Persists an ephemeral authentication challenge with a TTL to Firestore and local memory.
- *
- * @param {string} key - Unique challenge lookup key.
- * @param {{ challenge: string, userId?: string, username?: string, expiresAt: number }} data - Challenge payload.
- * @returns {Promise<void>}
- */
-async function setEphemeralChallenge(key, data) {
-    ephemeralChallenges.set(key, data);
-    try {
-        if (db) {
-            await db.collection('authChallenges').doc(key).set(data);
-        }
-    } catch (_) {}
-}
-
-/**
- * Retrieves and atomically consumes (deletes) an authentication challenge by key.
- *
- * @param {string} key - Unique challenge lookup key.
- * @returns {Promise<{ challenge: string, userId?: string, username?: string, expiresAt: number }|null>}
- */
-async function consumeEphemeralChallenge(key) {
-    let result = ephemeralChallenges.get(key) || null;
-    ephemeralChallenges.delete(key);
-
-    try {
-        if (db) {
-            const ref = db.collection('authChallenges').doc(key);
-            const doc = await ref.get();
-            if (doc.exists) {
-                const firestoreData = /** @type {any} */ (doc.data());
-                await ref.delete().catch(() => {});
-                if (firestoreData && (!result || firestoreData.expiresAt > (result.expiresAt || 0))) {
-                    result = firestoreData;
-                }
-            }
-        }
-    } catch (_) {}
-
-    if (result && result.expiresAt <= Date.now()) {
-        return null;
-    }
-    return result;
-}
+// Periodic Firestore expired challenge purge every 30 minutes
+const THIRTY_MINUTES_MS = 30 * 60 * 1000;
+setInterval(() => {
+    pruneExpiredAuthChallenges(db).catch(err => {
+        console.error('[Auth] Periodic challenge prune failed:', err);
+    });
+}, THIRTY_MINUTES_MS);
 
 router.post('/register-password', async (req, res) => {
     const { username, password, currentUserId, turnstileToken } = req.body || {};
@@ -116,17 +87,17 @@ router.post('/register-password', async (req, res) => {
     if (!password || typeof password !== 'string' || password.length < AUTH_CONSTANTS.MIN_PASSWORD_LENGTH || password.length > AUTH_CONSTANTS.MAX_PASSWORD_LENGTH) {
         return res.status(400).json({ reason: 'invalidPassword', message: 'Password must be at least 6 characters.' });
     }
-    if (!isValidUserId(currentUserId)) {
-        return res.status(400).json({ reason: 'invalidUserId', message: 'Valid user ID is required.' });
-    }
-
     try {
+        const finalUserId = await resolveCleanRegistrationUserId(currentUserId, cleanUsername);
         const accountRef = db.collection('accounts').doc(cleanUsername);
-        const userRef = db.collection('userStates').doc(currentUserId);
+        const userRef = db.collection('userStates').doc(finalUserId);
         const passwordHash = await hashPassword(password);
         const displayUsername = String(username).trim();
 
         const initialAvatar = getRandomAvatar();
+        const sessionId = generateSessionId();
+        const sessionRecord = createSessionRecord(req, sessionId);
+
         await db.runTransaction(async (transaction) => {
             const accDoc = await transaction.get(accountRef);
             if (accDoc.exists) {
@@ -137,10 +108,11 @@ router.post('/register-password', async (req, res) => {
 
             transaction.set(accountRef, {
                 username: displayUsername,
-                userId: currentUserId,
+                userId: finalUserId,
                 passwordHash,
                 avatar: initialAvatar,
                 passkeys: [],
+                sessions: [sessionRecord],
                 createdAt: Date.now()
             });
 
@@ -150,8 +122,8 @@ router.post('/register-password', async (req, res) => {
             }, { merge: true });
         });
 
-        const token = generateToken({ username: displayUsername, userId: currentUserId });
-        res.status(201).json({ token, username: displayUsername, userId: currentUserId, avatar: initialAvatar });
+        const token = generateToken({ username: displayUsername, userId: finalUserId }, sessionId);
+        res.status(201).json({ token, username: displayUsername, userId: finalUserId, avatar: initialAvatar, hasPassword: true });
     } catch (err) {
         if (/** @type {any} */ (err).code === 'ALREADY_EXISTS') {
             return res.status(409).json({ reason: 'usernameTaken', message: 'This username is already taken.' });
@@ -176,21 +148,18 @@ router.post('/register-passkey-options', async (req, res) => {
     if (!cleanUsername) {
         return res.status(400).json({ reason: 'invalidUsername', message: 'Username must be 3-20 alphanumeric characters or underscores.' });
     }
-    if (!isValidUserId(currentUserId)) {
-        return res.status(400).json({ reason: 'invalidUserId', message: 'Valid user ID is required.' });
-    }
-
     try {
         const accountDoc = await db.collection('accounts').doc(cleanUsername).get();
         if (accountDoc.exists) {
             return res.status(409).json({ reason: 'usernameTaken', message: 'This username is already taken.' });
         }
 
-        const options = await generatePasskeyRegisterOptions(username.trim(), currentUserId, [], req);
+        const finalUserId = await resolveCleanRegistrationUserId(currentUserId, cleanUsername);
+        const options = await generatePasskeyRegisterOptions(username.trim(), finalUserId, [], req);
         const challengeKey = `reg_${cleanUsername}`;
         await setEphemeralChallenge(challengeKey, {
             challenge: options.challenge,
-            userId: currentUserId,
+            userId: finalUserId,
             username: username.trim(),
             expiresAt: Date.now() + AUTH_CONSTANTS.CHALLENGE_TTL_MS
         });
@@ -208,7 +177,7 @@ router.post('/register-passkey-verify', async (req, res) => {
     const finalPasskeyName = typeof candidateName === 'string' && candidateName.trim() ? candidateName.trim() : 'Passkey';
     const cleanUsername = normalizeUsername(username);
 
-    if (!cleanUsername || !isValidUserId(currentUserId) || !attestationResponse) {
+    if (!cleanUsername || !attestationResponse) {
         return res.status(400).json({ reason: 'invalidPayload', message: 'Missing required registration parameters.' });
     }
 
@@ -221,11 +190,16 @@ router.post('/register-passkey-verify', async (req, res) => {
     try {
         const credential = await verifyPasskeyRegister(attestationResponse, stored.challenge, req);
 
+        const candidateUserId = stored.userId || currentUserId;
+        const finalUserId = await resolveCleanRegistrationUserId(candidateUserId, cleanUsername);
         const accountRef = db.collection('accounts').doc(cleanUsername);
-        const userRef = db.collection('userStates').doc(currentUserId);
+        const userRef = db.collection('userStates').doc(finalUserId);
         const displayUsername = stored.username || username.trim();
 
         const initialAvatar = getRandomAvatar();
+        const sessionId = generateSessionId();
+        const sessionRecord = createSessionRecord(req, sessionId);
+
         await db.runTransaction(async (transaction) => {
             const accDoc = await transaction.get(accountRef);
             if (accDoc.exists) {
@@ -236,7 +210,7 @@ router.post('/register-passkey-verify', async (req, res) => {
 
             transaction.set(accountRef, {
                 username: displayUsername,
-                userId: currentUserId,
+                userId: finalUserId,
                 passwordHash: null,
                 avatar: initialAvatar,
                 passkeys: [{
@@ -244,6 +218,7 @@ router.post('/register-passkey-verify', async (req, res) => {
                     deviceName: finalPasskeyName,
                     createdAt: Date.now()
                 }],
+                sessions: [sessionRecord],
                 createdAt: Date.now()
             });
 
@@ -253,8 +228,8 @@ router.post('/register-passkey-verify', async (req, res) => {
             }, { merge: true });
         });
 
-        const token = generateToken({ username: displayUsername, userId: currentUserId });
-        res.status(201).json({ token, username: displayUsername, userId: currentUserId, avatar: initialAvatar });
+        const token = generateToken({ username: displayUsername, userId: finalUserId }, sessionId);
+        res.status(201).json({ token, username: displayUsername, userId: finalUserId, avatar: initialAvatar, hasPassword: false });
     } catch (err) {
         if (/** @type {any} */ (err).code === 'ALREADY_EXISTS') {
             return res.status(409).json({ reason: 'usernameTaken', message: 'This username is already taken.' });
@@ -299,12 +274,22 @@ router.post('/login-password', async (req, res) => {
             return res.status(401).json({ reason: 'invalidCredentials', message: 'Incorrect username or password.' });
         }
 
-        const token = generateToken({ username: account.username, userId: account.userId });
+        if (await isUserDeleted(account.userId)) {
+            return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
+
+        const sessionId = generateSessionId();
+        const sessionRecord = createSessionRecord(req, sessionId);
+        const updatedSessions = appendSession(account.sessions, sessionRecord);
+        await doc.ref.update({ sessions: updatedSessions });
+
+        const token = generateToken({ username: account.username, userId: account.userId }, sessionId);
         res.status(200).json({
             token,
             username: account.username,
             userId: account.userId,
-            avatar: account.avatar
+            avatar: account.avatar,
+            hasPassword: true
         });
     } catch (err) {
         console.error('[Auth] Password login error:', err);
@@ -389,15 +374,27 @@ router.post('/login-passkey-verify', async (req, res) => {
         const storedPasskey = passkeys[passkeyIndex];
         const newCounter = await verifyPasskeyLogin(assertionResponse, stored.challenge, storedPasskey, req);
 
-        passkeys[passkeyIndex].counter = newCounter;
-        await accountDoc.ref.update({ passkeys });
+        if (await isUserDeleted(account.userId)) {
+            return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
 
-        const token = generateToken({ username: account.username, userId: account.userId });
+        const sessionId = generateSessionId();
+        const sessionRecord = createSessionRecord(req, sessionId);
+        const updatedSessions = appendSession(account.sessions, sessionRecord);
+
+        passkeys[passkeyIndex].counter = newCounter;
+        await accountDoc.ref.update({
+            passkeys,
+            sessions: updatedSessions
+        });
+
+        const token = generateToken({ username: account.username, userId: account.userId }, sessionId);
         res.status(200).json({
             token,
             username: account.username,
             userId: account.userId,
-            avatar: account.avatar
+            avatar: account.avatar,
+            hasPassword: Boolean(account.passwordHash)
         });
     } catch (err) {
         console.error('[Auth] Passkey login verification failed:', err);
@@ -529,6 +526,38 @@ router.delete('/passkeys/:credentialId', requireAuth, async (req, res) => {
         res.status(500).json({ reason: 'internalError', message: 'Failed to delete passkey.' });
     }
 });
+
+router.get('/account', requireAuth, async (req, res) => {
+    const authUser = /** @type {any} */ (req).authUser;
+    try {
+        const cleanUsername = authUser.username.toLowerCase();
+        const accountRef = db.collection('accounts').doc(cleanUsername);
+        const doc = await accountRef.get();
+        if (!doc.exists) {
+            return res.status(404).json({ reason: 'accountNotFound', message: 'Account not found.' });
+        }
+
+        const account = doc.data();
+        if (await isUserDeleted(account.userId)) {
+            return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
+
+        res.status(200).json({
+            username: account.username,
+            userId: account.userId,
+            avatar: account.avatar,
+            hasPassword: Boolean(account.passwordHash),
+            passkeysCount: (account.passkeys || []).length,
+            createdAt: account.createdAt
+        });
+    } catch (err) {
+        console.error('[Auth] Get account error:', err);
+        res.status(500).json({ reason: 'internalError', message: 'Failed to retrieve account.' });
+    }
+});
+
+router.use('/', require('./authPasswordRoutes.js'));
+router.use('/', require('./authSessionRoutes.js'));
 
 router.patch('/profile', requireAuth, async (req, res) => {
     const authUser = /** @type {any} */ (req).authUser;

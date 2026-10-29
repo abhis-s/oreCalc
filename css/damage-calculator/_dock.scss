@@ -267,7 +267,6 @@ body:has(#zq-search-input:focus) .calc-mobile-spell-dock:not(.is-expanded) {
 body:has(dialog.modal[open]) .calc-mobile-spell-dock,
 body:has(.modal.show) .calc-mobile-spell-dock,
 body:has(dialog.navigation-drawer[open]) .calc-mobile-spell-dock,
-body:has(.app-settings-popover.is-open) .calc-mobile-spell-dock,
 body:has(.app-account-popover.is-open) .calc-mobile-spell-dock {
     opacity: 0 !important;
     pointer-events: none !important;
@@ -277,7 +276,6 @@ body:has(.app-account-popover.is-open) .calc-mobile-spell-dock {
 body:has(dialog.modal[open]) .calc-mobile-dock-backdrop,
 body:has(.modal.show) .calc-mobile-dock-backdrop,
 body:has(dialog.navigation-drawer[open]) .calc-mobile-dock-backdrop,
-body:has(.app-settings-popover.is-open) .calc-mobile-dock-backdrop,
 body:has(.app-account-popover.is-open) .calc-mobile-dock-backdrop {
     display: none !important;
 }

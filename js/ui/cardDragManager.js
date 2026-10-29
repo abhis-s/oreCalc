@@ -410,7 +410,7 @@ export function initCardDragReordering(layout, currentMode, isCompact, onRepack)
     }
 
     layout.originalCards.forEach(container => {
-        if (container.id === 'planner-hero-carousel-card' || container.id === 'eq-settings-container-card') {
+        if (container.id === 'orecalc-planner-hero-carousel-card' || container.id === 'orecalc-equipment-settings-card') {
             return;
         }
 

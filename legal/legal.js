@@ -97,6 +97,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     syncActiveFooterLinks();
 
+    // Dynamically suppress separators before links that wrap onto a new line
+    function updateLegalSeparators() {
+        const linksContainer = document.querySelector('.footer__links');
+        if (!linksContainer) return;
+        const seps = linksContainer.querySelectorAll('.footer__sep');
+        const links = linksContainer.querySelectorAll('.footer__link');
+        let lastTop = -1;
+        links.forEach((link, idx) => {
+            const top = link.offsetTop;
+            if (idx > 0 && Math.abs(top - lastTop) > 2) {
+                if (seps[idx - 1]) seps[idx - 1].hidden = true;
+            } else if (idx > 0 && seps[idx - 1]) {
+                seps[idx - 1].hidden = false;
+            }
+            lastTop = top;
+        });
+    }
+
+    const footerLinksContainer = document.querySelector('.footer__links');
+    if (footerLinksContainer) {
+        updateLegalSeparators();
+        if (typeof ResizeObserver !== 'undefined') {
+            let rafId = null;
+            const ro = new ResizeObserver(() => {
+                if (typeof cancelAnimationFrame === 'function' && rafId) {
+                    cancelAnimationFrame(rafId);
+                }
+                if (typeof requestAnimationFrame === 'function') {
+                    rafId = requestAnimationFrame(updateLegalSeparators);
+                } else {
+                    updateLegalSeparators();
+                }
+            });
+            ro.observe(footerLinksContainer);
+        }
+    }
+
     const copyrightEl = document.querySelector('.footer__copyright');
     if (copyrightEl) {
         const currentYear = new Date().getFullYear();

@@ -290,7 +290,7 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         assert.match(html, /data-i18n-aria-label="views\.heroJourney\.page\.clearSearch"/, 'Clear button must bind to views.heroJourney.page.clearSearch');
         assert.match(html, /aria-label="Filter by type"/, 'Filter track must have accessible label');
 
-        // Rule 3: Zero prohibited dingbats or emojis
+        // Zero prohibited dingbats or emojis
         const prohibitedPattern = /[\u2190-\u21FF\u2500-\u257F\u25A0-\u25FF\u2600-\u26FF\u2700-\u27BF\u2022]/u;
         assert.equal(prohibitedPattern.test(html), false, 'Spotright dialog markup must contain zero prohibited dingbats');
     });

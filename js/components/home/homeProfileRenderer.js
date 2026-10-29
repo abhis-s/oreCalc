@@ -2,6 +2,7 @@ import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 import { renderProfileHeaderHtml } from '../common/profileHeaderRenderer.js';
+import { renderProfileStatsHtml } from '../common/profileStatsRenderer.js';
 
 import {
     applyProgressDelta,
@@ -22,7 +23,7 @@ import {
  * @param {import('../../core/types.js').AppState} state - Current global application state.
  */
 export function renderHomeProfile(state) {
-    const cardContainer = document.getElementById('home-player-profile-card');
+    const cardContainer = document.getElementById('orecalc-home-player-card');
     if (!cardContainer) return;
 
     cardContainer.removeAttribute('hidden');
@@ -43,23 +44,12 @@ export function renderHomeProfile(state) {
         cardContainer.classList.add('is-stats-collapsed');
         const thLevel = profile?.townHallLevel || 18;
 
-        const actionsRowHtml = `
-            <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
-                <clashcalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></clashcalc-assets-svg>
-                <span><span class="maxed-count">--/--</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
-            </div>
-            <button id="home-profile-connect-btn" class="accept-button unconnected-connect-btn" type="button" aria-label="${translate('views.home.profile.connectBtn')}" title="${translate('views.home.profile.connectBtn')}">
-                <clashcalc-assets-svg name="plus" height="14" width="14"></clashcalc-assets-svg>
-                <span data-i18n="views.home.profile.connectBtn">${translate('views.home.profile.connectBtn')}</span>
-            </button>
-        `;
-
         cardContainer.classList.remove('is-max-progress');
         cardContainer.innerHTML = renderProfileHeaderHtml({
             profile: null,
             isGuest: true,
             thLevel,
-            actionsRowHtml
+            maxEquipment: true
         });
         cardContainer.removeAttribute('hidden');
         cardContainer.hidden = false;
@@ -139,8 +129,10 @@ export function renderHomeProfile(state) {
     const isSameClan = clanName === renderState.renderedClan;
     const isSameLeague = leagueId === renderState.renderedLeague;
 
-    // Incremental update path (same player, same lang, same th, clan, league)
-    if (isSamePlayer && isSameLang && isSameTH && isSameClan && isSameLeague &&
+    const hasHeader = Boolean(cardContainer.querySelector('.home-profile-header'));
+
+    // Incremental update path (same player, same lang, same th, clan, league, and populated DOM)
+    if (hasHeader && isSamePlayer && isSameLang && isSameTH && isSameClan && isSameLeague &&
         (renderState.lastProgress !== null || renderState.isAnimating)) {
 
         const ok = applyProgressDelta(
@@ -180,16 +172,6 @@ export function renderHomeProfile(state) {
     const prevMaxed = parseInt((cardContainer.querySelector('.maxed-count')?.textContent || '').split('/')[0], 10) || 0;
     const targetTrophies = Number(profile.trophies) || 0;
 
-    const actionsRowHtml = `
-        <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
-            <clashcalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini"></clashcalc-assets-svg>
-            <span><span class="maxed-count" data-target-maxed="${maxedCount}" data-prev-maxed="${prevMaxed}" data-total-equip="${totalCount}">${prevMaxed}/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
-        </div>
-        <button id="home-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}" title="${isCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats')}">
-            <clashcalc-assets-svg name="${isCollapsed ? 'chevron-down' : 'chevron-up'}" height="16" width="16" class="collapse-chevron-icon"></clashcalc-assets-svg>
-        </button>
-    `;
-
     const headerHtml = renderProfileHeaderHtml({
         profile,
         isGuest,
@@ -197,75 +179,74 @@ export function renderHomeProfile(state) {
         tag: profile.tag,
         trophies: targetTrophies,
         prevTrophies,
-        actionsRowHtml
+        maxEquipment: {
+            current: maxedCount,
+            total: totalCount,
+            prev: prevMaxed
+        },
+        hasCollapsibleStats: true,
+        isCollapsed
+    });
+
+    const syncNoticeHtml = `
+        <div class="home-profile-sync-notice${isGuest ? ' guest-notice' : ''}">
+            <clashcalc-assets-svg name="${isGuest ? 'info' : 'cloud-lock'}" class="sync-notice-icon" height="14" width="14"></clashcalc-assets-svg>
+            <span data-i18n="${isGuest ? 'views.home.profile.guestNotice' : 'views.home.profile.syncNotice'}">${isGuest ? translate('views.home.profile.guestNotice') : translate('views.home.profile.syncNotice')}</span>
+        </div>
+    `;
+
+    const statsHtml = renderProfileStatsHtml({
+        overall: {
+            label: translate('views.home.profile.overallProgress'),
+            labelKey: 'views.home.profile.overallProgress',
+            icon: 'assets/ore_icon.png',
+            alt: 'Ore',
+            percentage: progress.overall,
+            percentageText: '0%',
+            gradient: progress.overall < 100 ? getOverallGradient(progress) : '',
+            isMaxed: progress.overall >= 100
+        },
+        ores: [
+            {
+                type: 'shiny',
+                label: translate('entities.ores.shiny'),
+                labelKey: 'entities.ores.shiny',
+                icon: 'assets/shiny_ore.png',
+                alt: 'Shiny',
+                percentage: progress.shiny,
+                percentageText: '0%',
+                storagePct: shinyStoragePct,
+                subtextHtml: subtextHTML('shiny', progress.shiny, subData)
+            },
+            {
+                type: 'glowy',
+                label: translate('entities.ores.glowy'),
+                labelKey: 'entities.ores.glowy',
+                icon: 'assets/glowy_ore.png',
+                alt: 'Glowy',
+                percentage: progress.glowy,
+                percentageText: '0%',
+                storagePct: glowyStoragePct,
+                subtextHtml: subtextHTML('glowy', progress.glowy, subData)
+            },
+            {
+                type: 'starry',
+                label: translate('entities.ores.starry'),
+                labelKey: 'entities.ores.starry',
+                icon: 'assets/starry_ore.png',
+                alt: 'Starry',
+                percentage: progress.starry,
+                percentageText: '0%',
+                storagePct: starryStoragePct,
+                subtextHtml: subtextHTML('starry', progress.starry, subData)
+            }
+        ],
+        footerHtml: syncNoticeHtml
     });
 
     cardContainer.innerHTML = `
         ${headerHtml}
-
-        <div class="home-profile-stats-container">
-            <div class="home-profile-overall-progress${progress.overall >= 100 ? ' fully-maxed' : ''}">
-                <div class="overall-progress-header">
-                    <span class="overall-progress-label-wrapper">
-                        <clashcalc-assets-image class="ore-icon-overall" src="assets/ore_icon.png" alt="Ore"></clashcalc-assets-image>
-                        <span class="overall-progress-label" data-i18n="views.home.profile.overallProgress">${translate('views.home.profile.overallProgress')}</span>
-                    </span>
-                    <span class="overall-progress-value" data-ore-value="overall">0%</span>
-                </div>
-                <div class="progress-bar-overall" data-ore="overall">
-                    <div class="progress-bar-fill overall-fill ${progress.overall >= 100 ? 'maxed-fill' : ''}" data-bar-width="${progress.overall}%" style="${progress.overall < 100 ? `background: ${getOverallGradient(progress)}` : ''}"></div>
-                </div>
-            </div>
-
-            ${progress.overall < 100 ? `<div class="home-profile-stats-row">
-                <div class="profile-stat-box progress-box">
-                    <div class="stat-box-header">
-                        <span class="stat-box-label-wrapper">
-                            <clashcalc-assets-image class="ore-icon-mini" src="assets/shiny_ore.png" alt="Shiny"></clashcalc-assets-image>
-                            <span class="stat-box-label" data-i18n="entities.ores.shiny">${translate('entities.ores.shiny')}</span>
-                        </span>
-                        <span class="stat-box-value" data-ore-value="shiny">0%</span>
-                    </div>
-                    <div class="progress-bar-mini" data-ore="shiny">
-                        <div class="progress-bar-storage" style="width: ${shinyStoragePct}%"></div>
-                        <div class="progress-bar-fill shiny-fill ${progress.shiny >= 100 ? 'maxed-fill' : ''}" data-bar-width="${progress.shiny}%"></div>
-                    </div>
-                    ${subtextHTML('shiny', progress.shiny, subData)}
-                </div>
-                <div class="profile-stat-box progress-box">
-                    <div class="stat-box-header">
-                        <span class="stat-box-label-wrapper">
-                            <clashcalc-assets-image class="ore-icon-mini" src="assets/glowy_ore.png" alt="Glowy"></clashcalc-assets-image>
-                            <span class="stat-box-label" data-i18n="entities.ores.glowy">${translate('entities.ores.glowy')}</span>
-                        </span>
-                        <span class="stat-box-value" data-ore-value="glowy">0%</span>
-                    </div>
-                    <div class="progress-bar-mini" data-ore="glowy">
-                        <div class="progress-bar-storage" style="width: ${glowyStoragePct}%"></div>
-                        <div class="progress-bar-fill glowy-fill ${progress.glowy >= 100 ? 'maxed-fill' : ''}" data-bar-width="${progress.glowy}%"></div>
-                    </div>
-                    ${subtextHTML('glowy', progress.glowy, subData)}
-                </div>
-                <div class="profile-stat-box progress-box">
-                    <div class="stat-box-header">
-                        <span class="stat-box-label-wrapper">
-                            <clashcalc-assets-image class="ore-icon-mini" src="assets/starry_ore.png" alt="Starry"></clashcalc-assets-image>
-                            <span class="stat-box-label" data-i18n="entities.ores.starry">${translate('entities.ores.starry')}</span>
-                        </span>
-                        <span class="stat-box-value" data-ore-value="starry">0%</span>
-                    </div>
-                    <div class="progress-bar-mini" data-ore="starry">
-                        <div class="progress-bar-storage" style="width: ${starryStoragePct}%"></div>
-                        <div class="progress-bar-fill starry-fill ${progress.starry >= 100 ? 'maxed-fill' : ''}" data-bar-width="${progress.starry}%"></div>
-                    </div>
-                    ${subtextHTML('starry', progress.starry, subData)}
-                </div>
-            </div>` : ''}
-            <div class="home-profile-sync-notice${isGuest ? ' guest-notice' : ''}">
-                <clashcalc-assets-svg name="${isGuest ? 'info' : 'cloud-lock'}" class="sync-notice-icon" height="14" width="14"></clashcalc-assets-svg>
-                <span data-i18n="${isGuest ? 'views.home.profile.guestNotice' : 'views.home.profile.syncNotice'}">${isGuest ? translate('views.home.profile.guestNotice') : translate('views.home.profile.syncNotice')}</span>
-            </div>
-        </div>
+        ${statsHtml}
     `;
 
     cardContainer.removeAttribute('hidden');
