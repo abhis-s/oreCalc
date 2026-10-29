@@ -1,4 +1,4 @@
-const { admin, db } = require('./firebase.js');
+const { db, Timestamp } = require('./firebase.js');
 const { httpsAgent } = require('./clashApiService.js');
 
 /**
@@ -192,7 +192,7 @@ async function registerGroupWarsBackground(groupData) {
                         state: war.state || 'preparation',
                         startTime: war.startTime || '',
                         endTime: war.endTime || '',
-                        endTimestamp: parsedEndTime ? admin.firestore.Timestamp.fromDate(parsedEndTime) : null,
+                        endTimestamp: parsedEndTime ? Timestamp.fromDate(parsedEndTime) : null,
                         lastFetchTime: new Date().toISOString(),
                         warData: war
                     });
@@ -223,7 +223,7 @@ function startCwlBackgroundScraper() {
             ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
             const oldWarsSnapshot = await db.collection('cwlWars')
-                .where('endTimestamp', '<', admin.firestore.Timestamp.fromDate(ninetyDaysAgo))
+                .where('endTimestamp', '<', Timestamp.fromDate(ninetyDaysAgo))
                 .get();
 
             for (const oldDoc of oldWarsSnapshot.docs) {
@@ -248,7 +248,7 @@ function startCwlBackgroundScraper() {
                             const parsedEndTime = parseCocDate(freshWarData.endTime);
                             await doc.ref.update({
                                 state: freshWarData.state || 'warEnded',
-                                endTimestamp: parsedEndTime ? admin.firestore.Timestamp.fromDate(parsedEndTime) : null,
+                                endTimestamp: parsedEndTime ? Timestamp.fromDate(parsedEndTime) : null,
                                 warData: freshWarData,
                                 lastFetchTime: new Date().toISOString()
                             });

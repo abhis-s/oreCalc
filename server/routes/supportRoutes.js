@@ -2,7 +2,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const packageJson = require('../../package.json');
 const { RATE_LIMIT_DEFAULTS } = require('../constants.js');
-const { admin, db } = require('../services/firebase.js');
+const { db, Timestamp } = require('../services/firebase.js');
 
 const router = express.Router();
 // @ts-ignore
@@ -172,7 +172,7 @@ router.post('/support/client-error', sensitiveLimiter, async (req, res) => {
                 ? userAgent.substring(0, 300)
                 : (req.headers['user-agent'] ? String(req.headers['user-agent']).substring(0, 300) : ''),
             reportedAt: now.toISOString(),
-            expireAt: admin.firestore.Timestamp.fromDate(expireDate),
+            expireAt: Timestamp.fromDate(expireDate),
             status: 'new'
         };
 

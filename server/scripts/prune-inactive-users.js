@@ -1,31 +1,6 @@
-const path = require('path');
-const admin = require('firebase-admin');
-const { safeJsonParse } = require('../utils/jsonUtils.js');
 const { SERVER_CONSTANTS } = require('../constants.js');
+const { db, FieldValue } = require('../services/firebase.js');
 const { pruneExpiredAuthChallenges } = require('../services/authService.js');
-
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-
-if (!process.env.FIRESTORE_SA_KEY) {
-    console.error("[ERROR] FIRESTORE_SA_KEY environment variable is not set.");
-    process.exit(1);
-}
-
-const serviceAccount = safeJsonParse(process.env.FIRESTORE_SA_KEY);
-if (!serviceAccount) {
-    console.error("[ERROR] Failed to parse FIRESTORE_SA_KEY JSON. Please ensure the secret content is valid JSON.");
-    process.exit(1);
-}
-
-let db;
-if (admin.apps.length === 0) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-    db = admin.firestore();
-} else {
-    db = admin.firestore();
-}
 
 /**
  * Scans and prunes userStates documents that have been inactive past the threshold period.
@@ -107,7 +82,7 @@ async function pruneInactiveUsers() {
         // Persist audit record in pruneAuditLogs collection
         const auditLogRef = await db.collection('pruneAuditLogs').add({
             executedAt: new Date().toISOString(),
-            serverTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+            serverTimestamp: FieldValue.serverTimestamp(),
             inactiveThresholdDate: thresholdIsoString,
             inactiveDaysThreshold: SERVER_CONSTANTS.INACTIVE_USER_DAYS_THRESHOLD,
             prunedCount,

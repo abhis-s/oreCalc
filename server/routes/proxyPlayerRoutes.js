@@ -1,6 +1,6 @@
 const express = require('express');
 const { isValidTag, isValidUserId } = require('../utils/validation.js');
-const { admin, db } = require('../services/firebase.js');
+const { db, FieldValue } = require('../services/firebase.js');
 const { getCachedData, setCachedData, getRemainingTTL } = require('../services/cacheService.js');
 const { checkCircuitBreaker, tripCircuitBreaker, markClashApiHealthy } = require('../services/circuitBreaker.js');
 const { httpsAgent, sendStandardizedUpstreamError } = require('../services/clashApiService.js');
@@ -69,7 +69,7 @@ router.get('/players/:playerTag', async (req, res) => {
 
                 if (userId) {
                     await db.collection('excludedTags').doc(cleanedTag).update({
-                        verifiedUuids: admin.firestore.FieldValue.arrayUnion(userId),
+                        verifiedUuids: FieldValue.arrayUnion(userId),
                         lastVerifiedAt: new Date().toISOString()
                     });
                     console.log(`[GET] Added UUID ${userId} to verified list for ${cleanedTag}`);

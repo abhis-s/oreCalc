@@ -56,15 +56,15 @@ const mockDb = {
 
 /** @type {any} */ (require.cache)[require.resolve('../services/firebase.js')] = /** @type {any} */ ({
     exports: {
-        admin: {
-            firestore: {
-                FieldValue: {
-                    serverTimestamp: () => new Date().toISOString(),
-                    delete: () => undefined
-                }
-            }
-        },
         db: mockDb,
+        FieldValue: {
+            serverTimestamp: () => new Date().toISOString(),
+            delete: () => undefined,
+            arrayUnion: (...args) => args
+        },
+        Timestamp: {
+            fromDate: (d) => d
+        },
         isUserDeleted: async (id) => mockDeletedUuids.has(id)
     }
 });

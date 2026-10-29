@@ -2,7 +2,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const { RATE_LIMIT_DEFAULTS, SERVER_CONSTANTS } = require('../constants.js');
 const { isValidUserId, isValidTag, normalizeTag, compareVersions } = require('../utils/validation.js');
-const { admin, db, isUserDeleted } = require('../services/firebase.js');
+const { db, FieldValue, isUserDeleted } = require('../services/firebase.js');
 const { extractAuthUser, isAuthorizedForUser } = require('../middleware/authMiddleware.js');
 const { resolveEmailDomain } = require('../services/alertThrottle.js');
 
@@ -271,7 +271,6 @@ router.post('/save', requireMinAppVersion, async (req, res) => {
             }
         }
 
-        const { FieldValue } = await import('firebase-admin/firestore');
         const batch = db.batch();
 
         const allPlayers = data.allPlayersData || {};
@@ -680,7 +679,7 @@ router.delete('/delete/:userId', sensitiveLimiter, async (req, res) => {
         const nowIso = new Date().toISOString();
         await db.collection('deletedUuids').doc(userId).set({
             deletedAt: nowIso,
-            serverTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+            serverTimestamp: FieldValue.serverTimestamp(),
             reason: 'user_requested'
         });
 
