@@ -163,7 +163,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
 
     // Offense modal dismissal
     const modal = document.getElementById('calc-offense-modal');
-    const closeBtn = document.getElementById('calc-offense-close-btn');
+    const closeBtn = document.getElementById('close-calc-offense-modal-btn') || document.getElementById('calc-offense-close-btn');
 
     const closeModal = () => {
         resetBuildingEditorSuperchargeMemory();
@@ -192,7 +192,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
 
     // Target Combos modal dismissal
     const targetCombosModal = document.getElementById('calc-target-combos-modal');
-    const targetCombosCloseBtn = document.getElementById('calc-target-combos-close-btn');
+    const targetCombosCloseBtn = document.getElementById('close-calc-target-combos-modal-btn') || document.getElementById('calc-target-combos-close-btn');
 
     const closeTargetCombosModal = () => {
         resetTargetCombosSuperchargeMemory();
@@ -292,7 +292,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
     const comboDefCards = rootContainer.querySelectorAll('.calc-combo-defense-card');
     comboDefCards.forEach(card => {
         card.addEventListener('click', (e) => {
-            if (/** @type {HTMLElement} */ (e.target)?.closest('.calc-combo-defense-card__info-btn, .calc-info-btn, [data-combo-defense-info]')) {
+            if (/** @type {HTMLElement} */ (e.target)?.closest('.calc-combo-defense-card__info-btn, .info-btn, [data-combo-defense-info]')) {
                 return;
             }
             hideCardHelpPopover();

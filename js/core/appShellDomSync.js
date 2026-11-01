@@ -164,8 +164,8 @@ export function syncHeaderForRoute(newDoc, uiHooks = {}) {
         currentActions.className = newActions.className;
     }
 
-    const currentPlaceholder = document.querySelector('.header-placeholder');
-    const newPlaceholder = newDoc.querySelector('.header-placeholder');
+    const currentPlaceholder = document.querySelector('.app-header-placeholder, .header-placeholder');
+    const newPlaceholder = newDoc.querySelector('.app-header-placeholder, .header-placeholder');
     if (currentPlaceholder && newPlaceholder) {
         currentPlaceholder.className = newPlaceholder.className;
     }
@@ -227,13 +227,13 @@ export function syncHeaderForRoute(newDoc, uiHooks = {}) {
         uiHooks.onResetPlayerDropdown?.();
     }
 
-    const currentHamburger = currentHeader.querySelector('#hamburger-button, .hamburger, .app-header__hamburger');
-    const newHamburger = newHeader.querySelector('#hamburger-button, .hamburger, .app-header__hamburger');
+    const currentHamburger = currentHeader.querySelector('#hamburger-btn, #hamburger-button, .hamburger, .app-header__hamburger');
+    const newHamburger = newHeader.querySelector('#hamburger-btn, #hamburger-button, .hamburger, .app-header__hamburger');
     if (currentHamburger) {
         if (newHamburger) {
             currentHamburger.className = newHamburger.className;
         }
-        currentHamburger.id = 'hamburger-button';
+        currentHamburger.id = newHamburger?.id || 'hamburger-btn';
         currentHamburger.setAttribute('aria-expanded', 'false');
     }
     document.body.classList.remove('open-drawer');

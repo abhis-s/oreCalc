@@ -1,5 +1,0 @@
-@use '../abstracts/mixins' as *;
-
-.hero-journey-page__header {
-    @include app-header-shell;
-}

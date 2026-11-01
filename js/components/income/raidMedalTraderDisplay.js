@@ -28,6 +28,7 @@ export function renderRaidMedalTraderRow(offer, offerState) {
     oreDisplay.innerHTML = `<span>${formatNumber(oreValue)}</span><clashcalc-assets-image src="assets/${oreType}_ore.png" alt="${translate('entities.ores.' + oreType)}" class="ore-image"></clashcalc-assets-image>`;
     row.appendChild(oreDisplay);
 
+    const offerKebab = String(offer.id || '').replace(/_/g, '-');
     // Only checkboxes for Raid Medal Trader
     for (let i = 1; i <= 2; i++) {
         const checkboxDiv = document.createElement('div');
@@ -37,8 +38,8 @@ export function renderRaidMedalTraderRow(offer, offerState) {
             checkbox.type = 'checkbox';
             checkbox.dataset.offerId = offer.id;
             checkbox.dataset.instance = String(i);
-            checkbox.id = `${offer.id}_${i}`;
-            checkbox.name = `${offer.id}_${i}`;
+            checkbox.id = `${offerKebab}-${i}`;
+            checkbox.name = `${offerKebab}-${i}`;
             checkbox.checked = i <= offerState;
 
             const oreName = translate('entities.ores.' + oreType);

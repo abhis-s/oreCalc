@@ -430,7 +430,7 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             const content = fs.readFileSync(filePath, 'utf8');
             const inputs = extractInputAttributes(content);
 
-            const chipSources = ['extras', 'shopOffers', 'gemTrader', 'raidMedalTrader', 'eventTrader', 'eventPass', 'supercellEvents'];
+            const chipSources = ['extras', 'shop-offers', 'gem-trader', 'raid-medal-trader', 'event-trader', 'event-pass', 'supercell-events'];
 
             for (const source of chipSources) {
                 const shinyInput = inputs.find(i => i.id === `custom-chip-${source}-shiny`);
@@ -514,7 +514,7 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             const chipsPath = path.join(projectRoot, 'partials', 'modals', 'create-custom-chips.html');
             const chipInputs = extractInputAttributes(fs.readFileSync(chipsPath, 'utf8'));
 
-            const chipCwCount = chipInputs.find(i => i.id === 'custom-chip-clanWar-count');
+            const chipCwCount = chipInputs.find(i => i.id === 'custom-chip-clan-war-count');
             assert.ok(chipCwCount);
             assert.equal(chipCwCount.max, String(CLAN_WAR_DEFAULTS.MAX_WARS));
 

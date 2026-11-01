@@ -348,9 +348,9 @@ describe('Settings Modals Legal Informational Suite', () => {
         termsModal = new MockDOMElement('div', 'terms-modal', 'modal');
         const termsContent = new MockDOMElement('div', '', 'modal-content');
         termsModalActions = new MockDOMElement('div', '', 'modal-actions');
-        closeHeaderBtn = new MockDOMElement('button', 'close-terms-header-btn', 'close-header-btn');
-        closeTermsBtn = new MockDOMElement('button', 'close-terms-modal-btn', 'reject-button');
-        acceptTermsBtn = new MockDOMElement('button', 'accept-terms-modal-btn', 'accept-button');
+        closeHeaderBtn = new MockDOMElement('button', 'close-terms-modal-btn', 'modal__close-btn');
+        closeTermsBtn = new MockDOMElement('button', 'close-terms-footer-btn', 'btn btn--secondary');
+        acceptTermsBtn = new MockDOMElement('button', 'accept-terms-modal-btn', 'btn btn--primary');
         acceptTermsBtn.style.display = 'none';
 
         termsModal.appendChild(closeHeaderBtn);
@@ -360,8 +360,9 @@ describe('Settings Modals Legal Informational Suite', () => {
         termsModal.appendChild(termsContent);
 
         elementsById.set('terms-modal', termsModal);
+        elementsById.set('close-terms-modal-btn', closeHeaderBtn);
         elementsById.set('close-terms-header-btn', closeHeaderBtn);
-        elementsById.set('close-terms-modal-btn', closeTermsBtn);
+        elementsById.set('close-terms-footer-btn', closeTermsBtn);
         elementsById.set('accept-terms-modal-btn', acceptTermsBtn);
 
         if (!state.uiSettings) state.uiSettings = {};
@@ -374,7 +375,7 @@ describe('Settings Modals Legal Informational Suite', () => {
     test('openTermsOfUseModal: Informational Mode configures close button and hides accept button', () => {
         openTermsOfUseModal();
 
-        assert.equal(closeTermsBtn.classList.contains('reject-button'), true);
+        assert.equal(closeTermsBtn.classList.contains('btn--secondary'), true);
         assert.equal(closeTermsBtn.getAttribute('data-i18n'), 'actions.close');
         assert.equal(closeTermsBtn.textContent, translate('actions.close'));
         assert.equal(acceptTermsBtn.style.display, 'none');

@@ -284,7 +284,7 @@ export function updateProgressBar() {
  * Syncs the sliding active pill inside all claim segmented switches.
  */
 export function syncClaimSwitchPill() {
-    const claimSwitches = document.querySelectorAll('.hj-segmented-switch');
+    const claimSwitches = document.querySelectorAll('.hj-segmented-control');
     if (claimSwitches.length === 0) return;
 
     const hasPlayer = Boolean(hjState.playerData);
@@ -300,8 +300,8 @@ export function syncClaimSwitchPill() {
         claimSwitch.hidden = shouldHide;
         if (shouldHide) return;
 
-        const claimPill = claimSwitch.querySelector('.hj-switch-pill');
-        const btns = claimSwitch.querySelectorAll('.hj-switch-btn');
+        const claimPill = claimSwitch.querySelector('.hj-segmented-control__pill');
+        const btns = claimSwitch.querySelectorAll('.hj-segmented-control__btn');
         btns.forEach(btn => {
             const isUnclaimed = btn.getAttribute('data-unclaimed-only') === 'true';
             const isMatch = isUnclaimed === effectiveUnclaimed;

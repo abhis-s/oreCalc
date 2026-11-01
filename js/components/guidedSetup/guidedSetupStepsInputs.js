@@ -212,7 +212,7 @@ export function initializeGuidedSetupStepsInputs(modal) {
             handleSwitchChange();
         }
 
-        if (target.classList.contains('guided-setup-select-input') && target.dataset.offerId) {
+        if (target.classList.contains('guided-setup-select') && target.dataset.offerId) {
             const offerId = target.dataset.offerId;
             const count = parseInt(target.value, 10) || 0;
             guidedSetupState.tempShopOffersPurchases[offerId] = count;

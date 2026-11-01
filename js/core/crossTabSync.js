@@ -168,17 +168,17 @@ export function initMainAppCrossTabSync() {
                 const labelKey = isLight ? 'views.settings.options.themeDark' : 'views.settings.options.themeLight';
                 const translated = translate(labelKey);
 
-                const themeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-theme-toggle'));
+                const themeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-theme-switch'));
                 if (themeToggle) {
                     themeToggle.checked = isLight;
-                    const themeLabel = document.querySelector('label[for="settings-theme-toggle"]');
+                    const themeLabel = document.querySelector('label[for="settings-theme-switch"]');
                     if (themeLabel) {
                         themeLabel.textContent = translated;
                         themeLabel.setAttribute('data-i18n', labelKey);
                     }
                 }
 
-                const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-toggle'));
+                const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-switch'));
                 if (appThemeToggle) {
                     appThemeToggle.checked = isLight;
                     const appThemeLabel = document.getElementById('app-theme-label');
@@ -190,7 +190,7 @@ export function initMainAppCrossTabSync() {
 
                 const allSwatches = document.querySelectorAll('.accent-swatch, #welcome-accent-picker .accent-swatch, #mobile-accent-picker-modal .accent-swatch');
                 allSwatches.forEach(s => {
-                    s.classList.toggle('active', /** @type {HTMLElement} */ (s).dataset.color === accentToApply);
+                    s.classList.toggle('is-active', /** @type {HTMLElement} */ (s).dataset.color === accentToApply);
                 });
             }
 

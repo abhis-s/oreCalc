@@ -129,7 +129,7 @@ dialog.navigation-drawer,
             outline-offset: -2px;
         }
 
-        &.active {
+        &.is-active {
             background-color: var(--accent-soft);
             color: $accent-primary;
             border-radius: $shape-corner-extra-large;

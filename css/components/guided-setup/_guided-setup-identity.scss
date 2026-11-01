@@ -169,40 +169,7 @@
     }
 
     .account-card-th {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 42px;
-        height: 42px;
         flex-shrink: 0;
-
-        .th-mini-img {
-            width: 42px;
-            height: 42px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
-        }
-
-        .th-mini-level {
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            background-color: $accent-primary;
-            color: $text-on-accent;
-            border: 1.5px solid $border-primary;
-            border-radius: $shape-corner-xs;
-            font-size: $font-size-2xs;
-            font-weight: $font-weight-extrabold;
-            line-height: 1;
-            min-width: 16px;
-            height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1px 3px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
-        }
     }
 
     .account-card-player {

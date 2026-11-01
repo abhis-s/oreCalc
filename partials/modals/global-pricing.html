@@ -2,7 +2,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2 id="global-pricing-modal-title" data-i18n="views.settings.options.globalPricing"></h2>
-            <button type="button" id="close-global-pricing-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+            <button type="button" id="close-global-pricing-modal-btn" class="modal__close-btn" data-i18n-aria-label="actions.close">
                 <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
             </button>
         </div>
@@ -10,7 +10,7 @@
             <div class="modal-info-text">
                 <p data-i18n="views.settings.globalPricing.desc"></p>
             </div>
-            <div class="input-group-flex margin-bottom-20">
+            <div class="input-group-flex">
                 <label for="global-pricing-currency-select" data-i18n="views.settings.globalPricing.modal.selectCurrency"></label>
                 <select id="global-pricing-currency-select" class="dropdown-style" data-modal-autofocus>
                     <!-- DYNAMIC INSERTION: Currency select options -->
@@ -28,9 +28,9 @@
             </div>
         </div>
         <div class="modal-actions">
-            <button type="button" id="reset-global-pricing-btn" class="btn-secondary modal-reset-btn" data-i18n="actions.reset" hidden></button>
-            <button type="button" id="cancel-global-pricing-btn" class="btn-secondary" data-i18n="actions.cancel"></button>
-            <button type="button" id="save-global-pricing-btn" class="btn-primary" data-i18n="actions.save"></button>
+            <button type="button" id="reset-global-pricing-btn" class="btn btn--secondary modal-reset-btn" data-i18n="actions.reset" hidden></button>
+            <button type="button" id="cancel-global-pricing-modal-btn" class="btn btn--secondary" data-i18n="actions.cancel"></button>
+            <button type="button" id="save-global-pricing-btn" class="btn btn--primary" data-i18n="actions.save"></button>
         </div>
 
     </div>

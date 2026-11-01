@@ -134,7 +134,7 @@ export function initializeSettingsAccount(options = {}) {
         toggleAccountPopover();
     });
 
-    const popoverAvatarBtn = document.getElementById('account-popover-avatar-btn');
+    const popoverAvatarBtn = document.getElementById('account-popover-avatar-link');
     popoverAvatarBtn?.addEventListener('click', (e) => {
         if (popoverAvatarBtn.classList.contains('is-static') || popoverAvatarBtn.getAttribute('aria-disabled') === 'true') {
             e.preventDefault();
@@ -143,7 +143,7 @@ export function initializeSettingsAccount(options = {}) {
         toggleAccountPopover(false);
     });
 
-    const popoverManageBtn = document.getElementById('account-popover-manage-btn');
+    const popoverManageBtn = document.getElementById('account-popover-manage-link');
     popoverManageBtn?.addEventListener('click', () => {
         toggleAccountPopover(false);
     });
@@ -165,12 +165,12 @@ export function initializeSettingsAccount(options = {}) {
         openAuthModal('signin');
     });
 
-    const popoverGuestAvatarBtn = document.getElementById('account-popover-guest-avatar-btn');
+    const popoverGuestAvatarBtn = document.getElementById('account-popover-guest-avatar-link');
     popoverGuestAvatarBtn?.addEventListener('click', () => {
         toggleAccountPopover(false);
     });
 
-    const popoverGuestManageBtn = document.getElementById('account-popover-guest-manage-btn');
+    const popoverGuestManageBtn = document.getElementById('account-popover-guest-manage-link');
     popoverGuestManageBtn?.addEventListener('click', () => {
         toggleAccountPopover(false);
     });

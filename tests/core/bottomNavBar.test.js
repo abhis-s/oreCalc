@@ -142,7 +142,7 @@ describe('Universal Bottom Navigation Bar Component Suite', () => {
             iconFilled: 'zap-filled'
         },
         {
-            id: 'cluster_planner',
+            id: 'cluster-planner',
             i18nKey: 'views.damageCalc.tabs.clusterPlanner',
             iconOutline: 'shield-outline',
             iconFilled: 'shield-filled'
@@ -158,7 +158,7 @@ describe('Universal Bottom Navigation Bar Component Suite', () => {
         renderBottomNavBar({
             container,
             items: sampleItems,
-            activeTabId: 'cluster_planner'
+            activeTabId: 'cluster-planner'
         });
 
         const buttons = container.querySelectorAll('.nav-button');
@@ -166,13 +166,13 @@ describe('Universal Bottom Navigation Bar Component Suite', () => {
 
         const [zapBtn, clusterBtn] = buttons;
         assert.equal(zapBtn.getAttribute('data-tab'), 'zapquake');
-        assert.equal(clusterBtn.getAttribute('data-tab'), 'cluster_planner');
+        assert.equal(clusterBtn.getAttribute('data-tab'), 'cluster-planner');
 
         assert.equal(zapBtn.getAttribute('title'), 'views.damageCalc.tabs.zapQuake');
         assert.equal(clusterBtn.getAttribute('title'), 'views.damageCalc.tabs.clusterPlanner');
 
-        assert.equal(zapBtn.classList.contains('active'), false);
-        assert.equal(clusterBtn.classList.contains('active'), true);
+        assert.equal(zapBtn.classList.contains('is-active'), false);
+        assert.equal(clusterBtn.classList.contains('is-active'), true);
         assert.equal(clusterBtn.getAttribute('aria-current'), 'page');
     });
 
@@ -184,7 +184,7 @@ describe('Universal Bottom Navigation Bar Component Suite', () => {
         });
 
         const zapBtn = container.querySelector('[data-tab="zapquake"]');
-        assert.ok(zapBtn.classList.contains('active'), 'zapquake should be active when activeTabId is zapquake-tab');
+        assert.ok(zapBtn.classList.contains('is-active'), 'zapquake should be active when activeTabId is zapquake-tab');
     });
 
     test('invokes onTabSelect callback on button click with tab id and event', () => {
@@ -197,10 +197,10 @@ describe('Universal Bottom Navigation Bar Component Suite', () => {
                 clickedTab = id;
             }
         });
-        const clusterBtn = container.querySelector('[data-tab="cluster_planner"]');
+        const clusterBtn = container.querySelector('[data-tab="cluster-planner"]');
         clusterBtn.click();
 
-        assert.equal(clickedTab, 'cluster_planner', 'Callback should receive tab identifier');
+        assert.equal(clickedTab, 'cluster-planner', 'Callback should receive tab identifier');
     });
 
     test('gracefully handles empty or null container without throwing', () => {

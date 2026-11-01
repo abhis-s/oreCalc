@@ -464,7 +464,7 @@ describe('Account Page Presenter & Interaction Suite', () => {
         const _modal = getOrCreateMockElement('add-player-modal');
         const tagInput = getOrCreateMockElement('player-tag-input-modal');
         const loadBtn = getOrCreateMockElement('load-player-modal-btn');
-        const _cancelBtn = getOrCreateMockElement('cancel-add-player-button');
+        const _cancelBtn = getOrCreateMockElement('cancel-add-player-modal-btn');
         const guidedBtn = getOrCreateMockElement('add-player-guided-setup-btn');
         const _errorEl = getOrCreateMockElement('player-tag-error-message');
 
@@ -736,9 +736,9 @@ describe('Account Page Presenter & Interaction Suite', () => {
         const { setGuestPairingActiveTab } = await import('../../js/components/account/accountPageSessionsDisplay.js');
 
         const tabQr = getOrCreateMockElement('account-guest-tab-qr');
-        const tabInput = getOrCreateMockElement('account-guest-tab-input');
+        const tabInput = getOrCreateMockElement('account-guest-tab-sync-code');
         const paneQr = getOrCreateMockElement('account-guest-pane-qr');
-        const paneInput = getOrCreateMockElement('account-guest-pane-input');
+        const paneInput = getOrCreateMockElement('account-guest-pane-sync-code');
 
         setGuestPairingActiveTab('input');
         assert.strictEqual(tabQr.classList.contains('is-active'), false);
@@ -875,7 +875,7 @@ describe('Account Page Presenter & Interaction Suite', () => {
 
         const guestDrawer = getOrCreateMockElement('account-guest-pairing-drawer');
         const guestToggleBtn = getOrCreateMockElement('account-guest-btn-toggle-pairing');
-        const tabInput = getOrCreateMockElement('account-guest-tab-input');
+        const tabInput = getOrCreateMockElement('account-guest-tab-sync-code');
         const tabQr = getOrCreateMockElement('account-guest-tab-qr');
 
         // User opens pairing drawer and switches to input tab

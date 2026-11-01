@@ -8,6 +8,7 @@ import { state } from '../../core/state.js';
 import { convertOres, findOptimalConversionSchedule, getBaseIncome, getUpgradeRequirements } from '../../domain/income/prospectorManager.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
+import { toKebabCase } from '../../utils/stringUtils.js';
 
 import { getGlobalPriorityList } from './priorityListScheduler.js';
 
@@ -94,7 +95,7 @@ export function updatePerChipRewardsPreview() {
 
     switch (selectedType) {
         case 'starBonus': {
-            const multiplierSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-starBonus-multiplier'));
+            const multiplierSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-star-bonus-multiplier'));
             if (multiplierSelect) {
                 const multiplier = multiplierSelect.value;
                 const baseIncome = getSourceById('starBonus')?.getBaseIncome(state) || { shiny: 0, glowy: 0, starry: 0 };
@@ -107,10 +108,10 @@ export function updatePerChipRewardsPreview() {
         }
 
         case 'clanWar': {
-            const cwResult = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-clanWar-result'))?.value || 'win';
-            const cwRawShiny = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clanWar-shiny'))?.value) || 0;
-            const cwRawGlowy = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clanWar-glowy'))?.value) || 0;
-            const cwRawStarry = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clanWar-starry'))?.value) || 0;
+            const cwResult = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-clan-war-result'))?.value || 'win';
+            const cwRawShiny = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clan-war-shiny'))?.value) || 0;
+            const cwRawGlowy = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clan-war-glowy'))?.value) || 0;
+            const cwRawStarry = Number(/** @type {HTMLInputElement|null} */ (document.getElementById('custom-chip-clan-war-starry'))?.value) || 0;
             const cwFactor = cwResult === 'win' ? 1.0 : (cwResult === 'loss' ? 0.5 : 0.75);
             shiny = Math.round(2 * cwRawShiny * cwFactor);
             glowy = Math.round(2 * cwRawGlowy * cwFactor);
@@ -314,66 +315,66 @@ export function prefillModalInputs(type) {
             break;
 
         case 'starBonus': {
-            const multiplierSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-starBonus-multiplier'));
+            const multiplierSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-star-bonus-multiplier'));
             if (multiplierSelect) multiplierSelect.value = settings.multiplier || '2x';
-            setVal('custom-chip-starBonus-count', settings.count || 1);
-            setChecked('custom-chip-starBonus-monthly', settings.monthly || false);
+            setVal('custom-chip-star-bonus-count', settings.count || 1);
+            setChecked('custom-chip-star-bonus-monthly', settings.monthly || false);
             break;
         }
 
         case 'shopOffers': {
             const shopOres = state.derived?.incomeSources?.shopOffers?.monthly || {};
-            setVal('custom-chip-shopOffers-shiny', shopOres.shiny || settings.shiny || 0);
-            setVal('custom-chip-shopOffers-glowy', shopOres.glowy || settings.glowy || 0);
-            setVal('custom-chip-shopOffers-starry', shopOres.starry || settings.starry || 0);
-            setChecked('custom-chip-shopOffers-monthly', settings.monthly || false);
+            setVal('custom-chip-shop-offers-shiny', shopOres.shiny || settings.shiny || 0);
+            setVal('custom-chip-shop-offers-glowy', shopOres.glowy || settings.glowy || 0);
+            setVal('custom-chip-shop-offers-starry', shopOres.starry || settings.starry || 0);
+            setChecked('custom-chip-shop-offers-monthly', settings.monthly || false);
             break;
         }
 
         case 'gemTrader': {
             const gemOres = state.derived?.incomeSources?.gemTrader?.weekly || {};
-            setVal('custom-chip-gemTrader-shiny', gemOres.shiny || settings.shiny || 0);
-            setVal('custom-chip-gemTrader-glowy', gemOres.glowy || settings.glowy || 0);
-            setVal('custom-chip-gemTrader-starry', gemOres.starry || settings.starry || 0);
-            setChecked('custom-chip-gemTrader-weekly', settings.weekly || false);
+            setVal('custom-chip-gem-trader-shiny', gemOres.shiny || settings.shiny || 0);
+            setVal('custom-chip-gem-trader-glowy', gemOres.glowy || settings.glowy || 0);
+            setVal('custom-chip-gem-trader-starry', gemOres.starry || settings.starry || 0);
+            setChecked('custom-chip-gem-trader-weekly', settings.weekly || false);
             break;
         }
 
         case 'raidMedalTrader': {
             const raidOres = state.derived?.incomeSources?.raidMedalTrader?.weekly || {};
-            setVal('custom-chip-raidMedalTrader-shiny', raidOres.shiny || settings.shiny || 0);
-            setVal('custom-chip-raidMedalTrader-glowy', raidOres.glowy || settings.glowy || 0);
-            setVal('custom-chip-raidMedalTrader-starry', raidOres.starry || settings.starry || 0);
-            setChecked('custom-chip-raidMedalTrader-weekly', settings.weekly || false);
+            setVal('custom-chip-raid-medal-trader-shiny', raidOres.shiny || settings.shiny || 0);
+            setVal('custom-chip-raid-medal-trader-glowy', raidOres.glowy || settings.glowy || 0);
+            setVal('custom-chip-raid-medal-trader-starry', raidOres.starry || settings.starry || 0);
+            setChecked('custom-chip-raid-medal-trader-weekly', settings.weekly || false);
             break;
         }
 
         case 'eventTrader': {
             const eventTraderOres = state.derived?.incomeSources?.eventTrader?.bimonthly || {};
-            setVal('custom-chip-eventTrader-shiny', eventTraderOres.shiny || settings.shiny || 0);
-            setVal('custom-chip-eventTrader-glowy', eventTraderOres.glowy || settings.glowy || 0);
-            setVal('custom-chip-eventTrader-starry', eventTraderOres.starry || settings.starry || 0);
-            setChecked('custom-chip-eventTrader-monthly', settings.monthly || false);
+            setVal('custom-chip-event-trader-shiny', eventTraderOres.shiny || settings.shiny || 0);
+            setVal('custom-chip-event-trader-glowy', eventTraderOres.glowy || settings.glowy || 0);
+            setVal('custom-chip-event-trader-starry', eventTraderOres.starry || settings.starry || 0);
+            setChecked('custom-chip-event-trader-monthly', settings.monthly || false);
             break;
         }
 
         case 'eventPass': {
             const eventPassOres = state.derived?.incomeSources?.eventPass?.bimonthly || {};
-            setVal('custom-chip-eventPass-shiny', eventPassOres.shiny || settings.shiny || 0);
-            setVal('custom-chip-eventPass-glowy', eventPassOres.glowy || settings.glowy || 0);
-            setVal('custom-chip-eventPass-starry', eventPassOres.starry || settings.starry || 0);
-            setChecked('custom-chip-eventPass-monthly', settings.monthly || false);
+            setVal('custom-chip-event-pass-shiny', eventPassOres.shiny || settings.shiny || 0);
+            setVal('custom-chip-event-pass-glowy', eventPassOres.glowy || settings.glowy || 0);
+            setVal('custom-chip-event-pass-starry', eventPassOres.starry || settings.starry || 0);
+            setChecked('custom-chip-event-pass-monthly', settings.monthly || false);
             break;
         }
 
         case 'clanWar': {
             const cwOres = state.income?.clanWar?.oresPerAttack || {};
-            setVal('custom-chip-clanWar-shiny', cwOres.shiny || settings.shiny || 0);
-            setVal('custom-chip-clanWar-glowy', cwOres.glowy || settings.glowy || 0);
-            setVal('custom-chip-clanWar-starry', cwOres.starry || settings.starry || 0);
-            setVal('custom-chip-clanWar-count', settings.count || 1);
-            setChecked('custom-chip-clanWar-monthly', settings.monthly || false);
-            const cwRes = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-clanWar-result'));
+            setVal('custom-chip-clan-war-shiny', cwOres.shiny || settings.shiny || 0);
+            setVal('custom-chip-clan-war-glowy', cwOres.glowy || settings.glowy || 0);
+            setVal('custom-chip-clan-war-starry', cwOres.starry || settings.starry || 0);
+            setVal('custom-chip-clan-war-count', settings.count || 1);
+            setChecked('custom-chip-clan-war-monthly', settings.monthly || false);
+            const cwRes = /** @type {HTMLSelectElement|null} */ (document.getElementById('custom-chip-clan-war-result'));
             if (cwRes) cwRes.value = settings.result || 'win';
             break;
         }
@@ -391,10 +392,10 @@ export function prefillModalInputs(type) {
         }
 
         case 'supercellEvents': {
-            setVal('custom-chip-supercellEvents-shiny', (settings.shiny !== undefined && settings.shiny !== 0) ? settings.shiny : 1000);
-            setVal('custom-chip-supercellEvents-glowy', (settings.glowy !== undefined && settings.glowy !== 0) ? settings.glowy : 50);
-            setVal('custom-chip-supercellEvents-starry', (settings.starry !== undefined && settings.starry !== 0) ? settings.starry : 10);
-            setChecked('custom-chip-supercellEvents-override', settings.globalOverride || false);
+            setVal('custom-chip-supercell-events-shiny', (settings.shiny !== undefined && settings.shiny !== 0) ? settings.shiny : 1000);
+            setVal('custom-chip-supercell-events-glowy', (settings.glowy !== undefined && settings.glowy !== 0) ? settings.glowy : 50);
+            setVal('custom-chip-supercell-events-starry', (settings.starry !== undefined && settings.starry !== 0) ? settings.starry : 10);
+            setChecked('custom-chip-supercell-events-override', settings.globalOverride || false);
             break;
         }
 
@@ -444,7 +445,7 @@ export function prefillModalInputs(type) {
         }
     }
 
-    const activeSection = document.getElementById(`custom-chip-section-${type}`);
+    const activeSection = document.getElementById(`custom-chip-section-${toKebabCase(type)}`);
     if (activeSection) {
         const numInputs = activeSection.querySelectorAll('input[type="number"]');
         numInputs.forEach(input => {

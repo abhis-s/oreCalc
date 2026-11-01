@@ -490,4 +490,22 @@ h3.income-chips-title {
     .modal-content {
         max-width: $modal-width-standard;
     }
+
+    .custom-chip-dynamic-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+    }
+
+    .custom-chip-section {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+
+        &__body {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-sm;
+        }
+    }
 }

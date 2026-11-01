@@ -43,29 +43,10 @@ dialog.navigation-drawer,
     }
 
     &__context-th-wrapper {
-        width: 38px;
-        height: 38px;
         border-radius: $shape-corner-small;
         background-color: $bg-surface-tertiary;
         border: 1px solid $border-secondary;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
         overflow: hidden;
-    }
-
-    &__context-th {
-        width: 34px;
-        height: 34px;
-        object-fit: contain;
-        display: block;
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
     }
 
     &__context-player-info {

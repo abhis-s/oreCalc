@@ -196,17 +196,5 @@
                 min-height: 38px;
             }
         }
-
-        .btn-ghost {
-            background-color: transparent;
-            border: 1px solid transparent;
-            color: $text-secondary;
-
-            &:hover {
-                background-color: $bg-surface-tertiary;
-                color: $text-primary;
-                border-color: $border-primary;
-            }
-        }
     }
 }

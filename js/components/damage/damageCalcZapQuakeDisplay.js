@@ -574,16 +574,16 @@ export function renderZapQuakePanel(state, container) {
                             <span data-i18n="views.damageCalc.filters.filterOther">${escapeHTML(translate('views.damageCalc.filters.filterOther') || 'Other')}</span>
                         </button>
                     </div>
-                    <div class="calc-view-mode-switch segmented-control" role="radiogroup" aria-label="${escapeHTML(translate('views.damageCalc.zapQuake.viewMode') || 'View Mode')}">
+                    <div class="calc-view-mode-control segmented-control" role="radiogroup" aria-label="${escapeHTML(translate('views.damageCalc.zapQuake.viewMode') || 'View Mode')}">
                         <button type="button"
-                            class="segmented-btn ${viewMode === 'compact' ? 'active' : ''}"
+                            class="segmented-btn ${viewMode === 'compact' ? 'is-active' : ''}"
                             data-zq-view-mode="compact"
                             role="radio"
                             aria-checked="${viewMode === 'compact'}">
                             <span data-i18n="views.settings.options.layoutCompactLabel">${escapeHTML(translate('views.settings.options.layoutCompactLabel') || 'Compact')}</span>
                         </button>
                         <button type="button"
-                            class="segmented-btn ${viewMode === 'detailed' ? 'active' : ''}"
+                            class="segmented-btn ${viewMode === 'detailed' ? 'is-active' : ''}"
                             data-zq-view-mode="detailed"
                             role="radio"
                             aria-checked="${viewMode === 'detailed'}">

@@ -127,8 +127,8 @@ export function getIncomeDOMElements() {
             },
         },
         eventPass: {
-            passToggle: document.getElementById('inc-event-pass-toggle'),
-            includeEquipment: document.getElementById('inc-event-include-equipment-toggle'),
+            passToggle: document.getElementById('inc-event-pass-switch'),
+            includeEquipment: document.getElementById('inc-event-include-equipment-switch'),
             bonusTrackMedals: document.getElementById('inc-bonus-track-medals-input'),
             purchasedMedals: document.getElementById('inc-event-purchased-medals-input'),
             display: {
@@ -180,9 +180,9 @@ export function getIncomeDOMElements() {
             },
             display: {
                 perWar: {
-                    shiny: document.getElementById('inc-clan-war-shiny-perWar-value'),
-                    glowy: document.getElementById('inc-clan-war-glowy-perWar-value'),
-                    starry: document.getElementById('inc-clan-war-starry-perWar-value'),
+                    shiny: document.getElementById('inc-clan-war-shiny-per-war-value'),
+                    glowy: document.getElementById('inc-clan-war-glowy-per-war-value'),
+                    starry: document.getElementById('inc-clan-war-starry-per-war-value'),
                 },
                 monthly: {
                     shiny: document.getElementById('inc-clan-war-shiny-monthly-value'),
@@ -205,9 +205,9 @@ export function getIncomeDOMElements() {
             },
              display: {
                 perHit: {
-                    shiny: document.getElementById('inc-cwl-shiny-perHit-value'),
-                    glowy: document.getElementById('inc-cwl-glowy-perHit-value'),
-                    starry: document.getElementById('inc-cwl-starry-perHit-value'),
+                    shiny: document.getElementById('inc-cwl-shiny-per-hit-value'),
+                    glowy: document.getElementById('inc-cwl-glowy-per-hit-value'),
+                    starry: document.getElementById('inc-cwl-starry-per-hit-value'),
                 },
                 monthly: {
                     shiny: document.getElementById('inc-cwl-shiny-monthly-value'),
@@ -217,12 +217,12 @@ export function getIncomeDOMElements() {
             }
         },
         supercellEvents: {
-            worldChampionship: document.getElementById('inc-supercell-events-world-championship-select'),
+            worldChampionship: document.getElementById('inc-supercell-events-world-championship-switch'),
             display: {
                 perEvent: {
-                    shiny: document.getElementById('inc-supercell-events-shiny-perEvent-value'),
-                    glowy: document.getElementById('inc-supercell-events-glowy-perEvent-value'),
-                    starry: document.getElementById('inc-supercell-events-starry-perEvent-value'),
+                    shiny: document.getElementById('inc-supercell-events-shiny-per-event-value'),
+                    glowy: document.getElementById('inc-supercell-events-glowy-per-event-value'),
+                    starry: document.getElementById('inc-supercell-events-starry-per-event-value'),
                 },
                 monthly: {
                     shiny: document.getElementById('inc-supercell-events-shiny-monthly-value'),

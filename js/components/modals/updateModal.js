@@ -25,7 +25,7 @@ function applyTimerColor(element, timeLeft) {
  */
 export function updateNavigationBadges() {
     const hasPending = !!sessionStorage.getItem('oreCalcUpdateDetectedAt');
-    const headerSettingsBtn = document.querySelector('.tab-button[data-tab="settings"]');
+    const headerSettingsBtn = document.querySelector('.app-header__tab[data-tab="settings"], .tab-button[data-tab="settings"]');
     const drawerSettingsBtn = document.querySelector('.navigation-drawer__tab[data-tab="settings"]');
     const bottomSettingsBtn = document.querySelector('.nav-button[data-tab="settings"]');
 
@@ -192,8 +192,8 @@ function initSettingsUpdateCard(wb) {
  */
 export function showUpdateModal(wb) {
     const modal = document.getElementById('update-available-modal');
-    const laterBtn = document.getElementById('update-later-button');
-    const reloadBtn = document.getElementById('update-reload-button');
+    const laterBtn = document.getElementById('update-later-btn') || document.getElementById('update-later-button');
+    const reloadBtn = document.getElementById('update-reload-btn') || document.getElementById('update-reload-button');
     const closeBtn = document.getElementById('close-update-modal-btn');
     const countdownText = document.getElementById('update-force-countdown-text');
 

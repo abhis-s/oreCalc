@@ -271,7 +271,7 @@ async function executeStepEnter(step) {
             const fabMenu = document.querySelector('.fab-menu');
             const overlay = document.getElementById('overlay');
             if (mainFab && fabMenu) {
-                mainFab.classList.add('active');
+                mainFab.classList.add('is-active');
                 fabMenu.classList.add('show');
                 overlay?.classList.add('show');
                 document.body.classList.add('open-fab');
@@ -310,7 +310,7 @@ async function executeStepLeave(step) {
             delete saveBtn.dataset.originalDisplay;
         }
     } else if (step.id === 'eq-details-modal') {
-        const closeBtn = document.getElementById('close-eq-details-modal-btn');
+        const closeBtn = document.getElementById('close-equipment-details-modal-btn') || document.getElementById('close-eq-details-modal-btn');
         if (closeBtn) closeBtn.click();
         await new Promise(resolve => setTimeout(resolve, 200));
     } else if (step.id === 'nav-income') {

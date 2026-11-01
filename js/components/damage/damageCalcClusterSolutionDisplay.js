@@ -158,15 +158,15 @@ export function renderClusterSolutionCardHtml({
 
         return `
             <button type="button"
-                class="calc-cluster-equip-btn ${isSelected ? 'is-active' : 'is-inactive'} ${isDowngraded ? 'is-downgraded' : ''}"
+                class="calc-cluster-equip-switch ${isSelected ? 'is-active' : 'is-inactive'} ${isDowngraded ? 'is-downgraded' : ''}"
                 data-action="toggle-cluster-equipment"
                 data-equipment-key="${key}"
                 role="switch"
                 aria-checked="${isSelected}"
                 aria-label="${escapeHTML(equipName)} (${lvlShort} ${effectiveLvl})"
                 title="${escapeHTML(equipName)} (${lvlShort} ${effectiveLvl})">
-                <clashcalc-assets-image src="${equip?.icon || ''}" alt="${escapeHTML(equipName)}" size="thumbnail" class="calc-cluster-equip-btn__icon"></clashcalc-assets-image>
-                <span class="calc-cluster-equip-btn__lvl ${isDowngraded ? 'calc-cluster-equip-btn__lvl--downgraded' : ''}">${effectiveLvl}</span>
+                <clashcalc-assets-image src="${equip?.icon || ''}" alt="${escapeHTML(equipName)}" size="thumbnail" class="calc-cluster-equip-switch__icon"></clashcalc-assets-image>
+                <span class="calc-cluster-equip-switch__lvl ${isDowngraded ? 'calc-cluster-equip-switch__lvl--downgraded' : ''}">${effectiveLvl}</span>
             </button>
         `;
     }).join('');
@@ -272,7 +272,7 @@ export function renderClusterSolutionCardHtml({
                         ${isOverCapacity && isClusterDestroyed ? `
                             <span class="calc-capacity-warning">${escapeHTML(translate('views.damageCalc.offense.exceedsCapacity', { max: maxArmyCapacity }) || `Exceeds ${maxArmyCapacity} Capacity`)}</span>
                         ` : ''}
-                        <button type="button" class="calc-info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
+                        <button type="button" class="info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
                             <clashcalc-assets-svg name="info" width="14" height="14"></clashcalc-assets-svg>
                         </button>
                     </div>

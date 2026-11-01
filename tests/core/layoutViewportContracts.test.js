@@ -59,8 +59,8 @@ describe('Layout & Viewport Hardening Contracts', () => {
                 const html = fs.readFileSync(path.join(projectRoot, relPath), 'utf8');
                 assert.match(
                     html,
-                    /<button[^>]*id="hamburger-button"[^>]*class="[^"]*app-header__hamburger[^"]*"[^>]*aria-controls="navigation-drawer"/,
-                    `${relPath} must define #hamburger-button with .app-header__hamburger and aria-controls="navigation-drawer"`
+                    /<button[^>]*id="hamburger-btn"[^>]*class="[^"]*app-header__hamburger[^"]*"[^>]*aria-controls="navigation-drawer"/,
+                    `${relPath} must define #hamburger-btn with .app-header__hamburger and aria-controls="navigation-drawer"`
                 );
             }
 
@@ -79,19 +79,19 @@ describe('Layout & Viewport Hardening Contracts', () => {
         test('partials/header-account.html and partials/header-player-dropdown.html provide canonical interactive controls', () => {
             const popoverHtml = fs.readFileSync(path.join(projectRoot, 'partials/header-account.html'), 'utf8');
             assert.ok(popoverHtml.includes('id="header-account-btn"'));
-            assert.ok(popoverHtml.includes('id="account-popover-guest-avatar-btn"'));
-            assert.ok(popoverHtml.includes('id="account-popover-guest-manage-btn"'));
+            assert.ok(popoverHtml.includes('id="account-popover-guest-avatar-link"'));
+            assert.ok(popoverHtml.includes('id="account-popover-guest-manage-link"'));
             assert.ok(popoverHtml.includes('id="account-popover-signin-btn"'));
             assert.match(popoverHtml, /<div\s+id="app-account-popover"[^>]*\bhidden\b/);
             assert.ok(popoverHtml.includes('id="account-popover-panels"'));
             assert.ok(popoverHtml.includes('id="account-popover-logout-btn"'));
 
             const dropdownHtml = fs.readFileSync(path.join(projectRoot, 'partials/header-player-dropdown.html'), 'utf8');
-            assert.ok(dropdownHtml.includes('id="player-dropdown-button"'));
+            assert.ok(dropdownHtml.includes('id="player-dropdown-btn"'));
             assert.ok(dropdownHtml.includes('id="selected-player-name"'));
             assert.ok(dropdownHtml.includes('id="player-dropdown-list"'));
             assert.ok(dropdownHtml.includes('id="player-items-container"'));
-            assert.ok(dropdownHtml.includes('id="add-player-button"'));
+            assert.ok(dropdownHtml.includes('id="add-player-btn"'));
         });
     });
 });

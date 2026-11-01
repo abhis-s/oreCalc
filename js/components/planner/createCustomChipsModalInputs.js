@@ -1,6 +1,7 @@
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 import { addValidation } from '../../utils/inputValidator.js';
+import { toKebabCase } from '../../utils/stringUtils.js';
 
 import {
     closeCreateCustomChipsModal,
@@ -64,7 +65,7 @@ export function initializeCreateCustomChipsModalListeners() {
 
             if (selectedType) {
                 if (dynamicInputsContainer) dynamicInputsContainer.style.display = 'block';
-                const activeSection = document.getElementById(`custom-chip-section-${selectedType}`);
+                const activeSection = document.getElementById(`custom-chip-section-${toKebabCase(selectedType)}`);
                 if (activeSection) {
                     activeSection.style.display = 'block';
                 }
@@ -81,11 +82,11 @@ export function initializeCreateCustomChipsModalListeners() {
     }
 
     const previewTriggers = [
-        'custom-chip-starBonus-multiplier',
-        'custom-chip-clanWar-result',
-        'custom-chip-clanWar-shiny',
-        'custom-chip-clanWar-glowy',
-        'custom-chip-clanWar-starry',
+        'custom-chip-star-bonus-multiplier',
+        'custom-chip-clan-war-result',
+        'custom-chip-clan-war-shiny',
+        'custom-chip-clan-war-glowy',
+        'custom-chip-clan-war-starry',
         'custom-chip-cwl-result',
         'custom-chip-cwl-shiny',
         'custom-chip-cwl-glowy',
@@ -103,8 +104,8 @@ export function initializeCreateCustomChipsModalListeners() {
     });
 
     const closeBtn = document.getElementById('close-create-custom-chips-modal-btn');
-    const cancelBtn = document.getElementById('cancel-create-custom-chips-btn');
-    const saveBtn = document.getElementById('save-create-custom-chips-btn');
+    const cancelBtn = document.getElementById('cancel-create-custom-chips-modal-btn') || document.getElementById('cancel-create-custom-chips-btn');
+    const saveBtn = document.getElementById('save-create-custom-chips-modal-btn') || document.getElementById('save-create-custom-chips-btn');
 
     if (closeBtn) closeBtn.addEventListener('click', closeCreateCustomChipsModal);
     if (cancelBtn) {

@@ -180,13 +180,13 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
         acceleratedSwitch.checked = isAccelerated;
     }
 
-    const claimSwitch = document.getElementById('home-hj-claim-switch');
+    const claimSwitch = document.getElementById('home-hj-claim-control');
     if (claimSwitch) {
         claimSwitch.style.display = (!hasSyncedHeroes || isTrueMaxPlayer) ? 'none' : '';
     }
     const unclaimedOnly = Boolean(state.heroJourney.unclaimedOnly);
     const claimSwitchPill = document.getElementById('home-hj-claim-pill');
-    const claimSwitchBtns = document.querySelectorAll('#home-hj-claim-switch .hj-switch-btn');
+    const claimSwitchBtns = document.querySelectorAll('#home-hj-claim-control .hj-segmented-control__btn');
     claimSwitchBtns.forEach(btn => {
         const btnValue = btn.dataset.unclaimedOnly === 'true';
         const isMatch = btnValue === unclaimedOnly;

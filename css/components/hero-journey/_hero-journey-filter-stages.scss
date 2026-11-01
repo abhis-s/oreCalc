@@ -142,10 +142,10 @@
         }
     }
 
-    &.no-claim-switch,
-    &:has(#home-hj-claim-switch[hidden]),
-    &:has(#home-hj-claim-switch.hidden),
-    &:has(#home-hj-claim-switch.is-hidden) {
+    &.no-claim-control,
+    &:has(#home-hj-claim-control[hidden]),
+    &:has(#home-hj-claim-control.hidden),
+    &:has(#home-hj-claim-control.is-hidden) {
         .hero-journey-filters-row {
             justify-content: center !important;
             width: 100% !important;
@@ -209,12 +209,12 @@
         margin-bottom: $spacing-lg !important;
     }
 
-    .hj-segmented-switch {
+    .hj-segmented-control {
         width: 100% !important;
         display: flex !important;
         box-sizing: border-box !important;
 
-        .hj-switch-btn {
+        .hj-segmented-control__btn {
             flex: 1 !important;
             text-align: center !important;
         }

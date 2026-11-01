@@ -8,6 +8,7 @@ body.open-drawer {
     overscroll-behavior: contain;
 }
 
+.app-header__tab,
 .tab-button {
     background-color: $bg-surface-tertiary;
     border: none;
@@ -20,7 +21,7 @@ body.open-drawer {
                 transform $duration-fast $ease-standard,
                 box-shadow $duration-fast $ease-standard;
 
-    &:hover:not(.active) {
+    &:hover:not(.is-active) {
         background-color: $accent-primary-soft;
         color: $accent-primary;
     }
@@ -29,7 +30,7 @@ body.open-drawer {
         transform: scale(0.97);
     }
 
-    &.active {
+    &.is-active {
         background-color: $accent-primary;
         color: $text-on-accent;
         box-shadow: 0 4px 12px $accent-primary-soft;
@@ -55,7 +56,7 @@ body.open-drawer {
     display: none;
     width: 100%;
 
-    &.active {
+    &.is-active {
         display: block;
     }
 }

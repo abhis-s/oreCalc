@@ -2,12 +2,12 @@
     <div class="modal-content support-modal-content">
         <div class="modal-header">
             <h2 id="support-modal-title" data-i18n="views.settings.bugReport.title"></h2>
-            <button type="button" id="close-support-header-btn" class="close-button" data-i18n-aria-label="actions.close">
+            <button type="button" id="close-support-modal-btn" class="modal__close-btn" data-i18n-aria-label="actions.close">
                 <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
             </button>
         </div>
         <div class="support-modal-tabs segmented-control">
-            <button type="button" id="support-tab-bug" class="segmented-btn active" data-support-mode="bug" aria-selected="true">
+            <button type="button" id="support-tab-bug" class="segmented-btn is-active" data-support-mode="bug" aria-selected="true">
                 <clashcalc-assets-svg name="bug"></clashcalc-assets-svg>
                 <span data-i18n="views.settings.bugReport.title"></span>
             </button>
@@ -16,20 +16,20 @@
                 <span data-i18n="views.settings.feedback.title"></span>
             </button>
         </div>
-        <div class="modal-info-text text-left">
+        <div class="modal-info-text">
             <p id="support-modal-info-bug" data-i18n="views.settings.bugReport.info"></p>
             <p id="support-modal-info-feedback" data-i18n="views.settings.feedback.info" hidden></p>
         </div>
-        <div class="support-modal-form flex-column-gap-15 text-left">
-            <div class="form-group flex-column-gap-5">
+        <div class="support-modal-form">
+            <div class="form-group">
                 <label for="support-email" class="input-label" data-i18n="views.settings.options.contactEmail"></label>
-                <input type="email" id="support-email" class="input-style width-100" data-i18n-placeholder="views.settings.options.emailPlaceholder" autocomplete="email" data-modal-autofocus>
+                <input type="email" id="support-email" class="input-style" data-i18n-placeholder="views.settings.options.emailPlaceholder" autocomplete="email" data-modal-autofocus>
                 <div id="support-email-error" class="input-error-msg"></div>
             </div>
-            <div class="form-group flex-column-gap-5">
+            <div class="form-group">
                 <label for="support-desc" id="support-desc-label" class="input-label" data-i18n="views.settings.options.bugDescription"></label>
-                <textarea id="support-desc" class="input-style width-100" maxlength="1000" rows="4" data-i18n-placeholder="views.settings.options.bugDescPlaceholder"></textarea>
-                <div class="textarea-footer justify-between align-center">
+                <textarea id="support-desc" class="input-style" maxlength="1000" rows="4" data-i18n-placeholder="views.settings.options.bugDescPlaceholder"></textarea>
+                <div class="textarea-footer">
                     <span id="support-desc-error" class="input-error-msg"></span>
                     <span id="support-char-count" class="char-count">0/1000</span>
                 </div>
@@ -62,8 +62,8 @@
             </div>
         </div>
         <div class="modal-actions">
-            <button type="button" id="close-support-modal-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button type="button" id="submit-support-btn" class="accept-button" data-i18n="actions.submit"></button>
+            <button type="button" id="cancel-support-modal-btn" class="btn btn--secondary" data-i18n="actions.cancel"></button>
+            <button type="button" id="submit-support-btn" class="btn btn--primary" data-i18n="actions.submit"></button>
         </div>
     </div>
 </dialog>

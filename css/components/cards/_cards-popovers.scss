@@ -408,7 +408,8 @@
         gap: 6px;
     }
 
-    .popover-opt-btn {
+    .popover-opt-btn,
+    .popover-opt-row {
         background-color: $bg-surface-secondary;
         border: 1px solid $border-primary;
         border-radius: $shape-corner-small;
@@ -442,7 +443,8 @@
             }
         }
 
-        &.readonly {
+        &.readonly,
+        &.is-readonly {
             cursor: default;
 
             strong {

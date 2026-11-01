@@ -113,7 +113,7 @@ class MockDOMElement {
     set innerHTML(val) {
         this._innerHTML = val || '';
         this.children = [];
-        const btnRegex = /<div class="([^"]*popover-opt-btn[^"]*)"([^>]*)>([\s\S]*?)<\/div>/g;
+        const btnRegex = /<div class="([^"]*popover-opt-(?:btn|row)[^"]*)"([^>]*)>([\s\S]*?)<\/div>/g;
         let match;
         while ((match = btnRegex.exec(this._innerHTML)) !== null) {
             const btn = new MockDOMElement('div', '', match[1]);

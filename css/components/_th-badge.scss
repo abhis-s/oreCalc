@@ -1,0 +1,103 @@
+@use '../abstracts/variables' as *;
+
+.th-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &__img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        &.is-silhouette {
+            filter: brightness(0) invert(1) opacity(0.35);
+
+            :root[data-theme="light"] & {
+                filter: brightness(0) opacity(0.25);
+            }
+        }
+    }
+
+    &__level {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        border: 1.5px solid $border-primary;
+        border-radius: $shape-corner-xs;
+        font-weight: $font-weight-extrabold;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+    }
+
+    &--xs {
+        width: 32px;
+        height: 32px;
+        background: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-small;
+
+        .th-badge__img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .th-badge__level {
+            font-size: 0.6rem;
+            padding: 1px 3px;
+        }
+    }
+
+    &--sm {
+        width: 36px;
+        height: 36px;
+
+        .th-badge__level {
+            font-size: 10px;
+            min-width: 15px;
+            height: 15px;
+            padding: 1px 2px;
+        }
+    }
+
+    &--md {
+        width: 42px;
+        height: 42px;
+
+        .th-badge__level {
+            font-size: $font-size-2xs;
+            min-width: 16px;
+            height: 16px;
+            padding: 1px 3px;
+        }
+    }
+
+    &--lg {
+        width: clamp(52px, 7vw, 64px);
+        height: clamp(52px, 7vw, 64px);
+
+        .th-badge__level {
+            bottom: -3px;
+            right: -3px;
+            font-size: clamp(10px, 1.3vw, 12px);
+            padding: $spacing-2xs 6px;
+            border-radius: $shape-corner-compact;
+        }
+    }
+}

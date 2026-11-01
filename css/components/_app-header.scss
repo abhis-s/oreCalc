@@ -158,6 +158,7 @@
             padding: 3px;
             gap: 1px;
 
+            .app-header__tab,
             .tab-button {
                 padding: 5px $spacing-sm;
                 font-size: $font-size-xs;
@@ -170,6 +171,7 @@
             display: none;
         }
 
+        .app-header__tab,
         .tab-button {
             flex-shrink: 0;
             background-color: transparent;
@@ -185,7 +187,7 @@
                         color $duration-fast $ease-smooth,
                         transform $duration-fast $ease-smooth;
 
-            &:hover:not(.active) {
+            &:hover:not(.is-active) {
                 background-color: $accent-primary-soft;
                 color: $accent-primary;
                 transform: scale(1.02);
@@ -195,7 +197,7 @@
                 transform: scale(0.96);
             }
 
-            &.active {
+            &.is-active {
                 background-color: $accent-primary;
                 color: $text-on-accent;
                 box-shadow: 0 2px 8px $accent-primary-soft;

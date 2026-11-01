@@ -7,7 +7,7 @@
             </div>
             <div class="modal-header-actions guided-setup-header-actions">
                 <div id="guided-setup-step-indicator" class="guided-setup-step-indicator" hidden></div>
-                <button type="button" class="close-button" id="close-guided-setup-modal-btn" aria-label="Close" data-i18n-aria-label="actions.close">
+                <button type="button" class="modal__close-btn" id="close-guided-setup-modal-btn" aria-label="Close" data-i18n-aria-label="actions.close">
                     <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                 </button>
             </div>
@@ -35,11 +35,11 @@
 
                 <div id="guided-setup-profile-preview-container" class="guided-setup-profile-preview" hidden>
                     <div class="profile-card-tabs">
-                        <button type="button" class="profile-tab-btn active" data-profile-tab="info" id="guided-setup-tab-btn-info" data-i18n="views.guidedSetup.profileTab"></button>
+                        <button type="button" class="profile-tab-btn is-active" data-profile-tab="info" id="guided-setup-tab-btn-info" data-i18n="views.guidedSetup.profileTab"></button>
                         <button type="button" class="profile-tab-btn" data-profile-tab="equipment" id="guided-setup-tab-btn-equipment" data-i18n="nav.equipment"></button>
                     </div>
                     <div class="profile-card-body">
-                        <div class="profile-tab-content active" id="guided-setup-tab-content-info">
+                        <div class="profile-tab-content is-active" id="guided-setup-tab-content-info">
                             <div class="profile-header-main">
                                 <div class="th-image-wrapper">
                                     <clashcalc-assets-image id="guided-setup-profile-th-image" src="assets/th/th1.png" alt="Town Hall" data-i18n-alt="entities.defenses.townHall" size="standard"></clashcalc-assets-image>
@@ -110,7 +110,7 @@
                                             <div class="progress-fill" id="guided-setup-profile-common-glowy-fill"></div>
                                         </div>
                                     </div>
-                                    <div class="progress-section starry disabled">
+                                    <div class="progress-section starry is-disabled">
                                         <div class="section-header">
                                             <span data-i18n="entities.ores.starryShort"></span>
                                             <span>-</span>
@@ -431,7 +431,7 @@
                             <clashcalc-assets-svg name="global-pricing" height="24" width="24" class="quick-setting-icon"></clashcalc-assets-svg>
                             <label class="quick-setting-title" for="guided-setup-pref-currency" data-i18n="views.settings.options.currency"></label>
                         </div>
-                        <select id="guided-setup-pref-currency" class="guided-setup-select-input" data-i18n-aria-label="views.settings.options.currency">
+                        <select id="guided-setup-pref-currency" class="guided-setup-select" data-i18n-aria-label="views.settings.options.currency">
                             <!-- DYNAMIC INSERTION: Currency select options -->
                         </select>
                     </div>
@@ -475,12 +475,12 @@
 
         <div class="modal-actions modal-actions-between guided-setup-actions" id="guided-setup-main-actions">
             <div class="guided-setup-actions-left">
-                <button type="button" id="guided-setup-cancel-btn" class="btn-secondary" data-i18n="actions.cancel"></button>
-                <button type="button" id="guided-setup-back-btn" class="btn-secondary" hidden data-i18n="actions.back"></button>
+                <button type="button" id="cancel-guided-setup-modal-btn" class="btn btn--secondary" data-i18n="actions.cancel"></button>
+                <button type="button" id="guided-setup-back-btn" class="btn btn--secondary" hidden data-i18n="actions.back"></button>
             </div>
             <div class="guided-setup-actions-right">
-                <button type="button" id="guided-setup-skip-btn" class="btn-secondary btn-ghost" hidden data-i18n="actions.skip"></button>
-                <button type="button" id="guided-setup-next-btn" class="btn-primary" hidden data-i18n="actions.next"></button>
+                <button type="button" id="guided-setup-skip-btn" class="btn btn--secondary btn--ghost" hidden data-i18n="actions.skip"></button>
+                <button type="button" id="guided-setup-next-btn" class="btn btn--primary" hidden data-i18n="actions.next"></button>
             </div>
         </div>
     </div>

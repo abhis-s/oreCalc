@@ -109,7 +109,7 @@ export function renderOffenseEditModal(state, container) {
                         </clashcalc-assets-image>
                         <span class="calc-offense-modal-row__name">${escapeHTML(equipName)}</span>
                     </div>
-                    <span class="calc-offense-modal-row__value" id="modal-val-${eqId}">${formatOffenseModalValue('equipment', eqId, eqLvl, { modifier: activeModifier })}</span>
+                    <span class="calc-offense-modal-row__value" id="modal-val-${eqId.replace(/_/g, '-')}">${formatOffenseModalValue('equipment', eqId, eqLvl, { modifier: activeModifier })}</span>
                 </div>
                 <div class="calc-offense-modal-row__controls">
                     <div class="calc-stepper-track">

@@ -82,10 +82,10 @@ export async function parseCustomChipFormData(selectedType, state, customChips) 
             }
             break;
         case 'starBonus': {
-            const multiplier = getSelectVal('custom-chip-starBonus-multiplier', '2x');
+            const multiplier = getSelectVal('custom-chip-star-bonus-multiplier', '2x');
             const starBonusType = 'starBonus' + multiplier;
-            count = getNum('custom-chip-starBonus-count', 1);
-            settings.monthly = getChecked('custom-chip-starBonus-monthly');
+            count = getNum('custom-chip-star-bonus-count', 1);
+            settings.monthly = getChecked('custom-chip-star-bonus-monthly');
             settings.count = count;
             settings.multiplier = multiplier;
             chipData.type = starBonusType;
@@ -100,68 +100,68 @@ export async function parseCustomChipFormData(selectedType, state, customChips) 
             break;
         }
         case 'shopOffers':
-            chipData.shiny = getNum('custom-chip-shopOffers-shiny', 0);
-            chipData.glowy = getNum('custom-chip-shopOffers-glowy', 0);
-            chipData.starry = getNum('custom-chip-shopOffers-starry', 0);
-            settings.monthly = getChecked('custom-chip-shopOffers-monthly');
+            chipData.shiny = getNum('custom-chip-shop-offers-shiny', 0);
+            chipData.glowy = getNum('custom-chip-shop-offers-glowy', 0);
+            chipData.starry = getNum('custom-chip-shop-offers-starry', 0);
+            settings.monthly = getChecked('custom-chip-shop-offers-monthly');
             settings.shiny = chipData.shiny;
             settings.glowy = chipData.glowy;
             settings.starry = chipData.starry;
             chipData.isRecurring = settings.monthly;
             break;
         case 'gemTrader':
-            chipData.shiny = getNum('custom-chip-gemTrader-shiny', 0);
-            chipData.glowy = getNum('custom-chip-gemTrader-glowy', 0);
-            chipData.starry = getNum('custom-chip-gemTrader-starry', 0);
-            settings.weekly = getChecked('custom-chip-gemTrader-weekly');
+            chipData.shiny = getNum('custom-chip-gem-trader-shiny', 0);
+            chipData.glowy = getNum('custom-chip-gem-trader-glowy', 0);
+            chipData.starry = getNum('custom-chip-gem-trader-starry', 0);
+            settings.weekly = getChecked('custom-chip-gem-trader-weekly');
             settings.shiny = chipData.shiny;
             settings.glowy = chipData.glowy;
             settings.starry = chipData.starry;
             chipData.isRecurring = settings.weekly;
             break;
         case 'raidMedalTrader':
-            chipData.shiny = getNum('custom-chip-raidMedalTrader-shiny', 0);
-            chipData.glowy = getNum('custom-chip-raidMedalTrader-glowy', 0);
-            chipData.starry = getNum('custom-chip-raidMedalTrader-starry', 0);
-            settings.weekly = getChecked('custom-chip-raidMedalTrader-weekly');
+            chipData.shiny = getNum('custom-chip-raid-medal-trader-shiny', 0);
+            chipData.glowy = getNum('custom-chip-raid-medal-trader-glowy', 0);
+            chipData.starry = getNum('custom-chip-raid-medal-trader-starry', 0);
+            settings.weekly = getChecked('custom-chip-raid-medal-trader-weekly');
             settings.shiny = chipData.shiny;
             settings.glowy = chipData.glowy;
             settings.starry = chipData.starry;
             chipData.isRecurring = settings.weekly;
             break;
         case 'eventTrader':
-            chipData.shiny = getNum('custom-chip-eventTrader-shiny', 0);
-            chipData.glowy = getNum('custom-chip-eventTrader-glowy', 0);
-            chipData.starry = getNum('custom-chip-eventTrader-starry', 0);
-            settings.monthly = getChecked('custom-chip-eventTrader-monthly');
+            chipData.shiny = getNum('custom-chip-event-trader-shiny', 0);
+            chipData.glowy = getNum('custom-chip-event-trader-glowy', 0);
+            chipData.starry = getNum('custom-chip-event-trader-starry', 0);
+            settings.monthly = getChecked('custom-chip-event-trader-monthly');
             settings.shiny = chipData.shiny;
             settings.glowy = chipData.glowy;
             settings.starry = chipData.starry;
             chipData.isRecurring = settings.monthly;
             break;
         case 'eventPass':
-            chipData.shiny = getNum('custom-chip-eventPass-shiny', 0);
-            chipData.glowy = getNum('custom-chip-eventPass-glowy', 0);
-            chipData.starry = getNum('custom-chip-eventPass-starry', 0);
-            settings.monthly = getChecked('custom-chip-eventPass-monthly');
+            chipData.shiny = getNum('custom-chip-event-pass-shiny', 0);
+            chipData.glowy = getNum('custom-chip-event-pass-glowy', 0);
+            chipData.starry = getNum('custom-chip-event-pass-starry', 0);
+            settings.monthly = getChecked('custom-chip-event-pass-monthly');
             settings.shiny = chipData.shiny;
             settings.glowy = chipData.glowy;
             settings.starry = chipData.starry;
             chipData.isRecurring = settings.monthly;
             break;
         case 'clanWar': {
-            chipData.result = getSelectVal('custom-chip-clanWar-result', 'win');
-            const cwRawShiny = getNum('custom-chip-clanWar-shiny', 0);
-            const cwRawGlowy = getNum('custom-chip-clanWar-glowy', 0);
-            const cwRawStarry = getNum('custom-chip-clanWar-starry', 0);
+            chipData.result = getSelectVal('custom-chip-clan-war-result', 'win');
+            const cwRawShiny = getNum('custom-chip-clan-war-shiny', 0);
+            const cwRawGlowy = getNum('custom-chip-clan-war-glowy', 0);
+            const cwRawStarry = getNum('custom-chip-clan-war-starry', 0);
             const cwFactor = chipData.result === 'win' ? 1.0 : (chipData.result === 'loss' ? 0.5 : 0.75);
 
             chipData.shiny = Math.round(2 * cwRawShiny * cwFactor);
             chipData.glowy = Math.round(2 * cwRawGlowy * cwFactor);
             chipData.starry = Math.round(2 * cwRawStarry * cwFactor);
 
-            count = getNum('custom-chip-clanWar-count', 1);
-            settings.monthly = getChecked('custom-chip-clanWar-monthly');
+            count = getNum('custom-chip-clan-war-count', 1);
+            settings.monthly = getChecked('custom-chip-clan-war-monthly');
             settings.count = count;
             settings.shiny = cwRawShiny;
             settings.glowy = cwRawGlowy;
@@ -192,10 +192,10 @@ export async function parseCustomChipFormData(selectedType, state, customChips) 
             break;
         }
         case 'supercellEvents':
-            chipData.shiny = getNum('custom-chip-supercellEvents-shiny', 1000);
-            chipData.glowy = getNum('custom-chip-supercellEvents-glowy', 50);
-            chipData.starry = getNum('custom-chip-supercellEvents-starry', 10);
-            settings.globalOverride = getChecked('custom-chip-supercellEvents-override');
+            chipData.shiny = getNum('custom-chip-supercell-events-shiny', 1000);
+            chipData.glowy = getNum('custom-chip-supercell-events-glowy', 50);
+            chipData.starry = getNum('custom-chip-supercell-events-starry', 10);
+            settings.globalOverride = getChecked('custom-chip-supercell-events-override');
             settings.shiny = chipData.shiny;
             settings.glowy = chipData.glowy;
             settings.starry = chipData.starry;

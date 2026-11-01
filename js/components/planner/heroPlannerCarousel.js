@@ -1,7 +1,7 @@
 import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 
-import { toCamelCase } from '../../utils/stringUtils.js';
+import { toCamelCase, toKebabCase } from '../../utils/stringUtils.js';
 
 import { createEquipmentItem, createHeroIcon } from '../common/heroDisplayFactory.js';
 import { getCurrentHeroIndex, updatePageDots } from './heroPlannerCarouselDisplay.js';
@@ -21,7 +21,8 @@ function updateExistingHeroSwitches(heroesState) {
         const heroName = heroPage.dataset.heroName || heroData[heroKey]?.name;
         const heroState = heroesState[heroName] || heroesState[heroKey] || { equipment: {} };
 
-        const heroToggle = heroPage.querySelector(`#planner-${heroKey}-toggle`);
+        const heroKeyKebab = toKebabCase(heroKey);
+        const heroToggle = heroPage.querySelector(`#planner-${heroKeyKebab}-toggle`);
         if (heroToggle) {
             heroToggle.checked = heroState.enabled !== false;
         }
@@ -107,10 +108,11 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         const switchLabel = document.createElement('label');
         switchLabel.className = 'switch large-switch';
 
+        const heroKeyKebab = toKebabCase(heroKey);
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `planner-${heroKey}-toggle`;
-        checkbox.name = `planner-${heroKey}-toggle`;
+        checkbox.id = `planner-${heroKeyKebab}-toggle`;
+        checkbox.name = `planner-${heroKeyKebab}-toggle`;
         checkbox.checked = heroState.enabled !== false;
         checkbox.setAttribute('aria-label', translate('views.planner.toggleEquipment', {
             name: translate(`entities.heroes.${heroKey}`) || hero.name

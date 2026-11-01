@@ -52,8 +52,8 @@ describe('Equipment Details Modifier Tab Indicator Suite', () => {
             if (selector === '.mod-tab-indicator') {
                 return this.children.find(c => c.classList.contains('mod-tab-indicator')) || null;
             }
-            if (selector === '.mod-tab-btn.active') {
-                return this.children.find(c => c.classList.contains('mod-tab-btn') && c.classList.contains('active')) || null;
+            if (selector.includes('.mod-tab-btn')) {
+                return this.children.find(c => c.classList.contains('mod-tab-btn') && (c.classList.contains('is-active') || c.classList.contains('active'))) || null;
             }
             if (selector === '.unit-level-badge') {
                 if (this._badgeEl) return this._badgeEl;

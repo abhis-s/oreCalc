@@ -17,7 +17,7 @@ import { initializeChangelogModal } from '../components/changelog/changelogModal
 import { initializeCommitsModal } from '../components/changelog/commitsModal.js';
 import { initAppFooter } from '../components/common/appFooter.js';
 import { initAppHeader } from '../components/common/appHeader.js';
-import { getAppSettings, initAppSettings, persistAppSettings } from '../components/common/appSettings.js';
+import { getAppSettings, initAppSettings, persistAppSettings } from '../components/common/appSettingsManager.js';
 import { setupNavigatorUiHooks } from '../components/common/appShellNavigatorHooks.js';
 import { initDomainNotice } from '../components/common/domainNotice.js';
 import { initExternalLinkCatcher } from '../components/common/externalLinkCatcher.js';
@@ -132,7 +132,7 @@ export function initSharedShellChrome(options = {}) {
 export function bindStandaloneNavigationDrawer(onBeforeInit) {
     const drawerEl = document.getElementById('navigation-drawer');
     const overlayEl = document.querySelector('.navigation-drawer__overlay');
-    const buttonEl = document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
+    const buttonEl = document.getElementById('hamburger-btn') || document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
     const closeEl = drawerEl?.querySelector('.navigation-drawer__close') || null;
 
     if (!drawerEl || !buttonEl) return null;

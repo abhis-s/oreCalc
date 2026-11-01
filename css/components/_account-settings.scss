@@ -508,8 +508,8 @@
 }
 
 .account-page .app-account-popover {
-    #account-popover-manage-btn,
-    #account-popover-guest-manage-btn,
+    #account-popover-manage-link,
+    #account-popover-guest-manage-link,
     [data-popover-option="account-sync"] {
         display: none !important;
     }

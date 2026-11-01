@@ -203,7 +203,7 @@ export function initializeGlobalInterceptors() {
 
             const drawer = document.querySelector('.navigation-drawer, #navigation-drawer, #nav-drawer');
             if (drawer && (drawer.classList.contains('open') || /** @type {HTMLDialogElement} */ (drawer).open || (typeof drawer.hasAttribute === 'function' && drawer.hasAttribute('open')))) {
-                const hamburger = /** @type {HTMLElement|null} */ (document.querySelector('#hamburger-button, .app-header__hamburger, .hamburger, [data-drawer-trigger]'));
+                const hamburger = /** @type {HTMLElement|null} */ (document.querySelector('#hamburger-btn, #hamburger-button, .app-header__hamburger, .hamburger, [data-drawer-trigger]'));
                 if (hamburger) {
                     hamburger.click();
                     hamburger.focus();
@@ -225,7 +225,7 @@ export function initializeGlobalInterceptors() {
             }
 
             const mainFab = document.getElementById('main-fab');
-            if (mainFab && mainFab.classList.contains('active')) {
+            if (mainFab && mainFab.classList.contains('is-active')) {
                 mainFab.click();
                 mainFab.focus();
             }

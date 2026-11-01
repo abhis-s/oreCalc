@@ -113,7 +113,7 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
 
                 scPills += `
                     <button type="button"
-                        class="calc-supercharge-pill ${isSelected && !isScDisabled ? 'active is-active' : ''} ${isScDisabled && tier === 0 ? 'active is-active' : ''}"
+                        class="calc-supercharge-pill ${isSelected && !isScDisabled ? 'is-active' : ''} ${isScDisabled && tier === 0 ? 'is-active' : ''}"
                         data-building-key="${key}"
                         data-tier="${tier}"
                         role="radio"
@@ -271,7 +271,7 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
 
             scPillsHtml += `
                 <button type="button"
-                    class="calc-supercharge-pill ${isActive ? 'active is-active' : ''}"
+                    class="calc-supercharge-pill ${isActive ? 'is-active' : ''}"
                     data-toolbar-supercharge="${tier}"
                     role="radio"
                     aria-checked="${isActive}"

@@ -80,9 +80,9 @@ export function toggleGuestPairingDrawer(forceState) {
  */
 export function setGuestPairingActiveTab(tab) {
     const tabQr = document.getElementById('account-guest-tab-qr');
-    const tabInput = document.getElementById('account-guest-tab-input');
+    const tabInput = document.getElementById('account-guest-tab-sync-code');
     const paneQr = document.getElementById('account-guest-pane-qr');
-    const paneInput = document.getElementById('account-guest-pane-input');
+    const paneInput = document.getElementById('account-guest-pane-sync-code');
 
     const isQr = tab === 'qr';
     if (tabQr) {

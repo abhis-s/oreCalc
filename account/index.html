@@ -46,10 +46,10 @@
 <body class="dark-mode account-page">
     <!-- include: partials/shell-top.html -->
 
-    <header class="app-header header-container account-page__header">
-        <div class="app-header__inner header-inner account-page__header-inner">
-            <div class="app-header__brand header-brand account-page__brand">
-                <button type="button" id="hamburger-button" class="app-header__hamburger hamburger account-hamburger"
+    <header class="app-header account-page__header">
+        <div class="app-header__inner">
+            <div class="app-header__brand">
+                <button type="button" id="hamburger-btn" class="app-header__hamburger"
                     aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
                     <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
@@ -65,13 +65,13 @@
                 </div>
             </div>
 
-            <div class="app-header__actions data-buttons-container account-page__header-actions">
+            <div class="app-header__actions">
                 <!-- include: partials/header-spotright.html -->
                 <!-- include: partials/header-account.html -->
             </div>
         </div>
     </header>
-    <div class="header-placeholder app-header-placeholder"></div>
+    <div class="app-header-placeholder"></div>
 
     <main class="account-main" id="main-content">
         <h2 class="sr-only" data-i18n="views.account.title">Account &amp; Security</h2>
@@ -82,14 +82,14 @@
             <section id="account-guest-view" class="account-view" hidden>
                 <div class="account-grid">
                     <div class="account-card account-card--hero">
-                        <div class="account-hero-badge">
-                            <clashcalc-assets-svg name="user-filled" class="account-hero-icon" width="32" height="32"></clashcalc-assets-svg>
+                        <div class="account-card__hero-badge">
+                            <clashcalc-assets-svg name="user-filled" class="account-card__hero-icon" width="32" height="32"></clashcalc-assets-svg>
                         </div>
-                        <h3 class="account-hero-title" data-i18n="auth.accountAndDataManagement">Account &amp; Data Management</h3>
-                        <p class="account-hero-desc" data-i18n="views.account.guestSubtitle">Sign in or create an account to synchronize your progression and settings across devices.</p>
-                        <div class="account-hero-actions">
-                            <button type="button" class="btn btn-primary" id="account-guest-signin-btn" data-i18n="auth.signIn">Sign In</button>
-                            <button type="button" class="btn btn-secondary" id="account-guest-create-btn" data-i18n="auth.createAccount">Create Account</button>
+                        <h3 class="account-card__hero-title" data-i18n="auth.accountAndDataManagement">Account &amp; Data Management</h3>
+                        <p class="account-card__hero-desc" data-i18n="views.account.guestSubtitle">Sign in or create an account to synchronize your progression and settings across devices.</p>
+                        <div class="account-card__hero-actions">
+                            <button type="button" class="btn btn--primary" id="account-guest-signin-btn" data-i18n="auth.signIn">Sign In</button>
+                            <button type="button" class="btn btn--secondary" id="account-guest-create-btn" data-i18n="auth.createAccount">Create Account</button>
                         </div>
                     </div>
 
@@ -100,14 +100,14 @@
                                 <p class="account-card__desc" data-i18n="views.settings.cloudSync.deviceInfo">Link and sync your progress across multiple devices.</p>
                             </div>
                             <div class="account-card__actions">
-                                <button type="button" class="btn btn-secondary" id="account-guest-btn-toggle-pairing" data-i18n="actions.link">Link</button>
+                                <button type="button" class="btn btn--secondary" id="account-guest-btn-toggle-pairing" data-i18n="actions.link">Link</button>
                             </div>
                         </div>
 
                         <div id="account-guest-pairing-drawer" class="account-pairing-drawer" hidden aria-expanded="false">
                             <div class="account-pairing-tabs segmented-control" role="tablist">
-                                <button type="button" id="account-guest-tab-qr" class="segmented-btn active" role="tab" aria-selected="true" data-i18n="views.settings.cloudSync.yourSyncCode">Your Sync Code</button>
-                                <button type="button" id="account-guest-tab-input" class="segmented-btn" role="tab" aria-selected="false" data-i18n="views.settings.cloudSync.tabEnterCode">Enter Sync Code</button>
+                                <button type="button" id="account-guest-tab-qr" class="segmented-btn is-active" role="tab" aria-selected="true" data-i18n="views.settings.cloudSync.yourSyncCode">Your Sync Code</button>
+                                <button type="button" id="account-guest-tab-sync-code" class="segmented-btn" role="tab" aria-selected="false" data-i18n="views.settings.cloudSync.tabEnterCode">Enter Sync Code</button>
                             </div>
 
                             <!-- Pane 1: Your Sync Code -->
@@ -128,7 +128,7 @@
                                         <!-- Shown when user has player tags -->
                                         <div id="account-guest-code-container" class="account-guest-code-container is-hidden">
                                             <span class="qr-user-id" id="account-guest-user-id" data-i18n-title="actions.clickToCopy"></span>
-                                            <button type="button" class="btn btn-secondary btn-sm" id="account-guest-copy-btn" data-i18n="actions.copy">Copy</button>
+                                            <button type="button" class="btn btn--secondary btn--sm" id="account-guest-copy-btn" data-i18n="actions.copy">Copy</button>
                                         </div>
                                         <p class="account-item-desc" id="account-guest-sync-instruction" data-i18n="player.qrDisplayInstruction" hidden>Click the Sync Code below to copy it to your clipboard, or scan the QR code with another device's camera to link them instantly.</p>
 
@@ -139,7 +139,7 @@
                                                 <h4 class="account-guest-hint-subcard__title" data-i18n="views.settings.cloudSync.hintAlreadyUsing">Already using ClashCalc on another device?</h4>
                                             </div>
                                             <p class="account-guest-hint-subcard__desc" data-i18n="views.settings.cloudSync.hintAlreadyUsingDesc">If you already tracked village upgrades on another phone, tablet, or PC, you can enter that device's Sync Code to link them together.</p>
-                                            <button type="button" class="btn btn-secondary" id="account-guest-btn-goto-input">
+                                            <button type="button" class="btn btn--secondary" id="account-guest-goto-sync-code-btn">
                                                 <span data-i18n="views.settings.cloudSync.tabEnterCode">Enter Sync Code</span>
                                                 <clashcalc-assets-svg name="forward" width="14" height="14"></clashcalc-assets-svg>
                                             </button>
@@ -149,7 +149,7 @@
                             </div>
 
                             <!-- Pane 2: Enter Sync Code -->
-                            <div id="account-guest-pane-input" class="account-guest-pairing-pane is-hidden" role="tabpanel" hidden>
+                            <div id="account-guest-pane-sync-code" class="account-guest-pairing-pane is-hidden" role="tabpanel" hidden>
                                 <div class="account-guest-input-hub">
                                     <div class="account-guest-input-group">
                                         <label for="account-guest-sync-input" class="account-form-label" data-i18n="views.settings.cloudSync.enterCodePrompt">Enter the 36-character Sync Code from your other device:</label>
@@ -161,8 +161,8 @@
                                     </div>
 
                                     <div class="account-drawer-actions">
-                                        <button type="button" id="account-guest-btn-cancel-input" class="btn btn-secondary" data-i18n="actions.cancel">Cancel</button>
-                                        <button type="button" id="account-guest-btn-confirm-sync" class="btn btn-primary" data-i18n="actions.linkDevice" disabled>Link Device</button>
+                                        <button type="button" id="account-guest-cancel-sync-code-btn" class="btn btn--secondary" data-i18n="actions.cancel">Cancel</button>
+                                        <button type="button" id="account-guest-btn-confirm-sync" class="btn btn--primary" data-i18n="actions.linkDevice" disabled>Link Device</button>
                                     </div>
                                 </div>
                             </div>
@@ -176,8 +176,8 @@
                                 <p class="account-card__desc" data-i18n="auth.dataBackupAndRestoreDesc">Export a local JSON archive or restore your data from a backup file.</p>
                             </div>
                             <div class="account-card__actions">
-                                <button type="button" class="btn btn-primary" id="account-guest-export-backup" data-i18n="actions.download">Download</button>
-                                <button type="button" class="btn btn-secondary" id="account-guest-restore-backup" data-i18n="actions.restore">Restore</button>
+                                <button type="button" class="btn btn--primary" id="account-guest-export-backup" data-i18n="actions.download">Download</button>
+                                <button type="button" class="btn btn--secondary" id="account-guest-restore-backup" data-i18n="actions.restore">Restore</button>
                                 <input type="file" id="account-guest-restore-file-input" accept=".json" class="is-hidden" aria-hidden="true">
                             </div>
                         </div>
@@ -195,7 +195,7 @@
                                     <h4 class="account-erasure-label" data-i18n="auth.resetVillageData">Reset Village Data</h4>
                                     <p class="account-erasure-desc" id="account-guest-reset-data-desc"></p>
                                 </div>
-                                <button type="button" class="btn btn-danger-outline" id="account-guest-reset-data-btn" data-i18n="actions.reset">Reset</button>
+                                <button type="button" class="btn btn--danger-outline" id="account-guest-reset-data-btn" data-i18n="actions.reset">Reset</button>
                             </div>
                         </div>
                     </div>
@@ -226,13 +226,13 @@
                                 </div>
                             </div>
                             <div class="account-profile-header-action">
-                                <button type="button" class="btn btn-danger-outline btn-sm" id="account-btn-signout" data-i18n="auth.signOut">Sign Out</button>
+                                <button type="button" class="btn btn--danger-outline btn--sm" id="account-btn-signout" data-i18n="auth.signOut">Sign Out</button>
                             </div>
                         </div>
                         <div id="account-avatar-tray" class="account-avatar-tray" hidden aria-expanded="false">
                             <div class="account-avatar-tray__header">
                                 <h4 class="account-avatar-tray__title" data-i18n="auth.chooseAvatar">Choose Avatar</h4>
-                                <button type="button" id="account-btn-avatar-done" class="btn btn-secondary" data-i18n="actions.done">Done</button>
+                                <button type="button" id="account-btn-avatar-done" class="btn btn--secondary" data-i18n="actions.done">Done</button>
                             </div>
                             <div class="avatar-options-grid" role="group" aria-label="Avatar options">
                                 <button type="button" class="avatar-option-btn" data-avatar="archer" aria-label="Archer" data-i18n-aria-label="entities.unitTypes.archer">
@@ -297,7 +297,7 @@
                                         <div class="account-add-passkey-input-wrap">
                                             <input type="text" id="account-add-passkey-name" class="account-input account-passkey-input" maxlength="30" spellcheck="false" placeholder="e.g. iCloud Keychain, Google Passwords, Security Key" data-i18n-placeholder="auth.passkeyNamePlaceholder">
                                         </div>
-                                        <button type="button" id="account-btn-add-passkey" class="btn btn-secondary" data-i18n="auth.addPasskey">Add Passkey</button>
+                                        <button type="button" id="account-btn-add-passkey" class="btn btn--secondary" data-i18n="auth.addPasskey">Add Passkey</button>
                                     </div>
                                 </div>
                             </div>
@@ -315,7 +315,7 @@
                                         <p id="account-password-desc" class="account-item-desc" data-i18n="views.account.passwordConfiguredDesc">Your account has a password configured. You can use it to sign in on any device.</p>
                                     </div>
                                     <div class="account-item-actions">
-                                        <button type="button" id="account-btn-toggle-password-drawer" class="btn btn-secondary" data-i18n="auth.changePassword">Change Password</button>
+                                        <button type="button" id="account-btn-toggle-password-drawer" class="btn btn--secondary" data-i18n="auth.changePassword">Change Password</button>
                                     </div>
                                 </div>
 
@@ -369,18 +369,18 @@
                                         <div class="account-password-rules" id="account-password-rules">
                                             <div class="account-password-rule" id="rule-length">
                                                 <span class="account-rule-bullet" aria-hidden="true"></span>
-                                                <span class="rule-text" data-i18n="auth.ruleMinLength">Minimum 6 characters</span>
+                                                <span data-i18n="auth.ruleMinLength">Minimum 6 characters</span>
                                             </div>
                                             <div class="account-password-rule" id="rule-match">
                                                 <span class="account-rule-bullet" aria-hidden="true"></span>
-                                                <span class="rule-text" data-i18n="auth.ruleMatch">Passwords match</span>
+                                                <span data-i18n="auth.ruleMatch">Passwords match</span>
                                             </div>
                                         </div>
 
                                         <!-- Actions -->
                                         <div class="account-drawer-actions">
-                                            <button type="button" id="account-btn-cancel-password" class="btn btn-secondary" data-i18n="actions.cancel">Cancel</button>
-                                            <button type="submit" id="account-btn-submit-password" class="btn btn-primary" data-i18n="actions.save" disabled>Save</button>
+                                            <button type="button" id="account-btn-cancel-password" class="btn btn--secondary" data-i18n="actions.cancel">Cancel</button>
+                                            <button type="submit" id="account-btn-submit-password" class="btn btn--primary" data-i18n="actions.save" disabled>Save</button>
                                         </div>
                                     </form>
 
@@ -389,7 +389,7 @@
                                             <span class="account-password-remove-section__title" data-i18n="auth.removePassword">Remove Password</span>
                                             <p class="account-password-remove-section__desc" data-i18n="auth.removePasswordDesc">Switch to secure passwordless sign-in with your passkeys. You can configure a new password anytime.</p>
                                         </div>
-                                        <button type="button" id="account-btn-remove-password" class="btn btn-danger-outline" data-i18n="actions.remove">Remove</button>
+                                        <button type="button" id="account-btn-remove-password" class="btn btn--danger-outline" data-i18n="actions.remove">Remove</button>
                                     </div>
                                 </div>
                             </div>
@@ -403,7 +403,7 @@
                                 <h3 class="account-card__title" id="account-sessions-title" data-i18n="views.account.sessions">Active Sessions</h3>
                             </div>
                             <div class="account-card__actions" id="account-sessions-header-actions">
-                                <button type="button" class="btn btn-secondary is-hidden" id="account-btn-revoke-other-sessions" data-i18n="auth.signOutOthers" hidden>Sign Out Other Sessions</button>
+                                <button type="button" class="btn btn--secondary is-hidden" id="account-btn-revoke-other-sessions" data-i18n="auth.signOutOthers" hidden>Sign Out Other Sessions</button>
                             </div>
                         </div>
                         <div class="account-sessions-hub">
@@ -431,7 +431,7 @@
                                 <p class="account-card__desc" data-i18n="auth.pairDeviceDesc">Scan this QR code from your phone or tablet camera to instantly sign in without typing your credentials.</p>
                             </div>
                             <div class="account-card__actions">
-                                <button type="button" class="btn btn-secondary" id="account-btn-toggle-pairing" data-i18n="actions.link">Link</button>
+                                <button type="button" class="btn btn--secondary" id="account-btn-toggle-pairing" data-i18n="actions.link">Link</button>
                             </div>
                         </div>
                         <div id="account-pairing-drawer" class="account-pairing-drawer" hidden aria-expanded="false">
@@ -452,8 +452,8 @@
                                         <span id="account-pairing-timer" class="account-pairing-timer">Pairing code expires in 1:30</span>
                                     </div>
                                     <div class="account-pairing-actions">
-                                        <button type="button" id="account-btn-refresh-pairing" class="btn btn-secondary" data-i18n="actions.refresh">Refresh</button>
-                                        <button type="button" id="account-btn-close-pairing" class="btn btn-secondary is-hidden" data-i18n="actions.done">Done</button>
+                                        <button type="button" id="account-btn-refresh-pairing" class="btn btn--secondary" data-i18n="actions.refresh">Refresh</button>
+                                        <button type="button" id="account-btn-close-pairing" class="btn btn--secondary is-hidden" data-i18n="actions.done">Done</button>
                                     </div>
                                 </div>
                             </div>
@@ -468,8 +468,8 @@
                                 <p class="account-card__desc" data-i18n="auth.dataBackupAndRestoreDesc">Export a local JSON archive or restore your data from a backup file.</p>
                             </div>
                             <div class="account-card__actions">
-                                <button type="button" class="btn btn-primary" id="account-btn-export-backup" data-i18n="actions.download">Download</button>
-                                <button type="button" class="btn btn-secondary" id="account-btn-restore-backup" data-i18n="actions.restore">Restore</button>
+                                <button type="button" class="btn btn--primary" id="account-btn-export-backup" data-i18n="actions.download">Download</button>
+                                <button type="button" class="btn btn--secondary" id="account-btn-restore-backup" data-i18n="actions.restore">Restore</button>
                                 <input type="file" id="account-restore-file-input" accept=".json" class="is-hidden" aria-hidden="true">
                             </div>
                         </div>
@@ -487,7 +487,7 @@
                                     <h4 class="account-erasure-label" data-i18n="auth.resetVillageData">Reset Village Data</h4>
                                     <p class="account-erasure-desc" id="account-auth-reset-data-desc"></p>
                                 </div>
-                                <button type="button" class="btn btn-danger-outline" id="account-btn-reset-data" data-i18n="actions.reset">Reset</button>
+                                <button type="button" class="btn btn--danger-outline" id="account-btn-reset-data" data-i18n="actions.reset">Reset</button>
                             </div>
 
                             <div class="account-erasure-row account-erasure-row--delete" id="account-auth-delete-row">
@@ -496,15 +496,15 @@
                                         <h4 class="account-erasure-label" data-i18n="auth.deleteAccount">Delete Account</h4>
                                         <p class="account-erasure-desc" data-i18n="auth.explanations.deleteAccount">Permanently deletes your account, username, passkeys, and all associated cloud data.</p>
                                     </div>
-                                    <button type="button" class="btn btn-danger" id="account-btn-delete-account" data-i18n="actions.delete">Delete</button>
+                                    <button type="button" class="btn btn--danger" id="account-btn-delete-account" data-i18n="actions.delete">Delete</button>
                                 </div>
                                 <div id="account-delete-stepup-panel" class="account-delete-stepup" hidden>
                                     <p id="account-delete-stepup-desc" class="account-delete-stepup__desc"></p>
                                     <div class="account-delete-stepup__controls">
                                         <input type="text" id="account-delete-confirm-input" class="account-input account-input--danger account-delete-input" autocomplete="off" spellcheck="false" placeholder="">
                                         <div class="account-delete-stepup__actions">
-                                            <button type="button" id="account-delete-cancel-btn" class="btn btn-secondary" data-i18n="actions.cancel">Cancel</button>
-                                            <button type="button" id="account-delete-execute-btn" class="btn btn-danger" data-i18n="actions.delete" disabled>Delete</button>
+                                            <button type="button" id="account-delete-cancel-btn" class="btn btn--secondary" data-i18n="actions.cancel">Cancel</button>
+                                            <button type="button" id="account-delete-execute-btn" class="btn btn--danger" data-i18n="actions.delete" disabled>Delete</button>
                                         </div>
                                     </div>
                                 </div>

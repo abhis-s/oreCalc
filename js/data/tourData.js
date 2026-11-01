@@ -76,7 +76,7 @@ export const tourSteps = [
         order: '02',
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
-            return isSmallScreen ? '.nav-button[data-tab="equipment"]' : '.tab-button[data-tab="equipment"]';
+            return isSmallScreen ? '.nav-button[data-tab="equipment"]' : '.app-header__tab[data-tab="equipment"], .tab-button[data-tab="equipment"]';
         },
         tab: 'equipment',
         titleKey: 'nav.equipment',
@@ -137,7 +137,7 @@ export const tourSteps = [
         order: '03',
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
-            return isSmallScreen ? '.nav-button[data-tab="income"]' : '.tab-button[data-tab="income"]';
+            return isSmallScreen ? '.nav-button[data-tab="income"]' : '.app-header__tab[data-tab="income"], .tab-button[data-tab="income"]';
         },
         tab: 'income',
         titleKey: 'nav.income',
@@ -154,7 +154,7 @@ export const tourSteps = [
         order: '04',
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
-            return isSmallScreen ? '.nav-button[data-tab="planner"]' : '.tab-button[data-tab="planner"]';
+            return isSmallScreen ? '.nav-button[data-tab="planner"]' : '.app-header__tab[data-tab="planner"], .tab-button[data-tab="planner"]';
         },
         tab: 'planner',
         titleKey: 'views.tour.navPlannerTitle',
@@ -228,7 +228,7 @@ export const tourSteps = [
         order: '05',
         target: () => {
             const isSmallScreen = window.innerWidth < 780;
-            return isSmallScreen ? '.nav-button[data-tab="settings"]' : '.tab-button[data-tab="settings"]';
+            return isSmallScreen ? '.nav-button[data-tab="settings"]' : '.app-header__tab[data-tab="settings"], .tab-button[data-tab="settings"]';
         },
         tab: 'settings',
         titleKey: 'nav.settings',

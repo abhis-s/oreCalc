@@ -242,7 +242,7 @@ export function navigateToTab(tabName, { resetScroll = false } = {}) {
     if (resetScroll) {
         resetTabScrollPosition(tabId);
     }
-    const button = document.querySelector(`.tab-button[data-tab="${tabName}"], .nav-button[data-tab="${tabName}"]`);
+    const button = document.querySelector(`.app-header__tab[data-tab="${tabName}"], .tab-button[data-tab="${tabName}"], .nav-button[data-tab="${tabName}"]`);
     if (button) {
         button.click();
     }

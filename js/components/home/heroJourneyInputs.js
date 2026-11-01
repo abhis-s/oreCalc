@@ -45,11 +45,11 @@ export function setupHeroJourneyInputs(state) {
         });
     }
 
-    const claimSwitch = document.getElementById('home-hj-claim-switch');
+    const claimSwitch = document.getElementById('home-hj-claim-control');
     if (claimSwitch) {
         claimSwitch.addEventListener('click', (e) => {
             const target = /** @type {HTMLElement} */ (e.target);
-            const btn = target.closest('.hj-switch-btn');
+            const btn = target.closest('.hj-segmented-control__btn');
             if (!btn || /** @type {HTMLElement} */ (btn).dataset.unclaimedOnly === undefined) return;
 
             const isUnclaimed = /** @type {HTMLElement} */ (btn).dataset.unclaimedOnly === 'true';

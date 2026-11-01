@@ -39,7 +39,7 @@ export function startTopProgressBar() {
     currentProgress = 15;
     fillEl.style.transition = 'transform 0.2s cubic-bezier(0.1, 0.7, 0.1, 1)';
     fillEl.style.transform = `translate3d(-${100 - currentProgress}%, 0, 0)`;
-    containerEl.classList.add('active');
+    containerEl.classList.add('is-active');
 
     // Smooth trickle up to 90%
     trickleTimer = setInterval(() => {
@@ -66,7 +66,7 @@ export function finishTopProgressBar() {
     fillEl.style.transform = 'translate3d(0%, 0, 0)';
 
     setTimeout(() => {
-        containerEl.classList.remove('active');
+        containerEl.classList.remove('is-active');
         setTimeout(() => {
             fillEl.style.transition = 'none';
             fillEl.style.transform = 'translate3d(-100%, 0, 0)';

@@ -81,7 +81,7 @@ export function resolveDamageTabFromUrl(hash, search) {
  * @param {() => void} [onStateChange] - Re-render callback.
  */
 export function switchDamageTab(tabKey, state, onStateChange) {
-    const cleanTab = tabKey ? tabKey.replace(/-tab$/, '') : '';
+    const cleanTab = tabKey ? tabKey.replace(/-tab$/, '').replace('-', '_') : '';
     if (!['zapquake', 'cluster_planner'].includes(cleanTab)) return;
 
     if (state.activeTab === cleanTab) {
@@ -155,12 +155,12 @@ export function initDamageCalcTabNav(state, onStateChange) {
         if (typeof window !== 'undefined' && window.location?.pathname && !window.location.pathname.includes('/damage-calculator')) {
             return;
         }
-        const btn = /** @type {HTMLElement | null} */ (e.target)?.closest('.tab-button, .calc-tab-nav__btn, .nav-button');
+        const btn = /** @type {HTMLElement | null} */ (e.target)?.closest('.app-header__tab, .tab-button, .calc-tab-nav__btn, .nav-button');
         if (!btn) return;
         const rawTab = btn.getAttribute('data-tab');
         if (!rawTab) return;
 
-        const cleanTab = rawTab.replace(/-tab$/, '');
+        const cleanTab = rawTab.replace(/-tab$/, '').replace('-', '_');
         if (['zapquake', 'cluster_planner'].includes(cleanTab)) {
             switchDamageTab(cleanTab, state, onStateChange);
         }

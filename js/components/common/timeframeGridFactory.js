@@ -21,7 +21,8 @@ function createTimeframeGrid(timeframes, idPrefix) {
             valDisplay.className = 'grid-value-display';
 
             const span = document.createElement('span');
-            span.id = `inc-${idPrefix}-${ore}-${timeframe}-value`;
+            const timeframeKebab = String(timeframe).replace(/[A-Z]/g, m => `-${m.toLowerCase()}`);
+            span.id = `inc-${idPrefix}-${ore}-${timeframeKebab}-value`;
             span.className = 'calculated';
             valDisplay.appendChild(span);
 

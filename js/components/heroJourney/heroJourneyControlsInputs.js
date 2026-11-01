@@ -28,7 +28,7 @@ export function syncTypeFiltersUI(hjState = null) {
     const allTypeBtns = document.querySelectorAll('.hj-type-btn');
     allTypeBtns.forEach(btn => {
         const filter = btn.getAttribute('data-type-filter');
-        btn.classList.toggle('active', filter === activeFilter);
+        btn.classList.toggle('is-active', filter === activeFilter);
     });
     const allTypeSelects = document.querySelectorAll('.hj-type-select');
     allTypeSelects.forEach(select => {
@@ -48,7 +48,7 @@ export function resetFilters(hjState, renderUI) {
         syncPlayerToStorage(hjState.playerData, hjState);
     }
     const typeBtns = document.querySelectorAll('.hj-type-btn');
-    typeBtns.forEach(b => b.classList.remove('active'));
+    typeBtns.forEach(b => b.classList.remove('is-active'));
     const typeSelects = document.querySelectorAll('.hj-type-select');
     typeSelects.forEach(s => { /** @type {HTMLSelectElement} */ (s).value = 'all'; });
     renderUI();
@@ -78,9 +78,9 @@ export function initHeroJourneyControls(hjState, renderUI, resetFiltersFn) {
         });
     }
 
-    const claimSwitches = document.querySelectorAll('.hj-segmented-switch');
+    const claimSwitches = document.querySelectorAll('.hj-segmented-control');
     claimSwitches.forEach(claimSwitch => {
-        const btns = claimSwitch.querySelectorAll('.hj-switch-btn');
+        const btns = claimSwitch.querySelectorAll('.hj-segmented-control__btn');
         btns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const isUnclaimed = btn.getAttribute('data-unclaimed-only') === 'true';

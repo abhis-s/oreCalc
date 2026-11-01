@@ -92,8 +92,8 @@ export function initializeCalendarEventListeners() {
 
     const calendarSettingsModal = document.getElementById('calendar-settings-modal');
     const closeCalendarSettingsModalBtn = document.getElementById('close-calendar-settings-modal-btn');
-    const cancelCalendarSettingsBtn = document.getElementById('cancel-calendar-settings-btn');
-    const saveCalendarSettingsBtn = document.getElementById('save-calendar-settings-btn');
+    const cancelCalendarSettingsBtn = document.getElementById('cancel-calendar-settings-modal-btn') || document.getElementById('cancel-calendar-settings-btn');
+    const saveCalendarSettingsBtn = document.getElementById('save-calendar-settings-modal-btn') || document.getElementById('save-calendar-settings-btn');
     const firstDaySelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('calendar-first-day-select'));
     const showIconsSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('calendar-show-icons-switch'));
     const showEquipmentMilestonesSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('calendar-show-equipment-milestones-switch'));

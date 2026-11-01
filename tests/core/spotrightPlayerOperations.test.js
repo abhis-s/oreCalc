@@ -567,7 +567,7 @@ describe('Spotright Player Tag Operations & Smart Clipboard Architecture', () =>
             assert.ok(html.includes('is-active-village'), 'Must apply active village class');
             assert.ok(html.includes('spotright-th-wrapper'), 'Must render Town Hall wrapper');
             assert.ok(html.includes('assets/th/th18.png'), 'Must render Town Hall image asset');
-            assert.ok(html.includes('<span class="spotright-th-badge">18</span>'), 'Must render TH level badge');
+            assert.ok(html.includes('<span class="th-badge__level">18</span>'), 'Must render TH level badge');
             assert.ok(html.includes('#8PJYGUJC'), 'Must render player tag');
             assert.ok(html.includes('spotright-tag--active'), 'Must render active tag');
             assert.ok(html.includes('Elite Warriors'), 'Must render clan name');

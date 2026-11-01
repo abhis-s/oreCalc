@@ -66,7 +66,7 @@ export function createShortcutsModalDialog(isMacOverride) {
             <div class="modal-header">
                 <h2 id="shortcuts-modal-title" data-i18n="views.shortcuts.title">${escapeHTML(translate('views.shortcuts.title'))}</h2>
                 <div class="modal-header-actions">
-                    <button type="button" id="close-shortcuts-modal-btn" class="close-button" data-i18n-aria-label="actions.close" aria-label="${escapeHTML(translate('actions.close'))}">
+                    <button type="button" id="close-shortcuts-modal-btn" class="modal__close-btn" data-i18n-aria-label="actions.close" aria-label="${escapeHTML(translate('actions.close'))}">
                         <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                     </button>
                 </div>
@@ -171,7 +171,7 @@ export function createShortcutsModalDialog(isMacOverride) {
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" id="shortcuts-modal-footer-close-btn" class="btn-secondary reject-button" data-i18n="actions.close">${escapeHTML(translate('actions.close'))}</button>
+                <button type="button" id="shortcuts-modal-footer-close-btn" class="btn btn--secondary" data-i18n="actions.close">${escapeHTML(translate('actions.close'))}</button>
             </div>
         </div>
     `;

@@ -138,7 +138,7 @@ export function autoScrollToCompletedNode(cumulativeLevel) {
  * Updates the active sliding pill indicator position in the segmented claim switch.
  */
 function updateClaimSwitchPillPosition() {
-    const activeBtn = document.querySelector('#home-hj-claim-switch .hj-switch-btn.active');
+    const activeBtn = document.querySelector('#home-hj-claim-control .hj-segmented-control__btn.active');
     const claimSwitchPill = document.getElementById('home-hj-claim-pill');
     if (activeBtn && claimSwitchPill) {
         requestAnimationFrame(() => {
@@ -153,7 +153,7 @@ function updateClaimSwitchPillPosition() {
  */
 export function updateFilterRowLayout() {
     const filterContainer = document.querySelector('.hero-journey-filter-container');
-    const claimSwitch = document.getElementById('home-hj-claim-switch');
+    const claimSwitch = document.getElementById('home-hj-claim-control');
     const typeFilters = document.getElementById('home-hj-type-filters');
     const typeButtons = typeFilters?.querySelector('.hj-type-buttons');
     const typeSelect = document.getElementById('home-hj-type-select');
@@ -247,7 +247,7 @@ export function updateFilterRowLayout() {
         }
     }
 
-    filterContainer.classList.toggle('no-claim-switch', isClaimSwitchHidden);
+    filterContainer.classList.toggle('no-claim-control', isClaimSwitchHidden);
     filterContainer.classList.remove('filter-stage-1', 'filter-stage-2', 'filter-stage-3', 'filter-stage-4');
     filterContainer.classList.add(targetStage);
 
@@ -351,7 +351,7 @@ export function initFilterRowResizeObserver() {
  * Initializes ResizeObserver for the segmented claim switch.
  */
 export function initClaimSwitchResizeObserver() {
-    const claimSwitch = document.getElementById('home-hj-claim-switch');
+    const claimSwitch = document.getElementById('home-hj-claim-control');
     if (!claimSwitch) return;
 
     if (claimSwitchResizeObserver) {
@@ -500,28 +500,28 @@ export function updateCustomScrollbar(isDraggingThumb = false, stateOverride = n
 
     if (scrollFirstBtn) {
         scrollFirstBtn.disabled = isAtStart;
-        scrollFirstBtn.classList.toggle('disabled', isAtStart);
+        scrollFirstBtn.classList.toggle('is-disabled', isAtStart);
         scrollFirstBtn.setAttribute('aria-disabled', String(isAtStart));
     }
     if (scrollLeftBtn) {
         scrollLeftBtn.disabled = isAtStart;
-        scrollLeftBtn.classList.toggle('disabled', isAtStart);
+        scrollLeftBtn.classList.toggle('is-disabled', isAtStart);
         scrollLeftBtn.setAttribute('aria-disabled', String(isAtStart));
     }
     if (scrollRightBtn) {
         scrollRightBtn.disabled = isAtEnd;
-        scrollRightBtn.classList.toggle('disabled', isAtEnd);
+        scrollRightBtn.classList.toggle('is-disabled', isAtEnd);
         scrollRightBtn.setAttribute('aria-disabled', String(isAtEnd));
     }
     if (scrollLastBtn) {
         scrollLastBtn.disabled = isAtEnd;
-        scrollLastBtn.classList.toggle('disabled', isAtEnd);
+        scrollLastBtn.classList.toggle('is-disabled', isAtEnd);
         scrollLastBtn.setAttribute('aria-disabled', String(isAtEnd));
     }
     if (scrollCurrentBtn) {
         const isCurrentDisabled = !isUserSynced;
         scrollCurrentBtn.disabled = isCurrentDisabled;
-        scrollCurrentBtn.classList.toggle('disabled', isCurrentDisabled);
+        scrollCurrentBtn.classList.toggle('is-disabled', isCurrentDisabled);
         scrollCurrentBtn.setAttribute('aria-disabled', String(isCurrentDisabled));
     }
 }

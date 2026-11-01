@@ -36,7 +36,7 @@ export function resetPlayerModalState() {
 function navigateToHomeTab() {
     if (typeof document === 'undefined') return;
     const homeTabButton = /** @type {HTMLElement | null} */ (
-        document.querySelector('.tab-button[data-tab="home"], .nav-button[data-tab="home"]')
+        document.querySelector('.app-header__tab[data-tab="home"], .tab-button[data-tab="home"], .nav-button[data-tab="home"]')
     );
     if (homeTabButton) {
         homeTabButton.click();
@@ -71,7 +71,7 @@ export function initializePlayerModal() {
     const modal = document.getElementById('add-player-modal');
     if (modal && boundPlayerModals.has(modal)) return;
     if (modal) boundPlayerModals.add(modal);
-    const cancelButton = document.getElementById('cancel-add-player-button');
+    const cancelButton = document.getElementById('cancel-add-player-modal-btn') || document.getElementById('cancel-add-player-button');
     const loadButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('load-player-modal-btn'));
     const verifyButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('verify-player-modal-btn'));
     const guidedSetupButton = document.getElementById('add-player-guided-setup-btn');

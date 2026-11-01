@@ -170,16 +170,16 @@ test('renderRaidMedalTraderRow generates checkboxes with normalized IDs and attr
     assert.equal(row.children.length, 4);
     const cb1Div = row.children[2];
     const cb1 = cb1Div.children[0];
-    assert.equal(cb1.id, 'raid_starry_1');
-    assert.equal(cb1.name, 'raid_starry_1');
+    assert.equal(cb1.id, 'raid-starry-1');
+    assert.equal(cb1.name, 'raid-starry-1');
     assert.equal(cb1.dataset.offerId, 'raid_starry');
     assert.equal(cb1.dataset.instance, '1');
     assert.equal(cb1.checked, true);
 
     const cb2Div = row.children[3];
     const cb2 = cb2Div.children[0];
-    assert.equal(cb2.id, 'raid_starry_2');
-    assert.equal(cb2.name, 'raid_starry_2');
+    assert.equal(cb2.id, 'raid-starry-2');
+    assert.equal(cb2.name, 'raid-starry-2');
     assert.equal(cb2.dataset.offerId, 'raid_starry');
     assert.equal(cb2.dataset.instance, '2');
     assert.equal(cb2.checked, false);
@@ -196,19 +196,19 @@ test('renderGemTraderRow generates input template containing normalized element 
 
     assert.equal(glowyRow.children.length, 3);
     const glowyInputDiv = glowyRow.children[2];
-    assert.ok(glowyInputDiv.innerHTML.includes('id="gem-trader-gem_glowy-input"'));
+    assert.ok(glowyInputDiv.innerHTML.includes('id="gem-trader-gem-glowy-input"'));
     assert.ok(glowyInputDiv.innerHTML.includes('data-offer-id="gem_glowy"'));
     assert.ok(glowyInputDiv.innerHTML.includes('value="3"'));
     assert.ok(glowyInputDiv.innerHTML.includes('max="5"'));
 
     const starryInputDiv = starryRow.children[2];
-    assert.ok(starryInputDiv.innerHTML.includes('id="gem-trader-gem_starry-input"'));
+    assert.ok(starryInputDiv.innerHTML.includes('id="gem-trader-gem-starry-input"'));
     assert.ok(starryInputDiv.innerHTML.includes('data-offer-id="gem_starry"'));
     assert.ok(starryInputDiv.innerHTML.includes('value="2"'));
     assert.ok(starryInputDiv.innerHTML.includes('max="5"'));
 
     const shinyInputDiv = shinyRow.children[2];
-    assert.ok(shinyInputDiv.innerHTML.includes('id="gem-trader-gem_shiny-input"'));
+    assert.ok(shinyInputDiv.innerHTML.includes('id="gem-trader-gem-shiny-input"'));
     assert.ok(shinyInputDiv.innerHTML.includes('data-offer-id="gem_shiny"'));
     assert.ok(shinyInputDiv.innerHTML.includes('value="5"'));
     assert.ok(shinyInputDiv.innerHTML.includes('max="10"'));
@@ -260,7 +260,7 @@ test('renderEventTraderRow generates row template containing normalized element 
     const shinyOffer = eventTraderData.find(o => o.id === 'event_shiny');
     const row = renderEventTraderRow(shinyOffer, 5);
 
-    assert.ok(row.innerHTML.includes('id="event-trader-event_shiny-input"'));
+    assert.ok(row.innerHTML.includes('id="event-trader-event-shiny-input"'));
     assert.ok(row.innerHTML.includes('data-offer-id="event_shiny"'));
     assert.ok(row.innerHTML.includes('value="5"'));
 });

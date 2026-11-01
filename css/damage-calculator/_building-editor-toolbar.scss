@@ -214,7 +214,6 @@
         box-sizing: border-box;
         transition: background-color $transition-fast;
 
-        &.active,
         &.is-active {
             background-color: color-mix(in srgb, $accent-primary 22%, transparent);
         }

@@ -91,7 +91,7 @@
         border-color: $accent-primary;
     }
 
-    &.active {
+    &.is-active {
         font-weight: $font-weight-bold;
         border-color: $accent-primary;
 
@@ -110,7 +110,7 @@
     flex-shrink: 0;
 }
 
-.month-chip.active .week-numbers-container {
+.month-chip.is-active .week-numbers-container {
     display: flex;
 }
 
@@ -131,7 +131,7 @@
         background-color: $accent-primary-soft;
     }
 
-    &.active {
+    &.is-active {
         background-color: $accent-primary;
         color: $text-on-accent;
         font-weight: $font-weight-bold;

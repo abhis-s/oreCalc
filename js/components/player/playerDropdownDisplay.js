@@ -5,6 +5,7 @@ import { state } from '../../core/state.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { getSVG } from '../../utils/svgManager.js';
 import { dom } from '../../dom/domElements.js';
+import { renderTownHallBadge } from '../common/townHallBadge.js';
 
 let lastRenderStateKey = '';
 
@@ -61,11 +62,16 @@ export function renderStandaloneDropdownMarkup({
         const thPrefix = (thDefense && thDefense !== 'entities.defenses.townHall') ? thDefense : 'Town Hall';
         const thAlt = `${escapeHTML(thPrefix)} ${thLevel}`;
 
-        return `<div ${idAttr}class="player-dropdown-item ${isActive ? 'active is-active' : ''}" data-tag="${escapeHTML(cleanTag)}" tabindex="${isActive ? '0' : '-1'}" role="option" aria-selected="${isActive}">
-            <div class="player-dropdown-th-wrapper">
-                <clashcalc-assets-image src="${thImg}" alt="${thAlt}" class="player-dropdown-th"></clashcalc-assets-image>
-                <span class="player-dropdown-th-badge">${thLevel}</span>
-            </div>
+        const thBadgeHtml = renderTownHallBadge({
+            thLevel,
+            size: 'xs',
+            className: 'player-dropdown-th-wrapper',
+            imgSrc: thImg,
+            imgAlt: thAlt
+        });
+
+        return `<div ${idAttr}class="player-dropdown-item ${isActive ? 'is-active' : ''}" data-tag="${escapeHTML(cleanTag)}" tabindex="${isActive ? '0' : '-1'}" role="option" aria-selected="${isActive}">
+            ${thBadgeHtml}
             <div class="player-info-text">
                 <span>${playerName}</span>
                 <span class="player-tag-text">${escapeHTML(displayTag)}</span>
@@ -94,7 +100,7 @@ export function renderPlayerDropdown(activeTagOrOptions = '', options = {}) {
     const isElementAttached = (el) => Boolean(el && el.isConnected !== false);
     const playerItemsContainer = (isElementAttached(dom.player?.playerItemsContainer) ? dom.player.playerItemsContainer : null) || (typeof document !== 'undefined' ? document.getElementById('player-items-container') : null);
     const selectedPlayerName = (isElementAttached(dom.player?.selectedPlayerName) ? dom.player.selectedPlayerName : null) || (typeof document !== 'undefined' ? document.getElementById('selected-player-name') : null);
-    const dropdownButton = (isElementAttached(dom.player?.dropdownButton) ? dom.player.dropdownButton : null) || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-button') : null);
+    const dropdownButton = (isElementAttached(dom.player?.dropdownButton) ? dom.player.dropdownButton : null) || (typeof document !== 'undefined' ? (document.getElementById('player-dropdown-btn') || document.getElementById('player-dropdown-button')) : null);
 
     if (!playerItemsContainer || !selectedPlayerName) return;
 

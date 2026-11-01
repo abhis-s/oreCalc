@@ -11,14 +11,14 @@ let currentGlideTarget = null;
 let activeNavContainer = null;
 
 function clearGlideHighlights() {
-    document.querySelectorAll('.tab-bar-container .tab-button').forEach(btn => {
+    document.querySelectorAll('.app-header__tabs .app-header__tab, .tab-bar-container .tab-button').forEach(btn => {
         btn.classList.remove('nav-glide-active');
     });
 }
 
 function handlePointerDown(e) {
     const container = e.currentTarget;
-    const initialBtn = e.target.closest('.tab-button');
+    const initialBtn = e.target.closest('.app-header__tab, .tab-button');
     if (!initialBtn) return;
 
     isGliding = true;
@@ -42,7 +42,7 @@ function handlePointerMove(e) {
     const pointerElem = document.elementFromPoint(e.clientX, e.clientY);
     if (!pointerElem) return;
 
-    const hoveredBtn = pointerElem.closest('.tab-button');
+    const hoveredBtn = pointerElem.closest('.app-header__tab, .tab-button');
 
     if (hoveredBtn && activeNavContainer.contains(hoveredBtn)) {
         if (hoveredBtn !== currentGlideTarget) {
@@ -99,7 +99,7 @@ function handlePointerCancel(e) {
  * Initializes pointer capture swipe glide interactions for tab navigation bars.
  */
 export function initializeNavGlideController() {
-    const navContainers = document.querySelectorAll('.tab-bar-container');
+    const navContainers = document.querySelectorAll('.app-header__tabs, .tab-bar-container');
 
     navContainers.forEach(container => {
         container.style.touchAction = 'none';

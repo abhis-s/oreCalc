@@ -338,9 +338,9 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.equal(mockLabel.textContent, 'Chief Archer');
 
         const items = mockContainer.querySelectorAll('.player-dropdown-item');
-        assert.ok(items[0].classList.contains('active'));
-        assert.ok(!items[1].classList.contains('active'));
-        assert.ok(!items[2].classList.contains('active'));
+        assert.ok(items[0].classList.contains('is-active'));
+        assert.ok(!items[1].classList.contains('is-active'));
+        assert.ok(!items[2].classList.contains('is-active'));
     });
 
     test('filters out DEFAULT0 placeholder tag from rendered player items list', () => {
@@ -422,7 +422,7 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         const firstItem = mockContainer.querySelector('.player-dropdown-item');
         assert.ok(firstItem);
         assert.equal(firstItem.dataset.tag, 'TAG1');
-        assert.ok(firstItem.classList.contains('active'));
+        assert.ok(firstItem.classList.contains('is-active'));
     });
 
     test('getAddPlayerHelpContent dynamically includes Guided Setup paragraph only when guided setup button is visible', () => {

@@ -44,7 +44,7 @@ export function attachOffenseModalListeners(state, modalBody, onStateChange) {
             if (readout) readout.textContent = formatOffenseModalValue('spell', id, clamped);
         } else if (type === 'equipment') {
             state.offense.equipment[id] = clamped;
-            const readout = modalBody.querySelector(`#modal-val-${id}`);
+            const readout = modalBody.querySelector(`#modal-val-${String(id).replace(/_/g, '-')}`);
             const activeMod = getActiveModifier(state);
             if (readout) readout.textContent = formatOffenseModalValue('equipment', id, clamped, { modifier: activeMod, leagueId: activeMod });
         }

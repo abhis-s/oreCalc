@@ -51,7 +51,7 @@
     box-sizing: border-box;
     transition: background-color $transition-fast, color $transition-fast, box-shadow $transition-fast;
 
-    &:hover:not(.is-active):not(.active):not(:disabled) {
+    &:hover:not(.is-active):not(:disabled) {
         background-color: color-mix(in srgb, $accent-primary 28%, transparent);
         color: $text-primary;
         box-shadow: inset 0 0 0 1px color-mix(in srgb, $accent-primary 45%, transparent);
@@ -72,8 +72,7 @@
         pointer-events: none;
     }
 
-    &.is-active,
-    &.active {
+    &.is-active {
         background-color: $accent-primary;
         color: $text-on-accent;
         font-weight: $font-weight-bold;

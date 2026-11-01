@@ -182,14 +182,14 @@ export function getDamageSourcesGridHtml(state) {
                     </clashcalc-assets-image>
                 `).join('');
             zapPillsHtml += `
-                    <button type="button" class="calc-supercharge-pill ${isActive ? 'is-active active' : ''}" data-prefix="zq_combo" data-tier="${tier}" role="radio" aria-checked="${isActive}" title="${escapeHTML(label)}" aria-label="${escapeHTML(label)}">
+                    <button type="button" class="calc-supercharge-pill ${isActive ? 'is-active active' : ''}" data-prefix="zq-combo" data-tier="${tier}" role="radio" aria-checked="${isActive}" title="${escapeHTML(label)}" aria-label="${escapeHTML(label)}">
                         <span class="calc-supercharge-pips calc-supercharge-pips--compact">${pipsHtml}</span>
                     </button>`;
         }
 
         superchargeWrapperHtml = `
             <div class="calc-supercharge-wrapper calc-supercharge-wrapper--sources" title="${escapeHTML(translate('views.damageCalc.offense.superchargeLabel'))}">
-                <button type="button" class="calc-info-btn" data-calc-info="supercharge" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
+                <button type="button" class="info-btn" data-calc-info="supercharge" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
                     <clashcalc-assets-svg name="info" width="13" height="13"></clashcalc-assets-svg>
                 </button>
                 <div class="calc-supercharge-pills" role="radiogroup" aria-label="${escapeHTML(translate('views.damageCalc.offense.superchargeLabel'))}">
@@ -294,7 +294,7 @@ export function getDamageSourcesCardMarkup(state) {
                 <div class="calc-modifier-bar__inner">
                     <div class="calc-modifier-bar__label-group">
                         <span class="calc-modifier-bar__label" data-i18n="views.damageCalc.offense.battleModifier">${escapeHTML(translate('views.damageCalc.offense.battleModifier') || 'Modifier:')}</span>
-                        <button type="button" class="calc-info-btn" data-calc-info="modifier" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
+                        <button type="button" class="info-btn" data-calc-info="modifier" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
                             <clashcalc-assets-svg name="info" width="13" height="13"></clashcalc-assets-svg>
                         </button>
                     </div>

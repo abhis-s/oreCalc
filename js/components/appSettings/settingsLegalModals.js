@@ -15,8 +15,8 @@ export function openLicensesModal() {
     if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
 
-    const closeHeaderBtn = document.getElementById('close-licenses-header-btn');
-    const closeBtn = document.getElementById('close-licenses-modal-btn');
+    const closeBtn = document.getElementById('close-licenses-footer-btn') || document.getElementById('close-licenses-modal-btn');
+    const closeHeaderBtn = document.getElementById('close-licenses-header-btn') || (closeBtn !== document.getElementById('close-licenses-modal-btn') ? document.getElementById('close-licenses-modal-btn') : null);
     const container = document.getElementById('licenses-container');
 
     const closeModal = () => {
@@ -145,8 +145,8 @@ export function openPrivacyModal() {
     if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
 
-    const closeHeaderBtn = document.getElementById('close-privacy-header-btn');
-    const closeBtn = document.getElementById('close-privacy-modal-btn');
+    const closeBtn = document.getElementById('close-privacy-footer-btn') || document.getElementById('close-privacy-modal-btn');
+    const closeHeaderBtn = document.getElementById('close-privacy-header-btn') || (closeBtn !== document.getElementById('close-privacy-modal-btn') ? document.getElementById('close-privacy-modal-btn') : null);
     const themeBtn = document.getElementById('privacy-theme-toggle-btn');
     /** @type {HTMLElement|any} */
     const iframe = document.getElementById('privacy-policy-iframe');
@@ -214,7 +214,7 @@ export function openPrivacyModal() {
     }
 
     if (closeBtn) {
-        closeBtn.className = 'reject-button';
+        closeBtn.className = 'btn btn--secondary';
         closeBtn.textContent = translate('actions.close');
         closeBtn.setAttribute('data-i18n', 'actions.close');
         closeBtn.onclick = (e) => {
@@ -276,8 +276,8 @@ export function openTermsOfUseModal() {
     if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
 
-    const closeHeaderBtn = document.getElementById('close-terms-header-btn');
-    const closeBtn = document.getElementById('close-terms-modal-btn');
+    const closeBtn = document.getElementById('close-terms-footer-btn') || document.getElementById('close-terms-modal-btn');
+    const closeHeaderBtn = document.getElementById('close-terms-header-btn') || (closeBtn !== document.getElementById('close-terms-modal-btn') ? document.getElementById('close-terms-modal-btn') : null);
     const themeBtn = document.getElementById('terms-theme-toggle-btn');
     /** @type {HTMLElement|any} */
     const iframe = document.getElementById('terms-policy-iframe') || document.getElementById('terms-iframe');
@@ -346,7 +346,7 @@ export function openTermsOfUseModal() {
     }
 
     if (closeBtn) {
-        closeBtn.className = 'reject-button';
+        closeBtn.className = 'btn btn--secondary';
         closeBtn.textContent = translate('actions.close');
         closeBtn.setAttribute('data-i18n', 'actions.close');
         closeBtn.onclick = (e) => {

@@ -30,7 +30,7 @@ function ensureProspectorOutsideClickListener() {
         const target = /** @type {Node | null} */ (e.target);
         [dom.income?.prospector?.fromOre, dom.income?.prospector?.toOre].forEach((dropdownElement) => {
             if (dropdownElement && (!target || !dropdownElement.contains(target))) {
-                dropdownElement.classList.remove('open');
+                dropdownElement.classList.remove('is-open');
                 dropdownElement.setAttribute('aria-expanded', 'false');
             }
         });
@@ -49,8 +49,8 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
     dropdownElement.setAttribute('aria-label', translate(labelKey));
 
     selected.addEventListener('click', () => {
-        dropdownElement.classList.toggle('open');
-        dropdownElement.setAttribute('aria-expanded', dropdownElement.classList.contains('open') ? 'true' : 'false');
+        dropdownElement.classList.toggle('is-open');
+        dropdownElement.setAttribute('aria-expanded', dropdownElement.classList.contains('is-open') ? 'true' : 'false');
     });
 
     ensureProspectorOutsideClickListener();
@@ -76,7 +76,7 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
             }
 
             updateConversion();
-            dropdownElement.classList.remove('open');
+            dropdownElement.classList.remove('is-open');
             dropdownElement.setAttribute('aria-expanded', 'false');
         }
     });
@@ -87,9 +87,9 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
         if (target === dropdownElement) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                dropdownElement.classList.toggle('open');
-                dropdownElement.setAttribute('aria-expanded', dropdownElement.classList.contains('open') ? 'true' : 'false');
-                if (dropdownElement.classList.contains('open')) {
+                dropdownElement.classList.toggle('is-open');
+                dropdownElement.setAttribute('aria-expanded', dropdownElement.classList.contains('is-open') ? 'true' : 'false');
+                if (dropdownElement.classList.contains('is-open')) {
                     const firstOpt = options.querySelector('.dropdown-option');
                     if (firstOpt) {
                         setTimeout(() => firstOpt.focus(), 50);
@@ -103,7 +103,7 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
                 dropdownElement.focus();
             } else if (e.key === 'Escape') {
                 e.preventDefault();
-                dropdownElement.classList.remove('open');
+                dropdownElement.classList.remove('is-open');
                 dropdownElement.setAttribute('aria-expanded', 'false');
                 dropdownElement.focus();
             } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
@@ -424,7 +424,7 @@ export function initializeProspector() {
     const card = document.getElementById('orecalc-income-prospector-card');
     if (card) {
         card.addEventListener('click', (e) => {
-            const link = /** @type {HTMLElement} */ (e.target)?.closest?.('.prospector-priority-link');
+            const link = /** @type {HTMLElement} */ (e.target)?.closest?.('.prospector-priority-btn');
             if (link) {
                 e.preventDefault();
                 navigateToTab('planner');
@@ -437,7 +437,7 @@ export function initializeProspector() {
     if (tipContainer) {
         tipContainer.addEventListener('click', (e) => {
             const target = /** @type {HTMLElement | null} */ (e.target);
-            if (!target || target.closest('.info-btn, .info-button, [data-info]')) return;
+            if (!target || target.closest('.info-btn, [data-info]')) return;
             const badge = target.closest('.prospector-rec-badge');
             if (badge) {
                 const section = badge.closest('.prospector-rec-section');

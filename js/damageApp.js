@@ -220,7 +220,7 @@ const damageNavigationRegistry = [
         iconFilled: 'zap-filled'
     },
     {
-        id: 'cluster_planner',
+        id: 'cluster-planner',
         i18nKey: 'views.damageCalc.tabs.clusterPlanner',
         iconOutline: 'shield-outline',
         iconFilled: 'shield-filled'
@@ -231,10 +231,11 @@ const damageNavigationRegistry = [
  * Updates tab navigation button active states across desktop header and bottom nav tabs.
  */
 function updateTabNavUI() {
-    const tabButtons = document.querySelectorAll('.tab-button, .calc-tab-nav__btn, .bottom-nav-bar .nav-button');
+    const activeTabKebab = (damageCalcState.activeTab || 'zapquake').replace('_', '-');
+    const tabButtons = document.querySelectorAll('.app-header__tab, .tab-button, .calc-tab-nav__btn, .bottom-nav-bar .nav-button');
     tabButtons.forEach(btn => {
-        const tab = btn.getAttribute('data-tab');
-        if (tab === damageCalcState.activeTab) {
+        const tab = (btn.getAttribute('data-tab') || '').replace('_', '-');
+        if (tab === activeTabKebab) {
             btn.classList.add('active', 'is-active');
             btn.setAttribute('aria-selected', 'true');
         } else {
@@ -248,7 +249,7 @@ function updateTabNavUI() {
         renderBottomNavBar({
             container: bottomNavContainer,
             items: damageNavigationRegistry,
-            activeTabId: damageCalcState.activeTab
+            activeTabId: activeTabKebab
         });
     }
 }
@@ -266,6 +267,7 @@ function renderActiveView() {
         case 'zapquake':
             renderZapQuakePanel(damageCalcState, mainContainer);
             break;
+        case 'cluster-planner':
         case 'cluster_planner':
             renderDefenseBoardPanel(damageCalcState, mainContainer);
             break;

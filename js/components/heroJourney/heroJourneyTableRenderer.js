@@ -240,7 +240,7 @@ let cachedTableToggleBtnWidth = 0;
 export function updateTableFilterRowLayout() {
     syncTableTheadHeight();
     const viewToggleBar = document.querySelector('.hero-journey-page__view-toggle-bar');
-    const claimSwitch = document.getElementById('hj-table-claim-switch');
+    const claimSwitch = document.getElementById('hj-table-claim-control');
     const typeFilters = document.getElementById('hj-table-type-filters');
     const typeButtons = typeFilters?.querySelector('.hj-type-buttons');
     const typeSelect = document.getElementById('hj-table-type-select');
@@ -327,7 +327,7 @@ export function updateTableFilterRowLayout() {
         }
     }
 
-    viewToggleBar.classList.toggle('no-claim-switch', isClaimSwitchHidden);
+    viewToggleBar.classList.toggle('no-claim-control', isClaimSwitchHidden);
     viewToggleBar.classList.remove('table-filter-stage-1', 'table-filter-stage-2', 'table-filter-stage-3');
     viewToggleBar.classList.add(targetStage);
 

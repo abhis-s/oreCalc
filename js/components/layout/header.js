@@ -7,7 +7,7 @@ import { initAppHeader } from '../common/appHeader.js';
  */
 export function initializeHeader() {
     return initAppHeader({
-        headerElement: dom.header?.container || '.header-container',
+        headerElement: dom.header?.container || '.app-header',
         hasTabs: true,
         hasPlayerDropdown: true,
         hasPill: true

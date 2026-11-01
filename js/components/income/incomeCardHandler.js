@@ -104,7 +104,7 @@ export function initializeIncomeCardHandler() {
             return;
         }
 
-        const btn = e.target.closest('[data-info], .info-btn, .info-button');
+        const btn = e.target.closest('[data-info], .info-btn');
         if (btn) {
             e.stopPropagation();
             const text = getPopoverContent(btn);
@@ -117,7 +117,7 @@ export function initializeIncomeCardHandler() {
     document.addEventListener('mouseover', (e) => {
         if (!isOreCalcRoute()) return;
         if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-        const targetBtn = /** @type {HTMLElement | null} */ (e.target)?.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, .info-button, [data-info]');
+        const targetBtn = /** @type {HTMLElement | null} */ (e.target)?.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, [data-info]');
         if (targetBtn && activeHelpBtn !== targetBtn) {
             const text = getPopoverContent(targetBtn);
             if (text) {

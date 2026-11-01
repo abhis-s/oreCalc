@@ -114,7 +114,7 @@ export function initializeGuidedSetupModal() {
 
     const nextBtn = document.getElementById('guided-setup-next-btn');
     const backBtn = document.getElementById('guided-setup-back-btn');
-    const cancelBtn = document.getElementById('guided-setup-cancel-btn');
+    const cancelBtn = document.getElementById('cancel-guided-setup-modal-btn') || document.getElementById('guided-setup-cancel-btn');
     const skipBtn = document.getElementById('guided-setup-skip-btn');
     const closeBtn = document.getElementById('close-guided-setup-modal-btn');
 

@@ -67,7 +67,7 @@ export function initializeViewportHandler() {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
     // Reset header transform on cold load / reload immediately
-    const initialHeader = document.querySelector('.header-container');
+    const initialHeader = document.querySelector('.app-header, .header-container');
     if (initialHeader) {
         initialHeader.style.transform = '';
     }
@@ -104,7 +104,7 @@ export function initializeViewportHandler() {
                     return;
                 }
 
-                const header = document.querySelector('.header-container');
+                const header = document.querySelector('.app-header, .header-container');
                 if (!header) return;
 
                 const isInputFocused = Boolean(activeEl && activeEl.matches('input, select, textarea'));
@@ -129,7 +129,7 @@ export function initializeViewportHandler() {
             if (!target || !target.matches('input, select, textarea')) return;
             if (target.closest('.modal, .modal-content, .modal-backdrop')) return;
 
-            const header = document.querySelector('.header-container');
+            const header = document.querySelector('.app-header, .header-container');
             if (!header) return;
 
             isTransitioningOut = true;

@@ -45,6 +45,10 @@ input[type="number"].offer-input-number,
     position: relative;
     gap: 10px;
 
+    & + & {
+        margin-top: $spacing-xs;
+    }
+
     label {
         flex: 1;
         min-width: 0;
@@ -170,7 +174,7 @@ input[type="number"] {
         }
     }
 
-    &.open .dropdown-options {
+    &.is-open .dropdown-options {
         display: block;
     }
 }
@@ -181,7 +185,10 @@ input[type="number"] {
     flex: 1;
     min-width: 0;
 
-    .flex-center-gap-8 {
+    &__label-row {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
         margin-bottom: $spacing-2xs;
 
         label {

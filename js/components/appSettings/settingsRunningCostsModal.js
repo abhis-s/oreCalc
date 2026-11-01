@@ -234,7 +234,7 @@ export async function openRunningCostsModal(options = {}) {
     openModal(modal, options);
 
     const closeBtn = document.getElementById('close-running-costs-modal-btn');
-    const closeActionBtn = document.getElementById('running-costs-close-btn');
+    const closeActionBtn = document.getElementById('close-running-costs-footer-btn') || document.getElementById('running-costs-close-btn');
     const totalValue = document.getElementById('running-costs-total-value');
     const historyContainer = document.getElementById('running-costs-history-container');
     const updateDate = document.getElementById('running-costs-update-date');

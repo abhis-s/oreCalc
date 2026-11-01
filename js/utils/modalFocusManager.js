@@ -150,7 +150,7 @@ export function getInitialModalFocusTarget(modal) {
     if (toggles.length > 0) return toggles[0];
 
     if (actionsScope) {
-        const primaryBtnSelector = '.accept-button, .confirm-button, .btn-primary, [type="submit"], button[data-action="accept"], button[data-action="confirm"], a.accept-button';
+        const primaryBtnSelector = '.accept-button, .confirm-button, .btn--primary, .btn-primary, [type="submit"], button[data-action="accept"], button[data-action="confirm"], a.accept-button';
         const primaryBtns = Array.from(actionsScope.querySelectorAll(primaryBtnSelector))
             .filter(isInteractiveCandidate);
         if (primaryBtns.length > 0) return primaryBtns[0];
@@ -167,10 +167,10 @@ export function getInitialModalFocusTarget(modal) {
         if (actionBtns.length > 0) return actionBtns[0];
     }
 
-    const headerClose = modal.querySelector('.modal-header .close-button, .modal-header .close-btn, .modal-header button');
+    const headerClose = modal.querySelector('.modal-header .close-button, .modal-header .modal__close-btn, .modal-header .close-btn, .modal-header button');
     if (headerClose && isInteractiveCandidate(headerClose)) return headerClose;
 
-    const anyClose = modal.querySelector('.close-button, .close-btn');
+    const anyClose = modal.querySelector('.close-button, .modal__close-btn, .close-btn');
     if (anyClose && isInteractiveCandidate(anyClose)) return anyClose;
 
     if (typeof modal.hasAttribute === 'function' && !modal.hasAttribute('tabindex')) {

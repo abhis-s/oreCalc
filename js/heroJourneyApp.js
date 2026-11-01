@@ -231,7 +231,7 @@ function renderUI() {
     progressTracks.forEach(track => {
         /** @type {HTMLElement} */ (track).style.display = isTrueMaxPlayer ? 'none' : '';
     });
-    const claimSwitches = document.querySelectorAll('.hj-segmented-switch');
+    const claimSwitches = document.querySelectorAll('.hj-segmented-control');
     claimSwitches.forEach(sw => {
         /** @type {HTMLElement} */ (sw).style.display = (!hjState.playerData || isTrueMaxPlayer) ? 'none' : '';
     });
@@ -533,7 +533,7 @@ function updateHeroJourneyDrawer(activeView = 'track') {
             loadPlayer(targetTag);
         },
         onGuestLoad: () => {
-            const addPlayerBtn = document.getElementById('add-player-button');
+            const addPlayerBtn = document.getElementById('add-player-btn') || document.getElementById('add-player-button');
             addPlayerBtn?.click();
         }
     });

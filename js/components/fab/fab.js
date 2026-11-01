@@ -13,7 +13,7 @@ function toggleFabMenu() {
     const overlay = dom.overlay || document.getElementById('overlay');
 
     if (!main || !menu) return;
-    const isActive = main.classList.toggle('active');
+    const isActive = main.classList.toggle('is-active');
     menu.classList.toggle('show', isActive);
     if (overlay) {
         overlay.classList.toggle('show', isActive);
@@ -29,7 +29,7 @@ export function closeFabMenu() {
     const overlay = dom.overlay || document.getElementById('overlay');
 
     if (main) {
-        main.classList.remove('active');
+        main.classList.remove('is-active');
     }
     if (menu) {
         menu.classList.remove('show');
@@ -52,17 +52,17 @@ export function initializeFab() {
     main.addEventListener('click', toggleFabMenu);
     if (overlay) {
         overlay.addEventListener('click', () => {
-            if (main.classList.contains('active')) {
+            if (main.classList.contains('is-active')) {
                 closeFabMenu();
             }
         });
         overlay.addEventListener('touchmove', (e) => {
-            if (main.classList.contains('active')) {
+            if (main.classList.contains('is-active')) {
                 if (e.cancelable) e.preventDefault();
             }
         }, { passive: false });
         overlay.addEventListener('wheel', (e) => {
-            if (main.classList.contains('active')) {
+            if (main.classList.contains('is-active')) {
                 if (e.cancelable) e.preventDefault();
             }
         }, { passive: false });

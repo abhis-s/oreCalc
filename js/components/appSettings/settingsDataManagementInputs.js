@@ -33,9 +33,21 @@ export function initializeSettingsDataManagement() {
             if (deleteTagError) deleteTagError.textContent = '';
             if (deleteTokenError) deleteTokenError.textContent = '';
             if (deleteTagInput) deleteTagInput.disabled = false;
-            if (deleteTokenContainer) deleteTokenContainer.classList.add('hidden');
-            if (deleteModalActionsValidate) deleteModalActionsValidate.classList.remove('hidden');
-            if (deleteModalActionsVerify) deleteModalActionsVerify.classList.add('hidden');
+            if (deleteTokenContainer) {
+                deleteTokenContainer.hidden = true;
+                deleteTokenContainer.classList.add('is-hidden');
+                deleteTokenContainer.classList.add('hidden');
+            }
+            if (deleteModalActionsValidate) {
+                deleteModalActionsValidate.hidden = false;
+                deleteModalActionsValidate.classList.remove('is-hidden');
+                deleteModalActionsValidate.classList.remove('hidden');
+            }
+            if (deleteModalActionsVerify) {
+                deleteModalActionsVerify.hidden = true;
+                deleteModalActionsVerify.classList.add('is-hidden');
+                deleteModalActionsVerify.classList.add('hidden');
+            }
             if (validateDeletePlayerBtn) {
                 validateDeletePlayerBtn.disabled = false;
                 validateDeletePlayerBtn.textContent = translate('actions.validate');
@@ -72,16 +84,40 @@ export function initializeSettingsDataManagement() {
 
                 if (deleteTagError) deleteTagError.textContent = '';
                 if (deleteTagInput) deleteTagInput.disabled = true;
-                if (deleteTokenContainer) deleteTokenContainer.classList.remove('hidden');
-                if (deleteModalActionsValidate) deleteModalActionsValidate.classList.add('hidden');
-                if (deleteModalActionsVerify) deleteModalActionsVerify.classList.remove('hidden');
+                if (deleteTokenContainer) {
+                    deleteTokenContainer.hidden = false;
+                    deleteTokenContainer.classList.remove('is-hidden');
+                    deleteTokenContainer.classList.remove('hidden');
+                }
+                if (deleteModalActionsValidate) {
+                    deleteModalActionsValidate.hidden = true;
+                    deleteModalActionsValidate.classList.add('is-hidden');
+                    deleteModalActionsValidate.classList.add('hidden');
+                }
+                if (deleteModalActionsVerify) {
+                    deleteModalActionsVerify.hidden = false;
+                    deleteModalActionsVerify.classList.remove('is-hidden');
+                    deleteModalActionsVerify.classList.remove('hidden');
+                }
             } catch (err) {
                 if (err.message === 'apiErrors.protectedTag') {
                     if (deleteTagError) deleteTagError.textContent = '';
                     if (deleteTagInput) deleteTagInput.disabled = true;
-                    if (deleteTokenContainer) deleteTokenContainer.classList.remove('hidden');
-                    if (deleteModalActionsValidate) deleteModalActionsValidate.classList.add('hidden');
-                    if (deleteModalActionsVerify) deleteModalActionsVerify.classList.remove('hidden');
+                    if (deleteTokenContainer) {
+                        deleteTokenContainer.hidden = false;
+                        deleteTokenContainer.classList.remove('is-hidden');
+                        deleteTokenContainer.classList.remove('hidden');
+                    }
+                    if (deleteModalActionsValidate) {
+                        deleteModalActionsValidate.hidden = true;
+                        deleteModalActionsValidate.classList.add('is-hidden');
+                        deleteModalActionsValidate.classList.add('hidden');
+                    }
+                    if (deleteModalActionsVerify) {
+                        deleteModalActionsVerify.hidden = false;
+                        deleteModalActionsVerify.classList.remove('is-hidden');
+                        deleteModalActionsVerify.classList.remove('hidden');
+                    }
                 } else {
                     if (deleteTagError) deleteTagError.textContent = translate(err.message);
 

@@ -1,4 +1,4 @@
-        <div class="tab-content active" id="home-tab">
+        <div class="tab-content is-active" id="home-tab">
             <div id="orecalc-home-player-card" class="card home-profile-card is-stats-collapsed">
                 <!-- DYNAMIC INSERTION: Home player profile card -->
             </div>
@@ -51,7 +51,7 @@
                         <span id="home-hj-progress-percent">0%</span>
                     </div>
                     <div class="hero-journey-no-profile-info">
-                        <span class="hero-journey-no-profile-text" data-i18n="views.home.profile.noProfileTitle"></span>
+                        <span data-i18n="views.home.profile.noProfileTitle"></span>
                     </div>
                     <div class="hero-journey-accelerated-switch-container">
                         <div class="hero-journey-accelerated-label-group">
@@ -72,10 +72,10 @@
 
                 <div class="hero-journey-filter-container">
                     <div class="hero-journey-filters-row">
-                        <div class="hj-segmented-switch" id="home-hj-claim-switch">
-                            <div class="hj-switch-pill" id="home-hj-claim-pill"></div>
-                            <button type="button" class="hj-switch-btn active" data-unclaimed-only="false" data-i18n="views.heroJourney.filters.filterAll"></button>
-                            <button type="button" class="hj-switch-btn" data-unclaimed-only="true" data-i18n="views.heroJourney.filters.filterUnclaimed"></button>
+                        <div class="hj-segmented-control" id="home-hj-claim-control">
+                            <div class="hj-segmented-control__pill" id="home-hj-claim-pill"></div>
+                            <button type="button" class="hj-segmented-control__btn is-active" data-unclaimed-only="false" data-i18n="views.heroJourney.filters.filterAll"></button>
+                            <button type="button" class="hj-segmented-control__btn" data-unclaimed-only="true" data-i18n="views.heroJourney.filters.filterUnclaimed"></button>
                         </div>
                         <div class="hj-type-filters" id="home-hj-type-filters">
                             <select id="home-hj-type-select" class="hj-type-select" data-i18n-aria-label="views.heroJourney.filters.filterByType">
@@ -106,11 +106,11 @@
                         </div>
                     </div>
                     <div class="hero-journey-scroll-controls">
-                        <button type="button" id="home-hj-scroll-first" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollFirst" data-i18n-title="views.heroJourney.track.scrollFirst"><clashcalc-assets-svg name="first-item" height="14" width="14"></clashcalc-assets-svg></button>
-                        <button type="button" id="home-hj-scroll-left" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLeft"><clashcalc-assets-svg name="backward" height="14" width="14"></clashcalc-assets-svg></button>
-                        <button type="button" id="home-hj-scroll-current" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollToCurrentProgress" data-i18n-title="views.heroJourney.track.scrollToCurrentProgress"><clashcalc-assets-svg name="trophy" height="14" width="14"></clashcalc-assets-svg></button>
-                        <button type="button" id="home-hj-scroll-right" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollRight"><clashcalc-assets-svg name="forward" height="14" width="14"></clashcalc-assets-svg></button>
-                        <button type="button" id="home-hj-scroll-last" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLast" data-i18n-title="views.heroJourney.track.scrollLast"><clashcalc-assets-svg name="last-item" height="14" width="14"></clashcalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-first" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollFirst" data-i18n-title="views.heroJourney.track.scrollFirst"><clashcalc-assets-svg name="first-item" height="14" width="14"></clashcalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-left" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLeft"><clashcalc-assets-svg name="backward" height="14" width="14"></clashcalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-current" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollToCurrentProgress" data-i18n-title="views.heroJourney.track.scrollToCurrentProgress"><clashcalc-assets-svg name="trophy" height="14" width="14"></clashcalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-right" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollRight"><clashcalc-assets-svg name="forward" height="14" width="14"></clashcalc-assets-svg></button>
+                        <button type="button" id="home-hj-scroll-last" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLast" data-i18n-title="views.heroJourney.track.scrollLast"><clashcalc-assets-svg name="last-item" height="14" width="14"></clashcalc-assets-svg></button>
                     </div>
                 </div>
 
@@ -199,12 +199,12 @@
                     </div>
                 </div>
             </div>
-            <div class="secondary-content card">
+            <div class="card">
                 <div id="orecalc-home-income-card" class="full-width-card">
                     <div class="income-header">
                         <h2 class="income-summary-title" data-i18n="views.income.summaryTitle"></h2>
                         <div class="income-header-controls">
-                            <select id="home-income-timeframe-select" class="dropdown-style content-size-dropdown updatable" data-i18n-aria-label="views.income.timeframeAriaLabel">
+                            <select id="home-income-timeframe-select" class="dropdown-style updatable" data-i18n-aria-label="views.income.timeframeAriaLabel">
                                 <option value="daily" data-i18n="time.daily"></option>
                                 <option value="weekly" data-i18n="time.weekly"></option>
                                 <option value="monthly" selected data-i18n="time.monthly"></option>
@@ -304,7 +304,7 @@
                     </div>
                     <div id="home-required-resources-container" class="required-resources-container">
                         <div class="resources-row">
-                            <span class="resource-item"><clashcalc-assets-image src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" data-i18n-alt="app.alts.leagueIcon" class="resource-icon calculated" id="home-display-league-icon" width="24" height="24"></clashcalc-assets-image><span id="home-display-league-requirement" class="calculated" data-i18n="entities.leagues.unranked"></span></span>
+                            <span class="resource-item"><clashcalc-assets-image src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" data-i18n-alt="app.alts.leagueIcon" class="calculated" id="home-display-league-icon" width="24" height="24"></clashcalc-assets-image><span id="home-display-league-requirement" class="calculated" data-i18n="entities.leagues.unranked"></span></span>
                             <span class="resource-item"><clashcalc-assets-image src="assets/resources/cwl.png" data-i18n-alt="views.income.cwl.title"></clashcalc-assets-image><span data-i18n="views.income.cwl.participationsColon"></span><span id="home-display-cwl-participations" class="calculated">0</span></span>
                             <span class="resource-item"><clashcalc-assets-image src="assets/resources/clanWar.png" data-i18n-alt="views.income.clanWar.title" id="home-display-clan-icon" class="calculated"></clashcalc-assets-image><span data-i18n="views.income.clanWar.participationsColon"></span><span id="home-display-clan-war-participations" class="calculated">0</span></span>
                             <span class="resource-item"><clashcalc-assets-image src="assets/resources/raidMedal.png" data-i18n-alt="views.income.ores.raidMedal"></clashcalc-assets-image><span data-i18n="views.income.raidMedalTrader.medalsColon"></span><span id="home-display-raid-medals" class="calculated">0</span></span>
@@ -315,5 +315,4 @@
                     </div>
                 </div>
             </div>
-        </div>
         </div>

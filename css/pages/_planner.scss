@@ -118,7 +118,7 @@
     cursor: pointer;
     transition: background-color $duration-moderate $ease-smooth;
 
-    &.active {
+    &.is-active {
         background-color: $accent-primary;
     }
 

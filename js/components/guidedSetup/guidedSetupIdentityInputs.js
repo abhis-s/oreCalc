@@ -13,6 +13,7 @@ import { state } from '../../core/state.js';
 import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
+import { renderTownHallBadge } from '../common/townHallBadge.js';
 
 import { guidedSetupState, syncPreferencesFromProfile } from './guidedSetupState.js';
 import { renderProfilePreviewCard } from './guidedSetupProfileDisplay.js';
@@ -81,11 +82,15 @@ export function renderSavedProfilesList(onSelectProfile) {
         card.setAttribute('aria-selected', String(isActive));
         card.setAttribute('tabindex', '0');
 
+        const thBadgeHtml = renderTownHallBadge({
+            thLevel,
+            size: 'md',
+            className: 'account-card-th',
+            imgAlt: `TH${thLevel}`
+        });
+
         card.innerHTML = `
-            <div class="account-card-th">
-                <clashcalc-assets-image class="th-mini-img" src="assets/th/th${thLevel}.png" alt="TH${thLevel}" size="standard"></clashcalc-assets-image>
-                <span class="th-mini-level">${thLevel}</span>
-            </div>
+            ${thBadgeHtml}
             <div class="account-card-player">
                 <span class="account-card-name">${escapeHTML(profile.name)}</span>
                 <span class="account-card-tag">${escapeHTML(displayTag)}</span>
@@ -191,16 +196,16 @@ export function initializeGuidedSetupIdentityInputs(modal, onIdentityComplete) {
     if (tabBtnInfo && tabBtnEquipment && tabContentInfo && tabContentEquipment) {
         tabBtnInfo.addEventListener('click', (e) => {
             e.preventDefault();
-            tabBtnInfo.classList.add('active');
-            tabBtnEquipment.classList.remove('active');
+            tabBtnInfo.classList.add('is-active');
+            tabBtnEquipment.classList.remove('is-active');
             tabContentInfo.style.display = 'block';
             tabContentEquipment.style.display = 'none';
         });
 
         tabBtnEquipment.addEventListener('click', (e) => {
             e.preventDefault();
-            tabBtnEquipment.classList.add('active');
-            tabBtnInfo.classList.remove('active');
+            tabBtnEquipment.classList.add('is-active');
+            tabBtnInfo.classList.remove('is-active');
             tabContentEquipment.style.display = 'block';
             tabContentInfo.style.display = 'none';
         });

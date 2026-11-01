@@ -15,7 +15,7 @@ import { initializeSettingsPricing } from './settingsPricingInputs.js';
 import { dom } from '../../dom/domElements.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
 import { showAlert, showConfirm } from '../../ui/noticeModal.js';
-import { initAppSettings } from '../common/appSettings.js';
+import { initAppSettings } from '../common/appSettingsManager.js';
 
 const boundSettingsTabs = new WeakSet();
 

@@ -89,8 +89,8 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
 
         // Standard popover DOM elements
         createMockElement('app-account-popover');
-        createMockElement('account-popover-manage-btn', 'a', { href: '/account/', 'data-popover-option': 'account-sync' });
-        createMockElement('account-popover-avatar-btn', 'a', { href: '/account/' });
+        createMockElement('account-popover-manage-link', 'a', { href: '/account/', 'data-popover-option': 'account-sync' });
+        createMockElement('account-popover-avatar-link', 'a', { href: '/account/' });
         createMockElement('account-popover-install-btn', 'button', { 'data-popover-option': 'install' });
         createMockElement('account-popover-guest-install-btn', 'button', { 'data-popover-option': 'install' });
         createMockElement('account-popover-logout-btn', 'button', { 'data-popover-option': 'logout' });
@@ -156,8 +156,8 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
     it('verifies default popover options preserve standard navigation and collapsed panels', () => {
         initializeSettingsAccount();
 
-        const manageBtn = elements.get('account-popover-manage-btn');
-        const avatarBtn = elements.get('account-popover-avatar-btn');
+        const manageBtn = elements.get('account-popover-manage-link');
+        const avatarBtn = elements.get('account-popover-avatar-link');
         const logoutBtn = elements.get('account-popover-logout-btn');
         const settingsPanel = panelsMap.get('settings');
         const settingsSummary = elements.get('account-popover-prefs-summary');
@@ -187,8 +187,8 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
             hasClickableAvatar: false
         });
 
-        const manageBtn = elements.get('account-popover-manage-btn');
-        const avatarBtn = elements.get('account-popover-avatar-btn');
+        const manageBtn = elements.get('account-popover-manage-link');
+        const avatarBtn = elements.get('account-popover-avatar-link');
         const logoutBtn = elements.get('account-popover-logout-btn');
 
         // Manage button is hidden

@@ -76,7 +76,7 @@ export function renderPopoverContent(cfg) {
 
     if (showRange && currMin <= currMax) {
         html += `
-            <div class="popover-opt-btn readonly" data-action="range" role="document">
+            <div class="popover-opt-row is-readonly" data-action="range" role="document">
                  <span>${translate('validation.range')}</span>
                 <strong>${formatNumber(currMin)} - ${formatNumber(currMax)}</strong>
             </div>

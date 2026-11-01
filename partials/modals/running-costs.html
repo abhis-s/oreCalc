@@ -1,12 +1,12 @@
 <dialog id="running-costs-modal" class="modal" aria-labelledby="running-costs-modal-title">
-    <div class="modal-content running-costs-content">
+    <div class="modal-content">
         <div class="modal-header">
             <h2 id="running-costs-modal-title" data-i18n="views.settings.projectCosts.title"></h2>
             <div class="modal-header-actions">
                 <a id="running-costs-volunteer-btn" href="https://buymeacoffee.com/orecalc" target="_blank" rel="noopener noreferrer" class="volunteer-button modal-header-btn" data-i18n-title="actions.support" data-i18n-aria-label="actions.support">
                     <clashcalc-assets-svg name="volunteer-support"></clashcalc-assets-svg>
                 </a>
-                <button type="button" id="close-running-costs-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+                <button type="button" id="close-running-costs-modal-btn" class="modal__close-btn" data-i18n-aria-label="actions.close">
                     <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                 </button>
             </div>
@@ -33,7 +33,7 @@
                 <span data-i18n="views.settings.projectCosts.modal.lastUpdated"></span>
                 <span id="running-costs-update-date">---</span>
             </div>
-            <button type="button" id="running-costs-close-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
+            <button type="button" id="close-running-costs-footer-btn" class="btn btn--secondary" data-i18n="actions.close" data-modal-autofocus></button>
         </div>
     </div>
 </dialog>

@@ -86,7 +86,7 @@ export function updateActiveChip() {
     chips.forEach(chip => {
         const htmlChip = /** @type {HTMLElement} */ (chip);
         if (htmlChip.dataset.year === currentYear && htmlChip.dataset.month === currentMonth) {
-            htmlChip.classList.add('active');
+            htmlChip.classList.add('is-active');
 
             const containerWidth = monthChipContainer.clientWidth;
             if (containerWidth > 0) {
@@ -106,18 +106,18 @@ export function updateActiveChip() {
             weekChips.forEach(weekChip => {
                 const htmlWeekChip = /** @type {HTMLElement} */ (weekChip);
                 if (htmlWeekChip.dataset.year === currentWeekYear && htmlWeekChip.dataset.week === currentWeek) {
-                    htmlWeekChip.classList.add('active');
+                    htmlWeekChip.classList.add('is-active');
                 } else {
-                    htmlWeekChip.classList.remove('active');
+                    htmlWeekChip.classList.remove('is-active');
                 }
             });
         } else {
-            htmlChip.classList.remove('active');
+            htmlChip.classList.remove('is-active');
             const weekNumbersContainer = /** @type {HTMLElement|null} */ (htmlChip.querySelector('.week-numbers-container'));
             if (weekNumbersContainer) {
                 weekNumbersContainer.style.display = 'none';
             }
-            htmlChip.querySelectorAll('.week-chip').forEach(weekChip => weekChip.classList.remove('active'));
+            htmlChip.querySelectorAll('.week-chip').forEach(weekChip => weekChip.classList.remove('is-active'));
         }
     });
 }

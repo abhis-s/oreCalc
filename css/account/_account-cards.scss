@@ -108,7 +108,7 @@
     }
 }
 
-.account-hero-badge {
+.account-card__hero-badge {
     width: 64px;
     height: 64px;
     border-radius: $shape-corner-full;
@@ -119,21 +119,21 @@
     justify-content: center;
     margin-bottom: $spacing-sm;
 
-    .account-hero-icon,
-    .account-hero-icon svg {
+    .account-card__hero-icon,
+    .account-card__hero-icon svg {
         width: 32px;
         height: 32px;
     }
 }
 
-.account-hero-title {
+.account-card__hero-title {
     font-size: $font-size-2xl;
     font-weight: $font-weight-bold;
     color: $text-primary;
     margin: 0;
 }
 
-.account-hero-desc {
+.account-card__hero-desc {
     font-size: $font-size-md;
     color: $text-secondary;
     max-width: 480px;
@@ -141,7 +141,7 @@
     line-height: 1.5;
 }
 
-.account-hero-actions {
+.account-card__hero-actions {
     display: flex;
     flex-wrap: wrap;
     gap: $spacing-md;

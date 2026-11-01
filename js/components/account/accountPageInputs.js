@@ -380,9 +380,9 @@ export function initAccountPageInputs() {
 function initGuestDeviceSync() {
     const toggleBtn = document.getElementById('account-guest-btn-toggle-pairing');
     const tabQr = document.getElementById('account-guest-tab-qr');
-    const tabInput = document.getElementById('account-guest-tab-input');
-    const gotoInputBtn = document.getElementById('account-guest-btn-goto-input');
-    const cancelInputBtn = document.getElementById('account-guest-btn-cancel-input');
+    const tabInput = document.getElementById('account-guest-tab-sync-code');
+    const gotoInputBtn = document.getElementById('account-guest-goto-sync-code-btn');
+    const cancelInputBtn = document.getElementById('account-guest-cancel-sync-code-btn');
     const copyBtn = document.getElementById('account-guest-copy-btn');
     const userIdDisplay = document.getElementById('account-guest-user-id');
     const syncInput = /** @type {HTMLInputElement | null} */ (document.getElementById('account-guest-sync-input'));

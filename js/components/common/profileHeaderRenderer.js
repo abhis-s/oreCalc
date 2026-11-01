@@ -5,6 +5,7 @@ import { formatDisplayTag } from '../../core/storageKeys.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { getMaxTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
+import { renderTownHallBadge } from './townHallBadge.js';
 
 /**
  * js/components/common/profileHeaderRenderer.js
@@ -228,18 +229,22 @@ export function renderProfileHeaderHtml({
 
     const extraClassStr = headerExtraClasses ? ` ${headerExtraClasses}` : '';
     const guestClassStr = isGuest ? ' is-guest' : '';
-    const silhouetteClassStr = isGuest ? ' is-silhouette' : '';
     const leagueDetailsTitleAttr = isGuest
         ? `title="${safeLeagueName}" data-i18n-title="entities.leagues.unranked"`
         : `title="${safeLeagueName}"`;
 
+    const thBadgeHtml = renderTownHallBadge({
+        thLevel: activeTh,
+        size: 'lg',
+        isSilhouette: isGuest,
+        imgSrc: thImgUrl,
+        imgAlt: `Town Hall ${activeTh}`
+    });
+
     return `
         <div class="home-profile-header${extraClassStr}${guestClassStr}">
             <div class="profile-meta-left">
-                <div class="th-badge-wrapper">
-                    <clashcalc-assets-image class="th-badge-img${silhouetteClassStr}" src="${thImgUrl}" alt="Town Hall ${activeTh}" size="standard"></clashcalc-assets-image>
-                    <span class="th-badge-level-overlay">${activeTh}</span>
-                </div>
+                ${thBadgeHtml}
                 <div class="player-identity">
                     ${identityHtml}
                     ${clanHtml}

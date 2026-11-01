@@ -5,7 +5,7 @@ import {
     applyAppLanguage,
     initAppSettings,
     resetAppSettingsListenersForTesting
-} from '../../js/components/common/appSettings.js';
+} from '../../js/components/common/appSettingsManager.js';
 import { state } from '../../js/core/state.js';
 import { STORAGE_KEY_MAP } from '../../js/core/constants.js';
 

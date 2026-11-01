@@ -254,7 +254,7 @@ export function renderHomeProfile(state) {
     cardContainer.style.display = 'flex';
 
     const preloader = typeof document !== 'undefined' ? document.getElementById('preloader') : null;
-    const isPreloaderActive = Boolean(preloader && !preloader.classList.contains('hidden') && preloader.style.display !== 'none');
+    const isPreloaderActive = Boolean(preloader && !preloader.classList.contains('is-hidden') && preloader.style.display !== 'none');
 
     if (isPreloaderActive) {
         renderState.initialProgress = progress;

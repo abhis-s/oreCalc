@@ -4,11 +4,11 @@
 export function getNavigationDOMElements() {
     return {
         tabs: {
-            buttons: document.querySelectorAll('.tab-button, .nav-button, .navigation-drawer__tab'),
+            buttons: document.querySelectorAll('.app-header__tab, .tab-button, .nav-button, .navigation-drawer__tab'),
             contents: document.querySelectorAll('.tab-content'),
         },
         drawer: {
-            button: document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger'),
+            button: document.getElementById('hamburger-btn') || document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger'),
             drawer: document.querySelector('.navigation-drawer'),
             overlay: document.querySelector('.navigation-drawer__overlay'),
             close: document.querySelector('.navigation-drawer__close'),

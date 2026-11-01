@@ -90,7 +90,7 @@ export function renderGuidedSetupTraderRows(containerId, offers, idPrefix, curre
         // Col 3: Select dropdown
         const select = document.createElement('select');
         select.id = `${idPrefix}-${oreType}`;
-        select.className = 'guided-setup-select-input guided-setup-select-input--compact';
+        select.className = 'guided-setup-select guided-setup-select--compact';
 
         for (let i = 0; i <= offer.maxPacks; i++) {
             const opt = document.createElement('option');
@@ -221,8 +221,9 @@ export function renderGuidedSetupShopOffers(thLevel, purchasedOffers = {}) {
 
             // Column 3: Select dropdown
             const select = document.createElement('select');
-            select.id = `guided-setup-shop-offer-${id}`;
-            select.className = 'guided-setup-select-input guided-setup-select-input--compact';
+            const offerKebab = String(id).replace(/_/g, '-');
+            select.id = `guided-setup-shop-offer-${offerKebab}`;
+            select.className = 'guided-setup-select guided-setup-select--compact';
             select.dataset.offerId = id;
 
             for (let i = 0; i <= data.maxPacks; i++) {
@@ -267,7 +268,7 @@ export function updateGuidedSetupStepView(stepNumber) {
     const skipBtn = document.getElementById('guided-setup-skip-btn');
     const nextBtn = document.getElementById('guided-setup-next-btn');
     const backBtn = document.getElementById('guided-setup-back-btn');
-    const cancelBtn = document.getElementById('guided-setup-cancel-btn');
+    const cancelBtn = document.getElementById('cancel-guided-setup-modal-btn') || document.getElementById('guided-setup-cancel-btn');
 
     if (stepIndicator) {
         if (stepNumber > 1) {

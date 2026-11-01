@@ -228,7 +228,7 @@ function finishStartupTeardown() {
 export function handlePreloaderTeardown(preloader) {
     if (preloader) {
         setTimeout(() => {
-            preloader.classList.add('hidden');
+            preloader.classList.add('is-hidden');
 
             const cardContainer = document.getElementById('orecalc-home-player-card');
             if (cardContainer && renderState.initialProgress) {

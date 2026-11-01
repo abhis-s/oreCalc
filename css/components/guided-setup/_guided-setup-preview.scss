@@ -38,7 +38,7 @@
                 color: $text-primary;
             }
 
-            &.active {
+            &.is-active {
                 color: $accent-primary;
 
                 &::after {
@@ -59,7 +59,7 @@
         .profile-tab-content {
             display: none;
 
-            &.active {
+            &.is-active {
                 display: block;
             }
         }
@@ -272,7 +272,7 @@
             flex-direction: column;
             gap: $spacing-xs;
 
-            &.disabled {
+            &.is-disabled {
                 opacity: 0.45;
             }
 

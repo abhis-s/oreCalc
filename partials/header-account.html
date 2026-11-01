@@ -2,7 +2,7 @@
     <button type="button" id="header-account-btn" class="header-account-btn"
         aria-haspopup="dialog" aria-expanded="false" aria-controls="app-account-popover"
         data-i18n-title="auth.account" aria-label="Account" data-i18n-aria-label="auth.account">
-        <span class="header-account-icon-wrapper fill-current" id="header-account-icon-wrapper">
+        <span class="header-account-icon-wrapper" id="header-account-icon-wrapper">
             <clashcalc-assets-svg name="user-filled" id="header-account-icon"></clashcalc-assets-svg>
         </span>
         <clashcalc-assets-image id="header-account-avatar-img" class="header-account-avatar-img is-hidden" src="assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt"></clashcalc-assets-image>
@@ -13,7 +13,7 @@
 
         <div id="account-popover-auth-section" class="account-popover-section is-hidden">
             <div class="account-user-profile-card">
-                <a href="/account/" id="account-popover-avatar-btn" class="account-user-profile-avatar" aria-label="Account Profile" data-i18n-aria-label="auth.account">
+                <a href="/account/" id="account-popover-avatar-link" class="account-user-profile-avatar" aria-label="Account Profile" data-i18n-aria-label="auth.account">
                     <clashcalc-assets-image id="account-popover-avatar-img" src="assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt"></clashcalc-assets-image>
                 </a>
                 <div class="account-user-profile-details">
@@ -22,22 +22,22 @@
             </div>
 
             <div class="account-popover-menu">
-                <a href="/account/" id="account-popover-manage-btn" class="account-popover-nav-item" data-popover-option="account-sync">
-                    <span class="account-popover-nav-icon fill-current">
+                <a href="/account/" id="account-popover-manage-link" class="account-popover-nav-item" data-popover-option="account-sync">
+                    <span class="account-popover-nav-icon">
                         <clashcalc-assets-svg name="manage-account" width="18" height="18"></clashcalc-assets-svg>
                     </span>
                     <span class="account-popover-nav-text" data-i18n="views.settings.cards.accountAndSync"></span>
                     <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-nav-arrow"></clashcalc-assets-svg>
                 </a>
                 <button type="button" id="account-popover-install-btn" class="account-popover-nav-item is-hidden" data-i18n-title="actions.installApp" aria-label="Install App" data-i18n-aria-label="actions.installApp" hidden>
-                    <span class="account-popover-nav-icon fill-current">
+                    <span class="account-popover-nav-icon">
                         <clashcalc-assets-svg name="install-app" width="18" height="18"></clashcalc-assets-svg>
                     </span>
                     <span class="account-popover-nav-text" data-i18n="actions.installApp">Install App</span>
                     <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-nav-arrow"></clashcalc-assets-svg>
                 </button>
                 <button type="button" id="account-popover-logout-btn" class="account-popover-nav-item account-popover-nav-item--danger">
-                    <span class="account-popover-nav-icon fill-current">
+                    <span class="account-popover-nav-icon">
                         <clashcalc-assets-svg name="logout" width="18" height="18"></clashcalc-assets-svg>
                     </span>
                     <span class="account-popover-nav-text" data-i18n="auth.signOut"></span>
@@ -48,7 +48,7 @@
         <div id="account-popover-guest-section" class="account-popover-section">
             <div class="account-popover-guest-card">
                 <div class="account-popover-guest-content">
-                    <a href="/account/" id="account-popover-guest-avatar-btn" class="account-popover-guest-icon-wrapper" aria-label="Account" data-i18n-aria-label="auth.account" title="Account" data-i18n-title="auth.account">
+                    <a href="/account/" id="account-popover-guest-avatar-link" class="account-popover-guest-icon-wrapper" aria-label="Account" data-i18n-aria-label="auth.account" title="Account" data-i18n-title="auth.account">
                         <clashcalc-assets-svg name="user-filled" class="account-popover-guest-icon"></clashcalc-assets-svg>
                     </a>
                     <div class="account-popover-guest-details">
@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <button type="button" id="account-popover-signin-btn" class="animated-btn btn-accent task-btn">
-                    <span class="animated-btn-icon-wrapper fill-dark">
+                    <span class="animated-btn-icon-wrapper">
                         <clashcalc-assets-svg name="user-filled"></clashcalc-assets-svg>
                     </span>
                     <span class="animated-btn-text" data-i18n="auth.signIn"></span>
@@ -65,15 +65,15 @@
             </div>
 
             <div class="account-popover-menu">
-                <a href="/account/" id="account-popover-guest-manage-btn" class="account-popover-nav-item" data-popover-option="account-sync">
-                    <span class="account-popover-nav-icon fill-current">
+                <a href="/account/" id="account-popover-guest-manage-link" class="account-popover-nav-item" data-popover-option="account-sync">
+                    <span class="account-popover-nav-icon">
                         <clashcalc-assets-svg name="manage-account" width="18" height="18"></clashcalc-assets-svg>
                     </span>
                     <span class="account-popover-nav-text" data-i18n="views.settings.cards.accountAndSync"></span>
                     <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="account-popover-nav-arrow"></clashcalc-assets-svg>
                 </a>
                 <button type="button" id="account-popover-guest-install-btn" class="account-popover-nav-item is-hidden" data-i18n-title="actions.installApp" aria-label="Install App" data-i18n-aria-label="actions.installApp" hidden>
-                    <span class="account-popover-nav-icon fill-current">
+                    <span class="account-popover-nav-icon">
                         <clashcalc-assets-svg name="install-app" width="18" height="18"></clashcalc-assets-svg>
                     </span>
                     <span class="account-popover-nav-text" data-i18n="actions.installApp">Install App</span>
@@ -111,12 +111,12 @@
                             </div>
 
                             <div class="preference-item">
-                                <label for="app-theme-toggle" class="preference-label">
+                                <label for="app-theme-switch" class="preference-label">
                                     <clashcalc-assets-svg name="routine" height="18" width="18" class="pref-label-icon"></clashcalc-assets-svg>
                                     <span id="app-theme-label" data-i18n="views.settings.options.themeLight"></span>
                                 </label>
                                 <div class="switch theme-switch">
-                                    <input type="checkbox" id="app-theme-toggle">
+                                    <input type="checkbox" id="app-theme-switch">
                                     <span class="slider round">
                                         <clashcalc-assets-svg name="dark-mode" class="switch-icon icon-dark"></clashcalc-assets-svg>
                                         <clashcalc-assets-svg name="light-mode" class="switch-icon icon-light"></clashcalc-assets-svg>

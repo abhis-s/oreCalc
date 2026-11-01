@@ -46,10 +46,10 @@
 <body class="dark-mode damage-calc-page">
     <!-- include: partials/shell-top.html -->
 
-    <header class="app-header header-container damage-calc-page__header">
-        <div class="app-header__inner header-inner damage-calc-page__header-inner">
-            <div class="app-header__brand header-brand damage-calc-page__brand">
-                <button type="button" id="hamburger-button" class="app-header__hamburger hamburger"
+    <header class="app-header">
+        <div class="app-header__inner">
+            <div class="app-header__brand">
+                <button type="button" id="hamburger-btn" class="app-header__hamburger"
                     aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
                     <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
@@ -65,12 +65,12 @@
                 </div>
             </div>
 
-            <div class="app-header__tabs tab-bar-container" role="tablist" aria-label="Calculator Views">
-                <button type="button" class="tab-button is-active active" data-tab="zapquake" id="tab-btn-zapquake"
+            <div class="app-header__tabs" role="tablist" aria-label="Calculator Views">
+                <button type="button" class="app-header__tab is-active" data-tab="zapquake" id="tab-btn-zapquake"
                     role="tab" aria-selected="true" data-i18n="views.damageCalc.tabs.zapQuake">
                     ZapQuake Combos
                 </button>
-                <button type="button" class="tab-button" data-tab="cluster_planner" id="tab-btn-cluster_planner"
+                <button type="button" class="app-header__tab" data-tab="cluster-planner" id="tab-btn-cluster-planner"
                     role="tab" aria-selected="false" data-i18n="views.damageCalc.tabs.clusterPlanner">
                     Cluster Planner
                 </button>
@@ -78,13 +78,13 @@
 
             <!-- include: partials/header-player-dropdown.html -->
 
-            <div class="app-header__actions data-buttons-container damage-calc-page__header-actions">
+            <div class="app-header__actions">
                 <!-- include: partials/header-spotright.html -->
                 <!-- include: partials/header-account.html -->
             </div>
         </div>
     </header>
-    <div class="header-placeholder app-header-placeholder"></div>
+    <div class="app-header-placeholder"></div>
 
     <main class="damage-calc-main" id="main-content">
         <h2 class="sr-only" data-i18n="views.damageCalc.offense.equipmentDamageBadge">Equipment Damage</h2>
@@ -98,7 +98,7 @@
             <div class="modal-content calc-offense-modal-content">
                 <div class="modal-header">
                     <h2 id="calc-offense-modal-title" class="modal-title" data-i18n="views.damageCalc.offense.editDamageSourceLevelsTitle">Edit Damage Source Levels</h2>
-                    <button type="button" class="close-button" id="calc-offense-close-btn" aria-label="Close" data-i18n-aria-label="actions.close">
+                    <button type="button" class="modal__close-btn" id="close-calc-offense-modal-btn" aria-label="Close" data-i18n-aria-label="actions.close">
                         <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                     </button>
                 </div>
@@ -112,7 +112,7 @@
             <div class="modal-content calc-target-combos-modal-content">
                 <div class="modal-header">
                     <h2 id="calc-target-combos-modal-title" class="modal-title" data-i18n="views.damageCalc.zapQuake.targetCombosModalTitle">Target Combinations</h2>
-                    <button type="button" class="close-button" id="calc-target-combos-close-btn" aria-label="Close" data-i18n-aria-label="actions.close">
+                    <button type="button" class="modal__close-btn" id="close-calc-target-combos-modal-btn" aria-label="Close" data-i18n-aria-label="actions.close">
                         <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                     </button>
                 </div>

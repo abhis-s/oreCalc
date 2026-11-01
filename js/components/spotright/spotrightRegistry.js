@@ -335,7 +335,7 @@ export function buildSpotrightRegistry() {
                 : 'light-mode',
             iconType: 'svg', acronym: 'tt', priorityTier: 21,
             execute: () => {
-                import('../common/appSettings.js').then(({ toggleAppTheme }) => toggleAppTheme()).catch(() => {});
+                import('../common/appSettingsManager.js').then(({ toggleAppTheme }) => toggleAppTheme()).catch(() => {});
             }
         },
         {

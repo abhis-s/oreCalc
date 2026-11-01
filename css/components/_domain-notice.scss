@@ -170,13 +170,12 @@
     }
 }
 
-.header-placeholder {
+.app-header-placeholder {
     transition: margin-top $duration-moderate $ease-smooth;
 }
 
 body:has(.domain-notice:not(.domain-notice--exiting)) {
-    .app-header,
-    .header-container {
+    .app-header {
         top: calc(#{$header-top-desktop} + env(safe-area-inset-top, 0px) + var(--domain-notice-height, 48px));
 
         @media (max-width: #{$breakpoint-desktop - 1px}) {
@@ -184,7 +183,7 @@ body:has(.domain-notice:not(.domain-notice--exiting)) {
         }
     }
 
-    .header-placeholder {
+    .app-header-placeholder {
         margin-top: var(--domain-notice-height, 48px);
     }
 }

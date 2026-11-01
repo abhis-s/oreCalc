@@ -75,7 +75,7 @@ describe('External Link Catcher Domain Suite', () => {
                 if (id === 'notice-modal-title') return mockElem;
                 if (id === 'notice-modal-message') return mockElem;
                 if (id === 'notice-modal-ok-btn') return mockOkBtn;
-                if (id === 'notice-modal-cancel-btn') return mockCancelBtn;
+                if (id === 'notice-modal-cancel-btn' || id === 'cancel-notice-modal-btn') return mockCancelBtn;
                 if (id === 'overlay') return null;
                 return null;
             }

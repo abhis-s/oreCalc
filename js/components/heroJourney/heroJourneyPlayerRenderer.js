@@ -10,7 +10,7 @@ import { hjState, buildStateFromPlayerData } from './heroJourneyState.js';
 import { renderProfileHeaderHtml } from '../common/profileHeaderRenderer.js';
 import { renderProfileStatsHtml } from '../common/profileStatsRenderer.js';
 import { state as appGlobalState } from '../../core/state.js';
-import { getAppSettings } from '../common/appSettings.js';
+import { getAppSettings } from '../common/appSettingsManager.js';
 
 /**
  * Calculates total, claimed, and unclaimed ores across all Hero Journey milestones.

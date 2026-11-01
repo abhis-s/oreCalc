@@ -54,10 +54,10 @@
 <body class="dark-mode landing-page">
     <!-- include: partials/shell-top.html -->
 
-    <header class="app-header header-container landing-header">
-        <div class="app-header__inner header-inner">
-            <div class="app-header__brand header-brand">
-                <button type="button" id="hamburger-button" class="app-header__hamburger hamburger"
+    <header class="app-header landing-header">
+        <div class="app-header__inner">
+            <div class="app-header__brand">
+                <button type="button" id="hamburger-btn" class="app-header__hamburger"
                     aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
                     <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
@@ -75,13 +75,13 @@
                 </div>
             </div>
 
-            <div class="app-header__actions data-buttons-container">
+            <div class="app-header__actions">
                 <!-- include: partials/header-spotright.html -->
                 <!-- include: partials/header-account.html -->
             </div>
         </div>
     </header>
-    <div class="header-placeholder app-header-placeholder"></div>
+    <div class="app-header-placeholder"></div>
 
     <main class="landing-main" id="main-content">
         <section class="landing-hero">
@@ -134,10 +134,10 @@
                     <div id="landing-search-error-message" class="error-message"></div>
                 </div>
                 <div class="landing-search-actions">
-                    <button type="button" id="landing-search-cancel-btn" class="secondary-button landing-search-cancel-btn" hidden aria-label="Cancel" data-i18n-aria-label="actions.cancel">
+                    <button type="button" id="landing-search-cancel-btn" class="btn btn--secondary landing-search-cancel-btn" hidden aria-label="Cancel" data-i18n-aria-label="actions.cancel">
                         <span data-i18n="actions.cancel">Cancel</span>
                     </button>
-                    <button type="submit" id="landing-search-btn" class="btn-primary landing-search-btn" aria-label="Load Village" data-i18n-aria-label="views.landing.loadVillage">
+                    <button type="submit" id="landing-search-btn" class="btn btn--primary landing-search-btn" aria-label="Load Village" data-i18n-aria-label="views.landing.loadVillage">
                         <span class="landing-search-btn-spinner" aria-hidden="true"></span>
                         <clashcalc-assets-svg name="search" width="16" height="16" aria-hidden="true" class="landing-search-btn-icon"></clashcalc-assets-svg>
                         <span class="landing-search-btn-text" data-i18n="views.landing.loadVillage">Load Village</span>
@@ -185,7 +185,7 @@
                         </div>
                     </div>
                     <div class="landing-tool-card__footer">
-                        <a href="/ore-calculator/" id="landing-launch-ore" class="btn-primary landing-tool-card__cta" data-i18n="views.landing.launchCalculator">Launch Calculator</a>
+                        <a href="/ore-calculator/" id="landing-launch-ore" class="btn btn--primary landing-tool-card__cta" data-i18n="views.landing.launchCalculator">Launch Calculator</a>
                     </div>
                 </article>
 
@@ -220,7 +220,7 @@
                         </div>
                     </div>
                     <div class="landing-tool-card__footer">
-                        <a href="/hero-journey/" id="landing-launch-hj" class="btn-primary landing-tool-card__cta" data-i18n="views.landing.launchHeroJourney">Explore Hero Journey</a>
+                        <a href="/hero-journey/" id="landing-launch-hj" class="btn btn--primary landing-tool-card__cta" data-i18n="views.landing.launchHeroJourney">Explore Hero Journey</a>
                     </div>
                 </article>
 
@@ -252,7 +252,7 @@
                         </div>
                     </div>
                     <div class="landing-tool-card__footer">
-                        <a href="/damage-calculator/" id="landing-launch-damage" class="btn-primary landing-tool-card__cta" data-i18n="views.landing.launchSimulator">Launch Simulator</a>
+                        <a href="/damage-calculator/" id="landing-launch-damage" class="btn btn--primary landing-tool-card__cta" data-i18n="views.landing.launchSimulator">Launch Simulator</a>
                     </div>
                 </article>
             </div>
@@ -260,17 +260,17 @@
     </main>
 
     <div id="tool-extras">
-        <dialog id="landing-launch-modal" class="modal landing-modal" aria-labelledby="landing-launch-title">
-            <div class="modal-content landing-modal-content">
+        <dialog id="landing-launch-modal" class="modal" aria-labelledby="landing-launch-title">
+            <div class="modal-content">
                 <div class="modal-header landing-modal-header">
                     <h2 id="landing-launch-title" class="modal-title landing-modal-title" data-i18n="views.landing.launchModalTitle">Village Loaded!</h2>
-                    <button type="button" class="close-button" id="landing-launch-close" aria-label="Close" data-i18n-aria-label="actions.close">
+                    <button type="button" class="modal__close-btn" id="close-landing-launch-modal-btn" aria-label="Close" data-i18n-aria-label="actions.close">
                         <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                     </button>
                 </div>
                 <div class="modal-body landing-modal-body">
                     <div class="landing-launch-village-card">
-                        <div class="account-card-th landing-modal-th" id="landing-launch-th">
+                        <div class="th-badge account-card-th landing-modal-th" id="landing-launch-th">
                             <!-- DYNAMIC INSERTION: Town Hall launch badge -->
                         </div>
                         <div class="account-card-player landing-launch-village-info">
@@ -283,51 +283,51 @@
 
                     <div class="landing-modal-tools">
                         <a href="/ore-calculator/" id="landing-modal-launch-ore" class="landing-modal-tool-card landing-modal-tool-card--ore">
-                            <div class="tool-card-icon-cluster" aria-hidden="true">
+                            <div class="landing-modal-tool-card__icon-cluster tool-card-icon-cluster" aria-hidden="true">
                                 <clashcalc-assets-image class="landing-tool-icon" src="assets/shiny_ore.png" alt="" size="standard"></clashcalc-assets-image>
                                 <clashcalc-assets-image class="landing-tool-icon" src="assets/glowy_ore.png" alt="" size="standard"></clashcalc-assets-image>
                                 <clashcalc-assets-image class="landing-tool-icon" src="assets/starry_ore.png" alt="" size="standard"></clashcalc-assets-image>
                             </div>
-                            <div class="tool-card-info">
-                                <h3 class="tool-card-title" data-i18n="views.landing.toolOreCalcTitle">Ore & Equipment Calculator</h3>
-                                <p class="tool-card-desc" data-i18n="views.landing.launchModalToolOre">Equipment upgrades, daily income &amp; calendar planner</p>
+                            <div class="landing-modal-tool-card__info tool-card-info">
+                                <h3 class="landing-modal-tool-card__title tool-card-title" data-i18n="views.landing.toolOreCalcTitle">Ore & Equipment Calculator</h3>
+                                <p class="landing-modal-tool-card__desc tool-card-desc" data-i18n="views.landing.launchModalToolOre">Equipment upgrades, daily income &amp; calendar planner</p>
                             </div>
-                            <span class="tool-card-action" aria-hidden="true">
+                            <span class="landing-modal-tool-card__action tool-card-action" aria-hidden="true">
                                 <clashcalc-assets-svg name="chevron-down" width="14" height="14"></clashcalc-assets-svg>
                             </span>
                         </a>
                         <a href="/hero-journey/" id="landing-modal-launch-hj" class="landing-modal-tool-card landing-modal-tool-card--hj">
-                            <div class="tool-card-icon-cluster" aria-hidden="true">
+                            <div class="landing-modal-tool-card__icon-cluster tool-card-icon-cluster" aria-hidden="true">
                                 <clashcalc-assets-image class="landing-tool-icon" src="assets/heroes/emblemBarbarianKing.png" alt="" size="standard"></clashcalc-assets-image>
                                 <clashcalc-assets-image class="landing-tool-icon" src="assets/heroes/emblemArcherQueen.png" alt="" size="standard"></clashcalc-assets-image>
                                 <clashcalc-assets-image class="landing-tool-icon" src="assets/heroes/emblemGrandWarden.png" alt="" size="standard"></clashcalc-assets-image>
                             </div>
-                            <div class="tool-card-info">
-                                <h3 class="tool-card-title" data-i18n="views.landing.toolHeroJourneyTitle">Hero's Journey Tracker</h3>
-                                <p class="tool-card-desc" data-i18n="views.landing.launchModalToolHj">Hero levels, milestones &amp; drop odds roadmap</p>
+                            <div class="landing-modal-tool-card__info tool-card-info">
+                                <h3 class="landing-modal-tool-card__title tool-card-title" data-i18n="views.landing.toolHeroJourneyTitle">Hero's Journey Tracker</h3>
+                                <p class="landing-modal-tool-card__desc tool-card-desc" data-i18n="views.landing.launchModalToolHj">Hero levels, milestones &amp; drop odds roadmap</p>
                             </div>
-                            <span class="tool-card-action" aria-hidden="true">
+                            <span class="landing-modal-tool-card__action tool-card-action" aria-hidden="true">
                                 <clashcalc-assets-svg name="chevron-down" width="14" height="14"></clashcalc-assets-svg>
                             </span>
                         </a>
                         <a href="/damage-calculator/" id="landing-modal-launch-damage" class="landing-modal-tool-card landing-modal-tool-card--damage">
-                            <div class="tool-card-icon-cluster" aria-hidden="true">
+                            <div class="landing-modal-tool-card__icon-cluster tool-card-icon-cluster" aria-hidden="true">
                                 <clashcalc-assets-image class="landing-tool-icon" src="assets/equipment/archer_queen/AQ_giant_arrow.png" alt="" size="standard"></clashcalc-assets-image>
                                 <clashcalc-assets-image class="landing-tool-icon" src="assets/spells/lightning.png" alt="" size="standard"></clashcalc-assets-image>
                                 <clashcalc-assets-image class="landing-tool-icon" src="assets/spells/earthquake.png" alt="" size="standard"></clashcalc-assets-image>
                             </div>
-                            <div class="tool-card-info">
-                                <h3 class="tool-card-title" data-i18n="views.landing.toolDamageCalcTitle">Equipment Damage &amp; ZapQuake</h3>
-                                <p class="tool-card-desc" data-i18n="views.landing.launchModalToolDamage">Equipment damage, ZapQuake &amp; Town Hall sniping</p>
+                            <div class="landing-modal-tool-card__info tool-card-info">
+                                <h3 class="landing-modal-tool-card__title tool-card-title" data-i18n="views.landing.toolDamageCalcTitle">Equipment Damage &amp; ZapQuake</h3>
+                                <p class="landing-modal-tool-card__desc tool-card-desc" data-i18n="views.landing.launchModalToolDamage">Equipment damage, ZapQuake &amp; Town Hall sniping</p>
                             </div>
-                            <span class="tool-card-action" aria-hidden="true">
+                            <span class="landing-modal-tool-card__action tool-card-action" aria-hidden="true">
                                 <clashcalc-assets-svg name="chevron-down" width="14" height="14"></clashcalc-assets-svg>
                             </span>
                         </a>
                     </div>
                 </div>
                 <div class="modal-actions landing-modal-actions">
-                    <button type="button" id="landing-modal-stay-btn" class="btn-secondary" data-i18n="views.landing.stayOnHub">Stay on Hub</button>
+                    <button type="button" id="landing-modal-stay-btn" class="btn btn--secondary" data-i18n="views.landing.stayOnHub">Stay on Hub</button>
                 </div>
             </div>
         </dialog>

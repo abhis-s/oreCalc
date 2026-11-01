@@ -563,8 +563,8 @@ export function initializeCloudSaveButtons() {
                     const main = document.getElementById('main-fab');
                     const menu = document.querySelector('.fab-menu');
                     const overlay = document.getElementById('overlay') || document.querySelector('.overlay');
-                    if (main && menu && overlay && main.classList.contains('active')) {
-                        main.classList.remove('active');
+                    if (main && menu && overlay && main.classList.contains('is-active')) {
+                        main.classList.remove('is-active');
                         menu.classList.remove('show');
                         overlay.classList.remove('show');
                         document.body.classList.remove('open-fab');

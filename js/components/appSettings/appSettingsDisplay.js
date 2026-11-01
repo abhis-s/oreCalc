@@ -239,7 +239,7 @@ export function renderAppSettings(uiSettings) {
     const currencySelect = dom.appSettings?.currencySelect;
     const languageSelect = dom.appSettings?.languageSelect;
     const enableLevelInputToggle = dom.equipment?.enableLevelInputToggle;
-    const themeToggle = document.getElementById('settings-theme-toggle');
+    const themeToggle = document.getElementById('settings-theme-switch');
     const accentColorSwatches = dom.appSettings?.accentColorSwatches;
 
     if (currencySelect) {
@@ -266,7 +266,7 @@ export function renderAppSettings(uiSettings) {
 
     if (themeToggle) {
         themeToggle.checked = uiSettings.theme === 'light';
-        const themeLabel = document.querySelector('label[for="settings-theme-toggle"]');
+        const themeLabel = document.querySelector('label[for="settings-theme-switch"]');
         if (themeLabel) {
             const labelKey = themeToggle.checked ? 'views.settings.options.themeDark' : 'views.settings.options.themeLight';
             themeLabel.textContent = translate(labelKey);
@@ -276,18 +276,22 @@ export function renderAppSettings(uiSettings) {
 
     if (accentColorSwatches) {
         accentColorSwatches.forEach(swatch => {
-            swatch.classList.toggle('active', swatch.dataset.color === uiSettings.accentColor);
+            const matches = swatch.dataset.color === uiSettings.accentColor;
+            swatch.classList.toggle('is-active', matches);
+            swatch.classList.toggle('active', matches);
         });
     }
 
     const mobileAccentSwatches = dom.appSettings?.mobileAccentSwatches;
     if (mobileAccentSwatches) {
         mobileAccentSwatches.forEach(swatch => {
-            swatch.classList.toggle('active', swatch.dataset.color === uiSettings.accentColor);
+            const matches = swatch.dataset.color === uiSettings.accentColor;
+            swatch.classList.toggle('is-active', matches);
+            swatch.classList.toggle('active', matches);
         });
     }
 
-    const cozyQuiltToggle = document.getElementById('settings-cozy-quilt-toggle');
+    const cozyQuiltToggle = document.getElementById('settings-cozy-quilt-switch');
     const layoutBtns = document.querySelectorAll('.layout-segmented-control .segmented-btn');
 
     if (cozyQuiltToggle) {

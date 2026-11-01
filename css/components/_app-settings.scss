@@ -221,7 +221,7 @@
                         }
                     }
 
-                    &.active {
+                    &.is-active {
                         transform: scale(1);
                         animation: app-swatch-select-pop $duration-moderate $ease-spring forwards;
                         box-shadow: 0 0 0 2px $bg-surface-primary, 0 0 0 3.5px $accent-primary;

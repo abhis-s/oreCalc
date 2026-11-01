@@ -31,14 +31,15 @@ export function initializeOfferGrid({ container, offers, onStateChange, getDynam
         const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
 
         if (target.type === 'checkbox') {
+            const offerKebab = String(offerId).replace(/_/g, '-');
             let offerCheckboxes = Array.from(container.querySelectorAll(`input[type="checkbox"][data-offer-id="${CSS.escape(offerId)}"]`));
             if (offerCheckboxes.length === 0) {
-                offerCheckboxes = Array.from(container.querySelectorAll(`input[type="checkbox"][id^="${offerId}_"], input[type="checkbox"][id^="cb_${offerId}_"]`));
+                offerCheckboxes = Array.from(container.querySelectorAll(`input[type="checkbox"][id^="${offerKebab}-"], input[type="checkbox"][id^="cb-${offerKebab}-"], input[type="checkbox"][id^="${offerId}_"], input[type="checkbox"][id^="cb_${offerId}_"]`));
             }
 
             offerCheckboxes.sort((a, b) => {
-                const aInst = parseInt(a.dataset.instance || a.id.split('_').pop(), 10);
-                const bInst = parseInt(b.dataset.instance || b.id.split('_').pop(), 10);
+                const aInst = parseInt(a.dataset.instance || a.id.split(/[-_]/).pop(), 10);
+                const bInst = parseInt(b.dataset.instance || b.id.split(/[-_]/).pop(), 10);
                 return aInst - bInst;
             });
 

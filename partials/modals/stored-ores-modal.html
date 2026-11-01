@@ -2,11 +2,11 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2 id="stored-ores-modal-title" data-i18n="views.income.ores.storedTitle"></h2>
-            <button type="button" id="close-stored-ores-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+            <button type="button" id="close-stored-ores-modal-btn" class="modal__close-btn" data-i18n-aria-label="actions.close">
                 <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
             </button>
         </div>
-        <div class="modal-body flex-column-gap-15">
+        <div class="modal-body">
             <p class="stored-ores-prompt" data-i18n="views.income.ores.modalStoredOresPrompt"></p>
             <div class="custom-chip-ores-row">
                 <div class="custom-chip-ore-input-group">
@@ -29,9 +29,9 @@
                 </div>
             </div>
 
-            <div class="input-group-flex push-top-10">
+            <div class="input-group-flex">
                 <div class="field-descriptor-group">
-                    <div class="flex-center-gap-8">
+                    <div class="field-descriptor-group__label-row">
                         <label for="modal-stored-ore-auto-predict" data-i18n="views.income.ores.autoPredictTitle"></label>
                         <span class="coming-soon-badge" data-i18n="views.settings.badges.comingSoon"></span>
                     </div>
@@ -43,7 +43,7 @@
                 </div>
             </div>
 
-            <div class="input-group-flex push-top-5">
+            <div class="input-group-flex">
                 <div class="field-descriptor-group">
                     <label for="modal-stored-ore-dont-ask" data-i18n="views.income.ores.dontAskTwoMonths"></label>
                     <p class="form-setting-text" data-i18n="views.income.ores.dontAskTwoMonthsDesc"></p>
@@ -55,8 +55,8 @@
             </div>
         </div>
         <div class="modal-actions">
-            <button type="button" id="cancel-stored-ores-modal-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button type="button" id="save-stored-ores-modal-btn" class="accept-button" data-i18n="actions.save"></button>
+            <button type="button" id="cancel-stored-ores-modal-btn" class="btn btn--secondary" data-i18n="actions.cancel"></button>
+            <button type="button" id="save-stored-ores-modal-btn" class="btn btn--primary" data-i18n="actions.save"></button>
         </div>
     </div>
 </dialog>

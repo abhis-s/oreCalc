@@ -47,10 +47,10 @@
 <body class="dark-mode hero-journey-page">
     <!-- include: partials/shell-top.html -->
 
-    <header class="app-header header-container hero-journey-page__header">
-        <div class="app-header__inner header-inner">
-            <div class="app-header__brand header-brand">
-                <button type="button" id="hamburger-button" class="app-header__hamburger hamburger"
+    <header class="app-header">
+        <div class="app-header__inner">
+            <div class="app-header__brand">
+                <button type="button" id="hamburger-btn" class="app-header__hamburger"
                     aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
                     <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
@@ -68,13 +68,13 @@
 
             <!-- include: partials/header-player-dropdown.html -->
 
-            <div class="app-header__actions data-buttons-container">
+            <div class="app-header__actions">
                 <!-- include: partials/header-spotright.html -->
                 <!-- include: partials/header-account.html -->
             </div>
         </div>
     </header>
-    <div class="header-placeholder app-header-placeholder"></div>
+    <div class="app-header-placeholder"></div>
 
     <main class="container hero-journey-page__main" id="main-content">
         <div id="hj-error-banner" class="app-message-box app-message-box--error hero-journey-page__error-banner" hidden role="alert">
@@ -89,9 +89,9 @@
         <section id="hero-journey-player-card" class="card home-profile-card hero-journey-page__player-card is-stats-collapsed" aria-label="Player Summary" data-i18n-aria-label="views.home.playerSummary">
             <div class="hero-journey-page__player-header home-profile-header">
                 <div class="profile-meta-left">
-                    <div class="th-badge-wrapper">
-                        <clashcalc-assets-image class="th-badge-img is-silhouette" src="assets/th/th18.png" alt="Town Hall" data-i18n-alt="entities.defenses.townHall" size="standard"></clashcalc-assets-image>
-                        <span class="th-badge-level-overlay">18</span>
+                    <div class="th-badge th-badge--lg">
+                        <clashcalc-assets-image class="th-badge__img is-silhouette" src="assets/th/th18.png" alt="Town Hall" data-i18n-alt="entities.defenses.townHall" size="standard"></clashcalc-assets-image>
+                        <span class="th-badge__level">18</span>
                     </div>
                     <div class="player-identity">
                         <div class="player-identity-info">
@@ -167,7 +167,7 @@
                     <span id="home-hj-progress-percent">0%</span>
                 </div>
                 <div class="hero-journey-no-profile-info">
-                    <span class="hero-journey-no-profile-text" data-i18n="views.home.profile.noProfileTitle">No Profile Connected</span>
+                    <span data-i18n="views.home.profile.noProfileTitle">No Profile Connected</span>
                 </div>
                 <div class="hero-journey-accelerated-switch-container">
                     <div class="hero-journey-accelerated-label-group">
@@ -188,10 +188,10 @@
 
             <div class="hero-journey-filter-container">
                 <div class="hero-journey-filters-row">
-                    <div class="hj-segmented-switch" id="home-hj-claim-switch">
-                        <div class="hj-switch-pill" id="home-hj-claim-pill"></div>
-                        <button type="button" class="hj-switch-btn active" data-unclaimed-only="false" data-i18n="views.heroJourney.filters.filterAll">All</button>
-                        <button type="button" class="hj-switch-btn" data-unclaimed-only="true" data-i18n="views.heroJourney.filters.filterUnclaimed">Unclaimed</button>
+                    <div class="hj-segmented-control" id="home-hj-claim-control">
+                        <div class="hj-segmented-control__pill" id="home-hj-claim-pill"></div>
+                        <button type="button" class="hj-segmented-control__btn is-active" data-unclaimed-only="false" data-i18n="views.heroJourney.filters.filterAll">All</button>
+                        <button type="button" class="hj-segmented-control__btn" data-unclaimed-only="true" data-i18n="views.heroJourney.filters.filterUnclaimed">Unclaimed</button>
                     </div>
                     <div class="hj-type-filters" id="home-hj-type-filters">
                         <select id="home-hj-type-select" class="hj-type-select" aria-label="Filter by type" data-i18n-aria-label="views.heroJourney.filters.filterByType">
@@ -222,19 +222,19 @@
                     </div>
                 </div>
                 <div class="hero-journey-scroll-controls">
-                    <button type="button" id="home-hj-scroll-first" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollFirst" data-i18n-title="views.heroJourney.track.scrollFirst">
+                    <button type="button" id="home-hj-scroll-first" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollFirst" data-i18n-title="views.heroJourney.track.scrollFirst">
                         <clashcalc-assets-svg name="first-item" height="14" width="14"></clashcalc-assets-svg>
                     </button>
-                    <button type="button" id="home-hj-scroll-left" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLeft" data-i18n-title="views.heroJourney.track.scrollLeft">
+                    <button type="button" id="home-hj-scroll-left" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLeft" data-i18n-title="views.heroJourney.track.scrollLeft">
                         <clashcalc-assets-svg name="backward" height="14" width="14"></clashcalc-assets-svg>
                     </button>
-                    <button type="button" id="home-hj-scroll-current" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollToCurrentProgress" data-i18n-title="views.heroJourney.track.scrollToCurrentProgress">
+                    <button type="button" id="home-hj-scroll-current" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollToCurrentProgress" data-i18n-title="views.heroJourney.track.scrollToCurrentProgress">
                         <clashcalc-assets-svg name="trophy" height="14" width="14"></clashcalc-assets-svg>
                     </button>
-                    <button type="button" id="home-hj-scroll-right" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollRight" data-i18n-title="views.heroJourney.track.scrollRight">
+                    <button type="button" id="home-hj-scroll-right" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollRight" data-i18n-title="views.heroJourney.track.scrollRight">
                         <clashcalc-assets-svg name="forward" height="14" width="14"></clashcalc-assets-svg>
                     </button>
-                    <button type="button" id="home-hj-scroll-last" class="scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLast" data-i18n-title="views.heroJourney.track.scrollLast">
+                    <button type="button" id="home-hj-scroll-last" class="hero-journey-scroll-controls__btn scroll-btn" data-i18n-aria-label="views.heroJourney.track.scrollLast" data-i18n-title="views.heroJourney.track.scrollLast">
                         <clashcalc-assets-svg name="last-item" height="14" width="14"></clashcalc-assets-svg>
                     </button>
                 </div>
@@ -261,10 +261,10 @@
 
         <section id="hero-journey-table" class="hero-journey-page__view-toggle-bar">
             <div class="hero-journey-filters-row" id="hj-table-filters-row">
-                <div class="hj-segmented-switch" id="hj-table-claim-switch">
-                    <div class="hj-switch-pill" id="hj-table-claim-pill"></div>
-                    <button type="button" class="hj-switch-btn active" data-unclaimed-only="false" data-i18n="views.heroJourney.filters.filterAll">All</button>
-                    <button type="button" class="hj-switch-btn" data-unclaimed-only="true" data-i18n="views.heroJourney.filters.filterUnclaimed">Unclaimed</button>
+                <div class="hj-segmented-control" id="hj-table-claim-control">
+                    <div class="hj-segmented-control__pill" id="hj-table-claim-pill"></div>
+                    <button type="button" class="hj-segmented-control__btn is-active" data-unclaimed-only="false" data-i18n="views.heroJourney.filters.filterAll">All</button>
+                    <button type="button" class="hj-segmented-control__btn" data-unclaimed-only="true" data-i18n="views.heroJourney.filters.filterUnclaimed">Unclaimed</button>
                 </div>
                 <div class="hj-type-filters" id="hj-table-type-filters">
                     <select id="hj-table-type-select" class="hj-type-select" aria-label="Filter by type" data-i18n-aria-label="views.heroJourney.filters.filterByType">
@@ -296,14 +296,14 @@
             </div>
 
             <div class="hero-journey-page__table-toggle-action">
-                <button type="button" id="hj-btn-toggle-table" class="btn-secondary">
+                <button type="button" id="hj-btn-toggle-table" class="btn btn--secondary">
                     <span id="hj-toggle-table-text" data-i18n="views.heroJourney.page.hideTable">Hide Data Table</span>
                 </button>
             </div>
         </section>
 
         <section id="hj-table-wrapper" class="hero-journey-page__table-wrapper">
-            <button type="button" id="expand-hj-table-btn" class="expand-table-btn" data-i18n-title="actions.expandTable" data-i18n-aria-label="actions.expandTable" title="Expand Table" aria-label="Expand Table">
+            <button type="button" id="expand-hj-table-btn" class="hero-journey-page__expand-table-btn expand-table-btn" data-i18n-title="actions.expandTable" data-i18n-aria-label="actions.expandTable" title="Expand Table" aria-label="Expand Table">
                 <clashcalc-assets-svg name="expand"></clashcalc-assets-svg>
             </button>
             <div class="hero-journey-page__table-container">

@@ -29,6 +29,7 @@ import {
     initLandingAccountsManager
 } from './components/landing/landingAccountsController.js';
 import { initLandingSearchForm } from './components/landing/landingSearchController.js';
+import { renderTownHallBadge } from './components/common/townHallBadge.js';
 
 /**
  * Updates tool CTA, title link, and quick-jump shortcut hrefs to include the active player tag and language prefix.
@@ -118,12 +119,11 @@ function updateLandingDrawer(activeAction = '') {
  */
 async function initCommandCenter() {
     const launchModal = document.getElementById('landing-launch-modal');
-    const launchCloseBtn = document.getElementById('landing-launch-close');
+    const launchCloseBtn = document.getElementById('close-landing-launch-modal-btn') || document.getElementById('landing-launch-close');
     const launchStayBtn = document.getElementById('landing-modal-stay-btn');
     const launchOreLink = document.getElementById('landing-modal-launch-ore');
     const launchHjLink = document.getElementById('landing-modal-launch-hj');
     const launchDamageLink = document.getElementById('landing-modal-launch-damage');
-    const launchThEl = document.getElementById('landing-launch-th');
     const launchNameEl = document.getElementById('landing-launch-name');
     const launchTagEl = document.getElementById('landing-launch-tag');
 
@@ -134,11 +134,14 @@ async function initCommandCenter() {
     const openLaunchModal = (village) => {
         if (!launchModal) return;
         const thLevel = Math.max(1, Math.min(18, Number(village.townHallLevel) || 18));
-        if (launchThEl) {
-            launchThEl.innerHTML = `
-                <clashcalc-assets-image class="th-badge-img" src="assets/th/th${thLevel}.png" alt="Town Hall ${thLevel}" size="standard"></clashcalc-assets-image>
-                <span class="th-badge-level-overlay">${thLevel}</span>
-            `;
+        const activeLaunchThEl = document.getElementById('landing-launch-th');
+        if (activeLaunchThEl) {
+            activeLaunchThEl.outerHTML = renderTownHallBadge({
+                thLevel,
+                size: 'md',
+                className: 'account-card-th landing-modal-th',
+                id: 'landing-launch-th'
+            });
         }
         if (launchNameEl) launchNameEl.textContent = village.name;
         if (launchTagEl) launchTagEl.textContent = formatDisplayTag(village.cleanTag);

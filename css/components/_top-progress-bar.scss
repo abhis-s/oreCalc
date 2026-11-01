@@ -12,7 +12,7 @@
     visibility: hidden;
     transition: opacity $duration-base $ease-decelerate, visibility $duration-base $ease-decelerate;
 
-    &.active {
+    &.is-active {
         opacity: 1;
         visibility: visible;
     }

@@ -128,7 +128,7 @@ export function attachClusterPlannerListeners(state, rootContainer, onStateChang
     initMobileDockScrollListener(state);
 
     // Multi-Select Toggle Button (ZapQuake)
-    const multiToggleBtn = rootContainer.querySelector('#zq-multi-toggle');
+    const multiToggleBtn = rootContainer.querySelector('#zq-multi-switch');
     if (multiToggleBtn) {
         multiToggleBtn.addEventListener('click', () => {
             state.zapQuake.multiSelectMode = !state.zapQuake.multiSelectMode;

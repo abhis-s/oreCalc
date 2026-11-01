@@ -61,8 +61,8 @@ export function initializeDOMElements() {
         },
 
         header: {
-            container: document.querySelector('.header-container'),
-            placeholder: document.querySelector('.header-placeholder'),
+            container: document.querySelector('.app-header, .header-container'),
+            placeholder: document.querySelector('.app-header-placeholder, .header-placeholder'),
         },
 
         drawer: drawer,

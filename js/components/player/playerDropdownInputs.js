@@ -13,7 +13,7 @@ import { dom } from '../../dom/domElements.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 import { showApiErrorToast } from '../../ui/toast.js';
 import { isPlayerRefreshStale } from '../../core/playerRefreshThrottler.js';
-import { persistAppSettings } from '../common/appSettings.js';
+import { persistAppSettings } from '../common/appSettingsManager.js';
 import { refreshActivePlayerData } from './playerRefreshController.js';
 
 let lastTouchTime = 0;
@@ -46,10 +46,10 @@ export function resetPlayerDropdownState() {
 function getDropdownElements() {
     const isElementAttached = (el) => Boolean(el && el.isConnected !== false);
     return {
-        dropdownButton: (isElementAttached(dom.player?.dropdownButton) ? dom.player.dropdownButton : null) || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-button') : null),
+        dropdownButton: (isElementAttached(dom.player?.dropdownButton) ? dom.player.dropdownButton : null) || (typeof document !== 'undefined' ? (document.getElementById('player-dropdown-btn') || document.getElementById('player-dropdown-button')) : null),
         dropdownList: (isElementAttached(dom.player?.dropdownList) ? dom.player.dropdownList : null) || (typeof document !== 'undefined' ? document.getElementById('player-dropdown-list') : null),
         playerItemsContainer: (isElementAttached(dom.player?.playerItemsContainer) ? dom.player.playerItemsContainer : null) || (typeof document !== 'undefined' ? document.getElementById('player-items-container') : null),
-        addPlayerButton: (isElementAttached(dom.player?.addPlayerButton) ? dom.player.addPlayerButton : null) || (typeof document !== 'undefined' ? document.getElementById('add-player-button') : null),
+        addPlayerButton: (isElementAttached(dom.player?.addPlayerButton) ? dom.player.addPlayerButton : null) || (typeof document !== 'undefined' ? (document.getElementById('add-player-btn') || document.getElementById('add-player-button')) : null),
         container: typeof document !== 'undefined' ? document.querySelector('.player-dropdown-container') : null
     };
 }
@@ -65,13 +65,13 @@ export function openDropdown(shouldFocusItem = false) {
 
     if (dropdownList) dropdownList.classList.add('show');
     if (dropdownButton) {
-        dropdownButton.classList.add('open');
+        dropdownButton.classList.add('is-open');
         dropdownButton.setAttribute('aria-expanded', 'true');
         const arrow = dropdownButton.querySelector('.dropdown-arrow');
         if (arrow) arrow.setAttribute('name', 'chevron-up');
     }
     if (shouldFocusItem && playerItemsContainer) {
-        const activeItem = playerItemsContainer.querySelector('.player-dropdown-item.active')
+        const activeItem = playerItemsContainer.querySelector('.player-dropdown-item.is-active, .player-dropdown-item.active')
             || playerItemsContainer.querySelector('.player-dropdown-item')
             || playerItemsContainer.querySelector('.player-dropdown-section-header--collapsible');
         if (activeItem) {
@@ -87,7 +87,7 @@ export function closeDropdown() {
     const { dropdownButton, dropdownList } = getDropdownElements();
     if (dropdownList) dropdownList.classList.remove('show');
     if (dropdownButton) {
-        dropdownButton.classList.remove('open');
+        dropdownButton.classList.remove('is-open');
         dropdownButton.setAttribute('aria-expanded', 'false');
         const arrow = dropdownButton.querySelector('.dropdown-arrow');
         if (arrow) arrow.setAttribute('name', 'chevron-down');
@@ -375,7 +375,7 @@ export function initPlayerDropdown(options = {}) {
                 dropdownButton?.focus();
             } else if (event.key === 'Enter' || event.key === ' ') {
                 const activeEl = /** @type {HTMLElement} */ (document.activeElement);
-                if (activeEl?.classList?.contains('player-dropdown-item') || activeEl?.id === 'add-player-button') {
+                if (activeEl?.classList?.contains('player-dropdown-item') || activeEl?.id === 'add-player-btn' || activeEl?.id === 'add-player-button') {
                     event.preventDefault();
                     activeEl.click();
                 }
@@ -478,7 +478,7 @@ export function initPlayerDropdown(options = {}) {
 
             document.addEventListener('click', (event) => {
                 const list = dom.player?.dropdownList || document.getElementById('player-dropdown-list');
-                const btn = dom.player?.dropdownButton || document.getElementById('player-dropdown-button');
+                const btn = dom.player?.dropdownButton || document.getElementById('player-dropdown-btn') || document.getElementById('player-dropdown-button');
                 if (list && list.classList.contains('show')) {
                     const isClickInsideButton = btn && btn.contains(/** @type {Node} */ (event.target));
                     const isClickInsideList = list.contains(/** @type {Node} */ (event.target));

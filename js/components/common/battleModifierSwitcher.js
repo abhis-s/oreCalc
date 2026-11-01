@@ -43,7 +43,7 @@ export function observeModifierTabsResize(tabsEl) {
                     if (typeof requestAnimationFrame === 'function') {
                         requestAnimationFrame(() => {
                             updateTabIndicator(target, null, false);
-                            const activeBtn = target.querySelector?.('.mod-tab-btn.active');
+                            const activeBtn = target.querySelector?.('.mod-tab-btn.is-active, .mod-tab-btn.active');
                             if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
                                 activeBtn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
                             }
@@ -63,7 +63,7 @@ export function observeModifierTabsResize(tabsEl) {
                     const activeContainers = document.querySelectorAll('.eq-details-modifier-tabs');
                     activeContainers.forEach(el => {
                         updateTabIndicator(/** @type {HTMLElement} */ (el), null, false);
-                        const activeBtn = el.querySelector?.('.mod-tab-btn.active');
+                        const activeBtn = el.querySelector?.('.mod-tab-btn.is-active, .mod-tab-btn.active');
                         if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
                             activeBtn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
                         }
@@ -93,7 +93,7 @@ export function updateTabIndicator(modifierTabsContainer, activeModifierTab = nu
     const keyToFind = activeModifierTab || modifierTabsContainer.dataset?.activeKey;
     const activeBtn = keyToFind
         ? /** @type {HTMLElement | null} */ (modifierTabsContainer.querySelector(`.mod-tab-btn[data-mod-key="${keyToFind}"]`))
-        : /** @type {HTMLElement | null} */ (modifierTabsContainer.querySelector('.mod-tab-btn.active'));
+        : /** @type {HTMLElement | null} */ (modifierTabsContainer.querySelector('.mod-tab-btn.is-active, .mod-tab-btn.active'));
 
     if (activeBtn) {
         const left = activeBtn.offsetLeft;
@@ -171,7 +171,7 @@ function buildModifierTabsInnerHtml(activeKey, includePercentages) {
         const baseName = resolveModifierBaseName(mKey);
         const suffix = includePercentages ? (MODIFIER_PERCENTAGE_SUFFIXES[mKey] || '') : '';
         const suffixHtml = suffix ? `<span class="mod-tab-percent">${suffix}</span>` : '';
-        const activeClass = mKey === activeKey ? 'active' : '';
+        const activeClass = mKey === activeKey ? 'is-active' : '';
         html += `<button type="button" class="mod-tab-btn ${activeClass}" data-mod-key="${mKey}" role="tab" aria-selected="${mKey === activeKey}" data-i18n="views.equipment.modifiers.${mKey}">${baseName}${suffixHtml}</button>`;
     }
     return html;
@@ -253,7 +253,7 @@ export function renderBattleModifierSwitcher(container, activeKey, options = {})
             if (typeof requestAnimationFrame === 'function') {
                 requestAnimationFrame(() => {
                     updateTabIndicator(tabsEl, activeKey, false);
-                    const activeBtn = tabsEl.querySelector('.mod-tab-btn.active');
+                    const activeBtn = tabsEl.querySelector('.mod-tab-btn.is-active, .mod-tab-btn.active');
                     if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
                         activeBtn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
                     }
@@ -283,7 +283,7 @@ export function renderBattleModifierSwitcher(container, activeKey, options = {})
             if (tabsEl) {
                 observeModifierTabsResize(tabsEl);
                 updateTabIndicator(tabsEl, activeKey, true);
-                const activeBtn = tabsEl.querySelector?.('.mod-tab-btn.active');
+                const activeBtn = tabsEl.querySelector?.('.mod-tab-btn.is-active, .mod-tab-btn.active');
                 if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
                     activeBtn.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
                 }

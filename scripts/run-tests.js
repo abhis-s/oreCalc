@@ -36,7 +36,48 @@ if (allTests.length === 0) {
     process.exit(1);
 }
 
-const result = spawnSync(process.execPath, ['--test', ...allTests], {
+// Parse command line arguments for target filtering
+const args = process.argv.slice(2);
+let targetFilter = null;
+const passthroughFlags = [];
+
+for (const arg of args) {
+    if (arg.startsWith('--filter=')) {
+        targetFilter = arg.slice(9).trim();
+    } else if (arg.startsWith('-f=')) {
+        targetFilter = arg.slice(3).trim();
+    } else if (arg.startsWith('--filter') || arg === '-f') {
+        const nextIdx = args.indexOf(arg) + 1;
+        if (nextIdx < args.length) {
+            targetFilter = args[nextIdx].trim();
+        }
+    } else if (!arg.startsWith('-')) {
+        targetFilter = arg.trim();
+    } else {
+        passthroughFlags.push(arg);
+    }
+}
+
+let testsToRun = allTests;
+if (targetFilter) {
+    const filterLower = targetFilter.toLowerCase();
+    testsToRun = allTests.filter(testPath => {
+        const normalized = testPath.replace(/\\/g, '/').toLowerCase();
+        return normalized.includes(filterLower);
+    });
+
+    if (testsToRun.length === 0) {
+        console.error(`[Test Runner] No test files matched filter: "${targetFilter}"`);
+        process.exit(1);
+    }
+
+    console.log(`[Test Runner] Running ${testsToRun.length} of ${allTests.length} test suite(s) matching "${targetFilter}":`);
+    for (const file of testsToRun) {
+        console.log(`  - ${path.relative(path.join(__dirname, '..'), file)}`);
+    }
+}
+
+const result = spawnSync(process.execPath, ['--test', ...passthroughFlags, ...testsToRun], {
     stdio: 'inherit'
 });
 

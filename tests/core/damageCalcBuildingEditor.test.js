@@ -213,8 +213,8 @@ test('Edit Levels Modal - Segmented tabs render "Offense" and "Defense" with dat
     // Defense tab should be active when state.modalActiveTab is 'defense'
     assert.match(
         html,
-        /class="segmented-btn active"[^>]*data-modal-tab="defense"/,
-        'Defense tab must have active class when modalActiveTab is defense'
+        /class="segmented-btn is-active"[^>]*data-modal-tab="defense"/,
+        'Defense tab must have is-active class when modalActiveTab is defense'
     );
 });
 

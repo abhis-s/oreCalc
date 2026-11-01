@@ -495,7 +495,7 @@ describe('Home Income Table & Number Animation Suite', () => {
             const typeSelect = createMockElement('select', 'custom-chip-type-select');
             typeSelect.value = 'starBonus';
 
-            const starBonusMultiplier = createMockElement('select', 'custom-chip-starBonus-multiplier');
+            const starBonusMultiplier = createMockElement('select', 'custom-chip-star-bonus-multiplier');
             starBonusMultiplier.value = '2x';
 
             const previewShiny = createMockElement('span', 'custom-chip-preview-shiny');

@@ -126,6 +126,7 @@ describe('Support & Feedback Dual-Mode Modal Domain Suite', () => {
             'submit-support-btn',
             'close-support-header-btn',
             'close-support-modal-btn',
+            'cancel-support-modal-btn',
             'support-reset-sw-btn',
             'bug-report-email',
             'bug-report-email-error',
@@ -178,8 +179,8 @@ describe('Support & Feedback Dual-Mode Modal Domain Suite', () => {
         const swBox = elementsMap.get('support-sw-troubleshoot-box');
 
         assert.equal(title?.getAttribute('data-i18n'), 'views.settings.bugReport.title');
-        assert.equal(tabBug?.classList.contains('active'), true, 'Bug tab should be active');
-        assert.equal(tabFeedback?.classList.contains('active'), false, 'Feedback tab should be inactive');
+        assert.equal(tabBug?.classList.contains('is-active'), true, 'Bug tab should be active');
+        assert.equal(tabFeedback?.classList.contains('is-active'), false, 'Feedback tab should be inactive');
         assert.equal(infoBug?.hidden, false, 'Bug info text should be visible');
         assert.equal(infoFeedback?.hidden, true, 'Feedback info text should be hidden');
         assert.equal(attachGroup?.hidden, false, 'Attach group should be visible in bug mode');
@@ -198,8 +199,8 @@ describe('Support & Feedback Dual-Mode Modal Domain Suite', () => {
         const swBox = elementsMap.get('support-sw-troubleshoot-box');
 
         assert.equal(title?.getAttribute('data-i18n'), 'views.settings.feedback.title');
-        assert.equal(tabBug?.classList.contains('active'), false, 'Bug tab should be inactive');
-        assert.equal(tabFeedback?.classList.contains('active'), true, 'Feedback tab should be active');
+        assert.equal(tabBug?.classList.contains('is-active'), false, 'Bug tab should be inactive');
+        assert.equal(tabFeedback?.classList.contains('is-active'), true, 'Feedback tab should be active');
         assert.equal(infoBug?.hidden, true, 'Bug info text should be hidden');
         assert.equal(infoFeedback?.hidden, false, 'Feedback info text should be visible');
         assert.equal(attachGroup?.hidden, true, 'Attach group must be hidden in feedback mode');
@@ -222,8 +223,8 @@ describe('Support & Feedback Dual-Mode Modal Domain Suite', () => {
 
         assert.equal(swBox?.hidden, true, 'Switched to feedback: SW box hidden');
         assert.equal(attachGroup?.hidden, true, 'Switched to feedback: attach group hidden');
-        assert.equal(tabFeedback?.classList.contains('active'), true);
-        assert.equal(tabBug?.classList.contains('active'), false);
+        assert.equal(tabFeedback?.classList.contains('is-active'), true);
+        assert.equal(tabBug?.classList.contains('is-active'), false);
 
         // Click bug tab
         assert.ok(typeof tabBug?.onclick === 'function');
@@ -231,7 +232,7 @@ describe('Support & Feedback Dual-Mode Modal Domain Suite', () => {
 
         assert.equal(swBox?.hidden, false, 'Switched back to bug: SW box visible');
         assert.equal(attachGroup?.hidden, false, 'Switched back to bug: attach group visible');
-        assert.equal(tabBug?.classList.contains('active'), true);
-        assert.equal(tabFeedback?.classList.contains('active'), false);
+        assert.equal(tabBug?.classList.contains('is-active'), true);
+        assert.equal(tabFeedback?.classList.contains('is-active'), false);
     });
 });

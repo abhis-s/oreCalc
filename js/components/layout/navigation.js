@@ -55,7 +55,7 @@ export function initializeNavigation() {
 
     const drawerEl = dom.drawer?.drawer || document.getElementById('navigation-drawer') || document.querySelector('.navigation-drawer');
     const overlayEl = dom.drawer?.overlay || document.querySelector('.navigation-drawer__overlay');
-    const buttonEl = dom.drawer?.button || document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
+    const buttonEl = dom.drawer?.button || document.getElementById('hamburger-btn') || document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
     const closeEl = dom.drawer?.close || drawerEl?.querySelector('.navigation-drawer__close') || null;
 
     if (!buttonEl) {

@@ -12,6 +12,21 @@ export function toCamelCase(str) {
 }
 
 /**
+ * Converts a string with spaces, underscores, or camelCase boundaries into kebab-case.
+ * Example: "giantGauntlet" -> "giant-gauntlet", "raid_starry" -> "raid-starry"
+ * @param {string} str
+ * @returns {string}
+ */
+export function toKebabCase(str) {
+    if (!str) return '';
+    return String(str)
+        .trim()
+        .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+        .replace(/[\s_]+/g, '-')
+        .toLowerCase();
+}
+
+/**
  * Escapes HTML special characters in a string.
  * @param {string} str
  * @returns {string}

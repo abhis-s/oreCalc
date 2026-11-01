@@ -28,47 +28,7 @@
 }
 
 .landing-modal-th {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
     flex-shrink: 0;
-
-    .th-badge-img {
-        width: 44px;
-        height: 44px;
-        object-fit: contain;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-        }
-    }
-
-    .th-badge-level-overlay {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        background-color: $accent-primary;
-        color: $text-on-accent;
-        border: 1.5px solid $border-primary;
-        border-radius: $shape-corner-xs;
-        font-size: $font-size-2xs;
-        font-weight: $font-weight-extrabold;
-        line-height: 1;
-        min-width: 16px;
-        height: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1px 3px;
-        box-shadow: $elevation-1;
-    }
 }
 
 .landing-launch-village-info {
@@ -153,6 +113,7 @@
         border-color: $accent-primary;
         background-color: color-mix(in srgb, $accent-primary 8%, $bg-surface-primary);
 
+        .landing-modal-tool-card__action,
         .tool-card-action {
             background-color: $accent-primary;
             border-color: $accent-primary;
@@ -165,6 +126,7 @@
         outline-offset: 2px;
     }
 
+    &__icon-cluster,
     .tool-card-icon-cluster {
         height: 38px;
         flex-shrink: 0;
@@ -190,6 +152,7 @@
         }
     }
 
+    &__info,
     .tool-card-info {
         display: flex;
         flex-direction: column;
@@ -199,6 +162,7 @@
         text-align: left;
     }
 
+    &__title,
     .tool-card-title {
         font-size: $font-size-sm;
         font-weight: $font-weight-bold;
@@ -207,6 +171,7 @@
         margin: 0;
     }
 
+    &__desc,
     .tool-card-desc {
         font-size: $font-size-2xs;
         color: $text-secondary;
@@ -217,6 +182,7 @@
         text-overflow: ellipsis;
     }
 
+    &__action,
     .tool-card-action {
         display: flex;
         align-items: center;

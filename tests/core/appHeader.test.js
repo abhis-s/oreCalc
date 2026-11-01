@@ -186,14 +186,14 @@ describe('Modular Application Header (appHeader.js)', () => {
 
             container.dispatchEvent({ type: 'mouseenter' });
             assert.strictEqual(list.classList.contains('show'), true);
-            assert.strictEqual(button.classList.contains('open'), true);
+            assert.strictEqual(button.classList.contains('is-open'), true);
             assert.strictEqual(useEl.getAttribute('href'), '#icon-chevron-up');
 
             container.dispatchEvent({ type: 'mouseleave' });
             // Wait for 150ms timeout
             await new Promise(r => setTimeout(r, 150));
             assert.strictEqual(list.classList.contains('show'), false);
-            assert.strictEqual(button.classList.contains('open'), false);
+            assert.strictEqual(button.classList.contains('is-open'), false);
             assert.strictEqual(useEl.getAttribute('href'), '#icon-chevron-down');
 
             // Scroll dismisses open dropdown

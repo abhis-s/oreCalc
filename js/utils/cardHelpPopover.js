@@ -21,7 +21,7 @@ function bindOutsideDismissListener() {
         if (helpPopover.contains(target)) return;
         if (activeTargetElem) {
             if (activeTargetElem === target || activeTargetElem.contains(target)) return;
-            const closestTarget = target.closest('.hero-journey-node-chip, [data-info], .info-btn, .info-button, .eq-badge, .hero-journey-upcoming-badge, .priority-item-ores, .calc-info-btn, [data-calc-info], [data-action-info], [data-note-code], .calc-combo-defense-card__info-btn, [data-cluster-target-info], [data-casualty-info-btn], [data-source-info], [data-combo-badge], [data-shared-combo-info]');
+            const closestTarget = target.closest('.hero-journey-node-chip, [data-info], .info-btn, .eq-badge, .hero-journey-upcoming-badge, .priority-item-ores, [data-calc-info], [data-action-info], [data-note-code], .calc-combo-defense-card__info-btn, [data-cluster-target-info], [data-casualty-info-btn], [data-source-info], [data-combo-badge], [data-shared-combo-info]');
             if (closestTarget && (closestTarget === activeTargetElem || activeTargetElem.contains(closestTarget))) return;
         }
         hideCardHelpPopover();

@@ -238,7 +238,7 @@ test('Target Combos Modal - Preserves supercharge tier in-memory across level sc
     const resetWrapNode = createMockNode('div', { id: 'calc-target-modal-reset-wrap' });
 
     const pills = [0, 1, 2, 3].map(tier => createMockNode('button', {
-        className: `calc-supercharge-pill ${tier === 2 ? 'active is-active' : ''}`,
+        className: `calc-supercharge-pill ${tier === 2 ? 'is-active' : ''}`,
         'data-tier': String(tier)
     }));
     scWrapNode.querySelectorAll = (sel) => {
@@ -289,7 +289,7 @@ test('Target Combos Modal - Preserves supercharge tier in-memory across level sc
     assert.equal(sheetNode.getAttribute('data-active-supercharge'), '0', 'Active supercharge on sheet must be 0 while at Level 1');
     assert.equal(testState.defenseSuperchargeOverrides[defenseKey], undefined, 'Supercharge override must be unset while at Level 1');
     assert.ok(scWrapNode.classList.contains('is-disabled'), 'Supercharge container must be marked disabled at Level 1');
-    assert.ok(pills[0].classList.contains('active'), 'Tier 0 must be active at Level 1');
+    assert.ok(pills[0].classList.contains('is-active'), 'Tier 0 must be active at Level 1');
     assert.ok(pills[2].disabled, 'Pills must be disabled at Level 1');
 
     // 3. Scrub back up to Level 2 (reinstates remembered Tier 2)
@@ -299,7 +299,7 @@ test('Target Combos Modal - Preserves supercharge tier in-memory across level sc
     assert.equal(sheetNode.getAttribute('data-active-supercharge'), '2', 'Must reinstate Tier 2 supercharge upon scrubbing back to Level 2');
     assert.equal(testState.defenseSuperchargeOverrides[defenseKey], 2, 'Must reinstate Tier 2 in state overrides');
     assert.equal(scWrapNode.classList.contains('is-disabled'), false, 'Supercharge container must be enabled at Level 2');
-    assert.ok(pills[2].classList.contains('active'), 'Tier 2 pill must be active when reinstated');
+    assert.ok(pills[2].classList.contains('is-active'), 'Tier 2 pill must be active when reinstated');
     assert.equal(pills[2].disabled, false, 'Pills must be enabled at Level 2');
 
     // 4. User explicitly interacts: selects Tier 1

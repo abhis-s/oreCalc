@@ -3,15 +3,15 @@
         <div class="modal-header">
             <h2 id="create-custom-chips-modal-title" data-i18n="views.planner.actions.createCustomChips"></h2>
             <div class="modal-header-actions">
-                <button type="button" id="create-custom-chips-modal-info-btn" class="info-button" data-info="views.planner.createCustomChipsHelp" data-i18n-aria-label="actions.showInfo">
+                <button type="button" id="create-custom-chips-modal-info-btn" class="info-btn" data-info="views.planner.createCustomChipsHelp" data-i18n-aria-label="actions.showInfo">
                     <clashcalc-assets-svg name="info" height="22" width="22"></clashcalc-assets-svg>
                 </button>
-                <button type="button" id="close-create-custom-chips-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+                <button type="button" id="close-create-custom-chips-modal-btn" class="modal__close-btn" data-i18n-aria-label="actions.close">
                     <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                 </button>
             </div>
         </div>
-        <div class="modal-body flex-column-gap-15">
+        <div class="modal-body">
             <div class="input-group-flex">
                 <div class="field-descriptor-group">
                     <label for="custom-chip-type-select" data-i18n="views.planner.createCustomChipsModal.selectType"></label>
@@ -32,11 +32,11 @@
                 </select>
             </div>
 
-            <div id="custom-chip-dynamic-inputs" class="flex-column-gap-15" hidden>
+            <div id="custom-chip-dynamic-inputs" class="custom-chip-dynamic-inputs" hidden>
                 <!-- DYNAMIC INSERTION: Custom chip input sections -->
 
                 <div id="custom-chip-section-extras" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                    <div class="custom-chip-section__body">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
@@ -63,19 +63,19 @@
                                 <label for="custom-chip-extras-count" data-i18n="views.planner.createCustomChipsModal.numChips"></label>
                             </div>
                             <div class="popover-wrapper">
-                                <input type="number" id="custom-chip-extras-count" min="1" max="9" maxlength="1" value="1" class="small-number-input">
+                                <input type="number" id="custom-chip-extras-count" min="1" max="9" maxlength="1" value="1">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="custom-chip-section-starBonus" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                <div id="custom-chip-section-star-bonus" class="custom-chip-section" hidden>
+                    <div class="custom-chip-section__body">
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-starBonus-multiplier" data-i18n="views.planner.createCustomChipsModal.multiplier"></label>
+                                <label for="custom-chip-star-bonus-multiplier" data-i18n="views.planner.createCustomChipsModal.multiplier"></label>
                             </div>
-                            <select id="custom-chip-starBonus-multiplier" class="dropdown-style">
+                            <select id="custom-chip-star-bonus-multiplier" class="dropdown-style">
                                 <option value="2x">2x</option>
                                 <option value="3x">3x</option>
                                 <option value="4x">4x</option>
@@ -86,201 +86,201 @@
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-starBonus-count" data-i18n="views.planner.createCustomChipsModal.numChips"></label>
+                                <label for="custom-chip-star-bonus-count" data-i18n="views.planner.createCustomChipsModal.numChips"></label>
                             </div>
                             <div class="popover-wrapper">
-                                <input type="number" id="custom-chip-starBonus-count" min="1" max="15" maxlength="2" value="1" class="small-number-input">
+                                <input type="number" id="custom-chip-star-bonus-count" min="1" max="15" maxlength="2" value="1">
                             </div>
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-starBonus-monthly" data-i18n="views.planner.createCustomChipsModal.createMonthly"></label>
+                                <label for="custom-chip-star-bonus-monthly" data-i18n="views.planner.createCustomChipsModal.createMonthly"></label>
                             </div>
                             <div class="switch">
-                                <input type="checkbox" id="custom-chip-starBonus-monthly">
+                                <input type="checkbox" id="custom-chip-star-bonus-monthly">
                                 <span class="slider round"></span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="custom-chip-section-shopOffers" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                <div id="custom-chip-section-shop-offers" class="custom-chip-section" hidden>
+                    <div class="custom-chip-section__body">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-shopOffers-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
+                                    <input type="number" id="custom-chip-shop-offers-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
                                 </div>
-                                <label for="custom-chip-shopOffers-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-shop-offers-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-shopOffers-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
+                                    <input type="number" id="custom-chip-shop-offers-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
                                 </div>
-                                <label for="custom-chip-shopOffers-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-shop-offers-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-shopOffers-starry" min="0" max="500" step="1" maxlength="3" value="0">
+                                    <input type="number" id="custom-chip-shop-offers-starry" min="0" max="500" step="1" maxlength="3" value="0">
                                 </div>
-                                <label for="custom-chip-shopOffers-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-shop-offers-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-shopOffers-monthly" data-i18n="views.planner.createCustomChipsModal.createMonthly"></label>
+                                <label for="custom-chip-shop-offers-monthly" data-i18n="views.planner.createCustomChipsModal.createMonthly"></label>
                             </div>
                             <div class="switch">
-                                <input type="checkbox" id="custom-chip-shopOffers-monthly">
+                                <input type="checkbox" id="custom-chip-shop-offers-monthly">
                                 <span class="slider round"></span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="custom-chip-section-gemTrader" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                <div id="custom-chip-section-gem-trader" class="custom-chip-section" hidden>
+                    <div class="custom-chip-section__body">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-gemTrader-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
+                                    <input type="number" id="custom-chip-gem-trader-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
                                 </div>
-                                <label for="custom-chip-gemTrader-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-gem-trader-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-gemTrader-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
+                                    <input type="number" id="custom-chip-gem-trader-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
                                 </div>
-                                <label for="custom-chip-gemTrader-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-gem-trader-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-gemTrader-starry" min="0" max="500" step="1" maxlength="3" value="0">
+                                    <input type="number" id="custom-chip-gem-trader-starry" min="0" max="500" step="1" maxlength="3" value="0">
                                 </div>
-                                <label for="custom-chip-gemTrader-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-gem-trader-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-gemTrader-weekly" data-i18n="views.planner.createCustomChipsModal.createWeekly"></label>
+                                <label for="custom-chip-gem-trader-weekly" data-i18n="views.planner.createCustomChipsModal.createWeekly"></label>
                             </div>
                             <div class="switch">
-                                <input type="checkbox" id="custom-chip-gemTrader-weekly">
+                                <input type="checkbox" id="custom-chip-gem-trader-weekly">
                                 <span class="slider round"></span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="custom-chip-section-raidMedalTrader" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                <div id="custom-chip-section-raid-medal-trader" class="custom-chip-section" hidden>
+                    <div class="custom-chip-section__body">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-raidMedalTrader-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
+                                    <input type="number" id="custom-chip-raid-medal-trader-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
                                 </div>
-                                <label for="custom-chip-raidMedalTrader-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-raid-medal-trader-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-raidMedalTrader-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
+                                    <input type="number" id="custom-chip-raid-medal-trader-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
                                 </div>
-                                <label for="custom-chip-raidMedalTrader-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-raid-medal-trader-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-raidMedalTrader-starry" min="0" max="500" step="1" maxlength="3" value="0">
+                                    <input type="number" id="custom-chip-raid-medal-trader-starry" min="0" max="500" step="1" maxlength="3" value="0">
                                 </div>
-                                <label for="custom-chip-raidMedalTrader-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-raid-medal-trader-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-raidMedalTrader-weekly" data-i18n="views.planner.createCustomChipsModal.createWeekly"></label>
+                                <label for="custom-chip-raid-medal-trader-weekly" data-i18n="views.planner.createCustomChipsModal.createWeekly"></label>
                             </div>
                             <div class="switch">
-                                <input type="checkbox" id="custom-chip-raidMedalTrader-weekly">
+                                <input type="checkbox" id="custom-chip-raid-medal-trader-weekly">
                                 <span class="slider round"></span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="custom-chip-section-eventTrader" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                <div id="custom-chip-section-event-trader" class="custom-chip-section" hidden>
+                    <div class="custom-chip-section__body">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-eventTrader-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
+                                    <input type="number" id="custom-chip-event-trader-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
                                 </div>
-                                <label for="custom-chip-eventTrader-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-event-trader-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-eventTrader-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
+                                    <input type="number" id="custom-chip-event-trader-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
                                 </div>
-                                <label for="custom-chip-eventTrader-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-event-trader-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-eventTrader-starry" min="0" max="500" step="1" maxlength="3" value="0">
+                                    <input type="number" id="custom-chip-event-trader-starry" min="0" max="500" step="1" maxlength="3" value="0">
                                 </div>
-                                <label for="custom-chip-eventTrader-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-event-trader-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-eventTrader-monthly" data-i18n="views.planner.createCustomChipsModal.everyEventMonth"></label>
+                                <label for="custom-chip-event-trader-monthly" data-i18n="views.planner.createCustomChipsModal.everyEventMonth"></label>
                             </div>
                             <div class="switch">
-                                <input type="checkbox" id="custom-chip-eventTrader-monthly">
+                                <input type="checkbox" id="custom-chip-event-trader-monthly">
                                 <span class="slider round"></span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="custom-chip-section-eventPass" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                <div id="custom-chip-section-event-pass" class="custom-chip-section" hidden>
+                    <div class="custom-chip-section__body">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-eventPass-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
+                                    <input type="number" id="custom-chip-event-pass-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
                                 </div>
-                                <label for="custom-chip-eventPass-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-event-pass-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-eventPass-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
+                                    <input type="number" id="custom-chip-event-pass-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
                                 </div>
-                                <label for="custom-chip-eventPass-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-event-pass-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-eventPass-starry" min="0" max="500" step="1" maxlength="3" value="0">
+                                    <input type="number" id="custom-chip-event-pass-starry" min="0" max="500" step="1" maxlength="3" value="0">
                                 </div>
-                                <label for="custom-chip-eventPass-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-event-pass-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-eventPass-monthly" data-i18n="views.planner.createCustomChipsModal.createMonthly"></label>
+                                <label for="custom-chip-event-pass-monthly" data-i18n="views.planner.createCustomChipsModal.createMonthly"></label>
                             </div>
                             <div class="switch">
-                                <input type="checkbox" id="custom-chip-eventPass-monthly">
+                                <input type="checkbox" id="custom-chip-event-pass-monthly">
                                 <span class="slider round"></span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="custom-chip-section-clanWar" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                <div id="custom-chip-section-clan-war" class="custom-chip-section" hidden>
+                    <div class="custom-chip-section__body">
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-clanWar-result" data-i18n="views.planner.createCustomChipsModal.warResult"></label>
+                                <label for="custom-chip-clan-war-result" data-i18n="views.planner.createCustomChipsModal.warResult"></label>
                             </div>
-                            <select id="custom-chip-clanWar-result" class="dropdown-style">
+                            <select id="custom-chip-clan-war-result" class="dropdown-style">
                                 <option value="win" data-i18n="views.planner.createCustomChipsModal.win"></option>
                                 <option value="loss" data-i18n="views.planner.createCustomChipsModal.loss"></option>
                                 <option value="draw" data-i18n="views.planner.createCustomChipsModal.draw"></option>
@@ -288,43 +288,43 @@
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-clanWar-shiny" data-i18n="views.income.perAttack"></label>
+                                <label for="custom-chip-clan-war-shiny" data-i18n="views.income.perAttack"></label>
                             </div>
                         </div>
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-clanWar-shiny" min="0" max="1110" maxlength="4" value="0">
+                                    <input type="number" id="custom-chip-clan-war-shiny" min="0" max="1110" maxlength="4" value="0">
                                 </div>
-                                <label for="custom-chip-clanWar-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-clan-war-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-clanWar-glowy" min="0" max="39" maxlength="2" value="0">
+                                    <input type="number" id="custom-chip-clan-war-glowy" min="0" max="39" maxlength="2" value="0">
                                 </div>
-                                <label for="custom-chip-clanWar-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-clan-war-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-clanWar-starry" min="0" max="6" maxlength="1" value="0">
+                                    <input type="number" id="custom-chip-clan-war-starry" min="0" max="6" maxlength="1" value="0">
                                 </div>
-                                <label for="custom-chip-clanWar-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-clan-war-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-clanWar-count" data-i18n="views.planner.createCustomChipsModal.numChips"></label>
+                                <label for="custom-chip-clan-war-count" data-i18n="views.planner.createCustomChipsModal.numChips"></label>
                             </div>
                             <div class="popover-wrapper">
-                                <input type="number" id="custom-chip-clanWar-count" min="1" max="15" maxlength="2" value="1" class="small-number-input">
+                                <input type="number" id="custom-chip-clan-war-count" min="1" max="15" maxlength="2" value="1">
                             </div>
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-clanWar-monthly" data-i18n="views.planner.createCustomChipsModal.createMonthly"></label>
+                                <label for="custom-chip-clan-war-monthly" data-i18n="views.planner.createCustomChipsModal.createMonthly"></label>
                             </div>
                             <div class="switch">
-                                <input type="checkbox" id="custom-chip-clanWar-monthly">
+                                <input type="checkbox" id="custom-chip-clan-war-monthly">
                                 <span class="slider round"></span>
                             </div>
                         </div>
@@ -332,7 +332,7 @@
                 </div>
 
                 <div id="custom-chip-section-cwl" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                    <div class="custom-chip-section__body">
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
                                 <label for="custom-chip-cwl-result" data-i18n="views.planner.createCustomChipsModal.warResult"></label>
@@ -373,7 +373,7 @@
                                 <label for="custom-chip-cwl-count" data-i18n="views.planner.createCustomChipsModal.numChips"></label>
                             </div>
                             <div class="popover-wrapper">
-                                <input type="number" id="custom-chip-cwl-count" min="1" max="7" maxlength="1" value="1" class="small-number-input">
+                                <input type="number" id="custom-chip-cwl-count" min="1" max="7" maxlength="1" value="1">
                             </div>
                         </div>
                         <div class="input-group-flex">
@@ -388,35 +388,35 @@
                     </div>
                 </div>
 
-                <div id="custom-chip-section-supercellEvents" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                <div id="custom-chip-section-supercell-events" class="custom-chip-section" hidden>
+                    <div class="custom-chip-section__body">
                         <div class="custom-chip-ores-row">
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-supercellEvents-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
+                                    <input type="number" id="custom-chip-supercell-events-shiny" min="0" max="25000" step="100" maxlength="5" value="0">
                                 </div>
-                                <label for="custom-chip-supercellEvents-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-supercell-events-shiny"><clashcalc-assets-image src="assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-supercellEvents-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
+                                    <input type="number" id="custom-chip-supercell-events-glowy" min="0" max="2500" step="10" maxlength="4" value="0">
                                 </div>
-                                <label for="custom-chip-supercellEvents-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-supercell-events-glowy"><clashcalc-assets-image src="assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                             <div class="custom-chip-ore-input-group">
                                 <div class="popover-wrapper">
-                                    <input type="number" id="custom-chip-supercellEvents-starry" min="0" max="500" step="1" maxlength="3" value="0">
+                                    <input type="number" id="custom-chip-supercell-events-starry" min="0" max="500" step="1" maxlength="3" value="0">
                                 </div>
-                                <label for="custom-chip-supercellEvents-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
+                                <label for="custom-chip-supercell-events-starry"><clashcalc-assets-image src="assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></label>
                             </div>
                         </div>
                         <div class="input-group-flex">
                             <div class="field-descriptor-group">
-                                <label for="custom-chip-supercellEvents-override" data-i18n="views.planner.createCustomChipsModal.globalOverride"></label>
+                                <label for="custom-chip-supercell-events-override" data-i18n="views.planner.createCustomChipsModal.globalOverride"></label>
                                 <p class="form-setting-text" data-i18n="views.planner.createCustomChipsModal.globalOverrideDesc"></p>
                             </div>
                             <div class="switch">
-                                <input type="checkbox" id="custom-chip-supercellEvents-override">
+                                <input type="checkbox" id="custom-chip-supercell-events-override">
                                 <span class="slider round"></span>
                             </div>
                         </div>
@@ -424,7 +424,7 @@
                 </div>
 
                 <div id="custom-chip-section-prospector" class="custom-chip-section" hidden>
-                    <div class="flex-column-gap-10">
+                    <div class="custom-chip-section__body">
                         <div class="custom-chip-prospector-row">
                             <div class="custom-dropdown" id="custom-chip-prospector-from-ore">
                                 <div class="dropdown-selected">
@@ -453,7 +453,7 @@
                                 <label for="custom-chip-prospector-count" data-i18n="views.planner.createCustomChipsModal.numChips"></label>
                             </div>
                             <div class="popover-wrapper">
-                                <input type="number" id="custom-chip-prospector-count" min="1" max="30" maxlength="2" value="1" class="small-number-input">
+                                <input type="number" id="custom-chip-prospector-count" min="1" max="30" maxlength="2" value="1">
                             </div>
                         </div>
                         <div class="input-group-flex">
@@ -487,8 +487,8 @@
             </div>
         </div>
         <div class="modal-actions">
-            <button type="button" id="cancel-create-custom-chips-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button type="button" id="save-create-custom-chips-btn" class="accept-button" data-i18n="actions.create"></button>
+            <button type="button" id="cancel-create-custom-chips-modal-btn" class="btn btn--secondary" data-i18n="actions.cancel"></button>
+            <button type="button" id="save-create-custom-chips-modal-btn" class="btn btn--primary" data-i18n="actions.create"></button>
         </div>
     </div>
 </dialog>

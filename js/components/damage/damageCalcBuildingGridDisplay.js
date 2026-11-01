@@ -306,7 +306,7 @@ export function renderBuildingSelectionGrid({
     const clusterToggleHtml = (isZapQuakeTab && showClusterToggle) ? `
         <div class="calc-cluster-toggle-bar">
             <button type="button"
-                id="zq-multi-toggle"
+                id="zq-multi-switch"
                 class="calc-cluster-switch ${multiSelectMode ? 'is-active' : ''}"
                 role="switch"
                 aria-checked="${multiSelectMode}">
@@ -317,7 +317,7 @@ export function renderBuildingSelectionGrid({
                     <span class="calc-cluster-switch__title" data-i18n="views.damageCalc.clusterPlanner.clusterModeToggle">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterModeToggle'))}</span>
                 </span>
             </button>
-            <button type="button" class="calc-info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
+            <button type="button" class="info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
                 <clashcalc-assets-svg name="info" width="14" height="14"></clashcalc-assets-svg>
             </button>
             ${multiSelectMode && selectedCluster.length > 1 ? `

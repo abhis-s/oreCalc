@@ -34,11 +34,12 @@ export function renderGemTraderRow(offer, offerState) {
     const offerName = `${formatNumber(oreValue)} ${oreName}`;
     const ariaLabel = translate('views.income.supercellEvents.packInput', { name: offerName });
 
+    const offerKebab = String(offer.id || '').replace(/_/g, '-');
     const inputDiv = document.createElement('div');
     inputDiv.className = 'offer-input-instance';
     inputDiv.innerHTML = `
         <div class="popover-wrapper">
-            <input type="number" class="updatable offer-input-number" id="gem-trader-${offer.id}-input" value="${offerState || 0}" min="0" max="${offer.maxPacks || 10}" maxlength="2" data-offer-id="${offer.id}" aria-label="${ariaLabel}" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+            <input type="number" class="updatable offer-input-number" id="gem-trader-${offerKebab}-input" value="${offerState || 0}" min="0" max="${offer.maxPacks || 10}" maxlength="2" data-offer-id="${offer.id}" aria-label="${ariaLabel}" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
         </div>
     `;
 

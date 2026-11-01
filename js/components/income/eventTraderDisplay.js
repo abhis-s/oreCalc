@@ -28,12 +28,13 @@ export function renderEventTraderRow(offer, packs) {
     const offerName = `${oreAmount} ${oreName}`;
     const ariaLabel = translate('views.income.supercellEvents.packInput', { name: offerName });
 
+    const offerKebab = String(offer.id || '').replace(/_/g, '-');
     row.innerHTML = `
         <div class="offer-cost-display"><clashcalc-assets-image src="assets/resources/eventMedal.png" alt="Event Medals" class="ore-image event-medal-icon" size="thumbnail"></clashcalc-assets-image> ${offer.cost}</div>
         <div class="offer-ore-display"><span>${oreAmount}</span> <clashcalc-assets-image src="assets/${oreType}_ore.png" alt="${oreType.charAt(0).toUpperCase() + oreType.slice(1)} Ore" class="ore-image"></clashcalc-assets-image></div>
         <div class="offer-input-instance">
             <div class="popover-wrapper">
-                <input type="number" class="updatable offer-input-number" id="event-trader-${offer.id}-input" value="${packs}" min="0" max="${offer.maxPacks}" maxlength="2" data-offer-id="${offer.id}" aria-label="${ariaLabel}" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
+                <input type="number" class="updatable offer-input-number" id="event-trader-${offerKebab}-input" value="${packs}" min="0" max="${offer.maxPacks}" maxlength="2" data-offer-id="${offer.id}" aria-label="${ariaLabel}" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
             </div>
         </div>
     `;

@@ -73,12 +73,13 @@ export function renderShopOfferRow(offer, offerState) {
     row.appendChild(costDisplay);
     row.appendChild(oreDisplay);
 
+    const offerKebab = String(offer.id || '').replace(/_/g, '-');
     const dropdownDiv = document.createElement('div');
     dropdownDiv.className = 'offer-dropdown-instance';
     const select = document.createElement('select');
-    select.className = 'offer-input-dropdown dropdown-style';
-    select.id = `shop-offers-${offer.id}-dropdown`;
-    select.name = `shop-offers-${offer.id}-dropdown`;
+    select.className = 'offer-select dropdown-style';
+    select.id = `shop-offers-${offerKebab}-select`;
+    select.name = `shop-offers-${offerKebab}-select`;
     select.dataset.offerId = offer.id;
 
     const oreName = translate('entities.ores.' + oreType);
@@ -104,8 +105,8 @@ export function renderShopOfferRow(offer, offerState) {
             checkbox.type = 'checkbox';
             checkbox.dataset.offerId = offer.id;
             checkbox.dataset.instance = String(i);
-            checkbox.id = `cb_${offer.id}_${i}`;
-            checkbox.name = `cb_${offer.id}_${i}`;
+            checkbox.id = `cb-${offerKebab}-${i}`;
+            checkbox.name = `cb-${offerKebab}-${i}`;
             checkbox.checked = i <= offerState;
 
             const oreName = translate('entities.ores.' + oreType);

@@ -37,10 +37,10 @@ export function initializeSettingsAppearance() {
         });
     }
 
-    const themeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-theme-toggle'));
+    const themeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-theme-switch'));
 
     if (themeToggle) {
-        const themeLabel = document.querySelector('label[for="settings-theme-toggle"]');
+        const themeLabel = document.querySelector('label[for="settings-theme-switch"]');
         const updateThemeLabel = () => {
             if (themeLabel) {
                 const labelKey = themeToggle.checked ? 'views.settings.options.themeDark' : 'views.settings.options.themeLight';
@@ -69,7 +69,7 @@ export function initializeSettingsAppearance() {
         });
     }
 
-    const cozyQuiltToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-cozy-quilt-toggle'));
+    const cozyQuiltToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-cozy-quilt-switch'));
     const layoutBtns = document.querySelectorAll('.layout-segmented-control .segmented-btn');
 
     if (cozyQuiltToggle) {
@@ -77,7 +77,9 @@ export function initializeSettingsAppearance() {
             const isCompact = state.uiSettings.cardLayout === 'compact0' || state.uiSettings.cardLayout === 'compact1';
             layoutBtns.forEach(btn => {
                 const isQuilt = /** @type {HTMLElement} */ (btn).dataset.layout === 'quilt';
-                btn.classList.toggle('active', isQuilt === isCompact);
+                const isActive = isQuilt === isCompact;
+                btn.classList.toggle('is-active', isActive);
+                btn.classList.toggle('active', isActive);
             });
             cozyQuiltToggle.checked = isCompact;
         };
@@ -120,10 +122,18 @@ export function initializeSettingsAppearance() {
         }, true, { preferencesOnly: true });
 
         if (accentColorSwatches) {
-            accentColorSwatches.forEach(s => s.classList.toggle('active', s.dataset.color === color));
+            accentColorSwatches.forEach(s => {
+                const matches = s.dataset.color === color;
+                s.classList.toggle('is-active', matches);
+                s.classList.toggle('active', matches);
+            });
         }
         if (mobileAccentSwatches) {
-            mobileAccentSwatches.forEach(s => s.classList.toggle('active', s.dataset.color === color));
+            mobileAccentSwatches.forEach(s => {
+                const matches = s.dataset.color === color;
+                s.classList.toggle('is-active', matches);
+                s.classList.toggle('active', matches);
+            });
         }
 
         document.dispatchEvent(new CustomEvent('app:theme-change', { detail: { theme: state.uiSettings.theme, origin } }));

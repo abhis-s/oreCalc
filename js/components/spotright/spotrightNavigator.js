@@ -73,7 +73,7 @@ export function getCurrentRouteContext() {
 
     if (page === 'orecalc') {
         if (typeof document !== 'undefined' && typeof document.querySelector === 'function') {
-            const activeBtn = document.querySelector('.tab-button.active[data-tab], .nav-button.active[data-tab]');
+            const activeBtn = document.querySelector('.app-header__tab.is-active[data-tab], .tab-button.is-active[data-tab], .nav-button.is-active[data-tab]');
             const domTab = activeBtn?.getAttribute?.('data-tab') || /** @type {HTMLElement | null} */ (activeBtn)?.dataset?.tab;
             if (domTab) return { page, activeTab: domTab.replace(/-tab$/, '') };
         }
@@ -266,8 +266,8 @@ export function navigateToTarget(target) {
         const desiredTab = target.tabId || target.defaultTab;
         if (target.parent === 'orecalc' && desiredTab) {
             const selector = desiredTab === 'home'
-                ? '.tab-button[data-tab="home"], .nav-button[data-tab="home"], .tab-button[data-tab="equipment"], .nav-button[data-tab="equipment"]'
-                : `.tab-button[data-tab="${desiredTab}"], .nav-button[data-tab="${desiredTab}"]`;
+                ? '.app-header__tab[data-tab="home"], .tab-button[data-tab="home"], .nav-button[data-tab="home"], .app-header__tab[data-tab="equipment"], .tab-button[data-tab="equipment"], .nav-button[data-tab="equipment"]'
+                : `.app-header__tab[data-tab="${desiredTab}"], .tab-button[data-tab="${desiredTab}"], .nav-button[data-tab="${desiredTab}"]`;
             const btn = /** @type {HTMLElement | null} */ (document.querySelector(selector));
             if (btn && typeof btn.click === 'function') {
                 btn.click();
@@ -350,7 +350,7 @@ export async function openDamageCalcEquipment(snakeKey) {
 export function navigateToEquipment(heroName, equipName, equipKey) {
     if (typeof window === 'undefined') return;
     if (getCurrentRouteContext().page === 'orecalc') {
-        const equipTabBtn = /** @type {HTMLElement | null} */ (document.querySelector('.tab-button[data-tab="equipment"], .nav-button[data-tab="equipment"]'));
+        const equipTabBtn = /** @type {HTMLElement | null} */ (document.querySelector('.app-header__tab[data-tab="equipment"], .tab-button[data-tab="equipment"], .nav-button[data-tab="equipment"]'));
         if (equipTabBtn && typeof equipTabBtn.click === 'function' && !equipTabBtn.classList?.contains('active')) {
             equipTabBtn.click();
         }
@@ -416,7 +416,7 @@ export function dispatchEquipmentAction(config) {
 export function navigateToHero(heroName, heroKey) {
     if (typeof window === 'undefined') return;
     if (getCurrentRouteContext().page === 'orecalc') {
-        const equipTabBtn = /** @type {HTMLElement | null} */ (document.querySelector('.tab-button[data-tab="equipment"], .nav-button[data-tab="equipment"]'));
+        const equipTabBtn = /** @type {HTMLElement | null} */ (document.querySelector('.app-header__tab[data-tab="equipment"], .tab-button[data-tab="equipment"], .nav-button[data-tab="equipment"]'));
         if (equipTabBtn && typeof equipTabBtn.click === 'function' && !equipTabBtn.classList?.contains('active')) {
             equipTabBtn.click();
         }
@@ -514,12 +514,12 @@ export async function executeManageVillagesAction() {
         }
         return;
     }
-    const playerDropdownBtn = document.getElementById('player-dropdown-button');
+    const playerDropdownBtn = document.getElementById('player-dropdown-btn') || document.getElementById('player-dropdown-button');
     if (playerDropdownBtn && typeof playerDropdownBtn.click === 'function') {
         playerDropdownBtn.click();
         return;
     }
-    const addPlayerBtn = /** @type {HTMLElement | null} */ (document.getElementById('add-player-button') || document.querySelector('[data-action="add-player"]'));
+    const addPlayerBtn = /** @type {HTMLElement | null} */ (document.getElementById('add-player-btn') || document.getElementById('add-player-button') || document.querySelector('[data-action="add-player"]'));
     if (addPlayerBtn && typeof addPlayerBtn.click === 'function') {
         addPlayerBtn.click();
         return;
@@ -561,7 +561,7 @@ export async function executeAddPlayerAction() {
         }
         return;
     }
-    const addPlayerBtn = /** @type {HTMLElement | null} */ (document.getElementById('add-player-button') || document.querySelector('[data-action="add-player"]'));
+    const addPlayerBtn = /** @type {HTMLElement | null} */ (document.getElementById('add-player-btn') || document.getElementById('add-player-button') || document.querySelector('[data-action="add-player"]'));
     if (addPlayerBtn && typeof addPlayerBtn.click === 'function') {
         addPlayerBtn.click();
         return;

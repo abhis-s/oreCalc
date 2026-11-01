@@ -237,7 +237,7 @@ export function updateProspectorTip() {
                     </span>
                 </div>
                 <div class="prospector-rec-empty">
-                    <span>${translate('views.income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-link" id="prospector-go-to-priority-list">${translate('views.planner.priorityList')}</button>${translate('views.income.prospector.tips.addToPlanner.post')}</span>
+                    <span>${translate('views.income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-btn" id="prospector-go-to-priority-list">${translate('views.planner.priorityList')}</button>${translate('views.income.prospector.tips.addToPlanner.post')}</span>
                 </div>
             </div>
         `;
@@ -285,7 +285,7 @@ export function updateProspectorTip() {
                         </span>
                     </div>
                     <div class="prospector-rec-empty">
-                        <span>${translate('views.income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-link" id="prospector-go-to-priority-list-planner">${translate('views.planner.priorityList')}</button>${translate('views.income.prospector.tips.addToPlanner.post')}</span>
+                        <span>${translate('views.income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-btn" id="prospector-go-to-priority-list-planner">${translate('views.planner.priorityList')}</button>${translate('views.income.prospector.tips.addToPlanner.post')}</span>
                     </div>
                 </div>
             `;

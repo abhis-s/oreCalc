@@ -97,7 +97,7 @@ function applyPopoverConfiguration() {
     const popover = document.getElementById('app-account-popover');
     if (!popover) return;
 
-    const manageBtn = document.getElementById('account-popover-manage-btn');
+    const manageBtn = document.getElementById('account-popover-manage-link');
     if (manageBtn) {
         if (currentPopoverOptions.hasAccountSync) {
             manageBtn.classList.remove('is-hidden');
@@ -130,7 +130,7 @@ function applyPopoverConfiguration() {
         }
     }
 
-    const avatarBtn = document.getElementById('account-popover-avatar-btn');
+    const avatarBtn = document.getElementById('account-popover-avatar-link');
     if (avatarBtn) {
         if (currentPopoverOptions.hasClickableAvatar) {
             updateLocalizedHref(avatarBtn, '/account/');
@@ -243,9 +243,10 @@ export function updateAccountUI(authUser) {
     const popoverUsername = document.getElementById('account-popover-username');
     const popoverAvatarImg = document.getElementById('account-popover-avatar-img');
 
-    updateLocalizedHref(document.getElementById('account-popover-avatar-btn'), '/account/');
-    updateLocalizedHref(document.getElementById('account-popover-manage-btn'), '/account/');
-    updateLocalizedHref(document.getElementById('account-popover-guest-data-btn'), '/account/');
+    updateLocalizedHref(document.getElementById('account-popover-avatar-link'), '/account/');
+    updateLocalizedHref(document.getElementById('account-popover-manage-link'), '/account/');
+    updateLocalizedHref(document.getElementById('account-popover-guest-avatar-link'), '/account/');
+    updateLocalizedHref(document.getElementById('account-popover-guest-manage-link'), '/account/');
 
     if (authUser && authUser.username) {
         const safeName = escapeHTML(authUser.username);

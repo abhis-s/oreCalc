@@ -98,7 +98,7 @@
                 font-size: 10px;
             }
 
-            &.active .chevron-icon {
+            &.is-active .chevron-icon {
                 transform: rotate(180deg);
             }
         }
@@ -223,7 +223,7 @@
             }
         }
 
-        .reject-button {
+        .btn--secondary {
             background-color: transparent;
             border: 1px solid $border-primary;
             color: $text-primary;
@@ -233,7 +233,7 @@
             }
         }
 
-        .accept-button {
+        .btn--primary {
             background-color: $accent-primary;
             border: none;
             color: $text-on-accent;

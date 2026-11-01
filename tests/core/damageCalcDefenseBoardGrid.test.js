@@ -280,7 +280,7 @@ test('Cluster Planner Panel - Shared Lightning saves spell housing space and ren
 
     // Adjacency toggle must have is-active and render Shared Lightning
     assert.ok(
-        html.includes('calc-adjacent-toggle is-active'),
+        html.includes('calc-adjacent-switch is-active'),
         'Adjacency toggle must be active when pair is linked'
     );
     assert.ok(
@@ -315,7 +315,7 @@ test('Cluster Planner Panel - Hybrid capacity handles overcapacity recipes clean
     assert.ok(html.includes('name="thumbs-up"'), 'Must render thumbs-up SVG icon badge');
     assert.ok(html.includes('calc-tradeoff-pill--overcapacity'), 'Must render overcapacity pills with overcapacity styling');
     assert.ok(html.includes('calc-tradeoff-pill__spell-icon'), 'Must render mini spell icons in tradeoff pills');
-    assert.ok(html.includes('calc-adjacent-toggle__thumb'), 'Must render mini building thumbnail in pairwise adjacency chips');
+    assert.ok(html.includes('calc-adjacent-switch__thumb'), 'Must render mini building thumbnail in pairwise adjacency chips');
 
     // When selecting a pure-zap recipe (index 4, 0 EQ), empty -0 HP stage must be omitted
     const zeroEqState = {
@@ -454,9 +454,9 @@ test('Cluster Planner Panel - Equipment selector and target sharing rendering', 
     const html = container.innerHTML;
 
     assert.ok(html.includes('calc-cluster-equipment-section'), 'Must render cluster equipment section');
-    assert.ok(html.includes('calc-cluster-equip-btn is-active'), 'Selected equipment chip must have is-active class');
-    assert.ok(html.includes('calc-cluster-equip-btn is-inactive'), 'Unselected equipment chips must have is-inactive class');
-    assert.ok(!html.includes('calc-cluster-equip-btn__name'), 'Must not render text equipment name in equip chip');
+    assert.ok(html.includes('calc-cluster-equip-switch is-active'), 'Selected equipment chip must have is-active class');
+    assert.ok(html.includes('calc-cluster-equip-switch is-inactive'), 'Unselected equipment chips must have is-inactive class');
+    assert.ok(!html.includes('calc-cluster-equip-switch__name'), 'Must not render text equipment name in equip chip');
     assert.ok(html.includes('calc-equip-badge'), 'Cluster solution hero card must render calc-equip-badge for equipment');
     assert.ok(html.includes('calc-combo-plus'), 'Must render calc-combo-plus separators between recipe items');
     assert.ok(html.includes('calc-cluster-equipment-sharing'), 'Must render equipment sharing controls when equipment is active');

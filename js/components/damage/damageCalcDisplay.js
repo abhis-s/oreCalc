@@ -145,7 +145,7 @@ export function renderTargetLevelToolbar({
 
         superchargeHtml = `
             <div class="calc-supercharge-wrapper">
-                <button type="button" class="calc-info-btn" data-calc-info="supercharge" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
+                <button type="button" class="info-btn" data-calc-info="supercharge" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
                     <clashcalc-assets-svg name="info" width="13" height="13"></clashcalc-assets-svg>
                 </button>
                 <div class="calc-supercharge-pills" role="radiogroup" aria-label="${escapeHTML(translate('views.damageCalc.offense.superchargeLabel'))}">

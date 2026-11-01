@@ -174,7 +174,6 @@ export function renderTHPlanningSection(state) {
     container.innerHTML = '';
 
     const planningTitle = document.createElement('h4');
-    planningTitle.className = 'push-top-5 margin-bottom-20';
     planningTitle.dataset.i18n = 'views.income.starBonus.thPlanningTitle';
     planningTitle.textContent = translate('views.income.starBonus.thPlanningTitle');
     container.appendChild(planningTitle);
@@ -199,7 +198,7 @@ export function renderTHPlanningSection(state) {
 
     for (let th = startTH; th <= thLimit; th++) {
         const row = document.createElement('div');
-        row.className = 'input-group-flex push-top-5';
+        row.className = 'input-group-flex';
 
         const labelDiv = document.createElement('div');
         labelDiv.className = 'field-descriptor-group';

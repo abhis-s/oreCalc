@@ -146,6 +146,7 @@ textarea,
 .navigation-drawer,
 .income-summary-title,
 .income-table-cell,
+.app-header__tab,
 .tab-button,
 .nav-button,
 .fab-button,
@@ -305,6 +306,10 @@ clashcalc-assets-image {
     color: $text-muted;
 }
 
+.text-secondary {
+    color: $text-secondary;
+}
+
 .badge {
     display: inline-flex;
     align-items: center;
@@ -359,14 +364,6 @@ clashcalc-assets-image {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-}
-
-.push-top-5 {
-    margin-top: 5px;
-}
-
-.push-top-10 {
-    margin-top: 10px;
 }
 
 @media (prefers-reduced-motion: reduce) {

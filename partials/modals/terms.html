@@ -12,18 +12,18 @@
                 <button type="button" id="terms-theme-toggle-btn" class="modal-header-btn policy-header-btn" aria-label="Toggle Theme" data-i18n-aria-label="actions.toggleTheme">
                     <clashcalc-assets-svg name="dark-mode" class="icon-dark"></clashcalc-assets-svg>
                 </button>
-                <button type="button" id="close-terms-header-btn" class="close-button modal-close-icon" data-i18n-aria-label="actions.close">
+                <button type="button" id="close-terms-modal-btn" class="modal__close-btn" data-i18n-aria-label="actions.close">
                     <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
                 </button>
             </div>
 
         </div>
-        <div class="modal-body text-left policy-modal-body">
+        <div class="modal-body policy-modal-body">
             <iframe id="terms-policy-iframe" class="policy-iframe" src="about:blank" loading="lazy" title="Terms of Use" data-i18n-title="nav.tos"></iframe>
         </div>
         <div class="modal-actions">
-            <button type="button" id="close-terms-modal-btn" class="reject-button" data-i18n="actions.close" data-modal-autofocus></button>
-            <button type="button" id="accept-terms-modal-btn" class="accept-button" hidden data-i18n="actions.accept"></button>
+            <button type="button" id="close-terms-footer-btn" class="btn btn--secondary" data-i18n="actions.close" data-modal-autofocus></button>
+            <button type="button" id="accept-terms-modal-btn" class="btn btn--primary" hidden data-i18n="actions.accept"></button>
         </div>
     </div>
 </dialog>

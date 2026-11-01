@@ -62,7 +62,7 @@ export function initAppHeaderScrollObserver(header) {
 export function initAppHeaderPlayerDropdownInteractions(dropdownContainer) {
     if (!dropdownContainer) return () => {};
 
-    const dropdownButton = dropdownContainer.querySelector('.player-dropdown-button, #player-dropdown-button');
+    const dropdownButton = dropdownContainer.querySelector('#player-dropdown-btn, #player-dropdown-button, .player-dropdown__btn, .player-dropdown-button');
     const dropdownList = dropdownContainer.querySelector('.player-dropdown-list, #player-dropdown-list');
     const chevron = dropdownContainer.querySelector('.dropdown-arrow');
 
@@ -74,7 +74,7 @@ export function initAppHeaderPlayerDropdownInteractions(dropdownContainer) {
     const openDropdown = () => {
         if (closeTimer) clearTimeout(closeTimer);
         dropdownList.classList.add('show');
-        dropdownButton.classList.add('open');
+        dropdownButton.classList.add('is-open');
         dropdownButton.setAttribute('aria-expanded', 'true');
         if (chevron) {
             const useEl = chevron.querySelector('use');
@@ -87,7 +87,7 @@ export function initAppHeaderPlayerDropdownInteractions(dropdownContainer) {
 
     const closeDropdown = () => {
         dropdownList.classList.remove('show');
-        dropdownButton.classList.remove('open');
+        dropdownButton.classList.remove('is-open');
         dropdownButton.setAttribute('aria-expanded', 'false');
         if (chevron) {
             const useEl = chevron.querySelector('use');
@@ -198,9 +198,9 @@ function observeAppHeaderLayout(header, options = {}) {
         || queryFirst(header, ['.app-header__player-dropdown', '.player-dropdown-container']);
     const actions = queryFirst(inner, ['.app-header__actions', '.data-buttons-container'])
         || queryFirst(header, ['.app-header__actions', '.data-buttons-container']);
-    const hamburger = queryFirst(brand, ['#hamburger-button', '.app-header__hamburger', '.hamburger'])
-        || queryFirst(inner, ['#hamburger-button', '.app-header__hamburger', '.hamburger'])
-        || queryFirst(header, ['#hamburger-button', '.app-header__hamburger', '.hamburger']);
+    const hamburger = queryFirst(brand, ['#hamburger-btn', '#hamburger-button', '.app-header__hamburger', '.hamburger'])
+        || queryFirst(inner, ['#hamburger-btn', '#hamburger-button', '.app-header__hamburger', '.hamburger'])
+        || queryFirst(header, ['#hamburger-btn', '#hamburger-button', '.app-header__hamburger', '.hamburger']);
 
     let cachedBrandTitleWidth = 0;
     let cachedSeparatorWidth = 0;
@@ -406,7 +406,7 @@ export function initAppHeader(options = {}) {
 
     // Hamburger drawer binding
     if (options.bindDrawer === true) {
-        const hamburger = queryFirst(header, ['#hamburger-button', '.app-header__hamburger', '.hamburger']);
+        const hamburger = queryFirst(header, ['#hamburger-btn', '#hamburger-button', '.app-header__hamburger', '.hamburger']);
         if (hamburger) {
             const drawerInstance = initNavigationDrawer({ buttonEl: /** @type {HTMLElement} */ (hamburger) });
             cleanups.push(() => drawerInstance.destroy());

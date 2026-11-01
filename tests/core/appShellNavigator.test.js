@@ -599,14 +599,14 @@ describe('Persistent App Shell Navigator Suite', () => {
                     playerTag: '8PJYGUJC'
                 });
 
-                const activeBtn = dockChildren.find(btn => btn.className.includes('active'));
+                const activeBtn = dockChildren.find(btn => btn.className.includes('is-active'));
                 assert.ok(activeBtn, 'Expected one dock button to be marked active');
                 assert.equal(activeBtn.dataset.tool, 'damage-calculator');
                 assert.equal(activeBtn.getAttribute('aria-current'), 'page');
 
                 const oreBtn = dockChildren.find(btn => btn.dataset.tool === 'ore-calculator');
                 assert.ok(oreBtn);
-                assert.equal(oreBtn.className.includes('active'), false);
+                assert.equal(oreBtn.className.includes('is-active'), false);
                 assert.equal(oreBtn.getAttribute('aria-current'), null);
             } finally {
                 globalThis.window = prevWin;

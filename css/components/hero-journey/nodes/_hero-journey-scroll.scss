@@ -5,6 +5,7 @@
     gap: 6px;
     flex-shrink: 0;
 
+    &__btn,
     .scroll-btn {
         background: $bg-surface-primary;
         border: 1px solid $border-primary;
@@ -49,7 +50,7 @@
             transform: scale(0.95);
         }
 
-        &.disabled,
+        &.is-disabled,
         &:disabled {
             opacity: 0.35;
             pointer-events: none;

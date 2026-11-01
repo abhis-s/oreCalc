@@ -195,51 +195,21 @@
     }
 }
 
-.account-card-th {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
+.account-card-th,
+.landing-account-card__th {
     flex-shrink: 0;
-
-    .th-mini-img {
-        width: 42px;
-        height: 42px;
-        object-fit: contain;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
-    }
-
-    .th-mini-level {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        background-color: $accent-primary;
-        color: $text-on-accent;
-        border: 1.5px solid $border-primary;
-        border-radius: $shape-corner-xs;
-        font-size: $font-size-2xs;
-        font-weight: $font-weight-extrabold;
-        line-height: 1;
-        min-width: 16px;
-        height: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1px 3px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
-    }
 }
 
-.account-card-player {
+.account-card-player,
+.landing-account-card__player {
     display: flex;
     flex-direction: column;
     gap: $spacing-2xs;
     min-width: 0;
     flex: 1;
 
-    .account-card-name {
+    .account-card-name,
+    .landing-account-card__name {
         font-weight: $font-weight-bold;
         font-size: $font-size-sm;
         color: $text-primary;
@@ -248,7 +218,8 @@
         text-overflow: ellipsis;
     }
 
-    .account-card-tag {
+    .account-card-tag,
+    .landing-account-card__tag {
         font-family: monospace;
         font-size: $font-size-2xs;
         color: $text-muted;
@@ -256,7 +227,8 @@
     }
 }
 
-.account-card-meta {
+.account-card-meta,
+.landing-account-card__meta {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -266,7 +238,8 @@
     min-width: 0;
     text-align: right;
 
-    .account-card-clan {
+    .account-card-clan,
+    .landing-account-card__clan {
         display: inline-flex;
         align-items: center;
         justify-content: flex-end;
@@ -291,7 +264,8 @@
         }
     }
 
-    .account-card-stats {
+    .account-card-stats,
+    .landing-account-card__stats {
         display: inline-flex;
         align-items: center;
         justify-content: flex-end;
@@ -299,7 +273,8 @@
         font-size: $font-size-xs;
         color: $text-secondary;
 
-        .account-card-league {
+        .account-card-league,
+        .landing-account-card__league {
             display: inline-flex;
             align-items: center;
 
@@ -311,7 +286,8 @@
             }
         }
 
-        .account-card-trophies {
+        .account-card-trophies,
+        .landing-account-card__trophies {
             display: inline-flex;
             align-items: center;
             gap: 3px;
@@ -331,7 +307,8 @@
     color: $palette-amber-500;
 }
 
-.account-card-delete-btn {
+.account-card-delete-btn,
+.landing-account-card__delete-btn {
     display: none;
     align-items: center;
     justify-content: center;
@@ -347,13 +324,15 @@
                 border-color $duration-fast $ease-smooth,
                 color $duration-fast $ease-smooth;
 
-    .delete-icon {
+    .delete-icon,
+    .landing-account-card__delete-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
     }
 
-    .delete-confirm-text {
+    .delete-confirm-text,
+    .landing-account-card__delete-confirm-text {
         display: none;
         font-size: $font-size-xs;
         font-weight: $font-weight-bold;

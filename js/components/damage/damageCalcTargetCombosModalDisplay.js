@@ -168,7 +168,7 @@ function renderComboRowHtml(combo, options) {
                         <span data-i18n="views.damageCalc.zapQuake.defaultCombo">${escapeHTML(translate('views.damageCalc.zapQuake.defaultCombo') || 'Default')}</span>
                     </span>
                 ` : ''}
-                <button type="button" class="calc-target-combo-row__info-btn calc-info-btn"
+                <button type="button" class="calc-target-combo-row__info-btn info-btn"
                     data-combo-defense-info="true"
                     aria-label="${escapeHTML(translate('views.damageCalc.zapQuake.combinationBreakdownAria') || 'Damage Breakdown')}">
                     <clashcalc-assets-svg name="info" width="14" height="14"></clashcalc-assets-svg>
@@ -375,7 +375,7 @@ export function renderTargetCombosModal(state, container, defenseKey, level, sup
 
             scPills += `
                 <button type="button"
-                    class="calc-supercharge-pill ${isSelected && !isScDisabled ? 'active is-active' : ''} ${isScDisabled && tier === 0 ? 'active is-active' : ''}"
+                    class="calc-supercharge-pill ${isSelected && !isScDisabled ? 'is-active' : ''} ${isScDisabled && tier === 0 ? 'is-active' : ''}"
                     data-defense-key="${defenseKey}"
                     data-tier="${tier}"
                     role="radio"

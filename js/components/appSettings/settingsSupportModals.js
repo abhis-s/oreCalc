@@ -42,8 +42,8 @@ export function openBugReportModal(initialMode = 'bug', options = {}) {
 
     const attachCheckbox = /** @type {HTMLInputElement | null} */ (document.getElementById('support-attach-checkbox') || document.getElementById('bug-report-attach-checkbox'));
     const submitBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('submit-support-btn') || document.getElementById('submit-bug-report-btn'));
-    const closeHeaderBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('close-support-header-btn') || document.getElementById('close-bug-report-header-btn'));
-    const closeBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('close-support-modal-btn') || document.getElementById('close-bug-report-modal-btn'));
+    const closeHeaderBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('close-support-modal-btn') || document.getElementById('close-support-header-btn') || document.getElementById('close-bug-report-header-btn'));
+    const closeBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('cancel-support-modal-btn') || document.getElementById('close-support-modal-btn') || document.getElementById('close-bug-report-modal-btn'));
 
     /** @type {'bug'|'feedback'} */
     let currentMode = initialMode === 'feedback' ? 'feedback' : 'bug';
@@ -56,11 +56,11 @@ export function openBugReportModal(initialMode = 'bug', options = {}) {
         const isBug = mode === 'bug';
 
         if (tabBug) {
-            tabBug.classList.toggle('active', isBug);
+            tabBug.classList.toggle('is-active', isBug);
             tabBug.setAttribute('aria-selected', String(isBug));
         }
         if (tabFeedback) {
-            tabFeedback.classList.toggle('active', !isBug);
+            tabFeedback.classList.toggle('is-active', !isBug);
             tabFeedback.setAttribute('aria-selected', String(!isBug));
         }
 
@@ -323,8 +323,8 @@ export function openContactModal(options = {}) {
     if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
 
-    const closeHeaderBtn = document.getElementById('close-contact-header-btn');
-    const closeBtn = document.getElementById('close-contact-modal-btn');
+    const closeHeaderBtn = document.getElementById('close-contact-modal-btn') || document.getElementById('close-contact-header-btn');
+    const closeBtn = document.getElementById('close-contact-footer-btn') || document.getElementById('close-contact-modal-btn');
     const mailBtn = document.getElementById('contact-mail-btn');
 
     const closeModal = () => {

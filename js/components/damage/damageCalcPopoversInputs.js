@@ -77,7 +77,7 @@ export function attachDamageCalcPopoverListeners(rootContainer, state) {
         if (comboTrigger) {
             const comboCard = target.closest('.calc-combo-defense-card, [data-combo-row-index], .calc-target-combo-row');
             if (comboCard) {
-                const anchor = comboInfoBtn || target.closest('.calc-info-btn') || comboCard;
+                const anchor = comboInfoBtn || target.closest('.info-btn') || comboCard;
                 const content = getComboBreakdownPopoverContent(comboCard, currentDamageState || state);
                 if (content) {
                     showCardHelpPopover(anchor, content, { isToggle: isClick });
@@ -87,7 +87,7 @@ export function attachDamageCalcPopoverListeners(rootContainer, state) {
         }
 
         // Cluster target card breakdown
-        const clusterInfoBtn = target.closest('.calc-info-btn[data-cluster-target-info]');
+        const clusterInfoBtn = target.closest('.info-btn[data-cluster-target-info]');
         if (clusterInfoBtn) {
             const clusterCard = target.closest('.cluster-target-card') || clusterInfoBtn;
             const content = getClusterTargetPopoverContent(clusterCard);
@@ -137,7 +137,7 @@ export function attachDamageCalcPopoverListeners(rootContainer, state) {
         return false;
     };
 
-    const damagePopoverTriggerSelector = '[data-calc-info], [data-action-info], [data-note-code], .calc-combo-defense-card__info-btn, [data-combo-defense-info], [data-combo-table-info], .calc-info-btn, [data-combo-row-index], [data-cluster-target-info], [data-casualty-info-btn], [data-source-info], [data-combo-badge], [data-shared-combo-info]';
+    const damagePopoverTriggerSelector = '[data-calc-info], [data-action-info], [data-note-code], .calc-combo-defense-card__info-btn, [data-combo-defense-info], [data-combo-table-info], .info-btn, [data-combo-row-index], [data-cluster-target-info], [data-casualty-info-btn], [data-source-info], [data-combo-badge], [data-shared-combo-info]';
 
     if (!isDamageCalcPopoversBound) {
         isDamageCalcPopoversBound = true;
@@ -147,7 +147,7 @@ export function attachDamageCalcPopoverListeners(rootContainer, state) {
             if (!trigger) return;
             const handled = handlePopoverTrigger(trigger, true);
             if (handled) {
-                if (trigger.closest('.calc-info-btn, .sim-action-card__info-btn, .calc-note-badge, .calc-combo-defense-card__info-btn, [data-combo-defense-info], [data-combo-badge], [data-shared-combo-info]')) {
+                if (trigger.closest('.info-btn, .sim-action-card__info-btn, .calc-note-badge, .calc-combo-defense-card__info-btn, [data-combo-defense-info], [data-combo-badge], [data-shared-combo-info]')) {
                     e.stopPropagation();
                 }
             }

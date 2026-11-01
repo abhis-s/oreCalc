@@ -7,6 +7,7 @@ import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { sanitizeHTML } from '../../ui/noticeModal.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
+import { renderTownHallBadge } from '../common/townHallBadge.js';
 
 /**
  * Creates and returns the modal dialog element for Spotright search.
@@ -209,7 +210,13 @@ export function renderSpotrightResults(container, matches, selectedIndex, curren
 
         const isSelected = idx === selectedIndex;
         const iconHtml = item.isVillage
-            ? `<div class="spotright-th-wrapper"><clashcalc-assets-image src="${item.icon}" alt="${escapeHTML(translate('entities.defenses.townHall'))} ${item.thLevel}" class="spotright-th-img" size="standard"></clashcalc-assets-image><span class="spotright-th-badge">${item.thLevel}</span></div>`
+            ? renderTownHallBadge({
+                thLevel: item.thLevel,
+                size: 'sm',
+                className: 'spotright-th-wrapper',
+                imgSrc: item.icon,
+                imgAlt: `${escapeHTML(translate('entities.defenses.townHall'))} ${item.thLevel}`
+            })
             : `<div class="spotright-item-icon-wrapper ${item.iconType === 'image' ? 'spotright-item-icon--image' : 'spotright-item-icon--svg'}">${
                 item.iconType === 'image'
                     ? `<clashcalc-assets-image src="${item.icon}" alt="${escapeHTML(item.title)}" class="spotright-item-icon"></clashcalc-assets-image>`
@@ -305,7 +312,7 @@ export function renderSpotrightResults(container, matches, selectedIndex, curren
 
         htmlChunks.push(`
             <div
-                class="spotright-result-item ${villageClass} ${activeVillageClass} ${scopeSuggestionClass} ${isSelected ? 'selected' : ''} ${isItemLoading ? 'is-loading' : ''} ${hasItemError ? 'has-error' : ''}"
+                class="spotright-result-item ${villageClass} ${activeVillageClass} ${scopeSuggestionClass} ${isSelected ? 'is-selected selected' : ''} ${isItemLoading ? 'is-loading' : ''} ${hasItemError ? 'has-error' : ''}"
                 role="option"
                 aria-selected="${isSelected ? 'true' : 'false'}"
                 data-index="${idx}"
@@ -364,6 +371,7 @@ export function updateSpotrightSelection(container, selectedIndex) {
 
     items.forEach((item, idx) => {
         const isSelected = idx === selectedIndex;
+        item.classList.toggle('is-selected', isSelected);
         item.classList.toggle('selected', isSelected);
         item.setAttribute('aria-selected', isSelected ? 'true' : 'false');
         if (isSelected) {

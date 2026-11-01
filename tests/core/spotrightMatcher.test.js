@@ -849,7 +849,7 @@ describe('Spotright Search Engine & Matcher', () => {
         }
     });
 
-    test('action-manage-villages triggers player-dropdown-button on non-landing pages', async () => {
+    test('action-manage-villages triggers player-dropdown-btn on non-landing pages', async () => {
         const originalDocument = globalThis.document;
         const originalWindow = globalThis.window;
         try {
@@ -859,7 +859,7 @@ describe('Spotright Search Engine & Matcher', () => {
             };
             globalThis.document = /** @type {any} */ ({
                 getElementById: (id) => {
-                    if (id === 'player-dropdown-button') return fakeDropdownBtn;
+                    if (id === 'player-dropdown-btn' || id === 'player-dropdown-button') return fakeDropdownBtn;
                     return null;
                 }
             });

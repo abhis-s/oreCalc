@@ -1,7 +1,7 @@
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import { translate } from '../../i18n/translator.js';
 
-import { toCamelCase } from '../../utils/stringUtils.js';
+import { toCamelCase, toKebabCase } from '../../utils/stringUtils.js';
 import { getSVG } from '../../utils/svgManager.js';
 
 /**
@@ -69,8 +69,9 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
     nameLabel.textContent = translate('entities.equipment.' + equipKey);
     nameLabel.dataset.i18n = 'entities.equipment.' + equipKey;
 
-    const literalEquipName = equip.name.replace(/\s/g, '');
-    const inputId = `${idPrefix}-${literalEquipName}-level`;
+    const idPrefixKebab = toKebabCase(idPrefix);
+    const equipKeyKebab = toKebabCase(equipKey);
+    const inputId = `${idPrefixKebab}-${equipKeyKebab}-level`;
 
     if (mode === 'interactive') {
         nameLabel.setAttribute('for', inputId);
@@ -88,8 +89,8 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `${idPrefix}-${equipKey}-toggle`;
-        checkbox.name = `${idPrefix}-${equipKey}-toggle`;
+        checkbox.id = `${idPrefixKebab}-${equipKeyKebab}-toggle`;
+        checkbox.name = `${idPrefixKebab}-${equipKeyKebab}-toggle`;
         checkbox.checked = isChecked;
         checkbox.setAttribute('aria-label', translate('views.planner.toggleEquipment', {
             name: translate('entities.equipment.' + equipKey) || equip.name

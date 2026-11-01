@@ -300,8 +300,8 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
         };
 
         dom.tabs = {
-            buttons: [createMockElement('button', '', 'tab-button active')],
-            contents: [createMockElement('div', 'home-tab', 'tab-content active')]
+            buttons: [createMockElement('button', '', 'tab-button is-active')],
+            contents: [createMockElement('div', 'home-tab', 'tab-content is-active')]
         };
 
         dom.drawer = {

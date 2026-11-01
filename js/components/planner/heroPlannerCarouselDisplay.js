@@ -37,9 +37,9 @@ export function updatePageDots(activeIndex) {
     const dots = plannerPageDots.querySelectorAll('.dot');
     dots.forEach((dot, index) => {
         if (index === activeIndex) {
-            dot.classList.add('active');
+            dot.classList.add('is-active');
         } else {
-            dot.classList.remove('active');
+            dot.classList.remove('is-active');
         }
     });
 }

@@ -6,7 +6,7 @@ function initializeNoticeModal() {
     modal = document.getElementById('notice-modal');
     titleElem = document.getElementById('notice-modal-title');
     messageElem = document.getElementById('notice-modal-message');
-    cancelBtn = document.getElementById('notice-modal-cancel-btn');
+    cancelBtn = document.getElementById('cancel-notice-modal-btn') || document.getElementById('notice-modal-cancel-btn');
     okBtn = document.getElementById('notice-modal-ok-btn');
     overlay = document.getElementById('overlay');
 }

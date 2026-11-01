@@ -1,7 +1,7 @@
-    <header class="app-header header-container">
-        <div class="app-header__inner header-inner">
-            <div class="app-header__brand header-brand">
-                <button type="button" id="hamburger-button" class="app-header__hamburger hamburger" aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
+    <header class="app-header">
+        <div class="app-header__inner">
+            <div class="app-header__brand">
+                <button type="button" id="hamburger-btn" class="app-header__hamburger" aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
                     <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
                 <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
@@ -16,17 +16,17 @@
                 </div>
             </div>
 
-            <div class="app-header__tabs tab-bar-container">
-                <button type="button" class="tab-button active" data-tab="home" data-i18n="nav.home"></button>
-                <button type="button" class="tab-button" data-tab="equipment" data-i18n="nav.equipment"></button>
-                <button type="button" class="tab-button" data-tab="income" data-i18n="nav.income"></button>
-                <button type="button" class="tab-button" data-tab="planner" data-i18n="nav.planner"></button>
-                <button type="button" class="tab-button" data-tab="settings" data-i18n="nav.settings"></button>
+            <div class="app-header__tabs" role="tablist">
+                <button type="button" class="app-header__tab is-active" data-tab="home" data-i18n="nav.home"></button>
+                <button type="button" class="app-header__tab" data-tab="equipment" data-i18n="nav.equipment"></button>
+                <button type="button" class="app-header__tab" data-tab="income" data-i18n="nav.income"></button>
+                <button type="button" class="app-header__tab" data-tab="planner" data-i18n="nav.planner"></button>
+                <button type="button" class="app-header__tab" data-tab="settings" data-i18n="nav.settings"></button>
             </div>
 
             <!-- include: partials/header-player-dropdown.html -->
 
-            <div class="app-header__actions data-buttons-container">
+            <div class="app-header__actions">
                 <!-- include: partials/header-spotright.html -->
                 <!-- include: partials/header-account.html -->
             </div>

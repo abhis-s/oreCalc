@@ -247,7 +247,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
             activeCleanTag: 'ABC1234'
         });
 
-        assert.ok(html.includes('class="player-dropdown-item active is-active"'), 'Dropdown markup must include active item entry');
+        assert.ok(html.includes('class="player-dropdown-item is-active"'), 'Dropdown markup must include active item entry');
         assert.ok(html.includes('id="hj-dropdown-item-0"'), 'Dropdown items must have indexed id attribute');
         assert.ok(html.includes('role="option"'), 'Dropdown items must have role="option"');
         assert.ok(html.includes('aria-selected="true"'), 'Active item must have aria-selected="true"');
@@ -312,6 +312,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         const addPlayerModal = createElement('dialog', 'add-player-modal');
         const playerTagInput = createElement('input', 'player-tag-input-modal');
         createElement('button', 'load-player-modal-btn');
+        createElement('button', 'cancel-add-player-modal-btn');
         createElement('button', 'cancel-add-player-button');
         createElement('button', 'close-add-player-modal-btn');
         const playerTagError = createElement('div', 'player-tag-error-message');
@@ -428,10 +429,12 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         };
 
         const arrow = { setAttribute(k, v) { this[k] = v; }, name: 'chevron-down' };
-        const dropdownBtn = createElement('button', 'player-dropdown-button', 'player-dropdown-button');
+        const dropdownBtn = createElement('button', 'player-dropdown-btn', 'player-dropdown-button');
+        createElement('button', 'player-dropdown-button', 'player-dropdown-button');
         const dropdownList = createElement('div', 'player-dropdown-list', 'player-dropdown-list');
         createElement('div', 'player-items-container');
         createElement('span', 'selected-player-name');
+        createElement('button', 'add-player-btn');
         createElement('button', 'add-player-button');
         const container = createElement('div', 'player-dropdown-container-el', 'player-dropdown-container');
 
@@ -472,7 +475,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
 
             container.dispatchEvent({ type: 'mouseenter' });
             assert.strictEqual(dropdownList.classList.contains('show'), true, 'Dropdown list must receive .show on mouseenter');
-            assert.strictEqual(dropdownBtn.classList.contains('open'), true, 'Dropdown button must receive .open on mouseenter');
+            assert.strictEqual(dropdownBtn.classList.contains('is-open'), true, 'Dropdown button must receive .is-open on mouseenter');
             assert.strictEqual(arrow.name, 'chevron-up', 'Dropdown chevron must flip up on open');
 
             // While open, subsequent focusin must keep dropdown open and not destroy items
@@ -481,7 +484,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
 
             container.dispatchEvent({ type: 'mouseleave' });
             assert.strictEqual(dropdownList.classList.contains('show'), false, 'Dropdown list must remove .show on mouseleave');
-            assert.strictEqual(dropdownBtn.classList.contains('open'), false, 'Dropdown button must remove .open on mouseleave');
+            assert.strictEqual(dropdownBtn.classList.contains('is-open'), false, 'Dropdown button must remove .is-open on mouseleave');
             assert.strictEqual(arrow.name, 'chevron-down', 'Dropdown chevron must reset down on close');
 
             container.dispatchEvent({ type: 'focusin' });

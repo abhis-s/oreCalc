@@ -32,6 +32,7 @@ dialog.modal,
             flex-shrink: 0;
         }
 
+        .modal__close-btn,
         .close-button,
         .modal-header-btn,
         .modal-header-actions > * {
@@ -101,6 +102,7 @@ dialog.modal,
             }
         }
 
+        .modal__close-btn,
         .close-button {
             transition: background-color $duration-fast $ease-smooth,
                         border-color $duration-fast $ease-smooth,
@@ -108,6 +110,8 @@ dialog.modal,
                         transform $duration-moderate $ease-smooth;
         }
 
+        .modal__close-btn:hover,
+        .modal__close-btn:focus-visible,
         .close-button:hover,
         .close-button:focus-visible {
             transform: scale(1.08) rotate(90deg);
@@ -162,6 +166,9 @@ dialog.modal,
         line-height: 1.5;
         font-size: $font-size-lg;
         flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
         overflow-y: auto;
         min-height: 0;
 
@@ -221,15 +228,16 @@ dialog.modal,
         button,
         a,
         .btn,
+        .btn--primary,
+        .btn--secondary,
         .btn-primary,
-        .btn-secondary,
-        .accept-button,
-        .reject-button {
+        .btn-secondary {
             min-width: $btn-min-width;
             min-height: $btn-min-height;
         }
     }
 
+    .modal__close-btn,
     .close-button {
         @extend %flex-center;
         background-color: $bg-surface-secondary;
@@ -296,7 +304,7 @@ dialog.modal,
         }
     }
 
-    .info-button {
+    .info-btn {
         @extend %flex-center;
     }
 }

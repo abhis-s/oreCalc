@@ -28,7 +28,7 @@
     }
 }
 
-.calc-cluster-equip-btn {
+.calc-cluster-equip-switch {
     position: relative;
     display: inline-flex;
     flex-direction: column;
@@ -58,7 +58,7 @@
         background-color: $accent-primary-soft;
         box-shadow: 0 0 0 1px $accent-primary;
 
-        .calc-cluster-equip-btn__lvl {
+        .calc-cluster-equip-switch__lvl {
             background-color: $accent-primary;
             color: $text-on-accent;
         }
@@ -73,7 +73,7 @@
             filter: grayscale(30%);
         }
 
-        .calc-cluster-equip-btn__lvl {
+        .calc-cluster-equip-switch__lvl {
             background-color: $bg-surface-primary;
             color: $text-muted;
         }

@@ -67,7 +67,7 @@ export function initializeGlobalHaptics() {
     // Delegate instant pointerdown haptics to all buttons, switches, tabs, and interactive controls
     document.addEventListener('pointerdown', (event) => {
         const target = /** @type {HTMLElement|null} */ (event.target?.closest?.(
-            'button, summary, input[type="button"], input[type="submit"], input[type="reset"], input[type="checkbox"], input[type="radio"], [role="button"], [role="tab"], [role="switch"], [role="radio"], [role="checkbox"], [role="option"], [data-tab], [data-action], a.btn, a.button, a[class*="btn"], a[class*="button"], .tab-button, .nav-button, .switch, .updatable, .hamburger'
+            'button, summary, input[type="button"], input[type="submit"], input[type="reset"], input[type="checkbox"], input[type="radio"], [role="button"], [role="tab"], [role="switch"], [role="radio"], [role="checkbox"], [role="option"], [data-tab], [data-action], a.btn, a.button, a[class*="btn"], a[class*="button"], .app-header__tab, .tab-button, .nav-button, .switch, .updatable, .app-header__hamburger, .hamburger'
         ));
 
         if (!target) return;
@@ -75,7 +75,7 @@ export function initializeGlobalHaptics() {
         // Skip disabled elements
         if (/** @type {any} */ (target).disabled || target.classList?.contains('disabled') || target.getAttribute?.('aria-disabled') === 'true') return;
 
-        if (target.matches?.('[role="tab"], [role="switch"], [role="checkbox"], [role="radio"], [data-tab], input[type="checkbox"], input[type="radio"], .switch, [class*="switch"], .tab-button, .nav-button')) {
+        if (target.matches?.('[role="tab"], [role="switch"], [role="checkbox"], [role="radio"], [data-tab], input[type="checkbox"], input[type="radio"], .switch, [class*="switch"], .app-header__tab, .tab-button, .nav-button')) {
             triggerHaptic('toggle');
         } else {
             triggerHaptic('click');

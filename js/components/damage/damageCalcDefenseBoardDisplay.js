@@ -262,7 +262,7 @@ export function renderDefenseBoardPanel(state, container) {
                         <div class="calc-cluster-hero__header">
                             <h3 class="calc-cluster-hero__title">
                                 <span data-i18n="views.damageCalc.clusterPlanner.clusterTitle">${clusterTitleText}</span>
-                                <button type="button" class="calc-info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
+                                <button type="button" class="info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
                                     <clashcalc-assets-svg name="info" width="14" height="14"></clashcalc-assets-svg>
                                 </button>
                             </h3>

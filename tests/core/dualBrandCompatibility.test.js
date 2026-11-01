@@ -445,7 +445,7 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
     test('appSettings.persistAppSettings purges legacy settings key on ClashCalc host and does not duplicate it', async () => {
         globalThis.window = /** @type {any} */ ({ location: { hostname: 'localhost' }, addEventListener: () => {} });
 
-        const { persistAppSettings: persistDamageSettings } = await import('../../js/components/common/appSettings.js');
+        const { persistAppSettings: persistDamageSettings } = await import('../../js/components/common/appSettingsManager.js');
 
         // Pre-populate legacy settings
         localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify({ theme: 'dark', language: 'en' }));

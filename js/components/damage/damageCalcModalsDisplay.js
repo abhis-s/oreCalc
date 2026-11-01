@@ -38,10 +38,10 @@ export function renderEditLevelsModal(state, modalContainer) {
     modalBody.innerHTML = `
         <div class="calc-offense-modal-sticky-header">
             <div class="calc-modal-tabs segmented-control" role="tablist" aria-label="${escapeHTML(translate('views.damageCalc.offense.levelEditorSections'))}" data-i18n-aria-label="views.damageCalc.offense.levelEditorSections">
-                <button type="button" class="segmented-btn ${activeTab === 'offense' ? 'active' : ''}" data-modal-tab="offense" role="tab" aria-selected="${activeTab === 'offense'}" aria-controls="calc-modal-tab-content">
+                <button type="button" class="segmented-btn ${activeTab === 'offense' ? 'is-active' : ''}" data-modal-tab="offense" role="tab" aria-selected="${activeTab === 'offense'}" aria-controls="calc-modal-tab-content">
                     <span data-i18n="views.damageCalc.offense.offenseTabTitle">${escapeHTML(translate('views.damageCalc.offense.offenseTabTitle'))}</span>
                 </button>
-                <button type="button" class="segmented-btn ${isDefenseTab ? 'active' : ''}" data-modal-tab="defense" role="tab" aria-selected="${isDefenseTab}" aria-controls="calc-modal-tab-content">
+                <button type="button" class="segmented-btn ${isDefenseTab ? 'is-active' : ''}" data-modal-tab="defense" role="tab" aria-selected="${isDefenseTab}" aria-controls="calc-modal-tab-content">
                     <span data-i18n="views.damageCalc.clusterPlanner.defenseTabTitle">${escapeHTML(translate('views.damageCalc.clusterPlanner.defenseTabTitle'))}</span>
                 </button>
             </div>

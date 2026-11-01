@@ -111,7 +111,7 @@ function updateActiveProfileLayout() {
     const tagEl = /** @type {HTMLElement | null} */ (card.querySelector('.player-tag'));
     const clanNameEl = /** @type {HTMLElement | null} */ (card.querySelector('.clan-name-mini'));
     const roleEl = /** @type {HTMLElement | null} */ (card.querySelector('.clan-role-mini'));
-    const thWrapper = /** @type {HTMLElement | null} */ (card.querySelector('.th-badge-wrapper'));
+    const thWrapper = /** @type {HTMLElement | null} */ (card.querySelector('.th-badge'));
     const clanBadgeEl = /** @type {HTMLElement | null} */ (card.querySelector('.clan-badge-img-mini'));
     const leagueEl = /** @type {HTMLElement | null} */ (card.querySelector('.league-details-mini'));
     const actionsEl = /** @type {HTMLElement | null} */ (card.querySelector('.profile-meta-actions-row'));
@@ -204,12 +204,12 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
 
     if (existingCard && isAlreadyVisible) {
         // In-place delta update to prevent layout flash
-        const thImg = existingCard.querySelector('.th-badge-img');
+        const thImg = existingCard.querySelector('.th-badge__img');
         if (thImg) {
             thImg.setAttribute('src', `assets/th/th${thLevel}.png`);
             thImg.setAttribute('alt', `Town Hall ${thLevel}`);
         }
-        const thOverlay = existingCard.querySelector('.th-badge-level-overlay');
+        const thOverlay = existingCard.querySelector('.th-badge__level');
         if (thOverlay) thOverlay.textContent = String(thLevel);
 
         const nameEl = existingCard.querySelector('.player-name');

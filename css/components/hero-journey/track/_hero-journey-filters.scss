@@ -17,7 +17,7 @@
     flex: 1;
 }
 
-.hj-segmented-switch {
+.hj-segmented-control {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -30,7 +30,7 @@
     user-select: none;
     overflow: hidden;
 
-    .hj-switch-pill {
+    .hj-segmented-control__pill {
         position: absolute;
         top: 3px;
         bottom: 3px;
@@ -47,7 +47,7 @@
         will-change: transform, width;
     }
 
-    .hj-switch-btn {
+    .hj-segmented-control__btn {
         position: relative;
         z-index: $z-index-interactive;
         padding: 5px 14px;
@@ -61,11 +61,11 @@
         transition: color $duration-fast $ease-smooth;
         line-height: 1.2;
 
-        &.active {
+        &.is-active {
             color: $text-on-accent;
         }
 
-        &:hover:not(.active) {
+        &:hover:not(.is-active) {
             color: $text-primary;
         }
     }
@@ -137,13 +137,13 @@
             }
         }
 
-        &:hover:not(.active) {
+        &:hover:not(.is-active) {
             border-color: $border-accent;
             color: $text-primary;
             background: $accent-primary-soft;
         }
 
-        &.active {
+        &.is-active {
             background: $accent-primary;
             border-color: $accent-primary;
             color: $text-on-accent;

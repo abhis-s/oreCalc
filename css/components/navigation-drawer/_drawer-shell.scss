@@ -44,7 +44,7 @@ dialog.navigation-drawer,
                 overlay $duration-moderate allow-discrete;
 
     &[open],
-    &.open {
+    &.is-open {
         transform: translateX(0);
         visibility: visible;
         pointer-events: auto;
@@ -266,7 +266,7 @@ dialog.navigation-drawer,
             color: $text-primary;
         }
 
-        &.active {
+        &.is-active {
             background-color: var(--accent-soft);
             color: var(--accent-primary);
             border-color: color-mix(in srgb, var(--accent-primary) 35%, transparent);
@@ -306,6 +306,7 @@ dialog.navigation-drawer,
 
 }
 
+.app-header__hamburger,
 .hamburger {
     display: none;
     align-items: center;

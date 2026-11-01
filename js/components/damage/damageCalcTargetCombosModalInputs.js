@@ -173,7 +173,6 @@ export function attachTargetCombosModalListeners(state, modalBody, onStateChange
                 const btn = /** @type {HTMLButtonElement} */ (pill);
                 btn.disabled = isScDisabled;
                 const isMatch = isScDisabled ? tier === 0 : tier === activeSc;
-                btn.classList.toggle('active', isMatch);
                 btn.classList.toggle('is-active', isMatch);
                 btn.setAttribute('aria-checked', String(isMatch));
             });

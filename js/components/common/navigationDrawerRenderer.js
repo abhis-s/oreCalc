@@ -13,6 +13,7 @@ import { symbolExists } from '../../utils/svgManager.js';
 import { initAppFooter } from './appFooter.js';
 import { closeDrawerInternal } from './navigationDrawer.js';
 import { initializeChangelogModal, showChangelogModal } from '../changelog/changelogModal.js';
+import { renderTownHallBadge } from './townHallBadge.js';
 import { openBugReportModal, openContactModal } from '../appSettings/settingsSupportModals.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
@@ -51,7 +52,7 @@ function bindDrawerDelegatedEvents(drawer) {
                 const searchInput = document.getElementById('hj-search-input');
                 searchInput?.focus();
             } else {
-                const playerBtn = document.getElementById('player-dropdown-button');
+                const playerBtn = document.getElementById('player-dropdown-btn') || document.getElementById('player-dropdown-button');
                 if (playerBtn) playerBtn.click();
             }
             return;
@@ -316,7 +317,7 @@ export function renderNavigationDrawerContent(options = {}) {
             } else {
                 const btn = document.createElement('a');
                 btn.href = item.href || '#';
-                btn.className = `navigation-drawer__dock-btn ${item.isActive ? 'active' : ''}`;
+                btn.className = `navigation-drawer__dock-btn ${item.isActive ? 'is-active' : ''}`;
                 btn.dataset.tool = item.id;
                 if (item.isActive) {
                     btn.setAttribute('aria-current', 'page');
@@ -361,9 +362,12 @@ export function renderNavigationDrawerContent(options = {}) {
             contextCard.innerHTML = `
                 <div class="navigation-drawer__context-header">
                     <div class="navigation-drawer__context-identity">
-                        <div class="navigation-drawer__context-th-wrapper">
-                            <clashcalc-assets-image class="navigation-drawer__context-th" src="assets/th/th${summary.thLevel}.png" alt="Town Hall ${summary.thLevel}" size="standard"></clashcalc-assets-image>
-                        </div>
+                        ${renderTownHallBadge({
+                            thLevel: summary.thLevel,
+                            size: 'sm',
+                            showLevel: false,
+                            className: 'navigation-drawer__context-th-wrapper'
+                        })}
                         <div class="navigation-drawer__context-player-info">
                             <div class="navigation-drawer__context-name-row">
                                 <span class="navigation-drawer__context-name">${escapeHtml(summary.profileName)}</span>
@@ -443,7 +447,7 @@ export function renderNavigationDrawerContent(options = {}) {
                     el.type = 'button';
                 }
 
-                el.className = `navigation-drawer__tab ${isActive ? 'active' : ''}`;
+                el.className = `navigation-drawer__tab ${isActive ? 'is-active' : ''}`;
                 el.dataset.tab = item.id;
                 el.dataset.view = item.id;
                 if (isActive) {
@@ -461,7 +465,7 @@ export function renderNavigationDrawerContent(options = {}) {
         } else if (activeTool === 'ore-calculator') {
             navigationRegistry.forEach(tab => {
                 const isActive = activeView === `${tab.id}-tab` || activeView === tab.id;
-                const activeClass = isActive ? 'active' : '';
+                const activeClass = isActive ? 'is-active' : '';
 
                 const hasOutline = symbolExists(tab.iconOutline);
                 const hasFilled = symbolExists(tab.iconFilled);
@@ -494,19 +498,20 @@ export function renderNavigationDrawerContent(options = {}) {
                     title: translate('views.damageCalc.tabs.zapQuake') || 'ZapQuake Solver'
                 },
                 {
-                    id: 'cluster_planner',
+                    id: 'cluster-planner',
                     iconActive: 'shield-filled',
                     iconInactive: 'shield-outline',
                     title: translate('views.damageCalc.tabs.clusterPlanner') || 'Cluster Planner'
                 }
             ];
 
+            const normalizedActiveView = (activeView || '').replace('_', '-');
             damageViews.forEach(view => {
-                const isActive = activeView === view.id || (!activeView && view.id === 'zapquake');
+                const isActive = normalizedActiveView === view.id || (!normalizedActiveView && view.id === 'zapquake');
                 const currentIcon = isActive ? view.iconActive : view.iconInactive;
                 const button = document.createElement('button');
                 button.type = 'button';
-                button.className = `navigation-drawer__tab ${isActive ? 'active' : ''}`;
+                button.className = `navigation-drawer__tab ${isActive ? 'is-active' : ''}`;
                 button.dataset.view = view.id;
                 if (isActive) {
                     button.setAttribute('aria-current', 'page');

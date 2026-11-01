@@ -18,7 +18,7 @@
         background-color: $color-white-const;
     }
 
-    &.hidden {
+    &.is-hidden {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;

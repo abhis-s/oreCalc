@@ -173,7 +173,7 @@ export function attachDamageCalcFilterListeners(state, rootContainer, onStateCha
 
     bindSearchInput('zq-search-input', (v) => { state.zapQuake.searchQuery = v; });
 
-    const superchargePills = rootContainer.querySelectorAll('.calc-supercharge-pill[data-prefix="zq_combo"]');
+    const superchargePills = rootContainer.querySelectorAll('.calc-supercharge-pill[data-prefix="zq-combo"]');
     superchargePills.forEach(pill => {
         pill.addEventListener('click', (e) => {
             const tier = Number(/** @type {HTMLElement} */ (e.currentTarget).dataset.tier) || 0;
@@ -185,7 +185,7 @@ export function attachDamageCalcFilterListeners(state, rootContainer, onStateCha
         });
     });
 
-    const superchargeSelect = rootContainer.querySelector('#zq_combo-supercharge-select');
+    const superchargeSelect = rootContainer.querySelector('#zq-combo-supercharge-select');
     if (superchargeSelect) {
         superchargeSelect.addEventListener('change', (e) => {
             const tier = Number(/** @type {HTMLSelectElement} */ (e.target).value) || 0;

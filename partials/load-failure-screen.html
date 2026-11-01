@@ -1,7 +1,7 @@
 <div id="browser-compatibility-notice" class="browser-compatibility-notice" hidden role="alert">
     <div class="compatibility-notice-content">
         <clashcalc-assets-svg name="warning" class="compatibility-notice-icon" aria-hidden="true"></clashcalc-assets-svg>
-        <span class="compatibility-notice-text" data-i18n="errors.compatibilityNoticeFallback">Storage access is restricted or your browser is outdated. Please enable cookies/local storage or update your browser for OreCalc to function properly.</span>
+        <span data-i18n="errors.compatibilityNoticeFallback">Storage access is restricted or your browser is outdated. Please enable cookies/local storage or update your browser for OreCalc to function properly.</span>
     </div>
     <button type="button" class="compatibility-notice-close" onclick="var el = document.getElementById('browser-compatibility-notice'); if (el) { el.hidden = true; el.style.display = 'none'; }" aria-label="Dismiss" data-i18n-aria-label="actions.close">
         <clashcalc-assets-svg name="close" class="compatibility-notice-close-icon" aria-hidden="true"></clashcalc-assets-svg>
@@ -19,7 +19,7 @@
         </div>
 
         <div class="load-failure-details-section">
-            <button type="button" id="load-failure-details-toggle" class="details-toggle-btn">
+            <button type="button" id="load-failure-details-btn" class="details-toggle-btn">
                 <span data-i18n="errors.showDetails"></span>
                 <clashcalc-assets-svg name="chevron-down" class="chevron-icon" width="12" height="12"></clashcalc-assets-svg>
             </button>
@@ -59,10 +59,10 @@
         </div>
 
         <div class="load-failure-actions">
-            <button type="button" id="load-failure-reset-btn" class="reject-button" onclick="window.resetApplication()" data-i18n="actions.reset">
+            <button type="button" id="load-failure-reset-btn" class="btn btn--secondary" onclick="window.resetApplication()" data-i18n="actions.reset">
                 Reset
             </button>
-            <button type="button" id="load-failure-action-btn" class="accept-button" data-i18n="views.settings.bugReport.title">
+            <button type="button" id="load-failure-action-btn" class="btn btn--primary" data-i18n="views.settings.bugReport.title">
                 Report Bug
             </button>
         </div>
@@ -72,14 +72,14 @@
 <script>
     (function () {
         function setupLoadFailureUI() {
-            var toggleBtn = document.getElementById('load-failure-details-toggle');
+            var toggleBtn = document.getElementById('load-failure-details-btn');
             var detailsContainer = document.getElementById('load-failure-details');
             if (toggleBtn && detailsContainer) {
                 toggleBtn.addEventListener('click', function () {
                     var isHidden = detailsContainer.hidden || detailsContainer.style.display === 'none';
                     detailsContainer.hidden = !isHidden;
                     detailsContainer.style.display = isHidden ? 'block' : 'none';
-                    toggleBtn.classList.toggle('active', isHidden);
+                    toggleBtn.classList.toggle('is-active', isHidden);
                     var chevron = toggleBtn.querySelector('.chevron-icon');
                     if (chevron) {
                         chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';

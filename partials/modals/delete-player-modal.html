@@ -2,7 +2,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2 id="delete-player-modal-title" data-i18n="views.settings.dataErasure.requestExclusionFromService"></h2>
-            <button type="button" id="close-delete-player-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+            <button type="button" id="close-delete-player-modal-btn" class="modal__close-btn" data-i18n-aria-label="actions.close">
                 <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
             </button>
         </div>
@@ -15,7 +15,7 @@
                 <input type="text" id="delete-player-tag-input" maxlength="12" data-i18n-placeholder="player.placeholderTag" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" data-modal-autofocus>
                 <div id="delete-player-tag-error" class="error-message"></div>
             </div>
-            <div class="player-name-input-container hidden" id="delete-token-container">
+            <div class="player-name-input-container is-hidden" id="delete-token-container" hidden>
                 <label for="delete-player-token-input" data-i18n="player.apiToken"></label>
                 <input type="text" id="delete-player-token-input" maxlength="8" data-i18n-placeholder="player.placeholderToken" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
                 <small class="api-token-hint" data-i18n="player.apiTokenHint"></small>
@@ -23,12 +23,12 @@
             </div>
         </div>
         <div class="modal-actions" id="delete-modal-actions-validate">
-            <button type="button" id="cancel-delete-player-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button type="button" id="validate-delete-player-btn" class="accept-button" data-i18n="actions.validate"></button>
+            <button type="button" id="cancel-delete-player-modal-btn" class="btn btn--secondary" data-i18n="actions.cancel"></button>
+            <button type="button" id="validate-delete-player-btn" class="btn btn--primary" data-i18n="actions.validate"></button>
         </div>
-        <div class="modal-actions hidden" id="delete-modal-actions-verify">
-            <button type="button" id="cancel-delete-verify-btn" class="reject-button" data-i18n="actions.cancel"></button>
-            <button type="button" id="verify-delete-player-btn" class="accept-button" data-i18n="actions.verify"></button>
+        <div class="modal-actions is-hidden" id="delete-modal-actions-verify" hidden>
+            <button type="button" id="cancel-delete-verify-modal-btn" class="btn btn--secondary" data-i18n="actions.cancel"></button>
+            <button type="button" id="verify-delete-player-btn" class="btn btn--primary" data-i18n="actions.verify"></button>
         </div>
     </div>
 </dialog>

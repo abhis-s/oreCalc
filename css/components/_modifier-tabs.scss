@@ -50,12 +50,12 @@
         text-align: center;
         transition: color $duration-fast $ease-smooth;
 
-        &:hover:not(.active) {
+        &:hover:not(.is-active) {
             color: $text-primary;
             background: color-mix(in srgb, $accent-primary 10%, transparent);
         }
 
-        &.active {
+        &.is-active {
             color: $text-primary;
             font-weight: $font-weight-bold;
         }

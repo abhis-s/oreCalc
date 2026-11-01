@@ -87,7 +87,7 @@
             .hero-journey-filters-row {
                 display: contents;
 
-                &:has(.hj-segmented-switch:not([hidden]):not(.hidden):not(.is-hidden)) {
+                &:has(.hj-segmented-control:not([hidden]):not(.hidden):not(.is-hidden)) {
                     &::after {
                         content: "";
                         flex-basis: 100%;
@@ -98,14 +98,14 @@
                 }
             }
 
-            .hj-segmented-switch {
+            .hj-segmented-control {
                 order: 0;
                 width: 100%;
                 display: flex;
                 box-sizing: border-box;
                 margin-bottom: $spacing-xs;
 
-                .hj-switch-btn {
+                .hj-segmented-control__btn {
                     flex: 1;
                     text-align: center;
                 }

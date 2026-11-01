@@ -309,7 +309,7 @@ describe('CSS Selector Reachability & Dead Class Audit Suite', () => {
             'app-header',
             'header-account-btn',
             'player-dropdown-button',
-            'tab-bar-container',
+            'app-header__tabs',
             'account-user-profile-card',
             'account-popover-panel-summary',
             'account-popover-panel-body',

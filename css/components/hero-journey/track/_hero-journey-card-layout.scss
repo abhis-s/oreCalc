@@ -48,7 +48,7 @@
 
     &.no-synced-heroes {
         #home-hj-cumulative-badge,
-        #home-hj-claim-switch,
+        #home-hj-claim-control,
         .hero-journey-progress-info,
         .hero-journey-progress-track,
         #home-hj-scroll-current {
@@ -102,8 +102,8 @@
     }
 
     &.is-true-max {
-        #home-hj-claim-switch,
-        .hj-segmented-switch,
+        #home-hj-claim-control,
+        .hj-segmented-control,
         .hero-journey-progress-track {
             display: none !important;
         }

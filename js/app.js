@@ -33,7 +33,7 @@ import { getPlayerTagFromUrl, syncPlayerTagToUrl } from './core/playerUrlRouter.
 import { showApiErrorToast, showToast } from './ui/toast.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
 import { initAppFooter } from './components/common/appFooter.js';
-import { persistAppSettings } from './components/common/appSettings.js';
+import { persistAppSettings } from './components/common/appSettingsManager.js';
 import { logger } from './utils/logger.js';
 import './utils/imageManager.js';
 import './utils/svgManager.js';

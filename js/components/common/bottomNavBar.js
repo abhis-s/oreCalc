@@ -34,7 +34,7 @@ export function renderBottomNavBar({
         existingButtons.forEach(button => {
             const tabId = button.getAttribute('data-tab');
             const isActive = activeTabId === `${tabId}-tab` || activeTabId === tabId;
-            button.classList.toggle('active', isActive);
+            button.classList.toggle('is-active', isActive);
             if (isActive) {
                 button.setAttribute('aria-current', 'page');
             } else {
@@ -48,7 +48,7 @@ export function renderBottomNavBar({
 
     items.forEach(tab => {
         const isActive = activeTabId === `${tab.id}-tab` || activeTabId === tab.id;
-        const activeClass = isActive ? 'active' : '';
+        const activeClass = isActive ? 'is-active' : '';
 
         // Mutual icon fallback
         const hasOutline = symbolExists(tab.iconOutline);

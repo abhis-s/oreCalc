@@ -37,7 +37,7 @@
         outline-offset: -3px !important;
     }
 
-    &.open {
+    &.is-open {
         background-color: $bg-surface-primary;
         border-color: $accent-primary;
         box-shadow: $elevation-2;
@@ -166,7 +166,7 @@
         background-color: $bg-surface-tertiary;
     }
 
-    &.active {
+    &.is-active {
         background-color: $accent-primary-soft;
         color: $accent-primary;
         font-weight: $font-weight-semibold;
@@ -183,38 +183,7 @@
 }
 
 .player-dropdown-th-wrapper {
-    position: relative;
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
     margin-right: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: $bg-surface-secondary;
-    border: 1px solid $border-primary;
-    border-radius: $shape-corner-small;
-
-    .player-dropdown-th {
-        width: 24px;
-        height: 24px;
-        object-fit: contain;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
-    }
-
-    .player-dropdown-th-badge {
-        position: absolute;
-        bottom: -3px;
-        right: -3px;
-        font-size: 0.6rem;
-        font-weight: $font-weight-extrabold;
-        line-height: 1;
-        padding: 1px 3px;
-        border-radius: $shape-corner-xs;
-        background-color: $accent-primary;
-        color: $text-on-accent;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-    }
 }
 
 .player-info-text {

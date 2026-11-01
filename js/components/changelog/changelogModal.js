@@ -15,7 +15,7 @@ export function initializeChangelogModal() {
     }
 
     const closeButton = document.getElementById('close-changelog-modal-btn');
-    const footerCloseButton = document.getElementById('changelog-close-btn');
+    const footerCloseButton = document.getElementById('close-changelog-footer-btn') || document.getElementById('changelog-close-btn');
     const commitsButton = document.getElementById('changelog-commits-btn');
 
     const closeModal = () => {

@@ -168,7 +168,6 @@ export function attachBuildingEditorModalListeners(state, modalBody, onStateChan
                     btn.disabled = isScDisabled;
                     const tier = Number(p.getAttribute('data-tier')) || 0;
                     const isMatch = isScDisabled ? tier === 0 : tier === currentSc;
-                    p.classList.toggle('active', isMatch);
                     p.classList.toggle('is-active', isMatch);
                     p.setAttribute('aria-checked', String(isMatch));
                 });
@@ -277,7 +276,6 @@ export function attachBuildingEditorModalListeners(state, modalBody, onStateChan
             const pillsWrap = pill.closest('.calc-supercharge-pills');
             pillsWrap?.querySelectorAll('.calc-supercharge-pill').forEach(p => {
                 const isMatch = p === pill;
-                p.classList.toggle('active', isMatch);
                 p.classList.toggle('is-active', isMatch);
                 p.setAttribute('aria-checked', String(isMatch));
             });

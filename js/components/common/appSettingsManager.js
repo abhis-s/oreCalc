@@ -81,11 +81,11 @@ function applyAppTheme(theme, accentColor, isInteraction = false, isSwatchClick 
     document.documentElement.setAttribute('data-accent', accentColor);
 
     const isLight = theme === 'light';
-    const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-toggle'));
+    const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-switch'));
     if (appThemeToggle) {
         appThemeToggle.checked = isLight;
     }
-    const settingsThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-theme-toggle'));
+    const settingsThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-theme-switch'));
     if (settingsThemeToggle) {
         settingsThemeToggle.checked = isLight;
     }
@@ -97,7 +97,7 @@ function applyAppTheme(theme, accentColor, isInteraction = false, isSwatchClick 
         appThemeLabel.textContent = translatedText;
         appThemeLabel.setAttribute('data-i18n', labelKey);
     }
-    const settingsThemeLabel = document.querySelector('label[for="settings-theme-toggle"]');
+    const settingsThemeLabel = document.querySelector('label[for="settings-theme-switch"]');
     if (settingsThemeLabel) {
         settingsThemeLabel.textContent = translatedText;
         settingsThemeLabel.setAttribute('data-i18n', labelKey);
@@ -105,7 +105,7 @@ function applyAppTheme(theme, accentColor, isInteraction = false, isSwatchClick 
 
     document.querySelectorAll('#app-accent-picker .accent-swatch').forEach(swatch => {
         const swatchColor = swatch.getAttribute('data-color');
-        swatch.classList.toggle('active', swatchColor === accentColor);
+        swatch.classList.toggle('is-active', swatchColor === accentColor);
     });
 
     persistAppSettings({ theme, accentColor });
@@ -198,7 +198,7 @@ export function initAppSettings() {
     const settings = getAppSettings();
     applyAppTheme(settings.theme, settings.accentColor);
 
-    const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-toggle'));
+    const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-switch'));
     if (appThemeToggle) {
         appThemeToggle.checked = settings.theme === 'light';
         appThemeToggle.addEventListener('change', (e) => {
@@ -268,7 +268,7 @@ export function initAppSettings() {
                 const eventTheme = customEvent.detail?.theme;
                 if (eventTheme === 'light' || eventTheme === 'dark') {
                     const isLight = eventTheme === 'light';
-                    const appThemeToggleEl = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-toggle'));
+                    const appThemeToggleEl = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-switch'));
                     if (appThemeToggleEl && appThemeToggleEl.checked !== isLight) {
                         appThemeToggleEl.checked = isLight;
                     }

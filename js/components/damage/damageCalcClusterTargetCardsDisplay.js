@@ -189,7 +189,7 @@ export function renderClusterTargetCardsHtml({
             adjacenciesHtml = `
                 <div class="cluster-target-card__adjacencies">
                     <button type="button"
-                        class="calc-adjacent-toggle ${isLinked ? 'is-active' : ''}"
+                        class="calc-adjacent-switch ${isLinked ? 'is-active' : ''}"
                         data-action="toggle-adjacent-pair"
                         data-pair="0-1"
                         role="switch"
@@ -210,17 +210,17 @@ export function renderClusterTargetCardsHtml({
                     const otherThumb = getBuildingAssetUrl(other.defenseKey, other.level);
                     return `
                         <button type="button"
-                            class="calc-adjacent-toggle ${isLinked ? 'is-active' : ''}"
+                            class="calc-adjacent-switch ${isLinked ? 'is-active' : ''}"
                             data-action="toggle-adjacent-pair"
                             data-pair="${pairKey}"
                             role="switch"
                             aria-checked="${isLinked}"
                             aria-label="${escapeHTML(otherName)} (#${otherIdx + 1})"
                             title="${escapeHTML(otherName)}">
-                            <clashcalc-assets-svg name="zap-filled" width="11" height="11" class="calc-adjacent-toggle__zap"></clashcalc-assets-svg>
-                            <clashcalc-assets-image src="${otherThumb}" alt="" size="thumbnail" class="calc-adjacent-toggle__thumb"></clashcalc-assets-image>
-                            <span class="calc-adjacent-toggle__index">#${otherIdx + 1}</span>
-                            <span class="calc-adjacent-toggle__name">${escapeHTML(otherName)}</span>
+                            <clashcalc-assets-svg name="zap-filled" width="11" height="11" class="calc-adjacent-switch__zap"></clashcalc-assets-svg>
+                            <clashcalc-assets-image src="${otherThumb}" alt="" size="thumbnail" class="calc-adjacent-switch__thumb"></clashcalc-assets-image>
+                            <span class="calc-adjacent-switch__index">#${otherIdx + 1}</span>
+                            <span class="calc-adjacent-switch__name">${escapeHTML(otherName)}</span>
                         </button>
                     `;
                 }).join('');
@@ -261,7 +261,7 @@ export function renderClusterTargetCardsHtml({
                         <div class="cluster-target-card__meta">
                             <div class="cluster-target-card__name-row">
                                 <span class="cluster-target-card__name">${escapeHTML(defName)}</span>
-                                <button type="button" class="calc-info-btn" data-cluster-target-info="true" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
+                                <button type="button" class="info-btn" data-cluster-target-info="true" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
                                     <clashcalc-assets-svg name="info" width="12" height="12"></clashcalc-assets-svg>
                                 </button>
                             </div>

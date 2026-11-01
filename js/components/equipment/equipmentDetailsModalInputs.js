@@ -35,7 +35,7 @@ export function initializeEquipmentDetailsModal() {
         return;
     }
 
-    const closeBtn = document.getElementById('close-eq-details-modal-btn');
+    const closeBtn = document.getElementById('close-equipment-details-modal-btn') || document.getElementById('close-eq-details-modal-btn');
     const prevBtn = document.getElementById('eq-details-prev-btn');
     const nextBtn = document.getElementById('eq-details-next-btn');
 
@@ -132,8 +132,8 @@ export function initializeEquipmentDetailsModal() {
         const pBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-prev-btn'));
         const nBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-next-btn'));
 
-        if (direction === 'prev' && pBtn && (pBtn.disabled || pBtn.classList.contains('disabled'))) return;
-        if (direction === 'next' && nBtn && (nBtn.disabled || nBtn.classList.contains('disabled'))) return;
+        if (direction === 'prev' && pBtn && (pBtn.disabled || pBtn.classList.contains('is-disabled'))) return;
+        if (direction === 'next' && nBtn && (nBtn.disabled || nBtn.classList.contains('is-disabled'))) return;
 
         const list = getFlatEquipmentsList();
         if (list.length === 0) return;
@@ -222,7 +222,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const setBtnState = (btn, isEnabled) => {
         if (!btn) return;
         btn.disabled = !isEnabled;
-        btn.classList.toggle('disabled', !isEnabled);
+        btn.classList.toggle('is-disabled', !isEnabled);
         btn.style.display = '';
     };
 
@@ -469,7 +469,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
                 state.uiSettings.leagueModifier = newKey;
             }, true, { preferencesOnly: true });
             if (modifierTabsContainer) {
-                modifierTabsContainer.querySelectorAll('.mod-tab-btn').forEach(b => b.classList.toggle('active', /** @type {HTMLElement} */ (b).dataset.modKey === activeModifierTab));
+                modifierTabsContainer.querySelectorAll('.mod-tab-btn').forEach(b => b.classList.toggle('is-active', /** @type {HTMLElement} */ (b).dataset.modKey === activeModifierTab));
                 const activeBtn = modifierTabsContainer.querySelector(`.mod-tab-btn[data-mod-key="${activeModifierTab}"]`);
                 if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 updateTabIndicator(modifierTabsContainer, activeModifierTab, false);

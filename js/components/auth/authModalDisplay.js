@@ -18,16 +18,16 @@ export function setAuthMode(mode) {
     const viewRegister = document.getElementById('auth-register-view');
 
     if (mode === 'register') {
-        tabRegister?.classList.add('active');
-        tabSignin?.classList.remove('active');
+        tabRegister?.classList.add('is-active');
+        tabSignin?.classList.remove('is-active');
         viewRegister?.classList.remove('is-hidden');
         viewSignin?.classList.add('is-hidden');
         if (viewRegister) viewRegister.style.display = 'block';
         if (viewSignin) viewSignin.style.display = 'none';
         if (titleEl) titleEl.textContent = translate('auth.createAccount');
     } else {
-        tabSignin?.classList.add('active');
-        tabRegister?.classList.remove('active');
+        tabSignin?.classList.add('is-active');
+        tabRegister?.classList.remove('is-active');
         viewSignin?.classList.remove('is-hidden');
         viewRegister?.classList.add('is-hidden');
         if (viewSignin) viewSignin.style.display = 'block';

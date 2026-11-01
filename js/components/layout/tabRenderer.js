@@ -11,12 +11,12 @@ export function renderTabs(activeTabId) {
     if (!tabButtons || !tabContents || !activeTabId) return;
 
     tabContents.forEach(content => {
-        content.classList.toggle('active', content.id === activeTabId);
+        content.classList.toggle('is-active', content.id === activeTabId);
     });
 
     tabButtons.forEach(button => {
         const tabDataValue = activeTabId.replace('-tab', '');
-        button.classList.toggle('active', button.dataset.tab === tabDataValue);
+        button.classList.toggle('is-active', button.dataset.tab === tabDataValue);
     });
 
     requestResponsiveTextUpdate();

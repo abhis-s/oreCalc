@@ -22,7 +22,7 @@ export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
     const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('add-player-modal'));
     const tagInput = /** @type {HTMLInputElement | null} */ (document.getElementById('player-tag-input-modal'));
     const loadBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('load-player-modal-btn'));
-    const cancelBtn = document.getElementById('cancel-add-player-button');
+    const cancelBtn = document.getElementById('cancel-add-player-modal-btn') || document.getElementById('cancel-add-player-button');
     const closeBtn = document.getElementById('close-add-player-modal-btn');
     const infoBtn = document.getElementById('add-player-modal-info-btn');
     const errorEl = document.getElementById('player-tag-error-message');

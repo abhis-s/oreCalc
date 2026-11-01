@@ -1,20 +1,20 @@
 <dialog id="auth-modal" class="modal" aria-labelledby="auth-modal-title">
-    <div class="modal-content auth-modal-content">
+    <div class="modal-content">
         <div class="modal-header">
             <h2 id="auth-modal-title" data-i18n="auth.signInToAccount"></h2>
-            <button type="button" id="close-auth-modal-btn" class="close-button" data-i18n-aria-label="actions.close">
+            <button type="button" id="close-auth-modal-btn" class="modal__close-btn" data-i18n-aria-label="actions.close">
                 <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
             </button>
         </div>
         <div class="modal-body">
             <div class="auth-tabs segmented-control">
-                <button type="button" id="auth-tab-signin" class="segmented-btn active" data-auth-mode="signin" data-i18n="auth.signIn"></button>
+                <button type="button" id="auth-tab-signin" class="segmented-btn is-active" data-auth-mode="signin" data-i18n="auth.signIn"></button>
                 <button type="button" id="auth-tab-register" class="segmented-btn" data-auth-mode="register" data-i18n="auth.createAccount"></button>
             </div>
 
             <div id="auth-signin-view" class="auth-view">
                 <div class="auth-passkey-hero">
-                    <button type="button" id="auth-passkey-login-btn" class="auth-passkey-btn btn-accent full-width">
+                    <button type="button" id="auth-passkey-login-btn" class="auth-passkey-btn btn-accent btn--full-width">
                         <clashcalc-assets-svg name="passkey" class="auth-btn-icon"></clashcalc-assets-svg>
                         <span data-i18n="auth.signInWithPasskey"></span>
                     </button>
@@ -51,7 +51,7 @@
                     <div id="auth-signin-status" class="status-message"></div>
 
                     <div class="modal-actions">
-                        <button type="submit" id="auth-signin-submit-btn" class="accept-button full-width" data-i18n="auth.signInWithPassword"></button>
+                        <button type="submit" id="auth-signin-submit-btn" class="btn btn--primary btn--full-width" data-i18n="auth.signInWithPassword"></button>
                     </div>
                 </form>
             </div>
@@ -74,7 +74,7 @@
 
                 <div class="auth-register-pathways">
                     <div class="pathway-passkey-group">
-                        <button type="button" id="auth-register-passkey-btn" class="auth-passkey-btn btn-accent full-width">
+                        <button type="button" id="auth-register-passkey-btn" class="auth-passkey-btn btn-accent btn--full-width">
                             <clashcalc-assets-svg name="passkey" class="auth-btn-icon"></clashcalc-assets-svg>
                             <span data-i18n="auth.createWithPasskey"></span>
                         </button>
@@ -101,7 +101,7 @@
                         <div id="auth-register-status" class="status-message"></div>
 
                         <div class="modal-actions">
-                            <button type="submit" id="auth-register-password-submit-btn" class="accept-button full-width" data-i18n="auth.createWithPassword"></button>
+                            <button type="submit" id="auth-register-password-submit-btn" class="btn btn--primary btn--full-width" data-i18n="auth.createWithPassword"></button>
                         </div>
                     </form>
                 </div>
