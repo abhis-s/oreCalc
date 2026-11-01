@@ -12,7 +12,7 @@ import {
 } from './priorityListScheduler.js';
 import { updateDraggableListValues } from './priorityListModalDisplay.js';
 import { hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
-import { setPreviousValidPriorityOrder } from './priorityListSuggestionsRenderer.js';
+import { setPreviousValidPriorityOrder } from './priorityListSuggestionsDisplay.js';
 
 let wasErrorBeforeDrag = false;
 let dragStartSnapshot = null;

@@ -22,7 +22,7 @@ import {
     renderSuggestionsAndErrors,
     setPreviousValidPriorityOrder,
     setSuggestionsHidden
-} from './priorityListSuggestionsRenderer.js';
+} from './priorityListSuggestionsDisplay.js';
 import { initializeStoredOresModal, openStoredOresModal } from './storedOresModal.js';
 import { openLevelSelectModal } from './levelSelectModal.js';
 import { showConfirm } from '../../ui/noticeModal.js';

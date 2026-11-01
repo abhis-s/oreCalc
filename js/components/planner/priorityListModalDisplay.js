@@ -11,9 +11,9 @@ import { getSVG } from '../../utils/svgManager.js';
 import {
     initializePriorityEditorShell,
     renderHeroEquipmentGrid
-} from './priorityListGridRenderer.js';
+} from './priorityListGridDisplay.js';
 import { getGlobalPriorityList, getStepOrderErrors } from './priorityListScheduler.js';
-import { renderSuggestionsAndErrors } from './priorityListSuggestionsRenderer.js';
+import { renderSuggestionsAndErrors } from './priorityListSuggestionsDisplay.js';
 
 /**
  * Attaches help and stored ore popovers to a priority list item.

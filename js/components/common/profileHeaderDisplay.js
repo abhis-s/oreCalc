@@ -8,7 +8,7 @@ import { getMaxTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
 import { renderTownHallBadge } from './townHallBadge.js';
 
 /**
- * js/components/common/profileHeaderRenderer.js
+ * js/components/common/profileHeaderDisplay.js
  * Single source of truth for rendering the standardized .home-profile-header markup across
  * OreCalc Home tab, Hero Journey, and Landing portal profile cards.
  */

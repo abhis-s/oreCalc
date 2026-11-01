@@ -25,7 +25,7 @@ import {
     createTHBoundaryDivider,
     createTHLimitBlockCard,
     createTHStartDivider
-} from './heroJourneyDividersRenderer.js';
+} from './heroJourneyDividersDisplay.js';
 import { createNodeChipElement, updateNodeTitleAndSub } from './heroJourneyNodeBuilder.js';
 import { getTranslatedEquipmentName } from './heroJourneyPopovers.js';
 import { updateHeroJourneyRovingTabindex } from './heroJourneyKeyboardNav.js';

@@ -1,7 +1,7 @@
 import { escapeHTML } from '../../utils/stringUtils.js';
 
 /**
- * js/components/common/profileStatsRenderer.js
+ * js/components/common/profileStatsDisplay.js
  * Single source of truth for rendering the collapsible progress bars and ore stat boxes
  * within .home-profile-stats-container across OreCalc and Hero Journey profile cards.
  */

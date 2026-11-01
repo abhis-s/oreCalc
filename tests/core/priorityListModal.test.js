@@ -8,14 +8,14 @@ import { loadTranslations, translate } from '../../js/i18n/translator.js';
 import {
     initializePriorityEditorShell,
     renderHeroEquipmentGrid
-} from '../../js/components/planner/priorityListGridRenderer.js';
+} from '../../js/components/planner/priorityListGridDisplay.js';
 import {
     getPreviousValidPriorityOrder,
     getSuggestionsHidden,
     renderSuggestionsAndErrors,
     setPreviousValidPriorityOrder,
     setSuggestionsHidden
-} from '../../js/components/planner/priorityListSuggestionsRenderer.js';
+} from '../../js/components/planner/priorityListSuggestionsDisplay.js';
 import { renderDraggableList } from '../../js/components/planner/priorityListModalDisplay.js';
 import { hideCardHelpPopover } from '../../js/utils/cardHelpPopover.js';
 

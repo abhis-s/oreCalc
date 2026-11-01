@@ -19,7 +19,7 @@ import {
 import './utils/svgManager.js';
 import './utils/imageManager.js';
 import './console.js';
-import { renderNavigationDrawerContent } from './components/common/navigationDrawerRenderer.js';
+import { renderNavigationDrawerContent } from './components/common/navigationDrawerDisplay.js';
 import {
     initToolCardsLayoutObserver,
     renderGuestTeasers

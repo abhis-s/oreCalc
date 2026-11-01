@@ -6,7 +6,7 @@
 
 import { registerNavigatorUiHooks } from '../../core/appShellNavigator.js';
 import { closeDrawerInternal } from './navigationDrawer.js';
-import { renderNavigationDrawerContent } from './navigationDrawerRenderer.js';
+import { renderNavigationDrawerContent } from './navigationDrawerDisplay.js';
 import { showRouteTransitionLoader } from './routeTransitionLoader.js';
 import { resetPlayerDropdownState } from '../player/playerDropdownInputs.js';
 import { resetPlayerModalState } from '../player/playerModalInputs.js';

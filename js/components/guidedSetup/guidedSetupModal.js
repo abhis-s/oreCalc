@@ -27,7 +27,7 @@ export {
 
 export {
     renderHeroEquipmentList
-} from './guidedSetupHeroEquipmentRenderer.js';
+} from './guidedSetupHeroEquipmentDisplay.js';
 
 export {
     renderGuidedSetupTraderRows,

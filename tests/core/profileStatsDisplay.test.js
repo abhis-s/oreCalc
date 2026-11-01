@@ -1,8 +1,8 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderProfileStatsHtml } from '../../js/components/common/profileStatsRenderer.js';
+import { renderProfileStatsHtml } from '../../js/components/common/profileStatsDisplay.js';
 
-describe('Profile Stats Renderer Suite', () => {
+describe('Profile Stats Display Suite', () => {
     test('renders standardized overall progress container with data attributes', () => {
         const html = renderProfileStatsHtml({
             overall: {

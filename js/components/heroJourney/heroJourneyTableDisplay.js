@@ -7,7 +7,7 @@ import { getEffectiveQuestNodeTH, getQuestChestReward } from '../../domain/incom
 import { getResolvedEquipmentReward, resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
 import { getTranslatedEquipmentName, getResourceKey } from '../home/heroJourneyPopovers.js';
 import { hjState, buildStateFromPlayerData } from './heroJourneyState.js';
-import { getFilteredNodes, syncClaimSwitchPill } from './heroJourneyTrackRenderer.js';
+import { getFilteredNodes, syncClaimSwitchPill } from './heroJourneyTrackDisplay.js';
 
 /**
  * Resolves node display metadata for table rows without artificial badges.

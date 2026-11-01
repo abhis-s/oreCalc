@@ -6,10 +6,10 @@ import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { formatDisplayTag } from '../../core/storageKeys.js';
 
 import { formatNumber } from '../../utils/numberFormatter.js';
-import { formatClanRole } from '../common/profileHeaderRenderer.js';
+import { formatClanRole } from '../common/profileHeaderDisplay.js';
 
 import { calculateEquipmentProgress } from './guidedSetupEquipmentProgress.js';
-import { renderHeroEquipmentList } from './guidedSetupHeroEquipmentRenderer.js';
+import { renderHeroEquipmentList } from './guidedSetupHeroEquipmentDisplay.js';
 
 /**
  * Renders the master profile preview card (info and equipment tabs) for Guided Setup.

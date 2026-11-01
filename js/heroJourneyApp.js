@@ -42,13 +42,13 @@ import {
 } from './core/shellBootstrapper.js';
 import { initHeaderLayoutObserver, renderHeroJourneyPlayerDropdown } from './components/heroJourney/heroJourneyHeaderDisplay.js';
 import { initHeroJourneyPlayerDropdown, initHeroJourneyAddPlayerModal } from './components/heroJourney/heroJourneyHeaderInputs.js';
-import { renderPlayerSummary, resetHjRenderState } from './components/heroJourney/heroJourneyPlayerRenderer.js';
-import { renderTableView, updateTableFilterRowLayout, syncTableTheadHeight } from './components/heroJourney/heroJourneyTableRenderer.js';
+import { renderPlayerSummary, resetHjRenderState } from './components/heroJourney/heroJourneyPlayerDisplay.js';
+import { renderTableView, updateTableFilterRowLayout, syncTableTheadHeight } from './components/heroJourney/heroJourneyTableDisplay.js';
 import {
     renderTrackView,
     updateProgressBar,
     syncClaimSwitchPill
-} from './components/heroJourney/heroJourneyTrackRenderer.js';
+} from './components/heroJourney/heroJourneyTrackDisplay.js';
 import { getMaxCumulativeLevelsByTH, getMaxTownHallLevel } from './domain/income/heroJourneyLevels.js';
 import {
     initHeroJourneyControls,
@@ -57,7 +57,7 @@ import {
     syncTypeFiltersUI
 } from './components/heroJourney/heroJourneyControlsInputs.js';
 import { initDomainNotice } from './components/common/domainNotice.js';
-import { renderNavigationDrawerContent } from './components/common/navigationDrawerRenderer.js';
+import { renderNavigationDrawerContent } from './components/common/navigationDrawerDisplay.js';
 
 const resetFilters = () => handleResetFilters(hjState, renderUI);
 let isMounted = false;

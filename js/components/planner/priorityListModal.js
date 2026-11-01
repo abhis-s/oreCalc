@@ -28,7 +28,7 @@ export {
     setSuggestionsHidden,
     getPreviousValidPriorityOrder,
     setPreviousValidPriorityOrder
-} from './priorityListSuggestionsRenderer.js';
+} from './priorityListSuggestionsDisplay.js';
 
 export {
     initializePriorityListModal,

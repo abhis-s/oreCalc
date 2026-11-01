@@ -439,4 +439,23 @@ describe('File Casing & Extension Standards', () => {
             collisions.map(c => `  - ${c}`).join('\n')
         );
     });
+
+    test('zero legacy *Renderer.js presentation files exist across js/ (standardized to *Display.js)', () => {
+        const jsFiles = findFiles('js', ['.js']);
+        const legacyRendererFiles = [];
+
+        for (const filePath of jsFiles) {
+            const baseName = path.basename(filePath);
+            if (baseName.endsWith('Renderer.js') && baseName !== 'renderer.js') {
+                legacyRendererFiles.push(path.relative(projectRoot, filePath));
+            }
+        }
+
+        assert.deepEqual(
+            legacyRendererFiles,
+            [],
+            `Found ${legacyRendererFiles.length} legacy *Renderer.js file(s) (must be standardized to *Display.js):\n` +
+            legacyRendererFiles.map(f => `  - ${f}`).join('\n')
+        );
+    });
 });

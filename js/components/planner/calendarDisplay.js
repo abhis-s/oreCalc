@@ -5,12 +5,12 @@ import { state } from '../../core/state.js';
 import { checkAndGenerateRecurringChips } from '../../utils/chipManager.js';
 import { formatDate, getDateOfWeek, getISOWeekNumber, getMaxDate, getMinDate } from '../../utils/dateUtils.js';
 
-import { generateMonthGrid, generateWeekGrid } from './calendarGridRenderer.js';
+import { generateMonthGrid, generateWeekGrid } from './calendarGridDisplay.js';
 import {
     renderMonthChips,
     updateActiveChip,
     updateHeader
-} from './calendarMonthChipsRenderer.js';
+} from './calendarMonthChipsDisplay.js';
 import { getCurrentView, getEquipmentSchedule } from './calendarScheduler.js';
 import { renderIncomeChips } from './incomeChipsDisplay.js';
 

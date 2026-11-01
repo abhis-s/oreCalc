@@ -10,9 +10,9 @@ import {
 import { initHeroJourneyTrackKeyboardNav } from '../home/heroJourneyKeyboardNav.js';
 import { triggerHaptic } from '../../services/hapticService.js';
 import { hjState, buildStateFromPlayerData, syncPlayerToStorage } from './heroJourneyState.js';
-import { renderTrackView, syncClaimSwitchPill } from './heroJourneyTrackRenderer.js';
-import { renderTableView } from './heroJourneyTableRenderer.js';
-import { renderPlayerSummary } from './heroJourneyPlayerRenderer.js';
+import { renderTrackView, syncClaimSwitchPill } from './heroJourneyTrackDisplay.js';
+import { renderTableView } from './heroJourneyTableDisplay.js';
+import { renderPlayerSummary } from './heroJourneyPlayerDisplay.js';
 
 let hasAttachedHjControlsGlobalListeners = false;
 let hasAttachedHjScrollbarResize = false;

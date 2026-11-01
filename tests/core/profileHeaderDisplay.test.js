@@ -1,12 +1,12 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderProfileHeaderHtml, renderConnectProfileButtonHtml, getLeagueI18nKey } from '../../js/components/common/profileHeaderRenderer.js';
+import { renderProfileHeaderHtml, renderConnectProfileButtonHtml, getLeagueI18nKey } from '../../js/components/common/profileHeaderDisplay.js';
 import { translate } from '../../js/i18n/translator.js';
 import { renderState, resetRenderState, applyProgressDelta } from '../../js/components/home/homeProfileAnimations.js';
-import { resetHjRenderState } from '../../js/components/heroJourney/heroJourneyPlayerRenderer.js';
-import { renderHomeProfile } from '../../js/components/home/homeProfileRenderer.js';
+import { resetHjRenderState } from '../../js/components/heroJourney/heroJourneyPlayerDisplay.js';
+import { renderHomeProfile } from '../../js/components/home/homeProfileDisplay.js';
 
-describe('Profile Header Renderer Suite', () => {
+describe('Profile Header Display Suite', () => {
     describe('getLeagueI18nKey', () => {
         test('resolves unranked key for null or missing league data', () => {
             assert.strictEqual(getLeagueI18nKey(null), 'entities.leagues.unranked');

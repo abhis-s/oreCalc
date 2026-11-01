@@ -281,8 +281,8 @@ if (typeof globalThis.document === 'undefined') {
 const { state, getDefaultState } = await import('../../js/core/state.js');
 const { dom } = await import('../../js/dom/domElements.js');
 const { recalculateAll } = await import('../../js/core/calculator.js');
-const { renderHomeIncomeTable } = await import('../../js/components/home/homeTableRenderer.js');
-const { renderHomeResourcesFooter } = await import('../../js/components/home/homeResourcesRenderer.js');
+const { renderHomeIncomeTable } = await import('../../js/components/home/homeTableDisplay.js');
+const { renderHomeResourcesFooter } = await import('../../js/components/home/homeResourcesDisplay.js');
 const { renderIncomeCard } = await import('../../js/components/income/incomeCardHandler.js');
 const { renderRunningCostsData } = await import('../../js/components/appSettings/settingsModals.js');
 const { updatePerChipRewardsPreview } = await import('../../js/components/planner/createCustomChipsModalDisplay.js');

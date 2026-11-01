@@ -4,7 +4,7 @@
  */
 
 import { updateUIWithTranslations } from './i18n/uiTranslator.js';
-import { renderNavigationDrawerContent } from './components/common/navigationDrawerRenderer.js';
+import { renderNavigationDrawerContent } from './components/common/navigationDrawerDisplay.js';
 import { renderBottomNavBar } from './components/common/bottomNavBar.js';
 import {
     bootstrapShellLanguageAndStorage,

@@ -21,20 +21,20 @@ export {
     updateHeader,
     renderMonthChips,
     updateActiveChip
-} from './calendarMonthChipsRenderer.js';
+} from './calendarMonthChipsDisplay.js';
 
 export {
     createDayCell,
     generateMonthGrid,
     generateWeekGrid
-} from './calendarGridRenderer.js';
+} from './calendarGridDisplay.js';
 
 export {
     handleEquipmentBadgeMouseEnter,
     handleEquipmentBadgeMouseLeave,
     handleDayCellMouseEnter,
     handleDayCellMouseLeave
-} from './calendarMilestonesRenderer.js';
+} from './calendarMilestonesDisplay.js';
 
 export {
     shiftNext,

@@ -23,8 +23,8 @@ import {
     handleDayCellMouseLeave,
     handleEquipmentBadgeMouseEnter,
     handleEquipmentBadgeMouseLeave
-} from './calendarMilestonesRenderer.js';
-import { renderMonthChips } from './calendarMonthChipsRenderer.js';
+} from './calendarMilestonesDisplay.js';
+import { renderMonthChips } from './calendarMonthChipsDisplay.js';
 import { getCurrentView, getEquipmentSchedule } from './calendarScheduler.js';
 import { showDayOverviewPopover } from './dayOverviewPopover.js';
 import { renderIncomeChips } from './incomeChipsDisplay.js';

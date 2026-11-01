@@ -1,7 +1,7 @@
 import { translate } from '../i18n/translator.js';
 
 import { hideNativePopover, positionPopover, showNativePopover } from './inputPopoverPositioner.js';
-import { getButtonHotkey, renderPopoverContent } from './inputPopoverRenderer.js';
+import { getButtonHotkey, renderPopoverContent } from './inputPopoverDisplay.js';
 
 let activePopoverInstance = null;
 let isGlobalScrollResizeBound = false;

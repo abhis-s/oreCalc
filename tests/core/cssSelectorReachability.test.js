@@ -42,7 +42,7 @@ export const DYNAMIC_TEMPLATE_ALLOWLIST = [
     {
         name: 'ore-text-${ore}',
         pattern: /^ore-text-(?:shiny|glowy|starry)$/,
-        rationale: 'Dynamically constructed in js/components/planner/priorityListModalDisplay.js and heroJourneyTableRenderer.js via `ore-text-${resourceType}`'
+        rationale: 'Dynamically constructed in js/components/planner/priorityListModalDisplay.js and heroJourneyTableDisplay.js via `ore-text-${resourceType}`'
     },
     {
         name: 'ore-badge-${ore}',

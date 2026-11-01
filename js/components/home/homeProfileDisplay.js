@@ -1,8 +1,8 @@
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
-import { renderProfileHeaderHtml } from '../common/profileHeaderRenderer.js';
-import { renderProfileStatsHtml } from '../common/profileStatsRenderer.js';
+import { renderProfileHeaderHtml } from '../common/profileHeaderDisplay.js';
+import { renderProfileStatsHtml } from '../common/profileStatsDisplay.js';
 
 import {
     applyProgressDelta,

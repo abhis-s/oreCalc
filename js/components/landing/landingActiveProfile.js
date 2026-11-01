@@ -6,7 +6,7 @@ import { getCumulativeHeroLevel, getMaxCumulativeLevelsByTH } from '../../domain
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
-import { renderProfileHeaderHtml, getLeagueI18nKey, formatClanRole } from '../common/profileHeaderRenderer.js';
+import { renderProfileHeaderHtml, getLeagueI18nKey, formatClanRole } from '../common/profileHeaderDisplay.js';
 
 /**
  * Extracts and normalizes equipment and hero structures from cached player data.

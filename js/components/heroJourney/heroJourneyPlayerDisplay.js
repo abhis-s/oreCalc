@@ -7,8 +7,8 @@ import { resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResoluti
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { hjState, buildStateFromPlayerData } from './heroJourneyState.js';
-import { renderProfileHeaderHtml } from '../common/profileHeaderRenderer.js';
-import { renderProfileStatsHtml } from '../common/profileStatsRenderer.js';
+import { renderProfileHeaderHtml } from '../common/profileHeaderDisplay.js';
+import { renderProfileStatsHtml } from '../common/profileStatsDisplay.js';
 import { state as appGlobalState } from '../../core/state.js';
 import { getAppSettings } from '../common/appSettingsManager.js';
 

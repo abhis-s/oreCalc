@@ -3,7 +3,7 @@ import { heroJourneyNodes } from '../../data/heroJourneyData.js';
 import { getMaxCumulativeLevelsByTH, getMaxTownHallLevel, getNodeTownHallLevel, getTownHallStartLevel } from '../../domain/income/heroJourneyLevels.js';
 import { resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
 import { createNodeChipElement } from '../home/heroJourneyNodeBuilder.js';
-import { createTHStartDivider, createTHBoundaryDivider, createTHLimitBlockCard } from '../home/heroJourneyDividersRenderer.js';
+import { createTHStartDivider, createTHBoundaryDivider, createTHLimitBlockCard } from '../home/heroJourneyDividersDisplay.js';
 import {
     getActiveFilterKey,
     getStoredFilterScrollPosition,

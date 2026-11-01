@@ -3,7 +3,7 @@
  * Tier 4: Main Application Entrypoint for /account/
  */
 
-import { renderNavigationDrawerContent } from './components/common/navigationDrawerRenderer.js';
+import { renderNavigationDrawerContent } from './components/common/navigationDrawerDisplay.js';
 import { getLanguageFromPath } from './core/languageRouter.js';
 import { initializeState, state } from './core/state.js';
 import { handleStateUpdate } from './core/stateManager.js';

@@ -363,6 +363,23 @@ function runNamingChecks() {
         console.log('[OK] Zero colliding SCSS and JS filenames across subdirectories in css/ and js/.');
     }
 
+    // 10. Zero *Renderer.js presentation files across js/ (standardized to *Display.js)
+    const legacyRendererFiles = jsFiles
+        .map(f => path.relative(projectRoot, f).replace(/\\/g, '/'))
+        .filter(f => {
+            const base = path.basename(f);
+            return base.endsWith('Renderer.js') && base !== 'renderer.js';
+        });
+    if (legacyRendererFiles.length > 0) {
+        console.error(`[ERROR] Found ${legacyRendererFiles.length} legacy *Renderer.js file(s) (must be standardized to *Display.js):`);
+        for (const f of legacyRendererFiles) {
+            console.error(`        ${f}`);
+        }
+        hasErrors = true;
+    } else {
+        console.log('[OK] 100% of presentation modules follow the canonical *Display.js naming standard (zero *Renderer.js).');
+    }
+
     if (hasErrors) {
         console.error('\n[FAIL] DOM & BEM naming convention checks failed.');
         process.exit(1);

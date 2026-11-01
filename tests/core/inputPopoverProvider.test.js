@@ -287,7 +287,7 @@ describe('inputPopoverProvider - Mac Trackpad Click & Blur Lifecycle Suite', () 
     };
 
     test('getButtonHotkey and renderPopoverContent resolve hotkeys and custom labels', async () => {
-        const { getButtonHotkey, renderPopoverContent } = await import('../../js/utils/inputPopoverRenderer.js');
+        const { getButtonHotkey, renderPopoverContent } = await import('../../js/utils/inputPopoverDisplay.js');
 
         assert.equal(getButtonHotkey({ hotkey: 'k' }, 'Custom Label'), 'k');
         assert.equal(getButtonHotkey({}, 'Disable'), 'd');

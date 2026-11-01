@@ -389,25 +389,25 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
         assert.equal(violations.length, 0);
     });
 
-    test('Display and Renderer modules have zero state mutations and zero interactive event listeners', () => {
+    test('Display modules have zero state mutations and zero interactive event listeners', () => {
         const allSourceFiles = scanJsFiles('js');
-        const displayAndRendererFiles = allSourceFiles.filter(file => {
+        const displayFiles = allSourceFiles.filter(file => {
             const name = path.basename(file);
-            return name.endsWith('Display.js') || name.endsWith('Renderer.js');
+            return name.endsWith('Display.js');
         });
-        assert.ok(displayAndRendererFiles.length > 50, 'Must find display and renderer files');
+        assert.ok(displayFiles.length > 50, 'Must find display files');
 
         // Allowlisted composite controllers with presentation-only event triggers:
-        // - navigationDrawerRenderer: manages cross-app navigation links and drawer toggling
+        // - navigationDrawerDisplay: manages cross-app navigation links and drawer toggling
         // - priorityListModalDisplay: manages read-only priority ore popover positioning and dismissal (0 state mutations)
         const ALLOWED_RENDERER_INTERACTIONS = new Set([
-            'js/components/common/navigationDrawerRenderer.js',
+            'js/components/common/navigationDrawerDisplay.js',
             'js/components/planner/priorityListModalDisplay.js'
         ]);
 
         const violations = [];
 
-        for (const file of displayAndRendererFiles) {
+        for (const file of displayFiles) {
             const relPath = path.relative(projectRoot, file).replace(/\\/g, '/');
             const rawContent = fs.readFileSync(file, 'utf8');
             const content = stripComments(rawContent);
@@ -415,7 +415,7 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
             if (content.includes('handleStateUpdate')) {
                 violations.push({
                     file: relPath,
-                    reason: 'Display/Renderer module must never execute handleStateUpdate transactions'
+                    reason: 'Display module must never execute handleStateUpdate transactions'
                 });
             }
 
@@ -424,7 +424,7 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
             while ((stateMatch = stateMutationRegex.exec(content)) !== null) {
                 violations.push({
                     file: relPath,
-                    reason: `Display/Renderer module directly mutates global state: "${stateMatch[0]}"`
+                    reason: `Display module directly mutates global state: "${stateMatch[0]}"`
                 });
             }
 
@@ -432,15 +432,15 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
                 if (content.includes('addEventListener')) {
                     violations.push({
                         file: relPath,
-                        reason: 'Display/Renderer module must never attach event listeners directly (delegate to *Inputs.js)'
+                        reason: 'Display module must never attach event listeners directly (delegate to *Inputs.js)'
                     });
                 }
             }
         }
 
         if (violations.length > 0) {
-            const formatted = violations.map(v => `  - [DISPLAY/RENDERER VIOLATION] ${v.file}: ${v.reason}`).join('\n');
-            assert.fail(`Found ${violations.length} Display/Renderer purity violation(s):\n${formatted}`);
+            const formatted = violations.map(v => `  - [DISPLAY VIOLATION] ${v.file}: ${v.reason}`).join('\n');
+            assert.fail(`Found ${violations.length} Display purity violation(s):\n${formatted}`);
         }
         assert.equal(violations.length, 0);
     });
