@@ -38,14 +38,23 @@ describe('Layout & Viewport Hardening Contracts', () => {
     });
 
     describe('Universal Header Shell Accessibility Contracts', () => {
-        test('All three application headers utilize semantic button with aria-controls for hamburger', () => {
-            const hjHtml = fs.readFileSync(path.join(projectRoot, 'hero-journey/index.html'), 'utf8');
-            const headerHtml = fs.readFileSync(path.join(projectRoot, 'partials/header.html'), 'utf8');
-            const landingHtml = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
+        test('All five application headers utilize semantic button with canonical hamburger-button ID and aria-controls', () => {
+            const headerFiles = [
+                'index.html',
+                'partials/header.html',
+                'damage-calculator/index.html',
+                'hero-journey/index.html',
+                'account/index.html'
+            ];
 
-            assert.match(hjHtml, /<button[^>]*class="[^"]*hamburger[^"]*"[^>]*aria-controls="navigation-drawer"/);
-            assert.match(headerHtml, /<button[^>]*class="[^"]*hamburger[^"]*"[^>]*aria-controls="navigation-drawer"/);
-            assert.match(landingHtml, /<button[^>]*class="[^"]*hamburger[^"]*"[^>]*aria-controls="navigation-drawer"/);
+            for (const relPath of headerFiles) {
+                const html = fs.readFileSync(path.join(projectRoot, relPath), 'utf8');
+                assert.match(
+                    html,
+                    /<button[^>]*id="hamburger-button"[^>]*class="[^"]*app-header__hamburger[^"]*"[^>]*aria-controls="navigation-drawer"/,
+                    `${relPath} must define #hamburger-button with .app-header__hamburger and aria-controls="navigation-drawer"`
+                );
+            }
         });
     });
 });

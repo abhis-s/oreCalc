@@ -102,6 +102,7 @@ let landingSearchController = null;
  * @param {string} [activeAction='']
  */
 function updateLandingDrawer(activeAction = '') {
+    if (!isMounted) return;
     renderNavigationDrawerContent({
         activeTool: 'hub',
         activeView: activeAction,
@@ -250,21 +251,6 @@ async function initCommandCenter() {
         landingSearchController.updateToggleAddBtnState(false);
     }
 
-    document.addEventListener('languageChanged', () => {
-        const curTag = accountsManager.getActiveTag();
-        if (curTag) {
-            accountsManager.selectVillage(curTag);
-        } else {
-            updateToolLinks();
-            renderGuestTeasers();
-            updateLandingDrawer();
-        }
-        const currentProfiles = getSavedProfiles();
-        if (currentProfiles.length > 0 && curTag) {
-            renderAccountsGrid(currentProfiles, curTag, accountsManager.selectVillage, accountsManager.handleDeleteVillage);
-        }
-    });
-
     initToolCardsLayoutObserver();
 }
 
@@ -272,7 +258,7 @@ async function initCommandCenter() {
  * Synchronizes landing portal state upon cross-tab player storage changes.
  */
 function refreshLandingPortal() {
-    if (!landingAccountsManager) return;
+    if (!isMounted || !landingAccountsManager) return;
     const currentProfiles = getSavedProfiles();
     if (currentProfiles.length === 0) {
         if (typeof document !== 'undefined' && document?.documentElement?.classList) {
@@ -366,6 +352,21 @@ function initLandingCrossTabSync() {
             refreshLandingPortal();
         }
     });
+    document.addEventListener('languageChanged', () => {
+        if (!isMounted || !landingAccountsManager) return;
+        const curTag = landingAccountsManager.getActiveTag();
+        if (curTag) {
+            landingAccountsManager.selectVillage(curTag);
+        } else {
+            updateToolLinks();
+            renderGuestTeasers();
+            updateLandingDrawer();
+        }
+        const currentProfiles = getSavedProfiles();
+        if (currentProfiles.length > 0 && curTag) {
+            renderAccountsGrid(currentProfiles, curTag, landingAccountsManager.selectVillage, landingAccountsManager.handleDeleteVillage);
+        }
+    });
 }
 
 /**
@@ -386,7 +387,7 @@ function initHeaderScroll() {
 function initLandingDrawer() {
     const drawerEl = document.getElementById('navigation-drawer');
     const overlayEl = document.querySelector('.navigation-drawer__overlay');
-    const buttonEl = document.getElementById('landing-hamburger-btn');
+    const buttonEl = document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
     const closeEl = drawerEl?.querySelector('.navigation-drawer__close') || null;
 
     if (!drawerEl || !buttonEl) return;
@@ -405,13 +406,16 @@ function initLandingDrawer() {
 }
 
 let isMounted = false;
+let hasAttachedLandingListeners = false;
 
 /**
  * Mounts the Landing Portal application.
+ * @param {Object} [options={}]
+ * @param {boolean} [options.force=false]
  * @returns {Promise<void>}
  */
-export async function mount() {
-    if (isMounted) return;
+export async function mount(options = {}) {
+    if (isMounted && !options.force) return;
     isMounted = true;
 
     registerGlobalErrorBoundaries();
@@ -448,7 +452,10 @@ export async function mount() {
     initAppFooter();
     initializePwaService();
     initLandingDrawer();
-    initLandingCrossTabSync();
+    if (!hasAttachedLandingListeners) {
+        hasAttachedLandingListeners = true;
+        initLandingCrossTabSync();
+    }
     initExternalLinkCatcher();
     initializeAuthModal();
     initializeSettingsAccount();
@@ -472,6 +479,7 @@ export function destroy() {
     if (!isMounted) return;
     isMounted = false;
 
+    landingAccountsManager?.destroy?.();
     landingDrawerInstance?.destroy?.();
     landingAccountsManager = null;
     landingSearchController = null;

@@ -9,15 +9,27 @@ import { autoScrollToCompletedNode, getActiveFilterKey, isAutoScrolling, saveCur
 import { initHeroJourneyTrackKeyboardNav } from './heroJourneyKeyboardNav.js';
 import { triggerHaptic } from '../../services/hapticService.js';
 
-let isBound = false;
+const boundHomeHjCards = new WeakSet();
+let hasAttachedHomeHjLangListener = false;
 
 /**
  * Initializes and binds all event listeners for the Hero's Journey component.
  * @param {import('../../core/types.js').AppState} state - Current global application state.
  */
 export function setupHeroJourneyInputs(state) {
-    if (isBound) return;
-    isBound = true;
+    if (!hasAttachedHomeHjLangListener && typeof document !== 'undefined') {
+        hasAttachedHomeHjLangListener = true;
+        document.addEventListener('languageChanged', () => {
+            if (!document.getElementById('orecalc-home-hero-journey-card')) return;
+            renderHeroJourneyDisplay(state, { skipAutoScroll: true });
+        });
+    }
+
+    const card = typeof document !== 'undefined'
+        ? (document.getElementById('orecalc-home-hero-journey-card') || document.getElementById('hero-journey-track-card') || document.querySelector('.hero-journey-card'))
+        : null;
+    if (card && boundHomeHjCards.has(card)) return;
+    if (card) boundHomeHjCards.add(card);
 
     const acceleratedSwitch = /** @type {HTMLInputElement | null} */ (document.getElementById('home-hj-accelerated-switch'));
     if (acceleratedSwitch) {
@@ -370,7 +382,6 @@ export function setupHeroJourneyInputs(state) {
         });
     }
 
-    const card = document.getElementById('orecalc-home-hero-journey-card') || document.getElementById('hero-journey-track-card') || document.querySelector('.hero-journey-card');
     if (card) {
         card.addEventListener('click', (e) => {
             const target = /** @type {HTMLElement} */ (e.target);
@@ -384,10 +395,6 @@ export function setupHeroJourneyInputs(state) {
             }
         });
     }
-
-    document.addEventListener('languageChanged', () => {
-        renderHeroJourneyDisplay(state, { skipAutoScroll: true });
-    });
 
     setupMountainClusterTouchInteractions();
 }

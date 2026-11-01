@@ -28,7 +28,8 @@ import { openLevelSelectModal } from './levelSelectModal.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 import { initPriorityDragAndDrop } from './priorityListDragDropController.js';
 
-let isPriorityModalInitialized = false;
+const boundPriorityModals = new WeakSet();
+let hasAttachedPriorityUpdatedListener = false;
 
 /**
  * Handles deleting a specific upgrade step from the priority queue.
@@ -68,11 +69,18 @@ function deletePriorityStep(heroName, equipName, stepNum) {
  * Initializes DOM event listeners for the priority list modal.
  */
 export function initializePriorityListModal() {
-    if (isPriorityModalInitialized) return;
-    isPriorityModalInitialized = true;
+    if (!hasAttachedPriorityUpdatedListener && typeof document !== 'undefined') {
+        hasAttachedPriorityUpdatedListener = true;
+        document.addEventListener('priorityListUpdated', () => {
+            renderDraggableList();
+        });
+    }
+
+    const modal = document.getElementById('priority-list-modal');
+    if (!modal || boundPriorityModals.has(modal)) return;
+    boundPriorityModals.add(modal);
 
     initializeStoredOresModal();
-    const modal = document.getElementById('priority-list-modal');
     const closeBtn = document.getElementById('close-priority-list-modal-btn');
     const resetButton = document.getElementById('reset-priority-list-modal-btn');
     const unhideBtn = document.getElementById('unhide-suggestion-btn');
@@ -92,31 +100,29 @@ export function initializePriorityListModal() {
         });
     }
 
-    if (modal) {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'class' && !modal.classList.contains('show')) {
-                    const prevOrder = getPreviousValidPriorityOrder();
-                    if (prevOrder !== null && prevOrder.length > 0) {
-                        handleStateUpdate(() => {
-                            prevOrder.forEach((savedItem) => {
-                                const plan = state.heroes[savedItem.heroName]?.equipment[savedItem.equipName]?.upgradePlan[savedItem.step];
-                                if (plan) {
-                                    plan.priorityIndex = savedItem.priorityIndex;
-                                }
-                            });
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class' && !modal.classList.contains('show')) {
+                const prevOrder = getPreviousValidPriorityOrder();
+                if (prevOrder !== null && prevOrder.length > 0) {
+                    handleStateUpdate(() => {
+                        prevOrder.forEach((savedItem) => {
+                            const plan = state.heroes[savedItem.heroName]?.equipment[savedItem.equipName]?.upgradePlan[savedItem.step];
+                            if (plan) {
+                                plan.priorityIndex = savedItem.priorityIndex;
+                            }
                         });
-                        setPreviousValidPriorityOrder(null);
-                    }
+                    });
+                    setPreviousValidPriorityOrder(null);
                 }
-            });
+            }
         });
-        observer.observe(modal, { attributes: true });
-    }
+    });
+    observer.observe(modal, { attributes: true });
 
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
-            if (modal) closeModalAnimated(modal);
+            closeModalAnimated(modal);
         });
     }
 
@@ -140,10 +146,6 @@ export function initializePriorityListModal() {
             document.dispatchEvent(new CustomEvent('priorityListUpdated'));
         });
     }
-
-    document.addEventListener('priorityListUpdated', () => {
-        renderDraggableList();
-    });
 
     /**
      * @param {HTMLElement} chip

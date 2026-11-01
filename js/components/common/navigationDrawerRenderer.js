@@ -15,6 +15,7 @@ import { initializeChangelogModal, showChangelogModal } from '../changelog/chang
 import { openBugReportModal, openContactModal } from '../appSettings/settingsSupportModals.js';
 import { getChangelogHtml } from '../../services/changelogService.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
+import { resolveAppRoute } from '../../core/appShellNavigator.js';
 
 const escapeHtml = escapeHTML;
 
@@ -247,16 +248,8 @@ export function renderNavigationDrawerContent(options = {}) {
     const drawer = /** @type {HTMLElement | null} */ (options.drawerEl || document.getElementById('navigation-drawer') || document.querySelector('.navigation-drawer'));
     if (!drawer) return;
 
-    let activeTool = options.activeTool;
-    if (!activeTool) {
-        const path = typeof window !== 'undefined' ? window.location.pathname : '';
-        if (path.includes('/damage-calculator')) activeTool = 'damage-calculator';
-        else if (path.includes('/hero-journey')) activeTool = 'hero-journey';
-        else if (path.includes('/ore-calculator')) activeTool = 'ore-calculator';
-        else if (path.includes('/account')) activeTool = 'account';
-        else if (path === '/' || /^\/[a-z-]+\/?$/.test(path)) activeTool = 'hub';
-        else activeTool = 'ore-calculator';
-    }
+    const currentRoute = typeof window !== 'undefined' && window.location?.pathname ? resolveAppRoute(window.location.pathname) : null;
+    let activeTool = currentRoute || options.activeTool || 'hub';
     const activeView = options.activeView || '';
     const currentLang = getLanguageFromPath() || 'en';
     const langPrefix = currentLang === 'en' ? '' : `/${currentLang}`;

@@ -11,7 +11,7 @@ import { renderProfilePreviewCard } from './guidedSetupProfileDisplay.js';
 import { goToNextStep, goToPrevStep, goToStep, skipSetup } from './guidedSetupNavigation.js';
 import { enhanceClipboardInput, triggerAutoPaste } from '../common/clipboardInputController.js';
 
-let isGuidedSetupInitialized = false;
+const boundGuidedSetupModals = new WeakSet();
 
 /**
  * Opens the Guided Setup modal dialog.
@@ -23,7 +23,7 @@ export function openGuidedSetupModal(options = {}) {
     const modal = /** @type {HTMLDialogElement|null} */ (document.getElementById('guided-setup-modal'));
     if (!modal) return;
 
-    if (!isGuidedSetupInitialized) {
+    if (!boundGuidedSetupModals.has(modal)) {
         initializeGuidedSetupModal();
     }
 
@@ -108,11 +108,9 @@ export function closeGuidedSetupModal() {
  * Initializes Guided Setup modal event listeners, navigation buttons, and child inputs.
  */
 export function initializeGuidedSetupModal() {
-    if (isGuidedSetupInitialized) return;
-    isGuidedSetupInitialized = true;
-
     const modal = document.getElementById('guided-setup-modal');
-    if (!modal) return;
+    if (!modal || boundGuidedSetupModals.has(modal)) return;
+    boundGuidedSetupModals.add(modal);
 
     const nextBtn = document.getElementById('guided-setup-next-btn');
     const backBtn = document.getElementById('guided-setup-back-btn');

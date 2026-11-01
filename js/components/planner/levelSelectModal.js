@@ -24,7 +24,7 @@ import {
 
 let currentEquipment = null;
 let currentHero = null;
-let isInitialized = false;
+const boundLevelSelectModals = new WeakSet();
 
 /**
  * Resolves the effective preceding level lower bound for a given step index from DOM rows.
@@ -321,9 +321,10 @@ function registerRowInputs() {
  * Initializes modal DOM elements and binds top-level click listeners.
  */
 function ensureModalInitialized() {
-    if (isInitialized && document.getElementById('level-select-modal')) return;
-
     const modal = ensureLevelSelectModalInDOM();
+    if (!modal || boundLevelSelectModals.has(modal)) return;
+    boundLevelSelectModals.add(modal);
+
     const closeBtn = document.getElementById('close-level-select-modal-btn');
     const saveBtn = document.getElementById('level-select-modal-save-btn');
     const tbody = /** @type {HTMLElement | null} */ (document.querySelector('#level-select-table tbody'));
@@ -339,7 +340,6 @@ function ensureModalInitialized() {
     if (tbody) populateTableRows(tbody);
     registerRowInputs();
     initTableInteractions();
-    isInitialized = true;
 }
 
 /**

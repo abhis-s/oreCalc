@@ -13,10 +13,22 @@ import { bindSelectInput } from '../common/formBindingUtils.js';
 import { openBugReportModal } from '../appSettings/settingsSupportModals.js';
 import { dom } from '../../dom/domElements.js';
 
+let hasAttachedIncomeHelpListeners = false;
+
 /**
  * Initializes global income card event listeners, help popovers, and timeframe selector.
  */
 export function initializeIncomeCardHandler() {
+    const timeframeSelect = dom.income?.home?.incomeCard?.timeframe;
+    bindSelectInput(timeframeSelect, {
+        onUpdate: (value) => {
+            state.uiSettings.summaryTimeframe = value;
+        }
+    });
+
+    if (hasAttachedIncomeHelpListeners) return;
+    hasAttachedIncomeHelpListeners = true;
+
     let activeHelpBtn = null;
 
     const hideHelpPopover = () => {
@@ -76,7 +88,10 @@ export function initializeIncomeCardHandler() {
         return { body, footer };
     };
 
+    const isOreCalcRoute = () => typeof window === 'undefined' || !window.location?.pathname || window.location.pathname.includes('/ore-calculator');
+
     document.addEventListener('click', (e) => {
+        if (!isOreCalcRoute()) return;
         const isNodeChipOrPopover = e.target.closest('.hero-journey-node-chip, .card-help-popover');
         if (isNodeChipOrPopover) return;
 
@@ -100,6 +115,7 @@ export function initializeIncomeCardHandler() {
     });
 
     document.addEventListener('mouseover', (e) => {
+        if (!isOreCalcRoute()) return;
         if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
         const targetBtn = /** @type {HTMLElement | null} */ (e.target)?.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, .info-button, [data-info]');
         if (targetBtn && activeHelpBtn !== targetBtn) {
@@ -111,6 +127,7 @@ export function initializeIncomeCardHandler() {
     });
 
     document.addEventListener('mouseout', (e) => {
+        if (!isOreCalcRoute()) return;
         if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
         const targetBtn = /** @type {HTMLElement | null} */ (e.target)?.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, .info-button, [data-info]');
         if (targetBtn && activeHelpBtn === targetBtn) {
@@ -123,13 +140,6 @@ export function initializeIncomeCardHandler() {
 
     window.addEventListener('scroll', hideHelpPopover, { capture: true, passive: true });
     window.addEventListener('resize', hideHelpPopover, { passive: true });
-
-    const timeframeSelect = dom.income?.home?.incomeCard?.timeframe;
-    bindSelectInput(timeframeSelect, {
-        onUpdate: (value) => {
-            state.uiSettings.summaryTimeframe = value;
-        }
-    });
 }
 
 /**

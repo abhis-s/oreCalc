@@ -14,6 +14,11 @@ import { renderTrackView, syncClaimSwitchPill } from './heroJourneyTrackRenderer
 import { renderTableView } from './heroJourneyTableRenderer.js';
 import { renderPlayerSummary } from './heroJourneyPlayerRenderer.js';
 
+let hasAttachedHjControlsGlobalListeners = false;
+let hasAttachedHjScrollbarResize = false;
+/** @type {(() => void) | null} */
+let activeResetFiltersFn = null;
+
 /**
  * Synchronizes type filter buttons and select dropdowns across all filter bars.
  * @param {any} [hjState=null] - Hero Journey application state.
@@ -56,6 +61,7 @@ export function resetFilters(hjState, renderUI) {
  * @param {() => void} resetFiltersFn - Reset filters callback.
  */
 export function initHeroJourneyControls(hjState, renderUI, resetFiltersFn) {
+    activeResetFiltersFn = resetFiltersFn;
     const accelSwitch = document.getElementById('home-hj-accelerated-switch');
     if (accelSwitch) {
         accelSwitch.addEventListener('change', (e) => {
@@ -231,49 +237,58 @@ export function initHeroJourneyControls(hjState, renderUI, resetFiltersFn) {
         });
     }
 
-    document.addEventListener('click', (e) => {
-        const target = /** @type {HTMLElement} */ (e.target);
-        const btn = /** @type {HTMLElement | null} */ (target.closest('[data-info], .info-btn, .info-button'));
-        if (btn) {
-            e.stopPropagation();
-            const key = btn.getAttribute('data-info');
-            if (key) {
-                const text = translate(key);
-                showCardHelpPopover(btn, text, { isToggle: true });
-            }
-        }
+    if (!hasAttachedHjControlsGlobalListeners && typeof document !== 'undefined') {
+        hasAttachedHjControlsGlobalListeners = true;
 
-        const clearFilterBtn = target.closest('#hj-table-clear-filters-btn, #hj-clear-filters-btn, #hj-reset-filters-btn');
-        if (clearFilterBtn) {
-            resetFiltersFn();
-            return;
-        }
-    });
+        const isHeroJourneyRoute = () => typeof window === 'undefined' || !window.location?.pathname || window.location.pathname.includes('/hero-journey');
 
-    document.addEventListener('mouseover', (e) => {
-        if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-        const target = /** @type {HTMLElement} */ (e.target);
-        const btn = /** @type {HTMLElement | null} */ (target.closest('[data-info], .info-btn, .info-button'));
-        if (btn) {
-            const key = btn.getAttribute('data-info');
-            if (key) {
-                const text = translate(key);
-                showCardHelpPopover(btn, text, { isToggle: false });
+        document.addEventListener('click', (e) => {
+            if (!isHeroJourneyRoute()) return;
+            const target = /** @type {HTMLElement} */ (e.target);
+            const btn = /** @type {HTMLElement | null} */ (target?.closest?.('[data-info], .info-btn, .info-button'));
+            if (btn) {
+                e.stopPropagation();
+                const key = btn.getAttribute('data-info');
+                if (key) {
+                    const text = translate(key);
+                    showCardHelpPopover(btn, text, { isToggle: true });
+                }
             }
-        }
-    });
 
-    document.addEventListener('mouseout', (e) => {
-        if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-        const target = /** @type {HTMLElement} */ (e.target);
-        const btn = /** @type {HTMLElement | null} */ (target.closest('[data-info], .info-btn, .info-button'));
-        if (btn) {
-            const related = /** @type {Node | null} */ (e.relatedTarget);
-            if (!related || (!btn.contains(related) && !document.getElementById('card-help-popover')?.contains(related))) {
-                hideCardHelpPopover();
+            const clearFilterBtn = target?.closest?.('#hj-table-clear-filters-btn, #hj-clear-filters-btn, #hj-reset-filters-btn');
+            if (clearFilterBtn) {
+                activeResetFiltersFn?.();
+                return;
             }
-        }
-    });
+        });
+
+        document.addEventListener('mouseover', (e) => {
+            if (!isHeroJourneyRoute()) return;
+            if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+            const target = /** @type {HTMLElement} */ (e.target);
+            const btn = /** @type {HTMLElement | null} */ (target?.closest?.('[data-info], .info-btn, .info-button'));
+            if (btn) {
+                const key = btn.getAttribute('data-info');
+                if (key) {
+                    const text = translate(key);
+                    showCardHelpPopover(btn, text, { isToggle: false });
+                }
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            if (!isHeroJourneyRoute()) return;
+            if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+            const target = /** @type {HTMLElement} */ (e.target);
+            const btn = /** @type {HTMLElement | null} */ (target?.closest?.('[data-info], .info-btn, .info-button'));
+            if (btn) {
+                const related = /** @type {Node | null} */ (e.relatedTarget);
+                if (!related || (!btn.contains(related) && !document.getElementById('card-help-popover')?.contains(related))) {
+                    hideCardHelpPopover();
+                }
+            }
+        });
+    }
 }
 
 /**
@@ -474,8 +489,12 @@ export function initCustomScrollbar() {
         }
     });
 
-    window.addEventListener('resize', () => {
-        const state = buildStateFromPlayerData(hjState.playerData, hjState);
-        updateCustomScrollbar(isDraggingBar, state);
-    }, { passive: true });
+    if (!hasAttachedHjScrollbarResize && typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+        hasAttachedHjScrollbarResize = true;
+        window.addEventListener('resize', () => {
+            if (!document.getElementById('home-hj-track-wrapper')) return;
+            const state = buildStateFromPlayerData(hjState.playerData, hjState);
+            updateCustomScrollbar(false, state);
+        }, { passive: true });
+    }
 }

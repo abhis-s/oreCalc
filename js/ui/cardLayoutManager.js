@@ -122,6 +122,7 @@ export function initCardLayoutManager() {
 
         initCardDragReordering(layout, currentMode, isCompact, repackCards);
 
+        layout.resizeObserver?.disconnect();
         layout.resizeObserver = new ResizeObserver((entries) => {
             onContainerResize(layout, entries, isCompact, currentMode);
         });

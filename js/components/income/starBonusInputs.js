@@ -15,6 +15,8 @@ import {
     renderTHPlanningSection as renderTHPlanningSectionDisplay
 } from './starBonusDisplay.js';
 
+let hasAttachedStarBonusLangListener = false;
+
 function renderLastEventOptions() {
     const select = dom.income?.starBonus?.lastEventSelect;
     if (!select) return;
@@ -251,11 +253,14 @@ export function initializeStarBonusSelector() {
         });
     }
 
-    document.addEventListener('languageChanged', () => {
-        renderStarBonusSelectorContent();
-        renderTHPlanningSection();
-        renderLastEventOptions();
-    });
+    if (!hasAttachedStarBonusLangListener) {
+        hasAttachedStarBonusLangListener = true;
+        document.addEventListener('languageChanged', () => {
+            renderStarBonusSelectorContent();
+            renderTHPlanningSection();
+            renderLastEventOptions();
+        });
+    }
     renderStarBonusSelectorContent();
     renderTHPlanningSection();
     renderLastEventOptions();

@@ -13,6 +13,7 @@ import { hideCardHelpPopover } from './cardHelpPopover.js';
 let modalStack = [];
 let isPoppingForClose = false;
 let isModalPopping = false;
+let suppressHistoryPop = false;
 
 /**
  * Indicates whether a popstate event was triggered by modal/drawer closure or trapped by an active modal.
@@ -142,23 +143,27 @@ export function closeModalAnimated(modalOrId, callback) {
         }
 
         if (modal.id === 'nav-drawer' || modal.id === 'navigation-drawer' || modal.classList.contains('nav-drawer') || modal.classList.contains('navigation-drawer')) {
-            document.body.classList.remove('open-drawer');
+            document.body?.classList?.remove('open-drawer');
             modal.style.transform = '';
         }
         if (modal.id === 'fab-menu' || modal.classList.contains('fab-menu')) {
-            document.body.classList.remove('open-fab');
+            document.body?.classList?.remove('open-fab');
         }
 
-        const visibleModals = document.querySelectorAll('.modal.show, .dialog-overlay.show, dialog.modal[open], dialog.navigation-drawer[open]');
-        if (visibleModals.length === 0) {
-            const overlays = document.querySelectorAll('#overlay, #nav-drawer-overlay, .modal-overlay, .dialog-overlay');
-            overlays.forEach(o => {
-                o.classList.remove('show', 'active', 'closing');
-                o.style.opacity = '';
-            });
+        if (typeof document !== 'undefined' && typeof document.querySelectorAll === 'function') {
+            const visibleModals = document.querySelectorAll('.modal.show, .dialog-overlay.show, dialog.modal[open], dialog.navigation-drawer[open]');
+            if (visibleModals.length === 0) {
+                const overlays = document.querySelectorAll('#overlay, #nav-drawer-overlay, .modal-overlay, .dialog-overlay');
+                overlays.forEach(o => {
+                    o.classList.remove('show', 'active', 'closing');
+                    o.style.opacity = '';
+                });
+            }
         }
         handleModalStateChange(modal, false);
-        modal.dispatchEvent(new CustomEvent('modalClosed', { bubbles: true }));
+        if (typeof modal.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
+            modal.dispatchEvent(new CustomEvent('modalClosed', { bubbles: true }));
+        }
         if (callback) callback();
     }, MOTION_DURATION_EXIT_MS);
 }
@@ -178,171 +183,191 @@ function closeTargetModal(item) {
     }
 }
 
+const boundHistoryDocs = new WeakSet();
+/** @type {MutationObserver | null} */
+let activeHistoryObserver = null;
+
+/**
+ * Observes a modal or drawer element for class and open attribute changes.
+ * @param {any} el
+ */
+function observeModalTarget(el) {
+    if (!el || el.__historyObserverAttached || el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
+    el.__historyObserverAttached = true;
+
+    // Ensure ARIA semantics and accessible name
+    if (typeof el.hasAttribute === 'function' && !el.hasAttribute('role') && (el.classList?.contains?.('modal') || el.classList?.contains?.('dialog-overlay') || el.tagName === 'DIALOG')) {
+        if (typeof el.setAttribute === 'function') {
+            el.setAttribute('role', 'dialog');
+            el.setAttribute('aria-modal', 'true');
+        }
+    }
+
+    if (typeof el.getAttribute === 'function' && (el.getAttribute('role') === 'dialog' || el.classList?.contains?.('modal') || el.tagName === 'DIALOG')) {
+        if (typeof el.hasAttribute === 'function' && !el.hasAttribute('aria-labelledby') && !el.hasAttribute('aria-label')) {
+            const heading = typeof el.querySelector === 'function'
+                ? el.querySelector('.modal-header h1, .modal-header h2, .modal-header h3, h1, h2, h3')
+                : null;
+            if (heading) {
+                if (!heading.id) {
+                    heading.id = `${el.id || 'modal'}-title`;
+                }
+                if (typeof el.setAttribute === 'function') el.setAttribute('aria-labelledby', heading.id);
+            } else if (el.id) {
+                const fallbackName = el.id.replace(/-modal$/, '').replace(/-/g, ' ');
+                if (typeof el.setAttribute === 'function') el.setAttribute('aria-label', fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1));
+            }
+        }
+    }
+
+    if (typeof el.addEventListener === 'function') {
+        // Native cancel event listener (fired on Escape key in native dialogs)
+        el.addEventListener('cancel', (e) => {
+            e.preventDefault();
+            if (el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
+            closeModalAnimated(el);
+        });
+
+        // Native backdrop click listener: clicks on the <dialog> element itself (outside .modal-content)
+        el.addEventListener('click', (e) => {
+            if (e.target === el) {
+                if (el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
+                closeModalAnimated(el);
+            }
+        });
+    }
+
+    if (activeHistoryObserver && typeof activeHistoryObserver.observe === 'function') {
+        activeHistoryObserver.observe(el, {
+            attributes: true,
+            attributeFilter: ['class', 'open']
+        });
+    }
+}
+
 /**
  * Initializes browser history stack integration and popstate listeners for nested modal dialogs.
  */
 export function initializeModalHistoryManager() {
-    // Smoothly animate modal dismiss when close/cancel/X buttons are clicked
-    document.addEventListener('click', (e) => {
-        const closeBtn = e.target.closest('.close-button, [data-action="close"], [data-modal-dismiss]');
-        if (!closeBtn) return;
+    if (typeof document === 'undefined') return;
 
-        const modal = closeBtn.closest('.modal, dialog, .dialog-overlay');
-        const isOpen = modal && (modal.classList.contains('show') || modal.open);
-        if (modal && modal.id !== 'guided-setup-modal' && modal.id !== 'notice-modal' && isOpen && !modal.classList.contains('closing')) {
-            closeModalAnimated(modal);
-        }
-    });
+    if (!boundHistoryDocs.has(document)) {
+        boundHistoryDocs.add(document);
 
-    // Escape key modal dismissal fallback for standard DOM elements
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' || e.key === 'Esc') {
-            if (modalStack.length > 0) {
-                const topModal = modalStack.at(-1);
-                if (topModal && topModal.element && topModal.element.id !== 'guided-setup-modal' && topModal.element.id !== 'notice-modal') {
-                    closeTargetModal(topModal);
-                }
+        // Smoothly animate modal dismiss when close/cancel/X buttons are clicked
+        document.addEventListener('click', (e) => {
+            const closeBtn = e.target?.closest?.('.close-button, [data-action="close"], [data-modal-dismiss]');
+            if (!closeBtn) return;
+
+            const modal = closeBtn.closest('.modal, dialog, .dialog-overlay');
+            const isOpen = modal && (modal.classList.contains('show') || modal.open);
+            if (modal && modal.id !== 'guided-setup-modal' && modal.id !== 'notice-modal' && isOpen && !modal.classList.contains('closing')) {
+                closeModalAnimated(modal);
             }
-        }
-    });
+        });
 
-    // Intercept back navigation gestures & buttons
-    window.addEventListener('popstate', () => {
-        if (isPoppingForClose) {
-            queueMicrotask(() => {
-                isPoppingForClose = false;
-            });
-            return;
-        }
-
-        if (modalStack.length > 0) {
-            isModalPopping = true;
-            queueMicrotask(() => {
-                isModalPopping = false;
-            });
-            const topModal = modalStack.pop();
-            closeTargetModal(topModal);
-        }
-    });
-
-    // Observe specific modal & drawer elements for class and open attribute changes
-    const observeModalTarget = (el) => {
-        if (!el || el.__historyObserverAttached || el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
-        el.__historyObserverAttached = true;
-
-        // Ensure ARIA semantics and accessible name
-        if (typeof el.hasAttribute === 'function' && !el.hasAttribute('role') && (el.classList?.contains?.('modal') || el.classList?.contains?.('dialog-overlay') || el.tagName === 'DIALOG')) {
-            if (typeof el.setAttribute === 'function') {
-                el.setAttribute('role', 'dialog');
-                el.setAttribute('aria-modal', 'true');
-            }
-        }
-
-        if (typeof el.getAttribute === 'function' && (el.getAttribute('role') === 'dialog' || el.classList?.contains?.('modal') || el.tagName === 'DIALOG')) {
-            if (typeof el.hasAttribute === 'function' && !el.hasAttribute('aria-labelledby') && !el.hasAttribute('aria-label')) {
-                const heading = typeof el.querySelector === 'function'
-                    ? el.querySelector('.modal-header h1, .modal-header h2, .modal-header h3, h1, h2, h3')
-                    : null;
-                if (heading) {
-                    if (!heading.id) {
-                        heading.id = `${el.id || 'modal'}-title`;
+        // Escape key modal dismissal fallback for standard DOM elements
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                if (modalStack.length > 0) {
+                    const topModal = modalStack.at(-1);
+                    if (topModal && topModal.element && topModal.element.id !== 'guided-setup-modal' && topModal.element.id !== 'notice-modal') {
+                        closeTargetModal(topModal);
                     }
-                    if (typeof el.setAttribute === 'function') el.setAttribute('aria-labelledby', heading.id);
-                } else if (el.id) {
-                    const fallbackName = el.id.replace(/-modal$/, '').replace(/-/g, ' ');
-                    if (typeof el.setAttribute === 'function') el.setAttribute('aria-label', fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1));
-                }
-            }
-        }
-
-        if (typeof el.addEventListener === 'function') {
-            // Native cancel event listener (fired on Escape key in native dialogs)
-            el.addEventListener('cancel', (e) => {
-                e.preventDefault();
-                if (el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
-                closeModalAnimated(el);
-            });
-
-            // Native backdrop click listener: clicks on the <dialog> element itself (outside .modal-content)
-            el.addEventListener('click', (e) => {
-                if (e.target === el) {
-                    if (el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
-                    closeModalAnimated(el);
-                }
-            });
-        }
-
-        if (observer && typeof observer.observe === 'function') {
-            observer.observe(el, {
-                attributes: true,
-                attributeFilter: ['class', 'open']
-            });
-        }
-    };
-
-    // Observe body & document tree for modal/drawer visibility changes
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList' && mutation.addedNodes) {
-                mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === 1) { // Node.ELEMENT_NODE
-                        if (node.matches && (node.matches('dialog, .modal, .dialog-overlay, .nav-drawer, .navigation-drawer') || node.id === 'level-select-modal')) {
-                            observeModalTarget(node);
-                        }
-                        if (node.querySelectorAll) {
-                            const nestedModals = node.querySelectorAll('dialog, .modal, .dialog-overlay, .nav-drawer, .navigation-drawer');
-                            nestedModals.forEach(observeModalTarget);
-                        }
-                    }
-                });
-                return;
-            }
-
-            const target = mutation.target;
-
-            // Target check: modals, dialog overlays, side drawer, FAB menu (excluding guided-setup-modal and notice-modal)
-            const isModal = ((target.classList.contains('modal') || target.tagName === 'DIALOG') && target.id !== 'guided-setup-modal' && target.id !== 'notice-modal') ||
-                            target.classList.contains('dialog-overlay') ||
-                            target.classList.contains('nav-drawer') ||
-                            target.classList.contains('navigation-drawer') ||
-                            target.id === 'nav-drawer' ||
-                            target.id === 'navigation-drawer' ||
-                            target.id === 'priority-list-modal' ||
-                            target.id === 'equipment-details-modal' ||
-                            target.id === 'changelog-modal' ||
-                            target.id === 'commits-modal' ||
-                            target.id === 'app-settings-modal' ||
-                            target.id === 'star-bonus-multiplier-modal';
-
-            const isBodyDrawerOrFab = target === document.body && (mutation.attributeName === 'class');
-
-            if (isModal && target.id !== 'guided-setup-modal' && target.id !== 'notice-modal') {
-                const isOpen = target.classList.contains('show') ||
-                               target.classList.contains('open') ||
-                               target.classList.contains('active') ||
-                               Boolean(target.open || (typeof target.hasAttribute === 'function' && target.hasAttribute('open')));
-
-                handleModalStateChange(target, isOpen);
-            } else if (isBodyDrawerOrFab) {
-                const fabMenu = document.getElementById('fab-menu');
-                if (fabMenu) {
-                    const isFabOpen = document.body.classList.contains('open-fab');
-                    handleModalStateChange(fabMenu, isFabOpen);
                 }
             }
         });
-    });
 
-    const initialTargets = document.querySelectorAll('dialog:not(#guided-setup-modal):not(#notice-modal), .modal:not(#guided-setup-modal):not(#notice-modal), .dialog-overlay, .nav-drawer, .navigation-drawer, #nav-drawer, #navigation-drawer, #fab-menu, #priority-list-modal, #equipment-details-modal, #changelog-modal, #commits-modal, #app-settings-modal, #star-bonus-multiplier-modal');
-    initialTargets.forEach(observeModalTarget);
+        // Intercept back navigation gestures & buttons
+        if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+            window.addEventListener('popstate', () => {
+                if (isPoppingForClose) {
+                    queueMicrotask(() => {
+                        isPoppingForClose = false;
+                    });
+                    return;
+                }
 
-    // Observe body for drawer/fab classes and dynamically added modals
-    observer.observe(document.body, {
-        attributes: true,
-        attributeFilter: ['class'],
-        childList: true,
-        subtree: true
-    });
+                if (modalStack.length > 0) {
+                    isModalPopping = true;
+                    queueMicrotask(() => {
+                        isModalPopping = false;
+                    });
+                    const topModal = modalStack.pop();
+                    closeTargetModal(topModal);
+                }
+            });
+        }
+
+        // Observe body & document tree for modal/drawer visibility changes
+        if (typeof MutationObserver !== 'undefined') {
+            activeHistoryObserver = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList' && mutation.addedNodes) {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === 1) { // Node.ELEMENT_NODE
+                                if (node.matches && (node.matches('dialog, .modal, .dialog-overlay, .nav-drawer, .navigation-drawer') || node.id === 'level-select-modal')) {
+                                    observeModalTarget(node);
+                                }
+                                if (node.querySelectorAll) {
+                                    const nestedModals = node.querySelectorAll('dialog, .modal, .dialog-overlay, .nav-drawer, .navigation-drawer');
+                                    nestedModals.forEach(observeModalTarget);
+                                }
+                            }
+                        });
+                        return;
+                    }
+
+                    const target = /** @type {any} */ (mutation.target);
+
+                    // Target check: modals, dialog overlays, side drawer, FAB menu (excluding guided-setup-modal and notice-modal)
+                    const isModal = ((target.classList.contains('modal') || target.tagName === 'DIALOG') && target.id !== 'guided-setup-modal' && target.id !== 'notice-modal') ||
+                                    target.classList.contains('dialog-overlay') ||
+                                    target.classList.contains('nav-drawer') ||
+                                    target.classList.contains('navigation-drawer') ||
+                                    target.id === 'nav-drawer' ||
+                                    target.id === 'navigation-drawer' ||
+                                    target.id === 'priority-list-modal' ||
+                                    target.id === 'equipment-details-modal' ||
+                                    target.id === 'changelog-modal' ||
+                                    target.id === 'commits-modal' ||
+                                    target.id === 'app-settings-modal' ||
+                                    target.id === 'star-bonus-multiplier-modal';
+
+                    const isBodyDrawerOrFab = target === document.body && (mutation.attributeName === 'class');
+
+                    if (isModal && target.id !== 'guided-setup-modal' && target.id !== 'notice-modal') {
+                        const isOpen = target.classList.contains('show') ||
+                                       target.classList.contains('open') ||
+                                       target.classList.contains('active') ||
+                                       Boolean(target.open || (typeof target.hasAttribute === 'function' && target.hasAttribute('open')));
+
+                        handleModalStateChange(target, isOpen);
+                    } else if (isBodyDrawerOrFab) {
+                        const fabMenu = document.getElementById('fab-menu');
+                        if (fabMenu) {
+                            const isFabOpen = document.body.classList.contains('open-fab');
+                            handleModalStateChange(fabMenu, isFabOpen);
+                        }
+                    }
+                });
+            });
+
+            if (document.body) {
+                activeHistoryObserver.observe(document.body, {
+                    attributes: true,
+                    attributeFilter: ['class'],
+                    childList: true,
+                    subtree: true
+                });
+            }
+        }
+    }
+
+    if (typeof document.querySelectorAll === 'function') {
+        const initialTargets = document.querySelectorAll('dialog:not(#guided-setup-modal):not(#notice-modal), .modal:not(#guided-setup-modal):not(#notice-modal), .dialog-overlay, .nav-drawer, .navigation-drawer, #nav-drawer, #navigation-drawer, #fab-menu, #priority-list-modal, #equipment-details-modal, #changelog-modal, #commits-modal, #app-settings-modal, #star-bonus-multiplier-modal');
+        initialTargets.forEach(observeModalTarget);
+    }
 }
 
 /**
@@ -562,22 +587,53 @@ function handleModalStateChange(element, isOpen, options = {}) {
             }
 
             // Cleanup overlays if all modals are closed
-            const visibleModals = document.querySelectorAll('.modal.show, .dialog-overlay.show, dialog.modal[open], dialog.navigation-drawer[open]');
-            if (visibleModals.length === 0) {
-                const overlays = document.querySelectorAll('#overlay, #nav-drawer-overlay, .modal-overlay, .dialog-overlay');
-                overlays.forEach(overlay => {
-                    overlay.classList.remove('show', 'active');
-                    overlay.style.opacity = '';
-                });
+            if (typeof document !== 'undefined' && typeof document.querySelectorAll === 'function') {
+                const visibleModals = document.querySelectorAll('.modal.show, .dialog-overlay.show, dialog.modal[open], dialog.navigation-drawer[open]');
+                if (visibleModals.length === 0) {
+                    const overlays = document.querySelectorAll('#overlay, #nav-drawer-overlay, .modal-overlay, .dialog-overlay');
+                    overlays.forEach(overlay => {
+                        overlay.classList.remove('show', 'active');
+                        overlay.style.opacity = '';
+                    });
+                }
             }
 
             // If closed manually by user (X button, tap outside) and state is top of stack, pop history entry
-            if (typeof window !== 'undefined' && window.history && window.history.state && window.history.state.modalStateId === removed.stateId) {
+            if (!suppressHistoryPop && typeof window !== 'undefined' && window.history && window.history.state && window.history.state.modalStateId === removed.stateId) {
                 isPoppingForClose = true;
                 window.history.back();
             }
         }
     }
+}
+
+/**
+ * Dismisses all active modals and drawers in preparation for a forward app shell navigation.
+ * Closes dialogs, clears the modal stack, removes focus traps, and suppresses window.history.back().
+ * @returns {boolean} True if an active modal or drawer was dismissed.
+ */
+export function dismissModalsForNavigation() {
+    const hasOpenDialogs = typeof document !== 'undefined' && Boolean(
+        document.querySelector('.modal.show, dialog.modal[open], dialog.navigation-drawer[open], .navigation-drawer.open, #fab-menu.open')
+    );
+    const hadModal = modalStack.length > 0 || hasOpenDialogs;
+    if (!hadModal) {
+        return false;
+    }
+
+    suppressHistoryPop = true;
+    isPoppingForClose = false;
+    isModalPopping = false;
+
+    try {
+        closeAllModals();
+    } finally {
+        setTimeout(() => {
+            suppressHistoryPop = false;
+        }, 150);
+    }
+
+    return true;
 }
 
 /**

@@ -105,16 +105,20 @@ export function resolveTabFromUrl(search, hash) {
     return 'home-tab';
 }
 
+const boundTabBodies = new WeakSet();
+const boundTabWindows = new WeakSet();
+
 /**
  * Initializes query/hash routing, tab switching click listeners, popstate listeners, and scroll state preservation.
  */
 export function initializeTabs() {
     const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
+    const validTabKeys = ['home', 'equipment', 'income', 'planner', 'settings'];
     let initialTab = resolveTabFromUrl();
 
     if (typeof window !== 'undefined' && window.location?.hash) {
         const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase().replace(/-tab$/, '');
-        if (['home', 'equipment', 'income', 'planner', 'settings'].includes(cleanHash)) {
+        if (validTabKeys.includes(cleanHash)) {
             history.replaceState(null, '', constructTabUrl(cleanHash));
         }
     }
@@ -131,77 +135,90 @@ export function initializeTabs() {
         setTimeout(checkPlannerTabStoredOres, 100);
     }
 
-    window.addEventListener('popstate', () => {
-        let tabId = resolveTabFromUrl();
-        if (typeof window !== 'undefined' && window.location?.hash) {
-            const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase().replace(/-tab$/, '');
-            if (['home', 'equipment', 'income', 'planner', 'settings'].includes(cleanHash)) {
-                history.replaceState(null, '', constructTabUrl(cleanHash));
+    if (typeof window !== 'undefined' && !boundTabWindows.has(window)) {
+        boundTabWindows.add(window);
+        window.addEventListener('popstate', () => {
+            if (window.location?.pathname && !window.location.pathname.includes('/ore-calculator')) {
+                return;
             }
-        }
-        if (tabId === state.activeTab) return;
+            let tabId = resolveTabFromUrl();
+            if (typeof window !== 'undefined' && window.location?.hash) {
+                const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase().replace(/-tab$/, '');
+                if (validTabKeys.includes(cleanHash)) {
+                    history.replaceState(null, '', constructTabUrl(cleanHash));
+                }
+            }
+            if (tabId === state.activeTab) return;
 
-        const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
-        if (!tabOrder.includes(tabId)) {
-            history.replaceState(null, '', constructTabUrl('home'));
-            tabId = 'home-tab';
-        }
+            const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
+            if (!tabOrder.includes(tabId)) {
+                history.replaceState(null, '', constructTabUrl('home'));
+                tabId = 'home-tab';
+            }
 
-        // Save scroll position of current tab
-        if (state.activeTab) {
-            tabScrollPositions[state.activeTab] = window.scrollY;
-        }
+            // Save scroll position of current tab
+            if (state.activeTab) {
+                tabScrollPositions[state.activeTab] = window.scrollY;
+            }
 
-        if (tabId === 'planner-tab' && state.activeTab !== 'planner-tab') {
-            setAnimateNextRender('all');
-            setTimeout(() => {
-                checkPlannerTabStoredOres();
-            }, 100);
-        }
-        handleStateUpdate(() => {
-            state.activeTab = tabId;
-        }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
-        window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
-    });
+            if (tabId === 'planner-tab' && state.activeTab !== 'planner-tab') {
+                setAnimateNextRender('all');
+                setTimeout(() => {
+                    checkPlannerTabStoredOres();
+                }, 100);
+            }
+            handleStateUpdate(() => {
+                state.activeTab = tabId;
+            }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
+            window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
+        });
+    }
 
-    document.body.addEventListener('click', (event) => {
-        const button = event.target.closest('[data-tab]');
-        if (!button) return;
+    if (typeof document !== 'undefined' && document.body && !boundTabBodies.has(document.body)) {
+        boundTabBodies.add(document.body);
+        document.body.addEventListener('click', (event) => {
+            if (typeof window !== 'undefined' && window.location?.pathname && !window.location.pathname.includes('/ore-calculator')) {
+                return;
+            }
+            const button = event.target.closest('[data-tab]');
+            if (!button || button.classList?.contains?.('navigation-drawer__tab')) return;
+            if (!validTabKeys.includes(button.dataset.tab)) return;
 
-        closeFabMenu();
+            closeFabMenu();
 
-        // If clicking on Settings with update pending, trigger the update modal
-        if (button.dataset.tab === 'settings' && button.classList.contains('update-pending') && window.__WB__) {
-            showUpdateModal(window.__WB__);
-        }
+            // If clicking on Settings with update pending, trigger the update modal
+            if (button.dataset.tab === 'settings' && button.classList.contains('update-pending') && window.__WB__) {
+                showUpdateModal(window.__WB__);
+            }
 
-        const tabId = `${button.dataset.tab}-tab`;
-        if (tabId === state.activeTab) {
-            // Re-tapping active tab smoothly scrolls to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            tabScrollPositions[tabId] = 0;
-            return;
-        }
+            const tabId = `${button.dataset.tab}-tab`;
+            if (tabId === state.activeTab) {
+                // Re-tapping active tab smoothly scrolls to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                tabScrollPositions[tabId] = 0;
+                return;
+            }
 
-        // Save scroll position of current tab before switching
-        if (state.activeTab) {
-            tabScrollPositions[state.activeTab] = window.scrollY;
-        }
+            // Save scroll position of current tab before switching
+            if (state.activeTab) {
+                tabScrollPositions[state.activeTab] = window.scrollY;
+            }
 
-        if (tabId === 'planner-tab' && state.activeTab !== 'planner-tab') {
-            setAnimateNextRender('all');
-            setTimeout(() => {
-                checkPlannerTabStoredOres();
-            }, 100);
-        }
+            if (tabId === 'planner-tab' && state.activeTab !== 'planner-tab') {
+                setAnimateNextRender('all');
+                setTimeout(() => {
+                    checkPlannerTabStoredOres();
+                }, 100);
+            }
 
-        const targetUrl = constructTabUrl(button.dataset.tab);
-        history.pushState(null, '', targetUrl);
-        handleStateUpdate(() => {
-            state.activeTab = tabId;
-        }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
-        window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
-    });
+            const targetUrl = constructTabUrl(button.dataset.tab);
+            history.pushState(null, '', targetUrl);
+            handleStateUpdate(() => {
+                state.activeTab = tabId;
+            }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
+            window.scrollTo({ top: tabScrollPositions[tabId] || 0, behavior: 'instant' });
+        });
+    }
 }
 
 /**

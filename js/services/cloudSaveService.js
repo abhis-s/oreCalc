@@ -536,6 +536,9 @@ export async function triggerCloudSave(options = {}) {
     return false;
 }
 
+const boundCloudSaveButtons = new WeakSet();
+let hasAttachedOnlineSaveListener = false;
+
 /**
  * Initializes floating action button and shortcut bindings for manual cloud sync.
  */
@@ -543,13 +546,15 @@ export function initializeCloudSaveButtons() {
     const floatingSaveBtn = document.getElementById('floating-save-btn');
     const fabSaveDataPill = document.getElementById('fab-save-data-pill');
 
-    if (floatingSaveBtn) {
+    if (floatingSaveBtn && !boundCloudSaveButtons.has(floatingSaveBtn)) {
+        boundCloudSaveButtons.add(floatingSaveBtn);
         floatingSaveBtn.addEventListener('click', () => {
             saveState(state);
             triggerCloudSave();
         });
     }
-    if (fabSaveDataPill) {
+    if (fabSaveDataPill && !boundCloudSaveButtons.has(fabSaveDataPill)) {
+        boundCloudSaveButtons.add(fabSaveDataPill);
         fabSaveDataPill.addEventListener('click', async () => {
             saveState(state);
             const success = await triggerCloudSave();
@@ -569,9 +574,12 @@ export function initializeCloudSaveButtons() {
         });
     }
 
-    // Automatically flush pending offline edits when network connectivity is restored
-    window.addEventListener('online', () => {
-        logger.log('Network connection restored. Syncing offline state to cloud...');
-        triggerCloudSave({ silent: true });
-    });
+    if (!hasAttachedOnlineSaveListener) {
+        hasAttachedOnlineSaveListener = true;
+        // Automatically flush pending offline edits when network connectivity is restored
+        window.addEventListener('online', () => {
+            logger.log('Network connection restored. Syncing offline state to cloud...');
+            triggerCloudSave({ silent: true });
+        });
+    }
 }

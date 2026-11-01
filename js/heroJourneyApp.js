@@ -72,6 +72,8 @@ import { initAppShellNavigator, registerAppRoute } from './core/appShellNavigato
 import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHooks.js';
 
 const resetFilters = () => handleResetFilters(hjState, renderUI);
+let isMounted = false;
+let hasAttachedHjListeners = false;
 
 /**
  * Fetches player data from backend and updates page state.
@@ -118,20 +120,27 @@ async function loadPlayer(tag) {
                     if (cached.heroJourney.typeFilter) hjState.typeFilter = cached.heroJourney.typeFilter;
                     if (typeof cached.heroJourney.unclaimedOnly === 'boolean') hjState.unclaimedOnly = cached.heroJourney.unclaimedOnly;
                 }
-                updateUrlTag(normalizedClean);
-                renderUI();
+                if (isMounted) {
+                    updateUrlTag(normalizedClean);
+                    renderUI();
+                }
             }
         } catch {}
     }
 
     hjState.isLoading = true;
     hjState.errorMessage = '';
-    renderUI();
+    if (isMounted) {
+        renderUI();
+    }
 
     /** @type {{ success: boolean, message?: string, data?: any }} */
     let loadResult = { success: false, message: 'apiErrors.notFound' };
     try {
         const data = await fetchPlayerData(cleanTag);
+        if (!isMounted) {
+            return { success: false };
+        }
         const serverTag = formatDisplayTag(data.tag || cleanTag);
         const normalizedServer = normalizePlayerTag(serverTag);
         const saved = getSavedProfiles();
@@ -159,6 +168,9 @@ async function loadPlayer(tag) {
         renderHeroJourneyPlayerDropdown(normalizedServer);
         loadResult = { success: true, data };
     } catch (err) {
+        if (!isMounted) {
+            return { success: false };
+        }
         const errorKey = err.message || 'apiErrors.notFound';
         const saved = getSavedProfiles();
         const isStillSaved = saved.some(p => p.cleanTag === cleanTag);
@@ -184,9 +196,11 @@ async function loadPlayer(tag) {
         }
     } finally {
         hjState.isLoading = false;
-        renderUI();
-        if (hjState.playerData) {
-            autoScrollToCompletedNode(hjState.cumulativeLevel);
+        if (isMounted) {
+            renderUI();
+            if (hjState.playerData) {
+                autoScrollToCompletedNode(hjState.cumulativeLevel);
+            }
         }
     }
     return loadResult;
@@ -361,30 +375,44 @@ function initControls() {
     setupMountainClusterTouchInteractions();
     initHeaderLayoutObserver();
 
-    window.addEventListener('resize', () => {
-        updateFilterRowLayout();
-        updateTableFilterRowLayout();
-        syncClaimSwitchPill();
-        syncTableTheadHeight();
-    }, { passive: true });
+    if (!hasAttachedHjListeners) {
+        hasAttachedHjListeners = true;
+        window.addEventListener('resize', () => {
+            if (!isMounted) return;
+            updateFilterRowLayout();
+            updateTableFilterRowLayout();
+            syncClaimSwitchPill();
+            syncTableTheadHeight();
+        }, { passive: true });
 
-    window.addEventListener('hashchange', () => {
-        if (window.location.hash === '#hero-journey-table') {
-            if (!hjState.showTable) {
-                hjState.showTable = true;
-                renderUI();
+        window.addEventListener('hashchange', () => {
+            if (!isMounted) return;
+            if (window.location.hash === '#hero-journey-table') {
+                if (!hjState.showTable) {
+                    hjState.showTable = true;
+                    renderUI();
+                }
+                const targetEl = document.getElementById('hero-journey-table');
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (window.location.hash) {
+                const targetEl = document.getElementById(window.location.hash.substring(1));
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth' });
+                }
             }
-            const targetEl = document.getElementById('hero-journey-table');
-            if (targetEl) {
-                targetEl.scrollIntoView({ behavior: 'smooth' });
-            }
-        } else if (window.location.hash) {
-            const targetEl = document.getElementById(window.location.hash.substring(1));
-            if (targetEl) {
-                targetEl.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-    }, { passive: true });
+        }, { passive: true });
+
+        const handleLanguageUpdate = () => {
+            if (!isMounted) return;
+            renderUI();
+            updateHeroJourneyDrawer();
+        };
+        document.addEventListener('languageChanged', handleLanguageUpdate);
+        document.addEventListener('app:translate', handleLanguageUpdate);
+        initHjSpecificSync();
+    }
 }
 
 /**
@@ -472,12 +500,15 @@ async function init() {
             document.documentElement.classList.add('has-player');
         }
         let loadResult = await loadPlayer(finalCleanTag);
+        if (!isMounted) return;
         if ((!loadResult || !loadResult.success) && hasUrlTagParam) {
             try {
                 const data = await fetchPlayerData(finalCleanTag);
+                if (!isMounted) return;
                 if (data && data.tag) {
                     savePlayerProfileToStorage(data);
                     loadResult = await loadPlayer(data.tag || finalCleanTag);
+                    if (!isMounted) return;
                 }
             } catch (_) {}
         }
@@ -496,13 +527,6 @@ async function init() {
 
     initHeroJourneyDrawer();
     initExternalLinkCatcher();
-
-    const handleLanguageUpdate = () => {
-        renderUI();
-        updateHeroJourneyDrawer();
-    };
-    document.addEventListener('languageChanged', handleLanguageUpdate);
-    document.addEventListener('app:translate', handleLanguageUpdate);
 
     if (typeof window !== 'undefined' && window.location.hash) {
         const targetId = window.location.hash.substring(1);
@@ -528,6 +552,7 @@ let hjDrawerInstance = null;
  * @param {string} [activeView='track']
  */
 function updateHeroJourneyDrawer(activeView = 'track') {
+    if (!isMounted) return;
     const rawTag = hjState.activeTag || new URLSearchParams(window.location.search).get('tag') || '';
     const cleanTag = rawTag.replace(/^#/, '').trim();
     const isRealPlayer = Boolean(cleanTag && cleanTag !== 'DEFAULT0' && cleanTag !== 'GUEST');
@@ -560,7 +585,7 @@ function updateHeroJourneyDrawer(activeView = 'track') {
 function initHeroJourneyDrawer() {
     const drawerEl = document.getElementById('navigation-drawer');
     const overlayEl = document.querySelector('.navigation-drawer__overlay');
-    const buttonEl = document.getElementById('hj-hamburger-btn');
+    const buttonEl = document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
     const closeEl = drawerEl?.querySelector('.navigation-drawer__close') || null;
 
     if (!drawerEl || !buttonEl) return;
@@ -577,8 +602,6 @@ function initHeroJourneyDrawer() {
         }
     });
 }
-
-let isMounted = false;
 
 /**
  * Mounts the Hero's Journey application.
@@ -626,6 +649,7 @@ if (typeof document !== 'undefined') {
  * Synchronizes Hero Journey state and views when active player or village partition updates across tabs.
  */
 function syncHjFromStorage() {
+    if (!isMounted) return;
     const saved = getSavedProfiles();
     const active = normalizePlayerTag(hjState.activeTag);
     if (saved.length === 0) {
@@ -690,4 +714,3 @@ function initHjSpecificSync() {
         }
     });
 }
-initHjSpecificSync();

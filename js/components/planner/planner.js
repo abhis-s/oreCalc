@@ -2,6 +2,7 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { renderCalendar } from './calendarDisplay.js';
+import { initializeCalendarEventListeners } from './calendarInputs.js';
 import { initializeHeroPlannerCarousel } from './heroPlannerCarousel.js';
 import {
     getCurrentHeroIndex,
@@ -18,8 +19,11 @@ import { refreshLayout } from '../../ui/cardLayoutManager.js';
 import { dom } from '../../dom/domElements.js';
 
 let scrollInterval = null;
-let isLayoutInitialized = false;
-let isPlannerInitialized = false;
+const boundPlannerElements = new WeakSet();
+const boundLayoutTabs = new WeakSet();
+/** @type {ResizeObserver | null} */
+let carouselResizeObserver = null;
+let hasAttachedPlannerResize = false;
 
 function renderPlannerUI(plannerState) {
     renderCalendar(plannerState);
@@ -32,7 +36,8 @@ function renderPlannerUI(plannerState) {
 
 function initializeDragScroll() {
     const plannerTab = document.getElementById('planner-tab');
-    if (plannerTab) {
+    if (plannerTab && !boundPlannerElements.has(plannerTab)) {
+        boundPlannerElements.add(plannerTab);
         plannerTab.addEventListener('dragover', (e) => {
             e.preventDefault();
             const y = e.clientY;
@@ -68,7 +73,8 @@ function initializeCarouselEventListeners() {
     const carouselContent = dom.planner?.heroCarouselContent;
     const plannerPageDots = dom.planner?.plannerPageDots;
 
-    if (carouselContent) {
+    if (carouselContent && !boundPlannerElements.has(carouselContent)) {
+        boundPlannerElements.add(carouselContent);
         carouselContent.addEventListener('change', (event) => {
             const target = /** @type {HTMLElement} */ (event.target);
             if (target.matches('.hero-toggle-switch input[type="checkbox"]')) {
@@ -115,7 +121,8 @@ function initializeCarouselEventListeners() {
         }, { passive: true });
     }
 
-    if (plannerPageDots) {
+    if (plannerPageDots && !boundPlannerElements.has(plannerPageDots)) {
+        boundPlannerElements.add(plannerPageDots);
         plannerPageDots.addEventListener('click', (event) => {
             const target = /** @type {HTMLElement} */ (event.target);
             if (target.matches('.dot')) {
@@ -177,21 +184,24 @@ function syncPriorityListHeight() {
  * Initializes Planner module controllers, custom max levels, drag scroll, and resize observers.
  */
 export function initializePlanner() {
-    if (isPlannerInitialized) return;
-    isPlannerInitialized = true;
-
     initializePlannerCustomLevels();
     renderPlannerUI(state.planner);
     initializeDragScroll();
     initializeCarouselEventListeners();
     initializeIncomeChipsEventListeners();
+    initializeCalendarEventListeners();
 
     const carousel = document.querySelector('.planner-hero-carousel');
-    if (carousel && carousel.parentElement) {
-        const resizeObserver = new ResizeObserver(() => {
+    if (carousel && carousel.parentElement && typeof ResizeObserver !== 'undefined') {
+        carouselResizeObserver?.disconnect();
+        carouselResizeObserver = new ResizeObserver(() => {
             syncPriorityListHeight();
         });
-        resizeObserver.observe(carousel.parentElement);
+        carouselResizeObserver.observe(carousel.parentElement);
+    }
+
+    if (!hasAttachedPlannerResize && typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+        hasAttachedPlannerResize = true;
         window.addEventListener('resize', syncPriorityListHeight);
     }
 }
@@ -221,24 +231,10 @@ export function renderPlanner(plannerState) {
     // Ensure height sync happens after the carousel has been populated
     syncPriorityListHeight();
 
-    // Refresh planner layout drag handles and restore card order only on initialization
-    if (!isLayoutInitialized) {
+    // Refresh planner layout drag handles and restore card order once per mounted planner tab
+    const plannerTab = typeof document !== 'undefined' ? document.getElementById('planner-tab') : null;
+    if (plannerTab && !boundLayoutTabs.has(plannerTab)) {
+        boundLayoutTabs.add(plannerTab);
         refreshLayout('planner');
-        isLayoutInitialized = true;
     }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const plannerTab = document.getElementById('planner-tab');
-    if (plannerTab) {
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                initializePlanner();
-                syncPriorityListHeight();
-                observer.disconnect();
-            }
-        }, { threshold: 0.1 });
-
-        observer.observe(plannerTab);
-    }
-});

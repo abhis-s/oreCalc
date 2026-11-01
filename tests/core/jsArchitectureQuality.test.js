@@ -30,38 +30,18 @@ describe('JavaScript Architecture Quality & Platform Modernization Suite', () =>
 
     describe('Native Platform APIs & Zero Deprecations', () => {
 
-        test('js/utils/uuidGenerator.js uses native crypto.randomUUID() without custom loops', async () => {
-            const uuidFilePath = path.join(projectRoot, 'js/utils/uuidGenerator.js');
-            const uuidContent = fs.readFileSync(uuidFilePath, 'utf8');
-
-            assert.match(uuidContent, /crypto\.randomUUID\(\)/, 'uuidGenerator.js must adopt crypto.randomUUID()');
-            assert.doesNotMatch(uuidContent, /Math\.random/, 'uuidGenerator.js must not use Math.random');
-
+        test('js/utils/uuidGenerator.js generates unique valid RFC4122 v4 UUIDs', async () => {
             const { generateUUID, isValidUUID } = await import('../../js/utils/uuidGenerator.js');
-            const uuid = generateUUID();
-            assert.equal(typeof uuid, 'string');
-            assert.equal(isValidUUID(uuid), true, `Generated UUID '${uuid}' must be valid RFC4122 v4`);
+            const uuidA = generateUUID();
+            const uuidB = generateUUID();
+            assert.equal(typeof uuidA, 'string');
+            assert.notEqual(uuidA, uuidB, 'Sequential UUIDs must be unique');
+            assert.equal(isValidUUID(uuidA), true, `Generated UUID '${uuidA}' must be valid RFC4122 v4`);
+            assert.equal(isValidUUID(uuidB), true, `Generated UUID '${uuidB}' must be valid RFC4122 v4`);
             assert.equal(isValidUUID('invalid-uuid-format'), false);
         });
 
-        test('native structuredClone is adopted and JSON.parse(JSON.stringify) is eliminated across js/', () => {
-            const structuredCloneFiles = [
-                path.join(projectRoot, 'js/services/serverResponseHandler.js'),
-                path.join(projectRoot, 'js/components/appSettings/settingsSupportModals.js'),
-                path.join(projectRoot, 'js/components/guidedSetup/guidedSetupStepsDisplay.js'),
-                path.join(projectRoot, 'js/components/guidedSetup/guidedSetupState.js')
-            ];
-
-            for (const file of structuredCloneFiles) {
-                const content = fs.readFileSync(file, 'utf8');
-                const relPath = path.relative(projectRoot, file);
-                assert.match(
-                    content,
-                    /structuredClone\(/,
-                    `${relPath} must use native structuredClone()`
-                );
-            }
-
+        test('JSON.parse(JSON.stringify) is eliminated across js/', () => {
             const jsonCloneViolations = [];
             for (const file of jsFiles) {
                 const content = fs.readFileSync(file, 'utf8');

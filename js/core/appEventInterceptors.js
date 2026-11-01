@@ -156,10 +156,15 @@ export function triggerPendingModals() {
     }
 }
 
+const boundInterceptorDocs = new WeakSet();
+
 /**
  * Attaches global modal backdrop dismissals, Escape key handler, and external link confirmations.
  */
 export function initializeGlobalInterceptors() {
+    if (typeof document === 'undefined' || boundInterceptorDocs.has(document)) return;
+    boundInterceptorDocs.add(document);
+
     document.addEventListener('click', (e) => {
         const target = /** @type {HTMLElement} */ (e.target);
         if (target.closest('#close-update-modal-btn')) {
@@ -198,7 +203,7 @@ export function initializeGlobalInterceptors() {
 
             const drawer = document.querySelector('.navigation-drawer, #navigation-drawer, #nav-drawer');
             if (drawer && (drawer.classList.contains('open') || /** @type {HTMLDialogElement} */ (drawer).open || (typeof drawer.hasAttribute === 'function' && drawer.hasAttribute('open')))) {
-                const hamburger = /** @type {HTMLElement|null} */ (document.querySelector('.hamburger, [data-drawer-trigger], .app-header__hamburger'));
+                const hamburger = /** @type {HTMLElement|null} */ (document.querySelector('#hamburger-button, .app-header__hamburger, .hamburger, [data-drawer-trigger]'));
                 if (hamburger) {
                     hamburger.click();
                     hamburger.focus();

@@ -17,7 +17,8 @@ import { renderPropertiesGrid, renderRecommendationBadge, renderStaticStats, ren
 import { renderLevelTable } from './equipmentDetailsTableDisplay.js';
 import { getCurrentUnitStatsStateMap, renderUnitStatsView, updateUnitStatsHover } from './equipmentDetailsUnitStatsDisplay.js';
 
-let isEquipmentDetailsInitialized = false;
+const boundEquipmentModals = new WeakSet();
+let hasAttachedEqKeydownListener = false;
 let activeUpdateViewsCallback = null;
 let activeTabSelectCallback = null;
 let activeRowHoverCallback = null;
@@ -27,10 +28,13 @@ let activeRowLeaveCallback = null;
  * Initializes global event handlers and keyboard listeners for equipment details modal.
  */
 export function initializeEquipmentDetailsModal() {
-    if (isEquipmentDetailsInitialized) return;
-    isEquipmentDetailsInitialized = true;
-
     const modal = document.getElementById('equipment-details-modal');
+    if (modal && !boundEquipmentModals.has(modal)) {
+        boundEquipmentModals.add(modal);
+    } else if (modal && boundEquipmentModals.has(modal)) {
+        return;
+    }
+
     const closeBtn = document.getElementById('close-eq-details-modal-btn');
     const prevBtn = document.getElementById('eq-details-prev-btn');
     const nextBtn = document.getElementById('eq-details-next-btn');
@@ -163,26 +167,30 @@ export function initializeEquipmentDetailsModal() {
         };
     }
 
-    document.addEventListener('keydown', (e) => {
-        if (!modal || !modal.classList.contains('show')) return;
-        const target = /** @type {HTMLElement | null} */ (e.target);
-        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+    if (!hasAttachedEqKeydownListener && typeof document !== 'undefined') {
+        hasAttachedEqKeydownListener = true;
+        document.addEventListener('keydown', (e) => {
+            const activeModal = document.getElementById('equipment-details-modal');
+            if (!activeModal || !activeModal.classList.contains('show')) return;
+            const target = /** @type {HTMLElement | null} */ (e.target);
+            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
 
-        if (e.key === 'Escape') {
-            const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
-            if (openModals.length > 0 && openModals.at(-1) !== modal) return;
-            closeModalAnimated(modal, () => resetModalSessionState());
-            return;
-        }
+            if (e.key === 'Escape') {
+                const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
+                if (openModals.length > 0 && openModals.at(-1) !== activeModal) return;
+                closeModalAnimated(activeModal, () => resetModalSessionState());
+                return;
+            }
 
-        if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            navigateEquipment('prev');
-        } else if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            navigateEquipment('next');
-        }
-    });
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateEquipment('prev');
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                navigateEquipment('next');
+            }
+        });
+    }
 }
 
 /**

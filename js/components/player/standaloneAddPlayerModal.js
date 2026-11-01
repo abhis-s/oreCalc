@@ -5,7 +5,10 @@ import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.j
 import { openPrivacyModal, openTermsOfUseModal } from '../appSettings/settingsLegalModals.js';
 import { enhanceClipboardInput, triggerAutoPaste } from '../common/clipboardInputController.js';
 
-let isStandaloneAddPlayerModalInitialized = false;
+const boundModals = new WeakSet();
+let hasAttachedGlobalKeydown = false;
+/** @type {((tag: string) => Promise<any>) | null} */
+let activeOnLoadPlayer = null;
 
 /**
  * Initializes the Add Player modal for standalone applications.
@@ -15,6 +18,7 @@ let isStandaloneAddPlayerModalInitialized = false;
  * @returns {{ openAddPlayerModal: () => void, closeAddPlayerModal: () => void }} Modal controller methods.
  */
 export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
+    activeOnLoadPlayer = onLoadPlayer;
     const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('add-player-modal'));
     const tagInput = /** @type {HTMLInputElement | null} */ (document.getElementById('player-tag-input-modal'));
     const loadBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('load-player-modal-btn'));
@@ -29,41 +33,48 @@ export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
     }
 
     const openAddPlayerModal = () => {
-        if (!modal) return;
-        if (tagInput) {
-            tagInput.value = '';
-            tagInput.classList.remove('input-error');
+        const currentModal = /** @type {HTMLDialogElement | null} */ (document.getElementById('add-player-modal')) || modal;
+        const currentInput = /** @type {HTMLInputElement | null} */ (document.getElementById('player-tag-input-modal')) || tagInput;
+        const currentLoadBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('load-player-modal-btn')) || loadBtn;
+        const currentErrorEl = document.getElementById('player-tag-error-message') || errorEl;
+        if (!currentModal) return;
+        if (currentInput) {
+            currentInput.value = '';
+            currentInput.classList.remove('input-error');
         }
-        if (errorEl) {
-            errorEl.textContent = '';
-            errorEl.classList.remove('show');
+        if (currentErrorEl) {
+            currentErrorEl.textContent = '';
+            currentErrorEl.classList.remove('show');
         }
-        if (loadBtn) {
-            loadBtn.disabled = true;
-            loadBtn.textContent = translate('actions.load') || 'Load';
+        if (currentLoadBtn) {
+            currentLoadBtn.disabled = true;
+            currentLoadBtn.textContent = translate('actions.load') || 'Load';
         }
-        openModal(modal);
-        if (tagInput) {
-            enhanceClipboardInput(tagInput);
-            void triggerAutoPaste(tagInput);
+        openModal(currentModal);
+        if (currentInput) {
+            enhanceClipboardInput(currentInput);
+            void triggerAutoPaste(currentInput);
         }
-        tagInput?.focus();
+        currentInput?.focus();
     };
 
     const closeAddPlayerModal = () => {
-        if (!modal) return;
-        if (errorEl) {
-            errorEl.textContent = '';
-            errorEl.classList.remove('show');
+        const currentModal = /** @type {HTMLDialogElement | null} */ (document.getElementById('add-player-modal')) || modal;
+        const currentInput = /** @type {HTMLInputElement | null} */ (document.getElementById('player-tag-input-modal')) || tagInput;
+        const currentErrorEl = document.getElementById('player-tag-error-message') || errorEl;
+        if (!currentModal) return;
+        if (currentErrorEl) {
+            currentErrorEl.textContent = '';
+            currentErrorEl.classList.remove('show');
         }
-        if (tagInput) {
-            tagInput.classList.remove('input-error');
+        if (currentInput) {
+            currentInput.classList.remove('input-error');
         }
-        closeModalAnimated(modal);
+        closeModalAnimated(currentModal);
     };
 
-    if (!isStandaloneAddPlayerModalInitialized && modal && tagInput && loadBtn) {
-        isStandaloneAddPlayerModalInitialized = true;
+    if (modal && tagInput && loadBtn && !boundModals.has(modal)) {
+        boundModals.add(modal);
 
         tagInput.addEventListener('input', (e) => {
             const inputTarget = /** @type {HTMLInputElement} */ (e.target);
@@ -79,7 +90,8 @@ export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
                 try {
                     loadBtn.disabled = true;
                     loadBtn.textContent = translate('actions.loading') || 'Loading...';
-                    const result = await onLoadPlayer(cleanedTag);
+                    const handler = activeOnLoadPlayer || onLoadPlayer;
+                    const result = await handler(cleanedTag);
                     if (result?.success !== false) {
                         closeAddPlayerModal();
                     } else {
@@ -111,8 +123,8 @@ export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
             } else if (!cleanedTag) {
                 if (errorEl) {
                     errorEl.textContent = translate('errors.playerTagRequired') || 'Please enter a player tag';
-                    errorEl.classList.add('show');
                 }
+                if (errorEl) errorEl.classList.add('show');
                 tagInput.classList.add('input-error');
             }
         };
@@ -160,16 +172,18 @@ export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
                 closeAddPlayerModal();
             }
         });
+    }
 
-        if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && modal.classList.contains('show')) {
-                    const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
-                    if (openModals.length > 0 && openModals.at(-1) !== modal) return;
-                    closeAddPlayerModal();
-                }
-            });
-        }
+    if (!hasAttachedGlobalKeydown && typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+        hasAttachedGlobalKeydown = true;
+        document.addEventListener('keydown', (e) => {
+            const activeModal = document.getElementById('add-player-modal');
+            if (e.key === 'Escape' && activeModal?.classList?.contains('show')) {
+                const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
+                if (openModals.length > 0 && openModals.at(-1) !== activeModal) return;
+                closeAddPlayerModal();
+            }
+        });
     }
 
     return {

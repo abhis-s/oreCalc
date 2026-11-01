@@ -16,6 +16,8 @@ import {
     updatePerChipRewardsPreview
 } from './createCustomChipsModalDisplay.js';
 
+let hasAttachedCustomDropdownOutsideClick = false;
+
 /**
  * Initializes and wires custom accessible combobox dropdowns for prospector conversion.
  * @param {HTMLElement} dropdownElement
@@ -38,13 +40,19 @@ export function initializeModalCustomDropdown(dropdownElement, whichOre) {
         dropdownElement.setAttribute('aria-expanded', dropdownElement.classList.contains('open') ? 'true' : 'false');
     });
 
-    document.addEventListener('click', (e) => {
-        const target = /** @type {Node} */ (e.target);
-        if (!dropdownElement.contains(target)) {
-            dropdownElement.classList.remove('open');
-            dropdownElement.setAttribute('aria-expanded', 'false');
-        }
-    });
+    if (!hasAttachedCustomDropdownOutsideClick && typeof document !== 'undefined') {
+        hasAttachedCustomDropdownOutsideClick = true;
+        document.addEventListener('click', (e) => {
+            const target = /** @type {Node} */ (e.target);
+            for (const id of ['custom-chip-prospector-from-ore', 'custom-chip-prospector-to-ore']) {
+                const el = document.getElementById(id);
+                if (el && !el.contains(target)) {
+                    el.classList.remove('open');
+                    el.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+    }
 
     options.addEventListener('click', (e) => {
         const target = /** @type {HTMLElement} */ (e.target);

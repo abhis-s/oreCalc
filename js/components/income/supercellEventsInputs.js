@@ -4,6 +4,8 @@ import { bindToggleInput } from '../common/formBindingUtils.js';
 import { dom } from '../../dom/domElements.js';
 import { renderSupercellEvents } from './supercellEventsDisplay.js';
 
+let hasAttachedSupercellLangListener = false;
+
 /**
  * Initializes Supercell Events world championship toggle input binding.
  */
@@ -18,9 +20,12 @@ export function initializeSupercellEventsInputs() {
         }
     });
 
-    document.addEventListener('languageChanged', () => {
-        renderSupercellEvents();
-    });
+    if (!hasAttachedSupercellLangListener) {
+        hasAttachedSupercellLangListener = true;
+        document.addEventListener('languageChanged', () => {
+            renderSupercellEvents();
+        });
+    }
 }
 
 /**

@@ -8,7 +8,7 @@ export function getNavigationDOMElements() {
             contents: document.querySelectorAll('.tab-content'),
         },
         drawer: {
-            button: document.querySelector('.hamburger'),
+            button: document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger'),
             drawer: document.querySelector('.navigation-drawer'),
             overlay: document.querySelector('.navigation-drawer__overlay'),
             close: document.querySelector('.navigation-drawer__close'),

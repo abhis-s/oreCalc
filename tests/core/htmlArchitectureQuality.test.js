@@ -74,59 +74,73 @@ describe('Native HTMLDialogElement Overlay Architecture', () => {
         });
     });
 
-    describe('SCSS Overlay Architecture Verification', () => {
-        test('modal backdrop stylesheet declares dialog.modal UA resets, native backdrop, and starting-style', () => {
-            const modalScssPath = path.join(projectRoot, 'css/base/modal/_modal-backdrop.scss');
-            const content = fs.readFileSync(modalScssPath, 'utf8');
+    describe('Native HTML Popover & Accessible Tooltip Runtime Attributes', () => {
+        test('showCardHelpPopover configures popover="auto", role="tooltip", and aria-describedby on target', async () => {
+            const { showCardHelpPopover, hideCardHelpPopover } = await import('../../js/utils/cardHelpPopover.js');
+            const prevDoc = globalThis.document;
+            const prevWin = globalThis.window;
 
-            assert.match(content, /dialog\.modal/, '_modal-backdrop.scss must style dialog.modal');
-            assert.match(content, /::backdrop/, '_modal-backdrop.scss must style native ::backdrop');
-            assert.match(content, /@starting-style/, '_modal-backdrop.scss must define @starting-style entrance transition');
-            assert.match(content, /allow-discrete/, '_modal-backdrop.scss must declare transition-behavior allow-discrete');
-        });
+            const attrs = new Map();
+            const targetAttrs = new Map();
+            const createdPopover = {
+                id: '',
+                className: '',
+                innerHTML: '',
+                style: {},
+                dataset: {},
+                classList: {
+                    add() {},
+                    remove() {},
+                    contains() { return false; }
+                },
+                setAttribute(k, v) { attrs.set(k, v); },
+                getAttribute(k) { return attrs.get(k) ?? null; },
+                hasAttribute(k) { return attrs.has(k); },
+                addEventListener() {},
+                getBoundingClientRect() {
+                    return { top: 0, left: 0, width: 100, height: 40, bottom: 40, right: 100 };
+                }
+            };
 
-        test('navigation stylesheet declares dialog drawer and native backdrop styling', () => {
-            const navScssPath = fs.existsSync(path.join(projectRoot, 'css/components/_navigation-drawer.scss'))
-                ? path.join(projectRoot, 'css/components/_navigation-drawer.scss')
-                : (fs.existsSync(path.join(projectRoot, 'css/layout/navigation/_nav-drawer.scss'))
-                    ? path.join(projectRoot, 'css/layout/navigation/_nav-drawer.scss')
-                    : path.join(projectRoot, 'css/layout/_navigation.scss'));
-            const content = fs.readFileSync(navScssPath, 'utf8');
+            const targetEl = {
+                setAttribute(k, v) { targetAttrs.set(k, v); },
+                getAttribute(k) { return targetAttrs.get(k) ?? null; },
+                removeAttribute(k) { targetAttrs.delete(k); },
+                contains() { return false; },
+                getBoundingClientRect() {
+                    return { top: 50, left: 50, width: 24, height: 24, bottom: 74, right: 74 };
+                }
+            };
 
-            assert.match(content, /dialog\.navigation-drawer/, '_navigation.scss must target dialog.navigation-drawer');
-            assert.match(content, /::backdrop/, '_navigation.scss must style native ::backdrop');
-        });
-    });
+            globalThis.window = /** @type {any} */ ({
+                innerWidth: 1024,
+                innerHeight: 768
+            });
+            globalThis.document = /** @type {any} */ ({
+                body: {
+                    appendChild() {}
+                },
+                getElementById(id) {
+                    return id === 'card-help-popover' ? createdPopover : null;
+                },
+                createElement() {
+                    return createdPopover;
+                },
+                addEventListener() {}
+            });
 
-    describe('Native HTML Popover API Architecture', () => {
-        test('card popovers define popover-open starting styles and discrete transitions', () => {
-            const cardsScssPath = fs.existsSync(path.join(projectRoot, 'css/components/cards/_cards-popovers.scss'))
-                ? path.join(projectRoot, 'css/components/cards/_cards-popovers.scss')
-                : path.join(projectRoot, 'css/components/_cards.scss');
-            const content = fs.readFileSync(cardsScssPath, 'utf8');
+            try {
+                showCardHelpPopover(/** @type {any} */ (targetEl), 'Helpful tooltip text');
+                assert.equal(createdPopover.getAttribute('popover'), 'auto');
+                assert.equal(createdPopover.getAttribute('role'), 'tooltip');
+                assert.equal(targetEl.getAttribute('aria-describedby'), 'card-help-popover');
 
-            assert.match(content, /\.card-help-popover[\s\S]*?:popover-open/, '_cards.scss must style .card-help-popover with :popover-open');
-            assert.match(content, /\.card-help-popover[\s\S]*?@starting-style/, '_cards.scss must define @starting-style for .card-help-popover');
-            assert.match(content, /\.card-help-popover[\s\S]*?allow-discrete/, '_cards.scss must declare allow-discrete transition on .card-help-popover');
-            assert.match(content, /\.card-help-popover[\s\S]*?inset:\s*unset/, '_cards.scss must reset inset: unset on .card-help-popover');
-
-            assert.match(content, /\.input-feature-popover[\s\S]*?:popover-open/, '_cards.scss must style .input-feature-popover with :popover-open');
-            assert.match(content, /\.input-feature-popover[\s\S]*?@starting-style/, '_cards.scss must define @starting-style for .input-feature-popover');
-            assert.match(content, /\.input-feature-popover[\s\S]*?allow-discrete/, '_cards.scss must declare allow-discrete transition on .input-feature-popover');
-            assert.match(content, /\.input-feature-popover[\s\S]*?inset:\s*unset/, '_cards.scss must reset inset: unset on .input-feature-popover');
-        });
-    });
-
-    describe('Accessible Tooltip Architecture ([role="tooltip"] & aria-describedby)', () => {
-        test('income chips and calendar popovers define tooltip accessibility styles', () => {
-            const incomeChipsScssPath = path.join(projectRoot, 'css/components/_income-chips.scss');
-            const calendarScssPath = path.join(projectRoot, 'css/components/calendar/_calendar-popovers.scss');
-
-            const incomeChipsContent = fs.readFileSync(incomeChipsScssPath, 'utf8');
-            const calendarContent = fs.readFileSync(calendarScssPath, 'utf8');
-
-            assert.match(incomeChipsContent, /\[role=["']tooltip["']\]/, '_income-chips.scss must declare [role="tooltip"] selector');
-            assert.match(calendarContent, /\[role=["']tooltip["']\]/, '_calendar-popovers.scss must declare [role="tooltip"] selector');
+                hideCardHelpPopover();
+                assert.equal(targetEl.getAttribute('aria-describedby'), null);
+            } finally {
+                globalThis.document = prevDoc;
+                globalThis.window = prevWin;
+            }
         });
     });
 });

@@ -31,12 +31,18 @@ import { renderTabs } from '../components/layout/tabRenderer.js';
 import { renderPlanner } from '../components/planner/planner.js';
 import { renderPriorityListModal } from '../components/planner/priorityListModal.js';
 import { renderPlayerDropdown } from '../components/player/playerDropdownDisplay.js';
+import { resolveAppRoute } from './appShellNavigator.js';
 
 /**
  * Orchestrates DOM rendering across navigation, active tab displays, modals, and input controls.
  * @param {import('./types.js').AppState} state - Current global application state.
  */
 export function renderApp(state) {
+    if (typeof window !== 'undefined' && window.location?.pathname) {
+        const route = resolveAppRoute(window.location.pathname);
+        if (route && route !== 'ore-calculator') return;
+    }
+
     const timeframe = state.uiSettings.summaryTimeframe || 'monthly';
     const incomeSources = state.derived.incomeSources;
 

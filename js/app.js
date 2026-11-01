@@ -58,6 +58,12 @@ registerGlobalErrorBoundaries();
 
 let isMounted = false;
 let hasAttachedAppListeners = false;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let appDataInitTimeout = null;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let startupModalTimeout = null;
+/** @type {number | null} */
+let renderFrameId = null;
 
 /**
  * Mounts the Ore & Equipment Calculator application.
@@ -185,13 +191,20 @@ export async function mount(options = {}) {
         if (savedState && state.appVersion !== originalVersion) {
             logger.log(`Upgraded localStorage state version from ${originalVersion} to ${state.appVersion}`);
             saveState(state, true);
+            if (startupModalTimeout) {
+                clearTimeout(startupModalTimeout);
+                startupModalTimeout = null;
+            }
             if (compareVersions(originalVersion, state.appVersion) < 0) {
-                setTimeout(async () => {
+                startupModalTimeout = setTimeout(async () => {
+                    startupModalTimeout = null;
+                    if (!isMounted) return;
                     const currentLang = state.uiSettings?.language || 'en';
                     await loadTranslations('en');
                     if (currentLang !== 'en') {
                         await loadTranslations(currentLang);
                     }
+                    if (!isMounted) return;
                     const content = getChangelogHtml();
                     if (isInterruptionRestricted()) {
                         window.pendingChangelogContent = content;
@@ -203,12 +216,15 @@ export async function mount(options = {}) {
                 const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
                 const commits = Array.isArray(rawCommits) ? rawCommits : [];
                 if (commits.length > 0) {
-                    setTimeout(async () => {
+                    startupModalTimeout = setTimeout(async () => {
+                        startupModalTimeout = null;
+                        if (!isMounted) return;
                         const currentLang = state.uiSettings?.language || 'en';
                         await loadTranslations('en');
                         if (currentLang !== 'en') {
                             await loadTranslations(currentLang);
                         }
+                        if (!isMounted) return;
                         if (isInterruptionRestricted()) {
                             window.pendingCommits = commits;
                         } else {
@@ -308,8 +324,6 @@ export async function mount(options = {}) {
             }
         }
 
-        let renderFrameId = null;
-
         registerStateUpdateCallback(async (state, silent, options = {}) => {
             if (state.planner?.calendar && !state.planner.calendar.isHydrated) {
                 const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
@@ -384,6 +398,7 @@ export async function mount(options = {}) {
             });
 
             document.addEventListener('app:accountSynced', async () => {
+                if (!isMounted) return;
                 recalculateAll(state);
                 renderApp(state);
 
@@ -434,14 +449,20 @@ export async function mount(options = {}) {
         handlePreloaderTeardown(isPreloaderEnabled ? preloader : null);
         initializePwaService();
 
-        setTimeout(async () => {
+        if (appDataInitTimeout) {
+            clearTimeout(appDataInitTimeout);
+            appDataInitTimeout = null;
+        }
+        appDataInitTimeout = setTimeout(async () => {
             try {
+                if (!isMounted) return;
                 if (pendingQrUserId) {
                     await importUserData(pendingQrUserId);
                     return;
                 }
 
                 const syncedState = await initializeAppData();
+                if (!isMounted) return;
                 if (syncedState) {
                     const originalVersion = syncedState.appVersion || '1.0.0';
                     const activeLanguage = getLanguageFromPath() || state.uiSettings?.language || 'en';
@@ -475,6 +496,8 @@ export async function mount(options = {}) {
                 if (isJustSyncedFromQr()) {
                     setJustSyncedFromQr(false);
                 }
+            } finally {
+                appDataInitTimeout = null;
             }
         }, 2000);
 
@@ -491,6 +514,19 @@ export async function mount(options = {}) {
 export function destroy() {
     if (!isMounted) return;
     isMounted = false;
+    if (appDataInitTimeout) {
+        clearTimeout(appDataInitTimeout);
+        appDataInitTimeout = null;
+    }
+    if (startupModalTimeout) {
+        clearTimeout(startupModalTimeout);
+        startupModalTimeout = null;
+    }
+    if (renderFrameId) {
+        cancelAnimationFrame(renderFrameId);
+        renderFrameId = null;
+    }
+    registerStateUpdateCallback(null);
     resetRenderState();
     resetPlayerDropdownState();
 }

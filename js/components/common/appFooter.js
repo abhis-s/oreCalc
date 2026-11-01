@@ -46,7 +46,7 @@ function handleLegalLinkClick(event) {
         if (typeof openDrawer.close === 'function' && openDrawer.open) {
             try { openDrawer.close(); } catch (_) {}
         }
-        const btn = document.querySelector('.hamburger, #hj-hamburger-btn, #landing-hamburger-btn, .app-header__hamburger');
+        const btn = document.querySelector('#hamburger-button, .hamburger, .app-header__hamburger');
         if (btn) {
             btn.setAttribute('aria-expanded', 'false');
         }

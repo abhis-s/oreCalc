@@ -71,6 +71,8 @@ import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHook
 
 /** @type {{ openAddPlayerModal: () => void, closeAddPlayerModal: () => void } | null} */
 let activeAddPlayerModalControls = null;
+let hasAttachedDamageListeners = false;
+let isMounted = false;
 
 /**
  * Asynchronously revalidates and refreshes player data in the background from the API.
@@ -109,8 +111,8 @@ export async function revalidatePlayerData(tag, hadCachedData = false) {
             }
         }
 
-        // Guard against race conditions if user switched active player in the interim
-        if (damageCalcState.activeTag !== cleanTag && damageCalcState.activeTag !== serverTag) {
+        // Guard against race conditions if user switched active player or navigated away in the interim
+        if (!isMounted || (damageCalcState.activeTag !== cleanTag && damageCalcState.activeTag !== serverTag)) {
             return true;
         }
 
@@ -317,6 +319,7 @@ function renderActiveView() {
  */
 function initDamageCrossTabSync() {
     const syncFromStorage = () => {
+        if (!isMounted) return;
         const saved = getSavedProfiles();
         const active = damageCalcState.activeTag;
         if (saved.length === 0) {
@@ -474,23 +477,24 @@ async function initDamageApp() {
 
     renderPlayerDropdown(damageCalcState.activeTag);
     initExternalLinkCatcher();
-    initDamageCrossTabSync();
-
     initDamageCalcTabNav(damageCalcState, renderActiveView);
     renderActiveView();
 
-    document.addEventListener('languageChanged', () => {
-        renderActiveView();
-        renderPlayerDropdown(damageCalcState.activeTag);
-    });
+    if (!hasAttachedDamageListeners) {
+        hasAttachedDamageListeners = true;
+        initDamageCrossTabSync();
+        document.addEventListener('languageChanged', () => {
+            if (!isMounted) return;
+            renderActiveView();
+            renderPlayerDropdown(damageCalcState.activeTag);
+        });
+    }
 
     if (typeof window.__APP_LOADED__ === 'function') {
         window.__APP_LOADED__();
     }
     window.isAppStartingUp = false;
 }
-
-let isMounted = false;
 
 /**
  * Mounts the Equipment Damage & ZapQuake application.

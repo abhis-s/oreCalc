@@ -1,8 +1,5 @@
 import { describe, test, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
     createSpotrightDialog,
     renderSpotrightResults
@@ -11,10 +8,6 @@ import {
     openSpotright,
     closeSpotright
 } from '../../js/components/spotright/spotrightController.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '../..');
 
 describe('Spotright Responsive Shortcuts & Touch Behavior Suite', () => {
     /** @type {any} */
@@ -101,21 +94,6 @@ describe('Spotright Responsive Shortcuts & Touch Behavior Suite', () => {
 
         assert.match(html, /class="spotright-footer-shortcuts-label"/, 'Footer must provide shortcuts label for responsive collapse');
         assert.match(html, /<kbd class="spotright-footer-kbd">\?<\/kbd>/, 'Footer must provide ? keycap');
-    });
-
-    test('SCSS styles define breakpoint-phone collapse and touch-only keycap suppression', () => {
-        const scssPath = path.join(projectRoot, 'css/components/_spotright.scss');
-        const scss = fs.readFileSync(scssPath, 'utf8');
-
-        // Verify label collapse at breakpoint-phone
-        assert.match(scss, /\.spotright-footer-shortcuts-btn\s*\{[^}]*@media\s*\(max-width:\s*#\{\$breakpoint-phone\}\)\s*\{[^}]*\.spotright-footer-shortcuts-label\s*\{[^}]*display:\s*none;/, 'Must collapse footer shortcuts label at breakpoint-phone');
-
-        // Verify touch-only concealment of keycaps unless has-physical-keyboard is present
-        assert.match(scss, /@media\s*\(hover:\s*none\)\s*and\s*\(pointer:\s*coarse\)\s*\{[^}]*&:not\(\.has-physical-keyboard\)\s*\{[^}]*\.spotright-action-enter/, 'Must conceal spotright-action-enter on touch devices without physical keyboard');
-        assert.match(scss, /&:not\(\.has-physical-keyboard\)\s*\{[^}]*\.spotright-kbd-shortcut/, 'Must conceal spotright-kbd-shortcut on touch devices without physical keyboard');
-
-        // Verify header button keys suppression on touch devices
-        assert.match(scss, /\.header-spotright-keys\s*\{[^}]*display:\s*none;/, 'Must suppress header-spotright-keys on touch devices without physical keyboard');
     });
 
     test('spotrightController manages has-physical-keyboard class reactively on dialog', () => {

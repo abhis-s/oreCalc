@@ -1,7 +1,3 @@
-import { constructTabUrl } from './tabs.js';
-import { renderApp } from '../../core/renderer.js';
-import { state } from '../../core/state.js';
-import { handleStateUpdate } from '../../core/stateManager.js';
 import { translate } from '../../i18n/translator.js';
 import { showUpdateModal } from '../modals/updateModal.js';
 import { dom } from '../../dom/domElements.js';
@@ -41,19 +37,10 @@ function closeNavigationDrawer() {
 function handleDrawerItemClick(event, target) {
     const tab = target.closest('.navigation-drawer__tab');
     if (tab && !tab.classList.contains('secondary-tab')) {
-        // If clicking on Settings with update pending, trigger the update modal
         if (tab.dataset.tab === 'settings' && tab.classList.contains('update-pending') && window.__WB__) {
             showUpdateModal(window.__WB__);
         }
-
-        const tabId = `${tab.dataset.tab}-tab`;
-        history.pushState(null, '', constructTabUrl(tab.dataset.tab));
-        handleStateUpdate(() => {
-            state.activeTab = tabId;
-        });
-        renderApp(state);
         closeNavigationDrawer();
-        return;
     }
 }
 
@@ -66,10 +53,10 @@ export function initializeNavigation() {
         drawerInstance = null;
     }
 
-    const drawerEl = dom.drawer?.drawer || null;
-    const overlayEl = dom.drawer?.overlay || null;
-    const buttonEl = dom.drawer?.button || null;
-    const closeEl = dom.drawer?.close || null;
+    const drawerEl = dom.drawer?.drawer || document.getElementById('navigation-drawer') || document.querySelector('.navigation-drawer');
+    const overlayEl = dom.drawer?.overlay || document.querySelector('.navigation-drawer__overlay');
+    const buttonEl = dom.drawer?.button || document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
+    const closeEl = dom.drawer?.close || drawerEl?.querySelector('.navigation-drawer__close') || null;
 
     if (!buttonEl) {
         console.error('Hamburger element not found in dom.drawer!');

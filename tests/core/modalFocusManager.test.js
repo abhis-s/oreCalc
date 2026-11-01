@@ -1,7 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getInitialModalFocusTarget } from '../../js/utils/modalHistoryManager.js';
+import { getInitialModalFocusTarget, openModal, dismissModalsForNavigation, isModalHistoryPopping } from '../../js/utils/modalHistoryManager.js';
 
 class MockClassList {
     constructor(initial = '') {
@@ -365,5 +365,104 @@ describe('WAI-ARIA Modal Initial Focus Target Resolver', () => {
         assert.equal(getInitialModalFocusTarget(null), null);
         assert.equal(getInitialModalFocusTarget(undefined), null);
         assert.equal(getInitialModalFocusTarget({}), null);
+    });
+
+    test('dismissModalsForNavigation returns false when no modals or dialogs are active in document', () => {
+        assert.equal(dismissModalsForNavigation(), false);
+        assert.equal(isModalHistoryPopping(), false);
+    });
+
+    test('dismissModalsForNavigation closes open modals, clears stack, and suppresses history.back()', () => {
+        const prevWin = globalThis.window;
+        const prevDoc = globalThis.document;
+
+        let historyBackCalled = false;
+        let currentHistoryState = null;
+        const modal = new MockDOMElement('dialog', { id: 'test-nav-modal', class: 'modal' });
+        modal.open = false;
+        modal.showModal = () => { modal.open = true; };
+        modal.close = () => { modal.open = false; };
+        modal.addEventListener = () => {};
+        modal.removeEventListener = () => {};
+
+        globalThis.window = /** @type {any} */ ({
+            history: {
+                get state() { return currentHistoryState; },
+                pushState: (stateObj) => { currentHistoryState = stateObj; },
+                replaceState: (stateObj) => { currentHistoryState = stateObj; },
+                back: () => { historyBackCalled = true; }
+            }
+        });
+        globalThis.document = /** @type {any} */ ({
+            activeElement: null,
+            body: { classList: new MockClassList() },
+            getElementById: (id) => (id === 'test-nav-modal' ? modal : null),
+            querySelector: (sel) => (modal.classList.contains('show') && sel.includes('.modal.show') ? modal : null),
+            querySelectorAll: (sel) => {
+                if (sel.includes('dialog')) return [modal];
+                return [];
+            }
+        });
+
+        try {
+            openModal(/** @type {any} */ (modal));
+            assert.equal(modal.classList.contains('show'), true);
+            assert.equal(modal.open, true);
+            assert.ok(currentHistoryState?.modalStateId, 'Opening modal should push modalStateId to history');
+
+            const dismissed = dismissModalsForNavigation();
+            assert.equal(dismissed, true);
+            assert.equal(modal.classList.contains('show'), false);
+            assert.equal(modal.open, false);
+            assert.equal(historyBackCalled, false, 'Must suppress history.back() during forward navigation dismissal');
+            assert.equal(dismissModalsForNavigation(), false, 'Stack must be empty after dismissal');
+        } finally {
+            globalThis.window = prevWin;
+            globalThis.document = prevDoc;
+        }
+    });
+
+    test('initializeModalHistoryManager attaches global listeners and MutationObserver at most once per document', async () => {
+        const { initializeModalHistoryManager } = await import('../../js/utils/modalHistoryManager.js');
+        const prevWin = globalThis.window;
+        const prevDoc = globalThis.document;
+        const prevMut = globalThis.MutationObserver;
+
+        let docListenerCount = 0;
+        let winListenerCount = 0;
+        let observerObserveCount = 0;
+
+        globalThis.MutationObserver = /** @type {any} */ (class {
+            observe() { observerObserveCount++; }
+        });
+        globalThis.window = /** @type {any} */ ({
+            addEventListener: () => { winListenerCount++; }
+        });
+        globalThis.document = /** @type {any} */ ({
+            body: {},
+            addEventListener: () => { docListenerCount++; }
+        });
+
+        try {
+            initializeModalHistoryManager();
+            const initialDocCount = docListenerCount;
+            const initialWinCount = winListenerCount;
+            const initialObserveCount = observerObserveCount;
+
+            assert.ok(initialDocCount > 0);
+            assert.ok(initialWinCount > 0);
+            assert.equal(initialObserveCount, 1);
+
+            initializeModalHistoryManager();
+            initializeModalHistoryManager();
+
+            assert.equal(docListenerCount, initialDocCount, 'Repeated calls must not stack duplicate document listeners');
+            assert.equal(winListenerCount, initialWinCount, 'Repeated calls must not stack duplicate window listeners');
+            assert.equal(observerObserveCount, 1, 'Repeated calls must not attach duplicate MutationObservers');
+        } finally {
+            globalThis.window = prevWin;
+            globalThis.document = prevDoc;
+            globalThis.MutationObserver = prevMut;
+        }
     });
 });

@@ -13,7 +13,10 @@ import { initializeCreateCustomChipsModalListeners } from './createCustomChipsMo
 import { packIncomeChips, packLegendItems, renderIncomeChips } from './incomeChipsDisplay.js';
 import { getPlannerDOMElements } from '../../dom/plannerDom.js';
 
-let isInitialized = false;
+const boundChipContainers = new WeakSet();
+let hasAttachedCreateChipDocListener = false;
+/** @type {ResizeObserver | null} */
+let chipResizeObserver = null;
 
 /**
  * Handles HTML5 dragover events over the unplaced income chips container.
@@ -130,8 +133,18 @@ export function handleChipDropOnContainer(incomeChipData) {
  * Initializes income chips container event listeners and ResizeObserver layout triggers.
  */
 export function initializeIncomeChipsEventListeners() {
-    if (isInitialized) return;
-    isInitialized = true;
+    initializeCreateCustomChipsModalListeners();
+
+    if (!hasAttachedCreateChipDocListener && typeof document !== 'undefined') {
+        hasAttachedCreateChipDocListener = true;
+        document.addEventListener('click', (e) => {
+            const target = /** @type {HTMLElement} */ (e.target);
+            const btn = target?.closest?.('.create-custom-chips-btn');
+            if (btn) {
+                openCreateCustomChipsModal();
+            }
+        });
+    }
 
     const plannerDOMElements = getPlannerDOMElements();
     const incomeChipsContainer = plannerDOMElements.incomeChipsContainer;
@@ -141,36 +154,31 @@ export function initializeIncomeChipsEventListeners() {
         return;
     }
 
+    if (boundChipContainers.has(incomeChipsContainer)) return;
+    boundChipContainers.add(incomeChipsContainer);
+
     incomeChipsContainer.addEventListener('dragover', handleDragOverForChipContainer);
     incomeChipsContainer.addEventListener('dragleave', handleDragLeaveForChipContainer);
     incomeChipsContainer.addEventListener('drop', handleDropToChipContainer);
 
-    document.addEventListener('click', (e) => {
-        const target = /** @type {HTMLElement} */ (e.target);
-        const btn = target.closest('.create-custom-chips-btn');
-        if (btn) {
-            openCreateCustomChipsModal();
-        }
-    });
-
-    initializeCreateCustomChipsModalListeners();
-
-    // Use ResizeObserver for layout packing
-    const resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-            if (entry.contentRect.width > 0) {
-                if (entry.target === incomeChipsContainer) {
-                    requestAnimationFrame(packIncomeChips);
-                } else if (entry.target === document.getElementById('income-chips-legend')) {
-                    requestAnimationFrame(packLegendItems);
+    if (typeof ResizeObserver !== 'undefined') {
+        chipResizeObserver?.disconnect();
+        chipResizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                if (entry.contentRect.width > 0) {
+                    if (entry.target === incomeChipsContainer) {
+                        requestAnimationFrame(packIncomeChips);
+                    } else if (entry.target === document.getElementById('income-chips-legend')) {
+                        requestAnimationFrame(packLegendItems);
+                    }
                 }
             }
+        });
+        chipResizeObserver.observe(incomeChipsContainer);
+        const legendEl = document.getElementById('income-chips-legend');
+        if (legendEl) {
+            chipResizeObserver.observe(legendEl);
         }
-    });
-    resizeObserver.observe(incomeChipsContainer);
-    const legendEl = document.getElementById('income-chips-legend');
-    if (legendEl) {
-        resizeObserver.observe(legendEl);
     }
 }
 

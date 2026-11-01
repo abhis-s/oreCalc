@@ -58,6 +58,11 @@ export function calculateToastKeyboardOffset({
 /**
  * Initializes virtual keyboard compensation listeners and visualViewport resize handlers for mobile inputs.
  */
+const boundViewportDocs = new WeakSet();
+
+/**
+ * Initializes global viewport listeners for iOS Safari header stabilization and toast keyboard elevation.
+ */
 export function initializeViewportHandler() {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
@@ -66,6 +71,9 @@ export function initializeViewportHandler() {
     if (initialHeader) {
         initialHeader.style.transform = '';
     }
+
+    if (boundViewportDocs.has(document)) return;
+    boundViewportDocs.add(document);
 
     document.addEventListener('focusin', (event) => {
         const target = event.target;

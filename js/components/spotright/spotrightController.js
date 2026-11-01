@@ -646,9 +646,10 @@ export function initSpotrightHeaderTrigger(isMacOverride) {
  * Initializes global Spotright keyboard shortcut and trigger button click listeners.
  */
 export function initSpotright() {
-    if (isInitialized || typeof window === 'undefined') return;
-    isInitialized = true;
+    if (typeof window === 'undefined') return;
     initSpotrightHeaderTrigger();
+    if (isInitialized) return;
+    isInitialized = true;
     window.addEventListener('keydown', handleGlobalKeydown);
     document.addEventListener('click', (event) => {
         const trigger = /** @type {HTMLElement|null} */ (event.target)?.closest?.('#header-spotright-btn, [data-action="open-spotright"]');

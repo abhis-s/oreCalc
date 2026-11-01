@@ -29,7 +29,7 @@ export function initializePullToRefresh() {
 
     const ptrIconWrapper = ptrContainer.querySelector('.ptr-icon-wrapper svg');
     const ptrLabel = ptrContainer.querySelector('.ptr-label');
-    const mainContainer = document.querySelector('.container');
+    const getMainContainer = () => /** @type {HTMLElement | null} */ (document.querySelector('main.container, #main-content'));
 
     let startY = 0;
     let startX = 0;
@@ -49,6 +49,9 @@ export function initializePullToRefresh() {
     };
 
     const handleTouchStart = (e) => {
+        if (typeof window !== 'undefined' && window.location?.pathname && !window.location.pathname.includes('/ore-calculator')) {
+            return;
+        }
         if (isRefreshing) return;
         if (window.scrollY > 2) return;
         if (isTargetExcluded(e.target)) return;
@@ -67,6 +70,7 @@ export function initializePullToRefresh() {
         ptrContainer.style.transform = '';
         ptrContainer.style.opacity = '0';
 
+        const mainContainer = getMainContainer();
         if (mainContainer) {
             mainContainer.style.transition = 'transform 0.2s ease-out';
             mainContainer.style.transform = '';
@@ -125,6 +129,7 @@ export function initializePullToRefresh() {
         ptrContainer.style.transform = `translate3d(-50%, ${pullDistance}px, 0)`;
         ptrContainer.style.opacity = String(opacity);
 
+        const mainContainer = getMainContainer();
         if (mainContainer) {
             mainContainer.style.transition = 'none';
             mainContainer.style.transform = `translate3d(0, ${contentPullDistance}px, 0)`;
@@ -181,6 +186,7 @@ export function initializePullToRefresh() {
         isRefreshing = true;
         ptrContainer.classList.add('ptr-releasing');
 
+        const mainContainer = getMainContainer();
         if (mainContainer) {
             mainContainer.style.transition = 'transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             mainContainer.style.transform = 'translate3d(0, 50px, 0)';
@@ -226,6 +232,7 @@ export function initializePullToRefresh() {
         isRefreshing = true;
         ptrContainer.classList.add('ptr-releasing', 'ptr-refreshing', 'ptr-stage2');
 
+        const mainContainer = getMainContainer();
         if (mainContainer) {
             mainContainer.style.transition = 'transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             mainContainer.style.transform = 'translate3d(0, 55px, 0)';
@@ -247,6 +254,7 @@ export function initializePullToRefresh() {
         ptrContainer.style.transform = '';
         ptrContainer.style.opacity = '0';
 
+        const mainContainer = getMainContainer();
         if (mainContainer) {
             mainContainer.style.transition = 'transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             mainContainer.style.transform = '';
@@ -256,7 +264,8 @@ export function initializePullToRefresh() {
             ptrContainer.classList.remove('ptr-resetting', 'ptr-releasing');
             if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.pullToRefresh');
             if (ptrIconWrapper) ptrIconWrapper.style.transform = '';
-            if (mainContainer) mainContainer.style.transition = '';
+            const currentMain = getMainContainer();
+            if (currentMain) currentMain.style.transition = '';
             isRefreshing = false;
             isPulling = false;
             currentStage = 0;

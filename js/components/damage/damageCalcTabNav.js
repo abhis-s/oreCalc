@@ -122,6 +122,9 @@ export function initDamageCalcTabNav(state, onStateChange) {
     document.body.dataset.damageTabNavInit = 'true';
 
     window.addEventListener('popstate', () => {
+        if (typeof window !== 'undefined' && window.location?.pathname && !window.location.pathname.includes('/damage-calculator')) {
+            return;
+        }
         const resolved = resolveDamageTabFromUrl();
         const targetTab = resolved || 'zapquake';
         if (typeof window !== 'undefined' && window.location.hash) {
@@ -149,6 +152,9 @@ export function initDamageCalcTabNav(state, onStateChange) {
     });
 
     document.addEventListener('click', (e) => {
+        if (typeof window !== 'undefined' && window.location?.pathname && !window.location.pathname.includes('/damage-calculator')) {
+            return;
+        }
         const btn = /** @type {HTMLElement | null} */ (e.target)?.closest('.tab-button, .calc-tab-nav__btn, .nav-button');
         if (!btn) return;
         const rawTab = btn.getAttribute('data-tab');

@@ -5,7 +5,7 @@
  * Tier 3: Core Routing & Lifecycle Engine.
  */
 
-import { isModalHistoryPopping } from '../utils/modalHistoryManager.js';
+import { isModalHistoryPopping, dismissModalsForNavigation } from '../utils/modalHistoryManager.js';
 
 /**
  * @typedef {Object} NavigatorUiHooks
@@ -45,14 +45,16 @@ const routeHandlers = new Map();
 /** @type {AppRouteId | null} */
 let currentActiveRoute = null;
 
+/** @type {string} */
+let lastCommittedPathname = '';
+
 /** @type {boolean} */
 let isTransitioning = false;
 
-/** @type {{ targetUrl: string, options: { isPopState?: boolean, fromDrawer?: boolean } } | null} */
+/** @type {{ targetUrl: string, options: { isPopState?: boolean, fromDrawer?: boolean, replaceHistory?: boolean } } | null} */
 let pendingNavigation = null;
 
-/** @type {boolean} */
-let isNavigatorInitialized = false;
+const boundNavigatorDocs = new WeakSet();
 
 /**
  * Maximum elapsed time allowed for in-app route transition before aborting to a native page load.
@@ -261,6 +263,55 @@ async function ensureStylesheets(newDoc) {
 }
 
 /**
+ * Synchronizes title, description, and canonical tags in document head across tools.
+ * Ensures data-i18n attributes on head elements match destination page for dynamic translation.
+ *
+ * @param {Document} newDoc
+ */
+function syncHeadForRoute(newDoc) {
+    if (typeof document === 'undefined') return;
+
+    const currentTitle = document.querySelector('title');
+    const newTitle = newDoc.querySelector('title');
+    if (newTitle) {
+        if (currentTitle) {
+            currentTitle.replaceWith(newTitle.cloneNode(true));
+        } else {
+            document.head.appendChild(newTitle.cloneNode(true));
+        }
+        document.title = newDoc.title;
+    }
+
+    const metaSelectors = [
+        'meta[name="description"]',
+        'meta[property="og:title"]',
+        'meta[property="og:description"]',
+        'meta[property="og:url"]',
+        'meta[property="og:image"]',
+        'meta[name="twitter:title"]',
+        'meta[name="twitter:description"]',
+        'meta[name="twitter:url"]',
+        'meta[name="twitter:image"]'
+    ];
+    for (const selector of metaSelectors) {
+        const currentEl = document.querySelector(selector);
+        const newEl = newDoc.querySelector(selector);
+        if (currentEl && newEl) {
+            currentEl.replaceWith(newEl.cloneNode(true));
+        }
+    }
+
+    const linkSelectors = ['link[rel="canonical"]', 'link[rel="icon"]'];
+    for (const selector of linkSelectors) {
+        const currentEl = document.querySelector(selector);
+        const newEl = newDoc.querySelector(selector);
+        if (currentEl && newEl) {
+            currentEl.replaceWith(newEl.cloneNode(true));
+        }
+    }
+}
+
+/**
  * Synchronizes header brand pill, tab bars, and player dropdown across tools.
  *
  * @param {Document} newDoc
@@ -271,6 +322,24 @@ function syncHeaderForRoute(newDoc) {
     if (!currentHeader || !newHeader) return;
 
     currentHeader.className = newHeader.className;
+
+    const currentInner = currentHeader.querySelector('.app-header__inner');
+    const newInner = newHeader.querySelector('.app-header__inner');
+    if (currentInner && newInner) {
+        currentInner.className = newInner.className;
+    }
+
+    const currentBrand = currentHeader.querySelector('.app-header__brand');
+    const newBrand = newHeader.querySelector('.app-header__brand');
+    if (currentBrand && newBrand) {
+        currentBrand.className = newBrand.className;
+    }
+
+    const currentActions = currentHeader.querySelector('.app-header__actions');
+    const newActions = newHeader.querySelector('.app-header__actions');
+    if (currentActions && newActions) {
+        currentActions.className = newActions.className;
+    }
 
     const currentPlaceholder = document.querySelector('.header-placeholder');
     const newPlaceholder = newDoc.querySelector('.header-placeholder');
@@ -334,6 +403,17 @@ function syncHeaderForRoute(newDoc) {
         currentDropdown.remove();
         navigatorUiHooks.onResetPlayerDropdown?.();
     }
+
+    const currentHamburger = currentHeader.querySelector('#hamburger-button, .hamburger, .app-header__hamburger');
+    const newHamburger = newHeader.querySelector('#hamburger-button, .hamburger, .app-header__hamburger');
+    if (currentHamburger) {
+        if (newHamburger) {
+            currentHamburger.className = newHamburger.className;
+        }
+        currentHamburger.id = 'hamburger-button';
+        currentHamburger.setAttribute('aria-expanded', 'false');
+    }
+    document.body.classList.remove('open-drawer');
 }
 
 /**
@@ -348,11 +428,12 @@ function syncModalsForRoute(newDoc) {
     const newModals = newDoc.querySelectorAll('dialog.modal, .modal[id]');
     for (const newModal of newModals) {
         if (!newModal.id) continue;
+        if (typeof newModal.closest === 'function' && newModal.closest('#tool-extras')) continue;
         const currentModal = document.getElementById(newModal.id);
-        if (currentModal) {
-            currentModal.replaceWith(newModal.cloneNode(true));
-        } else {
+        if (!currentModal) {
             document.body.appendChild(newModal.cloneNode(true));
+        } else if (newModal.id === 'add-player-modal') {
+            currentModal.replaceWith(newModal.cloneNode(true));
         }
     }
     navigatorUiHooks.onResetPlayerModal?.();
@@ -365,6 +446,7 @@ function syncModalsForRoute(newDoc) {
  * @param {Object} [options]
  * @param {boolean} [options.isPopState=false]
  * @param {boolean} [options.fromDrawer=false]
+ * @param {boolean} [options.replaceHistory=false]
  * @returns {Promise<boolean>}
  */
 async function navigateTo(targetUrl, options = {}) {
@@ -377,8 +459,7 @@ async function navigateTo(targetUrl, options = {}) {
     // Guard against redundant navigation when already on target URL and route
     if (options.isPopState) {
         if (targetRoute === currentActiveRoute &&
-            url.pathname === window.location.pathname &&
-            url.search === window.location.search &&
+            url.pathname === lastCommittedPathname &&
             !url.hash) {
             return false;
         }
@@ -439,7 +520,7 @@ async function navigateTo(targetUrl, options = {}) {
         await ensureStylesheets(newDoc);
 
         const performSwap = async () => {
-            document.title = newDoc.title;
+            syncHeadForRoute(newDoc);
             document.body.className = computeSynchronizedBodyClasses(
                 document.body.className,
                 targetRoute,
@@ -463,11 +544,16 @@ async function navigateTo(targetUrl, options = {}) {
                 document.body.appendChild(newExtras.cloneNode(true));
             }
 
-            navigatorUiHooks.onUpdateDrawer?.({ activeTool: targetRoute });
-
             if (!options.isPopState) {
-                window.history.pushState({}, document.title, url.href);
+                const shouldReplace = Boolean(options.replaceHistory) || Boolean(typeof window !== 'undefined' && window.history?.state?.modalStateId);
+                if (shouldReplace && typeof window !== 'undefined' && window.history && typeof window.history.replaceState === 'function') {
+                    window.history.replaceState({}, document.title, url.href);
+                } else if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
+                    window.history.pushState({}, document.title, url.href);
+                }
             }
+
+            navigatorUiHooks.onUpdateDrawer?.({ activeTool: targetRoute });
 
             // Mount destination application against the newly swapped DOM
             const registeredHandler = routeHandlers.get(targetRoute);
@@ -487,6 +573,7 @@ async function navigateTo(targetUrl, options = {}) {
             }
 
             currentActiveRoute = targetRoute;
+            lastCommittedPathname = url.pathname;
         };
 
         document.documentElement.dataset.transitionType = 'page-switch';
@@ -553,10 +640,10 @@ async function navigateTo(targetUrl, options = {}) {
  */
 export function initAppShellNavigator() {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
-    if (isNavigatorInitialized) return;
-    isNavigatorInitialized = true;
-
     currentActiveRoute = resolveAppRoute(window.location.pathname) || 'hub';
+    lastCommittedPathname = window.location.pathname || '/';
+    if (boundNavigatorDocs.has(document)) return;
+    boundNavigatorDocs.add(document);
 
     document.addEventListener('click', (event) => {
         const target = /** @type {HTMLElement | null} */ (event.target);
@@ -569,6 +656,21 @@ export function initAppShellNavigator() {
         event.preventDefault();
 
         const fromDrawer = Boolean(anchor.closest('.navigation-drawer'));
+        const isSamePage = Boolean(
+            typeof window !== 'undefined' &&
+            check.url.pathname === window.location.pathname &&
+            check.url.search === window.location.search &&
+            !check.url.hash
+        );
+
+        if (isSamePage) {
+            if (fromDrawer) {
+                const drawerEl = document.getElementById('navigation-drawer');
+                navigatorUiHooks.onCloseDrawer?.(drawerEl);
+            }
+            return;
+        }
+
         if (fromDrawer) {
             const dock = anchor.closest('.navigation-drawer__dock');
             if (dock) {
@@ -579,11 +681,12 @@ export function initAppShellNavigator() {
                 anchor.classList.add('active');
                 anchor.setAttribute('aria-current', 'page');
             }
-            const drawerEl = document.getElementById('navigation-drawer');
-            navigatorUiHooks.onCloseDrawer?.(drawerEl);
         }
 
-        void navigateTo(check.url.href, { isPopState: false, fromDrawer });
+        const hadModal = dismissModalsForNavigation();
+        const replaceHistory = fromDrawer || hadModal || Boolean(window.history?.state?.modalStateId);
+
+        void navigateTo(check.url.href, { isPopState: false, fromDrawer, replaceHistory });
     });
 
     window.addEventListener('popstate', (event) => {
@@ -599,8 +702,7 @@ export function initAppShellNavigator() {
         if (!targetRoute) return;
 
         if (targetRoute === currentActiveRoute &&
-            targetUrl.pathname === window.location.pathname &&
-            targetUrl.search === window.location.search &&
+            targetUrl.pathname === lastCommittedPathname &&
             !targetUrl.hash) {
             return;
         }

@@ -198,9 +198,9 @@ function observeAppHeaderLayout(header, options = {}) {
         || queryFirst(header, ['.app-header__player-dropdown', '.player-dropdown-container']);
     const actions = queryFirst(inner, ['.app-header__actions', '.data-buttons-container', '.hero-journey-page__header-actions', '.landing-header__actions'])
         || queryFirst(header, ['.app-header__actions', '.data-buttons-container', '.hero-journey-page__header-actions', '.landing-header__actions']);
-    const hamburger = queryFirst(brand, ['.app-header__hamburger', '.hamburger', '.hj-hamburger'])
-        || queryFirst(inner, ['.app-header__hamburger', '.hamburger', '.hj-hamburger'])
-        || queryFirst(header, ['.app-header__hamburger', '.hamburger', '.hj-hamburger']);
+    const hamburger = queryFirst(brand, ['#hamburger-button', '.app-header__hamburger', '.hamburger', '.hj-hamburger'])
+        || queryFirst(inner, ['#hamburger-button', '.app-header__hamburger', '.hamburger', '.hj-hamburger'])
+        || queryFirst(header, ['#hamburger-button', '.app-header__hamburger', '.hamburger', '.hj-hamburger']);
 
     let cachedBrandTitleWidth = 0;
     let cachedSeparatorWidth = 0;
@@ -347,6 +347,9 @@ function observeAppHeaderLayout(header, options = {}) {
     };
 }
 
+/** @type {WeakMap<object, () => void>} */
+const boundHeaderCleanups = new WeakMap();
+
 /**
  * Master initialization entry point for the modular application header.
  *
@@ -370,32 +373,40 @@ export function initAppHeader(options = {}) {
         return { destroy: () => {}, updateLayout: () => {}, resetCache: () => {} };
     }
 
+    if (boundHeaderCleanups.has(header)) {
+        boundHeaderCleanups.get(header)?.();
+    }
+
     const brandLink = /** @type {HTMLAnchorElement | null} */ (header.querySelector('.brand-title-link, .landing-brand'));
     if (brandLink) {
         const currentLang = getLanguageFromPath() || 'en';
         brandLink.href = currentLang === 'en' ? '/' : `/${currentLang}/`;
     }
 
+    const headerCleanups = [];
     const cleanups = [];
 
     // Off-main-thread scroll sentinel elevation
     const cleanupScroll = initAppHeaderScrollObserver(/** @type {HTMLElement} */ (header));
+    headerCleanups.push(cleanupScroll);
     cleanups.push(cleanupScroll);
 
     // Responsive geometry observer
     const geometry = observeAppHeaderLayout(/** @type {HTMLElement} */ (header), options);
+    headerCleanups.push(geometry.disconnect);
     cleanups.push(geometry.disconnect);
 
     // Player dropdown interaction lifecycle
     const dropdown = queryFirst(header, ['.app-header__player-dropdown', '.player-dropdown-container']);
     if (dropdown && options.hasPlayerDropdown !== false) {
         const cleanupDropdown = initAppHeaderPlayerDropdownInteractions(/** @type {HTMLElement} */ (dropdown));
+        headerCleanups.push(cleanupDropdown);
         cleanups.push(cleanupDropdown);
     }
 
     // Hamburger drawer binding
     if (options.bindDrawer === true) {
-        const hamburger = queryFirst(header, ['.app-header__hamburger', '.hamburger', '.hj-hamburger']);
+        const hamburger = queryFirst(header, ['#hamburger-button', '.app-header__hamburger', '.hamburger', '.hj-hamburger']);
         if (hamburger) {
             const drawerInstance = initNavigationDrawer({ buttonEl: /** @type {HTMLElement} */ (hamburger) });
             cleanups.push(() => drawerInstance.destroy());
@@ -405,13 +416,28 @@ export function initAppHeader(options = {}) {
     // Brand tools dropdown menu binding
     if (options.hasPill !== false) {
         const cleanupDropdown = initBrandToolsDropdown({ container: /** @type {HTMLElement} */ (header) });
+        headerCleanups.push(cleanupDropdown);
         cleanups.push(cleanupDropdown);
     }
+
+    const cleanupHeaderResources = () => {
+        if (boundHeaderCleanups.get(header) === cleanupHeaderResources) {
+            boundHeaderCleanups.delete(header);
+        }
+        headerCleanups.forEach(fn => {
+            try { fn(); } catch (_) {}
+        });
+    };
+
+    boundHeaderCleanups.set(header, cleanupHeaderResources);
 
     const instance = {
         updateLayout: geometry.updateLayout,
         resetCache: geometry.resetCache,
         destroy: () => {
+            if (boundHeaderCleanups.get(header) === cleanupHeaderResources) {
+                boundHeaderCleanups.delete(header);
+            }
             cleanups.forEach(fn => {
                 try { fn(); } catch (_) {}
             });

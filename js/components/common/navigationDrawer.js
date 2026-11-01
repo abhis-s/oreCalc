@@ -32,7 +32,7 @@ const boundDrawerCleanups = new WeakMap();
 export function initNavigationDrawer(options = {}) {
     const drawer = options.drawerEl || document.getElementById('navigation-drawer') || document.querySelector('.navigation-drawer');
     const overlay = options.overlayEl || document.querySelector('.navigation-drawer__overlay');
-    const button = options.buttonEl || document.querySelector('.hamburger');
+    const button = options.buttonEl || document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
     const closeBtn = options.closeEl || drawer?.querySelector('.navigation-drawer__close') || null;
 
     if (button && boundDrawerCleanups.has(button)) {
@@ -411,7 +411,7 @@ export function closeDrawerInternal(drawer) {
     if (typeof dialog.close === 'function' && dialog.open) {
         try { dialog.close(); } catch (_) {}
     }
-    const btn = document.querySelector('.hamburger, #hj-hamburger-btn, #landing-hamburger-btn, .app-header__hamburger');
+    const btn = document.querySelector('#hamburger-button, .hamburger, .app-header__hamburger');
     if (btn) {
         btn.setAttribute('aria-expanded', 'false');
     }

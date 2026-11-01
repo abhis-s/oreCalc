@@ -39,11 +39,13 @@ import './utils/imageManager.js';
 import './console.js';
 
 let hasAttachedAccountListeners = false;
+let isMounted = false;
 
 /**
  * Initializes and populates the navigation drawer for the account page.
  */
 function renderDrawer() {
+    if (!isMounted) return;
     const savedProfiles = getSavedProfiles();
     const activeProfile = savedProfiles[0];
     renderNavigationDrawerContent({
@@ -139,12 +141,14 @@ async function initAccountApp() {
 
     if (isAuth) {
         fetchAccountDetails().then((details) => {
+            if (!isMounted) return;
             if (details) {
                 renderAccountPageShell(true, getAuthenticatedUser());
             }
         }).catch(() => {});
         loadAndRenderSessions();
         initializeAppData().then((cloudData) => {
+            if (!isMounted) return;
             if (cloudData) {
                 const activeLanguage = getLanguageFromPath() || state.uiSettings?.language || 'en';
                 initializeState(cloudData);
@@ -162,6 +166,7 @@ async function initAccountApp() {
     if (!hasAttachedAccountListeners) {
         hasAttachedAccountListeners = true;
         document.addEventListener('auth:state-change', () => {
+            if (!isMounted) return;
             const authed = isAuthenticated();
             renderAccountPageShell(authed, getAuthenticatedUser());
             if (authed) {
@@ -171,6 +176,7 @@ async function initAccountApp() {
         });
 
         document.addEventListener('languageChanged', () => {
+            if (!isMounted) return;
             const authed = isAuthenticated();
             renderAccountPageShell(authed, getAuthenticatedUser());
             if (authed) {
@@ -180,6 +186,7 @@ async function initAccountApp() {
         });
 
         document.addEventListener('app:playerDropdownSync', () => {
+            if (!isMounted) return;
             const currentProfiles = getSavedProfiles();
             if (Array.isArray(currentProfiles) && currentProfiles.length > 0) {
                 handleStateUpdate(() => {
@@ -198,14 +205,14 @@ async function initAccountApp() {
     window.isAppStartingUp = false;
 }
 
-let isMounted = false;
-
 /**
  * Mounts the Account & Security application.
+ * @param {Object} [options={}]
+ * @param {boolean} [options.force=false]
  * @returns {Promise<void>}
  */
-export async function mount() {
-    if (isMounted) return;
+export async function mount(options = {}) {
+    if (isMounted && !options.force) return;
     isMounted = true;
 
     await initAccountApp();

@@ -14,7 +14,7 @@ import {
 } from './customChipPopoversManager.js';
 import { renderIncomeChips } from './incomeChipsDisplay.js';
 
-let isProspectorInitialized = false;
+const boundCustomChipElements = new WeakSet();
 
 /**
  * Synchronizes Prospector UI elements and initial dropdown comboboxes.
@@ -23,9 +23,12 @@ function syncProspectorUI() {
     const fromDropdown = document.getElementById('custom-chip-prospector-from-ore');
     const toDropdown = document.getElementById('custom-chip-prospector-to-ore');
 
-    if (!isProspectorInitialized && fromDropdown && toDropdown) {
-        isProspectorInitialized = true;
+    if (fromDropdown && !boundCustomChipElements.has(fromDropdown)) {
+        boundCustomChipElements.add(fromDropdown);
         initializeModalCustomDropdown(fromDropdown, 'from');
+    }
+    if (toDropdown && !boundCustomChipElements.has(toDropdown)) {
+        boundCustomChipElements.add(toDropdown);
         initializeModalCustomDropdown(toDropdown, 'to');
     }
 
@@ -37,7 +40,8 @@ function syncProspectorUI() {
  */
 export function initializeCreateCustomChipsModalListeners() {
     const modal = document.getElementById('create-custom-chips-modal');
-    if (!modal) return;
+    if (!modal || boundCustomChipElements.has(modal)) return;
+    boundCustomChipElements.add(modal);
 
     const numberInputs = modal.querySelectorAll('input[type="number"]');
     numberInputs.forEach(input => {

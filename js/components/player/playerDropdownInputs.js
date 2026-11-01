@@ -17,15 +17,8 @@ import { persistAppSettings } from '../common/appSettings.js';
 import { refreshActivePlayerData } from './playerRefreshController.js';
 
 let lastTouchTime = 0;
-let isPlayerDropdownInitialized = false;
-
-/**
- * Resets player dropdown initialization state and invalidates render cache.
- */
-export function resetPlayerDropdownState() {
-    isPlayerDropdownInitialized = false;
-    invalidatePlayerDropdownCache();
-}
+let hasAttachedGlobalDropdownListeners = false;
+const boundDropdownElements = new WeakSet();
 
 /** @type {(() => string) | null} */
 let activePlayerTagGetter = null;
@@ -35,6 +28,17 @@ let customSelectPlayerHandler = null;
 let customDeletePlayerHandler = null;
 /** @type {(() => void) | null} */
 let customAddPlayerHandler = null;
+
+/**
+ * Resets player dropdown initialization state and invalidates render cache.
+ */
+export function resetPlayerDropdownState() {
+    activePlayerTagGetter = null;
+    customSelectPlayerHandler = null;
+    customDeletePlayerHandler = null;
+    customAddPlayerHandler = null;
+    invalidatePlayerDropdownCache();
+}
 
 /**
  * Resolves player dropdown DOM element references from dom cache or document.
@@ -208,31 +212,15 @@ export function renderDropdown() {
  * @param {(() => void) | null} [options.onAddPlayer] - Callback when "+ Add Player" is clicked.
  */
 export function initPlayerDropdown(options = {}) {
-    if (options.getActivePlayerTag) {
-        activePlayerTagGetter = options.getActivePlayerTag;
-    }
-    if (options.onSelectPlayer) {
-        customSelectPlayerHandler = options.onSelectPlayer;
-    }
-    if (options.onDeletePlayer) {
-        customDeletePlayerHandler = options.onDeletePlayer;
-    }
-    if (options.onAddPlayer) {
-        customAddPlayerHandler = options.onAddPlayer;
-    }
-
-    if (isPlayerDropdownInitialized) return;
-    isPlayerDropdownInitialized = true;
-
-    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
-        document.addEventListener('touchstart', () => {
-            lastTouchTime = Date.now();
-        }, { passive: true });
-    }
+    activePlayerTagGetter = options.getActivePlayerTag || null;
+    customSelectPlayerHandler = options.onSelectPlayer || null;
+    customDeletePlayerHandler = options.onDeletePlayer || null;
+    customAddPlayerHandler = options.onAddPlayer || null;
 
     const { dropdownButton, dropdownList, playerItemsContainer, addPlayerButton, container } = getDropdownElements();
 
-    if (playerItemsContainer) {
+    if (playerItemsContainer && !boundDropdownElements.has(playerItemsContainer)) {
+        boundDropdownElements.add(playerItemsContainer);
         const handleSectionHeaderInteraction = (event) => {
             const sectionHeader = /** @type {HTMLElement} */ (event.target)?.closest?.('.player-dropdown-section-header');
             if (sectionHeader) {
@@ -400,7 +388,8 @@ export function initPlayerDropdown(options = {}) {
         }
     }
 
-    if (dropdownButton) {
+    if (dropdownButton && !boundDropdownElements.has(dropdownButton)) {
+        boundDropdownElements.add(dropdownButton);
         dropdownButton.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -428,7 +417,8 @@ export function initPlayerDropdown(options = {}) {
         });
     }
 
-    if (addPlayerButton) {
+    if (addPlayerButton && !boundDropdownElements.has(addPlayerButton)) {
+        boundDropdownElements.add(addPlayerButton);
         addPlayerButton.addEventListener('pointerdown', (e) => {
             e.stopPropagation();
         });
@@ -444,70 +434,81 @@ export function initPlayerDropdown(options = {}) {
         });
     }
 
-    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
-        document.addEventListener('click', (event) => {
-            if (/** @type {HTMLElement} */ (event.target)?.closest?.('.unconnected-connect-btn, #home-profile-connect-btn')) {
-                if (typeof customAddPlayerHandler === 'function') {
-                    customAddPlayerHandler();
-                } else {
-                    showAddPlayerModal();
-                }
-            }
+    if (!hasAttachedGlobalDropdownListeners) {
+        hasAttachedGlobalDropdownListeners = true;
 
-            const collapseBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('.profile-collapse-toggle-btn, #home-profile-collapse-btn');
-            if (collapseBtn) {
-                const card = collapseBtn.closest('.card, .home-profile-card, .hero-journey-card') || document.getElementById('orecalc-home-player-card') || document.getElementById('hero-journey-player-card');
-                if (card) {
-                    const willBeCollapsed = !card.classList.contains('is-stats-collapsed');
-                    card.classList.toggle('is-stats-collapsed', willBeCollapsed);
-                    collapseBtn.setAttribute('aria-expanded', String(!willBeCollapsed));
-                    const label = willBeCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats');
-                    collapseBtn.setAttribute('aria-label', label);
-                    collapseBtn.setAttribute('title', label);
-                    const icon = collapseBtn.querySelector('.collapse-chevron-icon, clashcalc-assets-svg, orecalc-assets-svg');
-                    if (icon) {
-                        icon.setAttribute('name', willBeCollapsed ? 'chevron-down' : 'chevron-up');
+        if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+            document.addEventListener('touchstart', () => {
+                lastTouchTime = Date.now();
+            }, { passive: true });
+
+            document.addEventListener('click', (event) => {
+                if (/** @type {HTMLElement} */ (event.target)?.closest?.('.unconnected-connect-btn, #home-profile-connect-btn')) {
+                    if (typeof customAddPlayerHandler === 'function') {
+                        customAddPlayerHandler();
+                    } else {
+                        showAddPlayerModal();
                     }
-                    persistAppSettings({ hideProfileStats: willBeCollapsed });
-                    handleStateUpdate(() => {
-                        if (!state.uiSettings) {
-                            state.uiSettings = /** @type {any} */ ({});
+                }
+
+                const collapseBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('.profile-collapse-toggle-btn, #home-profile-collapse-btn');
+                if (collapseBtn) {
+                    const card = collapseBtn.closest('.card, .home-profile-card, .hero-journey-card') || document.getElementById('orecalc-home-player-card') || document.getElementById('hero-journey-player-card');
+                    if (card) {
+                        const willBeCollapsed = !card.classList.contains('is-stats-collapsed');
+                        card.classList.toggle('is-stats-collapsed', willBeCollapsed);
+                        collapseBtn.setAttribute('aria-expanded', String(!willBeCollapsed));
+                        const label = willBeCollapsed ? translate('views.home.profile.expandStats') : translate('views.home.profile.collapseStats');
+                        collapseBtn.setAttribute('aria-label', label);
+                        collapseBtn.setAttribute('title', label);
+                        const icon = collapseBtn.querySelector('.collapse-chevron-icon, clashcalc-assets-svg, orecalc-assets-svg');
+                        if (icon) {
+                            icon.setAttribute('name', willBeCollapsed ? 'chevron-down' : 'chevron-up');
                         }
-                        state.uiSettings.hideProfileStats = willBeCollapsed;
-                    });
+                        persistAppSettings({ hideProfileStats: willBeCollapsed });
+                        handleStateUpdate(() => {
+                            if (!state.uiSettings) {
+                                state.uiSettings = /** @type {any} */ ({});
+                            }
+                            state.uiSettings.hideProfileStats = willBeCollapsed;
+                        });
+                    }
                 }
-            }
-        });
+            });
 
-        document.addEventListener('click', (event) => {
-            const list = dom.player?.dropdownList || document.getElementById('player-dropdown-list');
-            const btn = dom.player?.dropdownButton || document.getElementById('player-dropdown-button');
-            if (list && list.classList.contains('show')) {
-                const isClickInsideButton = btn && btn.contains(/** @type {Node} */ (event.target));
-                const isClickInsideList = list.contains(/** @type {Node} */ (event.target));
-                const isConnected = /** @type {HTMLElement} */ (event.target)?.isConnected;
+            document.addEventListener('click', (event) => {
+                const list = dom.player?.dropdownList || document.getElementById('player-dropdown-list');
+                const btn = dom.player?.dropdownButton || document.getElementById('player-dropdown-button');
+                if (list && list.classList.contains('show')) {
+                    const isClickInsideButton = btn && btn.contains(/** @type {Node} */ (event.target));
+                    const isClickInsideList = list.contains(/** @type {Node} */ (event.target));
+                    const isConnected = /** @type {HTMLElement} */ (event.target)?.isConnected;
 
-                if (!isConnected) return;
+                    if (!isConnected) return;
 
-                if (!isClickInsideButton && !isClickInsideList) {
-                    closeDropdown();
+                    if (!isClickInsideButton && !isClickInsideList) {
+                        closeDropdown();
+                    }
                 }
-            }
-        });
+            });
 
-        document.addEventListener('app:playerDropdownSync', () => {
-            invalidatePlayerDropdownCache();
-            renderPlayerDropdown();
-        });
+            document.addEventListener('app:playerDropdownSync', () => {
+                invalidatePlayerDropdownCache();
+                if (!customSelectPlayerHandler) {
+                    renderPlayerDropdown();
+                }
+            });
+        }
+
+        if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+            window.addEventListener('scroll', () => {
+                closeDropdown();
+            }, { passive: true });
+        }
     }
 
-    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-        window.addEventListener('scroll', () => {
-            closeDropdown();
-        }, { passive: true });
-    }
-
-    if (container) {
+    if (container && !boundDropdownElements.has(container)) {
+        boundDropdownElements.add(container);
         container.addEventListener('mouseenter', () => {
             if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(hover: hover)').matches) return;
             if (typeof document !== 'undefined' && document.body?.classList?.contains('tour-active')) return;

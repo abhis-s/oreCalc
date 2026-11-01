@@ -21,6 +21,22 @@ const oreTypes = {
     starry: 'assets/starry_ore.png',
 };
 
+let hasAttachedProspectorDocClick = false;
+
+function ensureProspectorOutsideClickListener() {
+    if (hasAttachedProspectorDocClick) return;
+    hasAttachedProspectorDocClick = true;
+    document.addEventListener('click', (e) => {
+        const target = /** @type {Node | null} */ (e.target);
+        [dom.income?.prospector?.fromOre, dom.income?.prospector?.toOre].forEach((dropdownElement) => {
+            if (dropdownElement && (!target || !dropdownElement.contains(target))) {
+                dropdownElement.classList.remove('open');
+                dropdownElement.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+}
+
 function initializeCustomDropdown(dropdownElement, whichOre) {
     const selected = dropdownElement.querySelector('.dropdown-selected');
     const options = dropdownElement.querySelector('.dropdown-options');
@@ -37,12 +53,7 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
         dropdownElement.setAttribute('aria-expanded', dropdownElement.classList.contains('open') ? 'true' : 'false');
     });
 
-    document.addEventListener('click', (e) => {
-        if (!dropdownElement.contains(e.target)) {
-            dropdownElement.classList.remove('open');
-            dropdownElement.setAttribute('aria-expanded', 'false');
-        }
-    });
+    ensureProspectorOutsideClickListener();
 
     options.addEventListener('click', (e) => {
         const option = e.target.closest('.dropdown-option');

@@ -66,7 +66,7 @@ export function orderTagsForRefresh(tags, activeTag = null) {
  * Iterates through saved profiles sequentially and refreshes their data in the background.
  *
  * @param {string[]} tags - Normalized player tags to refresh.
- * @param {((tag: string) => void) | { onTagStart?: (tag: string) => void, onProfileUpdated?: (tag: string) => void, throttleMs?: number }} [onProfileUpdatedOrOptions] - Callback or options object.
+ * @param {((tag: string) => void) | { onTagStart?: (tag: string) => void, onProfileUpdated?: (tag: string) => void, throttleMs?: number, shouldContinue?: () => boolean }} [onProfileUpdatedOrOptions] - Callback or options object.
  * @returns {Promise<{ total: number, successCount: number, failedCount: number }>}
  */
 export async function refreshSavedProfilesSequentially(tags, onProfileUpdatedOrOptions) {
@@ -77,17 +77,23 @@ export async function refreshSavedProfilesSequentially(tags, onProfileUpdatedOrO
         ? { onProfileUpdated: onProfileUpdatedOrOptions, throttleMs: 0 }
         : (onProfileUpdatedOrOptions || {});
 
-    const { onTagStart, onProfileUpdated, throttleMs = 0 } = options;
+    const { onTagStart, onProfileUpdated, throttleMs = 0, shouldContinue } = options;
     const validTags = tags.filter(tag => tag && tag !== 'DEFAULT0');
     summary.total = validTags.length;
 
     for (let i = 0; i < validTags.length; i++) {
+        if (typeof shouldContinue === 'function' && !shouldContinue()) {
+            break;
+        }
         const tag = validTags[i];
         if (typeof onTagStart === 'function') {
             onTagStart(tag);
         }
         try {
             const result = await loadAndProcessPlayerData(tag, { updateOrder: false });
+            if (typeof shouldContinue === 'function' && !shouldContinue()) {
+                break;
+            }
             if (result?.success) {
                 summary.successCount++;
                 if (typeof onProfileUpdated === 'function') {
@@ -117,7 +123,7 @@ export async function refreshSavedProfilesSequentially(tags, onProfileUpdatedOrO
  * @param {() => boolean} options.isSearchFormOpen - Function checking if search form is currently open.
  * @param {(open: boolean) => void} options.setToggleAddBtnState - Callback to update toggle add button state.
  * @param {(village: any) => void} options.openLaunchModal - Callback to open launch choice modal.
- * @returns {{ selectVillage: (cleanTag: string) => void, handleDeleteVillage: (cleanTag: string) => void, getActiveTag: () => string | null, getActiveProfile: () => any | null }}
+ * @returns {{ selectVillage: (cleanTag: string) => void, handleDeleteVillage: (cleanTag: string) => void, getActiveTag: () => string | null, getActiveProfile: () => any | null, destroy: () => void }}
  */
 export function initLandingAccountsManager({
     onActiveVillageChanged,
@@ -132,6 +138,7 @@ export function initLandingAccountsManager({
     let activeTag = savedProfiles.length > 0 ? savedProfiles[0].cleanTag : null;
     let activeProfile = savedProfiles.length > 0 ? savedProfiles[0] : null;
     let isManagingAccounts = false;
+    let isDestroyed = false;
 
     /**
      * Activates a player account, updating showcase, cards highlight, tool links, and live progress.
@@ -271,6 +278,7 @@ export function initLandingAccountsManager({
         try {
             summary = await refreshSavedProfilesSequentially(currentTags, {
                 throttleMs: ACCOUNT_REFRESH_DELAY_MS,
+                shouldContinue: () => !isDestroyed,
                 onTagStart: (tag) => {
                     const targetCard = document.querySelector(`.landing-account-card[data-tag="${tag}"]`);
                     if (targetCard) {
@@ -312,6 +320,8 @@ export function initLandingAccountsManager({
             }
             document.querySelectorAll('.landing-account-card.is-refreshing').forEach(c => c.classList.remove('is-refreshing'));
         }
+
+        if (isDestroyed) return;
 
         if (summary.total > 0) {
             if (summary.successCount === summary.total) {
@@ -396,6 +406,7 @@ export function initLandingAccountsManager({
                 (async () => {
                     try {
                         const result = await loadAndProcessPlayerData(cleanUrlTag, { updateOrder: true });
+                        if (isDestroyed) return;
                         if (result?.success) {
                             const canonicalTag = result.cleanTag || cleanUrlTag;
                             savedProfiles = getSavedProfiles();
@@ -437,6 +448,9 @@ export function initLandingAccountsManager({
         selectVillage,
         handleDeleteVillage,
         getActiveTag: () => activeTag,
-        getActiveProfile: () => activeProfile
+        getActiveProfile: () => activeProfile,
+        destroy: () => {
+            isDestroyed = true;
+        }
     };
 }

@@ -84,17 +84,23 @@ describe('Dev Server Watcher & Dist Immunity Suite', () => {
 
         await new Promise((resolve) => watcher.on('ready', resolve));
 
-        const distTestFile = path.join(process.cwd(), 'dist', 'dev-immunity-probe.tmp');
-        fs.writeFileSync(distTestFile, 'immunity probe');
+        const distDir = path.join(process.cwd(), 'dist');
+        if (!fs.existsSync(distDir)) {
+            fs.mkdirSync(distDir, { recursive: true });
+        }
 
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        const distTestFile = path.join(distDir, 'dev-immunity-probe.tmp');
 
         try {
-            fs.unlinkSync(distTestFile);
-        } catch (_) {}
-
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        await watcher.close();
+            fs.writeFileSync(distTestFile, 'immunity probe');
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            try {
+                fs.unlinkSync(distTestFile);
+            } catch (_) {}
+            await new Promise((resolve) => setTimeout(resolve, 300));
+        } finally {
+            await watcher.close();
+        }
 
         const distDetected = detectedEvents.some((e) => e.filePath.includes('dist'));
         assert.equal(distDetected, false, 'Watcher must not emit any events for files inside dist/');

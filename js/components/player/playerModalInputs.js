@@ -20,6 +20,8 @@ import { showConfirm } from '../../ui/noticeModal.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 
 let isPlayerModalInitialized = false;
+const boundPlayerModals = new WeakSet();
+let hasAttachedPlayerModalKeydown = false;
 
 /**
  * Resets player modal initialization state so event listeners can rebind on newly mounted dialogs.
@@ -67,6 +69,8 @@ export function initializePlayerModal() {
     isPlayerModalInitialized = true;
 
     const modal = document.getElementById('add-player-modal');
+    if (modal && boundPlayerModals.has(modal)) return;
+    if (modal) boundPlayerModals.add(modal);
     const cancelButton = document.getElementById('cancel-add-player-button');
     const loadButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('load-player-modal-btn'));
     const verifyButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('verify-player-modal-btn'));
@@ -253,13 +257,17 @@ export function initializePlayerModal() {
             }
         });
 
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && modal.classList.contains('show')) {
-                const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
-                if (openModals.length > 0 && openModals.at(-1) !== modal) return;
-                renderPlayerModal(false, '', '', false);
-            }
-        });
+        if (!hasAttachedPlayerModalKeydown) {
+            hasAttachedPlayerModalKeydown = true;
+            document.addEventListener('keydown', (event) => {
+                const activeModal = document.getElementById('add-player-modal');
+                if (event.key === 'Escape' && activeModal?.classList.contains('show')) {
+                    const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
+                    if (openModals.length > 0 && openModals.at(-1) !== activeModal) return;
+                    renderPlayerModal(false, '', '', false);
+                }
+            });
+        }
 
         renderPlayerModal(false, '', '', false);
     }

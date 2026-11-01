@@ -17,19 +17,25 @@ import { getChangelogHtml } from '../../services/changelogService.js';
 import { showAlert, showConfirm } from '../../ui/noticeModal.js';
 import { initAppSettings } from '../common/appSettings.js';
 
-let isAppSettingsInitialized = false;
+const boundSettingsTabs = new WeakSet();
 
 /**
  * Initializes all application settings subsystems and event listeners.
  */
 export function initializeAppSettings() {
-    if (isAppSettingsInitialized) return;
-    isAppSettingsInitialized = true;
-
     initAppSettings();
     populateDropdowns();
     initializeSettingsAccount();
     initializeAuthModal();
+
+    const settingsTab = typeof document !== 'undefined' ? (document.getElementById('settings-tab') || document.querySelector('.settings-tab')) : null;
+    if (settingsTab && boundSettingsTabs.has(settingsTab)) {
+        return;
+    }
+    if (settingsTab) {
+        boundSettingsTabs.add(settingsTab);
+    }
+
     initializeSettingsAppearance();
     initializeSettingsDataManagement();
     initializeSettingsPricing();
@@ -107,7 +113,6 @@ export function initializeAppSettings() {
         appVersionDisplay.textContent = 'v' + (window.__ENV__?.APP_VERSION || state.appVersion || '3.0.0').replace(/^v/, '');
     }
 
-    const settingsTab = document.getElementById('settings-tab') || document.querySelector('.settings-tab');
     if (settingsTab) {
         settingsTab.addEventListener('click', async (e) => {
             const target = /** @type {HTMLElement | null} */ (e.target);

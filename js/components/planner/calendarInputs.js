@@ -77,13 +77,14 @@ export function handleWeekChipClick(e) {
 }
 
 const mediaQuery = window.matchMedia('(max-width: 630px)');
+const boundCalendarElements = new WeakSet();
+let hasAttachedCalendarGlobalListeners = false;
 
 /**
  * Initializes calendar container touch gestures, drag-and-drop listeners, and settings modal handlers.
  */
 export function initializeCalendarEventListeners() {
     const calendarContainer = document.getElementById('calendar-container');
-    const calendarTrack = document.getElementById('calendar-track');
     const deleteCurrentMonthChipsBtn = document.getElementById('delete-current-month-chips-btn');
     const deleteAllChipsBtn = document.getElementById('delete-all-chips-btn');
     const calendarSettingsBtn = document.getElementById('calendar-settings-btn');
@@ -99,7 +100,8 @@ export function initializeCalendarEventListeners() {
     const highlightUpgradeRangesSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('calendar-highlight-upgrade-ranges-switch'));
     const autoPlaceScopeSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('calendar-auto-place-scope-select'));
 
-    if (calendarContainer) {
+    if (calendarContainer && !boundCalendarElements.has(calendarContainer)) {
+        boundCalendarElements.add(calendarContainer);
         calendarContainer.addEventListener('wheel', handleWheel, { passive: false });
         calendarContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
         calendarContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -172,7 +174,8 @@ export function initializeCalendarEventListeners() {
     }
 
     const monthChipContainer = document.getElementById('month-chip-container');
-    if (monthChipContainer) {
+    if (monthChipContainer && !boundCalendarElements.has(monthChipContainer)) {
+        boundCalendarElements.add(monthChipContainer);
         monthChipContainer.addEventListener('click', (e) => {
             const weekChip = e.target?.closest?.('.week-chip');
             if (weekChip) {
@@ -204,20 +207,10 @@ export function initializeCalendarEventListeners() {
         }
     }
 
-    mediaQuery.addEventListener('change', handleMediaQueryChange);
     handleMediaQueryChange(mediaQuery);
 
-    window.addEventListener('resize', () => {
-        const currentView = getCurrentView();
-        if (currentView === 'monthly' || currentView === 'weekly') {
-            if (calendarTrack) {
-                const activeIndex = Math.max(0, calendarTrack.children.length - 2);
-                positionTrackAtIndex(activeIndex);
-            }
-        }
-    });
-
-    if (deleteCurrentMonthChipsBtn) {
+    if (deleteCurrentMonthChipsBtn && !boundCalendarElements.has(deleteCurrentMonthChipsBtn)) {
+        boundCalendarElements.add(deleteCurrentMonthChipsBtn);
         deleteCurrentMonthChipsBtn.addEventListener('click', async () => {
             const confirm = await showConfirm(translate('views.planner.confirmDeleteMonth'));
             if (!confirm) return;
@@ -236,7 +229,8 @@ export function initializeCalendarEventListeners() {
         });
     }
 
-    if (deleteAllChipsBtn) {
+    if (deleteAllChipsBtn && !boundCalendarElements.has(deleteAllChipsBtn)) {
+        boundCalendarElements.add(deleteAllChipsBtn);
         deleteAllChipsBtn.addEventListener('click', async () => {
             const confirm = await showConfirm(translate('views.planner.confirmDeleteAll'));
             if (!confirm) return;
@@ -254,7 +248,8 @@ export function initializeCalendarEventListeners() {
         });
     }
 
-    if (autoPlaceChipsBtn) {
+    if (autoPlaceChipsBtn && !boundCalendarElements.has(autoPlaceChipsBtn)) {
+        boundCalendarElements.add(autoPlaceChipsBtn);
         autoPlaceChipsBtn.addEventListener('click', () => {
             const [yearStr, monthStr] = state.planner.calendar.view.month.split('-');
             setAnimateNextRender('auto-placed');
@@ -262,7 +257,8 @@ export function initializeCalendarEventListeners() {
         });
     }
 
-    if (calendarSettingsBtn) {
+    if (calendarSettingsBtn && !boundCalendarElements.has(calendarSettingsBtn)) {
+        boundCalendarElements.add(calendarSettingsBtn);
         calendarSettingsBtn.addEventListener('click', () => {
             const settings = state.planner.calendar.settings;
             if (firstDaySelect) firstDaySelect.value = settings.firstDayOfWeek;
@@ -274,19 +270,22 @@ export function initializeCalendarEventListeners() {
         });
     }
 
-    if (closeCalendarSettingsModalBtn) {
+    if (closeCalendarSettingsModalBtn && !boundCalendarElements.has(closeCalendarSettingsModalBtn)) {
+        boundCalendarElements.add(closeCalendarSettingsModalBtn);
         closeCalendarSettingsModalBtn.addEventListener('click', () => {
             if (calendarSettingsModal) closeModalAnimated(calendarSettingsModal);
         });
     }
 
-    if (cancelCalendarSettingsBtn) {
+    if (cancelCalendarSettingsBtn && !boundCalendarElements.has(cancelCalendarSettingsBtn)) {
+        boundCalendarElements.add(cancelCalendarSettingsBtn);
         cancelCalendarSettingsBtn.addEventListener('click', () => {
             if (calendarSettingsModal) closeModalAnimated(calendarSettingsModal);
         });
     }
 
-    if (saveCalendarSettingsBtn) {
+    if (saveCalendarSettingsBtn && !boundCalendarElements.has(saveCalendarSettingsBtn)) {
+        boundCalendarElements.add(saveCalendarSettingsBtn);
         saveCalendarSettingsBtn.addEventListener('click', () => {
             handleStateUpdate(() => {
                 state.planner.calendar.settings = {
@@ -309,25 +308,40 @@ export function initializeCalendarEventListeners() {
         });
     }
 
-    document.addEventListener('languageChanged', () => {
-        setAnimateNextRender(true);
-        renderCalendar(state.planner);
-        renderMonthChips();
-    });
+    if (!hasAttachedCalendarGlobalListeners) {
+        hasAttachedCalendarGlobalListeners = true;
 
-    document.addEventListener('chipDropOnCalendar', (e) => {
-        const customEv = /** @type {CustomEvent} */ (e);
-        const { incomeChipData, chipContainer } = customEv.detail || {};
-        if (incomeChipData && chipContainer) {
-            handleChipDropOnCalendar(incomeChipData, chipContainer);
-        }
-    });
+        mediaQuery.addEventListener('change', handleMediaQueryChange);
 
-    document.addEventListener('calendarChipsPlaced', () => {
-        renderCalendar(state.planner);
-    });
+        window.addEventListener('resize', () => {
+            const currentView = getCurrentView();
+            if (currentView === 'monthly' || currentView === 'weekly') {
+                const track = document.getElementById('calendar-track');
+                if (track) {
+                    const activeIndex = Math.max(0, track.children.length - 2);
+                    positionTrackAtIndex(activeIndex);
+                }
+            }
+        });
+
+        document.addEventListener('languageChanged', () => {
+            if (!document.getElementById('calendar-container')) return;
+            setAnimateNextRender(true);
+            renderCalendar(state.planner);
+            renderMonthChips();
+        });
+
+        document.addEventListener('chipDropOnCalendar', (e) => {
+            const customEv = /** @type {CustomEvent} */ (e);
+            const { incomeChipData, chipContainer } = customEv.detail || {};
+            if (incomeChipData && chipContainer) {
+                handleChipDropOnCalendar(incomeChipData, chipContainer);
+            }
+        });
+
+        document.addEventListener('calendarChipsPlaced', () => {
+            if (!document.getElementById('calendar-container')) return;
+            renderCalendar(state.planner);
+        });
+    }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    initializeCalendarEventListeners();
-});
