@@ -9,8 +9,23 @@ describe('Damage Calculator Header, Base Controls & Parity Invariants', () => {
     const projectRoot = process.cwd();
     const sourceHtmlPath = path.join(projectRoot, 'damage-calculator/index.html');
 
+    function readHtmlWithPartials(fullPath) {
+        let content = fs.readFileSync(fullPath, 'utf8');
+        const includeRegex = /<!--\s*include:\s*([^\s]+)\s*-->/g;
+        let match;
+        const seen = new Set();
+        while ((match = includeRegex.exec(content)) !== null) {
+            const incPath = match[1];
+            if (!seen.has(incPath)) {
+                seen.add(incPath);
+                content += '\n' + fs.readFileSync(path.join(projectRoot, incPath), 'utf8');
+            }
+        }
+        return content;
+    }
+
     test('damage-calculator/index.html contains canonical app header shell with inner wrapper', () => {
-        const content = fs.readFileSync(sourceHtmlPath, 'utf8');
+        const content = readHtmlWithPartials(sourceHtmlPath);
         assert.ok(
             content.includes('class="app-header header-container damage-calc-page__header"'),
             'Must contain canonical app-header and header-container classes'
@@ -50,7 +65,7 @@ describe('Damage Calculator Header, Base Controls & Parity Invariants', () => {
     });
 
     test('damage-calculator/index.html defines village player dropdown with button and container', () => {
-        const content = fs.readFileSync(sourceHtmlPath, 'utf8');
+        const content = readHtmlWithPartials(sourceHtmlPath);
         assert.ok(
             content.includes('class="app-header__player-dropdown player-dropdown-container"'),
             'Must contain player dropdown container in header'
@@ -102,7 +117,7 @@ describe('Damage Calculator Header, Base Controls & Parity Invariants', () => {
     });
 
     test('damage-calculator/index.html includes necessary modals and layout placeholder', () => {
-        const content = fs.readFileSync(sourceHtmlPath, 'utf8');
+        const content = readHtmlWithPartials(sourceHtmlPath);
         assert.ok(
             content.includes('class="header-placeholder app-header-placeholder"'),
             'Must contain header-placeholder to prevent content clipping under fixed header'

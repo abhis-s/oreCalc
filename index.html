@@ -47,57 +47,22 @@
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/landing.css">
 
-    <script>
-        (function() {
-            try {
-                var raw = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings') || localStorage.getItem('orecalc_state');
-                var isLight = false;
-                if (raw) {
-                    var parsed = JSON.parse(raw);
-                    isLight = (parsed && (parsed.theme === 'light' || (parsed.settings && parsed.settings.theme === 'light')));
-                    var accent = parsed.accentColor || (parsed.settings && parsed.settings.accentColor);
-                    if (accent) {
-                        document.documentElement.setAttribute('data-accent', accent);
-                    }
-                }
-                if (isLight) {
-                    document.documentElement.classList.add('light-mode');
-                } else {
-                    document.documentElement.classList.add('dark-mode');
-                }
-                var rawTags = localStorage.getItem('clashCalc_playerTags') || localStorage.getItem('oreCalc_playerTags');
-                var hasValidTag = false;
-                if (rawTags && rawTags !== '[]' && rawTags !== '["DEFAULT0"]') {
-                    try {
-                        var parsedTags = JSON.parse(rawTags);
-                        hasValidTag = Array.isArray(parsedTags) && parsedTags.some(function(t) { return t && t !== 'DEFAULT0'; });
-                    } catch (_) {}
-                }
-                if (/[?&]tag=/.test(window.location.search) || hasValidTag) {
-                    document.documentElement.classList.add('has-player');
-                }
-            } catch (e) {}
-        })();
-    </script>
+    <!-- include: partials/head-theme-bootstrap.html -->
     <!-- include: partials/head/importmap.html -->
 </head>
 
 <body class="dark-mode landing-page">
-    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-    <!-- include: partials/watchdog.html -->
+    <!-- include: partials/shell-top.html -->
 
-    <!-- include: partials/svg-sprites.html -->
-    <!-- include: partials/load-failure-screen.html -->
-
-    <header class="app-header landing-header">
-        <div class="app-header__inner landing-header__inner">
-            <div class="app-header__brand landing-header__brand-group">
-                <button type="button" id="hamburger-button" class="app-header__hamburger hamburger landing-hamburger"
+    <header class="app-header header-container landing-header">
+        <div class="app-header__inner header-inner">
+            <div class="app-header__brand header-brand">
+                <button type="button" id="hamburger-button" class="app-header__hamburger hamburger"
                     aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
                     <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
                 </button>
-                <a href="/" class="brand-title-link landing-brand" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
-                    <span class="brand-title landing-brand__name">
+                <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
+                    <span class="brand-title">
                         <span class="brand-clash">Clash</span><span class="brand-calc">Calc</span>
                     </span>
                 </a>
@@ -110,13 +75,13 @@
                 </div>
             </div>
 
-            <div class="app-header__actions landing-header__actions">
+            <div class="app-header__actions data-buttons-container">
                 <!-- include: partials/header-spotright.html -->
                 <!-- include: partials/header-account.html -->
             </div>
         </div>
     </header>
-    <div class="header-placeholder"></div>
+    <div class="header-placeholder app-header-placeholder"></div>
 
     <main class="landing-main" id="main-content">
         <section class="landing-hero">
@@ -294,8 +259,6 @@
         </section>
     </main>
 
-    <!-- include: partials/footer.html -->
-
     <div id="tool-extras">
         <dialog id="landing-launch-modal" class="modal landing-modal" aria-labelledby="landing-launch-title">
             <div class="modal-content landing-modal-content">
@@ -369,20 +332,11 @@
             </div>
         </dialog>
     </div>
-    <!-- include: partials/navigation-drawer.html -->
-    <!-- include: partials/modals/changelog.html -->
-    <!-- include: partials/modals/commits.html -->
-    <!-- include: partials/modals/privacy.html -->
-    <!-- include: partials/modals/terms.html -->
-    <!-- include: partials/modals/licenses.html -->
-    <!-- include: partials/modals/notice.html -->
-    <!-- include: partials/modals/auth-modal.html -->
-    <!-- include: partials/modals/update-available.html -->
-    <!-- include: partials/modals/bug-report.html -->
-    <!-- include: partials/modals/contact.html -->
-    <!-- include: partials/modals/running-costs.html -->
+
+    <!-- include: partials/footer.html -->
+    <!-- include: partials/shell-modals.html -->
     <script src="/js/qr-code-styling.js" defer></script>
-    <script src="js/workbox-window.js" defer></script>
+    <script src="/js/workbox-window.js" defer></script>
     <script type="module" src="/js/landingApp.js"></script>
 </body>
 

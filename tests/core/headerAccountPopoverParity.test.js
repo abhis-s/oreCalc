@@ -8,20 +8,33 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '../..');
 
+function readHtmlWithPartials(relPath) {
+    let content = fs.readFileSync(path.join(projectRoot, relPath), 'utf8');
+    const includeRegex = /<!--\s*include:\s*([^\s]+)\s*-->/g;
+    let match;
+    const seen = new Set();
+    while ((match = includeRegex.exec(content)) !== null) {
+        const incPath = match[1];
+        if (!seen.has(incPath)) {
+            seen.add(incPath);
+            content += '\n' + fs.readFileSync(path.join(projectRoot, incPath), 'utf8');
+        }
+    }
+    return content;
+}
+
 describe('Header Account Popover & Modal Parity Suite', () => {
     const entrypointFiles = [
         'index.html',
         'hero-journey/index.html',
         'damage-calculator/index.html',
-        'ore-calculator/index.html'
+        'ore-calculator/index.html',
+        'account/index.html'
     ];
 
     it('ensures all entrypoints include the unified header account component', () => {
-        const headerPartial = fs.readFileSync(path.join(projectRoot, 'partials/header.html'), 'utf8');
-        assert.ok(headerPartial.includes('partials/header-account.html'), 'partials/header.html must include partials/header-account.html');
-
-        for (const relPath of ['index.html', 'hero-journey/index.html', 'damage-calculator/index.html']) {
-            const content = fs.readFileSync(path.join(projectRoot, relPath), 'utf8');
+        for (const relPath of entrypointFiles) {
+            const content = readHtmlWithPartials(relPath);
             assert.ok(content.includes('partials/header-account.html'), `${relPath} must include partials/header-account.html`);
         }
     });
@@ -35,7 +48,7 @@ describe('Header Account Popover & Modal Parity Suite', () => {
         ];
 
         for (const relPath of entrypointFiles) {
-            const content = fs.readFileSync(path.join(projectRoot, relPath), 'utf8');
+            const content = readHtmlWithPartials(relPath);
             for (const modal of requiredModals) {
                 assert.ok(content.includes(modal), `${relPath} must include ${modal}`);
             }

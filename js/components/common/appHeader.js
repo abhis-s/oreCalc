@@ -189,18 +189,18 @@ function queryFirst(parent, selectors) {
  * @returns {{ updateLayout: () => void, resetCache: () => void, disconnect: () => void }}
  */
 function observeAppHeaderLayout(header, options = {}) {
-    const inner = queryFirst(header, ['.app-header__inner', '.header-inner', '.hero-journey-page__header-inner', '.landing-header__inner']) || header;
-    const brand = queryFirst(inner, ['.app-header__brand', '.header-brand', '.hero-journey-page__brand', '.landing-header__brand-group'])
-        || queryFirst(header, ['.app-header__brand', '.header-brand', '.hero-journey-page__brand', '.landing-header__brand-group']);
+    const inner = queryFirst(header, ['.app-header__inner', '.header-inner']) || header;
+    const brand = queryFirst(inner, ['.app-header__brand', '.header-brand'])
+        || queryFirst(header, ['.app-header__brand', '.header-brand']);
     const tabBar = queryFirst(inner, ['.app-header__tabs', '.tab-bar-container'])
         || queryFirst(header, ['.app-header__tabs', '.tab-bar-container']);
     const playerDropdown = queryFirst(inner, ['.app-header__player-dropdown', '.player-dropdown-container'])
         || queryFirst(header, ['.app-header__player-dropdown', '.player-dropdown-container']);
-    const actions = queryFirst(inner, ['.app-header__actions', '.data-buttons-container', '.hero-journey-page__header-actions', '.landing-header__actions'])
-        || queryFirst(header, ['.app-header__actions', '.data-buttons-container', '.hero-journey-page__header-actions', '.landing-header__actions']);
-    const hamburger = queryFirst(brand, ['#hamburger-button', '.app-header__hamburger', '.hamburger', '.hj-hamburger'])
-        || queryFirst(inner, ['#hamburger-button', '.app-header__hamburger', '.hamburger', '.hj-hamburger'])
-        || queryFirst(header, ['#hamburger-button', '.app-header__hamburger', '.hamburger', '.hj-hamburger']);
+    const actions = queryFirst(inner, ['.app-header__actions', '.data-buttons-container'])
+        || queryFirst(header, ['.app-header__actions', '.data-buttons-container']);
+    const hamburger = queryFirst(brand, ['#hamburger-button', '.app-header__hamburger', '.hamburger'])
+        || queryFirst(inner, ['#hamburger-button', '.app-header__hamburger', '.hamburger'])
+        || queryFirst(header, ['#hamburger-button', '.app-header__hamburger', '.hamburger']);
 
     let cachedBrandTitleWidth = 0;
     let cachedSeparatorWidth = 0;
@@ -406,7 +406,7 @@ export function initAppHeader(options = {}) {
 
     // Hamburger drawer binding
     if (options.bindDrawer === true) {
-        const hamburger = queryFirst(header, ['#hamburger-button', '.app-header__hamburger', '.hamburger', '.hj-hamburger']);
+        const hamburger = queryFirst(header, ['#hamburger-button', '.app-header__hamburger', '.hamburger']);
         if (hamburger) {
             const drawerInstance = initNavigationDrawer({ buttonEl: /** @type {HTMLElement} */ (hamburger) });
             cleanups.push(() => drawerInstance.destroy());

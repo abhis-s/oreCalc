@@ -46,35 +46,7 @@
     <link rel="alternate" hreflang="x-default" href="https://clashcalc.com/ore-calculator/" />
 
     <link rel="stylesheet" href="/css/main.css">
-    <script>
-        (function() {
-            try {
-                var s = JSON.parse(localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings') || '{}');
-                var isLight = (s.theme === 'light');
-                var bg = isLight ? '#f8f9fa' : '#121212';
-                var m = document.querySelector('meta[name="theme-color"]:not([media])');
-                if (m) m.setAttribute('content', bg);
-                document.documentElement.style.backgroundColor = bg;
-                document.documentElement.style.colorScheme = isLight ? 'light' : 'dark';
-                if (isLight) {
-                    document.documentElement.classList.add('light-mode');
-                } else {
-                    document.documentElement.classList.add('dark-mode');
-                }
-                var rawTags = localStorage.getItem('clashCalc_playerTags') || localStorage.getItem('oreCalc_playerTags');
-                var hasValidTag = false;
-                if (rawTags && rawTags !== '[]' && rawTags !== '["DEFAULT0"]') {
-                    try {
-                        var parsedTags = JSON.parse(rawTags);
-                        hasValidTag = Array.isArray(parsedTags) && parsedTags.some(function(t) { return t && t !== 'DEFAULT0'; });
-                    } catch (_) {}
-                }
-                if (/[?&]tag=/.test(window.location.search) || hasValidTag) {
-                    document.documentElement.classList.add('has-player');
-                }
-            } catch (e) {}
-        })();
-    </script>
+    <!-- include: partials/head-theme-bootstrap.html -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -108,11 +80,7 @@
 </head>
 
 <body class="dark-mode">
-    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-    <!-- include: partials/watchdog.html -->
-
-    <!-- include: partials/svg-sprites.html -->
-    <!-- include: partials/load-failure-screen.html -->
+    <!-- include: partials/shell-top.html -->
 
     <div id="preloader" hidden>
         <script>
@@ -150,7 +118,6 @@
 
     <!-- include: partials/header.html -->
     <div class="header-placeholder app-header-placeholder"></div>
-    <!-- include: partials/navigation-drawer.html -->
 
     <main class="container" id="main-content">
 
@@ -178,19 +145,7 @@
     </div>
 
     <!-- include: partials/footer.html -->
-
-    <!-- include: partials/modals/add-player.html -->
-    <!-- include: partials/modals/bug-report.html -->
-    <!-- include: partials/modals/contact.html -->
-    <!-- include: partials/modals/privacy.html -->
-    <!-- include: partials/modals/terms.html -->
-    <!-- include: partials/modals/update-available.html -->
-    <!-- include: partials/modals/changelog.html -->
-    <!-- include: partials/modals/commits.html -->
-    <!-- include: partials/modals/notice.html -->
-    <!-- include: partials/modals/auth-modal.html -->
-    <!-- include: partials/modals/licenses.html -->
-    <!-- include: partials/modals/running-costs.html -->
+    <!-- include: partials/shell-modals.html -->
     <script src="/js/qr-code-styling.js" defer></script>
     <script src="/js/workbox-window.js" defer></script>
     <script type="module" src="/js/app.js"></script>

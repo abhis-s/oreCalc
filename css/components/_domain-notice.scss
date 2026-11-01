@@ -175,9 +175,8 @@
 }
 
 body:has(.domain-notice:not(.domain-notice--exiting)) {
-    .header-container,
-    .hero-journey-page__header,
-    .landing-header {
+    .app-header,
+    .header-container {
         top: calc(#{$header-top-desktop} + env(safe-area-inset-top, 0px) + var(--domain-notice-height, 48px));
 
         @media (max-width: #{$breakpoint-desktop - 1px}) {

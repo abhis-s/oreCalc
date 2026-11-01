@@ -1,0 +1,37 @@
+    <script>
+        (function() {
+            try {
+                var isLight = false;
+                var raw = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings') || localStorage.getItem('orecalc_state');
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    isLight = Boolean(parsed && (parsed.theme === 'light' || (parsed.settings && parsed.settings.theme === 'light')));
+                    var accent = parsed && (parsed.accentColor || (parsed.settings && parsed.settings.accentColor));
+                    if (accent) {
+                        document.documentElement.setAttribute('data-accent', accent);
+                    }
+                }
+                var bg = isLight ? '#f8f9fa' : '#121212';
+                var m = document.querySelector('meta[name="theme-color"]:not([media])');
+                if (m) m.setAttribute('content', bg);
+                document.documentElement.style.backgroundColor = bg;
+                document.documentElement.style.colorScheme = isLight ? 'light' : 'dark';
+                if (isLight) {
+                    document.documentElement.classList.add('light-mode');
+                } else {
+                    document.documentElement.classList.add('dark-mode');
+                }
+                var rawTags = localStorage.getItem('clashCalc_playerTags') || localStorage.getItem('oreCalc_playerTags');
+                var hasValidTag = false;
+                if (rawTags && rawTags !== '[]' && rawTags !== '["DEFAULT0"]') {
+                    try {
+                        var parsedTags = JSON.parse(rawTags);
+                        hasValidTag = Array.isArray(parsedTags) && parsedTags.some(function(t) { return t && t !== 'DEFAULT0'; });
+                    } catch (_) {}
+                }
+                if (/[?&]tag=/.test(window.location.search) || hasValidTag) {
+                    document.documentElement.classList.add('has-player');
+                }
+            } catch (e) {}
+        })();
+    </script>
