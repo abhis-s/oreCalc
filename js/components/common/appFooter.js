@@ -5,7 +5,8 @@
  */
 
 import { openLicensesModal, openPrivacyModal, openTermsOfUseModal } from '../appSettings/settingsLegalModals.js';
-import { openBugReportModal, openContactModal, openRunningCostsModal } from '../appSettings/settingsSupportModals.js';
+import { openRunningCostsModal } from '../appSettings/settingsRunningCostsModal.js';
+import { openBugReportModal, openContactModal } from '../appSettings/settingsSupportModals.js';
 import { translate } from '../../i18n/translator.js';
 
 /**

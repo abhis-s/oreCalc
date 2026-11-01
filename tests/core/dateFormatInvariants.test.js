@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { formatDate, formatRegionalDate } from '../../js/utils/dateUtils.js';
-import { formatInvoiceMonth } from '../../js/components/appSettings/settingsSupportModals.js';
+import { formatInvoiceMonth } from '../../js/components/appSettings/settingsRunningCostsModal.js';
 import { state } from '../../js/core/state.js';
 
 const __filename = fileURLToPath(import.meta.url);

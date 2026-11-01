@@ -12,9 +12,11 @@ import assert from 'node:assert/strict';
 import { state } from '../../js/core/state.js';
 import { loadTranslations } from '../../js/i18n/translator.js';
 import {
-    getComboBreakdownPopoverContent,
-    getClusterTargetPopoverContent
+    getComboBreakdownPopoverContent
 } from '../../js/components/damage/damageCalcGridPopoversDisplay.js';
+import {
+    getClusterTargetPopoverContent
+} from '../../js/components/damage/damageCalcClusterAndBadgePopoversDisplay.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

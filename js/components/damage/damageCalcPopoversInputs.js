@@ -7,16 +7,19 @@ import { showCardHelpPopover, hideCardHelpPopover, isCardHelpPopoverPinned } fro
 import {
     getGenericInfoPopoverContent,
     getActionInfoPopoverContent,
-    getNoteCodePopoverContent,
+    getNoteCodePopoverContent
+} from './damageCalcRulesPopoversDisplay.js';
+import {
     getDamageSourcePopoverContent
 } from './damageCalcOffensePopoversDisplay.js';
 import {
-    getComboBreakdownPopoverContent,
+    getComboBreakdownPopoverContent
+} from './damageCalcGridPopoversDisplay.js';
+import {
     getClusterTargetPopoverContent,
-    getCasualtyPopoverContent,
     getComboBadgePopoverContent,
     getSharedComboPopoverContent
-} from './damageCalcGridPopoversDisplay.js';
+} from './damageCalcClusterAndBadgePopoversDisplay.js';
 
 /** @type {Object | null} */
 let currentDamageState = null;
@@ -90,19 +93,6 @@ export function attachDamageCalcPopoverListeners(rootContainer, state) {
             const content = getClusterTargetPopoverContent(clusterCard);
             if (content) {
                 showCardHelpPopover(clusterInfoBtn, content, { isToggle: isClick });
-                return true;
-            }
-        }
-
-        // Casualty card strike breakdown
-        const casualtyInfoBtn = target.closest('[data-casualty-info-btn], .calc-info-btn');
-        const casualtyCard = target.closest('.calc-casualty-card');
-        const casualtyTrigger = isClick ? casualtyInfoBtn : (casualtyInfoBtn || casualtyCard);
-        if (casualtyTrigger && casualtyCard) {
-            const anchor = casualtyInfoBtn || casualtyCard;
-            const content = getCasualtyPopoverContent(casualtyCard, currentDamageState || state);
-            if (content) {
-                showCardHelpPopover(anchor, content, { isToggle: isClick });
                 return true;
             }
         }

@@ -28,7 +28,7 @@ import { loadTranslations } from '../../js/i18n/translator.js';
 import { preloadDefensesData, getDefensesData } from '../../js/data/defenseTargetsData.js';
 import { getClusterPresetsForTownHall } from '../../js/data/clusterPresetsData.js';
 import { renderDefenseBoardPanel } from '../../js/components/damage/damageCalcDefenseBoardDisplay.js';
-import { getClusterTargetPopoverContent } from '../../js/components/damage/damageCalcGridPopoversDisplay.js';
+import { getClusterTargetPopoverContent } from '../../js/components/damage/damageCalcClusterAndBadgePopoversDisplay.js';
 import { damageCalcState, loadPersistedState } from '../../js/components/damage/damageCalcState.js';
 import { attachDamageCalcListeners } from '../../js/components/damage/damageCalcInputs.js';
 import { renderTownHallDropdownHtml } from '../../js/components/damage/damageCalcSourcesDisplay.js';

@@ -15,12 +15,14 @@ import {
     getEquipmentStatsPopoverContent,
     getEarthquakeStatsPopoverContent,
     getLightningStatsPopoverContent,
-    getDamageSourcePopoverContent,
+    getDamageSourcePopoverContent
+} from '../../js/components/damage/damageCalcOffensePopoversDisplay.js';
+import {
     getGenericInfoPopoverContent,
     getActionInfoPopoverContent,
     getNoteCodePopoverContent
-} from '../../js/components/damage/damageCalcOffensePopoversDisplay.js';
-import { getComboBadgePopoverContent } from '../../js/components/damage/damageCalcGridPopoversDisplay.js';
+} from '../../js/components/damage/damageCalcRulesPopoversDisplay.js';
+import { getComboBadgePopoverContent } from '../../js/components/damage/damageCalcClusterAndBadgePopoversDisplay.js';
 import { getHpUnit } from '../../js/components/damage/damageCalcDisplay.js';
 
 const __filename = fileURLToPath(import.meta.url);

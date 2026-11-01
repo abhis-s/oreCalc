@@ -6,7 +6,8 @@
 import { translate } from '../../i18n/translator.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { navigationRegistry } from '../../data/navigationRegistry.js';
-import { getSavedProfiles, resolvePlayerSummaryStats } from '../../core/playerStorage.js';
+import { getSavedProfiles } from '../../core/playerStorage.js';
+import { resolvePlayerSummaryStats } from '../../core/playerSummaryResolver.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { symbolExists } from '../../utils/svgManager.js';
 import { initAppFooter } from './appFooter.js';

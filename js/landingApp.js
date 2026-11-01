@@ -4,29 +4,22 @@
  * Tier 4: UI Application Entry.
  */
 
-import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
-import { loadState } from './core/localStorageManager.js';
+import { getLanguageFromPath } from './core/languageRouter.js';
 import { formatDisplayTag } from './core/storageKeys.js';
 import { getSavedProfiles } from './core/playerStorage.js';
-import { consolidateLocalStorageKeys } from './core/storageMigrations.js';
-import { loadTranslations } from './i18n/translator.js';
-import { updateUIWithTranslations } from './i18n/uiTranslator.js';
-import { closeModal, initializeModalHistoryManager, openModal } from './utils/modalHistoryManager.js';
-import { initializeState, state } from './core/state.js';
+import { closeModal, openModal } from './utils/modalHistoryManager.js';
+import { state } from './core/state.js';
+import {
+    bindStandaloneNavigationDrawer,
+    bootstrapShellLanguageAndStorage,
+    finalizeRouteMount,
+    initSharedShellChrome,
+    mountWhenReady
+} from './core/shellBootstrapper.js';
 import './utils/svgManager.js';
 import './utils/imageManager.js';
 import './console.js';
-import { initNavigationDrawer } from './components/common/navigationDrawer.js';
 import { renderNavigationDrawerContent } from './components/common/navigationDrawerRenderer.js';
-import { initAppHeader } from './components/common/appHeader.js';
-import { initAppFooter } from './components/common/appFooter.js';
-import { initExternalLinkCatcher } from './components/common/externalLinkCatcher.js';
-import { initializeCommitsModal } from './components/changelog/commitsModal.js';
-import { initSpotright } from './components/spotright/spotrightController.js';
-import { initShortcutsModalListener } from './components/shortcuts/shortcutsModal.js';
-import { getAppSettings, initAppSettings, persistAppSettings } from './components/common/appSettings.js';
-import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
-import { initializePwaService } from './services/pwaService.js';
 import {
     initToolCardsLayoutObserver,
     renderGuestTeasers
@@ -36,10 +29,6 @@ import {
     initLandingAccountsManager
 } from './components/landing/landingAccountsController.js';
 import { initLandingSearchForm } from './components/landing/landingSearchController.js';
-import { initializeAuthModal } from './components/auth/authModalInputs.js';
-import { initializeSettingsAccount } from './components/appSettings/settingsAccountInputs.js';
-import { initAppShellNavigator, registerAppRoute } from './core/appShellNavigator.js';
-import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHooks.js';
 
 /**
  * Updates tool CTA, title link, and quick-jump shortcut hrefs to include the active player tag and language prefix.
@@ -87,7 +76,7 @@ function updateToolLinks(cleanTag) {
     if (jumpEquipmentSnipes) jumpEquipmentSnipes.href = `${langPrefix}/damage-calculator/${clusterQuery}`;
 }
 
-/** @type {ReturnType<typeof initNavigationDrawer> | null} */
+/** @type {ReturnType<typeof bindStandaloneNavigationDrawer>} */
 let landingDrawerInstance = null;
 let activeLandingTag = '';
 /** @type {import('./core/playerStorage.js').SavedProfileSummary | null} */
@@ -369,42 +358,6 @@ function initLandingCrossTabSync() {
     });
 }
 
-/**
- * Initializes header scroll elevation and layout observer on the Landing Portal.
- */
-function initHeaderScroll() {
-    initAppHeader({
-        headerElement: '.landing-header',
-        hasPill: true,
-        hasPlayerDropdown: false,
-        hasTabs: false
-    });
-}
-
-/**
- * Initializes mobile navigation drawer on the Landing Portal.
- */
-function initLandingDrawer() {
-    const drawerEl = document.getElementById('navigation-drawer');
-    const overlayEl = document.querySelector('.navigation-drawer__overlay');
-    const buttonEl = document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
-    const closeEl = drawerEl?.querySelector('.navigation-drawer__close') || null;
-
-    if (!drawerEl || !buttonEl) return;
-
-    updateLandingDrawer();
-
-    landingDrawerInstance = initNavigationDrawer({
-        drawerEl,
-        overlayEl,
-        buttonEl,
-        closeEl,
-        onItemClick: () => {
-            landingDrawerInstance?.close();
-        }
-    });
-}
-
 let isMounted = false;
 let hasAttachedLandingListeners = false;
 
@@ -418,58 +371,26 @@ export async function mount(options = {}) {
     if (isMounted && !options.force) return;
     isMounted = true;
 
-    registerGlobalErrorBoundaries();
-    consolidateLocalStorageKeys();
-    initializeModalHistoryManager();
-    initializeCommitsModal();
-    let savedState = null;
-    try {
-        savedState = loadState();
-    } catch (e) {
-        console.error('Failed to load saved state:', e);
-    }
-    initializeState(savedState);
-    initHeaderScroll();
-    const pathLang = getLanguageFromPath();
-    const savedSettings = getAppSettings();
-    const targetLang = pathLang || (savedSettings.language && savedSettings.language !== 'auto' ? savedSettings.language : 'en');
-    if (!state.uiSettings) {
-        state.uiSettings = {};
-    }
-    state.uiSettings.language = targetLang;
+    await bootstrapShellLanguageAndStorage({ hydrateState: true });
+    initSharedShellChrome({
+        domainNotice: false,
+        headerOptions: {
+            headerElement: '.landing-header',
+            hasPill: true,
+            hasPlayerDropdown: false,
+            hasTabs: false
+        }
+    });
 
-    if (pathLang) {
-        persistAppSettings({ language: pathLang });
-    } else if (targetLang !== 'en') {
-        syncLanguageUrl(targetLang, true);
-    }
-
-    await loadTranslations(targetLang);
-    updateUIWithTranslations(true);
-    initAppSettings();
     updateToolLinks();
     await initCommandCenter();
-    initAppFooter();
-    initializePwaService();
-    initLandingDrawer();
+    landingDrawerInstance = bindStandaloneNavigationDrawer(updateLandingDrawer);
     if (!hasAttachedLandingListeners) {
         hasAttachedLandingListeners = true;
         initLandingCrossTabSync();
     }
-    initExternalLinkCatcher();
-    initializeAuthModal();
-    initializeSettingsAccount();
-    initSpotright();
-    initShortcutsModalListener();
 
-    setupNavigatorUiHooks();
-    initAppShellNavigator();
-    registerAppRoute('hub', { mount, destroy });
-
-    if (typeof window.__APP_LOADED__ === 'function') {
-        window.__APP_LOADED__();
-    }
-    window.isAppStartingUp = false;
+    finalizeRouteMount('hub', { mount, destroy });
 }
 
 /**
@@ -486,10 +407,4 @@ export function destroy() {
     landingDrawerInstance = null;
 }
 
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => void mount());
-    } else {
-        void mount();
-    }
-}
+mountWhenReady(mount);

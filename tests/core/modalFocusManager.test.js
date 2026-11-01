@@ -1,7 +1,8 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getInitialModalFocusTarget, openModal, dismissModalsForNavigation, isModalHistoryPopping } from '../../js/utils/modalHistoryManager.js';
+import { getInitialModalFocusTarget } from '../../js/utils/modalFocusManager.js';
+import { openModal, dismissModalsForNavigation, isModalHistoryPopping } from '../../js/utils/modalHistoryManager.js';
 
 class MockClassList {
     constructor(initial = '') {

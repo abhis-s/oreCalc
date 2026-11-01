@@ -12,6 +12,9 @@ export {
 export {
     formatInvoiceMonth,
     renderRunningCostsData,
-    openRunningCostsModal,
+    openRunningCostsModal
+} from './settingsRunningCostsModal.js';
+
+export {
     openBugReportModal
 } from './settingsSupportModals.js';

@@ -1,9 +1,9 @@
+const { resolveEmailDomain } = require('./alertDiagnostics.js');
 const {
     shouldSendAlertEmail,
     recordAlertSent,
     sendMailSafely,
     notify503RecoveryIfActive,
-    resolveEmailDomain,
     outageState
 } = require('./alertThrottle.js');
 

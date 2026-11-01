@@ -380,7 +380,7 @@ export function buildSpotrightRegistry() {
             category: settingsCategory, icon: 'costs', iconType: 'svg', acronym: 'pr', priorityTier: 15,
             execute: async () => {
                 if (typeof document === 'undefined') return;
-                const { openRunningCostsModal } = await import('../appSettings/settingsSupportModals.js');
+                const { openRunningCostsModal } = await import('../appSettings/settingsRunningCostsModal.js');
                 openRunningCostsModal();
             }
         },

@@ -15,9 +15,9 @@ import {
     loadPlayerData,
     removePlayerTag,
     getSavedProfiles,
-    inferTownHallLevel,
-    resolvePlayerSummaryStats
+    inferTownHallLevel
 } from '../../js/core/playerStorage.js';
+import { resolvePlayerSummaryStats } from '../../js/core/playerSummaryResolver.js';
 import {
     sanitizePlayerProfile,
     stripAutoPlacedCalendarChips

@@ -2,17 +2,19 @@ const { test, describe, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
-    outageState,
     isIgnoredNoise,
     isBotTraffic,
+    resolveEmailDomain,
+    parseDeviceSummary,
+    normalizeErrorMessage,
+    formatIncidentCard
+} = require('../services/alertDiagnostics.js');
+const {
+    outageState,
     shouldSendAlertEmail,
     recordAlertSent,
     notify503RecoveryIfActive,
     resetThrottleState,
-    resolveEmailDomain,
-    parseDeviceSummary,
-    normalizeErrorMessage,
-    formatIncidentCard,
     queueClientErrorAlert,
     flushUserBatch,
     flushAllPendingBatches,

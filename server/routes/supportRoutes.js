@@ -132,7 +132,9 @@ router.post('/support/bug-report', sensitiveLimiter, async (req, res) => {
 
 const {
     isIgnoredNoise,
-    resolveEmailDomain,
+    resolveEmailDomain
+} = require('../services/alertDiagnostics.js');
+const {
     queueClientErrorAlert
 } = require('../services/alertThrottle.js');
 

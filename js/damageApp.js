@@ -3,25 +3,15 @@
  * Tier 4: Main Application Entrypoint for /damage-calculator/
  */
 
-import { loadTranslations } from './i18n/translator.js';
 import { updateUIWithTranslations } from './i18n/uiTranslator.js';
-import { initDomainNotice } from './components/common/domainNotice.js';
-import { initAppFooter } from './components/common/appFooter.js';
 import { renderNavigationDrawerContent } from './components/common/navigationDrawerRenderer.js';
-import { initAppHeader } from './components/common/appHeader.js';
 import { renderBottomNavBar } from './components/common/bottomNavBar.js';
-import { initExternalLinkCatcher } from './components/common/externalLinkCatcher.js';
-import { initializeCommitsModal } from './components/changelog/commitsModal.js';
-import { initializeChangelogModal } from './components/changelog/changelogModal.js';
-import { initSpotright } from './components/spotright/spotrightController.js';
-import { initShortcutsModalListener } from './components/shortcuts/shortcutsModal.js';
-import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
-import { state } from './core/state.js';
 import {
-    initAppSettings,
-    getAppSettings,
-    persistAppSettings
-} from './components/common/appSettings.js';
+    bootstrapShellLanguageAndStorage,
+    finalizeRouteMount,
+    initSharedShellChrome,
+    mountWhenReady
+} from './core/shellBootstrapper.js';
 import {
     normalizePlayerTag,
     getPlayerStorageKey,
@@ -31,9 +21,7 @@ import {
 import { getPlayerTagFromUrl, syncPlayerTagToUrl } from './core/playerUrlRouter.js';
 import { getSavedProfiles, savePlayerProfileToStorage, setActivePlayerTag } from './core/playerStorage.js';
 import { isPlayerRefreshStale } from './core/playerRefreshThrottler.js';
-import { consolidateLocalStorageKeys } from './core/storageMigrations.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
-import { initializeModalHistoryManager } from './utils/modalHistoryManager.js';
 import { showApiErrorToast } from './ui/toast.js';
 import { fetchPlayerData, saveSinglePlayerData } from './services/apiService.js';
 import './utils/imageManager.js';
@@ -62,12 +50,6 @@ import {
     resolveDamageTabFromUrl,
     switchDamageTab
 } from './components/damage/damageCalcTabNav.js';
-import { initializeAuthModal } from './components/auth/authModalInputs.js';
-import { initializeSettingsAccount } from './components/appSettings/settingsAccountInputs.js';
-import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
-import { initializePwaService } from './services/pwaService.js';
-import { initAppShellNavigator, registerAppRoute } from './core/appShellNavigator.js';
-import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHooks.js';
 
 /** @type {{ openAddPlayerModal: () => void, closeAddPlayerModal: () => void } | null} */
 let activeAddPlayerModalControls = null;
@@ -369,25 +351,9 @@ function initDamageCrossTabSync() {
  * Application bootstrapper.
  */
 async function initDamageApp() {
-    registerGlobalErrorBoundaries();
-    consolidateLocalStorageKeys();
-    const defensesReady = preloadDefensesData();
-    const pathLang = getLanguageFromPath();
-    const settings = getAppSettings();
-    const targetLang = pathLang || (settings.language && settings.language !== 'auto' ? settings.language : 'en');
-    state.uiSettings = {
-        language: targetLang,
-        theme: settings.theme,
-        accentColor: settings.accentColor
-    };
-
-    if (pathLang) {
-        persistAppSettings({ language: pathLang });
-    } else if (targetLang !== 'en') {
-        syncLanguageUrl(targetLang, true);
-    }
-    await Promise.all([loadTranslations(targetLang), defensesReady]);
-    updateUIWithTranslations(true);
+    await bootstrapShellLanguageAndStorage({
+        preloadPromise: preloadDefensesData()
+    });
 
     loadPersistedState();
     initializePlayerProfile();
@@ -403,16 +369,14 @@ async function initDamageApp() {
         }
     }
 
-    initDomainNotice();
-    initAppFooter();
-    initializePwaService();
-
-    initAppHeader({
-        headerElement: '.app-header',
-        hasTabs: true,
-        hasPlayerDropdown: true,
-        hasPill: true,
-        bindDrawer: true
+    initSharedShellChrome({
+        headerOptions: {
+            headerElement: '.app-header',
+            hasTabs: true,
+            hasPlayerDropdown: true,
+            hasPill: true,
+            bindDrawer: true
+        }
     });
 
     activeAddPlayerModalControls = initStandaloneAddPlayerModal({
@@ -465,18 +429,7 @@ async function initDamageApp() {
         }
     });
 
-    initAppSettings();
-
-    initializeModalHistoryManager();
-    initializeCommitsModal();
-    initializeChangelogModal();
-    initSpotright();
-    initShortcutsModalListener();
-    initializeAuthModal();
-    initializeSettingsAccount();
-
     renderPlayerDropdown(damageCalcState.activeTag);
-    initExternalLinkCatcher();
     initDamageCalcTabNav(damageCalcState, renderActiveView);
     renderActiveView();
 
@@ -489,11 +442,6 @@ async function initDamageApp() {
             renderPlayerDropdown(damageCalcState.activeTag);
         });
     }
-
-    if (typeof window.__APP_LOADED__ === 'function') {
-        window.__APP_LOADED__();
-    }
-    window.isAppStartingUp = false;
 }
 
 /**
@@ -507,9 +455,7 @@ export async function mount(options = {}) {
     isMounted = true;
 
     await initDamageApp();
-    setupNavigatorUiHooks();
-    initAppShellNavigator();
-    registerAppRoute('damage-calculator', { mount, destroy });
+    finalizeRouteMount('damage-calculator', { mount, destroy });
 }
 
 /**
@@ -520,10 +466,4 @@ export function destroy() {
     isMounted = false;
 }
 
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => void mount());
-    } else {
-        void mount();
-    }
-}
+mountWhenReady(mount);

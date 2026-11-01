@@ -1,6 +1,5 @@
-import { translate, loadTranslations } from './i18n/translator.js';
-import { updateUIWithTranslations } from './i18n/uiTranslator.js';
-import { fetchPlayerData } from './services/apiService.js';
+import { translate } from './i18n/translator.js';
+import { fetchPlayerData, markUserMigrated } from './services/apiService.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
 import { showApiErrorToast, showToast } from './ui/toast.js';
 import { state } from './core/state.js';
@@ -34,9 +33,13 @@ import {
     PLAYER_PREFIX
 } from './core/storageKeys.js';
 import { getSavedProfiles, setActivePlayerTag, savePlayerProfileToStorage } from './core/playerStorage.js';
-import { consolidateLocalStorageKeys } from './core/storageMigrations.js';
-import { initAppSettings, getAppSettings, persistAppSettings } from './components/common/appSettings.js';
-import { getLanguageFromPath, syncLanguageUrl } from './core/languageRouter.js';
+import {
+    bindStandaloneNavigationDrawer,
+    bootstrapShellLanguageAndStorage,
+    finalizeRouteMount,
+    initSharedShellChrome,
+    mountWhenReady
+} from './core/shellBootstrapper.js';
 import { initHeaderLayoutObserver, renderHeroJourneyPlayerDropdown } from './components/heroJourney/heroJourneyHeaderDisplay.js';
 import { initHeroJourneyPlayerDropdown, initHeroJourneyAddPlayerModal } from './components/heroJourney/heroJourneyHeaderInputs.js';
 import { renderPlayerSummary, resetHjRenderState } from './components/heroJourney/heroJourneyPlayerRenderer.js';
@@ -54,22 +57,7 @@ import {
     syncTypeFiltersUI
 } from './components/heroJourney/heroJourneyControlsInputs.js';
 import { initDomainNotice } from './components/common/domainNotice.js';
-import { initAppFooter } from './components/common/appFooter.js';
-import { initNavigationDrawer } from './components/common/navigationDrawer.js';
 import { renderNavigationDrawerContent } from './components/common/navigationDrawerRenderer.js';
-import { initExternalLinkCatcher } from './components/common/externalLinkCatcher.js';
-import { initializeCommitsModal } from './components/changelog/commitsModal.js';
-import { initializeChangelogModal } from './components/changelog/changelogModal.js';
-import { initSpotright } from './components/spotright/spotrightController.js';
-import { initShortcutsModalListener } from './components/shortcuts/shortcutsModal.js';
-import { initializeModalHistoryManager } from './utils/modalHistoryManager.js';
-import { initializeAuthModal } from './components/auth/authModalInputs.js';
-import { initializeSettingsAccount } from './components/appSettings/settingsAccountInputs.js';
-import { registerGlobalErrorBoundaries } from './core/appEventInterceptors.js';
-import { initializePwaService } from './services/pwaService.js';
-import { markUserMigrated } from './services/apiService.js';
-import { initAppShellNavigator, registerAppRoute } from './core/appShellNavigator.js';
-import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHooks.js';
 
 const resetFilters = () => handleResetFilters(hjState, renderUI);
 let isMounted = false;
@@ -419,37 +407,15 @@ function initControls() {
  * Initializes the standalone Hero Journey app.
  */
 async function init() {
-    registerGlobalErrorBoundaries();
-    consolidateLocalStorageKeys();
-    initializeCommitsModal();
     if (typeof window !== 'undefined' && window.location.hash === '#hero-journey-table') {
         hjState.showTable = true;
     }
     setHeroJourneyStateProvider(() => buildStateFromPlayerData(hjState.playerData, hjState));
-    const pathLang = getLanguageFromPath();
-    const currentSettings = getAppSettings();
-    const activeLang = pathLang || (currentSettings.language && currentSettings.language !== 'auto' ? currentSettings.language : 'en');
-    if (!state.uiSettings) {
-        state.uiSettings = {};
-    }
-    state.uiSettings.language = activeLang;
-    if (pathLang) {
-        persistAppSettings({ language: pathLang });
-    } else if (activeLang !== 'en') {
-        syncLanguageUrl(activeLang, true);
-    }
-    await loadTranslations(activeLang);
-    updateUIWithTranslations(true);
-    initAppSettings();
-    initializePwaService();
-    initializeModalHistoryManager();
-    initializeChangelogModal();
-    initSpotright();
-    initShortcutsModalListener();
-    initializeAuthModal();
-    initializeSettingsAccount();
-
-    initAppFooter({ version: state.appVersion });
+    await bootstrapShellLanguageAndStorage();
+    initSharedShellChrome({
+        domainNotice: false,
+        footerOptions: { version: state.appVersion }
+    });
 
     const urlParams = new URLSearchParams(window.location.search);
     const userIdFromUrl = urlParams.get('userId');
@@ -525,8 +491,7 @@ async function init() {
         renderUI();
     }
 
-    initHeroJourneyDrawer();
-    initExternalLinkCatcher();
+    hjDrawerInstance = bindStandaloneNavigationDrawer(() => updateHeroJourneyDrawer('track'));
 
     if (typeof window !== 'undefined' && window.location.hash) {
         const targetId = window.location.hash.substring(1);
@@ -537,14 +502,9 @@ async function init() {
             });
         }
     }
-
-    if (typeof window.__APP_LOADED__ === 'function') {
-        window.__APP_LOADED__();
-    }
-    window.isAppStartingUp = false;
 }
 
-/** @type {ReturnType<typeof initNavigationDrawer> | null} */
+/** @type {ReturnType<typeof bindStandaloneNavigationDrawer>} */
 let hjDrawerInstance = null;
 
 /**
@@ -580,30 +540,6 @@ function updateHeroJourneyDrawer(activeView = 'track') {
 }
 
 /**
- * Initializes mobile navigation drawer on the Hero Journey page.
- */
-function initHeroJourneyDrawer() {
-    const drawerEl = document.getElementById('navigation-drawer');
-    const overlayEl = document.querySelector('.navigation-drawer__overlay');
-    const buttonEl = document.getElementById('hamburger-button') || document.querySelector('.app-header__hamburger, .hamburger');
-    const closeEl = drawerEl?.querySelector('.navigation-drawer__close') || null;
-
-    if (!drawerEl || !buttonEl) return;
-
-    updateHeroJourneyDrawer('track');
-
-    hjDrawerInstance = initNavigationDrawer({
-        drawerEl,
-        overlayEl,
-        buttonEl,
-        closeEl,
-        onItemClick: () => {
-            hjDrawerInstance?.close();
-        }
-    });
-}
-
-/**
  * Mounts the Hero's Journey application.
  * @param {Object} [options={}]
  * @param {boolean} [options.force=false]
@@ -614,9 +550,7 @@ export async function mount(options = {}) {
     isMounted = true;
 
     await init();
-    setupNavigatorUiHooks();
-    initAppShellNavigator();
-    registerAppRoute('hero-journey', { mount, destroy });
+    finalizeRouteMount('hero-journey', { mount, destroy });
 }
 
 /**
@@ -631,19 +565,7 @@ export function destroy() {
     hjDrawerInstance = null;
 }
 
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            mount().catch((err) => {
-                console.error('Error bootstrapping Hero Journey app:', err);
-            });
-        });
-    } else {
-        mount().catch((err) => {
-            console.error('Error bootstrapping Hero Journey app:', err);
-        });
-    }
-}
+mountWhenReady(mount);
 
 /**
  * Synchronizes Hero Journey state and views when active player or village partition updates across tabs.

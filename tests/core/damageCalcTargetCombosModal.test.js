@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderTargetCombosModal } from '../../js/components/damage/damageCalcTargetCombosModalDisplay.js';
-import { getSharedComboPopoverContent } from '../../js/components/damage/damageCalcGridPopoversDisplay.js';
+import { getSharedComboPopoverContent } from '../../js/components/damage/damageCalcClusterAndBadgePopoversDisplay.js';
 import { renderSliderTicksHtml } from '../../js/components/common/steppedSlider.js';
 import { getLvlShort } from '../../js/components/damage/damageCalcDisplay.js';
 import {

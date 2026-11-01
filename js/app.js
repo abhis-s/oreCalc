@@ -48,8 +48,7 @@ import { setJustSyncedFromQr, importUserData, initializeAppData, isJustSyncedFro
 import { showAddPlayerModal } from './components/player/playerModalInputs.js';
 import { resetPlayerDropdownState } from './components/player/playerDropdownInputs.js';
 import { markUserMigrated } from './services/apiService.js';
-import { initAppShellNavigator, registerAppRoute } from './core/appShellNavigator.js';
-import { setupNavigatorUiHooks } from './components/common/appShellNavigatorHooks.js';
+import { finalizeRouteMount, mountWhenReady } from './core/shellBootstrapper.js';
 import { resetRenderState } from './components/home/homeProfileAnimations.js';
 import './console.js';
 
@@ -502,10 +501,7 @@ export async function mount(options = {}) {
         }, 2000);
 
         initializeGlobalInterceptors();
-
-        setupNavigatorUiHooks();
-        initAppShellNavigator();
-        registerAppRoute('ore-calculator', { mount, destroy });
+        finalizeRouteMount('ore-calculator', { mount, destroy, isStandalone: false });
 }
 
 /**
@@ -531,10 +527,4 @@ export function destroy() {
     resetPlayerDropdownState();
 }
 
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => void mount());
-    } else {
-        void mount();
-    }
-}
+mountWhenReady(mount);

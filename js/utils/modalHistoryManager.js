@@ -1,14 +1,14 @@
 /**
- * Universal Mobile Back Button, Accessibility (a11y) & Modal Focus Manager
+ * Universal Mobile Back Button, Accessibility (a11y) & Modal History Manager
  * - Intercepts Android hardware back button, iOS back swipe gestures, and browser back buttons.
- * - Enforces WAI-ARIA dialog semantics (role="dialog", aria-modal="true").
- * - Traps keyboard focus within active modals (Tab / Shift+Tab cycling).
+ * - Coordinates with modalFocusManager for WAI-ARIA dialog semantics and focus trapping.
  * - Restores keyboard focus to the opening trigger button upon modal dismissal.
  * - Provides universal Escape key modal dismissal.
  */
 
 import { MOTION_DURATION_EXIT_MS } from '../core/constants.js';
 import { hideCardHelpPopover } from './cardHelpPopover.js';
+import { trapFocus, ensureModalAriaSemantics, getInitialModalFocusTarget } from './modalFocusManager.js';
 
 let modalStack = [];
 let isPoppingForClose = false;
@@ -21,33 +21,6 @@ let suppressHistoryPop = false;
  */
 export function isModalHistoryPopping() {
     return isPoppingForClose || isModalPopping;
-}
-
-const FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])';
-
-function trapFocus(modal, e) {
-    if (e.key !== 'Tab') return;
-    const focusable = Array.from(modal.querySelectorAll(FOCUSABLE_SELECTOR))
-        .filter(el => el.offsetParent !== null || el.offsetWidth > 0 || el.offsetHeight > 0);
-
-    if (focusable.length === 0) {
-        e.preventDefault();
-        return;
-    }
-    const first = focusable[0];
-    const last = focusable.at(-1);
-
-    if (e.shiftKey) {
-        if (document.activeElement === first || !modal.contains(document.activeElement)) {
-            e.preventDefault();
-            last.focus();
-        }
-    } else {
-        if (document.activeElement === last || !modal.contains(document.activeElement)) {
-            e.preventDefault();
-            first.focus();
-        }
-    }
 }
 
 /**
@@ -195,30 +168,7 @@ function observeModalTarget(el) {
     if (!el || el.__historyObserverAttached || el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
     el.__historyObserverAttached = true;
 
-    // Ensure ARIA semantics and accessible name
-    if (typeof el.hasAttribute === 'function' && !el.hasAttribute('role') && (el.classList?.contains?.('modal') || el.classList?.contains?.('dialog-overlay') || el.tagName === 'DIALOG')) {
-        if (typeof el.setAttribute === 'function') {
-            el.setAttribute('role', 'dialog');
-            el.setAttribute('aria-modal', 'true');
-        }
-    }
-
-    if (typeof el.getAttribute === 'function' && (el.getAttribute('role') === 'dialog' || el.classList?.contains?.('modal') || el.tagName === 'DIALOG')) {
-        if (typeof el.hasAttribute === 'function' && !el.hasAttribute('aria-labelledby') && !el.hasAttribute('aria-label')) {
-            const heading = typeof el.querySelector === 'function'
-                ? el.querySelector('.modal-header h1, .modal-header h2, .modal-header h3, h1, h2, h3')
-                : null;
-            if (heading) {
-                if (!heading.id) {
-                    heading.id = `${el.id || 'modal'}-title`;
-                }
-                if (typeof el.setAttribute === 'function') el.setAttribute('aria-labelledby', heading.id);
-            } else if (el.id) {
-                const fallbackName = el.id.replace(/-modal$/, '').replace(/-/g, ' ');
-                if (typeof el.setAttribute === 'function') el.setAttribute('aria-label', fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1));
-            }
-        }
-    }
+    ensureModalAriaSemantics(el, false);
 
     if (typeof el.addEventListener === 'function') {
         // Native cancel event listener (fired on Escape key in native dialogs)
@@ -371,113 +321,6 @@ export function initializeModalHistoryManager() {
 }
 
 /**
- * Determines whether a candidate DOM element is visible and interactive.
- *
- * @param {Element|null} el
- * @returns {boolean}
- */
-function isInteractiveCandidate(el) {
-    if (!el || typeof el.getAttribute !== 'function') return false;
-    if (el.disabled || el.getAttribute('aria-disabled') === 'true') return false;
-    if (el.tabIndex === -1 || el.getAttribute('tabindex') === '-1') return false;
-
-    // Check hidden attribute or class
-    if (el.hidden || (el.classList && el.classList.contains('hidden'))) return false;
-
-    // Check inline or computed display/visibility
-    if (el.style && (el.style.display === 'none' || el.style.visibility === 'hidden')) return false;
-
-    // Real browser layout geometry check (when supported and computed)
-    if (typeof el.offsetWidth === 'number' && typeof el.offsetHeight === 'number') {
-        if (el.offsetWidth === 0 && el.offsetHeight === 0 && el.offsetParent === null) {
-            if (typeof el.getClientRects === 'function' && el.getClientRects().length === 0) {
-                return false;
-            }
-        }
-    }
-
-    // Check for hidden parent containers
-    let parent = el.parentElement;
-    while (parent) {
-        if (parent.hidden || (parent.classList && parent.classList.contains('hidden'))) return false;
-        if (parent.style && (parent.style.display === 'none' || parent.style.visibility === 'hidden')) return false;
-        parent = parent.parentElement;
-    }
-
-    return true;
-}
-
-/**
- * Resolves the optimal initial focus candidate for a modal dialog
- * according to WAI-ARIA authoring practices and strict priority hierarchy.
- *
- * Priority Hierarchy:
- * 1. Explicit data-modal-autofocus or autofocus target (if visible & enabled).
- * 2. First interactive text/number/email/url input, select dropdown, or textarea in .modal-body / .modal-content.
- * 3. First checkbox or radio toggle in .modal-body / .modal-content (if no text inputs).
- * 4. Primary confirm/accept/submit button in .modal-actions / .modal-footer (.btn-primary, .confirm-button, .accept-button, [type="submit"]).
- * 5. First focusable interactive element in .modal-body / .modal-content.
- * 6. Any action button in .modal-actions / .modal-footer.
- * 7. Fallback: Close button in .modal-header or the modal container itself.
- *
- * @param {Element|null} modal - The active modal or dialog container.
- * @returns {Element|null} - The element that should receive initial focus.
- */
-export function getInitialModalFocusTarget(modal) {
-    if (!modal || typeof modal.querySelector !== 'function' || typeof modal.querySelectorAll !== 'function') return null;
-
-    const autofocusCandidates = Array.from(modal.querySelectorAll('[data-modal-autofocus], [autofocus]'));
-    const explicitTarget = autofocusCandidates.find(isInteractiveCandidate);
-    if (explicitTarget) return explicitTarget;
-
-    const bodyScope = modal.querySelector('.modal-body') || modal.querySelector('.modal-content') || modal;
-    if (!bodyScope || typeof bodyScope.querySelectorAll !== 'function') return null;
-    const actionsScope = modal.querySelector('.modal-actions, .modal-footer');
-
-    const textInputSelector = 'input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])';
-    const textInputs = Array.from(bodyScope.querySelectorAll(textInputSelector))
-        .filter(el => !el.closest('.modal-header') && isInteractiveCandidate(el));
-    if (textInputs.length > 0) return textInputs[0];
-
-    const toggleSelector = 'input[type="checkbox"]:not([disabled]), input[type="radio"]:not([disabled])';
-    const toggles = Array.from(bodyScope.querySelectorAll(toggleSelector))
-        .filter(el => !el.closest('.modal-header') && isInteractiveCandidate(el));
-    if (toggles.length > 0) return toggles[0];
-
-    if (actionsScope) {
-        const primaryBtnSelector = '.accept-button, .confirm-button, .btn-primary, [type="submit"], button[data-action="accept"], button[data-action="confirm"], a.accept-button';
-        const primaryBtns = Array.from(actionsScope.querySelectorAll(primaryBtnSelector))
-            .filter(isInteractiveCandidate);
-        if (primaryBtns.length > 0) return primaryBtns[0];
-    }
-
-    const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])';
-    const bodyFocusables = Array.from(bodyScope.querySelectorAll(focusableSelector))
-        .filter(el => !el.closest('.modal-header') && !el.closest('.modal-actions') && !el.closest('.modal-footer') && isInteractiveCandidate(el));
-    if (bodyFocusables.length > 0) return bodyFocusables[0];
-
-    if (actionsScope) {
-        const anyActionSelector = 'button:not([disabled]), a[href]:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])';
-        const actionBtns = Array.from(actionsScope.querySelectorAll(anyActionSelector))
-            .filter(isInteractiveCandidate);
-        if (actionBtns.length > 0) return actionBtns[0];
-    }
-
-    const headerClose = modal.querySelector('.modal-header .close-button, .modal-header .close-btn, .modal-header button');
-    if (headerClose && isInteractiveCandidate(headerClose)) return headerClose;
-
-    const anyClose = modal.querySelector('.close-button, .close-btn');
-    if (anyClose && isInteractiveCandidate(anyClose)) return anyClose;
-
-    if (typeof modal.hasAttribute === 'function' && !modal.hasAttribute('tabindex')) {
-        if (typeof modal.setAttribute === 'function') {
-            modal.setAttribute('tabindex', '-1');
-        }
-    }
-    return modal;
-}
-
-/**
  * Synchronizes browser history stack entries and focus trapping when a modal opens or closes.
  * @param {HTMLElement|HTMLDialogElement|any} element - Modal dialog DOM element.
  * @param {boolean} isOpen - True if opening, false if closing.
@@ -500,26 +343,7 @@ function handleModalStateChange(element, isOpen, options = {}) {
         }
 
         if (existingIndex === -1) {
-            // Ensure ARIA semantics & accessible name
-            if (typeof element.hasAttribute === 'function' && !element.hasAttribute('role')) {
-                if (typeof element.setAttribute === 'function') element.setAttribute('role', 'dialog');
-            }
-            if (typeof element.setAttribute === 'function') element.setAttribute('aria-modal', 'true');
-
-            if (typeof element.hasAttribute === 'function' && !element.hasAttribute('aria-labelledby') && !element.hasAttribute('aria-label')) {
-                const heading = typeof element.querySelector === 'function'
-                    ? element.querySelector('.modal-header h1, .modal-header h2, .modal-header h3, h1, h2, h3')
-                    : null;
-                if (heading) {
-                    if (!heading.id) {
-                        heading.id = `${element.id || 'modal'}-title`;
-                    }
-                    if (typeof element.setAttribute === 'function') element.setAttribute('aria-labelledby', heading.id);
-                } else if (element.id) {
-                    const fallbackName = element.id.replace(/-modal$/, '').replace(/-/g, ' ');
-                    if (typeof element.setAttribute === 'function') element.setAttribute('aria-label', fallbackName.charAt(0).toUpperCase() + fallbackName.slice(1));
-                }
-            }
+            ensureModalAriaSemantics(element, true);
 
             const previousActiveElement = typeof document !== 'undefined' ? document.activeElement : null;
             const trapHandler = (e) => trapFocus(element, e);
