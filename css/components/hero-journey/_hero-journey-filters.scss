@@ -67,7 +67,7 @@
             border-radius: $shape-corner-full;
             padding: 6px 28px 6px $spacing-md;
             font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             outline: none;
             text-align: left;
             text-align-last: left;
@@ -122,7 +122,7 @@
             border-radius: $shape-corner-full;
             padding: 6px 28px 6px $spacing-md;
             font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             cursor: pointer;
             outline: none;
             text-align: left;
@@ -240,7 +240,7 @@
             border-radius: $shape-corner-full;
             padding: $spacing-sm 28px $spacing-sm $spacing-md;
             font-size: clamp(0.72rem, 0.5vw + 0.62rem, 0.78rem);
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             cursor: pointer;
             outline: none;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);

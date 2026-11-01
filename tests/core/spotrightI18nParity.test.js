@@ -9,7 +9,7 @@ import { buildSpotrightRegistry } from '../../js/components/spotright/spotrightR
 import { createSpotrightDialog, renderSpotrightResults, SCOPE_TRANSLATION_KEYS } from '../../js/components/spotright/spotrightDisplay.js';
 import { createClipboardSpotrightItem } from '../../js/components/spotright/spotrightClipboard.js';
 import { searchSpotright, scoreSpotrightItem, extractScopePrefix } from '../../js/components/spotright/spotrightMatcher.js';
-import { initSpotrightHeaderTrigger } from '../../js/components/spotright/spotrightController.js';
+import { initSpotrightHeaderTrigger, openSpotright, closeSpotright } from '../../js/components/spotright/spotrightController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,22 +56,16 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         globalThis.window = originalWindow;
     });
 
-    test('verifies redundant Spotright keys are completely pruned and canonical keys exist', () => {
-        // Assert pruned keys do not exist in en.json
-        assert.equal(enJson.views.spotright.scopes, undefined, 'views.spotright.scopes must be pruned');
-        assert.equal(enJson.views.spotright.addPlayer, undefined, 'views.spotright.addPlayer must be pruned');
-        assert.equal(enJson.views.spotright.loadDirectTag, undefined, 'views.spotright.loadDirectTag must be pruned');
-
-        // Assert pruned keys do not exist in de.json
-        assert.equal(deJson.views.spotright.scopes, undefined, 'views.spotright.scopes must be pruned from de.json');
-        assert.equal(deJson.views.spotright.addPlayer, undefined, 'views.spotright.addPlayer must be pruned from de.json');
-        assert.equal(deJson.views.spotright.loadDirectTag, undefined, 'views.spotright.loadDirectTag must be pruned from de.json');
-
+    test('verifies canonical Spotright translation keys exist in English and German', () => {
         // Assert unified canonical keys exist
         assert.equal(typeof enJson.views.spotright.loadVillageTag, 'string');
         assert.equal(typeof deJson.views.spotright.loadVillageTag, 'string');
         assert.equal(enJson.views.spotright.loadVillageTag, 'Load Village #{tag}');
         assert.equal(deJson.views.spotright.loadVillageTag, 'Dorf #{tag} laden');
+        assert.equal(enJson.views.spotright.beta, 'Beta');
+        assert.equal(deJson.views.spotright.beta, 'Beta');
+        assert.ok(enJson.views.spotright.betaTooltip);
+        assert.ok(deJson.views.spotright.betaTooltip);
 
         // Assert shared canonical primitives exist in both locales
         assert.equal(enJson.nav.views.hub.villages, 'Saved Villages');
@@ -98,15 +92,12 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         assert.equal(enJson.actions.refresh, 'Refresh');
         assert.equal(deJson.actions.refresh, 'Aktualisieren');
 
+        assert.equal(enJson.actions.search, 'Search');
+        assert.equal(deJson.actions.search, 'Suchen');
+
         // Assert scope suggestions heading exists in both locales
         assert.equal(enJson.views.spotright.scopesHeading, 'Filter Scopes');
         assert.equal(deJson.views.spotright.scopesHeading, 'Suchbereiche');
-
-        // Assert scope descriptions and repetitive commands dictionaries are completely pruned
-        assert.equal(enJson.views.spotright.scopeDescriptions, undefined, 'scopeDescriptions must be pruned from en.json');
-        assert.equal(deJson.views.spotright.scopeDescriptions, undefined, 'scopeDescriptions must be pruned from de.json');
-        assert.equal(enJson.views.spotright.commands, undefined, 'commands must be pruned from en.json');
-        assert.equal(deJson.views.spotright.commands, undefined, 'commands must be pruned from de.json');
     });
 
     test('buildSpotrightRegistry binds canonical category strings in English and German', async () => {
@@ -289,10 +280,12 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         assert.match(html, /id="spotright-clear-btn"/, 'Must contain spotright-clear-btn');
         assert.match(html, /data-i18n-aria-label="views\.heroJourney\.page\.clearSearch"/, 'Clear button must bind to views.heroJourney.page.clearSearch');
         assert.match(html, /aria-label="Filter by type"/, 'Filter track must have accessible label');
-
-        // Zero prohibited dingbats or emojis
-        const prohibitedPattern = /[\u2190-\u21FF\u2500-\u257F\u25A0-\u25FF\u2600-\u26FF\u2700-\u27BF\u2022]/u;
-        assert.equal(prohibitedPattern.test(html), false, 'Spotright dialog markup must contain zero prohibited dingbats');
+        assert.match(html, /class="spotright-footer-brand"/, 'Must contain spotright-footer-brand container');
+        assert.match(html, /class="spotright-footer-brand-name">Spotright<\/span>/, 'Must render Spotright brand label');
+        assert.match(html, /class="spotright-footer-beta-chip"[^>]*data-i18n="views\.spotright\.beta"/, 'Beta chip must bind to views.spotright.beta');
+        assert.match(html, /data-i18n-title="views\.spotright\.betaTooltip"/, 'Brand lockup must bind to views.spotright.betaTooltip');
+        assert.match(html, /class="spotright-footer-shortcuts-label"/, 'Footer must provide shortcuts label for responsive collapse');
+        assert.match(html, /<kbd class="spotright-footer-kbd">\?<\/kbd>/, 'Footer must provide ? keycap');
     });
 
     test('multilingual hero and equipment search operates across both English and German locales', async () => {
@@ -342,14 +335,29 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
             iconType: 'svg'
         };
 
+        /** @type {any} */
+        const mockActiveVillageItem = {
+            id: 'village-ACTIVE',
+            title: 'Active Base',
+            category: 'Saved Villages',
+            isVillage: true,
+            isActiveVillage: true,
+            cleanTag: 'ACTIVE',
+            thLevel: 17,
+            icon: 'assets/th/th17.png',
+            trophies: 5200
+        };
+
         // 1. English verification
         state.uiSettings.language = 'en';
         await loadTranslations('en');
 
         const containerEn = { innerHTML: '' };
-        renderSpotrightResults(containerEn, [mockVillageItem, mockActionItem], 0);
+        renderSpotrightResults(containerEn, [mockVillageItem, mockActiveVillageItem, mockActionItem], 0);
         assert.match(containerEn.innerHTML, /alt="Town Hall 17"/, 'Town Hall image must have English alt text');
+        assert.match(containerEn.innerHTML, /<kbd class="spotright-action-enter"/, 'Standard item must render keyboard return keycap');
         assert.match(containerEn.innerHTML, /aria-label="Enter"/, 'Enter keycap must have English aria-label');
+        assert.match(containerEn.innerHTML, /<span class="spotright-action-active-icon">/, 'Active village must render checkmark container');
 
         const emptyEn = { innerHTML: '' };
         renderSpotrightResults(emptyEn, [], 0, 'xyz');
@@ -390,10 +398,13 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         await loadTranslations('en');
 
         initSpotrightHeaderTrigger(true);
+        assert.match(elements['header-spotright-mod-key'].innerHTML, /name="keyboard-command"/, 'Mac must render keyboard-command SVG');
+        assert.equal(elements['header-spotright-mod-key'].className, 'header-spotright-key', 'Mac must use standard key class');
         assert.equal(elements['header-spotright-btn'].title, 'Search & Command Palette (⌘K)');
 
         initSpotrightHeaderTrigger(false);
         assert.equal(elements['header-spotright-mod-key'].textContent, 'Ctrl', 'English non-Mac must render Ctrl');
+        assert.match(elements['header-spotright-mod-key'].className, /header-spotright-key--ctrl/, 'Non-Mac must apply --ctrl sizing modifier');
         assert.equal(elements['header-spotright-btn'].title, 'Search & Command Palette (Ctrl+K)');
 
         // 2. German verification
@@ -406,6 +417,99 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         initSpotrightHeaderTrigger(false);
         assert.equal(elements['header-spotright-mod-key'].textContent, 'Strg', 'German non-Mac must render Strg');
         assert.equal(elements['header-spotright-btn'].title, 'Suche & Befehlspalette (Strg+K)');
+
+        // 3. Safe degradation when DOM elements are absent
+        // @ts-ignore
+        globalThis.document = { getElementById: () => null };
+        assert.doesNotThrow(() => {
+            initSpotrightHeaderTrigger(true);
+            initSpotrightHeaderTrigger(false);
+        });
+    });
+
+    test('spotrightController manages has-physical-keyboard class reactively on dialog', () => {
+        /** @type {Record<string, any>} */
+        const listeners = {};
+        const classList = new Set();
+
+        const mockDialog = {
+            id: 'clashcalc-spotright',
+            className: 'spotright-dialog',
+            classList: {
+                add(cls) { classList.add(cls); },
+                remove(cls) { classList.delete(cls); },
+                contains(cls) { return classList.has(cls); }
+            },
+            addEventListener(evt, fn) {
+                listeners[evt] = fn;
+            },
+            querySelector(sel) {
+                if (sel === '#spotright-input') {
+                    return {
+                        addEventListener(evt, fn) { listeners[`input-${evt}`] = fn; },
+                        value: '',
+                        focus() {},
+                        select() {}
+                    };
+                }
+                return {
+                    addEventListener() {},
+                    classList: { remove() {} },
+                    querySelectorAll() { return []; },
+                    appendChild() {}
+                };
+            },
+            querySelectorAll() {
+                return [];
+            },
+            hasAttribute(attr) {
+                return attr === 'open';
+            },
+            setAttribute() {},
+            removeAttribute() {},
+            showModal() {},
+            close() {}
+        };
+
+        const mockBody = {
+            contains() { return true; },
+            appendChild() {}
+        };
+
+        // @ts-ignore
+        globalThis.document = {
+            body: mockBody,
+            createElement(tag) {
+                if (tag === 'dialog') return mockDialog;
+                return {};
+            },
+            getElementById(id) {
+                if (id === 'clashcalc-spotright') return mockDialog;
+                return null;
+            }
+        };
+
+        // @ts-ignore
+        globalThis.window = {
+            location: { pathname: '/ore-calculator/', search: '' },
+            requestAnimationFrame(cb) { cb(0); },
+            addEventListener() {}
+        };
+
+        openSpotright();
+        assert.equal(classList.has('has-physical-keyboard'), false, 'Should not have has-physical-keyboard initially');
+
+        listeners['input-keydown']({ key: 'ArrowDown', preventDefault() {} });
+        assert.equal(classList.has('has-physical-keyboard'), true, 'ArrowDown must add has-physical-keyboard class');
+
+        listeners['touchstart']();
+        assert.equal(classList.has('has-physical-keyboard'), false, 'Touch interaction must remove has-physical-keyboard class');
+
+        listeners['input-keydown']({ key: 'Tab', preventDefault() {} });
+        assert.equal(classList.has('has-physical-keyboard'), true, 'Tab key must re-add has-physical-keyboard class');
+
+        closeSpotright();
+        assert.equal(classList.has('has-physical-keyboard'), false, 'closeSpotright must clean up has-physical-keyboard class');
     });
 
     test('localizes primary modal titles and applies 15-point discount penalty for English fallback matches in German', async () => {

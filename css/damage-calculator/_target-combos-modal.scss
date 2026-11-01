@@ -25,7 +25,7 @@
 .calc-target-combos-sticky-header {
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: $z-index-overlay;
     background-color: $bg-surface-secondary;
     padding-top: $spacing-md;
     padding-bottom: $spacing-xs;

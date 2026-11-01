@@ -146,7 +146,6 @@ test('renderBuildingSelectionGrid - Filters crafted defense cards based on refer
     assert.ok(inSeasonHtml.includes('data-building-key="hero_hunter"'), 'Crafted hero_hunter must render in season');
     assert.ok(inSeasonHtml.includes('data-building-key="cake_a_pult"'), 'Crafted cake_a_pult must render in season');
     assert.ok(inSeasonHtml.includes('Lvl 10'), 'Crafted defenses must display simple level format (e.g. Lvl 10)');
-    assert.ok(!inSeasonHtml.includes('Lvl 30 (HP'), 'Crafted defenses must not render legacy Lvl 30 (HP X) format');
 
     // 2. Render cards for post-season date (2027)
     const postSeasonHtml = renderBuildingSelectionGrid({

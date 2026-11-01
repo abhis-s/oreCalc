@@ -49,8 +49,8 @@
     border-radius: $shape-corner-medium;
     color: $text-primary;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
     pointer-events: auto;
     opacity: 0;
     isolation: isolate;
@@ -119,7 +119,7 @@
         padding: $spacing-sm $spacing-lg;
         height: 40px;
         border-radius: $shape-corner-small;
-        font-size: var(--font-size-xs);
+        font-size: $font-size-xs;
         gap: $spacing-sm;
 
         .toast-icon-svg {

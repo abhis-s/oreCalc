@@ -12,7 +12,7 @@
     min-width: 0;
     max-width: 100%;
     flex-direction: column;
-    font-size: var(--font-size-xs);
+    font-size: $font-size-xs;
     outline: none;
     padding: $spacing-sm 0;
     position: relative;
@@ -73,7 +73,7 @@
     }
 
     .nav-item-content > span {
-        font-size: var(--font-size-xs);
+        font-size: $font-size-xs;
         margin-top: $spacing-xs;
         transition: color $duration-moderate $ease-smooth;
         white-space: nowrap;
@@ -138,7 +138,7 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid color-mix(in srgb, $border-primary 50%, transparent);
-    border-radius: $modal-radius-workspace;
+    border-radius: $shape-corner-xl;
     bottom: 15px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     display: flex;

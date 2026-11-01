@@ -37,8 +37,16 @@ describe('Layout & Viewport Hardening Contracts', () => {
         });
     });
 
-    describe('Universal Header Shell Accessibility Contracts', () => {
-        test('All five application headers utilize semantic button with canonical hamburger-button ID and aria-controls', () => {
+    describe('Universal Header Shell & Partial Parity Contracts', () => {
+        const entrypointFiles = [
+            'index.html',
+            'ore-calculator/index.html',
+            'hero-journey/index.html',
+            'damage-calculator/index.html',
+            'account/index.html'
+        ];
+
+        test('All five route index.html shells include universal head, top shell, header-account, and modal partials', () => {
             const headerFiles = [
                 'index.html',
                 'partials/header.html',
@@ -55,6 +63,35 @@ describe('Layout & Viewport Hardening Contracts', () => {
                     `${relPath} must define #hamburger-button with .app-header__hamburger and aria-controls="navigation-drawer"`
                 );
             }
+
+            for (const relPath of entrypointFiles) {
+                let html = fs.readFileSync(path.join(projectRoot, relPath), 'utf8');
+                if (html.includes('partials/header.html')) {
+                    html += '\n' + fs.readFileSync(path.join(projectRoot, 'partials/header.html'), 'utf8');
+                }
+                assert.ok(html.includes('partials/head-theme-bootstrap.html'), `${relPath} must include partials/head-theme-bootstrap.html`);
+                assert.ok(html.includes('partials/shell-top.html'), `${relPath} must include partials/shell-top.html`);
+                assert.ok(html.includes('partials/header-account.html'), `${relPath} must include partials/header-account.html`);
+                assert.ok(html.includes('partials/shell-modals.html'), `${relPath} must include partials/shell-modals.html`);
+            }
+        });
+
+        test('partials/header-account.html and partials/header-player-dropdown.html provide canonical interactive controls', () => {
+            const popoverHtml = fs.readFileSync(path.join(projectRoot, 'partials/header-account.html'), 'utf8');
+            assert.ok(popoverHtml.includes('id="header-account-btn"'));
+            assert.ok(popoverHtml.includes('id="account-popover-guest-avatar-btn"'));
+            assert.ok(popoverHtml.includes('id="account-popover-guest-manage-btn"'));
+            assert.ok(popoverHtml.includes('id="account-popover-signin-btn"'));
+            assert.match(popoverHtml, /<div\s+id="app-account-popover"[^>]*\bhidden\b/);
+            assert.ok(popoverHtml.includes('id="account-popover-panels"'));
+            assert.ok(popoverHtml.includes('id="account-popover-logout-btn"'));
+
+            const dropdownHtml = fs.readFileSync(path.join(projectRoot, 'partials/header-player-dropdown.html'), 'utf8');
+            assert.ok(dropdownHtml.includes('id="player-dropdown-button"'));
+            assert.ok(dropdownHtml.includes('id="selected-player-name"'));
+            assert.ok(dropdownHtml.includes('id="player-dropdown-list"'));
+            assert.ok(dropdownHtml.includes('id="player-items-container"'));
+            assert.ok(dropdownHtml.includes('id="add-player-button"'));
         });
     });
 });

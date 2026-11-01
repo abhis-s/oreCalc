@@ -14,7 +14,7 @@
 
     .hero-journey-accelerated-label {
         color: $text-secondary;
-        font-weight: 500;
+        font-weight: $font-weight-medium;
         cursor: pointer;
         user-select: none;
     }
@@ -69,11 +69,11 @@
         font-size: clamp(0.75rem, 0.5vw + 0.65rem, 0.85rem);
         color: $text-secondary;
         margin-bottom: 0;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
 
         #home-hj-progress-percent {
             color: $accent-primary;
-            font-weight: 700;
+            font-weight: $font-weight-bold;
         }
     }
 
@@ -85,7 +85,7 @@
         font-size: clamp(0.75rem, 0.5vw + 0.65rem, 0.85rem);
         color: $text-secondary;
         margin-bottom: 0;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         font-style: italic;
     }
 
@@ -96,7 +96,7 @@
         height: 10px;
         background: $bg-surface-primary;
         border: 1px solid $border-primary;
-        border-radius: 6px;
+        border-radius: $shape-corner-compact;
         overflow: hidden;
         position: relative;
     }
@@ -112,7 +112,7 @@
     }
 }
 
-@container hj-progress (min-width: 520px) {
+@container hj-progress (min-width: #{$container-card-toolbar-collapse}) {
     .hero-journey-progress-bar-container {
         .hero-journey-progress-info {
             order: 1;
@@ -157,6 +157,6 @@
 .hero-journey-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, $accent-primary 0%, $accent-primary-hover 100%);
-    border-radius: 5px;
+    border-radius: $shape-corner-compact;
     transition: width 350ms $ease-standard;
 }

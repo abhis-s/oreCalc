@@ -22,7 +22,7 @@
     border-top: 2px dashed $accent-primary;
     opacity: 0.85;
     pointer-events: none;
-    z-index: 10;
+    z-index: $z-index-overlay;
     transition: opacity $duration-fast $ease-smooth, top $duration-fast $ease-standard;
 
     &::before,
@@ -97,7 +97,7 @@
     &.dragging-clone {
         position: fixed;
         pointer-events: none;
-        z-index: 99999;
+        z-index: $z-index-load-failure;
         box-shadow: $elevation-4;
         border-color: $accent-primary;
         background-color: $bg-surface-secondary;

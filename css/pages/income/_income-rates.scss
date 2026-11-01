@@ -37,7 +37,7 @@
         input[type="number"] {
             background-color: $bg-surface-primary;
             border: 1px solid $border-primary;
-            border-radius: 5px;
+            border-radius: $shape-corner-compact;
             color: $text-secondary;
             padding: $spacing-sm;
             text-align: center;
@@ -121,8 +121,8 @@
 
 .grid-label {
     color: $text-secondary;
-    font-size: var(--font-size-lg);
-    font-weight: normal;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-regular;
     text-align: right;
 }
 

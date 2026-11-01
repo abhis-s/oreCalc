@@ -28,7 +28,7 @@
             text-align: center;
 
             #current-equipment-level {
-                font-weight: 600;
+                font-weight: $font-weight-semibold;
                 color: $text-primary;
             }
         }
@@ -45,7 +45,7 @@
             }
 
             th {
-                font-weight: 600;
+                font-weight: $font-weight-semibold;
                 color: $text-secondary;
             }
 
@@ -66,7 +66,7 @@
                 @include input-focus-ring;
                 width: 100%;
                 padding: $spacing-sm;
-                font-size: 1rem;
+                font-size: $font-size-lg;
                 background-color: $bg-surface-tertiary;
                 border: 1px solid $border-primary;
                 border-radius: $shape-corner-small;
@@ -132,7 +132,7 @@
 
                 .set-target-text {
                     font-size: 0.8rem;
-                    font-weight: 500;
+                    font-weight: $font-weight-medium;
                     color: $text-secondary;
                 }
 
@@ -150,13 +150,13 @@
             #level-select-table {
                 th, td {
                     padding: 10px $spacing-xs;
-                    font-size: 0.875rem;
+                    font-size: $font-size-base;
                 }
 
                 .level-input {
                     padding: 6px;
                     font-size: 0.9rem;
-                    border-radius: 6px;
+                    border-radius: $shape-corner-compact;
                 }
 
                 .trash-btn {

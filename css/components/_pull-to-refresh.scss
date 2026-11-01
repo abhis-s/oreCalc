@@ -60,8 +60,8 @@
     }
 
     .ptr-label {
-        font-size: var(--font-size-xs);
-        font-weight: 700;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
         color: $text-primary;
         transition: color $duration-fast $ease-smooth;
         letter-spacing: 0.2px;

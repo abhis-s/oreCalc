@@ -49,7 +49,7 @@
                     right: 0;
                     height: 2px;
                     background-color: $accent-primary;
-                    border-radius: 1px;
+                    border-radius: $shape-corner-2xs;
                 }
             }
         }
@@ -287,7 +287,7 @@
             .progress-track {
                 height: 6px;
                 background-color: color-mix(in srgb, $bg-surface-primary 70%, transparent);
-                border-radius: 3px;
+                border-radius: $shape-corner-xs;
                 overflow: hidden;
                 border: 1px solid color-mix(in srgb, $border-primary 15%, transparent);
                 position: relative;
@@ -295,7 +295,7 @@
                 .progress-fill {
                     width: 0%;
                     height: 100%;
-                    border-radius: 3px;
+                    border-radius: $shape-corner-xs;
                     transition: width $duration-slow $ease-smooth;
                 }
             }

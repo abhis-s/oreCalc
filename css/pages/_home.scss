@@ -37,7 +37,7 @@
 
         .income-table-cell {
             color: $accent-primary;
-            font-weight: var(--font-weight-bold);
+            font-weight: $font-weight-bold;
         }
     }
 
@@ -54,7 +54,7 @@
 
         .income-table-cell {
             color: $accent-primary;
-            font-weight: var(--font-weight-bold);
+            font-weight: $font-weight-bold;
         }
     }
 

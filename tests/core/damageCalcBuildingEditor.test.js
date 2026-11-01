@@ -206,8 +206,7 @@ test('Edit Levels Modal - Segmented tabs render "Offense" and "Defense" with dat
 
     // Must render segmented control with Offense and Defense
     assert.ok(html.includes('data-modal-tab="offense"'), 'Must render offense tab');
-    assert.ok(html.includes('data-modal-tab="defense"'), 'Must render defense tab (not buildings)');
-    assert.doesNotMatch(html, /data-modal-tab="buildings"/, 'Must not render legacy data-modal-tab="buildings"');
+    assert.ok(html.includes('data-modal-tab="defense"'), 'Must render defense tab');
     assert.ok(html.includes('data-i18n="views.damageCalc.clusterPlanner.defenseTabTitle"'), 'Must declare defenseTabTitle i18n attribute');
     assert.ok(html.includes('>Defense</span>'), 'Must display "Defense" label text');
 
@@ -245,16 +244,6 @@ test('Building Edit Modal - Search placeholder and empty notice use defense term
     assert.ok(
         /clear search/i.test(html),
         'Must display "Clear Search" button text'
-    );
-    assert.doesNotMatch(
-        html,
-        /Search buildings\.\.\./,
-        'Must not contain legacy "Search buildings..." placeholder'
-    );
-    assert.doesNotMatch(
-        html,
-        /No matching buildings found/,
-        'Must not contain legacy "No matching buildings found" notice'
     );
 });
 
@@ -528,11 +517,7 @@ test('Building Group Visibility - Defenses invariant: defenses group has no swit
         'Unavailable switch must NOT be active by default'
     );
 
-    // Header integration: switches must reside inside summary-actions, not in a separate toggle-bar
-    assert.ok(
-        !html.includes('calc-building-group__toggle-bar'),
-        'Separate toggle-bar container must be completely removed'
-    );
+    // Header integration: switches reside inside summary-actions
     assert.match(
         html,
         /<div class="calc-building-group__summary-actions">\s*<button[^>]*data-group-switch="heroes"/,

@@ -46,7 +46,7 @@
 
         .overall-progress-label {
             font-size: clamp(10px, 1.3vw, 13px);
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             color: $text-secondary;
             text-transform: uppercase;
             letter-spacing: 0.6px;
@@ -56,7 +56,7 @@
 
         .overall-progress-value {
             font-size: clamp(15px, 2vw, 24px);
-            font-weight: 800;
+            font-weight: $font-weight-extrabold;
             color: $accent-primary;
             white-space: nowrap;
             letter-spacing: -0.2px;
@@ -145,7 +145,7 @@
 
         .stat-box-label {
             font-size: clamp(9px, 1.2vw, 11px);
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             color: $text-secondary;
             text-transform: uppercase;
             letter-spacing: 0.4px;
@@ -154,7 +154,7 @@
 
         .stat-box-value {
             font-size: clamp(13px, 1.6vw, 16px);
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             color: $text-primary;
             margin: $spacing-xs 0;
 
@@ -177,7 +177,7 @@
         .progress-bar-mini {
             height: 5px;
             background-color: $bg-surface-tertiary;
-            border-radius: 2.5px;
+            border-radius: $shape-corner-2xs;
             overflow: hidden;
             width: 100%;
             margin-top: $spacing-sm;
@@ -200,7 +200,7 @@
                 height: 100%;
                 width: 0;
                 background: linear-gradient(90deg, $accent-primary 0%, color-mix(in srgb, $accent-primary 70%, $color-white-const) 100%);
-                border-radius: 2.5px;
+                border-radius: $shape-corner-2xs;
                 transition: width 1800ms $ease-smooth;
 
                 &.shiny-fill {
@@ -225,7 +225,7 @@
         .stat-box-maxed {
             margin-top: 6px;
             font-size: clamp(10px, 1.4vw, 12px);
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             color: $palette-gold;
             letter-spacing: 0.4px;
         }
@@ -237,7 +237,7 @@
     position: absolute;
     top: 0;
     height: 100%;
-    border-radius: 2.5px;
+    border-radius: $shape-corner-2xs;
     pointer-events: none;
     transition: width 600ms $ease-standard;
 

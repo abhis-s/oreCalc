@@ -43,16 +43,16 @@
                     left $duration-moderate $ease-standard,
                     border-radius $duration-moderate $ease-smooth,
                     background-color $duration-base $ease-smooth;
-        z-index: 1;
+        z-index: $z-index-base;
         will-change: transform, width;
     }
 
     .hj-switch-btn {
         position: relative;
-        z-index: 2;
+        z-index: $z-index-interactive;
         padding: 5px 14px;
         font-size: clamp(0.7rem, 0.4vw + 0.62rem, 0.75rem);
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         border: none;
         background: transparent;
         color: $text-secondary;
@@ -94,7 +94,7 @@
         gap: 6px;
         padding: 5px $spacing-md;
         font-size: clamp(0.7rem, 0.4vw + 0.62rem, 0.75rem);
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         border-radius: $shape-corner-full;
         background: $bg-surface-primary;
         border: 1px solid $border-primary;
@@ -147,7 +147,7 @@
             background: $accent-primary;
             border-color: $accent-primary;
             color: $text-on-accent;
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             padding-right: $spacing-sm;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 

@@ -7,7 +7,7 @@
     .supercell-events-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: var(--font-size-sm);
+        font-size: $font-size-sm;
         color: $text-secondary;
 
         th, td {
@@ -18,9 +18,9 @@
 
         th {
             color: $accent-primary;
-            font-weight: var(--font-weight-bold);
+            font-weight: $font-weight-bold;
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: $font-size-xs;
             letter-spacing: 0.05em;
         }
 
@@ -42,7 +42,7 @@
         }
 
         tr.highlighted {
-            font-weight: var(--font-weight-bold);
+            font-weight: $font-weight-bold;
             td {
                 background-color: $accent-primary-soft;
                 color: $text-primary;
@@ -112,7 +112,7 @@
             border-radius: $shape-corner-medium;
             font-size: 0.72rem;
             text-decoration: none !important;
-            font-weight: var(--font-weight-bold);
+            font-weight: $font-weight-bold;
             display: inline-flex;
             align-items: center;
             gap: 6px;

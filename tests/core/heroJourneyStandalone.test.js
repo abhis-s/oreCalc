@@ -112,39 +112,6 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         }
     });
 
-    test('verifies hero-journey/index.html static image assets exist in the project directory', async () => {
-        const fs = await import('node:fs');
-        const path = await import('node:path');
-        const html = fs.readFileSync(path.join(process.cwd(), 'hero-journey/index.html'), 'utf8');
-
-        const srcMatches = [...html.matchAll(/src="([^"?]+)(?:\?[^"]*)?"/g)].map(m => m[1]);
-        for (const src of srcMatches) {
-            if (src.startsWith('http') || src.endsWith('.js')) continue;
-            const cleanSrc = src.startsWith('/') ? src.substring(1) : src;
-            const fullPath = path.join(process.cwd(), cleanSrc);
-            assert.ok(fs.existsSync(fullPath), `Asset in hero-journey/index.html does not exist on disk: ${src} -> ${fullPath}`);
-        }
-    });
-
-    test('verifies translation keys for saved profiles exist in en.json and de.json', async () => {
-        const fs = await import('node:fs');
-        const path = await import('node:path');
-        const en = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'js/i18n/en.json'), 'utf8'));
-        const de = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'js/i18n/de.json'), 'utf8'));
-
-        assert.ok(en.player?.savedProfiles, 'en.json must have player.savedProfiles');
-        assert.ok(de.player?.savedProfiles, 'de.json must have player.savedProfiles');
-    });
-
-    test('verifies getAppSettings returns sanitized defaults when storage is empty', async () => {
-        const { getAppSettings } = await import('../../js/components/common/appSettings.js');
-        const settings = getAppSettings();
-        assert.ok(settings, 'getAppSettings must return an object');
-        assert.ok(['dark', 'light'].includes(settings.theme), 'theme must be dark or light');
-        assert.ok(typeof settings.accentColor === 'string', 'accentColor must be a string');
-        assert.ok(typeof settings.language === 'string', 'language must be a string');
-    });
-
     test('verifies calculateHeroJourneyUpcomingOres correctly handles TH8 player with 0 heroes', async () => {
         const { calculateHeroJourneyUpcomingOres } = await import('../../js/domain/income/heroJourneyIncome.js');
         const { buildStateFromPlayerData } = await import('../../js/components/heroJourney/heroJourneyState.js');

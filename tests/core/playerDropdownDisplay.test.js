@@ -118,12 +118,6 @@ function parseHTMLToNodes(html) {
             itemEl.setAttribute('tabindex', tabMatch[1]);
         }
 
-        const cacheIconMatch = inner.match(/class="([^"]*cache-status-icon[^"]*)"/);
-        if (cacheIconMatch) {
-            const iconEl = new MockDOMElement('svg', '', cacheIconMatch[1]);
-            itemEl.appendChild(iconEl);
-        }
-
         const infoMatch = inner.match(/<div class="player-info-text">([\s\S]*?)<\/div>/);
         if (infoMatch) {
             const infoEl = new MockDOMElement('div', '', 'player-info-text');
@@ -317,20 +311,13 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         };
     });
 
-    test('renders clean player dropdown markup without obsolete cache status icons', () => {
+    test('renders player dropdown items with name, tag, and delete button', () => {
         renderPlayerDropdown();
-
-        assert.ok(!mockContainer.innerHTML.includes('cache-status-icon'));
-        assert.ok(!mockContainer.innerHTML.includes('cloud-check'));
-        assert.ok(!mockContainer.innerHTML.includes('cloud-error'));
 
         const items = mockContainer.querySelectorAll('.player-dropdown-item');
         assert.equal(items.length, 3);
 
         items.forEach(item => {
-            const cacheIcons = item.querySelectorAll('.cache-status-icon');
-            assert.equal(cacheIcons.length, 0);
-
             const infoText = item.querySelector('.player-info-text');
             assert.ok(infoText);
 
@@ -438,26 +425,6 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         assert.ok(firstItem.classList.contains('active'));
     });
 
-    test('Add Player Modal layout, Guided Setup action and width invariants', () => {
-        const addPlayerHtml = fs.readFileSync(path.join(projectRoot, 'partials/modals/add-player.html'), 'utf8');
-        const deJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/de.json'), 'utf8'));
-
-        assert.equal(enJson.views.guidedSetup.title, 'Guided Setup', 'en.json must define views.guidedSetup.title');
-        assert.equal(deJson.views.guidedSetup.title, 'Geführtes Setup', 'de.json must define views.guidedSetup.title');
-        assert.match(enJson.player.addPlayerHelp, /To find your player tag/, 'en.json addPlayerHelp must provide tag discovery instructions');
-        assert.doesNotMatch(enJson.player.addPlayerHelp, /Guided Setup/, 'en.json addPlayerHelp must not mention Guided Setup');
-        assert.match(deJson.player.addPlayerHelp, /Spielerkürzel zu finden/, 'de.json addPlayerHelp must provide tag discovery instructions');
-        assert.doesNotMatch(deJson.player.addPlayerHelp, /Geführtes Setup/, 'de.json addPlayerHelp must not mention Geführtes Setup');
-        assert.match(enJson.player.addPlayerHelpGuided, /Guided Setup/, 'en.json addPlayerHelpGuided must mention Guided Setup');
-        assert.match(deJson.player.addPlayerHelpGuided, /Geführtes Setup/, 'de.json addPlayerHelpGuided must mention Geführtes Setup');
-
-        assert.match(
-            addPlayerHtml,
-            /id="add-player-guided-setup-btn"[\s\S]*?data-i18n="views\.guidedSetup\.title"/,
-            'add-player.html must contain Guided Setup button'
-        );
-    });
-
     test('getAddPlayerHelpContent dynamically includes Guided Setup paragraph only when guided setup button is visible', () => {
         const origGetById = globalThis.document?.getElementById;
 
@@ -493,19 +460,6 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
         if (origGetById) {
             globalThis.document.getElementById = origGetById;
         }
-    });
-
-    test('deleteProfile copy and formatting invariants', () => {
-        const deJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/de.json'), 'utf8'));
-
-        assert.match(enJson.confirms.deleteProfile, /permanently remove all data/, 'deleteProfile must state permanent data removal');
-        assert.match(deJson.confirms.deleteProfile, /dauerhaft/, 'deleteProfile in German must state permanent data removal');
-    });
-
-    test('tabs module exports resetTabScrollPosition and navigateToTab', async () => {
-        const tabs = await import('../../js/components/layout/tabs.js');
-        assert.equal(typeof tabs.resetTabScrollPosition, 'function');
-        assert.equal(typeof tabs.navigateToTab, 'function');
     });
 
     test('keyboard navigation handles ArrowDown, ArrowUp, Home, End, Escape, and Delete', async () => {

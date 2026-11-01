@@ -1,4 +1,4 @@
-@use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
 
 // --- 1. MIXINS & MOBILE LAYOUT ---
 
@@ -205,9 +205,9 @@
             background-color: $accent-primary;
             color: $text-on-accent;
             font-size: clamp(10px, 1.3vw, 12px);
-            font-weight: 800;
+            font-weight: $font-weight-extrabold;
             padding: $spacing-2xs 6px;
-            border-radius: 6px;
+            border-radius: $shape-corner-compact;
             border: 1.5px solid $border-primary;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
         }
@@ -233,7 +233,7 @@
         .player-name {
             margin: 0;
             font-size: clamp(18px, 2.5vw, 24px);
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             color: $text-primary;
             line-height: 1.15;
             display: -webkit-box;
@@ -264,7 +264,7 @@
             margin: $spacing-xs 0 0 0;
             padding: $spacing-2xs 6px;
             font-size: clamp(10px, 1.3vw, 11px);
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             color: $accent-primary;
             background-color: color-mix(in srgb, $accent-primary 8%, transparent);
             border: 1px solid color-mix(in srgb, $accent-primary 20%, transparent);
@@ -299,7 +299,7 @@
                 min-width: 0;
 
                 .clan-name-mini {
-                    font-weight: 600;
+                    font-weight: $font-weight-semibold;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -355,7 +355,7 @@
 
                 .league-name-mini {
                     font-size: clamp(12px, 1.6vw, 14px);
-                    font-weight: 700;
+                    font-weight: $font-weight-bold;
                     color: $text-primary;
                     white-space: nowrap;
                 }
@@ -366,7 +366,7 @@
                     gap: 3px;
                     font-size: clamp(11px, 1.5vw, 13px);
                     color: $accent-primary;
-                    font-weight: 700;
+                    font-weight: $font-weight-bold;
                     white-space: nowrap;
 
                     .trophy-icon-mini {
@@ -394,7 +394,7 @@
             align-items: center;
             gap: 6px;
             font-size: clamp(11px, 1.4vw, 12px);
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             color: $text-secondary;
             white-space: nowrap;
 
@@ -406,7 +406,7 @@
 
             .maxed-count {
                 color: $text-primary;
-                font-weight: 700;
+                font-weight: $font-weight-bold;
             }
         }
 
@@ -416,7 +416,7 @@
             gap: 6px;
             padding: 0 $spacing-md;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             @include btn-accent-style;
             border-radius: $shape-corner-small;
             text-decoration: none;
@@ -447,7 +447,7 @@
 
 // --- 4. RESPONSIVE CONTAINER & MEDIA QUERIES ---
 
-    @container (max-width: 680px) {
+    @container (max-width: #{$container-header-collapse}) {
         @include mobile-header-full-layout;
     }
 

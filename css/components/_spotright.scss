@@ -97,7 +97,7 @@
     flex-shrink: 0;
     margin-right: $spacing-sm;
     user-select: none;
-    z-index: 2;
+    z-index: $z-index-interactive;
 
     &[hidden] {
         display: none !important;
@@ -161,7 +161,7 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    z-index: 2;
+    z-index: $z-index-interactive;
 
     &:focus,
     &:focus-visible {
@@ -191,7 +191,7 @@
     padding: 0;
     margin: 0;
     pointer-events: none;
-    z-index: 1;
+    z-index: $z-index-base;
     white-space: pre;
     overflow: hidden;
     box-sizing: border-box;
@@ -1025,7 +1025,7 @@ mark.spotright-match-highlight {
     }
 
     .header-spotright-label {
-        font-size: var(--font-size-sm);
+        font-size: $font-size-sm;
         font-weight: $font-weight-medium;
         color: $text-muted;
         letter-spacing: 0.1px;
@@ -1063,7 +1063,7 @@ mark.spotright-match-highlight {
 
         &--ctrl {
             padding: 0 5px;
-            font-size: 10.5px;
+            font-size: $font-size-2xs;
         }
 
         clashcalc-assets-svg {

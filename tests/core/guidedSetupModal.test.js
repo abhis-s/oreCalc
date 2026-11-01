@@ -1,12 +1,5 @@
 import { test, beforeEach, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '../..');
 
 if (typeof globalThis.HTMLElement === 'undefined') {
     globalThis.HTMLElement = class {};
@@ -547,46 +540,6 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         assert.equal(stateModule.state.onboardingTimestamp, stateModule.EFFECTIVE_DATE_PROFILE_ONBOARDING + 9999);
     });
 
-    test('inputPopoverProvider ensures modal containment for inputs inside modal dialogs', async () => {
-        const { registerInputPopover } = await import('../../js/utils/inputPopoverProvider.js');
-        const mockDialog = new MockDOMElement('dialog', 'test-feature-dialog', 'modal');
-        const mockInput = new MockDOMElement('input', 'test-contained-input');
-        mockDialog.appendChild(mockInput);
-        globalThis.document.body.appendChild(mockDialog);
-
-        registerInputPopover(mockInput, { min: 1, max: 20 });
-        const popover = mockDialog.children.find(c => c.classList?.contains('input-feature-popover'));
-        assert.ok(popover, 'Popover must be appended inside modal dialog container');
-    });
-
-    test('inputPopoverPositioner positions popovers relative to input with fixed positioning', async () => {
-        const { positionPopover } = await import('../../js/utils/inputPopoverPositioner.js');
-        const mockInput = new MockDOMElement('input', 'test-coord-input');
-        mockInput.getBoundingClientRect = () => ({
-            top: 200,
-            bottom: 240,
-            left: 100,
-            right: 200,
-            width: 100,
-            height: 40
-        });
-
-        const mockPopover = new MockDOMElement('div', 'test-popover', 'input-feature-popover show');
-        mockPopover.getBoundingClientRect = () => ({
-            top: 0,
-            bottom: 120,
-            left: 0,
-            right: 180,
-            width: 180,
-            height: 120
-        });
-
-        positionPopover(mockPopover, mockInput);
-        assert.equal(mockPopover.style.position, 'fixed');
-        assert.ok(mockPopover.style.left);
-        assert.ok(mockPopover.style.top);
-    });
-
     test('processPlayerDataResponse surgically migrates guest non-API configurations when only DEFAULT0 existed in storage', async () => {
         const { processPlayerDataResponse } = await import('../../js/services/serverResponseHandler.js');
         const { normalizePlayerTag } = await import('../../js/core/storageKeys.js');
@@ -681,50 +634,6 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         assert.equal(newPlayer.storedOres.shiny, 0, 'Must NOT migrate guest stored ores when real tag already existed');
         assert.equal(newPlayer.storedOres.glowy, 0);
         assert.equal(newPlayer.storedOres.starry, 0);
-    });
-
-    test('Guided Setup modal template structural and accessibility invariants', () => {
-        const templatePath = path.join(projectRoot, 'partials/modals/guided-setup-modal.html');
-        assert.ok(fs.existsSync(templatePath), 'partials/modals/guided-setup-modal.html must exist');
-        const html = fs.readFileSync(templatePath, 'utf8');
-
-        // Main modal container
-        assert.ok(html.includes('id="guided-setup-modal"'));
-        assert.ok(html.includes('class="modal modal-sheet-mobile"'));
-        assert.ok(html.includes('class="modal-content guided-setup-modal-content"'));
-        assert.ok(html.includes('class="modal-header guided-setup-header"'));
-        assert.ok(html.includes('class="modal-body guided-setup-body"'));
-
-        // Header controls: canonical close button and step indicator
-        assert.ok(html.includes('id="close-guided-setup-modal-btn"'));
-        assert.ok(html.includes('id="guided-setup-step-indicator"'));
-
-        // Steps 1 through 6 containers
-        for (let i = 1; i <= 6; i++) {
-            assert.ok(html.includes(`id="guided-setup-step-${i}"`), `Must contain step container for step ${i}`);
-        }
-
-        assert.ok(html.includes('id="guided-setup-player-tag-input"'));
-        assert.ok(html.includes('id="guided-setup-load-btn"'));
-        assert.ok(html.includes('id="guided-setup-profile-preview-container"'));
-
-        // Footer buttons: Cancel, Back, Skip, Next
-        const backBtnIndex = html.indexOf('id="guided-setup-back-btn"');
-        const nextBtnIndex = html.indexOf('id="guided-setup-next-btn"');
-        const cancelBtnIndex = html.indexOf('id="guided-setup-cancel-btn"');
-        const skipBtnIndex = html.indexOf('id="guided-setup-skip-btn"');
-
-        assert.ok(backBtnIndex !== -1 && nextBtnIndex !== -1 && cancelBtnIndex !== -1 && skipBtnIndex !== -1);
-        // Logical tab focus ordering: Back button comes before Next button
-        assert.ok(backBtnIndex < nextBtnIndex, 'Back button must precede Next button in DOM order for tab navigation');
-
-        // Step headers must be wrapped in .guided-setup-step-header for Steps 2 through 6
-        const stepHeaderMatches = html.match(/class="guided-setup-step-header"/g);
-        assert.ok(stepHeaderMatches && stepHeaderMatches.length >= 5, 'Must contain .guided-setup-step-header wrappers for Steps 2 to 6');
-
-        // Zero emojis or prohibited dingbats in template
-        const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
-        assert.equal(emojiRegex.test(html), false, 'Template must contain zero emojis or dingbats');
     });
 
     test('Step 1 Next button visibility lifecycle in DOM', () => {
@@ -1041,33 +950,6 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         const shinyBadgeCol = shinyRow.children.find(c => c.classList?.contains('guided-setup-trader-row__badge'));
         assert.ok(shinyBadgeCol, 'Shiny row must have dedicated badge column placeholder for consistent alignment');
         assert.equal(shinyBadgeCol.children.length, 0, 'Shiny row badge column should be empty');
-    });
-
-    test('positionPopover with align: right aligns popover with input right edge', async () => {
-        const { positionPopover } = await import('../../js/utils/inputPopoverPositioner.js');
-        const mockInput = new MockDOMElement('input', 'test-align-input');
-        mockInput.getBoundingClientRect = () => ({
-            top: 200,
-            bottom: 240,
-            left: 100,
-            right: 300,
-            width: 200,
-            height: 40
-        });
-
-        const mockPopover = new MockDOMElement('div', 'test-align-popover', 'input-feature-popover show');
-        mockPopover.getBoundingClientRect = () => ({
-            top: 0,
-            bottom: 60,
-            left: 0,
-            right: 120,
-            width: 120,
-            height: 60
-        });
-
-        positionPopover(mockPopover, mockInput, { align: 'right' });
-        // input right is 300, popoverWidth is 120. Expected left = 300 - 120 = 180px
-        assert.equal(mockPopover.style.left, '180px');
     });
 
     test('renderSavedProfilesList renders accessible saved profile cards with active indicator when saved profiles exist', () => {

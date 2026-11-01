@@ -117,7 +117,7 @@
     grid-template-columns: 1fr 1fr;
     background-color: $bg-surface-primary;
     padding: 10px 15px;
-    font-weight: var(--font-weight-bold);
+    font-weight: $font-weight-bold;
     border-bottom: 1px solid $border-primary;
     text-align: center;
 }
@@ -256,21 +256,6 @@
     }
 
     @media (max-width: $breakpoint-modal) {
-        padding: 0 !important;
-
-        .modal-content {
-            width: 100% !important;
-            max-width: 100% !important;
-            height: 100vh !important;
-            height: 100dvh !important;
-            max-height: 100dvh !important;
-            border-radius: 0 !important;
-            border: none !important;
-            margin: 0 !important;
-            display: flex;
-            flex-direction: column;
-        }
-
         .modal-info-text {
             flex-shrink: 0;
         }
@@ -334,7 +319,7 @@
     margin-top: 10px;
 
     h3 {
-        font-size: 1rem;
+        font-size: $font-size-lg;
         margin-bottom: $spacing-sm;
         color: $text-primary;
     }

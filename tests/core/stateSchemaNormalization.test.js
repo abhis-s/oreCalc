@@ -63,6 +63,8 @@ if (typeof globalThis.customElements === 'undefined') {
 
 const stateModule = await import('../../js/core/state.js');
 const { getDefaultState, getDefaultPlayerState, initializeState } = stateModule;
+const { migrateAppSettings } = await import('../../js/core/stateCleanup.js');
+const { compareVersions } = await import('../../js/utils/versionUtils.js');
 const { guidedSetupState, applyPreferencesToProfile, resetGuidedSetupState } = await import('../../js/components/guidedSetup/guidedSetupState.js');
 const { processPlayerDataResponse } = await import('../../js/services/serverResponseHandler.js');
 
@@ -260,4 +262,25 @@ test('processPlayerDataResponse creates complete player state with full income d
     assert.ok(player.income.shopOffers.purchases);
     assert.ok(player.income.supercellEvents);
     assert.ok(player.income.prospector);
+});
+
+test('compareVersions accurately compares semantic versions', () => {
+    assert.equal(compareVersions('1.0.0', '1.0.0'), 0);
+    assert.equal(compareVersions('2.1.0', '2.0.9'), 1);
+    assert.equal(compareVersions('1.9.5', '2.0.0'), -1);
+    assert.equal(compareVersions('v2.1.0+build123', '2.1.0'), 0);
+});
+
+test('migrateAppSettings creates normalized schema with currency object', () => {
+    const oldUI = {
+        currency: 'EUR',
+        language: 'de',
+        incomeTimeframe: 'weekly'
+    };
+    const migrated = migrateAppSettings(oldUI);
+
+    assert.equal(migrated.currency.code, 'EUR');
+    assert.equal(migrated.language, 'de');
+    assert.equal(migrated.summaryTimeframe, 'weekly');
+    assert.ok(migrated.uiTimestamps !== undefined);
 });

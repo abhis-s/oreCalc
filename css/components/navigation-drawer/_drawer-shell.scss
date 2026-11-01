@@ -1,4 +1,4 @@
-@use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
 @use '../../base/placeholder';
 
 dialog.navigation-drawer,
@@ -158,7 +158,7 @@ dialog.navigation-drawer,
 
     &__app-title {
         font-size: 24px;
-        font-weight: 800;
+        font-weight: $font-weight-extrabold;
         margin: 0 0 $spacing-2xs 0;
         letter-spacing: -0.5px;
         line-height: 1.2;
@@ -168,7 +168,7 @@ dialog.navigation-drawer,
 
     &__subtitle {
         font-size: 13px;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         margin: 0;
         color: $text-secondary;
         opacity: 0.6;
@@ -244,7 +244,7 @@ dialog.navigation-drawer,
         border: 1px solid transparent;
         color: $text-secondary;
         font-size: 11px;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         text-decoration: none;
         cursor: pointer;
         position: relative;
@@ -294,7 +294,7 @@ dialog.navigation-drawer,
         top: -3px;
         right: 2px;
         font-size: 8px;
-        font-weight: 800;
+        font-weight: $font-weight-extrabold;
         padding: 1px $spacing-xs;
         border-radius: $shape-corner-xs;
         background-color: $bg-surface-tertiary;

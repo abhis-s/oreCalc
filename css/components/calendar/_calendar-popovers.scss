@@ -15,7 +15,7 @@
     box-sizing: border-box;
 
     .tooltip-header {
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         margin-bottom: $spacing-xs;
         color: $accent-primary;
         width: 100%;
@@ -33,7 +33,7 @@
 
     .tooltip-bottleneck {
         font-size: clamp(10px, 2.2vw, 12px) !important;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         white-space: normal;
         text-align: center;
     }
@@ -45,7 +45,7 @@
         gap: $spacing-sm;
         width: 100%;
         font-size: 0.85em;
-        font-weight: 500;
+        font-weight: $font-weight-medium;
 
         span {
             flex: 1;
@@ -94,7 +94,7 @@
         .in-progress-title {
             font-size: clamp(9px, 2vw, 11px);
             opacity: 0.8;
-            font-weight: 500;
+            font-weight: $font-weight-medium;
             text-align: center;
             width: 100%;
         }
@@ -119,7 +119,7 @@
 
         .in-progress-fallback {
             font-size: 0.7em;
-            font-weight: var(--font-weight-bold);
+            font-weight: $font-weight-bold;
             color: #dfe6e9;
             width: 14px;
             height: 14px;
@@ -132,7 +132,7 @@
 
         .in-progress-level {
             font-size: clamp(9px, 2.2vw, 11px);
-            font-weight: var(--font-weight-bold);
+            font-weight: $font-weight-bold;
             color: $color-white-const;
             white-space: nowrap;
         }
@@ -169,7 +169,7 @@
         .day-overview-date {
             margin: 0;
             font-size: 0.95rem;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             color: $accent-primary;
         }
 
@@ -204,8 +204,8 @@
         padding: 10px;
 
         .day-overview-summary-title {
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-semibold;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: $text-secondary;
@@ -225,7 +225,7 @@
 
                 .day-ore-val {
                     font-size: 0.85rem;
-                    font-weight: 600;
+                    font-weight: $font-weight-semibold;
                     color: $text-primary;
                     font-family: 'Roboto Mono', monospace;
                 }
@@ -244,8 +244,8 @@
         gap: 6px;
 
         .day-overview-section-title {
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-semibold;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: $text-secondary;
@@ -280,8 +280,8 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 0.75rem;
-                    font-weight: 700;
+                    font-size: $font-size-xs;
+                    font-weight: $font-weight-bold;
                 }
 
                 .milestone-text-group {
@@ -291,12 +291,12 @@
 
                     .milestone-title {
                         font-size: 0.85rem;
-                        font-weight: 600;
+                        font-weight: $font-weight-semibold;
                         color: $text-primary;
                     }
 
                     .milestone-bottleneck {
-                        font-size: 0.75rem;
+                        font-size: $font-size-xs;
                         color: $color-danger;
                     }
                 }
@@ -342,7 +342,7 @@
 
                     .chip-row-title {
                         font-size: 0.82rem;
-                        font-weight: 600;
+                        font-weight: $font-weight-semibold;
                         color: $text-primary;
                     }
 
@@ -350,7 +350,7 @@
                         display: flex;
                         align-items: center;
                         gap: 6px;
-                        font-size: 0.75rem;
+                        font-size: $font-size-xs;
                         color: $text-secondary;
                         font-family: 'Roboto Mono', monospace;
 
@@ -370,7 +370,7 @@
                     .chip-action-btn {
                         background: none;
                         border: 1px solid $border-primary;
-                        border-radius: 6px;
+                        border-radius: $shape-corner-compact;
                         color: $text-secondary;
                         cursor: pointer;
                         padding: $spacing-xs;

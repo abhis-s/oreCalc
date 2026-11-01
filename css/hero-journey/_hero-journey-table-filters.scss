@@ -65,8 +65,8 @@
                     border: 1px solid $border-primary;
                     border-radius: $shape-corner-full;
                     padding: 6px 28px 6px $spacing-md;
-                    font-size: 0.75rem;
-                    font-weight: 600;
+                    font-size: $font-size-xs;
+                    font-weight: $font-weight-semibold;
                     cursor: pointer;
                     outline: none;
                     text-align: left;
@@ -131,8 +131,8 @@
                     border: 1px solid $border-primary;
                     border-radius: $shape-corner-full;
                     padding: 6px 28px 6px $spacing-md;
-                    font-size: 0.75rem;
-                    font-weight: 600;
+                    font-size: $font-size-xs;
+                    font-weight: $font-weight-semibold;
                     cursor: pointer;
                     outline: none;
                     text-align: left;
@@ -150,7 +150,7 @@
 
                 .btn-secondary {
                     padding: 6px 10px;
-                    font-size: 0.75rem;
+                    font-size: $font-size-xs;
                     white-space: nowrap;
                 }
             }

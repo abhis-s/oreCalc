@@ -30,7 +30,7 @@
 .hero-card {
     background-color: $bg-surface-secondary;
     border: 1px solid color-mix(in srgb, $border-primary 70%, transparent);
-    border-radius: 10px;
+    border-radius: $card-radius;
     padding: 30px;
     box-shadow: $elevation-1;
     transition: opacity $duration-moderate $ease-smooth, background-color $duration-moderate $ease-smooth, transform $duration-base $ease-standard, border-color $duration-moderate $ease-smooth, box-shadow $duration-moderate $ease-smooth;
@@ -51,7 +51,7 @@
         display: none !important;
     }
 
-    @container (max-width: 445px) {
+    @container (max-width: #{$container-card-compact}) {
         padding: 20px;
     }
 
@@ -145,7 +145,7 @@
         @include input-focus-ring;
         background-color: $bg-surface-primary;
         border: 1px solid $border-primary;
-        border-radius: 5px;
+        border-radius: $shape-corner-compact;
         color: $text-secondary;
         flex-shrink: 0;
         padding: 5px;
@@ -201,7 +201,7 @@
 .epic-equip {
     color: $color-rarity-epic;
     text-shadow: 0 0 8px rgba(186, 104, 200, 0.2);
-    font-weight: 600;
+    font-weight: $font-weight-semibold;
 }
 
 .equipment-item[data-equip-type="epic"] {
@@ -246,9 +246,9 @@
     @extend %flex-center;
     background-color: $bg-app;
     border: 1px solid $border-primary;
-    border-radius: 5px;
+    border-radius: $shape-corner-compact;
     color: $text-primary;
-    font-weight: var(--font-weight-bold);
+    font-weight: $font-weight-bold;
     height: 30px;
     padding: 5px;
     text-align: center;

@@ -30,8 +30,8 @@
     }
 
     .costs-summary-label {
-        font-size: 0.875rem;
-        font-weight: 600;
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: $text-secondary;
@@ -49,7 +49,7 @@
 
     .costs-summary-value {
         font-size: 2.25rem;
-        font-weight: 800;
+        font-weight: $font-weight-extrabold;
         color: $accent-primary;
         font-family: monospace;
     }
@@ -61,9 +61,9 @@
         transform: translate(8px, -20%);
         font-size: 0.65rem;
         padding: $spacing-2xs 6px;
-        border-radius: 6px;
+        border-radius: $shape-corner-compact;
         text-transform: uppercase;
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         letter-spacing: 0.5px;
         background-color: $accent-primary-soft;
         color: $accent-primary;
@@ -82,8 +82,8 @@
     }
 
     .costs-section-title {
-        font-size: 1.125rem;
-        font-weight: 700;
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
         color: $text-primary;
         margin-bottom: 0.75rem;
     }
@@ -143,7 +143,7 @@
         align-items: center;
         padding: $spacing-md $spacing-lg;
         background-color: $bg-surface-secondary;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         border-bottom: 1px solid $border-primary;
     }
 
@@ -155,8 +155,8 @@
     .costs-month-total {
         color: $accent-primary;
         font-family: monospace;
-        font-size: 1rem;
-        font-weight: 700;
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
     }
 
     .costs-services-list {
@@ -176,7 +176,7 @@
         transition: background-color $duration-fast $ease-smooth;
 
         .costs-service-name {
-            font-weight: 500;
+            font-weight: $font-weight-medium;
         }
 
         .costs-service-cost {
@@ -192,12 +192,12 @@
             margin: 1px 0;
 
             .costs-service-name {
-                font-weight: 700;
+                font-weight: $font-weight-bold;
                 color: $accent-primary;
             }
 
             .costs-service-cost {
-                font-weight: 700;
+                font-weight: $font-weight-bold;
                 color: $accent-primary;
             }
         }
@@ -224,7 +224,7 @@
         border-top: 1px solid rgba($border-primary, 0.4);
         color: $text-secondary;
         font-size: 0.8rem;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         cursor: pointer;
         transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
 
@@ -271,7 +271,7 @@
         align-items: center;
 
         #running-costs-update-date {
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             color: $text-primary;
         }
     }
@@ -288,7 +288,7 @@
                 left: 50%;
                 transform: translate(-50%, -50%) rotate(-25deg);
                 font-size: 5.5rem;
-                font-weight: 900;
+                font-weight: $font-weight-black;
                 color: $text-primary;
                 opacity: 0.035;
                 pointer-events: none;
@@ -312,7 +312,7 @@
         }
 
         .costs-section-title {
-            font-size: 1rem;
+            font-size: $font-size-lg;
             margin-bottom: 0.5rem;
         }
 
@@ -330,7 +330,7 @@
         }
 
         .costs-month-name {
-            font-size: 0.875rem;
+            font-size: $font-size-base;
         }
 
         .costs-month-total {

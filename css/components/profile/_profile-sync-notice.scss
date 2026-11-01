@@ -12,7 +12,7 @@
     opacity: 0.8;
     padding: $spacing-sm $spacing-md;
     background-color: $bg-surface-tertiary;
-    border-radius: 6px;
+    border-radius: $shape-corner-compact;
     border: 1px solid $border-secondary;
 
     @media (max-width: $breakpoint-modal) {

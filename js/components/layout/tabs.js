@@ -225,7 +225,7 @@ export function initializeTabs() {
  * Resets the cached scroll position for a tab.
  * @param {string} [tabId='home-tab']
  */
-export function resetTabScrollPosition(tabId = 'home-tab') {
+function resetTabScrollPosition(tabId = 'home-tab') {
     if (tabScrollPositions[tabId] !== undefined) {
         tabScrollPositions[tabId] = 0;
     }

@@ -84,7 +84,7 @@ dialog.navigation-drawer,
 
     &__context-name {
         font-size: 14px;
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         color: $text-primary;
         white-space: nowrap;
         overflow: hidden;
@@ -118,7 +118,7 @@ dialog.navigation-drawer,
         display: inline-flex;
         align-items: center;
         gap: $spacing-2xs;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         color: $text-secondary;
         white-space: nowrap;
     }
@@ -241,7 +241,7 @@ dialog.navigation-drawer,
 
     &__context-switcher-name {
         font-size: 12px;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -303,7 +303,7 @@ dialog.navigation-drawer,
 
     &__context-metric-label {
         font-size: 10px;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         text-transform: uppercase;
         letter-spacing: 0.3px;
         color: $text-muted;
@@ -335,7 +335,7 @@ dialog.navigation-drawer,
 
     &__context-metric-text {
         font-size: 12px;
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         color: $text-primary;
         white-space: nowrap;
         overflow: hidden;
@@ -384,7 +384,7 @@ dialog.navigation-drawer,
 
     &__context-guest-title {
         font-size: 13px;
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         color: $text-primary;
     }
 
@@ -399,7 +399,7 @@ dialog.navigation-drawer,
     &__context-guest-btn {
         padding: 5px $spacing-md;
         font-size: 12px;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         border-radius: $shape-corner-small;
         background-color: var(--accent-soft);
         border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);

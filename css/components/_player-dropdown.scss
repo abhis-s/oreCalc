@@ -23,7 +23,7 @@
     transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
     font-size: 14px;
     color: $text-primary;
-    font-weight: 500;
+    font-weight: $font-weight-medium;
     z-index: #{$z-index-component + 1};
     position: relative;
 
@@ -112,7 +112,7 @@
 .player-dropdown-section-header {
     padding: $spacing-xs $spacing-sm;
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: $font-weight-bold;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: $text-secondary;
@@ -129,7 +129,7 @@
 
     &--collapsible {
         cursor: pointer;
-        border-radius: 6px;
+        border-radius: $shape-corner-compact;
         transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
 
         &:hover {
@@ -149,7 +149,7 @@
     justify-content: space-between;
     padding: 6px 10px;
     margin-bottom: $spacing-xs;
-    border-radius: 10px;
+    border-radius: $card-radius;
     border-left: 3px solid transparent;
     cursor: pointer;
     transition: background-color $duration-fast $ease-smooth, transform $duration-fast $ease-standard, border-left-color $duration-fast $ease-smooth, padding-left $duration-fast $ease-smooth;
@@ -169,7 +169,7 @@
     &.active {
         background-color: $accent-primary-soft;
         color: $accent-primary;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         border-left-color: $accent-primary;
     }
 
@@ -207,7 +207,7 @@
         bottom: -3px;
         right: -3px;
         font-size: 0.6rem;
-        font-weight: 800;
+        font-weight: $font-weight-extrabold;
         line-height: 1;
         padding: 1px 3px;
         border-radius: $shape-corner-xs;
@@ -228,7 +228,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: $font-weight-semibold;
     text-align: left;
 
     > span:first-child {
@@ -243,7 +243,7 @@
 .player-tag-text {
     font-family: monospace;
     font-size: 0.72rem;
-    font-weight: 500;
+    font-weight: $font-weight-medium;
     color: $text-secondary;
     line-height: 1;
 }
@@ -258,14 +258,14 @@
     background-color: $bg-surface-primary;
     color: $accent-primary;
     border: 1.5px dashed color-mix(in srgb, $accent-primary 60%, transparent);
-    border-radius: 10px;
+    border-radius: $card-radius;
     cursor: pointer;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: $font-weight-semibold;
     flex-shrink: 0;
     position: sticky;
     bottom: 0;
-    z-index: 2;
+    z-index: $z-index-interactive;
     transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
 
     &:hover {

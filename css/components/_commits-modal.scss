@@ -5,7 +5,7 @@
     .modal-content {
         max-width: $modal-width-large;
         height: min(82dvh, 760px);
-        max-height: calc(100dvh - 48px);
+        max-height: $modal-max-height;
     }
 
     .modal-body {
@@ -58,9 +58,9 @@
                 justify-content: center;
                 width: 100%;
                 padding: 0.15rem 0.4rem;
-                border-radius: 6px;
-                font-size: 0.75rem;
-                font-weight: 700;
+                border-radius: $shape-corner-compact;
+                font-size: $font-size-xs;
+                font-weight: $font-weight-bold;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 box-sizing: border-box;
@@ -97,7 +97,7 @@
                 border-radius: $shape-corner-xs;
                 font-size: 0.8rem;
                 font-family: monospace;
-                font-weight: 600;
+                font-weight: $font-weight-semibold;
                 text-align: center;
                 width: 100%;
                 box-sizing: border-box;
@@ -112,7 +112,7 @@
 
             .commit-scope {
                 color: $text-secondary;
-                font-weight: 600;
+                font-weight: $font-weight-semibold;
             }
 
             .commit-msg-text {
@@ -137,7 +137,7 @@
             align-items: center;
             gap: 0.6rem;
             color: $accent-primary;
-            font-weight: 800;
+            font-weight: $font-weight-extrabold;
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -180,7 +180,7 @@
                 padding: $spacing-2xs 5px;
                 border-radius: $shape-corner-xs;
                 font-size: 0.725rem;
-                font-weight: 800;
+                font-weight: $font-weight-extrabold;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 margin-right: 0.25rem;
@@ -201,7 +201,7 @@
         letter-spacing: 0.5px;
         margin-top: 1.25rem;
         margin-bottom: 0.75rem;
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         border-bottom: 1px solid $border-secondary;
         padding-bottom: 0.25rem;
     }
@@ -228,7 +228,7 @@
             align-items: center;
             justify-content: space-between;
             font-size: 0.85rem;
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: $text-secondary;
@@ -280,7 +280,7 @@
 
         .commits-container {
             padding: 1rem;
-            border-radius: 10px;
+            border-radius: $card-radius;
         }
 
         .commits-list {
@@ -302,12 +302,12 @@
 
                 .commit-hash {
                     padding: 0.15rem 0.35rem;
-                    font-size: 0.75rem;
+                    font-size: $font-size-xs;
                 }
             }
 
             .commit-subject {
-                font-size: 0.875rem;
+                font-size: $font-size-base;
             }
         }
     }

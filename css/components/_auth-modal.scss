@@ -207,7 +207,7 @@
     .input-icon {
         position: absolute;
         left: $spacing-sm;
-        z-index: 2;
+        z-index: $z-index-interactive;
         display: flex;
         align-items: center;
         pointer-events: none;
@@ -247,7 +247,7 @@
     .password-toggle-btn {
         position: absolute;
         right: $spacing-xs;
-        z-index: 2;
+        z-index: $z-index-interactive;
         background: transparent;
         border: none;
         cursor: pointer;

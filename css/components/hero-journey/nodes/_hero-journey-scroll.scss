@@ -95,7 +95,7 @@
         bottom: -10px;
         left: 0;
         right: 0;
-        z-index: 1;
+        z-index: $z-index-base;
     }
 
     &:hover {
@@ -112,7 +112,7 @@
     background: linear-gradient(90deg, $accent-primary 0%, color-mix(in srgb, $accent-primary 80%, $color-white-const) 100%);
     border-radius: $shape-corner-2xs;
     pointer-events: none;
-    z-index: 1;
+    z-index: $z-index-base;
     transition: width $duration-base $ease-standard;
     box-shadow: 0 0 6px color-mix(in srgb, $accent-primary 40%, transparent);
 }
@@ -126,10 +126,10 @@
     transform: translateY(-50%);
     background: linear-gradient(180deg, color-mix(in srgb, $accent-primary 85%, $color-white-const) 0%, $accent-primary 100%);
     border: 1px solid color-mix(in srgb, $accent-primary 80%, $color-white-const);
-    border-radius: 7px;
+    border-radius: $shape-corner-small;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     cursor: grab;
-    z-index: 2;
+    z-index: $z-index-interactive;
     transition: background $duration-fast $ease-smooth, transform $duration-fast $ease-standard, box-shadow $duration-fast $ease-smooth;
 
     &::before {
@@ -160,12 +160,12 @@
         padding: 3px 9px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
         color: $text-primary;
-        font-size: 0.75rem;
-        font-weight: 700;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
         white-space: nowrap;
         font-variant-numeric: tabular-nums;
         line-height: 1.2;
-        z-index: 10;
+        z-index: $z-index-overlay;
         transition: opacity $duration-fast $ease-smooth, transform $duration-fast $ease-spring;
 
         &::after {
@@ -207,7 +207,7 @@
     opacity: 0.8;
     padding: $spacing-sm $spacing-md;
     background-color: $bg-surface-tertiary;
-    border-radius: 6px;
+    border-radius: $shape-corner-compact;
     border: 1px solid $border-secondary;
 
     @media (max-width: $breakpoint-modal) {

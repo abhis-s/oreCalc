@@ -286,6 +286,116 @@ describe('inputPopoverProvider - Mac Trackpad Click & Blur Lifecycle Suite', () 
         return input;
     };
 
+    test('getButtonHotkey and renderPopoverContent resolve hotkeys and custom labels', async () => {
+        const { getButtonHotkey, renderPopoverContent } = await import('../../js/utils/inputPopoverRenderer.js');
+
+        assert.equal(getButtonHotkey({ hotkey: 'k' }, 'Custom Label'), 'k');
+        assert.equal(getButtonHotkey({}, 'Disable'), 'd');
+        assert.equal(getButtonHotkey({}, 'Deaktivieren'), 'd');
+        assert.equal(getButtonHotkey({}, 'Enable'), 'd');
+        assert.equal(getButtonHotkey({}, 'Min'), null);
+
+        const defaultMinHtml = renderPopoverContent({
+            val: 5,
+            recVal: 0,
+            currMin: 0,
+            currMax: 10,
+            showTitle: false,
+            showRange: false,
+            showMin: true,
+            showMax: false,
+            showRecNow: false,
+            enableValidationColoring: true,
+            clickToFill: { min: true },
+            allowHotkeys: true,
+            customButtons: []
+        });
+        assert.match(defaultMinHtml, /data-action="min"/);
+        assert.match(defaultMinHtml, />Min <kbd class="popover-key-badge">N<\/kbd></);
+
+        const disableMinHtml = renderPopoverContent({
+            val: 5,
+            recVal: 0,
+            currMin: 0,
+            currMax: 10,
+            showTitle: false,
+            showRange: false,
+            showMin: true,
+            minLabel: 'Disable',
+            showMax: false,
+            showRecNow: false,
+            enableValidationColoring: true,
+            clickToFill: { min: true },
+            allowHotkeys: true,
+            customButtons: []
+        });
+        assert.match(disableMinHtml, />Disable <kbd class="popover-key-badge">D<\/kbd></);
+
+        const customMaxHtml = renderPopoverContent({
+            val: 5,
+            recVal: 0,
+            currMin: 0,
+            currMax: 10,
+            showTitle: false,
+            showRange: false,
+            showMin: false,
+            showMax: true,
+            maxLabel: 'Max Limit',
+            showRecNow: false,
+            enableValidationColoring: true,
+            clickToFill: { max: true },
+            allowHotkeys: true,
+            customButtons: []
+        });
+        assert.match(customMaxHtml, /data-action="max"/);
+        assert.match(customMaxHtml, />Max Limit <kbd class="popover-key-badge">X<\/kbd></);
+    });
+
+    test('positionPopover preserves non-overlapping clearance for force-below, force-above, and right alignment', async () => {
+        const { positionPopover } = await import('../../js/utils/inputPopoverPositioner.js');
+        const originalVV = globalThis.window.visualViewport;
+        const originalIH = globalThis.window.innerHeight;
+        const originalIW = globalThis.window.innerWidth;
+
+        try {
+            globalThis.window.visualViewport = {
+                height: 350,
+                width: 380,
+                offsetTop: 0,
+                offsetLeft: 0
+            };
+            globalThis.window.innerHeight = 350;
+            globalThis.window.innerWidth = 380;
+
+            const popover = {
+                classList: {
+                    contains: (cls) => cls === 'show',
+                    remove: () => {},
+                    add: () => {}
+                },
+                getBoundingClientRect: () => ({ height: 165, width: 200 }),
+                style: {}
+            };
+
+            const belowInput = {
+                getBoundingClientRect: () => ({ top: 180, bottom: 210, left: 100, right: 260, width: 160, height: 30 })
+            };
+            positionPopover(popover, belowInput, { placement: 'force-below', align: 'right' });
+            assert.ok(parseFloat(popover.style.top) >= 214, 'Popover top remains strictly below input bottom');
+            assert.equal(popover.style.left, '60px', 'Right-aligned popover aligns right edge (260 - 200 = 60)');
+
+            const aboveInput = {
+                getBoundingClientRect: () => ({ top: 250, bottom: 280, left: 100, right: 260, width: 160, height: 30 })
+            };
+            positionPopover(popover, aboveInput, { placement: 'force-above' });
+            assert.ok(parseFloat(popover.style.top) + 165 <= 250, 'Popover bottom remains strictly above input top');
+        } finally {
+            globalThis.window.visualViewport = originalVV;
+            globalThis.window.innerHeight = originalIH;
+            globalThis.window.innerWidth = originalIW;
+        }
+    });
+
     test('focusing inputElement displays the popover with interactive options', () => {
         const input = createTestInput('5');
         registerInputPopover(input, {

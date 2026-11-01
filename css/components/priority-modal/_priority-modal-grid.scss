@@ -49,7 +49,7 @@
     border-radius: $shape-corner-small;
     background-color: $bg-surface-secondary;
     border: 1px solid $border-secondary;
-    font-weight: var(--font-weight-bold);
+    font-weight: $font-weight-bold;
     color: $text-primary;
     overflow: hidden;
     width: 100%;
@@ -102,7 +102,7 @@
 
     span {
         font-size: 0.9rem;
-        font-weight: 500;
+        font-weight: $font-weight-medium;
     }
 
     &.custom-maxed-in-plan {

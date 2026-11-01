@@ -1,31 +1,12 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/palette' as *;
 
-.landing-modal-content {
-    max-width: $modal-width-standard;
-    border-radius: $modal-radius-standard;
-    overflow: hidden;
-
-    @media (max-width: $breakpoint-phone) {
-        border-radius: $modal-radius-workspace;
-    }
-}
-
 .landing-modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: $spacing-xl $spacing-xl $spacing-md;
-    border-bottom: 1px solid $border-primary;
 }
 
 .landing-modal-title {
-    margin: 0;
-    font-size: clamp(1.1rem, 2.5vw, 1.25rem);
     font-weight: $font-weight-bold;
-    color: $text-primary;
-    letter-spacing: 0.01em;
-    line-height: 1.3;
 }
 
 .landing-modal-body {

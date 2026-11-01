@@ -102,7 +102,7 @@
 
     &__brand-name {
         font-size: 1.35rem;
-        font-weight: 900;
+        font-weight: $font-weight-black;
         letter-spacing: -0.5px;
         display: inline-block;
         font-family: Roboto, sans-serif;
@@ -111,8 +111,8 @@
     }
 
     &__brand-badge {
-        font-size: 0.6875rem;
-        font-weight: 500;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-medium;
         padding: $spacing-2xs $spacing-sm;
         border-radius: $shape-corner-full;
         background: rgba(255, 255, 255, 0.06);
@@ -122,7 +122,7 @@
     }
 
     &__brand-tagline {
-        font-size: 0.8125rem;
+        font-size: $font-size-sm;
         color: $text-secondary;
         margin: 0;
         line-height: 1.4;
@@ -132,7 +132,7 @@
         display: flex;
         align-items: center;
         gap: $spacing-xs;
-        font-size: 0.75rem;
+        font-size: $font-size-xs;
         color: $text-muted;
         margin-top: $spacing-2xs;
         padding: 0;
@@ -145,7 +145,7 @@
     }
 
     &__copyright {
-        font-size: 0.6875rem;
+        font-size: $font-size-2xs;
         color: $text-muted;
         margin-top: $spacing-sm;
         margin-bottom: 0;
@@ -159,8 +159,8 @@
     }
 
     &__heading {
-        font-size: 0.6875rem;
-        font-weight: 700;
+        font-size: $font-size-2xs;
+        font-weight: $font-weight-bold;
         text-transform: uppercase;
         letter-spacing: 0.06em;
         color: $text-muted;
@@ -181,7 +181,7 @@
         background: none;
         border: none;
         padding: 0;
-        font-size: 0.8125rem;
+        font-size: $font-size-sm;
         color: $text-secondary;
         text-decoration: none;
         text-align: left;
@@ -197,7 +197,7 @@
         &.is-active,
         &[aria-current="page"] {
             color: $text-primary;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             text-decoration: none;
             cursor: default;
             pointer-events: none;
@@ -224,7 +224,7 @@
     }
 
     &__disclaimer {
-        font-size: 0.6875rem;
+        font-size: $font-size-2xs;
         color: $text-muted;
         max-width: 860px;
         line-height: 1.5;

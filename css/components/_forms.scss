@@ -18,7 +18,7 @@ input[type="number"].offer-input-number,
 .custom-chip-prospector-row input[type="number"] {
     background-color: $bg-app;
     border: 1px solid $border-primary;
-    border-radius: 5px;
+    border-radius: $shape-corner-compact;
     color: $text-primary;
     padding: $spacing-sm;
     text-align: center;
@@ -31,7 +31,7 @@ input[type="number"].offer-input-number,
     border: 1px solid $border-primary;
     border-radius: $shape-corner-xs;
     color: $text-primary;
-    font-size: var(--font-size-sm);
+    font-size: $font-size-sm;
     padding: 6px 28px 6px 10px;
     text-align: left;
     text-align-last: left;
@@ -244,7 +244,7 @@ input[type="number"] {
     input[type="number"] {
         background-color: $bg-app;
         border: 1px solid $border-primary;
-        border-radius: 5px;
+        border-radius: $shape-corner-compact;
         color: $text-primary;
         padding: $spacing-sm $spacing-xs;
         text-align: center;
@@ -320,8 +320,8 @@ input[type="number"] {
     align-items: center;
     justify-content: center;
     color: $text-secondary;
-    font-size: var(--font-size-lg);
-    font-weight: bold;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
     align-self: flex-end;
     padding-bottom: $spacing-xs;
 }
@@ -336,9 +336,9 @@ input[type="number"] {
     border-top: 1px solid $border-secondary;
 
     .preview-label {
-        font-weight: var(--font-weight-semibold);
+        font-weight: $font-weight-semibold;
         color: $text-secondary;
-        font-size: var(--font-size-sm);
+        font-size: $font-size-sm;
         margin-right: auto;
     }
 
@@ -346,9 +346,9 @@ input[type="number"] {
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        font-weight: var(--font-weight-bold);
+        font-weight: $font-weight-bold;
         color: $text-primary;
-        font-size: var(--font-size-md);
+        font-size: $font-size-md;
 
         .ore-image {
             width: auto;

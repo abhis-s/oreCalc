@@ -18,7 +18,7 @@
             display: inline-block;
             text-align: center;
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             min-width: 150px;
 
             &.header-fade-in {
@@ -29,8 +29,8 @@
 
     h2 {
         margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-semibold;
         text-align: left;
         flex-grow: 1;
         color: $accent-primary;
@@ -67,7 +67,7 @@
     display: flex;
     align-items: center;
     padding: 0 10px;
-    font-weight: var(--font-weight-bold);
+    font-weight: $font-weight-bold;
     color: $text-secondary;
 }
 
@@ -92,7 +92,7 @@
     }
 
     &.active {
-        font-weight: var(--font-weight-bold);
+        font-weight: $font-weight-bold;
         border-color: $accent-primary;
 
         .month-name {
@@ -134,7 +134,7 @@
     &.active {
         background-color: $accent-primary;
         color: $text-on-accent;
-        font-weight: var(--font-weight-bold);
+        font-weight: $font-weight-bold;
     }
 }
 

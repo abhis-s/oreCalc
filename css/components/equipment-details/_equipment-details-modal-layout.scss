@@ -5,7 +5,7 @@
         max-width: $modal-width-workspace !important;
         width: 95%;
         height: min(88dvh, 880px);
-        max-height: calc(100dvh - 48px);
+        max-height: $modal-max-height;
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -196,12 +196,12 @@
         .eq-details-avatars {
             padding: $spacing-xs $spacing-sm;
             gap: 6px;
-            border-radius: 10px;
+            border-radius: $card-radius;
 
             .eq-details-hero-emblem {
                 width: 24px;
                 height: 24px;
-                border-radius: 6px;
+                border-radius: $shape-corner-compact;
             }
 
             .avatar-sep {
@@ -242,12 +242,12 @@
         }
 
         .rec-banner-card {
-            font-size: 0.75rem;
+            font-size: $font-size-xs;
             padding: $spacing-sm 10px;
         }
 
         .eq-details-table {
-            font-size: 0.75rem;
+            font-size: $font-size-xs;
 
             th, td {
                 padding: 6px $spacing-xs;
@@ -267,7 +267,7 @@
             }
 
             .total-cost-label {
-                font-size: 0.75rem;
+                font-size: $font-size-xs;
             }
         }
 

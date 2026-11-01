@@ -1,8 +1,21 @@
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+import { state } from '../../js/core/state.js';
+import { loadTranslations } from '../../js/i18n/translator.js';
+import { getChangelogHtml } from '../../js/services/changelogService.js';
 import { showChangelogModal } from '../../js/components/changelog/changelogModal.js';
 import { dom } from '../../js/dom/domElements.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '../..');
+const enJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/en.json'), 'utf8'));
+const deJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/de.json'), 'utf8'));
+const zhJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/zh.json'), 'utf8'));
 
 describe('Changelog Modal & Commits Button Visibility Domain Suite', () => {
     let originalWindow;
@@ -98,5 +111,33 @@ describe('Changelog Modal & Commits Button Visibility Domain Suite', () => {
 
         const commitsBtn = mockElements['changelog-commits-btn'];
         assert.equal(commitsBtn.style.display, 'none');
+    });
+
+    test('getChangelogHtml formats release dates across English, German, and Simplified Chinese locales', async () => {
+        const originalFetch = globalThis.fetch;
+        try {
+            globalThis.fetch = async (url) => {
+                if (typeof url === 'string') {
+                    if (url.includes('/en.json')) return { ok: true, json: async () => enJson };
+                    if (url.includes('/de.json')) return { ok: true, json: async () => deJson };
+                    if (url.includes('/zh.json')) return { ok: true, json: async () => zhJson };
+                }
+                return { ok: false, status: 404 };
+            };
+
+            state.uiSettings = { language: 'en' };
+            await loadTranslations('en');
+            assert.match(getChangelogHtml(), /<span class="changelog-date">August 22, 2026<\/span>/);
+
+            state.uiSettings = { language: 'de' };
+            await loadTranslations('de');
+            assert.match(getChangelogHtml(), /<span class="changelog-date">22\. August 2026<\/span>/);
+
+            state.uiSettings = { language: 'zh' };
+            await loadTranslations('zh');
+            assert.match(getChangelogHtml(), /<span class="changelog-date">2026年8月22日<\/span>/);
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
     });
 });

@@ -77,7 +77,7 @@
         border-radius: 50%;
         background-color: $color-warning;
         box-shadow: 0 0 4px $color-warning;
-        z-index: 10;
+        z-index: $z-index-overlay;
     }
 }
 
@@ -95,7 +95,7 @@
             border-radius: 50%;
             background-color: $color-warning;
             box-shadow: 0 0 4px $color-warning;
-            z-index: 10;
+            z-index: $z-index-overlay;
         }
     }
 }
@@ -115,7 +115,7 @@
             border-radius: 50%;
             background-color: $color-warning;
             box-shadow: 0 0 4px $color-warning;
-            z-index: 10;
+            z-index: $z-index-overlay;
         }
     }
 }

@@ -157,7 +157,7 @@
     grid-template-columns: 1fr;
     gap: $spacing-xs;
 
-    @media (min-width: 520px) {
+    @media (min-width: $breakpoint-phone) {
         grid-template-columns: repeat(3, 1fr);
     }
 }

@@ -23,7 +23,7 @@
     .eq-details-hero-emblem {
         width: 36px;
         height: 36px;
-        border-radius: 10px;
+        border-radius: $card-radius;
         object-fit: cover;
         box-shadow: none;
         filter: drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
@@ -50,7 +50,7 @@
 
 .stat-val-modified {
     color: $color-warning !important;
-    font-weight: 700 !important;
+    font-weight: $font-weight-bold !important;
 }
 
 .eq-details-badges {
@@ -68,9 +68,9 @@
         align-items: center;
         gap: 6px;
         font-size: 0.72rem;
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         padding: 3px $spacing-sm;
-        border-radius: 6px;
+        border-radius: $shape-corner-compact;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         white-space: nowrap;

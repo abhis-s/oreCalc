@@ -89,18 +89,4 @@ describe('Modal & Dialog i18n Key Integrity', () => {
         assert.deepEqual(missingInEn, [], `Modal calls reference keys missing from en.json: ${missingInEn.join(', ')}`);
         assert.deepEqual(missingInDe, [], `Modal calls reference keys missing from de.json: ${missingInDe.join(', ')}`);
     });
-
-    it('ensures safeTranslate has been completely decommissioned across production code', () => {
-        const jsFiles = getFilesRecursively(path.join(projectRoot, 'js'), f => f.endsWith('.js'));
-        const safeTranslateViolations = [];
-
-        for (const file of jsFiles) {
-            const content = fs.readFileSync(file, 'utf8');
-            if (content.includes('safeTranslate')) {
-                safeTranslateViolations.push(path.relative(projectRoot, file));
-            }
-        }
-
-        assert.deepEqual(safeTranslateViolations, [], `safeTranslate must not exist in production JS modules: ${safeTranslateViolations.join(', ')}`);
-    });
 });

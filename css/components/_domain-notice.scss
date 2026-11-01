@@ -47,8 +47,8 @@
     .domain-notice-text {
         margin: 0;
         color: $text-primary;
-        font-weight: 500;
-        font-size: var(--font-size-xs);
+        font-weight: $font-weight-medium;
+        font-size: $font-size-xs;
         line-height: 1.4;
         flex: 1;
         letter-spacing: -0.01em;
@@ -66,8 +66,8 @@
         background-color: $accent-primary;
         color: $text-on-accent;
         border-radius: $shape-corner-small;
-        font-weight: 600;
-        font-size: var(--font-size-xs);
+        font-weight: $font-weight-semibold;
+        font-size: $font-size-xs;
         text-decoration: none;
         box-sizing: border-box;
         white-space: nowrap;

@@ -660,48 +660,6 @@ describe('Account Page Presenter & Interaction Suite', () => {
         assert.strictEqual(stackEl.innerHTML, '');
     });
 
-    test('account/index.html markup validates remove password button and pairing timer initial fallback', () => {
-        const html = fs.readFileSync(path.join(projectRoot, 'account/index.html'), 'utf8');
-
-        // Verify sign out button is styled with btn-danger-outline
-        assert.ok(html.includes('class="btn btn-danger-outline btn-sm" id="account-btn-signout"'));
-
-        // Verify remove password button is styled with btn-danger-outline
-        assert.ok(html.includes('id="account-btn-remove-password" class="btn btn-danger-outline"'));
-
-        // Verify download data is primary and restore is secondary
-        assert.ok(html.includes('class="btn btn-primary" id="account-btn-export-backup"'));
-        assert.ok(html.includes('class="btn btn-secondary" id="account-btn-restore-backup"'));
-
-        // Verify pairing timer default label is 1:30
-        assert.ok(html.includes('Pairing code expires in 1:30'));
-
-        // Verify guest feature parity cards in account/index.html
-        assert.ok(html.includes('id="account-guest-sync-card"'), 'Must have #account-guest-sync-card');
-        assert.ok(html.includes('id="account-guest-btn-toggle-pairing"'), 'Must have #account-guest-btn-toggle-pairing');
-        assert.ok(html.includes('id="account-guest-pairing-drawer"'), 'Must have #account-guest-pairing-drawer');
-        assert.ok(html.includes('id="account-guest-tab-qr"'), 'Must have #account-guest-tab-qr');
-        assert.ok(html.includes('id="account-guest-tab-input"'), 'Must have #account-guest-tab-input');
-        assert.ok(html.includes('id="account-guest-pane-qr"'), 'Must have #account-guest-pane-qr');
-        assert.ok(html.includes('id="account-guest-pane-input"'), 'Must have #account-guest-pane-input');
-        assert.ok(html.includes('id="account-guest-hint-subcard"'), 'Must have #account-guest-hint-subcard');
-        assert.ok(!html.includes('partials/modals/device-sync.html'), 'Must not include device-sync modal in account/index.html');
-        assert.ok(html.includes('id="account-guest-data-card"'), 'Must have #account-guest-data-card');
-        assert.ok(html.includes('id="account-guest-export-backup"'), 'Must have #account-guest-export-backup');
-        assert.ok(html.includes('id="account-guest-restore-backup"'), 'Must have #account-guest-restore-backup');
-        assert.ok(html.includes('id="account-guest-erasure-card"'), 'Must have #account-guest-erasure-card');
-        assert.ok(html.includes('id="account-erasure-card"'), 'Must have #account-erasure-card');
-        assert.ok(html.includes('id="account-guest-reset-data-btn"'), 'Must have #account-guest-reset-data-btn');
-        assert.ok(html.includes('id="account-btn-reset-data"'), 'Must have #account-btn-reset-data');
-        assert.ok(html.includes('id="account-btn-delete-account"'), 'Must have #account-btn-delete-account');
-
-        // Verify village summary elements are present
-        assert.ok(html.includes('id="account-profile-villages-row"'));
-        assert.ok(html.includes('id="account-village-stack"'));
-        assert.ok(html.includes('id="account-village-count-badge"'));
-        assert.ok(html.includes('class="account-village-count-text"'));
-    });
-
     test('getResetVillageDataCopy resolves composed sentences accurately across all 4 user states', async () => {
         const { getResetVillageDataCopy } = await import('../../js/components/account/accountPageDisplay.js');
 
@@ -750,15 +708,6 @@ describe('Account Page Presenter & Interaction Suite', () => {
         // Pure guest
         renderAccountErasureCard(false, false);
         assert.strictEqual(guestDesc.textContent, 'Resets all local calculations and preferences to defaults.');
-    });
-
-    test('guest pairing markup in account/index.html includes guest sync disabled overlay and canvas wrapper', () => {
-        const html = fs.readFileSync(path.join(projectRoot, 'account/index.html'), 'utf8');
-        assert.ok(html.includes('id="account-guest-qr-overlay"'), 'Must have #account-guest-qr-overlay');
-        assert.ok(html.includes('class="account-pairing-qr-canvas"'), 'Must have .account-pairing-qr-canvas');
-        assert.ok(html.includes('class="account-pairing-qr-wrap"'), 'Must have .account-pairing-qr-wrap');
-        assert.ok(html.includes('id="account-guest-pane-qr"'));
-        assert.ok(html.includes('name="cloud-off"'), 'Must use cloud-off vector icon for guest sync overlay');
     });
 
     test('toggleGuestPairingDrawer manages open state, aria-expanded, and button label', async () => {

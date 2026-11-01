@@ -98,8 +98,6 @@ test('Target Combos Modal - Renders overview, non-dominated combinations, and se
     assert.ok(html.includes('calc-supercharge-pills'), 'Must render supercharge pills for superchargeable defense');
     assert.ok(html.includes('calc-target-combos-list'), 'Must render combinations list');
     assert.ok(html.includes('calc-target-combo-row'), 'Must render at least one combo row');
-    assert.ok(!html.includes('calc-target-combo-row__optimal-tag'), 'Must NOT render optimal tag per design requirement');
-    assert.ok(!html.includes('calc-target-combo-badge__meta'), 'Must NOT render equipment level meta per design requirement');
     assert.ok(html.includes('calc-target-combo-row__info-btn'), 'Must render info button for damage breakdown popover');
     assert.ok(html.includes('calc-target-combo-row__selected-pill'), 'Must render Selected pill for active combo');
     assert.ok(html.includes('<span data-i18n="views.damageCalc.zapQuake.selectedCombo">'), 'data-i18n must be on inner text span of selected pill');
@@ -567,7 +565,6 @@ test('Target Combos Modal - Renders Default badge and Reset button', () => {
     assert.ok(html.includes('calc-target-combos-overview__reset-btn'), 'Must render reset button');
     assert.ok(html.includes('data-action="reset-to-optimal"'), 'Must have reset action attribute');
     assert.ok(html.includes('>Reset<'), 'Must display "Reset" label on button');
-    assert.ok(!html.includes('>Reset to Optimal<'), 'Must NOT display legacy "Reset to Optimal"');
 
     assert.ok(html.includes('calc-target-combo-row__default-pill'), 'Must render Default pill on default combo');
     assert.ok(html.includes('<span data-i18n="views.damageCalc.zapQuake.defaultCombo">Default</span>'), 'Default pill must contain localized text');

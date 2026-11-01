@@ -65,7 +65,7 @@
 
     .error-message {
         color: $color-danger;
-        font-weight: var(--font-weight-bold);
+        font-weight: $font-weight-bold;
     }
 
     .error-icon {
@@ -74,8 +74,8 @@
 
     .suggestion-message {
         color: $accent-primary;
-        font-size: var(--font-size-sm);
-        font-weight: 500;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
         display: flex;
         align-items: center;
         justify-content: flex-start;
@@ -134,23 +134,23 @@
 }
 
 .fix-order-btn {
-    background-color: $btn-bg-emerald-soft;
-    color: $btn-color-emerald;
-    border: 1px solid $btn-border-emerald;
+    background-color: var(--btn-bg-emerald);
+    color: var(--btn-color-emerald);
+    border: 1px solid var(--btn-border-emerald);
     padding: 6px $spacing-md;
-    border-radius: 6px;
+    border-radius: $shape-corner-compact;
     cursor: pointer;
-    font-size: var(--font-size-xs);
+    font-size: $font-size-xs;
     white-space: nowrap;
     transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
     display: flex;
     align-items: center;
     gap: 6px;
-    font-weight: var(--font-weight-bold);
+    font-weight: $font-weight-bold;
 
     &:hover {
-        background-color: $btn-bg-emerald-soft-hover;
-        border-color: $btn-border-emerald-hover;
+        background-color: var(--btn-bg-emerald-hover);
+        border-color: var(--btn-border-emerald-hover);
         transform: scale(1.02);
     }
 
@@ -180,7 +180,7 @@
     padding: 5px 10px;
     border-radius: $shape-corner-xs;
     cursor: pointer;
-    font-size: var(--font-size-xs);
+    font-size: $font-size-xs;
     margin-left: 10px;
     white-space: nowrap;
     transition: background-color $duration-fast $ease-smooth;

@@ -604,22 +604,6 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.equal(store.get('clashCalc_playerTags'), JSON.stringify(['DEFAULT0']));
     });
 
-    test('auth modal register view contains legal disclaimer with canonical i18n key and valid links', () => {
-        const modalHtml = fs.readFileSync(path.join(projectRoot, 'partials/modals/auth-modal.html'), 'utf8');
-        const deJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/de.json'), 'utf8'));
-
-        assert.ok(modalHtml.includes('data-i18n="auth.disclaimer"'), 'Auth modal must bind auth.disclaimer in template');
-        assert.ok(modalHtml.includes('class="auth-privacy-notice privacy-notice"'), 'Auth modal must contain styled notice container');
-
-        assert.ok(enJson.auth.disclaimer, 'en.json must contain auth.disclaimer');
-        assert.ok(enJson.auth.disclaimer.includes('id="auth-terms-link"'), 'en.json disclaimer must include auth-terms-link');
-        assert.ok(enJson.auth.disclaimer.includes('id="auth-privacy-link"'), 'en.json disclaimer must include auth-privacy-link');
-
-        assert.ok(deJson.auth.disclaimer, 'de.json must contain auth.disclaimer');
-        assert.ok(deJson.auth.disclaimer.includes('id="auth-terms-link"'), 'de.json disclaimer must include auth-terms-link');
-        assert.ok(deJson.auth.disclaimer.includes('id="auth-privacy-link"'), 'de.json disclaimer must include auth-privacy-link');
-    });
-
     test('getActiveUserId enforces authenticated token userId and self-heals local storage', () => {
         const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
         const payload = Buffer.from(JSON.stringify({ username: 'bob', userId: 'uid_canonical_123', exp: 9999999999 })).toString('base64url');

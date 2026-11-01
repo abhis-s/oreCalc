@@ -84,7 +84,7 @@
     .preloader-dot-wrapper:nth-child(5) span { background-color: $palette-red-400; animation-delay: 0.25s; }
 
     &[data-accent="blue"] .preloader-dot-wrapper:nth-child(1) {
-        z-index: 10;
+        z-index: $z-index-overlay;
         animation: wrapper-revolve-collapse 1.95s $ease-standard forwards;
     }
     &[data-accent="blue"] .preloader-dot-wrapper:nth-child(1) span {
@@ -93,7 +93,7 @@
     }
 
     &[data-accent="gold"] .preloader-dot-wrapper:nth-child(2) {
-        z-index: 10;
+        z-index: $z-index-overlay;
         animation: wrapper-revolve-collapse 1.95s $ease-standard forwards;
     }
     &[data-accent="gold"] .preloader-dot-wrapper:nth-child(2) span {
@@ -102,7 +102,7 @@
     }
 
     &[data-accent="purple"] .preloader-dot-wrapper:nth-child(3) {
-        z-index: 10;
+        z-index: $z-index-overlay;
         animation: wrapper-revolve-collapse 1.95s $ease-standard forwards;
     }
     &[data-accent="purple"] .preloader-dot-wrapper:nth-child(3) span {
@@ -111,7 +111,7 @@
     }
 
     &[data-accent="green"] .preloader-dot-wrapper:nth-child(4) {
-        z-index: 10;
+        z-index: $z-index-overlay;
         animation: wrapper-revolve-collapse 1.95s $ease-standard forwards;
     }
     &[data-accent="green"] .preloader-dot-wrapper:nth-child(4) span {
@@ -120,7 +120,7 @@
     }
 
     &[data-accent="red"] .preloader-dot-wrapper:nth-child(5) {
-        z-index: 10;
+        z-index: $z-index-overlay;
         animation: wrapper-revolve-collapse 1.95s $ease-standard forwards;
     }
     &[data-accent="red"] .preloader-dot-wrapper:nth-child(5) span {

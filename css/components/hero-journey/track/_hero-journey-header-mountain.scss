@@ -48,7 +48,7 @@
 
         @media (hover: hover) {
             &:hover {
-                z-index: 20 !important;
+                z-index: $z-index-fab !important;
                 opacity: 1 !important;
 
                 .mountain-badge {
@@ -59,7 +59,7 @@
         }
 
         &.active-pop {
-            z-index: 20 !important;
+            z-index: $z-index-fab !important;
             opacity: 1 !important;
 
             .mountain-badge {
@@ -72,7 +72,7 @@
             width: 1.8rem;
             height: 1.8rem;
             transform: translateY(2px);
-            z-index: 1;
+            z-index: $z-index-base;
             opacity: 0.85;
         }
 
@@ -80,7 +80,7 @@
             width: 2.2rem;
             height: 2.2rem;
             transform: translateY(-4px);
-            z-index: 2;
+            z-index: $z-index-interactive;
             opacity: 0.95;
         }
 
@@ -110,7 +110,7 @@
             width: 2.2rem;
             height: 2.2rem;
             transform: translateY(-4px);
-            z-index: 2;
+            z-index: $z-index-interactive;
             opacity: 0.95;
         }
 
@@ -118,7 +118,7 @@
             width: 1.8rem;
             height: 1.8rem;
             transform: translateY(2px);
-            z-index: 1;
+            z-index: $z-index-base;
             opacity: 0.85;
         }
     }
@@ -126,7 +126,7 @@
 
 .hero-journey-title {
     font-size: clamp(1.08rem, 1.8vw + 0.65rem, 1.35rem);
-    font-weight: 700;
+    font-weight: $font-weight-bold;
     margin: 0;
     color: $text-primary;
     display: inline-flex;
@@ -189,9 +189,9 @@
 .hero-journey-level-badge {
     background-color: $accent-primary;
     color: $text-on-accent;
-    font-weight: 800;
+    font-weight: $font-weight-extrabold;
     padding: $spacing-2xs $spacing-sm;
-    border-radius: 6px;
+    border-radius: $shape-corner-compact;
     font-size: clamp(0.7rem, 0.5vw + 0.65rem, 0.8rem);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
     letter-spacing: 0.5px;
@@ -201,7 +201,7 @@
     &.badge-true-max {
         background-color: $color-warning;
         color: $text-inverse;
-        font-weight: 900;
+        font-weight: $font-weight-black;
         border: 1px solid $border-accent;
         box-shadow: 0 0 10px $color-warning-soft, 0 2px 5px rgba(0, 0, 0, 0.3);
     }

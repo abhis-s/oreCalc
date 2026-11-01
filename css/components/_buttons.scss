@@ -1,4 +1,4 @@
-@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 @use '../base/placeholder';
 
 // --- 1. BASE BUTTONS & ACTION VARIANTS ---
@@ -8,7 +8,7 @@
     border-radius: $btn-radius;
     color: $text-primary;
     cursor: pointer;
-    font-size: var(--font-size-sm);
+    font-size: $font-size-sm;
     min-height: $btn-min-height;
     min-width: $btn-min-width;
     overflow: hidden;
@@ -24,7 +24,7 @@
     }
 
     .animated-btn-text {
-        font-weight: var(--font-weight-bold);
+        font-weight: $font-weight-bold;
         position: relative;
         transform: translateY(0);
         transition: transform $duration-fast $ease-decelerate;
@@ -122,9 +122,9 @@
     }
 
     &.error {
-        background-color: $btn-bg-red-soft !important;
-        color: $btn-color-red !important;
-        border-color: $btn-border-red !important;
+        background-color: var(--btn-bg-red) !important;
+        color: var(--btn-color-red) !important;
+        border-color: var(--btn-border-red) !important;
 
         .button-error-icon {
             opacity: 1;
@@ -134,9 +134,9 @@
     }
 
     &.success {
-        background-color: $btn-bg-emerald-soft !important;
-        color: $btn-color-emerald !important;
-        border-color: $btn-border-emerald !important;
+        background-color: var(--btn-bg-emerald) !important;
+        color: var(--btn-color-emerald) !important;
+        border-color: var(--btn-border-emerald) !important;
 
         .button-success-icon {
             opacity: 1;
@@ -215,7 +215,7 @@
 
     .save-button-tooltip {
         background-color: $bg-surface-tertiary;
-        border-radius: 6px;
+        border-radius: $shape-corner-compact;
         bottom: 125%;
         color: $text-primary;
         left: 50%;

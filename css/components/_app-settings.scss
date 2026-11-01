@@ -20,7 +20,7 @@
     max-width: min(380px, calc(100vw - 24px));
     background-color: $bg-surface-primary;
     border: 1px solid $border-primary;
-    border-radius: $modal-radius-card;
+    border-radius: $shape-corner-large;
     box-shadow: $elevation-3;
     z-index: $z-index-popover;
     padding: $spacing-lg;
@@ -51,7 +51,7 @@
         gap: 10px;
         background: color-mix(in srgb, $bg-surface-primary 40%, transparent);
         padding: $spacing-md;
-        border-radius: 14px;
+        border-radius: $shape-corner-medium;
         border: 1px solid $border-primary;
         text-align: left;
 
@@ -78,7 +78,7 @@
                 align-items: center;
                 gap: $spacing-sm;
                 font-size: 13px;
-                font-weight: 600;
+                font-weight: $font-weight-semibold;
                 color: $text-secondary;
                 cursor: pointer;
 
@@ -118,8 +118,8 @@
                     border: 1px solid $border-primary;
                     border-radius: $shape-corner-medium;
                     padding: 5px 28px 5px 10px;
-                    font-size: 12.5px;
-                    font-weight: 600;
+                    font-size: $font-size-xs;
+                    font-weight: $font-weight-semibold;
                     color: $text-primary;
                     cursor: pointer;
                     outline: none;

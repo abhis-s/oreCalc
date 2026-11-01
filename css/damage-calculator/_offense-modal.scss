@@ -24,7 +24,7 @@
     .calc-offense-modal-sticky-header {
         position: sticky;
         top: 0;
-        z-index: 10;
+        z-index: $z-index-overlay;
         background-color: $bg-surface-secondary;
         padding-top: $spacing-lg;
         padding-bottom: $spacing-xs;

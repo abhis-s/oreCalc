@@ -45,7 +45,7 @@
         );
         border-radius: 0 $shape-corner-xs $shape-corner-xs 0;
         pointer-events: none;
-        z-index: 1;
+        z-index: $z-index-base;
     }
 
     .calc-slider-ticks {

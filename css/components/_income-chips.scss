@@ -1,4 +1,4 @@
-@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 @use '../base/base';
 
 .shop-offer { background-color: $color-income-shop-offer; --chip-color: #{$color-income-shop-offer}; }
@@ -43,10 +43,10 @@
 
 .income-chip {
     padding: 6px $spacing-md;
-    border-radius: 20px;
+    border-radius: $shape-corner-xl;
     color: var(--color-on-income);
     font-size: 0.85em;
-    font-weight: 500;
+    font-weight: $font-weight-medium;
     cursor: grab;
     touch-action: manipulation;
     user-select: none;
@@ -69,7 +69,7 @@
         transform: scale(1.08);
         opacity: 0.95;
         pointer-events: none;
-        z-index: 99999;
+        z-index: $z-index-load-failure;
         will-change: transform, opacity;
     }
 
@@ -101,7 +101,7 @@
             min-width: 0;
             height: 18px;
             min-height: 18px;
-            border-radius: 6px;
+            border-radius: $shape-corner-compact;
             padding: 0 6px;
             display: inline-flex;
             align-items: center;
@@ -110,7 +110,7 @@
             .chip-text {
                 display: block;
                 font-size: 9px;
-                font-weight: 700;
+                font-weight: $font-weight-bold;
                 text-transform: uppercase;
                 letter-spacing: 0.2px;
                 line-height: 1;
@@ -134,28 +134,28 @@
             margin-left: 0;
             font-size: 0.65em;
             padding: $spacing-2xs $spacing-xs;
-            border-radius: 10px;
+            border-radius: $card-radius;
             background-color: $bg-surface-primary;
             color: $text-primary;
             border: 1px solid var(--chip-border);
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            z-index: 10;
+            z-index: $z-index-overlay;
             line-height: 1;
-            font-weight: 800;
+            font-weight: $font-weight-extrabold;
         }
     }
 
     &:hover {
         transform: translateY(-2px);
         box-shadow: $elevation-2;
-        z-index: 10;
+        z-index: $z-index-overlay;
     }
 
     &.legend-highlight,
     &.persistent-glow {
         transform: scale(1.15) !important;
         box-shadow: 0 0 0 2px var(--chip-color), 0 0 14px 2px var(--chip-color), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
-        z-index: 20 !important;
+        z-index: $z-index-fab !important;
 
         :root[data-theme="light"] &,
         body.light-mode & {
@@ -183,7 +183,7 @@
             right: -4px;
             bottom: -4px;
             border: 2px solid $accent-primary;
-            border-radius: 24px;
+            border-radius: $shape-corner-xl;
             pointer-events: none;
             opacity: 0.8;
         }
@@ -217,7 +217,7 @@
 
     .chip-text {
         position: relative;
-        z-index: 1;
+        z-index: $z-index-base;
         transition: opacity $duration-fast $ease-smooth;
         pointer-events: none;
     }
@@ -226,7 +226,7 @@
         background-color: $bg-surface-primary;
         color: $text-primary;
         font-size: 0.7em;
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         padding: 1px $spacing-xs;
         border-radius: $shape-corner-xs;
         margin-left: $spacing-2xs;
@@ -234,7 +234,7 @@
         display: inline-block;
         box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         position: relative;
-        z-index: 2;
+        z-index: $z-index-interactive;
         pointer-events: none;
 
         &.badge-result-win {
@@ -316,7 +316,7 @@
     }
 
     .tooltip-header {
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         margin-bottom: $spacing-xs;
         color: $accent-primary;
         width: 100%;
@@ -331,7 +331,7 @@
         gap: $spacing-sm;
         width: 100%;
         font-size: 0.85em;
-        font-weight: 500;
+        font-weight: $font-weight-medium;
 
         span {
             flex: 1;
@@ -363,7 +363,7 @@
         }
 
         .valid-range-value {
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             color: var(--accent-primary, $accent-primary);
         }
     }
@@ -390,9 +390,9 @@
     flex-shrink: 0;
     color: $text-secondary;
     font-size: 0.85em;
-    font-weight: 500;
+    font-weight: $font-weight-medium;
     padding: $spacing-xs $spacing-sm;
-    border-radius: 6px;
+    border-radius: $shape-corner-compact;
     cursor: pointer;
     transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
 
@@ -454,10 +454,10 @@ h3.income-chips-title {
 
 .auto-place-chips-btn {
     @include btn-accent-style;
-    border-radius: 20px;
+    border-radius: $shape-corner-xl;
     padding: $spacing-sm $spacing-lg;
     font-size: 0.85em;
-    font-weight: 600;
+    font-weight: $font-weight-semibold;
     cursor: pointer;
     transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
 }
@@ -465,7 +465,7 @@ h3.income-chips-title {
 .placeholder-text {
     text-align: center;
     color: $text-muted;
-    font-size: var(--font-size-sm);
+    font-size: $font-size-sm;
     width: 100%;
     margin: 20px 0;
     font-style: italic;

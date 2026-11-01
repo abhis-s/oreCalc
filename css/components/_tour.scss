@@ -38,7 +38,7 @@
 
         .tour-tooltip-title {
             font-size: 15px;
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             color: $accent-primary;
             margin: 0;
         }
@@ -89,7 +89,7 @@
                 border-radius: $shape-corner-small;
                 padding: 6px $spacing-md;
                 font-size: 12px;
-                font-weight: 600;
+                font-weight: $font-weight-semibold;
                 cursor: pointer;
                 transition: all $duration-fast $ease-standard;
 
@@ -128,8 +128,8 @@
         }
 
         .tour-progress {
-            font-size: 11.5px;
-            font-weight: 500;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-medium;
             color: $text-secondary;
             opacity: 0.85;
             text-align: center;

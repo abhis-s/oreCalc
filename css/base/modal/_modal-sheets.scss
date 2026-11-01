@@ -40,7 +40,7 @@ dialog.modal,
                 margin: 0;
                 box-sizing: border-box;
                 flex-shrink: 0;
-                border-radius: 10px;
+                border-radius: $card-radius;
 
                 clashcalc-assets-svg,
                 orecalc-assets-svg,
@@ -56,7 +56,7 @@ dialog.modal,
 
         .modal-body {
             padding: $spacing-md 20px 20px;
-            font-size: 0.9375rem;
+            font-size: $font-size-md;
         }
 
         .modal-actions {

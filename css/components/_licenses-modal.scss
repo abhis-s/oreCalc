@@ -47,7 +47,7 @@
         justify-content: space-between;
         gap: $spacing-sm;
         padding: 14px 20px;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         color: $text-primary;
         cursor: pointer;
         user-select: none;
@@ -80,22 +80,22 @@
     }
 
     .license-title {
-        font-size: 1rem;
-        font-weight: 600;
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
         color: $text-primary;
         min-width: 0;
         overflow-wrap: break-word;
     }
 
     .license-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
         text-transform: uppercase;
         background-color: $accent-primary-soft;
         color: $accent-primary;
         border: 1px solid $border-primary;
         padding: $spacing-2xs $spacing-sm;
-        border-radius: 6px;
+        border-radius: $shape-corner-compact;
         letter-spacing: 0.5px;
         margin-left: auto;
         margin-right: $spacing-md;
@@ -128,7 +128,7 @@
             gap: 6px;
             color: $accent-primary;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: $font-weight-medium;
             font-size: 0.9rem;
             transition: opacity $duration-fast $ease-smooth;
 

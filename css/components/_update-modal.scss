@@ -57,7 +57,7 @@
 
         .update-card-message {
             font-size: 0.95rem;
-            font-weight: 500;
+            font-weight: $font-weight-medium;
             color: $text-primary;
         }
 
@@ -87,7 +87,7 @@
             background-color: $accent-primary;
             color: $text-on-accent;
             border: none;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             padding: 10px $spacing-xl;
             border-radius: $shape-corner-small;
             cursor: pointer;
@@ -96,7 +96,7 @@
 
         .update-card-timer {
             font-size: 0.78rem;
-            font-weight: 500;
+            font-weight: $font-weight-medium;
             color: $text-secondary;
             margin: 0;
             white-space: nowrap;

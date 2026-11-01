@@ -79,7 +79,7 @@
 
     .brand-title {
         font-size: 20px;
-        font-weight: 800;
+        font-weight: $font-weight-extrabold;
         margin: 0;
         letter-spacing: -0.5px;
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -90,7 +90,7 @@
 
     .brand-separator {
         font-size: 1.1rem;
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         color: $text-muted;
         margin: 0;
         line-height: 1;
@@ -142,7 +142,7 @@
 
         .tab-button {
             padding: 5px $spacing-sm;
-            font-size: var(--font-size-xs);
+            font-size: $font-size-xs;
         }
     }
 
@@ -158,8 +158,8 @@
         border: none;
         border-radius: $shape-corner-full;
         color: $text-secondary;
-        font-size: var(--font-size-sm);
-        font-weight: 600;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
         padding: 6px $spacing-lg;
         cursor: pointer;
         box-shadow: none;

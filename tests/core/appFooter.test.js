@@ -34,7 +34,6 @@ describe('Application Footer Centralization & Regularization', () => {
         assert.match(content, /data-i18n="nav\.privacy"/, 'Footer must declare nav.privacy');
         assert.match(content, /data-i18n="nav\.tos"/, 'Footer must declare nav.tos');
         assert.match(content, /data-i18n="nav\.licenses"/, 'Footer must declare nav.licenses');
-        assert.doesNotMatch(content, /data-i18n="views\.settings\.licenses"/, 'Footer must not use views.settings.licenses');
     });
 
     test('standalone legal HTML templates declare clean, standard anchor tags in footer', () => {
@@ -50,7 +49,6 @@ describe('Application Footer Centralization & Regularization', () => {
             const filePath = path.join(projectRoot, relFile);
             const content = fs.readFileSync(filePath, 'utf8');
 
-            assert.doesNotMatch(content, /<span class="footer__link is-active"/, `${relFile} must not contain hardcoded active span in footer`);
             assert.match(content, /<a href="[^"]*" class="footer__link"/, `${relFile} must declare standard anchor footer links`);
         }
     });

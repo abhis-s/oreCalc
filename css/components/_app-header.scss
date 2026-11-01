@@ -160,7 +160,7 @@
 
             .tab-button {
                 padding: 5px $spacing-sm;
-                font-size: var(--font-size-xs);
+                font-size: $font-size-xs;
             }
         }
 
@@ -176,7 +176,7 @@
             border: none;
             border-radius: $shape-corner-full;
             color: $text-secondary;
-            font-size: var(--font-size-sm);
+            font-size: $font-size-sm;
             font-weight: $font-weight-semibold;
             padding: 6px $spacing-lg;
             cursor: pointer;

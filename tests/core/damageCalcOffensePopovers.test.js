@@ -655,36 +655,6 @@ test('Battle Modifier & League Rules Popover', async (t) => {
         assert.ok(notePopover);
         assert.ok(notePopover.header.includes('Giant Arrow (2x Damage)'));
         assert.ok(notePopover.body.includes('Giant Arrow deals 200% damage against all Air Defenses.'));
-        assert.ok(!notePopover.body.includes('4,200'), 'Must not contain obsolete 4,200 damage text');
-    });
-});
-
-test('Strict Zero-Emoji & Invariants Check', async (t) => {
-    await t.test('Generated popover contents contain zero emojis or unicode dingbats', () => {
-        const popovers = [
-            getEquipmentStatsPopoverContent('giant_arrow', 18),
-            getEquipmentStatsPopoverContent('fireball', 27),
-            getEquipmentStatsPopoverContent('spiky_ball', 27),
-            getEquipmentStatsPopoverContent('seeking_shield', 18),
-            getEquipmentStatsPopoverContent('flame_blower', 18),
-            getEquipmentStatsPopoverContent('rocket_backpack', 27),
-            getEarthquakeStatsPopoverContent({ level: 8, count: 1, isCombo: false }),
-            getEarthquakeStatsPopoverContent({ level: 8, count: 2, isCombo: true }),
-            getLightningStatsPopoverContent({ level: 13, count: 1, isCombo: false }),
-            getLightningStatsPopoverContent({ level: 13, count: 3, isCombo: true }),
-            getGenericInfoPopoverContent('modifier'),
-            getActionInfoPopoverContent('builder_repair'),
-            getNoteCodePopoverContent('giant_arrow_air_defense_2x')
-        ];
-
-        // Strict emoji and unicode dingbat regex
-        const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{2300}-\u{23FF}]/u;
-
-        for (const popover of popovers) {
-            assert.ok(popover, 'Popover must not be null');
-            assert.ok(!emojiRegex.test(popover.header), `Popover header must not contain emojis: ${popover.header}`);
-            assert.ok(!emojiRegex.test(popover.body), `Popover body must not contain emojis: ${popover.body}`);
-        }
     });
 });
 

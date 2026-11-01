@@ -16,7 +16,7 @@ dialog.modal,
         h3,
         .modal-title {
             font-size: clamp(1.1rem, 2.5vw, 1.25rem);
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             color: $text-primary;
             margin: 0;
             letter-spacing: 0.01em;
@@ -144,7 +144,7 @@ dialog.modal,
                 border-radius: $shape-corner-full;
                 padding: 0;
                 font-size: 10px;
-                font-weight: var(--font-weight-bold);
+                font-weight: $font-weight-bold;
                 width: 18px;
                 height: 18px;
                 display: flex;
@@ -160,7 +160,7 @@ dialog.modal,
         padding: $spacing-lg $spacing-xl $spacing-xl;
         color: $text-primary;
         line-height: 1.5;
-        font-size: 1rem;
+        font-size: $font-size-lg;
         flex: 1;
         overflow-y: auto;
         min-height: 0;

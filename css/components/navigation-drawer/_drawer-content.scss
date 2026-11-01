@@ -36,7 +36,7 @@ dialog.navigation-drawer,
         }
 
         &.secondary-tab {
-            font-size: 13.5px;
+            font-size: $font-size-base;
             padding: $spacing-sm $spacing-lg;
             color: $text-secondary;
             opacity: 0.8;

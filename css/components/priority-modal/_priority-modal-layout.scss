@@ -7,7 +7,7 @@
         width: 95%;
         max-width: $modal-width-workspace;
         height: min(88dvh, 880px);
-        max-height: calc(100dvh - 48px);
+        max-height: $modal-max-height;
         border-radius: $modal-radius-workspace;
     }
 

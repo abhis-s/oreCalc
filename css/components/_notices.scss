@@ -7,7 +7,7 @@
     gap: 6px;
     padding: 10px 15px;
     border-radius: $shape-corner-small;
-    font-size: var(--font-size-sm);
+    font-size: $font-size-sm;
     line-height: 1.4;
     box-sizing: border-box;
 
@@ -51,10 +51,10 @@
         border: 1px solid currentColor;
         color: inherit;
         padding: 5px $spacing-md;
-        border-radius: 6px;
+        border-radius: $shape-corner-compact;
         cursor: pointer;
-        font-size: var(--font-size-xs);
-        font-weight: 600;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
         white-space: nowrap;
         transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
         flex-shrink: 0;
@@ -179,7 +179,7 @@
     align-items: center;
     justify-content: space-between;
     gap: $spacing-md;
-    font-size: var(--font-size-sm);
+    font-size: $font-size-sm;
 
     .compatibility-notice-content {
         display: flex;

@@ -61,19 +61,19 @@
 
         .popover-title {
             font-size: 0.74rem;
-            font-weight: 800;
+            font-weight: $font-weight-extrabold;
             color: $text-primary;
             line-height: 1.2;
 
             .accent-text {
                 color: $accent-primary;
-                font-weight: 800;
+                font-weight: $font-weight-extrabold;
             }
         }
 
         .popover-badge {
             font-size: 0.54rem;
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             color: $accent-primary;
             text-transform: uppercase;
             letter-spacing: 0.4px;
@@ -122,7 +122,7 @@
 
             .popover-range-label {
                 font-size: 0.72rem;
-                font-weight: 800;
+                font-weight: $font-weight-extrabold;
                 color: $text-primary;
                 margin: 0;
             }
@@ -142,7 +142,7 @@
                     background: color-mix(in srgb, $bg-surface-primary 70%, transparent);
                     border: 1px solid color-mix(in srgb, $border-primary 60%, transparent);
                     padding: $spacing-2xs 7px;
-                    border-radius: 6px;
+                    border-radius: $shape-corner-compact;
                     font-size: 0.72rem;
 
                     .ore-mini-icon {
@@ -155,7 +155,7 @@
 
                     strong {
                         color: $text-primary;
-                        font-weight: 700;
+                        font-weight: $font-weight-bold;
                         letter-spacing: 0.2px;
                     }
                 }
@@ -164,7 +164,7 @@
         .popover-unowned-alert {
             background: color-mix(in srgb, $color-danger 12%, transparent);
             border: 1px solid color-mix(in srgb, $color-danger 30%, transparent);
-            border-radius: 6px;
+            border-radius: $shape-corner-compact;
             padding: 6px $spacing-sm;
             margin-bottom: $spacing-sm;
 
@@ -173,7 +173,7 @@
                 align-items: center;
                 gap: 5px;
                 font-size: 0.72rem;
-                font-weight: 800;
+                font-weight: $font-weight-extrabold;
                 color: $color-danger;
                 margin-bottom: $spacing-2xs;
 
@@ -197,7 +197,7 @@
 
             .popover-pool-header {
                 font-size: 0.72rem;
-                font-weight: 800;
+                font-weight: $font-weight-extrabold;
                 color: $text-primary;
                 margin-bottom: 6px;
             }
@@ -213,7 +213,7 @@
                 align-items: center;
                 gap: 7px;
                 padding: $spacing-xs 7px;
-                border-radius: 6px;
+                border-radius: $shape-corner-compact;
                 background: $bg-surface-secondary;
                 border: 1px solid $border-primary;
                 transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
@@ -247,7 +247,7 @@
 
                 .pool-item-name {
                     font-size: 0.68rem;
-                    font-weight: 600;
+                    font-weight: $font-weight-semibold;
                     color: $text-primary;
                     white-space: nowrap;
                     overflow: hidden;
@@ -257,7 +257,7 @@
 
                 .pool-status-badge {
                     font-size: 0.56rem;
-                    font-weight: 700;
+                    font-weight: $font-weight-bold;
                     padding: $spacing-2xs 5px;
                     border-radius: $shape-corner-xs;
                     white-space: nowrap;
@@ -282,7 +282,7 @@
                         color: $text-on-accent;
                         background: $accent-primary;
                         border: 1px solid $accent-primary;
-                        font-weight: 800;
+                        font-weight: $font-weight-extrabold;
                     }
 
                     &.badge--queued {
@@ -301,14 +301,14 @@
                         color: $text-inverse;
                         background: $color-danger;
                         border: 1px solid $color-danger;
-                        font-weight: 800;
+                        font-weight: $font-weight-extrabold;
                     }
 
                     &.badge--now-awarded {
                         color: $text-inverse;
                         background: $color-info;
                         border: 1px solid $color-info;
-                        font-weight: 800;
+                        font-weight: $font-weight-extrabold;
                     }
                 }
             }
@@ -393,7 +393,7 @@
     .popover-title {
         font-size: 10px;
         color: $text-muted;
-        font-weight: var(--font-weight-bold);
+        font-weight: $font-weight-bold;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         text-align: center;
@@ -418,18 +418,18 @@
         justify-content: space-between;
         align-items: center;
         gap: $spacing-md;
-        font-size: var(--font-size-xs);
+        font-size: $font-size-xs;
         width: 100%;
         box-sizing: border-box;
 
         span {
             color: $text-secondary;
-            font-weight: 500;
+            font-weight: $font-weight-medium;
         }
 
         strong {
             color: $accent-primary;
-            font-weight: var(--font-weight-bold);
+            font-weight: $font-weight-bold;
         }
 
         &.clickable {
@@ -482,7 +482,7 @@
 
             span {
                 color: $color-danger;
-                font-weight: var(--font-weight-bold);
+                font-weight: $font-weight-bold;
             }
 
             &:hover {
@@ -497,7 +497,7 @@
 
             span {
                 color: $color-success;
-                font-weight: var(--font-weight-bold);
+                font-weight: $font-weight-bold;
             }
 
             &:hover {
@@ -517,7 +517,7 @@
             border-radius: $shape-corner-xs;
             font-family: 'Roboto Mono', monospace;
             font-size: 8px;
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             padding: 0 $spacing-xs;
             margin-left: 6px;
             height: 14px;

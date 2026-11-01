@@ -55,7 +55,7 @@
         label {
             display: block;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: $font-weight-medium;
             color: $text-secondary;
             margin-bottom: $spacing-sm;
         }
@@ -82,7 +82,7 @@
     .error-message {
         color: $color-danger;
         font-size: 12px;
-        font-weight: 500;
+        font-weight: $font-weight-medium;
         margin-top: $spacing-sm;
         text-align: left;
         display: none;

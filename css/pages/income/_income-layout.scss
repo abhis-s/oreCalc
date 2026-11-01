@@ -35,7 +35,7 @@
     }
 }
 
-@container (max-width: 445px) {
+@container (max-width: #{$container-card-compact}) {
     .income-card {
         --font-size-em-lg: 1.1em;
         --font-size-em-md: 0.9em;
@@ -201,7 +201,7 @@
             }
 
             .grid-label {
-                font-weight: normal;
+                font-weight: $font-weight-regular;
                 text-align: left;
             }
 

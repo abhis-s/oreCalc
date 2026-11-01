@@ -113,7 +113,7 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
                 &--dd { z-index: 6; }
 
                 &:hover {
-                    z-index: 10;
+                    z-index: $z-index-overlay;
                 }
             }
         }

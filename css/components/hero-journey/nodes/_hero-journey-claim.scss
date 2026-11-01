@@ -21,14 +21,14 @@
 
     .accent-text {
         color: $accent-primary;
-        font-weight: 800;
+        font-weight: $font-weight-extrabold;
     }
 }
 
 .node-sub {
     font-size: clamp(0.62rem, 0.3vw + 0.58rem, 0.68rem);
     color: $text-secondary;
-    font-weight: 500;
+    font-weight: $font-weight-medium;
     margin-bottom: $spacing-sm;
     line-height: 1.25;
     text-align: center;

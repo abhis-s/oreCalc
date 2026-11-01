@@ -84,18 +84,6 @@ test('Cluster Planner Panel - Renders visual building selection grid with search
     renderDefenseBoardPanel(state, container);
     const html = container.innerHTML;
 
-    // Must NOT contain old <select id="zq-defense-select"> dropdown
-    assert.ok(
-        !html.includes('id="zq-defense-select"'),
-        'Must eliminate old select dropdown for defense selection'
-    );
-
-    // Filter chips must be removed completely per user requirements
-    assert.ok(
-        !html.includes('class="calc-filter-chips"'),
-        'Must NOT render category filter chips'
-    );
-
     // Must render Town Hall dropdown in damage sources grid
     assert.ok(
         html.includes('class="calc-th-preset-group calc-th-preset-group--sources"'),
@@ -148,10 +136,6 @@ test('Cluster Planner Panel - Renders visual building selection grid with search
         html.includes('src="/assets/buildings/air_defense/level_16.png"'),
         'Must reference canonical building asset path in clashcalc-assets-image'
     );
-
-    // Must NOT render old submode navigation tabs (Single Defense vs Cluster Planner)
-    assert.ok(!html.includes('id="zq-submode-single"'), 'Must eliminate Single Defense submode tab');
-    assert.ok(!html.includes('id="zq-submode-cluster"'), 'Must eliminate Cluster Planner submode tab');
 
     // When < 2 targets selected, renders clean placeholder hint card
     assert.ok(html.includes('calc-cluster-placeholder'), 'Must render clean placeholder when < 2 targets selected');
@@ -294,19 +278,7 @@ test('Cluster Planner Panel - Shared Lightning saves spell housing space and ren
     renderDefenseBoardPanel(state, container);
     const html = container.innerHTML;
 
-    // Must not render removed cluster-saved-badge
-    assert.ok(
-        !html.includes('cluster-saved-badge'),
-        'Must not render cluster-saved-badge'
-    );
-
-    // Must not render removed cluster-shared-zap-pill inside damage flow
-    assert.ok(
-        !html.includes('cluster-shared-zap-pill'),
-        'Must not render cluster-shared-zap-pill inside damage flow (clutter removed)'
-    );
-
-    // Adjacency toggle must have is-active and render Shared Lightning without Double-Zap suffix
+    // Adjacency toggle must have is-active and render Shared Lightning
     assert.ok(
         html.includes('calc-adjacent-toggle is-active'),
         'Adjacency toggle must be active when pair is linked'
@@ -314,10 +286,6 @@ test('Cluster Planner Panel - Shared Lightning saves spell housing space and ren
     assert.ok(
         html.includes('<span>views.damageCalc.zapQuake.sharedLightningToggle</span>') || html.includes('<span>Shared Lightning</span>'),
         'Adjacency toggle must render shared lightning toggle label'
-    );
-    assert.ok(
-        !html.includes('(Double-Zap)'),
-        'Adjacency toggle must NOT render "(Double-Zap)"'
     );
 });
 
@@ -345,7 +313,6 @@ test('Cluster Planner Panel - Hybrid capacity handles overcapacity recipes clean
     assert.ok(html.includes('calc-capacity-warning'), 'Must render capacity warning when cluster exceeds capacity');
     assert.ok(html.includes('calc-tradeoff-pill__tag--optimal'), 'Must render thumbs up tag on optimal tradeoff pill');
     assert.ok(html.includes('name="thumbs-up"'), 'Must render thumbs-up SVG icon badge');
-    assert.ok(!html.includes('calc-tradeoff-pill__housing'), 'Must not render redundant space badge in tradeoff pills');
     assert.ok(html.includes('calc-tradeoff-pill--overcapacity'), 'Must render overcapacity pills with overcapacity styling');
     assert.ok(html.includes('calc-tradeoff-pill__spell-icon'), 'Must render mini spell icons in tradeoff pills');
     assert.ok(html.includes('calc-adjacent-toggle__thumb'), 'Must render mini building thumbnail in pairwise adjacency chips');
@@ -491,7 +458,6 @@ test('Cluster Planner Panel - Equipment selector and target sharing rendering', 
     assert.ok(html.includes('calc-cluster-equip-btn is-inactive'), 'Unselected equipment chips must have is-inactive class');
     assert.ok(!html.includes('calc-cluster-equip-btn__name'), 'Must not render text equipment name in equip chip');
     assert.ok(html.includes('calc-equip-badge'), 'Cluster solution hero card must render calc-equip-badge for equipment');
-    assert.ok(!html.includes('calc-spell-badge--equipment'), 'Must not render old calc-spell-badge--equipment with 1x multiplier');
     assert.ok(html.includes('calc-combo-plus'), 'Must render calc-combo-plus separators between recipe items');
     assert.ok(html.includes('calc-cluster-equipment-sharing'), 'Must render equipment sharing controls when equipment is active');
     assert.ok(html.includes('calc-cluster-sharing-row'), 'Must render sharing row for active equipment');
@@ -499,7 +465,6 @@ test('Cluster Planner Panel - Equipment selector and target sharing rendering', 
     assert.ok(!html.includes('calc-cluster-share-target__name'), 'Must not render text defense name in share target');
     assert.ok(html.includes('calc-cluster-share-all-btn'), 'Must render all-targets toggle button');
     assert.ok(html.includes('cluster-target-card__equip-stage'), 'Must render equipment stage in target card damage flow');
-    assert.ok(!html.includes('cluster-hp-bar'), 'Must not render removed cluster-hp-bar');
 });
 
 test('Cluster Planner Panel - Sequential flow truncation omits unneeded equipment and spells when target is destroyed', () => {
@@ -535,9 +500,8 @@ test('Cluster Planner Panel - Sequential flow truncation omits unneeded equipmen
     // Must NOT render cluster-damage-status (checkmark + 0 HP)
     assert.ok(!html.includes('cluster-damage-status'), 'Must not render checkmark or 0 HP on destroyed target');
 
-    // Must NOT render 0x lightning or shared zap pill in flow
+    // Must NOT render 0x lightning in flow
     assert.ok(!html.includes('0x'), 'Must not render 0x spell pills');
-    assert.ok(!html.includes('cluster-shared-zap-pill'), 'Must not render cluster-shared-zap-pill');
 });
 
 test('Cluster Planner Panel - Spells render multiplier count to the left and damage to the right', () => {

@@ -294,14 +294,3 @@ export function initAppSettings() {
         }
     }
 }
-
-/**
- * Injects custom HTML into the app settings popover.
- * @param {string} htmlString Raw HTML string to inject.
- */
-export function injectSettingsContent(htmlString) {
-    const container = document.getElementById('app-settings-injections');
-    if (container) {
-        container.insertAdjacentHTML('beforeend', htmlString);
-    }
-}

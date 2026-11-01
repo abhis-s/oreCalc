@@ -19,16 +19,16 @@
         flex-direction: column;
 
         .prop-label {
-            font-size: 0.75rem;
+            font-size: $font-size-xs;
             color: $text-secondary;
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
         }
 
         .prop-value {
             font-size: 0.95rem;
             color: $text-primary;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             margin-top: $spacing-2xs;
         }
     }
@@ -52,7 +52,7 @@
     flex: 1 1 0px;
     min-width: 0;
     padding: $spacing-lg;
-    border-radius: 14px;
+    border-radius: $shape-corner-medium;
     background: color-mix(in srgb, $bg-surface-secondary 60%, transparent);
     border: 1px solid color-mix(in srgb, $border-primary 40%, transparent);
 
@@ -96,9 +96,9 @@
         border: 1px solid color-mix(in srgb, $accent-primary 35%, transparent);
         color: $accent-primary;
         padding: 5px $spacing-md;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
+        border-radius: $shape-corner-xl;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
         cursor: pointer;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
         transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
@@ -152,15 +152,15 @@
 
                 .unit-title {
                     font-size: 0.9rem;
-                    font-weight: 700;
+                    font-weight: $font-weight-bold;
                     color: $text-primary;
                 }
 
                 .unit-level-badge {
-                    font-size: 0.75rem;
-                    font-weight: 600;
+                    font-size: $font-size-xs;
+                    font-weight: $font-weight-semibold;
                     padding: 3px $spacing-sm;
-                    border-radius: 6px;
+                    border-radius: $shape-corner-compact;
                     background: color-mix(in srgb, $accent-primary 15%, transparent);
                     color: $accent-primary;
                     border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
@@ -169,7 +169,7 @@
                         background: color-mix(in srgb, $color-warning 15%, transparent) !important;
                         color: $color-warning !important;
                         border-color: color-mix(in srgb, $color-warning 40%, transparent) !important;
-                        font-weight: 700 !important;
+                        font-weight: $font-weight-bold !important;
                     }
                 }
             }
@@ -228,7 +228,7 @@
             }
 
             .stat-val {
-                font-weight: 700;
+                font-weight: $font-weight-bold;
                 flex-shrink: 0;
                 white-space: nowrap;
                 font-variant-numeric: tabular-nums;
@@ -243,16 +243,16 @@
 
                     .stat-val-base {
                         color: $text-secondary;
-                        font-weight: 600;
+                        font-weight: $font-weight-semibold;
                     }
 
                     .stat-val-arrow {
                         color: $text-muted;
-                        font-size: 0.75rem;
+                        font-size: $font-size-xs;
                     }
 
                     .stat-val-hover {
-                        font-weight: 700;
+                        font-weight: $font-weight-bold;
 
                         &.val-increase {
                             color: $color-success;
@@ -272,7 +272,7 @@
             background: $bg-surface-tertiary;
             border: 1px solid color-mix(in srgb, $border-primary 70%, transparent);
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
-            border-radius: 6px;
+            border-radius: $shape-corner-compact;
             overflow: hidden;
             position: relative;
             box-sizing: border-box;
@@ -284,7 +284,7 @@
                 top: 0;
                 left: 0;
                 height: 100%;
-                border-radius: 6px;
+                border-radius: $shape-corner-compact;
                 transition: width 450ms $ease-spring;
             }
 
@@ -299,12 +299,12 @@
 
             .progress-bar-increase {
                 background: linear-gradient(90deg, $color-success, color-mix(in srgb, $color-success 80%, white));
-                z-index: 2;
+                z-index: $z-index-interactive;
             }
 
             .progress-bar-decrease {
                 background: linear-gradient(90deg, $color-danger, color-mix(in srgb, $color-danger 80%, white));
-                z-index: 1;
+                z-index: $z-index-base;
             }
         }
     }

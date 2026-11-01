@@ -8,7 +8,7 @@
     align-items: stretch;
     background-color: $bg-surface-tertiary;
     border: 1px solid $border-primary;
-    border-radius: $segmented-radius-track;
+    border-radius: $shape-corner-small;
     padding: $spacing-2xs;
     box-sizing: border-box;
 
@@ -20,7 +20,7 @@
         left: $spacing-2xs;
         width: calc((100% - (#{$spacing-2xs} * 2)) / 2);
         background-color: $bg-surface-primary;
-        border-radius: $segmented-radius-btn;
+        border-radius: $shape-corner-compact;
         box-shadow: $elevation-1;
         transition: transform $duration-base $ease-spring;
         pointer-events: none;
@@ -56,7 +56,7 @@
         color: $text-secondary;
         font-size: $font-size-xs;
         font-weight: $font-weight-semibold;
-        border-radius: $segmented-radius-btn;
+        border-radius: $shape-corner-compact;
         cursor: pointer;
         white-space: nowrap;
         transition: color $transition-fast;

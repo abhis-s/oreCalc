@@ -8,12 +8,9 @@ $accent-primary-active: var(--accent-primary-active);
 $accent-primary-soft: var(--accent-primary-soft);
 
 $accent-secondary: var(--accent-secondary);
-$accent-secondary-hover: var(--accent-secondary-hover);
 $accent-secondary-soft: var(--accent-secondary-soft);
 
 $accent-tertiary: var(--accent-tertiary);
-$accent-tertiary-hover: var(--accent-tertiary-hover);
-$accent-tertiary-soft: var(--accent-tertiary-soft);
 
 $color-success: var(--color-success);
 $color-success-soft: var(--color-success-soft);
@@ -34,7 +31,6 @@ $bg-overlay: var(--bg-overlay);
 $text-primary: var(--text-primary);
 $text-secondary: var(--text-secondary);
 $text-muted: var(--text-muted);
-$text-disabled: var(--text-disabled);
 $text-on-accent: var(--text-on-accent);
 $text-inverse: var(--text-inverse);
 
@@ -43,7 +39,6 @@ $border-secondary: var(--border-secondary);
 $border-accent: var(--border-accent);
 $border-danger: var(--border-danger);
 $border-inverse: var(--border-inverse);
-$border-on-accent: var(--border-on-accent);
 $border-card: color-mix(in srgb, $border-primary 70%, transparent);
 $border-card-hover: color-mix(in srgb, $accent-primary 35%, $border-primary);
 $outline-focus: var(--outline-focus);
@@ -55,26 +50,23 @@ $spacing-md: 12px;
 $spacing-lg: 16px;
 $spacing-xl: 24px;
 $spacing-2xl: 32px;
-$spacing-3xl: 40px;
 
 $shape-corner-2xs: 2px;
 $shape-corner-xs: 4px;
+$shape-corner-compact: 6px;
 $shape-corner-small: 8px;
 $shape-corner-medium: 12px;
 $shape-corner-large: 16px;
+$shape-corner-xl: 20px;
 $shape-corner-extra-large: 28px;
 $shape-corner-full: 9999px;
 $card-radius: 10px;
 $card-radius-inner: $shape-corner-small;
-$segmented-radius-track: $shape-corner-small;
-$segmented-radius-btn: 6px;
 
 $btn-min-width: 100px;
-$btn-min-width-compact: 80px;
 $btn-min-height: 40px;
 $btn-min-height-compact: 32px;
-$btn-radius: 20px;
-$btn-radius-compact: 17px;
+$btn-radius: $shape-corner-xl;
 
 $modal-width-compact: 420px;
 $modal-width-standard: 480px;
@@ -86,9 +78,9 @@ $modal-height-viewport-offset: 48px;
 $modal-max-height-fallback: calc(100vh - #{$modal-height-viewport-offset});
 $modal-max-height: calc(100dvh - #{$modal-height-viewport-offset});
 
-$modal-radius-standard: 28px;
+$modal-radius-standard: $shape-corner-extra-large;
 $modal-radius-card: 18px;
-$modal-radius-workspace: 20px;
+$modal-radius-workspace: $shape-corner-xl;
 
 $header-height-desktop: 64px;
 $header-height-mobile: 56px;
@@ -98,16 +90,14 @@ $header-top-desktop: 15px;
 $header-top-mobile: 10px;
 $header-inset-desktop: 15px;
 $header-inset-mobile: 10px;
-$header-radius-desktop: $modal-radius-workspace;
+$header-radius-desktop: $shape-corner-xl;
 $header-radius-mobile: 14px;
 $header-action-size: 36px;
-$header-icon-size: 18px;
 
 $elevation-1: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px rgba(0, 0, 0, 0.15);
 $elevation-2: 0px 2px 4px rgba(0, 0, 0, 0.3), 0px 2px 6px rgba(0, 0, 0, 0.15);
 $elevation-3: 0px 4px 8px rgba(0, 0, 0, 0.3), 0px 4px 12px rgba(0, 0, 0, 0.15);
 $elevation-4: 0px 6px 12px rgba(0, 0, 0, 0.3), 0px 6px 18px rgba(0, 0, 0, 0.15);
-$elevation-5: 0px 8px 16px rgba(0, 0, 0, 0.3), 0px 8px 24px rgba(0, 0, 0, 0.15);
 $elevation-card-hover: 0 8px 24px -4px rgba(0, 0, 0, 0.22), 0 0 12px color-mix(in srgb, $accent-primary 8%, transparent);
 
 $font-family-sans: 'Roboto', sans-serif;
@@ -116,10 +106,12 @@ $font-size-3xs: var(--font-size-3xs, 0.5625rem);
 $font-size-2xs: var(--font-size-2xs, 0.6875rem);
 $font-size-xs: var(--font-size-xs, 0.75rem);
 $font-size-sm: var(--font-size-sm, 0.8125rem);
+$font-size-base: var(--font-size-base, 0.875rem);
 $font-size-md: var(--font-size-md, 0.9375rem);
 $font-size-lg: var(--font-size-lg, 1rem);
 $font-size-xl: var(--font-size-xl, 1.125rem);
 $font-size-2xl: var(--font-size-2xl, 1.25rem);
+$font-size-3xl: var(--font-size-3xl, 1.5rem);
 
 $font-weight-regular: 400;
 $font-weight-medium: 500;
@@ -128,7 +120,6 @@ $font-weight-bold: var(--font-weight-bold, 700);
 $font-weight-extrabold: 800;
 $font-weight-black: 900;
 
-$z-index-below: -1;
 $z-index-base: 1;
 $z-index-interactive: 2;
 $z-index-component: 5;
@@ -153,9 +144,7 @@ $z-index-load-failure: $z-index-high-priority-modal + 1;
 
 // --- 2. GAME DOMAIN TOKENS (Rarities, Ores, Heroes, Income Sources) ---
 $color-rarity-common: var(--color-rarity-common);
-$color-rarity-rare: var(--color-rarity-rare);
 $color-rarity-epic: var(--color-rarity-epic);
-$color-rarity-legendary: var(--color-rarity-legendary);
 
 $color-gold-glow: var(--color-gold-glow);
 $color-gold-glow-shadow: var(--color-gold-glow-shadow);
@@ -187,41 +176,15 @@ $color-income-shop-offer: var(--color-income-shop-offer);
 $color-income-prospector: var(--color-income-prospector);
 $color-income-supercell-events: var(--color-income-supercell-events);
 $color-income-custom: var(--color-income-custom);
-$color-on-income: var(--color-on-income);
 
 // --- 3. COMPONENT TOKENS (Buttons, Switches, Sliders, Accents) ---
 $btn-border-blue: color-mix(in srgb, $palette-blue-500 30%, transparent);
 $btn-border-blue-hover: color-mix(in srgb, $palette-blue-500 50%, transparent);
 $btn-hover-blue-bg: color-mix(in srgb, $palette-blue-500 20%, transparent);
 
-$btn-border-red: color-mix(in srgb, $palette-red-500 30%, transparent);
-$btn-border-red-hover: color-mix(in srgb, $palette-red-500 50%, transparent);
-$btn-bg-red-soft: color-mix(in srgb, $palette-red-500 10%, transparent);
-$btn-bg-red-soft-hover: color-mix(in srgb, $palette-red-500 20%, transparent);
-$btn-color-red: $palette-red-600;
-
-$btn-border-emerald: color-mix(in srgb, $palette-emerald-500 30%, transparent);
-$btn-border-emerald-hover: color-mix(in srgb, $palette-emerald-500 50%, transparent);
-$btn-bg-emerald-soft: color-mix(in srgb, $palette-emerald-500 15%, transparent);
-$btn-bg-emerald-soft-hover: color-mix(in srgb, $palette-emerald-500 25%, transparent);
-$btn-color-emerald: $palette-emerald-600;
-
 $btn-bg-grey-soft-hover: color-mix(in srgb, $palette-grey-500 20%, transparent);
-$btn-border-grey-hover: $palette-grey-600;
 
 $material-track-inactive: var(--material-track-inactive);
-$material-track-border-inactive: var(--material-track-border-inactive);
-$material-thumb-inactive: var(--material-thumb-inactive);
-$material-track-active: var(--material-track-active);
-$material-track-border-active: var(--material-track-border-active);
-$material-thumb-active: var(--material-thumb-active);
-
-$theme-switch-track-dark: $palette-indigo-700;
-$theme-switch-thumb-dark: $palette-indigo-900;
-$theme-switch-icon-dark: $palette-indigo-200;
-$theme-switch-track-light: $palette-amber-400;
-$theme-switch-thumb-light: $palette-amber-100;
-$theme-switch-icon-light: $palette-amber-600;
 
 $color-white-const: $palette-white;
 $color-black-const: $palette-black;
@@ -259,67 +222,12 @@ $duration-base: 250ms;
 $duration-moderate: 300ms;
 $duration-slow: 400ms;
 $duration-theme-switch: 1000ms;
-$duration-color-morph: 2000ms;
 $transition-fast: $duration-fast $ease-standard;
 $transition-smooth: $duration-base $ease-smooth;
 $transition-card: border-color $duration-moderate $ease-smooth,
                   box-shadow $duration-moderate $ease-smooth,
                   background-color $duration-moderate $ease-smooth,
                   transform $duration-base $ease-standard;
-@mixin transition($properties...) {
-    @if length($properties) == 0 {
-        transition: all $duration-base $ease-standard;
-    } @else {
-        transition: $properties;
-    }
-}
-
-@mixin motion-enter($properties: transform, $duration: $duration-base, $ease: $ease-enter) {
-    transition: $properties $duration $ease;
-}
-
-@mixin motion-exit($properties: transform, $duration: $duration-exit, $ease: $ease-exit) {
-    transition: $properties $duration $ease;
-}
-
-@mixin motion-fade($duration: $duration-base, $ease: $ease-smooth) {
-    transition: opacity $duration $ease;
-}
-
-@mixin motion-spring($properties: transform, $duration: $duration-moderate) {
-    transition: $properties $duration $ease-spring;
-}
-
-@mixin motion-interactive($duration: $duration-fast, $ease: $ease-smooth) {
-    transition: background-color $duration $ease, border-color $duration $ease, color $duration $ease, transform $duration $ease, box-shadow $duration $ease;
-}
-
-@mixin btn-accent-style {
-    background-color: $accent-primary-soft;
-    color: $accent-primary;
-    border: 1px solid $btn-border-blue;
-
-    &:hover:not(:disabled) {
-        background-color: $btn-hover-blue-bg;
-        border-color: $btn-border-blue-hover;
-    }
-}
-
-@mixin brand-gradient-split {
-    .brand-clash {
-        background: $brand-gradient-primary;
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .brand-calc {
-        background: $brand-gradient-secondary;
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-}
 
 // --- 5. RESPONSIVE BREAKPOINT TOKENS ---
 $breakpoint-micro: 360px;
@@ -329,10 +237,10 @@ $breakpoint-modal: 625px;
 $breakpoint-desktop: 780px;
 $breakpoint-wide: 1200px;
 
-$container-header-compact: 420px;
+$container-card-compact: 445px;
 $container-header-collapse: 720px;
 $container-header-wide: 980px;
 
 $container-toolbar-compact: 560px;
 $container-toolbar-collapse: 820px;
-$container-card-toolbar-collapse: 510px;
+$container-card-toolbar-collapse: 520px;

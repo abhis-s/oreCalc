@@ -45,7 +45,7 @@
         gap: $spacing-sm;
     }
 
-    @media (min-width: 900px) {
+    @media (min-width: $breakpoint-desktop) {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         align-items: start;
     }

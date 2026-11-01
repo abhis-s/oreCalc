@@ -81,7 +81,7 @@
     }
 
     .hero-name-text {
-        font-weight: var(--font-weight-bold);
+        font-weight: $font-weight-bold;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -361,8 +361,8 @@
                 padding: 1px $spacing-xs;
                 font-size: 10px;
                 border-radius: $shape-corner-xs;
-                z-index: 1;
-                font-weight: var(--font-weight-bold);
+                z-index: $z-index-base;
+                font-weight: $font-weight-bold;
             }
         }
 
@@ -383,7 +383,7 @@
 
             &.error {
                 color: $color-danger;
-                font-weight: var(--font-weight-bold);
+                font-weight: $font-weight-bold;
             }
         }
     }
@@ -400,7 +400,7 @@
 .priority-error-truncated-msg {
     color: $color-danger;
     font-size: 0.85rem;
-    font-weight: 500;
+    font-weight: $font-weight-medium;
     text-align: center;
     display: flex;
     align-items: center;

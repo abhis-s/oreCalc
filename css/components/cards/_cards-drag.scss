@@ -7,7 +7,7 @@
     cursor: grab;
     opacity: 0.4;
     transition: opacity $duration-fast $ease-smooth, transform $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
-    z-index: 10;
+    z-index: $z-index-overlay;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -19,7 +19,7 @@
     -webkit-user-select: none;
     -webkit-touch-callout: none;
 
-    @container (max-width: 445px) {
+    @container (max-width: #{$container-card-compact}) {
         top: 20px;
         left: 20px;
     }
@@ -57,7 +57,7 @@
     left: auto;
     right: 30px;
 
-    @container (max-width: 445px) {
+    @container (max-width: #{$container-card-compact}) {
         right: 20px;
     }
 }
@@ -85,13 +85,13 @@
     left: -1000px;
     background-color: $bg-surface-secondary;
     border: 1px solid $accent-primary;
-    border-radius: 20px;
+    border-radius: $shape-corner-xl;
     padding: $spacing-sm $spacing-lg;
     display: flex;
     align-items: center;
     gap: 10px;
     box-shadow: var(--card-shadow);
-    z-index: 9999;
+    z-index: $z-index-load-failure;
     pointer-events: none;
 
     .drag-preview-handle {
@@ -109,7 +109,7 @@
 
     .drag-preview-title {
         color: $text-primary;
-        font-weight: var(--font-weight-bold);
+        font-weight: $font-weight-bold;
         font-size: 14px;
         white-space: nowrap;
     }

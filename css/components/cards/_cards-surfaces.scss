@@ -59,7 +59,7 @@
         box-shadow: $elevation-card-hover;
     }
 
-    @container (max-width: 445px) {
+    @container (max-width: #{$container-card-compact}) {
         padding: 20px;
     }
 
@@ -115,7 +115,7 @@
 
         span {
             color: $text-primary;
-            font-weight: var(--font-weight-bold);
+            font-weight: $font-weight-bold;
         }
     }
 
@@ -123,7 +123,7 @@
     .ore-time,
     .ore-date {
         display: block;
-        font-size: var(--font-size-lg);
+        font-size: $font-size-lg;
         padding-top: 5px;
         text-align: center;
         width: 100%;
@@ -133,7 +133,7 @@
     .ore-date {
         color: $text-secondary;
         margin-top: 5px;
-        font-size: var(--font-size-sm);
+        font-size: $font-size-sm;
     }
 
     .ore-input-wrapper {
@@ -150,9 +150,9 @@
         color: var(--color-success);
         border: 1px solid color-mix(in srgb, var(--color-success) 35%, transparent);
         font-size: 0.65rem;
-        font-weight: 700;
+        font-weight: $font-weight-bold;
         padding: $spacing-2xs 6px;
-        border-radius: 6px;
+        border-radius: $shape-corner-compact;
         letter-spacing: 0.3px;
         white-space: nowrap;
         display: inline-flex;
@@ -171,9 +171,9 @@
     .ore-value[type="number"] {
         background-color: $bg-app;
         border: 1px solid $border-primary;
-        border-radius: 5px;
+        border-radius: $shape-corner-compact;
         color: $text-primary;
-        font-size: var(--font-size-sm);
+        font-size: $font-size-sm;
         padding: 5px;
         position: relative;
         text-align: center;

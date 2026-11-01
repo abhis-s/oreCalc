@@ -101,7 +101,7 @@
     }
 
     .prospector-rec-badge {
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         font-size: 0.95em;
         color: $accent-primary;
         display: flex;
@@ -118,17 +118,17 @@
             font-size: 0.88em;
             color: inherit;
             opacity: 0.9;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
         }
     }
 
     .prospector-rec-time {
         font-size: 0.88em;
         color: $text-secondary;
-        font-weight: 500;
+        font-weight: $font-weight-medium;
 
         span {
-            font-weight: bold;
+            font-weight: $font-weight-bold;
             color: $text-primary;
         }
     }
@@ -151,7 +151,7 @@
         flex-wrap: wrap;
 
         .day-count {
-            font-weight: bold;
+            font-weight: $font-weight-bold;
             color: $text-primary;
             background: color-mix(in srgb, $accent-primary-soft 60%, transparent);
             padding: 1.5px 5px;
@@ -167,7 +167,7 @@
             gap: $spacing-xs;
 
             span {
-                font-weight: 600;
+                font-weight: $font-weight-semibold;
                 color: $text-primary;
                 display: inline-flex;
                 align-items: center;
@@ -209,7 +209,7 @@
             all: unset;
             display: inline;
             color: var(--color-primary, $accent-tertiary);
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             cursor: pointer;
             text-decoration: underline;
             text-decoration-style: dotted;
@@ -250,11 +250,11 @@
     border-radius: $shape-corner-small;
     border: 1px dashed color-mix(in srgb, $accent-primary 50%, transparent);
     padding: $spacing-sm $spacing-md;
-    z-index: 1;
+    z-index: $z-index-base;
 
     span {
         font-size: 0.82rem;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         color: $accent-primary;
         text-align: center;
     }
@@ -287,7 +287,7 @@
     input[type="number"] {
         background-color: $bg-surface-primary;
         border: 1px solid $border-primary;
-        border-radius: 5px;
+        border-radius: $shape-corner-compact;
         color: $text-secondary;
         padding: $spacing-sm;
         text-align: center;
@@ -400,7 +400,7 @@
     }
 }
 
-@media (min-width: $breakpoint-desktop) and (max-width: 1199px), (min-width: #{$breakpoint-compact + 1px}) and (max-width: $breakpoint-modal) {
+@media (min-width: $breakpoint-desktop) and (max-width: #{$breakpoint-wide - 1px}), (min-width: #{$breakpoint-compact + 1px}) and (max-width: $breakpoint-modal) {
     .prospector-controls {
         @include prospector-responsive-layout;
     }

@@ -117,7 +117,7 @@
             background: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
             border: 1px solid color-mix(in srgb, $border-primary 50%, transparent);
             color: $text-secondary;
-            border-radius: 6px;
+            border-radius: $shape-corner-compact;
             padding: $spacing-xs 6px;
             display: inline-flex;
             align-items: center;
@@ -216,7 +216,7 @@
                 align-items: center;
                 gap: $spacing-xs;
                 font-size: 0.82rem;
-                font-weight: 600;
+                font-weight: $font-weight-semibold;
                 color: $text-primary;
                 white-space: nowrap;
 
@@ -263,7 +263,7 @@
             }
 
             .table-fallback-label {
-                font-size: 0.75rem;
+                font-size: $font-size-xs;
                 color: $text-secondary;
             }
 
@@ -283,7 +283,7 @@
             top: 0;
             z-index: 15;
             background-color: $bg-surface-secondary;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             color: $text-secondary;
             font-size: 0.8rem;
             text-transform: uppercase;
@@ -330,7 +330,7 @@
 
             &.th-header-row {
                 background-color: $bg-surface-secondary;
-                font-weight: 700;
+                font-weight: $font-weight-bold;
                 color: $accent-primary;
 
                 td {
@@ -406,32 +406,32 @@
         }
 
         .reward-name {
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             color: $text-primary;
 
             .accent-text {
                 color: $accent-primary;
-                font-weight: 800;
+                font-weight: $font-weight-extrabold;
             }
 
             .equipment-text-epic {
                 color: $color-rarity-epic;
-                font-weight: 700;
+                font-weight: $font-weight-bold;
             }
 
             .ore-text-shiny {
                 color: $shiny-ore;
-                font-weight: 700;
+                font-weight: $font-weight-bold;
             }
 
             .ore-text-glowy {
                 color: $glowy-ore;
-                font-weight: 700;
+                font-weight: $font-weight-bold;
             }
 
             .ore-text-starry {
                 color: $starry-ore;
-                font-weight: 700;
+                font-weight: $font-weight-bold;
             }
         }
     }

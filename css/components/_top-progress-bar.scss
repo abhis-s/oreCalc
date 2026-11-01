@@ -6,7 +6,7 @@
     left: 0;
     width: 100%;
     height: 3px;
-    z-index: 999999;
+    z-index: $z-index-load-failure;
     pointer-events: none;
     opacity: 0;
     visibility: hidden;

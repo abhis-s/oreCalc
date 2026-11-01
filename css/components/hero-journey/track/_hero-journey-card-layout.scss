@@ -172,7 +172,7 @@
 
     .hero-journey-collapsed-text {
         font-size: clamp(0.82rem, 0.4vw + 0.72rem, 0.9rem);
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         color: $text-secondary;
         line-height: 1.4;
         text-align: left;
@@ -214,8 +214,8 @@
     border: 1px solid color-mix(in srgb, $accent-primary 80%, white);
     padding: 7px 20px;
     font-size: clamp(0.74rem, 0.4vw + 0.65rem, 0.82rem);
-    font-weight: 800;
-    border-radius: 20px;
+    font-weight: $font-weight-extrabold;
+    border-radius: $shape-corner-xl;
     cursor: pointer;
     line-height: 1.2;
     transition: transform $duration-fast $ease-standard, background-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;

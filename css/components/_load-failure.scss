@@ -17,7 +17,7 @@
     .load-failure-card {
         background-color: $bg-surface-primary;
         border: 1px solid $border-primary;
-        border-radius: 20px;
+        border-radius: $shape-corner-xl;
         padding: 30px;
         max-width: 500px;
         width: 100%;
@@ -58,7 +58,7 @@
 
         h1 {
             font-size: 22px;
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             color: $text-primary;
             margin: 0;
         }
@@ -80,7 +80,7 @@
             border: none;
             color: $accent-primary;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             cursor: pointer;
             padding: $spacing-sm 0;
             display: flex;
@@ -107,7 +107,7 @@
             margin-top: 10px;
             background-color: $bg-surface-secondary;
             border: 1px solid $border-secondary;
-            border-radius: 10px;
+            border-radius: $card-radius;
             padding: $spacing-md;
             font-family: monospace;
             font-size: 12px;
@@ -140,7 +140,7 @@
         h2,
         h3 {
             font-size: 16px;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             color: $text-primary;
             margin: 0 0 $spacing-xs 0;
         }
@@ -154,7 +154,7 @@
 
         .input-label {
             font-size: 12px;
-            font-weight: 500;
+            font-weight: $font-weight-medium;
             color: $text-secondary;
         }
 
@@ -162,7 +162,7 @@
             width: 100%;
             padding: 10px 14px;
             border: 1px solid $border-primary;
-            border-radius: 10px;
+            border-radius: $card-radius;
             font-size: 14px;
             background-color: $bg-surface-secondary;
             color: $text-primary;
@@ -182,7 +182,7 @@
         .input-error-msg {
             color: $color-danger;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: $font-weight-medium;
         }
 
         .checkbox-group {
@@ -213,7 +213,7 @@
             padding: $spacing-md;
             border-radius: $shape-corner-medium;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: $font-weight-semibold;
             cursor: pointer;
             transition: background-color $duration-fast $ease-smooth, transform $duration-instant $ease-smooth;
             box-sizing: border-box;

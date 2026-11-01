@@ -60,11 +60,11 @@
 
 .node-level-pill {
     font-size: clamp(0.65rem, 0.3vw + 0.6rem, 0.72rem);
-    font-weight: 700;
+    font-weight: $font-weight-bold;
     background: $bg-surface-secondary;
     color: $text-primary;
     padding: $spacing-2xs $spacing-sm;
-    border-radius: 6px;
+    border-radius: $shape-corner-compact;
     margin-bottom: $spacing-sm;
     border: 1px solid $border-primary;
     flex-shrink: 0;
@@ -108,7 +108,7 @@
         justify-content: center;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
         overflow: hidden;
-        z-index: 2;
+        z-index: $z-index-interactive;
 
         .quest-badge-img {
             width: 85%;
@@ -125,12 +125,12 @@
         background: linear-gradient(135deg, $accent-primary 0%, color-mix(in srgb, $accent-primary 80%, black) 100%);
         color: $text-on-accent;
         font-size: 0.62rem;
-        font-weight: 800;
+        font-weight: $font-weight-extrabold;
         padding: $spacing-2xs;
         border-radius: $shape-corner-xs;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
         border: 1.5px solid $border-primary;
-        z-index: 2;
+        z-index: $z-index-interactive;
         line-height: 1.2;
         letter-spacing: 0.2px;
 
@@ -150,8 +150,8 @@
         right: -2px;
         background: $color-success;
         color: $text-inverse;
-        font-size: 0.75rem;
-        font-weight: 800;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-extrabold;
         width: 1.35rem;
         height: 1.35rem;
         border-radius: 50%;
@@ -195,7 +195,7 @@
 
         &:hover {
             transform: scale(1.2);
-            z-index: 2;
+            z-index: $z-index-interactive;
         }
 
         .node-companion-icon {
